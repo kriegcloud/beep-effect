@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `WorkspaceSnapshots.at(ref)` against a workspace root NESTED inside a larger
 // git repo — the case a scripted `Git` mock cannot discriminate, because it
 // needs real git's two path-base conventions to diverge.
@@ -19,70 +18,69 @@
 // the un-prefixed reader the snapshot reads the outer manifest instead — root
 // `outer-root` alone, catalog `^3.0.0` — so every assertion below fails.
 
-import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { WorkspaceSnapshots, Workspaces } from "@beep/repo-workspaces";
-import { NodeServices } from "@effect/platform-node";
+import { dirname, join } from "@beep/utils/Path";
+import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
+import { gitIn, makeNodeFixture } from "./utils/nodeFixture.ts";
 
 let root: string;
 let inner: string;
 
 /** Writes `content` at `path`, creating parent directories as needed. */
-const write = (path: string, content: string): void => {
-  mkdirSync(join(path, ".."), { recursive: true });
-  writeFileSync(path, content);
-};
-
-beforeAll(() => {
-  root = mkdtempSync(join(tmpdir(), "effected-nested-snapshot-"));
-  inner = join(root, "inner");
-
-  // ── OUTER workspace (the whole temp dir is the git repo) ─────────────────
-  write(
-    join(root, "pnpm-workspace.yaml"),
-    ["packages:", "  - packages/*", "catalog:", "  effect: ^3.0.0", ""].join("\n")
-  );
-  write(join(root, "package.json"), JSON.stringify({ name: "outer-root", version: "0.0.0", private: true }));
-  write(join(root, "packages", "outer-a", "package.json"), JSON.stringify({ name: "@outer/a", version: "9.9.9" }));
-
-  // ── INNER workspace (nested, its OWN pnpm-workspace.yaml and catalog) ─────
-  write(
-    join(inner, "pnpm-workspace.yaml"),
-    ["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", ""].join("\n")
-  );
-  write(join(inner, "package.json"), JSON.stringify({ name: "inner-root", version: "1.0.0", private: true }));
-  write(
-    join(inner, "packages", "inner-a", "package.json"),
-    JSON.stringify({ name: "@inner/a", version: "1.1.0", dependencies: { effect: "catalog:" } })
-  );
-  write(
-    join(inner, "packages", "inner-b", "package.json"),
-    JSON.stringify({ name: "@inner/b", version: "1.2.0", dependencies: { "@inner/a": "workspace:*" } })
-  );
-
-  const git = (...args: ReadonlyArray<string>): void => {
-    execFileSync("git", args, {
-      cwd: root,
-      env: { ...process.env, LC_ALL: "C", GIT_TERMINAL_PROMPT: "0" },
-    });
-  };
-  git("init", "-q");
-  git("config", "user.email", "test@example.com");
-  git("config", "user.name", "Test");
-  git("add", "-A");
-  git("commit", "-q", "-m", "fixture");
+const write = Effect.fnUntraced(function* (path: string, content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs.makeDirectory(dirname(path), { recursive: true });
+  yield* fs.writeFileString(path, content);
 });
 
-afterAll(() => {
-  if (root !== undefined) rmSync(root, { recursive: true, force: true });
-});
+const fixture = makeNodeFixture();
+
+beforeAll(() =>
+  fixture.runtime.runPromise(
+    Effect.gen(function* () {
+      root = yield* fixture.tempDirectory("effected-nested-snapshot-");
+      inner = join(root, "inner");
+
+      // ── OUTER workspace (the whole temp dir is the git repo) ─────────────────
+      yield* write(
+        join(root, "pnpm-workspace.yaml"),
+        ["packages:", "  - packages/*", "catalog:", "  effect: ^3.0.0", ""].join("\n")
+      );
+      yield* write(join(root, "package.json"), '{"name":"outer-root","version":"0.0.0","private":true}');
+      yield* write(join(root, "packages", "outer-a", "package.json"), '{"name":"@outer/a","version":"9.9.9"}');
+
+      // ── INNER workspace (nested, its OWN pnpm-workspace.yaml and catalog) ─────
+      yield* write(
+        join(inner, "pnpm-workspace.yaml"),
+        ["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", ""].join("\n")
+      );
+      yield* write(join(inner, "package.json"), '{"name":"inner-root","version":"1.0.0","private":true}');
+      yield* write(
+        join(inner, "packages", "inner-a", "package.json"),
+        '{"name":"@inner/a","version":"1.1.0","dependencies":{"effect":"catalog:"}}'
+      );
+      yield* write(
+        join(inner, "packages", "inner-b", "package.json"),
+        '{"name":"@inner/b","version":"1.2.0","dependencies":{"@inner/a":"workspace:*"}}'
+      );
+
+      const git = gitIn(root);
+      yield* git("init", "-q");
+      yield* git("config", "user.email", "test@example.com");
+      yield* git("config", "user.name", "Test");
+      yield* git("add", "-A");
+      yield* git("commit", "-q", "-m", "fixture");
+    })
+  )
+);
+
+afterAll(() => fixture.close());
 
 const Live = Layer.unwrap(
   Effect.sync(() => Workspaces.layerWithGit({ cwd: inner }).pipe(Layer.provideMerge(NodeServices.layer)))

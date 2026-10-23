@@ -10,7 +10,8 @@ import {
   WorkspaceStateSnapshot,
   Workspaces,
 } from "@beep/repo-workspaces";
-import { HookReplay, PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";

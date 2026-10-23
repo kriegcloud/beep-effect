@@ -43,12 +43,10 @@ export {
   ConfigDependencyHooks,
   type ConfigDependencyHooksShape,
   type HookInjection,
-  type HookReplay,
-  type HookReplayContext,
-  type HookReplaySource,
   NoPeerDependencyRules,
   type PeerDependencyRules,
 } from "./ConfigDependencyHooks.ts";
+export { HookReplay, HookReplayContext, HookReplaySource } from "./ConfigDependencyReplay.ts";
 export { ConfigDependencySpec, InvalidConfigDependencySpecError } from "./ConfigDependencySpec.ts";
 export { CyclicDependencyError, DependencyGraph } from "./DependencyGraph.ts";
 export {

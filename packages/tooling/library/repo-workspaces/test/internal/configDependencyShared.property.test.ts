@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { MemoryFileSystem } from "@beep/memfs";
 import {
   ManifestVersion,
   manifestVersion,
@@ -8,6 +9,9 @@ import {
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
@@ -46,35 +50,34 @@ it.effect.prop(
   runs
 );
 
-const fs = process.getBuiltinModule("node:fs/promises");
-const path = process.getBuiltinModule("node:path");
-it.effect.prop(
-  "manifest parsing is faithful to JSON serialization and its normalized manifest state",
-  [Arbitrary.schema(S.Json)],
-  ([document]) =>
-    Effect.gen(function* () {
-      const dir = yield* Effect.acquireRelease(
-        Effect.promise(() => fs.mkdtemp("/tmp/workspaces-v6-manifest-prop-")),
-        (dir) => Effect.promise(() => fs.rm(dir, { recursive: true, force: true }))
-      );
-      const json = S.fromJsonString(S.Json);
-      const text = yield* S.encodeEffect(json)(document);
-      yield* Effect.promise(() => fs.writeFile(path.join(dir, "package.json"), text));
-      const first = yield* manifestVersion("config", dir);
-      const expected =
-        P.isObject(document) && P.isString(document.version) && document.version !== ""
-          ? ManifestVersion.cases.version.make({ version: document.version })
-          : ManifestVersion.cases.unversioned.make({});
-      assert.deepStrictEqual(first, expected);
-      const canonical = first._tag === "version" ? { version: first.version } : {};
-      const canonicalText = yield* S.encodeEffect(json)(canonical);
-      yield* Effect.promise(() => fs.writeFile(path.join(dir, "package.json"), canonicalText));
-      const second = yield* manifestVersion("config", dir);
-      assert.deepStrictEqual(second, first);
-      assert.strictEqual(
-        yield* S.encodeEffect(json)(second._tag === "version" ? { version: second.version } : {}),
-        canonicalText
-      );
-    }),
-  runs
-);
+it.layer(Layer.merge(MemoryFileSystem.layer, Path.layer), { timeout: "30 seconds" })((it) => {
+  it.effect.prop(
+    "manifest parsing is faithful to JSON serialization and its normalized manifest state",
+    [Arbitrary.schema(S.Json)],
+    ([document]) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped({ prefix: "workspaces-manifest-prop-" });
+        const json = S.fromJsonString(S.Json);
+        const text = yield* S.encodeEffect(json)(document);
+        yield* fs.writeFileString(path.join(dir, "package.json"), text);
+        const first = yield* manifestVersion("config", dir);
+        const expected =
+          P.isObject(document) && P.isString(document.version) && document.version !== ""
+            ? ManifestVersion.cases.version.make({ version: document.version })
+            : ManifestVersion.cases.unversioned.make({});
+        assert.deepStrictEqual(first, expected);
+        const canonical = first._tag === "version" ? { version: first.version } : {};
+        const canonicalText = yield* S.encodeEffect(json)(canonical);
+        yield* fs.writeFileString(path.join(dir, "package.json"), canonicalText);
+        const second = yield* manifestVersion("config", dir);
+        assert.deepStrictEqual(second, first);
+        assert.strictEqual(
+          yield* S.encodeEffect(json)(second._tag === "version" ? { version: second.version } : {}),
+          canonicalText
+        );
+      }),
+    runs
+  );
+});

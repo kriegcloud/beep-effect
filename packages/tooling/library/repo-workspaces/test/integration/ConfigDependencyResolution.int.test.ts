@@ -1,33 +1,29 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file processEnvInEffect:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; processEnvInEffect because it sets and restores PNPM_HOME for the real resolution ladder. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The declared-version resolution ladder, driven through BOTH replaying layers
 // against one on-disk fixture — a fake `.pnpm-config` install and a fake pnpm
 // store `links/` tree — so `layerLive` and `layerSubprocess` are pinned to
 // resolve identically. And `layerFrom`, the hermetic seam that resolves
 // nothing.
 //
-// Real filesystem by necessity: the ladder reads through `node:fs` (the store
-// is real even when a caller's FileSystem is virtual), and the subprocess
-// layer spawns a real `node`.
+// Real filesystem by necessity: the replaying layers `import()` the
+// pnpmfiles the ladder resolves, and the subprocess layer spawns a real
+// `node`. The fixture is built through Effect's FileSystem on the Node
+// platform services, and `$PNPM_HOME` reaches the ladder through `Config`.
 
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
-import {
-  HookInjection,
-  HookReplay,
-  NoPeerDependencyRules,
-  PeerDependencyRules,
-} from "@beep/repo-workspaces/ConfigDependencyHooks";
-import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node";
-import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
+import { HookInjection, NoPeerDependencyRules, PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
+import { join } from "@beep/utils/Path";
+import * as NodeServices from "@effect/platform-node/NodeServices";
+import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
 import { manifest, platform } from "../support/fixtures.ts";
 import {
   installConfigDependency,
@@ -38,9 +34,10 @@ import {
   storeConfigDependency,
   writeModulesYaml,
 } from "./utils/configDependencyFixtures.ts";
+import type { Vitest } from "@effect/vitest";
 import type { Tree } from "../support/fixtures.ts";
 
-const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
+const FIXTURES = join(import.meta.dirname, "..", "fixtures");
 const SEED = { default: { effect: "^4.0.0" } } as const;
 
 // The dependency under test: 1.0.0 installed under `.pnpm-config`, 2.0.0 only
@@ -70,6 +67,8 @@ const FORMATS = "cfg-formats";
 
 let root: string;
 let store: string;
+/** The canonical spelling of `store`, as discovery reports it. */
+let storeReal: string;
 /** A second root with NO `.modules.yaml`, whose only `.pnpm-config` entry is a symlink into `store`. */
 let linkedRoot: string;
 /** A third root with nothing under node_modules at all. */
@@ -79,97 +78,111 @@ let envHome: string;
 /** A root whose `.modules.yaml` names `store` through a SYMLINK spelling, beside a `.pnpm-config` symlink that realpaths into it. */
 let aliasRoot: string;
 
-const Spawner = NodeChildProcessSpawner.layer.pipe(Layer.provide(Layer.mergeAll(NodeFileSystem.layer, NodePath.layer)));
-const HooksSubprocess = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(Spawner));
+const HooksLive = ConfigDependencyHooks.layerLive.pipe(Layer.provide(NodeServices.layer));
+const HooksSubprocess = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(NodeServices.layer));
 
-beforeAll(() => {
-  root = mkdtempSync(join(tmpdir(), "effected-ladder-root-"));
-  store = join(mkdtempSync(join(tmpdir(), "effected-ladder-store-")), "v11");
-  linkedRoot = mkdtempSync(join(tmpdir(), "effected-ladder-linked-"));
-  bareRoot = mkdtempSync(join(tmpdir(), "effected-ladder-bare-"));
+/** The ladder's environment rung sees `$PNPM_HOME` = `envHome`, and nothing else. */
+const withPnpmHome = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.provideService(effect, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ PNPM_HOME: envHome }));
 
-  writeModulesYaml(root, store);
-  installConfigDependency(root, NAME, "1.0.0", ["pnpmfile.mjs", pnpmfileInjecting("^1.0.0")]);
-  installConfigDependency(root, NO_HOOK, "2.0.0");
-  mkdirSync(installedDir(root, NO_MANIFEST), { recursive: true });
-  installConfigDependency(root, UNVERSIONED, undefined, ["pnpmfile.mjs", pnpmfileInjecting("^6.0.0")]);
-  mkdirSync(installedDir(root, EMPTY_VERSION), { recursive: true });
-  writeFileSync(
-    join(installedDir(root, EMPTY_VERSION), "package.json"),
-    JSON.stringify({ name: EMPTY_VERSION, version: "" })
-  );
+/** The on-disk fixture every case reads, built once on the real filesystem. */
+const Fixture = Layer.effectDiscard(
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const temp = (prefix: string) => fs.makeTempDirectoryScoped({ prefix });
+    root = yield* temp("effected-ladder-root-");
+    store = path.join(yield* temp("effected-ladder-store-"), "v11");
+    yield* fs.makeDirectory(store, { recursive: true });
+    storeReal = yield* fs.realPath(store);
+    linkedRoot = yield* temp("effected-ladder-linked-");
+    bareRoot = yield* temp("effected-ladder-bare-");
 
-  const stored = storeConfigDependency(store, NAME, "2.0.0", "a".repeat(64), [
-    "pnpmfile.mjs",
-    pnpmfileInjecting("^2.0.0"),
-  ]);
-  // A second hash directory for the same version whose manifest LIES (a
-  // different version) — the ladder must verify the inner manifest, not trust
-  // the path.
-  const liar = join(store, "links", NAME, "2.0.0", "b".repeat(64), "node_modules", NAME);
-  mkdirSync(liar, { recursive: true });
-  writeFileSync(join(liar, "package.json"), JSON.stringify({ name: NAME, version: "9.9.9" }));
-  writeFileSync(join(liar, "pnpmfile.mjs"), pnpmfileInjecting("^9.9.9"));
-  storeConfigDependency(store, JS_ONLY, "1.0.0", "c".repeat(64), ["pnpmfile.js", pnpmfileInjectingCjs("^7.0.0")]);
-  storeConfigDependency(store, SCOPED, "1.0.0", "d".repeat(64), ["pnpmfile.mjs", pnpmfileInjecting("^5.0.0")]);
+    yield* writeModulesYaml(root, store);
+    yield* installConfigDependency(root, NAME, "1.0.0", ["pnpmfile.mjs", pnpmfileInjecting("^1.0.0")]);
+    yield* installConfigDependency(root, NO_HOOK, "2.0.0");
+    yield* fs.makeDirectory(yield* installedDir(root, NO_MANIFEST), { recursive: true });
+    yield* installConfigDependency(root, UNVERSIONED, undefined, ["pnpmfile.mjs", pnpmfileInjecting("^6.0.0")]);
+    yield* installConfigDependency(root, EMPTY_VERSION, "");
 
-  // Two HONEST copies of one version: neither manifest lies, so the version
-  // check cannot separate them — only an integrity the store does not record
-  // could, and the ladder must refuse to guess.
-  storeConfigDependency(store, AMBIGUOUS, "1.0.0", "e".repeat(64), ["pnpmfile.mjs", pnpmfileInjecting("^1.0.0")]);
-  storeConfigDependency(store, AMBIGUOUS, "1.0.0", "f".repeat(64), ["pnpmfile.mjs", pnpmfileInjecting("^1.0.1")]);
-
-  // The linked root: `.pnpm-config/cfg-ladder -> <store>/links/cfg-ladder/2.0.0/…`,
-  // the way pnpm installs, and no `.modules.yaml` to name the store.
-  linkConfigDependency(linkedRoot, NAME, stored);
-
-  // Rung 3: a store that ONLY `$PNPM_HOME/store` can name.
-  envHome = mkdtempSync(join(tmpdir(), "effected-ladder-pnpmhome-"));
-  storeConfigDependency(join(envHome, "store", "v11"), ENV_ONLY, "1.0.0", "1".repeat(64), [
-    "pnpmfile.mjs",
-    pnpmfileInjecting("^8.0.0"),
-  ]);
-  // One version in TWO distinct stores, each with a different pnpmfile so the
-  // injected range proves which store answered.
-  storeConfigDependency(store, TWO_STORES, "1.0.0", "2".repeat(64), ["pnpmfile.mjs", pnpmfileInjecting("^3.0.0")]);
-  storeConfigDependency(join(envHome, "store", "v11"), TWO_STORES, "1.0.0", "3".repeat(64), [
-    "pnpmfile.mjs",
-    pnpmfileInjecting("^4.0.0"),
-  ]);
-
-  // Three store formats side by side, as a pnpm major upgrade leaves them; the
-  // injected range names the format that answered.
-  for (const [format, range] of [
-    ["v9", "^9.0.0"],
-    ["v10", "^10.0.0"],
-    ["v11", "^11.0.0"],
-  ] as const) {
-    storeConfigDependency(join(envHome, "store", format), FORMATS, "1.0.0", "4".repeat(64), [
+    const stored = yield* storeConfigDependency(store, NAME, "2.0.0", "a".repeat(64), [
       "pnpmfile.mjs",
-      pnpmfileInjecting(range),
+      pnpmfileInjecting("^2.0.0"),
     ]);
-  }
+    // A second hash directory for the same version whose manifest LIES (a
+    // different version) — the ladder must verify the inner manifest, not trust
+    // the path.
+    const liar = path.join(store, "links", NAME, "2.0.0", "b".repeat(64), "node_modules", NAME);
+    yield* fs.makeDirectory(liar, { recursive: true });
+    yield* fs.writeFileString(path.join(liar, "package.json"), `{"name":"${NAME}","version":"9.9.9"}`);
+    yield* fs.writeFileString(path.join(liar, "pnpmfile.mjs"), pnpmfileInjecting("^9.9.9"));
+    yield* storeConfigDependency(store, JS_ONLY, "1.0.0", "c".repeat(64), [
+      "pnpmfile.js",
+      pnpmfileInjectingCjs("^7.0.0"),
+    ]);
+    yield* storeConfigDependency(store, SCOPED, "1.0.0", "d".repeat(64), ["pnpmfile.mjs", pnpmfileInjecting("^5.0.0")]);
 
-  // The alias root: `.modules.yaml` spells the store through a symlink while
-  // the `.pnpm-config` entry realpaths into the same store — one physical
-  // store, two spellings.
-  aliasRoot = mkdtempSync(join(tmpdir(), "effected-ladder-alias-"));
-  const alias = join(aliasRoot, "store-alias");
-  symlinkSync(store, alias, "dir");
-  writeModulesYaml(aliasRoot, alias);
-  linkConfigDependency(aliasRoot, NAME, stored);
-});
+    // Two HONEST copies of one version: neither manifest lies, so the version
+    // check cannot separate them — only an integrity the store does not record
+    // could, and the ladder must refuse to guess.
+    yield* storeConfigDependency(store, AMBIGUOUS, "1.0.0", "e".repeat(64), [
+      "pnpmfile.mjs",
+      pnpmfileInjecting("^1.0.0"),
+    ]);
+    yield* storeConfigDependency(store, AMBIGUOUS, "1.0.0", "f".repeat(64), [
+      "pnpmfile.mjs",
+      pnpmfileInjecting("^1.0.1"),
+    ]);
 
-afterAll(() => {
-  for (const dir of [root, dirname(store), linkedRoot, bareRoot, envHome, aliasRoot]) {
-    if (dir !== undefined) rmSync(dir, { recursive: true, force: true });
-  }
-});
+    // The linked root: `.pnpm-config/cfg-ladder -> <store>/links/cfg-ladder/2.0.0/…`,
+    // the way pnpm installs, and no `.modules.yaml` to name the store.
+    yield* linkConfigDependency(linkedRoot, NAME, stored);
+
+    // Rung 3: a store that ONLY `$PNPM_HOME/store` can name.
+    envHome = yield* temp("effected-ladder-pnpmhome-");
+    yield* storeConfigDependency(path.join(envHome, "store", "v11"), ENV_ONLY, "1.0.0", "1".repeat(64), [
+      "pnpmfile.mjs",
+      pnpmfileInjecting("^8.0.0"),
+    ]);
+    // One version in TWO distinct stores, each with a different pnpmfile so the
+    // injected range proves which store answered.
+    yield* storeConfigDependency(store, TWO_STORES, "1.0.0", "2".repeat(64), [
+      "pnpmfile.mjs",
+      pnpmfileInjecting("^3.0.0"),
+    ]);
+    yield* storeConfigDependency(path.join(envHome, "store", "v11"), TWO_STORES, "1.0.0", "3".repeat(64), [
+      "pnpmfile.mjs",
+      pnpmfileInjecting("^4.0.0"),
+    ]);
+
+    // Three store formats side by side, as a pnpm major upgrade leaves them; the
+    // injected range names the format that answered.
+    for (const [format, range] of [
+      ["v9", "^9.0.0"],
+      ["v10", "^10.0.0"],
+      ["v11", "^11.0.0"],
+    ] as const) {
+      yield* storeConfigDependency(path.join(envHome, "store", format), FORMATS, "1.0.0", "4".repeat(64), [
+        "pnpmfile.mjs",
+        pnpmfileInjecting(range),
+      ]);
+    }
+
+    // The alias root: `.modules.yaml` spells the store through a symlink while
+    // the `.pnpm-config` entry realpaths into the same store — one physical
+    // store, two spellings.
+    aliasRoot = yield* temp("effected-ladder-alias-");
+    const alias = path.join(aliasRoot, "store-alias");
+    yield* fs.symlink(store, alias);
+    yield* writeModulesYaml(aliasRoot, alias);
+    yield* linkConfigDependency(aliasRoot, NAME, stored);
+  })
+).pipe(Layer.provide(NodeServices.layer));
 
 const hooked = (result: { readonly catalogs: Readonly<Record<string, Readonly<Record<string, string>>>> }) =>
   result.catalogs.default?.["hooked-dep"];
 
-const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHooks>) => {
+const ladderCases = (it: Vitest.MethodsNonLive, label: string, hooksLayer: Layer.Layer<ConfigDependencyHooks>) => {
   describe(`${label} — resolves the DECLARED version`, () => {
     it.layer(hooksLayer, { timeout: "30 seconds" })((it) => {
       it.effect("declared version installed under .pnpm-config → that copy runs (candidate A)", () =>
@@ -391,7 +404,7 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
           assert.include(message, "2 copies");
           // The store is named by its REALPATH (macOS's `/var` is `/private/var`):
           // discovery canonicalizes spellings so one store never counts twice.
-          assert.include(message, `store at ${realpathSync(store)}`);
+          assert.include(message, `store at ${storeReal}`);
           assert.include(message, "e".repeat(64));
           assert.include(message, "f".repeat(64));
           // The control that makes this discriminating: the SAME two-hash shape
@@ -422,18 +435,15 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
       it.effect("a version held by two distinct stores resolves from the FIRST in discovery order", () =>
         Effect.gen(function* () {
           const hooks = yield* ConfigDependencyHooks;
-          const previous = process.env.PNPM_HOME;
-          process.env.PNPM_HOME = envHome;
-          try {
-            // `root` names `store` in .modules.yaml (rung 1); $PNPM_HOME adds a
-            // second store (rung 3) that also holds TWO_STORES@1.0.0. Not
-            // ambiguous — the workspace's own store wins, and its pnpmfile ran.
-            const result = yield* hooks.inject(root, { [TWO_STORES]: "1.0.0" }, SEED);
-            assert.strictEqual(hooked(result), "^3.0.0");
-          } finally {
-            if (previous === undefined) delete process.env.PNPM_HOME;
-            else process.env.PNPM_HOME = previous;
-          }
+          yield* withPnpmHome(
+            Effect.gen(function* () {
+              // `root` names `store` in .modules.yaml (rung 1); $PNPM_HOME adds a
+              // second store (rung 3) that also holds TWO_STORES@1.0.0. Not
+              // ambiguous — the workspace's own store wins, and its pnpmfile ran.
+              const result = yield* hooks.inject(root, { [TWO_STORES]: "1.0.0" }, SEED);
+              assert.strictEqual(hooked(result), "^3.0.0");
+            })
+          );
         })
       );
     });
@@ -442,18 +452,15 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
       it.effect("store formats are consulted NEWEST first, numerically — v11 beats v10 beats v9", () =>
         Effect.gen(function* () {
           const hooks = yield* ConfigDependencyHooks;
-          const previous = process.env.PNPM_HOME;
-          process.env.PNPM_HOME = envHome;
-          try {
-            // A lexical sort would put v10 first (and v9 last); the newest
-            // format must answer, or a pnpm upgrade that left the old store
-            // behind replays the stale copy.
-            const result = yield* hooks.inject(bareRoot, { [FORMATS]: "1.0.0" }, SEED);
-            assert.strictEqual(hooked(result), "^11.0.0");
-          } finally {
-            if (previous === undefined) delete process.env.PNPM_HOME;
-            else process.env.PNPM_HOME = previous;
-          }
+          yield* withPnpmHome(
+            Effect.gen(function* () {
+              // A lexical sort would put v10 first (and v9 last); the newest
+              // format must answer, or a pnpm upgrade that left the old store
+              // behind replays the stale copy.
+              const result = yield* hooks.inject(bareRoot, { [FORMATS]: "1.0.0" }, SEED);
+              assert.strictEqual(hooked(result), "^11.0.0");
+            })
+          );
         })
       );
     });
@@ -464,20 +471,17 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
         () =>
           Effect.gen(function* () {
             const hooks = yield* ConfigDependencyHooks;
-            const previous = process.env.PNPM_HOME;
-            process.env.PNPM_HOME = envHome;
-            try {
-              // bareRoot has no node_modules at all, so rungs 1 and 2 contribute
-              // no store; only the environment rung can answer.
-              const result = yield* hooks.inject(bareRoot, { [ENV_ONLY]: "1.0.0" }, SEED);
-              assert.strictEqual(hooked(result), "^8.0.0");
-              assert.deepStrictEqual(result.replays, {
-                [ENV_ONLY]: HookReplay.make({ version: "1.0.0", source: "store" }),
-              });
-            } finally {
-              if (previous === undefined) delete process.env.PNPM_HOME;
-              else process.env.PNPM_HOME = previous;
-            }
+            yield* withPnpmHome(
+              Effect.gen(function* () {
+                // bareRoot has no node_modules at all, so rungs 1 and 2 contribute
+                // no store; only the environment rung can answer.
+                const result = yield* hooks.inject(bareRoot, { [ENV_ONLY]: "1.0.0" }, SEED);
+                assert.strictEqual(hooked(result), "^8.0.0");
+                assert.deepStrictEqual(result.replays, {
+                  [ENV_ONLY]: HookReplay.make({ version: "1.0.0", source: "store" }),
+                });
+              })
+            );
             // The control: without the variable the same declaration fails closed
             // and the message shows the env store was NOT among those searched.
             const error = yield* Effect.flip(hooks.inject(bareRoot, { [ENV_ONLY]: "1.0.0" }, SEED));
@@ -503,153 +507,169 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
   });
 };
 
-ladderCases("ConfigDependencyHooks.layerLive", ConfigDependencyHooks.layerLive);
-ladderCases("ConfigDependencyHooks.layerSubprocess", HooksSubprocess);
+it.layer(Fixture, { timeout: "30 seconds" })((it) => {
+  ladderCases(it, "ConfigDependencyHooks.layerLive", HooksLive);
+  ladderCases(it, "ConfigDependencyHooks.layerSubprocess", HooksSubprocess);
 
-class SubprocessHooks extends Context.Service<SubprocessHooks, ConfigDependencyHooks["Service"]>()(
-  "@beep/repo-workspaces/test/integration/ConfigDependencyResolution.int.test/SubprocessHooks"
-) {}
-const ComparisonLayers = Layer.mergeAll(
-  ConfigDependencyHooks.layerLive,
-  Layer.effect(SubprocessHooks, ConfigDependencyHooks).pipe(Layer.provide(HooksSubprocess))
-);
+  class SubprocessHooks extends Context.Service<SubprocessHooks, ConfigDependencyHooks["Service"]>()(
+    "@beep/repo-workspaces/test/integration/ConfigDependencyResolution.int.test/SubprocessHooks"
+  ) {}
+  const ComparisonLayers = Layer.mergeAll(
+    HooksLive,
+    Layer.effect(SubprocessHooks, ConfigDependencyHooks).pipe(Layer.provide(HooksSubprocess))
+  );
 
-describe("layerLive and layerSubprocess — the ladder is one implementation", () => {
-  it.layer(ComparisonLayers, { timeout: "30 seconds" })((it) => {
-    it.effect("both layers produce identical injections across installed, store and skipped dependencies", () =>
-      Effect.gen(function* () {
-        const deps = { [NAME]: "2.0.0+sha512-x", [NO_HOOK]: "2.0.0", [SCOPED]: "1.0.0" };
-        const liveHooks = yield* ConfigDependencyHooks;
-        const subprocessHooks = yield* SubprocessHooks;
-        const live = yield* liveHooks.inject(root, deps, SEED);
-        const subprocess = yield* subprocessHooks.inject(root, deps, SEED);
-        assert.deepStrictEqual(subprocess, live);
-        assert.strictEqual(hooked(live), "^5.0.0");
-        assert.deepStrictEqual(live.replays, {
-          [NAME]: HookReplay.make({ version: "2.0.0", source: "store" }),
-          [NO_HOOK]: HookReplay.make({ version: "2.0.0", source: "installed" }),
-          [SCOPED]: HookReplay.make({ version: "1.0.0", source: "store" }),
-        });
-      })
-    );
-  });
-});
-
-// ── layerFrom: the hermetic seam ────────────────────────────────────────────
-
-describe("ConfigDependencyHooks.layerFrom — replays caller-supplied files, resolving nothing", () => {
-  const ONE = join(FIXTURES, "hook-pnpmfile.mjs");
-  const TWO = join(FIXTURES, "hook-pnpmfile.cjs");
-
-  it.layer(ConfigDependencyHooks.layerFrom({ "@scope/plugin@1.0.0": ONE, "@scope/plugin@2.0.0": TWO }), {
-    timeout: "30 seconds",
-  })((it) => {
-    it.effect("a hit replays the mapped file for that declared version", () =>
-      Effect.gen(function* () {
-        const hooks = yield* ConfigDependencyHooks;
-        // The root is a path that does not exist: layerFrom must not look there.
-        const result = yield* hooks.inject("/nowhere/at/all", { "@scope/plugin": "1.0.0+sha512-abc" }, SEED);
-        // hook-pnpmfile.mjs injects `mjs-dep`; the .cjs would inject `hooked-dep`.
-        assert.strictEqual(result.catalogs.default?.["mjs-dep"], "^2.0.0");
-        assert.isUndefined(result.catalogs.default?.["hooked-dep"]);
-        assert.strictEqual(result.catalogs.default?.effect, "^4.0.0");
-        assert.deepStrictEqual(result.replays, {
-          "@scope/plugin": HookReplay.make({ version: "1.0.0", source: "supplied" }),
-        });
-      })
-    );
+  describe("layerLive and layerSubprocess — the ladder is one implementation", () => {
+    it.layer(ComparisonLayers, { timeout: "30 seconds" })((it) => {
+      it.effect("both layers produce identical injections across installed, store and skipped dependencies", () =>
+        Effect.gen(function* () {
+          const deps = { [NAME]: "2.0.0+sha512-x", [NO_HOOK]: "2.0.0", [SCOPED]: "1.0.0" };
+          const liveHooks = yield* ConfigDependencyHooks;
+          const subprocessHooks = yield* SubprocessHooks;
+          const live = yield* liveHooks.inject(root, deps, SEED);
+          const subprocess = yield* subprocessHooks.inject(root, deps, SEED);
+          assert.deepStrictEqual(subprocess, live);
+          assert.strictEqual(hooked(live), "^5.0.0");
+          assert.deepStrictEqual(live.replays, {
+            [NAME]: HookReplay.make({ version: "2.0.0", source: "store" }),
+            [NO_HOOK]: HookReplay.make({ version: "2.0.0", source: "installed" }),
+            [SCOPED]: HookReplay.make({ version: "1.0.0", source: "store" }),
+          });
+        })
+      );
+    });
   });
 
-  it.layer(ConfigDependencyHooks.layerFrom({ "@scope/plugin@1.0.0": ONE, "@scope/plugin@2.0.0": TWO }), {
-    timeout: "30 seconds",
-  })((it) => {
-    it.effect("two declared versions of one name map to two different files", () =>
-      Effect.gen(function* () {
-        const hooks = yield* ConfigDependencyHooks;
-        const v2 = yield* hooks.inject("/nowhere", { "@scope/plugin": "2.0.0" }, SEED);
-        assert.strictEqual(v2.catalogs.default?.["hooked-dep"], "^9.9.9");
-        assert.isUndefined(v2.catalogs.default?.["mjs-dep"]);
-      })
-    );
-  });
+  // ── layerFrom: the hermetic seam ────────────────────────────────────────────
 
-  it.layer(ConfigDependencyHooks.layerFrom({ "@scope/plugin@1.0.0": ONE }), { timeout: "30 seconds" })((it) => {
-    it.effect("a miss fails closed with the same hooks-source shape as an uninstalled version", () =>
-      Effect.gen(function* () {
-        const hooks = yield* ConfigDependencyHooks;
-        const error = yield* Effect.flip(hooks.inject("/nowhere", { "@scope/plugin": "3.0.0" }, SEED));
-        assert.instanceOf(error, CatalogAssemblyError);
-        assert.strictEqual(error.source, "hooks");
-        assert.strictEqual(error.path, "@scope/plugin");
-        if (!(error.cause instanceof Error)) return assert.fail("expected an Error cause");
-        assert.include(error.cause.message, "@scope/plugin@3.0.0");
-      })
-    );
-  });
+  describe("ConfigDependencyHooks.layerFrom — replays caller-supplied files, resolving nothing", () => {
+    const ONE = join(FIXTURES, "hook-pnpmfile.mjs");
+    const TWO = join(FIXTURES, "hook-pnpmfile.cjs");
 
-  it.layer(ConfigDependencyHooks.layerFrom({}), { timeout: "30 seconds" })((it) => {
-    it.effect("empty configDependencies returns the seed untouched", () =>
-      Effect.gen(function* () {
-        const hooks = yield* ConfigDependencyHooks;
-        const rules = PeerDependencyRules.make({
-          allowedVersions: { "a>b": "1.0.0" },
-          ignoreMissing: [],
-          allowAny: [],
-        });
-        const result = yield* hooks.inject("/nowhere", {}, SEED, rules);
-        assert.deepStrictEqual(
-          result,
-          HookInjection.make({ catalogs: SEED, releaseAge: {}, peerDependencyRules: rules, replays: {} })
-        );
-      })
-    );
-  });
+    it.layer(
+      ConfigDependencyHooks.layerFrom({ "@scope/plugin@1.0.0": ONE, "@scope/plugin@2.0.0": TWO }).pipe(
+        Layer.provide(Path.layer)
+      ),
+      {
+        timeout: "30 seconds",
+      }
+    )((it) => {
+      it.effect("a hit replays the mapped file for that declared version", () =>
+        Effect.gen(function* () {
+          const hooks = yield* ConfigDependencyHooks;
+          // The root is a path that does not exist: layerFrom must not look there.
+          const result = yield* hooks.inject("/nowhere/at/all", { "@scope/plugin": "1.0.0+sha512-abc" }, SEED);
+          // hook-pnpmfile.mjs injects `mjs-dep`; the .cjs would inject `hooked-dep`.
+          assert.strictEqual(result.catalogs.default?.["mjs-dep"], "^2.0.0");
+          assert.isUndefined(result.catalogs.default?.["hooked-dep"]);
+          assert.strictEqual(result.catalogs.default?.effect, "^4.0.0");
+          assert.deepStrictEqual(result.replays, {
+            "@scope/plugin": HookReplay.make({ version: "1.0.0", source: "supplied" }),
+          });
+        })
+      );
+    });
 
-  it.layer(ConfigDependencyHooks.layerFrom({ "../../evil@1.0.0": ONE }), { timeout: "30 seconds" })((it) => {
-    it.effect("a '..' segment is refused before the lookup", () =>
-      Effect.gen(function* () {
-        const hooks = yield* ConfigDependencyHooks;
-        const error = yield* Effect.flip(hooks.inject("/nowhere", { "../../evil": "1.0.0" }, SEED));
-        assert.instanceOf(error, CatalogAssemblyError);
-        assert.strictEqual(error.path, "../../evil");
-      })
-    );
-  });
+    it.layer(
+      ConfigDependencyHooks.layerFrom({ "@scope/plugin@1.0.0": ONE, "@scope/plugin@2.0.0": TWO }).pipe(
+        Layer.provide(Path.layer)
+      ),
+      {
+        timeout: "30 seconds",
+      }
+    )((it) => {
+      it.effect("two declared versions of one name map to two different files", () =>
+        Effect.gen(function* () {
+          const hooks = yield* ConfigDependencyHooks;
+          const v2 = yield* hooks.inject("/nowhere", { "@scope/plugin": "2.0.0" }, SEED);
+          assert.strictEqual(v2.catalogs.default?.["hooked-dep"], "^9.9.9");
+          assert.isUndefined(v2.catalogs.default?.["mjs-dep"]);
+        })
+      );
+    });
 
-  it.layer(
-    Layer.unwrap(
-      Effect.sync(() => {
-        const tree: Tree = {
-          "/repo/pnpm-workspace.yaml": [
-            "packages:",
-            "  - packages/*",
-            "catalog:",
-            "  effect: ^4.0.0",
-            "configDependencies:",
-            "  '@scope/plugin': '2.0.0+sha512-abc'",
-            "",
-          ].join("\n"),
-          "/repo/package.json": '{"name":"root","version":"0.0.0","private":true}',
-          "/repo/packages/a/package.json": manifest("@x/a", { dependencies: { effect: "catalog:" } }),
-        };
-        const hooks = ConfigDependencyHooks.layerFrom({ "@scope/plugin@2.0.0": TWO });
-        const core = Workspaces.layer({ cwd: "/repo" });
-        const catalogs = Layer.effect(WorkspaceCatalogs, WorkspaceCatalogs.make({ cwd: "/repo" })).pipe(
-          Layer.provide(hooks),
-          Layer.provide(core)
-        );
-        const appLayer = Layer.mergeAll(core, catalogs).pipe(Layer.provideMerge(platform(tree)));
-        return appLayer;
-      })
-    ),
-    { timeout: "30 seconds" }
-  )((it) => {
-    it.effect("works under a memfs FileSystem: the whole catalog path replays with no real root", () =>
-      Effect.gen(function* () {
-        const set = yield* (yield* WorkspaceCatalogs).set;
-        assertSome(set.rangeOf("effect", O.none()), "^4.0.0");
-        assertSome(set.rangeOf("hooked-dep", O.none()), "^9.9.9");
-      })
-    );
+    it.layer(ConfigDependencyHooks.layerFrom({ "@scope/plugin@1.0.0": ONE }).pipe(Layer.provide(Path.layer)), {
+      timeout: "30 seconds",
+    })((it) => {
+      it.effect("a miss fails closed with the same hooks-source shape as an uninstalled version", () =>
+        Effect.gen(function* () {
+          const hooks = yield* ConfigDependencyHooks;
+          const error = yield* Effect.flip(hooks.inject("/nowhere", { "@scope/plugin": "3.0.0" }, SEED));
+          assert.instanceOf(error, CatalogAssemblyError);
+          assert.strictEqual(error.source, "hooks");
+          assert.strictEqual(error.path, "@scope/plugin");
+          if (!(error.cause instanceof Error)) return assert.fail("expected an Error cause");
+          assert.include(error.cause.message, "@scope/plugin@3.0.0");
+        })
+      );
+    });
+
+    it.layer(ConfigDependencyHooks.layerFrom({}).pipe(Layer.provide(Path.layer)), { timeout: "30 seconds" })((it) => {
+      it.effect("empty configDependencies returns the seed untouched", () =>
+        Effect.gen(function* () {
+          const hooks = yield* ConfigDependencyHooks;
+          const rules = PeerDependencyRules.make({
+            allowedVersions: { "a>b": "1.0.0" },
+            ignoreMissing: [],
+            allowAny: [],
+          });
+          const result = yield* hooks.inject("/nowhere", {}, SEED, rules);
+          assert.deepStrictEqual(
+            result,
+            HookInjection.make({ catalogs: SEED, releaseAge: {}, peerDependencyRules: rules, replays: {} })
+          );
+        })
+      );
+    });
+
+    it.layer(ConfigDependencyHooks.layerFrom({ "../../evil@1.0.0": ONE }).pipe(Layer.provide(Path.layer)), {
+      timeout: "30 seconds",
+    })((it) => {
+      it.effect("a '..' segment is refused before the lookup", () =>
+        Effect.gen(function* () {
+          const hooks = yield* ConfigDependencyHooks;
+          const error = yield* Effect.flip(hooks.inject("/nowhere", { "../../evil": "1.0.0" }, SEED));
+          assert.instanceOf(error, CatalogAssemblyError);
+          assert.strictEqual(error.path, "../../evil");
+        })
+      );
+    });
+
+    it.layer(
+      Layer.unwrap(
+        Effect.sync(() => {
+          const tree: Tree = {
+            "/repo/pnpm-workspace.yaml": [
+              "packages:",
+              "  - packages/*",
+              "catalog:",
+              "  effect: ^4.0.0",
+              "configDependencies:",
+              "  '@scope/plugin': '2.0.0+sha512-abc'",
+              "",
+            ].join("\n"),
+            "/repo/package.json": '{"name":"root","version":"0.0.0","private":true}',
+            "/repo/packages/a/package.json": manifest("@x/a", { dependencies: { effect: "catalog:" } }),
+          };
+          const hooks = ConfigDependencyHooks.layerFrom({ "@scope/plugin@2.0.0": TWO });
+          const core = Workspaces.layer({ cwd: "/repo" });
+          const catalogs = Layer.effect(WorkspaceCatalogs, WorkspaceCatalogs.make({ cwd: "/repo" })).pipe(
+            Layer.provide(hooks),
+            Layer.provide(core)
+          );
+          const appLayer = Layer.mergeAll(core, catalogs).pipe(Layer.provideMerge(platform(tree)));
+          return appLayer;
+        })
+      ),
+      { timeout: "30 seconds" }
+    )((it) => {
+      it.effect("works under a memfs FileSystem: the whole catalog path replays with no real root", () =>
+        Effect.gen(function* () {
+          const set = yield* (yield* WorkspaceCatalogs).set;
+          assertSome(set.rangeOf("effect", O.none()), "^4.0.0");
+          assertSome(set.rangeOf("hooked-dep", O.none()), "^9.9.9");
+        })
+      );
+    });
   });
 });

@@ -43,24 +43,28 @@ import * as S from "effect/Schema";
 // registry config describes where this checkout fetches from, not what a ref
 // declared.
 //
-// Runtime-coupled by design, like the rest of the ladder: the scratch
-// workspace and the store are real directories even when a caller's
-// `FileSystem` is virtual, so this reads and writes through `node:fs`.
+// Every read and write goes through the caller's `FileSystem` and `Path`
+// services, like the rest of the ladder: the scratch workspace and the store
+// are real directories, so the replaying layer that wires this rung needs a
+// real `FileSystem` for pnpm to see them.
 
-import { tmpdir } from "node:os";
 import { Run } from "@beep/commands";
 import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
+import * as NodePath from "@beep/utils/Path";
 import { Yaml } from "@beep/yaml";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import { HookReplayContext } from "../ConfigDependencyReplay.ts";
 import { carries, manifestVersion, messageOf, sideLabel } from "./configDependencyShared.ts";
 import { splitConfigDependencySpec } from "./configDependencySpecGrammar.ts";
 import type { ConfigDependencyLock, LockfileFramingError, LockfileParseError } from "@beep/lockfiles";
-import type { HookReplayContext } from "../ConfigDependencyHooks.ts";
+import type * as PlatformError from "effect/PlatformError";
 
 const $I = $RepoWorkspacesId.create("internal/configDependencyFetch");
 
@@ -68,10 +72,6 @@ const JsonString = S.fromJsonString(S.String).pipe(
   $I.annoteSchema("JsonString", { description: "A JSON-quoted YAML scalar retaining dependency and registry text." })
 );
 const quote = flow(S.encodeResult(JsonString), Result.getOrThrowWith(identity));
-
-// The caller's Effect FileSystem may be virtual; fetching must use the real scratch workspace and store.
-const { copyFile, mkdtemp, readFile, realpath, rm, writeFile } = process.getBuiltinModule("node:fs/promises");
-const { basename, dirname, join } = process.getBuiltinModule("node:path");
 
 /**
  * The config dependencies the declaring side's `pnpm-lock.yaml` env preamble
@@ -87,29 +87,74 @@ export type RecordedLocks = Effect.Effect<
 >;
 
 /**
- * One config dependency the ladder could not find, handed to the fetch rung.
+ * One config dependency the ladder could not find, handed to the fetch rung
+ * beside the declaring side's {@link RecordedLocks}.
+ *
+ * **Example** (Describe a config dependency to fetch)
+ *
+ * ```ts
+ * import { FetchRequest } from "@beep/repo-workspaces/internal/configDependencyFetch"
+ *
+ * const request = FetchRequest.make({
+ *   root: "/repo",
+ *   name: "workspace-config",
+ *   version: "1.0.0",
+ *   spec: "1.0.0",
+ *   stores: [],
+ *   side: {},
+ * })
+ * console.log(request.version) // 1.0.0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FetchRequest extends S.Opaque<FetchRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The config dependency's name, already `..`-checked. */
+    name: S.String.pipe($I.annoteKey("FetchRequest.name", { description: "The config dependency's name." })),
+    /**
+     * The current workspace root, whose `.npmrc` and registry keys the scratch
+     * workspace inherits — for both sides of a diff.
+     */
+    root: S.String.pipe(
+      $I.annoteKey("FetchRequest.root", {
+        description: "The current workspace root whose registry configuration the scratch workspace inherits.",
+      })
+    ),
+    /** What the declaring side recorded. */
+    side: HookReplayContext,
+    /** The declared spec verbatim, `<version>` or the legacy `<version>+<integrity>`. */
+    spec: S.String.pipe($I.annoteKey("FetchRequest.spec", { description: "The declared spec verbatim." })),
+    /** The stores the ladder searched, in discovery order; the first is where the fetch writes. */
+    stores: S.Array(S.String).pipe(
+      $I.annoteKey("FetchRequest.stores", {
+        description: "The stores the ladder searched, in discovery order; the fetch writes into the first.",
+      })
+    ),
+    /** The declared version. */
+    version: S.String.pipe($I.annoteKey("FetchRequest.version", { description: "The declared version." })),
+  }).pipe(
+    $I.annoteSchema("FetchRequest", {
+      description: "One config dependency the resolution ladder could not find, handed to the fetch rung.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link FetchRequest}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export interface FetchRequest {
-  /** The declaring side's recorded config-dependency locks, decoded lazily and once per replay. */
-  readonly locks: RecordedLocks;
-  /** The config dependency's name, already `..`-checked. */
-  readonly name: string;
+export declare namespace FetchRequest {
   /**
-   * The current workspace root, whose `.npmrc` and registry keys the scratch
-   * workspace inherits — for both sides of a diff.
+   * The plain, unbranded encoded shape of a {@link FetchRequest}.
+   *
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly root: string;
-  /** What the declaring side recorded. */
-  readonly side: HookReplayContext.Encoded;
-  /** The declared spec verbatim, `<version>` or the legacy `<version>+<integrity>`. */
-  readonly spec: string;
-  /** The stores the ladder searched, in discovery order; the first is where the fetch writes. */
-  readonly stores: ReadonlyArray<string>;
-  /** The declared version. */
-  readonly version: string;
+  export type Encoded = typeof FetchRequest.Encoded;
 }
 
 /**
@@ -217,7 +262,10 @@ const fetchFailure: {
  * @category type-level
  * @since 0.0.0
  */
-export type FetchConfigDependency = (request: FetchRequest) => Effect.Effect<string, FetchFailure>;
+export type FetchConfigDependency = (
+  request: FetchRequest,
+  locks: RecordedLocks
+) => Effect.Effect<string, FetchFailure, FileSystem.FileSystem | Path.Path>;
 
 /**
  * The ceiling on one fetch. It downloads one small tarball; two minutes covers
@@ -245,13 +293,10 @@ const FETCH_TIMEOUT = Duration.minutes(2);
  * import { expectedIntegrity } from "@beep/repo-workspaces/internal/configDependencyFetch"
  * import * as Effect from "effect/Effect"
  *
- * const program = expectedIntegrity({
- *   name: "workspace-config",
- *   version: "1.0.0",
- *   spec: "1.0.0",
- *   side: {},
- *   locks: Effect.succeed(undefined),
- * })
+ * const program = expectedIntegrity(
+ *   { name: "workspace-config", version: "1.0.0", spec: "1.0.0", side: {} },
+ *   Effect.succeed(undefined)
+ * )
  *
  * console.log(Effect.runSync(Effect.flip(program)).reason) // integrityUnavailable
  * ```
@@ -259,56 +304,68 @@ const FETCH_TIMEOUT = Duration.minutes(2);
  * @category validation
  * @since 0.0.0
  */
-export const expectedIntegrity = Effect.fn("expectedIntegrity")(function* (
-  request: Pick<FetchRequest, "name" | "version" | "spec" | "side" | "locks">
-): Effect.fn.Return<string, FetchFailure> {
-  const { name, version, side } = request;
-  const key = `${name}@${version}`;
-  const inline = splitConfigDependencySpec(request.spec).integrity;
-  if (inline !== undefined && !IntegrityHash.isSri(inline)) {
-    return yield* Effect.fail(
-      fetchFailure(
-        "integrityUnavailable",
-        `config dependency ${key} declared by ${sideLabel(side)} carries an inline integrity that is not an SRI hash, ` +
-          "so a fetched copy cannot be verified and nothing was fetched."
+export const expectedIntegrity: {
+  (
+    locks: RecordedLocks
+  ): (request: Pick<FetchRequest.Encoded, "name" | "version" | "spec" | "side">) => Effect.Effect<string, FetchFailure>;
+  (
+    request: Pick<FetchRequest.Encoded, "name" | "version" | "spec" | "side">,
+    locks: RecordedLocks
+  ): Effect.Effect<string, FetchFailure>;
+} = dual(
+  2,
+  Effect.fn("ConfigDependencyFetch.expectedIntegrity")(function* (
+    request: Pick<FetchRequest.Encoded, "name" | "version" | "spec" | "side">,
+    locks: RecordedLocks
+  ): Effect.fn.Return<string, FetchFailure> {
+    const { name, version, side } = request;
+    const key = `${name}@${version}`;
+    const inline = splitConfigDependencySpec(request.spec).integrity;
+    if (inline !== undefined && !IntegrityHash.isSri(inline)) {
+      return yield* Effect.fail(
+        fetchFailure(
+          "integrityUnavailable",
+          `config dependency ${key} declared by ${sideLabel(side)} carries an inline integrity that is not an SRI hash, ` +
+            "so a fetched copy cannot be verified and nothing was fetched."
+        )
+      );
+    }
+    const recorded = yield* locks.pipe(
+      Effect.mapError((cause) =>
+        fetchFailure(
+          "integrityUnavailable",
+          `config dependency ${key} must be fetched, but the pnpm-lock.yaml of ${sideLabel(side)} cannot be read ` +
+            `(${messageOf(cause)}), so its recorded integrity cannot be checked and nothing was fetched.`,
+          cause
+        )
       )
     );
-  }
-  const locks = yield* request.locks.pipe(
-    Effect.mapError((cause) =>
-      fetchFailure(
-        "integrityUnavailable",
-        `config dependency ${key} must be fetched, but the pnpm-lock.yaml of ${sideLabel(side)} cannot be read ` +
-          `(${messageOf(cause)}), so its recorded integrity cannot be checked and nothing was fetched.`,
-        cause
-      )
-    )
-  );
-  const lock = O.getOrUndefined(O.flatMap(O.fromUndefinedOr(locks), HashMap.get(name)));
-  const locked = lock !== undefined && lock.version === version ? lock.integrity : undefined;
-  if (inline !== undefined && locked !== undefined && inline !== locked) {
-    return yield* Effect.fail(
-      fetchFailure(
-        "integrityMismatch",
-        `config dependency ${key} declared by ${sideLabel(side)} has two different recorded integrities: ` +
-          `pnpm-workspace.yaml pins ${inline} and pnpm-lock.yaml records ${locked}. Nothing was fetched; ` +
-          "reconcile the two (a fresh `pnpm install` rewrites the lockfile) before retrying."
-      )
-    );
-  }
-  const integrity = inline ?? locked;
-  if (integrity === undefined) {
-    return yield* Effect.fail(
-      fetchFailure(
-        "integrityUnavailable",
-        `config dependency ${key} must be fetched, but ${sideLabel(side)} records no integrity for it ` +
-          "(no inline integrity in pnpm-workspace.yaml and no pnpm-lock.yaml entry for that version), " +
-          "so a fetched copy could not be verified and nothing was fetched."
-      )
-    );
-  }
-  return integrity;
-});
+    const lock = O.getOrUndefined(O.flatMap(O.fromUndefinedOr(recorded), HashMap.get(name)));
+    const locked = lock !== undefined && lock.version === version ? lock.integrity : undefined;
+    if (inline !== undefined && locked !== undefined && inline !== locked) {
+      return yield* Effect.fail(
+        fetchFailure(
+          "integrityMismatch",
+          `config dependency ${key} declared by ${sideLabel(side)} has two different recorded integrities: ` +
+            `pnpm-workspace.yaml pins ${inline} and pnpm-lock.yaml records ${locked}. Nothing was fetched; ` +
+            "reconcile the two (a fresh `pnpm install` rewrites the lockfile) before retrying."
+        )
+      );
+    }
+    const integrity = inline ?? locked;
+    if (integrity === undefined) {
+      return yield* Effect.fail(
+        fetchFailure(
+          "integrityUnavailable",
+          `config dependency ${key} must be fetched, but ${sideLabel(side)} records no integrity for it ` +
+            "(no inline integrity in pnpm-workspace.yaml and no pnpm-lock.yaml entry for that version), " +
+            "so a fetched copy could not be verified and nothing was fetched."
+        )
+      );
+    }
+    return integrity;
+  })
+);
 
 /**
  * The registry settings pnpm reads from a `pnpm-workspace.yaml`: the default
@@ -434,7 +491,17 @@ export const scratchWorkspaceYaml: {
 );
 
 /** Whether `error` is a node filesystem "no such file" failure. */
-const isNotFound = (error: unknown): boolean => P.isObject(error) && error.code === "ENOENT";
+/** `None` when `effect` fails because its target does not exist; any other failure passes through. */
+const orAbsent = <A, R>(
+  effect: Effect.Effect<A, PlatformError.PlatformError, R>
+): Effect.Effect<O.Option<A>, PlatformError.PlatformError, R> =>
+  effect.pipe(
+    Effect.asSome,
+    Effect.catchIf(
+      (error) => error.reason._tag === "NotFound",
+      () => Effect.succeedNone
+    )
+  );
 
 /**
  * The scratch workspace's `pnpm-lock.yaml`: the env preamble pnpm 11 and 12
@@ -479,25 +546,23 @@ const scratchLockfile: {
  * The `--store-dir` to hand pnpm so it writes into the store the ladder
  * searched first. Discovered stores are the versioned directories
  * (`<root>/v11`), and pnpm appends that segment itself, so a versioned
- * directory is passed as its parent. `undefined` (pnpm's own default) when no
- * store was discovered.
+ * directory is passed as its parent. `None` (pnpm's own default) when no store
+ * was discovered.
  *
  * **Example** (Remove the pnpm store format suffix)
  *
  * ```ts
  * import { storeDirArgument } from "@beep/repo-workspaces/internal/configDependencyFetch"
+ * import * as O from "effect/Option"
  *
- * console.log(storeDirArgument(["/pnpm/store/v11"])) // /pnpm/store
+ * console.log(O.getOrUndefined(storeDirArgument(["/pnpm/store/v11"]))) // /pnpm/store
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const storeDirArgument = (stores: ReadonlyArray<string>): string | undefined => {
-  const first = stores[0];
-  if (first === undefined) return undefined;
-  return /^v\d+$/.test(basename(first)) ? dirname(first) : first;
-};
+export const storeDirArgument = (stores: ReadonlyArray<string>): O.Option<string> =>
+  O.map(A.head(stores), (first) => (/(?:^|[/\\])v\d+$/.test(first) ? NodePath.dirname(first) : first));
 
 /**
  * Builds the pnpm argv for the verified fetch.
@@ -523,7 +588,7 @@ export const fetchArgs: {
     "--frozen-lockfile",
     "--dir",
     scratch,
-    ...(storeDir === undefined ? [] : ["--store-dir", storeDir]),
+    ...O.match(storeDir, { onNone: A.empty<string>, onSome: (dir) => ["--store-dir", dir] }),
   ];
 });
 
@@ -556,57 +621,69 @@ const isStoreEntry: {
  */
 export const makeFetchConfigDependency =
   (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"]): FetchConfigDependency =>
-  (request) =>
+  (request, locks) =>
     Effect.scoped(
       Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
         const { name, version } = request;
         const key = `${name}@${version}`;
         const failed = (message: string, cause?: unknown) => fetchFailure("fetchFailed", message, cause);
         const io: {
-          <A>(what: string, run: () => Promise<A>): Effect.Effect<A, FetchFailure>;
-          <A>(run: () => Promise<A>): (what: string) => Effect.Effect<A, FetchFailure>;
+          <A, R>(
+            what: string,
+            effect: Effect.Effect<A, PlatformError.PlatformError, R>
+          ): Effect.Effect<A, FetchFailure, R>;
+          <A, R>(
+            effect: Effect.Effect<A, PlatformError.PlatformError, R>
+          ): (what: string) => Effect.Effect<A, FetchFailure, R>;
         } = dual(
           2,
-          <A>(what: string, run: () => Promise<A>): Effect.Effect<A, FetchFailure> =>
-            Effect.tryPromise({ try: run, catch: (cause) => failed(`${what} failed: ${messageOf(cause)}`, cause) })
+          <A, R>(
+            what: string,
+            effect: Effect.Effect<A, PlatformError.PlatformError, R>
+          ): Effect.Effect<A, FetchFailure, R> =>
+            Effect.mapError(effect, (cause) => failed(`${what} failed: ${messageOf(cause)}`, cause))
         );
 
-        const integrity = yield* expectedIntegrity(request);
+        const integrity = yield* expectedIntegrity(request, locks);
         // The declaring workspace's registry keys, read before anything is
         // spawned. An absent yaml carries none; an unparseable one fails,
         // since fetching past it could reach a registry the workspace
         // never configured.
-        const rootYaml = yield* io("reading the workspace pnpm-workspace.yaml", () =>
-          readFile(join(request.root, "pnpm-workspace.yaml"), "utf8").catch((error: unknown) => {
-            if (isNotFound(error)) return undefined;
-            throw error;
-          })
+        const rootYaml = yield* io(
+          "reading the workspace pnpm-workspace.yaml",
+          orAbsent(fs.readFileString(path.join(request.root, "pnpm-workspace.yaml")))
         );
-        const settings =
-          rootYaml === undefined
-            ? registrySettingsOf(undefined)
-            : registrySettingsOf(
-                yield* Yaml.parse(rootYaml).pipe(
-                  Effect.mapError((cause) =>
-                    failed(`reading the workspace pnpm-workspace.yaml failed: ${messageOf(cause)}`, cause)
-                  )
-                )
-              );
+        const settings = yield* O.match(rootYaml, {
+          onNone: () => Effect.succeed(registrySettingsOf(undefined)),
+          onSome: (text) =>
+            Yaml.parse(text).pipe(
+              Effect.map(registrySettingsOf),
+              Effect.mapError((cause) =>
+                failed(`reading the workspace pnpm-workspace.yaml failed: ${messageOf(cause)}`, cause)
+              )
+            ),
+        });
         const scratch = yield* Effect.acquireRelease(
-          io("creating a scratch workspace", () => mkdtemp(join(tmpdir(), "effected-config-dependency-"))),
-          (dir) => Effect.promise(() => rm(dir, { recursive: true, force: true }).catch(() => undefined))
+          io("creating a scratch workspace", fs.makeTempDirectory({ prefix: "effected-config-dependency-" })),
+          (dir) => Effect.ignore(fs.remove(dir, { recursive: true, force: true }))
         );
         const lockfile = scratchLockfile(name, version, integrity);
-        yield* io("writing the scratch workspace", () =>
-          writeFile(join(scratch, "pnpm-workspace.yaml"), scratchWorkspaceYaml(name, version, settings))
-            .then(() => writeFile(join(scratch, "pnpm-lock.yaml"), lockfile))
-            .then(() =>
-              // Copied as-is, never read: it may carry auth. The scratch's release
-              // removes it with the rest of the directory.
-              copyFile(join(request.root, ".npmrc"), join(scratch, ".npmrc")).catch((error: unknown) => {
-                if (!isNotFound(error)) throw error;
-              })
-            )
+        yield* io(
+          "writing the scratch workspace",
+          Effect.andThen(
+            Effect.all([
+              fs.writeFileString(
+                path.join(scratch, "pnpm-workspace.yaml"),
+                scratchWorkspaceYaml(name, version, settings)
+              ),
+              fs.writeFileString(path.join(scratch, "pnpm-lock.yaml"), lockfile),
+            ]),
+            // Copied as-is, never read: it may carry auth. The scratch's release
+            // removes it with the rest of the directory.
+            orAbsent(fs.copyFile(path.join(request.root, ".npmrc"), path.join(scratch, ".npmrc")))
+          )
         );
 
         const command = ChildProcess.make("pnpm", fetchArgs(scratch, request.stores), { cwd: scratch });
@@ -623,8 +700,9 @@ export const makeFetchConfigDependency =
         // `--frozen-lockfile` forbids pnpm from rewriting the pin. A pnpm that
         // did anyway (one that does not read the env preamble, say) installed
         // something the pin never verified, so its result is not used.
-        const after = yield* io("reading back the scratch lockfile", () =>
-          readFile(join(scratch, "pnpm-lock.yaml"), "utf8")
+        const after = yield* io(
+          "reading back the scratch lockfile",
+          fs.readFileString(path.join(scratch, "pnpm-lock.yaml"))
         );
         if (after !== lockfile) {
           return yield* Effect.fail(
@@ -637,8 +715,8 @@ export const makeFetchConfigDependency =
 
         // The copy pnpm linked is the one it verified: resolve the scratch
         // workspace's `.pnpm-config` entry to its store directory.
-        const linked = join(scratch, "node_modules", ".pnpm-config", name);
-        const resolved = yield* io(`resolving ${linked}`, () => realpath(linked));
+        const linked = path.join(scratch, "node_modules", ".pnpm-config", name);
+        const resolved = yield* io(`resolving ${linked}`, fs.realPath(linked));
         const manifest = yield* manifestVersion(name, resolved).pipe(
           Effect.mapError((error) =>
             failed(`the fetched ${key} has an unreadable package.json: ${messageOf(error.cause)}`, error.cause)

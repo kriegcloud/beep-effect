@@ -1,15 +1,21 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file missingPipeableSignature:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { dual } from "effect/Function";
 // On-disk fixtures for the config-dependency resolution ladder: a fake
 // `node_modules/.pnpm-config/<name>` install, a fake pnpm store `links/` tree,
-// and the `.modules.yaml` that points one at the other. Real filesystem by
-// necessity — the ladder reads through `node:fs`, never the effect
-// `FileSystem`, because the store is real even when a test's FileSystem is not.
+// and the `.modules.yaml` that points one at the other. Each helper is an
+// effect over the provided `FileSystem` and `Path`: the integration suites run
+// them on the real filesystem, because the replaying layers `import()` the
+// pnpmfiles and the fetch rung spawns a fake `pnpm` that must see the files.
 
-import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Path from "effect/Path";
+import * as S from "effect/Schema";
+import type * as PlatformError from "effect/PlatformError";
 
+/** A pnpmfile to write beside a manifest: `[filename, source]`. */
 type Pnpmfile = readonly [filename: string, source: string];
+
+/** The services every fixture writes through. */
+type FixtureServices = FileSystem.FileSystem | Path.Path;
 
 /** A pnpmfile whose hook injects `hooked-dep` at `range` into the default catalog — the value proves WHICH file ran. */
 export const pnpmfileInjecting = (range: string): string =>
@@ -34,80 +40,98 @@ export const pnpmfileInjectingCjs = (range: string): string =>
     "",
   ].join("\n");
 
-/** Write `dir/package.json` with `name` and `version`, creating the directory. */
-export const writeManifest: {
-  (name: string, version: string | undefined): (dir: string) => void;
-  (dir: string, name: string, version: string | undefined): void;
-} = dual(3, (dir: string, name: string, version: string | undefined): void => {
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, "package.json"), JSON.stringify(version === undefined ? { name } : { name, version }));
+/** A `package.json` naming a package, with or without a version. */
+const ManifestJson = S.fromJsonString(S.Struct({ name: S.String, version: S.optionalKey(S.String) }));
+/** A JSON-quoted string, as `.modules.yaml` spells its keys and values. */
+const JsonQuoted = S.fromJsonString(S.String);
+
+/** A `package.json` naming `name` at `version`, or with no version at all. */
+const manifestText = (name: string, version: string | undefined): Effect.Effect<string, S.SchemaError> =>
+  S.encodeEffect(ManifestJson)(version === undefined ? { name } : { name, version });
+
+/** Write `dir/package.json` with `name` and `version`, creating the directory, then the optional pnpmfile. */
+const writePackage = Effect.fnUntraced(function* (
+  dir: string,
+  name: string,
+  version: string | undefined,
+  pnpmfile: Pnpmfile | undefined
+): Effect.fn.Return<string, PlatformError.PlatformError, FixtureServices> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* fs.makeDirectory(dir, { recursive: true });
+  yield* fs.writeFileString(path.join(dir, "package.json"), yield* Effect.orDie(manifestText(name, version)));
+  if (pnpmfile !== undefined) yield* fs.writeFileString(path.join(dir, pnpmfile[0]), pnpmfile[1]);
+  return dir;
 });
 
 /** The `<root>/node_modules/.pnpm-config/<name>` directory. */
-export const installedDir: {
-  (name: string): (root: string) => string;
-  (root: string, name: string): string;
-} = dual(2, (root: string, name: string): string => join(root, "node_modules", ".pnpm-config", name));
+export const installedDir = Effect.fnUntraced(function* (
+  root: string,
+  name: string
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  return path.join(root, "node_modules", ".pnpm-config", name);
+});
 
 /**
  * Install `name@version` under `.pnpm-config` as a REAL directory (not a
- * symlink), with an optional pnpmfile. `pnpmfile` is `[filename, source]`.
+ * symlink), with an optional pnpmfile.
  */
-export const installConfigDependency = (
+export const installConfigDependency = Effect.fnUntraced(function* (
   root: string,
   name: string,
   version: string | undefined,
-  pnpmfile?: readonly [filename: string, source: string]
-): string => {
-  const dir = installedDir(root, name);
-  writeManifest(dir, name, version);
-  if (pnpmfile !== undefined) writeFileSync(join(dir, pnpmfile[0]), pnpmfile[1]);
-  return dir;
-};
-
-/** The `<store>/links/<name>/<version>/<hash>/node_modules/<name>` directory. */
-export const storeLinkDir: {
-  (name: string, version: string, hash: string): (store: string) => string;
-  (store: string, name: string, version: string, hash: string): string;
-} = dual(4, (store: string, name: string, version: string, hash: string): string =>
-  join(store, "links", name, version, hash, "node_modules", name)
-);
+  pnpmfile?: Pnpmfile
+): Effect.fn.Return<string, PlatformError.PlatformError, FixtureServices> {
+  return yield* writePackage(yield* installedDir(root, name), name, version, pnpmfile);
+});
 
 /**
  * Populate a fake store with `name@version` under `hash`, with an optional
  * pnpmfile. Returns the package directory.
  */
-export const storeConfigDependency: {
-  (name: string, version: string, hash: string, pnpmfile?: Pnpmfile): (store: string) => string;
-  (store: string, name: string, version: string, hash: string, pnpmfile?: Pnpmfile): string;
-} = dual(
-  (args) => typeof args[3] === "string",
-  (store: string, name: string, version: string, hash: string, pnpmfile?: Pnpmfile): string => {
-    const dir = storeLinkDir(store, name, version, hash);
-    writeManifest(dir, name, version);
-    if (pnpmfile !== undefined) writeFileSync(join(dir, pnpmfile[0]), pnpmfile[1]);
-    return dir;
-  }
-);
+export const storeConfigDependency = Effect.fnUntraced(function* (
+  store: string,
+  name: string,
+  version: string,
+  hash: string,
+  pnpmfile?: Pnpmfile
+): Effect.fn.Return<string, PlatformError.PlatformError, FixtureServices> {
+  const path = yield* Path.Path;
+  return yield* writePackage(
+    path.join(store, "links", name, version, hash, "node_modules", name),
+    name,
+    version,
+    pnpmfile
+  );
+});
 
 /** Symlink `.pnpm-config/<name>` at the store's copy, the way pnpm installs a config dependency. */
-export const linkConfigDependency: {
-  (name: string, target: string): (root: string) => void;
-  (root: string, name: string, target: string): void;
-} = dual(3, (root: string, name: string, target: string): void => {
-  const link = installedDir(root, name);
-  mkdirSync(dirname(link), { recursive: true });
-  symlinkSync(target, link, "dir");
+export const linkConfigDependency = Effect.fnUntraced(function* (
+  root: string,
+  name: string,
+  target: string
+): Effect.fn.Return<void, PlatformError.PlatformError, FixtureServices> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const link = yield* installedDir(root, name);
+  yield* fs.makeDirectory(path.dirname(link), { recursive: true });
+  yield* fs.symlink(target, link);
 });
 
 /** Write `<root>/node_modules/.modules.yaml` naming `store` as pnpm does (quoted keys). */
-export const writeModulesYaml: {
-  (store: string): (root: string) => void;
-  (root: string, store: string): void;
-} = dual(2, (root: string, store: string): void => {
-  const dir = join(root, "node_modules");
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, ".modules.yaml"), `"layoutVersion": 5\n"storeDir": ${JSON.stringify(store)}\n`);
+export const writeModulesYaml = Effect.fnUntraced(function* (
+  root: string,
+  store: string
+): Effect.fn.Return<void, PlatformError.PlatformError, FixtureServices> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const dir = path.join(root, "node_modules");
+  yield* fs.makeDirectory(dir, { recursive: true });
+  yield* fs.writeFileString(
+    path.join(dir, ".modules.yaml"),
+    `"layoutVersion": 5\n"storeDir": ${yield* Effect.orDie(S.encodeEffect(JsonQuoted)(store))}\n`
+  );
 });
 
 /**
@@ -178,7 +202,13 @@ symlinkSync(dir, link, "dir");
 `;
 
 /** Write the fake `pnpm` executable (see {@link FAKE_PNPM}) into `binDir`, for prepending to `PATH`. */
-export const writeFakePnpm = (binDir: string): void => {
-  mkdirSync(binDir, { recursive: true });
-  writeFileSync(join(binDir, "pnpm"), FAKE_PNPM, { mode: 0o755 });
-};
+export const writeFakePnpm = Effect.fnUntraced(function* (
+  binDir: string
+): Effect.fn.Return<void, PlatformError.PlatformError, FixtureServices> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* fs.makeDirectory(binDir, { recursive: true });
+  const pnpm = path.join(binDir, "pnpm");
+  yield* fs.writeFileString(pnpm, FAKE_PNPM);
+  yield* fs.chmod(pnpm, 0o755);
+});

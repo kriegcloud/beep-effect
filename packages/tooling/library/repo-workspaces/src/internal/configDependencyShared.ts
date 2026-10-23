@@ -2,26 +2,25 @@ import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 // What the config-dependency ladder (`configDependencyResolution.ts`) and its
 // fetch rung (`configDependencyFetch.ts`) share: the typed `hooks` failure,
-// the absent-or-typed `node:fs` read, the manifest-version reading, and the
+// the absent-or-typed filesystem read, the manifest-version reading and the
 // message helpers. It imports neither of them, so both can import it without
 // a cycle.
 //
-// Runtime-coupled by design, like the ladder: the store is a real directory
-// even when a caller's `FileSystem` is virtual, so this reads through
-// `node:fs`.
+// Every read goes through the caller's `FileSystem` and `Path` services. The
+// store is a real directory, so a replaying layer needs a real `FileSystem`;
+// a virtual one simply finds no store.
 
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { HookReplayContext } from "../ConfigDependencyHooks.ts";
+import type * as PlatformError from "effect/PlatformError";
+import type { HookReplayContext } from "../ConfigDependencyReplay.ts";
 
 const $I = $RepoWorkspacesId.create("internal/configDependencyShared");
-
-// The caller's Effect FileSystem may be virtual; replay must read the real Node module store.
-const { readFile } = process.getBuiltinModule("node:fs/promises");
-const { join } = process.getBuiltinModule("node:path");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -90,12 +89,12 @@ export const messageOf = (cause: unknown): string => (cause instanceof Error ? c
 export const sideLabel = (side: HookReplayContext.Encoded): string =>
   side.ref === undefined ? "the working tree" : `ref ${side.ref}`;
 
-/** Whether a `node:fs` rejection means "nothing there" (as opposed to a real IO failure). */
-const isAbsent = (cause: unknown): boolean =>
-  P.isObject(cause) && (cause.code === "ENOENT" || cause.code === "ENOTDIR");
+/** Whether a filesystem failure means "nothing there" (as opposed to a real IO failure). */
+const isAbsent = (error: PlatformError.PlatformError): boolean =>
+  error.reason._tag === "NotFound" || (P.hasProperty(error.cause, "code") && error.cause.code === "ENOTDIR");
 
 /**
- * Runs a `node:fs/promises` call while distinguishing an absent target from an IO failure.
+ * Runs a filesystem effect while distinguishing an absent target from an IO failure.
  *
  * **Details**
  *
@@ -113,7 +112,7 @@ const isAbsent = (cause: unknown): boolean =>
  * import * as O from "effect/Option"
  * import { ioOrNone } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
- * const result = await Effect.runPromise(ioOrNone("plugin", () => Promise.resolve("manifest")))
+ * const result = await Effect.runPromise(ioOrNone("plugin", Effect.succeed("manifest")))
  * console.log(O.getOrElse(result, () => "absent")) // manifest
  * ```
  *
@@ -121,17 +120,23 @@ const isAbsent = (cause: unknown): boolean =>
  * @since 0.0.0
  */
 export const ioOrNone: {
-  <A>(run: () => Promise<A>): (path: string) => Effect.Effect<O.Option<A>, CatalogAssemblyError>;
-  <A>(path: string, run: () => Promise<A>): Effect.Effect<O.Option<A>, CatalogAssemblyError>;
+  <A, R>(
+    effect: Effect.Effect<A, PlatformError.PlatformError, R>
+  ): (path: string) => Effect.Effect<O.Option<A>, CatalogAssemblyError, R>;
+  <A, R>(
+    path: string,
+    effect: Effect.Effect<A, PlatformError.PlatformError, R>
+  ): Effect.Effect<O.Option<A>, CatalogAssemblyError, R>;
 } = dual(
   2,
-  <A>(path: string, run: () => Promise<A>): Effect.Effect<O.Option<A>, CatalogAssemblyError> =>
-    Effect.tryPromise({ try: run, catch: (cause) => hooksError(path, cause, undefined) }).pipe(
+  <A, R>(
+    path: string,
+    effect: Effect.Effect<A, PlatformError.PlatformError, R>
+  ): Effect.Effect<O.Option<A>, CatalogAssemblyError, R> =>
+    effect.pipe(
       Effect.asSome,
-      Effect.catchIf(
-        (error) => isAbsent(error.cause),
-        () => Effect.succeedNone
-      )
+      Effect.catchIf(isAbsent, () => Effect.succeedNone),
+      Effect.mapError((cause) => hooksError(path, cause, undefined))
     )
 );
 
@@ -240,23 +245,25 @@ export const carries: {
  * @since 0.0.0
  */
 export const manifestVersion: {
-  (dir: string): (name: string) => Effect.Effect<ManifestVersion, CatalogAssemblyError>;
-  (name: string, dir: string): Effect.Effect<ManifestVersion, CatalogAssemblyError>;
+  (
+    dir: string
+  ): (name: string) => Effect.Effect<ManifestVersion, CatalogAssemblyError, FileSystem.FileSystem | Path.Path>;
+  (name: string, dir: string): Effect.Effect<ManifestVersion, CatalogAssemblyError, FileSystem.FileSystem | Path.Path>;
 } = dual(
   2,
-  (name: string, dir: string): Effect.Effect<ManifestVersion, CatalogAssemblyError> =>
-    ioOrNone(name, () => readFile(join(dir, "package.json"), "utf8")).pipe(
-      Effect.flatMap((text) => {
-        if (O.isNone(text)) return Effect.succeed(ABSENT);
-        return S.decodeEffect(JsonValue)(text.value).pipe(
-          Effect.mapError((cause) => hooksError(name, cause, undefined)),
-          Effect.map(
-            (parsed): ManifestVersion =>
-              P.isObject(parsed) && P.isString(parsed.version) && parsed.version !== ""
-                ? ManifestVersion.cases.version.make({ version: parsed.version })
-                : UNVERSIONED
-          )
-        );
-      })
-    )
+  Effect.fnUntraced(function* (
+    name: string,
+    dir: string
+  ): Effect.fn.Return<ManifestVersion, CatalogAssemblyError, FileSystem.FileSystem | Path.Path> {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const text = yield* ioOrNone(name, fs.readFileString(path.join(dir, "package.json")));
+    if (O.isNone(text)) return ABSENT;
+    const parsed = yield* S.decodeEffect(JsonValue)(text.value).pipe(
+      Effect.mapError((cause) => hooksError(name, cause, undefined))
+    );
+    return P.isObject(parsed) && P.isString(parsed.version) && parsed.version !== ""
+      ? ManifestVersion.cases.version.make({ version: parsed.version })
+      : UNVERSIONED;
+  })
 );

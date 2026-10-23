@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Parent-side plumbing of `ConfigDependencyHooks.layerSubprocess`, over the
 // public `ScriptedSpawner` double from `@effected/commands`.
 //
@@ -10,65 +9,48 @@
 // all, the exact argv contract, and how each transport outcome maps onto the
 // typed error taxonomy.
 //
-// The ladder reads the real disk (it must — the pnpm store is real even when
-// a FileSystem is virtual), so the root here is a real temp directory whose
-import * as TestClock from "effect/testing/TestClock";
+// The ladder reads through the provided FileSystem, so the root here is a
+// `@beep/memfs` volume whose `.pnpm-config/<name>` entries are installed at
+// `1.0.0` with a pnpmfile the scripted spawner never actually loads. The real
+// child running the emitted script and argv is
+// `integration/ConfigDependencyHooksSubprocess.int.test.ts`.
 
-// `.pnpm-config/<name>` entries are installed at `1.0.0` with a pnpmfile the
-// scripted spawner never actually loads.
-
-import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { ScriptedSpawner } from "@beep/commands";
+import { MemoryFileSystem } from "@beep/memfs";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { ConfigDependencyHooks } from "@beep/repo-workspaces";
 import { HookInjection, NoPeerDependencyRules, PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
-import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
+import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-
-const ManifestText = S.fromJsonString(S.Struct({ name: S.String, version: S.String }));
-const ReplayText = S.fromJsonString(
-  S.Struct({
-    ok: S.tag(true),
-    config: S.Struct({
-      catalog: S.Record(S.String, S.String),
-      catalogs: S.Record(S.String, S.Record(S.String, S.String)),
-    }),
-  })
-);
+import * as TestClock from "effect/testing/TestClock";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
-let ROOT: string;
+const ROOT = "/repo";
 const SEED = { default: { effect: "^4.0.0" }, named: { "left-pad": "^1.0.0" } } as const;
 const INSTALLED = ["dep", "dep-a", "@scope/dep-b", "@scope/pkg", "broken-dep"] as const;
 
 /** The pnpmfile path the parent resolves for an installed fixture. */
-const pnpmfileOf = (name: string): string => join(ROOT, "node_modules", ".pnpm-config", name, "pnpmfile.mjs");
+const pnpmfileOf = (name: string): string => `${ROOT}/node_modules/.pnpm-config/${name}/pnpmfile.mjs`;
 /** The `file:` URL the child receives for a resolved pnpmfile — the parent converts, the child only imports. */
-const pnpmfileUrlOf = (name: string): string => pathToFileURL(pnpmfileOf(name)).href;
+const pnpmfileUrlOf = (name: string): string => `file://${pnpmfileOf(name)}`;
 
-beforeAll(() => {
-  ROOT = mkdtempSync(join(tmpdir(), "effected-hooks-argv-"));
-  for (const name of INSTALLED) {
-    const dir = join(ROOT, "node_modules", ".pnpm-config", name);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "package.json"), JSON.stringify({ name, version: "1.0.0" }));
-    writeFileSync(join(dir, "pnpmfile.mjs"), "export const hooks = {};\n");
-  }
-});
-
-afterAll(() => {
-  if (ROOT !== undefined) rmSync(ROOT, { recursive: true, force: true });
-});
+/** The installed `.pnpm-config` tree, every entry at `1.0.0`. */
+const installed = R.fromEntries(
+  A.flatMap(INSTALLED, (name) => [
+    [`${ROOT}/node_modules/.pnpm-config/${name}/package.json`, JSON.stringify({ name, version: "1.0.0" })],
+    [pnpmfileOf(name), "export const hooks = {};\n"],
+  ])
+);
 
 /** A payload the subprocess protocol would print, framed as the final stdout line. */
 const emitted = (payload: unknown, noise = ""): string => `${noise}\n${JSON.stringify(payload)}\n`;
@@ -76,7 +58,10 @@ const emitted = (payload: unknown, noise = ""): string => `${noise}\n${JSON.stri
 /** The layer under test over a scripted spawner, plus the spawn log. */
 const harness = (script: Parameters<typeof ScriptedSpawner.make>[0]) => {
   const spawner = ScriptedSpawner.make(script);
-  const layer = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(spawner.layer));
+  const layer = ConfigDependencyHooks.layerSubprocess.pipe(
+    Layer.provide(spawner.layer),
+    Layer.provide(Layer.merge(MemoryFileSystem.layerWith(installed), Path.layer))
+  );
   return { spawner, layer };
 };
 
@@ -136,55 +121,6 @@ describe("ConfigDependencyHooks.layerSubprocess — no-spawn fast paths", () => 
 });
 
 describe("ConfigDependencyHooks.layerSubprocess — the argv contract", () => {
-  {
-    const { spawner, layer } = harness(() => ({ stdout: emitted({ ok: true, config: {} }) }));
-    it.layer(layer, { timeout: "30 seconds" })((it) => {
-      it.effect("the actual child preserves an own __proto__ catalog beside a normal named catalog", () =>
-        Effect.gen(function* () {
-          const name = "identity-catalogs";
-          const dir = join(ROOT, "node_modules", ".pnpm-config", name);
-          mkdirSync(dir, { recursive: true });
-          const manifest = yield* S.encodeEffect(ManifestText)({ name, version: "1.0.0" });
-          writeFileSync(join(dir, "package.json"), manifest);
-          writeFileSync(join(dir, "pnpmfile.mjs"), "export const hooks = { updateConfig: (config) => config };\n");
-          const named = R.fromEntries([
-            ["__proto__", { effect: "^4.0.0" }],
-            ["named", { foo: "^1" }],
-          ]);
-          const seed = { default: { typescript: "^6" }, ...named };
-          const hooks = yield* ConfigDependencyHooks;
-          yield* hooks.inject(ROOT, { [name]: "1.0.0" }, seed);
-          const command = spawner.spawns[0];
-          assert.isDefined(command);
-          const output = join(ROOT, "own-catalog-replay.json");
-          // A real node child executes the exact script and argv the layer emitted.
-          // File-backed stdout also works where the sandbox cannot capture child pipes.
-          const code = yield* Effect.acquireUseRelease(
-            Effect.sync(() => openSync(output, "w")),
-            (fd) =>
-              Effect.callback<number | null, Error>((resume) => {
-                const child = process.getBuiltinModule("node:child_process").spawn(process.execPath, command.args, {
-                  stdio: ["ignore", fd, "inherit"],
-                });
-                child.once("error", (cause) => resume(Effect.fail(cause)));
-                child.once("close", (status) => resume(Effect.succeed(status)));
-                return Effect.sync(() => {
-                  child.kill();
-                });
-              }),
-            (fd) => Effect.sync(() => closeSync(fd))
-          );
-          assert.strictEqual(code, 0);
-          const payload = yield* S.decodeEffect(ReplayText)(readFileSync(output, "utf8").trim());
-          assert.deepStrictEqual(payload.config.catalog, seed.default);
-          assert.deepStrictEqual(payload.config.catalogs, named);
-          assert.isTrue(Object.hasOwn(payload.config.catalogs, "__proto__"));
-          assert.deepStrictEqual(Object.keys(payload.config.catalogs), ["__proto__", "named"]);
-        })
-      );
-    });
-  }
-
   {
     const { spawner, layer } = harness(() => ({ stdout: emitted({ ok: true, config: {} }) }));
     it.layer(layer, { timeout: "30 seconds" })((it) => {
@@ -331,28 +267,24 @@ describe("ConfigDependencyHooks.layerSubprocess — transport failures are typed
       Deferred.doneUnsafe(started, Effect.void);
       return { hang: true };
     });
-    it.layer(layer, { timeout: "30 seconds" })((it) => {
-      it.effect("a replay that never settles fails typed at the thirty-second ceiling", () =>
-        Effect.gen(function* () {
-          const hooks = yield* ConfigDependencyHooks;
-          const fiber = yield* hooks.inject(ROOT, { dep: "1.0.0" }, SEED).pipe(Effect.flip, Effect.forkChild);
-          // Wait for the native-fs resolution to spawn, or for an early typed
-          // failure, so a failed resolution still reaches the spawn assertion.
-          yield* Deferred.await(started).pipe(Effect.raceFirst(Fiber.join(fiber)));
-          assert.strictEqual(
-            spawner.spawns.length,
-            1,
-            "the replay child was never spawned — did resolution fail first?"
-          );
-          // This layer block has one test, so it exclusively owns its TestClock.
-          yield* TestClock.adjust("31 seconds");
-          const error = yield* Fiber.join(fiber);
-          assert.instanceOf(error, CatalogAssemblyError);
-          assert.strictEqual(error.source, "hooks");
-          assert.strictEqual(error.path, ROOT);
-        })
-      );
-    });
+    // Built per test, not as a shared `it.layer` block: the test advances the
+    // clock, so it must own the TestClock its subject runs on.
+    it.effect("a replay that never settles fails typed at the thirty-second ceiling", () =>
+      Effect.gen(function* () {
+        const context = yield* Layer.build(layer);
+        const hooks = Context.get(context, ConfigDependencyHooks);
+        const fiber = yield* hooks.inject(ROOT, { dep: "1.0.0" }, SEED).pipe(Effect.flip, Effect.forkChild);
+        // Wait for resolution to spawn, or for an early typed failure, so a
+        // failed resolution still reaches the spawn assertion.
+        yield* Deferred.await(started).pipe(Effect.raceFirst(Fiber.join(fiber)));
+        assert.strictEqual(spawner.spawns.length, 1, "the replay child was never spawned — did resolution fail first?");
+        yield* TestClock.adjust("31 seconds");
+        const error = yield* Fiber.join(fiber);
+        assert.instanceOf(error, CatalogAssemblyError);
+        assert.strictEqual(error.source, "hooks");
+        assert.strictEqual(error.path, ROOT);
+      })
+    );
   }
 
   {

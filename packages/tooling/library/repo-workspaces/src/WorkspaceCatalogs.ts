@@ -27,12 +27,8 @@ import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import {
-  ConfigDependencyHooks,
-  HookReplay,
-  NoPeerDependencyRules,
-  PeerDependencyRules,
-} from "./ConfigDependencyHooks.ts";
+import { ConfigDependencyHooks, NoPeerDependencyRules, PeerDependencyRules } from "./ConfigDependencyHooks.ts";
+import { HookReplay } from "./ConfigDependencyReplay.ts";
 import { inlineCatalogs, merge, normalize, rangeOf } from "./internal/catalogs.ts";
 import { importerVersionsOf } from "./internal/importerVersions.ts";
 import { findLayerRoot } from "./internal/layerRoot.ts";
@@ -41,7 +37,8 @@ import { LockfileReader } from "./LockfileReader.ts";
 import { WorkspaceRoot } from "./WorkspaceRoot.ts";
 import type { Lockfile } from "@beep/lockfiles";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import type { ConfigDependencyHooksShape, HookInjection, HookReplayContext } from "./ConfigDependencyHooks.ts";
+import type { ConfigDependencyHooksShape, HookInjection } from "./ConfigDependencyHooks.ts";
+import type { HookReplayContext } from "./ConfigDependencyReplay.ts";
 import type { LockfileReadFailure } from "./LockfileReader.ts";
 import type { WorkspaceRootNotFoundError } from "./WorkspaceRoot.ts";
 

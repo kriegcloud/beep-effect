@@ -1,7 +1,10 @@
 import { ScriptedSpawner } from "@beep/commands";
+import { MemoryFileSystem } from "@beep/memfs";
+import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
@@ -63,11 +66,11 @@ vi.doMock("./fixtures/hook-pnpmfile-age-garbage.mjs", () => ({
 }));
 
 const Hooks = await import("@beep/repo-workspaces/ConfigDependencyHooks");
-const { ConfigDependencyHooks, HookReplay, NoPeerDependencyRules } = Hooks;
+const { ConfigDependencyHooks, NoPeerDependencyRules } = Hooks;
 
 const replayLayer = ConfigDependencyHooks.layerFrom({
   "cfg@1.0.0": `${import.meta.dirname}/fixtures/hook-pnpmfile.mjs`,
-});
+}).pipe(Layer.provide(Path.layer));
 const inject = (scenario: string, rules?: PeerDependencyRules) =>
   ConfigDependencyHooks.use((hooks) => hooks.inject("/repo", { cfg: "1.0.0" }, { default: { scenario } }, rules));
 
@@ -131,7 +134,9 @@ describe("ConfigDependencyHooks replay coverage", () => {
     ["hook-pnpmfile-age-4320.mjs", { named: { added: "^2" } }],
     ["hook-pnpmfile-age-garbage.mjs", {}],
   ] as const) {
-    const replay = ConfigDependencyHooks.layerFrom({ "cfg@1.0.0": `${import.meta.dirname}/fixtures/${file}` });
+    const replay = ConfigDependencyHooks.layerFrom({ "cfg@1.0.0": `${import.meta.dirname}/fixtures/${file}` }).pipe(
+      Layer.provide(Path.layer)
+    );
     it.layer(replay, { timeout: "30 seconds" })((it) => {
       it.effect(`replays the supported export shape in ${file}`, () =>
         Effect.gen(function* () {
@@ -145,7 +150,7 @@ describe("ConfigDependencyHooks replay coverage", () => {
   }
   const noHook = ConfigDependencyHooks.layerFrom({
     "cfg@1.0.0": `${import.meta.dirname}/fixtures/hook-pnpmfile-age-garbage.mjs`,
-  });
+  }).pipe(Layer.provide(Path.layer));
   it.layer(noHook, { timeout: "30 seconds" })((it) => {
     it.effect("an absent default catalog preserves named catalogs", () =>
       Effect.gen(function* () {
@@ -161,21 +166,23 @@ for (const payload of [{ ok: false }, { ok: false, name: "cfg", message: "bad ho
   const spawner = ScriptedSpawner.make(() => ({
     stdout: `${Result.getOrThrow(S.encodeResult(JsonValue)(payload))}\n`,
   }));
-  it.layer(ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(spawner.layer)), { timeout: "30 seconds" })(
-    (it) => {
-      it.effect(`reconstructs replay failure with ${payload.message ?? "default diagnostic"}`, () =>
-        Effect.gen(function* () {
-          const hooks = yield* ConfigDependencyHooks;
-          const failure = yield* Effect.flip(hooks.inject("/repo", { cfg: "1.0.0" }, {}));
-          assert.strictEqual(failure.source, "hooks");
-          assert.strictEqual(failure.path, payload.name ?? "/repo");
-          assert.instanceOf(failure.cause, Error);
-          if (failure.cause instanceof Error) {
-            assert.strictEqual(failure.cause.message, payload.message ?? "config dependency hook replay failed");
-            if (payload.stack !== undefined) assert.strictEqual(failure.cause.stack, payload.stack);
-          }
-        })
-      );
-    }
+  const subprocess = ConfigDependencyHooks.layerSubprocess.pipe(
+    Layer.provide(spawner.layer),
+    Layer.provide(Layer.merge(MemoryFileSystem.layer, Path.layer))
   );
+  it.layer(subprocess, { timeout: "30 seconds" })((it) => {
+    it.effect(`reconstructs replay failure with ${payload.message ?? "default diagnostic"}`, () =>
+      Effect.gen(function* () {
+        const hooks = yield* ConfigDependencyHooks;
+        const failure = yield* Effect.flip(hooks.inject("/repo", { cfg: "1.0.0" }, {}));
+        assert.strictEqual(failure.source, "hooks");
+        assert.strictEqual(failure.path, payload.name ?? "/repo");
+        assert.instanceOf(failure.cause, Error);
+        if (failure.cause instanceof Error) {
+          assert.strictEqual(failure.cause.message, payload.message ?? "config dependency hook replay failed");
+          if (payload.stack !== undefined) assert.strictEqual(failure.cause.stack, payload.stack);
+        }
+      })
+    );
+  });
 }

@@ -30,12 +30,10 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 // hooks operate on is the plain `catalog name → dependency → range` record, and
 // the only normalization borrowed here is the prototype-safe `normalize`.
 
-import { pathToFileURL } from "node:url";
 import { Run } from "@beep/commands";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { PartialReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
-import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -43,14 +41,18 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { HookReplay } from "./ConfigDependencyReplay.ts";
 import { normalize } from "./internal/catalogs.ts";
 import { makeFetchConfigDependency } from "./internal/configDependencyFetch.ts";
 import { lookupPnpmfiles, resolvePnpmfiles } from "./internal/configDependencyResolution.ts";
 import { isPlainObject, JsonObject } from "./PackageManagerName.ts";
+import type * as FileSystem from "effect/FileSystem";
+import type { HookReplayContext } from "./ConfigDependencyReplay.ts";
 import type { CatalogEntries } from "./internal/catalogs.ts";
 import type { ResolvedPnpmfile } from "./internal/configDependencyResolution.ts";
 
@@ -225,174 +227,6 @@ export const NoPeerDependencyRules: PeerDependencyRules = PeerDependencyRules.ma
 
 /** Internal alias, kept short at the many call sites in this module. */
 const NO_PEER_RULES: PeerDependencyRules = NoPeerDependencyRules;
-
-/**
- * Where a replayed config dependency's declared version was found: the
- * `node_modules/.pnpm-config` copy, the pnpm store's `links/` tree, the store
- * after {@link ConfigDependencyHooks.layerSubprocess} fetched it, or a
- * {@link ConfigDependencyHooks.layerFrom} entry.
- *
- * **Example** (Validate replay resolution sources)
- *
- * ```ts
- * import { HookReplaySource } from "@beep/repo-workspaces/ConfigDependencyHooks";
- * import * as S from "effect/Schema";
- *
- * console.log(S.is(HookReplaySource)("installed")) // true
- * console.log(S.is(HookReplaySource)("registry")) // false
- * ```
- *
- * @public
- * @category schemas
- * @since 0.0.0
- */
-export const HookReplaySource = LiteralKit(["installed", "store", "fetched", "supplied"]).pipe(
-  $I.annoteSchema("HookReplaySource", {
-    description: "The resolution rung supplying the declared config dependency version for replay.",
-  })
-);
-
-/**
- * The resolution rung supplying a replayed version.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type HookReplaySource = typeof HookReplaySource.Type;
-
-/**
- * What the side whose `configDependencies` are being replayed recorded beyond
- * that map — the input the fetch rung needs to verify what it fetches.
- *
- * **Details**
- *
- * Both fields are optional, and omitting the whole context is always valid:
- * nothing here changes which version is replayed. `lockfile` matters only when
- * a replaying layer must fetch a version installed nowhere, and only
- * {@link ConfigDependencyHooks.layerSubprocess} fetches. Without it, a bare
- * `configDependencies` spec has no integrity to verify a fetch against, so the
- * fetch fails closed with `reason: "integrityUnavailable"`.
- *
- * `WorkspaceCatalogs` passes the working tree's lockfile, and
- * `WorkspaceSnapshots.at(ref)` passes the lockfile and the ref it read at, so
- * each side of a diff is verified against its own record.
- *
- * **Example** (Record the declaring git ref)
- *
- * ```ts
- * import { HookReplayContext } from "@beep/repo-workspaces/ConfigDependencyHooks";
- *
- * const context = HookReplayContext.make({ ref: "origin/main" });
- * console.log(context.ref) // origin/main
- * ```
- *
- * @public
- * @category schemas
- * @since 0.0.0
- */
-export class HookReplayContext extends S.Opaque<HookReplayContext, { readonly brand: unique symbol }>()(
-  S.Struct({
-    /**
-     * The declaring side's `pnpm-lock.yaml` text, whose env preamble records each
-     * config dependency's integrity. `undefined` when that side has no lockfile.
-     */
-    lockfile: S.optionalKey(S.String).pipe(
-      $I.annoteKey("HookReplayContext.lockfile", {
-        description: "The declaring side's lockfile text, when available to verify a fetch.",
-      })
-    ),
-    /**
-     * The git ref whose `pnpm-workspace.yaml` declared the `configDependencies`,
-     * used to name the side in error messages. `undefined` for the working tree.
-     */
-    ref: S.optionalKey(S.String).pipe(
-      $I.annoteKey("HookReplayContext.ref", {
-        description: "The declaring git ref, or undefined for the working tree.",
-      })
-    ),
-  }).pipe(
-    $I.annoteSchema("HookReplayContext", {
-      description: "Optional lockfile and ref provenance used to verify and identify the declaring side of a replay.",
-    })
-  )
-) {}
-
-/**
- * Companion types for {@link HookReplayContext}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export declare namespace HookReplayContext {
-  /**
-   * The plain, unbranded encoded shape of a {@link HookReplayContext}.
-   *
-   * @category type-level
-   * @since 0.0.0
-   */
-  export type Encoded = typeof HookReplayContext.Encoded;
-}
-
-/**
- * Which version of a config dependency a replay actually loaded, and where
- * that version came from.
- *
- * **Details**
- *
- * Recorded per dependency so a consumer diffing two refs can tell not just
- * WHAT the hooks injected but which pinned version injected it — the
- * evidence that a "range moved" row came from a config-dependency bump and
- * not from a hook edit. `installed` is the `node_modules/.pnpm-config` copy,
- * `store` the pnpm store's `links/` tree, `fetched` the store copy
- * {@link ConfigDependencyHooks.layerSubprocess} fetched, verified, because
- * neither held the declared version, and `supplied` a
- * {@link ConfigDependencyHooks.layerFrom} entry.
- *
- * **Example** (Record a supplied hook version)
- *
- * ```ts
- * import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyHooks";
- *
- * const replay = HookReplay.make({ version: "1.0.0", source: "supplied" });
- * console.log(replay.source) // supplied
- * ```
- *
- * @public
- * @category schemas
- * @since 0.0.0
- */
-export class HookReplay extends S.Opaque<HookReplay, { readonly brand: unique symbol }>()(
-  S.Struct({
-    /** The declared version that was resolved and replayed. */
-    version: S.String.pipe(
-      $I.annoteKey("HookReplay.version", { description: "The declared version resolved and replayed." })
-    ),
-    /** Which resolution rung answered. */
-    source: HookReplaySource.pipe(
-      $I.annoteKey("HookReplay.source", { description: "The resolution rung answering for this version." })
-    ),
-  }).pipe(
-    $I.annoteSchema("HookReplay", {
-      description: "The declared version and resolution provenance of one replayed config dependency.",
-    })
-  )
-) {}
-
-/**
- * Companion types for {@link HookReplay}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export declare namespace HookReplay {
-  /**
-   * The plain, unbranded encoded shape of a {@link HookReplay}.
-   *
-   * @category type-level
-   * @since 0.0.0
-   */
-  export type Encoded = typeof HookReplay.Encoded;
-}
 
 /**
  * The result of replaying a workspace's `configDependencies` hooks: the catalogs
@@ -778,6 +612,21 @@ const injectionOf: {
     })
 );
 
+/** The `file:` URL a pnpmfile is imported from, failing typed for a path that has none. */
+const fileUrlOf: {
+  (name: string, path: string): Effect.Effect<string, CatalogAssemblyError, Path.Path>;
+  (path: string): (name: string) => Effect.Effect<string, CatalogAssemblyError, Path.Path>;
+} = dual(
+  2,
+  Effect.fnUntraced(function* (name: string, path: string): Effect.fn.Return<string, CatalogAssemblyError, Path.Path> {
+    const paths = yield* Path.Path;
+    const url = yield* paths
+      .toFileUrl(path)
+      .pipe(Effect.mapError((cause) => CatalogAssemblyError.make({ source: "hooks", path: name, cause })));
+    return url.href;
+  })
+);
+
 /**
  * Replay already-resolved pnpmfiles IN PROCESS over the seed, in order — the
  * one implementation {@link ConfigDependencyHooks.layerLive} and
@@ -802,23 +651,23 @@ const replayInProcess: {
     pnpmfiles: ReadonlyArray<ResolvedPnpmfile>,
     seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
     rules: PeerDependencyRules.Encoded | undefined
-  ): Effect.Effect<HookInjection, CatalogAssemblyError>;
+  ): Effect.Effect<HookInjection, CatalogAssemblyError, Path.Path>;
   (
     seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
     rules: PeerDependencyRules.Encoded | undefined
-  ): (pnpmfiles: ReadonlyArray<ResolvedPnpmfile>) => Effect.Effect<HookInjection, CatalogAssemblyError>;
+  ): (pnpmfiles: ReadonlyArray<ResolvedPnpmfile>) => Effect.Effect<HookInjection, CatalogAssemblyError, Path.Path>;
 } = dual(
   3,
-  Effect.fn("replayInProcess")(function* (
+  Effect.fn("ConfigDependencyHooks.replayInProcess")(function* (
     pnpmfiles: ReadonlyArray<ResolvedPnpmfile>,
     seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
     rules: PeerDependencyRules.Encoded | undefined
-  ): Effect.fn.Return<HookInjection, CatalogAssemblyError> {
+  ): Effect.fn.Return<HookInjection, CatalogAssemblyError, Path.Path> {
     let config = seedToConfig(seed, rules);
     for (const { name, path } of pnpmfiles) {
       // Resolved but shipping no pnpmfile: recorded in `replays`, nothing to run.
       if (path === undefined) continue;
-      const url = pathToFileURL(path).href;
+      const url = yield* fileUrlOf(name, path);
       const loaded = yield* Effect.tryPromise({
         // `webpackIgnore` keeps webpack-family bundlers from compiling this
         // computed import into a context module: the target is a runtime
@@ -1124,11 +973,12 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    *
    * Runtime-coupled by design, not node-exclusive. The `import()` loads
    * **and executes** a config dependency's pnpmfile in-process — code execution,
-   * not IO, so no `FileSystem` / `Path` service abstracts it — and the ladder
-   * reads the real disk through `node:fs` for the same reason: the store it
-   * searches is real even when the caller's `FileSystem` is virtual. Only ever
-   * wired by `WorkspaceCatalogs.layerWithConfigDependencies` and the
-   * `Workspaces` composites of the same name.
+   * not IO, so no `FileSystem` / `Path` service abstracts it. The ladder reads
+   * through the `FileSystem` and `Path` the layer is built with, so replaying
+   * a real workspace needs a real `FileSystem`: on a virtual one the store is
+   * not found and the replay fails typed. Only ever wired by
+   * `WorkspaceCatalogs.layerWithConfigDependencies` and the `Workspaces`
+   * composites of the same name.
    *
    * **Example** (Construct the in-process replay layer)
    *
@@ -1142,22 +992,29 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * @category layers
    * @since 0.0.0
    */
-  static readonly layerLive: Layer.Layer<ConfigDependencyHooks> = Layer.succeed(ConfigDependencyHooks, {
-    inject: dual(
-      (args) => P.isString(args[0]),
-      Effect.fn("ConfigDependencyHooks.inject")(function* (
-        root: string,
-        configDependencies: Readonly<Record<string, string>>,
-        seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-        rules: PeerDependencyRules.Encoded | undefined,
-        context: HookReplayContext.Encoded | undefined
-      ) {
-        if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
-        const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, { side: context });
-        return yield* replayInProcess(pnpmfiles, seed, rules);
+  static readonly layerLive: Layer.Layer<ConfigDependencyHooks, never, FileSystem.FileSystem | Path.Path> =
+    Layer.effect(
+      ConfigDependencyHooks,
+      Effect.gen(function* () {
+        const services = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
+        return {
+          inject: dual(
+            (args) => P.isString(args[0]),
+            Effect.fn("ConfigDependencyHooks.inject")(function* (
+              root: string,
+              configDependencies: Readonly<Record<string, string>>,
+              seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+              rules: PeerDependencyRules.Encoded | undefined,
+              context: HookReplayContext.Encoded | undefined
+            ) {
+              if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
+              const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, context);
+              return yield* replayInProcess(pnpmfiles, seed, rules);
+            }, Effect.provide(services))
+          ),
+        };
       })
-    ),
-  });
+    );
 
   /**
    * The hermetic layer: replays caller-supplied pnpmfiles, keyed
@@ -1202,22 +1059,33 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * @category layers
    * @since 0.0.0
    */
-  static readonly layerFrom = (entries: Readonly<Record<string, string>>): Layer.Layer<ConfigDependencyHooks> =>
-    Layer.succeed(ConfigDependencyHooks, {
-      inject: dual(
-        (args) => P.isString(args[0]),
-        Effect.fn("ConfigDependencyHooks.inject")(function* (
-          _root: string,
-          configDependencies: Readonly<Record<string, string>>,
-          seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-          rules: PeerDependencyRules.Encoded | undefined
-        ) {
-          if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
-          const pnpmfiles = yield* lookupPnpmfiles(entries, configDependencies);
-          return yield* replayInProcess(pnpmfiles, seed, rules);
-        })
-      ),
-    });
+  static readonly layerFrom = (
+    entries: Readonly<Record<string, string>>
+  ): Layer.Layer<ConfigDependencyHooks, never, Path.Path> =>
+    Layer.effect(
+      ConfigDependencyHooks,
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        return {
+          inject: dual(
+            (args) => P.isString(args[0]),
+            Effect.fn("ConfigDependencyHooks.inject")(
+              function* (
+                _root: string,
+                configDependencies: Readonly<Record<string, string>>,
+                seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+                rules: PeerDependencyRules.Encoded | undefined
+              ) {
+                if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
+                const pnpmfiles = yield* lookupPnpmfiles(entries, configDependencies);
+                return yield* replayInProcess(pnpmfiles, seed, rules);
+              },
+              Effect.provideService(Path.Path, path)
+            )
+          ),
+        };
+      })
+    );
 
   /**
    * The subprocess layer: replays each config dependency's pnpmfile in a `node`
@@ -1312,84 +1180,89 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * @category layers
    * @since 0.0.0
    */
-  static readonly layerSubprocess: Layer.Layer<ConfigDependencyHooks, never, ChildProcessSpawner.ChildProcessSpawner> =
-    Layer.effect(
-      ConfigDependencyHooks,
-      Effect.gen(function* () {
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-        const fetch = makeFetchConfigDependency(spawner);
-        return {
-          inject: dual(
-            (args) => P.isString(args[0]),
-            Effect.fn("ConfigDependencyHooks.inject")(function* (
-              root: string,
-              configDependencies: Readonly<Record<string, string>>,
-              seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-              rules: PeerDependencyRules.Encoded | undefined,
-              context: HookReplayContext.Encoded | undefined
-            ) {
-              if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
+  static readonly layerSubprocess: Layer.Layer<
+    ConfigDependencyHooks,
+    never,
+    ChildProcessSpawner.ChildProcessSpawner | FileSystem.FileSystem | Path.Path
+  > = Layer.effect(
+    ConfigDependencyHooks,
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const services = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
+      const fetch = makeFetchConfigDependency(spawner);
+      return {
+        inject: dual(
+          (args) => P.isString(args[0]),
+          Effect.fn("ConfigDependencyHooks.inject")(function* (
+            root: string,
+            configDependencies: Readonly<Record<string, string>>,
+            seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+            rules: PeerDependencyRules.Encoded | undefined,
+            context: HookReplayContext.Encoded | undefined
+          ) {
+            if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
 
-              // Resolve in the parent: the `..` refusal and the declared-version
-              // ladder run here, so no subprocess ever sees a traversal name or
-              // performs a lookup of its own. Nothing to replay → nothing to spawn.
-              // This layer alone wires the fetch rung, over the same spawner.
-              const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, { side: context, fetch });
-              const loadable = A.flatMap(pnpmfiles, ({ name, path }) =>
-                path === undefined ? [] : [[name, pathToFileURL(path).href] as const]
-              );
-              if (loadable.length === 0) return untouched(seed, rules, replaysOf(pnpmfiles));
+            // Resolve in the parent: the `..` refusal and the declared-version
+            // ladder run here, so no subprocess ever sees a traversal name or
+            // performs a lookup of its own. Nothing to replay → nothing to spawn.
+            // This layer alone wires the fetch rung, over the same spawner.
+            const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, context, fetch);
+            const loadable = yield* Effect.forEach(
+              A.flatMap(pnpmfiles, ({ name, path }) => (path === undefined ? [] : [{ name, path }])),
+              ({ name, path }) => Effect.map(fileUrlOf(name, path), (url) => [name, url] as const)
+            );
+            if (loadable.length === 0) return untouched(seed, rules, replaysOf(pnpmfiles));
 
-              // Seed, rules and the resolved `[name, fileUrl]` pairs travel via argv — never
-              // interpolated into the script, and `ChildProcess.make` spawns without
-              // a shell. `Run.jsonLine` owns the framing: scanning stdout lines from
-              // the end, the payload is the last line that decodes under the
-              // envelope — tolerant of a hook's own console noise before AND after
-              // it — parsed REGARDLESS of the exit code, since the envelope's `ok`
-              // discriminates in-band. No valid payload (a crash, a non-zero exit
-              // with no result, garbage output) is a mechanism failure, typed, with
-              // the exit code and stderr carried as context on the
-              // `CommandOutputError` cause.
-              const command = ChildProcess.make("node", [
-                "--input-type=module",
-                "-e",
-                REPLAY_SCRIPT,
-                Result.getOrThrow(S.encodeResult(JsonValue)(seed)),
-                // The rules seed rides the same argv channel as the catalog seed —
-                // never spliced into the program text, which must stay a static
-                // string (a bundler compiles an interpolated dynamic import into an
-                // unresolvable context module).
-                Result.getOrThrow(S.encodeResult(JsonValue)(rules ?? NO_PEER_RULES)),
-                Result.getOrThrow(S.encodeResult(JsonValue)(loadable)),
-              ]);
-              // The replay executes arbitrary config-dependency code; bound it, or a
-              // spinning pnpmfile hangs catalog assembly for the whole program. On
-              // expiry `Run` kills the child and fails with a `CommandFailedError`,
-              // which the catch below maps onto the same typed `hooks` failure as
-              // any other transport failure.
-              const payload = yield* Run.jsonLine(command, ReplayPayload, { timeout: REPLAY_TIMEOUT }).pipe(
-                Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
-                Effect.mapError((cause) => CatalogAssemblyError.make({ source: "hooks", path: root, cause }))
-              );
+            // Seed, rules and the resolved `[name, fileUrl]` pairs travel via argv — never
+            // interpolated into the script, and `ChildProcess.make` spawns without
+            // a shell. `Run.jsonLine` owns the framing: scanning stdout lines from
+            // the end, the payload is the last line that decodes under the
+            // envelope — tolerant of a hook's own console noise before AND after
+            // it — parsed REGARDLESS of the exit code, since the envelope's `ok`
+            // discriminates in-band. No valid payload (a crash, a non-zero exit
+            // with no result, garbage output) is a mechanism failure, typed, with
+            // the exit code and stderr carried as context on the
+            // `CommandOutputError` cause.
+            const command = ChildProcess.make("node", [
+              "--input-type=module",
+              "-e",
+              REPLAY_SCRIPT,
+              Result.getOrThrow(S.encodeResult(JsonValue)(seed)),
+              // The rules seed rides the same argv channel as the catalog seed —
+              // never spliced into the program text, which must stay a static
+              // string (a bundler compiles an interpolated dynamic import into an
+              // unresolvable context module).
+              Result.getOrThrow(S.encodeResult(JsonValue)(rules ?? NO_PEER_RULES)),
+              Result.getOrThrow(S.encodeResult(JsonValue)(loadable)),
+            ]);
+            // The replay executes arbitrary config-dependency code; bound it, or a
+            // spinning pnpmfile hangs catalog assembly for the whole program. On
+            // expiry `Run` kills the child and fails with a `CommandFailedError`,
+            // which the catch below maps onto the same typed `hooks` failure as
+            // any other transport failure.
+            const payload = yield* Run.jsonLine(command, ReplayPayload, { timeout: REPLAY_TIMEOUT }).pipe(
+              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+              Effect.mapError((cause) => CatalogAssemblyError.make({ source: "hooks", path: root, cause }))
+            );
 
-              // A serialized per-name failure: the child reports a real load/replay
-              // failure by name, so this maps 1:1 onto layerLive's typed error,
-              // attribution intact.
-              if (payload.ok === false) {
-                return yield* CatalogAssemblyError.make({
-                  source: "hooks",
-                  path: payload.name ?? root,
-                  cause: replayFailureCause(payload),
-                });
-              }
+            // A serialized per-name failure: the child reports a real load/replay
+            // failure by name, so this maps 1:1 onto layerLive's typed error,
+            // attribution intact.
+            if (payload.ok === false) {
+              return yield* CatalogAssemblyError.make({
+                source: "hooks",
+                path: payload.name ?? root,
+                cause: replayFailureCause(payload),
+              });
+            }
 
-              // The child returned the raw threaded config slice; fold and normalize
-              // in the parent exactly as layerLive does, reading the slice tolerantly
-              // against the seed (a hook's returned data is never fatal).
-              return injectionOf(configOf(payload.config, seedToConfig(seed, rules)), pnpmfiles);
-            })
-          ),
-        };
-      })
-    );
+            // The child returned the raw threaded config slice; fold and normalize
+            // in the parent exactly as layerLive does, reading the slice tolerantly
+            // against the seed (a hook's returned data is never fatal).
+            return injectionOf(configOf(payload.config, seedToConfig(seed, rules)), pnpmfiles);
+          }, Effect.provide(services))
+        ),
+      };
+    })
+  );
 }

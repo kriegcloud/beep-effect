@@ -103,6 +103,9 @@ export const findLayerRoot: {
   ): Effect.Effect<string, WorkspaceRootNotFoundError> =>
     Effect.suspend(() => {
       const stopAt = options?.stopAt;
-      return roots.find(options?.cwd ?? process.cwd(), stopAt === undefined ? undefined : { stopAt });
+      return roots.find(
+        options?.cwd ?? globalThis.process?.cwd?.() ?? "/",
+        stopAt === undefined ? undefined : { stopAt }
+      );
     })
 );

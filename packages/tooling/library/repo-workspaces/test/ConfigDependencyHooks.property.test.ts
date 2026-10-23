@@ -1,11 +1,6 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import {
-  HookInjection,
-  HookReplay,
-  HookReplayContext,
-  HookReplaySource,
-  PeerDependencyRules,
-} from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { HookInjection, PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { HookReplay, HookReplayContext, HookReplaySource } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";

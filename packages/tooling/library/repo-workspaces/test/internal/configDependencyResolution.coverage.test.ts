@@ -1,171 +1,200 @@
-import { assert, it, vi } from "@effect/vitest";
+import { MemoryFileSystem } from "@beep/memfs";
+import { FetchFailure } from "@beep/repo-workspaces/internal/configDependencyFetch";
+import {
+  lookupPnpmfiles,
+  ResolvedPnpmfile,
+  resolvePnpmfiles,
+} from "@beep/repo-workspaces/internal/configDependencyResolution";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
+import { assert, it } from "@effect/vitest";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
+import type { MemoryFileSystemSeed } from "@beep/memfs/MemoryFileSystem";
+import type { FetchConfigDependency } from "@beep/repo-workspaces/internal/configDependencyFetch";
 
-const fs = process.getBuiltinModule("node:fs/promises");
-const path = process.getBuiltinModule("node:path");
-const os = process.getBuiltinModule("node:os");
-vi.spyOn(os, "homedir").mockReturnValue("/tmp/workspaces-v6-no-home");
-// Install spies before the resolver captures the real filesystem functions.
-const directoryReads = vi.spyOn(fs, "readdir");
-const fileReads = vi.spyOn(fs, "readFile");
-const realpaths = vi.spyOn(fs, "realpath");
-const subject = await import("@beep/repo-workspaces/internal/configDependencyResolution");
-const { FetchFailure } = await import("@beep/repo-workspaces/internal/configDependencyFetch");
-const root = () =>
-  Effect.acquireRelease(
-    Effect.promise(() => fs.mkdtemp("/tmp/workspaces-v6-resolution-")),
-    (dir) => Effect.promise(() => fs.rm(dir, { recursive: true, force: true }))
+const ROOT = "/repo";
+
+/** A virtual volume over `seed`, counting every read the ladder makes. */
+const counted = (seed: MemoryFileSystemSeed = {}) => {
+  const reads = { count: 0 };
+  const count = () => {
+    reads.count += 1;
+    return undefined;
+  };
+  const layer = Layer.merge(
+    MemoryFileSystem.layerWith(seed, {
+      faults: { readDirectory: count, readFileString: count, realPath: count },
+    }),
+    Path.layer
   );
+  return { reads, layer };
+};
 
-it.effect("both resolvers reject traversal versions before filesystem reads or fetch", () =>
-  Effect.gen(function* () {
-    directoryReads.mockClear();
-    fileReads.mockClear();
-    realpaths.mockClear();
-    const fetch = vi.fn(() => Effect.succeed("/outside"));
-    for (const version of ["../../outside", "..\\..\\outside", "../../../../outside+sha512-pin"]) {
-      const failure = yield* Effect.flip(subject.resolvePnpmfiles({ pkg: version }, { fetch })("/workspace"));
-      assert.strictEqual(failure._tag, "CatalogAssemblyError");
-      assert.strictEqual(failure.source, "hooks");
-      assert.strictEqual(failure.path, "pkg");
-      assert.include(failure.cause instanceof Error ? failure.cause.message : "", "version has a '..' path segment");
-      const supplied = yield* Effect.flip(
-        subject.lookupPnpmfiles({ [`pkg@${version}`]: "/outside/pnpmfile.cjs" }, { pkg: version })
-      );
-      assert.strictEqual(supplied._tag, "CatalogAssemblyError");
-      assert.strictEqual(supplied.source, "hooks");
-      assert.strictEqual(supplied.path, "pkg");
-      assert.include(supplied.cause instanceof Error ? supplied.cause.message : "", "version has a '..' path segment");
-    }
-    assert.lengthOf(directoryReads.mock.calls, 0);
-    assert.lengthOf(fileReads.mock.calls, 0);
-    assert.lengthOf(realpaths.mock.calls, 0);
-    assert.lengthOf(fetch.mock.calls, 0);
-  })
-);
-it.effect("both resolvers still reject traversal names before filesystem reads or fetch", () =>
-  Effect.gen(function* () {
-    directoryReads.mockClear();
-    fileReads.mockClear();
-    realpaths.mockClear();
-    const fetch = vi.fn(() => Effect.succeed("/outside"));
-    const failure = yield* Effect.flip(subject.resolvePnpmfiles("/workspace", { "../../pkg": "1.0.0" }, { fetch }));
-    const supplied = yield* Effect.flip(
-      subject.lookupPnpmfiles({ "../../pkg@1.0.0": "/outside/pnpmfile.cjs" }, { "../../pkg": "1.0.0" })
-    );
-    for (const error of [failure, supplied]) {
-      assert.strictEqual(error._tag, "CatalogAssemblyError");
-      assert.strictEqual(error.source, "hooks");
-      assert.strictEqual(error.path, "../../pkg");
-      assert.include(error.cause instanceof Error ? error.cause.message : "", "name has a '..' path segment");
-    }
-    assert.lengthOf(directoryReads.mock.calls, 0);
-    assert.lengthOf(fileReads.mock.calls, 0);
-    assert.lengthOf(realpaths.mock.calls, 0);
-    assert.lengthOf(fetch.mock.calls, 0);
-  })
-);
-it.effect("a single-segment prerelease containing dots resolves through both resolvers", () =>
-  Effect.gen(function* () {
-    const dir = yield* root();
-    const installed = path.join(dir, "node_modules", ".pnpm-config", "pkg");
-    yield* Effect.promise(() => fs.mkdir(installed, { recursive: true }));
-    yield* Effect.promise(() =>
-      fs.writeFile(path.join(installed, "package.json"), '{"name":"pkg","version":"1.0.0-beta..1"}')
-    );
-    const result = yield* subject.resolvePnpmfiles(dir, { pkg: "1.0.0-beta..1" });
-    assert.deepStrictEqual(result, [
-      subject.ResolvedPnpmfile.make({ name: "pkg", version: "1.0.0-beta..1", source: "installed", path: undefined }),
-    ]);
-    const supplied = yield* subject.lookupPnpmfiles(
-      { "pkg@1.0.0-beta..1": "/hooks/pnpmfile.cjs" },
-      { pkg: "1.0.0-beta..1" }
-    );
-    assert.deepStrictEqual(supplied, [
-      subject.ResolvedPnpmfile.make({
-        name: "pkg",
-        version: "1.0.0-beta..1",
-        source: "supplied",
-        path: "/hooks/pnpmfile.cjs",
-      }),
-    ]);
-  })
-);
+/** A fetch rung that records how often it was asked. */
+const recordingFetch = (answer: string) => {
+  const calls = { count: 0 };
+  const fetch: FetchConfigDependency = () => {
+    calls.count += 1;
+    return Effect.succeed(answer);
+  };
+  return { calls, fetch };
+};
 
-it.effect("an empty supplied map diagnoses that no keys are known", () =>
-  Effect.gen(function* () {
-    const failure = yield* Effect.flip(subject.lookupPnpmfiles({ config: "1.0.0" })({}));
-    assert.include(failure.message, "hooks");
-    assert.instanceOf(failure.cause, Error);
-    assert.include(failure.cause instanceof Error ? failure.cause.message : "", "known: none");
-  })
-);
-it.effect("malformed and unusable modules YAML contributes no store", () =>
-  Effect.gen(function* () {
-    const dir = yield* root();
-    yield* Effect.promise(() => fs.mkdir(path.join(dir, "node_modules"), { recursive: true }));
-    for (const text of ["storeDir: [", "null", "storeDir: 42", 'storeDir: ""']) {
-      yield* Effect.promise(() => fs.writeFile(path.join(dir, "node_modules", ".modules.yaml"), text));
-      const failure = yield* Effect.flip(
-        subject.resolvePnpmfiles(
-          { config: "1.0.0" },
-          { fetch: () => Effect.fail(FetchFailure.make({ reason: "integrityMismatch", message: "pins disagree" })) }
-        )(dir)
-      );
-      assert.strictEqual(failure.reason, "integrityMismatch");
-      assert.include(failure.cause instanceof Error ? failure.cause.message : "", "pins disagree");
-      assert.notInclude(failure.cause instanceof Error ? failure.cause.message : "", "pnpm add --config");
-    }
-  })
-);
-it.effect("a dangling config symlink is absence during best-effort store discovery", () =>
-  Effect.gen(function* () {
-    const dir = yield* root();
-    const base = path.join(dir, "node_modules", ".pnpm-config");
-    yield* Effect.promise(() => fs.mkdir(base, { recursive: true }));
-    yield* Effect.promise(() => fs.symlink(path.join(dir, "missing"), path.join(base, "stale")));
-    const failure = yield* Effect.flip(subject.resolvePnpmfiles(dir, { config: "1.0.0" }));
-    assert.strictEqual(failure.reason, "notInstalled");
-  })
-);
-it.effect("a fetched directory resolves its optional pnpmfile", () =>
-  Effect.gen(function* () {
-    const dir = yield* root();
-    const result = yield* subject.resolvePnpmfiles(dir, { config: "1.0.0" }, { fetch: () => Effect.succeed(dir) });
-    assert.deepStrictEqual(result, [
-      subject.ResolvedPnpmfile.make({ name: "config", version: "1.0.0", source: "fetched", path: undefined }),
-    ]);
-  })
-);
-it.effect("environment store roots are expanded and empty values are ignored on both platforms", () =>
-  Effect.gen(function* () {
-    const dir = yield* root();
-    const originalPlatform = process.platform;
-    yield* Effect.acquireRelease(
-      Effect.sync(() => {
-        vi.stubEnv("PNPM_HOME", undefined);
-        vi.stubEnv("XDG_DATA_HOME", undefined);
-        vi.stubEnv("LOCALAPPDATA", undefined);
-      }),
-      () =>
-        Effect.sync(() => {
-          vi.unstubAllEnvs();
-          Object.defineProperty(process, "platform", { value: originalPlatform });
-        })
+{
+  const volume = counted();
+  it.layer(volume.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("both resolvers reject traversal versions before filesystem reads or fetch", () =>
+      Effect.gen(function* () {
+        const { calls, fetch } = recordingFetch("/outside");
+        for (const version of ["../../outside", "..\\..\\outside", "../../../../outside+sha512-pin"]) {
+          const failure = yield* Effect.flip(resolvePnpmfiles({ pkg: version }, undefined, fetch)("/workspace"));
+          assert.strictEqual(failure._tag, "CatalogAssemblyError");
+          assert.strictEqual(failure.source, "hooks");
+          assert.strictEqual(failure.path, "pkg");
+          assert.include(
+            failure.cause instanceof Error ? failure.cause.message : "",
+            "version has a '..' path segment"
+          );
+          const supplied = yield* Effect.flip(
+            lookupPnpmfiles({ [`pkg@${version}`]: "/outside/pnpmfile.cjs" }, { pkg: version })
+          );
+          assert.strictEqual(supplied._tag, "CatalogAssemblyError");
+          assert.strictEqual(supplied.source, "hooks");
+          assert.strictEqual(supplied.path, "pkg");
+          assert.include(
+            supplied.cause instanceof Error ? supplied.cause.message : "",
+            "version has a '..' path segment"
+          );
+        }
+        assert.strictEqual(volume.reads.count, 0);
+        assert.strictEqual(calls.count, 0);
+      })
     );
-    for (const platform of ["linux", "win32"]) {
-      Object.defineProperty(process, "platform", { value: platform });
-      for (const value of [undefined, "", dir]) {
-        vi.stubEnv("PNPM_HOME", value);
-        vi.stubEnv("XDG_DATA_HOME", value);
-        vi.stubEnv("LOCALAPPDATA", value);
-        yield* Effect.promise(() => fs.mkdir(path.join(dir, "store", "v11"), { recursive: true }));
-        yield* Effect.promise(() => fs.mkdir(path.join(dir, "pnpm", "store", "v10"), { recursive: true }));
-        const failure = yield* Effect.flip(subject.resolvePnpmfiles(dir, { config: "1.0.0" }));
-        assert.strictEqual(failure.reason, "notInstalled");
-        const message = failure.cause instanceof Error ? failure.cause.message : "";
-        assert.include(message, value === dir ? "searched " : "no pnpm store directory could be located");
+    it.effect("both resolvers still reject traversal names before filesystem reads or fetch", () =>
+      Effect.gen(function* () {
+        const { calls, fetch } = recordingFetch("/outside");
+        const failure = yield* Effect.flip(resolvePnpmfiles("/workspace", { "../../pkg": "1.0.0" }, undefined, fetch));
+        const supplied = yield* Effect.flip(
+          lookupPnpmfiles({ "../../pkg@1.0.0": "/outside/pnpmfile.cjs" }, { "../../pkg": "1.0.0" })
+        );
+        for (const error of [failure, supplied]) {
+          assert.strictEqual(error._tag, "CatalogAssemblyError");
+          assert.strictEqual(error.source, "hooks");
+          assert.strictEqual(error.path, "../../pkg");
+          assert.include(error.cause instanceof Error ? error.cause.message : "", "name has a '..' path segment");
+        }
+        assert.strictEqual(volume.reads.count, 0);
+        assert.strictEqual(calls.count, 0);
+      })
+    );
+    it.effect("an empty supplied map diagnoses that no keys are known", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(lookupPnpmfiles({ config: "1.0.0" })({}));
+        assert.include(failure.message, "hooks");
+        assert.instanceOf(failure.cause, Error);
+        assert.include(failure.cause instanceof Error ? failure.cause.message : "", "known: none");
+      })
+    );
+    it.effect("a fetched directory resolves its optional pnpmfile", () =>
+      Effect.gen(function* () {
+        const { fetch } = recordingFetch(ROOT);
+        const result = yield* resolvePnpmfiles(ROOT, { config: "1.0.0" }, undefined, fetch);
+        assert.deepStrictEqual(result, [
+          ResolvedPnpmfile.make({ name: "config", version: "1.0.0", source: "fetched", path: undefined }),
+        ]);
+      })
+    );
+  });
+}
+
+it.layer(
+  counted({
+    [`${ROOT}/node_modules/.pnpm-config/pkg/package.json`]: '{"name":"pkg","version":"1.0.0-beta..1"}',
+  }).layer,
+  { timeout: "30 seconds" }
+)((it) => {
+  it.effect("a single-segment prerelease containing dots resolves through both resolvers", () =>
+    Effect.gen(function* () {
+      const result = yield* resolvePnpmfiles(ROOT, { pkg: "1.0.0-beta..1" });
+      assert.deepStrictEqual(result, [
+        ResolvedPnpmfile.make({ name: "pkg", version: "1.0.0-beta..1", source: "installed", path: undefined }),
+      ]);
+      const supplied = yield* lookupPnpmfiles({ "pkg@1.0.0-beta..1": "/hooks/pnpmfile.cjs" }, { pkg: "1.0.0-beta..1" });
+      assert.deepStrictEqual(supplied, [
+        ResolvedPnpmfile.make({
+          name: "pkg",
+          version: "1.0.0-beta..1",
+          source: "supplied",
+          path: "/hooks/pnpmfile.cjs",
+        }),
+      ]);
+    })
+  );
+});
+
+for (const text of ["storeDir: [", "null", "storeDir: 42", 'storeDir: ""']) {
+  it.layer(counted({ [`${ROOT}/node_modules/.modules.yaml`]: text }).layer, { timeout: "30 seconds" })((it) => {
+    it.effect(`malformed and unusable modules YAML contributes no store (${JSON.stringify(text)})`, () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(
+          resolvePnpmfiles({ config: "1.0.0" }, undefined, () =>
+            Effect.fail(FetchFailure.make({ reason: "integrityMismatch", message: "pins disagree" }))
+          )(ROOT)
+        );
+        assert.strictEqual(failure.reason, "integrityMismatch");
+        assert.include(failure.cause instanceof Error ? failure.cause.message : "", "pins disagree");
+        assert.notInclude(failure.cause instanceof Error ? failure.cause.message : "", "pnpm add --config");
+      })
+    );
+  });
+}
+
+it.layer(counted({ [`${ROOT}/node_modules/.pnpm-config/stale`]: MemoryFileSystem.symlink(`${ROOT}/missing`) }).layer, {
+  timeout: "30 seconds",
+})((it) => {
+  it.effect("a dangling config symlink is absence during best-effort store discovery", () =>
+    Effect.gen(function* () {
+      const failure = yield* Effect.flip(resolvePnpmfiles(ROOT, { config: "1.0.0" }));
+      assert.strictEqual(failure.reason, "notInstalled");
+    })
+  );
+});
+
+it.layer(
+  counted({
+    [`${ROOT}/store/v11`]: MemoryFileSystem.directory(),
+    [`${ROOT}/pnpm/store/v10`]: MemoryFileSystem.directory(),
+  }).layer,
+  { timeout: "30 seconds" }
+)((it) => {
+  it.effect("environment store roots are expanded and empty values are ignored on both platforms", () =>
+    Effect.gen(function* () {
+      for (const platform of ["linux", "win32"]) {
+        for (const value of [undefined, "", ROOT]) {
+          const environment = ConfigProvider.fromUnknown(
+            {
+              HOME: "/no-home",
+              USERPROFILE: "/no-home",
+              ...(value === undefined ? {} : { PNPM_HOME: value, XDG_DATA_HOME: value, LOCALAPPDATA: value }),
+            },
+            { preserveEmptyStrings: true }
+          );
+          const failure = yield* Effect.flip(resolvePnpmfiles(ROOT, { config: "1.0.0" })).pipe(
+            Effect.provideService(ConfigProvider.ConfigProvider, environment),
+            Effect.provideService(HostProcessPlatform, platform)
+          );
+          assert.strictEqual(failure.reason, "notInstalled");
+          const message = failure.cause instanceof Error ? failure.cause.message : "";
+          assert.include(
+            message,
+            value === ROOT
+              ? `searched ${ROOT}/store/v11, ${ROOT}/pnpm/store/v10`
+              : "no pnpm store directory could be located"
+          );
+        }
       }
-    }
-  })
-);
+    })
+  );
+});

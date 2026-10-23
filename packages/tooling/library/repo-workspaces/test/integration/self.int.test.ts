@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The package discovering the repository it lives in.
 //
 // Everything else in the suite runs against a virtual filesystem. This runs
@@ -6,13 +5,11 @@
 // root walk, workspace enumeration, per-package decode, dependency ordering,
 // the default catalog, and bun.lock with workspace paths resolved.
 //
-// It also pins the sync escape hatch against the async surface: `vitest-agent`
-// calls the sync pair, and if the two ever disagree its project list silently
-// diverges from what the Effect API would have found.
+// It also pins the sync escape hatch, through the shipped `node-sync` preset,
+// against the async surface: `vitest-agent` calls the sync pair, and if the two
+// ever disagree its project list silently diverges from what the Effect API
+// would have found.
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import nodePath, { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   DependencyGraph,
   findWorkspaceRootSync,
@@ -23,31 +20,20 @@ import {
   WorkspaceDiscovery,
   Workspaces,
 } from "@beep/repo-workspaces";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { nodeSyncOps } from "@beep/repo-workspaces/node-sync";
+import { resolve } from "@beep/utils/Path";
+import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, describe, layer } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import type { WorkspacesSyncOptions } from "@beep/repo-workspaces";
 
 /** This package's own directory — the repo root is somewhere above it. */
-const here = dirname(fileURLToPath(import.meta.url));
-const cwd = resolve(here, "..", "..");
+const cwd = resolve(import.meta.dirname, "..", "..");
+const syncOps = nodeSyncOps;
 
-// The documented one-liner wiring for the consumer-supplied sync operations.
-const syncOps: WorkspacesSyncOptions = {
-  fileSystem: {
-    exists: existsSync,
-    readFile: (p) => readFileSync(p, "utf8"),
-    readDirectory: (p) => readdirSync(p),
-    isDirectory: (p) => statSync(p).isDirectory(),
-  },
-  path: nodePath,
-};
-
-const Platform = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-const Live = Workspaces.layer({ cwd }).pipe(Layer.provideMerge(Platform));
+const Live = Workspaces.layer({ cwd }).pipe(Layer.provideMerge(NodeServices.layer));
 
 describe("the lab Bun workspace, discovered by the package that lives in it", () => {
   layer(Live, { timeout: "30 seconds" })((it) => {
@@ -74,7 +60,7 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
     it.effect("attributes this very test file to this package", () =>
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
-        const owner = yield* discovery.resolveFile(fileURLToPath(import.meta.url));
+        const owner = yield* discovery.resolveFile(import.meta.filename);
         assertSome(
           O.map(owner, () => undefined),
           undefined

@@ -41,7 +41,7 @@ import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
 import { WorkspaceRoot } from "./WorkspaceRoot.ts";
 import { PackageStateSnapshot, WorkspaceStateSnapshot } from "./WorkspaceStateSnapshot.ts";
 import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@beep/git";
-import type { HookReplay } from "./ConfigDependencyHooks.ts";
+import type { HookReplay } from "./ConfigDependencyReplay.ts";
 import type { WorkspaceDiscoveryFailure } from "./WorkspaceDiscovery.ts";
 import type { WorkspaceRootNotFoundError } from "./WorkspaceRoot.ts";
 

@@ -1,5 +1,3 @@
-import { env } from "node:process";
-import { fileURLToPath } from "node:url";
 import { ScriptedSpawner } from "@beep/commands";
 import { Git } from "@beep/git";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
@@ -11,16 +9,17 @@ import {
   WorkspaceSnapshots,
   Workspaces,
 } from "@beep/repo-workspaces";
-import { HookInjection, HookReplay, NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
-import { NodeFileSystem } from "@effect/platform-node";
-import { assert, describe, it } from "@effect/vitest";
+import { HookInjection, NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
+import { join } from "@beep/utils/Path";
+import * as NodeServices from "@effect/platform-node/NodeServices";
+import { assert, describe, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import * as Path from "effect/Path";
 import { manifest, platform } from "../support/fixtures.ts";
 import type { Tree } from "../support/fixtures.ts";
 
@@ -35,18 +34,11 @@ import type { Tree } from "../support/fixtures.ts";
 // directory holding no manifest is "nothing installed" (see
 // `ConfigDependencyResolution.int.test.ts` for the ladder itself).
 
-const { dirname, join } = Effect.runSync(
-  Path.layer.pipe(
-    Layer.build,
-    Effect.map((context) => Context.get(context, Path.Path)),
-    Effect.scoped
-  )
-);
 class RealFileSystem extends Context.Service<RealFileSystem, FileSystem.FileSystem>()(
   "@beep/repo-workspaces/test/integration/ConfigDependencyHooks.int.test/RealFileSystem"
 ) {}
 
-const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
+const FIXTURES = join(import.meta.dirname, "..", "fixtures");
 const CJS_FIXTURE = join(FIXTURES, "hook-pnpmfile.cjs");
 const MJS_FIXTURE = join(FIXTURES, "hook-pnpmfile.mjs");
 const NESTED_MISSING_FIXTURE = join(FIXTURES, "hook-pnpmfile-nested-missing.mjs");
@@ -122,14 +114,24 @@ const FixtureLayer = Layer.effect(
     yield* fs.copyFile(PEER_RULES_FIXTURE, join(peerRulesDir, "pnpmfile.mjs"));
     return fs;
   })
-).pipe(Layer.provide(NodeFileSystem.layer));
+).pipe(Layer.provideMerge(NodeServices.layer));
+
+/**
+ * The virtual-tree entries mirroring one real `.pnpm-config/<name>` install, so
+ * the ladder — which reads the provided FileSystem — finds the declared version
+ * while the `import()` of its pnpmfile still loads the real copy under `root`.
+ */
+const installed = (name: string, pnpmfile: string): Tree => ({
+  [`${root}/node_modules/.pnpm-config/${name}/package.json`]: manifest(name),
+  [`${root}/node_modules/.pnpm-config/${name}/${pnpmfile}`]: "",
+});
 
 it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
   describe("ConfigDependencyHooks.layerLive — replays the pnpmfile", () => {
     it.layer(ConfigDependencyHooks.layerLive, { timeout: "30 seconds" })((it) => {
       it.effect("loads the config dependency's updateConfig and injects its catalogs", () => {
         const markerPath = join(root, "live-marker.txt");
-        env.HOOK_MARKER = markerPath;
+        vi.stubEnv("HOOK_MARKER", markerPath);
         return Effect.gen(function* () {
           const hooks = yield* ConfigDependencyHooks;
           const result = yield* hooks.inject(root, { [DEP_NAME]: "1.0.0" }, SEED);
@@ -145,7 +147,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
         }).pipe(
           Effect.ensuring(
             Effect.sync(() => {
-              delete env.HOOK_MARKER;
+              vi.unstubAllEnvs();
             })
           )
         );
@@ -175,7 +177,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
     it.layer(ConfigDependencyHooks.layerLive, { timeout: "30 seconds" })((it) => {
       it.effect("an .mjs-only config dependency replays its hook — proving .mjs is loaded", () => {
         const markerPath = join(root, "mjs-marker.txt");
-        env.HOOK_MARKER = markerPath;
+        vi.stubEnv("HOOK_MARKER", markerPath);
         return Effect.gen(function* () {
           const hooks = yield* ConfigDependencyHooks;
           // The dep ships ONLY `pnpmfile.mjs`. The seam tries `.mjs` first, loads it,
@@ -190,7 +192,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
         }).pipe(
           Effect.ensuring(
             Effect.sync(() => {
-              delete env.HOOK_MARKER;
+              vi.unstubAllEnvs();
             })
           )
         );
@@ -343,7 +345,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
         // the marker appears — this is the discriminating test that lack of one let
         // the default silently regress.
         const markerPath = join(root, "default-layer-marker.txt");
-        env.HOOK_MARKER = markerPath;
+        vi.stubEnv("HOOK_MARKER", markerPath);
         // The virtual tree is keyed to the REAL temp root, so the effect-FileSystem
         // read of pnpm-workspace.yaml is virtual while layerLive's node:fs read of
         // the pnpmfile (were it wired) would hit the real file under the same root.
@@ -358,7 +360,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
         }).pipe(
           Effect.ensuring(
             Effect.sync(() => {
-              delete env.HOOK_MARKER;
+              vi.unstubAllEnvs();
             })
           )
         );
@@ -398,6 +400,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
       ].join("\n"),
       [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
       [`${root}/packages/a/package.json`]: manifest("@x/a", { dependencies: { effect: "catalog:" } }),
+      ...installed(DEP_NAME, "pnpmfile.cjs"),
     });
 
     it.layer(
@@ -484,7 +487,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
         // A marker path the fixture WOULD write if it ran. Under the no-op it must
         // stay absent — proving the default catalog path never loads the pnpmfile.
         const markerPath = join(root, "noop-marker.txt");
-        env.HOOK_MARKER = markerPath;
+        vi.stubEnv("HOOK_MARKER", markerPath);
         return Effect.gen(function* () {
           const hooks = yield* ConfigDependencyHooks;
           const result = yield* hooks.inject(root, { [DEP_NAME]: "1.0.0" }, SEED);
@@ -504,7 +507,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
         }).pipe(
           Effect.ensuring(
             Effect.sync(() => {
-              delete env.HOOK_MARKER;
+              vi.unstubAllEnvs();
             })
           )
         );
@@ -593,6 +596,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
       ].join("\n"),
       [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
       [`${root}/packages/a/package.json`]: manifest("@x/a"),
+      ...installed(dep, "pnpmfile.mjs"),
     });
 
     it.layer(
@@ -665,6 +669,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
       ].join("\n"),
       [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
       [`${root}/packages/a/package.json`]: manifest("@x/a"),
+      ...installed(PEER_RULES_DEP_NAME, "pnpmfile.mjs"),
     });
 
     it.layer(

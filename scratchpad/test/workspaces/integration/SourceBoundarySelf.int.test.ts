@@ -28,19 +28,15 @@ const TESTING_MODULES = new Set([
 ]);
 
 /**
- * The modules that legitimately read `process`: ambient defaults (the cwd,
- * the environment) and real Node bindings. Twelve reads across six files:
- * the four root-resolving services share `internal/layerRoot.ts`'s one
- * ambient-cwd read, and four Node bindings each retrieve two built-in modules.
+ * The modules that legitimately read `process`: the ambient cwd default and
+ * the Node sync binding. Wave 4-W-a moved the config-dependency ladder onto
+ * Effect's FileSystem, Path and Config, so only these three remain: the four
+ * root-resolving services share `internal/layerRoot.ts`'s one guarded
+ * ambient-cwd read, `Workspaces.ts` keeps its own for `LocalExec`, and
+ * `node-sync.ts` resolves `node:fs` lazily on first use.
  */
-const PROCESS_READERS: ReadonlyArray<string> = [
-	"Workspaces.ts",
-	"internal/configDependencyFetch.ts",
-	"internal/configDependencyResolution.ts",
-	"internal/configDependencyShared.ts",
-	"internal/layerRoot.ts",
-	"node-sync.ts",
-];
+const PROCESS_READERS: ReadonlyArray<string> = ["Workspaces.ts", "internal/layerRoot.ts", "node-sync.ts"];
+const PROCESS_READ_COUNT = 3;
 
 describe("@effected/workspaces, scanned by SourceBoundary", () => {
 	layer(Platform, { timeout: "30 seconds" })((it) => {
@@ -49,7 +45,7 @@ describe("@effected/workspaces, scanned by SourceBoundary", () => {
 				const scan = yield* SourceBoundary.scan({ root: SRC, rules: ["process"] });
 				assert.include(scan.files, "ConfigDependencyHooks.ts", "the embedded script's module was read");
 				assert.deepStrictEqual([...new Set(scan.offences.map((offence) => offence.file))], [...PROCESS_READERS]);
-				assert.strictEqual(scan.offences.length, 12);
+				assert.strictEqual(scan.offences.length, PROCESS_READ_COUNT);
 			}),
 		);
 

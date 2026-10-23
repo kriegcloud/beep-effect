@@ -1,84 +1,114 @@
-import { ScriptedSpawner } from "@beep/commands";
+import { MemoryFileSystem } from "@beep/memfs";
+import {
+  expectedIntegrity,
+  FetchRequest,
+  fetchArgs,
+  makeFetchConfigDependency,
+  RegistrySettings,
+  registrySettingsOf,
+  scratchWorkspaceYaml,
+} from "@beep/repo-workspaces/internal/configDependencyFetch";
 import { Yaml } from "@beep/yaml";
-import { assert, it, vi } from "@effect/vitest";
+import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
+import { fakeProcess } from "../support/fakeProcess.ts";
+import type { MemoryFileSystemFaults } from "@beep/memfs/MemoryFileSystem";
+import type { ProcessAction } from "../support/fakeProcess.ts";
 
-const fs = process.getBuiltinModule("node:fs/promises");
-const sync = process.getBuiltinModule("node:fs");
-const path = process.getBuiltinModule("node:path");
-// Spies retain the real runtime filesystem. The production rung deliberately
-// reads the host pnpm store even when its caller provides an Effect memfs.
-const read = vi.spyOn(fs, "readFile");
-const copy = vi.spyOn(fs, "copyFile");
-const remove = vi.spyOn(fs, "rm");
-const subject = await import("@beep/repo-workspaces/internal/configDependencyFetch");
 const sri = `sha512-${"A".repeat(86)}==`;
-const root = () =>
-  Effect.acquireRelease(
-    Effect.promise(() => fs.mkdtemp("/tmp/workspaces-v6-fetch-")),
-    (dir) => Effect.promise(() => fs.rm(dir, { recursive: true, force: true }))
-  );
-const request = (root: string) => ({
-  root,
+const ROOT = "/repo";
+const NO_LOCKS = Effect.as(Effect.void, undefined);
+const request = FetchRequest.make({
+  root: ROOT,
   name: "config",
   version: "1.0.0",
   spec: `1.0.0+${sri}`,
   stores: [],
   side: {},
-  locks: Effect.as(Effect.void, undefined),
+});
+const SCRATCH_LOCKFILE = `---\nlockfileVersion: '9.0'\n\nimporters:\n\n  .:\n    configDependencies:\n      "config":\n        specifier: "1.0.0"\n        version: "1.0.0"\n\npackages:\n\n  "config@1.0.0":\n    resolution: {integrity: "${sri}"}\n\nsnapshots:\n\n  "config@1.0.0": {}\n\n---\n`;
+
+/** A permission failure on `method`, the shape a real IO error takes. */
+const denied = (method: string, path: string): PlatformError.PlatformError =>
+  PlatformError.systemError({ _tag: "PermissionDenied", module: "FileSystem", method, pathOrDescriptor: path });
+
+/** A fake pnpm that links `.pnpm-config/config` at `relative` (under the scratch) holding `manifest`. */
+const linksAt =
+  (relative: string, manifest: string): ProcessAction =>
+  (_command, args) =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const scratch = args[args.indexOf("--dir") + 1] ?? "";
+      assert.strictEqual(yield* fs.readFileString(path.join(scratch, "pnpm-lock.yaml")), SCRATCH_LOCKFILE);
+      const target = path.join(scratch, relative);
+      yield* fs.makeDirectory(target, { recursive: true });
+      yield* fs.writeFileString(path.join(target, "package.json"), manifest);
+      const linked = path.join(scratch, "node_modules", ".pnpm-config", "config");
+      yield* fs.makeDirectory(path.dirname(linked), { recursive: true });
+      yield* fs.symlink(target, linked);
+    });
+
+const STORE_COPY = "store/links/config/1.0.0/hash/node_modules/config";
+const VERSIONED = '{"version":"1.0.0"}';
+
+/** The fake pnpm, the virtual volume it writes into, and the fetch rung's services, as one layer. */
+const fetchWorld = (
+  act: ProcessAction,
+  seed: Readonly<Record<string, string>> = {},
+  faults?: MemoryFileSystemFaults
+) => {
+  const fake = fakeProcess({ act });
+  const volume = Layer.merge(
+    MemoryFileSystem.layerWith(seed, faults === undefined ? undefined : { faults }),
+    Path.layer
+  );
+  return { fake, layer: fake.layer.pipe(Layer.provideMerge(volume)) };
+};
+
+const fetchOnce = Effect.gen(function* () {
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  return yield* makeFetchConfigDependency(spawner)(request, NO_LOCKS);
 });
 
 it.effect("invalid inline integrity fails before consulting locks", () =>
   Effect.gen(function* () {
-    const failure = yield* Effect.flip(subject.expectedIntegrity({ ...request("/unused"), spec: "1.0.0+not-sri" }));
+    const failure = yield* Effect.flip(expectedIntegrity({ ...request, spec: "1.0.0+not-sri" }, NO_LOCKS));
     assert.strictEqual(failure.reason, "integrityUnavailable");
     assert.include(failure.message, "not an SRI hash");
     assert.deepStrictEqual(
-      subject.registrySettingsOf({ registry: 2, registries: { ok: "url", bad: 2 } }),
-      subject.RegistrySettings.make({
-        registries: { ok: "url" },
-      })
+      registrySettingsOf({ registry: 2, registries: { ok: "url", bad: 2 } }),
+      RegistrySettings.make({ registries: { ok: "url" } })
     );
-    assert.deepStrictEqual(subject.fetchArgs([])("/scratch"), ["install", "--frozen-lockfile", "--dir", "/scratch"]);
+    assert.deepStrictEqual(fetchArgs([])("/scratch"), ["install", "--frozen-lockfile", "--dir", "/scratch"]);
   })
 );
-
-const spawner = ScriptedSpawner.make((_command, args) => {
-  const scratch = args[args.indexOf("--dir") + 1] ?? "";
-  assert.strictEqual(
-    sync.readFileSync(path.join(scratch, "pnpm-lock.yaml"), "utf8"),
-    `---\nlockfileVersion: '9.0'\n\nimporters:\n\n  .:\n    configDependencies:\n      "config":\n        specifier: "1.0.0"\n        version: "1.0.0"\n\npackages:\n\n  "config@1.0.0":\n    resolution: {integrity: "${sri}"}\n\nsnapshots:\n\n  "config@1.0.0": {}\n\n---\n`
-  );
-  const target = path.join(scratch, "store", "links", "config", "1.0.0", "hash", "node_modules", "config");
-  sync.mkdirSync(target, { recursive: true });
-  sync.writeFileSync(path.join(target, "package.json"), JSON.stringify({ version: "1.0.0" }));
-  const linked = path.join(scratch, "node_modules", ".pnpm-config", "config");
-  sync.mkdirSync(path.dirname(linked), { recursive: true });
-  sync.symlinkSync(target, linked);
-  return {};
-});
 
 it.effect("own __proto__ and normal registry scopes survive extraction and scratch YAML in order", () =>
   Effect.gen(function* () {
     const text =
       'registry: "https://default.test"\nregistries:\n  "__proto__": "https://proto.test"\n  "@normal": "https://normal.test"\n  "@ignored": 42\n';
     const document = yield* Yaml.parse(text);
-    const settings = subject.registrySettingsOf(document);
+    const settings = registrySettingsOf(document);
     assert.isTrue(R.has(settings.registries, "__proto__"));
     assert.deepStrictEqual(R.toEntries(settings.registries), [
       ["__proto__", "https://proto.test"],
       ["@normal", "https://normal.test"],
     ]);
-    const yaml = subject.scratchWorkspaceYaml("config", "1.0.0", settings);
+    const yaml = scratchWorkspaceYaml("config", "1.0.0", settings);
     assert.strictEqual(
       yaml,
       'configDependencies:\n  "config": "1.0.0"\nregistry: "https://default.test"\nregistries:\n  "__proto__": "https://proto.test"\n  "@normal": "https://normal.test"\n'
     );
-    assert.deepStrictEqual(subject.registrySettingsOf(yield* Yaml.parse(yaml)), settings);
+    assert.deepStrictEqual(registrySettingsOf(yield* Yaml.parse(yaml)), settings);
     for (const input of [undefined, null, 42, [], { registry: 42, registries: [] }]) {
-      assert.deepStrictEqual(subject.registrySettingsOf(input), subject.RegistrySettings.make({ registries: {} }));
+      assert.deepStrictEqual(registrySettingsOf(input), RegistrySettings.make({ registries: {} }));
     }
   })
 );
@@ -87,13 +117,10 @@ it.effect("string JSON quoting preserves hostile YAML scalar text and the final 
   Effect.gen(function* () {
     const name = 'config"\n: #';
     const version = "1.0.0\\\t";
-    const yaml = subject.scratchWorkspaceYaml(
+    const yaml = scratchWorkspaceYaml(
       name,
       version,
-      subject.RegistrySettings.make({
-        registry: 'https://r.test/"\n',
-        registries: { '@x"\n': "https://s.test/\\" },
-      })
+      RegistrySettings.make({ registry: 'https://r.test/"\n', registries: { '@x"\n': "https://s.test/\\" } })
     );
     assert.strictEqual(
       yaml,
@@ -106,113 +133,114 @@ it.effect("string JSON quoting preserves hostile YAML scalar text and the final 
     });
   })
 );
-it.layer(spawner.layer, { timeout: "30 seconds" })((it) => {
-  it.effect("fetches the exact store version using the workspace registry settings", () =>
-    Effect.gen(function* () {
-      const dir = yield* root();
-      yield* Effect.promise(() =>
-        fs.writeFile(
-          path.join(dir, "pnpm-workspace.yaml"),
-          'registry: "https://example.test"\nregistries:\n  "@a": "https://scope.test"\n'
-        )
-      );
-      const resolved = yield* subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(
-        request(dir)
-      );
-      assert.include(resolved, "/links/config/1.0.0/");
-      assert.isFalse(sync.existsSync(resolved));
-    })
-  );
-  it.effect("workspace read failures retain the cause and do not spawn", () =>
-    Effect.gen(function* () {
-      const dir = yield* root();
-      const cause = new Error("workspace read IO failure");
-      read.mockRejectedValueOnce(cause);
-      const count = spawner.spawns.length;
-      const failure = yield* Effect.flip(
-        subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(request(dir))
-      );
-      assert.strictEqual(failure.cause, cause);
-      assert.include(failure.message, "reading the workspace pnpm-workspace.yaml failed");
-      assert.strictEqual(spawner.spawns.length, count);
-    })
-  );
-  it.effect("malformed workspace YAML refuses to select a registry", () =>
-    Effect.gen(function* () {
-      const dir = yield* root();
-      yield* Effect.promise(() => fs.writeFile(path.join(dir, "pnpm-workspace.yaml"), "registry: ["));
-      const failure = yield* Effect.flip(
-        subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(request(dir))
-      );
-      assert.include(failure.message, "reading the workspace pnpm-workspace.yaml failed");
-      assert.instanceOf(failure.cause, Error);
-    })
-  );
-  it.effect("a non-absence npmrc copy failure fails closed", () =>
-    Effect.gen(function* () {
-      const dir = yield* root();
-      const cause = new Error("copy IO failure");
-      copy.mockRejectedValueOnce(cause);
-      const failure = yield* Effect.flip(
-        subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(request(dir))
-      );
-      assert.strictEqual(failure.cause, cause);
-      assert.include(failure.message, "writing the scratch workspace failed");
-    })
-  );
-  it.effect("cleanup failure does not mask a verified result", () =>
-    Effect.gen(function* () {
-      const dir = yield* root();
-      remove.mockRejectedValueOnce(new Error("cleanup failure"));
-      const resolved = yield* subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(
-        request(dir)
-      );
-      assert.include(resolved, "/links/config/1.0.0/");
-      const scratch = spawner.spawns.at(-1)?.args[3] ?? "";
-      assert.isTrue(sync.existsSync(scratch));
-      yield* Effect.promise(() => fs.rm(scratch, { recursive: true, force: true }));
-    })
-  );
-});
 
-const badManifest = ScriptedSpawner.make((_command, args) => {
-  const scratch = args[3] ?? "";
-  const target = path.join(scratch, "store", "links", "config", "1.0.0", "hash", "node_modules", "config");
-  sync.mkdirSync(target, { recursive: true });
-  sync.writeFileSync(path.join(target, "package.json"), "{");
-  const link = path.join(scratch, "node_modules", ".pnpm-config", "config");
-  sync.mkdirSync(path.dirname(link), { recursive: true });
-  sync.symlinkSync(target, link);
-  return {};
-});
-it.layer(badManifest.layer, { timeout: "30 seconds" })((it) => {
-  it.effect("invalid fetched manifest JSON fails with the manifest cause", () =>
-    Effect.gen(function* () {
-      const failure = yield* Effect.flip(
-        subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(request(yield* root()))
-      );
-      assert.include(failure.message, "unreadable package.json");
-      assert.instanceOf(failure.cause, Error);
-    })
+{
+  const world = fetchWorld(linksAt(STORE_COPY, VERSIONED), {
+    [`${ROOT}/pnpm-workspace.yaml`]: 'registry: "https://example.test"\nregistries:\n  "@a": "https://scope.test"\n',
+  });
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("fetches the exact store version using the workspace registry settings", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const resolved = yield* fetchOnce;
+        assert.include(resolved, "/links/config/1.0.0/");
+        // The store copy lived under the scratch workspace, which is removed.
+        assert.isFalse(yield* fs.exists(resolved));
+      })
+    );
+  });
+}
+
+{
+  const cause = denied("readFileString", `${ROOT}/pnpm-workspace.yaml`);
+  const world = fetchWorld(
+    linksAt(STORE_COPY, VERSIONED),
+    {},
+    {
+      readFileString: (path) => (path === `${ROOT}/pnpm-workspace.yaml` ? Effect.fail(cause) : undefined),
+    }
   );
-});
-const noVersion = ScriptedSpawner.make((_command, args) => {
-  const scratch = args[3] ?? "";
-  const target = path.join(scratch, "unversioned");
-  sync.mkdirSync(target);
-  sync.writeFileSync(path.join(target, "package.json"), "{}");
-  const link = path.join(scratch, "node_modules", ".pnpm-config", "config");
-  sync.mkdirSync(path.dirname(link), { recursive: true });
-  sync.symlinkSync(target, link);
-  return {};
-});
-it.layer(noVersion.layer, { timeout: "30 seconds" })((it) => {
-  it.effect("a fetched unversioned copy is refused", () =>
-    Effect.gen(function* () {
-      const failure = yield* Effect.flip(
-        subject.makeFetchConfigDependency(yield* ChildProcessSpawner.ChildProcessSpawner)(request(yield* root()))
-      );
-      assert.include(failure.message, "no version");
-    })
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("workspace read failures retain the cause and do not spawn", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(fetchOnce);
+        assert.strictEqual(failure.cause, cause);
+        assert.include(failure.message, "reading the workspace pnpm-workspace.yaml failed");
+        assert.strictEqual(world.fake.scripted.spawns.length, 0);
+      })
+    );
+  });
+}
+
+{
+  const world = fetchWorld(linksAt(STORE_COPY, VERSIONED), { [`${ROOT}/pnpm-workspace.yaml`]: "registry: [" });
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("malformed workspace YAML refuses to select a registry", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(fetchOnce);
+        assert.include(failure.message, "reading the workspace pnpm-workspace.yaml failed");
+        assert.instanceOf(failure.cause, Error);
+      })
+    );
+  });
+}
+
+{
+  const cause = denied("copyFile", `${ROOT}/.npmrc`);
+  const world = fetchWorld(linksAt(STORE_COPY, VERSIONED), {}, { copyFile: () => Effect.fail(cause) });
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("a non-absence npmrc copy failure fails closed", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(fetchOnce);
+        assert.strictEqual(failure.cause, cause);
+        assert.include(failure.message, "writing the scratch workspace failed");
+      })
+    );
+  });
+}
+
+{
+  const world = fetchWorld(
+    linksAt(STORE_COPY, VERSIONED),
+    {},
+    {
+      remove: (path) => Effect.fail(denied("remove", path)),
+    }
   );
-});
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("cleanup failure does not mask a verified result", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const resolved = yield* fetchOnce;
+        assert.include(resolved, "/links/config/1.0.0/");
+        const scratch = world.fake.scripted.spawns.at(-1)?.args[3] ?? "";
+        assert.isTrue(yield* fs.exists(scratch));
+      })
+    );
+  });
+}
+
+{
+  const world = fetchWorld(linksAt(STORE_COPY, "{"));
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("invalid fetched manifest JSON fails with the manifest cause", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(fetchOnce);
+        assert.include(failure.message, "unreadable package.json");
+        assert.instanceOf(failure.cause, Error);
+      })
+    );
+  });
+}
+
+{
+  const world = fetchWorld(linksAt("unversioned", "{}"));
+  it.layer(world.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("a fetched unversioned copy is refused", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(fetchOnce);
+        assert.include(failure.message, "no version");
+      })
+    );
+  });
+}

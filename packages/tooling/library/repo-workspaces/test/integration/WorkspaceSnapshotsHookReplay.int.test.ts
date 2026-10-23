@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file processEnv:skip-file processEnvInEffect:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; processEnv because it hands the replayed hook subprocess a marker path through the real environment; processEnvInEffect because it hands the replayed hook subprocess a marker path through the real environment. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `WorkspaceSnapshots.at(ref)` through the REAL composites, over a real git
 // repository: two commits that declare two different versions of one config
 // dependency, with the older version installed under `.pnpm-config` and the
@@ -12,18 +11,17 @@
 //   ref side either: the marker the pnpmfile would write stays absent and the
 //   hook-only catalog stays unresolved.
 
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
 import { ConfigDependencyHooks, WorkspaceSnapshots, WorkspaceStateSnapshot, Workspaces } from "@beep/repo-workspaces";
-import { NodeServices } from "@effect/platform-node";
-import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
+import { dirname, join } from "@beep/utils/Path";
+import * as NodeServices from "@effect/platform-node/NodeServices";
+import { afterAll, assert, beforeAll, describe, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { installConfigDependency, storeConfigDependency, writeModulesYaml } from "./utils/configDependencyFixtures.ts";
+import { gitIn, makeNodeFixture } from "./utils/nodeFixture.ts";
 
 const NAME = "cfg-replay";
 
@@ -56,47 +54,48 @@ const workspaceYaml = (spec: string): string =>
     "",
   ].join("\n");
 
-beforeAll(() => {
-  root = mkdtempSync(join(tmpdir(), "effected-replay-repo-"));
-  store = join(mkdtempSync(join(tmpdir(), "effected-replay-store-")), "v11");
-  markerPath = join(dirname(store), "marker.txt");
+const fixture = makeNodeFixture();
 
-  // 1.0.0 installed under .pnpm-config; 2.0.0 only in the store.
-  writeModulesYaml(root, store);
-  installConfigDependency(root, NAME, "1.0.0", ["pnpmfile.mjs", markingPnpmfile("^1.0.0")]);
-  storeConfigDependency(store, NAME, "2.0.0", "f".repeat(64), ["pnpmfile.mjs", markingPnpmfile("^2.0.0")]);
+beforeAll(() =>
+  fixture.runtime.runPromise(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      root = yield* fixture.tempDirectory("effected-replay-repo-");
+      store = join(yield* fixture.tempDirectory("effected-replay-store-"), "v11");
+      markerPath = join(dirname(store), "marker.txt");
 
-  writeFileSync(join(root, "package.json"), JSON.stringify({ name: "root", version: "0.0.0", private: true }));
-  mkdirSync(join(root, "packages", "a"), { recursive: true });
-  writeFileSync(
-    join(root, "packages", "a", "package.json"),
-    JSON.stringify({ name: "@x/a", version: "1.0.0", dependencies: { effect: "catalog:", "hooked-dep": "catalog:" } })
-  );
-  writeFileSync(join(root, ".gitignore"), "node_modules\n");
+      // 1.0.0 installed under .pnpm-config; 2.0.0 only in the store.
+      yield* writeModulesYaml(root, store);
+      yield* installConfigDependency(root, NAME, "1.0.0", ["pnpmfile.mjs", markingPnpmfile("^1.0.0")]);
+      yield* storeConfigDependency(store, NAME, "2.0.0", "f".repeat(64), ["pnpmfile.mjs", markingPnpmfile("^2.0.0")]);
 
-  const git = (...args: ReadonlyArray<string>): void => {
-    execFileSync("git", args, { cwd: root, env: { ...process.env, LC_ALL: "C", GIT_TERMINAL_PROMPT: "0" } });
-  };
-  git("init", "-q");
-  git("config", "user.email", "test@example.com");
-  git("config", "user.name", "Test");
-  // `before`: declares 1.0.0 (with the integrity suffix pnpm writes).
-  writeFileSync(join(root, "pnpm-workspace.yaml"), workspaceYaml("1.0.0+sha512-before"));
-  git("add", "-A");
-  git("commit", "-q", "-m", "before");
-  git("tag", "before");
-  // `after`: bumps the config dependency to 2.0.0 (bare spec), nothing else.
-  writeFileSync(join(root, "pnpm-workspace.yaml"), workspaceYaml("2.0.0"));
-  git("add", "-A");
-  git("commit", "-q", "-m", "after");
-  git("tag", "after");
-});
+      yield* fs.writeFileString(join(root, "package.json"), '{"name":"root","version":"0.0.0","private":true}');
+      yield* fs.makeDirectory(join(root, "packages", "a"), { recursive: true });
+      yield* fs.writeFileString(
+        join(root, "packages", "a", "package.json"),
+        '{"name":"@x/a","version":"1.0.0","dependencies":{"effect":"catalog:","hooked-dep":"catalog:"}}'
+      );
+      yield* fs.writeFileString(join(root, ".gitignore"), "node_modules\n");
 
-afterAll(() => {
-  for (const dir of [root, dirname(store)]) {
-    if (dir !== undefined) rmSync(dir, { recursive: true, force: true });
-  }
-});
+      const git = gitIn(root);
+      yield* git("init", "-q");
+      yield* git("config", "user.email", "test@example.com");
+      yield* git("config", "user.name", "Test");
+      // `before`: declares 1.0.0 (with the integrity suffix pnpm writes).
+      yield* fs.writeFileString(join(root, "pnpm-workspace.yaml"), workspaceYaml("1.0.0+sha512-before"));
+      yield* git("add", "-A");
+      yield* git("commit", "-q", "-m", "before");
+      yield* git("tag", "before");
+      // `after`: bumps the config dependency to 2.0.0 (bare spec), nothing else.
+      yield* fs.writeFileString(join(root, "pnpm-workspace.yaml"), workspaceYaml("2.0.0"));
+      yield* git("add", "-A");
+      yield* git("commit", "-q", "-m", "after");
+      yield* git("tag", "after");
+    })
+  )
+);
+
+afterAll(() => fixture.close());
 
 describe("Workspaces.layerWithGitAndConfigDependencies — at(ref) replays the ref's pinned config dependency", () => {
   it.layer(
@@ -204,7 +203,7 @@ describe("Workspaces.layerWithGit — the default composite executes no config-d
     { timeout: "30 seconds" }
   )((it) => {
     it.effect("at(ref) never writes the marker and abstains on the hook-only catalog", () => {
-      process.env.HOOK_MARKER = markerPath;
+      vi.stubEnv("HOOK_MARKER", markerPath);
       return Effect.gen(function* () {
         const snapshots = yield* WorkspaceSnapshots;
         const before = yield* snapshots.at("before");
@@ -213,7 +212,7 @@ describe("Workspaces.layerWithGit — the default composite executes no config-d
         // Assembly ran — the committed catalog is there on every side.
         assertSome(before.resolve("effect", "catalog:"), "^4.0.0");
         // ...and no pnpmfile executed on any side: the ref reads, or the live one.
-        assert.isFalse(existsSync(markerPath));
+        assert.isFalse(yield* (yield* FileSystem.FileSystem).exists(markerPath));
         assertNone(before.resolve("hooked-dep", "catalog:"));
         assertNone(after.resolve("hooked-dep", "catalog:"));
         assertNone(live.resolve("hooked-dep", "catalog:"));
@@ -223,7 +222,7 @@ describe("Workspaces.layerWithGit — the default composite executes no config-d
       }).pipe(
         Effect.ensuring(
           Effect.sync(() => {
-            delete process.env.HOOK_MARKER;
+            vi.unstubAllEnvs();
           })
         )
       );

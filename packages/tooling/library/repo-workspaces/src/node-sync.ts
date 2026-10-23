@@ -29,12 +29,34 @@
  * @packageDocumentation
  */
 
+import { $RepoWorkspacesId } from "@beep/identity/packages";
+import * as NodePath from "@beep/utils/Path";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import type { SyncFileSystem, SyncPath, WorkspacesSyncOptions } from "./WorkspacesSync.ts";
 
-// Effect FileSystem is asynchronous, and Path.layer cannot preserve the running platform's path semantics.
-const { existsSync, readFileSync, readdirSync, statSync } = process.getBuiltinModule("node:fs");
-const path = process.getBuiltinModule("node:path");
+const $I = $RepoWorkspacesId.create("node-sync");
+
+/** Raised on first use when the running platform has no `node:fs`. */
+class NodeSyncUnavailableError extends S.TaggedError<NodeSyncUnavailableError, { readonly brand: unique symbol }>(
+  $I`NodeSyncUnavailableError`
+)(
+  "NodeSyncUnavailableError",
+  { module: S.tag("node:fs") },
+  $I.annoteError<NodeSyncUnavailableError>("NodeSyncUnavailableError", {
+    description: "The Node sync binding was used on a platform without node:fs.",
+  })
+) {}
+
+// Effect FileSystem is asynchronous, and this binding's contract is the native
+// synchronous calls with their native exceptions, so it keeps `node:fs` —
+// resolved on first use, never at import, the guarded form `@beep/utils` uses.
+let nodeFsHandle: typeof import("node:fs") | undefined;
+const nodeFs = (): typeof import("node:fs") => {
+  nodeFsHandle ??= globalThis.process?.getBuiltinModule?.("node:fs");
+  if (nodeFsHandle === undefined) throw NodeSyncUnavailableError.make({});
+  return nodeFsHandle;
+};
 
 // This module is an ENTRY POINT, so re-exporting is allowed (and required):
 // api-extractor models each entry as its own surface, and the three op types
@@ -65,15 +87,15 @@ export type { SyncDirectoryEntry, SyncFileSystem, SyncPath, WorkspacesSyncOption
  * @since 0.0.0
  */
 export const nodeFileSystem: SyncFileSystem = {
-  exists: existsSync,
-  readFile: (p) => readFileSync(p, "utf8"),
-  readDirectory: (p) => readdirSync(p),
-  isDirectory: (p) => statSync(p).isDirectory(),
+  exists: (p) => nodeFs().existsSync(p),
+  readFile: (p) => nodeFs().readFileSync(p, "utf8"),
+  readDirectory: (p) => nodeFs().readdirSync(p),
+  isDirectory: (p) => nodeFs().statSync(p).isDirectory(),
   // The optional fast path: one `readdirSync` carries every entry's type, so
   // enumeration stops paying a `statSync` per entry. Links keep reporting as
   // links — enumeration re-resolves those itself.
   readDirectoryWithTypes: (p) =>
-    A.map(readdirSync(p, { withFileTypes: true }), (entry) => ({
+    A.map(nodeFs().readdirSync(p, { withFileTypes: true }), (entry) => ({
       name: entry.name,
       isDirectory: entry.isDirectory(),
       isSymbolicLink: entry.isSymbolicLink(),
@@ -100,7 +122,7 @@ export const nodeFileSystem: SyncFileSystem = {
  * @category adapters
  * @since 0.0.0
  */
-export const nodePath: SyncPath = path;
+export const nodePath: SyncPath = { dirname: NodePath.dirname, join: NodePath.join, resolve: NodePath.resolve };
 
 /**
  * The complete Node-bound options bag for `findWorkspaceRootSync` and
