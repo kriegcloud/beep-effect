@@ -914,11 +914,11 @@
       }
     },
     "@beep/package-json": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-4, feat/effected-promotion-w3-4)",
-      "reason": "Record the new wave-3-4 workspace @beep/package-json scaffolded by create-package with the generated task set, and the root catalog exact pins validate-npm-package-name 7.0.2 and @types/validate-npm-package-name 4.0.2, both already locked as transitives; no qualification is granted.",
+      "reviewer": "Codex S44 md-tests (author review)",
+      "reason": "Register the RESUME 3 package-json ImportGraph test dependency; only build, check, lint:deprecated-apis and test drifted. No qualification change.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w3-4.md",
-        "sha256": "59f3432f3c6265957db2b74b89484f2adc5fbe37de2aeabc6f2b3d500a6466b0"
+        "path": "goals/effected-promotion/research/s44-package-json-importgraph-cache-review.md",
+        "sha256": "22ef3a369bb9d725ac7dd18b048099aef524a4740954021adf7f0609c5ca8a43"
       }
     },
     "@beep/palantiri": {
@@ -79385,7 +79385,8 @@
           "@beep/memfs#audit",
           "@beep/npm-spec#audit",
           "@beep/semver#audit",
-          "@beep/spdx#audit"
+          "@beep/spdx#audit",
+          "@beep/test-utils#audit"
         ],
         "configuration": {
           "cache": false,
@@ -79453,7 +79454,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": true,
@@ -79510,7 +79512,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": true,
@@ -79554,7 +79557,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": false,
@@ -79683,7 +79687,8 @@
           "@beep/memfs#transit",
           "@beep/npm-spec#transit",
           "@beep/semver#transit",
-          "@beep/spdx#transit"
+          "@beep/spdx#transit",
+          "@beep/test-utils#transit"
         ],
         "configuration": {
           "cache": true,
@@ -79890,7 +79895,8 @@
           "@beep/memfs#transit",
           "@beep/npm-spec#transit",
           "@beep/semver#transit",
-          "@beep/spdx#transit"
+          "@beep/spdx#transit",
+          "@beep/test-utils#transit"
         ],
         "configuration": {
           "cache": false,
@@ -79938,6 +79944,7 @@
           "@beep/npm-spec#transit",
           "@beep/semver#transit",
           "@beep/spdx#transit",
+          "@beep/test-utils#transit",
           "@beep/utils#transit"
         ],
         "configuration": {
@@ -79990,7 +79997,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": false,
