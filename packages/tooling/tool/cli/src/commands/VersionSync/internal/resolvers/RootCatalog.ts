@@ -139,9 +139,16 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
  *
  * The answer is the registry package `@beep/lockfiles` resolves from the
  * workspace root (`Lockfile#rootPackage`) whose real name is the dependency.
- * A missing lockfile, a missing or malformed entry, a workspace package and an
- * npm alias of another package all yield `None`, so the caller can fall back
- * to the catalog.
+ * A missing lockfile, a missing entry, a workspace package and an npm alias of
+ * another package all yield `None`, so the caller can fall back to the
+ * catalog.
+ *
+ * **Gotchas**
+ *
+ * A lockfile the kit rejects fails with a `VersionSyncError` instead of
+ * falling back: malformed JSONC, and also JSONC that bun would read but the
+ * kit does not admit (a non-numeric `lockfileVersion`, an unparseable
+ * integrity). The read parses the whole lockfile on each call.
  *
  * **Example** (Read the resolved turbo version)
  *

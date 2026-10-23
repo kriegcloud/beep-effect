@@ -991,6 +991,31 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
         expect(failure.file).toBe("bun.lock");
       })
     );
+
+    it.effect(
+      "fails with a typed error when bun.lock is JSONC the lockfile kit rejects",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+        // The legacy `packages`-only decode accepted this and found turbo; the
+        // kit rejects the unparseable integrity, so the read fails instead of
+        // falling back to the catalog.
+        yield* fs.writeFileString(
+          path.join(tmpDir, "bun.lock"),
+          yield* encodeJson({
+            lockfileVersion: 1,
+            workspaces: { "": { name: "fixture" } },
+            packages: { turbo: ["turbo@2.10.14", "", {}, "not-an-integrity"] },
+          })
+        );
+
+        const failure = yield* readLockfileResolvedVersion(tmpDir, "turbo").pipe(Effect.flip);
+        expect(failure._tag).toBe("VersionSyncError");
+        expect(failure.file).toBe("bun.lock");
+      })
+    );
   });
 
   describe("turbo error paths", () => {
