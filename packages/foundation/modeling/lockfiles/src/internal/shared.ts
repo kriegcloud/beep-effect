@@ -291,6 +291,37 @@ export const splitNameVersion = (key: string): O.Option<NameVersion.Encoded> =>
   }));
 
 /**
+ * The install name a bun `packages` key records: the last path segment,
+ * joined to the one before it when that one is a scope.
+ *
+ * **Details**
+ *
+ * bun keys a nested install `<parent-key>/<name>`, and a scoped name spans
+ * two segments, so `"a/@scope/b"` installs `@scope/b` and `"a/b"` installs
+ * `b`.
+ *
+ * **Example** (Read the install name of a nested scoped key)
+ *
+ * ```ts
+ * import { installNameOf } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(installNameOf("string-width-cjs/@scope/inner")) // @scope/inner
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const installNameOf = (key: string): string => {
+  const segments = Str.split("/")(key);
+  const last = A.lastNonEmpty(segments);
+  return O.match(O.filter(A.get(segments, A.length(segments) - 2), Str.startsWith("@")), {
+    onNone: () => last,
+    onSome: (scope) => `${scope}/${last}`,
+  });
+};
+
+/**
  * The `version` and `peerSuffix` fields a recorded pnpm importer version
  * contributes: none for an absent or empty version, and none for a version
  * that is *only* a peer chain (no concrete version).

@@ -59,6 +59,31 @@ snapshots:
       react: 18.3.1
 `;
 
+const LINKED_PNPM = `lockfileVersion: '9.0'
+
+importers:
+
+  .:
+    dependencies:
+      '@local/lib':
+        specifier: workspace:*
+        version: link:packages/lib
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+
+  packages/lib: {}
+
+packages:
+
+  react@18.3.1:
+    resolution: {tarball: https://example.test/react-18.3.1.tgz}
+
+snapshots:
+
+  react@18.3.1: {}
+`;
+
 describe("Lockfile#rootPackage", () => {
   it.effect("bun: the instance keyed by the bare install name, not a nested one", () =>
     Effect.gen(function* () {
@@ -110,6 +135,14 @@ describe("Lockfile#rootPackage", () => {
       const aliased = O.getOrThrow(lockfile.rootPackage("semver-classic"));
       strictEqual(aliased.name, "semver");
       strictEqual(aliased.version, "7.6.3");
+    })
+  );
+
+  it.effect("pnpm: a workspace root dependency recorded as link:<path> answers None", () =>
+    Effect.gen(function* () {
+      const lockfile = yield* Lockfile.parse(LINKED_PNPM, { format: "pnpm" });
+      assertNone(lockfile.rootPackage("@local/lib"));
+      assertSome(versionOf(lockfile.rootPackage("react")), "18.3.1");
     })
   );
 

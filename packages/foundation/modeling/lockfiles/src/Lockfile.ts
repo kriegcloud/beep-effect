@@ -627,9 +627,13 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    *   aliased dependency records `<real>@<version>`, which is the id itself);
    * - yarn Berry records no importers, so it answers `Option.none()`.
    *
-   * The answer may be a workspace package (bun and npm key a hoisted
-   * workspace link the same way); a caller that wants only registry
-   * installs filters on `isWorkspace`. An aliased bun install answers to its
+   * Under bun and npm the answer may be a workspace package (both key a
+   * hoisted workspace link the same way); a caller that wants only registry
+   * installs filters on `isWorkspace`. pnpm records a workspace root
+   * dependency as `link:<path>`, which names no snapshot, so it answers
+   * `Option.none()`. Only bun has a repo consumer today (repo-cli
+   * `CatalogUsage` and `RootCatalog`); the pnpm branch is the one production
+   * caller of `LockfileImporter#dependency`. An aliased bun install answers to its
    * alias, so compare `name` when the real package matters.
    *
    * **Example** (Read the root's resolved turbo)
