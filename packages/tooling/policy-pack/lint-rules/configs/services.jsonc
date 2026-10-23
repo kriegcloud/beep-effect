@@ -7,6 +7,7 @@
   // ts-morph (see STYLE.md). Biome resolves the paths below relative to this file.
   "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
   "plugins": [
+    "../rules/no-file-url-pathname.grit",
     "../rules/no-bigint-literals.grit",
     "../rules/no-empty-named-blocks.grit",
     "../rules/prefer-array-flat-map.grit",

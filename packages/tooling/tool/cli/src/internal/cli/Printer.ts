@@ -18,7 +18,7 @@ import type { CliJsonError } from "./Json.ts";
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { printLines } from "@beep/repo-cli/internal/cli/Printer"
+ * import { printLines } from "@beep/repo-cli/test/Cli"
  * import * as TestConsole from "effect/testing/TestConsole"
  *
  * const program = Effect.gen(function* () {
@@ -56,7 +56,7 @@ export const printLines = Effect.fn("RepoCli.Printer.printLines")(function* (
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { printJsonOrLines } from "@beep/repo-cli/internal/cli/Printer"
+ * import { printJsonOrLines } from "@beep/repo-cli/test/Cli"
  * import * as TestConsole from "effect/testing/TestConsole"
  *
  * const program = Effect.gen(function* () {
@@ -91,7 +91,7 @@ export const printJsonOrLines = Effect.fn("RepoCli.Printer.printJsonOrLines")(fu
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { makeTaggedLogger } from "@beep/repo-cli/internal/cli/Printer"
+ * import { makeTaggedLogger } from "@beep/repo-cli/test/Cli"
  * import * as TestConsole from "effect/testing/TestConsole"
  *
  * const program = Effect.gen(function* () {
@@ -126,7 +126,7 @@ export const makeTaggedLogger =
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { logTaggedSummary } from "@beep/repo-cli/internal/cli/Printer"
+ * import { logTaggedSummary } from "@beep/repo-cli/test/Cli"
  * import * as TestConsole from "effect/testing/TestConsole"
  *
  * const program = Effect.gen(function* () {
@@ -164,7 +164,7 @@ export const logTaggedSummary = Effect.fn("RepoCli.Printer.logTaggedSummary")(fu
  * **Example** (Format duration both arities)
  *
  * ```ts
- * import { formatDurationSeconds } from "@beep/repo-cli/internal/cli/Printer"
+ * import { formatDurationSeconds } from "@beep/repo-cli/test/Cli"
  *
  * console.log(formatDurationSeconds(1234, 2)) // "1.23s" (data-first)
  *

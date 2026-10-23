@@ -34,7 +34,7 @@ import type { DuckDbConnectionOptions } from "@beep/duckdb";
  * **Example** (Scoped DuckDB query effect)
  *
  * ```ts
- * import { withDuckDb } from "@beep/repo-cli/internal/duckdb"
+ * import { withDuckDb } from "@beep/repo-cli/test/SharedInternals"
  * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
  * import * as Effect from "effect/Effect";
  * const rows = Effect.gen(function* () {

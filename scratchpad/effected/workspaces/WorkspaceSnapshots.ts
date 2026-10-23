@@ -17,7 +17,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@beep/git";
 import { Git } from "@beep/git";
 import { GlobSet } from "@beep/glob";
-import { Lockfile as LockfileModel, filenameFor } from "../lockfiles/index.ts";
+import { Lockfile as LockfileModel, filenameFor } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { Yaml } from "@beep/yaml";
 import * as Context from "effect/Context";
