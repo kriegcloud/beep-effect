@@ -1,11 +1,8 @@
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
-import * as Cause from "effect/Cause";
+import { describe, expect, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import { vi } from "vitest";
 
 const unavailable = () => {
   throw new Error("fixture module unavailable");
@@ -67,11 +64,8 @@ describe("SqlTest dependency failures", () => {
           ),
           Match.orElse(() => harness.BunSqliteTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.asVoid))
         );
-        const exit = yield* effect.pipe(Effect.scoped, Effect.exit);
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isFailure(exit)) {
-          expect(harness.SqlTestHarnessError.is(Cause.squash(exit.cause))).toBe(true);
-        }
+        const error = yield* effect.pipe(Effect.flip);
+        expect(harness.SqlTestHarnessError.is(error)).toBe(true);
         vi.doUnmock(dependency);
         vi.doUnmock("testcontainers");
         vi.doUnmock("@effect/platform-bun/BunFileSystem");
@@ -95,15 +89,11 @@ describe("SqlTest dependency failures", () => {
       const harness = yield* Effect.promise(() => import("@beep/test-utils/SqlTest"));
       const drivers = [harness.NodeSqliteTestDriver, harness.BunSqliteTestDriver, harness.PgliteInProcessTestDriver];
       for (const driver of drivers) {
-        const exit = yield* driver.makeLayer(undefined).pipe(Layer.build, Effect.scoped, Effect.exit);
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isFailure(exit)) {
-          const error = Cause.squash(exit.cause);
-          expect(harness.SqlTestHarnessError.is(error)).toBe(true);
-          if (harness.SqlTestHarnessError.is(error)) {
-            expect(error.driver).toBe(driver.name);
-            expect(error.phase).toBe("provision");
-          }
+        const error = yield* driver.makeLayer(undefined).pipe(Layer.build, Effect.flip);
+        expect(harness.SqlTestHarnessError.is(error)).toBe(true);
+        if (harness.SqlTestHarnessError.is(error)) {
+          expect(error.driver).toBe(driver.name);
+          expect(error.phase).toBe("provision");
         }
       }
       vi.doUnmock("@effect/platform-node/NodeFileSystem");
@@ -122,16 +112,10 @@ describe("SqlTest dependency failures", () => {
         },
       }));
       const harness = yield* Effect.promise(() => import("@beep/test-utils/SqlTest"));
-      const exit = yield* harness
-        .makePgliteTestcontainerResource({ password: "fixture" })
-        .pipe(Effect.scoped, Effect.exit);
-      expect(Exit.isFailure(exit)).toBe(true);
-      if (Exit.isFailure(exit)) {
-        const error = Cause.squash(exit.cause);
-        expect(harness.SqlTestHarnessError.is(error)).toBe(true);
-        if (harness.SqlTestHarnessError.is(error)) {
-          expect(error.message).toBe("Failed to build the PGLite Testcontainers image.");
-        }
+      const error = yield* harness.makePgliteTestcontainerResource({ password: "fixture" }).pipe(Effect.flip);
+      expect(harness.SqlTestHarnessError.is(error)).toBe(true);
+      if (harness.SqlTestHarnessError.is(error)) {
+        expect(error.message).toBe("Failed to build the PGLite Testcontainers image.");
       }
       vi.doUnmock("testcontainers");
     })

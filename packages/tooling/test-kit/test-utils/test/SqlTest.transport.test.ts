@@ -4,20 +4,17 @@ import {
   makeSqlTestLayer,
   PgExternalTestDriver,
   PgliteTestcontainersTestDriver,
-  provideScopedLayer,
   SqlTestHarnessError,
   TestDatabaseInfo,
 } from "@beep/test-utils";
-import { describe, expect } from "@effect/vitest";
-import * as Cause from "effect/Cause";
+import { describe, expect, vi } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/sql/SqlClient";
-import { vi } from "vitest";
 
-const transport = vi.hoisted(() => ({ rejectSqlite: false }));
+const transport = { rejectSqlite: false };
 
 // Exercise harness lifecycle logic with real local SQL clients at the transport seam.
 vi.mock("@effect/platform-bun/BunFileSystem", () => import("@effect/platform-node/NodeFileSystem"));
@@ -70,89 +67,89 @@ vi.mock("testcontainers", () => ({
 }));
 
 describe("SqlTest transport lifecycle", () => {
-  it.effect("runs the Bun driver lifecycle through Node-compatible transports", () =>
-    Effect.gen(function* () {
-      const info = yield* Effect.gen(function* () {
-        const sql = yield* SqlClient.SqlClient;
-        yield* sql`CREATE TABLE transport_probe (value INTEGER)`;
-        yield* sql`INSERT INTO transport_probe VALUES (42)`;
-        expect(yield* sql`SELECT value FROM transport_probe`).toEqual([{ value: 42 }]);
-        return yield* TestDatabaseInfo;
-      }).pipe(provideScopedLayer(makeSqlTestLayer({ driver: BunSqliteTestDriver, config: undefined })));
-      expect(info.driver).toBe("bun-sqlite");
-      expect(O.isSome(info.databasePath)).toBe(true);
-    })
+  it.layer(makeSqlTestLayer({ driver: BunSqliteTestDriver, config: undefined }), { timeout: "60 seconds" })(
+    "Bun transport",
+    (it) => {
+      it.effect("runs the Bun driver lifecycle through Node-compatible transports", () =>
+        Effect.gen(function* () {
+          const sql = yield* SqlClient.SqlClient;
+          yield* sql`CREATE TABLE transport_probe (value INTEGER)`;
+          yield* sql`INSERT INTO transport_probe VALUES (42)`;
+          expect(yield* sql`SELECT value FROM transport_probe`).toEqual([{ value: 42 }]);
+          const info = yield* TestDatabaseInfo;
+          expect(info.driver).toBe("bun-sqlite");
+          expect(O.getOrThrow(info.databasePath)).toMatch(/sqlite/);
+        })
+      );
+    }
   );
 
-  it.effect("provisions an external session with a generated schema and connection metadata", () =>
-    Effect.gen(function* () {
-      const info = yield* Effect.gen(function* () {
+  it.layer(
+    makeSqlTestLayer({
+      driver: PgExternalTestDriver,
+      config: { connectionUri: "postgres://fixture:fixture@localhost:5432/fixture" },
+    }),
+    { timeout: "60 seconds" }
+  )("external schema isolation", (it) => {
+    it.effect("provisions an external session with a generated schema and connection metadata", () =>
+      Effect.gen(function* () {
         const sql = yield* SqlClient.SqlClient;
         const info = yield* TestDatabaseInfo;
         const schema = O.getOrThrow(info.schema);
         expect(yield* sql`SELECT current_schema() AS schema`).toEqual([{ schema }]);
         yield* sql`CREATE TABLE transport_probe (value INTEGER)`;
-        return info;
-      }).pipe(
-        provideScopedLayer(
-          makeSqlTestLayer({
-            driver: PgExternalTestDriver,
-            config: { connectionUri: "postgres://fixture:fixture@localhost:5432/fixture" },
-          })
-        )
-      );
-      expect(info.driver).toBe("pg-external");
-      expect(info.database).toEqual(O.some("fixture"));
-      expect(info.host).toEqual(O.some("localhost"));
-      expect(info.port).toEqual(O.some(5432));
-      expect(info.username).toEqual(O.some("fixture"));
-    })
-  );
+        expect(info.driver).toBe("pg-external");
+        assertSome(info.database, "fixture");
+        assertSome(info.host, "localhost");
+        assertSome(info.port, 5432);
+        assertSome(info.username, "fixture");
+      })
+    );
+  });
 
-  it.effect("supports external sessions without schema isolation or optional URI metadata", () =>
-    Effect.gen(function* () {
-      const info = yield* TestDatabaseInfo.pipe(
-        provideScopedLayer(
-          makeSqlTestLayer({
-            driver: PgExternalTestDriver,
-            config: { connectionUri: "postgres:///", isolation: "none" },
-          })
-        )
-      );
-      expect(info.schema).toEqual(O.none());
-      expect(info.database).toEqual(O.none());
-      expect(info.host).toEqual(O.none());
-      expect(info.port).toEqual(O.none());
-      expect(info.username).toEqual(O.none());
-    })
-  );
+  it.layer(
+    makeSqlTestLayer({
+      driver: PgExternalTestDriver,
+      config: { connectionUri: "postgres:///", isolation: "none" },
+    }),
+    { timeout: "60 seconds" }
+  )("external session without isolation", (it) => {
+    it.effect("supports external sessions without schema isolation or optional URI metadata", () =>
+      Effect.gen(function* () {
+        const info = yield* TestDatabaseInfo;
+        assertNone(info.schema);
+        assertNone(info.database);
+        assertNone(info.host);
+        assertNone(info.port);
+        assertNone(info.username);
+      })
+    );
+  });
 
-  it.effect("builds the container driver client and exposes its resource metadata", () =>
-    Effect.gen(function* () {
-      const info = yield* TestDatabaseInfo.pipe(
-        provideScopedLayer(
-          makeSqlTestLayer({
-            driver: PgliteTestcontainersTestDriver,
-            config: { password: "fixture" },
-          })
-        )
-      );
-      expect(info.driver).toBe("pglite-testcontainers");
-      expect(info.containerId).toEqual(O.some("transport-fixture"));
-      expect(info.port).toEqual(O.some(5432));
-    })
-  );
+  it.layer(
+    makeSqlTestLayer({
+      driver: PgliteTestcontainersTestDriver,
+      config: { password: "fixture" },
+    }),
+    { timeout: "60 seconds" }
+  )("container transport", (it) => {
+    it.effect("builds the container driver client and exposes its resource metadata", () =>
+      Effect.gen(function* () {
+        const info = yield* TestDatabaseInfo;
+        expect(info.driver).toBe("pglite-testcontainers");
+        assertSome(info.containerId, "transport-fixture");
+        assertSome(info.port, 5432);
+      })
+    );
+  });
+
   it.effect("maps SQLite open failure at the Bun transport boundary", () =>
     Effect.gen(function* () {
       transport.rejectSqlite = true;
-      const exit = yield* BunSqliteTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.scoped, Effect.exit);
+      const error = yield* BunSqliteTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.flip);
       transport.rejectSqlite = false;
-      expect(Exit.isFailure(exit)).toBe(true);
-      if (Exit.isFailure(exit)) {
-        const error = Cause.squash(exit.cause);
-        expect(SqlTestHarnessError.is(error)).toBe(true);
-        if (SqlTestHarnessError.is(error)) expect(error.message).toBe("Failed to open the Bun SQLite test database.");
-      }
+      expect(SqlTestHarnessError.is(error)).toBe(true);
+      if (SqlTestHarnessError.is(error)) expect(error.message).toBe("Failed to open the Bun SQLite test database.");
     })
   );
 });

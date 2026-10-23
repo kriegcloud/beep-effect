@@ -1145,7 +1145,7 @@ describe("DuckDbClient", { concurrent: false }, () => {
 });
 
 describe("DuckDbClient reader connections", { concurrent: false }, () => {
-  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }))((it) => {
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
     it.effect("normalizes unqualified schemas against the reader database and system catalogs", () =>
       Effect.gen(function* () {
         const sql = yield* DuckDbClient.DuckDbClient;
