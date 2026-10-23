@@ -28,7 +28,7 @@ import * as S from "effect/Schema";
 // the message. Nothing is ever fetched unverified.
 
 import { homedir } from "node:os";
-import { PnpmEnvLockfile } from "../../lockfiles/index.ts";
+import { PnpmEnvLockfile } from "@beep/lockfiles";
 import type { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { PackageManagerCache } from "@beep/npm-spec/PackageManagerCache";
 import { Yaml } from "@beep/yaml";

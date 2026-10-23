@@ -5,7 +5,7 @@ tree on 2026-10-09 after step 2 (zero type, lint and tsgo diagnostics; tests at 
 Each entry is a deliberate choice that the operator can overrule: remove the directive and the
 diagnostic comes back.
 
-Totals: 24 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
+Totals: 23 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
 
 ## Source
 
@@ -20,7 +20,6 @@ Totals: 24 in source, 10 in tests beyond the entry-point headers, 1 service anno
 | `effected/github-actions/DetachedProcess.ts` | 158 | next line | schemaNumber | The integer check in the pipe rejects NaN and the infinities itself, with its own message. |
 | `effected/github-actions/internal/digest.ts` | 2 | whole file | nodeBuiltinImport | The synchronous and streaming digests require incremental hashing, which Effect Crypto does not expose. |
 | `effected/github-actions/internal/sigv4.ts` | 2 | whole file | nodeBuiltinImport | SigV4 requires synchronous HMAC, which Effect Crypto does not expose. |
-| `effected/lockfiles/internal/npm.ts` | 150 | next line | preferSchemaOverJson | Syntax failures retain the original native throwable; Schema JSON decoding discards its identity and details. |
 | `effected/memfs/NodeSyncFileSystem.ts` | 2 | whole file | nodeBuiltinImport | This adapter preserves synchronous Node filesystem throws and errno metadata; Effect FileSystem is asynchronous. |
 | `effected/memfs/internal/errno.ts` | 109 | next line | missingPipeableSignature | String paths overlap method strings, and the optional description makes the two call forms ambiguous. |
 | `effected/toml/TomlNode.ts` | 90 | next line | schemaNumber | A TOML float may be `inf` or `nan`, so the finite-only schema would reject valid documents. |

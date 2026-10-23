@@ -4,6 +4,15 @@ Reuse sites from `research/promotion-map-2026-10-20.md` ("Reuse sites") and
 the wave plans, with their adoption status. `#n` is the map's site id. A site
 leaves the open list in the PR that migrates it, or carries its reason here.
 
+## `@beep/lockfiles` (wave 3-5, W3-g)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the module itself promotes as `@beep/repo-workspaces` in a later wave. |
+| repo-cli `Quality/CatalogUsage.ts` `readLockfilePackages` (bun.lock key and specifier splitting) | #233, #129 (lockfile part), #156 | 3-A1 | `Lockfile.parse({ format: "bun" })` and `ResolvedPackage.installName`; the catalog-specifier half is npm-spec's `DependencySpecifier`. Exception Ledger "Duplicate lockfile readers". |
+| repo-cli `VersionSync/internal/resolvers/RootCatalog.ts` `BunLockDocument` and `readLockfileResolvedVersion` | #131, #155, #269, #289 | 3-A1 (bun.lock half) | Filter `isWorkspace` to keep the legacy `None`; 2,403-name and 2,211-version live parity. The package.json half is 3-A4. |
+| mcpb-kit `internal/steps.ts` `ensureWindowsBindings` | #136 | excluded | Needs the npm driver's tarball download and integrity check, deferred with it; the lockfile pin read alone does not justify the edge. |
+
 ## `@beep/config-file` (wave 3, sub-wave 3-3, SPEC W3-e)
 
 | Site | Map id | Status | Notes |

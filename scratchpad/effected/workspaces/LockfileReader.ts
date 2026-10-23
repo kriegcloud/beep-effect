@@ -9,8 +9,8 @@
 
 import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { Lockfile, LockfileFramingError, LockfileParseError, ResolvedPackage } from "../lockfiles/index.ts";
-import { LockfileFormat, LockfileIntegrity, Lockfile as LockfileModel, filenameFor } from "../lockfiles/index.ts";
+import type { Lockfile, LockfileFramingError, LockfileParseError, ResolvedPackage } from "@beep/lockfiles";
+import { LockfileFormat, LockfileIntegrity, Lockfile as LockfileModel, filenameFor } from "@beep/lockfiles";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -428,7 +428,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
 	 * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
 	 * import * as Effect from "effect/Effect";
 	 * import * as O from "effect/Option";
-	 * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+	 * import { Lockfile } from "@beep/lockfiles/Lockfile";
 	 * const lockfile = Lockfile.make({
 	 *   format: "pnpm", lockfileVersion: "9.0", packages: [], workspaceDependencies: [],
 	 * });
