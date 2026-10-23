@@ -75,7 +75,7 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | repo-cli Quality readers: ChangesetGraph, ChangesetStatus, PackageVerify, QualityArtifactSupport, Quality.schemas, Tasks, CatalogUsage.schemas, PackageTestTypecheck, EffectSchemaInventoryModules | #134, #135, #130, #143, #277 | 3-A4 | `LenientManifest` or `PackageManifest` per site tier; 184-manifest verdict parity. |
 | repo-cli VersionSync `BunResolver`, `RootCatalog` (package.json half), `PackageJsonUpdater` | #132, #131, #133 | 3-A4 | `PackageManager.FromString`; the updaters become `PackageJsonFile.modify`. `RootCatalog`'s bun.lock half is 3-A1's. |
 | docgen `Version.ts`, `Configuration.ts:393` `PackageJsonSchema` | #307 | 3-A4 | After 3-3 changes the same file. |
-| observability `catalog/Catalog.names.ts` `PackageName` | #137 | 3-A9 (optional) | `ScopedPackageName`. |
+| observability `catalog/Catalog.names.ts` `PackageName` | #137 | adopted in 3-A9 | `ScopedPackageName`, re-annotated as the catalog owner name; the hand-rolled pattern and brand are gone. Parity: the old pattern and the new schema agree on all 2,407 distinct names in the tracked manifests and the root `bun.lock` (`ops/observability-package-name-parity.ts`, `research/observability-package-name-parity-3-a9.json`). npm-rule divergences (leading `-` in scope or name accepted, over 214 characters rejected) are pinned by inverted tests in `observability/test/Catalog.test.ts`. |
 | mcpb-kit manifests and `ensureWindowsBindings` | #136 | excluded | Deferred to the npm driver. |
 | m365-mcp and github test-only readers | - | excluded | Test fixtures; not worth the edge. |
 
