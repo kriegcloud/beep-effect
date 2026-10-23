@@ -117,7 +117,7 @@ const speedFactor = ((): number => {
 class DestinationWork extends Context.Service<
   DestinationWork,
   { readonly workOf: (parse: () => unknown) => Effect.Effect<number> }
->()("@beep/markdown/test/e2e/pathological/DestinationWork") {
+>()("@beep/markdown/test/e2e/pathological.e2e.test/DestinationWork") {
   static readonly layer = Layer.effect(
     DestinationWork,
     Effect.acquireRelease(
