@@ -354,7 +354,7 @@ const manifestFields = (pkg: Package) => ({
 /** The root component's attribution: links, authors, publisher and copyright. */
 const attributionFields = (pkg: Package, options: SbomMetadataOptions.Encoded | undefined) => {
   const references = referenceRecords(pkg, options);
-  const authors = O.getOrUndefined(authorsOf(pkg));
+  const authors = pipe(pkg, authorsOf, O.getOrUndefined);
   const publisher = publisherOf(pkg, options);
   return {
     ...(A.isReadonlyArrayNonEmpty(references) && { externalReferences: references }),
@@ -387,7 +387,7 @@ const rootComponent: {
 
 /** The caller's supplier, with the manifest's authors filling its contacts when it names none. */
 const supplierRecord = (supplier: Supplier.Encoded, pkg: Package): Supplier.Encoded => {
-  const contact = supplier.contact ?? O.getOrUndefined(authorsOf(pkg));
+  const contact = supplier.contact ?? pipe(pkg, authorsOf, O.getOrUndefined);
   return {
     name: supplier.name,
     ...(supplier.url !== undefined && { url: supplier.url }),

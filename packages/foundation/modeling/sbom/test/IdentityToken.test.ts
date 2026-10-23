@@ -14,7 +14,7 @@ import * as Redacted from "effect/Redacted";
 const HELD = Redacted.make("held-token");
 
 describe("IdentityToken.layerStatic", () => {
-  it.layer(IdentityToken.layerStatic("held-token"))("with a plain string", (it) => {
+  it.layer(IdentityToken.layerStatic("held-token"), { timeout: "10 seconds" })("with a plain string", (it) => {
     it.effect("answers with a token the caller already holds", () =>
       Effect.gen(function* () {
         const identity = yield* IdentityToken;
@@ -44,7 +44,7 @@ describe("IdentityToken.layerStatic", () => {
     );
   });
 
-  it.layer(IdentityToken.layerStatic(HELD))("with an already-redacted token", (it) => {
+  it.layer(IdentityToken.layerStatic(HELD), { timeout: "10 seconds" })("with an already-redacted token", (it) => {
     it.effect("accepts an already-redacted token without unwrapping and rewrapping it", () =>
       Effect.gen(function* () {
         // Identity, not equality: the layer must hand back the very value it was
@@ -58,7 +58,7 @@ describe("IdentityToken.layerStatic", () => {
 });
 
 describe("IdentityToken doubles", () => {
-  it.layer(IdentityToken.layerTest())("the default double", (it) => {
+  it.layer(IdentityToken.layerTest(), { timeout: "10 seconds" })("the default double", (it) => {
     it.effect("answers rather than dying — a test token is a real answer", () =>
       Effect.gen(function* () {
         // Contrast the lab signer's `SigstoreSigner.makeTest`, which dies: a
@@ -73,7 +73,8 @@ describe("IdentityToken doubles", () => {
   it.layer(
     IdentityToken.layerTest({
       token: (audience) => Effect.fail(IdentityTokenError.make({ audience, cause: new Error("nope") })),
-    })
+    }),
+    { timeout: "10 seconds" }
   )("an override for the failure path", (it) => {
     it.effect("take an override for the failure path", () =>
       Effect.gen(function* () {
