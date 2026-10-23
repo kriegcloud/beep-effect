@@ -307,10 +307,12 @@ export class Counter extends S.Opaque<Counter, { readonly brand: unique symbol }
  * **Example** (Refer to the plain input)
  *
  * ```ts
+ * import { Doc } from "@beep/cli-kit/Doc"
  * import type { Counter } from "@beep/cli-kit/Doc"
+ * import { Status } from "@beep/cli-kit/Status"
  *
- * const accepts = (_value: Counter.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: Counter.Encoded = Doc.counter(Status.core, "success", { key: "passed", label: "passed", n: 3 })
+ * console.log(plain.n) // 3
  * ```
  *
  * @category type-level
@@ -696,13 +698,13 @@ export declare namespace CountsRow {
 /**
  * The options of {@link Doc.countsTable}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CountsTableOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CountsTableOptions.make) // function
+ * console.log(S.is(CountsTableOptions)({ totalRow: true })) // true
  * ```
  *
  * @public
@@ -737,10 +739,11 @@ export class CountsTableOptions extends S.Opaque<CountsTableOptions, { readonly 
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CountsTableOptions } from "@beep/cli-kit/Doc"
+ * import { CountsTableOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CountsTableOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CountsTableOptions.Encoded = { totalRow: true }
+ * console.log(S.is(CountsTableOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -757,13 +760,13 @@ export declare namespace CountsTableOptions {
 /**
  * The cap and overflow options of a list or table.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { OverflowOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof OverflowOptions.make) // function
+ * console.log(S.is(OverflowOptions)({ cap: 5 })) // true
  * ```
  *
  * @public
@@ -788,10 +791,11 @@ export class OverflowOptions extends S.Opaque<OverflowOptions, { readonly brand:
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { OverflowOptions } from "@beep/cli-kit/Doc"
+ * import { OverflowOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: OverflowOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: OverflowOptions.Encoded = { cap: 5 }
+ * console.log(S.is(OverflowOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -808,13 +812,13 @@ export declare namespace OverflowOptions {
 /**
  * Options for {@link Doc.list}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { ListOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof ListOptions.make) // function
+ * console.log(S.is(ListOptions)({ compact: true })) // true
  * ```
  *
  * @public
@@ -836,10 +840,11 @@ export class ListOptions extends S.Opaque<ListOptions, { readonly brand: unique 
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { ListOptions } from "@beep/cli-kit/Doc"
+ * import { ListOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: ListOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: ListOptions.Encoded = { compact: true }
+ * console.log(S.is(ListOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -856,13 +861,13 @@ export declare namespace ListOptions {
 /**
  * Options for {@link Doc.table}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { TableOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof TableOptions.make) // function
+ * console.log(S.is(TableOptions)({ style: "pipe" })) // true
  * ```
  *
  * @public
@@ -887,10 +892,11 @@ export class TableOptions extends S.Opaque<TableOptions, { readonly brand: uniqu
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { TableOptions } from "@beep/cli-kit/Doc"
+ * import { TableOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: TableOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: TableOptions.Encoded = { style: "pipe" }
+ * console.log(S.is(TableOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -907,13 +913,13 @@ export declare namespace TableOptions {
 /**
  * Options for `Doc.link`.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { LinkOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof LinkOptions.make) // function
+ * console.log(S.is(LinkOptions)({ suffix: false })) // true
  * ```
  *
  * @public
@@ -938,10 +944,11 @@ export class LinkOptions extends S.Opaque<LinkOptions, { readonly brand: unique 
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { LinkOptions } from "@beep/cli-kit/Doc"
+ * import { LinkOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: LinkOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: LinkOptions.Encoded = { suffix: false }
+ * console.log(S.is(LinkOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -980,13 +987,13 @@ export type InlineInput = string | Inline | ReadonlyArray<string | Inline>;
 /**
  * A tree node as a constructor accepts it: the label may be a string and `children` may be left out.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { TreeInput } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof TreeInput.make) // function
+ * console.log(S.is(TreeInput)({ label: "src", children: [{ label: "index.ts" }] })) // true
  * ```
  *
  * @public
@@ -1011,10 +1018,11 @@ export class TreeInput extends S.Opaque<TreeInput, { readonly brand: unique symb
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { TreeInput } from "@beep/cli-kit/Doc"
+ * import { TreeInput } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: TreeInput.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: TreeInput.Encoded = { label: "src", children: [{ label: "index.ts" }] }
+ * console.log(S.is(TreeInput)(plain)) // true
  * ```
  *
  * @category type-level
@@ -1052,13 +1060,13 @@ export type BlockOf<Tag extends Block["_tag"]> = Extract<Block, { readonly _tag:
 /**
  * The options of {@link Doc.counts}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CountsOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CountsOptions.make) // function
+ * console.log(S.is(CountsOptions)({ counters: [], layout: "inline" })) // true
  * ```
  *
  * @public
@@ -1114,10 +1122,11 @@ export class CountsOptions extends S.Opaque<CountsOptions, { readonly brand: uni
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CountsOptions } from "@beep/cli-kit/Doc"
+ * import { CountsOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CountsOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CountsOptions.Encoded = { counters: [], layout: "inline" }
+ * console.log(S.is(CountsOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -1202,13 +1211,13 @@ const counterOf = (counter: Counter.Encoded): Counter =>
 /**
  * Options for {@link Doc.print}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { DocPrintOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof DocPrintOptions.make) // function
+ * console.log(S.is(DocPrintOptions)({ format: "plain", width: 80 })) // true
  * ```
  *
  * @public
@@ -1244,10 +1253,11 @@ export class DocPrintOptions extends S.Opaque<DocPrintOptions, { readonly brand:
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { DocPrintOptions } from "@beep/cli-kit/Doc"
+ * import { DocPrintOptions } from "@beep/cli-kit/Doc"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: DocPrintOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: DocPrintOptions.Encoded = { format: "plain", width: 80 }
+ * console.log(S.is(DocPrintOptions)(plain)) // true
  * ```
  *
  * @category type-level

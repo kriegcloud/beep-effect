@@ -30,13 +30,13 @@ const CliLoggerOptionsRender = S.declare<(message: unknown) => string>((value): 
 /**
  * How a log record is turned into a line.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CliLoggerOptions } from "@beep/cli-kit/CliLogger"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CliLoggerOptions.make) // function
+ * console.log(S.is(CliLoggerOptions)({ render: String })) // true
  * ```
  *
  * @public
@@ -88,10 +88,11 @@ export class CliLoggerOptions extends S.Opaque<CliLoggerOptions, { readonly bran
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliLoggerOptions } from "@beep/cli-kit/CliLogger"
+ * import { CliLoggerOptions } from "@beep/cli-kit/CliLogger"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliLoggerOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliLoggerOptions.Encoded = { render: String }
+ * console.log(S.is(CliLoggerOptions)(plain)) // true
  * ```
  *
  * @category type-level

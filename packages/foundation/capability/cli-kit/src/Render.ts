@@ -55,7 +55,6 @@ const RenderContextLink = S.declare<{
  * same document. `paint` and `link` are plain functions: a context for a stream with no colour passes the
  * identity, and one whose hyperlinks are off passes a `link` that returns its label unchanged.
  *
- *
  * **Example** (Inspect the schema)
  *
  * ```ts
@@ -165,13 +164,13 @@ export declare namespace RenderContext {
 /**
  * Options for {@link Render.contextOf}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { RenderContextOfOptions } from "@beep/cli-kit/Render"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof RenderContextOfOptions.make) // function
+ * console.log(S.is(RenderContextOfOptions)({ audience: "agent" })) // true
  * ```
  *
  * @public
@@ -230,10 +229,11 @@ export class RenderContextOfOptions extends S.Opaque<RenderContextOfOptions, { r
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { RenderContextOfOptions } from "@beep/cli-kit/Render"
+ * import { RenderContextOfOptions } from "@beep/cli-kit/Render"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: RenderContextOfOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: RenderContextOfOptions.Encoded = { audience: "agent" }
+ * console.log(S.is(RenderContextOfOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -258,13 +258,13 @@ const guarded: {
 /**
  * Options for {@link Render.context}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { RenderContextOptions } from "@beep/cli-kit/Render"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof RenderContextOptions.make) // function
+ * console.log(S.is(RenderContextOptions)({ width: 100 })) // true
  * ```
  *
  * @public
@@ -295,10 +295,11 @@ export class RenderContextOptions extends S.Opaque<RenderContextOptions, { reado
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { RenderContextOptions } from "@beep/cli-kit/Render"
+ * import { RenderContextOptions } from "@beep/cli-kit/Render"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: RenderContextOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: RenderContextOptions.Encoded = { width: 100 }
+ * console.log(S.is(RenderContextOptions)(plain)) // true
  * ```
  *
  * @category type-level

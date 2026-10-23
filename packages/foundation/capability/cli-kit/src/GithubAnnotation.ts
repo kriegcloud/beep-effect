@@ -102,10 +102,11 @@ export class GithubAnnotationProperties extends S.Opaque<
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { GithubAnnotationProperties } from "@beep/cli-kit/GithubAnnotation"
+ * import { GithubAnnotationProperties } from "@beep/cli-kit/GithubAnnotation"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: GithubAnnotationProperties.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: GithubAnnotationProperties.Encoded = { level: "error", title: "Lint", file: "src/a.ts", line: 3 }
+ * console.log(S.is(GithubAnnotationProperties)(plain)) // true
  * ```
  *
  * @category type-level

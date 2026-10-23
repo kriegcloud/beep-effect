@@ -75,13 +75,13 @@ export type CliLinksShape = (typeof CliLinks)["Service"];
 /**
  * Options for {@link CliLinks.layer}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CliLinksOptions } from "@beep/cli-kit/CliLinks"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CliLinksOptions.make) // function
+ * console.log(S.is(CliLinksOptions)({ cwd: "/repo" })) // true
  * ```
  *
  * @public
@@ -110,10 +110,11 @@ export class CliLinksOptions extends S.Opaque<CliLinksOptions, { readonly brand:
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliLinksOptions } from "@beep/cli-kit/CliLinks"
+ * import { CliLinksOptions } from "@beep/cli-kit/CliLinks"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliLinksOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliLinksOptions.Encoded = { cwd: "/repo" }
+ * console.log(S.is(CliLinksOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -129,7 +130,6 @@ export declare namespace CliLinksOptions {
 
 /**
  * The options of {@link CliLinks.linker}.
- *
  *
  * **Example** (Inspect the schema)
  *

@@ -24,13 +24,13 @@ const $I = $CliKitId.create("internal/layout");
  * `text` is plain: flattening removes any escape sequence it carried. Spans that came from one `Link` inline share
  * the same `link` object, which is how painting wraps them in a single hyperlink.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { Span } from "@beep/cli-kit/internal/layout"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof Span.make) // function
+ * console.log(S.is(Span)({ text: "hello", token: "accent" })) // true
  * ```
  *
  * @internal
@@ -77,10 +77,11 @@ export class Span extends S.Opaque<Span, { readonly brand: unique symbol }>()(
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { Span } from "@beep/cli-kit/internal/layout"
+ * import { Span } from "@beep/cli-kit/internal/layout"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: Span.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: Span.Encoded = { text: "hello", token: "accent" }
+ * console.log(S.is(Span)(plain)) // true
  * ```
  *
  * @category type-level
@@ -390,13 +391,13 @@ const wordRun = (cells: ReadonlyArray<Cell>, start: number) => {
 /**
  * Options for {@link wrapSpans}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { WrapOptions } from "@beep/cli-kit/internal/layout"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof WrapOptions.make) // function
+ * console.log(S.is(WrapOptions)({ hardBreak: true })) // true
  * ```
  *
  * @internal
@@ -417,10 +418,11 @@ export class WrapOptions extends S.Opaque<WrapOptions, { readonly brand: unique 
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { WrapOptions } from "@beep/cli-kit/internal/layout"
+ * import { WrapOptions } from "@beep/cli-kit/internal/layout"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: WrapOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: WrapOptions.Encoded = { hardBreak: true }
+ * console.log(S.is(WrapOptions)(plain)) // true
  * ```
  *
  * @category type-level

@@ -134,10 +134,11 @@ export class CliAudienceFlagsOptions extends S.Opaque<CliAudienceFlagsOptions, {
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliAudienceFlagsOptions } from "@beep/cli-kit/CliAudience"
+ * import { CliAudienceFlagsOptions } from "@beep/cli-kit/CliAudience"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliAudienceFlagsOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliAudienceFlagsOptions.Encoded = { hidden: true }
+ * console.log(S.is(CliAudienceFlagsOptions)(plain)) // true
  * ```
  *
  * @category type-level

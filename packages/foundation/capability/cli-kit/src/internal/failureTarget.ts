@@ -30,7 +30,6 @@ const $I = $CliKitId.create("internal/failureTarget");
 /**
  * Where a failure report is written to: the context the renderer lays out for, and which renderer.
  *
- *
  * **Example** (Inspect the schema)
  *
  * ```ts
@@ -95,13 +94,13 @@ export declare namespace FailureTarget {
 /**
  * The run's report settings `CliRuntime.main` takes from `env`, recorded with the target.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { FailureSettings } from "@beep/cli-kit/internal/failureTarget"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof FailureSettings.make) // function
+ * console.log(S.is(FailureSettings)({ spans: "off" })) // true
  * ```
  *
  * @internal
@@ -134,10 +133,11 @@ export class FailureSettings extends S.Opaque<FailureSettings, { readonly brand:
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { FailureSettings } from "@beep/cli-kit/internal/failureTarget"
+ * import { FailureSettings } from "@beep/cli-kit/internal/failureTarget"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: FailureSettings.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: FailureSettings.Encoded = { spans: "off" }
+ * console.log(S.is(FailureSettings)(plain)) // true
  * ```
  *
  * @category type-level

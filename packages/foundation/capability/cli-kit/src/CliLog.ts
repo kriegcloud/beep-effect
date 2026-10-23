@@ -108,10 +108,11 @@ export class CliLogStatusOptions extends S.Opaque<CliLogStatusOptions, { readonl
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliLogStatusOptions } from "@beep/cli-kit/CliLog"
+ * import { CliLogStatusOptions } from "@beep/cli-kit/CliLog"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliLogStatusOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliLogStatusOptions.Encoded = { level: "Warn", indent: 2 }
+ * console.log(S.is(CliLogStatusOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -140,13 +141,13 @@ const indentOf = (indent: number | string | undefined): string => {
 /**
  * Options for `CliLog.layer`.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CliLogOptions } from "@beep/cli-kit/CliLog"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CliLogOptions.make) // function
+ * console.log(S.is(CliLogOptions)({ envVar: "TOOL_LOG_LEVEL", format: "auto" })) // true
  * ```
  *
  * @public
@@ -285,10 +286,11 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliLogOptions } from "@beep/cli-kit/CliLog"
+ * import { CliLogOptions } from "@beep/cli-kit/CliLog"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliLogOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliLogOptions.Encoded = { envVar: "TOOL_LOG_LEVEL", format: "auto" }
+ * console.log(S.is(CliLogOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -350,13 +352,13 @@ export type CliLogFile = typeof CliLogFile.Type;
 /**
  * {@link CliLogOptions} with a file sink, which is what makes the layer require `FileSystem` and `Path`.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CliLogFileOptions } from "@beep/cli-kit/CliLog"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CliLogFileOptions.make) // function
+ * console.log(S.is(CliLogFileOptions)({ file: undefined })) // true
  * ```
  *
  * @public
@@ -396,10 +398,11 @@ export class CliLogFileOptions extends S.Opaque<CliLogFileOptions, { readonly br
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliLogFileOptions } from "@beep/cli-kit/CliLog"
+ * import { CliLogFileOptions } from "@beep/cli-kit/CliLog"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliLogFileOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliLogFileOptions.Encoded = { file: undefined }
+ * console.log(S.is(CliLogFileOptions)(plain)) // true
  * ```
  *
  * @category type-level

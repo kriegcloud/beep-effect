@@ -53,10 +53,11 @@ export class CliMessageOptions extends S.Opaque<CliMessageOptions, { readonly br
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliMessageOptions } from "@beep/cli-kit/CliMessage"
+ * import { CliMessageOptions } from "@beep/cli-kit/CliMessage"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliMessageOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliMessageOptions.Encoded = { stream: "stderr" }
+ * console.log(S.is(CliMessageOptions)(plain)) // true
  * ```
  *
  * @category type-level

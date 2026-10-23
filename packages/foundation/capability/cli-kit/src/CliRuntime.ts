@@ -114,7 +114,6 @@ const isRenderedUserError = (u: unknown): u is CliError.UserError =>
 /**
  * What `render` is told about a failure beyond the squashed error.
  *
- *
  * **Example** (Inspect the schema)
  *
  * ```ts
@@ -240,13 +239,13 @@ export declare namespace FailureDetails {
 /**
  * How a failure is turned into output and an exit code.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { ReportFailuresOptions } from "@beep/cli-kit/CliRuntime"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof ReportFailuresOptions.make) // function
+ * console.log(S.is(ReportFailuresOptions)({ exitCode: 2 })) // true
  * ```
  *
  * @public
@@ -322,10 +321,11 @@ export class ReportFailuresOptions extends S.Opaque<ReportFailuresOptions, { rea
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { ReportFailuresOptions } from "@beep/cli-kit/CliRuntime"
+ * import { ReportFailuresOptions } from "@beep/cli-kit/CliRuntime"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: ReportFailuresOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: ReportFailuresOptions.Encoded = { exitCode: 2 }
+ * console.log(S.is(ReportFailuresOptions)(plain)) // true
  * ```
  *
  * @category type-level

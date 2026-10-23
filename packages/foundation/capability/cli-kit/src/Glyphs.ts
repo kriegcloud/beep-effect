@@ -92,13 +92,13 @@ export declare namespace GlyphSet {
 /**
  * Options for {@link Glyphs.select}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { GlyphSelectOptions } from "@beep/cli-kit/Glyphs"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof GlyphSelectOptions.make) // function
+ * console.log(S.is(GlyphSelectOptions)({ ascii: "auto", term: "xterm-256color" })) // true
  * ```
  *
  * @public
@@ -129,10 +129,11 @@ export class GlyphSelectOptions extends S.Opaque<GlyphSelectOptions, { readonly 
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { GlyphSelectOptions } from "@beep/cli-kit/Glyphs"
+ * import { GlyphSelectOptions } from "@beep/cli-kit/Glyphs"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: GlyphSelectOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: GlyphSelectOptions.Encoded = { ascii: "auto", term: "xterm-256color" }
+ * console.log(S.is(GlyphSelectOptions)(plain)) // true
  * ```
  *
  * @category type-level

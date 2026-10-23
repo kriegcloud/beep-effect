@@ -18,13 +18,13 @@ const $I = $CliKitId.create("Fmt");
 /**
  * Options for {@link Fmt.truncate}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { TruncateOptions } from "@beep/cli-kit/Fmt"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof TruncateOptions.make) // function
+ * console.log(S.is(TruncateOptions)({ ellipsis: "..." })) // true
  * ```
  *
  * @public
@@ -45,10 +45,11 @@ export class TruncateOptions extends S.Opaque<TruncateOptions, { readonly brand:
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { TruncateOptions } from "@beep/cli-kit/Fmt"
+ * import { TruncateOptions } from "@beep/cli-kit/Fmt"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: TruncateOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: TruncateOptions.Encoded = { ellipsis: "..." }
+ * console.log(S.is(TruncateOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -65,13 +66,13 @@ export declare namespace TruncateOptions {
 /**
  * Options for {@link Fmt.percent}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { PercentOptions } from "@beep/cli-kit/Fmt"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof PercentOptions.make) // function
+ * console.log(S.is(PercentOptions)({ digits: 1, scale: 100 })) // true
  * ```
  *
  * @public
@@ -99,10 +100,11 @@ export class PercentOptions extends S.Opaque<PercentOptions, { readonly brand: u
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { PercentOptions } from "@beep/cli-kit/Fmt"
+ * import { PercentOptions } from "@beep/cli-kit/Fmt"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: PercentOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: PercentOptions.Encoded = { digits: 1, scale: 100 }
+ * console.log(S.is(PercentOptions)(plain)) // true
  * ```
  *
  * @category type-level

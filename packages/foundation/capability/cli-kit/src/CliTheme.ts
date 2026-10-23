@@ -73,7 +73,6 @@ export type CliThemeShape = (typeof CliTheme)["Service"];
 /**
  * A theme bound to one stream's colour level.
  *
- *
  * **Example** (Inspect the schema)
  *
  * ```ts
@@ -174,10 +173,11 @@ export class CliThemeOptions extends S.Opaque<CliThemeOptions, { readonly brand:
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliThemeOptions } from "@beep/cli-kit/CliTheme"
+ * import { CliThemeOptions } from "@beep/cli-kit/CliTheme"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliThemeOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliThemeOptions.Encoded = { glyphs: "ascii" }
+ * console.log(S.is(CliThemeOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -234,10 +234,11 @@ export class CliThemeTestOptions extends S.Opaque<CliThemeTestOptions, { readonl
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliThemeTestOptions } from "@beep/cli-kit/CliTheme"
+ * import { CliThemeTestOptions } from "@beep/cli-kit/CliTheme"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliThemeTestOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliThemeTestOptions.Encoded = { color: "basic" }
+ * console.log(S.is(CliThemeTestOptions)(plain)) // true
  * ```
  *
  * @category type-level

@@ -49,9 +49,11 @@ export class FlagTarget extends S.Opaque<FlagTarget, { readonly brand: unique sy
 /** Companion types for {@link FlagTarget}.
  * **Example** (Inspect the plain input)
  * ```ts
- * import type { FlagTarget } from "@beep/cli-kit/CliPrompt"
- * const accepts = (_value: FlagTarget.Encoded) => true
- * console.log(typeof accepts) // function
+ * import { FlagTarget } from "@beep/cli-kit/CliPrompt"
+ * import * as S from "effect/Schema"
+ *
+ * const plain: FlagTarget.Encoded = { flag: "profile" }
+ * console.log(S.is(FlagTarget)(plain)) // true
  * ```
  * @category type-level
  * @since 0.0.0
@@ -92,9 +94,11 @@ export class ArgumentTarget extends S.Opaque<ArgumentTarget, { readonly brand: u
 /** Companion types for {@link ArgumentTarget}.
  * **Example** (Inspect the plain input)
  * ```ts
- * import type { ArgumentTarget } from "@beep/cli-kit/CliPrompt"
- * const accepts = (_value: ArgumentTarget.Encoded) => true
- * console.log(typeof accepts) // function
+ * import { ArgumentTarget } from "@beep/cli-kit/CliPrompt"
+ * import * as S from "effect/Schema"
+ *
+ * const plain: ArgumentTarget.Encoded = { argument: "name" }
+ * console.log(S.is(ArgumentTarget)(plain)) // true
  * ```
  * @category type-level
  * @since 0.0.0
@@ -137,9 +141,11 @@ export type CliPromptTarget = typeof CliPromptTarget.Type;
 /** Companion types for {@link CliPromptTarget}.
  * **Example** (Inspect plain target input)
  * ```ts
- * import type { CliPromptTarget } from "@beep/cli-kit/CliPrompt"
- * const accepts = (_value: CliPromptTarget.Encoded) => true
- * console.log(typeof accepts) // function
+ * import { CliPromptTarget } from "@beep/cli-kit/CliPrompt"
+ * import * as S from "effect/Schema"
+ *
+ * const plain: CliPromptTarget.Encoded = { flag: "profile" }
+ * console.log(S.is(CliPromptTarget)(plain)) // true
  * ```
  * @category type-level
  * @since 0.0.0

@@ -48,13 +48,13 @@ const CliEnvOptionsStderrIsTerminal = S.declare<Effect.Effect<boolean>>((value):
 /**
  * Options for {@link CliEnv.layer} and for `CliRuntime.main`'s `env` option.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CliEnvOptions } from "@beep/cli-kit/CliEnv"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CliEnvOptions.make) // function
+ * console.log(S.is(CliEnvOptions)({ audienceEnvVar: "TOOL_AUDIENCE" })) // true
  * ```
  *
  * @public
@@ -179,10 +179,11 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliEnvOptions } from "@beep/cli-kit/CliEnv"
+ * import { CliEnvOptions } from "@beep/cli-kit/CliEnv"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliEnvOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliEnvOptions.Encoded = { audienceEnvVar: "TOOL_AUDIENCE" }
+ * console.log(S.is(CliEnvOptions)(plain)) // true
  * ```
  *
  * @category type-level
@@ -265,10 +266,11 @@ export class CliEnvTestOptions extends S.Opaque<CliEnvTestOptions, { readonly br
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliEnvTestOptions } from "@beep/cli-kit/CliEnv"
+ * import { CliEnvTestOptions } from "@beep/cli-kit/CliEnv"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliEnvTestOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliEnvTestOptions.Encoded = { audience: "agent", columns: 80 }
+ * console.log(S.is(CliEnvTestOptions)(plain)) // true
  * ```
  *
  * @category type-level

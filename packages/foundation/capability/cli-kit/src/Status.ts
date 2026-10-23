@@ -85,10 +85,11 @@ export class StatusDef extends S.Opaque<StatusDef, { readonly brand: unique symb
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { StatusDef } from "@beep/cli-kit/Status"
+ * import { StatusDef } from "@beep/cli-kit/Status"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: StatusDef.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: StatusDef.Encoded = { glyph: "⧖", ascii: "[time]", token: "warning", rank: 85 }
+ * console.log(S.is(StatusDef)(plain)) // true
  * ```
  *
  * @category type-level

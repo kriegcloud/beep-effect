@@ -68,13 +68,13 @@ export const formatIssue = (issue: unknown): ReadonlyArray<string> =>
 /**
  * One rejected value: what is wrong and where.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { IssueEntry } from "@beep/cli-kit/internal/format"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof IssueEntry.make) // function
+ * console.log(S.is(IssueEntry)({ message: "Expected string", path: ["name"] })) // true
  * ```
  *
  * @internal
@@ -95,10 +95,11 @@ export class IssueEntry extends S.Opaque<IssueEntry, { readonly brand: unique sy
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { IssueEntry } from "@beep/cli-kit/internal/format"
+ * import { IssueEntry } from "@beep/cli-kit/internal/format"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: IssueEntry.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: IssueEntry.Encoded = { message: "Expected string", path: ["name"] }
+ * console.log(S.is(IssueEntry)(plain)) // true
  * ```
  *
  * @category type-level
@@ -209,13 +210,13 @@ export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry.Encoded>): R
  * The shape `issueTreeChildren` returns: a `TreeInput` without the dependency on `Doc`, which this module must not
  * import at runtime.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { IssueTreeNode } from "@beep/cli-kit/internal/format"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof IssueTreeNode.make) // function
+ * console.log(S.is(IssueTreeNode)({ label: "name" })) // true
  * ```
  *
  * @internal
@@ -238,10 +239,11 @@ export class IssueTreeNode extends S.Opaque<IssueTreeNode, { readonly brand: uni
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { IssueTreeNode } from "@beep/cli-kit/internal/format"
+ * import { IssueTreeNode } from "@beep/cli-kit/internal/format"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: IssueTreeNode.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: IssueTreeNode.Encoded = { label: "name" }
+ * console.log(S.is(IssueTreeNode)(plain)) // true
  * ```
  *
  * @category type-level

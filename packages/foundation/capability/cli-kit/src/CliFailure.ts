@@ -78,13 +78,13 @@ export interface CliDocSource {
 /**
  * Options for {@link CliFailure.toDoc}.
  *
- *
- * **Example** (Inspect the schema)
+ * **Example** (Validate plain options)
  *
  * ```ts
  * import { CliFailureOptions } from "@beep/cli-kit/CliFailure"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof CliFailureOptions.make) // function
+ * console.log(S.is(CliFailureOptions)({ stackFrames: "all" })) // true
  * ```
  *
  * @public
@@ -153,10 +153,11 @@ export class CliFailureOptions extends S.Opaque<CliFailureOptions, { readonly br
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { CliFailureOptions } from "@beep/cli-kit/CliFailure"
+ * import { CliFailureOptions } from "@beep/cli-kit/CliFailure"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: CliFailureOptions.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: CliFailureOptions.Encoded = { stackFrames: "all" }
+ * console.log(S.is(CliFailureOptions)(plain)) // true
  * ```
  *
  * @category type-level

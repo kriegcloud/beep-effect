@@ -58,10 +58,11 @@ export class Sandbox extends S.Opaque<Sandbox, { readonly brand: unique symbol }
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { Sandbox } from "@beep/cli-kit/CliTest"
+ * import { Sandbox } from "@beep/cli-kit/CliTest"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: Sandbox.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: Sandbox.Encoded = { root: "/tmp/sandbox", home: "/tmp/sandbox/home", env: { HOME: "/tmp/sandbox/home" } }
+ * console.log(S.is(Sandbox)(plain)) // true
  * ```
  *
  * @category type-level
@@ -192,10 +193,11 @@ export class RunResult extends S.Opaque<RunResult, { readonly brand: unique symb
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { RunResult } from "@beep/cli-kit/CliTest"
+ * import { RunResult } from "@beep/cli-kit/CliTest"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: RunResult.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: RunResult.Encoded = { exitCode: 0, stdout: "ok\n", stderr: "" }
+ * console.log(S.is(RunResult)(plain)) // true
  * ```
  *
  * @category type-level

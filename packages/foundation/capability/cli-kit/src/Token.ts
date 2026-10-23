@@ -116,10 +116,11 @@ export class Style extends S.Opaque<Style, { readonly brand: unique symbol }>()(
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { Style } from "@beep/cli-kit/Token"
+ * import { Style } from "@beep/cli-kit/Token"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: Style.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: Style.Encoded = { fg: "red", bold: true }
+ * console.log(S.is(Style)(plain)) // true
  * ```
  *
  * @category type-level

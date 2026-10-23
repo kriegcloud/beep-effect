@@ -74,10 +74,11 @@ export class KeyInput extends S.Opaque<KeyInput, { readonly brand: unique symbol
  * **Example** (Refer to the plain input)
  *
  * ```ts
- * import type { KeyInput } from "@beep/cli-kit/TestTerminal"
+ * import { KeyInput } from "@beep/cli-kit/TestTerminal"
+ * import * as S from "effect/Schema"
  *
- * const accepts = (_value: KeyInput.Encoded) => true
- * console.log(typeof accepts) // function
+ * const plain: KeyInput.Encoded = { name: "enter" }
+ * console.log(S.is(KeyInput)(plain)) // true
  * ```
  *
  * @category type-level
