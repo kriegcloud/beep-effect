@@ -87,7 +87,7 @@ describe("test-typecheck coverage", () => {
 
   it.layer(PlatformLayer, { timeout: "5 seconds" })((it) => {
     it.effect(
-      "follows a package-resolved base's include and lets a project with an unresolvable extends prove nothing",
+      "follows a package-resolved base's include and lets a project whose extends fails prove nothing",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
@@ -111,6 +111,25 @@ describe("test-typecheck coverage", () => {
         yield* fs.writeFileString(config, `${encodeJson({ extends: "./missing.json", include: ["test"] })}\n`);
         const broken = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [fixture.testFile]);
         expect(broken.uncoveredSources).toEqual([fixture.testFile]);
+
+        // A malformed base and an extends cycle fail tsc the same way (TS5083 / TS18000), so the
+        // project's own `include` proves nothing either; the old walk dropped only the bad base.
+        const malformed = path.join(fixture.packageDir, "tsconfig.malformed.json");
+        yield* fs.writeFileString(malformed, '{ "compilerOptions": { ,\n');
+        yield* fs.writeFileString(
+          config,
+          `${encodeJson({ extends: "./tsconfig.malformed.json", include: ["test"] })}\n`
+        );
+        const unparsable = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [
+          fixture.testFile,
+        ]);
+        expect(unparsable.uncoveredSources).toEqual([fixture.testFile]);
+
+        const loop = path.join(fixture.packageDir, "tsconfig.loop.json");
+        yield* fs.writeFileString(loop, `${encodeJson({ extends: "./tsconfig.check.json" })}\n`);
+        yield* fs.writeFileString(config, `${encodeJson({ extends: "./tsconfig.loop.json", include: ["test"] })}\n`);
+        const cyclic = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [fixture.testFile]);
+        expect(cyclic.uncoveredSources).toEqual([fixture.testFile]);
       })
     );
   });

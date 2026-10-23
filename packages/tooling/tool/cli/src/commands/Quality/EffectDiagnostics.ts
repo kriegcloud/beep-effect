@@ -10,6 +10,7 @@ import { findRepoRoot, readPackageJsonFile } from "@beep/repo-utils";
 import { resolveWorkspacePackages } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
+import * as Cache from "effect/Cache";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
@@ -276,7 +277,27 @@ const scriptProjects = (commands: ReadonlyArray<string>, build: boolean) =>
     )
   );
 
-const buildProjects = Effect.fn("EffectDiagnostics.buildProjects")(function* (initial: ReadonlyArray<string>) {
+type ResolveProject = (
+  project: string
+) => Effect.Effect<
+  Effect.Success<ReturnType<typeof TsconfigLoader.resolve>>,
+  Effect.Error<ReturnType<typeof TsconfigLoader.resolve>>,
+  Effect.Services<ReturnType<typeof TsconfigLoader.resolve>>
+>;
+
+// One resolver per run: the inventory and every project run share each resolved
+// extends chain, so a base config is read and decoded once instead of per project.
+const makeProjectResolver = Effect.map(
+  Cache.make({ lookup: TsconfigLoader.resolve, capacity: 4096 }),
+  (cache): ResolveProject =>
+    (project) =>
+      Cache.get(cache, project)
+);
+
+const buildProjects = Effect.fn("EffectDiagnostics.buildProjects")(function* (
+  initial: ReadonlyArray<string>,
+  resolveProject: ResolveProject
+) {
   const path = yield* Path.Path;
   let pending = initial;
   let visited = HashSet.empty<string>();
@@ -286,7 +307,7 @@ const buildProjects = Effect.fn("EffectDiagnostics.buildProjects")(function* (in
     const project = Str.endsWith(".json")(next) ? next : path.join(next, "tsconfig.json");
     if (HashSet.has(visited, project)) continue;
     visited = HashSet.add(visited, project);
-    const config = yield* TsconfigLoader.resolve(project).pipe(
+    const config = yield* resolveProject(project).pipe(
       QualityScriptCommandError.mapError(`Failed to resolve build project ${project}.`)
     );
     pending = A.appendAll(
@@ -300,7 +321,8 @@ const buildProjects = Effect.fn("EffectDiagnostics.buildProjects")(function* (in
 const checkProjects = Effect.fn("EffectDiagnostics.checkProjects")(function* (
   dir: string,
   scripts: Readonly<Record<string, string>>,
-  root: boolean
+  root: boolean,
+  resolveProject: ResolveProject
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -309,7 +331,7 @@ const checkProjects = Effect.fn("EffectDiagnostics.checkProjects")(function* (
     const resolved = path.resolve(dir, project);
     return Str.endsWith(".json")(resolved) ? resolved : path.join(resolved, "tsconfig.json");
   };
-  const builds = yield* buildProjects(A.map(scriptProjects(commands, true), normalize));
+  const builds = yield* buildProjects(A.map(scriptProjects(commands, true), normalize), resolveProject);
   const projects = pipe(
     A.appendAll(A.map(scriptProjects(commands, false), normalize), builds),
     A.dedupe,
@@ -347,7 +369,10 @@ const checkProjects = Effect.fn("EffectDiagnostics.checkProjects")(function* (
  * @category utilities
  * @since 0.0.0
  */
-const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(function* (repoRoot: string) {
+const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(function* (
+  repoRoot: string,
+  resolveProject: ResolveProject
+) {
   const path = yield* Path.Path;
   const workspaces = yield* resolveWorkspacePackages(repoRoot);
   const root = yield* readPackageJsonFile(path.join(repoRoot, "package.json"));
@@ -359,7 +384,10 @@ const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(fun
     yield* Effect.forEach(
       owners,
       ([name, dir, scripts]) =>
-        Effect.map(checkProjects(dir, scripts, dir === repoRoot), (projects) => [name, projects] as const),
+        Effect.map(
+          checkProjects(dir, scripts, dir === repoRoot, resolveProject),
+          (projects) => [name, projects] as const
+        ),
       { concurrency: 1 }
     )
   );
@@ -392,11 +420,35 @@ const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(fun
  * @since 0.0.0
  */
 export const effectDiagnosticsProjects = Effect.fn("EffectDiagnostics.projects")(function* (repoRoot: string) {
-  const [inventory] = yield* collectDiagnosticsInventory(repoRoot);
+  const [inventory] = yield* collectDiagnosticsInventory(repoRoot, yield* makeProjectResolver);
   return inventory;
 });
 
 const decodeOutput = S.decodeUnknownEffect(S.fromJsonString(EffectDiagnosticsOutput));
+
+const projectConfigWith = Effect.fn("EffectDiagnostics.projectConfig")(function* (
+  resolveProject: ResolveProject,
+  profile: EffectDiagnosticsProfile,
+  project: string
+) {
+  const { compilerOptions } = yield* resolveProject(project).pipe(
+    QualityScriptCommandError.mapError(`Failed to resolve ${project}.`)
+  );
+  const plugin = A.findFirst(compilerOptions.plugins ?? A.empty(), S.is(EffectPlugin));
+  if (O.isNone(plugin))
+    return yield* QualityScriptCommandError.make({
+      message: `No complete Effect plugin in ${project}.`,
+      exitCode: 1,
+    });
+  return yield* pluginCodec
+    .encode(
+      EffectPlugin.make({
+        ...plugin.value,
+        diagnosticSeverity: { ...plugin.value.diagnosticSeverity, ...profile.diagnosticSeverity },
+      })
+    )
+    .pipe(QualityScriptCommandError.mapError(`Failed to encode Effect plugin for ${project}.`));
+});
 
 /**
  * Resolve a project's inherited plugin and overlay the standalone rule profile.
@@ -425,27 +477,8 @@ export const effectDiagnosticsProjectConfig: {
     profile: EffectDiagnosticsProfile,
     project: string
   ): Effect.Effect<string, QualityScriptCommandError, FileSystem.FileSystem | Path.Path>;
-} = dual(
-  2,
-  Effect.fn("EffectDiagnostics.projectConfig")(function* (profile: EffectDiagnosticsProfile, project: string) {
-    const options = yield* TsconfigLoader.compilerOptions(project).pipe(
-      QualityScriptCommandError.mapError(`Failed to resolve ${project}.`)
-    );
-    const plugin = A.findFirst(options.plugins ?? A.empty(), S.is(EffectPlugin));
-    if (O.isNone(plugin))
-      return yield* QualityScriptCommandError.make({
-        message: `No complete Effect plugin in ${project}.`,
-        exitCode: 1,
-      });
-    return yield* pluginCodec
-      .encode(
-        EffectPlugin.make({
-          ...plugin.value,
-          diagnosticSeverity: { ...plugin.value.diagnosticSeverity, ...profile.diagnosticSeverity },
-        })
-      )
-      .pipe(QualityScriptCommandError.mapError(`Failed to encode Effect plugin for ${project}.`));
-  })
+} = dual(2, (profile: EffectDiagnosticsProfile, project: string) =>
+  projectConfigWith(TsconfigLoader.resolve, profile, project)
 );
 
 const runProject = Effect.fn("EffectDiagnostics.project")(function* (
@@ -453,11 +486,12 @@ const runProject = Effect.fn("EffectDiagnostics.project")(function* (
   node: string,
   project: string,
   profile: EffectDiagnosticsProfile,
+  resolveProject: ResolveProject,
   config: string = project
 ) {
   const path = yield* Path.Path;
   const label = `${path.relative(repoRoot, project)}${config === project ? "" : " [test-tsgo overlay]"}`;
-  const lspconfig = yield* effectDiagnosticsProjectConfig(profile, project);
+  const lspconfig = yield* projectConfigWith(resolveProject, profile, project);
   const result = yield* runCapturedStreams({
     command: node,
     args: [
@@ -514,21 +548,23 @@ const runDiscoveredProject = Effect.fn("EffectDiagnostics.discoveredProject")(fu
   node: string,
   project: string,
   profile: EffectDiagnosticsProfile,
-  tests: Effect.Success<ReturnType<typeof testTsgoPrograms.uncovered>>
+  tests: Effect.Success<ReturnType<typeof testTsgoPrograms.uncovered>>,
+  resolveProject: ResolveProject
 ) {
   const program = A.findFirst(tests, (test) => test.tsconfigPath === project);
-  if (O.isNone(program)) return yield* runProject(repoRoot, node, project, profile);
+  if (O.isNone(program)) return yield* runProject(repoRoot, node, project, profile, resolveProject);
   const fs = yield* FileSystem.FileSystem;
   const tempDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-effect-diagnostics-" });
   const config = yield* testTsgoPrograms.writeConfig(repoRoot, tempDir, program.value);
-  return yield* runProject(repoRoot, node, project, profile, config);
+  return yield* runProject(repoRoot, node, project, profile, resolveProject, config);
 });
 
 const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (options: EffectDiagnosticsOptions) {
   const repoRoot = yield* findRepoRoot();
   const profile = yield* readEffectDiagnosticsProfile(repoRoot);
   const node = O.getOrElse(yield* configStringOption("BEEP_NODE_BIN"), () => "node");
-  const [inventory, tests] = yield* collectDiagnosticsInventory(repoRoot);
+  const resolveProject = yield* makeProjectResolver;
+  const [inventory, tests] = yield* collectDiagnosticsInventory(repoRoot, resolveProject);
   const root = yield* readPackageJsonFile(`${repoRoot}/package.json`);
   const owners = A.append(
     yield* workspaceCoverageScopeOwners(repoRoot),
@@ -569,7 +605,7 @@ const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (optio
   );
   const reports = yield* Effect.forEach(
     projects,
-    (project) => runDiscoveredProject(repoRoot, node, project, profile, tests).pipe(Effect.scoped),
+    (project) => runDiscoveredProject(repoRoot, node, project, profile, tests, resolveProject).pipe(Effect.scoped),
     {
       concurrency: options.concurrency,
     }
