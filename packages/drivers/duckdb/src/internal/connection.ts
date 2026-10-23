@@ -159,10 +159,14 @@ type ConnectionOptions = {
 const isQueryResult = (result: DuckDBResult): boolean => result.returnType === ResultReturnType.QUERY_RESULT;
 
 const readRows: Reader<ReadonlyArray<Row>> = (result, converter) =>
-  isQueryResult(result) ? result.convertRowObjects(converter) : Promise.resolve([]);
+  (isQueryResult(result) ? result.convertRowObjects(converter) : Promise.resolve([])).finally(() =>
+    ignoreNative(() => result.closeSync())
+  );
 
 const readValues: Reader<ReadonlyArray<ReadonlyArray<unknown>>> = (result, converter) =>
-  isQueryResult(result) ? result.convertRows(converter) : Promise.resolve([]);
+  (isQueryResult(result) ? result.convertRows(converter) : Promise.resolve([])).finally(() =>
+    ignoreNative(() => result.closeSync())
+  );
 
 const readRaw: Reader<{ readonly changes: number; readonly rows: ReadonlyArray<Row> }> = (result, converter) =>
   readRows(result, converter).then((rows) => ({ changes: result.rowsChanged, rows }));
@@ -246,7 +250,15 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
   const state = MutableRef.make<TransactionPhase>(TransactionPhase.Idle());
   const snapshot = MutableRef.make<O.Option<Exit.Exit<SessionSnapshot, SqlError>>>(O.none());
   const refreshSession = gate
-    .runUnlocked("execute", () => native.runAndReadAll(SESSION_QUERY).then((result) => result.getRowObjects()))
+    .runUnlocked("execute", () =>
+      native.runAndReadAll(SESSION_QUERY).then((result) => {
+        try {
+          return result.getRowObjects();
+        } finally {
+          ignoreNative(() => result.closeSync());
+        }
+      })
+    )
     .pipe(
       Effect.flatMap((rows) =>
         decodeSessionSnapshot(rows[0]).pipe(Effect.mapError((cause) => toSqlError(cause, "execute")))
@@ -384,7 +396,9 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         Refuse: ({ error }) => refuse(error),
         ProbeThenCommit: ({ failure }) =>
           gate
-            .run("commitTransaction", () => native.run(ABORT_PROBE_SQL))
+            .run("commitTransaction", () =>
+              native.run(ABORT_PROBE_SQL).then((result) => ignoreNative(() => result.closeSync()))
+            )
             .pipe(
               Effect.matchEffect({
                 onFailure: (probeError) =>
@@ -472,7 +486,19 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
                 : Effect.void
             ),
             Effect.andThen(
-              gate.runUnlocked("executeStream", () => native.stream(sql, nativeBinds(binds), bindTypes(binds)))
+              Effect.uninterruptibleMask((restore) =>
+                restore(
+                  gate.runUnlocked(
+                    "executeStream",
+                    () => native.stream(sql, nativeBinds(binds), bindTypes(binds)),
+                    (late) => late.closeSync()
+                  )
+                ).pipe(
+                  Effect.tap((result) =>
+                    Effect.addFinalizer(() => Effect.sync(() => ignoreNative(() => result.closeSync())))
+                  )
+                )
+              )
             ),
             Effect.tap(() =>
               classifyControl(sql) === "catalogContext"
@@ -495,7 +521,9 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     );
 
   const commit: Effect.Effect<void, SqlError> = guardedCommit(
-    gate.run("commitTransaction", () => native.run("COMMIT")).pipe(Effect.ensuring(setIdle), Effect.asVoid),
+    gate
+      .run("commitTransaction", () => native.run("COMMIT").then((result) => ignoreNative(() => result.closeSync())))
+      .pipe(Effect.ensuring(setIdle), Effect.asVoid),
     Effect.fail
   );
 
