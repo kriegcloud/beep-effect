@@ -8,7 +8,6 @@
 import { $LangExtractId } from "@beep/identity";
 import { AlignmentStatus, ExtractionCandidate, GroundedExtraction } from "@beep/langextract/Extraction";
 import { Contract, UnitInterval } from "@beep/nlp/Handoff";
-import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as Str from "@beep/utils/Str";
@@ -44,9 +43,12 @@ const $I = $LangExtractId.create("Alignment");
  * @category schemas
  * @since 0.0.0
  */
-export const AlignedStatus = LiteralKit(
-  AlignmentStatus.pick(["match_exact", "match_lesser", "match_minimal_fold", "match_fuzzy"]).literals
-).pipe(
+export const AlignedStatus = AlignmentStatus.pick([
+  "match_exact",
+  "match_lesser",
+  "match_minimal_fold",
+  "match_fuzzy",
+]).pipe(
   $I.annoteSchema("AlignedStatus", {
     description:
       "Alignment status of a successfully matched candidate; absence of a match is Option.none, never a member.",

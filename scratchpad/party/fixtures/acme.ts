@@ -1,4 +1,4 @@
-// @effect-diagnostics schemaSync:skip-file
+// @effect-diagnostics schemaSync:skip-file -- the fixture is written in encoded form and decoded synchronously at module load, so tests import plain values and the decode boundary is exercised. Owner: @beep/scratchpad. Exit: the party-slice port turns the fixture into a test layer.
 /**
  * Fully synthetic fixture: *Doe Harvesting v. Acme Implement Co.*
  *

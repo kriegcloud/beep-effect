@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The synchronous escape hatch takes CONSUMER-SUPPLIED operations. These tests
 // drive it over `@effected/memfs`' node-shaped sync port (`handle.sync`), which
 // throws node's exact errno on a miss — so nothing below exists on disk, and a

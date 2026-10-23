@@ -625,7 +625,7 @@ export const makeContradictionMatchBasis = <
 
   const IndependentEvidenceSetsCheck = S.makeFilter(
     (basis: MatchBasisFields) =>
-      ContradictionMatchBasisKind.$match(basis.kind, {
+      ContradictionMatchBasisKind.match(basis.kind, {
         "independent-evidence": () => evidenceSetsAreDisjoint(basis),
         "same-source-overlap": () => true,
       }),
@@ -1595,7 +1595,7 @@ export const makeContradictionArbitraries = <
     ),
   }).pipe(
     Arbitrary.map(({ basis, seeds }): MatchBasis => {
-      // The same per-kind dispatch `ContradictionMatchBasisKind.$match` performs, written as its case
+      // The same per-kind dispatch `ContradictionMatchBasisKind.match` performs, written as its case
       // record so the result stays the bound class type rather than a deferred `Unify` of it.
       const byKind = {
         "same-source-overlap": () => ContradictionMatchBasis.make(basis),

@@ -389,7 +389,7 @@ const makeNotificationChannel = <A>(): Effect.Effect<NotificationChannel<A>> =>
     })
   );
 
-const initialGeneration = AcpClientProtocolGeneration.$match({
+const initialGeneration = AcpClientProtocolGeneration.match({
   negotiate: (): Normalize.ProtocolGeneration => 2,
   v1: (): Normalize.ProtocolGeneration => 1,
   v2: (): Normalize.ProtocolGeneration => 2,
@@ -722,7 +722,7 @@ const byGeneration = <A, E>(
 const failLocally = (method: string) => () => Effect.fail(AcpError.AcpRequestError.methodNotFound(method));
 
 const initializeRequestFor = (mode: AcpClientProtocolGeneration, request: Compat.InitializeRequest) =>
-  AcpClientProtocolGeneration.$match(mode, {
+  AcpClientProtocolGeneration.match(mode, {
     negotiate: () => Normalize.toNegotiatingInitializeRequest(request),
     v1: () => Normalize.toV1InitializeRequest(request),
     v2: () => Normalize.toV2InitializeRequest(request),

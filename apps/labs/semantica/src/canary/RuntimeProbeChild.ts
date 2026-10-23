@@ -87,7 +87,7 @@ const recoverProbe = Effect.fn("recoverProbe")(function* (provideServices: Provi
 });
 
 const runProbe = (mode: typeof ProbeMode.Type, rest: ReadonlyArray<string>) =>
-  ProbeMode.$match(mode, {
+  ProbeMode.match(mode, {
     bundle: () => bundleProbe,
     crash: () =>
       decodeUnknownCrashArgv(rest).pipe(

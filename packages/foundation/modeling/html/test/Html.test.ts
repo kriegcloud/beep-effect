@@ -109,7 +109,7 @@ describe("HtmlNode AST — structure & nodes", () => {
       );
       expect(() =>
         HtmlDocument.make({
-          // @ts-expect-error -- exercise constructor validation for excluded document child kinds.
+          // @ts-expect-error -- exercise constructor validation for excluded document child kinds. Owner: @beep/html. Exit: remove if the API is meant to accept this.
           children: [type],
         })
       ).toThrow();

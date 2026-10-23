@@ -318,7 +318,7 @@ export type Tenant = typeof Tenant.Type
 - Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncluding` before reaching for `S.makeFilter`.
 - Where upstream covers a `foundation/modeling` concept's intent, its covered facets retire in the same PR that migrates their consumers, with no alias; the whole concept retires unless the lines reading its uncovered members outnumber the lines using its covered facets (ADAPT, per the facet census in `standards/architecture/DECISIONS.md` "Upstream-First Foundation/Modeling").
 - Derive domain guards with `S.is(SomeSchema)`.
-- Use `LiteralKit` for a named internal literal domain, especially one that needs `.Enum`, `.is`, `$match`, `.toTaggedUnion`, or an annotation-bearing schema value; use `S.Literals` for anonymous inline unions never referenced by name.
+- Use `LiteralKit` for a named internal literal domain, especially one that needs `.Enum`, `.is`, `match`, `.toTaggedUnion`, or an annotation-bearing schema value; use `S.Literals` for anonymous inline unions never referenced by name.
 - Do not add `as const` to inline array literals passed directly to `LiteralKit(...)`; `LiteralKit` uses const type parameters already.
 - Prefer named intermediate schemas; export and document them when reusable or when they materially clarify the module’s domain model, otherwise keep them module-local.
 
@@ -945,7 +945,7 @@ export class VersionSyncOptions extends S.Opaque<VersionSyncOptions, { readonly 
 - Prefer built-in schema constructors/checks before `S.makeFilter`.
 - Keep guard intent and reusable check intent in schema annotations and check metadata.
 - Use `LiteralKit` for named internal literal domains whenever `.Enum`, `.is`,
-  `$match`, `.toTaggedUnion`, or annotation-bearing schema values are useful;
+  `match`, `.toTaggedUnion`, or annotation-bearing schema values are useful;
   use `S.Literals` for anonymous inline unions never referenced by name.
 - Use `MappedLiteralKit` when a literal protocol/code map needs helpers on both
   the encoded and decoded sides.
@@ -1025,7 +1025,7 @@ export const TopicName = S.NonEmptyString.check(
         pipe(
           value,
           classifyTopicKind,
-          TopicKind.$match({
+          TopicKind.match({
             plain: isTopicSegment,
             scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
           })
@@ -1057,7 +1057,7 @@ Avoid this:
 - Use `S.TaggedUnion` / `S.toTaggedUnion` static APIs (`.cases`, `.guards`,
   `.isAnyOf`, `.match`) for construction, guards, grouped checks, and
   exhaustive branching.
-- Use `LiteralKit` static APIs (`.Enum`, `.is`, `.$match`, `.toTaggedUnion`)
+- Use `LiteralKit` static APIs (`.Enum`, `.is`, `.match`, `.toTaggedUnion`)
   and the `S.Literals` members it inherits (`.literals`, `.pick(...)`) instead
   of duplicate literal arrays, enum-like objects, and ad-hoc literal guards.
 - Use class-local statics for repeated `decode`, `encode`, `arbitrary`, and
@@ -1231,7 +1231,7 @@ export class UserProfile extends S.Opaque<UserProfile, { readonly brand: unique 
 ) {}
 ```
 
-### Template: Match, LiteralKit([/* ... */]).$match or effect/Schema TaggedUnion over switch
+### Template: Match, LiteralKit([/* ... */]).match or effect/Schema TaggedUnion over switch
 
 ```ts
 import * as Match from "effect/Match";
@@ -1253,7 +1253,7 @@ const TaggedPhase = Phase.mapMembers(Tuple.evolve([
   () => S.Struct({ phase: S.tag(Phase.Enum.done)})
 ])).pipe(S.toTaggedUnion("phase"))
 type TaggedPhase = typeof TaggedPhase.Type;
-const phaseLabel = Phase.$match({
+const phaseLabel = Phase.match({
   draft: () => "draft",
   running: () => "running",
   done: () => "done"
@@ -1453,7 +1453,7 @@ Use this before submitting code:
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
 31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.
-32. Finite variants, lifecycle states, status/result cases, and case-specific payloads are modeled as discriminated unions; literal-string discriminants and named internal literal domains use `LiteralKit` when `.Enum`, `.is`, `$match`, or `.toTaggedUnion` are needed; anonymous inline unions never referenced by name use `S.Literals`.
+32. Finite variants, lifecycle states, status/result cases, and case-specific payloads are modeled as discriminated unions; literal-string discriminants and named internal literal domains use `LiteralKit` when `.Enum`, `.is`, `match`, or `.toTaggedUnion` are needed; anonymous inline unions never referenced by name use `S.Literals`.
 33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefault*`, not ad-hoc fallback objects in handlers/services.
 34. Named or reused domain constraints are modeled as schemas first; built-in schema constructors/checks are preferred before `S.makeFilter`.
 35. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.

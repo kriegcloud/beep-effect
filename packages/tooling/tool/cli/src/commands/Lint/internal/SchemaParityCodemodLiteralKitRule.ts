@@ -142,7 +142,23 @@ const replaceNode = (node: Node, text: string): SchemaParityCodemodEdit =>
 const insertAt = (offset: number, text: string): SchemaParityCodemodEdit =>
   SchemaParityCodemodEdit.make({ start: offset, end: offset, text });
 
-const isOwnerDeclaration = (declaration: Node): boolean => {
+/**
+ * Whether a declaration lives in one of the {@link LiteralKitFacetOwnerModules}.
+ *
+ * **Example** (Reference the predicate)
+ *
+ * ```ts
+ * import { isLiteralKitOwnerDeclaration } from "@beep/repo-cli/test/Lint"
+ *
+ * console.log(typeof isLiteralKitOwnerDeclaration) // "function"
+ * ```
+ *
+ * @param declaration - A declaration node of a resolved symbol.
+ * @returns Whether its source file ends with a LiteralKit owner module path.
+ * @category predicates
+ * @since 0.0.0
+ */
+export const isLiteralKitOwnerDeclaration = (declaration: Node): boolean => {
   const filePath = declaration.getSourceFile().getFilePath();
   return A.some(LiteralKitFacetOwnerModules, (suffix) => Str.endsWith(suffix)(filePath));
 };
@@ -150,7 +166,7 @@ const isOwnerDeclaration = (declaration: Node): boolean => {
 const isKitFacetAccess = (access: PropertyAccessExpression): boolean =>
   pipe(
     O.fromNullishOr(access.getNameNode().getSymbol()),
-    O.exists((symbol) => A.some(symbol.getDeclarations(), isOwnerDeclaration))
+    O.exists((symbol) => A.some(symbol.getDeclarations(), isLiteralKitOwnerDeclaration))
   );
 
 const hasLiteralsMember = (expression: Node): boolean => expression.getType().getProperty("literals") !== undefined;
@@ -591,7 +607,7 @@ const planThunk = (access: PropertyAccessExpression): ReadonlyArray<SiteDecision
   );
 
 const planKitFacet = (access: PropertyAccessExpression, facet: LiteralKitRetiredFacet): ReadonlyArray<SiteDecision> =>
-  LiteralKitRetiredFacet.$match(facet, {
+  LiteralKitRetiredFacet.match(facet, {
     Options: () => [planOptions(access)],
     pickOptions: () => [planPickOptions(access)],
     omitOptions: () => [planOmitOptions(access)],

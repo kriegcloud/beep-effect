@@ -395,7 +395,7 @@ export const TsconfigSyncMode = TsconfigSyncModeKit.pipe(
  * @category models
  * @since 0.0.0
  */
-export const TsconfigSyncModeMatch = TsconfigSyncModeKit.$match;
+export const TsconfigSyncModeMatch = TsconfigSyncModeKit.match;
 
 /**
  * Runtime type for tsconfig-sync execution modes.

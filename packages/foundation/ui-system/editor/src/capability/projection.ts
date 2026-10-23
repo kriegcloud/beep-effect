@@ -121,14 +121,14 @@ export const projectShortcutHelp: {
     )
 );
 
-const windowsLinuxModifier = Modifier.$match({
+const windowsLinuxModifier = Modifier.match({
   control: () => "Ctrl",
   meta: () => "Win",
   alt: () => "Alt",
   shift: () => "Shift",
 });
 
-const appleModifier = Modifier.$match({
+const appleModifier = Modifier.match({
   control: () => "Control",
   meta: () => "Cmd",
   alt: () => "Option",
@@ -136,7 +136,7 @@ const appleModifier = Modifier.$match({
 });
 
 const formatModifier = (platform: Platform, modifier: Modifier): string =>
-  PlatformSchema.$match({
+  PlatformSchema.match({
     "windows-linux": () => windowsLinuxModifier(modifier),
     apple: () => appleModifier(modifier),
   })(platform);
@@ -209,7 +209,7 @@ export const projectSlashItems: {
     )
 );
 
-const ariaModifier = Modifier.$match({
+const ariaModifier = Modifier.match({
   control: () => "Control",
   meta: () => "Meta",
   alt: () => "Alt",

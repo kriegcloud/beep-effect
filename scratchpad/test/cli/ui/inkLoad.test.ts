@@ -1,4 +1,4 @@
-// @effect-diagnostics asyncFunction:skip-file
+// @effect-diagnostics asyncFunction:skip-file -- asyncFunction because Vitest's vi.mock factory is async by contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { vi } from "vitest";

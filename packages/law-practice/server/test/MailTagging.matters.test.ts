@@ -13,6 +13,7 @@ import {
   PracticeKgMatterDocketRow,
   PracticeKgMatterRow,
   PracticeKgMatterTables,
+  withDuckDb,
   writeMatterTables,
   writePracticeKgCorrespondentTables,
 } from "@beep/law-practice-server";
@@ -223,8 +224,10 @@ const seeded = Effect.gen(function* () {
   const path = yield* Path.Path;
   const directory = yield* temporaryDirectory;
   const databasePath = path.join(directory, "practice.duckdb");
-  yield* writeMatterTables(databasePath)(tables);
-  yield* writePracticeKgCorrespondentTables(databasePath)(correspondents);
+  yield* writeMatterTables(tables).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
+  yield* writePracticeKgCorrespondentTables(correspondents).pipe(
+    withDuckDb(DuckDbConnectionOptions.make({ databasePath }))
+  );
   return { directory, databasePath };
 });
 
@@ -429,7 +432,7 @@ describe("MailTagging practice-KG matter directory", () => {
         const path = yield* Path.Path;
         const directory = yield* temporaryDirectory;
         const databasePath = path.join(directory, "format-3.duckdb");
-        yield* writeMatterTables(databasePath)(tables);
+        yield* writeMatterTables(tables).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
         const error = yield* Effect.flip(snapshotOf({ directory, databasePath }));
 
         assertInstanceOf(error, MailTaggingPortError);

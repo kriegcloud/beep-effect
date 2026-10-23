@@ -157,7 +157,7 @@ export const VersionCategoryStatus = VersionCategoryStatusKit.pipe(
  * @category models
  * @since 0.0.0
  */
-export const VersionCategoryStatusMatch = VersionCategoryStatusKit.$match;
+export const VersionCategoryStatusMatch = VersionCategoryStatusKit.match;
 /**
  * Enum mapping for version category status literals.
  *

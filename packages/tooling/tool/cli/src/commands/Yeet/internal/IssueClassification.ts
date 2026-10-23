@@ -36,7 +36,7 @@ const KNOWN_SUB_LANE_TAIL_CHARS = 16 * 1024;
  * @since 0.0.0
  */
 export const routeForCategory = (category: QualityIssueCategory): ReadonlyArray<QualityIssueRouting> =>
-  QualityIssueCategory.$match(category, {
+  QualityIssueCategory.match(category, {
     "docgen-jsdoc-quality": () => [
       QualityIssueRouting.make({ skill: "jsdoc-annotation-specialist", reason: "JSDoc/docgen quality finding" }),
     ],

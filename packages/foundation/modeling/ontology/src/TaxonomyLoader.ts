@@ -852,7 +852,7 @@ const readSlice: {
 } = dual(
   2,
   Effect.fn("TaxonomyLoader.readSlice")(function* (entry: VendorLoadManifestEntry, vendorRoot: string) {
-    return yield* VendorLoadStatus.$match(entry.loadStatus, {
+    return yield* VendorLoadStatus.match(entry.loadStatus, {
       UNVETTED: () => Effect.fail(VendorSliceUnvetted.make({ id: entry.id })),
       VETTED: () => readVettedSlice(entry, vendorRoot),
     });

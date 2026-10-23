@@ -231,7 +231,7 @@ const createWalker = <A, E>(
   order: TraversalOrder
 ): NodeWalker<A> => {
   const options = A.length(start) > 0 ? { start: A.fromIterable(start) } : undefined;
-  return TraversalOrder.$match(order, {
+  return TraversalOrder.match(order, {
     bfs: () => Graph.bfs(graph, options),
     dfs: () => Graph.dfs(graph, options),
     topo: () => Graph.topo(graph),
