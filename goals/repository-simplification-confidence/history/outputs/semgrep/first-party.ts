@@ -6,6 +6,9 @@
 // SAST scan (`goals/**/history/outputs/` in .semgrepignore), fallow and oxlint.
 import * as childProcess from "node:child_process";
 import { exec, execSync } from "node:child_process";
+import defaultChildProcess from "child_process";
+
+const requiredChildProcess = require("node:child_process");
 
 declare const userInput: string;
 declare const command: string;
@@ -16,6 +19,8 @@ declare const onDone: () => void;
 eval(userInput);
 // ruleid: beep-no-eval
 globalThis.eval(userInput);
+// ruleid: beep-no-eval
+window.eval(userInput);
 // ok: beep-no-eval
 JSON.parse(userInput);
 
@@ -25,6 +30,14 @@ exec(command);
 execSync(`git ${args}`);
 // ruleid: beep-no-dynamic-shell-exec
 childProcess.exec(command, onDone);
+// ruleid: beep-no-dynamic-shell-exec
+childProcess.execSync(command);
+// ruleid: beep-no-dynamic-shell-exec
+defaultChildProcess.exec(command);
+// ruleid: beep-no-dynamic-shell-exec
+requiredChildProcess.execSync(`rm -rf ${args}`);
+// ok: beep-no-dynamic-shell-exec
+childProcess.exec("git status");
 // ok: beep-no-dynamic-shell-exec
 exec("git status");
 // ok: beep-no-dynamic-shell-exec

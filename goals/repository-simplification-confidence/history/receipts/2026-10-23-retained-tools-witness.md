@@ -8,8 +8,8 @@ The fixture `goals/repository-simplification-confidence/history/outputs/semgrep/
 
 | Rule | Positive cases | Negative cases |
 | --- | --- | --- |
-| `beep-no-eval` | `eval(...)`, `globalThis.eval(...)` | `JSON.parse(...)` |
-| `beep-no-dynamic-shell-exec` | named `exec(cmd)`, `execSync` with a template, namespace `childProcess.exec(cmd, cb)` | literal `exec("git status")`, literal namespace `execSync("...")`, `RegExp.prototype.exec` |
+| `beep-no-eval` | `eval(...)`, `globalThis.eval(...)`, `window.eval(...)` | `JSON.parse(...)` |
+| `beep-no-dynamic-shell-exec` | named `exec(cmd)` and template `execSync`; namespace `childProcess.exec(cmd, cb)` and `childProcess.execSync(cmd)`; default-import `exec(cmd)`; `require("node:child_process")` binding `execSync` | literal `exec("git status")`; literal namespace `exec("git status")` and `execSync("...")` (the `$X.exec("...")` exclusions); `RegExp.prototype.exec` |
 | `beep-hardcoded-private-key` | a `BEGIN RSA PRIVATE KEY` header (kept last, with no later key marker) | a `BEGIN CERTIFICATE` header |
 
 ```sh
@@ -26,7 +26,7 @@ The fixture never reaches the hosted SAST scan. `goals/**/history/outputs/` is a
 
 | Gate | Command | Result |
 | --- | --- | --- |
-| Typos | `bun run lint:typos` (typos-cli 1.51.1, `_typos.toml`) | exit 0 |
+| Typos | `bun run lint:typos` (local typos-cli 1.51.1, `_typos.toml`) | exit 0; version/vocabulary reconciliation pending #1852, because CI pins typos-cli 1.50.3 (`heavy.yml`, `fleet-lane-probe.yml`) and this witness did not run that version |
 | Strict shadcn | `bun run lint:shadcn` (`oxlint --disable-nested-config --deny-warnings -c .oxlintrc.shadcn.json apps packages`) | exit 0 |
 
 ## Revision-bound Vitest alias projection
