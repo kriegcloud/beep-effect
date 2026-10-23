@@ -24,6 +24,6 @@
  *
  * @category utilities
  * @since 0.0.0
- * biome-ignore lint/suspicious/noExplicitAny: Let this be the only `any` in the repository. Owner: @beep/types. Exit: no consumer imports TUnsafe.Any.
+ * biome-ignore lint/suspicious/noExplicitAny: Let this be the only `any` in the repository. Owner: `@beep/types`. Exit: no consumer imports TUnsafe.Any.
  */
 export type Any = any;
