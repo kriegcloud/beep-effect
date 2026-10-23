@@ -67,9 +67,9 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 
 | id | scope | depends on |
 | --- | --- | --- |
-| 3-3 (merged, #2134) | `@beep/config-file` | W3-e, W3-h (3-3). Adopters: docgen `Configuration.ts` `readJsoncFile` (docgen drops `jsonc-parser`), repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli (the lab cli renderer no longer imports the package). Codec-corpus conformance suite and `ops/config-file-codec-differential.ts`; coverage 100/100/100/100. Cut after 3-Y merged; serializes with 3-2 on the repo-cli manifest. |
+| 3-3 (#2134, merged) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |
 | 3-5 (lane, no PR) | `@beep/lockfiles`; lab workspaces retargets | main |
-| 2d-3 (merged, #2141) | `@beep/md` `Md.render` writer fixes | D-52. The gate held: of the 141 divergent writer-differential rows, 62 were writer gaps (`research/writer-differential-w2d3.md`). `&` and `$` escaping plus loose lists, adjacent-list markers, `***` breaks, task-item indent, block-edge whitespace, title line breaks, table pipes, emphasis delimiters, all-space code spans, `!` before links, bare URLs and the admonition body line; an escape-aware inline-math recognizer. Ledger writer column 1 / 651 / 79 (was 1 / 589 / 141), none newly divergent. `math` is on by default in `Md.parse` (no consumer outside `@beep/md`; ledger byte-identical either way). No changeset: `@beep/md` is private and changesets do not version private packages. |
+| 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
 | R0 | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
 | 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |

@@ -135,9 +135,9 @@ A row naming two PRs is split between them; #143 also appears above for its pack
 
 | Site | Map id | Verdict | Status | Notes |
 | --- | --- | --- | --- | --- |
-| docgen Configuration.ts | #11 | confirmed | queued: 3-3 (#2134) | docgen `readJsoncFile` onto `ConfigFile.read`. |
-| repo-cli Models/Models.manifest.service.ts | #165 | confirmed | queued: 3-3 (#2134) | `Models.manifest` `load` onto `ConfigFile.read` with the YAML codec; stringify is R4's. |
-| docgen Configuration.ts | #166 | partial | queued: 3-3 (#2134) | docgen `readJsoncFile` onto `ConfigFile.read`. |
+| docgen Configuration.ts | #11 | confirmed | adopted: 3-3 (#2134) | docgen `readJsoncFile` onto `ConfigFile.read`. |
+| repo-cli Models/Models.manifest.service.ts | #165 | confirmed | adopted: 3-3 (#2134) | `Models.manifest` `load` onto `ConfigFile.read` with the YAML codec; stringify is R4's. |
+| docgen Configuration.ts | #166 | partial | adopted: 3-3 (#2134) | docgen `readJsoncFile` onto `ConfigFile.read`. |
 | repo-cli Quality/CatalogUsage.ts | #129 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
 | repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #155 | partial | queued: 3-A1 | `RootCatalog` bun.lock half onto `Lockfile.parse`; no `CatalogSet` for one catalog. |
 | repo-cli Quality/CatalogUsage.ts | #156 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
