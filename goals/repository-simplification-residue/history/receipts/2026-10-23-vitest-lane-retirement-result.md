@@ -65,8 +65,8 @@ The archive keeps the branch head (archive ref), a tracked-changes patch and unt
 
 36 of those rows (7,869,539 bytes) were classed `material-owner-required`:
 
-- `.beep/fallow`: 20 rows, about 415 KB each.
-- `.beep/quality`: 12 rows, all 0 bytes except one 254 B.
+- `.beep/fallow`: 19 rows, about 415 KB each.
+- `.beep/quality`: 13 rows, all 0 bytes except one 254 B.
 - `.beep/cache`: 3 rows, 23 B each.
 - `.beep/pretext-browser`: 1 row, 1.2 KB.
 
