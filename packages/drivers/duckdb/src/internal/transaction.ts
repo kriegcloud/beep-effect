@@ -562,7 +562,7 @@ export const refusedCommit: {
       reason: UnknownError.make({
         cause,
         operation: "commitTransaction",
-        message: RefusedCommitReason.$match(why, {
+        message: RefusedCommitReason.match(why, {
           nested: () => REFUSED_NESTED_MESSAGE,
           aborted: () => REFUSED_ABORTED_MESSAGE,
         }),

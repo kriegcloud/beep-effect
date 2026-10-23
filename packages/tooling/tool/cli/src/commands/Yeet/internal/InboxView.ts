@@ -697,7 +697,7 @@ export const renderYeetPrWaveLine: {
     `[yeet] wave on PR #${wave.prNumber}: ${A.length(wave.entries)} new P0/P1 inbox row(s): ${A.join(
       A.map(wave.entries, (entry) => `${entry.row.severity} ${describeYeetInboxRow(entry.row)} [${entry.row.id}]`),
       "; "
-    )}. ${YeetPrWaveReturn.$match(via, {
+    )}. ${YeetPrWaveReturn.match(via, {
       "job-wait": () => "The job keeps running",
       "attached-monitor": () => "The attached monitor stopped",
     })} and the rows stay in the inbox until acknowledged or superseded; fix, publish, then re-run: ${rerunCommand}`

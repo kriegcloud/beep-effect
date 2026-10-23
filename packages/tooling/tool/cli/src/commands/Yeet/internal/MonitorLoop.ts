@@ -2181,7 +2181,7 @@ const triageMonitorReds = Effect.fn("YeetMonitorLoop.triageReds")(function* (
       `[yeet] required-red: ${A.join(
         A.map(requiredReds, (job) => job.name),
         ", "
-      )}; not terminal under --until-ready: the wave is in the inbox${YeetMonitorAttachment.$match(
+      )}; not terminal under --until-ready: the wave is in the inbox${YeetMonitorAttachment.match(
         options.attachment ?? YeetMonitorAttachment.Enum.detached,
         {
           attached: () => Str.empty,

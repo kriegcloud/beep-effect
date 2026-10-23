@@ -1,4 +1,4 @@
-// @effect-diagnostics asyncFunction:skip-file globalTimers:skip-file newPromise:skip-file
+// @effect-diagnostics asyncFunction:skip-file globalTimers:skip-file newPromise:skip-file -- asyncFunction because ProcessGuard's load contract takes native async callbacks; globalTimers because the assertions order events against native timer phases; newPromise because it settles native timer phases. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { assert, describe, it, vi } from "@effect/vitest";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";

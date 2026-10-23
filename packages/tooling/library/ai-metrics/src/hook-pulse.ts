@@ -461,7 +461,7 @@ export type HookPulseEvent = typeof HookPulseEvent.Type;
  * ```ts
  * import { HookPulseInstrumentClass } from "@beep/repo-ai-metrics"
  *
- * const countsTowardBaseline = HookPulseInstrumentClass.$match({
+ * const countsTowardBaseline = HookPulseInstrumentClass.match({
  *   production: () => true,
  *   spike: () => false,
  *   meta: () => false
@@ -655,7 +655,7 @@ export class HookPulseDisarmWindow extends S.Opaque<HookPulseDisarmWindow, { rea
  * ```ts
  * import { HookPulseWaitReason } from "@beep/repo-ai-metrics"
  *
- * const isHumanWait = HookPulseWaitReason.$match({
+ * const isHumanWait = HookPulseWaitReason.match({
  *   "plan-approval": () => true,
  *   "tool-permission": () => true,
  *   "idle-input": () => true,
@@ -1088,7 +1088,7 @@ const deriveWaitReason = (
   toolName: O.Option<string>,
   notificationType: O.Option<string>
 ): HookPulseWaitReason =>
-  HookPulseEvent.$match(hookEvent, {
+  HookPulseEvent.match(hookEvent, {
     PreToolUse: F.constant(HookPulseWaitReason.Enum.none),
     PermissionRequest: () => derivePermissionWaitReason(toolName),
     PostToolUse: F.constant(HookPulseWaitReason.Enum.none),
@@ -1108,7 +1108,7 @@ const deriveWaitReason = (
   });
 
 const clampDerivedEvidenceTier = (evidenceTier: HookPulseEvidenceTier): HookPulseEvidenceTier =>
-  HookPulseEvidenceTier.$match(evidenceTier, {
+  HookPulseEvidenceTier.match(evidenceTier, {
     observed: F.constant(HookPulseEvidenceTier.Enum.derived),
     derived: F.constant(HookPulseEvidenceTier.Enum.derived),
     heuristic: F.constant(HookPulseEvidenceTier.Enum.heuristic),
@@ -1229,7 +1229,7 @@ const HookPulseEventOwnedField = LiteralKit([
 );
 type HookPulseEventOwnedField = typeof HookPulseEventOwnedField.Type;
 
-const hookPulseEventOwningField = HookPulseEventOwnedField.$match({
+const hookPulseEventOwningField = HookPulseEventOwnedField.match({
   notificationType: F.constant(HookPulseEvent.Enum.Notification),
   sessionEndReason: F.constant(HookPulseEvent.Enum.SessionEnd),
   isInterrupt: F.constant(HookPulseEvent.Enum.PostToolUseFailure),

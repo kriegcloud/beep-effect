@@ -77,7 +77,7 @@ Tagged schema values should also own their derived helper surface. Use
 `S.TaggedUnion` / `S.toTaggedUnion` `.cases`, `.guards`, `.isAnyOf`, and
 `.match` helpers instead of duplicating discriminator switches and guard maps.
 For named internal literal domains, use `LiteralKit` helpers such as `.Enum`,
-`.is`, `.$match`, and `.toTaggedUnion`, with the inherited `S.Literals` members
+`.is`, `.match`, and `.toTaggedUnion`, with the inherited `S.Literals` members
 `.literals` and `.pick(...)` for the member tuple and subsets; use
 `MappedLiteralKit` when a protocol/code map needs helpers on both the encoded
 and decoded sides. Anonymous inline unions never referenced by name use

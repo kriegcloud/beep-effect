@@ -739,7 +739,7 @@ const reuseExistingPullRequest = Effect.fn("Yeet.reuseExistingPullRequest")(func
     `[yeet] --pr: open pull request #${existing.number} already exists for ${context.branch}; skipping create`
   );
   const sync = yield* syncExistingPullRequestTitle(context, existing, message, capture);
-  yield* YeetPullRequestTitleSyncStatus.$match(sync.status, {
+  yield* YeetPullRequestTitleSyncStatus.match(sync.status, {
     kept: () => Effect.void,
     updated: () => Console.log(`[yeet] --pr: ${sync.message}`),
     failed: () => Console.error(`[yeet] warning: ${sync.message}`),

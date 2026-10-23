@@ -786,7 +786,7 @@ const labelDetailFor = (nodeCount: number, options: OntologyGraphProjectionOptio
   nodeCount <= options.fullLabelThreshold ? "full" : nodeCount <= options.keyLabelThreshold ? "key" : "hidden";
 
 const kindCode = (kind: OntologyResourceKind): number =>
-  OntologyResourceKind.$match(kind, {
+  OntologyResourceKind.match(kind, {
     class: () => 1,
     objectProperty: () => 2,
     dataProperty: () => 3,

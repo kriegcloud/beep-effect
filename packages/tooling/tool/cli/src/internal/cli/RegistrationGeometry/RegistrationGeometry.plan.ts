@@ -6,7 +6,6 @@ import { isLabsWorkspacePath, LAB_MANIFEST_FILENAME } from "../Labs/index.ts";
 import {
   AuthoredReferenceSurface,
   DataResourceSurface,
-  DeletionNotePolicy,
   DerivedRebuildSurface,
   GeneratedInventorySurface,
   HistoricalRecordSurface,
@@ -19,7 +18,11 @@ import {
   RuntimeArtifactSurface,
   WorkspaceLiteralSurface,
 } from "./RegistrationGeometry.schemas.ts";
-import type { RegistrationTarget } from "./RegistrationGeometry.schemas.ts";
+import type {
+  DeletionNotePolicy,
+  RegistrationOperationKind,
+  RegistrationTarget,
+} from "./RegistrationGeometry.schemas.ts";
 
 const slugOf = (packageName: string): string => Str.replace("@beep/", Str.empty)(packageName);
 
@@ -186,6 +189,35 @@ export const surfacesForTarget = (target: RegistrationTarget): ReadonlyArray<Reg
   ];
 };
 
+type PendingChangesetDetails = { readonly [Policy in DeletionNotePolicy]: (packageName: string) => string };
+
+const pendingChangesetWriteDetails: PendingChangesetDetails = {
+  "emit-empty-note": (packageName) => `preserve pending policy for ${packageName}`,
+  "private-exempt": (packageName) =>
+    `preserve pending policy for ${packageName}; private packages are changeset-exempt`,
+  "labs-exempt": (packageName) => `preserve pending policy for ${packageName}; labs are changeset-exempt`,
+};
+
+const pendingChangesetRemoveDetails: PendingChangesetDetails = {
+  "emit-empty-note": (packageName) =>
+    `delete dedicated pending files, strip multi-package key ${packageName}, and emit an empty deletion changeset`,
+  "private-exempt": (packageName) =>
+    `delete dedicated pending files and strip multi-package key ${packageName}; private deletion emits no changeset`,
+  "labs-exempt": (packageName) =>
+    `delete dedicated pending files and strip multi-package key ${packageName}; labs deletion emits no changeset (ceremony-exempt)`,
+};
+
+// The forward and inverse plans word the pending-changeset step per deletion
+// note policy; only the operation kind and the wording differ between them.
+const pendingChangesetOperation =
+  (operation: RegistrationOperationKind, details: PendingChangesetDetails) =>
+  (surface: PendingChangesetSurface): RegistrationOperation =>
+    RegistrationOperation.make({
+      surfaceId: surface.id,
+      operation,
+      detail: details[surface.deletionNotePolicy](surface.packageName),
+    });
+
 const forwardOperation = RegistrationSurface.match({
   "owned-tree": (surface) =>
     RegistrationOperation.make({ surfaceId: surface.id, operation: "write", detail: `materialize ${surface.root}` }),
@@ -218,17 +250,7 @@ const forwardOperation = RegistrationSurface.match({
       operation: "write",
       detail: `apply only modeled insertions for ${A.join(surface.needles, ", ")}`,
     }),
-  "pending-changeset": (surface) =>
-    RegistrationOperation.make({
-      surfaceId: surface.id,
-      operation: "write",
-      detail: DeletionNotePolicy.$match(surface.deletionNotePolicy, {
-        "emit-empty-note": () => `preserve pending policy for ${surface.packageName}`,
-        "private-exempt": () =>
-          `preserve pending policy for ${surface.packageName}; private packages are changeset-exempt`,
-        "labs-exempt": () => `preserve pending policy for ${surface.packageName}; labs are changeset-exempt`,
-      }),
-    }),
+  "pending-changeset": pendingChangesetOperation("write", pendingChangesetWriteDetails),
   "runtime-artifact": (surface) =>
     RegistrationOperation.make({
       surfaceId: surface.id,
@@ -289,19 +311,7 @@ const inverseOperation = RegistrationSurface.match({
       operation: "remove",
       detail: `remove only modeled exact references; refuse unknown hits for ${A.join(surface.needles, ", ")}`,
     }),
-  "pending-changeset": (surface) =>
-    RegistrationOperation.make({
-      surfaceId: surface.id,
-      operation: "remove",
-      detail: DeletionNotePolicy.$match(surface.deletionNotePolicy, {
-        "emit-empty-note": () =>
-          `delete dedicated pending files, strip multi-package key ${surface.packageName}, and emit an empty deletion changeset`,
-        "private-exempt": () =>
-          `delete dedicated pending files and strip multi-package key ${surface.packageName}; private deletion emits no changeset`,
-        "labs-exempt": () =>
-          `delete dedicated pending files and strip multi-package key ${surface.packageName}; labs deletion emits no changeset (ceremony-exempt)`,
-      }),
-    }),
+  "pending-changeset": pendingChangesetOperation("remove", pendingChangesetRemoveDetails),
   "runtime-artifact": (surface) =>
     RegistrationOperation.make({
       surfaceId: surface.id,

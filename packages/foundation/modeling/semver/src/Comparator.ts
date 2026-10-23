@@ -271,7 +271,7 @@ export class Comparator extends S.Class<
    */
   test(version: SemVer): boolean {
     const cmp = version.compare(this.version);
-    return ComparatorOperator.$match(this.operator, {
+    return ComparatorOperator.match(this.operator, {
       "=": () => cmp === 0,
       ">": () => cmp > 0,
       ">=": () => cmp >= 0,

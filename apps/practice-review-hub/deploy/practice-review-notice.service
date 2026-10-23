@@ -24,6 +24,14 @@ Environment=PATH=/REPLACE_WITH_HOME/.local/bin:/REPLACE_WITH_HOME/.local/share/m
 # op:// references, so op run resolves it. Do not use EnvironmentFile= for it:
 # systemd would pass each reference through as a literal string, and the
 # notice refuses a value that is still an op:// reference.
+# Optional answer link: PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER in the same
+# environment file, as a plain value rather than an op:// reference, adds an
+# "Answer them in Claude Code" link that opens Claude Code in that folder on
+# the attorney's PC. Write it with forward slashes, such as
+# C:/Users/attorney/Review; the email shows it with backslashes. If you pass
+# --claude-folder on ExecStart= instead, forward slashes are required: systemd
+# treats backslashes there as escapes. Without either, the email stays plain
+# text.
 # PLACEHOLDERS: the op shim, the environment file (mode 0600), the bun shim,
 # the hub's data directory, the practice's IANA time zone.
 ExecStart=/REPLACE_WITH_HOME/.local/bin/op run --env-file=/REPLACE_WITH_ENV_FILE -- /REPLACE_WITH_BUN_PATH run apps/practice-review-hub/src/main.ts notice --data-dir /REPLACE_WITH_DATA_DIR --time-zone REPLACE_WITH_TIME_ZONE

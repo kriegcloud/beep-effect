@@ -170,7 +170,7 @@ const titleGuardForEditedFirstUserTurn = (
 const indexOf = (indexed: IndexedBlock): number => indexed.index;
 
 const messageItemToHistory = (item: Thread.TimelineMessageItem): ReadonlyArray<TurnHistoryItem> =>
-  MessageRole.$match(item.role, {
+  MessageRole.match(item.role, {
     agent: () => [UserTurnHistoryItem.make({ text: documentToPlainText(item.content) })],
     assistant: () => [AssistantTurnHistoryItem.make({ text: documentToPlainText(item.content) })],
     system: () => [UserTurnHistoryItem.make({ text: documentToPlainText(item.content) })],

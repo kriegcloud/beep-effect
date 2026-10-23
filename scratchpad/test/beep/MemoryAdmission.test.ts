@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because Node's real createHash is the digest oracle the module is checked against. Owner: @beep/scratchpad. Exit: the beep lab graduates and its sources and tests move their digests to Effect Crypto.
 import { createHash } from "node:crypto";
 import { assert, describe, it } from "@effect/vitest";
 import * as O from "effect/Option";

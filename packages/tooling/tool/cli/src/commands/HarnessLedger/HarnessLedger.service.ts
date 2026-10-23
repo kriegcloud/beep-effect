@@ -316,7 +316,7 @@ const blockOf = Effect.fn("HarnessLedger.blockOf")(function* (head: HarnessLedge
   const decided: Effect.Effect<O.Option<ProposalBlock>, HarnessLedgerIoError> = Effect.map(recordedUnder, (recorded) =>
     O.liftPredicate(ProposalBlock.Enum["standing-decision"], () => recorded === harnessHash)
   );
-  return yield* LedgerDisposition.$match(head.disposition, {
+  return yield* LedgerDisposition.match(head.disposition, {
     proposed: () => Effect.succeedSome<ProposalBlock>(ProposalBlock.Enum["open-proposal"]),
     accepted: () => decided,
     rejected: () => decided,

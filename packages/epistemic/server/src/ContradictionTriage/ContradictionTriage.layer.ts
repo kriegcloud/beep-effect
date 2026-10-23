@@ -81,7 +81,7 @@ const dropInternalFailure = (context: string, reason: ContradictionActionErrorRe
   });
 
 const reviewActionReason = (reason: ContradictionReviewConflictReason): ContradictionActionErrorReasonType =>
-  ContradictionReviewConflictReason.$match(reason, {
+  ContradictionReviewConflictReason.match(reason, {
     "already-resolved": () => ContradictionActionErrorReason.Enum["candidate-already-resolved"],
     "belief-mismatch": () => ContradictionActionErrorReason.Enum["belief-mismatch"],
     "not-found": () => ContradictionActionErrorReason.Enum["candidate-not-found"],
@@ -91,7 +91,7 @@ const reviewActionReason = (reason: ContradictionReviewConflictReason): Contradi
   });
 
 const sourceActionReason = (error: SourceTextResolverError): ContradictionActionErrorReasonType =>
-  SourceTextResolverErrorReason.$match(error.reason, {
+  SourceTextResolverErrorReason.match(error.reason, {
     "extraction-failed": () => ContradictionActionErrorReason.Enum["source-unavailable"],
     "extractor-unavailable": () => ContradictionActionErrorReason.Enum["source-stale"],
     "locator-invalid": () => ContradictionActionErrorReason.Enum["source-access-denied"],

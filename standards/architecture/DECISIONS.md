@@ -2023,7 +2023,7 @@ contributor walking the drawing.
 
 ## 2026-09-29: Upstream-First Foundation/Modeling
 
-- **Status:** Active
+- **Status:** Active (census rules amended 2026-10-22, "Upstream-First Census Amendments")
 
 Decision:
 
@@ -2357,3 +2357,56 @@ identity paths, because TypeScript cannot declare a class over a generic base
 moving the shared-domain id brands into foundation and collapsing the builders
 back into concrete schemas. Record: `goals/epistemics-foundation-extraction/SPEC.md`
 "P1b factory contract".
+
+## 2026-10-22: Upstream-First Census Amendments
+
+- **Status:** Active
+- **Amends:** 2026-09-29 "Upstream-First Foundation/Modeling"
+
+Decision:
+
+The facet census behind upstream-first retirement changes in three ways.
+
+- **Coverage survives derivation.** A facet counts as covered only if the
+  upstream result type that consumers program against, after the derivation
+  they perform (a subset, a refinement, a transform), still carries what they
+  read. A matching call that returns a weaker type does not cover the facet.
+- **Construction is neutral.** Construction lines leave both sums in rule 2.
+  The census still records them, as reach.
+- **A replacement that changes meaning gets its own row.** When the upstream
+  replacement changes what consumer code means rather than how it is spelled,
+  the facet gets its own decision row stating the semantic loss, whatever its
+  site count and whether or not the 100-consumer census threshold applies.
+
+The rule text is `11-evolution-and-deprecation.md`, section "Upstream-first
+retirement in `foundation/modeling`", rules 1, 2, 4 and 6.
+
+Rationale:
+
+`goals/effect-schema-parity` retired LiteralKit's `pickOptions` /
+`omitOptions` because upstream `Literals.pick` exists. It returns a bare
+`Literals`, and on 2026-10-22 a census found 24 sites wrapping the result back
+in `LiteralKit(...)` to recover `Enum`, `is` and `$match`. The facet looked
+covered at the call and was uncovered at the use. Construction decided nothing
+either: every consumer constructs the concept whatever the ruling, and the
+2026-09-15 comparison (2,054 uncovered against 2,048 covered) was a near-tie
+only because 1,521 construction lines sat on the covered side. Without them it
+reads 2,054 against 527. `omit` became "an explicit pick of the complement".
+That replacement changes meaning, because a computed complement tracks the
+parent kit and an enumerated list goes stale, and its 13 sites sat below every
+threshold that would have surfaced it. One site spelled out a 238-literal
+complement of `OfficeCode`. `goals/literal-kit-subset-algebra` restores
+kit-returning `pick` and `omit` under these rules
+(`explorations/effect-schema-parity/DECISIONS.md`, 2026-10-22).
+
+Rejected:
+
+- Keep counting construction as covered. It inflates the covered sum by the
+  concept's reach, so a widely constructed concept looks covered regardless of
+  what its consumers read. This supersedes the rejection in the
+  `goals/effect-schema-parity` SPEC row of 2026-09-29, which kept construction
+  on the covered side.
+- Fold the semantic-change test into rule 4. A site-count threshold is exactly
+  what let `omit` through.
+- Leave the doctrine alone and reopen facets case by case. The same error
+  would recur on the next concept.

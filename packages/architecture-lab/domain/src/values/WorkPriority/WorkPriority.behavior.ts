@@ -52,7 +52,7 @@ export const defaultWorkPriority: WorkPriority = WorkPrioritySchema.Enum.normal;
  * @category value-objects
  * @since 0.0.0
  */
-export const rank: (priority: WorkPriority) => number = WorkPrioritySchema.$match({
+export const rank: (priority: WorkPriority) => number = WorkPrioritySchema.match({
   low: () => 0,
   normal: () => 1,
   high: () => 2,

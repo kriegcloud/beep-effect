@@ -191,7 +191,7 @@ export const PictorialProjection = PictorialProjectionBase.pipe(
  */
 export type PictorialProjection = typeof PictorialProjection.Type;
 
-const ElevationViewBase = LiteralKit(ViewName.pick(["front", "rear", "left", "right"]).literals);
+const ElevationViewBase = ViewName.pick(["front", "rear", "left", "right"]);
 
 /**
  * The four elevation views, a subset of {@link ViewName}.
@@ -232,7 +232,7 @@ export const ElevationView = ElevationViewBase.pipe(
 export type ElevationView = typeof ElevationView.Type;
 
 const elevationEye = (view: ElevationView): Vec3 =>
-  ElevationView.$match(view, {
+  ElevationView.match(view, {
     front: () => [0, -1, 0] as const,
     rear: () => [0, 1, 0] as const,
     left: () => [-1, 0, 0] as const,
@@ -407,7 +407,7 @@ const CameraForView = Fn({ input: CameraForViewInput, output: Camera }).pipe(
 export const cameraForView: (input: typeof CameraForViewInput.Encoded) => Camera = CameraForView.implementSync(
   (input) => {
     const planUp = negate(elevationEye(input.planFacing));
-    return ViewName.$match(input.view, {
+    return ViewName.match(input.view, {
       "top-plan": () => orthographic([0, 0, 1], planUp),
       "bottom-plan": () => orthographic([0, 0, -1], planUp),
       front: () => orthographic(elevationEye("front"), [0, 0, 1]),
@@ -421,7 +421,7 @@ export const cameraForView: (input: typeof CameraForViewInput.Encoded) => Camera
 );
 
 const pictorial = (input: CameraForViewInput, zSign: 1 | -1): Camera =>
-  PictorialProjection.$match(input.projection, {
+  PictorialProjection.match(input.projection, {
     perspective: () => perspective(input, zSign),
     isometric: () => {
       const az = radians(O.getOrElse(input.azimuthDeg, () => ISOMETRIC_AZIMUTH_DEG));
