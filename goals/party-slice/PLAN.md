@@ -17,9 +17,13 @@ Status: `pending`
 ## P1 Settlement Checklist (#2045)
 
 - [ ] Implement the SPEC's exact module-specifier boundary test in law-practice server,
-  including suffix-package and same-line forbidden-import fixtures.
+  including suffix-package and same-line forbidden-import fixtures; check server manifest
+  dependencies/devDependencies and exclude deliberate forbidden imports in test fixtures.
 - [ ] Implement the shared PartyKey v1 canonicalizer and pinned bytes/digest fixtures;
   prove mail-header/contact-card equality and the normalization/fallback cases.
+- [ ] Graduate shared identifier normalizers and hash their canonical values; pin header
+  `Dana@example.test` versus card `dana@example.test` as equal normalized values, bytes and keys,
+  plus Exchange DN, Username and E.164 consistency fixtures from the SPEC.
 - [ ] Implement active-veto-first resolution replay and deterministic contradiction review cases;
   pass every scenario in the SPEC's DistinctParty acceptance table.
 

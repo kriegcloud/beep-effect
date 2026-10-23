@@ -92,7 +92,7 @@ Higher sources outrank lower sources when they conflict.
   law-practice contact port is implemented in law-practice.
 - [ ] Law-practice's `Party` aggregate is renamed `LegalPartyReference` (no table, so no migration). No
   second aggregate named `Party` exists outside `@beep/party-domain`.
-- [ ] All four boundary scans in the Verification Matrix return no matches, and the server boundary
+- [ ] All five boundary scans in the Verification Matrix return no matches, and the server boundary
   test passes. `@beep/law-practice-server` is the only law-practice package that imports from party, and it imports `@beep/party-use-cases` and nothing else.
   The contact-source port's input and output types reach it through the use-cases public surface.
 - [ ] Parties carry an integer `PartyId` plus deterministic `PartyKey`s, and resolution follows the identity
@@ -114,7 +114,13 @@ These are P1 deliverables, not tests implemented by this docs-only settlement.
 ### Exact law-practice server boundary
 
 Add a small boundary test under `packages/law-practice/server/test/` that parses module specifiers
-in server source (imports, exports, dynamic imports and `require` with literal arguments).
+in `packages/law-practice/server/src/` (imports, exports, dynamic imports and `require` with literal
+arguments). The same test reads `packages/law-practice/server/package.json`: among keys starting
+with `@beep/party-` in `dependencies` and `devDependencies`, allow only the exact package name
+`@beep/party-use-cases` (manifest keys cannot be subpaths). Reject suffix packages and every other
+party package in either dependency section. Cover allowed and forbidden manifest entries with fixtures.
+`test/` imports are out of scope: parser fixtures deliberately contain forbidden specifiers, so
+scanning the test tree would flag the boundary test itself.
 For any party specifier, allow exactly `@beep/party-use-cases` or that name followed by `/` and a
 nonempty subpath. Reject every other party package. Fixtures must accept the bare package and
 `@beep/party-use-cases/ContactSource`, and reject `@beep/party-use-cases-extra`,
@@ -135,17 +141,29 @@ or reassigned addresses never automatically authorize `SameParty`.
   preserve internal whitespace and case unless a scheme rule below says otherwise. Do not hash
   display names, adapter names, card ids, observation ids, paths, timestamps, source order or claim
   status into an identifier basis. Preserve those on evidence assertions.
-- Email: parse the mailbox from a header or card before canonicalizing; discard the display-name
-  wrapper. `scheme` is `email`, `authority` is the empty string. Preserve local-part case, dots,
-  plus tags and internal characters; never apply provider-specific alias rules. Convert the domain
-  with UTS #46 nontransitional processing and STD3 rules to its ASCII A-label form, then lowercase
-  ASCII letters. Reject invalid domains and unparseable mailboxes as data-quality issues; never
-  strip internal whitespace to repair an invalid address. Thus `Dana@EXAMPLE.test` and
-  `Dana@example.test` agree, while `dana@example.test` stays distinct in v1.
-- Other supported identifiers: `scheme` is the domain's identifier-kind token; `authority` is the
-  explicit issuer/tenant namespace (empty only for a globally scoped kind). Preserve case and
-  internal whitespace of value and authority after NFC and trimming; no inferred domain or phone
-  rewriting. Schema validation rejects missing required authority and malformed values.
+- Identifier bases hash the graduated identifier's canonical value, never its `raw` spelling.
+  Graduation makes NFC/trim and the scheme rules below shared by identifier deduplication and
+  PartyKey generation; neither adapter adds its own case conversion. For variants with a
+  `.normalized` field, `value` is exactly that field after the shared normalizer runs.
+- Email: parse the mailbox from a header or card before normalization; discard the display-name
+  wrapper. `scheme` is `email`, `authority` is the empty string. The graduated `normalizeEmail`
+  retains its whole-address lowercase rule, including the local part. It also owns NFC/trim and
+  domain conversion with UTS #46 nontransitional processing and STD3 rules to ASCII A-label form;
+  lowercase the resulting whole address with locale-independent Unicode lowercase and apply NFC
+  again. Store that result in `.normalized` and hash it unchanged. Preserve dots, plus tags and
+  internal characters; never apply provider-specific alias rules. Reject invalid domains and
+  unparseable mailboxes as data-quality issues; never strip internal whitespace to repair them.
+  Thus `Dana@EXAMPLE.test`, `Dana@example.test` and `dana@example.test` all agree in v1.
+- Other supported identifiers: use the identifier-kind token as `scheme` and its explicit
+  issuer/tenant namespace as `authority` (empty only for a globally scoped kind). Match the
+  graduated `identifierKey` rules: ExchangeDn hashes `.normalized` from `normalizeExchangeDn`
+  (NFC/trim, locale-independent uppercase, then NFC); Username hashes the lowercase/NFC handle
+  with its service as authority; PhoneNumber hashes validated `.e164`, with empty authority.
+  NativeAccountId uses its service and `.value`; ExternalId uses its scheme namespace and `.value`.
+  Preserve case/internal whitespace in namespaces and native/external values after NFC/trim.
+  Require explicit country context when parsing a non-E.164 phone; reject ambiguous numbers.
+  Schema validation rejects missing required authority and malformed values. No adapter-specific
+  phone, handle or DN rewriting may run after this shared normalization.
 - Emit one key per identifier rather than hashing the list of identifiers on a card. A record with
   no usable identifier uses a separate basis `{ "kind": "source-record", "authority": <stable
   source namespace>, "value": <stable native record id> }`, with NFC/trim and case preserved.
@@ -157,15 +175,20 @@ or reassigned addresses never automatically authorize `SameParty`.
   controls, `\"` and `\\` for quote and backslash, and lowercase `\u00xx` for remaining U+0000–001F
   controls. Reject unpaired surrogates. There are only string fields: no absent fields, nulls,
   numbers or arrays. For email the byte string is exactly
-  `{"authority":"","kind":"identifier","scheme":"email","value":"Dana@example.test"}`.
+  `{"authority":"","kind":"identifier","scheme":"email","value":"dana@example.test"}`.
   Hash those bytes without a trailing newline. Decode accepts only `pk:v1:[0-9a-f]{64}` for v1;
   future canonicalization changes require a new version and explicit key-assignment migration.
 
 P1 tests must pin the canonical byte string and independently calculated digest, then prove that a
 synthetic mail header `Dana Example <Dana@EXAMPLE.test>` and a contact card containing
-` Dana@example.test ` yield the same key despite differing metadata. Include decomposed/composed
+` dana@example.test ` yield the same key despite differing metadata. Pin the explicit case fixture:
+header `Dana@example.test` versus card `dana@example.test` must have identical `.normalized` values,
+canonical bytes and PartyKeys. Include decomposed/composed
 Unicode local parts, Unicode/A-label equivalent domains, reordered input object fields, changed
-metadata, and distinct local-part case/plus tags. Invalid email, missing authority, and identifier-free
+metadata, equivalent local-part case, distinct plus tags, uppercase/lowercase Exchange DN inputs,
+case-varied Username handles within one service, and equivalent phones yielding the same E.164 value.
+Assert that changing a required service/issuer namespace changes the key. Invalid email, missing
+authority, ambiguous phone numbers, and identifier-free
 records exercise the issue/fallback paths. Replay and adapter input ordering must not change keys.
 
 ### DistinctParty scope, order and contradictions
@@ -209,6 +232,7 @@ P1 synthetic acceptance tests (assert components, survivors, key redirects and r
 | Hosted-only gates | `beep lint schema-catalog`, root `lint:oxlint`, `beep docgen check`, the JSDoc ratchet over a regenerated inventory, `audit:github repo-sanity` | Pass locally before publish |
 | Boundary: law-practice | `rg -n '@beep/law-practice' packages/party` | No matches |
 | Boundary: law-practice server | `rg --no-filename -o '@beep/party-[A-Za-z0-9_./-]+' packages/law-practice/server/src \| rg -v '^@beep/party-use-cases(/[A-Za-z0-9_./-]+)?$'`; P1 parser boundary test above | No matches |
+| Boundary: server manifest | `jq -r '((.dependencies // {}) + (.devDependencies // {})) \| keys[] \| select(startswith("@beep/party-")) \| select(. != "@beep/party-use-cases")' packages/law-practice/server/package.json`; P1 manifest boundary test above | No matches |
 | Boundary: law-practice tiers | `rg -n '@beep/party-' packages/law-practice/domain packages/law-practice/use-cases packages/law-practice/tables` | No matches |
 | Boundary: epistemic product | `rg -n '@beep/epistemic-' packages/party` (does not match `@beep/epistemics`) | No matches |
 
@@ -232,8 +256,8 @@ them and record each in the Decision Log.
 | 2026-10-22 | `PartyId` stays the integer surrogate from the neutral kit (#2025). Party identity evidence uses a separate deterministic `PartyKey` (`pk:v1:` + lowercase hex SHA-256 of the canonical basis defined in P1 contract tests) in `@beep/party-domain`, mapped to a `PartyId` by `KeyAssignment` claims. `SameParty` redirects the absorbed party's keys to the surviving id; the memory ledger allocates ids from a counter. Operator ruling 2026-10-22 | every product entity uses the integer surrogate and `LegalPartyReference` keys by it. A stable surrogate survives merges and splits, while keys stay deterministic for ingestion; minting the id from evidence would force a winner-take-all rewrite on every merge | make the kit carry the deterministic string as the id |
 | 2026-10-22 | Identity rules. `KeyAssignment` maps a `PartyKey` to a `PartyId`; `SameParty` and `DistinctParty` relate `PartyId`s. Resolution is a read-time view over the accepted claim versions at a bitemporal scope, and no claim or reference is rewritten. In each merged component the smallest `PartyId` (earliest allocated) survives. All effective accepted `DistinctParty` constraints are collected before replaying merges in `ClaimVersion` order (knowledge `recordedAt`, then id), as detailed in P1 contract tests; a later veto can split the recomputed view and every blocked merge becomes a review case. An absorbed `PartyId` and the absorbed party's keys resolve to the survivor through the view, inside party. A `LegalPartyReference` keeps the `PartyId` it was written with. Resolving it to the survivor is a cross-slice read that this goal does not provide, because no tier may both hold the reference and query party's view. That read would come from a later `shared/use-cases` resolution query or a party merge event (doc 10). Retracting or superseding a `SameParty` recomputes the merged components from the remaining accepted claims, and each id resolves to the survivor of its recomputed component. That can differ from the pre-merge split: with `SameParty(1,2)`, `SameParty(2,3)` and `SameParty(1,3)`, retracting `(1,2)` still leaves 2 merged with 1 through 3. With `DistinctParty(1,3)`, retracting `(1,2)` re-enables a previously vetoed `SameParty(2,3)` | keeps resolution replayable and reversible (the scratchpad's `resolveParties` picked the smallest id and merged in claim order), keeps law-practice references stable without rewrites, and lets a mistaken merge be undone by a retraction | persist merges as rewrites of `KeyAssignment` and reference rows |
 | 2026-10-22 | Law-practice's `Party` aggregate is renamed `LegalPartyReference` in this goal | party owns party identity and `SameParty` resolution. The law-practice record is already a role-player reference that never resolves identity (its own Gotchas), so two aggregates named `Party` over one `PartyId` would leave ownership unclear. Applies the 2026-10-21 decision ("other slices refer to parties by id and attach their own role vocabularies") | keep the name and add an ownership note instead |
-| 2026-10-22 | #2045: exact server boundary uses parsed module specifiers; the diagnostic scan filters extracted tokens with an anchored package/subpath rule | whole-line filtering hides suffix packages and mixed allowed/forbidden imports | replace the parser test and scan together with an equivalent architecture gate |
-| 2026-10-22 | #2045: PartyKey v1 uses the canonical basis and bytes in P1 Contract Tests; local-part case is preserved, domain spelling is canonicalized, provenance is excluded | adapters need identical keys without turning name equality or email aliases into identity evidence | introduce `pk:v2:` and explicit KeyAssignment migration; retain v1 decoding and historical assignments |
+| 2026-10-22 | #2045: exact server boundary parses source module specifiers and checks dependencies/devDependencies in the server manifest; test imports are excluded because fixtures carry forbidden specifiers; diagnostic scans check tokens and manifest keys | whole-line filtering hides suffix packages and mixed imports; source-only scans miss forbidden manifest dependencies | replace the parser test and scan together with an equivalent architecture gate |
+| 2026-10-22 | #2045: PartyKey v1 uses the canonical basis and bytes in P1 Contract Tests; hash graduated normalized identifier values (whole-address lowercase email, uppercase Exchange DN, lowercase Username handle, E.164 phone), canonicalize email domains in the shared normalizer, and exclude provenance | identifier deduplication and PartyKey generation must agree; shared normalizers give adapters identical keys without turning email equality into identity evidence | introduce `pk:v2:` and explicit KeyAssignment migration; retain v1 decoding and historical assignments |
 | 2026-10-22 | #2045: every active veto constrains a fresh merge replay, including later/equal-time vetoes; blocked merges surface as `conflicting-review` | cannot-link constraints must hold throughout the queried view; deterministic replay preserves history and retraction behavior | version the resolution policy and replay fixtures; keep old policy available for pinned historical views |
 | 2026-10-22 | Generic adapters live in party server; law-practice sources feed party through a use-case port | party never learns law-practice vocabulary, and ingestion stays domain-agnostic | move the adapters back into law-practice |
 
