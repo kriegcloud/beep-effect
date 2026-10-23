@@ -7,13 +7,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
-import * as A from "effect/Array";
-import * as HashSet from "effect/HashSet";
-import * as MutableHashMap from "effect/MutableHashMap";
-import * as R from "effect/Record";
-import * as Result from "effect/Result";
-import { ImporterDependency } from "../../../effected/lockfiles/ImporterDependency.ts";
+import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
 import {
   ContentFailure,
   extractWorkspaceDeps,
@@ -27,8 +21,14 @@ import {
   splitNameVersion,
   splitPeerSuffix,
   WorkspaceEntry,
-} from "../../../effected/lockfiles/internal/shared.ts";
-import { LockfileImporter } from "../../../effected/lockfiles/LockfileImporter.ts";
+} from "@beep/lockfiles/internal/shared";
+import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import * as A from "effect/Array";
+import * as HashSet from "effect/HashSet";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as R from "effect/Record";
+import * as Result from "effect/Result";
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(

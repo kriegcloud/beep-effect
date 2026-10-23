@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "effect/Option";
 
-const $I = $ScratchpadId.create("effected/lockfiles/LockfileFormat");
+const $I = $LockfilesId.create("LockfileFormat");
 
 /**
  * The lockfile formats this package parses: bun's `bun.lock` (JSONC), npm's
@@ -23,7 +23,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/LockfileFormat");
  * **Example** (Validate a format name)
  *
  * ```ts
- * import { LockfileFormat } from "@beep/scratchpad/effected/lockfiles/LockfileFormat";
+ * import { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(LockfileFormat)("pnpm")); // true
@@ -70,7 +70,7 @@ const FILENAMES: Readonly<Record<LockfileFormat, readonly [string, ...ReadonlyAr
  * **Example** (Find the conventional npm filename)
  *
  * ```ts
- * import { filenameFor } from "@beep/scratchpad/effected/lockfiles/LockfileFormat";
+ * import { filenameFor } from "@beep/lockfiles/LockfileFormat";
  *
  * console.log(filenameFor("npm")); // package-lock.json
  * ```
@@ -105,7 +105,7 @@ export const filenameFor = (format: LockfileFormat): string => FILENAMES[format]
  * **Example** (Include binary bun detection)
  *
  * ```ts
- * import { filenamesFor } from "@beep/scratchpad/effected/lockfiles/LockfileFormat";
+ * import { filenamesFor } from "@beep/lockfiles/LockfileFormat";
  *
  * console.log(filenamesFor("bun").join(", ")); // bun.lock, bun.lockb
  * ```
@@ -128,7 +128,7 @@ export const filenamesFor = (format: LockfileFormat): readonly [string, ...Reado
  * **Example** (Reject alternate filenames)
  *
  * ```ts
- * import { fromFilename } from "@beep/scratchpad/effected/lockfiles/LockfileFormat";
+ * import { fromFilename } from "@beep/lockfiles/LockfileFormat";
  * import * as O from "effect/Option";
  *
  * console.log(O.isNone(fromFilename("npm-shrinkwrap.json"))); // true

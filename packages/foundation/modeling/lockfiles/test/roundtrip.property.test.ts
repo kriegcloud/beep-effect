@@ -28,6 +28,12 @@
 // `isUniqueKey` over tuples collapses to the empty array, so neither samples
 // the "some keys present" shapes a lockfile actually carries.
 
+import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
+import { LockfileIntegrity } from "@beep/lockfiles/LockfileIntegrity";
+import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
+import { WorkspaceDependency } from "@beep/lockfiles/WorkspaceDependency";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { assert, describe, it } from "@effect/vitest";
@@ -37,12 +43,6 @@ import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
-import { ImporterDependency } from "../../effected/lockfiles/ImporterDependency.ts";
-import { Lockfile } from "../../effected/lockfiles/Lockfile.ts";
-import { LockfileImporter } from "../../effected/lockfiles/LockfileImporter.ts";
-import { LockfileIntegrity } from "../../effected/lockfiles/LockfileIntegrity.ts";
-import { ResolvedPackage } from "../../effected/lockfiles/ResolvedPackage.ts";
-import { WorkspaceDependency } from "../../effected/lockfiles/WorkspaceDependency.ts";
 
 const roundTrip = Effect.fn("roundTrip")(function* <T, S extends Schema.Codec<T, unknown>>(schema: S, value: T) {
   const encoded = yield* Schema.encodeUnknownEffect(schema)(value);

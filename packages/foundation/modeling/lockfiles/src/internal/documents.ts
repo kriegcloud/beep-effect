@@ -1,11 +1,11 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { Yaml } from "@beep/yaml";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { framingFailure, syntaxFailure } from "./shared.ts";
 import type { ParseFailure } from "./shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/documents");
+const $I = $LockfilesId.create("internal/documents");
 
 /**
  * A document selected out of a YAML stream, with the stream's document count
@@ -15,7 +15,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/documents");
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { SelectedDocument } from "@beep/scratchpad/effected/lockfiles/internal/documents";
+ * import { SelectedDocument } from "@beep/lockfiles/internal/documents";
  *
  * console.log(S.is(SelectedDocument)({ document: { lockfileVersion: "9.0" }, documents: 1 })); // true
  * ```
@@ -75,7 +75,7 @@ const MAX_PNPM_DOCUMENTS = 2;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PnpmStream } from "@beep/scratchpad/effected/lockfiles/internal/documents";
+ * import { PnpmStream } from "@beep/lockfiles/internal/documents";
  *
  * console.log(S.is(PnpmStream)({ preamble: undefined, main: { lockfileVersion: "9.0" }, documents: 1 })); // true
  * ```
@@ -151,7 +151,7 @@ export type PnpmStream = typeof PnpmStream.Type;
  * **Example** (Split a lockfile without an env preamble)
  *
  * ```ts
- * import { splitPnpmStream } from "@beep/scratchpad/effected/lockfiles/internal/documents";
+ * import { splitPnpmStream } from "@beep/lockfiles/internal/documents";
  * import * as Effect from "effect/Effect";
  *
  * const stream = Effect.runSync(splitPnpmStream("lockfileVersion: '9.0'"));
@@ -191,7 +191,7 @@ export const splitPnpmStream = Effect.fn("splitPnpmStream")(function* (
  * **Example** (Select a single yarn document)
  *
  * ```ts
- * import { selectSoleDocument } from "@beep/scratchpad/effected/lockfiles/internal/documents";
+ * import { selectSoleDocument } from "@beep/lockfiles/internal/documents";
  * import * as Effect from "effect/Effect";
  *
  * const selected = Effect.runSync(selectSoleDocument("__metadata:\n  version: 8"));

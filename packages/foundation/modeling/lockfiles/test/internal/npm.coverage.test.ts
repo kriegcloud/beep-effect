@@ -1,11 +1,11 @@
+import { parseNpm } from "@beep/lockfiles/internal/npm";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { assert, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { parseNpm } from "../../../effected/lockfiles/internal/npm.ts";
-import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
 
 const JsonDocument = S.fromJsonString(S.Unknown);
 

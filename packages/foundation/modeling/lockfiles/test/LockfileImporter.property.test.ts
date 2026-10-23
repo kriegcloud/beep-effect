@@ -1,4 +1,6 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
+import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -6,8 +8,6 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ImporterDependency } from "../../effected/lockfiles/ImporterDependency.ts";
-import { LockfileImporter } from "../../effected/lockfiles/LockfileImporter.ts";
 
 // Native schema derivation generates independent specifier tags and raw strings.
 // Classify a valid spelling before sampling the enclosing serialization model;

@@ -1,16 +1,16 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { PnpmExtension } from "@beep/lockfiles/PnpmExtension";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { PnpmExtension } from "../../../effected/lockfiles/PnpmExtension.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 
+import { parsePnpm } from "@beep/lockfiles/internal/pnpm";
+import { LockfileFields } from "@beep/lockfiles/internal/shared";
 import { Yaml } from "@beep/yaml/Yaml";
-import { parsePnpm } from "../../../effected/lockfiles/internal/pnpm.ts";
-import { LockfileFields } from "../../../effected/lockfiles/internal/shared.ts";
 
 const render = Yaml.stringify;
 const read = Yaml.parse;

@@ -7,6 +7,10 @@
 
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { filenameFor } from "@beep/lockfiles/LockfileFormat";
+import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
+import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -15,12 +19,8 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { Lockfile } from "../../effected/lockfiles/Lockfile.ts";
-import { filenameFor } from "../../effected/lockfiles/LockfileFormat.ts";
-import { ResolvedPackage } from "../../effected/lockfiles/ResolvedPackage.ts";
-import { isUnsupportedLockfileVersion } from "../../effected/lockfiles/UnsupportedLockfileVersion.ts";
-import { fixture, fixturePath } from "./fixtures.ts";
-import type { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
+import { fixture, fixturePath } from "./support/fixtures.ts";
+import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
 const JsonString = S.fromJsonString(S.Unknown);
 

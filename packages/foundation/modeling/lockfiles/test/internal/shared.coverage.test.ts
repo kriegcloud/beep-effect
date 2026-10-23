@@ -1,11 +1,7 @@
+import { importerDependencies, requireLockfileVersion, splitPeerSuffix } from "@beep/lockfiles/internal/shared";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import {
-  importerDependencies,
-  requireLockfileVersion,
-  splitPeerSuffix,
-} from "../../../effected/lockfiles/internal/shared.ts";
 
 it.effect("suffix splitting preserves unbalanced groups and accepts a suffix with no plain version", () =>
   Effect.sync(() => {

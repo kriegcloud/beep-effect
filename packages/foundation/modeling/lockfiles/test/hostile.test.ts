@@ -4,14 +4,14 @@
 // (@effected/yaml, @effected/jsonc, Schema JSON decoding), so these tests prove
 // the delegated typed failures actually surface through Lockfile.parse.
 
+import { Lockfile, LockfileParseError } from "@beep/lockfiles/Lockfile";
+import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { Lockfile, LockfileParseError } from "../../effected/lockfiles/Lockfile.ts";
-import { isUnsupportedLockfileVersion } from "../../effected/lockfiles/UnsupportedLockfileVersion.ts";
-import type { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
+import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
 const JsonString = S.fromJsonString(S.Unknown);
 

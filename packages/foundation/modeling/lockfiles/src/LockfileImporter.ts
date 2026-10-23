@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { ImporterDependency } from "./ImporterDependency.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/LockfileImporter");
+const $I = $LockfilesId.create("LockfileImporter");
 
 /**
  * One workspace importer's declared dependencies, as the lockfile records them.
@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/LockfileImporter");
  * **Example** (Construct the root importer)
  *
  * ```ts
- * import { LockfileImporter } from "@beep/scratchpad/effected/lockfiles/LockfileImporter";
+ * import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
  *
  * const importer = LockfileImporter.make({ path: ".", dependencies: [] });
  * console.log(importer.path); // .

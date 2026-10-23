@@ -6,7 +6,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import captures from "./fixtures/digests.json" with { type: "json" };
-import { fixture, fixturePath } from "./fixtures.ts";
+import { fixture, fixturePath } from "./support/fixtures.ts";
 
 describe("historical lockfile documents", () => {
   it("preserves every captured document verbatim behind a non-installable filename", () => {

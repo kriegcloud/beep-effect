@@ -5,13 +5,13 @@
 // import `Lockfile.ts` (noImportCycles), so the shape lives here where both the
 // internals and the public entry point can reach it.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/UnsupportedLockfileVersion");
+const $I = $LockfilesId.create("UnsupportedLockfileVersion");
 const GatedFormat = LiteralKit(["npm", "pnpm"]).pipe(
   $I.annoteSchema("GatedFormat", { description: "Lockfile formats with a minimum supported version" })
 );
@@ -90,8 +90,8 @@ const isVersionFailure = S.is(UnsupportedLockfileVersion);
  * **Example** (Distinguish unsupported lockfile versions from malformed input)
  *
  * ```ts
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
- * import { isUnsupportedLockfileVersion } from "@beep/scratchpad/effected/lockfiles/UnsupportedLockfileVersion";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
+ * import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
  * import * as Effect from "effect/Effect";
  *
  * const text = '{"lockfileVersion":2,"packages":{}}';

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -23,7 +23,7 @@ import type { DependencyField } from "@beep/npm-spec/DependencySection";
 import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
 import type { UnsupportedLockfileVersion } from "../UnsupportedLockfileVersion.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/shared");
+const $I = $LockfilesId.create("internal/shared");
 
 /**
  * The four dependency sections of a manifest, in a stable order — the shared
@@ -35,7 +35,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/shared");
  * **Example** (Inspect dependency section order)
  *
  * ```ts
- * import { DEP_TYPES } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { DEP_TYPES } from "@beep/lockfiles/internal/shared";
  *
  * console.log(DEP_TYPES.join(", ")) // dependencies, devDependencies, peerDependencies, optionalDependencies
  * ```
@@ -67,7 +67,7 @@ export const DEP_TYPES = ["dependencies", "devDependencies", "peerDependencies",
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { toIntegrityHash } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { toIntegrityHash } from "@beep/lockfiles/internal/shared";
  *
  * console.log(Effect.runSync(toIntegrityHash(undefined))) // undefined
  * ```
@@ -117,7 +117,7 @@ const decodeSpecifier = S.decodeUnknownExit(DependencySpecifier.FromString);
  * **Example** (Separate a peer chain from its version)
  *
  * ```ts
- * import { splitPeerSuffix } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { splitPeerSuffix } from "@beep/lockfiles/internal/shared";
  *
  * const split = splitPeerSuffix("1.0.0(effect@4.0.0)");
  * console.log(split.plain) // 1.0.0
@@ -150,7 +150,7 @@ export const splitPeerSuffix = (raw: string): { readonly plain: string; readonly
  * **Example** (Split a scoped package identity)
  *
  * ```ts
- * import { splitNameVersion } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { splitNameVersion } from "@beep/lockfiles/internal/shared";
  *
  * console.log(splitNameVersion("@scope/lib@1.2.3")?.name) // @scope/lib
  * ```
@@ -240,7 +240,7 @@ export type ImporterSections<V> = { readonly [K in DependencyField]?: Readonly<R
  * **Example** (Collect a declared runtime dependency)
  *
  * ```ts
- * import { importerDependencies } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { importerDependencies } from "@beep/lockfiles/internal/shared";
  *
  * const deps = importerDependencies({ dependencies: { react: "^18.0.0" } }, (specifier) => ({ specifier }));
  * console.log(deps.length) // 1
@@ -286,7 +286,7 @@ export const importerDependencies: {
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PeerDeclarations } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { PeerDeclarations } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(PeerDeclarations)({ peerDependencies: {}, peerDependenciesMeta: {} })) // true
  * ```
@@ -357,7 +357,7 @@ const EMPTY_PEERS: PeerDeclarations = { peerDependencies: {}, peerDependenciesMe
  *
  * ```ts
  * import { pipe } from "effect/Function";
- * import { peerDeclarations } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { peerDeclarations } from "@beep/lockfiles/internal/shared";
  *
  * const peers = pipe({ react: "^18" }, peerDeclarations(undefined, ["react"]));
  * console.log(peers.peerDependenciesMeta.react?.optional) // true
@@ -416,7 +416,7 @@ export const peerDeclarations: {
  * **Example** (Inspect supported format floors)
  *
  * ```ts
- * import { MINIMUM_LOCKFILE_VERSION } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { MINIMUM_LOCKFILE_VERSION } from "@beep/lockfiles/internal/shared";
  *
  * console.log(MINIMUM_LOCKFILE_VERSION.pnpm) // 9
  * console.log(MINIMUM_LOCKFILE_VERSION.npm) // 3
@@ -454,7 +454,7 @@ const encodeVersionMessage = S.encodeResult(VersionMessage);
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { requireLockfileVersion } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { requireLockfileVersion } from "@beep/lockfiles/internal/shared";
  *
  * console.log(Effect.runSync(requireLockfileVersion("pnpm", 9))) // undefined
  * ```
@@ -527,7 +527,7 @@ const PnpmVersionProbe = S.Struct({
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { gatePnpmVersion } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { gatePnpmVersion } from "@beep/lockfiles/internal/shared";
  *
  * console.log(Effect.runSync(gatePnpmVersion({ lockfileVersion: 9 }))) // 9
  * ```
@@ -551,7 +551,7 @@ export const gatePnpmVersion = (document: unknown): Effect.Effect<string, ParseF
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { FramingReason } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { FramingReason } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(FramingReason)("noImporters")) // true
  * ```
@@ -580,7 +580,7 @@ export type FramingReason = typeof FramingReason.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ContentFailure } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { ContentFailure } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(ContentFailure)({ stage: "syntax", cause: "invalid YAML" })) // true
  * ```
@@ -633,7 +633,7 @@ export type ContentFailure = typeof ContentFailure.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { FramingFailure } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { FramingFailure } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(FramingFailure)({ stage: "framing", reason: "noLockfileDocument", documents: 0 })) // true
  * ```
@@ -676,7 +676,7 @@ export type FramingFailure = typeof FramingFailure.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ParseFailure } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { ParseFailure } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(ParseFailure)({ stage: "validation", cause: "invalid shape" })) // true
  * ```
@@ -706,7 +706,7 @@ export type ParseFailure = typeof ParseFailure.Type;
  * **Example** (Wrap a syntax cause)
  *
  * ```ts
- * import { syntaxFailure } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { syntaxFailure } from "@beep/lockfiles/internal/shared";
  *
  * console.log(syntaxFailure("invalid YAML").stage) // syntax
  * ```
@@ -723,7 +723,7 @@ export const syntaxFailure = (cause: unknown): ParseFailure => ({ stage: "syntax
  * **Example** (Wrap a shape validation cause)
  *
  * ```ts
- * import { validationFailure } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { validationFailure } from "@beep/lockfiles/internal/shared";
  *
  * console.log(validationFailure("invalid shape").stage) // validation
  * ```
@@ -740,7 +740,7 @@ export const validationFailure = (cause: unknown): ParseFailure => ({ stage: "va
  * **Example** (Report an unexpected document count)
  *
  * ```ts
- * import { framingFailure } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { framingFailure } from "@beep/lockfiles/internal/shared";
  *
  * console.log(framingFailure("unexpectedDocuments", 2).stage) // framing
  * ```
@@ -769,7 +769,7 @@ export const framingFailure: {
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { LockfileFields } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { LockfileFields } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(LockfileFields)({ lockfileVersion: "9", packages: [], workspaceDependencies: [], importers: [] })) // true
  * ```
@@ -820,7 +820,7 @@ export type LockfileFields = typeof LockfileFields.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { WorkspaceEntry } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { WorkspaceEntry } from "@beep/lockfiles/internal/shared";
  *
  * console.log(S.is(WorkspaceEntry)({ dependencies: { react: "^18" } })) // true
  * ```
@@ -867,7 +867,7 @@ export type WorkspaceEntry = typeof WorkspaceEntry.Type;
  * **Example** (Recognize local dependency protocols)
  *
  * ```ts
- * import { isWorkspaceSpecifier } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { isWorkspaceSpecifier } from "@beep/lockfiles/internal/shared";
  *
  * console.log(isWorkspaceSpecifier("workspace:*")) // true
  * console.log(isWorkspaceSpecifier("^1.0.0")) // false
@@ -898,7 +898,7 @@ export const isWorkspaceSpecifier = (specifier: string): boolean =>
  * ```ts
  * import * as MutableHashMap from "effect/MutableHashMap";
  * import * as HashSet from "effect/HashSet";
- * import { extractWorkspaceDeps } from "@beep/scratchpad/effected/lockfiles/internal/shared";
+ * import { extractWorkspaceDeps } from "@beep/lockfiles/internal/shared";
  *
  * const workspaces = MutableHashMap.fromIterable([["app", { dependencies: { lib: "workspace:*" } }]]);
  * const edges = extractWorkspaceDeps(workspaces, HashSet.fromIterable(["app", "lib"]));

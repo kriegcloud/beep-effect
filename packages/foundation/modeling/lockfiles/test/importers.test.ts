@@ -5,16 +5,16 @@
 // only (the resolved version lives on package entries); yarn records no
 // importers at all.
 
+import { peerDeclarations } from "@beep/lockfiles/internal/shared";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import { peerDeclarations } from "../../effected/lockfiles/internal/shared.ts";
-import { Lockfile } from "../../effected/lockfiles/Lockfile.ts";
-import { fixture } from "./fixtures.ts";
-import type { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
+import { fixture } from "./support/fixtures.ts";
+import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
 const parseFixture = (relative: string, format: LockfileFormat) => Lockfile.parse(fixture(relative), { format });
 

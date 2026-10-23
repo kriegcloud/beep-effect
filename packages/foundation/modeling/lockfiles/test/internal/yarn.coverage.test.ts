@@ -1,3 +1,5 @@
+import { parseYarn } from "@beep/lockfiles/internal/yarn";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { Yaml } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
@@ -5,8 +7,6 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import { parseYarn } from "../../../effected/lockfiles/internal/yarn.ts";
-import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
 
 describe("Yarn descriptor and identity boundaries", () => {
   it.effect("records a compound descriptor targeting a skipped row as unresolved", () =>

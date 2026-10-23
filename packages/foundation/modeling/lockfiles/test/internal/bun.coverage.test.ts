@@ -1,10 +1,10 @@
+import { parseBun } from "@beep/lockfiles/internal/bun";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { parseBun } from "../../../effected/lockfiles/internal/bun.ts";
-import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
 
 const JsonDocument = S.fromJsonString(S.Unknown);
 

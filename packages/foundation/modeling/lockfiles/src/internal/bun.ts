@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { Jsonc } from "@beep/jsonc";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -26,7 +26,7 @@ import {
 } from "./shared.ts";
 import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/bun");
+const $I = $LockfilesId.create("internal/bun");
 
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
@@ -167,7 +167,7 @@ type BunLockfileRawType = typeof BunLockfileRaw.Type;
  * **Example** (Parse an empty text bun lockfile)
  *
  * ```ts
- * import { parseBun } from "@beep/scratchpad/effected/lockfiles/internal/bun";
+ * import { parseBun } from "@beep/lockfiles/internal/bun";
  * import * as Effect from "effect/Effect";
  *
  * const fields = Effect.runSync(parseBun('{"lockfileVersion":1,"workspaces":{},"packages":{}}'));

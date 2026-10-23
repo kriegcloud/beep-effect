@@ -1,4 +1,6 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { LockfileFields } from "@beep/lockfiles/internal/shared";
+import { parseYarn } from "@beep/lockfiles/internal/yarn";
 import * as O from "@beep/utils/Option";
 import { Yaml } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
@@ -9,8 +11,6 @@ import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { LockfileFields } from "../../../effected/lockfiles/internal/shared.ts";
-import { parseYarn } from "../../../effected/lockfiles/internal/yarn.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const sample = Arbitrary.schema(

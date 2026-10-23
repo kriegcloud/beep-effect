@@ -1,7 +1,7 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/BunExtension");
+const $I = $LockfilesId.create("BunExtension");
 
 // Recursive annotation is required to tie the suspended schema's type knot.
 type OverrideValue = string | { readonly [dependency: string]: OverrideValue };
@@ -31,7 +31,7 @@ const OverrideValue: S.Codec<OverrideValue> = S.Union([
  * **Example** (Preserve a parent-scoped override)
  *
  * ```ts
- * import { BunExtension } from "@beep/scratchpad/effected/lockfiles/BunExtension";
+ * import { BunExtension } from "@beep/lockfiles/BunExtension";
  *
  * const extension = BunExtension.make({ overrides: { parent: { child: "^2.0.0" } } });
  * extension.overrides; // { parent: { child: "^2.0.0" } }

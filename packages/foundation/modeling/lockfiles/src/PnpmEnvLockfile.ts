@@ -60,7 +60,7 @@ export interface PnpmEnvLockfileReaders {
    * **Example** (Read a lockfile with no config dependencies)
    *
    * ```ts
-   * import { PnpmEnvLockfile } from "@beep/scratchpad/effected/lockfiles/PnpmEnvLockfile";
+   * import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -98,7 +98,7 @@ export interface PnpmEnvLockfileReaders {
    * **Example** (Read a lockfile with no manager pin)
    *
    * ```ts
-   * import { PnpmEnvLockfile } from "@beep/scratchpad/effected/lockfiles/PnpmEnvLockfile";
+   * import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -128,7 +128,7 @@ export interface PnpmEnvLockfileReaders {
  * **Example** (Read the env preamble)
  *
  * ```ts
- * import { PnpmEnvLockfile } from "@beep/scratchpad/effected/lockfiles/index";
+ * import { PnpmEnvLockfile } from "@beep/lockfiles";
  * import * as Effect from "effect/Effect";
  * import * as HashMap from "effect/HashMap";
  * import * as O from "effect/Option";

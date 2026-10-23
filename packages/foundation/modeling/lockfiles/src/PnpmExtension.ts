@@ -1,7 +1,7 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/PnpmExtension");
+const $I = $LockfilesId.create("PnpmExtension");
 
 /**
  * The pnpm `catalogs:` record shape as it appears in `pnpm-lock.yaml`:
@@ -17,7 +17,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/PnpmExtension");
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PnpmCatalogs } from "@beep/scratchpad/effected/lockfiles/PnpmExtension";
+ * import { PnpmCatalogs } from "@beep/lockfiles/PnpmExtension";
  *
  * console.log(S.is(PnpmCatalogs)({ default: { effect: { specifier: "^4.0.0", version: "4.0.2" } } })); // true
  * ```
@@ -78,7 +78,7 @@ export type PnpmCatalogs = typeof PnpmCatalogs.Type;
  * **Example** (Construct pnpm header metadata)
  *
  * ```ts
- * import { PnpmExtension } from "@beep/scratchpad/effected/lockfiles/PnpmExtension";
+ * import { PnpmExtension } from "@beep/lockfiles/PnpmExtension";
  *
  * const extension = PnpmExtension.make({ overrides: { effect: "4.0.2" } });
  * console.log(extension._tag); // pnpm

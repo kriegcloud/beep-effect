@@ -1,18 +1,13 @@
+import { Lockfile, LockfileFramingError, LockfileParseError, materializeFailure } from "@beep/lockfiles/Lockfile";
+import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
+import { PnpmExtension } from "@beep/lockfiles/PnpmExtension";
+import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
+import { WorkspaceDependency } from "@beep/lockfiles/WorkspaceDependency";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import {
-  Lockfile,
-  LockfileFramingError,
-  LockfileParseError,
-  materializeFailure,
-} from "../../effected/lockfiles/Lockfile.ts";
-import { LockfileImporter } from "../../effected/lockfiles/LockfileImporter.ts";
-import { PnpmExtension } from "../../effected/lockfiles/PnpmExtension.ts";
-import { ResolvedPackage } from "../../effected/lockfiles/ResolvedPackage.ts";
-import { WorkspaceDependency } from "../../effected/lockfiles/WorkspaceDependency.ts";
 
 it.effect("public failure messages explain each parsing and framing outcome", () =>
   Effect.sync(() => {

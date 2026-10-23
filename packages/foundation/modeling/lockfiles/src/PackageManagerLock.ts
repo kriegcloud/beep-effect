@@ -1,7 +1,7 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/PackageManagerLock");
+const $I = $LockfilesId.create("PackageManagerLock");
 
 /**
  * The package manager a `pnpm-lock.yaml` pins, with the integrity pnpm
@@ -34,7 +34,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/PackageManagerLock");
  * **Example** (Inspect the pinned manager version)
  *
  * ```ts
- * import { PackageManagerLock } from "@beep/scratchpad/effected/lockfiles/PackageManagerLock";
+ * import { PackageManagerLock } from "@beep/lockfiles/PackageManagerLock";
  *
  * const manager = PackageManagerLock.make({ name: "pnpm", specifier: "12.7.0", version: "12.7.0", integrity: "sha512-YWJj", nativeIntegrity: {} });
  * console.log(manager.version); // 12.7.0

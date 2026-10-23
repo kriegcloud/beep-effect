@@ -47,6 +47,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/glob": "glob",
 	"@beep/jsonc": "jsonc",
 	"@beep/jsonl": "jsonl",
+	"@beep/lockfiles": "lockfiles",
 	"@beep/managed-section": "templates",
 	"@beep/markdown": "markdown",
 	"@beep/memfs": "memfs",

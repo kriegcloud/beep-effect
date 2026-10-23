@@ -7,13 +7,8 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
+import { PnpmStream, SelectedDocument, selectSoleDocument, splitPnpmStream } from "@beep/lockfiles/internal/documents";
 import { Yaml } from "@beep/yaml/Yaml";
-import {
-  PnpmStream,
-  SelectedDocument,
-  selectSoleDocument,
-  splitPnpmStream,
-} from "../../../effected/lockfiles/internal/documents.ts";
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(

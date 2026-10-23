@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -12,7 +12,7 @@ import { splitPnpmStream } from "./documents.ts";
 import { gatePnpmVersion, validationFailure } from "./shared.ts";
 import type { ParseFailure } from "./shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/pnpmEnv");
+const $I = $LockfilesId.create("internal/pnpmEnv");
 
 /**
  * A well-formed env preamble whose recorded dependency cannot be accounted for.
@@ -262,7 +262,7 @@ const decodePreamble = Effect.fn("decodePreamble")(function* (
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { readPnpmPackageManager } from "@beep/scratchpad/effected/lockfiles/internal/pnpmEnv";
+ * import { readPnpmPackageManager } from "@beep/lockfiles/internal/pnpmEnv";
  *
  * console.log(Effect.runSync(readPnpmPackageManager("lockfileVersion: 9\nimporters:\n  .: {}"))) // undefined
  * ```
@@ -318,7 +318,7 @@ export const readPnpmPackageManager = Effect.fn("readPnpmPackageManager")(functi
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as HashMap from "effect/HashMap";
- * import { readPnpmConfigDependencies } from "@beep/scratchpad/effected/lockfiles/internal/pnpmEnv";
+ * import { readPnpmConfigDependencies } from "@beep/lockfiles/internal/pnpmEnv";
  *
  * const locks = Effect.runSync(readPnpmConfigDependencies("lockfileVersion: 9\nimporters:\n  .: {}"));
  * console.log(HashMap.size(locks)) // 0

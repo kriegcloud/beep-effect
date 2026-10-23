@@ -1,7 +1,7 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/ConfigDependencyLock");
+const $I = $LockfilesId.create("ConfigDependencyLock");
 
 /**
  * One config dependency a `pnpm-lock.yaml` records, with the integrity pnpm
@@ -30,7 +30,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/ConfigDependencyLock");
  * **Example** (Inspect a config dependency checksum)
  *
  * ```ts
- * import { ConfigDependencyLock } from "@beep/scratchpad/effected/lockfiles/ConfigDependencyLock";
+ * import { ConfigDependencyLock } from "@beep/lockfiles/ConfigDependencyLock";
  *
  * const dependency = ConfigDependencyLock.make({
  *   name: "@acme/config", specifier: "1.0.0", version: "1.0.0", integrity: "sha512-YWJj",

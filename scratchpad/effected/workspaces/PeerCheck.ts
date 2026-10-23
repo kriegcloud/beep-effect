@@ -16,7 +16,7 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 // or "(" would re-introduce the format knowledge this module exists without.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Lockfile, ResolvedPackage } from "../lockfiles/index.ts";
+import { Lockfile, ResolvedPackage } from "@beep/lockfiles";
 import { Range, SemVer } from "@beep/semver";
 import * as O from "effect/Option";
 import * as A from "effect/Array";
@@ -855,7 +855,7 @@ interface Policy {
  * **Example** (Parse a pnpm lockfile and collect required peer failures)
  *
  * ```ts
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/index";
+ * import { Lockfile } from "@beep/lockfiles";
  * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
  * import * as Effect from "effect/Effect";
  *
@@ -1021,7 +1021,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 *
 	 * ```ts
 	 * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
-	 * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/index";
+	 * import { Lockfile } from "@beep/lockfiles";
 	 * import * as Effect from "effect/Effect";
 	 * const program = Effect.gen(function* () {
 	 *   const lockfile = yield* Lockfile.parse("lockfileVersion: '9.0'\nimporters: {}\n", { format: "pnpm" });

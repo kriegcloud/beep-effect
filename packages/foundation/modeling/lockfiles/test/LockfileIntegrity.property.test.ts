@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { LockfileIntegrity, WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { LockfileIntegrity, WorkspaceManifest } from "../../effected/lockfiles/LockfileIntegrity.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

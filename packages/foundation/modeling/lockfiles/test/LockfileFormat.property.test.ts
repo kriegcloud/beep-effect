@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { filenameFor, filenamesFor, fromFilename, LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { filenameFor, filenamesFor, fromFilename, LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

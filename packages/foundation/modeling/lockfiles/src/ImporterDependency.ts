@@ -1,9 +1,9 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/ImporterDependency");
+const $I = $LockfilesId.create("ImporterDependency");
 
 /**
  * One declared dependency of one workspace importer, as the lockfile records it.
@@ -39,7 +39,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/ImporterDependency");
  * **Example** (Round-trip a declared dependency specifier)
  *
  * ```ts
- * import { ImporterDependency } from "@beep/scratchpad/effected/lockfiles/ImporterDependency";
+ * import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
  * import * as S from "effect/Schema";
  *
  * const dependency = S.decodeUnknownSync(ImporterDependency)({

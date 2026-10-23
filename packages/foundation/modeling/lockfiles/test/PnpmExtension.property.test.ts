@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { PnpmCatalogs, PnpmExtension } from "@beep/lockfiles/PnpmExtension";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { PnpmCatalogs, PnpmExtension } from "../../effected/lockfiles/PnpmExtension.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -26,7 +26,7 @@ import {
 } from "./shared.ts";
 import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/pnpm");
+const $I = $LockfilesId.create("internal/pnpm");
 
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
@@ -252,7 +252,7 @@ type PnpmPackageEntry = NonNullable<PnpmLockfileRawType["packages"]>[string];
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { parsePnpm } from "@beep/scratchpad/effected/lockfiles/internal/pnpm";
+ * import { parsePnpm } from "@beep/lockfiles/internal/pnpm";
  *
  * const fields = Effect.runSync(parsePnpm("lockfileVersion: 9\nimporters:\n  .: {}", false));
  * console.log(fields.lockfileVersion) // 9

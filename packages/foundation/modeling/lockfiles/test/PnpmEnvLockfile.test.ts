@@ -19,17 +19,17 @@
 // lock (the positive control), then break exactly one edge per test — so each
 // failure is the mutation's doing, not a broken builder.
 
+import { ConfigDependencyLock } from "@beep/lockfiles/ConfigDependencyLock";
+import { LockfileFramingError, LockfileParseError } from "@beep/lockfiles/Lockfile";
+import { PackageManagerLock } from "@beep/lockfiles/PackageManagerLock";
+import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
+import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import { ConfigDependencyLock } from "../../effected/lockfiles/ConfigDependencyLock.ts";
-import { LockfileFramingError, LockfileParseError } from "../../effected/lockfiles/Lockfile.ts";
-import { PackageManagerLock } from "../../effected/lockfiles/PackageManagerLock.ts";
-import { PnpmEnvLockfile } from "../../effected/lockfiles/PnpmEnvLockfile.ts";
-import { isUnsupportedLockfileVersion } from "../../effected/lockfiles/UnsupportedLockfileVersion.ts";
-import { fixture as readFixture } from "./fixtures.ts";
+import { fixture as readFixture } from "./support/fixtures.ts";
 
 const fixture = (relative: string): string => readFixture(`pnpm/${relative}/pnpm-lock.yaml`);
 

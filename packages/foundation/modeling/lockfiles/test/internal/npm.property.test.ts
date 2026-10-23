@@ -7,8 +7,8 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { parseNpm } from "../../../effected/lockfiles/internal/npm.ts";
-import { LockfileFields } from "../../../effected/lockfiles/internal/shared.ts";
+import { parseNpm } from "@beep/lockfiles/internal/npm";
+import { LockfileFields } from "@beep/lockfiles/internal/shared";
 
 const codec = S.fromJsonString(S.Unknown);
 const render = S.encodeEffect(codec);

@@ -1,10 +1,10 @@
 // Seam repair 2: integrity checking as a total, pure function fed by
 // in-memory manifests — no Effect, no error channel, no IO anywhere.
 
+import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { LockfileIntegrity, WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
+import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { assert, describe, it } from "@effect/vitest";
-import { Lockfile } from "../../effected/lockfiles/Lockfile.ts";
-import { LockfileIntegrity, WorkspaceManifest } from "../../effected/lockfiles/LockfileIntegrity.ts";
-import { ResolvedPackage } from "../../effected/lockfiles/ResolvedPackage.ts";
 
 const workspace = (name: string, relativePath: string): ResolvedPackage =>
   ResolvedPackage.make({ name, version: "1.0.0", instanceId: relativePath, isWorkspace: true, relativePath });

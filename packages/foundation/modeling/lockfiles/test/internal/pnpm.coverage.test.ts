@@ -1,10 +1,10 @@
+import { parsePnpm } from "@beep/lockfiles/internal/pnpm";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { Yaml } from "@beep/yaml/Yaml";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import { parsePnpm } from "../../../effected/lockfiles/internal/pnpm.ts";
-import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
 
 it.effect(
   "unnameable links and empty dependency names stay omitted and publish paths cannot escape the workspace",

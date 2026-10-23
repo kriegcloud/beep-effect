@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/WorkspaceDependency");
+const $I = $LockfilesId.create("WorkspaceDependency");
 
 /**
  * A directed dependency edge between two workspace packages as recorded in
@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/WorkspaceDependency");
  * **Example** (Construct a workspace dependency edge)
  *
  * ```ts
- * import { WorkspaceDependency } from "@beep/scratchpad/effected/lockfiles/WorkspaceDependency";
+ * import { WorkspaceDependency } from "@beep/lockfiles/WorkspaceDependency";
  *
  * const edge = WorkspaceDependency.make({ from: "@acme/app", to: "@acme/lib", depType: "dependencies", constraint: "workspace:*" });
  * console.log(edge.constraint); // workspace:*

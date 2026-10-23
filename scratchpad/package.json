@@ -42,6 +42,7 @@
     "@beep/identity": "workspace:^",
     "@beep/jsonc": "workspace:^",
     "@beep/law-practice-use-cases": "workspace:^",
+    "@beep/lockfiles": "workspace:^",
     "@beep/m365": "workspace:^",
     "@beep/managed-section": "workspace:^",
     "@beep/markdown": "workspace:^",

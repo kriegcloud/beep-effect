@@ -9,7 +9,7 @@ import { join } from "node:path";
  * **Example** (Locate an npm capture)
  *
  * ```ts
- * import { fixturePath } from "./fixtures.ts"
+ * import { fixturePath } from "./support/fixtures.ts"
  *
  * const path = fixturePath("npm/v1/package-lock.json")
  * console.log(path.endsWith("package-lock.json.fixture")) // true
@@ -19,7 +19,8 @@ import { join } from "node:path";
  * @category testing
  * @since 0.0.0
  */
-export const fixturePath = (relative: string): string => join(import.meta.dirname, "fixtures", `${relative}.fixture`);
+export const fixturePath = (relative: string): string =>
+  join(import.meta.dirname, "..", "fixtures", `${relative}.fixture`);
 
 /**
  * Read an inert historical capture verbatim for the lockfile parser.
@@ -27,7 +28,7 @@ export const fixturePath = (relative: string): string => join(import.meta.dirnam
  * **Example** (Read a pnpm capture)
  *
  * ```ts
- * import { fixture } from "./fixtures.ts"
+ * import { fixture } from "./support/fixtures.ts"
  *
  * const input = fixture("pnpm/v1/pnpm-lock.yaml")
  * console.log(input.includes("lockfileVersion")) // true

@@ -11,8 +11,8 @@ Every entrypoint takes content as a **string**. The package performs no IO at al
 ## Quick start
 
 ```ts
-import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
-import { LockfileIntegrity, WorkspaceManifest } from "@beep/scratchpad/effected/lockfiles/LockfileIntegrity";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { LockfileIntegrity, WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
@@ -63,8 +63,8 @@ The gate is on the **lockfile format version**, which is the only version a lock
 The `cause` is a structured `{ _tag: "UnsupportedLockfileVersion", format, lockfileVersion, minimumSupported, message }`, so a consumer can distinguish "your lockfile is too old" from "your lockfile is malformed" without parsing prose. `isUnsupportedLockfileVersion` is the exported predicate that narrows to it — discriminate on the tag, never on `message`, which is a summary rather than contract:
 
 ```ts
-import { isUnsupportedLockfileVersion } from "@beep/scratchpad/effected/lockfiles/UnsupportedLockfileVersion";
-import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import * as Effect from "effect/Effect";
 
 const content = "lockfileVersion: '8.0'\nimporters:\n  .: {}";
@@ -105,7 +105,7 @@ A row in `lockfile.packages` is one package **instance**, not one package. A dep
 `resolved` maps each dependency name — and each peer name the lockfile records a resolution for — to the `instanceId` it actually resolved to, which is what lets a consumer walk the real graph rather than re-resolving ranges itself. `peerDependencies` and `peerDependenciesMeta` carry the declarations as written, defaulting to `{}`.
 
 ```ts
-import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
@@ -158,23 +158,23 @@ None.
 
 One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
 
-- **native-runtime** — Lab uses Effect collections and Record/Array helpers for parser indexes and edges, and returns HashMap with Option lookup and unspecified iteration order for config dependencies where upstream returns a native Map. (scratchpad/test/lockfiles/PnpmEnvLockfile.test.ts:340,457; Lockfile.test.ts instance identity and resolved edges; hostile.test.ts hostile keys; LockfileIntegrity.test.ts)
-- **tagged-errors** — Lab represents unaccounted pnpm preamble causes as PnpmEnvPreambleError with a schema tag where upstream uses native Error, preserving validation stage and message text. (scratchpad/test/lockfiles/PnpmEnvLockfile.test.ts:213,230,237,409,416,420)
-- **schema-first** — Lab derives shared, catalog, document and resolution payload types from schemas, uses LiteralKit for named domains and schema codecs for JSON formatting where upstream uses handwritten types, Schema.Literals and JSON serialization. (scratchpad/test/lockfiles/LockfileFormat.test.ts; roundtrip.property.test.ts codec round-trips; documents.test.ts document framing; hostile.test.ts:556; PnpmEnvLockfile.test.ts:213,230,409)
-- **numeric-domains** — Lab rejects non-finite numeric versions at finite-schema boundaries and refines document-count schemas where upstream permits unrestricted numbers and either reports an unsupported version or stringifies it. (scratchpad/test/lockfiles/hostile.test.ts:505,518,531,543; documents.test.ts document framing; Lockfile.test.ts supported lockfile versions)
-- **type-safety** — Lab proves lookup, record and integrity types with assertions, schema decoding and Option checks where upstream relies on unsafe type casts. (scratchpad/test/lockfiles/Lockfile.test.ts instance identity and resolved edges; roundtrip.property.test.ts:64,141,223; hostile.test.ts:28; PnpmEnvLockfile.test.ts:303)
-- **tsgo-diagnostics** — Lab adds pipeable dual overloads, requires three data-first peerDeclarations arguments and exposes SchemaError for malformed npm JSON where upstream uses fixed-arity helpers and preserves JSON.parse throwables, while adopting make and schema-safe checks. (scratchpad/test/lockfiles/importers.test.ts:185,197,209; hostile.test.ts:579; documents.test.ts:357; roundtrip.property.test.ts:101,246; module suite scratchpad/test/lockfiles/**)
-- **effect-first** — Lab uses Effect.fn/fnUntraced, exhaustive Match dispatch and Option helpers where upstream uses ordinary generator-returning functions, switch dispatch and conditional spreads. (module suite scratchpad/test/lockfiles/**; scratchpad/test/lockfiles/importers.test.ts:218)
-- **effect-imports** — Lab imports Effect APIs from dedicated effect/Module paths in source, tests and affected examples where upstream uses the root effect barrel. (module suite scratchpad/test/lockfiles/**)
-- **identity-annotations** — Lab gives public and internal schemas composer identities and descriptive field/schema annotations where upstream uses bare identifiers and unannotated fields. (module suite scratchpad/test/lockfiles/**)
-- **upstream-bug** — Lab rejects incomplete or wrongly formatted unsupported-version causes where the upstream guard accepts records whose promised fields cannot safely be accessed. (scratchpad/test/lockfiles/Lockfile.test.ts:1600,1638,1656)
-- **upstream-bug** — Lab preserves recursive and version-scoped Bun override records and rejects malformed leaves where upstream rejects every nested override. (scratchpad/test/lockfiles/Lockfile.test.ts:272,286)
-- **native-runtime** — The lab accepts an Effect HashMap for withImporterNames where upstream accepts a native ReadonlyMap, preserving name-rewrite behavior (scratchpad/test/lockfiles/Lockfile.test.ts:395; scratchpad/test/lockfiles/Lockfile.coverage.test.ts:40).
-- **upstream-bug** — The lab uses fallback workspace metadata for absent npm constructor targets where upstream fabricates Object metadata, while retaining own-target metadata (scratchpad/test/lockfiles/internal/npm.coverage.test.ts:27,34).
-- **upstream-bug** — The lab skips unmodeled npm targets and continues ancestor resolution where upstream can emit dangling resolved edges (scratchpad/test/lockfiles/internal/npm.coverage.test.ts:41).
-- **upstream-bug** — The lab marks unmodeled root and skipped pnpm targets unresolved where upstream emits dangling resolved edges, retaining valid alias and workspace targets (scratchpad/test/lockfiles/internal/pnpm.coverage.test.ts:20; scratchpad/test/lockfiles/Lockfile.test.ts:1066).
-- **upstream-bug** — The lab resolves bun edges only to emitted identities where upstream can select malformed or suppressed tuple rows, retaining ancestor precedence and workspace identities (scratchpad/test/lockfiles/internal/bun.coverage.test.ts:23).
-- **upstream-bug** — Lab Yarn parsing records indexed targets without emitted package instances as unresolved, while upstream emits dangling resolved edges; aliases to emitted locators retain upstream behavior (scratchpad/test/lockfiles/internal/yarn.coverage.test.ts:12,27,42).
+- **native-runtime** — Lab uses Effect collections and Record/Array helpers for parser indexes and edges, and returns HashMap with Option lookup and unspecified iteration order for config dependencies where upstream returns a native Map. (packages/foundation/modeling/lockfiles/test/PnpmEnvLockfile.test.ts:340,457; Lockfile.test.ts instance identity and resolved edges; hostile.test.ts hostile keys; LockfileIntegrity.test.ts)
+- **tagged-errors** — Lab represents unaccounted pnpm preamble causes as PnpmEnvPreambleError with a schema tag where upstream uses native Error, preserving validation stage and message text. (packages/foundation/modeling/lockfiles/test/PnpmEnvLockfile.test.ts:213,230,237,409,416,420)
+- **schema-first** — Lab derives shared, catalog, document and resolution payload types from schemas, uses LiteralKit for named domains and schema codecs for JSON formatting where upstream uses handwritten types, Schema.Literals and JSON serialization. (packages/foundation/modeling/lockfiles/test/LockfileFormat.test.ts; roundtrip.property.test.ts codec round-trips; documents.test.ts document framing; hostile.test.ts:556; PnpmEnvLockfile.test.ts:213,230,409)
+- **numeric-domains** — Lab rejects non-finite numeric versions at finite-schema boundaries and refines document-count schemas where upstream permits unrestricted numbers and either reports an unsupported version or stringifies it. (packages/foundation/modeling/lockfiles/test/hostile.test.ts:505,518,531,543; documents.test.ts document framing; Lockfile.test.ts supported lockfile versions)
+- **type-safety** — Lab proves lookup, record and integrity types with assertions, schema decoding and Option checks where upstream relies on unsafe type casts. (packages/foundation/modeling/lockfiles/test/Lockfile.test.ts instance identity and resolved edges; roundtrip.property.test.ts:64,141,223; hostile.test.ts:28; PnpmEnvLockfile.test.ts:303)
+- **tsgo-diagnostics** — Lab adds pipeable dual overloads, requires three data-first peerDeclarations arguments and exposes SchemaError for malformed npm JSON where upstream uses fixed-arity helpers and preserves JSON.parse throwables, while adopting make and schema-safe checks. (packages/foundation/modeling/lockfiles/test/importers.test.ts:185,197,209; hostile.test.ts:579; documents.test.ts:357; roundtrip.property.test.ts:101,246; module suite packages/foundation/modeling/lockfiles/test/**)
+- **effect-first** — Lab uses Effect.fn/fnUntraced, exhaustive Match dispatch and Option helpers where upstream uses ordinary generator-returning functions, switch dispatch and conditional spreads. (module suite packages/foundation/modeling/lockfiles/test/**; packages/foundation/modeling/lockfiles/test/importers.test.ts:218)
+- **effect-imports** — Lab imports Effect APIs from dedicated effect/Module paths in source, tests and affected examples where upstream uses the root effect barrel. (module suite packages/foundation/modeling/lockfiles/test/**)
+- **identity-annotations** — Lab gives public and internal schemas composer identities and descriptive field/schema annotations where upstream uses bare identifiers and unannotated fields. (module suite packages/foundation/modeling/lockfiles/test/**)
+- **upstream-bug** — Lab rejects incomplete or wrongly formatted unsupported-version causes where the upstream guard accepts records whose promised fields cannot safely be accessed. (packages/foundation/modeling/lockfiles/test/Lockfile.test.ts:1600,1638,1656)
+- **upstream-bug** — Lab preserves recursive and version-scoped Bun override records and rejects malformed leaves where upstream rejects every nested override. (packages/foundation/modeling/lockfiles/test/Lockfile.test.ts:272,286)
+- **native-runtime** — The lab accepts an Effect HashMap for withImporterNames where upstream accepts a native ReadonlyMap, preserving name-rewrite behavior (packages/foundation/modeling/lockfiles/test/Lockfile.test.ts:395; packages/foundation/modeling/lockfiles/test/Lockfile.coverage.test.ts:40).
+- **upstream-bug** — The lab uses fallback workspace metadata for absent npm constructor targets where upstream fabricates Object metadata, while retaining own-target metadata (packages/foundation/modeling/lockfiles/test/internal/npm.coverage.test.ts:27,34).
+- **upstream-bug** — The lab skips unmodeled npm targets and continues ancestor resolution where upstream can emit dangling resolved edges (packages/foundation/modeling/lockfiles/test/internal/npm.coverage.test.ts:41).
+- **upstream-bug** — The lab marks unmodeled root and skipped pnpm targets unresolved where upstream emits dangling resolved edges, retaining valid alias and workspace targets (packages/foundation/modeling/lockfiles/test/internal/pnpm.coverage.test.ts:20; packages/foundation/modeling/lockfiles/test/Lockfile.test.ts:1066).
+- **upstream-bug** — The lab resolves bun edges only to emitted identities where upstream can select malformed or suppressed tuple rows, retaining ancestor precedence and workspace identities (packages/foundation/modeling/lockfiles/test/internal/bun.coverage.test.ts:23).
+- **upstream-bug** — Lab Yarn parsing records indexed targets without emitted package instances as unresolved, while upstream emits dangling resolved edges; aliases to emitted locators retain upstream behavior (packages/foundation/modeling/lockfiles/test/internal/yarn.coverage.test.ts:12,27,42).
 
 ### Dependency backlog
 

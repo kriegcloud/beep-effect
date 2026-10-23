@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -15,7 +15,7 @@ import { selectSoleDocument } from "./documents.ts";
 import { extractWorkspaceDeps, peerDeclarations, toIntegrityHash, validationFailure } from "./shared.ts";
 import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/yarn");
+const $I = $LockfilesId.create("internal/yarn");
 
 // ── Raw schemas (permissive validation scaffolding, not API) ───────────────
 
@@ -115,7 +115,7 @@ const YarnMetadata = S.Struct({
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { parseYarn } from "@beep/scratchpad/effected/lockfiles/internal/yarn";
+ * import { parseYarn } from "@beep/lockfiles/internal/yarn";
  *
  * const fields = Effect.runSync(parseYarn("__metadata:\n  version: 8"));
  * console.log(fields.lockfileVersion) // 8

@@ -1,9 +1,9 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/lockfiles/ResolvedPackage");
+const $I = $LockfilesId.create("ResolvedPackage");
 
 const EMPTY_DEPENDENCIES: { readonly [name: string]: string } = {};
 
@@ -85,7 +85,7 @@ const EMPTY_EDGE_NAMES: ReadonlyArray<string> = [];
  * **Example** (Inspect empty dependency defaults)
  *
  * ```ts
- * import { ResolvedPackage } from "@beep/scratchpad/effected/lockfiles/ResolvedPackage";
+ * import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
  * import * as R from "effect/Record";
  *
  * const pkg = ResolvedPackage.make({ name: "effect", version: "4.0.2", instanceId: "node_modules/effect", isWorkspace: false });

@@ -1,6 +1,6 @@
+import { filenameFor, filenamesFor, fromFilename, LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { filenameFor, filenamesFor, fromFilename, LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
 
 describe("LockfileFormat", () => {
   it("names the four supported formats", () => {

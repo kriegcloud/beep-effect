@@ -2892,10 +2892,26 @@
       {
         "from": "@beep/lockfiles",
         "allow": [
-          "@beep/lockfiles"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/lockfiles",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/yaml"
         ],
         "allowTypeOnly": [
-          "@beep/lockfiles"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/lockfiles",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/yaml"
         ]
       },
       {
@@ -4414,6 +4430,7 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/law-practice-use-cases",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/managed-section",
           "@beep/markdown",
@@ -4465,6 +4482,7 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/law-practice-use-cases",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/managed-section",
           "@beep/markdown",

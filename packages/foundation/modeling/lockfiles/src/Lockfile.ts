@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -20,7 +20,7 @@ import { ResolvedPackage } from "./ResolvedPackage.ts";
 import { WorkspaceDependency } from "./WorkspaceDependency.ts";
 import type { LockfileFields, ParseFailure } from "./internal/shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/Lockfile");
+const $I = $LockfilesId.create("Lockfile");
 
 const EMPTY_IMPORTERS: ReadonlyArray<LockfileImporter> = [];
 
@@ -44,7 +44,7 @@ const EMPTY_IMPORTERS: ReadonlyArray<LockfileImporter> = [];
  * **Example** (Construct a syntax failure)
  *
  * ```ts
- * import { LockfileParseError } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+ * import { LockfileParseError } from "@beep/lockfiles/Lockfile";
  *
  * const error = LockfileParseError.make({ format: "npm", stage: "syntax", cause: "invalid JSON" });
  * console.log(error.stage); // syntax
@@ -87,7 +87,7 @@ export class LockfileParseError extends S.TaggedError<LockfileParseError, { read
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { LockfileParseError } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { LockfileParseError } from "@beep/lockfiles/Lockfile";
    *
    * const error = LockfileParseError.make({ format: "npm", stage: "syntax", cause: "invalid JSON" });
    * console.log(error.message); // Failed to parse npm lockfile: the content is not well-formed
@@ -146,7 +146,7 @@ export class LockfileParseError extends S.TaggedError<LockfileParseError, { read
  * **Example** (Construct a framing failure)
  *
  * ```ts
- * import { LockfileFramingError } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+ * import { LockfileFramingError } from "@beep/lockfiles/Lockfile";
  *
  * const error = LockfileFramingError.make({ format: "pnpm", reason: "noImporters", documents: 1 });
  * console.log(error.reason); // noImporters
@@ -187,7 +187,7 @@ export class LockfileFramingError extends S.TaggedError<LockfileFramingError, { 
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { LockfileFramingError } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { LockfileFramingError } from "@beep/lockfiles/Lockfile";
    *
    * const error = LockfileFramingError.make({ format: "pnpm", reason: "noImporters", documents: 1 });
    * console.log(error.message); // Failed to parse pnpm lockfile: the lockfile document declares no importers, so it describes no workspace
@@ -218,7 +218,7 @@ export class LockfileFramingError extends S.TaggedError<LockfileFramingError, { 
  * **Example** (Materialize a framing failure)
  *
  * ```ts
- * import { materializeFailure } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+ * import { materializeFailure } from "@beep/lockfiles/Lockfile";
  *
  * const error = materializeFailure("pnpm", { stage: "framing", reason: "noImporters", documents: 1 });
  * console.log(error._tag); // LockfileFramingError
@@ -277,7 +277,7 @@ const dispatch: {
  * **Example** (Construct an empty normalized lockfile)
  *
  * ```ts
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
  *
  * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
  * console.log(lockfile.format); // npm
@@ -334,7 +334,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Build the name index on lookup)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
    * console.log(lockfile.packagesNamed("missing").length); // 0
@@ -351,7 +351,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Build the importer index on lookup)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as O from "effect/Option";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
@@ -369,7 +369,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Build the instance index on lookup)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as O from "effect/Option";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
@@ -388,7 +388,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Parse npm lockfile text)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as Effect from "effect/Effect";
    *
    * const lockfile = Effect.runSync(Lockfile.parse('{"lockfileVersion":3,"packages":{}}', { format: "npm" }));
@@ -457,7 +457,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Name a pnpm workspace importer)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -520,7 +520,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Look up an absent package)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
    * console.log(lockfile.packagesNamed("effect").length); // 0
@@ -558,7 +558,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Look up the root importer)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -598,7 +598,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Look up an absent package instance)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as O from "effect/Option";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
@@ -629,7 +629,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * **Example** (Count workspace-local packages)
    *
    * ```ts
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
    * console.log(lockfile.workspacePackages.length); // 0

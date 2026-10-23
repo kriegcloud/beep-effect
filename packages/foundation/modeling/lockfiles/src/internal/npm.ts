@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -20,7 +20,7 @@ import {
 } from "./shared.ts";
 import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/internal/npm");
+const $I = $LockfilesId.create("internal/npm");
 
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
@@ -250,7 +250,7 @@ const decodeJsonText = S.decodeEffect(S.fromJsonString(S.Unknown));
  * **Example** (Parse an empty npm package map)
  *
  * ```ts
- * import { parseNpm } from "@beep/scratchpad/effected/lockfiles/internal/npm";
+ * import { parseNpm } from "@beep/lockfiles/internal/npm";
  * import * as Effect from "effect/Effect";
  *
  * const fields = Effect.runSync(parseNpm('{"lockfileVersion":3,"packages":{}}'));

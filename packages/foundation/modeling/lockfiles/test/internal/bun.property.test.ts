@@ -1,15 +1,15 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { BunExtension } from "@beep/lockfiles/BunExtension";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { BunExtension } from "../../../effected/lockfiles/BunExtension.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { parseBun } from "../../../effected/lockfiles/internal/bun.ts";
-import { LockfileFields } from "../../../effected/lockfiles/internal/shared.ts";
+import { parseBun } from "@beep/lockfiles/internal/bun";
+import { LockfileFields } from "@beep/lockfiles/internal/shared";
 
 const codec = S.fromJsonString(S.Unknown);
 const render = S.encodeEffect(codec);

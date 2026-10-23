@@ -1,4 +1,7 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ConfigDependencyLock } from "@beep/lockfiles/ConfigDependencyLock";
+import { PackageManagerLock } from "@beep/lockfiles/PackageManagerLock";
+import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
 import { Yaml } from "@beep/yaml/Yaml";
 import { assert, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -6,9 +9,6 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import { ConfigDependencyLock } from "../../effected/lockfiles/ConfigDependencyLock.ts";
-import { PackageManagerLock } from "../../effected/lockfiles/PackageManagerLock.ts";
-import { PnpmEnvLockfile } from "../../effected/lockfiles/PnpmEnvLockfile.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({

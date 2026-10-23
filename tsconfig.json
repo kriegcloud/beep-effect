@@ -2319,7 +2319,10 @@
       "@beep/lockfiles": [
         "./packages/foundation/modeling/lockfiles/src/index.ts"
       ],
-      "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"]
+      "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
+      "@beep/lockfiles/internal/*": [
+        "./packages/foundation/modeling/lockfiles/src/internal/*"
+      ]
     }
   }
 }

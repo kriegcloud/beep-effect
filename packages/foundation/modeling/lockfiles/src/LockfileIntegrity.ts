@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $LockfilesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
 import { Range, SemVer } from "@beep/semver";
 import * as A from "effect/Array";
@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 import { DEP_TYPES, isWorkspaceSpecifier } from "./internal/shared.ts";
 import type { Lockfile } from "./Lockfile.ts";
 
-const $I = $ScratchpadId.create("effected/lockfiles/LockfileIntegrity");
+const $I = $LockfilesId.create("LockfileIntegrity");
 
 /**
  * The minimal manifest shape {@link LockfileIntegrity.compare} checks a
@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/LockfileIntegrity");
  * **Example** (Construct a manifest for comparison)
  *
  * ```ts
- * import { WorkspaceManifest } from "@beep/scratchpad/effected/lockfiles/LockfileIntegrity";
+ * import { WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
  *
  * const manifest = WorkspaceManifest.make({ name: "@acme/app", dependencies: { effect: "^4.0.0" } });
  * console.log(manifest.dependencies?.effect); // ^4.0.0
@@ -96,7 +96,7 @@ const decodeSemVer = S.decodeUnknownExit(SemVer.FromString);
  * **Example** (Inspect a consistent report)
  *
  * ```ts
- * import { LockfileIntegrity } from "@beep/scratchpad/effected/lockfiles/LockfileIntegrity";
+ * import { LockfileIntegrity } from "@beep/lockfiles/LockfileIntegrity";
  *
  * const report = LockfileIntegrity.make({ valid: true, missingWorkspaces: [], extraWorkspaces: [], unsatisfiedConstraints: [] });
  * console.log(report.valid); // true
@@ -168,8 +168,8 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
    * **Example** (Report a missing workspace)
    *
    * ```ts
-   * import { LockfileIntegrity, WorkspaceManifest } from "@beep/scratchpad/effected/lockfiles/LockfileIntegrity";
-   * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+   * import { LockfileIntegrity, WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
    *
    * const lockfile = Lockfile.make({ format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [] });
    * const report = LockfileIntegrity.compare(lockfile, [WorkspaceManifest.make({ name: "@acme/app" })]);

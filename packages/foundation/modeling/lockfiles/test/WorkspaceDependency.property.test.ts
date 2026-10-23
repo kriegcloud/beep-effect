@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { WorkspaceDependency } from "../../effected/lockfiles/WorkspaceDependency.ts";
+import { WorkspaceDependency } from "@beep/lockfiles/WorkspaceDependency";
 
 it.effect.prop(
   "WorkspaceDependency encoding decodes without failure and preserves the edge",

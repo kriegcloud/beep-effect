@@ -1,4 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { BunExtension } from "@beep/lockfiles/BunExtension";
+import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
+import { Lockfile, LockfileFramingError, LockfileParseError } from "@beep/lockfiles/Lockfile";
+import { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
+import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
+import { PnpmExtension } from "@beep/lockfiles/PnpmExtension";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { Yaml } from "@beep/yaml/Yaml";
 import { assert, it } from "@effect/vitest";
@@ -7,12 +13,6 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { BunExtension } from "../../effected/lockfiles/BunExtension.ts";
-import { ImporterDependency } from "../../effected/lockfiles/ImporterDependency.ts";
-import { Lockfile, LockfileFramingError, LockfileParseError } from "../../effected/lockfiles/Lockfile.ts";
-import { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
-import { LockfileImporter } from "../../effected/lockfiles/LockfileImporter.ts";
-import { PnpmExtension } from "../../effected/lockfiles/PnpmExtension.ts";
 
 // Native schema derivation generates independent specifier tags and raw strings.
 // Classify a valid spelling before sampling the enclosing serialization model;

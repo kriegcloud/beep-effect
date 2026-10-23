@@ -1,7 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.json",
-  "references": [],
+  "references": [
+    {
+      "path": "../identity/tsconfig.json"
+    },
+    {
+      "path": "../jsonc/tsconfig.json"
+    },
+    {
+      "path": "../npm-spec/tsconfig.json"
+    },
+    {
+      "path": "../schema/tsconfig.json"
+    },
+    {
+      "path": "../semver/tsconfig.json"
+    },
+    {
+      "path": "../utils/tsconfig.json"
+    },
+    {
+      "path": "../yaml/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-kit/fc-runs/tsconfig.json"
+    }
+  ],
   "compilerOptions": {
     "composite": false,
     "declaration": false,

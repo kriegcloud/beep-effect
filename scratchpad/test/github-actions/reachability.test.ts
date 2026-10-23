@@ -80,6 +80,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/glob",
 	"@beep/jsonc",
 	"@beep/jsonl",
+	"@beep/lockfiles",
 	"@beep/managed-section",
 	"@beep/markdown",
 	"@beep/memfs",

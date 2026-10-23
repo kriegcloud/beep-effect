@@ -89,6 +89,9 @@
       "path": "../packages/foundation/modeling/jsonc/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/lockfiles/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/managed-section/tsconfig.json"
     },
     {
