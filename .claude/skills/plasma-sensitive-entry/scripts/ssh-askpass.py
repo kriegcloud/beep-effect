@@ -9,6 +9,15 @@ import sys
 import time
 
 
+def stop_authentication(ssh_pid):
+    """Signal only the still-direct SSH parent; its owning supervisor reaps it."""
+    if os.getppid() == ssh_pid:
+        try:
+            os.kill(ssh_pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+
+
 def main():
     # Prevent the common mistake of running this script in a tool terminal.
     # This is a misuse guard, not a security boundary against local processes.
@@ -24,14 +33,23 @@ def main():
         return 2
     title = os.environ.get("PLASMA_AUTH_TITLE", "")
     label = os.environ.get("PLASMA_AUTH_LABEL", "")
-    expected = os.environ.get("PLASMA_AUTH_SSH_PROMPT", "")
-    if not expected or len(sys.argv) != 2 or sys.argv[1] != expected:
+    expected = os.environ.get("PLASMA_AUTH_SSH_PROMPT", "").rstrip(" \t")
+    # OpenSSH prefixes keyboard-interactive challenges with the effective
+    # remote user and host/HostKeyAlias. Never strip that identity boundary.
+    if not expected.startswith("(") or ") " not in expected or len(sys.argv) != 2 or sys.argv[1].rstrip(" \t") != expected:
+        stop_authentication(ssh_pid)
         return 2
     if not title or not label or any(len(value) > 500 or any(ord(char) < 32 for char in value) for value in (title, label, expected)):
+        stop_authentication(ssh_pid)
         return 2
-    reader, writer = os.pipe()
+    try:
+        reader, writer = os.pipe()
+    except OSError:
+        stop_authentication(ssh_pid)
+        raise
     child = None
     answer = bytearray()
+    delivered = False
     try:
         child = subprocess.Popen(
             [sys.executable, str(Path(__file__).with_name("prompt.py")),
@@ -55,18 +73,17 @@ def main():
                 return 2
         status = child.wait(timeout=5)
         if status in (1, 3):
-            # Stop this authentication owner so SSH cannot open another method's
-            # dialog after explicit cancellation or expiration. No action has
-            # authenticated while its askpass callback is still outstanding.
-            os.kill(ssh_pid, signal.SIGTERM)
             return 1
         if status != 0 or not answer:
             return 2
         # Only SSH receives this pipe; never invoke this adapter directly.
         sys.stdout.buffer.write(answer + b"\n")
         sys.stdout.buffer.flush()
+        delivered = True
         return 0
     finally:
+        if not delivered:
+            stop_authentication(ssh_pid)
         answer.clear()
         if writer is not None:
             os.close(writer)

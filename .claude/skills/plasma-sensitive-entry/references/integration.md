@@ -49,8 +49,9 @@ absolute path. Set `SSH_ASKPASS_REQUIRE=force` for that single SSH invocation;
 set `NumberOfPasswordPrompts=1`, restrict `PreferredAuthentications` to the
 approved challenge mechanism, and disable password fallback for an OTP-only
 flow (`PasswordAuthentication=no`). One prompt per method alone does not
-prevent a second authentication method from prompting. The adapter terminates its direct SSH authentication parent after a cancelled
-or expired callback, preventing another method from reopening the dialog.
+prevent a second authentication method from prompting. The adapter terminates its direct SSH authentication parent after any refused,
+cancelled, expired or failed text callback, preventing an empty response or
+another method from reopening the dialog.
 The owning supervisor must reap that SSH process before any retry. Use a
 connection-only foreground `ssh -M -N` under the owning supervisor with
 no controlling terminal (`setsid`) and a private owned ControlPath. Retain the
@@ -58,12 +59,28 @@ wrapper's exact identity, host-key, FIDO and notification settings. Name the
 host/action in the agent's announcement before the SSH call. The trusted
 caller must also set command-scoped `PLASMA_AUTH_TITLE` (host and action) and
 `PLASMA_AUTH_LABEL` (exact field, such as authenticator OTP, and destination).
-The caller must also set `PLASMA_AUTH_SSH_PROMPT` to the exact expected text
-challenge, established from the approved wrapper/service configuration. These
-contain nonsecret metadata only. The adapter refuses missing context or any
+The caller must also set `PLASMA_AUTH_SSH_PROMPT` to the complete trusted
+OpenSSH callback form: `(remote-user@effective-host) configured challenge`.
+Build the prefix from the wrapper's effective remote user and host, substituting
+its configured `HostKeyAlias` when set, then append the verified service
+challenge. A bare PAM challenge is insufficient. A synthetic example is
+`(operator@host-alias.example.invalid) Verification code:`; OpenSSH may append
+a trailing space. Matching strips only trailing ASCII spaces/tabs from both
+sides; it preserves the entire identity prefix, leading whitespace, punctuation
+and all other characters. The callback argument is never copied into the
+trusted expected value. These values contain nonsecret metadata only. The adapter refuses missing context or any
 callback whose literal prompt differs; an arbitrary "Password:" is never
 assumed to mean OTP. Unknown prompts, including a FIDO PIN or key passphrase,
-fail closed without a dialog or a signal to SSH.
+are refused without a dialog. OpenSSH normally converts a nonzero askpass
+exit into an empty authentication response, consuming a failed attempt. This
+adapter therefore terminates its still-direct verified SSH authentication
+parent before returning any text-path refusal or failure, including a prefix
+mismatch, missing context, cancellation or timeout. The connection-only lane's
+owning supervisor must wait/reap that SSH process and confirm termination
+before any retry; an adapter cannot reap its own parent. Keep the one-attempt and
+method restrictions above as defense in depth. Notification/confirmation paths
+remain separate and never signal SSH. PIN-requiring FIDO stays entirely under
+the canonical dispatcher.
 Never copy untrusted remote prompt text into these variables merely to make a
 mismatch pass. For example, label an OTP
 as "Enter the authenticator code for the approved host's SSH sign-in" and a
@@ -84,7 +101,9 @@ of those callbacks; never replace it with this text adapter. Do not combine
 this adapter with FIDO keys requiring PIN entry. An approved wrapper must own
 any FIDO notification/PIN dispatch separately before routing only its known
 text challenge here. OpenSSH's callback semantics are defined in its
-[readpass.c implementation](https://github.com/openssh/openssh-portable/blob/master/readpass.c).
+[readpass.c implementation](https://github.com/openssh/openssh-portable/blob/master/readpass.c);
+keyboard-interactive prefixing is in
+[sshconnect2.c](https://github.com/openssh/openssh-portable/blob/master/sshconnect2.c).
 Adapter cancellation closes descriptors and terminates/reaps its owned helper; the
 helper kills/reaps its owned dialog. Monitor the same owned SSH process until
 connection success or failure; SSH authentication failure must discard the
