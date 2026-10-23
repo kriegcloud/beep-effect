@@ -328,9 +328,9 @@ export class AppDirsOptions extends S.Opaque<AppDirsOptions, { readonly brand: u
         description: "A single dot-directory under HOME that all four kinds collapse to.",
       })
     ),
-    /** Absolute per-kind overrides. */
+    /** Per-kind overrides, used as given (not validated). */
     dirs: S.optionalKey(AppDirOverrides).pipe(
-      $I.annoteKey("AppDirsOptions.dirs", { description: "Absolute per-kind overrides." })
+      $I.annoteKey("AppDirsOptions.dirs", { description: "Per-kind overrides, used as given (not validated)." })
     ),
   }).pipe(
     $I.annoteSchema("AppDirsOptions", {

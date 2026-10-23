@@ -67,7 +67,7 @@ Effect.runPromise(program.pipe(Effect.provide(AppDirsLive)));
 
 Each of `config`, `data`, `cache` and `state` resolves through five rungs, first match wins:
 
-1. an explicit `dirs.<kind>` override — an absolute path, and it wins outright;
+1. an explicit `dirs.<kind>` override, used as given (not validated), and it wins outright;
 2. the XDG variable, namespaced: `$XDG_CONFIG_HOME/<namespace>`;
 3. the OS-native directory, when `native: true` and the platform has one;
 4. `$HOME/<fallbackDir>` — all four kinds collapse into that one directory;
