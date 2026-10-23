@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-23T19:54:44.971Z
+Generated: 2026-10-23T21:16:51.380Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 97 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
-| publicModules | 3586 |
-| publicExports | 25231 |
+| publicModules | 3587 |
+| publicExports | 25240 |
 | openModules | 550 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -66,7 +66,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 8 | `@beep/glob` | `packages/foundation/modeling/glob` | clean | 4 | 9 | 0 | 0 |
 | 9 | `@beep/memfs` | `packages/tooling/test-kit/memfs` | clean | 3 | 23 | 0 | 0 |
 | 10 | `@beep/walker` | `packages/foundation/capability/walker` | clean | 4 | 24 | 0 | 0 |
-| 11 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 14 | 46 | 1 | 0 |
+| 11 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 15 | 54 | 1 | 0 |
 | 12 | `@beep/jsonc` | `packages/foundation/modeling/jsonc` | clean | 8 | 48 | 0 | 0 |
 | 13 | `@beep/toml` | `packages/foundation/modeling/toml` | clean | 9 | 68 | 0 | 0 |
 | 14 | `@beep/yaml` | `packages/foundation/modeling/yaml` | clean | 11 | 95 | 0 | 0 |
@@ -181,7 +181,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 123 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 124 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
 | 125 | `@beep/github-reporting` | `packages/foundation/modeling/github-reporting` | clean | 5 | 40 | 0 | 0 |
-| 126 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4331 | 47 | 35 |
+| 126 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4332 | 47 | 35 |
 | 127 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 128 | `@beep/package-json` | `packages/foundation/modeling/package-json` | clean | 17 | 98 | 0 | 0 |
 | 129 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
