@@ -2283,7 +2283,16 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
       return yield* failWithIssueArtifacts(plan.context, prepareSteps, prepareResults, "yeet prepare phase failed.");
     }
 
-    const feedbackResults = yield* runPhase(plan.context, feedbackSteps, recorder);
+    const feedbackExecution = runPhase(plan.context, feedbackSteps, recorder);
+    const feedbackResults = yield* options.mode === "repair"
+      ? runWithFullProofCoordinator(
+          plan.context,
+          feedbackSteps,
+          feedbackExecution,
+          { priority: "verify" },
+          O.some(attempt)
+        )
+      : feedbackExecution;
     if (A.some(feedbackResults, (result) => result.exitCode !== 0)) {
       return yield* failWithIssueArtifacts(plan.context, feedbackSteps, feedbackResults, "yeet feedback phase failed.");
     }
@@ -2312,7 +2321,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   });
 
   const coordinatedExecution =
-    options.mode === "verify" && options.tier === "full"
+    options.mode === "verify" && (options.tier === "full" || options.tier === "cheap-gates")
       ? options.merged
         ? execution
         : runWithFullProofCoordinator(plan.context, fullSteps, execution, { priority: "verify" }, O.some(attempt))
@@ -2364,6 +2373,21 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     Effect.onExit((exit) => ensureAttemptTerminated(plan.context, attempt, terminalWritten, exit))
   );
 });
+
+/**
+ * Execute a hydrated plan through the runtime admission and verdict wiring.
+ *
+ * **Example** (Reference plan execution in a wiring test)
+ *
+ * ```ts
+ * import { runPlanExecutionForTesting } from "@beep/repo-cli/test/Yeet";
+ * console.log(typeof runPlanExecutionForTesting); // "function"
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const runPlanExecutionForTesting = runPlanExecution;
 
 /**
  * Prove the merge preview instead of the branch tree.
