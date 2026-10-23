@@ -19,7 +19,7 @@ describe("ManagedDocument coverage", () => {
       assertNone(doc.entry("header"));
       assertFailure(
         doc.withRegionsResult([["header", "replacement"]]),
-        ManagedDocumentError.make({ kind: "unterminatedRegion", key: "test.body.header", line: 1 })
+        ManagedDocumentError.make({ kind: "unterminatedRegion", key: "test.body.header", markerLine: 1 })
       );
       const error = yield* Effect.flip(doc.withRegions([["header", "replacement"]]));
       assert.strictEqual(error.message, 'Managed region is never closed for region "test.body.header" at line 1');

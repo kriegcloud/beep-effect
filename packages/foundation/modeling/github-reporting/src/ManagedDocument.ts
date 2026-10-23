@@ -100,7 +100,7 @@ const REGION_DIALECT: SectionDialect = SectionDialect.make({
  * ```ts
  * import { ManagedDocumentError } from "@beep/github-reporting/ManagedDocument";
  *
- * const error = ManagedDocumentError.make({ kind: "duplicateRegion", key: "header", line: 3 });
+ * const error = ManagedDocumentError.make({ kind: "duplicateRegion", key: "header", markerLine: 3 });
  * console.log(error.message) // Managed region appears twice for region "header" at line 3
  * ```
  *
@@ -131,10 +131,17 @@ export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError, { 
     /**
      * 1-based line of the offending marker, for the structural kinds.
      *
+     * **Gotchas**
+     *
+     * Not named `line`: JavaScriptCore (Bun) gives every `Error` its own
+     * non-enumerable `line` property, so an absent `line` field would read
+     * as the construction site's line and a present one would vanish from
+     * `Object.keys`.
+     *
      * @since 0.0.0
      */
-    line: S.optionalKey(S.Finite).pipe(
-      $I.annoteKey("ManagedDocumentError.line", {
+    markerLine: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("ManagedDocumentError.markerLine", {
         description: "1-based line of the offending marker, for the structural kinds.",
       })
     ),
@@ -169,7 +176,7 @@ export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError, { 
    * ```ts
    * import { ManagedDocumentError } from "@beep/github-reporting/ManagedDocument";
    *
-   * const error = ManagedDocumentError.make({ kind: "invalidAttribute", key: "header", attribute: "status", line: 4 });
+   * const error = ManagedDocumentError.make({ kind: "invalidAttribute", key: "header", attribute: "status", markerLine: 4 });
    * console.log(error.message) // Region metadata has an invalid attribute name or value for region "header" (attribute "status") at line 4
    * ```
    *
@@ -179,7 +186,7 @@ export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError, { 
   override get message(): string {
     const which = this.key === undefined ? "" : ` for region "${this.key}"`;
     const named = this.attribute === undefined ? "" : ` (attribute "${this.attribute}")`;
-    const where = this.line === undefined ? "" : ` at line ${this.line}`;
+    const where = this.markerLine === undefined ? "" : ` at line ${this.markerLine}`;
     return `${KIND_PROSE[this.kind]}${which}${named}${where}`;
   }
 }
@@ -215,7 +222,7 @@ const STRUCTURAL_KIND = {
 const structural = (failure: SectionParseError): ManagedDocumentError =>
   ManagedDocumentError.make({
     kind: STRUCTURAL_KIND[failure.reason],
-    line: failure.line,
+    markerLine: failure.line,
     ...O.getSomesStruct({ key: O.fromUndefinedOr(failure.key) }),
   });
 
@@ -265,7 +272,7 @@ export const ManagedDocumentSource = S.Struct({
    *
    * @since 0.0.0
    */
-  text: S.optionalKey(S.String).pipe(
+  text: S.optional(S.String).pipe(
     $I.annoteKey("ManagedDocumentSource.text", {
       description: "The current text; absent and empty text both start a fresh document.",
     })

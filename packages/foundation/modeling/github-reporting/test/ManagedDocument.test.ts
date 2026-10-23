@@ -148,7 +148,7 @@ describe("ManagedDocument", () => {
       const text = `${marker("BEGIN", "header")}\ncontent`;
       const error = failureOf(ManagedDocument.parseResult({ namespace: NS, key: KEY, text }));
       assert.strictEqual(error.kind, "unterminatedRegion");
-      assert.strictEqual(error.line, 1);
+      assert.strictEqual(error.markerLine, 1);
     });
 
     it("orphanedEnd", () => {
@@ -203,8 +203,21 @@ describe("ManagedDocument", () => {
     it("every kind renders a message naming the region", () => {
       const error = ManagedDocumentError.make({ kind: "markerInContent", key: "body" });
       assert.include(error.message, 'region "body"');
-      const structural = ManagedDocumentError.make({ kind: "unterminatedRegion", line: 3 });
+      const structural = ManagedDocumentError.make({ kind: "unterminatedRegion", markerLine: 3 });
       assert.include(structural.message, "line 3");
+    });
+
+    it("the marker line is markerLine, not the engine-owned Error line property", () => {
+      // Conformance shift (W3-b): the field was `line`, which JavaScriptCore
+      // also defines on every Error, so Bun rendered an absent line as the
+      // construction site and hid a present one from Object.keys.
+      const located = ManagedDocumentError.make({ kind: "orphanedEnd", markerLine: 2 });
+      assert.include(Object.keys(located), "markerLine");
+      assert.notInclude(Object.keys(located), "line");
+      assert.strictEqual(located.message, "Region end marker closes no open region at line 2");
+      const unlocated = ManagedDocumentError.make({ kind: "orphanedEnd" });
+      assert.isUndefined(unlocated.markerLine);
+      assert.strictEqual(unlocated.message, "Region end marker closes no open region");
     });
   });
 
