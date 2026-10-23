@@ -191,7 +191,7 @@ const parseStableVersion: (text: string) => O.Option<SemVer> = flow(
   O.filter((version) => version.isStable)
 );
 
-/** The first tag holding the highest version; a later tag replaces it only when strictly newer. */
+// The first tag holding the highest version; a later tag replaces it only when strictly newer.
 const newestTag = (candidates: ReadonlyArray<readonly [string, SemVer]>): O.Option<string> =>
   O.map(
     A.reduce(candidates, O.none<readonly [string, SemVer]>(), (best, candidate) =>
@@ -244,14 +244,14 @@ const dockerHubTagsUrl = (repository: string): string => {
 
 const VERSION_PATTERN = /v?\d+\.\d+\.\d+/;
 
-/** Version embedded in a tag such as `pg17-v0.8.0`. */
+// Version embedded in a tag such as `pg17-v0.8.0`.
 const embeddedVersion = (tag: string): O.Option<SemVer> =>
   O.flatMap(
     O.flatMap(Str.match(VERSION_PATTERN)(tag), (match) => A.get(match, 0)),
     parseStableVersion
   );
 
-/** Prefix shared by the current tag's family, such as `pg17` for `pg17` and `pg17-v0.8.0`. */
+// Prefix shared by the current tag's family, such as `pg17` for `pg17` and `pg17-v0.8.0`.
 const tagFamily = (currentTag: string): string =>
   O.getOrElse(
     O.flatMap(Str.match(/^(pg\d+)/)(currentTag), (match) => O.fromUndefinedOr(match[1])),
