@@ -9,6 +9,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { flow } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
@@ -20,9 +21,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { doctestSourceMarker, isDoctestSourcePath } from "../jsdoc/DoctestSource.ts";
 import {
+  CheckerScriptName,
   CodegenGeneratorPackage,
+  checkerEngineExemptions,
   ImplScriptDrift,
   implScriptDefaults,
+  NonCanonicalChecker,
   PackageKind,
   PackageScriptsReport,
   ScriptsBlock,
@@ -30,7 +34,7 @@ import {
   TaskScriptName,
   taskScriptRules,
 } from "./PackageScripts.schemas.ts";
-import type { PackageScriptsDrift, TaskScriptRule } from "./PackageScripts.schemas.ts";
+import type { CheckerEngineExemption, PackageScriptsDrift, TaskScriptRule } from "./PackageScripts.schemas.ts";
 
 const $I = $RepoCliId.create("internal/package-scripts/PackageScriptsPolicy");
 
@@ -234,6 +238,51 @@ const diffBlock: PackageScriptsPolicyShape["diff"] = (actual, expected) => {
   return drift;
 };
 
+// `tsc-rs` is the only TypeScript checker a `beep:build`, `beep:check`, or `beep:check:*` script
+// may run. Each `&&`/`||`/`;`/`|` segment is reduced to its executable by dropping leading env
+// assignments, package runners, and runner flags; a `tsgo` or `tsc` executable fails the gate
+// unless `checkerEngineExemptions` carries a reviewed row for that manifest script.
+const COMMAND_SEPARATOR = /&&|\|\||[;|]/u;
+const isEnvAssignment = S.is(S.String.check(S.isPattern(/^[A-Za-z_]\w*=/u)));
+const isCommandRunner = S.is(S.Literals(["bun", "bunx", "npx", "pnpm", "yarn", "run", "exec", "x"]));
+const isCheckerScriptName = S.is(CheckerScriptName);
+const isNonCanonicalChecker = S.is(NonCanonicalChecker);
+const segmentChecker = flow(
+  Str.trim,
+  Str.split(/\s+/u),
+  A.dropWhile((word: string) => isEnvAssignment(word) || isCommandRunner(word) || Str.startsWith("-")(word)),
+  A.head,
+  O.flatMap(flow(Str.split("/"), A.last)),
+  O.filter(isNonCanonicalChecker)
+);
+const isExempt = (
+  exemptions: ReadonlyArray<CheckerEngineExemption>,
+  manifest: string,
+  script: string,
+  engine: NonCanonicalChecker
+) => A.some(exemptions, (row) => row.manifest === manifest && row.script === script && row.engine === engine);
+
+const checkerEngineDrift = (
+  exemptions: ReadonlyArray<CheckerEngineExemption>,
+  manifestPath: string,
+  actual: ScriptsBlock
+): ReadonlyArray<PackageScriptsDrift> => {
+  type Entry = readonly [name: string, value: string];
+  const entries: ReadonlyArray<Entry> = [...HashMap.toEntries(actual.impls), ...HashMap.toEntries(actual.extras)];
+  const scripts = A.sortWith(
+    A.filter(entries, ([name]: Entry) => isCheckerScriptName(name)),
+    ([name]: Entry) => name,
+    Order.String
+  );
+  return A.flatMap(scripts, ([name, value]: Entry) => {
+    const engines = A.dedupe(A.getSomes(A.map(Str.split(value, COMMAND_SEPARATOR), segmentChecker)));
+    return A.map(
+      A.filter(engines, (engine) => !isExempt(exemptions, manifestPath, name, engine)),
+      (engine): PackageScriptsDrift => ({ _tag: "checker-engine", name, engine, actual: value })
+    );
+  });
+};
+
 const implementationDrift = (actual: ScriptsBlock): ReadonlyArray<ImplScriptDrift> =>
   A.getSomes(
     A.map(implScriptDefaults, (row) =>
@@ -260,7 +309,10 @@ const implementationDrift = (actual: ScriptsBlock): ReadonlyArray<ImplScriptDrif
 export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, PackageScriptsPolicyShape>()(
   $I`PackageScriptsPolicy`,
   {
-    make: Effect.fn("PackageScriptsPolicy.make")(function* (root: string) {
+    make: Effect.fn("PackageScriptsPolicy.make")(function* (
+      root: string,
+      exemptions: ReadonlyArray<CheckerEngineExemption> = checkerEngineExemptions
+    ) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const fsUtils = yield* FsUtils;
@@ -356,7 +408,11 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
           isNoEmitBuild(actual) && !declaresEmptyBuildOutputs(turboText)
             ? [{ _tag: "derivation-conflict", name: "build", reason: NOEMIT_BUILD_REASON }]
             : [];
-        const conflicts = [...derivationConflicts(evidence, manifestPath, expected), ...buildConflicts];
+        const conflicts = [
+          ...derivationConflicts(evidence, manifestPath, expected),
+          ...buildConflicts,
+          ...checkerEngineDrift(exemptions, manifestPath, actual),
+        ];
         const rendered =
           write && A.isReadonlyArrayNonEmpty(diffBlock(actual, expected))
             ? `${yield* codec

@@ -1,5 +1,9 @@
 import {
+  CheckerEngineExemption,
+  CheckerScriptName,
+  checkerEngineExemptions,
   implScriptDefaults,
+  NonCanonicalChecker,
   PackageKind,
   PackageScriptsReportFromWire,
   ScriptsBlock,
@@ -143,4 +147,27 @@ describe("canonical package scripts schemas", () => {
       expect(yield* encodeReport(report)).toEqual({ ...legacy, implDrift: {} });
     })
   );
+  it("models checker scripts, non-canonical checkers and reviewed exemptions", () => {
+    const isCheckerScript = S.is(CheckerScriptName);
+    expect(A.map(["beep:build", "beep:check", "beep:check:tests", "beep:check:a:b"], isCheckerScript)).toEqual([
+      true,
+      true,
+      true,
+      true,
+    ]);
+    expect(A.map(["beep:build:x", "beep:checks", "check", "beep:lint"], isCheckerScript)).toEqual([
+      false,
+      false,
+      false,
+      false,
+    ]);
+    expect(NonCanonicalChecker.literals).toEqual(["tsgo", "tsc"]);
+    const decodeExemption = S.decodeUnknownResult(CheckerEngineExemption);
+    const row = { manifest: "packages/a/package.json", script: "beep:check", engine: "tsgo", reason: "tsc-rs defect" };
+    expect(Result.isSuccess(decodeExemption(row))).toBe(true);
+    expect(Result.isFailure(decodeExemption({ ...row, engine: "tsc-rs" }))).toBe(true);
+    expect(Result.isFailure(decodeExemption({ ...row, reason: "" }))).toBe(true);
+    expect(Result.isFailure(decodeExemption({ ...row, script: "beep:lint" }))).toBe(true);
+    expect(checkerEngineExemptions).toEqual([]);
+  });
 });

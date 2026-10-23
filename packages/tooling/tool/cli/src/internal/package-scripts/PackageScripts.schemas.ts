@@ -335,8 +335,74 @@ export const scriptsBlockFromRecord = (kind: PackageKind) =>
       })
     )
   );
+
 /**
- * Six actionable deviations from the canonical scripts contract.
+ * TypeScript checkers a type-check or build script may invoke; `tsc-rs` is canonical.
+ *
+ * **Example** (Inspect TypeScriptChecker)
+ *
+ * ```ts
+ * import { TypeScriptChecker } from "@beep/repo-cli/test/PackageScripts"
+ * console.log(TypeScriptChecker.is["tsc-rs"]("tsc-rs")) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const TypeScriptChecker = LiteralKit(["tsc-rs", "tsgo", "tsc"]).pipe(
+  $I.annoteSchema("TypeScriptChecker", {
+    description: "TypeScript checkers a type-check or build script may invoke; tsc-rs is canonical.",
+  })
+);
+/** Decoded TypeScriptChecker value. @category type-level @since 0.0.0 */
+export type TypeScriptChecker = typeof TypeScriptChecker.Type;
+
+/**
+ * TypeScript checkers that fail the gate unless a manifest script carries an exemption.
+ *
+ * **Example** (Inspect NonCanonicalChecker)
+ *
+ * ```ts
+ * import { NonCanonicalChecker } from "@beep/repo-cli/test/PackageScripts"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(NonCanonicalChecker)("tsc-rs")) // false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NonCanonicalChecker = TypeScriptChecker.omit(["tsc-rs"]).pipe(
+  $I.annoteSchema("NonCanonicalChecker", {
+    description: "TypeScript checkers that fail the gate unless a manifest script carries an exemption.",
+  })
+);
+/** Decoded NonCanonicalChecker value. @category type-level @since 0.0.0 */
+export type NonCanonicalChecker = typeof NonCanonicalChecker.Type;
+
+/**
+ * Script keys whose commands must type-check with `tsc-rs`: `beep:build`, `beep:check`, `beep:check:*`.
+ *
+ * **Example** (Inspect CheckerScriptName)
+ *
+ * ```ts
+ * import { CheckerScriptName } from "@beep/repo-cli/test/PackageScripts"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(CheckerScriptName)("beep:check:tests")) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CheckerScriptName = S.String.check(S.isPattern(/^beep:(?:build|check(?::[\w:-]+)?)$/u)).pipe(
+  $I.annoteSchema("CheckerScriptName", {
+    description: "Script keys whose commands must type-check with tsc-rs: beep:build, beep:check, beep:check:*.",
+  })
+);
+/** Decoded CheckerScriptName value. @category type-level @since 0.0.0 */
+export type CheckerScriptName = typeof CheckerScriptName.Type;
+
+/**
+ * Seven actionable deviations from the canonical scripts contract.
  *
  * **Example** (Inspect PackageScriptsDrift)
  *
@@ -356,9 +422,10 @@ export const PackageScriptsDrift = S.TaggedUnion({
   "missing-impl": { name: ImplScriptName },
   placeholder: { name: S.tag("codegen"), actual: S.String },
   "derivation-conflict": { name: S.Literals(["doctest", "build"]), reason: S.String },
+  "checker-engine": { name: CheckerScriptName, engine: NonCanonicalChecker, actual: S.String },
 }).pipe(
   $I.annoteSchema("PackageScriptsDrift", {
-    description: "Six actionable deviations from the canonical scripts contract.",
+    description: "Seven actionable deviations from the canonical scripts contract.",
   })
 );
 /** Decoded PackageScriptsDrift value. @category type-level @since 0.0.0 */
@@ -367,10 +434,10 @@ export type PackageScriptsDrift = typeof PackageScriptsDrift.Type;
 /**
  * Advisory difference between a package-owned implementation and its scaffold default.
  *
- * **Example** (Review a compiler command change)
+ * **Example** (Review a type-check command change)
  * ```ts
  * import { ImplScriptDrift } from "@beep/repo-cli/test/PackageScripts"
- * const drift = ImplScriptDrift.make({ name: "beep:check", expected: "tsc-rs -p tsconfig.check.json", actual: "tsgo -p tsconfig.check.json" })
+ * const drift = ImplScriptDrift.make({ name: "beep:check", expected: "tsc-rs -p tsconfig.check.json", actual: "tsc-rs -b tsconfig.json" })
  * console.log(drift.name) // beep:check
  * ```
  *
@@ -380,10 +447,64 @@ export type PackageScriptsDrift = typeof PackageScriptsDrift.Type;
 export class ImplScriptDrift extends S.Opaque<ImplScriptDrift, { readonly brand: unique symbol }>()(
   S.Struct({ name: ImplScriptName, expected: S.String, actual: S.String }).pipe(
     $I.annoteSchema("ImplScriptDrift", {
-      description: "Advisory impl-script difference; package-owned values are preserved and never fail the gate.",
+      description:
+        "Advisory impl-script difference; package-owned values are preserved and fail the gate only through checker-engine drift.",
     })
   )
 ) {}
+
+/**
+ * Reviewed permission for one manifest script to run a non-canonical TypeScript checker.
+ *
+ * **Details**
+ *
+ * The package-scripts gate fails a `beep:build`, `beep:check`, or `beep:check:*` script that runs
+ * a checker other than `tsc-rs`. An exemption names the manifest, the script, the checker, and why
+ * `tsc-rs` cannot serve that package (for example a reproduced `tsc-rs` defect or a plugin that only
+ * `tsgo` loads). Remove the row when the reason no longer holds.
+ *
+ * **Example** (Exempt one script)
+ * ```ts
+ * import { CheckerEngineExemption } from "@beep/repo-cli/test/PackageScripts"
+ * const exemption = CheckerEngineExemption.make({
+ *   manifest: "packages/drivers/example/package.json",
+ *   script: "beep:check",
+ *   engine: "tsgo",
+ *   reason: "tsc-rs rejects a valid program; upstream issue linked in the package README",
+ * })
+ * console.log(exemption.engine) // tsgo
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CheckerEngineExemption extends S.Opaque<CheckerEngineExemption, { readonly brand: unique symbol }>()(
+  S.Struct({
+    manifest: S.String,
+    script: CheckerScriptName,
+    engine: NonCanonicalChecker,
+    reason: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("CheckerEngineExemption", {
+      description: "Reviewed permission for one manifest script to run a non-canonical TypeScript checker.",
+    })
+  )
+) {}
+
+/**
+ * Reviewed checker-engine exemptions; empty while every workspace type-checks with `tsc-rs`.
+ *
+ * **Example** (Inspect checkerEngineExemptions)
+ *
+ * ```ts
+ * import { checkerEngineExemptions } from "@beep/repo-cli/test/PackageScripts"
+ * console.log(checkerEngineExemptions.length) // 0
+ * ```
+ *
+ * @category policies
+ * @since 0.0.0
+ */
+export const checkerEngineExemptions: ReadonlyArray<CheckerEngineExemption> = [];
 
 /**
  * Non-negative number of workspace manifests examined.
