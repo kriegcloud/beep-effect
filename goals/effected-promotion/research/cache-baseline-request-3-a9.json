@@ -1,0 +1,20 @@
+{
+  "previous": "5dd9f765eda203bb1ccb59b03ba2cd293b7c90f54d366a187b99bb3b126e2c71",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (effected-promotion 3-A9, refactor/observability-scoped-package-name)",
+    "reason": "Record the dependency-only drift of @beep/observability from its new @beep/package-json edge (reuse site #137) and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
+    "basis": {
+      "path": "goals/effected-promotion/research/cache-baseline-review-3-a9.md",
+      "sha256": "3e06f02665b04b287ee63f4a58a91fcaccd60d7195aea3fa1eb25a9f43b41d5f"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": ["@beep/observability", "//"]
+}

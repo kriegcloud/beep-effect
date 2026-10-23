@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-3, feat/effected-promotion-w3-3)",
-      "reason": "Record the new wave-3-3 workspace @beep/config-file scaffolded by create-package with the generated task set, the dependency-only drift of its two named importers (W3-e), and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion 3-A9, refactor/observability-scoped-package-name)",
+      "reason": "Record the dependency-only drift of @beep/observability from its new @beep/package-json edge (reuse site #137) and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w3-3.md",
-        "sha256": "00b790bfdaf02fa234c5b0b74927889b9e330a9ba5a792c94b7e864e18a2fc69"
+        "path": "goals/effected-promotion/research/cache-baseline-review-3-a9.md",
+        "sha256": "3e06f02665b04b287ee63f4a58a91fcaccd60d7195aea3fa1eb25a9f43b41d5f"
       }
     },
     "@beep/acp": {
@@ -794,11 +794,11 @@
       }
     },
     "@beep/observability": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion 3-A9, refactor/observability-scoped-package-name)",
+      "reason": "Record the dependency-only drift of @beep/observability from its new @beep/package-json edge (reuse site #137) and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-3-a9.md",
+        "sha256": "3e06f02665b04b287ee63f4a58a91fcaccd60d7195aea3fa1eb25a9f43b41d5f"
       }
     },
     "@beep/occt": {
@@ -2967,6 +2967,10 @@
             "packages/foundation/modeling/markdown/src/**",
             "packages/foundation/modeling/md/package.json",
             "packages/foundation/modeling/md/src/**",
+            "packages/foundation/modeling/npm-spec/package.json",
+            "packages/foundation/modeling/npm-spec/src/**",
+            "packages/foundation/modeling/package-json/package.json",
+            "packages/foundation/modeling/package-json/src/**",
             "packages/foundation/modeling/provenance/package.json",
             "packages/foundation/modeling/provenance/src/**",
             "packages/foundation/modeling/schema/package.json",
@@ -69290,6 +69294,7 @@
           "@beep/colors#audit",
           "@beep/identity#audit",
           "@beep/memfs#audit",
+          "@beep/package-json#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
           "@beep/test-utils#audit",
@@ -69358,6 +69363,7 @@
           "@beep/colors#build",
           "@beep/identity#build",
           "@beep/memfs#build",
+          "@beep/package-json#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -69415,6 +69421,7 @@
           "@beep/colors#build",
           "@beep/identity#build",
           "@beep/memfs#build",
+          "@beep/package-json#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -69459,6 +69466,7 @@
           "@beep/colors#build",
           "@beep/identity#build",
           "@beep/memfs#build",
+          "@beep/package-json#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -69552,6 +69560,7 @@
           "@beep/colors#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
+          "@beep/package-json#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -69641,6 +69650,7 @@
           "@beep/colors#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
+          "@beep/package-json#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -69848,6 +69858,7 @@
           "@beep/colors#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
+          "@beep/package-json#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -69895,6 +69906,7 @@
           "@beep/colors#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
+          "@beep/package-json#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -69948,6 +69960,7 @@
           "@beep/colors#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
+          "@beep/package-json#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -126219,7 +126232,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "72df2a48f3f579fc71d17a63e4fcac60341db0252e62ba767526415e42dc9bd5"
+        "sha256": "699d201204a5bebd748a544efc371869b684d5f4e797324a0246cdab8264758e"
       }
     ]
   }

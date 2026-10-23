@@ -11,6 +11,7 @@
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
+import { ScopedPackageName } from "@beep/package-json/PackageName";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("catalog/Catalog.names");
@@ -20,7 +21,6 @@ const metricNamePattern =
   /^beep\.[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$(?<!_total|_seconds|_milliseconds|_ms|_bytes|_ratio|_percent)/;
 const eventNamePattern = /^[A-Z][A-Za-z0-9]*(?:\.[A-Z][A-Za-z0-9]*)*\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
 const attributeKeyNamePattern = /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/;
-const packageNamePattern = /^@[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*$/;
 const protocolSpanNamePattern = /^\S(?:.*\S)?$/;
 const unitPattern = /^[\x21-\x7e]+$/;
 const hostNamePattern = /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/;
@@ -275,6 +275,11 @@ export type AttributeKeyName = typeof AttributeKeyName.Type;
  * Scoped npm package name that owns a catalog entry, for example
  * `@beep/observability`.
  *
+ * **Details**
+ *
+ * Validated by `@beep/package-json` `ScopedPackageName`, the npm naming rules
+ * for scoped names, including the 214-character limit.
+ *
  * **Example** (Check package names)
  *
  * ```ts import.meta.vitest name="Check package names"
@@ -288,17 +293,7 @@ export type AttributeKeyName = typeof AttributeKeyName.Type;
  * @category identifiers
  * @since 0.0.0
  */
-export const PackageName = S.String.check(
-  S.isPattern(
-    packageNamePattern,
-    $I.annote("PackageNamePatternCheck", {
-      title: "Package Name Pattern",
-      description: "A scoped npm package name.",
-      message: "Expected a scoped package name like @beep/observability",
-    })
-  )
-).pipe(
-  S.brand("PackageName"),
+export const PackageName = ScopedPackageName.pipe(
   $I.annoteSchema("PackageName", {
     description: "Scoped package name that owns a catalog entry.",
   })

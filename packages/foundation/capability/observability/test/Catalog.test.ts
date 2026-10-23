@@ -44,6 +44,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { CatalogConflict } from "@beep/observability/catalog";
 
 const pkgA = PackageName.make("@beep/a");
@@ -170,6 +171,18 @@ describe("catalog names", () => {
     assertFalse(S.is(CloudProviderName)("AWS"));
     assertTrue(S.is(VcsRevision)("4e66575c64"));
     assertFalse(S.is(VcsRevision)("main"));
+  });
+
+  it("follows the npm scoped-name rules of @beep/package-json (3-A9)", () => {
+    const isPackageName = S.is(PackageName);
+    // Inverted: the pre-3-A9 pattern rejected a leading `-`, which npm accepts.
+    assertTrue(isPackageName("@-scope/name"));
+    assertTrue(isPackageName("@scope/-name"));
+    // Inverted: the pre-3-A9 pattern had no length limit; npm caps names at 214.
+    assertTrue(isPackageName(`@beep/${Str.repeat(208)("a")}`));
+    assertFalse(isPackageName(`@beep/${Str.repeat(209)("a")}`));
+    assertFalse(isPackageName("@Beep/observability"));
+    assertFalse(isPackageName("@beep/"));
   });
 });
 
