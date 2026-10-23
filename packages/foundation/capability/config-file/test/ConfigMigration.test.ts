@@ -2,6 +2,7 @@ import { ConfigMigration, ConfigMigrationError, VersionAccess } from "@beep/conf
 import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -56,7 +57,7 @@ describe("ConfigMigration.make", () => {
       ];
       const codec = ConfigMigration.make({
         codec: JsonCodec,
-        migrations: migrations.map(({ version, name }) => ({
+        migrations: A.map(migrations, ({ version, name }) => ({
           version,
           name,
           up: (raw: unknown) => {
@@ -68,7 +69,7 @@ describe("ConfigMigration.make", () => {
       assert.deepStrictEqual(yield* codec.parse(`{"version":0}`), { version: Number.POSITIVE_INFINITY });
       assert.deepStrictEqual(seen, ["one", "two-first", "two-second", "infinity-first", "infinity-second"]);
       assert.deepStrictEqual(
-        migrations.map(({ name }) => name),
+        A.map(migrations, ({ name }) => name),
         ["infinity-first", "two-first", "nan", "negative-infinity", "one", "two-second", "infinity-second"]
       );
     })

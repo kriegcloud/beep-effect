@@ -219,8 +219,8 @@ describe("deepMerge structural properties", () => {
 
   it.effect("only compatible plain-record prototypes merge, at the root and in nested sections", () =>
     Effect.gen(function* () {
-      const higher = { __proto__: null, local: "higher" };
-      const lower = { __proto__: null, fallback: "base" };
+      const higher: Record<string, unknown> = { __proto__: null, local: "higher" };
+      const lower: Record<string, unknown> = { __proto__: null, fallback: "base" };
       const plain = { fallback: "plain" };
       assert.isTrue(isPlainObject(higher));
       assert.isTrue(canMerge(higher, lower));
@@ -239,8 +239,8 @@ describe("deepMerge structural properties", () => {
       assert.strictEqual(deepMerge(plain, higher), plain);
       assert.strictEqual(deepMerge({ section: higher }, { section: plain }).section, higher);
       assert.strictEqual(deepMerge({ section: plain }, { section: higher }).section, plain);
-      assert.isFalse(Object.hasOwn(higher, "fallback"));
-      assert.isFalse(Object.hasOwn(lower, "local"));
+      assert.isFalse(R.has(higher, "fallback"));
+      assert.isFalse(R.has(lower, "local"));
     })
   );
 

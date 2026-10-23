@@ -9,6 +9,7 @@ import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { ConfigCodec } from "@beep/config-file/ConfigCodec";
 
 const salt = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
@@ -79,7 +80,7 @@ describe("EncryptedCodec", () => {
       const b = yield* codec.stringify({ port: 1 });
       assert.notStrictEqual(a, b);
       // The 12-byte IV prefix differs...
-      assert.notStrictEqual(atob(a).slice(0, 12), atob(b).slice(0, 12));
+      assert.notStrictEqual(Str.slice(0, 12)(atob(a)), Str.slice(0, 12)(atob(b)));
       // ...and both still decrypt to the same plaintext.
       assert.deepStrictEqual(yield* codec.parse(a), { port: 1 });
       assert.deepStrictEqual(yield* codec.parse(b), { port: 1 });
@@ -242,7 +243,7 @@ describe("EncryptedCodec", () => {
       const first = yield* Effect.flip(codec.stringify({ a: 1 }));
       // A well-formed envelope: parse validates it before resolving the key, so
       // this reaches the key rather than short-circuiting on the too-short guard.
-      const second = yield* codec.parse(btoa("x".repeat(32))).pipe(Effect.asVoid, Effect.flip);
+      const second = yield* codec.parse(btoa(Str.repeat(32)("x"))).pipe(Effect.asVoid, Effect.flip);
       // The deterministic failure still fails, by identity, every time...
       assert.strictEqual(first, boom);
       assert.strictEqual(second, boom);

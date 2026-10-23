@@ -7,6 +7,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 describe("JsoncCodec", () => {
   it.effect("parses JSONC with comments and trailing commas", () =>
@@ -43,7 +44,7 @@ describe("JsoncCodec", () => {
   it.effect("never dies on hostile deeply-nested input — fails through the typed channel", () =>
     Effect.gen(function* () {
       const depth = 5000;
-      const hostile = `${"[".repeat(depth)}1${"]".repeat(depth)}`;
+      const hostile = `${Str.repeat(depth)("[")}1${Str.repeat(depth)("]")}`;
       const exit = yield* Effect.exit(JsoncCodec.parse(hostile));
       const causeOption = Exit.getCause(exit);
       const failureCause = O.getOrThrow(causeOption);

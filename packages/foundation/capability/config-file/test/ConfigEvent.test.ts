@@ -6,8 +6,10 @@ import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as PubSub from "effect/PubSub";
@@ -33,7 +35,17 @@ const eventsLayer = ConfigEvents.layer;
 const drain = (sub: PubSub.Subscription<ConfigEvent>): Effect.Effect<ReadonlyArray<ConfigEvent>> =>
   PubSub.takeUpTo(sub, Number.MAX_SAFE_INTEGER);
 
-const tagsOf = (events: ReadonlyArray<ConfigEvent>): ReadonlyArray<string> => events.map((e) => e.event._tag);
+const tagsOf = (events: ReadonlyArray<ConfigEvent>): ReadonlyArray<string> => A.map(events, (e) => e.event._tag);
+
+/** The first published payload with `tag`, narrowed to that variant. */
+const findEvent = <T extends ConfigEventPayload["_tag"]>(
+  events: ReadonlyArray<ConfigEvent>,
+  tag: T
+): O.Option<Extract<ConfigEventPayload, { readonly _tag: T }>> =>
+  A.findFirst(
+    A.map(events, (e) => e.event),
+    (payload): payload is Extract<ConfigEventPayload, { readonly _tag: T }> => payload._tag === tag
+  );
 
 /** A read-only config service wired to `ConfigEvents`, over an in-memory host. */
 const readLayer = (files: Record<string, string>, resolvers = [ConfigResolver.explicitPath("/app/.apprc")]) =>
@@ -108,17 +120,18 @@ describe("ConfigEvent source reporting", () => {
         yield* cfg.load;
 
         const collected = yield* drain(sub);
-        const resolved = collected.map((e) => e.event).find((p) => p._tag === "Resolved");
-        if (resolved === undefined || resolved._tag !== "Resolved") {
+        const resolvedEvent = findEvent(collected, "Resolved");
+        if (O.isNone(resolvedEvent)) {
           return assert.fail("expected a Resolved event");
         }
+        const resolved = resolvedEvent.value;
 
         assert.deepStrictEqual(
-          resolved.sources.map((s) => s.path),
+          A.map(resolved.sources, (s) => s.path),
           ["/a/.apprc", "/etc/.apprc"]
         );
         assert.deepStrictEqual(
-          resolved.sources.map((s) => s.resolver),
+          A.map(resolved.sources, (s) => s.resolver),
           ["explicit", "explicit"]
         );
         assert.strictEqual(resolved.strategy, "layered-merge");
@@ -141,13 +154,14 @@ describe("ConfigEvent source reporting", () => {
         yield* cfg.load;
 
         const collected = yield* drain(sub);
-        const loaded = collected.map((e) => e.event).find((p) => p._tag === "Loaded");
-        if (loaded === undefined || loaded._tag !== "Loaded") {
+        const loadedEvent = findEvent(collected, "Loaded");
+        if (O.isNone(loadedEvent)) {
           return assert.fail("expected a Loaded event");
         }
+        const loaded = loadedEvent.value;
 
         assert.deepStrictEqual(
-          loaded.sources.map((s) => s.path),
+          A.map(loaded.sources, (s) => s.path),
           ["/a/.apprc", "/etc/.apprc"]
         );
       })
@@ -200,7 +214,7 @@ describe("ConfigEvent per-operation granularity", () => {
 
         const tags = tagsOf(yield* drain(sub));
         assert.lengthOf(
-          tags.filter((t) => t === "Updated"),
+          A.filter(tags, (t) => t === "Updated"),
           1
         );
         assert.notInclude(tags, "Written");
@@ -217,10 +231,11 @@ describe("ConfigEvent per-operation granularity", () => {
         const cfg = yield* AppConfig;
         yield* cfg.update((current) => AppShape.make({ port: current.port + 1 }));
 
-        const updated = (yield* drain(sub)).map((e) => e.event).find((p) => p._tag === "Updated");
-        if (updated === undefined || updated._tag !== "Updated") {
+        const updatedEvent = findEvent(yield* drain(sub), "Updated");
+        if (O.isNone(updatedEvent)) {
           return assert.fail("expected an Updated event");
         }
+        const updated = updatedEvent.value;
         assert.strictEqual(updated.path, "/app/.apprc");
       })
     );
@@ -240,10 +255,11 @@ describe("ConfigEvent failure variants carry structured errors", () => {
         yield* Effect.result(cfg.load);
 
         const collected = yield* drain(sub);
-        const parseFailed = collected.map((e) => e.event).find((p) => p._tag === "ParseFailed");
-        if (parseFailed === undefined || parseFailed._tag !== "ParseFailed") {
+        const parseFailedEvent = findEvent(collected, "ParseFailed");
+        if (O.isNone(parseFailedEvent)) {
           return assert.fail("expected a ParseFailed event");
         }
+        const parseFailed = parseFailedEvent.value;
 
         assert.isNotString(parseFailed.error);
         if (!P.hasProperty(parseFailed.error, "_tag")) return assert.fail("expected a tagged error");
@@ -262,10 +278,11 @@ describe("ConfigEvent failure variants carry structured errors", () => {
         yield* Effect.result(cfg.load);
 
         const collected = yield* drain(sub);
-        const validationFailed = collected.map((e) => e.event).find((p) => p._tag === "ValidationFailed");
-        if (validationFailed === undefined || validationFailed._tag !== "ValidationFailed") {
+        const validationFailedEvent = findEvent(collected, "ValidationFailed");
+        if (O.isNone(validationFailedEvent)) {
           return assert.fail("expected a ValidationFailed event");
         }
+        const validationFailed = validationFailedEvent.value;
 
         assert.isNotString(validationFailed.error);
         if (!P.hasProperty(validationFailed.error, "_tag")) return assert.fail("expected a tagged error");

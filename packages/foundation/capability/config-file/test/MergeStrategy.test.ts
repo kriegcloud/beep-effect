@@ -164,8 +164,8 @@ describe("MergeStrategy.layeredMerge", () => {
         configurable: true,
       });
       try {
-        const higher = { port: 1 };
-        const lower = { [inherited]: "own data", port: 2 };
+        const higher: Record<string | symbol, unknown> = { port: 1 };
+        const lower: Record<string | symbol, unknown> = { [inherited]: "own data", port: 2 };
         const value = yield* MergeStrategy.layeredMerge<Record<PropertyKey, unknown>>().resolve([
           src("/a", "walk", higher),
           src("/etc", "system", lower),
@@ -178,7 +178,7 @@ describe("MergeStrategy.layeredMerge", () => {
           enumerable: true,
           configurable: true,
         });
-        assert.isFalse(Object.hasOwn(higher, inherited));
+        assert.isFalse(R.has(higher, inherited));
         assert.strictEqual(lower[inherited], "own data");
       } finally {
         Reflect.deleteProperty(Object.prototype, inherited);
@@ -247,8 +247,8 @@ describe("MergeStrategy.layeredMerge", () => {
   it.effect("excludes non-enumerable string and symbol keys without reading them", () =>
     Effect.gen(function* () {
       const hidden = Symbol("hidden");
-      const higher = { port: 1 };
-      const lower = { port: 2, host: "base" };
+      const higher: Record<string | symbol, unknown> = { port: 1 };
+      const lower: Record<string | symbol, unknown> = { port: 2, host: "base" };
       for (const record of [higher, lower]) {
         for (const key of ["hidden", hidden]) {
           Object.defineProperty(record, key, {
@@ -265,8 +265,8 @@ describe("MergeStrategy.layeredMerge", () => {
       assert.deepStrictEqual(value, { port: 1, host: "base" });
       assert.isFalse(R.has(value, hidden));
       assert.isFalse(R.has(value, "hidden"));
-      assert.isTrue(Object.hasOwn(higher, hidden));
-      assert.isTrue(Object.hasOwn(lower, hidden));
+      assert.isTrue(R.has(higher, hidden));
+      assert.isTrue(R.has(lower, hidden));
     })
   );
 

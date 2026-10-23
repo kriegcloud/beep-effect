@@ -3,11 +3,13 @@ import { YamlCodec } from "@beep/config-file/YamlCodec";
 import { YamlParseError } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("YamlCodec", () => {
   it.effect("parses a YAML document", () =>
@@ -46,7 +48,7 @@ describe("YamlCodec", () => {
       // while remaining syntactically valid YAML, so this exercises the
       // depth guard rather than a plain syntax error.
       const depth = 1000;
-      const hostile = `${"[".repeat(depth)}1${"]".repeat(depth)}`;
+      const hostile = `${Str.repeat(depth)("[")}1${Str.repeat(depth)("]")}`;
       const exit = yield* Effect.exit(YamlCodec.parse(hostile));
       const causeOption = Exit.getCause(exit);
       const failureCause = O.getOrThrow(causeOption);
@@ -60,7 +62,7 @@ describe("YamlCodec", () => {
       assert.instanceOf(error.cause, YamlParseError);
       const cause = error.cause;
       if (!S.is(YamlParseError)(cause)) return assert.fail("expected YamlParseError");
-      assert.isTrue(cause.diagnostics.some((d) => d.code === "NestingDepthExceeded"));
+      assert.isTrue(A.some(cause.diagnostics, (d) => d.code === "NestingDepthExceeded"));
     })
   );
 
@@ -84,7 +86,7 @@ describe("YamlCodec", () => {
         "a5: &a5 [*a4,*a4,*a4,*a4,*a4,*a4,*a4,*a4,*a4,*a4]",
         "bomb: [*a5,*a5,*a5,*a5,*a5,*a5,*a5,*a5,*a5,*a5]",
       ];
-      const bomb = tiers.join("\n");
+      const bomb = A.join(tiers, "\n");
       const exit = yield* Effect.exit(YamlCodec.parse(bomb));
       const causeOption = Exit.getCause(exit);
       const failureCause = O.getOrThrow(causeOption);
@@ -105,8 +107,8 @@ describe("YamlCodec", () => {
       assert.instanceOf(error.cause, YamlParseError);
       const cause = error.cause;
       if (!S.is(YamlParseError)(cause)) return assert.fail("expected YamlParseError");
-      assert.isTrue(cause.diagnostics.some((d) => d.code === "AliasCountExceeded"));
-      assert.isTrue(cause.diagnostics.some((d) => d.message.includes("expansion exceeded budget")));
+      assert.isTrue(A.some(cause.diagnostics, (d) => d.code === "AliasCountExceeded"));
+      assert.isTrue(A.some(cause.diagnostics, (d) => Str.includes("expansion exceeded budget")(d.message)));
     })
   );
 });

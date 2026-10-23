@@ -6,6 +6,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as Str from "effect/String";
 
 /** The typed failure a node adapter raises for EACCES. */
 const denied = (method: string, path: string) =>
@@ -121,7 +122,7 @@ describe("ConfigResolver — an unreadable ancestor must not abort root discover
     },
     {
       faults: {
-        access: (path) => (path.startsWith("/a/b/") ? denied("access", path) : undefined),
+        access: (path) => (Str.startsWith("/a/b/")(path) ? denied("access", path) : undefined),
         readFile: (path) => denied("readFile", path),
       },
     }

@@ -7,12 +7,14 @@ import { TomlCodec } from "@beep/config-file/TomlCodec";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PubSub from "effect/PubSub";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import type { ConfigCodec as ConfigCodecShape } from "@beep/config-file/ConfigCodec";
 import type { ConfigEncodeError, ConfigWriteError } from "@beep/config-file/ConfigFile";
@@ -114,8 +116,8 @@ describe("ConfigFile.encode", () => {
         assert.strictEqual(encoded, `${HEADER}\n${bare}`);
         assert.strictEqual(written, encoded);
         // Exactly one newline separates the header from the document.
-        assert.isTrue(encoded.startsWith(`${HEADER}\n`));
-        assert.isFalse(encoded.startsWith(`${HEADER}\n\n`));
+        assert.isTrue(Str.startsWith(`${HEADER}\n`)(encoded));
+        assert.isFalse(Str.startsWith(`${HEADER}\n\n`)(encoded));
       })
     );
   });
@@ -193,11 +195,11 @@ describe("ConfigFile.encode", () => {
         const { afterEncode, afterWrite } = yield* program;
 
         assert.deepStrictEqual(
-          afterEncode.map((e) => e.event._tag),
+          A.map(afterEncode, (e) => e.event._tag),
           []
         );
         assert.deepStrictEqual(
-          afterWrite.map((e) => e.event._tag),
+          A.map(afterWrite, (e) => e.event._tag),
           ["StringifyFailed"]
         );
       })

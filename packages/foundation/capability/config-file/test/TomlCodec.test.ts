@@ -3,11 +3,13 @@ import { TomlCodec } from "@beep/config-file/TomlCodec";
 import { TomlParseError, TomlStringifyError } from "@beep/toml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("TomlCodec", () => {
   it.effect("parses a TOML document", () =>
@@ -62,7 +64,7 @@ describe("TomlCodec", () => {
       // remaining syntactically valid TOML, so this exercises the depth
       // guard rather than a plain syntax error.
       const depth = 1000;
-      const hostile = `bomb = ${"[".repeat(depth)}1${"]".repeat(depth)}`;
+      const hostile = `bomb = ${Str.repeat(depth)("[")}1${Str.repeat(depth)("]")}`;
       const exit = yield* Effect.exit(TomlCodec.parse(hostile));
       const causeOption = Exit.getCause(exit);
       const failureCause = O.getOrThrow(causeOption);
@@ -77,7 +79,7 @@ describe("TomlCodec", () => {
       assert.instanceOf(error.cause, TomlParseError);
       const cause = error.cause;
       if (!S.is(TomlParseError)(cause)) return assert.fail("expected TomlParseError");
-      assert.isTrue(cause.diagnostics.some((d) => d.code === "NestingDepthExceeded"));
+      assert.isTrue(A.some(cause.diagnostics, (d) => d.code === "NestingDepthExceeded"));
     })
   );
 });
