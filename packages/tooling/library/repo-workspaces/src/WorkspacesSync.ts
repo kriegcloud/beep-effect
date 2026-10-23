@@ -1017,7 +1017,7 @@ export const getWorkspacePackagesSync: {
   }
 
   for (const wildcard of globs.wildcards) {
-    const base = wildcard.enumerationPrefix.replace(/\/$/, "");
+    const base = Str.replace(/\/$/, "")(wildcard.enumerationPrefix);
     const absoluteBase = path.join(root, base);
     if (!isDirectory(fileSystem, absoluteBase)) continue;
 

@@ -1,6 +1,7 @@
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual, pipe } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 // Resolving a declared pnpm config dependency to the pnpmfile of the version
 // it DECLARES — not whatever happens to be installed right now.
 //
@@ -148,7 +149,7 @@ const declaredVersionOf = (spec: string): string => splitConfigDependencySpec(sp
  * it would traverse out of `.pnpm-config` and feed an attacker-chosen path to the
  * dynamic `import()`.
  */
-const hasTraversalSegment = (name: string): boolean => name.split(/[/\\]/).includes("..");
+const hasTraversalSegment = (name: string): boolean => Str.split(name, /[/\\]/).includes("..");
 
 /** A declared `(name, version)` pair, validated, with the spec it came from. */
 const DeclaredEntry = S.Struct({
@@ -299,7 +300,7 @@ const pnpmConfigEntries = Effect.fnUntraced(function* (
 ): Effect.fn.Return<ReadonlyArray<string>, CatalogAssemblyError, LadderServices> {
   const path = yield* Path.Path;
   const nested = yield* Effect.forEach(yield* entriesOf(root, base), (entry) =>
-    entry.startsWith("@")
+    Str.startsWith("@")(entry)
       ? Effect.map(
           entriesOf(root, path.join(base, entry)),
           A.map((inner) => `${entry}/${inner}`)
@@ -369,7 +370,7 @@ const environmentStoreRoots = Effect.fnUntraced(function* (): Effect.fn.Return<
 
 /** NEWEST store format first, numerically: `v11` before `v10` before `v9`. */
 const NewestStoreFormatFirst: Order.Order<string> = Order.mapInput(Order.flip(Order.Number), (version: string) =>
-  Number(version.slice(1))
+  Number(Str.slice(1)(version))
 );
 
 /**

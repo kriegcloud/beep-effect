@@ -20,6 +20,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { WorkspaceManifestError } from "./WorkspacePackage.ts";
 
 const $I = $RepoWorkspacesId.create("PackageManagerName");
@@ -319,7 +320,7 @@ const devEnginesHint = (manifest: Record<string, unknown>): O.Option<ManagerHint
   if (!isPlainObject(slot)) return O.none();
 
   const name = slot.name;
-  if (!P.isString(name) || name === "" || name.includes("@")) return O.none();
+  if (!P.isString(name) || name === "" || Str.includes("@")(name)) return O.none();
 
   const version = slot.version;
   return O.some(

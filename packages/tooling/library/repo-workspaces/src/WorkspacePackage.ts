@@ -18,6 +18,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as PlatformError from "effect/PlatformError";
 
 const $I = $RepoWorkspacesId.create("WorkspacePackage");
@@ -507,8 +508,11 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * @since 0.0.0
    */
   get unscopedName(): string {
-    const slash = this.name.indexOf("/");
-    return this.name.startsWith("@") && slash !== -1 ? this.name.slice(slash + 1) : this.name;
+    if (!Str.startsWith("@")(this.name)) return this.name;
+    return O.match(Str.indexOf("/")(this.name), {
+      onNone: () => this.name,
+      onSome: (slash) => Str.slice(slash + 1)(this.name),
+    });
   }
 
   /**

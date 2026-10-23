@@ -26,6 +26,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { enumerate } from "./internal/enumerate.ts";
 import { findLayerRoot } from "./internal/layerRoot.ts";
 import { readPatterns } from "./internal/patterns.ts";
@@ -56,7 +57,7 @@ const WorkspacePatternErrorKind = LiteralKit([
   })
 );
 const byName = Order.make<WorkspacePackage>((a, b) => {
-  const comparison = a.name.localeCompare(b.name);
+  const comparison = Str.localeCompare(b.name)(a.name);
   return comparison < 0 ? -1 : comparison > 0 ? 1 : 0;
 });
 
@@ -229,7 +230,7 @@ export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, 
  * ```ts
  * import { PackageNotFoundError } from "@beep/repo-workspaces/WorkspaceDiscovery";
  *
- * const error = PackageNotFoundError.make({ name: "@app/missing", available: ["@app/core"] });
+ * const error = PackageNotFoundError.make({ packageName: "@app/missing", available: ["@app/core"] });
  * console.log(error.message) // No workspace package named "@app/missing"
  * ```
  *
@@ -242,8 +243,10 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
 )(
   "PackageNotFoundError",
   {
-    /** The name that was requested. */
-    name: S.String.pipe($I.annoteKey("PackageNotFoundError.name", { description: "The name that was requested." })),
+    /** The package name that was requested. */
+    packageName: S.String.pipe(
+      $I.annoteKey("PackageNotFoundError.packageName", { description: "The package name that was requested." })
+    ),
     /** Every workspace package name that does exist. */
     available: S.Array(S.String).pipe(
       $I.annoteKey("PackageNotFoundError.available", { description: "Every workspace package name that does exist." })
@@ -261,7 +264,7 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
    * ```ts
    * import { PackageNotFoundError } from "@beep/repo-workspaces/WorkspaceDiscovery";
    *
-   * const error = PackageNotFoundError.make({ name: "@app/missing", available: ["@app/core"] });
+   * const error = PackageNotFoundError.make({ packageName: "@app/missing", available: ["@app/core"] });
    * console.log(error.message) // No workspace package named "@app/missing"
    * ```
    *
@@ -269,7 +272,7 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
    * @since 0.0.0
    */
   override get message(): string {
-    return `No workspace package named "${this.name}"`;
+    return `No workspace package named "${this.packageName}"`;
   }
 }
 
@@ -861,7 +864,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
       if (cached !== undefined && cached.snapshot === all) return cached.entries;
       const index = A.sort(
         A.map(all, (pkg) => ({
-          prefix: pkg.path.endsWith(path.sep) ? pkg.path : pkg.path + path.sep,
+          prefix: Str.endsWith(path.sep)(pkg.path) ? pkg.path : pkg.path + path.sep,
           package: pkg,
         })),
         Order.mapInput(Order.Number, (entry: { readonly prefix: string }) => -entry.prefix.length)
@@ -885,7 +888,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         index: ReadonlyArray<{ readonly prefix: string; readonly package: WorkspacePackage }>
       ): O.Option<WorkspacePackage> => {
         for (const entry of index) {
-          if (filePath.startsWith(entry.prefix)) return O.some(entry.package);
+          if (Str.startsWith(entry.prefix)(filePath)) return O.some(entry.package);
         }
         return O.none();
       }
@@ -931,7 +934,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         const all = yield* packages;
         const found = O.getOrUndefined(MutableHashMap.get(packagesByName(all), name));
         if (found !== undefined) return found;
-        return yield* PackageNotFoundError.make({ name, available: A.map(all, (pkg) => pkg.name) });
+        return yield* PackageNotFoundError.make({ packageName: name, available: A.map(all, (pkg) => pkg.name) });
       }),
 
       resolveFile: Effect.fn("WorkspaceDiscovery.resolveFile")(function* (filePath: string) {
@@ -1083,8 +1086,8 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
       let best: WorkspacePackage | undefined;
       let bestLength = 0;
       for (const pkg of all) {
-        const prefix = pkg.path.endsWith("/") ? pkg.path : `${pkg.path}/`;
-        if (filePath.startsWith(prefix) && prefix.length > bestLength) {
+        const prefix = Str.endsWith("/")(pkg.path) ? pkg.path : `${pkg.path}/`;
+        if (Str.startsWith(prefix)(filePath) && prefix.length > bestLength) {
           best = pkg;
           bestLength = prefix.length;
         }
@@ -1109,7 +1112,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         Effect.flatMap(listPackages, (all) =>
           Effect.fromOption(
             A.findFirst(all, (pkg) => pkg.name === name),
-            () => PackageNotFoundError.make({ name, available: A.map(all, (pkg) => pkg.name) })
+            () => PackageNotFoundError.make({ packageName: name, available: A.map(all, (pkg) => pkg.name) })
           )
         ),
       resolveFile: (filePath: string) => Effect.map(listPackages, (all) => ownerOf(filePath, all)),

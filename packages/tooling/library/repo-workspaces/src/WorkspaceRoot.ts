@@ -19,6 +19,7 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 
 const $I = $RepoWorkspacesId.create("WorkspaceRoot");
 
@@ -309,8 +310,8 @@ const isAtOrBelow: {
   (ancestor: string): (descendant: string) => boolean;
 } = dual(2, (descendant: string, ancestor: string): boolean => {
   if (descendant === ancestor) return true;
-  const prefix = ancestor.endsWith("/") || ancestor.endsWith("\\") ? ancestor : `${ancestor}/`;
-  return descendant.startsWith(prefix) || descendant.startsWith(prefix.replace(/\/$/, "\\"));
+  const prefix = Str.endsWith("/")(ancestor) || Str.endsWith("\\")(ancestor) ? ancestor : `${ancestor}/`;
+  return Str.startsWith(prefix)(descendant) || Str.startsWith(Str.replace(/\/$/, "\\")(prefix))(descendant);
 });
 
 /**

@@ -32,6 +32,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ConfigDependencyHooks } from "./ConfigDependencyHooks.ts";
 import { importerVersionsOf } from "./internal/importerVersions.ts";
 import { findLayerRoot } from "./internal/layerRoot.ts";
@@ -595,8 +596,8 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
             hasRootManifest = true;
             continue;
           }
-          if (!entry.path.endsWith("/package.json")) continue;
-          const dir = entry.path.slice(0, entry.path.length - "/package.json".length);
+          if (!Str.endsWith("/package.json")(entry.path)) continue;
+          const dir = Str.slice(0, entry.path.length - "/package.json".length)(entry.path);
           if (globs.matches(dir)) collected.push(dir);
         }
         const memberDirs = A.sort(collected, Order.String);

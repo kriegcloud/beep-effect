@@ -49,7 +49,7 @@ import * as Scheduler from "effect/Scheduler";
 it.effect("error messages preserve requested name and pattern diagnostics", () =>
   Effect.gen(function* () {
     assert.strictEqual(
-      PackageNotFoundError.make({ name: "missing", available: ["present"] }).message,
+      PackageNotFoundError.make({ packageName: "missing", available: ["present"] }).message,
       'No workspace package named "missing"'
     );
     assert.strictEqual(

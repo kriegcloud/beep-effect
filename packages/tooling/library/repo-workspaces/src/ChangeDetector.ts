@@ -315,7 +315,7 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
     ): Effect.fn.Return<ReadonlyArray<WorkspacePackage>, ChangeDetectionFailure> {
       const root = yield* rootOf();
       const files = yield* filesOf(root, options);
-      const absolute = A.map(files, (file) => (file.startsWith("/") ? file : `${root}/${file}`));
+      const absolute = A.map(files, (file) => (Str.startsWith("/")(file) ? file : `${root}/${file}`));
       return yield* discovery.resolveFiles(absolute);
     });
 

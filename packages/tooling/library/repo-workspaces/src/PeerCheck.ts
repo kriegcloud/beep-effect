@@ -470,9 +470,9 @@ const linkTargetPath: {
   (target: string): (importerPath: string) => string;
 } = dual(2, (importerPath: string, target: string): string => {
   const absolute = Str.startsWith("/")(target);
-  const segments = absolute || importerPath === "." ? [] : importerPath.split("/");
+  const segments = absolute || importerPath === "." ? [] : Str.split(importerPath, "/");
   const resolved: Array<string> = [];
-  for (const segment of [...segments, ...target.split("/")]) {
+  for (const segment of [...segments, ...Str.split(target, "/")]) {
     if (segment === "" || segment === ".") continue;
     if (segment === "..") {
       const last = resolved[resolved.length - 1];
@@ -803,7 +803,7 @@ const resolvePeerRange: {
   (peer: string, wanted: string): (catalogs: CatalogSet | undefined) => string | undefined;
 } = dual(3, (catalogs: CatalogSet | undefined, peer: string, wanted: string): string | undefined => {
   let range = wanted;
-  if (wanted.startsWith(CATALOG_PREFIX)) {
+  if (Str.startsWith(CATALOG_PREFIX)(wanted)) {
     const resolved = catalogs === undefined ? O.none() : catalogs.resolveSpecifier(peer, wanted);
     if (O.isNone(resolved)) return undefined;
     range = resolved.value;
@@ -1273,8 +1273,8 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
         const edges: Array<LinkEdge> = [];
         for (const dep of importer.dependencies) {
           const version = dep.version;
-          if (version?.startsWith(LINK_PREFIX) !== true) continue;
-          const target = linkTargetPath(importer.path, version.slice(LINK_PREFIX.length));
+          if (version === undefined || !Str.startsWith(LINK_PREFIX)(version)) continue;
+          const target = linkTargetPath(importer.path, Str.slice(LINK_PREFIX.length)(version));
           // The row the edge lands on, when the target is an importer at
           // all: `link:` can also point outside the workspace globs, in
           // which case there is nothing to walk, its peers are never
@@ -1556,10 +1556,45 @@ const collect: {
  *
  * @internal
  */
-const ruleParentName = (parent: string): string => {
-  const at = parent.lastIndexOf("@");
-  return at > 0 ? parent.slice(0, at) : parent;
-};
+const ruleParentName = (parent: string): string =>
+  O.match(
+    O.filter(Str.lastIndexOf("@")(parent), (at) => at > 0),
+    { onNone: () => parent, onSome: (at) => Str.slice(0, at)(parent) }
+  );
+
+/**
+ * Whether an `allowedVersions` key names this parent and peer.
+ *
+ * **Details**
+ *
+ * A BARE key applies to every parent that declares this peer. Measured
+ * against pnpm 11.22.0: with `allowedVersions: { react: "17" }` and nothing
+ * else, `pnpm peers check --json` reports the same workspace clean that it
+ * reports `react-dom>react` for — and still reports the row when the bare
+ * key's range does not cover the found version. Skipping bare keys therefore
+ * reports rows pnpm suppresses, while the report claims the policy was
+ * applied. A key starting with ">" names no parent at all — malformed, and a
+ * malformed rule suppresses nothing.
+ */
+const ruleKeyApplies = (key: string, parentName: string, peer: string): boolean =>
+  O.match(Str.indexOf(">")(key), {
+    onNone: () => key === peer,
+    onSome: (separator) =>
+      separator > 0 &&
+      Str.slice(separator + 1)(key) === peer &&
+      ruleParentName(Str.slice(0, separator)(key)) === parentName,
+  });
+
+/**
+ * Whether a rule's range covers the found version. A rule whose own value is
+ * unparseable suppresses nothing — it cannot be evaluated, and treating it as
+ * a wildcard would hide real findings.
+ */
+const rangeCovers = (permitted: string, version: SemVer): boolean =>
+  Result.match(Range.parseResult(permitted), {
+    onFailure: () => false,
+    onSuccess: (range) => Range.satisfies(version, range),
+  });
 
 /**
  * Whether the effective rules suppress this row, the way pnpm would.
@@ -1588,31 +1623,10 @@ const suppressedByRule: {
 } = dual(4, (policy: Policy, parentName: string, peer: string, version: SemVer | null): boolean => {
   if (version === null) return policy.ignoreMissing(peer);
   if (policy.allowAny(peer)) return true;
-  for (const [key, permitted] of R.toEntries(policy.allowed)) {
-    const separator = key.indexOf(">");
-    // A key starting with ">" names no parent at all — malformed, and a
-    // malformed rule suppresses nothing.
-    if (separator === 0) continue;
-    if (separator === -1) {
-      // A BARE key applies to every parent that declares this peer. Measured
-      // against pnpm 11.22.0: with `allowedVersions: { react: "17" }` and
-      // nothing else, `pnpm peers check --json` reports the same workspace
-      // clean that it reports `react-dom>react` for — and still reports the
-      // row when the bare key's range does not cover the found version.
-      // Skipping bare keys therefore reports rows pnpm suppresses, while
-      // the report claims the policy was applied.
-      if (key !== peer) continue;
-    } else {
-      if (key.slice(separator + 1) !== peer) continue;
-      if (ruleParentName(key.slice(0, separator)) !== parentName) continue;
-    }
-    const range = Range.parseResult(permitted);
-    // A rule whose own value is unparseable suppresses nothing — it cannot be
-    // evaluated, and treating it as a wildcard would hide real findings.
-    if (Result.isFailure(range)) continue;
-    if (Range.satisfies(version, range.success)) return true;
-  }
-  return false;
+  return A.some(
+    R.toEntries(policy.allowed),
+    ([key, permitted]) => ruleKeyApplies(key, parentName, peer) && rangeCovers(permitted, version)
+  );
 });
 
 /**

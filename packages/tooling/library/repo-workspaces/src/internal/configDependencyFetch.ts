@@ -16,6 +16,7 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // How the fetch is verified. pnpm is run in a SCRATCH workspace whose
 // `pnpm-workspace.yaml` declares the config dependency as a bare version and
@@ -597,7 +598,7 @@ const isStoreEntry: {
   (resolved: string, name: string, version: string): boolean;
   (name: string, version: string): (resolved: string) => boolean;
 } = dual(3, (resolved: string, name: string, version: string): boolean =>
-  A.join(resolved.split(/[/\\]/), "/").includes(`/links/${name}/${version}/`)
+  Str.includes(`/links/${name}/${version}/`)(A.join(Str.split(resolved, /[/\\]/), "/"))
 );
 
 /**

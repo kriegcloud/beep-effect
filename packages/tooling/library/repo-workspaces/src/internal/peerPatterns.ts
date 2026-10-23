@@ -33,6 +33,7 @@
 
 import { ReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 
 /**
  * A predicate over a peer name.
@@ -48,7 +49,7 @@ const matcherFromPattern =
   (name) =>
     ReleaseAgeGate.matchesExclude(name, [pattern]);
 
-const isNegation = (pattern: string): boolean => pattern.startsWith("!");
+const isNegation = (pattern: string): boolean => Str.startsWith("!")(pattern);
 
 /**
  * Compiles one `ignoreMissing` / `allowAny` list into a predicate over peer
@@ -83,7 +84,7 @@ export const peerNameMatcher = (patterns: ReadonlyArray<string>): PeerNameMatche
   if (patterns.length === 0) return () => false;
   const compiled = A.map(patterns, (pattern) =>
     isNegation(pattern)
-      ? { negation: true, match: matcherFromPattern(pattern.slice(1)) }
+      ? { negation: true, match: matcherFromPattern(Str.slice(1)(pattern)) }
       : { negation: false, match: matcherFromPattern(pattern) }
   );
   const negations = A.filter(compiled, (entry) => entry.negation);

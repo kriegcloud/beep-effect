@@ -393,7 +393,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
     (name: string): Effect.Effect<ReadonlyArray<string>, PackageNotFoundError> => {
       const deps = HashMap.get(this.#index().forward, name);
       return O.isNone(deps)
-        ? Effect.fail(PackageNotFoundError.make({ name, available: this.names }))
+        ? Effect.fail(PackageNotFoundError.make({ packageName: name, available: this.names }))
         : Effect.succeed(A.sort(A.fromIterable(deps.value), Str.Order));
     }
   );
@@ -427,7 +427,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
     (name: string): Effect.Effect<ReadonlyArray<string>, PackageNotFoundError> => {
       const dependents = HashMap.get(this.#index().reverse, name);
       return O.isNone(dependents)
-        ? Effect.fail(PackageNotFoundError.make({ name, available: this.names }))
+        ? Effect.fail(PackageNotFoundError.make({ packageName: name, available: this.names }))
         : Effect.succeed(A.sort(A.fromIterable(dependents.value), Str.Order));
     }
   );
@@ -589,7 +589,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
         const { forward } = this.#index();
         for (const name of names) {
           if (!HashMap.has(forward, name)) {
-            return Effect.fail(PackageNotFoundError.make({ name, available: this.names }));
+            return Effect.fail(PackageNotFoundError.make({ packageName: name, available: this.names }));
           }
         }
 

@@ -14,8 +14,10 @@ import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $RepoWorkspacesId.create("ReleaseTag");
 
@@ -168,12 +170,15 @@ const isVersionText = S.is(VersionText);
  */
 const versionCore = (version: string): VersionCore | undefined => {
   if (!isVersionText(version)) return undefined;
-  const withoutBuild = version.slice(0, version.indexOf("+") === -1 ? version.length : version.indexOf("+"));
-  const dash = withoutBuild.indexOf("-");
-  const prerelease = dash !== -1;
-  const core = prerelease ? withoutBuild.slice(0, dash) : withoutBuild;
+  const withoutBuild = O.match(Str.indexOf("+")(version), {
+    onNone: () => version,
+    onSome: (plus) => Str.slice(0, plus)(version),
+  });
+  const dash = Str.indexOf("-")(withoutBuild);
+  const prerelease = O.isSome(dash);
+  const core = O.match(dash, { onNone: () => withoutBuild, onSome: (at) => Str.slice(0, at)(withoutBuild) });
 
-  const segments = core.split(".");
+  const segments = Str.split(core, ".");
 
   return { major: Number(segments[0]), minor: Number(segments[1]), prerelease };
 };
@@ -402,12 +407,13 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
  * A tag string split into an optional package prefix and the version part.
  */
 const splitTag = (tag: string): { readonly packageName?: string; readonly rest: string } | undefined => {
-  const at = tag.lastIndexOf("@");
+  const found = Str.lastIndexOf("@")(tag);
   // No `@` at all: the whole string is the version part (a single-style tag).
-  if (at === -1) return { rest: tag };
+  if (O.isNone(found)) return { rest: tag };
+  const at = found.value;
   // A leading `@` with nothing after it is a scope with no version.
-  const packageName = tag.slice(0, at);
-  const rest = tag.slice(at + 1);
+  const packageName = Str.slice(0, at)(tag);
+  const rest = Str.slice(at + 1)(tag);
   if (packageName === "" || rest === "") return undefined;
   return { packageName, rest };
 };
@@ -450,8 +456,8 @@ export const classifyTag = (tag: string): TagClassification => {
   if (split === undefined) return UNRECOGNIZED;
 
   const { packageName, rest } = split;
-  const withoutV = rest.startsWith("v") ? rest.slice(1) : rest;
-  const hasV = rest.startsWith("v");
+  const withoutV = Str.startsWith("v")(rest) ? Str.slice(1)(rest) : rest;
+  const hasV = Str.startsWith("v")(rest);
 
   // Three segments (plus optional prerelease/build) is a version.
   const core = versionCore(withoutV);
@@ -468,7 +474,7 @@ export const classifyTag = (tag: string): TagClassification => {
 
   // One or two numeric segments behind a `v` is a tracking alias.
   if (!hasV) return UNRECOGNIZED;
-  const segments = withoutV.split(".");
+  const segments = Str.split(withoutV, ".");
   if (segments.length > 2 || !A.every(segments, (segment) => NUMERIC_IDENTIFIER.test(segment))) {
     return UNRECOGNIZED;
   }

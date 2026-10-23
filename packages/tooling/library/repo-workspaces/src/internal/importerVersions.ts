@@ -1,4 +1,5 @@
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 
 // The lockfile-importer fallback for `catalog:` specifiers a snapshot's catalog
 // set cannot resolve.
@@ -49,10 +50,11 @@ type VersionIndex = Readonly<Record<string, Readonly<Record<string, string>>>>;
  * Everything from the first `(` is dropped; a version with no suffix passes
  * through untouched.
  */
-const stripPeerSuffix = (version: string): string => {
-  const paren = version.indexOf("(");
-  return paren === -1 ? version : version.slice(0, paren);
-};
+const stripPeerSuffix = (version: string): string =>
+  O.match(Str.indexOf("(")(version), {
+    onNone: () => version,
+    onSome: (paren) => Str.slice(0, paren)(version),
+  });
 
 /**
  * Whether a recorded importer version is a concrete version usable as a
@@ -67,7 +69,7 @@ const stripPeerSuffix = (version: string): string => {
  * changeset would carry into release notes.
  */
 const isConcreteVersion = (version: string): boolean =>
-  version.length > 0 && !version.startsWith("link:") && !version.startsWith("file:");
+  version.length > 0 && !Str.startsWith("link:")(version) && !Str.startsWith("file:")(version);
 
 /**
  * Build the importer-path → dependency-name → version index a snapshot uses to

@@ -24,6 +24,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { indexInstances, rootInstances } from "./internal/roots.ts";
 import type { ResolvedPackage } from "@beep/lockfiles";
 
@@ -404,7 +405,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * @since 0.0.0
    */
   static kit(name: string): boolean {
-    return name === "effect" || name.startsWith("@effected/");
+    return name === "effect" || Str.startsWith("@effected/")(name);
   }
 
   /**

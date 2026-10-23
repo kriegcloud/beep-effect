@@ -19,7 +19,7 @@ describe("DependencyGraph traversal coverage", () => {
     Effect.gen(function* () {
       const graph = DependencyGraph.make({ packages: [pkg("a")] });
       const missing = yield* Effect.flip(graph.dependentsOf("missing"));
-      assert.strictEqual(missing.name, "missing");
+      assert.strictEqual(missing.packageName, "missing");
       assert.deepStrictEqual(missing.available, ["a"]);
       assert.strictEqual(
         CyclicDependencyError.make({ cycle: ["a", "b"] }).message,

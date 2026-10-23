@@ -18,7 +18,9 @@
 // first `+` can be the separator.
 
 import { $RepoWorkspacesId } from "@beep/identity/packages";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $RepoWorkspacesId.create("internal/configDependencySpecGrammar");
 
@@ -98,9 +100,9 @@ export declare namespace ConfigDependencySpecParts {
  * @category parsing
  * @since 0.0.0
  */
-export const splitConfigDependencySpec = (spec: string): ConfigDependencySpecParts => {
-  const plus = spec.indexOf("+");
-  return plus === -1
-    ? ConfigDependencySpecParts.make({ version: spec, integrity: undefined })
-    : ConfigDependencySpecParts.make({ version: spec.slice(0, plus), integrity: spec.slice(plus + 1) });
-};
+export const splitConfigDependencySpec = (spec: string): ConfigDependencySpecParts =>
+  O.match(Str.indexOf("+")(spec), {
+    onNone: () => ConfigDependencySpecParts.make({ version: spec, integrity: undefined }),
+    onSome: (plus) =>
+      ConfigDependencySpecParts.make({ version: Str.slice(0, plus)(spec), integrity: Str.slice(plus + 1)(spec) }),
+  });

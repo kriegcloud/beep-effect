@@ -214,7 +214,7 @@ export declare namespace EnumerateOptions {
 }
 
 /** Strip a trailing slash from `GlobPattern.enumerationPrefix` to get a relative directory. */
-const baseOf = (pattern: GlobPattern): string => pattern.enumerationPrefix.replace(/\/$/, "");
+const baseOf = (pattern: GlobPattern): string => Str.replace(/\/$/, "")(pattern.enumerationPrefix);
 
 /**
  * Enumerates the workspace directories a compiled `packages:` set selects.
