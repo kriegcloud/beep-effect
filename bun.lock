@@ -3848,6 +3848,7 @@
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/ai-sync": "workspace:^",
         "@beep/chalk": "workspace:^",
+        "@beep/cli-kit": "workspace:^",
         "@beep/colors": "workspace:^",
         "@beep/config-file": "workspace:^",
         "@beep/duckdb": "workspace:^",

@@ -19,6 +19,7 @@
  * @since 0.0.0
  */
 
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
@@ -753,15 +754,6 @@ const authorType = (user: GhActor | null): O.Option<string> =>
   O.flatMap(O.fromNullishOr(user), (actor) => O.fromUndefinedOr(actor.type));
 const commentBody = (body: string | null): string => O.getOrElse(O.fromNullishOr(body), () => Str.empty);
 
-// GitHub comment fields are attacker-controlled terminal input. Strip OSC,
-// CSI, other ESC sequences, and remaining C0/C1 controls before rendering so
-// a comment cannot spoof output, write the clipboard, or create hyperlinks.
-const stripTerminalControlSequences: (value: string) => string = flow(
-  Str.replace(/\u001B\][\s\S]*?(?:\u0007|\u001B\\)/gu, ""),
-  Str.replace(/\u001B\[[0-?]*[ -/]*[@-~]/gu, ""),
-  Str.replace(/\u001B[@-Z\\-_]/gu, ""),
-  Str.replace(/[\u0000-\u001F\u007F-\u009F]/gu, "")
-);
 const reviewLine: (line: O.Option<number>) => string = flow(
   O.map((value) => `${value}`),
   O.getOrElse(() => "?")
@@ -873,7 +865,9 @@ export const yeetCommentExcerpt: {
   (maxLength: number): (body: string) => string;
   (body: string, maxLength: number): string;
 } = dual(2, (body: string, maxLength: number): string => {
-  const normalized = pipe(body, stripTerminalControlSequences, Str.replace(/\s+/gu, " "), Str.trim);
+  // GitHub comment text is attacker-controlled terminal input: no escape sequence or line break may reach a
+  // [yeet] line, so a comment cannot spoof output, write the clipboard or make a link.
+  const normalized = pipe(body, Fmt.stripControls, Str.replace(/\s+/gu, " "), Str.trim);
   return Str.length(normalized) <= maxLength ? normalized : `${pipe(normalized, Str.takeLeft(maxLength))}…`;
 });
 
@@ -957,17 +951,17 @@ export const renderYeetMonitorComment = (comment: YeetMonitorComment): string =>
     Match.tag(
       "review",
       (review) =>
-        `[yeet] new PR review comment: ${stripTerminalControlSequences(review.author)} @ ${stripTerminalControlSequences(review.path)}:${reviewLine(review.line)}\n  ${excerpt(review.body)}\n  ${stripTerminalControlSequences(review.url)}`
+        `[yeet] new PR review comment: ${Fmt.stripControls(review.author)} @ ${Fmt.stripControls(review.path)}:${reviewLine(review.line)}\n  ${excerpt(review.body)}\n  ${Fmt.stripControls(review.url)}`
     ),
     Match.tag(
       "issue",
       (issue) =>
-        `[yeet] new PR issue comment: ${stripTerminalControlSequences(issue.author)}\n  ${excerpt(issue.body)}\n  ${stripTerminalControlSequences(issue.url)}`
+        `[yeet] new PR issue comment: ${Fmt.stripControls(issue.author)}\n  ${excerpt(issue.body)}\n  ${Fmt.stripControls(issue.url)}`
     ),
     Match.tag(
       "review-body",
       (body) =>
-        `[yeet] new PR review: ${stripTerminalControlSequences(body.author)} (${stripTerminalControlSequences(body.state)})\n  ${excerpt(body.body)}${reviewBodySignalLine(body.signal)}\n  ${stripTerminalControlSequences(body.url)}`
+        `[yeet] new PR review: ${Fmt.stripControls(body.author)} (${Fmt.stripControls(body.state)})\n  ${excerpt(body.body)}${reviewBodySignalLine(body.signal)}\n  ${Fmt.stripControls(body.url)}`
     ),
     Match.exhaustive
   );
