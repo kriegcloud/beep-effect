@@ -2673,6 +2673,7 @@
       "dependencies": {
         "@beep/html": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",

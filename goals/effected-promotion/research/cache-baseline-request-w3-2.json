@@ -1,5 +1,5 @@
 {
-  "previous": "819ee0893c61bd0bbf7ece66b93d14a617323e9022d754a1f0edd055df56d1b4",
+  "previous": "8c018c9b5a963e45c3db1780956d6c44d766ab92ba8972aa5ab9e5bafb011d54",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-2, effected-w3-2 lane)",
     "reason": "Record the new wave-3-2 workspace @beep/repo-tsconfig scaffolded by create-package with the generated task set, the @beep/repo-cli dependency edit that swaps get-tsconfig for @beep/repo-tsconfig, the root catalog removal of get-tsconfig, and the policy-fingerprint input widening for the new repo-cli closure; no qualification is granted.",

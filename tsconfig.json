@@ -2325,6 +2325,15 @@
       "@beep/github-reporting/internal/*": [
         "./packages/foundation/modeling/github-reporting/src/internal/*"
       ],
+      "@beep/md/Md.parse": [
+        "./packages/foundation/modeling/md/src/Md.parse.ts"
+      ],
+      "@beep/md/Md.syntax": [
+        "./packages/foundation/modeling/md/src/Md.syntax.ts"
+      ],
+      "@beep/md/internal/*": [
+        "./packages/foundation/modeling/md/src/internal/*"
+      ],
       "@beep/repo-tsconfig": [
         "./packages/tooling/library/repo-tsconfig/src/index.ts"
       ],
