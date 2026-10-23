@@ -74,6 +74,7 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
  * when it is promoted.
  */
 const PROMOTED_KIT_PACKAGES = new Set([
+	"@beep/cli-kit",
 	"@beep/commands",
 	"@beep/config-file",
 	"@beep/git",

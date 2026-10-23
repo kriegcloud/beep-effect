@@ -1,7 +1,7 @@
 import * as Result from "effect/Result";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import type * as Cli from "../../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import type { Context as ReactContext } from "react";
 import { fromReact, inkModules } from "./ink.ts";
 

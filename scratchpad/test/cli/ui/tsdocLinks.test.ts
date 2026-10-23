@@ -5,10 +5,12 @@ import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "effected", "cli");
+/** The root entrypoint the ui docs link into is `@beep/cli-kit` since wave 4-C. */
+const ROOT_SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "packages", "foundation", "capability", "cli-kit", "src");
 
 /** The public names a source entrypoint re-exports, aliases resolved. */
-const entryExports = (file: string): ReadonlyArray<string> =>
-	[...readFileSync(join(SRC, file), "utf8").matchAll(/^export\s+(?:type\s+)?\{([^}]*)\}\s*from\s/gm)]
+const entryExports = (file: string, directory: string = SRC): ReadonlyArray<string> =>
+	[...readFileSync(join(directory, file), "utf8").matchAll(/^export\s+(?:type\s+)?\{([^}]*)\}\s*from\s/gm)]
 		.flatMap((match) => (match[1] ?? "").split(","))
 		.map((name) =>
 			(
@@ -50,7 +52,7 @@ const unresolvedLinks = (text: string, ui: ReadonlySet<string>, root: ReadonlySe
  */
 describe("TSDoc links in the ui sources", () => {
 	const ui = new Set([...entryExports("ui.ts"), ...entryExports("ui-testing.ts")]);
-	const root = new Set(entryExports("index.ts"));
+	const root = new Set(entryExports("index.ts", ROOT_SRC));
 
 	it("name an export of ./ui or ./ui/testing bare, a root export package-qualified, or a known external", () => {
 		const files = (readdirSync(SRC, { recursive: true, encoding: "utf8" }))

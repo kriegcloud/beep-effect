@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Glyphs } from "../../../effected/cli/Glyphs.ts";
+import { Glyphs } from "@beep/cli-kit/Glyphs";
 import { Binding, KeyHelpRow, KeyTable, UseKeysOptions } from "../../../effected/cli/ui/KeyTable.ts";
 import { KeyName, UiKey } from "../../../effected/cli/ui/UiKey.ts";
 

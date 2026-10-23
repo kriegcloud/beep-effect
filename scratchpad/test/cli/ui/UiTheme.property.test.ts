@@ -3,7 +3,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Style } from "../../../effected/cli/Token.ts";
+import { Style } from "@beep/cli-kit/Token";
 import { inkProps } from "../../../effected/cli/ui/UiTheme.ts";
 
 const runs = { arbitrary: fcRuns(100) };

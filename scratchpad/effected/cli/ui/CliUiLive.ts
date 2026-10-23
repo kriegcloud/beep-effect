@@ -1,5 +1,5 @@
-// Root types are named through the package's own name, so the emitted ui.d.ts imports them from "../index.ts".
-import type * as Cli from "../index.ts";
+// Root types are named through the package's own name, so the emitted ui.d.ts imports them from "@beep/cli-kit".
+import type * as Cli from "@beep/cli-kit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { CommandNeutralizer } from "@beep/github-commands";
@@ -24,12 +24,12 @@ import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import type { FunctionComponent, ReactElement, ReactNode } from "react";
-import { CliInteractive } from "../CliInteractive.ts";
-import { CliLinks } from "../CliLinks.ts";
-import { CliTheme } from "../CliTheme.ts";
-import { autoFormat, underGithubActions } from "../internal/autoFormat.ts";
-import type { RenderContext } from "../Render.ts";
-import { Render } from "../Render.ts";
+import { CliInteractive } from "@beep/cli-kit/CliInteractive";
+import { CliLinks } from "@beep/cli-kit/CliLinks";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import { autoFormat, underGithubActions } from "@beep/cli-kit/internal/autoFormat";
+import type { RenderContext } from "@beep/cli-kit/Render";
+import { Render } from "@beep/cli-kit/Render";
 import { errorBoundary } from "./internal/ErrorBoundary.ts";
 import type { HolderSlot } from "./internal/Holder.ts";
 import { holder, holderSlot } from "./internal/Holder.ts";

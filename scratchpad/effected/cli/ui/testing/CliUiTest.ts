@@ -8,7 +8,7 @@ import * as Duration from "effect/Duration";
 import * as Schedule from "effect/Schedule";
 // Root and ./ui types are named through the package's own name, so the emitted ui-testing.d.ts imports them rather
 // than carrying copies a consumer's own layers and screens could not satisfy.
-import type * as Cli from "../../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import type { LiveHandle, LiveOptions, Screen, ScreenControl } from "../../ui.ts";
 import type { ColorLevel } from "@beep/runtime-env";
 import { TerminalEnv } from "@beep/runtime-env";
@@ -26,9 +26,9 @@ import * as TestClock from "effect/testing/TestClock";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 import type { ReactElement } from "react";
-import { CliInteractive } from "../../CliInteractive.ts";
-import { CliTheme } from "../../CliTheme.ts";
-import type { Style, TokenName } from "../../Token.ts";
+import { CliInteractive } from "@beep/cli-kit/CliInteractive";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import type { Style, TokenName } from "@beep/cli-kit/Token";
 import { CliUi } from "../CliUi.ts";
 import { holder, holderSlot } from "../internal/Holder.ts";
 import { inkModules } from "../internal/ink.ts";
@@ -1116,7 +1116,7 @@ export class CliUiTest {
      * import * as MutableRef from "effect/MutableRef"
      * import * as NodeServices from "@effect/platform-node/NodeServices"
      * import { CliUiTest } from "@beep/scratchpad/effected/cli/ui/testing/CliUiTest"
-     * import { CliExit } from "@beep/scratchpad/effected/cli/CliExit"
+     * import { CliExit } from "@beep/cli-kit/CliExit"
      * import { CliUi } from "@beep/scratchpad/effected/cli/ui/CliUi"
      * import { Select } from "@beep/scratchpad/effected/cli/ui/Select"
      * import * as Effect from "effect/Effect"
@@ -1317,7 +1317,7 @@ export class CliUiTest {
 	 *
 	 * ```ts
 	 * import { CliUiTest } from "@beep/scratchpad/effected/cli/ui/testing/CliUiTest"
-	 * import { Cancelled } from "@beep/scratchpad/effected/cli/Cancelled"
+	 * import { Cancelled } from "@beep/cli-kit/Cancelled"
 	 * import * as Exit from "effect/Exit"
 	 * import * as O from "effect/Option"
 	 * const exit = Exit.fail(Cancelled.make({ reason: "escape" }))

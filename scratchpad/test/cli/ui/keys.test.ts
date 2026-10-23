@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import { Text, useInput } from "ink";
 import type { ReactElement } from "react";
 import { createElement } from "react";
-import { Glyphs } from "../../../effected/cli/index.ts";
+import { Glyphs } from "@beep/cli-kit";
 import type { KeyName, Screen, UiKey as UiKeyType } from "../../../effected/cli/ui.ts";
 import { KeyHelp, KeyTable, UiKey, useKeys } from "../../../effected/cli/ui.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";

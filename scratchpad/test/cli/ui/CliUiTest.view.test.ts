@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import { Text, useInput } from "ink";
 import type { ReactElement } from "react";
 import { createElement, useState } from "react";
-import { NotInteractive } from "../../../effected/cli/index.ts";
+import { NotInteractive } from "@beep/cli-kit";
 import { Styled, useGlyphs, useTerminalSize, useTheme } from "../../../effected/cli/ui.ts";
 import type { CliUiTestView } from "../../../effected/cli/ui-testing.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";

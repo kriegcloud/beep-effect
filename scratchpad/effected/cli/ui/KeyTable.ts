@@ -1,9 +1,9 @@
 import { dual, pipe } from "effect/Function";
-import type * as Cli from "../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import type { Key } from "ink";
 import * as O from "effect/Option";
 import * as MutableHashSet from "effect/MutableHashSet";
-import { graphemes } from "../internal/displayWidth.ts";
+import { graphemes } from "@beep/cli-kit/internal/displayWidth";
 import { inkModules } from "./internal/ink.ts";
 import { useScreenGuard } from "./internal/ScreenContext.ts";
 import { KeyName, UiKey } from "./UiKey.ts";
@@ -303,7 +303,7 @@ export class KeyTable<Action> {
 	 *
 	 * ```ts
 	 * import { KeyTable } from "@beep/scratchpad/effected/cli/ui/KeyTable"
-	 * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+	 * import { Glyphs } from "@beep/cli-kit/Glyphs"
 	 *
 	 * console.log(KeyTable.root.help(Glyphs.ascii)[0]?.label) // esc
 	 * ```

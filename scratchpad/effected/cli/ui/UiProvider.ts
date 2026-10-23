@@ -1,4 +1,4 @@
-import type * as Cli from "../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import type { ReactElement, ReactNode } from "react";
 import { inkModules } from "./internal/ink.ts";
 import { screenContext } from "./internal/ScreenContext.ts";

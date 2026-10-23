@@ -3,7 +3,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import { displayWidth, graphemes } from "../../internal/displayWidth.ts";
+import { displayWidth, graphemes } from "@beep/cli-kit/internal/displayWidth";
 const ESC = "\u001b";
 
 /**

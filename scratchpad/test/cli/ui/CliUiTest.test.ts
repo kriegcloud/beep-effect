@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import { Text, useInput } from "ink";
 import type { ReactElement } from "react";
 import { createElement, useEffect, useState } from "react";
-import { Cancelled, Doc, NotInteractive, Render } from "../../../effected/cli/index.ts";
+import { Cancelled, Doc, NotInteractive, Render } from "@beep/cli-kit";
 import type { Screen, ScreenControl } from "../../../effected/cli/ui.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 import { contextOf } from "../helpers/renderContext.ts";

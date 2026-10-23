@@ -1,6 +1,6 @@
 import { dual } from "effect/Function";
 import * as Str from "effect/String";
-import { sanitize } from "../../Fmt.ts";
+import { sanitize } from "@beep/cli-kit/Fmt";
 
 /**
  * Consumer text made safe for one row of a widget: sanitised as `Fmt.sanitize` does (no escape sequence, no other

@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
-import { NotInteractive } from "../../../effected/cli/index.ts";
+import { NotInteractive } from "@beep/cli-kit";
 import { CliUi, Select, TextInput } from "../../../effected/cli/ui.ts";
 import { CliUiTest, type CliUiTestSession, type CliUiTestSessionOptions } from "../../../effected/cli/ui-testing.ts";
 

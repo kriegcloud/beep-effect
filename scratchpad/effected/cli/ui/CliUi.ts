@@ -1,8 +1,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-// Root types are named through the package's own name, so the emitted ui.d.ts imports them from "../index.ts"
+// Root types are named through the package's own name, so the emitted ui.d.ts imports them from "@beep/cli-kit"
 // (kept external by dtsExternals) instead of carrying copies a consumer's root layers cannot satisfy.
-import type * as Cli from "../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import { Audience } from "@beep/runtime-env";
 import type * as Scope from "effect/Scope";
 import * as Cause from "effect/Cause";
@@ -17,12 +17,12 @@ import * as Prompt from "effect/cli/Prompt";
 import * as O from "@beep/utils/Option";
 import * as Semaphore from "effect/Semaphore";
 import type { ReactElement, ReactNode } from "react";
-import { Cancelled } from "../Cancelled.ts";
-import { CliInteractive } from "../CliInteractive.ts";
-import { CliTheme } from "../CliTheme.ts";
-import { underGithubActions } from "../internal/autoFormat.ts";
-import { answerWithoutPerson } from "../internal/fallbackAnswer.ts";
-import { NotInteractive } from "../NotInteractive.ts";
+import { Cancelled } from "@beep/cli-kit/Cancelled";
+import { CliInteractive } from "@beep/cli-kit/CliInteractive";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import { underGithubActions } from "@beep/cli-kit/internal/autoFormat";
+import { answerWithoutPerson } from "@beep/cli-kit/internal/fallbackAnswer";
+import { NotInteractive } from "@beep/cli-kit/NotInteractive";
 import type { LiveHandle, LiveOptions } from "./CliUiLive.ts";
 import { live } from "./CliUiLive.ts";
 import { errorBoundary } from "./internal/ErrorBoundary.ts";
@@ -383,7 +383,7 @@ export class CliUi {
 	 *
 	 * ```ts
 	 * import { CliUi } from "@beep/scratchpad/effected/cli/ui/CliUi"
-	 * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme"
+	 * import { CliTheme } from "@beep/cli-kit/CliTheme"
 	 * import { UiProvider } from "@beep/scratchpad/effected/cli/ui/UiProvider"
 	 * import * as Effect from "effect/Effect"
 	 * import { createElement } from "react"
@@ -702,7 +702,7 @@ export class CliUi {
 	 *
 	 * ```ts
 	 * import { CliUi } from "@beep/scratchpad/effected/cli/ui/CliUi"
-	 * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+	 * import { Doc } from "@beep/cli-kit/Doc"
 	 * import * as Effect from "effect/Effect"
 	 * import * as Stream from "effect/Stream"
 	 * // No JSX or eager React import in the command module.

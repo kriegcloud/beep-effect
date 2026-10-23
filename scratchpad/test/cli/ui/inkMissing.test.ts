@@ -7,7 +7,7 @@ import * as Exit from "effect/Exit";
 import * as Prompt from "effect/cli/Prompt";
 import * as P from "effect/Predicate";
 import { vi } from "vitest";
-import { CliInteractive, CliTheme } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme } from "@beep/cli-kit";
 import { loadInk } from "../../../effected/cli/ui/internal/ink.ts";
 import { CliUi } from "../../../effected/cli/ui.ts";
 

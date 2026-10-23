@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import { createElement } from "react";
 import type { Screen } from "../../../effected/cli/ui.ts";
 import { CliUi, Confirm, MultiSelect, Select, Tabs, TextInput, Toggle } from "../../../effected/cli/ui.ts";
-import { Fmt } from "../../../effected/cli/index.ts";
+import { Fmt } from "@beep/cli-kit";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 
 const long = "X".repeat(100);

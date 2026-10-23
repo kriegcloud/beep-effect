@@ -4545,6 +4545,7 @@
       {
         "from": "@beep/scratchpad",
         "allow": [
+          "@beep/cli-kit",
           "@beep/commands",
           "@beep/config-file",
           "@beep/dock",
@@ -4600,6 +4601,7 @@
           "@beep/yaml"
         ],
         "allowTypeOnly": [
+          "@beep/cli-kit",
           "@beep/commands",
           "@beep/config-file",
           "@beep/dock",

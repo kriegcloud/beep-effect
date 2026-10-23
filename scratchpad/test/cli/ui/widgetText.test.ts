@@ -2,7 +2,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import type { ReactElement } from "react";
 import { createElement } from "react";
-import { Fmt } from "../../../effected/cli/index.ts";
+import { Fmt } from "@beep/cli-kit";
 import type { Screen } from "../../../effected/cli/ui.ts";
 import { Confirm, KeyHelp, KeyTable, MultiSelect, Select, Tabs, TextInput } from "../../../effected/cli/ui.ts";
 import { lineText, lineTextAround } from "../../../effected/cli/ui/internal/lineText.ts";

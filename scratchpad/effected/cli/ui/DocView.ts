@@ -1,9 +1,9 @@
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
-// Root types are named through the package's own name, so the emitted ui.d.ts imports them from "../index.ts".
-import type * as Cli from "../index.ts";
+// Root types are named through the package's own name, so the emitted ui.d.ts imports them from "@beep/cli-kit".
+import type * as Cli from "@beep/cli-kit";
 import type { FunctionComponent, ReactElement } from "react";
-import { Render } from "../Render.ts";
+import { Render } from "@beep/cli-kit/Render";
 import { fromReact, inkModules } from "./internal/ink.ts";
 import { screenContext } from "./internal/ScreenContext.ts";
 import { useTerminalSize } from "./UiTheme.ts";

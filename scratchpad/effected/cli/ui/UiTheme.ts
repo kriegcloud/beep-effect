@@ -2,7 +2,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
-import type * as Cli from "../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import type { ColorLevel } from "@beep/runtime-env";
 import type { ReactElement, ReactNode } from "react";
 import { inkModules } from "./internal/ink.ts";

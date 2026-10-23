@@ -12,7 +12,7 @@ import * as Stream from "effect/Stream";
 import { Box, Text } from "ink";
 import type { ReactElement } from "react";
 import { createElement, useEffect } from "react";
-import { CliInteractive, CliTheme } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme } from "@beep/cli-kit";
 import type { InkChalk } from "../../../effected/cli/ui/internal/inkChalk.ts";
 import { inkChalk } from "../../../effected/cli/ui/internal/inkChalk.ts";
 import { UiRenderOptions } from "../../../effected/cli/ui/internal/renderOptions.ts";

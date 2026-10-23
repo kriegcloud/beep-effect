@@ -11,7 +11,7 @@ import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
 import { Box, Text, render } from "ink";
 import { createElement } from "react";
-import { CliInteractive, CliTheme } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme } from "@beep/cli-kit";
 import { mountPermit } from "../../../effected/cli/ui/internal/mountPermit.ts";
 import { UiRenderOptions } from "../../../effected/cli/ui/internal/renderOptions.ts";
 import type { FakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";

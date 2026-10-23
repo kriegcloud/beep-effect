@@ -1,9 +1,9 @@
 // @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { dual } from "effect/Function";
 import * as Effect from "effect/Effect";
-import type { LinkTarget, RenderContext, Style, TokenName } from "../../../effected/cli/index.ts";
-import { CliTheme } from "../../../effected/cli/index.ts";
-import { stripAnsi } from "../../../effected/cli/internal/displayWidth.ts";
+import type { LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
+import { CliTheme } from "@beep/cli-kit";
+import { stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 
 const OSC8 = /\u001B\]8;[^;\u0007\u001B]*;([^\u0007\u001B]*)(?:\u0007|\u001B\\)/g;
 const SGR = /\u001B\[([0-9;]*)m/g;
