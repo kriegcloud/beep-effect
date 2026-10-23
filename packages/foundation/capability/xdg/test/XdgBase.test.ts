@@ -129,7 +129,7 @@ describe("XdgBase", () => {
 const Nullable = S.NullOr(S.String);
 const Golden = S.fromJsonString(
   S.Struct({
-    schemaVersion: S.Literal(1),
+    schemaVersion: S.tag(1),
     systemd: S.String,
     cases: S.Array(S.Tuple([XdgBaseKind, Nullable, Nullable, Nullable])),
   })

@@ -5,6 +5,8 @@
  * directory mapping (`NativeDirs`). The environment is read once, at layer
  * construction, so reading a path never fails.
  *
+ * **Details**
+ *
  * The bridge into `@beep/config-file` discovery is the `@beep/xdg/XdgConfig`
  * subpath. The root does not re-export it, so importing the root never loads
  * config-file or its codecs.
