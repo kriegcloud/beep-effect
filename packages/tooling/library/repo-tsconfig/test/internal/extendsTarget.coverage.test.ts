@@ -1,11 +1,14 @@
 import { resolveExports, resolveExtendsTarget } from "@beep/repo-tsconfig/internal/extendsTarget";
-import { describe, it } from "@effect/vitest";
+import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { fixtureLayer, tree } from "../support/fixtures.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
+
+/** The walk of `targets` that no `null` ended. */
+const walked = (...targets: ReadonlyArray<string>) => ({ targets, blocked: false });
 
 const nested = (leaf: unknown, depth: number): unknown => {
   let value = leaf;
@@ -22,32 +25,32 @@ describe("extendsTarget boundary coverage", () => {
         ["./a*b", "./zxb"],
         ["./a*b", "./axc"],
       ] as const)
-        assertNone(resolveExports({ [pattern]: "./*.json" }, subpath));
+        assert.deepStrictEqual(resolveExports({ [pattern]: "./*.json" }, subpath), walked());
     })
   );
 
   it.effect("chooses the most specific wildcard regardless of insertion order", () =>
     Effect.sync(() => {
-      assertSome(
+      assert.deepStrictEqual(
         resolveExports({ "./config/*": "./specific/*.json", "./*": "./general/*.json" }, "./config/a"),
-        "./specific/a.json"
+        walked("./specific/a.json")
       );
-      assertSome(
+      assert.deepStrictEqual(
         resolveExports({ "./*": "./general/*.json", "./config/*": "./specific/*.json" }, "./config/a"),
-        "./specific/a.json"
+        walked("./specific/a.json")
       );
-      assertNone(resolveExports({ "./fixed": "./fixed.json", "./x*": "./*.json" }, "./absent"));
+      assert.deepStrictEqual(resolveExports({ "./fixed": "./fixed.json", "./x*": "./*.json" }, "./absent"), walked());
     })
   );
 
   it.effect("rejects root sugar for subpaths and empty or primitive condition values", () =>
     Effect.sync(() => {
-      assertNone(resolveExports("./root.json", "./sub"));
-      assertNone(resolveExports(["./root.json"], "./sub"));
-      assertNone(resolveExports({}, "."));
-      assertNone(resolveExports({ types: "./root.json" }, "./sub"));
-      assertNone(resolveExports({ types: 1, default: false }, "."));
-      assertNone(resolveExports([null, false, 1], "."));
+      assert.deepStrictEqual(resolveExports("./root.json", "./sub"), walked());
+      assert.deepStrictEqual(resolveExports(["./root.json"], "./sub"), walked());
+      assert.deepStrictEqual(resolveExports({}, "."), walked());
+      assert.deepStrictEqual(resolveExports({ types: "./root.json" }, "./sub"), walked());
+      assert.deepStrictEqual(resolveExports({ types: 1, default: false }, "."), walked());
+      assert.deepStrictEqual(resolveExports([false, 1, null, "./after.json"], "."), { targets: [], blocked: true });
     })
   );
 
@@ -56,10 +59,10 @@ describe("extendsTarget boundary coverage", () => {
       const poisoned = yield* S.decodeEffect(JsonValue)(
         '{"__proto__":"./bad.json","constructor":"./bad.json","prototype":"./bad.json","browser":"./bad.json","types":[false,"./*.json"]}'
       );
-      assertSome(resolveExports({ "./*": poisoned }, "./base"), "./base.json");
-      assertNone(resolveExports({ "./*": nested("./*.json", 34) }, "./base"));
-      assertNone(resolveExports(nested("./base.json", 34), "."));
-      assertSome(resolveExports(".")({ default: "./base.json" }), "./base.json");
+      assert.deepStrictEqual(resolveExports({ "./*": poisoned }, "./base"), walked("./base.json"));
+      assert.deepStrictEqual(resolveExports({ "./*": nested("./*.json", 34) }, "./base"), walked());
+      assert.deepStrictEqual(resolveExports(nested("./base.json", 34), "."), walked());
+      assert.deepStrictEqual(resolveExports(".")({ default: "./base.json" }), walked("./base.json"));
     })
   );
 

@@ -25,10 +25,16 @@ describe("extends target resolution properties", () => {
         const parsed = yield* S.decodeEffect(codec)(yield* S.encodeEffect(codec)(manifest));
         const reparsed = yield* S.decodeEffect(codec)(yield* S.encodeEffect(codec)(parsed));
         assert.deepStrictEqual(resolveExports(reparsed, "./base"), resolveExports(parsed, "./base"));
-        assertSome(resolveExports(parsed, "./base"), target);
-        assertSome(resolveExports(target, "."), target);
-        assertSome(resolveExports({ "./*": { types: [false, "./base-*.json"] } }, `./${segment}`), target);
-        assertNone(resolveExports(parsed, "./absent"));
+        assert.deepStrictEqual(resolveExports(parsed, "./base"), {
+          targets: [target, "./ignored.json"],
+          blocked: false,
+        });
+        assert.deepStrictEqual(resolveExports(target, "."), { targets: [target], blocked: false });
+        assert.deepStrictEqual(resolveExports({ "./*": { types: [false, "./base-*.json"] } }, `./${segment}`), {
+          targets: [target],
+          blocked: false,
+        });
+        assert.deepStrictEqual(resolveExports(parsed, "./absent"), { targets: [], blocked: false });
       }),
     runs
   );

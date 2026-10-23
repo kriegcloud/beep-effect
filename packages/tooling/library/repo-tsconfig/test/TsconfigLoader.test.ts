@@ -413,67 +413,70 @@ layer(
 // resolveExports — pure unit tests, including hostile inputs
 // ---------------------------------------------------------------------------
 
+/** The walk of `targets` that no `null` ended. */
+const walked = (...targets: ReadonlyArray<string>) => ({ targets, blocked: false });
+
 describe("resolveExports", () => {
   it("resolves a bare string exports target for the root subpath", () => {
-    assertSome(resolveExports("./tsconfig.json", "."), "./tsconfig.json");
+    assert.deepStrictEqual(resolveExports("./tsconfig.json", "."), walked("./tsconfig.json"));
   });
 
-  it("matches conditions in map insertion order (require before default)", () => {
+  it("walks conditions in map insertion order (require before default)", () => {
     const exports = { ".": { require: "./r.json", default: "./d.json" } };
-    assertSome(resolveExports(exports, "."), "./r.json");
+    assert.deepStrictEqual(resolveExports(exports, "."), walked("./r.json", "./d.json"));
   });
 
-  it("walks a fallback array to the first resolvable entry", () => {
+  it("walks a fallback array through every resolvable entry", () => {
     const exports = { ".": [{ unknowncond: "./a.json" }, "./b.json"] };
-    assertSome(resolveExports(exports, "."), "./b.json");
+    assert.deepStrictEqual(resolveExports(exports, "."), walked("./b.json"));
   });
 
   it("substitutes a single-star subpath pattern", () => {
     const exports = { "./*": "./cfg/*" };
-    assertSome(resolveExports(exports, "./node20.json"), "./cfg/node20.json");
+    assert.deepStrictEqual(resolveExports(exports, "./node20.json"), walked("./cfg/node20.json"));
   });
 
   it("rejects a non-.json target", () => {
-    assertNone(resolveExports({ ".": "./tsconfig" }, "."));
-    assertNone(resolveExports({ ".": "./tsconfig.mjs" }, "."));
+    assert.deepStrictEqual(resolveExports({ ".": "./tsconfig" }, "."), walked());
+    assert.deepStrictEqual(resolveExports({ ".": "./tsconfig.mjs" }, "."), walked());
   });
 
   it("reads a .d.ts, .ts or .js target as its .json sibling, as tsc's config lookup does", () => {
-    assertSome(resolveExports({ ".": "./base.d.ts" }, "."), "./base.json");
-    assertSome(resolveExports({ "./*": "./*.ts" }, "./tsconfig"), "./tsconfig.json");
-    assertSome(resolveExports({ ".": { types: "./base.js" } }, "."), "./base.json");
+    assert.deepStrictEqual(resolveExports({ ".": "./base.d.ts" }, "."), walked("./base.json"));
+    assert.deepStrictEqual(resolveExports({ "./*": "./*.ts" }, "./tsconfig"), walked("./tsconfig.json"));
+    assert.deepStrictEqual(resolveExports({ ".": { types: "./base.js" } }, "."), walked("./base.json"));
   });
 
   it("reads a top-level fallback array as the root target", () => {
-    assertSome(resolveExports(["./a.json"], "."), "./a.json");
+    assert.deepStrictEqual(resolveExports(["./a.json"], "."), walked("./a.json"));
   });
 
-  it("returns none for a non-object, non-string exports value", () => {
-    assertNone(resolveExports(42, "."));
+  it("walks nothing for a non-object, non-string exports value", () => {
+    assert.deepStrictEqual(resolveExports(42, "."), walked());
   });
 
-  it("returns none when a subpath map has no matching key or pattern", () => {
-    assertNone(resolveExports({ "./a.json": "./x.json" }, "./b.json"));
+  it("walks nothing when a subpath map has no matching key or pattern", () => {
+    assert.deepStrictEqual(resolveExports({ "./a.json": "./x.json" }, "./b.json"), walked());
   });
 
   it("substitutes a wildcard into a nested condition object", () => {
     const exports = { "./*": { types: "./cfg/*.json" } };
-    assertSome(resolveExports(exports, "./node20"), "./cfg/node20.json");
+    assert.deepStrictEqual(resolveExports(exports, "./node20"), walked("./cfg/node20.json"));
   });
 
   it("substitutes a wildcard into a fallback array target", () => {
     const exports = { "./*": ["./cfg/*.json"] };
-    assertSome(resolveExports(exports, "./node20"), "./cfg/node20.json");
+    assert.deepStrictEqual(resolveExports(exports, "./node20"), walked("./cfg/node20.json"));
   });
 
   it("picks the pattern with the longest base prefix, not the first in key order", () => {
     const exports = { "./*.json": "./generic/*.json", "./cfg/*.json": "./specific/*.json" };
-    assertSome(resolveExports(exports, "./cfg/node20.json"), "./specific/node20.json");
+    assert.deepStrictEqual(resolveExports(exports, "./cfg/node20.json"), walked("./specific/node20.json"));
   });
 
   it("skips a __proto__ condition key", () => {
     const exports = JSON.parse('{".":{"__proto__":"./evil.json","default":"./safe.json"}}');
-    assertSome(resolveExports(exports, "."), "./safe.json");
+    assert.deepStrictEqual(resolveExports(exports, "."), walked("./safe.json"));
   });
 
   const deepConditions = (depth: number): unknown => {
@@ -483,11 +486,11 @@ describe("resolveExports", () => {
   };
 
   it("resolves shallow condition nesting", () => {
-    assertSome(resolveExports(deepConditions(5), "."), "./deep.json");
+    assert.deepStrictEqual(resolveExports(deepConditions(5), "."), walked("./deep.json"));
   });
 
-  it("returns none past the depth guard", () => {
-    assertNone(resolveExports(deepConditions(100), "."));
+  it("walks nothing past the depth guard", () => {
+    assert.deepStrictEqual(resolveExports(deepConditions(100), "."), walked());
   });
 });
 

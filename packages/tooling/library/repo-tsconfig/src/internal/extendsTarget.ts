@@ -2,9 +2,9 @@
  * The `extends` target-resolution engine (relative/rooted specifiers and the bare-specifier
  * `node_modules` lookup). Every input reaching {@link resolveExports} is an
  * untrusted `package.json` `exports` map, so every recursive surface carries a
- * depth guard, every untrusted map read goes through `R.has` (an own-property check), dunder
- * keys are skipped, and substituted maps are built with `Object.create(null)` —
- * a JSON-parsed `{"__proto__": …}` key must never read or assign a prototype.
+ * depth guard, every untrusted map read goes through `R.has` (an own-property check) and dunder
+ * keys are skipped — a JSON-parsed `{"__proto__": …}` key must never read a prototype. Wildcard
+ * captures are substituted into string targets only, so no untrusted map is ever rebuilt.
  *
  * **Gotchas**
  *
@@ -37,8 +37,17 @@ const CONDITIONS = HashSet.make("require", "types", "node", "default");
 /** Keys that are never data on a plain object. Skipped on every untrusted read. */
 const DUNDER_KEYS = HashSet.make("__proto__", "constructor", "prototype");
 
-/** Depth guard for the recursive exports walk (condition nesting, fallback arrays, wildcard substitution). */
+/** Depth guard for the recursive exports walk (condition nesting and fallback arrays). */
 const MAX_EXPORTS_DEPTH = 32;
+
+/** Path segments tsc rejects in an export target (after its leading `./`) and in a `*` capture. */
+const INVALID_SEGMENTS = HashSet.make(".", "..", "node_modules");
+
+/**
+ * `exports` values tsc treats as no `exports` field at all (measured against tsgo 7.0.2: `null`, `false`
+ * and `""` fall through to the manifest-less lookups; `0`, `true`, `{}` and `[]` do not).
+ */
+const ABSENT_EXPORTS = HashSet.make<ReadonlyArray<unknown>>(null, false, "");
 
 /** An untrusted JSON object read from a `package.json`. */
 type UntrustedRecord = { readonly [key: PropertyKey]: unknown };
@@ -54,6 +63,18 @@ interface PatternMatch {
   readonly captured: string;
   readonly pattern: string;
   readonly prefixLength: number;
+}
+
+/** The export value a subpath selected, with the `*` capture when a pattern key selected it. */
+interface MatchedExport {
+  readonly captured: O.Option<string>;
+  readonly value: unknown;
+}
+
+/** The `.json` targets an `exports` lookup probes, in order, and whether a `null` target ended the walk. */
+interface ExportsWalk {
+  readonly blocked: boolean;
+  readonly targets: ReadonlyArray<string>;
 }
 
 /** A bare specifier split into its package name and the subpath below it. */
@@ -119,37 +140,6 @@ const matchWildcard = ({ prefix, suffix }: WildcardPattern, subpath: string): O.
     : O.none();
 
 /**
- * Substitute a captured wildcard segment into an export value, hardened against dunder keys and unbounded nesting.
- *
- * @param value - The export value to rewrite.
- * @param captured - The segment the pattern's `*` captured.
- * @param depth - The current nesting depth.
- * @returns The rewritten value; past the depth guard, JSON `null` (an unresolvable target).
- */
-const substituteWildcard = (value: unknown, captured: string, depth: number): unknown => {
-  if (depth > MAX_EXPORTS_DEPTH) return null;
-  if (P.isString(value)) return Str.replace(/\*/g, captured)(value);
-  if (A.isArray(value)) return A.map(value, (entry) => substituteWildcard(entry, captured, depth + 1));
-  return P.isObject(value) ? substituteObject(value, captured, depth + 1) : value;
-};
-
-/**
- * Substitute into every safe member of a condition object, building a null-prototype result.
- *
- * @param value - The condition object to rewrite.
- * @param captured - The segment the pattern's `*` captured.
- * @param depth - The nesting depth of the members.
- * @returns A null-prototype copy with every member substituted.
- */
-const substituteObject = (value: UntrustedRecord, captured: string, depth: number): Record<string, unknown> => {
-  const result: Record<string, unknown> = { __proto__: null };
-  for (const key of safeKeys(value)) {
-    result[key] = substituteWildcard(value[key], captured, depth);
-  }
-  return result;
-};
-
-/**
  * Match one `exports` key against the subpath as a `*` pattern.
  *
  * @param subpath - The subpath key being resolved.
@@ -175,19 +165,22 @@ const moreSpecific = (best: O.Option<PatternMatch>, next: PatternMatch): O.Optio
 /**
  * Resolve a subpath against a subpath map: the exact key first, then the most specific `*` pattern.
  * Node/tsc pattern selection: among matching `*` patterns the LONGEST base prefix (the text before the
- * star) wins — most specific, not first-in-order.
+ * star) wins — most specific, not first-in-order. An exact key decides the subpath even when its targets
+ * miss; the patterns are not consulted.
  *
  * @param map - The subpath map (every key starts with ".").
  * @param subpath - The subpath key being resolved.
- * @returns The selected export value, or `Option.none()` when no key matches.
+ * @returns The selected export value with the pattern's capture, or `Option.none()` when no key matches.
  */
-const matchSubpath = (map: UntrustedRecord, subpath: string): O.Option<unknown> =>
-  O.orElse(ownProp(map, subpath), () =>
-    pipe(
-      A.getSomes(A.map(safeKeys(map), matchPattern(subpath))),
-      A.reduce(O.none<PatternMatch>(), moreSpecific),
-      O.map((best) => substituteWildcard(map[best.pattern], best.captured, 0))
-    )
+const matchSubpath = (map: UntrustedRecord, subpath: string): O.Option<MatchedExport> =>
+  O.orElse(
+    O.map(ownProp(map, subpath), (value) => ({ value, captured: O.none<string>() })),
+    () =>
+      pipe(
+        A.getSomes(A.map(safeKeys(map), matchPattern(subpath))),
+        A.reduce(O.none<PatternMatch>(), moreSpecific),
+        O.map((best) => ({ value: map[best.pattern], captured: O.some(best.captured) }))
+      )
   );
 
 /**
@@ -203,17 +196,17 @@ const isSubpathMap = (exports: UntrustedRecord): boolean => {
 };
 
 /**
- * Find the export value for a subpath: exact key first, then a single-`*` pattern (substituted). A string,
- * an array or a condition object is the "." target.
+ * Find the export value for a subpath: exact key first, then a single-`*` pattern. A string, an array or a
+ * condition object is the "." target.
  *
  * @param exports - The untrusted `exports` value.
  * @param subpath - The subpath key being resolved.
- * @returns The selected export value, or `Option.none()`.
+ * @returns The selected export value with the pattern's capture, or `Option.none()`.
  */
-const matchExportKey = (exports: unknown, subpath: string): O.Option<unknown> => {
+const matchExportKey = (exports: unknown, subpath: string): O.Option<MatchedExport> => {
   if (P.isObject(exports) && isSubpathMap(exports)) return matchSubpath(exports, subpath);
   const isRootTarget = P.isString(exports) || A.isArray(exports) || P.isObject(exports);
-  return subpath === "." && isRootTarget ? O.some(exports) : O.none();
+  return subpath === "." && isRootTarget ? O.some({ value: exports, captured: O.none() }) : O.none();
 };
 
 /**
@@ -240,66 +233,124 @@ const jsonTarget = (target: string): O.Option<string> =>
       );
 
 /**
- * Resolve an export value to a `.json` string target: strings gate on the
- * `.json` suffix (or a `.d.ts`/`.ts`/`.js` target's `.json` sibling, as tsc's config lookup reads it),
- * fallback arrays yield the first resolvable entry, and
- * condition objects are matched in map insertion order (Node semantics) against
- * the honored conditions plus `default`, under the depth guard.
+ * Whether a path has a `.`, `..` or `node_modules` segment (either slash separates; the match is
+ * case-sensitive, as tsc's is).
+ *
+ * @param path - The target tail or captured subpath to check.
+ * @returns `true` when the path has an invalid segment.
+ */
+const hasInvalidSegment = (path: string): boolean =>
+  A.some(Str.split(path, /[\\/]/), (segment) => HashSet.has(INVALID_SEGMENTS, segment));
+
+/**
+ * The `.json` target one string export target contributes, if any. tsc skips (and keeps walking past) a
+ * target that does not start with `./` or has an invalid segment after it, and a target reached through a
+ * `*` pattern whose capture has an invalid segment. A valid target has every `*` replaced by the capture
+ * and is then read as a config ({@link jsonTarget}).
+ *
+ * @param target - The string export target, as written in the manifest.
+ * @param captured - The pattern's captured segment, or `Option.none()` for an exact key.
+ * @returns The `.json` target to probe, or nothing.
+ */
+const stringTarget = (target: string, captured: O.Option<string>): ReadonlyArray<string> =>
+  Str.startsWith("./")(target) && !hasInvalidSegment(Str.slice(2)(target)) && !O.exists(captured, hasInvalidSegment)
+    ? pipe(
+        captured,
+        O.match({ onNone: () => target, onSome: (segment) => A.join(Str.split(target, "*"), segment) }),
+        jsonTarget,
+        O.toArray
+      )
+    : [];
+
+/** The walk of no further targets. */
+const OPEN: ExportsWalk = { targets: [], blocked: false };
+
+/** The walk a `null` target ends. */
+const BLOCKED: ExportsWalk = { targets: [], blocked: true };
+
+/**
+ * Walk export values in order, concatenating their targets until one of them is blocked.
+ *
+ * @param entries - The values (array entries or honored condition keys), in order.
+ * @param walk - The walk of one entry.
+ * @returns The combined walk.
+ */
+const walkSequence = <X>(entries: ReadonlyArray<X>, walk: (entry: X) => ExportsWalk): ExportsWalk =>
+  A.reduce(entries, OPEN, (acc, entry) => {
+    if (acc.blocked) return acc;
+    const next = walk(entry);
+    return { targets: A.appendAll(acc.targets, next.targets), blocked: next.blocked };
+  });
+
+/**
+ * Walk an export value the way tsc does for a config lookup: a string contributes its `.json` target, a
+ * fallback array and a condition object (honored conditions plus `default`, in map insertion order) walk
+ * every entry in turn, and a `null` ends the walk blocked. tsc keeps going past a target whose file is
+ * missing, so every target up to the end (or the `null`) is a candidate. Bounded by the depth guard.
  *
  * @param value - The export value.
+ * @param captured - The pattern's captured segment, or `Option.none()` for an exact key.
  * @param depth - The current nesting depth.
- * @returns The `.json` target, or `Option.none()`.
+ * @returns The candidate targets in probe order and whether a `null` ended the walk.
  */
-const resolveConditionValue = (value: unknown, depth: number): O.Option<string> => {
-  if (depth > MAX_EXPORTS_DEPTH) return O.none();
-  if (P.isString(value)) return jsonTarget(value);
-  if (A.isArray(value)) return A.findFirst(value, (entry) => resolveConditionValue(entry, depth + 1));
-  return P.isObject(value) ? resolveConditions(value, depth + 1) : O.none();
+const walkValue = (value: unknown, captured: O.Option<string>, depth: number): ExportsWalk => {
+  if (depth > MAX_EXPORTS_DEPTH) return OPEN;
+  if (P.isNull(value)) return BLOCKED;
+  if (P.isString(value)) return { targets: stringTarget(value, captured), blocked: false };
+  if (A.isArray(value)) return walkSequence(value, (entry) => walkValue(entry, captured, depth + 1));
+  return P.isObject(value) ? walkConditions(value, captured, depth + 1) : OPEN;
 };
 
 /**
- * Resolve the first honored condition of a condition object that yields a target.
+ * Walk the honored conditions of a condition object, in map insertion order.
  *
  * @param conditions - The condition object.
+ * @param captured - The pattern's captured segment, or `Option.none()` for an exact key.
  * @param depth - The nesting depth of its members.
- * @returns The `.json` target, or `Option.none()`.
+ * @returns The combined walk.
  */
-const resolveConditions = (conditions: UntrustedRecord, depth: number): O.Option<string> =>
-  A.findFirst(safeKeys(conditions), (key) =>
-    HashSet.has(CONDITIONS, key) ? resolveConditionValue(conditions[key], depth) : O.none()
+const walkConditions = (conditions: UntrustedRecord, captured: O.Option<string>, depth: number): ExportsWalk =>
+  walkSequence(
+    A.filter(safeKeys(conditions), (key) => HashSet.has(CONDITIONS, key)),
+    (key) => walkValue(conditions[key], captured, depth)
   );
 
 /**
  * Resolve a `package.json` `exports` map for a subpath key (`"."` for the
- * package root, `"./sub"` for a subpath) to its `.json` target string. Pure and
- * hardened; exported for direct unit testing.
+ * package root, `"./sub"` for a subpath) to the `.json` targets tsc probes, in
+ * order. Pure and hardened; exported for direct unit testing.
  *
  * **Details**
  *
- * The returned target is verbatim
- * from the manifest (still relative to the package directory) — the caller joins
- * and probes it.
+ * The targets are verbatim from the manifest (still relative to the package
+ * directory); the caller joins them and takes the first that exists. tsc keeps
+ * going past a target whose file is missing, through fallback arrays, nested
+ * conditions and later conditions alike. A `null` target ends the walk with
+ * `blocked: true`: when no earlier target exists, tsc stops the whole lookup
+ * there, including the ancestor `node_modules` walk.
  *
  * **Example** (Resolve a conditional package subpath)
  *
  * ```ts
  * import { resolveExports } from "@beep/repo-tsconfig/internal/extendsTarget";
- * import * as O from "effect/Option";
  *
- * const target = resolveExports({ "./base": { types: "./base.json" } }, "./base");
- * console.log(O.getOrElse(target, () => "missing")) // ./base.json
+ * const walk = resolveExports({ ".": { types: "./index.d.ts", default: "./tsconfig.json" } }, ".");
+ * console.log(walk.targets) // ["./index.json", "./tsconfig.json"]
  * ```
  *
  * @category parsing
  * @since 0.0.0
  */
 export const resolveExports: {
-  (exports: unknown, subpath: string): O.Option<string>;
-  (subpath: string): (exports: unknown) => O.Option<string>;
+  (exports: unknown, subpath: string): { readonly targets: ReadonlyArray<string>; readonly blocked: boolean };
+  (subpath: string): (exports: unknown) => { readonly targets: ReadonlyArray<string>; readonly blocked: boolean };
 } = dual(
   2,
-  (exports: unknown, subpath: string): O.Option<string> =>
-    O.flatMap(matchExportKey(exports, subpath), (matched) => resolveConditionValue(matched, 0))
+  (exports: unknown, subpath: string): ExportsWalk =>
+    O.match(matchExportKey(exports, subpath), {
+      onNone: () => OPEN,
+      onSome: ({ value, captured }) => walkValue(value, captured, 0),
+    })
 );
 
 /**
@@ -350,14 +401,17 @@ const withJsonRetry = (abs: string, written: string): ReadonlyArray<string> =>
 
 /**
  * Probe a package whose manifest declares `exports`: exports present blocks every same-package
- * fallback, even when it fails to resolve — but the ancestor walk still continues afterwards.
+ * fallback, even when it fails to resolve. The first walked target that exists wins; tsc keeps going
+ * past a missing one. A miss lets the ancestor walk continue, except when a `null` target ended the
+ * walk: that decides the whole lookup as unresolved.
  *
  * @param fs - The filesystem service.
  * @param path - The path service.
  * @param pkgDir - The candidate package directory.
  * @param exports - The manifest's `exports` value.
  * @param subpath - The requested subpath ("" for the package root).
- * @returns The resolved config path, or `Option.none()`.
+ * @returns `Option.some` of the decided result (the config path, or none when blocked), or `Option.none()`
+ * to keep walking.
  */
 const probeExports = (
   fs: FileSystem.FileSystem,
@@ -365,11 +419,16 @@ const probeExports = (
   pkgDir: string,
   exports: unknown,
   subpath: string
-): Effect.Effect<O.Option<string>, PlatformError.PlatformError> =>
-  O.match(resolveExports(exports, subpath === "" ? "." : `./${subpath}`), {
-    onNone: () => Effect.succeedNone,
-    onSome: (target) => firstExisting(fs, [path.resolve(pkgDir, target)]),
-  });
+): Effect.Effect<O.Option<O.Option<string>>, PlatformError.PlatformError> => {
+  const walk = resolveExports(exports, subpath === "" ? "." : `./${subpath}`);
+  return Effect.map(
+    firstExisting(
+      fs,
+      A.map(walk.targets, (target) => path.resolve(pkgDir, target))
+    ),
+    (found) => (walk.blocked ? O.some(found) : O.map(found, O.some))
+  );
+};
 
 /**
  * The manifest-less candidates for a package without `exports`. A subpath probes the exact file, then the
@@ -409,27 +468,31 @@ const fallbackCandidates = (
  * "did not resolve here — keep walking": tsc's ancestor walk
  * (forEachAncestorDirectoryStoppingAtGlobalCache, typescript.js:46466) only
  * stops on a defined result, so a present-but-unresolved candidate does NOT
- * shadow a farther ancestor's copy. There is no `package.json` presence gate —
- * tsc probes `<pkg>/tsconfig.json` even when the manifest is absent
- * (loadNodeModuleFromDirectoryWorker, typescript.js:45943).
+ * shadow a farther ancestor's copy. The one exception is an `exports` walk a
+ * `null` target ended, which decides the lookup as unresolved. There is no
+ * `package.json` presence gate — tsc probes `<pkg>/tsconfig.json` even when the
+ * manifest is absent (loadNodeModuleFromDirectoryWorker, typescript.js:45943),
+ * and an `exports` of `null`, `false` or `""` counts as absent.
  *
  * @param fs - The filesystem service.
  * @param path - The path service.
  * @param dir - The ancestor directory whose `node_modules` is probed.
  * @param specifier - The parsed bare specifier.
- * @returns The resolved config path, or `Option.none()`.
+ * @returns `Option.some` of the decided result (the config path, or none when blocked), or `Option.none()`
+ * to keep walking.
  */
 const tryCandidate = Effect.fnUntraced(function* (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   dir: string,
   { pkg, subpath }: BareSpecifier
-): Effect.fn.Return<O.Option<string>, PlatformError.PlatformError> {
+): Effect.fn.Return<O.Option<O.Option<string>>, PlatformError.PlatformError> {
   const pkgDir = path.join(dir, "node_modules", pkg);
   const record = yield* readManifest(fs, path.join(pkgDir, "package.json"));
-  return yield* O.match(ownProp(record, "exports"), {
-    onNone: () => firstExisting(fs, fallbackCandidates(path, pkgDir, record, subpath)),
-    onSome: (exports) => probeExports(fs, path, pkgDir, exports, subpath),
+  const exports = O.filter(ownProp(record, "exports"), (value) => !HashSet.has(ABSENT_EXPORTS, value));
+  return yield* O.match(exports, {
+    onNone: () => Effect.map(firstExisting(fs, fallbackCandidates(path, pkgDir, record, subpath)), O.map(O.some)),
+    onSome: (value) => probeExports(fs, path, pkgDir, value, subpath),
   });
 });
 
@@ -504,11 +567,11 @@ export const resolveExtendsTarget: {
     const specifier = parseSpecifier(normalized);
     const ancestors = yield* Walker.ascend(fromDir);
     for (const dir of A.filter(ancestors, (ancestor) => path.basename(ancestor) !== "node_modules")) {
-      const candidate = yield* tryCandidate(fs, path, dir, specifier);
+      const decided = yield* tryCandidate(fs, path, dir, specifier);
       // tsc resolves a package target through the module resolver, which realpaths it
       // (`preserveSymlinks: false`), so a workspace symlink under `node_modules` resolves the
       // linked config's own relative `extends` from its real directory.
-      if (O.isSome(candidate)) return O.some(yield* fs.realPath(candidate.value));
+      if (O.isSome(decided)) return yield* Effect.transposeOption(O.map(decided.value, (found) => fs.realPath(found)));
     }
     return O.none();
   })

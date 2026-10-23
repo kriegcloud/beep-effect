@@ -23,8 +23,10 @@
  *
  * Corpus B writes one config per synthetic package specifier (`<pkg>`, `<pkg>/tsconfig.json`,
  * `<pkg>/tsconfig`, for every package under the repo's `node_modules` that ships a root `tsconfig*.json` or a
- * `tsconfig` manifest field) into a scoped temporary directory whose `node_modules` links the repo's. The gate
- * is loader verdict == tsc verdict for every specifier. A tsc success means `--showConfig` stdout parses as a
+ * `tsconfig` manifest field) into a scoped temporary directory whose `node_modules` links the repo's. It adds
+ * one specifier per synthetic `exports` package (`SYNTHETIC`: condition, fallback-array, `null`,
+ * invalid-target and ancestor-walk cases, each file marked by its `outDir`). The gate is loader verdict ==
+ * tsc verdict for every specifier and, where tsc resolves, the same picked file. A tsc success means `--showConfig` stdout parses as a
  * JSON object with no `error TS` on stderr AND `--listFilesOnly` reports none of the extends-resolution
  * codes. The second probe is needed because tsgo 7 `--showConfig` drops an unresolvable `extends` silently
  * (exit 0, valid JSON, no diagnostic), so the literal verdict alone passes every specifier; the report keeps
@@ -381,6 +383,210 @@ const packagesWithTsconfig = Effect.fnUntraced(function* () {
   return shipping;
 });
 
+/**
+ * One synthetic `exports` package: the resolution-order cases tsc decides (review thread on #2129), one per
+ * row of `@beep/repo-tsconfig`'s `test/internal/extendsTarget.tsc-exports.test.ts`. `exports` is raw JSON;
+ * `files` exist under the package. An `ancestor` case puts this package under a nearer `node_modules` and a
+ * manifest-less copy with a `tsconfig.json` under a farther one, so it tests whether the walk goes on.
+ */
+interface SyntheticCase {
+  readonly ancestor?: boolean;
+  readonly exports: string;
+  readonly files: ReadonlyArray<string>;
+  readonly name: string;
+  readonly subpath?: string;
+}
+
+const T = "tsconfig.json";
+const SYNTHETIC: ReadonlyArray<SyntheticCase> = [
+  { name: "review", exports: '{".":{"types":"./index.d.ts","default":"./tsconfig.json"}}', files: [T] },
+  {
+    name: "sibling-present",
+    exports: '{".":{"types":"./index.d.ts","default":"./tsconfig.json"}}',
+    files: [T, "index.json"],
+  },
+  { name: "array-fallthrough", exports: '{".":["./missing.json","./tsconfig.json"]}', files: [T] },
+  {
+    name: "nested-inner",
+    exports: '{".":{"node":{"require":"./missing.json","types":"./tsconfig.json"},"default":"./other.json"}}',
+    files: [T, "other.json"],
+  },
+  {
+    name: "nested-outer",
+    exports: '{".":{"node":{"require":"./missing.json"},"default":"./tsconfig.json"}}',
+    files: [T],
+  },
+  {
+    name: "default-first",
+    exports: '{".":{"default":"./tsconfig.json","types":"./other.json"}}',
+    files: [T, "other.json"],
+  },
+  { name: "default-missing", exports: '{".":{"default":"./missing.json","types":"./tsconfig.json"}}', files: [T] },
+  {
+    name: "dts-without-sibling",
+    exports: '{".":{"types":"./index.d.ts","default":"./tsconfig.json"}}',
+    files: [T, "index.d.ts"],
+  },
+  {
+    name: "array-in-condition",
+    exports: '{".":{"types":["./missing.json","./a.d.ts"],"default":"./tsconfig.json"}}',
+    files: [T],
+  },
+  { name: "condition-in-array", exports: '{".":[{"types":"./missing.json"},"./tsconfig.json"]}', files: [T] },
+  {
+    name: "subpath-fallthrough",
+    exports: '{"./base":{"types":"./missing.d.ts","default":"./tsconfig.json"}}',
+    files: [T],
+    subpath: "base",
+  },
+  { name: "all-missing", exports: '{".":{"types":"./missing.d.ts","default":"./missing2.json"}}', files: [T] },
+  {
+    name: "import-unhonored",
+    exports: '{".":{"import":"./other.json","default":"./tsconfig.json"}}',
+    files: [T, "other.json"],
+  },
+  {
+    name: "ts-target",
+    exports: '{".":{"types":"./src/index.ts","default":"./tsconfig.json"}}',
+    files: [T, "src/index.json"],
+  },
+  {
+    name: "wildcard-fallthrough",
+    exports: '{"./*":{"types":"./*.d.ts","default":"./*.json"}}',
+    files: [T],
+    subpath: "tsconfig",
+  },
+  { name: "wildcard-array", exports: '{"./*":["./missing/*.json","./*.json"]}', files: [T], subpath: "tsconfig" },
+  {
+    name: "exact-key-decides",
+    exports: '{"./base":"./missing.json","./*":"./tsconfig.json"}',
+    files: [T],
+    subpath: "base",
+  },
+  { name: "null-first", exports: '{".":{"types":null,"default":"./tsconfig.json"}}', files: [T] },
+  { name: "null-mid-array", exports: '{".":["./missing.json",null,"./tsconfig.json"]}', files: [T] },
+  { name: "null-nested", exports: '{".":{"node":{"types":null},"default":"./tsconfig.json"}}', files: [T] },
+  {
+    name: "null-after-missing",
+    exports: '{".":{"node":{"types":"./missing.json","default":null},"default":"./tsconfig.json"}}',
+    files: [T],
+  },
+  { name: "null-in-array-condition", exports: '{".":[{"types":null},"./tsconfig.json"]}', files: [T] },
+  { name: "null-unhonored", exports: '{".":{"import":null,"default":"./tsconfig.json"}}', files: [T] },
+  { name: "null-subpath", exports: '{"./base":null,"./*":"./tsconfig.json"}', files: [T], subpath: "base" },
+  {
+    name: "no-dot-slash",
+    exports: '{".":{"types":"other.json","default":"./tsconfig.json"}}',
+    files: [T, "other.json"],
+  },
+  { name: "dot-dot-target", exports: '{".":{"types":"../outside.json","default":"./tsconfig.json"}}', files: [T] },
+  {
+    name: "node-modules-target",
+    exports: '{".":{"types":"./node_modules/x.json","default":"./tsconfig.json"}}',
+    files: [T, "node_modules/x.json"],
+  },
+  {
+    name: "node-modules-case",
+    exports: '{".":{"types":"./Node_Modules/x.json","default":"./tsconfig.json"}}',
+    files: [T, "Node_Modules/x.json"],
+  },
+  {
+    name: "dot-segment-target",
+    exports: '{".":{"types":"./a/./x.json","default":"./tsconfig.json"}}',
+    files: [T, "a/x.json"],
+  },
+  {
+    name: "backslash-target",
+    exports: '{".":{"types":"./a\\\\..\\\\other.json","default":"./tsconfig.json"}}',
+    files: [T, "a\\..\\other.json"],
+  },
+  { name: "capture-dot-dot", exports: '{"./*":["./*.json","./tsconfig.json"]}', files: [T], subpath: "x/../tsconfig" },
+  {
+    name: "capture-node-modules",
+    exports: '{"./*":{"types":"./*.json","default":"./tsconfig.json"}}',
+    files: [T, "node_modules/tsconfig.json"],
+    subpath: "node_modules/tsconfig",
+  },
+  {
+    name: "capture-dot",
+    exports: '{"./*":{"types":"./*.json","default":"./tsconfig.json"}}',
+    files: [T, "a/x.json"],
+    subpath: "a/./x",
+  },
+  {
+    name: "capture-valid",
+    exports: '{"./*":{"types":"./*.json","default":"./tsconfig.json"}}',
+    files: [T, "a/x.json"],
+    subpath: "a/x",
+  },
+  { name: "exports-null", exports: "null", files: [T] },
+  { name: "exports-false", exports: "false", files: [T] },
+  { name: "exports-empty-string", exports: '""', files: [T] },
+  { name: "exports-zero", exports: "0", files: [T] },
+  { name: "exports-true", exports: "true", files: [T] },
+  { name: "exports-empty-object", exports: "{}", files: [T] },
+  { name: "exports-empty-array", exports: "[]", files: [T] },
+  { name: "far-after-missing", exports: '{".":"./missing.json"}', files: [T], ancestor: true },
+  { name: "far-after-capture", exports: '{"./*":"./*.json"}', files: [T], subpath: "x/../tsconfig", ancestor: true },
+  { name: "null-stops-walk", exports: '{".":{"types":null,"default":"./tsconfig.json"}}', files: [T], ancestor: true },
+  {
+    name: "null-after-capture",
+    exports: '{"./*":["./*.json",null]}',
+    files: [T],
+    subpath: "x/../tsconfig",
+    ancestor: true,
+  },
+];
+
+/** The `outDir` marker a synthetic config file carries, naming the package and the file. */
+const marker = (pkg: string, file: string): string => `OUT-${pkg}-${Str.replaceAll("/", "_")(file)}`;
+
+/** The synthetic marker of an `outDir`, or `null` (a real package's config, or no `outDir`). */
+const pickOf = (outDir: unknown): string | null =>
+  P.isString(outDir) ? O.getOrNull(O.flatMap(Str.match(/OUT-[^/"]+/)(outDir), A.head)) : null;
+
+/**
+ * Write the synthetic packages under `<root>/synthetic` and return their cases. A flat case's config sits in
+ * `<root>/synthetic/case-<name>`; an ancestor case's in `<root>/synthetic/sub/case-<name>`, below the nearer
+ * `node_modules`.
+ */
+const writeSynthetic = Effect.fnUntraced(function* (root: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const base = path.join(root, "synthetic");
+  const writePackage = Effect.fnUntraced(function* (
+    dir: string,
+    manifest: string,
+    pkg: string,
+    files: ReadonlyArray<string>
+  ) {
+    yield* fs.makeDirectory(dir, { recursive: true });
+    yield* fs.writeFileString(path.join(dir, "package.json"), `${manifest}\n`);
+    for (const file of files) {
+      const target = path.join(dir, file);
+      yield* fs.makeDirectory(path.dirname(target), { recursive: true });
+      yield* fs.writeFileString(
+        target,
+        `${JSON.stringify({ compilerOptions: { outDir: `./${marker(pkg, file)}` } })}\n`
+      );
+    }
+  });
+  return yield* Effect.forEach(SYNTHETIC, (entry) =>
+    Effect.gen(function* () {
+      const pkg = `beep-synth-${entry.name}`;
+      const manifest = `{"name":"${pkg}","version":"0.0.0","exports":${entry.exports}}`;
+      const near = entry.ancestor === true ? path.join(base, "sub") : base;
+      yield* writePackage(path.join(near, "node_modules", pkg), manifest, pkg, entry.files);
+      if (entry.ancestor === true)
+        yield* writePackage(path.join(base, "node_modules", pkg), `{"name":"${pkg}","version":"0.0.0"}`, `${pkg}-far`, [
+          T,
+        ]);
+      const spec = entry.subpath === undefined ? pkg : `${pkg}/${entry.subpath}`;
+      return { spec, dir: path.join(near, `case-${entry.name}`), synthetic: true };
+    })
+  );
+});
+
 const corpusB = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -389,10 +595,14 @@ const corpusB = Effect.fnUntraced(function* () {
   const specifiers = A.flatMap(packages, (name) => [name, `${name}/tsconfig.json`, `${name}/tsconfig`]);
   const root = yield* fs.realPath(yield* fs.makeTempDirectoryScoped({ prefix: "repo-tsconfig-differential-" }));
   yield* fs.symlink(path.join(repoRoot, "node_modules"), path.join(root, "node_modules"));
+  const synthetic = yield* writeSynthetic(root);
   const started = performance.now();
   const cases = yield* Effect.forEach(
-    A.map(specifiers, (spec, index) => ({ spec, dir: path.join(root, `case-${index}`) })),
-    Effect.fnUntraced(function* ({ spec, dir }) {
+    A.appendAll(
+      A.map(specifiers, (spec, index) => ({ spec, dir: path.join(root, `case-${index}`), synthetic: false })),
+      synthetic
+    ),
+    Effect.fnUntraced(function* ({ spec, dir, synthetic: isSynthetic }) {
       yield* fs.makeDirectory(dir, { recursive: true });
       yield* fs.writeFileString(path.join(dir, "index.ts"), "export {};\n");
       const configPath = path.join(dir, "tsconfig.json");
@@ -400,8 +610,16 @@ const corpusB = Effect.fnUntraced(function* () {
       const loaded = yield* Effect.result(TsconfigLoader.resolve(configPath));
       const tsc = yield* showConfig(configPath);
       const diagnostics = yield* configDiagnostics(configPath);
+      const loaderOptions =
+        loaded._tag === "Success"
+          ? (loaded.success as unknown as Readonly<Record<string, unknown>>).compilerOptions
+          : null;
+      const tscOptions = O.isSome(tsc.config) ? tsc.config.value.compilerOptions : null;
       return {
         spec,
+        synthetic: isSynthetic,
+        loaderPick: pickOf(isRecord(loaderOptions) ? loaderOptions.outDir : null),
+        tscPick: pickOf(isRecord(tscOptions) ? tscOptions.outDir : null),
         loaderOk: loaded._tag === "Success",
         tscLiteralOk: tsc.ok,
         tscOk: tsc.ok && !diagnostics.extendsFailed,
@@ -419,14 +637,36 @@ const corpusB = Effect.fnUntraced(function* () {
   );
   const tally = (loaderOk: boolean, tscOk: boolean): number =>
     A.length(A.filter(cases, (entry) => entry.loaderOk === loaderOk && entry.tscOk === tscOk));
-  const mismatches = A.filter(cases, (entry) => entry.loaderOk !== entry.tscOk);
+  // A synthetic case also compares WHICH file each side picked (its `outDir` marker).
+  const mismatches = A.filter(
+    cases,
+    (entry) => entry.loaderOk !== entry.tscOk || (entry.tscOk && entry.loaderPick !== entry.tscPick)
+  );
   const codesWhereBothSucceed: Record<string, number> = {};
   for (const entry of A.filter(cases, (candidate) => candidate.loaderOk && candidate.tscOk)) {
     for (const code of entry.tscCodes) codesWhereBothSucceed[code] = (codesWhereBothSucceed[code] ?? 0) + 1;
   }
   return {
     packages: A.length(packages),
-    specifiers: A.length(specifiers),
+    specifiers: A.length(cases),
+    packageSpecifiers: A.length(specifiers),
+    syntheticSpecifiers: A.length(synthetic),
+    syntheticPicksAgree: A.length(
+      A.filter(
+        cases,
+        (entry) => entry.synthetic && entry.loaderOk === entry.tscOk && entry.loaderPick === entry.tscPick
+      )
+    ),
+    syntheticCases: A.map(
+      A.filter(cases, (entry) => entry.synthetic),
+      (entry) => ({
+        spec: entry.spec,
+        tscOk: entry.tscOk,
+        tscPick: entry.tscPick,
+        loaderOk: entry.loaderOk,
+        loaderPick: entry.loaderPick,
+      })
+    ),
     wallMs: Math.round(performance.now() - started),
     verdict:
       "tsc success = `--showConfig` stdout parses as a JSON object, its stderr has no `error TS`, and " +
