@@ -279,7 +279,11 @@ describe("Render.plain: tables", () => {
       const valueColumns = A.map(out.slice(2), (line) =>
         displayWidth(Str.slice(0, O.getOrElse(Str.lastIndexOf(" ")(line), () => -1) + 1)(line))
       );
-      assert.strictEqual(new Set(valueColumns).size, 1, "both rows put the second column at the same display column");
+      assert.strictEqual(
+        A.dedupe(valueColumns).length,
+        1,
+        "both rows put the second column at the same display column"
+      );
     })
   );
 

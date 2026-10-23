@@ -4,6 +4,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -160,7 +161,7 @@ describe("Render.markdown: headings and paragraphs", () => {
       assert.strictEqual(kids(root).length, 1);
       const [p] = kids(root);
       assert.isDefined(p);
-      assert.deepStrictEqual([...new Set(descendantTypes(p))].sort(), ["paragraph", "text"]);
+      assert.deepStrictEqual(A.sort(A.dedupe(descendantTypes(p)), Str.Order), ["paragraph", "text"]);
       assert.strictEqual(textOf(p), text);
     })
   );
@@ -315,7 +316,7 @@ describe("Render.markdown: headings and paragraphs", () => {
         const root = yield* treeOf([Doc.paragraph(text)]);
         const [p] = kids(root);
         assert.isDefined(p);
-        assert.deepStrictEqual([...new Set(descendantTypes(p))].sort(), ["paragraph", "text"]);
+        assert.deepStrictEqual(A.sort(A.dedupe(descendantTypes(p)), Str.Order), ["paragraph", "text"]);
         assert.strictEqual(textOf(p), text);
       })
   );
@@ -365,15 +366,15 @@ describe("Render.markdown: headings and paragraphs", () => {
           const expected = pipe(lines, A.join("\n"), Str.trimEnd);
           const root = yield* parse(Render.markdown([Doc.paragraph(text)], ctx));
           cases++;
-          const types = new Set(descendantTypes(root));
+          const types = A.dedupe(descendantTypes(root));
           const ok =
             kids(root).length === 1 &&
             kids(root)[0]?.type === "paragraph" &&
-            A.every([...types], (t) => ["root", "paragraph", "text", "break"].includes(t)) &&
+            A.every(types, (t) => ["root", "paragraph", "text", "break"].includes(t)) &&
             textOf(root) === expected;
           if (!ok && failures.length < 5)
             failures.push(
-              `${Result.getOrThrow(S.encodeUnknownResult(Json)(text))} -> ${Result.getOrThrow(S.encodeUnknownResult(Json)([...types]))} ${Result.getOrThrow(S.encodeUnknownResult(Json)(textOf(root)))}`
+              `${Result.getOrThrow(S.encodeUnknownResult(Json)(text))} -> ${Result.getOrThrow(S.encodeUnknownResult(Json)(types))} ${Result.getOrThrow(S.encodeUnknownResult(Json)(textOf(root)))}`
             );
         }
         assert.isAbove(cases, 10_000, "the enumeration ran");
@@ -487,11 +488,11 @@ describe("Render.markdown: tables", () => {
       const values = A.map(kids(tableOf(root)).slice(1), (row) => A.map(kids(kids(row)[0]), (n) => [n.type, n.value]));
       // A `|` after an odd run of backslashes cannot be held by a code span in a cell (GFM's scanner pairs a backslash
       // with the next character, and the unescape then leaves an even run), so that code is `<code>` around text.
-      const html = new Set(["a\\|b", "\\|", "`\\|`"]);
+      const html = HashSet.make("a\\|b", "\\|", "`\\|`");
       assert.deepStrictEqual(
         values,
         A.map(codes, (c) =>
-          html.has(c)
+          HashSet.has(html, c)
             ? [
                 ["html", "<code>"],
                 ["text", c],
@@ -1091,7 +1092,7 @@ describe("Render.markdown: lists, trees and counts", () => {
               `${Result.getOrThrow(S.encodeUnknownResult(Json)(label))}: an item is one paragraph`
             );
             assert.deepStrictEqual(
-              [...new Set(descendantTypes(item))].sort(),
+              A.sort(A.dedupe(descendantTypes(item)), Str.Order),
               ["listItem", "paragraph", "text"],
               Result.getOrThrow(S.encodeUnknownResult(Json)(label))
             );

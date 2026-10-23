@@ -61,7 +61,7 @@ describe("Glyphs", () => {
     assert.deepStrictEqual(Glyphs.ascii.tree, { branch: "|-- ", last: "\\-- ", pipe: "|   ", blank: "    " });
     for (const set of [Glyphs.unicode, Glyphs.ascii]) {
       const widths = A.map(R.values(set.tree), (g) => displayWidth(g));
-      assert.strictEqual(new Set(widths).size, 1, `${set.kind} segments share a width so branches align`);
+      assert.strictEqual(A.dedupe(widths).length, 1, `${set.kind} segments share a width so branches align`);
       assert.strictEqual(
         Glyphs.select({ ascii: set.kind === "ascii" }).tree,
         set.tree,
