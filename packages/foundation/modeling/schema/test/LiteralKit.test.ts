@@ -359,6 +359,8 @@ describe("LiteralKit matchOrElse", () => {
       const remainder: typeof rest = "pro";
       return remainder;
     });
+    const handledReturn: typeof priced = 0;
+    expect(handledReturn).toBe(0);
     expect(priced).toBe("pro");
   });
 

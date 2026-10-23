@@ -98,10 +98,12 @@ type NoExcessCases<L extends LiteralTuple, Cases> = {
  *
  * `(...args: never) => infer R` accepts every handler arity under strict
  * function types; constraining the parameters to `ReadonlyArray<unknown>`
- * rejected unary handlers and collapsed their contribution to `never`.
+ * rejected unary handlers and collapsed their contribution to `never`. `-?`
+ * and `NonNullable` keep an optional handler's return type instead of
+ * replacing it with `undefined`.
  */
 type MatchReturn<Cases> = {
-  [K in keyof Cases]: Cases[K] extends (...args: never) => infer R ? R : never;
+  [K in keyof Cases]-?: NonNullable<Cases[K]> extends (...args: never) => infer R ? R : never;
 }[keyof Cases];
 
 /**

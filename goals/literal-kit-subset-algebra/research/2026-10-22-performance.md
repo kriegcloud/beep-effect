@@ -66,3 +66,25 @@ lane does one `typeof`-keyed lookup for the key and one own-property check
 (`Record.has`), and it allocates nothing on a hit. A direct-index fast path
 would save the remaining ~2–4 ns and stays out of scope: a miss would then
 reach inherited properties, and nothing here needs the speed.
+
+## Update after review round 1 (#2080, head after `011190d9ec`)
+
+The review fixes change the kit's types in three ways:
+
+- `matchOrElse` counts only required case keys as handled (`RequiredCaseKeys`).
+- `MatchReturn` keeps optional handlers' return types (`-?` + `NonNullable`).
+- The unhandled-case error's `value` is `S.Unknown`, and one `LiteralKitEmptySubsetError` replaces the omit-only error.
+
+Re-measured with the same compiler:
+
+| Program | Before the fixes | After |
+| --- | ---: | ---: |
+| `@beep/schema` | 398,630 | 399,919 (+1,289) |
+| `typeperf/baseline` (import only) | 20,477 | 19,874 (−603) |
+| `typeperf/literal-kit-keyed-api` | 21,100 | 20,509 (−591) |
+| `typeperf/literal-kit-large-untagged` | 48,318 | 52,141 (+3,823) |
+| `typeperf/literal-kit-large-untagged-touched` | 51,445 | 55,268 (+3,823) |
+
+The increases are the cost of the two type-correctness fixes over a 240-member union. Both fixes were wrong before: optional cases were typed as handled, and optional handlers' return types were lost. The import cost falls because the error schemas are simpler. The baseline file records the new values.
+
+`@beep/repo-cli` now reads 6,166,041. It is not comparable to the 6,183,612 merge-base figure above, because the lane has since merged 11 `main` commits (through `d1070562cd`) and three clone dedups.
