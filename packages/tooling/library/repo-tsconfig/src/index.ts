@@ -3,10 +3,10 @@
  * config discovery. The pure document model lives in `@beep/tsconfig`.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
-export { TsconfigDiscovery } from "./TsconfigDiscovery.ts";
-export { TsconfigExtendsError, TsconfigLoader } from "./TsconfigLoader.ts";
+export { FindNearestOptions, TsconfigDiscovery } from "./TsconfigDiscovery.ts";
+export { ExtendsFailureReason, TsconfigExtendsError, TsconfigLoader } from "./TsconfigLoader.ts";
 export { TsconfigLoaderSync } from "./TsconfigLoaderSync.ts";
-export type { FindNearestOptions } from "./TsconfigDiscovery.ts";
 export type { SyncFileSystem, SyncPath, TsconfigLoaderSyncOptions } from "./TsconfigLoaderSync.ts";

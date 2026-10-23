@@ -1,43 +1,49 @@
-// The tsconfig.json IO pipeline: read a config file, decode it through
-// `TsconfigJsonFromString`, then resolve its full `extends` chain
-// against the pure merge engine (`ResolvedTsconfig`) and the target
-// resolver (`resolveExtendsTarget`). Everything the loader touches on
-// disk goes through core `FileSystem`/`Path` in `R`; a `PlatformError` from the
-// underlying IO flows through untranslated.
-//
-// Phase order per file, exactly per tsc: decode -> absolutize path options
-// against the config's OWN directory (parse phase) -> recurse into `extends`
-// depth-first -> fold each config onto the accumulated base, own config
-// last -> substitute a leading `${configDir}` once, against the TOP config's
-// directory (final phase). The resolution is a recursive walk over untrusted
-// files, so it carries a cycle guard and a depth guard (MAX_EXTENDS_DEPTH), both
-// failing through the typed `TsconfigExtendsError` channel — never as a defect
-// (hardening-a-parser-port invariant).
-//
-// FILE-EXISTENCE CONTRACT (a deliberate divergence from tsc). Target resolution
-// probes candidates with core `FileSystem.exists`, which on a real filesystem is
-// TRUE for a directory, whereas tsc's `host.fileExists` is file-only. A relative
-// `"./dir"` extends target pointing at a real DIRECTORY therefore resolves the
-// directory verbatim here, and the subsequent `readFileString` fails with a
-// `PlatformError` (typed, flows through) — where tsc would instead retry
-// `"./dir.json"`. The divergence is accepted as a documented file-only contract:
-// it satisfies the hardening invariant (it fails typed, never as a defect), it
-// cannot be exercised by the in-memory fixture filesystem (which is file-only by
-// construction — a directory is never a map key), and the alternative (a
-// stat-and-isFile probe) would require rewriting the tsc-cited `extendsTarget`
-// engine and its fixtures for a case no supported test can reach.
+/**
+ * The tsconfig.json IO pipeline: read a config file, decode it through
+ * `TsconfigJsonFromString`, then resolve its full `extends` chain
+ * against the pure merge engine (`ResolvedTsconfig`) and the target
+ * resolver (`resolveExtendsTarget`). Everything the loader touches on
+ * disk goes through core `FileSystem`/`Path` in `R`; a `PlatformError` from the
+ * underlying IO flows through untranslated.
+ *
+ * Phase order per file, exactly per tsc: decode -\> absolutize path options
+ * against the config's OWN directory (parse phase) -\> recurse into `extends`
+ * depth-first -\> fold each config onto the accumulated base, own config
+ * last -\> substitute a leading `${configDir}` once, against the TOP config's
+ * directory (final phase). The resolution is a recursive walk over untrusted
+ * files, so it carries a cycle guard and a depth guard (MAX_EXTENDS_DEPTH), both
+ * failing through the typed `TsconfigExtendsError` channel — never as a defect
+ * (hardening-a-parser-port invariant).
+ *
+ * FILE-EXISTENCE CONTRACT (a deliberate divergence from tsc). Target resolution
+ * probes candidates with core `FileSystem.exists`, which on a real filesystem is
+ * TRUE for a directory, whereas tsc's `host.fileExists` is file-only. A relative
+ * `"./dir"` extends target pointing at a real DIRECTORY therefore resolves the
+ * directory verbatim here, and the subsequent `readFileString` fails with a
+ * `PlatformError` (typed, flows through) — where tsc would instead retry
+ * `"./dir.json"`. The divergence is accepted as a documented file-only contract:
+ * it satisfies the hardening invariant (it fails typed, never as a defect), it
+ * cannot be exercised by the in-memory fixture filesystem (which is file-only by
+ * construction — a directory is never a map key), and the alternative (a
+ * stat-and-isFile probe) would require rewriting the tsc-cited `extendsTarget`
+ * engine and its fixtures for a case no supported test can reach.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $RepoTsconfigId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
 import { TsconfigJsonFromString, TsconfigParseError } from "@beep/tsconfig/TsconfigJson";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { resolveExtendsTarget } from "./internal/extendsTarget.ts";
 import type { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
 import type { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
@@ -51,6 +57,42 @@ const $I = $RepoTsconfigId.create("TsconfigLoader");
  * walk over untrusted config files, not a tsc limit.
  */
 const MAX_EXTENDS_DEPTH = 32;
+
+/**
+ * Why an `extends` chain failed to resolve: an unresolvable target
+ * (`"not-found"`), a re-entrant chain (`"cycle"`), a chain deeper than the
+ * loader's depth guard (`"depth"`), or an empty target string (`"empty"`).
+ *
+ * **Example** (Describe a failure reason)
+ *
+ * ```ts
+ * import { ExtendsFailureReason } from "@beep/repo-tsconfig/TsconfigLoader";
+ *
+ * const label = ExtendsFailureReason.$match("cycle", {
+ *   "not-found": () => "missing",
+ *   cycle: () => "re-entrant",
+ *   depth: () => "too deep",
+ *   empty: () => "blank",
+ * });
+ * console.log(label) // re-entrant
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ExtendsFailureReason = LiteralKit(["not-found", "cycle", "depth", "empty"]).pipe(
+  $I.annoteSchema("ExtendsFailureReason", { description: "Why an extends chain failed to resolve." })
+);
+
+/**
+ * The schema-derived `extends` failure reason.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ExtendsFailureReason = typeof ExtendsFailureReason.Type;
 
 /**
  * Raised when a config's `extends` chain cannot be resolved: an unresolvable
@@ -98,7 +140,7 @@ export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { 
       })
     ),
     /** Why resolution failed. */
-    reason: S.Literals(["not-found", "cycle", "depth", "empty"]).pipe(
+    reason: ExtendsFailureReason.pipe(
       $I.annoteKey("TsconfigExtendsError.reason", { description: "Why resolution failed." })
     ),
     /** The full resolution chain of normalized absolute config paths. */
@@ -130,32 +172,42 @@ export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { 
    * console.log(error.message) // empty extends target in "/project/tsconfig.json"
    * ```
    *
+   * @returns The human-readable failure message.
    * @category getters
    * @since 0.0.0
    */
   override get message(): string {
-    return this.reason === "not-found"
-      ? `cannot resolve extends target "${this.target}" from "${this.path}"`
-      : this.reason === "cycle"
-        ? `extends cycle re-entering "${this.target}" via ${A.join(this.chain, " -> ")}`
-        : this.reason === "depth"
-          ? `extends chain exceeded depth ${MAX_EXTENDS_DEPTH} at "${this.path}"`
-          : `empty extends target in "${this.path}"`;
+    return ExtendsFailureReason.$match(this.reason, {
+      "not-found": () => `cannot resolve extends target "${this.target}" from "${this.path}"`,
+      cycle: () => `extends cycle re-entering "${this.target}" via ${A.join(this.chain, " -> ")}`,
+      depth: () => `extends chain exceeded depth ${MAX_EXTENDS_DEPTH} at "${this.path}"`,
+      empty: () => `empty extends target in "${this.path}"`,
+    });
   }
 }
 
-/** tsc normalizes to forward slashes throughout; the merge engine and the cycle keys assume that convention. */
-const normalizeSlashes = (p: string): string => p.replace(/\\/g, "/");
+/**
+ * tsc normalizes to forward slashes throughout; the merge engine and the cycle keys assume that convention.
+ *
+ * @param p - The path to normalize.
+ * @returns The path with forward slashes.
+ */
+const normalizeSlashes: (p: string) => string = Str.replace(/\\/g, "/");
 
 /** The shared JSONC decode entrypoint (`TsconfigJsonFromString` is already the shared codec instance). */
 const decodeConfig = S.decodeEffect(TsconfigJsonFromString);
 
-/** Normalize a config's `extends` field (absent / string / array) to an ordered spec list. */
-const extendsSpecs = (doc: TsconfigJson.Type): ReadonlyArray<string> => {
-  const ext = doc.extends;
-  if (ext === undefined) return [];
-  return P.isString(ext) ? [ext] : ext;
-};
+/**
+ * Normalize a config's `extends` field (absent / string / array) to an ordered spec list.
+ *
+ * @param doc - The decoded config.
+ * @returns The `extends` specifiers in order.
+ */
+const extendsSpecs = (doc: TsconfigJson.Type): ReadonlyArray<string> =>
+  O.match(O.fromUndefinedOr(doc.extends), {
+    onNone: A.empty<string>,
+    onSome: (ext) => (P.isString(ext) ? [ext] : ext),
+  });
 
 /** Read + decode one config at an already-absolute, normalized path; wrap decode failures with that path. */
 const loadAbs = Effect.fnUntraced(function* (
@@ -179,80 +231,76 @@ interface ConfigLayer {
 }
 
 /**
+ * Resolve one `extends` specifier of the config at `abs` to the normalized absolute path to descend into,
+ * failing typed on an empty spec, an unresolvable target, or a target already on this branch's stack.
+ *
+ * @param spec - The `extends` specifier.
+ * @param abs - The normalized absolute path of the extending config.
+ * @param chain - The visited stack on this branch, `abs` included.
+ * @returns The normalized absolute target path.
+ */
+const resolveSpec = Effect.fnUntraced(function* (
+  spec: string,
+  abs: string,
+  chain: ReadonlyArray<string>
+): Effect.fn.Return<string, TsconfigExtendsError | PlatformError.PlatformError, FileSystem.FileSystem | Path.Path> {
+  if (Str.isEmpty(spec)) {
+    return yield* TsconfigExtendsError.make({ path: abs, target: "", reason: "empty", chain });
+  }
+  const target = yield* resolveExtendsTarget(spec, abs);
+  if (O.isNone(target)) {
+    return yield* TsconfigExtendsError.make({ path: abs, target: spec, reason: "not-found", chain });
+  }
+  const normTarget = normalizeSlashes(target.value);
+  // Cycle guard: the target already sits on this branch's stack.
+  if (A.contains(chain, normTarget)) {
+    return yield* TsconfigExtendsError.make({
+      path: abs,
+      target: normTarget,
+      reason: "cycle",
+      chain: A.append(chain, normTarget),
+    });
+  }
+  return normTarget;
+});
+
+/**
  * Collect the flattened, base-most-first list of absolutized config documents
  * for `configPath` and its full `extends` chain. `chain` is the stack of
  * already-visited normalized absolute paths on THIS branch (copied per branch,
  * so a diamond is legal); it excludes `configPath` itself until it is admitted.
+ *
+ * @param configPath - The config to collect.
+ * @param chain - The visited stack on this branch.
+ * @returns The config layers in fold order, own config last.
  */
-const collect: {
-  (
-    configPath: string,
-    chain: ReadonlyArray<string>
-  ): Effect.Effect<
-    ReadonlyArray<ConfigLayer>,
-    TsconfigParseError | TsconfigExtendsError | PlatformError.PlatformError,
-    FileSystem.FileSystem | Path.Path
-  >;
-  (
-    chain: ReadonlyArray<string>
-  ): (
-    configPath: string
-  ) => Effect.Effect<
-    ReadonlyArray<ConfigLayer>,
-    TsconfigParseError | TsconfigExtendsError | PlatformError.PlatformError,
-    FileSystem.FileSystem | Path.Path
-  >;
-} = dual(
-  2,
-  Effect.fnUntraced(function* (
-    configPath: string,
-    chain: ReadonlyArray<string>
-  ): Effect.fn.Return<
-    ReadonlyArray<ConfigLayer>,
-    TsconfigParseError | TsconfigExtendsError | PlatformError.PlatformError,
-    FileSystem.FileSystem | Path.Path
-  > {
-    const path = yield* Path.Path;
-    const abs = normalizeSlashes(path.resolve(configPath));
+const collect = Effect.fnUntraced(function* (
+  configPath: string,
+  chain: ReadonlyArray<string>
+): Effect.fn.Return<
+  ReadonlyArray<ConfigLayer>,
+  TsconfigParseError | TsconfigExtendsError | PlatformError.PlatformError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const path = yield* Path.Path;
+  const abs = normalizeSlashes(path.resolve(configPath));
+  const newChain = A.append(chain, abs);
 
-    // Depth guard (hardening): refuse to descend past MAX_EXTENDS_DEPTH levels.
-    if (chain.length >= MAX_EXTENDS_DEPTH) {
-      return yield* TsconfigExtendsError.make({ path: abs, target: abs, reason: "depth", chain: [...chain, abs] });
-    }
+  // Depth guard (hardening): refuse to descend past MAX_EXTENDS_DEPTH levels.
+  if (chain.length >= MAX_EXTENDS_DEPTH) {
+    return yield* TsconfigExtendsError.make({ path: abs, target: abs, reason: "depth", chain: newChain });
+  }
 
-    const doc = yield* loadAbs(abs);
-    // Parse phase: absolutize this config's path options against its own dir.
-    const absolutized = ResolvedTsconfig.absolutize(doc, path.dirname(abs), path.resolve);
-    const newChain = [...chain, abs];
-
-    const layers: Array<ConfigLayer> = [];
-    for (const spec of extendsSpecs(absolutized)) {
-      if (spec === "") {
-        return yield* TsconfigExtendsError.make({ path: abs, target: "", reason: "empty", chain: newChain });
-      }
-      const target = yield* resolveExtendsTarget(spec, abs);
-      if (O.isNone(target)) {
-        return yield* TsconfigExtendsError.make({ path: abs, target: spec, reason: "not-found", chain: newChain });
-      }
-      const normTarget = normalizeSlashes(target.value);
-      // Cycle guard: the target already sits on this branch's stack.
-      if (newChain.includes(normTarget)) {
-        return yield* TsconfigExtendsError.make({
-          path: abs,
-          target: normTarget,
-          reason: "cycle",
-          chain: [...newChain, normTarget],
-        });
-      }
-      // Depth-first: fully flatten this entry's nested chain before the sibling.
-      const subLayers = yield* collect(normTarget, newChain);
-      for (const sub of subLayers) layers.push(sub);
-    }
-    // Own config last: it wins over everything it extends.
-    layers.push({ doc: absolutized, path: abs });
-    return layers;
-  })
-);
+  const doc = yield* loadAbs(abs);
+  // Parse phase: absolutize this config's path options against its own dir.
+  const absolutized = ResolvedTsconfig.absolutize(doc, path.dirname(abs), path.resolve);
+  // Depth-first and sequential: fully flatten each entry's nested chain before the sibling.
+  const nested = yield* Effect.forEach(extendsSpecs(absolutized), (spec) =>
+    Effect.flatMap(resolveSpec(spec, abs, newChain), (target) => collect(target, newChain))
+  );
+  // Own config last: it wins over everything it extends.
+  return A.append(A.flatten(nested), { doc: absolutized, path: abs });
+});
 
 // Implementation of TsconfigLoader.resolve; the public contract lives on the static.
 const resolve = Effect.fn("TsconfigLoader.resolve")(function* (configPath: string) {
