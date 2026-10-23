@@ -38,32 +38,42 @@ const $I = $RepoWorkspacesId.create("internal/configDependencySpecGrammar");
  * @category models
  * @since 0.0.0
  */
-export const ConfigDependencySpecParts = S.Struct({
-  /** The text before the first `+` (the whole spec when there is none). */
-  version: S.String.pipe(
-    $I.annoteKey("ConfigDependencySpecParts.version", {
-      description: "The unvalidated text before the first plus sign, or the entire bare spec.",
+export class ConfigDependencySpecParts extends S.Opaque<ConfigDependencySpecParts, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The text before the first `+` (the whole spec when there is none). */
+    version: S.String.pipe(
+      $I.annoteKey("ConfigDependencySpecParts.version", {
+        description: "The unvalidated text before the first plus sign, or the entire bare spec.",
+      })
+    ),
+    /** The text after the first `+`, or `undefined` when the spec has no `+`. */
+    integrity: S.UndefinedOr(S.String).pipe(
+      $I.annoteKey("ConfigDependencySpecParts.integrity", {
+        description: "The unvalidated remaining text, explicitly undefined for a bare spec.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ConfigDependencySpecParts", {
+      description: "The plain textual halves of a lenient config-dependency spec split.",
     })
-  ),
-  /** The text after the first `+`, or `undefined` when the spec has no `+`. */
-  integrity: S.UndefinedOr(S.String).pipe(
-    $I.annoteKey("ConfigDependencySpecParts.integrity", {
-      description: "The unvalidated remaining text, explicitly undefined for a bare spec.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("ConfigDependencySpecParts", {
-    description: "The plain textual halves of a lenient config-dependency spec split.",
-  })
-);
+  )
+) {}
 
 /**
- * Contains the lenient version spelling and optional integrity suffix split at the first plus sign.
+ * Companion types for {@link ConfigDependencySpecParts}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ConfigDependencySpecParts = typeof ConfigDependencySpecParts.Type;
+export declare namespace ConfigDependencySpecParts {
+  /**
+   * The plain, unbranded encoded shape of a {@link ConfigDependencySpecParts}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ConfigDependencySpecParts.Encoded;
+}
 
 /**
  * Splits a spec on its first `+`: `0.9.0+sha512-…` → `{ version: "0.9.0", integrity: "sha512-…" }`.
@@ -91,6 +101,6 @@ export type ConfigDependencySpecParts = typeof ConfigDependencySpecParts.Type;
 export const splitConfigDependencySpec = (spec: string): ConfigDependencySpecParts => {
   const plus = spec.indexOf("+");
   return plus === -1
-    ? { version: spec, integrity: undefined }
-    : { version: spec.slice(0, plus), integrity: spec.slice(plus + 1) };
+    ? ConfigDependencySpecParts.make({ version: spec, integrity: undefined })
+    : ConfigDependencySpecParts.make({ version: spec.slice(0, plus), integrity: spec.slice(plus + 1) });
 };

@@ -4,11 +4,11 @@
 //   - replayed AFTER `hook-pnpmfile-age-4320.mjs`, to prove last-wins threading
 //     (the final 1440 / `@scope/b` overwrite the earlier 4320 / `@scope/a`).
 export const hooks = {
-	updateConfig(config) {
-		return {
-			...config,
-			minimumReleaseAge: 1440,
-			minimumReleaseAgeExclude: ["@scope/b"],
-		};
-	},
+  updateConfig(config) {
+    return {
+      ...config,
+      minimumReleaseAge: 1440,
+      minimumReleaseAgeExclude: ["@scope/b"],
+    };
+  },
 };

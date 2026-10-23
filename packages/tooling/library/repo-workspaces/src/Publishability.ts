@@ -33,8 +33,8 @@ const DEFAULT_REGISTRY = "https://registry.npmjs.org/";
  * @category models
  * @since 0.0.0
  */
-export class PublishTarget extends S.Class<PublishTarget, { readonly brand: unique symbol }>($I`PublishTarget`)(
-  {
+export class PublishTarget extends S.Opaque<PublishTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The package name being published.
      */
@@ -67,9 +67,24 @@ export class PublishTarget extends S.Class<PublishTarget, { readonly brand: uniq
       S.withConstructorDefault(Effect.succeed(false)),
       $I.annoteKey("PublishTarget.provenance", { description: "Whether to publish with a provenance attestation." })
     ),
-  },
-  $I.annote("PublishTarget", { description: "A resolved publish destination for a workspace package." })
+  }).pipe($I.annoteSchema("PublishTarget", { description: "A resolved publish destination for a workspace package." }))
 ) {}
+
+/**
+ * Companion types for {@link PublishTarget}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PublishTarget {
+  /**
+   * The plain, unbranded encoded shape of a {@link PublishTarget}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PublishTarget.Encoded;
+}
 
 /**
  * The {@link PublishabilityDetector} service shape.

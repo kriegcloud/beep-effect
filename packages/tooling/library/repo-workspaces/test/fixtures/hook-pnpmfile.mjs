@@ -9,13 +9,13 @@
 import { writeFileSync } from "node:fs";
 
 export const hooks = {
-	updateConfig(config) {
-		const marker = process.env.HOOK_MARKER;
-		if (marker) writeFileSync(marker, "loaded-mjs");
-		return {
-			...config,
-			catalog: { ...(config.catalog ?? {}), "mjs-dep": "^2.0.0" },
-			catalogs: { ...(config.catalogs ?? {}), mjsExtra: { "mjs-extra-dep": "^3.4.5" } },
-		};
-	},
+  updateConfig(config) {
+    const marker = process.env.HOOK_MARKER;
+    if (marker) writeFileSync(marker, "loaded-mjs");
+    return {
+      ...config,
+      catalog: { ...(config.catalog ?? {}), "mjs-dep": "^2.0.0" },
+      catalogs: { ...(config.catalogs ?? {}), mjsExtra: { "mjs-extra-dep": "^3.4.5" } },
+    };
+  },
 };

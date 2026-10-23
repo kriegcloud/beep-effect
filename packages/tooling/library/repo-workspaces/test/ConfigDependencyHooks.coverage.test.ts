@@ -62,7 +62,8 @@ vi.doMock("./fixtures/hook-pnpmfile-age-garbage.mjs", () => ({
   updateConfig: undefined,
 }));
 
-const { ConfigDependencyHooks, NoPeerDependencyRules } = await import("@beep/repo-workspaces/ConfigDependencyHooks");
+const Hooks = await import("@beep/repo-workspaces/ConfigDependencyHooks");
+const { ConfigDependencyHooks, HookReplay, NoPeerDependencyRules } = Hooks;
 
 const replayLayer = ConfigDependencyHooks.layerFrom({
   "cfg@1.0.0": `${import.meta.dirname}/fixtures/hook-pnpmfile.mjs`,
@@ -70,11 +71,11 @@ const replayLayer = ConfigDependencyHooks.layerFrom({
 const inject = (scenario: string, rules?: PeerDependencyRules) =>
   ConfigDependencyHooks.use((hooks) => hooks.inject("/repo", { cfg: "1.0.0" }, { default: { scenario } }, rules));
 
-const rules: PeerDependencyRules = {
+const rules: PeerDependencyRules = Hooks.PeerDependencyRules.make({
   allowedVersions: { seeded: "^2" },
   ignoreMissing: ["seeded"],
   allowAny: ["seeded"],
-};
+});
 
 describe("ConfigDependencyHooks replay coverage", () => {
   it.layer(replayLayer, { timeout: "30 seconds" })((it) => {
@@ -98,21 +99,30 @@ describe("ConfigDependencyHooks replay coverage", () => {
     );
     it.effect("each independently valid peer axis contributes while absent axes default", () =>
       Effect.gen(function* () {
-        assert.deepStrictEqual((yield* inject("allowed")).peerDependencyRules, {
-          allowedVersions: { peer: "^1" },
-          ignoreMissing: [],
-          allowAny: [],
-        });
-        assert.deepStrictEqual((yield* inject("missing")).peerDependencyRules, {
-          allowedVersions: {},
-          ignoreMissing: ["peer"],
-          allowAny: [],
-        });
-        assert.deepStrictEqual((yield* inject("any")).peerDependencyRules, {
-          allowedVersions: {},
-          ignoreMissing: [],
-          allowAny: ["peer"],
-        });
+        assert.deepStrictEqual(
+          (yield* inject("allowed")).peerDependencyRules,
+          Hooks.PeerDependencyRules.make({
+            allowedVersions: { peer: "^1" },
+            ignoreMissing: [],
+            allowAny: [],
+          })
+        );
+        assert.deepStrictEqual(
+          (yield* inject("missing")).peerDependencyRules,
+          Hooks.PeerDependencyRules.make({
+            allowedVersions: {},
+            ignoreMissing: ["peer"],
+            allowAny: [],
+          })
+        );
+        assert.deepStrictEqual(
+          (yield* inject("any")).peerDependencyRules,
+          Hooks.PeerDependencyRules.make({
+            allowedVersions: {},
+            ignoreMissing: [],
+            allowAny: ["peer"],
+          })
+        );
       })
     );
   });
@@ -128,7 +138,7 @@ describe("ConfigDependencyHooks replay coverage", () => {
           const hooks = yield* ConfigDependencyHooks;
           const result = yield* hooks.inject("/repo", { cfg: "1.0.0" }, {});
           assert.deepStrictEqual(result.catalogs, expected);
-          assert.deepStrictEqual(result.replays, { cfg: { version: "1.0.0", source: "supplied" } });
+          assert.deepStrictEqual(result.replays, { cfg: HookReplay.make({ version: "1.0.0", source: "supplied" }) });
         })
       );
     });

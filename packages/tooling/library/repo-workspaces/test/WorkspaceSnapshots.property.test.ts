@@ -84,9 +84,10 @@ it.effect.prop(
 
 it.effect("snapshot options keep absent keys distinct from explicit undefined", () =>
   Effect.gen(function* () {
-    assert.deepStrictEqual(yield* S.decodeEffect(WorkspaceSnapshotsOptions)({}), {});
-    assert.deepStrictEqual(yield* S.decodeEffect(WorkspaceSnapshotsOptions)({ stopAt: undefined }), {
-      stopAt: undefined,
-    });
+    assert.deepStrictEqual(yield* S.decodeEffect(WorkspaceSnapshotsOptions)({}), WorkspaceSnapshotsOptions.make({}));
+    assert.deepStrictEqual(
+      yield* S.decodeEffect(WorkspaceSnapshotsOptions)({ stopAt: undefined }),
+      WorkspaceSnapshotsOptions.make({ stopAt: undefined })
+    );
   })
 );

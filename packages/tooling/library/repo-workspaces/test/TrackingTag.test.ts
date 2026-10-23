@@ -9,6 +9,7 @@
 // a consumer concern and lives nowhere in this package.
 
 import { classifyTag, ReleaseTag, TrackingTag } from "@beep/repo-workspaces";
+import { UnrecognizedTagClassification } from "@beep/repo-workspaces/ReleaseTag";
 import { assert, describe, it } from "@effect/vitest";
 
 describe("TrackingTag.forVersion", () => {
@@ -264,8 +265,11 @@ describe("classifyTag — numeric and suffix regressions", () => {
   it("oversized tracking fields are unrecognized without throwing", () => {
     for (const oversized of ["9007199254740992", "9".repeat(400)]) {
       for (const tag of [`v${oversized}`, `v${oversized}.2`, `v1.${oversized}`]) {
-        assert.deepStrictEqual(classifyTag(tag), { kind: "unrecognized" });
-        assert.deepStrictEqual(classifyTag(`@scope/pkg@${tag}`), { kind: "unrecognized" });
+        assert.deepStrictEqual(classifyTag(tag), UnrecognizedTagClassification.make({ kind: "unrecognized" }));
+        assert.deepStrictEqual(
+          classifyTag(`@scope/pkg@${tag}`),
+          UnrecognizedTagClassification.make({ kind: "unrecognized" })
+        );
       }
     }
     const result = classifyTag("v9007199254740991.9007199254740991");
@@ -290,7 +294,7 @@ describe("classifyTag — numeric and suffix regressions", () => {
       "1.2.3+build\n",
     ]) {
       for (const tag of [version, `v${version}`, `pkg@${version}`, `@scope/pkg@v${version}`]) {
-        assert.deepStrictEqual(classifyTag(tag), { kind: "unrecognized" }, tag);
+        assert.deepStrictEqual(classifyTag(tag), UnrecognizedTagClassification.make({ kind: "unrecognized" }), tag);
       }
     }
     for (const version of ["1.2.3+build.01-alpha", "1.2.3-01alpha.0+build.01"]) {

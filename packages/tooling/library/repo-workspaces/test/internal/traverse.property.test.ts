@@ -1,5 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { badMaxDepthMessage, joinRelative, Traversal } from "@beep/repo-workspaces/internal/traverse";
+import { badMaxDepthMessage, joinRelative, Traversal, TraversalFrame } from "@beep/repo-workspaces/internal/traverse";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
@@ -29,10 +29,10 @@ it.effect.prop(
       assert.strictEqual(relative, base === "" ? entry : `${base}/${entry}`);
       assert.strictEqual(joinRelative(entry)(base), relative);
       const traversal = new Traversal(base, "/repo", 1);
-      const parent = { relative: base, absolute: "/repo", depth: 0 };
+      const parent = TraversalFrame.make({ relative: base, absolute: "/repo", depth: 0 });
       assert.deepStrictEqual(traversal.next(), parent);
       traversal.push(parent, relative, "/repo/child");
-      assert.deepStrictEqual(traversal.next(), { relative, absolute: "/repo/child", depth: 1 });
+      assert.deepStrictEqual(traversal.next(), TraversalFrame.make({ relative, absolute: "/repo/child", depth: 1 }));
       assert.isUndefined(traversal.next());
     }),
   runs

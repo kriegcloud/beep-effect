@@ -84,39 +84,49 @@ const { basename, dirname, join } = process.getBuiltinModule("node:path");
  * @category schemas
  * @since 0.0.0
  */
-export const ResolvedPnpmfile = S.Struct({
-  /** The config dependency's name, as declared. */
-  name: S.String.pipe(
-    $I.annoteKey("ResolvedPnpmfile.name", { description: "The config dependency name as declared." })
-  ),
-  /** The declared version that was resolved. */
-  version: S.String.pipe(
-    $I.annoteKey("ResolvedPnpmfile.version", { description: "The declared version text resolved by the ladder." })
-  ),
-  /** Which rung answered: the installed `.pnpm-config` copy, the pnpm store, the fetch rung, or a caller-supplied map. */
-  // The hook service imports this resolver; defer the shared schema across that cycle.
-  source: S.suspend(() => HookReplaySource).pipe(
-    $I.annoteKey("ResolvedPnpmfile.source", { description: "The resolution rung that supplied this version." })
-  ),
-  /** The absolute path of the pnpmfile to load, or `undefined` when the dependency ships none. */
-  path: S.UndefinedOr(S.String).pipe(
-    $I.annoteKey("ResolvedPnpmfile.path", {
-      description: "The pnpmfile path, explicitly undefined when this version ships none.",
+export class ResolvedPnpmfile extends S.Opaque<ResolvedPnpmfile, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The config dependency's name, as declared. */
+    name: S.String.pipe(
+      $I.annoteKey("ResolvedPnpmfile.name", { description: "The config dependency name as declared." })
+    ),
+    /** The declared version that was resolved. */
+    version: S.String.pipe(
+      $I.annoteKey("ResolvedPnpmfile.version", { description: "The declared version text resolved by the ladder." })
+    ),
+    /** Which rung answered: the installed `.pnpm-config` copy, the pnpm store, the fetch rung, or a caller-supplied map. */
+    // The hook service imports this resolver; defer the shared schema across that cycle.
+    source: S.suspend(() => HookReplaySource).pipe(
+      $I.annoteKey("ResolvedPnpmfile.source", { description: "The resolution rung that supplied this version." })
+    ),
+    /** The absolute path of the pnpmfile to load, or `undefined` when the dependency ships none. */
+    path: S.UndefinedOr(S.String).pipe(
+      $I.annoteKey("ResolvedPnpmfile.path", {
+        description: "The pnpmfile path, explicitly undefined when this version ships none.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ResolvedPnpmfile", {
+      description: "A plain resolved config dependency and its optional pnpmfile contribution.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("ResolvedPnpmfile", {
-    description: "A plain resolved config dependency and its optional pnpmfile contribution.",
-  })
-);
+  )
+) {}
 
 /**
- * Records the config dependency version, resolution rung, and optional pnpmfile path.
+ * Companion types for {@link ResolvedPnpmfile}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ResolvedPnpmfile = typeof ResolvedPnpmfile.Type;
+export declare namespace ResolvedPnpmfile {
+  /**
+   * The plain, unbranded encoded shape of a {@link ResolvedPnpmfile}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ResolvedPnpmfile.Encoded;
+}
 
 /** The pnpmfile filenames a config dependency may ship, in the order pnpm tries them. */
 const PNPMFILE_CANDIDATES = ["pnpmfile.mjs", "pnpmfile.cjs", "pnpmfile.js"] as const;
@@ -428,14 +438,14 @@ const notInstalledMessage: {
     declared: string,
     installed: ManifestVersion,
     stores: ReadonlyArray<string>,
-    side: HookReplayContext,
+    side: HookReplayContext.Encoded,
     fetch: O.Option<FetchFailure>
   ): string;
   (
     declared: string,
     installed: ManifestVersion,
     stores: ReadonlyArray<string>,
-    side: HookReplayContext,
+    side: HookReplayContext.Encoded,
     fetch: O.Option<FetchFailure>
   ): (name: string) => string;
 } = dual(
@@ -445,7 +455,7 @@ const notInstalledMessage: {
     declared: string,
     installed: ManifestVersion,
     stores: ReadonlyArray<string>,
-    side: HookReplayContext,
+    side: HookReplayContext.Encoded,
     fetch: O.Option<FetchFailure>
   ): string => {
     const holds =
@@ -608,7 +618,7 @@ export interface ResolveOptions {
   /** The fetch rung. Absent, a version found nowhere fails typed with `reason: "notInstalled"`. */
   readonly fetch?: FetchConfigDependency | undefined;
   /** What the declaring side recorded: its lockfile (integrity for a bare spec) and its ref (for messages). */
-  readonly side?: HookReplayContext | undefined;
+  readonly side?: HookReplayContext.Encoded | undefined;
 }
 
 /**
@@ -668,7 +678,7 @@ export const resolvePnpmfiles: {
         const { name, version } = entry;
         const { dir, source } = yield* resolveDirectory(root, entry, stores, locks, options);
         const pnpmfile = yield* pnpmfileIn(name, dir);
-        return { name, version, source, path: O.getOrUndefined(pnpmfile) } satisfies ResolvedPnpmfile;
+        return ResolvedPnpmfile.make({ name, version, source, path: O.getOrUndefined(pnpmfile) });
       }),
       { concurrency: "unbounded" }
     );
@@ -732,7 +742,7 @@ export const lookupPnpmfiles: {
             )
           );
         }
-        return Effect.succeed({ name, version, source: "supplied", path } satisfies ResolvedPnpmfile);
+        return Effect.succeed(ResolvedPnpmfile.make({ name, version, source: "supplied", path }));
       })
     )
 );

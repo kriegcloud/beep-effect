@@ -87,7 +87,7 @@ export const messageOf = (cause: unknown): string => (cause instanceof Error ? c
  * @category formatting
  * @since 0.0.0
  */
-export const sideLabel = (side: HookReplayContext): string =>
+export const sideLabel = (side: HookReplayContext.Encoded): string =>
   side.ref === undefined ? "the working tree" : `ref ${side.ref}`;
 
 /** Whether a `node:fs` rejection means "nothing there" (as opposed to a real IO failure). */

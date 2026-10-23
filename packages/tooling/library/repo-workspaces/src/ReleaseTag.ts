@@ -71,35 +71,46 @@ export type TagStyle = typeof TagStyle.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const TagFormatOptions = S.Struct({
-  /**
-   * The prefix on the version segment.
-   *
-   * **Details**
-   *
-   * Defaults to `""` uniformly, for both {@link ReleaseTag.single} and
-   * {@link ReleaseTag.scoped} — strict SemVer, deliberately chosen. Pass
-   * `"v"` for the GitHub release-tag convention (`v1.2.3`), which tools such
-   * as `actions/checkout`'s ref resolution and third-party changelog
-   * generators expect.
-   */
-  versionPrefix: S.optionalKey(S.String).pipe(
-    $I.annoteKey("TagFormatOptions.versionPrefix", {
-      description: "The version segment prefix; defaults to an empty string when formatting.",
+export class TagFormatOptions extends S.Opaque<TagFormatOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The prefix on the version segment.
+     *
+     * **Details**
+     *
+     * Defaults to `""` uniformly, for both {@link ReleaseTag.single} and
+     * {@link ReleaseTag.scoped} — strict SemVer, deliberately chosen. Pass
+     * `"v"` for the GitHub release-tag convention (`v1.2.3`), which tools such
+     * as `actions/checkout`'s ref resolution and third-party changelog
+     * generators expect.
+     */
+    versionPrefix: S.optionalKey(S.String).pipe(
+      $I.annoteKey("TagFormatOptions.versionPrefix", {
+        description: "The version segment prefix; defaults to an empty string when formatting.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("TagFormatOptions", {
+      description: "Optional version prefix overrides for release tag formatting.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("TagFormatOptions", { description: "Optional version prefix overrides for release tag formatting." })
-);
+  )
+) {}
 
 /**
- * Structural formatting options accepted by release tag constructors.
+ * Companion types for {@link TagFormatOptions}.
  *
- * @public
  * @category type-level
  * @since 0.0.0
  */
-export type TagFormatOptions = typeof TagFormatOptions.Type;
+export declare namespace TagFormatOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link TagFormatOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TagFormatOptions.Encoded;
+}
 
 // The numeric core of a SemVer version, plus whether it carries a prerelease.
 //
@@ -183,48 +194,57 @@ const versionCore = (version: string): VersionCore | undefined => {
  * @category schemas
  * @since 0.0.0
  */
-export const TrackingTagOptions = S.Struct({
-  /**
-   * Prefix the alias with a package name, for a monorepo that namespaces its
-   * tags: `@scope/pkg@v1`. Omit it for a single-package repo's bare `v1`.
-   */
-  packageName: S.optionalKey(S.String).pipe(
-    $I.annoteKey("TrackingTagOptions.packageName", {
-      description: "An optional package name prefix for tracking aliases.",
+export class TrackingTagOptions extends S.Opaque<TrackingTagOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Prefix the alias with a package name, for a monorepo that namespaces its
+     * tags: `@scope/pkg@v1`. Omit it for a single-package repo's bare `v1`.
+     */
+    packageName: S.optionalKey(S.String).pipe(
+      $I.annoteKey("TrackingTagOptions.packageName", {
+        description: "An optional package name prefix for tracking aliases.",
+      })
+    ),
+    /**
+     * Which aliases to derive. `"both"` (the default) gives `v1` and `v1.2`;
+     * `"major"` gives only the broad `v1`.
+     */
+    precision: S.optionalKey(S.Literals(["major", "both"])).pipe(
+      $I.annoteKey("TrackingTagOptions.precision", {
+        description: "Derive only the major alias or both major and minor aliases; defaults to both during derivation.",
+      })
+    ),
+    /**
+     * Derive aliases for a prerelease version too. **Off by default, and you
+     * almost certainly want it off** — see {@link TrackingTag.forVersion}.
+     */
+    includePrerelease: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("TrackingTagOptions.includePrerelease", {
+        description: "Whether to derive aliases for prereleases; disabled by default during derivation.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("TrackingTagOptions", {
+      description: "Optional package prefix, precision and prerelease policy for tracking alias derivation.",
     })
-  ),
-  /**
-   * Which aliases to derive. `"both"` (the default) gives `v1` and `v1.2`;
-   * `"major"` gives only the broad `v1`.
-   */
-  precision: S.optionalKey(S.Literals(["major", "both"])).pipe(
-    $I.annoteKey("TrackingTagOptions.precision", {
-      description: "Derive only the major alias or both major and minor aliases; defaults to both during derivation.",
-    })
-  ),
-  /**
-   * Derive aliases for a prerelease version too. **Off by default, and you
-   * almost certainly want it off** — see {@link TrackingTag.forVersion}.
-   */
-  includePrerelease: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("TrackingTagOptions.includePrerelease", {
-      description: "Whether to derive aliases for prereleases; disabled by default during derivation.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("TrackingTagOptions", {
-    description: "Optional package prefix, precision and prerelease policy for tracking alias derivation.",
-  })
-);
+  )
+) {}
 
 /**
- * Structural options accepted by tracking alias derivation.
+ * Companion types for {@link TrackingTagOptions}.
  *
- * @public
  * @category type-level
  * @since 0.0.0
  */
-export type TrackingTagOptions = typeof TrackingTagOptions.Type;
+export declare namespace TrackingTagOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link TrackingTagOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TrackingTagOptions.Encoded;
+}
 
 /**
  * A floating alias tag — `v1`, `v1.2` — that a repo re-points at its newest
@@ -344,11 +364,11 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
    * @since 0.0.0
    */
   static readonly forVersion: {
-    (version: string, options?: TrackingTagOptions): ReadonlyArray<TrackingTag>;
-    (options?: TrackingTagOptions): (version: string) => ReadonlyArray<TrackingTag>;
+    (version: string, options?: TrackingTagOptions.Encoded): ReadonlyArray<TrackingTag>;
+    (options?: TrackingTagOptions.Encoded): (version: string) => ReadonlyArray<TrackingTag>;
   } = dual(
     (args) => P.isString(args[0]),
-    (version: string, options?: TrackingTagOptions): ReadonlyArray<TrackingTag> => {
+    (version: string, options?: TrackingTagOptions.Encoded): ReadonlyArray<TrackingTag> => {
       const core = versionCore(version);
       if (core === undefined) return [];
       if (!S.is(TrackingTag.fields.major)(core.major) || !S.is(TrackingTag.fields.minor)(core.minor)) return [];
@@ -427,7 +447,7 @@ const splitTag = (tag: string): { readonly packageName?: string; readonly rest: 
  */
 export const classifyTag = (tag: string): TagClassification => {
   const split = splitTag(tag);
-  if (split === undefined) return { kind: "unrecognized" };
+  if (split === undefined) return UNRECOGNIZED;
 
   const { packageName, rest } = split;
   const withoutV = rest.startsWith("v") ? rest.slice(1) : rest;
@@ -436,38 +456,36 @@ export const classifyTag = (tag: string): TagClassification => {
   // Three segments (plus optional prerelease/build) is a version.
   const core = versionCore(withoutV);
   if (core !== undefined) {
-    return {
-      kind: "release",
+    return ReleaseTagClassification.make({
       tag: ReleaseTag.make({
         value: tag,
         ...(packageName !== undefined && { packageName }),
         version: withoutV,
         style: packageName === undefined ? "single" : "scoped",
       }),
-    };
+    });
   }
 
   // One or two numeric segments behind a `v` is a tracking alias.
-  if (!hasV) return { kind: "unrecognized" };
+  if (!hasV) return UNRECOGNIZED;
   const segments = withoutV.split(".");
   if (segments.length > 2 || !A.every(segments, (segment) => NUMERIC_IDENTIFIER.test(segment))) {
-    return { kind: "unrecognized" };
+    return UNRECOGNIZED;
   }
 
   const major = Number(segments[0]);
   const minor = segments.length === 2 ? Number(segments[1]) : undefined;
   if (!S.is(TrackingTag.fields.major)(major) || (minor !== undefined && !S.is(TrackingTag.fields.minor)(minor))) {
-    return { kind: "unrecognized" };
+    return UNRECOGNIZED;
   }
-  return {
-    kind: "tracking",
+  return TrackingTagClassification.make({
     tag: TrackingTag.make({
       value: tag,
       ...(packageName !== undefined && { packageName }),
       major,
       ...(minor !== undefined && { minor }),
     }),
-  };
+  });
 };
 
 /**
@@ -500,8 +518,8 @@ export const classifyTag = (tag: string): TagClassification => {
  * @category models
  * @since 0.0.0
  */
-export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique symbol }>($I`ReleaseTag`)(
-  {
+export class ReleaseTag extends S.Opaque<ReleaseTag, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The tag string exactly as it appears in git.
      */
@@ -526,8 +544,9 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
      * Which style produced it.
      */
     style: TagStyle.pipe($I.annoteKey("ReleaseTag.style", { description: "Which style produced it." })),
-  },
-  $I.annote("ReleaseTag", { description: "A git tag naming a release, and the parts it was built from." })
+  }).pipe(
+    $I.annoteSchema("ReleaseTag", { description: "A git tag naming a release, and the parts it was built from." })
+  )
 ) {
   /**
    * One shared tag for a whole release: `1.2.3`.
@@ -546,11 +565,11 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
    * @since 0.0.0
    */
   static readonly single: {
-    (version: string, options?: TagFormatOptions): ReleaseTag;
-    (options?: TagFormatOptions): (version: string) => ReleaseTag;
+    (version: string, options?: TagFormatOptions.Encoded): ReleaseTag;
+    (options?: TagFormatOptions.Encoded): (version: string) => ReleaseTag;
   } = dual(
     (args) => P.isString(args[0]),
-    (version: string, options?: TagFormatOptions): ReleaseTag => {
+    (version: string, options?: TagFormatOptions.Encoded): ReleaseTag => {
       const prefix = options?.versionPrefix ?? "";
       return ReleaseTag.make({
         value: `${prefix}${version}`,
@@ -579,11 +598,11 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
    * @since 0.0.0
    */
   static readonly scoped: {
-    (packageName: string, version: string, options?: TagFormatOptions): ReleaseTag;
-    (version: string, options?: TagFormatOptions): (packageName: string) => ReleaseTag;
+    (packageName: string, version: string, options?: TagFormatOptions.Encoded): ReleaseTag;
+    (version: string, options?: TagFormatOptions.Encoded): (packageName: string) => ReleaseTag;
   } = dual(
     (args) => P.isString(args[1]),
-    (packageName: string, version: string, options?: TagFormatOptions): ReleaseTag => {
+    (packageName: string, version: string, options?: TagFormatOptions.Encoded): ReleaseTag => {
       const prefix = options?.versionPrefix ?? "";
       return ReleaseTag.make({
         value: `${packageName}@${prefix}${version}`,
@@ -594,6 +613,143 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
     }
   );
 }
+
+/**
+ * Companion types for {@link ReleaseTag}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ReleaseTag {
+  /**
+   * The plain, unbranded encoded shape of a {@link ReleaseTag}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ReleaseTag.Encoded;
+}
+
+/**
+ * A tag {@link classifyTag} recognized as an immutable release tag.
+ *
+ * **Example** (Classify a release tag)
+ *
+ * ```ts
+ * import { classifyTag } from "@beep/repo-workspaces/ReleaseTag";
+ *
+ * console.log(classifyTag("v1.2.3").kind) // release
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ReleaseTagClassification extends S.Opaque<ReleaseTagClassification, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("release").pipe($I.annoteKey("TagClassification.kind", { description: "An immutable release tag." })),
+    tag: ReleaseTag,
+  }).pipe($I.annoteSchema("ReleaseTagClassification", { description: "A tag recognized as a release tag." }))
+) {}
+
+/**
+ * Companion types for {@link ReleaseTagClassification}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ReleaseTagClassification {
+  /**
+   * The plain, unbranded encoded shape of a {@link ReleaseTagClassification}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ReleaseTagClassification.Encoded;
+}
+
+/**
+ * A tag {@link classifyTag} recognized as a floating tracking alias.
+ *
+ * **Example** (Classify a tracking alias)
+ *
+ * ```ts
+ * import { classifyTag } from "@beep/repo-workspaces/ReleaseTag";
+ *
+ * console.log(classifyTag("v1").kind) // tracking
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class TrackingTagClassification extends S.Opaque<TrackingTagClassification, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("tracking").pipe($I.annoteKey("TagClassification.kind", { description: "A floating tracking alias." })),
+    tag: TrackingTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized tracking tag." })),
+  }).pipe($I.annoteSchema("TrackingTagClassification", { description: "A tag recognized as a tracking alias." }))
+) {}
+
+/**
+ * Companion types for {@link TrackingTagClassification}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace TrackingTagClassification {
+  /**
+   * The plain, unbranded encoded shape of a {@link TrackingTagClassification}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TrackingTagClassification.Encoded;
+}
+
+/**
+ * A tag outside both grammars {@link classifyTag} recognizes.
+ *
+ * **Example** (Classify an unrelated tag)
+ *
+ * ```ts
+ * import { classifyTag } from "@beep/repo-workspaces/ReleaseTag";
+ *
+ * console.log(classifyTag("latest").kind) // unrecognized
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class UnrecognizedTagClassification extends S.Opaque<
+  UnrecognizedTagClassification,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    kind: S.tag("unrecognized").pipe(
+      $I.annoteKey("TagClassification.kind", { description: "A tag outside both supported grammars." })
+    ),
+  }).pipe($I.annoteSchema("UnrecognizedTagClassification", { description: "A tag outside both supported grammars." }))
+) {}
+
+/**
+ * Companion types for {@link UnrecognizedTagClassification}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace UnrecognizedTagClassification {
+  /**
+   * The plain, unbranded encoded shape of a {@link UnrecognizedTagClassification}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof UnrecognizedTagClassification.Encoded;
+}
+
+/** The one shared `unrecognized` answer, admitted once. */
+const UNRECOGNIZED: UnrecognizedTagClassification = UnrecognizedTagClassification.make({});
 
 /**
  * What an arbitrary tag string denotes.
@@ -618,19 +774,9 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
  * @since 0.0.0
  */
 export const TagClassification = S.Union([
-  S.Struct({
-    kind: S.tag("release").pipe($I.annoteKey("TagClassification.kind", { description: "An immutable release tag." })),
-    tag: ReleaseTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized release tag." })),
-  }),
-  S.Struct({
-    kind: S.tag("tracking").pipe($I.annoteKey("TagClassification.kind", { description: "A floating tracking alias." })),
-    tag: TrackingTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized tracking tag." })),
-  }),
-  S.Struct({
-    kind: S.tag("unrecognized").pipe(
-      $I.annoteKey("TagClassification.kind", { description: "A tag outside both supported grammars." })
-    ),
-  }),
+  ReleaseTagClassification,
+  TrackingTagClassification,
+  UnrecognizedTagClassification,
 ]).pipe(
   S.toTaggedUnion("kind"),
   $I.annoteSchema("TagClassification", {

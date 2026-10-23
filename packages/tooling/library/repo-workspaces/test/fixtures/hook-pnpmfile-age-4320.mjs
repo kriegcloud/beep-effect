@@ -3,11 +3,11 @@
 // last-wins threading across hooks: replayed FIRST, its 4320 must be overwritten
 // by the later hook's lower 1440 (not maxed to 4320).
 export const hooks = {
-	updateConfig(config) {
-		return {
-			...config,
-			minimumReleaseAge: 4320,
-			minimumReleaseAgeExclude: ["@scope/a", "typescript"],
-		};
-	},
+  updateConfig(config) {
+    return {
+      ...config,
+      minimumReleaseAge: 4320,
+      minimumReleaseAgeExclude: ["@scope/a", "typescript"],
+    };
+  },
 };

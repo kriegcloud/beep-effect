@@ -103,7 +103,7 @@ export interface FetchRequest {
    */
   readonly root: string;
   /** What the declaring side recorded. */
-  readonly side: HookReplayContext;
+  readonly side: HookReplayContext.Encoded;
   /** The declared spec verbatim, `<version>` or the legacy `<version>+<integrity>`. */
   readonly spec: string;
   /** The stores the ladder searched, in discovery order; the first is where the fetch writes. */
@@ -160,33 +160,45 @@ export type FetchFailureReason = typeof FetchFailureReason.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FetchFailure = S.Struct({
-  reason: FetchFailureReason.pipe(
-    $I.annoteKey("FetchFailure.reason", {
-      description: "The public catalog-assembly reason reported by the fetch rung.",
+export class FetchFailure extends S.Opaque<FetchFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
+    reason: FetchFailureReason.pipe(
+      $I.annoteKey("FetchFailure.reason", {
+        description: "The public catalog-assembly reason reported by the fetch rung.",
+      })
+    ),
+    /** The complete sentence(s) the ladder splices into its message. */
+    message: S.String.pipe(
+      $I.annoteKey("FetchFailure.message", {
+        description: "The complete diagnosis the resolution ladder includes in its message.",
+      })
+    ),
+    /** The underlying failure, when there is one. */
+    cause: S.optionalKey(S.Unknown).pipe(
+      $I.annoteKey("FetchFailure.cause", { description: "The underlying failure, omitted when there is none." })
+    ),
+  }).pipe(
+    $I.annoteSchema("FetchFailure", {
+      description: "A plain internal fetch failure retained by the resolution ladder.",
     })
-  ),
-  /** The complete sentence(s) the ladder splices into its message. */
-  message: S.String.pipe(
-    $I.annoteKey("FetchFailure.message", {
-      description: "The complete diagnosis the resolution ladder includes in its message.",
-    })
-  ),
-  /** The underlying failure, when there is one. */
-  cause: S.optionalKey(S.Unknown).pipe(
-    $I.annoteKey("FetchFailure.cause", { description: "The underlying failure, omitted when there is none." })
-  ),
-}).pipe(
-  $I.annoteSchema("FetchFailure", { description: "A plain internal fetch failure retained by the resolution ladder." })
-);
+  )
+) {}
 
 /**
- * Retains the fetch failure message and optional cause for the resolution ladder.
+ * Companion types for {@link FetchFailure}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type FetchFailure = typeof FetchFailure.Type;
+export declare namespace FetchFailure {
+  /**
+   * The plain, unbranded encoded shape of a {@link FetchFailure}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FetchFailure.Encoded;
+}
 
 const fetchFailure: {
   (reason: FetchFailureReason, message: string, cause?: unknown): FetchFailure;
@@ -194,7 +206,7 @@ const fetchFailure: {
 } = dual(
   (args) => S.is(FetchFailureReason)(args[0]),
   (reason: FetchFailureReason, message: string, cause?: unknown): FetchFailure =>
-    cause === undefined ? { reason, message } : { reason, message, cause }
+    FetchFailure.make(cause === undefined ? { reason, message } : { reason, message, cause })
 );
 
 /**
@@ -316,28 +328,38 @@ export const expectedIntegrity = Effect.fn("expectedIntegrity")(function* (
  * @category schemas
  * @since 0.0.0
  */
-export const RegistrySettings = S.Struct({
-  registry: S.optionalKey(S.String).pipe(
-    $I.annoteKey("RegistrySettings.registry", {
-      description: "The default registry URL, omitted when none was declared.",
+export class RegistrySettings extends S.Opaque<RegistrySettings, { readonly brand: unique symbol }>()(
+  S.Struct({
+    registry: S.optionalKey(S.String).pipe(
+      $I.annoteKey("RegistrySettings.registry", {
+        description: "The default registry URL, omitted when none was declared.",
+      })
+    ),
+    registries: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("RegistrySettings.registries", { description: "String-valued registry URLs by scope." })
+    ),
+  }).pipe(
+    $I.annoteSchema("RegistrySettings", {
+      description: "The plain registry settings retained from a declaring workspace.",
     })
-  ),
-  registries: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("RegistrySettings.registries", { description: "String-valued registry URLs by scope." })
-  ),
-}).pipe(
-  $I.annoteSchema("RegistrySettings", {
-    description: "The plain registry settings retained from a declaring workspace.",
-  })
-);
+  )
+) {}
 
 /**
- * Carries registry selection and package-manager settings retained from the declaring workspace.
+ * Companion types for {@link RegistrySettings}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type RegistrySettings = typeof RegistrySettings.Type;
+export declare namespace RegistrySettings {
+  /**
+   * The plain, unbranded encoded shape of a {@link RegistrySettings}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RegistrySettings.Encoded;
+}
 
 /**
  * Extracts the {@link RegistrySettings} from a parsed `pnpm-workspace.yaml` document.
@@ -363,14 +385,16 @@ export type RegistrySettings = typeof RegistrySettings.Type;
  * @since 0.0.0
  */
 export const registrySettingsOf = (document: unknown): RegistrySettings => {
-  if (!P.isObject(document)) return { registries: {} };
+  if (!P.isObject(document)) return RegistrySettings.make({ registries: {} });
   const registries: Record<string, string> = {};
   if (P.isObject(document.registries)) {
     for (const [scope, url] of R.toEntries(document.registries)) {
       if (P.isString(url)) R.assignProperty(registries, scope, url);
     }
   }
-  return P.isString(document.registry) ? { registry: document.registry, registries } : { registries };
+  return RegistrySettings.make(
+    P.isString(document.registry) ? { registry: document.registry, registries } : { registries }
+  );
 };
 
 /**
@@ -397,7 +421,7 @@ export const scratchWorkspaceYaml: {
   (name: string, version: string, settings?: RegistrySettings): string;
 } = dual(
   (args) => P.isString(args[1]),
-  (name: string, version: string, settings: RegistrySettings = { registries: {} }): string => {
+  (name: string, version: string, settings: RegistrySettings.Encoded = { registries: {} }): string => {
     const lines = ["configDependencies:", `  ${quote(name)}: ${quote(version)}`];
     if (settings.registry !== undefined) lines.push(`registry: ${quote(settings.registry)}`);
     const scopes = R.toEntries(settings.registries);

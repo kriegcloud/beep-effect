@@ -8,17 +8,17 @@
 // the spelling a plugin uses, while the workspace file's inline block uses the
 // parent-versioned spelling `pnpm:export` materializes.
 export const hooks = {
-	updateConfig(config) {
-		const existing = config.peerDependencyRules ?? {};
-		return {
-			...config,
-			peerDependencyRules: {
-				...existing,
-				allowedVersions: {
-					...(existing.allowedVersions ?? {}),
-					"hooked-parent>hooked-peer": "^9.0.0",
-				},
-			},
-		};
-	},
+  updateConfig(config) {
+    const existing = config.peerDependencyRules ?? {};
+    return {
+      ...config,
+      peerDependencyRules: {
+        ...existing,
+        allowedVersions: {
+          ...(existing.allowedVersions ?? {}),
+          "hooked-parent>hooked-peer": "^9.0.0",
+        },
+      },
+    };
+  },
 };

@@ -86,11 +86,14 @@ export { PublishabilityDetector, type PublishabilityDetectorShape, PublishTarget
 export {
   classifyTag,
   ReleaseTag,
+  ReleaseTagClassification,
   type TagClassification,
   type TagFormatOptions,
   TagStyle,
   TrackingTag,
+  TrackingTagClassification,
   type TrackingTagOptions,
+  UnrecognizedTagClassification,
 } from "./ReleaseTag.ts";
 export {
   type ClassifyOptions,
@@ -146,8 +149,11 @@ export {
   type GetWorkspacePackagesSyncOptions,
   getWorkspacePackagesSync,
   type SyncDirectoryEntry,
+  SyncEnumerationBound,
+  type SyncEnumerationObserver,
   type SyncFileSystem,
   type SyncPath,
+  SyncRootCeiling,
   type WorkspaceDiscoverySkip,
   type WorkspaceDiscoverySkipKind,
   WorkspaceEnumerationDepthError,

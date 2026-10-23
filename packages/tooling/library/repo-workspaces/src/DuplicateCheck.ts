@@ -131,10 +131,8 @@ const encodeRelationshipKey = S.encodeResult(RelationshipKey);
  * @category models
  * @since 0.0.0
  */
-export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly brand: unique symbol }>(
-  $I`DuplicateInstance`
-)(
-  {
+export class DuplicateInstance extends S.Opaque<DuplicateInstance, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The opaque instance id, as `@effected/lockfiles` records it. */
     instanceId: S.NonEmptyString.pipe(
       $I.annoteKey("DuplicateInstance.instanceId", {
@@ -145,11 +143,28 @@ export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly bra
     dependents: S.Array(Dependent).pipe(
       $I.annoteKey("DuplicateInstance.dependents", { description: "Every importer and package that pulls THIS copy." })
     ),
-  },
-  $I.annote("DuplicateInstance", {
-    description: "One resolved instance of a duplicated version, with everything that pulls it.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuplicateInstance", {
+      description: "One resolved instance of a duplicated version, with everything that pulls it.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link DuplicateInstance}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DuplicateInstance {
+  /**
+   * The plain, unbranded encoded shape of a {@link DuplicateInstance}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DuplicateInstance.Encoded;
+}
 
 /**
  * One version a duplicated package resolved at.
@@ -169,10 +184,8 @@ export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly bra
  * @category models
  * @since 0.0.0
  */
-export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly brand: unique symbol }>(
-  $I`DuplicatedVersion`
-)(
-  {
+export class DuplicatedVersion extends S.Opaque<DuplicatedVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The resolved version. */
     version: S.String.pipe($I.annoteKey("DuplicatedVersion.version", { description: "The resolved version." })),
     /** Every instance at this version — more than one when peer suffixes differ. */
@@ -181,9 +194,24 @@ export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly bra
         description: "Every instance at this version — more than one when peer suffixes differ.",
       })
     ),
-  },
-  $I.annote("DuplicatedVersion", { description: "One version a duplicated package resolved at." })
+  }).pipe($I.annoteSchema("DuplicatedVersion", { description: "One version a duplicated package resolved at." }))
 ) {}
+
+/**
+ * Companion types for {@link DuplicatedVersion}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DuplicatedVersion {
+  /**
+   * The plain, unbranded encoded shape of a {@link DuplicatedVersion}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DuplicatedVersion.Encoded;
+}
 
 /**
  * One package name reached at two or more distinct versions.
@@ -215,10 +243,8 @@ export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly bra
  * @category models
  * @since 0.0.0
  */
-export class DuplicatedPackage extends S.Class<DuplicatedPackage, { readonly brand: unique symbol }>(
-  $I`DuplicatedPackage`
-)(
-  {
+export class DuplicatedPackage extends S.Opaque<DuplicatedPackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The package name. */
     name: S.NonEmptyString.pipe($I.annoteKey("DuplicatedPackage.name", { description: "The package name." })),
     /** Every version it resolved at, in lockfile order. Never fewer than two. */
@@ -227,9 +253,26 @@ export class DuplicatedPackage extends S.Class<DuplicatedPackage, { readonly bra
         description: "Every version it resolved at, in lockfile order. Never fewer than two.",
       })
     ),
-  },
-  $I.annote("DuplicatedPackage", { description: "One package name reached at two or more distinct versions." })
+  }).pipe(
+    $I.annoteSchema("DuplicatedPackage", { description: "One package name reached at two or more distinct versions." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link DuplicatedPackage}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DuplicatedPackage {
+  /**
+   * The plain, unbranded encoded shape of a {@link DuplicatedPackage}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DuplicatedPackage.Encoded;
+}
 
 /**
  * The result of checking a lockfile for packages resolved at more than one

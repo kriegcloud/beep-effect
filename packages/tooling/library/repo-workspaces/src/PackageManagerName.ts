@@ -171,10 +171,8 @@ export type PackageManagerEvidence = typeof PackageManagerEvidence.Type;
  * @category models
  * @since 0.0.0
  */
-export class DetectedPackageManager extends S.Class<DetectedPackageManager, { readonly brand: unique symbol }>(
-  $I`DetectedPackageManager`
-)(
-  {
+export class DetectedPackageManager extends S.Opaque<DetectedPackageManager, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The detected manager. */
     name: PackageManagerName.pipe(
       $I.annoteKey("DetectedPackageManager.name", { description: "The detected manager." })
@@ -195,9 +193,28 @@ export class DetectedPackageManager extends S.Class<DetectedPackageManager, { re
         description: "The rung of the priority order that decided the name.",
       })
     ),
-  },
-  $I.annote("DetectedPackageManager", { description: "The outcome of package-manager detection at a workspace root." })
+  }).pipe(
+    $I.annoteSchema("DetectedPackageManager", {
+      description: "The outcome of package-manager detection at a workspace root.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link DetectedPackageManager}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DetectedPackageManager {
+  /**
+   * The plain, unbranded encoded shape of a {@link DetectedPackageManager}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DetectedPackageManager.Encoded;
+}
 
 /**
  * A manager named by one of the two manifest fields: the name, plus the exact

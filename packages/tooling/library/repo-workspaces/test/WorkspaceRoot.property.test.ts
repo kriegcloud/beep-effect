@@ -28,9 +28,9 @@ describe("WorkspaceRoot schema fidelity", () => {
 
 it.effect("root options do not validate depth or materialize lazy defaults", () =>
   Effect.gen(function* () {
-    assert.deepStrictEqual(yield* S.decodeEffect(FindWorkspaceRootOptions)({}), {});
+    assert.deepStrictEqual(yield* S.decodeEffect(FindWorkspaceRootOptions)({}), FindWorkspaceRootOptions.make({}));
     for (const maxDepth of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
-      const options = { maxDepth };
+      const options = FindWorkspaceRootOptions.make({ maxDepth });
       const encoded = yield* S.encodeEffect(FindWorkspaceRootOptions)(options);
       assert.deepStrictEqual(yield* S.decodeEffect(FindWorkspaceRootOptions)(encoded), options);
     }

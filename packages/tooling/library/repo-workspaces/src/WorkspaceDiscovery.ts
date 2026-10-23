@@ -290,20 +290,37 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceInfo extends S.Class<WorkspaceInfo, { readonly brand: unique symbol }>($I`WorkspaceInfo`)(
-  {
+export class WorkspaceInfo extends S.Opaque<WorkspaceInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Absolute path to the workspace root. */
     root: S.String.pipe($I.annoteKey("WorkspaceInfo.root", { description: "Absolute path to the workspace root." })),
     /** The `packages:` patterns, verbatim. */
     patterns: S.Array(S.String).pipe(
       $I.annoteKey("WorkspaceInfo.patterns", { description: "The `packages:` patterns, verbatim." })
     ),
-  },
-  $I.annote("WorkspaceInfo", {
-    description:
-      "Top-level facts about a workspace: where it is, what manages it, and the patterns that define its membership.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceInfo", {
+      description:
+        "Top-level facts about a workspace: where it is, what manages it, and the patterns that define its membership.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link WorkspaceInfo}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace WorkspaceInfo {
+  /**
+   * The plain, unbranded encoded shape of a {@link WorkspaceInfo}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WorkspaceInfo.Encoded;
+}
 
 /**
  * Every failure `WorkspaceDiscovery.getPackage` can surface: the discovery
@@ -350,67 +367,77 @@ const DiscoveryDepth = S.declare(P.isNumber).pipe(
  * @category configuration
  * @since 0.0.0
  */
-export const WorkspaceDiscoveryOptions = S.Struct({
-  /**
-   * The directory the workspace root is resolved from.
-   *
-   * @defaultValue `process.cwd()`, read lazily on first use — so a
-   *   `process.chdir` between providing the layer and the first call is
-   *   honoured.
-   */
-  cwd: S.optionalKey(S.String).pipe(
-    $I.annoteKey("WorkspaceDiscoveryOptions.cwd", { description: "Optional working directory, resolved lazily." })
-  ),
-  /**
-   * A ceiling for the layer-bound root ascent from `cwd`, passed straight
-   * through to the `stopAt` of {@link WorkspaceRoot}'s `find`.
-   *
-   * **Details**
-   *
-   * Inclusive: the ceiling itself is probed, so a `cwd` that is its own
-   * workspace root still resolves with `stopAt: cwd`. A relative ceiling is
-   * resolved against the process working directory, exactly as `cwd` is. When
-   * no root is found at or below the ceiling, the methods fail with
-   * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt`, rather
-   * than adopting an enclosing directory's workspace — pass `stopAt: cwd` for
-   * a checkout nested inside someone else's monorepo.
-   *
-   * Applies ONLY to the layer-bound methods (`info`, `listPackages`,
-   * `importerMap`, `getPackage`, `resolveFile`, `resolveFiles`). The per-call
-   * `infoIn`, `listPackagesIn` and `refreshIn` resolve from an arbitrary
-   * directory the caller names, which a single layer-level ceiling cannot
-   * sensibly bound, so they ascend unbounded.
-   *
-   * `LockfileReader`, `WorkspaceCatalogs` and `WorkspaceSnapshots` each
-   * take the same option; give them the same value when wiring by hand, or let a `Workspaces.*` composite forward one
-   * `stopAt` to all of them, so no service adopts a root another refused.
-   *
-   * @defaultValue no ceiling — the ascent runs to the filesystem root.
-   */
-  stopAt: S.optional(S.String).pipe(
-    $I.annoteKey("WorkspaceDiscoveryOptions.stopAt", {
-      description: "Inclusive ceiling for layer-bound root discovery.",
+export class WorkspaceDiscoveryOptions extends S.Opaque<WorkspaceDiscoveryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The directory the workspace root is resolved from.
+     *
+     * @defaultValue `process.cwd()`, read lazily on first use — so a
+     *   `process.chdir` between providing the layer and the first call is
+     *   honoured.
+     */
+    cwd: S.optionalKey(S.String).pipe(
+      $I.annoteKey("WorkspaceDiscoveryOptions.cwd", { description: "Optional working directory, resolved lazily." })
+    ),
+    /**
+     * A ceiling for the layer-bound root ascent from `cwd`, passed straight
+     * through to the `stopAt` of {@link WorkspaceRoot}'s `find`.
+     *
+     * **Details**
+     *
+     * Inclusive: the ceiling itself is probed, so a `cwd` that is its own
+     * workspace root still resolves with `stopAt: cwd`. A relative ceiling is
+     * resolved against the process working directory, exactly as `cwd` is. When
+     * no root is found at or below the ceiling, the methods fail with
+     * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt`, rather
+     * than adopting an enclosing directory's workspace — pass `stopAt: cwd` for
+     * a checkout nested inside someone else's monorepo.
+     *
+     * Applies ONLY to the layer-bound methods (`info`, `listPackages`,
+     * `importerMap`, `getPackage`, `resolveFile`, `resolveFiles`). The per-call
+     * `infoIn`, `listPackagesIn` and `refreshIn` resolve from an arbitrary
+     * directory the caller names, which a single layer-level ceiling cannot
+     * sensibly bound, so they ascend unbounded.
+     *
+     * `LockfileReader`, `WorkspaceCatalogs` and `WorkspaceSnapshots` each
+     * take the same option; give them the same value when wiring by hand, or let a `Workspaces.*` composite forward one
+     * `stopAt` to all of them, so no service adopts a root another refused.
+     *
+     * @defaultValue no ceiling — the ascent runs to the filesystem root.
+     */
+    stopAt: S.optional(S.String).pipe(
+      $I.annoteKey("WorkspaceDiscoveryOptions.stopAt", {
+        description: "Inclusive ceiling for layer-bound root discovery.",
+      })
+    ),
+    /** Descent cap for segment-crossing patterns. Defaults to 32. */
+    maxDepth: S.optionalKey(DiscoveryDepth).pipe(
+      $I.annoteKey("WorkspaceDiscoveryOptions.maxDepth", {
+        description: "Optional pattern descent cap, defaulted on use.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("WorkspaceDiscoveryOptions", {
+      description: "Root resolution and pattern descent options, with defaults resolved lazily.",
     })
-  ),
-  /** Descent cap for segment-crossing patterns. Defaults to 32. */
-  maxDepth: S.optionalKey(DiscoveryDepth).pipe(
-    $I.annoteKey("WorkspaceDiscoveryOptions.maxDepth", {
-      description: "Optional pattern descent cap, defaulted on use.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("WorkspaceDiscoveryOptions", {
-    description: "Root resolution and pattern descent options, with defaults resolved lazily.",
-  })
-);
+  )
+) {}
 
 /**
- * Configures root resolution and pattern descent while leaving defaults to discovery.
+ * Companion types for {@link WorkspaceDiscoveryOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type WorkspaceDiscoveryOptions = typeof WorkspaceDiscoveryOptions.Type;
+export declare namespace WorkspaceDiscoveryOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link WorkspaceDiscoveryOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WorkspaceDiscoveryOptions.Encoded;
+}
 
 /**
  * The {@link WorkspaceDiscovery} service shape.
@@ -556,7 +583,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * @since 0.0.0
    */
   static readonly make = Effect.fn("make")(function* (
-    options?: WorkspaceDiscoveryOptions
+    options?: WorkspaceDiscoveryOptions.Encoded
   ): Effect.fn.Return<WorkspaceDiscoveryShape, never, WorkspaceRoot | FileSystem.FileSystem | Path.Path> {
     const roots = yield* WorkspaceRoot;
     const fs = yield* FileSystem.FileSystem;
@@ -986,7 +1013,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * @since 0.0.0
    */
   static readonly layer = (
-    options?: WorkspaceDiscoveryOptions
+    options?: WorkspaceDiscoveryOptions.Encoded
   ): Layer.Layer<WorkspaceDiscovery, never, WorkspaceRoot | FileSystem.FileSystem | Path.Path> =>
     Layer.effect(WorkspaceDiscovery, WorkspaceDiscovery.make(options));
 

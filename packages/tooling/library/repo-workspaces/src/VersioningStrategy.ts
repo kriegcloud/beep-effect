@@ -78,45 +78,55 @@ export type VersioningStrategyType = typeof VersioningStrategyType.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ClassifyOptions = S.Struct({
-  /** Publishable package names, in any order. Duplicates are collapsed. */
-  packages: S.Array(S.String).pipe(
-    $I.annoteKey("ClassifyOptions.packages", {
-      description: "Publishable package names, in any order; duplicates are collapsed.",
+export class ClassifyOptions extends S.Opaque<ClassifyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Publishable package names, in any order. Duplicates are collapsed. */
+    packages: S.Array(S.String).pipe(
+      $I.annoteKey("ClassifyOptions.packages", {
+        description: "Publishable package names, in any order; duplicates are collapsed.",
+      })
+    ),
+    /**
+     * Groups of packages that version in lockstep.
+     *
+     * **Details**
+     *
+     * A **plain argument, deliberately.** Fixed groups are a release tool's
+     * concept — changesets writes them to `.changeset/config.json` — and a
+     * workspace-model package that read that file would be taking on one tool's
+     * schema and one tool's release policy. The caller reads its own tool's
+     * config and hands the groups in. Groups may name packages that are not
+     * publishable, or do not exist; only whether some single group covers the
+     * whole publishable set matters.
+     */
+    fixedGroups: S.String.pipe(
+      S.Array,
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("ClassifyOptions.fixedGroups", { description: "Groups of packages that version in lockstep." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ClassifyOptions", {
+      description: "Publishable package names and optional fixed groups used to classify a workspace.",
     })
-  ),
-  /**
-   * Groups of packages that version in lockstep.
-   *
-   * **Details**
-   *
-   * A **plain argument, deliberately.** Fixed groups are a release tool's
-   * concept — changesets writes them to `.changeset/config.json` — and a
-   * workspace-model package that read that file would be taking on one tool's
-   * schema and one tool's release policy. The caller reads its own tool's
-   * config and hands the groups in. Groups may name packages that are not
-   * publishable, or do not exist; only whether some single group covers the
-   * whole publishable set matters.
-   */
-  fixedGroups: S.String.pipe(
-    S.Array,
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("ClassifyOptions.fixedGroups", { description: "Groups of packages that version in lockstep." })
-  ),
-}).pipe(
-  $I.annoteSchema("ClassifyOptions", {
-    description: "Publishable package names and optional fixed groups used to classify a workspace.",
-  })
-);
+  )
+) {}
 
 /**
- * Structural arguments accepted by workspace versioning classification.
+ * Companion types for {@link ClassifyOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ClassifyOptions = typeof ClassifyOptions.Type;
+export declare namespace ClassifyOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link ClassifyOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ClassifyOptions.Encoded;
+}
 
 /**
  * Supplies caller-defined lockstep groups to {@link VersioningStrategy.detect}.
@@ -170,24 +180,34 @@ export type VersioningDetectOptions = typeof VersioningDetectOptions.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PackageRelease = S.Struct({
-  /** The package that was released. */
-  name: S.String.pipe($I.annoteKey("PackageRelease.name", { description: "The package that was released." })),
-  /** The version it was released at. */
-  version: S.String.pipe($I.annoteKey("PackageRelease.version", { description: "The version it was released at." })),
-}).pipe(
-  $I.annoteSchema("PackageRelease", {
-    description: "A structural release batch entry naming a package and its released version.",
-  })
-);
+export class PackageRelease extends S.Opaque<PackageRelease, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The package that was released. */
+    name: S.String.pipe($I.annoteKey("PackageRelease.name", { description: "The package that was released." })),
+    /** The version it was released at. */
+    version: S.String.pipe($I.annoteKey("PackageRelease.version", { description: "The version it was released at." })),
+  }).pipe(
+    $I.annoteSchema("PackageRelease", {
+      description: "A structural release batch entry naming a package and its released version.",
+    })
+  )
+) {}
 
 /**
- * A structural package name and version pair in a release batch.
+ * Companion types for {@link PackageRelease}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type PackageRelease = typeof PackageRelease.Type;
+export declare namespace PackageRelease {
+  /**
+   * The plain, unbranded encoded shape of a {@link PackageRelease}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PackageRelease.Encoded;
+}
 
 /**
  * How a workspace versions, and the tagging that follows from it.
@@ -297,7 +317,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * @category constructors
    * @since 0.0.0
    */
-  static classify(options: ClassifyOptions): VersioningStrategy {
+  static classify(options: ClassifyOptions.Encoded): VersioningStrategy {
     const fixedGroups = options.fixedGroups ?? [];
     const packages = A.sort(A.fromIterable(MutableHashSet.fromIterable(options.packages)), Str.Order);
 
@@ -400,7 +420,10 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * @category formatting
    * @since 0.0.0
    */
-  tagsFor(releases: ReadonlyArray<PackageRelease>, options?: TagFormatOptions): ReadonlyArray<ReleaseTag> {
+  tagsFor(
+    releases: ReadonlyArray<PackageRelease.Encoded>,
+    options?: TagFormatOptions.Encoded
+  ): ReadonlyArray<ReleaseTag> {
     if (!A.isReadonlyArrayNonEmpty(releases)) return [];
     if (this.perPackageTags) {
       return A.map(releases, (release) => ReleaseTag.scoped(release.name, release.version, options));

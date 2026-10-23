@@ -15,7 +15,14 @@ it.effect.prop(
     Effect.gen(function* () {
       const dependencies = configDependenciesOf({ configDependencies: raw });
       const rules = inlinePeerDependencyRules({ peerDependencyRules: raw });
-      const normalized = { configDependencies: dependencies, peerDependencyRules: rules };
+      const normalized = {
+        configDependencies: dependencies,
+        peerDependencyRules: {
+          allowedVersions: rules.allowedVersions,
+          ignoreMissing: rules.ignoreMissing,
+          allowAny: rules.allowAny,
+        },
+      };
       assert.deepStrictEqual(configDependenciesOf(normalized), dependencies);
       assert.deepStrictEqual(inlinePeerDependencyRules(normalized), rules);
       const decoded = yield* S.decodeEffect(codec)(yield* S.encodeEffect(codec)(normalized));

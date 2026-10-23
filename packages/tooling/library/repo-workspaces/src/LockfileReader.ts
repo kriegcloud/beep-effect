@@ -177,50 +177,61 @@ export interface LockfileReaderShape {
  * @category schemas
  * @since 0.0.0
  */
-export const LockfileReaderOptions = S.Struct({
-  /**
-   * The directory the workspace root is resolved from.
-   *
-   * @defaultValue `process.cwd()`, read lazily on first use.
-   */
-  cwd: S.optionalKey(S.String).pipe(
-    $I.annoteKey("LockfileReaderOptions.cwd", {
-      description:
-        "The directory to resolve the workspace root from; defaults lazily to the current directory on first use.",
+export class LockfileReaderOptions extends S.Opaque<LockfileReaderOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The directory the workspace root is resolved from.
+     *
+     * @defaultValue `process.cwd()`, read lazily on first use.
+     */
+    cwd: S.optionalKey(S.String).pipe(
+      $I.annoteKey("LockfileReaderOptions.cwd", {
+        description:
+          "The directory to resolve the workspace root from; defaults lazily to the current directory on first use.",
+      })
+    ),
+    /**
+     * A ceiling for the root ascent from `cwd`, passed straight through to the
+     * `stopAt` of {@link WorkspaceRoot}'s `find`.
+     *
+     * **Details**
+     *
+     * Inclusive, and resolved to an absolute path exactly as `cwd` is. When no
+     * root is found at or below the ceiling, `read` fails with
+     * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt` rather
+     * than adopting an enclosing directory's workspace. Pass the same value as
+     * {@link WorkspaceDiscoveryOptions.stopAt} so every service agrees on the
+     * root; the `Workspaces.*` composites forward one `stopAt` to all of them.
+     *
+     * @defaultValue no ceiling — the ascent runs to the filesystem root.
+     */
+    stopAt: S.optional(S.String).pipe(
+      $I.annoteKey("LockfileReaderOptions.stopAt", {
+        description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("LockfileReaderOptions", {
+      description: "Root-resolution options for the lockfile reader, leaving current-directory resolution lazy.",
     })
-  ),
-  /**
-   * A ceiling for the root ascent from `cwd`, passed straight through to the
-   * `stopAt` of {@link WorkspaceRoot}'s `find`.
-   *
-   * **Details**
-   *
-   * Inclusive, and resolved to an absolute path exactly as `cwd` is. When no
-   * root is found at or below the ceiling, `read` fails with
-   * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt` rather
-   * than adopting an enclosing directory's workspace. Pass the same value as
-   * {@link WorkspaceDiscoveryOptions.stopAt} so every service agrees on the
-   * root; the `Workspaces.*` composites forward one `stopAt` to all of them.
-   *
-   * @defaultValue no ceiling — the ascent runs to the filesystem root.
-   */
-  stopAt: S.optional(S.String).pipe(
-    $I.annoteKey("LockfileReaderOptions.stopAt", {
-      description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("LockfileReaderOptions", {
-    description: "Root-resolution options for the lockfile reader, leaving current-directory resolution lazy.",
-  })
-);
+  )
+) {}
 
 /**
- * The root-resolution options accepted by the lockfile reader layer.
+ * Companion types for {@link LockfileReaderOptions}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type LockfileReaderOptions = typeof LockfileReaderOptions.Type;
+export declare namespace LockfileReaderOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link LockfileReaderOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LockfileReaderOptions.Encoded;
+}
 
 class LockfileReaderTestDoubleError extends S.TaggedError<
   LockfileReaderTestDoubleError,
@@ -288,7 +299,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * @since 0.0.0
    */
   static readonly make = Effect.fn("make")(function* (
-    options?: LockfileReaderOptions
+    options?: LockfileReaderOptions.Encoded
   ): Effect.fn.Return<
     LockfileReaderShape,
     never,
@@ -434,7 +445,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * @since 0.0.0
    */
   static readonly layer = (
-    options?: LockfileReaderOptions
+    options?: LockfileReaderOptions.Encoded
   ): Layer.Layer<
     LockfileReader,
     never,

@@ -8,5 +8,5 @@
 import "./this-module-does-not-exist.js";
 
 export const hooks = {
-	updateConfig: (config) => config,
+  updateConfig: (config) => config,
 };

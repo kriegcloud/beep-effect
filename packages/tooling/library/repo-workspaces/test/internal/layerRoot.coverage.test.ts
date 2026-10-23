@@ -7,11 +7,11 @@ import type { FindWorkspaceRootOptions, WorkspaceRootShape } from "@beep/repo-wo
 
 it.effect("defers root lookup and forwards ambient cwd, explicit cwd and the optional ceiling", () =>
   Effect.gen(function* () {
-    const calls: Array<readonly [string, FindWorkspaceRootOptions | undefined]> = [];
+    const calls: Array<readonly [string, FindWorkspaceRootOptions.Encoded | undefined]> = [];
     const roots: WorkspaceRootShape = {
       find: dual(
         (args) => P.isString(args[0]),
-        (cwd: string, options?: FindWorkspaceRootOptions) => {
+        (cwd: string, options?: FindWorkspaceRootOptions.Encoded) => {
           calls.push([cwd, options]);
           return Effect.succeed(cwd);
         }

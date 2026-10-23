@@ -56,8 +56,8 @@ const EMPTY_MANIFEST: Readonly<Record<string, unknown>> = R.fromEntries([]);
  * @category schemas
  * @since 0.0.0
  */
-export class PublishConfig extends S.Class<PublishConfig, { readonly brand: unique symbol }>($I`PublishConfig`)(
-  {
+export class PublishConfig extends S.Opaque<PublishConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Scoped-package visibility. Its presence overrides `private`. */
     access: S.optionalKey(S.Literals(["public", "restricted"])).pipe(
       $I.annoteKey("PublishConfig.access", {
@@ -88,9 +88,24 @@ export class PublishConfig extends S.Class<PublishConfig, { readonly brand: uniq
     tag: S.optionalKey(S.String).pipe(
       $I.annoteKey("PublishConfig.tag", { description: "The dist-tag to publish under." })
     ),
-  },
-  $I.annote("PublishConfig", { description: "The `publishConfig` fields workspace tooling reads." })
+  }).pipe($I.annoteSchema("PublishConfig", { description: "The `publishConfig` fields workspace tooling reads." }))
 ) {}
+
+/**
+ * Companion types for {@link PublishConfig}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PublishConfig {
+  /**
+   * The plain, unbranded encoded shape of a {@link PublishConfig}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PublishConfig.Encoded;
+}
 
 const DependencyMap = S.Record(S.String, S.String).pipe(
   S.withDecodingDefaultKey(Effect.succeed(EMPTY)),
@@ -130,32 +145,42 @@ const ChangedDependencyVersion = S.Struct({
  * @category schemas
  * @since 0.0.0
  */
-export const DependencyDiff = S.Struct({
-  /** Present in the receiver, absent from the other. */
-  added: S.Record(S.String, S.mutableKey(S.String)).pipe(
-    $I.annoteKey("DependencyDiff.added", { description: "Dependencies present only in the receiver." })
-  ),
-  /** Present in the other, absent from the receiver. */
-  removed: S.Record(S.String, S.mutableKey(S.String)).pipe(
-    $I.annoteKey("DependencyDiff.removed", { description: "Dependencies present only in the other package." })
-  ),
-  /** Present in both at different specifiers: `from` is the other package's, `to` the receiver's. */
-  changed: S.Record(S.String, S.mutableKey(ChangedDependencyVersion)).pipe(
-    $I.annoteKey("DependencyDiff.changed", { description: "Other-to-receiver dependency specifier changes." })
-  ),
-}).pipe(
-  $I.annoteSchema("DependencyDiff", {
-    description: "Mutable added, removed and changed dependency records comparing two snapshots.",
-  })
-);
+export class DependencyDiff extends S.Opaque<DependencyDiff, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Present in the receiver, absent from the other. */
+    added: S.Record(S.String, S.mutableKey(S.String)).pipe(
+      $I.annoteKey("DependencyDiff.added", { description: "Dependencies present only in the receiver." })
+    ),
+    /** Present in the other, absent from the receiver. */
+    removed: S.Record(S.String, S.mutableKey(S.String)).pipe(
+      $I.annoteKey("DependencyDiff.removed", { description: "Dependencies present only in the other package." })
+    ),
+    /** Present in both at different specifiers: `from` is the other package's, `to` the receiver's. */
+    changed: S.Record(S.String, S.mutableKey(ChangedDependencyVersion)).pipe(
+      $I.annoteKey("DependencyDiff.changed", { description: "Other-to-receiver dependency specifier changes." })
+    ),
+  }).pipe(
+    $I.annoteSchema("DependencyDiff", {
+      description: "Mutable added, removed and changed dependency records comparing two snapshots.",
+    })
+  )
+) {}
 
 /**
- * Contains added, removed, and changed dependency specifiers from another package to the receiver.
+ * Companion types for {@link DependencyDiff}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type DependencyDiff = typeof DependencyDiff.Type;
+export declare namespace DependencyDiff {
+  /**
+   * The plain, unbranded encoded shape of a {@link DependencyDiff}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DependencyDiff.Encoded;
+}
 
 /**
  * Raised when a workspace member's `package.json` cannot be read or decoded
@@ -778,7 +803,11 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
     for (const [name, version] of R.toEntries(theirs)) {
       if (!R.has(mine, name)) removed.push([name, version]);
     }
-    return { added: R.fromEntries(added), removed: R.fromEntries(removed), changed: R.fromEntries(changed) };
+    return DependencyDiff.make({
+      added: R.fromEntries(added),
+      removed: R.fromEntries(removed),
+      changed: R.fromEntries(changed),
+    });
   }
 
   /**

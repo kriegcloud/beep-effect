@@ -52,23 +52,33 @@ class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError, { r
  * @category models
  * @since 0.0.0
  */
-export const EnumeratedDirectory = S.Struct({
-  relativePath: S.String.pipe(
-    $I.annoteKey("EnumeratedDirectory.relativePath", { description: "The root-relative POSIX package directory." })
-  ),
-  path: S.String.pipe($I.annoteKey("EnumeratedDirectory.path", { description: "The absolute package directory." })),
-}).pipe(
-  $I.annoteSchema("EnumeratedDirectory", {
-    description: "A plain package directory accepted by workspace enumeration.",
-  })
-);
+export class EnumeratedDirectory extends S.Opaque<EnumeratedDirectory, { readonly brand: unique symbol }>()(
+  S.Struct({
+    relativePath: S.String.pipe(
+      $I.annoteKey("EnumeratedDirectory.relativePath", { description: "The root-relative POSIX package directory." })
+    ),
+    path: S.String.pipe($I.annoteKey("EnumeratedDirectory.path", { description: "The absolute package directory." })),
+  }).pipe(
+    $I.annoteSchema("EnumeratedDirectory", {
+      description: "A plain package directory accepted by workspace enumeration.",
+    })
+  )
+) {}
 /**
- * The readonly directory result described by {@link EnumeratedDirectory}.
+ * Companion types for {@link EnumeratedDirectory}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type EnumeratedDirectory = typeof EnumeratedDirectory.Type;
+export declare namespace EnumeratedDirectory {
+  /**
+   * The plain, unbranded encoded shape of a {@link EnumeratedDirectory}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof EnumeratedDirectory.Encoded;
+}
 
 /**
  * Classifies why an enumeration failed.
@@ -175,23 +185,33 @@ export type EnumerationFailure = typeof EnumerationFailure.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const EnumerateOptions = S.Struct({
-  /** Descent cap below a wildcard's enumeration prefix. Defaults to 32 at use. */
-  maxDepth: S.optionalKey(S.declare(P.isNumber)).pipe(
-    $I.annoteKey("EnumerateOptions.maxDepth", {
-      description: "An optional numeric descent cap, validated and defaulted only by enumeration.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("EnumerateOptions", { description: "Plain enumeration options retaining the lazy depth default." })
-);
+export class EnumerateOptions extends S.Opaque<EnumerateOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Descent cap below a wildcard's enumeration prefix. Defaults to 32 at use. */
+    maxDepth: S.optionalKey(S.declare(P.isNumber)).pipe(
+      $I.annoteKey("EnumerateOptions.maxDepth", {
+        description: "An optional numeric descent cap, validated and defaulted only by enumeration.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("EnumerateOptions", { description: "Plain enumeration options retaining the lazy depth default." })
+  )
+) {}
 /**
- * The optional descent cap described by {@link EnumerateOptions}.
+ * Companion types for {@link EnumerateOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type EnumerateOptions = typeof EnumerateOptions.Type;
+export declare namespace EnumerateOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link EnumerateOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof EnumerateOptions.Encoded;
+}
 
 /** Strip a trailing slash from `GlobPattern.enumerationPrefix` to get a relative directory. */
 const baseOf = (pattern: GlobPattern): string => pattern.enumerationPrefix.replace(/\/$/, "");
@@ -228,21 +248,21 @@ const baseOf = (pattern: GlobPattern): string => pattern.enumerationPrefix.repla
 export const enumerate: {
   (
     globs: GlobSet,
-    options?: EnumerateOptions
+    options?: EnumerateOptions.Encoded
   ): (
     root: string
   ) => Effect.Effect<ReadonlyArray<EnumeratedDirectory>, EnumerationFailure, FileSystem.FileSystem | Path.Path>;
   (
     root: string,
     globs: GlobSet,
-    options?: EnumerateOptions
+    options?: EnumerateOptions.Encoded
   ): Effect.Effect<ReadonlyArray<EnumeratedDirectory>, EnumerationFailure, FileSystem.FileSystem | Path.Path>;
 } = dual(
   (args) => P.isString(args[0]) && args.length >= 2,
   Effect.fnUntraced(function* (
     root: string,
     globs: GlobSet,
-    options?: EnumerateOptions
+    options?: EnumerateOptions.Encoded
   ): Effect.fn.Return<ReadonlyArray<EnumeratedDirectory>, EnumerationFailure, FileSystem.FileSystem | Path.Path> {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
@@ -381,7 +401,7 @@ export const enumerate: {
 
     const results: Array<EnumeratedDirectory> = [];
     for (const [relativePath, absolute] of included) {
-      results.push({ relativePath, path: absolute });
+      results.push(EnumeratedDirectory.make({ relativePath, path: absolute }));
     }
     return A.sort(
       results,

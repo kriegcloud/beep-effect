@@ -4,11 +4,11 @@
 // is typed), so both garbage values are dropped and the hook contributes an
 // empty release-age gate — never a typed failure.
 export const hooks = {
-	updateConfig(config) {
-		return {
-			...config,
-			minimumReleaseAge: "soon",
-			minimumReleaseAgeExclude: "nope",
-		};
-	},
+  updateConfig(config) {
+    return {
+      ...config,
+      minimumReleaseAge: "soon",
+      minimumReleaseAgeExclude: "nope",
+    };
+  },
 };

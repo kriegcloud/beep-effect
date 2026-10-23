@@ -41,8 +41,8 @@ describe("ReleaseTag schema laws", () => {
 
 it.effect("tag option schemas preserve omitted keys without resolving defaults", () =>
   Effect.gen(function* () {
-    assert.deepStrictEqual(yield* S.decodeEffect(TagFormatOptions)({}), {});
-    assert.deepStrictEqual(yield* S.decodeEffect(TrackingTagOptions)({}), {});
+    assert.deepStrictEqual(yield* S.decodeEffect(TagFormatOptions)({}), TagFormatOptions.make({}));
+    assert.deepStrictEqual(yield* S.decodeEffect(TrackingTagOptions)({}), TrackingTagOptions.make({}));
     assert.isTrue(S.is(TagFormatOptions)({ versionPrefix: "" }));
     assert.isTrue(S.is(TrackingTagOptions)({ packageName: "", precision: "both", includePrerelease: false }));
     assert.isFalse(S.is(TagFormatOptions)({ versionPrefix: undefined }));

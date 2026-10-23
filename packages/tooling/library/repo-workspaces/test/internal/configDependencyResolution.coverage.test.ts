@@ -10,6 +10,7 @@ const directoryReads = vi.spyOn(fs, "readdir");
 const fileReads = vi.spyOn(fs, "readFile");
 const realpaths = vi.spyOn(fs, "realpath");
 const subject = await import("@beep/repo-workspaces/internal/configDependencyResolution");
+const { FetchFailure } = await import("@beep/repo-workspaces/internal/configDependencyFetch");
 const root = () =>
   Effect.acquireRelease(
     Effect.promise(() => fs.mkdtemp("/tmp/workspaces-v6-resolution-")),
@@ -73,13 +74,20 @@ it.effect("a single-segment prerelease containing dots resolves through both res
       fs.writeFile(path.join(installed, "package.json"), '{"name":"pkg","version":"1.0.0-beta..1"}')
     );
     const result = yield* subject.resolvePnpmfiles(dir, { pkg: "1.0.0-beta..1" });
-    assert.deepStrictEqual(result, [{ name: "pkg", version: "1.0.0-beta..1", source: "installed", path: undefined }]);
+    assert.deepStrictEqual(result, [
+      subject.ResolvedPnpmfile.make({ name: "pkg", version: "1.0.0-beta..1", source: "installed", path: undefined }),
+    ]);
     const supplied = yield* subject.lookupPnpmfiles(
       { "pkg@1.0.0-beta..1": "/hooks/pnpmfile.cjs" },
       { pkg: "1.0.0-beta..1" }
     );
     assert.deepStrictEqual(supplied, [
-      { name: "pkg", version: "1.0.0-beta..1", source: "supplied", path: "/hooks/pnpmfile.cjs" },
+      subject.ResolvedPnpmfile.make({
+        name: "pkg",
+        version: "1.0.0-beta..1",
+        source: "supplied",
+        path: "/hooks/pnpmfile.cjs",
+      }),
     ]);
   })
 );
@@ -101,7 +109,7 @@ it.effect("malformed and unusable modules YAML contributes no store", () =>
       const failure = yield* Effect.flip(
         subject.resolvePnpmfiles(
           { config: "1.0.0" },
-          { fetch: () => Effect.fail({ reason: "integrityMismatch", message: "pins disagree" }) }
+          { fetch: () => Effect.fail(FetchFailure.make({ reason: "integrityMismatch", message: "pins disagree" })) }
         )(dir)
       );
       assert.strictEqual(failure.reason, "integrityMismatch");
@@ -124,7 +132,9 @@ it.effect("a fetched directory resolves its optional pnpmfile", () =>
   Effect.gen(function* () {
     const dir = yield* root();
     const result = yield* subject.resolvePnpmfiles(dir, { config: "1.0.0" }, { fetch: () => Effect.succeed(dir) });
-    assert.deepStrictEqual(result, [{ name: "config", version: "1.0.0", source: "fetched", path: undefined }]);
+    assert.deepStrictEqual(result, [
+      subject.ResolvedPnpmfile.make({ name: "config", version: "1.0.0", source: "fetched", path: undefined }),
+    ]);
   })
 );
 it.effect("environment store roots are expanded and empty values are ignored on both platforms", () =>

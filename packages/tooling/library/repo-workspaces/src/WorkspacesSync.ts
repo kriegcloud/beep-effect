@@ -145,7 +145,7 @@ export interface SyncFileSystem {
    *
    * May throw; a throw skips the directory, exactly like `readDirectory`.
    */
-  readonly readDirectoryWithTypes?: ((path: string) => ReadonlyArray<SyncDirectoryEntry>) | undefined;
+  readonly readDirectoryWithTypes?: ((path: string) => ReadonlyArray<SyncDirectoryEntry.Encoded>) | undefined;
   /**
    * Read the file at `path` as text. May throw; a throw degrades to a skip.
    */
@@ -187,31 +187,41 @@ export interface SyncFileSystem {
  * @category schemas
  * @since 0.0.0
  */
-export const SyncDirectoryEntry = S.Struct({
-  /** The entry's own name, not a path. */
-  name: S.String.pipe($I.annoteKey("SyncDirectoryEntry.name", { description: "The entry's own name, not a path." })),
-  /** Whether the entry itself is a directory, without following links. */
-  isDirectory: S.Boolean.pipe(
-    $I.annoteKey("SyncDirectoryEntry.isDirectory", {
-      description: "Whether the entry itself is a directory, false for symbolic links.",
+export class SyncDirectoryEntry extends S.Opaque<SyncDirectoryEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The entry's own name, not a path. */
+    name: S.String.pipe($I.annoteKey("SyncDirectoryEntry.name", { description: "The entry's own name, not a path." })),
+    /** Whether the entry itself is a directory, without following links. */
+    isDirectory: S.Boolean.pipe(
+      $I.annoteKey("SyncDirectoryEntry.isDirectory", {
+        description: "Whether the entry itself is a directory, false for symbolic links.",
+      })
+    ),
+    /** Whether the entry itself is a symbolic link. */
+    isSymbolicLink: S.Boolean.pipe(
+      $I.annoteKey("SyncDirectoryEntry.isSymbolicLink", { description: "Whether the entry itself is a symbolic link." })
+    ),
+  }).pipe(
+    $I.annoteSchema("SyncDirectoryEntry", {
+      description: "A plain typed directory entry supplied by synchronous filesystem operations.",
     })
-  ),
-  /** Whether the entry itself is a symbolic link. */
-  isSymbolicLink: S.Boolean.pipe(
-    $I.annoteKey("SyncDirectoryEntry.isSymbolicLink", { description: "Whether the entry itself is a symbolic link." })
-  ),
-}).pipe(
-  $I.annoteSchema("SyncDirectoryEntry", {
-    description: "A plain typed directory entry supplied by synchronous filesystem operations.",
-  })
-);
+  )
+) {}
 /**
- * The readonly directory entry described by {@link SyncDirectoryEntry}.
+ * Companion types for {@link SyncDirectoryEntry}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type SyncDirectoryEntry = typeof SyncDirectoryEntry.Type;
+export declare namespace SyncDirectoryEntry {
+  /**
+   * The plain, unbranded encoded shape of a {@link SyncDirectoryEntry}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SyncDirectoryEntry.Encoded;
+}
 
 /**
  * The synchronous path operations the sync entry points need, supplied by the
@@ -566,35 +576,72 @@ const isPackage: {
 );
 
 /**
+ * The ascent ceiling {@link findWorkspaceRootSync} accepts beside the
+ * consumer-supplied operations.
+ *
+ * **Details**
+ *
+ * `stopAt` is a ceiling directory, with the semantics of
+ * `FindWorkspaceRootOptions.stopAt` on the Effect surface. The ascent stops
+ * after probing it, so an unmarked `stopAt` returns `null` rather than
+ * silently adopting an enclosing repository's workspace. Inclusive: a ceiling
+ * that is itself a workspace root is returned. The ceiling is resolved through
+ * the supplied {@link SyncPath.resolve} at lookup time, so a relative one is
+ * taken against the process working directory when the call runs (with
+ * `node:path`). A ceiling that names no ancestor of `cwd` never matches, and
+ * the ascent runs to the filesystem root. Omit it for the unbounded ascent.
+ *
+ * Pass `stopAt: cwd` for a checkout nested inside someone else's workspace (a
+ * self-hosted runner, `actions/checkout` with `path:`): a checkout that is
+ * itself a root still resolves, and one that is not returns `null`.
+ *
+ * **Example** (Bound the ascent at the checkout)
+ *
+ * ```ts
+ * import { SyncRootCeiling } from "@beep/repo-workspaces/WorkspacesSync";
+ *
+ * console.log(SyncRootCeiling.make({ stopAt: "/repo" }).stopAt); // /repo
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class SyncRootCeiling extends S.Opaque<SyncRootCeiling, { readonly brand: unique symbol }>()(
+  S.Struct({
+    stopAt: S.optional(S.String).pipe(
+      $I.annoteKey("SyncRootCeiling.stopAt", {
+        description: "An inclusive ceiling for the synchronous root ascent; absent or undefined means no ceiling.",
+      })
+    ),
+  }).pipe($I.annoteSchema("SyncRootCeiling", { description: "The synchronous workspace-root ascent ceiling." }))
+) {}
+
+/**
+ * Companion types for {@link SyncRootCeiling}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SyncRootCeiling {
+  /**
+   * The plain, unbranded encoded shape of a {@link SyncRootCeiling}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SyncRootCeiling.Encoded;
+}
+
+/**
  * Options for {@link findWorkspaceRootSync}: the consumer-supplied operations
- * plus the ascent's ceiling.
+ * plus the ascent's {@link SyncRootCeiling}.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface FindWorkspaceRootSyncOptions extends WorkspacesSyncOptions {
-  /**
-   * A ceiling directory, with the semantics of `FindWorkspaceRootOptions.stopAt`
-   * on the Effect surface. The ascent stops after probing it, so an unmarked
-   * `stopAt` returns `null` rather than silently adopting an enclosing
-   * repository's workspace.
-   *
-   * **Details**
-   *
-   * Inclusive: a ceiling that is itself a workspace root is returned. The
-   * ceiling is resolved through the supplied {@link SyncPath.resolve} at
-   * lookup time, so a relative one is taken against the process working
-   * directory when the call runs (with `node:path`). A ceiling that names no
-   * ancestor of `cwd` never matches, and the ascent runs to the filesystem
-   * root. Omit it for the unbounded ascent.
-   *
-   * Pass `stopAt: cwd` for a checkout nested inside someone else's workspace
-   * (a self-hosted runner, `actions/checkout` with `path:`): a checkout that is
-   * itself a root still resolves, and one that is not returns `null`.
-   */
-  readonly stopAt?: string | undefined;
-}
+export type FindWorkspaceRootSyncOptions = WorkspacesSyncOptions & SyncRootCeiling.Encoded;
 
 /**
  * The nearest workspace root at or above `cwd`, or `null`.
@@ -790,21 +837,61 @@ const readPackageSync: {
 );
 
 /**
- * Options for {@link getWorkspacePackagesSync}: the required consumer-supplied
- * operations plus the traversal bound.
+ * The traversal bound {@link getWorkspacePackagesSync} accepts beside the
+ * consumer-supplied operations.
+ *
+ * **Details**
+ *
+ * `maxDepth` caps the descent below a wildcard's enumeration prefix, mirroring
+ * `WorkspaceDiscovery.layer({ maxDepth })`, and defaults to 32. A bad bound
+ * throws {@link WorkspaceEnumerationDepthError}.
+ *
+ * **Example** (Cap the enumeration depth)
+ *
+ * ```ts
+ * import { SyncEnumerationBound } from "@beep/repo-workspaces/WorkspacesSync";
+ *
+ * console.log(SyncEnumerationBound.make({ maxDepth: 4 }).maxDepth); // 4
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class SyncEnumerationBound extends S.Opaque<SyncEnumerationBound, { readonly brand: unique symbol }>()(
+  S.Struct({
+    maxDepth: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("SyncEnumerationBound.maxDepth", {
+        description: "The descent cap below a wildcard's enumeration prefix; defaults to 32.",
+      })
+    ),
+  }).pipe($I.annoteSchema("SyncEnumerationBound", { description: "The synchronous workspace enumeration bound." }))
+) {}
+
+/**
+ * Companion types for {@link SyncEnumerationBound}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SyncEnumerationBound {
+  /**
+   * The plain, unbranded encoded shape of a {@link SyncEnumerationBound}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SyncEnumerationBound.Encoded;
+}
+
+/**
+ * The skip observer {@link getWorkspacePackagesSync} accepts.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface GetWorkspacePackagesSyncOptions extends WorkspacesSyncOptions {
-  /**
-   * Descent cap below a wildcard's enumeration prefix, mirroring
-   * `WorkspaceDiscovery.layer({ maxDepth })`.
-   *
-   * @defaultValue 32
-   */
-  readonly maxDepth?: number;
+export interface SyncEnumerationObserver {
   /**
    * Called once for every manifest the enumeration found and could not use,
    * with the file and the reason — so a skipped member is observable even
@@ -815,11 +902,25 @@ export interface GetWorkspacePackagesSyncOptions extends WorkspacesSyncOptions {
    * Omit it and skips are simply not reported; nothing is logged in its
    * place. The callback is invoked synchronously, before the result is
    * returned, in enumeration order — members first, then the root, which is
-   * read last even though it is returned first. Its result is discarded, and a throw from it propagates: the facade is total
-   * over *data*, not over caller mistakes, exactly as a bad `maxDepth` is.
+   * read last even though it is returned first. Its result is discarded, and a
+   * throw from it propagates: the facade is total over *data*, not over caller
+   * mistakes, exactly as a bad `maxDepth` is.
    */
   readonly onSkip?: ((skip: WorkspaceDiscoverySkip) => void) | undefined;
 }
+
+/**
+ * Options for {@link getWorkspacePackagesSync}: the required consumer-supplied
+ * operations, the {@link SyncEnumerationBound} and the
+ * {@link SyncEnumerationObserver}.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GetWorkspacePackagesSyncOptions = WorkspacesSyncOptions &
+  SyncEnumerationBound.Encoded &
+  SyncEnumerationObserver;
 
 /**
  * Every workspace package under `root`, root package first.

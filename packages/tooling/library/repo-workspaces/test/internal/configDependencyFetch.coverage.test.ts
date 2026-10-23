@@ -35,9 +35,12 @@ it.effect("invalid inline integrity fails before consulting locks", () =>
     const failure = yield* Effect.flip(subject.expectedIntegrity({ ...request("/unused"), spec: "1.0.0+not-sri" }));
     assert.strictEqual(failure.reason, "integrityUnavailable");
     assert.include(failure.message, "not an SRI hash");
-    assert.deepStrictEqual(subject.registrySettingsOf({ registry: 2, registries: { ok: "url", bad: 2 } }), {
-      registries: { ok: "url" },
-    });
+    assert.deepStrictEqual(
+      subject.registrySettingsOf({ registry: 2, registries: { ok: "url", bad: 2 } }),
+      subject.RegistrySettings.make({
+        registries: { ok: "url" },
+      })
+    );
     assert.deepStrictEqual(subject.fetchArgs([])("/scratch"), ["install", "--frozen-lockfile", "--dir", "/scratch"]);
   })
 );
@@ -75,7 +78,7 @@ it.effect("own __proto__ and normal registry scopes survive extraction and scrat
     );
     assert.deepStrictEqual(subject.registrySettingsOf(yield* Yaml.parse(yaml)), settings);
     for (const input of [undefined, null, 42, [], { registry: 42, registries: [] }]) {
-      assert.deepStrictEqual(subject.registrySettingsOf(input), { registries: {} });
+      assert.deepStrictEqual(subject.registrySettingsOf(input), subject.RegistrySettings.make({ registries: {} }));
     }
   })
 );
@@ -84,10 +87,14 @@ it.effect("string JSON quoting preserves hostile YAML scalar text and the final 
   Effect.gen(function* () {
     const name = 'config"\n: #';
     const version = "1.0.0\\\t";
-    const yaml = subject.scratchWorkspaceYaml(name, version, {
-      registry: 'https://r.test/"\n',
-      registries: { '@x"\n': "https://s.test/\\" },
-    });
+    const yaml = subject.scratchWorkspaceYaml(
+      name,
+      version,
+      subject.RegistrySettings.make({
+        registry: 'https://r.test/"\n',
+        registries: { '@x"\n': "https://s.test/\\" },
+      })
+    );
     assert.strictEqual(
       yaml,
       'configDependencies:\n  "config\\"\\n: #": "1.0.0\\\\\\t"\nregistry: "https://r.test/\\"\\n"\nregistries:\n  "@x\\"\\n": "https://s.test/\\\\"\n'

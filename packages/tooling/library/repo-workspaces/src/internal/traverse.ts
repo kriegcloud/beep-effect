@@ -54,24 +54,118 @@ const MaxDepth = S.Finite.check(
  * @category models
  * @since 0.0.0
  */
-export const TraversalFrame = S.Struct({
-  relative: S.String.pipe(
-    $I.annoteKey("TraversalFrame.relative", { description: "The root-relative POSIX directory path." })
-  ),
-  absolute: S.String.pipe(
-    $I.annoteKey("TraversalFrame.absolute", { description: "The absolute directory path passed to IO." })
-  ),
-  depth: S.declare(P.isNumber).pipe(
-    $I.annoteKey("TraversalFrame.depth", { description: "The directory depth below the traversal base." })
-  ),
-}).pipe($I.annoteSchema("TraversalFrame", { description: "A plain directory frame queued by workspace traversal." }));
+export class TraversalFrame extends S.Opaque<TraversalFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
+    relative: S.String.pipe(
+      $I.annoteKey("TraversalFrame.relative", { description: "The root-relative POSIX directory path." })
+    ),
+    absolute: S.String.pipe(
+      $I.annoteKey("TraversalFrame.absolute", { description: "The absolute directory path passed to IO." })
+    ),
+    depth: S.declare(P.isNumber).pipe(
+      $I.annoteKey("TraversalFrame.depth", { description: "The directory depth below the traversal base." })
+    ),
+  }).pipe($I.annoteSchema("TraversalFrame", { description: "A plain directory frame queued by workspace traversal." }))
+) {}
 /**
- * The readonly directory frame described by {@link TraversalFrame}.
+ * Companion types for {@link TraversalFrame}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type TraversalFrame = typeof TraversalFrame.Type;
+export declare namespace TraversalFrame {
+  /**
+   * The plain, unbranded encoded shape of a {@link TraversalFrame}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TraversalFrame.Encoded;
+}
+
+/**
+ * A traversal that stopped at its depth bound.
+ *
+ * **Example** (Describe a depth stop)
+ *
+ * ```ts
+ * import { DepthStop } from "@beep/repo-workspaces/internal/traverse";
+ *
+ * console.log(DepthStop.make({ detail: "descended past 1 levels" }).kind); // depthExceeded
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DepthStop extends S.Opaque<DepthStop, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("depthExceeded").pipe(
+      $I.annoteKey("TraversalStop.depthExceeded", { description: "The traversal exhausted its depth bound." })
+    ),
+    detail: S.String.pipe(
+      $I.annoteKey("TraversalStop.depthDetail", { description: "The caller-visible depth-limit diagnostic." })
+    ),
+  }).pipe($I.annoteSchema("DepthStop", { description: "A traversal stopped at its depth bound." }))
+) {}
+
+/**
+ * Companion types for {@link DepthStop}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DepthStop {
+  /**
+   * The plain, unbranded encoded shape of a {@link DepthStop}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DepthStop.Encoded;
+}
+
+/**
+ * A traversal that stopped at its directory-read budget.
+ *
+ * **Example** (Describe a budget stop)
+ *
+ * ```ts
+ * import { BudgetStop } from "@beep/repo-workspaces/internal/traverse";
+ *
+ * console.log(BudgetStop.make({ detail: "visited more than 1 directories" }).kind); // budgetExceeded
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BudgetStop extends S.Opaque<BudgetStop, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("budgetExceeded").pipe(
+      $I.annoteKey("TraversalStop.budgetExceeded", {
+        description: "The traversal exhausted its directory-read budget.",
+      })
+    ),
+    detail: S.String.pipe(
+      $I.annoteKey("TraversalStop.budgetDetail", { description: "The caller-visible visit-budget diagnostic." })
+    ),
+  }).pipe($I.annoteSchema("BudgetStop", { description: "A traversal stopped at its directory-read budget." }))
+) {}
+
+/**
+ * Companion types for {@link BudgetStop}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace BudgetStop {
+  /**
+   * The plain, unbranded encoded shape of a {@link BudgetStop}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof BudgetStop.Encoded;
+}
 
 /**
  * Describes why a traversal stopped early.
@@ -92,26 +186,7 @@ export type TraversalFrame = typeof TraversalFrame.Type;
  * @category models
  * @since 0.0.0
  */
-export const TraversalStop = S.Union([
-  S.Struct({
-    kind: S.tag("depthExceeded").pipe(
-      $I.annoteKey("TraversalStop.depthExceeded", { description: "The traversal exhausted its depth bound." })
-    ),
-    detail: S.String.pipe(
-      $I.annoteKey("TraversalStop.depthDetail", { description: "The caller-visible depth-limit diagnostic." })
-    ),
-  }).pipe($I.annoteSchema("DepthStop", { description: "A traversal stopped at its depth bound." })),
-  S.Struct({
-    kind: S.tag("budgetExceeded").pipe(
-      $I.annoteKey("TraversalStop.budgetExceeded", {
-        description: "The traversal exhausted its directory-read budget.",
-      })
-    ),
-    detail: S.String.pipe(
-      $I.annoteKey("TraversalStop.budgetDetail", { description: "The caller-visible visit-budget diagnostic." })
-    ),
-  }).pipe($I.annoteSchema("BudgetStop", { description: "A traversal stopped at its directory-read budget." })),
-]).pipe(
+export const TraversalStop = S.Union([DepthStop, BudgetStop]).pipe(
   S.toTaggedUnion("kind"),
   $I.annoteSchema("TraversalStop", {
     description: "The existing plain-record reasons a workspace traversal stops early.",
@@ -329,7 +404,7 @@ export class Traversal {
     this.#base = base;
     this.#maxDepth = maxDepth;
     this.#maxEntries = maxEntries;
-    this.#frames.push({ relative: base, absolute: absoluteBase, depth: 0 });
+    this.#frames.push(TraversalFrame.make({ relative: base, absolute: absoluteBase, depth: 0 }));
   }
 
   /**
@@ -381,7 +456,7 @@ export class Traversal {
   charge(): TraversalStop | undefined {
     this.#visited += 1;
     if (this.#visited > this.#maxEntries) {
-      return { kind: "budgetExceeded", detail: `visited more than ${this.#maxEntries} directories` };
+      return BudgetStop.make({ detail: `visited more than ${this.#maxEntries} directories` });
     }
     return undefined;
   }
@@ -409,7 +484,7 @@ export class Traversal {
    * @category predicates
    * @since 0.0.0
    */
-  admits(parent: TraversalFrame): boolean {
+  admits(parent: TraversalFrame.Encoded): boolean {
     return parent.depth + 1 <= this.#maxDepth;
   }
 
@@ -429,7 +504,7 @@ export class Traversal {
    * @since 0.0.0
    */
   depthStop(): TraversalStop {
-    return { kind: "depthExceeded", detail: `descended past ${this.#maxDepth} levels below "${this.#base}"` };
+    return DepthStop.make({ detail: `descended past ${this.#maxDepth} levels below "${this.#base}"` });
   }
 
   /**
@@ -455,7 +530,7 @@ export class Traversal {
    * @category utilities
    * @since 0.0.0
    */
-  push(parent: TraversalFrame, relative: string, absolute: string): void {
-    this.#frames.push({ relative, absolute, depth: parent.depth + 1 });
+  push(parent: TraversalFrame.Encoded, relative: string, absolute: string): void {
+    this.#frames.push(TraversalFrame.make({ relative, absolute, depth: parent.depth + 1 }));
   }
 }

@@ -1,7 +1,7 @@
 import { GlobSet } from "@beep/glob";
 import { MemoryFileSystem } from "@beep/memfs";
 import { enumerate } from "@beep/repo-workspaces/internal/enumerate";
-import { Traversal } from "@beep/repo-workspaces/internal/traverse";
+import { BudgetStop, Traversal } from "@beep/repo-workspaces/internal/traverse";
 import { assert, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -62,7 +62,7 @@ it.layer(layer, { timeout: "30 seconds" })((it) => {
         Effect.sync(() =>
           vi
             .spyOn(Traversal.prototype, "charge")
-            .mockReturnValueOnce({ kind: "budgetExceeded", detail: "visited directory limit" })
+            .mockReturnValueOnce(BudgetStop.make({ kind: "budgetExceeded", detail: "visited directory limit" }))
         ),
         (spy) => Effect.sync(() => spy.mockRestore())
       );

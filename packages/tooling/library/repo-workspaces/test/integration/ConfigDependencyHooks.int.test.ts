@@ -11,6 +11,7 @@ import {
   WorkspaceSnapshots,
   Workspaces,
 } from "@beep/repo-workspaces";
+import { HookInjection, HookReplay, NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { NodeFileSystem } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -205,13 +206,16 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
             // The directory exists at the declared version but carries no pnpmfile
             // candidate — the one legitimate skip.
             const result = yield* hooks.inject(root, { [NEITHER_DEP_NAME]: "1.0.0" }, SEED);
-            assert.deepStrictEqual(result, {
-              catalogs: SEED,
-              releaseAge: {},
-              peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
-              // Resolved (so recorded), contributed nothing.
-              replays: { [NEITHER_DEP_NAME]: { version: "1.0.0", source: "installed" } },
-            });
+            assert.deepStrictEqual(
+              result,
+              HookInjection.make({
+                catalogs: SEED,
+                releaseAge: {},
+                peerDependencyRules: NoPeerDependencyRules,
+                // Resolved (so recorded), contributed nothing.
+                replays: { [NEITHER_DEP_NAME]: HookReplay.make({ version: "1.0.0", source: "installed" }) },
+              })
+            );
           })
       );
     });
@@ -258,12 +262,15 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
           const dir = yield* configDepDir(name);
           yield* (yield* RealFileSystem).writeFileString(join(dir, "package.json"), manifest(name, { version }));
           const result = yield* hooks.inject(root, { [name]: version }, SEED);
-          assert.deepStrictEqual(result, {
-            catalogs: SEED,
-            releaseAge: {},
-            peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
-            replays: { [name]: { version, source: "installed" } },
-          });
+          assert.deepStrictEqual(
+            result,
+            HookInjection.make({
+              catalogs: SEED,
+              releaseAge: {},
+              peerDependencyRules: NoPeerDependencyRules,
+              replays: { [name]: HookReplay.make({ version, source: "installed" }) },
+            })
+          );
         })
       );
     });
@@ -291,12 +298,15 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
           // passes through.
           yield* configDepDir("@scope/pkg");
           const result = yield* hooks.inject(root, { "@scope/pkg": "1.0.0" }, SEED);
-          assert.deepStrictEqual(result, {
-            catalogs: SEED,
-            releaseAge: {},
-            peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
-            replays: { "@scope/pkg": { version: "1.0.0", source: "installed" } },
-          });
+          assert.deepStrictEqual(
+            result,
+            HookInjection.make({
+              catalogs: SEED,
+              releaseAge: {},
+              peerDependencyRules: NoPeerDependencyRules,
+              replays: { "@scope/pkg": HookReplay.make({ version: "1.0.0", source: "installed" }) },
+            })
+          );
         })
       );
     });
@@ -481,12 +491,15 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
           // Same root and same declared config dependency as the live test — the ONLY
           // difference is the layer. The seed is unchanged, the fixture never ran,
           // and nothing was resolved — so nothing is recorded as replayed.
-          assert.deepStrictEqual(result, {
-            catalogs: SEED,
-            releaseAge: {},
-            peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
-            replays: {},
-          });
+          assert.deepStrictEqual(
+            result,
+            HookInjection.make({
+              catalogs: SEED,
+              releaseAge: {},
+              peerDependencyRules: NoPeerDependencyRules,
+              replays: {},
+            })
+          );
           assert.isFalse(yield* (yield* RealFileSystem).exists(markerPath));
         }).pipe(
           Effect.ensuring(

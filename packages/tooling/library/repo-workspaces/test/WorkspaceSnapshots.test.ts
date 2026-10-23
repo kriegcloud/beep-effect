@@ -10,6 +10,7 @@ import {
   WorkspaceStateSnapshot,
   Workspaces,
 } from "@beep/repo-workspaces";
+import { HookReplay, PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -23,7 +24,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { manifest, platform, rootManifest } from "./support/fixtures.ts";
 import type { GitStubs } from "@beep/git";
-import type { HookInjection, HookReplay, PeerDependencyRules } from "@beep/repo-workspaces";
+import type { HookInjection } from "@beep/repo-workspaces";
 import type { Tree } from "./support/fixtures.ts";
 
 // ── A scripted `Git` over a per-ref, root-relative content map ──────────────
@@ -646,12 +647,13 @@ const recordingHooks = (answers: Readonly<Record<string, Readonly<Record<string,
             for (const [name, spec] of Object.entries(configDependencies)) {
               const declared = spec.split("+")[0] ?? spec;
               injected = { ...injected, ...(answers[`${name}@${declared}`] ?? {}) };
-              replays[name] = { version: declared, source: "supplied" };
+              replays[name] = HookReplay.make({ version: declared, source: "supplied" });
             }
             return {
               catalogs: { ...seed, default: { ...(seed.default ?? {}), ...injected } },
               releaseAge: {},
-              peerDependencyRules: rules ?? { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
+              peerDependencyRules:
+                rules ?? PeerDependencyRules.make({ allowedVersions: {}, ignoreMissing: [], allowAny: [] }),
               replays,
             };
           })
@@ -711,7 +713,10 @@ describe("WorkspaceSnapshots.at — replays the ref's configDependencies at the 
         assert.strictEqual(call?.root, "/repo");
         // The seed is the ref's inline catalogs, the rules the ref's (none).
         assert.deepStrictEqual(call?.seed, { default: { effect: "^4.0.0" } });
-        assert.deepStrictEqual(call?.rules, { allowedVersions: {}, ignoreMissing: [], allowAny: [] });
+        assert.deepStrictEqual(
+          call?.rules,
+          PeerDependencyRules.make({ allowedVersions: {}, ignoreMissing: [], allowAny: [] })
+        );
       })
     );
 
@@ -873,10 +878,10 @@ import * as A from "effect/Array";
 import * as R from "effect/Record";
 
 const ownNameReplayEntries: ReadonlyArray<readonly [string, HookReplay]> = [
-  ["first", { version: "1.0.0", source: "supplied" }],
-  ["__proto__", { version: "2.0.0", source: "installed" }],
-  ["constructor", { version: "3.0.0", source: "store" }],
-  ["last", { version: "4.0.0", source: "fetched" }],
+  ["first", HookReplay.make({ version: "1.0.0", source: "supplied" })],
+  ["__proto__", HookReplay.make({ version: "2.0.0", source: "installed" })],
+  ["constructor", HookReplay.make({ version: "3.0.0", source: "store" })],
+  ["last", HookReplay.make({ version: "4.0.0", source: "fetched" })],
 ];
 const ownNameReplays = R.fromEntries(ownNameReplayEntries);
 const ownNameHooks = Layer.succeed(ConfigDependencyHooks, {
@@ -892,7 +897,8 @@ const ownNameHooks = Layer.succeed(ConfigDependencyHooks, {
         Effect.succeed({
           catalogs: seed,
           releaseAge: {},
-          peerDependencyRules: rules ?? { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
+          peerDependencyRules:
+            rules ?? PeerDependencyRules.make({ allowedVersions: {}, ignoreMissing: [], allowAny: [] }),
           replays: ownNameReplays,
         })
     )

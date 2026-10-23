@@ -151,89 +151,107 @@ export type UnverifiedReason = typeof UnverifiedReason.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PeerCheckOptions = S.Struct({
-  /**
-   * The workspace's effective rules, from `WorkspaceCatalogs.peerDependencyRules()`.
-   */
-  peerDependencyRules: S.optionalKey(PeerDependencyRules).pipe(
-    $I.annoteKey("PeerCheckOptions.peerDependencyRules", {
-      description: "The workspace's effective peer-suppression rules; absence leaves the policy unverified.",
+export class PeerCheckOptions extends S.Opaque<PeerCheckOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The workspace's effective rules, from `WorkspaceCatalogs.peerDependencyRules()`.
+     */
+    peerDependencyRules: S.optionalKey(PeerDependencyRules).pipe(
+      $I.annoteKey("PeerCheckOptions.peerDependencyRules", {
+        description: "The workspace's effective peer-suppression rules; absence leaves the policy unverified.",
+      })
+    ),
+    /**
+     * The workspace's discovered packages, from `WorkspaceDiscovery` — the
+     * manifests a `link:`-resolved parent's peers have to be read from,
+     * because the lockfile does not record them.
+     *
+     * **Details**
+     *
+     * **Supplying this key is what turns a `link:` edge from a refusal into an
+     * answer.** pnpm records no peer declarations for workspace projects, so a
+     * parent reached through `link:` joins at best to a row whose peers are
+     * empty *by design*; with the manifests supplied, that parent's declared
+     * peers are joined and judged instead. A `link:` target absent from the
+     * supplied set — and every target, when the key is omitted — keeps the
+     * report's `"unresolvedEdge"` marker, on the same presence-is-the-
+     * assertion rule as `peerDependencyRules`.
+     *
+     * A `link:` target matches a package when it names the package's
+     * `relativePath` — the POSIX workspace-relative directory the lockfile's
+     * importer paths are spelled in — or its publish directory: pnpm links a
+     * workspace dependency INTO `publishConfig.directory` unless
+     * `publishConfig.linkDirectory` is `false` (it defaults to true), so the
+     * lockfile then records `link:../a/dist`. Both spellings are normalized,
+     * and the caller passes what discovery produced without re-spelling
+     * anything.
+     *
+     * For a publish-directory link, pnpm reads the peers from the manifest AT
+     * the link target — the built one — while this check reads the supplied
+     * source manifest and resolves its `catalog:` ranges through
+     * {@link PeerCheckOptions.catalogs}. The two agree when the build emits the
+     * peer ranges the source's specifiers resolve to, which is the contract a
+     * publish-directory build keeps.
+     */
+    workspacePackages: WorkspacePackage.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("PeerCheckOptions.workspacePackages", {
+        description: "Discovered workspace manifests whose linked peers can be joined and judged.",
+      })
+    ),
+    /**
+     * The workspace's catalogs, from `WorkspaceCatalogs.set()` — which already
+     * includes any catalogs a config-dependency hook injects.
+     *
+     * **Details**
+     *
+     * A joined manifest may declare a peer as `catalog:` or `catalog:<name>`
+     * rather than as a range. With this key supplied, such a specifier is
+     * resolved through the set and the RESOLVED range is judged and reported
+     * as `wanted`, which is what `pnpm peers check` reports as `wantedRange`.
+     * A specifier the set names nothing for — and every `catalog:` specifier,
+     * when the key is omitted — cannot be judged against a provider, and the
+     * report carries `"peerRangeUnresolved"` rather than calling the peer
+     * satisfied: the same presence-is-the-assertion rule as the other two
+     * keys.
+     */
+    catalogs: S.optionalKey(CatalogSet).pipe(
+      $I.annoteKey("PeerCheckOptions.catalogs", {
+        description: "The workspace catalogs used to resolve joined peer ranges.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PeerCheckOptions", {
+      description:
+        "Optional caller-supplied peer policy, workspace manifests and catalogs; defaults remain lazy in the check.",
     })
-  ),
-  /**
-   * The workspace's discovered packages, from `WorkspaceDiscovery` — the
-   * manifests a `link:`-resolved parent's peers have to be read from,
-   * because the lockfile does not record them.
-   *
-   * **Details**
-   *
-   * **Supplying this key is what turns a `link:` edge from a refusal into an
-   * answer.** pnpm records no peer declarations for workspace projects, so a
-   * parent reached through `link:` joins at best to a row whose peers are
-   * empty *by design*; with the manifests supplied, that parent's declared
-   * peers are joined and judged instead. A `link:` target absent from the
-   * supplied set — and every target, when the key is omitted — keeps the
-   * report's `"unresolvedEdge"` marker, on the same presence-is-the-
-   * assertion rule as `peerDependencyRules`.
-   *
-   * A `link:` target matches a package when it names the package's
-   * `relativePath` — the POSIX workspace-relative directory the lockfile's
-   * importer paths are spelled in — or its publish directory: pnpm links a
-   * workspace dependency INTO `publishConfig.directory` unless
-   * `publishConfig.linkDirectory` is `false` (it defaults to true), so the
-   * lockfile then records `link:../a/dist`. Both spellings are normalized,
-   * and the caller passes what discovery produced without re-spelling
-   * anything.
-   *
-   * For a publish-directory link, pnpm reads the peers from the manifest AT
-   * the link target — the built one — while this check reads the supplied
-   * source manifest and resolves its `catalog:` ranges through
-   * {@link PeerCheckOptions.catalogs}. The two agree when the build emits the
-   * peer ranges the source's specifiers resolve to, which is the contract a
-   * publish-directory build keeps.
-   */
-  workspacePackages: WorkspacePackage.pipe(
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("PeerCheckOptions.workspacePackages", {
-      description: "Discovered workspace manifests whose linked peers can be joined and judged.",
-    })
-  ),
-  /**
-   * The workspace's catalogs, from `WorkspaceCatalogs.set()` — which already
-   * includes any catalogs a config-dependency hook injects.
-   *
-   * **Details**
-   *
-   * A joined manifest may declare a peer as `catalog:` or `catalog:<name>`
-   * rather than as a range. With this key supplied, such a specifier is
-   * resolved through the set and the RESOLVED range is judged and reported
-   * as `wanted`, which is what `pnpm peers check` reports as `wantedRange`.
-   * A specifier the set names nothing for — and every `catalog:` specifier,
-   * when the key is omitted — cannot be judged against a provider, and the
-   * report carries `"peerRangeUnresolved"` rather than calling the peer
-   * satisfied: the same presence-is-the-assertion rule as the other two
-   * keys.
-   */
-  catalogs: S.optionalKey(CatalogSet).pipe(
-    $I.annoteKey("PeerCheckOptions.catalogs", {
-      description: "The workspace catalogs used to resolve joined peer ranges.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("PeerCheckOptions", {
-    description:
-      "Optional caller-supplied peer policy, workspace manifests and catalogs; defaults remain lazy in the check.",
-  })
-);
+  )
+) {}
 
 /**
- * The caller's plain peer-check options, with presence-sensitive optional keys.
+ * Companion types for {@link PeerCheckOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type PeerCheckOptions = typeof PeerCheckOptions.Type;
+export declare namespace PeerCheckOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link PeerCheckOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PeerCheckOptions.Encoded;
+  /**
+   * The constructor input of a {@link PeerCheckOptions}: decoded field values without the
+   * brand, so a caller passes live `PeerDependencyRules`, `WorkspacePackage` and `CatalogSet` values rather than their encoded forms.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Input = (typeof PeerCheckOptions)["~type.make.in"];
+}
 
 /**
  * One link in the chain from an importer to the package that declared an
@@ -256,8 +274,8 @@ export type PeerCheckOptions = typeof PeerCheckOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export class PeerParent extends S.Class<PeerParent, { readonly brand: unique symbol }>($I`PeerParent`)(
-  {
+export class PeerParent extends S.Opaque<PeerParent, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The package name.
      */
@@ -268,11 +286,28 @@ export class PeerParent extends S.Class<PeerParent, { readonly brand: unique sym
     version: S.String.pipe(
       $I.annoteKey("PeerParent.version", { description: "The resolved version of that package." })
     ),
-  },
-  $I.annote("PeerParent", {
-    description: "One link in the chain from an importer to the package that declared an unsatisfied peer.",
-  })
+  }).pipe(
+    $I.annoteSchema("PeerParent", {
+      description: "One link in the chain from an importer to the package that declared an unsatisfied peer.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link PeerParent}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PeerParent {
+  /**
+   * The plain, unbranded encoded shape of a {@link PeerParent}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PeerParent.Encoded;
+}
 
 /**
  * One peer dependency that is declared but not satisfied.
@@ -311,8 +346,8 @@ export class PeerParent extends S.Class<PeerParent, { readonly brand: unique sym
  * @category models
  * @since 0.0.0
  */
-export class UnsatisfiedPeer extends S.Class<UnsatisfiedPeer, { readonly brand: unique symbol }>($I`UnsatisfiedPeer`)(
-  {
+export class UnsatisfiedPeer extends S.Opaque<UnsatisfiedPeer, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The importer path the problem belongs to (`"."` for the root).
      */
@@ -355,9 +390,26 @@ export class UnsatisfiedPeer extends S.Class<UnsatisfiedPeer, { readonly brand: 
     parents: S.Array(PeerParent).pipe(
       $I.annoteKey("UnsatisfiedPeer.parents", { description: "The path from the importer to the declaring package." })
     ),
-  },
-  $I.annote("UnsatisfiedPeer", { description: "One peer dependency that is declared but not satisfied." })
+  }).pipe(
+    $I.annoteSchema("UnsatisfiedPeer", { description: "One peer dependency that is declared but not satisfied." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link UnsatisfiedPeer}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace UnsatisfiedPeer {
+  /**
+   * The plain, unbranded encoded shape of a {@link UnsatisfiedPeer}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof UnsatisfiedPeer.Encoded;
+}
 
 /**
  * The formats whose lockfiles record peer resolution.
@@ -1164,11 +1216,11 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
    * @since 0.0.0
    */
   static readonly run: {
-    (lockfile: Lockfile, options?: PeerCheckOptions): PeerCheck;
-    (options?: PeerCheckOptions): (lockfile: Lockfile) => PeerCheck;
+    (lockfile: Lockfile, options?: PeerCheckOptions.Input): PeerCheck;
+    (options?: PeerCheckOptions.Input): (lockfile: Lockfile) => PeerCheck;
   } = dual(
     (args) => S.is(Lockfile)(args[0]),
-    (lockfile: Lockfile, options?: PeerCheckOptions): PeerCheck => {
+    (lockfile: Lockfile, options?: PeerCheckOptions.Input): PeerCheck => {
       // PRESENCE of the key is the assertion, not its contents: supplying
       // `NoPeerDependencyRules` asserts the workspace has none, while omitting
       // the option says nothing was looked up. Collapsing the two would tell a

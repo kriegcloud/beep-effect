@@ -687,9 +687,7 @@ const Assembled = S.Struct({
   importerVersions: ImporterVersions.pipe(
     $I.annoteKey("Assembled.importerVersions", { description: "The lockfile importer version index." })
   ),
-  peerDependencyRules: PeerDependencyRules.pipe(
-    $I.annoteKey("Assembled.peerDependencyRules", { description: "The effective seeded and replayed peer rules." })
-  ),
+  peerDependencyRules: PeerDependencyRules,
   hookReplays: S.Record(S.String, HookReplay).pipe(
     $I.annoteKey("Assembled.hookReplays", { description: "Hook versions and their resolution provenance." })
   ),
@@ -734,7 +732,7 @@ export const injectFromDocument: {
     root: string,
     document: unknown,
     inline: CatalogSet,
-    context: HookReplayContext
+    context: HookReplayContext.Encoded
   ): (
     hooks: ConfigDependencyHooksShape
   ) => Effect.Effect<{ readonly injected: CatalogSet; readonly injection: HookInjection }, CatalogAssemblyError>;
@@ -743,7 +741,7 @@ export const injectFromDocument: {
     root: string,
     document: unknown,
     inline: CatalogSet,
-    context: HookReplayContext
+    context: HookReplayContext.Encoded
   ): Effect.Effect<{ readonly injected: CatalogSet; readonly injection: HookInjection }, CatalogAssemblyError>;
 } = dual(
   5,
@@ -752,7 +750,7 @@ export const injectFromDocument: {
     root: string,
     document: unknown,
     inline: CatalogSet,
-    context: HookReplayContext
+    context: HookReplayContext.Encoded
   ): Effect.Effect<{ readonly injected: CatalogSet; readonly injection: HookInjection }, CatalogAssemblyError> =>
     Effect.map(
       hooks.inject(root, configDependenciesOf(document), inline.entries, inlinePeerDependencyRules(document), context),
@@ -893,50 +891,62 @@ export interface WorkspaceCatalogsShape {
  * @category type-level
  * @since 0.0.0
  */
-export const WorkspaceCatalogsOptions = S.Struct({
-  /**
-   * The directory the workspace root is resolved from.
-   *
-   * @defaultValue `process.cwd()`, read lazily on first use.
-   *
-   * @since 0.0.0
-   */
-  cwd: S.optionalKey(S.String).pipe(
-    $I.annoteKey("WorkspaceCatalogsOptions.cwd", { description: "Starting directory, defaulted lazily on use." })
-  ),
-  /**
-   * A ceiling for the root ascent from `cwd`, passed straight through to the
-   * `stopAt` of {@link WorkspaceRoot}'s `find`.
-   *
-   * **Details**
-   *
-   * Inclusive, and resolved to an absolute path exactly as `cwd` is. When no
-   * root is found at or below the ceiling, catalog assembly fails with
-   * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt` rather
-   * than adopting an enclosing directory's workspace. Pass the same value as
-   * {@link WorkspaceDiscoveryOptions.stopAt} so every service agrees on the
-   * root; the `Workspaces.*` composites forward one `stopAt` to all of them.
-   *
-   * @defaultValue no ceiling — the ascent runs to the filesystem root.
-   *
-   * @since 0.0.0
-   */
-  stopAt: S.optional(S.String).pipe(
-    $I.annoteKey("WorkspaceCatalogsOptions.stopAt", {
-      description: "Inclusive ceiling; absent or undefined leaves ascent unbounded.",
+export class WorkspaceCatalogsOptions extends S.Opaque<WorkspaceCatalogsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The directory the workspace root is resolved from.
+     *
+     * @defaultValue `process.cwd()`, read lazily on first use.
+     *
+     * @since 0.0.0
+     */
+    cwd: S.optionalKey(S.String).pipe(
+      $I.annoteKey("WorkspaceCatalogsOptions.cwd", { description: "Starting directory, defaulted lazily on use." })
+    ),
+    /**
+     * A ceiling for the root ascent from `cwd`, passed straight through to the
+     * `stopAt` of {@link WorkspaceRoot}'s `find`.
+     *
+     * **Details**
+     *
+     * Inclusive, and resolved to an absolute path exactly as `cwd` is. When no
+     * root is found at or below the ceiling, catalog assembly fails with
+     * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt` rather
+     * than adopting an enclosing directory's workspace. Pass the same value as
+     * {@link WorkspaceDiscoveryOptions.stopAt} so every service agrees on the
+     * root; the `Workspaces.*` composites forward one `stopAt` to all of them.
+     *
+     * @defaultValue no ceiling — the ascent runs to the filesystem root.
+     *
+     * @since 0.0.0
+     */
+    stopAt: S.optional(S.String).pipe(
+      $I.annoteKey("WorkspaceCatalogsOptions.stopAt", {
+        description: "Inclusive ceiling; absent or undefined leaves ascent unbounded.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("WorkspaceCatalogsOptions", {
+      description: "Plain-object catalog assembly options with lazy root resolution.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("WorkspaceCatalogsOptions", {
-    description: "Plain-object catalog assembly options with lazy root resolution.",
-  })
-);
+  )
+) {}
 
-/** The plain-object options described by {@link WorkspaceCatalogsOptions}.
+/**
+ * Companion types for {@link WorkspaceCatalogsOptions}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type WorkspaceCatalogsOptions = typeof WorkspaceCatalogsOptions.Type;
+export declare namespace WorkspaceCatalogsOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link WorkspaceCatalogsOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WorkspaceCatalogsOptions.Encoded;
+}
 
 /**
  * Assembles a workspace's catalogs, package-manager-aware.
@@ -996,7 +1006,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * @since 0.0.0
    */
   static readonly make = Effect.fn("WorkspaceCatalogs.make")(function* (
-    options?: WorkspaceCatalogsOptions
+    options?: WorkspaceCatalogsOptions.Encoded
   ): Effect.fn.Return<
     WorkspaceCatalogsShape,
     never,
@@ -1244,10 +1254,10 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
   static readonly layerWithHooks: {
     <R = never>(
       hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
-      options?: WorkspaceCatalogsOptions
+      options?: WorkspaceCatalogsOptions.Encoded
     ): Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path | R>;
     (
-      options?: WorkspaceCatalogsOptions
+      options?: WorkspaceCatalogsOptions.Encoded
     ): <R = never>(
       hooks: Layer.Layer<ConfigDependencyHooks, never, R>
     ) => Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path | R>;
@@ -1255,7 +1265,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
     (args) => Layer.isLayer(args[0]),
     <R = never>(
       hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
-      options?: WorkspaceCatalogsOptions
+      options?: WorkspaceCatalogsOptions.Encoded
     ): Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path | R> =>
       Layer.effect(WorkspaceCatalogs, WorkspaceCatalogs.make(options)).pipe(Layer.provide(hooks))
   );
@@ -1284,7 +1294,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * @since 0.0.0
    */
   static readonly layer = (
-    options?: WorkspaceCatalogsOptions
+    options?: WorkspaceCatalogsOptions.Encoded
   ): Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path> =>
     WorkspaceCatalogs.layerWithHooks(ConfigDependencyHooks.layerNoop, options);
 
@@ -1314,7 +1324,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * @since 0.0.0
    */
   static readonly layerWithConfigDependencies = (
-    options?: WorkspaceCatalogsOptions
+    options?: WorkspaceCatalogsOptions.Encoded
   ): Layer.Layer<WorkspaceCatalogs, never, WorkspaceRoot | LockfileReader | FileSystem.FileSystem | Path.Path> =>
     WorkspaceCatalogs.layerWithHooks(ConfigDependencyHooks.layerLive, options);
 
@@ -1350,7 +1360,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * @since 0.0.0
    */
   static readonly layerWithConfigDependenciesSubprocess = (
-    options?: WorkspaceCatalogsOptions
+    options?: WorkspaceCatalogsOptions.Encoded
   ): Layer.Layer<
     WorkspaceCatalogs,
     never,

@@ -20,6 +20,7 @@ import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { ConfigDependencyHooks, WorkspaceSnapshots, Workspaces } from "@beep/repo-workspaces";
+import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, beforeAll, beforeEach, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -244,7 +245,7 @@ describe("effected#842 — the base side of a config-dependency bump", () => {
         const hooks = yield* ConfigDependencyHooks;
         const lockfile = lockfileRecording("0.11.1", BASE_SRI);
         const result = yield* hooks.inject(root, { [NAME]: "0.11.1" }, {}, undefined, { lockfile, ref: "base" });
-        assert.deepStrictEqual(result.replays, { [NAME]: { version: "0.11.1", source: "fetched" } });
+        assert.deepStrictEqual(result.replays, { [NAME]: HookReplay.make({ version: "0.11.1", source: "fetched" }) });
         const [run] = pnpmRuns();
         // Byte for byte: the `${NPM_TOKEN}` reference is pnpm's to expand.
         assert.strictEqual(run?.npmrc, npmrc);
@@ -272,9 +273,9 @@ describe("effected#842 — the base side of a config-dependency bump", () => {
         const hooks = yield* ConfigDependencyHooks;
         const lockfile = lockfileRecording("0.11.1", BASE_SRI);
         const first = yield* hooks.inject(root, { [NAME]: "0.11.1" }, {}, undefined, { lockfile, ref: "base" });
-        assert.deepStrictEqual(first.replays, { [NAME]: { version: "0.11.1", source: "fetched" } });
+        assert.deepStrictEqual(first.replays, { [NAME]: HookReplay.make({ version: "0.11.1", source: "fetched" }) });
         const second = yield* hooks.inject(root, { [NAME]: "0.11.1" }, {}, undefined, { lockfile, ref: "base" });
-        assert.deepStrictEqual(second.replays, { [NAME]: { version: "0.11.1", source: "store" } });
+        assert.deepStrictEqual(second.replays, { [NAME]: HookReplay.make({ version: "0.11.1", source: "store" }) });
         assert.strictEqual(pnpmRuns().length, 1);
       })
     );

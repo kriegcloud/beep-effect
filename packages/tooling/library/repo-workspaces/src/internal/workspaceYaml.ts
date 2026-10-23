@@ -6,9 +6,8 @@
 
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import { NoPeerDependencyRules } from "../ConfigDependencyHooks.ts";
+import { NoPeerDependencyRules, PeerDependencyRules } from "../ConfigDependencyHooks.ts";
 import { stringsOf } from "./patterns.ts";
-import type { PeerDependencyRules } from "../ConfigDependencyHooks.ts";
 
 /**
  * Reads the `configDependencies` map (name → version+integrity) of a parsed pnpm-workspace document.
@@ -81,9 +80,9 @@ export const inlinePeerDependencyRules = (document: unknown): PeerDependencyRule
       if (P.isString(value)) R.assignProperty(allowedVersions, key, value);
     }
   }
-  return {
+  return PeerDependencyRules.make({
     allowedVersions,
     ignoreMissing: stringsOf(block.ignoreMissing) ?? [],
     allowAny: stringsOf(block.allowAny) ?? [],
-  };
+  });
 };

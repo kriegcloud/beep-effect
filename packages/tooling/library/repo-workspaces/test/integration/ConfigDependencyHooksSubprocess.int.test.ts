@@ -17,6 +17,7 @@ import * as Path from "effect/Path";
 import { fileURLToPath } from "node:url";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
+import { HookInjection, HookReplay, NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import * as Context from "effect/Context";
@@ -258,13 +259,16 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
           // `cfg-fixture-neither` is installed at the declared version but ships no
           // pnpmfile candidate — the legitimate skip, decided in the PARENT.
           const result = yield* hooks.inject(root, { [NEITHER_DEP_NAME]: "1.0.0" }, SEED);
-          assert.deepStrictEqual(result, {
-            catalogs: SEED,
-            releaseAge: {},
-            peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
-            // Resolved in the parent (so recorded) even though nothing was spawned.
-            replays: { [NEITHER_DEP_NAME]: { version: "1.0.0", source: "installed" } },
-          });
+          assert.deepStrictEqual(
+            result,
+            HookInjection.make({
+              catalogs: SEED,
+              releaseAge: {},
+              peerDependencyRules: NoPeerDependencyRules,
+              // Resolved in the parent (so recorded) even though nothing was spawned.
+              replays: { [NEITHER_DEP_NAME]: HookReplay.make({ version: "1.0.0", source: "installed" }) },
+            })
+          );
         })
       );
     });

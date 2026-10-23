@@ -29,29 +29,39 @@ const $I = $RepoWorkspacesId.create("internal/layerRoot");
  * @category configuration
  * @since 0.0.0
  */
-export const LayerRootOptions = S.Struct({
-  cwd: S.optionalKey(S.String).pipe(
-    $I.annoteKey("LayerRootOptions.cwd", {
-      description: "The starting directory, with ambient cwd read only on use when omitted.",
+export class LayerRootOptions extends S.Opaque<LayerRootOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    cwd: S.optionalKey(S.String).pipe(
+      $I.annoteKey("LayerRootOptions.cwd", {
+        description: "The starting directory, with ambient cwd read only on use when omitted.",
+      })
+    ),
+    stopAt: S.optional(S.String).pipe(
+      $I.annoteKey("LayerRootOptions.stopAt", {
+        description: "The inclusive root-search boundary, accepting absence or explicit undefined.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("LayerRootOptions", {
+      description: "Plain shared root options with an unresolved ambient cwd default.",
     })
-  ),
-  stopAt: S.optional(S.String).pipe(
-    $I.annoteKey("LayerRootOptions.stopAt", {
-      description: "The inclusive root-search boundary, accepting absence or explicit undefined.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("LayerRootOptions", {
-    description: "Plain shared root options with an unresolved ambient cwd default.",
-  })
-);
+  )
+) {}
 /**
- * The root lookup configuration described by {@link LayerRootOptions}.
+ * Companion types for {@link LayerRootOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type LayerRootOptions = typeof LayerRootOptions.Type;
+export declare namespace LayerRootOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link LayerRootOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LayerRootOptions.Encoded;
+}
 
 /**
  * Resolves the workspace root a layer's options name.
@@ -79,14 +89,17 @@ export type LayerRootOptions = typeof LayerRootOptions.Type;
  */
 export const findLayerRoot: {
   (
-    options: LayerRootOptions | undefined
+    options: LayerRootOptions.Encoded | undefined
   ): (roots: WorkspaceRootShape) => Effect.Effect<string, WorkspaceRootNotFoundError>;
-  (roots: WorkspaceRootShape, options: LayerRootOptions | undefined): Effect.Effect<string, WorkspaceRootNotFoundError>;
+  (
+    roots: WorkspaceRootShape,
+    options: LayerRootOptions.Encoded | undefined
+  ): Effect.Effect<string, WorkspaceRootNotFoundError>;
 } = dual(
   2,
   (
     roots: WorkspaceRootShape,
-    options: LayerRootOptions | undefined
+    options: LayerRootOptions.Encoded | undefined
   ): Effect.Effect<string, WorkspaceRootNotFoundError> =>
     Effect.suspend(() => {
       const stopAt = options?.stopAt;

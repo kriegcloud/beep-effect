@@ -110,87 +110,107 @@ export type WorkspaceSnapshotWorktreeFailure = WorkspaceDiscoveryFailure | Catal
  * @category configuration
  * @since 0.0.0
  */
-export const WorkspaceSnapshotsOptions = S.Struct({
-  /**
-   * The directory `at(ref)` resolves the workspace root from.
-   *
-   * @defaultValue `process.cwd()`, read lazily on first use inside
-   *   `Effect.suspend`, so a `process.chdir` between providing the layer and the
-   *   first call is honoured.
-   *
-   * @since 0.0.0
-   */
-  cwd: S.optionalKey(S.String).pipe(
-    $I.annoteKey("WorkspaceSnapshotsOptions.cwd", { description: "Starting directory, defaulted lazily on use." })
-  ),
-  /**
-   * A ceiling for the root ascent from `cwd`, passed straight through to the
-   * `stopAt` of {@link WorkspaceRoot}'s `find`.
-   *
-   * **Details**
-   *
-   * Inclusive, and resolved to an absolute path exactly as `cwd` is. When no
-   * root is found at or below the ceiling, `at(ref)` fails with
-   * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt` rather
-   * than adopting an enclosing directory's workspace. Pass the same value as
-   * {@link WorkspaceDiscoveryOptions.stopAt} so every service agrees on the
-   * root; the `Workspaces.*` composites forward one `stopAt` to all of them.
-   *
-   * @defaultValue no ceiling — the ascent runs to the filesystem root.
-   *
-   * @since 0.0.0
-   */
-  stopAt: S.optional(S.String).pipe(
-    $I.annoteKey("WorkspaceSnapshotsOptions.stopAt", {
-      description: "Inclusive ceiling; absent or undefined leaves ascent unbounded.",
+export class WorkspaceSnapshotsOptions extends S.Opaque<WorkspaceSnapshotsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The directory `at(ref)` resolves the workspace root from.
+     *
+     * @defaultValue `process.cwd()`, read lazily on first use inside
+     *   `Effect.suspend`, so a `process.chdir` between providing the layer and the
+     *   first call is honoured.
+     *
+     * @since 0.0.0
+     */
+    cwd: S.optionalKey(S.String).pipe(
+      $I.annoteKey("WorkspaceSnapshotsOptions.cwd", { description: "Starting directory, defaulted lazily on use." })
+    ),
+    /**
+     * A ceiling for the root ascent from `cwd`, passed straight through to the
+     * `stopAt` of {@link WorkspaceRoot}'s `find`.
+     *
+     * **Details**
+     *
+     * Inclusive, and resolved to an absolute path exactly as `cwd` is. When no
+     * root is found at or below the ceiling, `at(ref)` fails with
+     * {@link WorkspaceRootNotFoundError} carrying the resolved `stopAt` rather
+     * than adopting an enclosing directory's workspace. Pass the same value as
+     * {@link WorkspaceDiscoveryOptions.stopAt} so every service agrees on the
+     * root; the `Workspaces.*` composites forward one `stopAt` to all of them.
+     *
+     * @defaultValue no ceiling — the ascent runs to the filesystem root.
+     *
+     * @since 0.0.0
+     */
+    stopAt: S.optional(S.String).pipe(
+      $I.annoteKey("WorkspaceSnapshotsOptions.stopAt", {
+        description: "Inclusive ceiling; absent or undefined leaves ascent unbounded.",
+      })
+    ),
+    /**
+     * Catalogs every snapshot this service produces carries as its
+     * `seededCatalogs` — consulted only where the snapshot's own catalogs cannot
+     * answer.
+     *
+     * **Details**
+     *
+     * The layer-level spelling of `WorkspaceStateSnapshot.withSeededCatalogs`,
+     * for the common case where the seed is the same for every read: a consumer
+     * diffing many refs against one live workspace seeds once here instead of
+     * remembering to call `withSeededCatalogs` at each site — and a forgotten
+     * call is a silently missing diff row, not a type error.
+     *
+     * **This executes nothing by itself.** The caller supplies the set, and
+     * `at(ref)` still never fetches. Whether `at(ref)` replays that ref's
+     * config-dependency hooks is decided by the {@link ConfigDependencyHooks}
+     * layer in scope, not by this option: under a replaying layer the ref's own
+     * replay answers first and the seed fills only what neither source declared;
+     * under `layerNoop` the seed is the only way a hook-injected catalog reaches
+     * the ref side at all.
+     *
+     * Applied to `worktree()` too, for symmetry. There it is usually inert: a
+     * live set assembled under a config-dependency layer already contains the
+     * hook-injected catalogs at full precedence, so the seed answers nothing the
+     * snapshot could not answer itself.
+     *
+     * @defaultValue absent — no seed.
+     *
+     * @since 0.0.0
+     */
+    seedCatalogs: S.optionalKey(CatalogSet).pipe(
+      $I.annoteKey("WorkspaceSnapshotsOptions.seedCatalogs", {
+        description: "Fallback catalogs consulted after the snapshot own catalogs.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("WorkspaceSnapshotsOptions", {
+      description: "Plain-object snapshot root and seed options with defaults applied on use.",
     })
-  ),
-  /**
-   * Catalogs every snapshot this service produces carries as its
-   * `seededCatalogs` — consulted only where the snapshot's own catalogs cannot
-   * answer.
-   *
-   * **Details**
-   *
-   * The layer-level spelling of `WorkspaceStateSnapshot.withSeededCatalogs`,
-   * for the common case where the seed is the same for every read: a consumer
-   * diffing many refs against one live workspace seeds once here instead of
-   * remembering to call `withSeededCatalogs` at each site — and a forgotten
-   * call is a silently missing diff row, not a type error.
-   *
-   * **This executes nothing by itself.** The caller supplies the set, and
-   * `at(ref)` still never fetches. Whether `at(ref)` replays that ref's
-   * config-dependency hooks is decided by the {@link ConfigDependencyHooks}
-   * layer in scope, not by this option: under a replaying layer the ref's own
-   * replay answers first and the seed fills only what neither source declared;
-   * under `layerNoop` the seed is the only way a hook-injected catalog reaches
-   * the ref side at all.
-   *
-   * Applied to `worktree()` too, for symmetry. There it is usually inert: a
-   * live set assembled under a config-dependency layer already contains the
-   * hook-injected catalogs at full precedence, so the seed answers nothing the
-   * snapshot could not answer itself.
-   *
-   * @defaultValue absent — no seed.
-   *
-   * @since 0.0.0
-   */
-  seedCatalogs: S.optionalKey(CatalogSet).pipe(
-    $I.annoteKey("WorkspaceSnapshotsOptions.seedCatalogs", {
-      description: "Fallback catalogs consulted after the snapshot own catalogs.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("WorkspaceSnapshotsOptions", {
-    description: "Plain-object snapshot root and seed options with defaults applied on use.",
-  })
-);
+  )
+) {}
 
-/** The plain-object options described by {@link WorkspaceSnapshotsOptions}.
+/**
+ * Companion types for {@link WorkspaceSnapshotsOptions}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type WorkspaceSnapshotsOptions = typeof WorkspaceSnapshotsOptions.Type;
+export declare namespace WorkspaceSnapshotsOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link WorkspaceSnapshotsOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WorkspaceSnapshotsOptions.Encoded;
+  /**
+   * The constructor input of a {@link WorkspaceSnapshotsOptions}: decoded field values without the
+   * brand, so a caller passes a live `CatalogSet` seed rather than their encoded forms.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Input = (typeof WorkspaceSnapshotsOptions)["~type.make.in"];
+}
 
 /**
  * Defines the git-ref and live-worktree reads a {@link WorkspaceSnapshots} service must provide.
@@ -400,7 +420,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * @since 0.0.0
    */
   static readonly make = Effect.fn("make")(function* (
-    options?: WorkspaceSnapshotsOptions
+    options?: WorkspaceSnapshotsOptions.Input
   ): Effect.fn.Return<
     WorkspaceSnapshotsShape,
     never,
@@ -705,7 +725,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * @since 0.0.0
    */
   static readonly layer = (
-    options?: WorkspaceSnapshotsOptions
+    options?: WorkspaceSnapshotsOptions.Input
   ): Layer.Layer<
     WorkspaceSnapshots,
     never,

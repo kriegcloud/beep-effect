@@ -45,10 +45,8 @@ const $I = $RepoWorkspacesId.create("ChangeDetector");
  * @category schemas
  * @since 0.0.0
  */
-export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { readonly brand: unique symbol }>(
-  $I`ChangeDetectionOptions`
-)(
-  {
+export class ChangeDetectionOptions extends S.Opaque<ChangeDetectionOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The ref to compare against.
      *
@@ -83,11 +81,28 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { re
           "Whether to include staged, unstaged and untracked working-tree changes on top of the committed range.",
       })
     ),
-  },
-  $I.annote("ChangeDetectionOptions", {
-    description: "Which git refs to compare, and whether to fold in the working tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangeDetectionOptions", {
+      description: "Which git refs to compare, and whether to fold in the working tree.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link ChangeDetectionOptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ChangeDetectionOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link ChangeDetectionOptions}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ChangeDetectionOptions.Encoded;
+}
 
 /**
  * Raised when change detection cannot proceed for a reason that is not one of
@@ -185,15 +200,15 @@ export type ChangeDetectionFailure =
 export interface ChangeDetectorShape {
   /** Those packages plus every workspace package that transitively depends on one. */
   readonly affectedPackages: (
-    options?: ChangeDetectionOptions
+    options?: ChangeDetectionOptions.Encoded
   ) => Effect.Effect<ReadonlyArray<WorkspacePackage>, ChangeDetectionFailure>;
   /** The file paths (workspace-root-relative, as git reports them) changed in the range. */
   readonly changedFiles: (
-    options?: ChangeDetectionOptions
+    options?: ChangeDetectionOptions.Encoded
   ) => Effect.Effect<ReadonlyArray<string>, ChangeDetectionFailure>;
   /** The workspace packages owning those files. */
   readonly changedPackages: (
-    options?: ChangeDetectionOptions
+    options?: ChangeDetectionOptions.Encoded
   ) => Effect.Effect<ReadonlyArray<WorkspacePackage>, ChangeDetectionFailure>;
 }
 
@@ -305,25 +320,29 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
     });
 
     return {
-      changedFiles: Effect.fn("ChangeDetector.changedFiles")(function* (options?: ChangeDetectionOptions) {
+      changedFiles: Effect.fn("ChangeDetector.changedFiles")(function* (options?: ChangeDetectionOptions.Encoded) {
         const root = yield* rootOf();
-        const files = yield* filesOf(root, options ?? ChangeDetectionOptions.make({}));
+        const files = yield* filesOf(root, ChangeDetectionOptions.make(options ?? {}));
         yield* Effect.logDebug("Changed files detected").pipe(
           Effect.annotateLogs("workspace.files.count", files.length)
         );
         return files;
       }),
 
-      changedPackages: Effect.fn("ChangeDetector.changedPackages")(function* (options?: ChangeDetectionOptions) {
-        const packages = yield* packagesOf(options ?? ChangeDetectionOptions.make({}));
+      changedPackages: Effect.fn("ChangeDetector.changedPackages")(function* (
+        options?: ChangeDetectionOptions.Encoded
+      ) {
+        const packages = yield* packagesOf(ChangeDetectionOptions.make(options ?? {}));
         yield* Effect.logDebug("Changed packages detected").pipe(
           Effect.annotateLogs("workspace.packages.count", packages.length)
         );
         return packages;
       }),
 
-      affectedPackages: Effect.fn("ChangeDetector.affectedPackages")(function* (options?: ChangeDetectionOptions) {
-        const changed = yield* packagesOf(options ?? ChangeDetectionOptions.make({}));
+      affectedPackages: Effect.fn("ChangeDetector.affectedPackages")(function* (
+        options?: ChangeDetectionOptions.Encoded
+      ) {
+        const changed = yield* packagesOf(ChangeDetectionOptions.make(options ?? {}));
         const all = yield* discovery.listPackages;
         const graph = DependencyGraph.make({ packages: all });
         const names = yield* graph.affectedBy(A.map(changed, (pkg) => pkg.name));

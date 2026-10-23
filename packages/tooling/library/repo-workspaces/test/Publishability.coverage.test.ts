@@ -1,5 +1,5 @@
 import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
-import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
+import { PublishConfig, WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 
@@ -45,11 +45,11 @@ it.effect("explicit access overrides private and registry and directory override
     const targets = yield* PublishabilityDetector.npm.detect(
       pkg({
         private: true,
-        publishConfig: {
+        publishConfig: PublishConfig.make({
           access: "restricted",
           registry: "https://registry.example/",
           directory: "dist",
-        },
+        }),
       })
     );
     assert.strictEqual(targets.length, 1);
@@ -63,7 +63,10 @@ it.layer(PublishabilityDetector.layerNone, { timeout: "10 seconds" })((it) => {
   it.effect("the disabled policy publishes nowhere regardless of package configuration", () =>
     Effect.gen(function* () {
       const detector = yield* PublishabilityDetector;
-      assert.deepStrictEqual(yield* detector.detect(pkg({ publishConfig: { access: "public" } })), []);
+      assert.deepStrictEqual(
+        yield* detector.detect(pkg({ publishConfig: PublishConfig.make({ access: "public" }) })),
+        []
+      );
     })
   );
 });

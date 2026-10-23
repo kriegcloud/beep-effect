@@ -14,7 +14,9 @@ it.effect.prop(
     Effect.gen(function* () {
       const parsed = splitConfigDependencySpec(spec);
       const result = yield* lookupPnpmfiles({ [`config@${parsed.version}`]: path }, { config: spec });
-      assert.deepStrictEqual(result, [{ name: "config", version: parsed.version, source: "supplied", path }]);
+      assert.deepStrictEqual(result, [
+        ResolvedPnpmfile.make({ name: "config", version: parsed.version, source: "supplied", path }),
+      ]);
       const canonical = parsed.integrity === undefined ? parsed.version : `${parsed.version}+${parsed.integrity}`;
       assert.deepStrictEqual(
         yield* lookupPnpmfiles({ [`config@${parsed.version}`]: path }, { config: canonical }),

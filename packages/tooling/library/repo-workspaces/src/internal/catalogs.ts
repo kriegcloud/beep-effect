@@ -43,27 +43,37 @@ export type CatalogEntries = Record<string, Record<string, string>>;
  * @category schemas
  * @since 0.0.0
  */
-export const CatalogMisconfiguration = S.Struct({
-  catalogName: S.String.pipe(
-    $I.annoteKey("CatalogMisconfiguration.catalogName", {
-      description: "The catalog containing the unresolved dependency.",
+export class CatalogMisconfiguration extends S.Opaque<CatalogMisconfiguration, { readonly brand: unique symbol }>()(
+  S.Struct({
+    catalogName: S.String.pipe(
+      $I.annoteKey("CatalogMisconfiguration.catalogName", {
+        description: "The catalog containing the unresolved dependency.",
+      })
+    ),
+    detail: S.String.pipe(
+      $I.annoteKey("CatalogMisconfiguration.detail", { description: "The catalog resolver's original diagnostic." })
+    ),
+  }).pipe(
+    $I.annoteSchema("CatalogMisconfiguration", {
+      description: "A plain catalog misconfiguration record reported by the resolver.",
     })
-  ),
-  detail: S.String.pipe(
-    $I.annoteKey("CatalogMisconfiguration.detail", { description: "The catalog resolver's original diagnostic." })
-  ),
-}).pipe(
-  $I.annoteSchema("CatalogMisconfiguration", {
-    description: "A plain catalog misconfiguration record reported by the resolver.",
-  })
-);
+  )
+) {}
 /**
- * The readonly catalog failure described by {@link CatalogMisconfiguration}.
+ * Companion types for {@link CatalogMisconfiguration}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type CatalogMisconfiguration = typeof CatalogMisconfiguration.Type;
+export declare namespace CatalogMisconfiguration {
+  /**
+   * The plain, unbranded encoded shape of a {@link CatalogMisconfiguration}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CatalogMisconfiguration.Encoded;
+}
 
 /**
  * Project a pnpm-workspace manifest's `catalog` / `catalogs` fields into a `Catalogs` map.
@@ -199,7 +209,8 @@ export const rangeOf: {
     const result = resolveFromCatalog(catalogs, { alias: dependency, bareSpecifier: specifier });
     return matchCatalogResolveResult<string | undefined | CatalogMisconfiguration>(result, {
       found: (hit) => hit.resolution.specifier,
-      misconfiguration: (bad) => ({ catalogName: bad.catalogName, detail: bad.error.message }),
+      misconfiguration: (bad) =>
+        CatalogMisconfiguration.make({ catalogName: bad.catalogName, detail: bad.error.message }),
       unused: () => undefined,
     });
   }

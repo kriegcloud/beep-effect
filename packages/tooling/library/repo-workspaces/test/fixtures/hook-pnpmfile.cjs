@@ -8,13 +8,13 @@
 const fs = require("node:fs");
 
 exports.hooks = {
-	updateConfig(config) {
-		const marker = process.env.HOOK_MARKER;
-		if (marker) fs.writeFileSync(marker, "loaded");
-		return {
-			...config,
-			catalog: { ...(config.catalog ?? {}), "hooked-dep": "^9.9.9" },
-			catalogs: { ...(config.catalogs ?? {}), extra: { "extra-dep": "^1.2.3" } },
-		};
-	},
+  updateConfig(config) {
+    const marker = process.env.HOOK_MARKER;
+    if (marker) fs.writeFileSync(marker, "loaded");
+    return {
+      ...config,
+      catalog: { ...(config.catalog ?? {}), "hooked-dep": "^9.9.9" },
+      catalogs: { ...(config.catalogs ?? {}), extra: { "extra-dep": "^1.2.3" } },
+    };
+  },
 };

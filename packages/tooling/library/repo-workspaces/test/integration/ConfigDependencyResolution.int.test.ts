@@ -15,6 +15,12 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
+import {
+  HookInjection,
+  HookReplay,
+  NoPeerDependencyRules,
+  PeerDependencyRules,
+} from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -172,7 +178,9 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
           const result = yield* hooks.inject(root, { [NAME]: "1.0.0" }, SEED);
           assert.strictEqual(hooked(result), "^1.0.0");
           assert.strictEqual(result.catalogs.default?.effect, "^4.0.0");
-          assert.deepStrictEqual(result.replays, { [NAME]: { version: "1.0.0", source: "installed" } });
+          assert.deepStrictEqual(result.replays, {
+            [NAME]: HookReplay.make({ version: "1.0.0", source: "installed" }),
+          });
         })
       );
     });
@@ -196,7 +204,7 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
           const result = yield* hooks.inject(root, { [NAME]: "2.0.0+sha512-xyz" }, SEED);
           assert.strictEqual(hooked(result), "^2.0.0");
           // The record names the DECLARED version (integrity stripped) and the rung.
-          assert.deepStrictEqual(result.replays, { [NAME]: { version: "2.0.0", source: "store" } });
+          assert.deepStrictEqual(result.replays, { [NAME]: HookReplay.make({ version: "2.0.0", source: "store" }) });
         })
       );
     });
@@ -341,13 +349,16 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
         Effect.gen(function* () {
           const hooks = yield* ConfigDependencyHooks;
           const result = yield* hooks.inject(root, { [NO_HOOK]: "2.0.0" }, SEED);
-          assert.deepStrictEqual(result, {
-            catalogs: SEED,
-            releaseAge: {},
-            peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] },
-            // Still RECORDED: it was resolved, it just contributed nothing.
-            replays: { [NO_HOOK]: { version: "2.0.0", source: "installed" } },
-          });
+          assert.deepStrictEqual(
+            result,
+            HookInjection.make({
+              catalogs: SEED,
+              releaseAge: {},
+              peerDependencyRules: NoPeerDependencyRules,
+              // Still RECORDED: it was resolved, it just contributed nothing.
+              replays: { [NO_HOOK]: HookReplay.make({ version: "2.0.0", source: "installed" }) },
+            })
+          );
         })
       );
     });
@@ -402,7 +413,7 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
           // one honest hash — so it must resolve from the store, once.
           const result = yield* hooks.inject(aliasRoot, { [JS_ONLY]: "1.0.0" }, SEED);
           assert.strictEqual(hooked(result), "^7.0.0");
-          assert.deepStrictEqual(result.replays, { [JS_ONLY]: { version: "1.0.0", source: "store" } });
+          assert.deepStrictEqual(result.replays, { [JS_ONLY]: HookReplay.make({ version: "1.0.0", source: "store" }) });
         })
       );
     });
@@ -460,7 +471,9 @@ const ladderCases = (label: string, hooksLayer: Layer.Layer<ConfigDependencyHook
               // no store; only the environment rung can answer.
               const result = yield* hooks.inject(bareRoot, { [ENV_ONLY]: "1.0.0" }, SEED);
               assert.strictEqual(hooked(result), "^8.0.0");
-              assert.deepStrictEqual(result.replays, { [ENV_ONLY]: { version: "1.0.0", source: "store" } });
+              assert.deepStrictEqual(result.replays, {
+                [ENV_ONLY]: HookReplay.make({ version: "1.0.0", source: "store" }),
+              });
             } finally {
               if (previous === undefined) delete process.env.PNPM_HOME;
               else process.env.PNPM_HOME = previous;
@@ -513,9 +526,9 @@ describe("layerLive and layerSubprocess — the ladder is one implementation", (
         assert.deepStrictEqual(subprocess, live);
         assert.strictEqual(hooked(live), "^5.0.0");
         assert.deepStrictEqual(live.replays, {
-          [NAME]: { version: "2.0.0", source: "store" },
-          [NO_HOOK]: { version: "2.0.0", source: "installed" },
-          [SCOPED]: { version: "1.0.0", source: "store" },
+          [NAME]: HookReplay.make({ version: "2.0.0", source: "store" }),
+          [NO_HOOK]: HookReplay.make({ version: "2.0.0", source: "installed" }),
+          [SCOPED]: HookReplay.make({ version: "1.0.0", source: "store" }),
         });
       })
     );
@@ -540,7 +553,9 @@ describe("ConfigDependencyHooks.layerFrom — replays caller-supplied files, res
         assert.strictEqual(result.catalogs.default?.["mjs-dep"], "^2.0.0");
         assert.isUndefined(result.catalogs.default?.["hooked-dep"]);
         assert.strictEqual(result.catalogs.default?.effect, "^4.0.0");
-        assert.deepStrictEqual(result.replays, { "@scope/plugin": { version: "1.0.0", source: "supplied" } });
+        assert.deepStrictEqual(result.replays, {
+          "@scope/plugin": HookReplay.make({ version: "1.0.0", source: "supplied" }),
+        });
       })
     );
   });
@@ -576,9 +591,16 @@ describe("ConfigDependencyHooks.layerFrom — replays caller-supplied files, res
     it.effect("empty configDependencies returns the seed untouched", () =>
       Effect.gen(function* () {
         const hooks = yield* ConfigDependencyHooks;
-        const rules = { allowedVersions: { "a>b": "1.0.0" }, ignoreMissing: [], allowAny: [] };
+        const rules = PeerDependencyRules.make({
+          allowedVersions: { "a>b": "1.0.0" },
+          ignoreMissing: [],
+          allowAny: [],
+        });
         const result = yield* hooks.inject("/nowhere", {}, SEED, rules);
-        assert.deepStrictEqual(result, { catalogs: SEED, releaseAge: {}, peerDependencyRules: rules, replays: {} });
+        assert.deepStrictEqual(
+          result,
+          HookInjection.make({ catalogs: SEED, releaseAge: {}, peerDependencyRules: rules, replays: {} })
+        );
       })
     );
   });
