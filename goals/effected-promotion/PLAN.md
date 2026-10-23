@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 (`@beep/lockfiles`, W3-g) in review in this PR, 3-A1..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), the rest queued in the PR sequence below.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A2 (package-json field growth, W3-f 3-A2 row) in review in this PR, 3-A1 and 3-A3..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), the rest queued in the PR sequence below.
 
 ## Phases
 
@@ -39,9 +39,9 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 3-Y (merged, #2116) | `@beep/yaml` continuation fix | W3-d. No adopters. From main; parallel with all. Repro tests, an oracle property, yaml-test-suite at zero failures, the lockfiles suite re-run. |
 | 3-3 (merged, #2134) | `@beep/config-file` | W3-e, W3-h (3-3). Adopters: docgen `Configuration.ts` `readJsoncFile` (docgen drops `jsonc-parser`), repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli (the lab cli renderer no longer imports the package). Codec-corpus conformance suite and `ops/config-file-codec-differential.ts`; coverage 100/100/100/100. Cut after 3-Y merged; serializes with 3-2 on the repo-cli manifest. |
 | 3-4 (merged, #2126) | `@beep/package-json` | W3-f, W3-h (3-4). Lab importers only: the sbom re-export is dropped (type-only `SbomMetadataSource`), workspaces imports the package, both PROMOTED maps list it. `PackageName` follows `validForOldPackages` with a `validate-npm-package-name@7.0.2` differential; live census `ops/package-json-corpus.ts`. Adopters follow in 3-A2 (field growth), 3-A3 (repo-utils re-base) and 3-A4 (repo-cli and docgen readers); Exception Ledger row "Duplicate package.json field models". |
-| 3-5 (in review, this PR) | `@beep/lockfiles` | W3-g, W3-h, W3-i. The four lockfile parsers, the `Lockfile` model and integrity checks with branded `S.Opaque` records and one `Lockfile.make` per `parse`/`withImporterNames`; `ResolvedPackage`, `WorkspaceDependency` and `LockfileImporter` stay `S.Class` on the bench fallback (W3-g). The bench (`ops/lockfiles-bench.ts`) and the live oracle (`ops/lockfiles-oracle.ts`, root `bun.lock` against `bun pm ls --all` plus 76 captures) are recorded under `research/`. Lab retargets only: workspaces imports `@beep/lockfiles`, both PROMOTED maps, README/KNOWLEDGE prose, the stale `DIAGNOSTIC_EXCEPTIONS.md` row. 3-4 takes main first on `WorkspacePackage.ts`. |
+| 3-5 (merged, #2159) | `@beep/lockfiles` | W3-g, W3-h, W3-i. The four lockfile parsers, the `Lockfile` model and integrity checks with branded `S.Opaque` records and one `Lockfile.make` per `parse`/`withImporterNames`; `ResolvedPackage`, `WorkspaceDependency` and `LockfileImporter` stay `S.Class` on the bench fallback (W3-g). The bench (`ops/lockfiles-bench.ts`) and the live oracle (`ops/lockfiles-oracle.ts`, root `bun.lock` against `bun pm ls --all` plus 76 captures) are recorded under `research/`. Lab retargets only: workspaces imports `@beep/lockfiles`, both PROMOTED maps, README/KNOWLEDGE prose, the stale `DIAGNOSTIC_EXCEPTIONS.md` row. 3-4 takes main first on `WorkspacePackage.ts`. |
 | 3-A1 (queued) | lockfiles adoption + `ResolvedPackage.installName` | repo-cli `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half). After 3-5. |
-| 3-A2 (queued) | package-json field growth | `DevEngine.onFail` gains `download`. After 3-4. |
+| 3-A2 (in review, this PR) | package-json field growth | W3-f (3-A2 row). The 25 generic npm/Node/TypeScript/bundler/Yarn/Bun fields repo-utils `schemas/PackageJson.ts` modeled and the kit lacked join `Package` (and so `PackageManifest` and every `wireFor` subclass) through the new `ManifestFields` leaf, with a permissive guard each on `LenientManifest`; `DevEngine.onFail` gains `download` (OpenJS devEngines proposal, pnpm). Kit only. Census `--compare` 0 regressions (`research/package-json-corpus-3a2.json`). |
 | 3-A3 (queued) | repo-utils re-base | repo-utils `schemas/PackageJson.ts`, Workspaces/Dependencies/DependencyIndex/UniqueDeps to `HashMap`, `DocgenConfig.ts`, `WorkspaceDeps.ts`. After 3-A2. |
 | 3-A4 (queued) | package.json readers | repo-cli readers, `RootCatalog.ts` (package.json half), docgen `Version.ts` and `Configuration.ts`. After 3-A2, 3-A1, 3-3 and 2d-A. |
 | 3-A5 (queued) | CheckCensus onto `TsconfigLoader.compilerOptions` | repo-cli `Quality/CheckCensus.ts`. After 3-2. |
@@ -145,9 +145,11 @@ bridge section that closes map sites #237 and #290 and the placement half of
 
 PR #1928 changed `S.optional` to `S.optionalKey` across the lab, and the
 scratchpad tests are not part of hosted CI, so these failed on `main` before
-wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Each
-promotion restores the upstream optional semantics its tests assert, as
-`@beep/commands` did in wave 1.
+wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Until
+EF-40 (#2145) merged, each promotion restored the upstream optional semantics
+its tests assert, as `@beep/commands` did in wave 1. EF-40 is on `main` now,
+so under W4-j every later lane keeps `S.optionalKey` and inverts the
+explicit-undefined tests to pin rejection instead (first followed by 3-A2).
 
 | Module | Failing on main | Wave |
 | --- | --- | --- |
