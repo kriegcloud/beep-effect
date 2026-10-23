@@ -18,13 +18,16 @@
  * @since 0.0.0
  */
 
+import { CurrentRuntimeEnv, RuntimeEnv } from "@beep/runtime-env/RuntimeEnv";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow, pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
@@ -75,12 +78,12 @@ export const configStringOptionSync = (name: string): O.Option<string> =>
 /**
  * Check whether an optional string config value equals an expected value.
  *
- * **Example** (Match CI equals true)
+ * **Example** (Match a configured value)
  *
  * ```ts
  * import { configStringEqualsSync } from "@beep/repo-cli/internal/cli/EnvConfig"
  *
- * console.log(configStringEqualsSync("CI", "true"))
+ * console.log(configStringEqualsSync("TURBO_CACHE", "local:rw"))
  * ```
  *
  * @param name - Config key to read.
@@ -121,15 +124,31 @@ export const configStringEqualsSync: {
 export const configStringOption = (name: string): Effect.Effect<O.Option<string>> =>
   Config.option(Config.String(name)).pipe(Effect.orElseSucceed(O.none<string>));
 
+/** The one CI rule: `RuntimeEnv.ci` is `Some`. */
+const runsInCi = (env: RuntimeEnv): boolean => O.isSome(env.ci);
+
+/** A fresh runtime snapshot of the ambient `ConfigProvider`, never shared through a layer memo. */
+const ambientRuntimeEnv: Effect.Effect<RuntimeEnv> = ConfigProvider.ConfigProvider.pipe(
+  Effect.flatMap((provider) =>
+    Layer.build(CurrentRuntimeEnv.layerFrom(provider)).pipe(Effect.map(Context.get(CurrentRuntimeEnv)), Effect.scoped)
+  )
+);
+
 /**
- * Check whether the current process runs under CI, reading `CI` through the
- * ambient `ConfigProvider`.
+ * Check whether the current process runs under CI, reading the environment
+ * through `CurrentRuntimeEnv` over the ambient `ConfigProvider`.
  *
  * **Details**
  *
- * The effectful twin of {@link isCiSync}: tests pin CI on or off by providing a
- * `ConfigProvider` instead of mutating `process.env`, whose env-backed provider
- * can keep serving a key it already resolved.
+ * The one CI rule for the repo CLI: CI is on when `RuntimeEnv.ci` is `Some`,
+ * that is when `GITHUB_ACTIONS` is truthy, or `CI` or `CONTINUOUS_INTEGRATION`
+ * is (any value except empty, `false` or `0`). The effectful twin of
+ * {@link isCiSync}: tests pin CI on or off by providing a `ConfigProvider`
+ * instead of mutating `process.env`, whose env-backed provider can keep
+ * serving a key it already resolved. A provided `CurrentRuntimeEnv` is used
+ * as it is; otherwise the snapshot is built fresh on every run
+ * (`CurrentRuntimeEnv.layerFrom` over the ambient provider), so two providers
+ * in one process never share a verdict.
  *
  * **Example** (Pin CI through a provided ConfigProvider)
  *
@@ -138,7 +157,7 @@ export const configStringOption = (name: string): Effect.Effect<O.Option<string>
  * import * as ConfigProvider from "effect/ConfigProvider";
  * import * as Effect from "effect/Effect";
  * const ci = Effect.runSync(
- *   isCi.pipe(Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ CI: "true" }))))
+ *   isCi.pipe(Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ CI: "1" }))))
  * )
  * console.log(ci) // true
  * ```
@@ -146,33 +165,37 @@ export const configStringOption = (name: string): Effect.Effect<O.Option<string>
  * @category configuration
  * @since 0.0.0
  */
-export const isCi: Effect.Effect<boolean> = configStringOption("CI").pipe(
-  Effect.map(O.exists((value) => value === "true"))
+export const isCi: Effect.Effect<boolean> = Effect.serviceOption(CurrentRuntimeEnv).pipe(
+  Effect.flatMap(O.match({ onSome: Effect.succeed, onNone: () => ambientRuntimeEnv })),
+  Effect.map(runsInCi)
 );
-
 /**
- * Check synchronously whether the current process runs under CI.
+ * Check synchronously whether a process environment is a CI environment.
  *
  * **Details**
  *
- * True when `CI` is exactly `"true"`. `Bun.env` is consulted first so a value
- * changed after startup is still seen; the env `ConfigProvider` is the
- * fallback. This is the one CI predicate for synchronous call sites.
+ * The same rule as {@link isCi} (`RuntimeEnv.ci` is `Some`), computed by
+ * `RuntimeEnv.fromRecord` over `env`. It defaults to `Bun.env`, read at call
+ * time, so a value changed after startup is still seen. This is the one CI
+ * predicate for synchronous call sites.
  *
- * **Example** (Gate a CI-only flag)
+ * **Example** (Classify environment records)
  *
  * ```ts
  * import { isCiSync } from "@beep/repo-cli/test/SharedInternals"
  *
- * const args = isCiSync() ? ["--summarize"] : []
- * console.log(args.length <= 1) // true
+ * console.log(isCiSync({ CI: "1" })) // true
+ * console.log(isCiSync({ GITHUB_ACTIONS: "true", CI: "false" })) // true
+ * console.log(isCiSync({ CI: "false" })) // false
  * ```
  *
- * @returns Whether `CI` is set to `"true"`.
+ * @param env - Environment record to classify; defaults to the live `Bun.env`.
+ * @returns Whether `env` names a CI environment.
  * @category configuration
  * @since 0.0.0
  */
-export const isCiSync = (): boolean => Bun.env.CI === "true" || configStringEqualsSync("CI", "true");
+export const isCiSync = (env: Readonly<Record<string, string | undefined>> = Bun.env): boolean =>
+  runsInCi(RuntimeEnv.fromRecord(env));
 
 /**
  * Read an optional string config value through the `ConfigProvider` service.
@@ -831,21 +854,12 @@ export const canUseTurboCacheSecretSession = Effect.fn("EnvConfig.canUseTurboCac
   repoRoot: string,
   environment: Readonly<Record<string, string | undefined>> = Bun.env
 ): Effect.fn.Return<boolean, never, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
-  const ci = yield* configStringOption("CI");
-  if (
-    pipe(
-      ci,
-      O.exists((value) => value === "true")
-    )
-  ) {
-    return false;
-  }
+  if (yield* isCi) return false;
 
-  const cacheKey = `${repoRoot}\0${O.getOrElse(ci, () => "")}`;
-  const cached = MutableHashMap.get(turboSecretSessionVerdicts, cacheKey);
+  const cached = MutableHashMap.get(turboSecretSessionVerdicts, repoRoot);
   if (O.isSome(cached)) return cached.value;
 
   const usable = yield* secretReferenceProbe(repoRoot, turboCacheSecretSessionEnvironment(environment));
-  MutableHashMap.set(turboSecretSessionVerdicts, cacheKey, usable);
+  MutableHashMap.set(turboSecretSessionVerdicts, repoRoot, usable);
   return usable;
 });

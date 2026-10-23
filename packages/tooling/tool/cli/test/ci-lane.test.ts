@@ -22,6 +22,7 @@ import * as CiCoverage from "@beep/repo-cli/commands/Ci/CiCoverage";
 import { CiCoverageArtifactPlan } from "@beep/repo-cli/commands/Quality/Tasks";
 import { CoverageProducerIdentity, CoverageScopeOwner } from "@beep/repo-cli/test/Quality";
 import {
+  isCiSync,
   isLabsWorkspaceDir,
   readTurboCacheEnvironment,
   resolveTurboCachePlan,
@@ -80,7 +81,7 @@ const withEnvVar = <A>(name: string, value: string | undefined, use: () => A): A
 };
 
 const expectedTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironment(Bun.env), { args, ci: Bun.env.CI === "true" }));
+  turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironment(Bun.env), { args, ci: isCiSync() }));
 
 const commandHandle = (output = "", exitCode = 0) =>
   ChildProcessSpawner.makeHandle({

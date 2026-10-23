@@ -1,0 +1,20 @@
+{
+  "previous": "598ce417a1c18fee71607ae6295dc5488d39e39c36f7f8b60d0218fa377fea1e",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (effected-promotion wave 4, refactor/repo-cli-one-ci-rule)",
+    "reason": "Record the dependency-only drift of @beep/repo-cli, which gains a direct @beep/runtime-env edge for the one CI rule (W4-e); the package was already upstream through @beep/chalk and @beep/colors, so no closure grows; no qualification is granted.",
+    "basis": {
+      "path": "goals/effected-promotion/research/cache-baseline-review-w4-ci.md",
+      "sha256": "0d705927b2b35af2df188f9fe0e1ebe1484fed3e423c07f8a83b58f0a8ecf071"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": ["@beep/repo-cli"]
+}

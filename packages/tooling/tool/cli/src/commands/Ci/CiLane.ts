@@ -32,7 +32,12 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { readTurboCacheEnvironment, turboEnvExtendsAmbient, turboEnvOverrides } from "../../internal/cli/EnvConfig.ts";
+import {
+  isCiSync,
+  readTurboCacheEnvironment,
+  turboEnvExtendsAmbient,
+  turboEnvOverrides,
+} from "../../internal/cli/EnvConfig.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import {
   isLabsWorkspaceDir,
@@ -835,7 +840,7 @@ const directTurboArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<strin
   "turbo",
   "run",
   ...tasks,
-  ...turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironment(Bun.env), { args, ci: Bun.env.CI === "true" })),
+  ...turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironment(Bun.env), { args, ci: isCiSync() })),
   ...args,
 ];
 

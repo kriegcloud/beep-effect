@@ -39,6 +39,7 @@ import {
   selectQualityWorkerRunpodTemplate,
 } from "@beep/repo-cli/test/Docgen";
 import {
+  isCiSync,
   readTurboCacheEnvironment,
   resolveTurboCachePlan,
   turboCachePlanArgs,
@@ -111,7 +112,7 @@ const DOCTEST_FIXTURE_PACKAGE = "packages/doctest-fixture";
 const decodeDoctestReport = S.decodeUnknownEffect(S.fromJsonString(DoctestReport));
 
 const expectedTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironment(Bun.env), { args, ci: Bun.env.CI === "true" }));
+  turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironment(Bun.env), { args, ci: isCiSync() }));
 
 const stubHandle = ChildProcessSpawner.makeHandle({
   all: Stream.empty,

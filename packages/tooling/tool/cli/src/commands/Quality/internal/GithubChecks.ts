@@ -18,7 +18,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
-import { readTurboCacheEnvironmentSync } from "../../../internal/cli/EnvConfig.ts";
+import { isCiSync, readTurboCacheEnvironmentSync } from "../../../internal/cli/EnvConfig.ts";
 import { resolveTurboCachePlan, turboCachePlanArgs } from "../../../internal/cli/TurboCache.ts";
 import { QualityTaskStep } from "../../../internal/process/index.ts";
 import { CiLocalStepPlan, ciLaneDispatchStep } from "../../Ci/CiLane.ts";
@@ -99,7 +99,7 @@ const rootTaskLane = (repoRoot: string, label: string, task: string, base?: stri
       ...turboCachePlanArgs(
         resolveTurboCachePlan(readTurboCacheEnvironmentSync(), {
           args: ["--summarize"],
-          ci: Bun.env.CI === "true",
+          ci: isCiSync(),
         })
       ),
       "--summarize",
