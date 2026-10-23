@@ -1557,7 +1557,11 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
 
         yield* Scope.close(writerScope, Exit.void);
 
-        const readerA = (yield* DuckDbClient.make({ databasePath, readOnly: true })).withoutTransforms();
+        const readerA = (yield* DuckDbClient.make({
+          databasePath,
+          readOnly: true,
+          databaseOptions: { ACCESS_MODE: "READ_WRITE" },
+        })).withoutTransforms();
         const readerB = (yield* DuckDbClient.make({ databasePath, readOnly: true })).withoutTransforms();
         expect(yield* readerA<{ readonly id: number }>`SELECT id FROM ro_events`).toEqual([{ id: 7 }]);
         expect(yield* readerB<{ readonly id: number }>`SELECT id FROM ro_events`).toEqual([{ id: 7 }]);
@@ -1590,6 +1594,71 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
 
         const rows = yield* legacy.query("SELECT id FROM legacy_events ORDER BY id");
         expect(rows).toEqual([{ id: "client" }, { id: "legacy" }]);
+      })
+    );
+  });
+
+  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "refuses legacy READ_ONLY beside a writer and supports standalone cached readers",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const databasePath = path.join(tmpDir, "legacy-read-only.duckdb");
+        const writerScope = yield* Scope.make();
+        const writerContext = yield* Layer.build(
+          DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }))
+        ).pipe(Scope.provide(writerScope));
+        const writer = Context.get(writerContext, DuckDb);
+        yield* writer.run("CREATE TABLE legacy_ro_events (id INTEGER)");
+        yield* writer.run("INSERT INTO legacy_ro_events VALUES (7)");
+        yield* writer.run("CHECKPOINT");
+        const readOnlyLayer = DuckDb.makeNodeLayer(
+          DuckDbConnectionOptions.make({ databasePath, databaseOptions: { access_mode: "READ_ONLY" } })
+        );
+        const refusedContext = yield* Layer.build(readOnlyLayer);
+        const refused = yield* Context.get(refusedContext, DuckDb).query("SELECT 1").pipe(Effect.flip);
+        expect(refused._tag).toBe("DuckDbError");
+        expect(refused.message).toBe("Failed to open DuckDB connection.");
+        expect(String(O.getOrUndefined(refused.cause))).toContain(DIFFERENT_CONFIGURATION);
+        // A refused reader must leave the writer usable, including after checkpoint.
+        yield* writer.run("INSERT INTO legacy_ro_events VALUES (8)");
+        yield* writer.run("CHECKPOINT");
+        yield* Scope.close(writerScope, Exit.void);
+
+        const readerScope = yield* Scope.make();
+        const readerContext = yield* Layer.build(readOnlyLayer).pipe(Scope.provide(readerScope));
+        const reader = Context.get(readerContext, DuckDb);
+        expect(yield* reader.query("SELECT id FROM legacy_ro_events ORDER BY id")).toEqual([{ id: 7 }, { id: 8 }]);
+        const secondScope = yield* Scope.make();
+        const secondContext = yield* Layer.build(readOnlyLayer).pipe(Scope.provide(secondScope));
+        const second = Context.get(secondContext, DuckDb);
+        expect(yield* second.query("SELECT id FROM legacy_ro_events ORDER BY id")).toEqual([{ id: 7 }, { id: 8 }]);
+        const writeError = yield* reader.run("INSERT INTO legacy_ro_events VALUES (9)").pipe(Effect.flip);
+        expect(writeError._tag).toBe("DuckDbError");
+        const refusedWriter = yield* DuckDbClient.make({ databasePath }).pipe(Effect.flip);
+        expect(reasonTagOf(refusedWriter)).toBe("ConnectionError");
+        yield* Scope.close(readerScope, Exit.void);
+        expect(yield* second.query("SELECT id FROM legacy_ro_events ORDER BY id")).toEqual([{ id: 7 }, { id: 8 }]);
+        yield* Scope.close(secondScope, Exit.void);
+        const attachedReader = (yield* DuckDbClient.make({ databasePath: ":memory:" })).withoutTransforms();
+        yield* attachedReader.attach(databasePath, "legacy_snapshot", { readOnly: true });
+        expect(
+          yield* attachedReader<{ readonly id: number }>`SELECT id FROM legacy_snapshot.legacy_ro_events ORDER BY id`
+        ).toEqual([{ id: 7 }, { id: 8 }]);
+        const attachedWriteError = yield* attachedReader`INSERT INTO legacy_snapshot.legacy_ro_events VALUES (9)`.pipe(
+          Effect.flip
+        );
+        expect(reasonTagOf(attachedWriteError)).toBe("AuthorizationError");
+        yield* attachedReader.detach("legacy_snapshot");
+        const reopened = (yield* DuckDbClient.make({ databasePath })).withoutTransforms();
+        yield* reopened`INSERT INTO legacy_ro_events VALUES (${9})`;
+        yield* reopened.checkpoint({ force: true });
+        expect(yield* reopened<{ readonly id: number }>`SELECT id FROM legacy_ro_events ORDER BY id`).toEqual([
+          { id: 7 },
+          { id: 8 },
+          { id: 9 },
+        ]);
       })
     );
   });

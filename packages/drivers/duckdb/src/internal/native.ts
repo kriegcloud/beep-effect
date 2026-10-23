@@ -3,14 +3,11 @@
  *
  * **Details**
  *
- * File-backed read-write opens go through `DuckDBInstance.fromCache` so every
- * open of one file in the process shares one database. The client also routes
- * READ_ONLY opens through the cache, where DuckDB refuses them beside an
- * in-process read-write open instead of reading blocks the writer reuses. The
- * legacy service keeps `DuckDBInstance.create` for READ_ONLY opens. In-memory
- * databases always get their own private instance. No option is ever injected
- * into a read-write configuration, because the instance cache refuses a
- * second open of the same file with a different configuration.
+ * File-backed opens, including READ_ONLY opens on both surfaces, go through
+ * `DuckDBInstance.fromCache`. DuckDB refuses mixed access modes for one file
+ * in a process instead of creating private instances that can read reused
+ * blocks and release a writer's file lock. In-memory databases always get a
+ * private instance. Read-write configuration is passed through unchanged.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -44,15 +41,11 @@ type InstanceInput = {
   readonly readOnly?: boolean | undefined;
 };
 
-type InstancePolicy = {
-  readonly readOnlyCached: boolean;
-};
-
 const isAccessModeKey = (key: string): boolean => Str.toLowerCase(key) === ACCESS_MODE;
 
 const isInMemoryPath = (path: string): boolean => path === "" || Str.startsWith(MEMORY_PATH)(path);
 
-const resolveInstance = (input: InstanceInput, policy: InstancePolicy): ResolvedInstance => {
+const resolveInstance = (input: InstanceInput): ResolvedInstance => {
   const base = input.databaseOptions ?? {};
   const options =
     input.readOnly === true
@@ -62,11 +55,7 @@ const resolveInstance = (input: InstanceInput, policy: InstancePolicy): Resolved
           READ_ONLY
         )
       : base;
-  const readOnlyEffective = R.some(
-    options,
-    (value, key) => isAccessModeKey(key) && Str.toLowerCase(value) === Str.toLowerCase(READ_ONLY)
-  );
-  const cached = !isInMemoryPath(input.databasePath) && !(readOnlyEffective && !policy.readOnlyCached);
+  const cached = !isInMemoryPath(input.databasePath);
   return new ResolvedInstance({ path: input.databasePath, options, cached });
 };
 
@@ -144,7 +133,7 @@ export const ignoreNativeClose: (close: () => void) => void = ignoreNative;
 export const acquireInstance = (input: InstanceInput): Effect.Effect<DuckDBInstance, SqlError, Scope.Scope> =>
   Effect.acquireRelease(
     Effect.tryPromise({
-      try: () => openNativeInstance(resolveInstance(input, { readOnlyCached: true })),
+      try: () => openNativeInstance(resolveInstance(input)),
       catch: (cause) => toSqlError(cause, "connect"),
     }),
     (instance) => Effect.sync(() => ignoreNativeClose(() => instance.closeSync()))
@@ -155,9 +144,8 @@ export const acquireInstance = (input: InstanceInput): Effect.Effect<DuckDBInsta
  *
  * **Details**
  *
- * Same as the client policy except that READ_ONLY opens use a private
- * `create()` instance, which the legacy service needs to read a file beside an
- * in-process read-write open. The caller owns closing the instance.
+ * Same cached file policy as the client, including READ_ONLY refusal beside
+ * an in-process read-write open. The caller owns closing the instance.
  *
  * **Example** (Opening a legacy instance)
  *
@@ -172,7 +160,7 @@ export const acquireInstance = (input: InstanceInput): Effect.Effect<DuckDBInsta
  * @since 0.0.0
  */
 export const openLegacyInstance = (input: InstanceInput): Promise<DuckDBInstance> =>
-  openNativeInstance(resolveInstance(input, { readOnlyCached: false }));
+  openNativeInstance(resolveInstance(input));
 
 /**
  * Open a scoped connection on a DuckDB instance.
