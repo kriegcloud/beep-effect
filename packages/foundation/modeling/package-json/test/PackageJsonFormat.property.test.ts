@@ -66,7 +66,10 @@ describe("formatting property floor", () => {
     ([value]) =>
       Effect.gen(function* () {
         const source = '{\r\n\t"private": true,\r\n\t"custom": null\r\n}\r\n';
-        const expected = Str.replace("null", yield* S.encodeEffect(Json)(value))(source);
+        const encoded = yield* S.encodeEffect(Json)(value);
+        // Built directly from the value: a replacement string would read `$&`
+        // and friends in a generated string as substitution patterns.
+        const expected = `{\r\n\t"private": true,\r\n\t"custom": ${encoded}\r\n}\r\n`;
         const edits = yield* PackageJsonFormat.modify(source, ["custom"], value);
         const text = yield* PackageJsonFormat.modifyToString(source, ["custom"], value);
         assert.strictEqual(text, JsoncEdit.applyAll(source, edits));
@@ -75,7 +78,7 @@ describe("formatting property floor", () => {
         const parsed = yield* S.decodeEffect(CustomJson)(text);
         assert.deepStrictEqual(parsed, {
           private: true,
-          custom: yield* S.decodeEffect(Json)(yield* S.encodeEffect(Json)(value)),
+          custom: yield* S.decodeEffect(Json)(encoded),
         });
       }),
     runs
@@ -99,5 +102,13 @@ describe("formatting property floor", () => {
         assert.strictEqual(yield* PackageJsonFormat.modifyToString(text, ["custom"], value), text);
       }),
     runs
+  );
+  it.effect("a surgical edit writes replacement-pattern strings verbatim", () =>
+    Effect.gen(function* () {
+      const source = '{\r\n\t"private": true,\r\n\t"custom": null\r\n}\r\n';
+      const value = "$&$`$'$$";
+      const text = yield* PackageJsonFormat.modifyToString(source, ["custom"], value);
+      assert.strictEqual(text, `{\r\n\t"private": true,\r\n\t"custom": "${value}"\r\n}\r\n`);
+    })
   );
 });
