@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
 import { findRepoRoot, readPackageJsonFile } from "@beep/repo-utils";
 import { resolveWorkspacePackages } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
@@ -24,7 +25,6 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { parseTsconfig } from "get-tsconfig";
 import { configStringOption } from "../../internal/cli/EnvConfig.ts";
 import { runCapturedStreams } from "../../internal/process/index.ts";
 import { collectChangedFiles } from "../../internal/repo-run/ChangedFiles.ts";
@@ -105,13 +105,6 @@ class EffectPlugin extends S.Opaque<EffectPlugin, { readonly brand: unique symbo
   )
 ) {}
 const pluginCodec = JsonStringCodec(EffectPlugin);
-const EffectiveProjectConfig = S.Struct({
-  compilerOptions: S.Struct({ plugins: S.Array(S.Record(S.String, S.Unknown)) }),
-}).pipe(
-  $I.annoteSchema("EffectiveProjectConfig", {
-    description: "Inherited compiler configuration resolved by get-tsconfig, including plugin options.",
-  })
-);
 
 const DiagnosticSeverity = LiteralKit(["error", "warning", "message"]).pipe(
   $I.annoteSchema("DiagnosticSeverity", { description: "Severity labels emitted by standalone Effect diagnostics." })
@@ -293,7 +286,7 @@ const buildProjects = Effect.fn("EffectDiagnostics.buildProjects")(function* (in
     const project = Str.endsWith(".json")(next) ? next : path.join(next, "tsconfig.json");
     if (HashSet.has(visited, project)) continue;
     visited = HashSet.add(visited, project);
-    const config = yield* Effect.try(() => parseTsconfig(project)).pipe(
+    const config = yield* TsconfigLoader.resolve(project).pipe(
       QualityScriptCommandError.mapError(`Failed to resolve build project ${project}.`)
     );
     pending = A.appendAll(
@@ -423,18 +416,22 @@ const decodeOutput = S.decodeUnknownEffect(S.fromJsonString(EffectDiagnosticsOut
  * @since 0.0.0
  */
 export const effectDiagnosticsProjectConfig: {
-  (project: string): (profile: EffectDiagnosticsProfile) => Effect.Effect<string, QualityScriptCommandError>;
-  (profile: EffectDiagnosticsProfile, project: string): Effect.Effect<string, QualityScriptCommandError>;
+  (
+    project: string
+  ): (
+    profile: EffectDiagnosticsProfile
+  ) => Effect.Effect<string, QualityScriptCommandError, FileSystem.FileSystem | Path.Path>;
+  (
+    profile: EffectDiagnosticsProfile,
+    project: string
+  ): Effect.Effect<string, QualityScriptCommandError, FileSystem.FileSystem | Path.Path>;
 } = dual(
   2,
   Effect.fn("EffectDiagnostics.projectConfig")(function* (profile: EffectDiagnosticsProfile, project: string) {
-    const raw = yield* Effect.try(() => parseTsconfig(project)).pipe(
+    const options = yield* TsconfigLoader.compilerOptions(project).pipe(
       QualityScriptCommandError.mapError(`Failed to resolve ${project}.`)
     );
-    const resolved = yield* S.decodeUnknownEffect(EffectiveProjectConfig)(raw).pipe(
-      QualityScriptCommandError.mapError(`Invalid effective compiler configuration for ${project}.`)
-    );
-    const plugin = A.findFirst(resolved.compilerOptions.plugins, S.is(EffectPlugin));
+    const plugin = A.findFirst(options.plugins ?? A.empty(), S.is(EffectPlugin));
     if (O.isNone(plugin))
       return yield* QualityScriptCommandError.make({
         message: `No complete Effect plugin in ${project}.`,
