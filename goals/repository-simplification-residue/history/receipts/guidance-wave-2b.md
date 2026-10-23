@@ -13,7 +13,7 @@ fence compile check and the upstream-copied `.patterns` decision.
 Command, run from the repository root (the wave-1 method, restricted to the three kinds):
 
 ```sh
-rg --only-matching -P -n -g '!node_modules' -g '!.beep' -g '!*.md' -g '!*.jsonl' \
+rg --only-matching -P -n --hidden -g '!.git' -g '!node_modules' -g '!.beep' -g '!*.md' -g '!*.jsonl' \
   '(//|/\*|\{/\*|#|<!--|\*)\s*(@ts-expect-error|@ts-ignore|@effect-diagnostics)' .
 ```
 
@@ -25,8 +25,8 @@ tests landed in `@beep/public-site` and `@beep/jsonl`).
 | --- | --- | --- | --- | --- |
 | `@ts-expect-error` | 143 | 142 | 141 | 140 |
 | `@ts-ignore` | 2 | 0 | 2 | 0 |
-| `@effect-diagnostics` | 104 | 98 | 100 | 94 |
-| **Total** | **249** | **240** | **243** | **234** |
+| `@effect-diagnostics` | 105 | 99 | 101 | 95 |
+| **Total** | **250** | **241** | **244** | **235** |
 
 The census pattern also matches 9 lines that are not directives, and they stay: the two
 `@ts-ignore` hits are a string literal in a runner test input and the regular expression
@@ -38,9 +38,9 @@ By root, real directives before: packages 128, scratchpad 105, `vitest.setup.ts`
 `vitest.shared.ts` 1.
 
 `@effect-diagnostics` header lines can name several rules. Counted per rule, the 98
-directives carried 140 rule entries (122 in `scratchpad/test`, 11 in `scratchpad/party`,
+directives carried 141 rule entries (122 in `scratchpad/test`, 11 in `scratchpad/party`,
 7 at the root). After: 13 removed as stale, 3 fixed in source, 8 narrowed from
-`skip-file` to `-next-line`, 116 kept.
+`skip-file` to `-next-line`, 117 kept.
 
 ## Method
 
@@ -460,3 +460,18 @@ Main deleted three scratchpad files whose directives this wave had annotated:
 `@beep/markdown` (`packages/foundation/modeling/markdown`). That meets the stated exit
 condition, so the three directives leave with the files, and the merge keeps main's
 deletion.
+
+## Review round 1 (#2110)
+
+beep-reviewer (PRRT_kwDOPbO_N86vic6N) pointed out that the census missed hidden directories, because `rg` skips dot-paths by default. The census now runs with `--hidden -g '!.git'`, and the counts above include the result.
+
+A hidden-path census found exactly one more directive: `apps/storybook/.storybook/preview.tsx:1`, `@effect-diagnostics globalConsole:skip-file`.
+- **Still live:** removing it raises TS377064 on the file's one `console.warn`, a dev-only notice inside a dynamic-import `catch` in the Storybook preview iframe.
+- **Next-line form doesn't work:** that line already carries a `biome-ignore lint/suspicious/noConsole`, and Biome and effect-diagnostics each require their own comment on the line directly above. Putting either one second breaks the other: Biome reports `suppressions/unused`, or the diagnostic comes back.
+- **Disposition:** kept at file level, with the inline reason `Owner: @beep/storybook. Exit: the preview boots through an Effect runtime with a browser Logger.`
+
+Wave 2c's census uses `--hidden -g '!.git'` too.
+
+| Path | Line | Kind | Disposition | Reason |
+| --- | --- | --- | --- | --- |
+| `apps/storybook/.storybook/preview.tsx` | 1 | `@effect-diagnostics` `globalConsole:skip-file` | kept | Dev-only `console.warn` in the preview iframe, outside any Effect runtime. It stays at file level because the line above the call holds its required `biome-ignore`. |
