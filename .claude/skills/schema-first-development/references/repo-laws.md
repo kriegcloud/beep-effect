@@ -142,7 +142,6 @@ Prefer schema-level defaults and transforms to ad-hoc runtime fallback objects.
 Use:
 
 - `S.withConstructorDefault(...)`
-- `S.withDecodingDefault(...)`
 - `S.withDecodingDefaultKey(...)`
 - `S.decodeTo(...)`
 - `SchemaTransformation.transform(...)`
@@ -155,7 +154,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as O from "effect/Option";
 import * as SchemaTransformation from "effect/SchemaTransformation";
-const Enabled = S.UndefinedOr(S.String).pipe(
+const Enabled = S.String.pipe(
   S.decodeTo(
     S.Boolean,
     SchemaTransformation.transform({
@@ -164,7 +163,7 @@ const Enabled = S.UndefinedOr(S.String).pipe(
     })
   ),
   S.withConstructorDefault(Effect.succeed(false)),
-  S.withDecodingDefault(Effect.succeed("false"))
+  S.withDecodingDefaultKey(Effect.succeed("false"))
 )
 ```
 
@@ -185,7 +184,11 @@ Use:
 - `S.OptionFromNullOr`
 - `S.OptionFromNullishOr`
 - `S.OptionFromOptionalKey`
-- `S.OptionFromOptional`
+
+Never `S.optional`, `S.withDecodingDefault` or `S.OptionFromOptional`: optional
+fields use exact keys (EF-40, enforced by the `prefer-exact-optional-key` Biome
+rule). A field whose decoder really receives `undefined` from third-party code
+is `S.optionalKey(S.UndefinedOr(X))`.
 
 Prefer:
 

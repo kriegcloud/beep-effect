@@ -157,11 +157,11 @@ export class TurboSchemaState extends S.Opaque<TurboSchemaState, { readonly bran
   S.Struct({
     installedVersion: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     files: S.Array(TurboConfigFile).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<TurboConfigFile>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<TurboConfigFile>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<TurboConfigFile>()))
     ),
   }).pipe(
     $I.annoteSchema("TurboSchemaState", {

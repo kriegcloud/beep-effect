@@ -889,7 +889,7 @@ describe("Run schema shapes", () => {
     assert.isUndefined(CommandOutputError.make({ kind: "notJson", command: "tool" }).exitCode);
   });
 
-  it("preserves duration inputs, redacted values, undefined options and numeric policy", () => {
+  it("preserves duration inputs, redacted values, exact optional keys and numeric policy", () => {
     const secret = Redacted.make("secret");
     const options = RunOptions.make({
       timeout: { seconds: 1 },
@@ -900,7 +900,7 @@ describe("Run schema shapes", () => {
     for (const timeout of [1, 1n, [1, 2], "1 second", "Infinity", "-Infinity", { milliseconds: 2 }]) {
       assert.isTrue(S.is(RunOptions)({ timeout }));
     }
-    assert.isTrue(S.is(RunOptions)({ timeout: undefined, redact: undefined, maxOutputBytes: undefined }));
+    assert.isFalse(S.is(RunOptions)({ timeout: undefined, redact: undefined, maxOutputBytes: undefined }));
     assert.isTrue(S.is(RunOptions)({ maxOutputBytes: 1.5 }));
     assert.isFalse(S.is(RunOptions)({ redact: ["unwrapped"] }));
     assert.isFalse(S.is(RunOptions)({ timeout: "not a duration" }));

@@ -174,7 +174,7 @@ export class ExtractionRule extends S.Opaque<ExtractionRule, { readonly brand: u
   S.Struct({
     enabled: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true)),
       $I.annoteKey("ExtractionRule.enabled", {
         description: "Whether the rule participates in planning.",
       })
@@ -244,7 +244,7 @@ export class ExtractionRule extends S.Opaque<ExtractionRule, { readonly brand: u
     ),
     renderGif: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("ExtractionRule.renderGif", {
         description: "Whether the rule renders a GIF over its window.",
       })

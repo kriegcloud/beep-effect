@@ -17,7 +17,7 @@ const emptyStringRecord = Effect.succeed(R.empty<string, string>());
 const StringRecord = S.Record(S.String, S.String);
 const DefaultedStringRecord = StringRecord.pipe(
   S.withConstructorDefault(emptyStringRecord),
-  S.withDecodingDefault(emptyStringRecord)
+  S.withDecodingDefaultKey(emptyStringRecord)
 );
 
 /**
@@ -74,11 +74,11 @@ export class CatalogUsageRootManifest extends S.Opaque<CatalogUsageRootManifest,
     catalog: DefaultedStringRecord,
     catalogs: S.Record(S.String, StringRecord).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, R.ReadonlyRecord<string, string>>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, R.ReadonlyRecord<string, string>>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, R.ReadonlyRecord<string, string>>()))
     ),
     overrides: S.Record(S.String, S.Json).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, S.Json>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, S.Json>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, S.Json>()))
     ),
   }).pipe(
     $I.annoteSchema("CatalogUsageRootManifest", {
