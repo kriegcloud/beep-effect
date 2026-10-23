@@ -22,7 +22,7 @@ const isNonEmptyLine = (value: string): boolean => Str.isNonEmpty(Str.trim(value
  * **Example** (Read the staged file list)
  *
  * ```ts
- * import { runGitLines } from "@beep/repo-cli/test/RepoRun"
+ * import { runGitLines } from "@beep/repo-cli/test/SharedInternals"
  *
  * const staged = runGitLines("/repo", ["diff", "--cached", "--name-only"])
  * console.log(staged)
@@ -82,7 +82,7 @@ const dirtyWorktreeProbes = (
  * **Example** (Collect dirty TypeScript sources)
  *
  * ```ts
- * import { collectDirtyWorktreeFiles } from "@beep/repo-cli/test/RepoRun"
+ * import { collectDirtyWorktreeFiles } from "@beep/repo-cli/test/SharedInternals"
  *
  * const dirty = collectDirtyWorktreeFiles("/repo", {
  *   diffArgs: ["--diff-filter=ACMR"],
@@ -134,7 +134,7 @@ export const collectDirtyWorktreeFiles = Effect.fn("ChangedFiles.collectDirtyWor
  * **Example** (Collect local quality scope)
  *
  * ```ts
- * import { collectChangedFiles } from "@beep/repo-cli/test/RepoRun"
+ * import { collectChangedFiles } from "@beep/repo-cli/test/SharedInternals"
  *
  * const changed = collectChangedFiles("/repo", "origin/main", "HEAD")
  * console.log(changed)

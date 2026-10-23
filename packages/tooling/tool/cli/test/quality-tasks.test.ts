@@ -885,13 +885,55 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const scan = A.findFirst(commands, (args) => A.contains(args, "semgrep/semgrep"));
         scan.pipe(O.isSome, assertTrue);
         if (O.isSome(scan)) {
-          expect(A.takeRight(scan.value, 5)).toEqual(["--include", ignored, "--include", changed, "."]);
+          expect(A.takeRight(scan.value, 5)).toEqual(["--include", `/${ignored}`, "--include", `/${changed}`, "."]);
         }
         const fs = yield* FileSystem.FileSystem;
         const ignoreRules = yield* fs.readFileString(
           NodeURL.fileURLToPath(new URL("../../../../../.semgrepignore", import.meta.url))
         );
         expect(ignoreRules).toContain("goals/**/history/outputs/");
+      })
+    );
+
+    it.effect("escapes and anchors literal changed paths in Semgrep include patterns", () =>
+      Effect.gen(function* () {
+        const changed = ["apps/todox/src/app/[id]/page.tsx", "!route.ts", "#route.ts", "src/a*b?c\\d.ts"];
+        const commands: Array<ReadonlyArray<string>> = [];
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const spawner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) {
+            return Effect.die("SAST test requires a standard command");
+          }
+          A.appendInPlace(commands, [command.command, ...command.args]);
+          const output = A.contains(command.args, "--name-only") ? A.join(changed, "\n") : "";
+          return Effect.succeed(qualityCommandHandle(output, 0));
+        });
+        yield* runGithubChecks("sast").pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+          Effect.provideService(FileSystem.FileSystem, {
+            ...fs,
+            exists: () => Effect.succeed(true),
+            realPath: (file) => Effect.succeed(path.resolve(file)),
+          }),
+          Effect.provideServiceEffect(Console.Console, TestConsole.make),
+          TestClock.withLive
+        );
+        const scan = A.findFirst(commands, (args) => A.contains(args, "semgrep/semgrep"));
+        scan.pipe(O.isSome, assertTrue);
+        if (O.isSome(scan)) {
+          expect(A.takeRight(scan.value, 9)).toEqual([
+            "--include",
+            "/apps/todox/src/app/\\[id\\]/page.tsx",
+            "--include",
+            "/\\!route.ts",
+            "--include",
+            "/\\#route.ts",
+            "--include",
+            "/src/a\\*b\\?c\\\\d.ts",
+            ".",
+          ]);
+        }
       })
     );
 
