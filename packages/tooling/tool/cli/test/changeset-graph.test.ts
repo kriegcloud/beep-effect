@@ -10,12 +10,12 @@ import {
 import { parseChangesetFile } from "@changesets/parse";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
-import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
@@ -140,10 +140,10 @@ Record a private workspace change.
         yield "---not-a-closing-fence";
       }
     }
-    expect(changesetsParseClosingFenceLine(lines())).toEqual(O.none());
+    assertNone(changesetsParseClosingFenceLine(lines()));
     expect(steps).toBe(size);
-    expect(changesetsParseClosingFenceLine(["prefix---yaml", "body", "  ---\t"])).toEqual(O.some(3));
-    expect(changesetsParseClosingFenceLine(["---"])).toEqual(O.none());
+    assertSome(changesetsParseClosingFenceLine(["prefix---yaml", "body", "  ---\t"]), 3);
+    assertNone(changesetsParseClosingFenceLine(["---"]));
   });
 
   it.effect("reads CRLF-fenced changeset frontmatter", () =>
