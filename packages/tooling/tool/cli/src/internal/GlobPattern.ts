@@ -25,7 +25,7 @@ import * as Str from "effect/String";
  * **Example** (Escape regex metacharacter)
  *
  * ```ts
- * import { escapeRegexChar } from "@beep/repo-cli/internal/GlobPattern"
+ * import { escapeRegexChar } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(escapeRegexChar("."))
  * ```
@@ -51,7 +51,7 @@ export const escapeRegexChar = (char: string): string => Str.replace(/[.+?^${}()
  * **Example** (Match nested TypeScript paths)
  *
  * ```ts
- * import { globPatternToRegExp } from "@beep/repo-cli/internal/GlobPattern"
+ * import { globPatternToRegExp } from "@beep/repo-cli/test/SharedInternals"
  *
  * const re = globPatternToRegExp("src/**\/*.ts")
  * console.log(re.test("src/a/b/c.ts"))
@@ -110,7 +110,7 @@ export const globPatternToRegExp = (pattern: string): RegExp => {
  * **Example** (Match test file paths)
  *
  * ```ts
- * import { globMatches } from "@beep/repo-cli/internal/GlobPattern"
+ * import { globMatches } from "@beep/repo-cli/test/SharedInternals"
  *
  * const matchesTests = globMatches("**\/*.test.ts")
  * console.log(matchesTests("src/a.test.ts"))

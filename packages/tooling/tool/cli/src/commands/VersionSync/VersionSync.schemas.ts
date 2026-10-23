@@ -220,7 +220,7 @@ class VersionCategoryReportBun extends S.Opaque<VersionCategoryReportBun, { read
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
@@ -237,7 +237,7 @@ class VersionCategoryReportNode extends S.Opaque<VersionCategoryReportNode, { re
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
@@ -254,7 +254,7 @@ class VersionCategoryReportDocker extends S.Opaque<VersionCategoryReportDocker, 
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
@@ -271,7 +271,7 @@ class VersionCategoryReportBiome extends S.Opaque<VersionCategoryReportBiome, { 
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
@@ -288,7 +288,7 @@ class VersionCategoryReportEffect extends S.Opaque<VersionCategoryReportEffect, 
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
@@ -305,7 +305,7 @@ class VersionCategoryReportTurbo extends S.Opaque<VersionCategoryReportTurbo, { 
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
@@ -441,7 +441,7 @@ export type VersionSyncMode = RunModeValue;
 
 const DefaultedVersionSyncFlag = S.Boolean.pipe(
   S.withConstructorDefault(Effect.succeed(false)),
-  S.withDecodingDefault(Effect.succeed(false))
+  S.withDecodingDefaultKey(Effect.succeed(false))
 );
 
 class VersionSyncOptionsCheck extends S.Opaque<VersionSyncOptionsCheck, { readonly brand: unique symbol }>()(
@@ -599,7 +599,7 @@ export class VersionSyncResolution extends S.Opaque<VersionSyncResolution, { rea
     report: VersionSyncReport,
     nodeLocations: S.Array(VersionSyncUpdateLocation).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionSyncUpdateLocation>()))
     ),
   }).pipe(
     $I.annoteSchema("VersionSyncResolution", {

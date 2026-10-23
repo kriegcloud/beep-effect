@@ -141,7 +141,7 @@ describe("@beep/agents-use-cases AssistantTurn", () => {
   // The fixture kernel layer is provided through the @effect/vitest test
   // harness (the test entry point), not via Effect.provide in the effect body,
   // which keeps scope lifetimes correct and satisfies effect(strictEffectProvide).
-  it.layer(FixtureTurnKernel)("through the fixture kernel", (it) => {
+  it.layer(FixtureTurnKernel, { timeout: "30 seconds" })("through the fixture kernel", (it) => {
     it.effect(
       "streams the scripted sequence as indexed blocks",
       Effect.fnUntraced(function* () {

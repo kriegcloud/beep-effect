@@ -178,7 +178,7 @@ export class CollectorServeOptions extends S.Opaque<CollectorServeOptions, { rea
     ),
     handlePath: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
-      S.withDecodingDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<string>())),
       $I.annoteKey("CollectorServeOptions.handlePath", {
         description: "Discovery handle file path (.beep/qa/current.json); written while live when present.",
       })

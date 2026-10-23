@@ -203,7 +203,7 @@ export const proofCoordinatorLockPath = Effect.fn("Yeet.proofCoordinatorLockPath
  *
  * ```ts
  * import { runIdForContext } from "@beep/repo-cli/commands/Yeet/internal/ArtifactPaths"
- * import { RepoRunContext } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoRunContext } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * const context = RepoRunContext.make({
  *   base: "origin/main",

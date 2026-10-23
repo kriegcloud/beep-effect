@@ -31,6 +31,7 @@
  *   bun goals/effected-promotion/ops/package-json-corpus.ts [--out <report.json>]
  *   bun goals/effected-promotion/ops/package-json-corpus.ts --compare <baseline.json> [--out <report.json>]
  */
+import * as NodeURL from "node:url";
 import { LenientManifest } from "@beep/package-json/LenientManifest";
 import { Package } from "@beep/package-json/Package";
 import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
@@ -122,7 +123,7 @@ class CorpusRegression extends Data.TaggedError("CorpusRegression")<{ readonly m
 
 // --- configuration ------------------------------------------------------------
 
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const argv = A.drop(process.argv, 2);
 const flagValue = (name: string): O.Option<string> =>
   pipe(

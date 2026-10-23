@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
@@ -36,7 +37,9 @@ const decodeUnknownSchemaCrispeningPolicyDocumentEffect = S.decodeUnknownEffect(
 
 const committedPolicyText = O.getOrElse(
   O.liftPredicate(
-    ts.sys.readFile(new URL("../../../../../standards/schema-crispening.policy.jsonc", import.meta.url).pathname),
+    ts.sys.readFile(
+      NodeURL.fileURLToPath(new URL("../../../../../standards/schema-crispening.policy.jsonc", import.meta.url))
+    ),
     P.isString
   ),
   () => ""

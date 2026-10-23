@@ -111,7 +111,7 @@ class DockerComposeDocument extends S.Opaque<DockerComposeDocument, { readonly b
   S.Struct({
     services: S.Record(S.String, DockerComposeService).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, DockerComposeService>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, DockerComposeService>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, DockerComposeService>()))
     ),
   }).pipe(
     $I.annoteSchema("DockerComposeDocument", {
@@ -131,7 +131,7 @@ export class DockerImageState extends S.Opaque<DockerImageState, { readonly bran
   S.Struct({
     images: S.Array(DockerImageElement).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<DockerImageElement>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<DockerImageElement>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<DockerImageElement>()))
     ),
   }).pipe(
     $I.annoteSchema("DockerImageState", {

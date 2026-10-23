@@ -29,7 +29,7 @@ describe("Requote structural schema regressions", () => {
     { arbitrary: fcRuns(100) }
   );
 
-  it.effect("plain inputs retain absent and explicit undefined metadata compatibility", () =>
+  it.effect("plain inputs retain absent metadata and reject explicit undefined metadata", () =>
     Effect.sync(() => {
       const scalar: RequoteScalarInput = RequoteScalarInput.make({
         value: "hello",
@@ -37,11 +37,10 @@ describe("Requote structural schema regressions", () => {
         offset: 0,
         length: 7,
       });
-      for (const input of [scalar, { ...scalar, tag: undefined, anchor: undefined }]) {
-        assert.isTrue(S.is(RequoteScalarInput)(input));
-        assert.strictEqual(O.getOrUndefined(requoteScalarText("'hello'", input, '"', "conservative")), '"hello"');
-        assert.strictEqual(O.getOrUndefined(requoteScalarText("'hello'", input, '"', "escaping")), '"hello"');
-      }
+      assert.isTrue(S.is(RequoteScalarInput)(scalar));
+      assert.strictEqual(O.getOrUndefined(requoteScalarText("'hello'", scalar, '"', "conservative")), '"hello"');
+      assert.strictEqual(O.getOrUndefined(requoteScalarText("'hello'", scalar, '"', "escaping")), '"hello"');
+      assert.isFalse(S.is(RequoteScalarInput)({ ...scalar, tag: undefined, anchor: undefined }));
       assert.isTrue(S.is(RequoteScalarInput)({ ...scalar, value: { arbitrary: [1, "x"] } }));
       for (const input of [
         { ...scalar, tag: "!str" },

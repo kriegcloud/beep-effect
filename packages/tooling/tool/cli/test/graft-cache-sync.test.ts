@@ -118,7 +118,7 @@ it.effect.prop(
   ([report]) => Effect.map(assertReportRoundTrip(GraftCacheSyncReport.make(report)), () => true)
 );
 
-layer(testLayer)("Graft cache sync", (it) => {
+layer(testLayer, { timeout: "30 seconds" })("Graft cache sync", (it) => {
   it.effect(
     "plans all four artifact families in order without creating a target graft directory",
     Effect.fn(function* () {

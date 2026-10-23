@@ -38,7 +38,7 @@ const byWorkspacePathLengthDescending: Order.Order<readonly [string, string]> = 
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { createWorkspaceOwnerResolver } from "@beep/repo-cli/internal/tsmorph/OwnerResolver"
+ * import { createWorkspaceOwnerResolver } from "@beep/repo-cli/test/SharedInternals"
  *
  * const program = createWorkspaceOwnerResolver({
  *   root: process.cwd(),

@@ -57,7 +57,7 @@ export interface JsonStringCodec<Sch extends S.Codec<unknown, unknown>> {
  * **Example** (Round-trip encode and decode)
  *
  * ```ts
- * import { JsonStringCodec } from "@beep/repo-cli/internal/schema/JsonCodec"
+ * import { JsonStringCodec } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *
@@ -100,7 +100,7 @@ type JsonTextDecoder<Sch extends S.Codec<unknown, unknown>, E> = (text: string) 
  * **Example** (Decode JSON with domain error)
  *
  * ```ts
- * import { decodeOrFail } from "@beep/repo-cli/internal/schema/JsonCodec"
+ * import { decodeOrFail } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *

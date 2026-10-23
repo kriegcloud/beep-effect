@@ -11,6 +11,7 @@
  * @since 0.1.0
  */
 
+import * as NodeURL from "node:url";
 import { $LintRulesId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -27,12 +28,14 @@ const $I = $LintRulesId;
  * import { RULE_NAMES } from "@beep/lint-rules"
  *
  * deepStrictEqual(RULE_NAMES, [
+ *   "no-file-url-pathname",
  *   "no-native-error",
  *   "no-bigint-literals",
  *   "no-empty-named-blocks",
  *   "prefer-array-flat-map",
  *   "prefer-identity-annote-pipe",
- *   "no-hand-built-identity-annotation"
+ *   "no-hand-built-identity-annotation",
+ *   "prefer-exact-optional-key"
  * ])
  * ```
  *
@@ -40,12 +43,14 @@ const $I = $LintRulesId;
  * @since 0.1.0
  */
 export const RULE_NAMES = [
+  "no-file-url-pathname",
   "no-native-error",
   "no-bigint-literals",
   "no-empty-named-blocks",
   "prefer-array-flat-map",
   "prefer-identity-annote-pipe",
   "no-hand-built-identity-annotation",
+  "prefer-exact-optional-key",
 ] as const;
 
 /**
@@ -160,12 +165,14 @@ type RuleMetadata = RuleMetadataSchema;
  */
 export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly brand: unique symbol }>()(
   S.Struct({
+    "no-file-url-pathname": RuleMetadataSchema,
     "no-native-error": RuleMetadataSchema,
     "no-bigint-literals": RuleMetadataSchema,
     "no-empty-named-blocks": RuleMetadataSchema,
     "prefer-array-flat-map": RuleMetadataSchema,
     "prefer-identity-annote-pipe": RuleMetadataSchema,
     "no-hand-built-identity-annotation": RuleMetadataSchema,
+    "prefer-exact-optional-key": RuleMetadataSchema,
   }).pipe(
     $I.annoteSchema("RuleRegistrySchema", {
       description: "Schema for the finite rule registry keyed by rule slug.",
@@ -190,6 +197,13 @@ export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly 
  * @since 0.1.0
  */
 export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySchema.make({
+  "no-file-url-pathname": RuleMetadataSchema.make({
+    name: "no-file-url-pathname",
+    severity: "error",
+    replaces: O.none(),
+    summary: "Use fileURLToPath instead of pathname when converting module-relative file URLs to paths.",
+    scope: O.none(),
+  }),
   "no-native-error": RuleMetadataSchema.make({
     name: "no-native-error",
     severity: "error",
@@ -234,6 +248,14 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
       "Disallow hand-built `{ identifier: $I`Name` }` annotation objects; use `$I.annote(...)` or `X.pipe($I.annoteSchema(...))`.",
     scope: O.none(),
   }),
+  "prefer-exact-optional-key": RuleMetadataSchema.make({
+    name: "prefer-exact-optional-key",
+    severity: "error",
+    replaces: O.none(),
+    summary:
+      "Schema fields use exact optional keys (EF-40): `S.optionalKey`, `S.withDecodingDefaultKey` and `S.OptionFromOptionalKey`, never `S.optional`, `S.withDecodingDefault` or `S.OptionFromOptional`.",
+    scope: O.none(),
+  }),
 });
 
 /**
@@ -257,7 +279,7 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
  * @since 0.1.0
  */
 export const rulePath = (name: RuleName): string =>
-  decodeURIComponent(new URL(`../rules/${name}.grit`, import.meta.url).pathname);
+  NodeURL.fileURLToPath(new URL(`../rules/${name}.grit`, import.meta.url));
 
 /**
  * Absolute filesystem path to the directory holding the `.grit` rule files.
@@ -277,4 +299,4 @@ export const rulePath = (name: RuleName): string =>
  * @category configuration
  * @since 0.1.0
  */
-export const rulesDir = (): string => decodeURIComponent(new URL("../rules/", import.meta.url).pathname);
+export const rulesDir = (): string => NodeURL.fileURLToPath(new URL("../rules/", import.meta.url));

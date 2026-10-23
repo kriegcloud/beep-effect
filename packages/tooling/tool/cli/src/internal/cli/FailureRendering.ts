@@ -42,7 +42,7 @@ const separatedLogLevel = (argv: ReadonlyArray<string>, index: number): string |
  * **Example** (Opting in through an inline log level)
  *
  * ```ts
- * import { shouldRenderFailureCause } from "@beep/repo-cli/internal/cli/FailureRendering"
+ * import { shouldRenderFailureCause } from "@beep/repo-cli/test/Cli"
  *
  * console.log(shouldRenderFailureCause(["ai-metrics", "--log-level=debug"])) // true
  * console.log(shouldRenderFailureCause(["ai-metrics"])) // false

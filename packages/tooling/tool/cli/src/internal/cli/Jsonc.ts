@@ -36,7 +36,7 @@ export { decodeJsoncTextAs } from "@beep/schema/Jsonc";
  * **Example** (Access tabSize option)
  *
  * ```ts
- * import { JSONC_FORMATTING_OPTIONS } from "@beep/repo-cli/internal/cli/Jsonc"
+ * import { JSONC_FORMATTING_OPTIONS } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(JSONC_FORMATTING_OPTIONS.tabSize)
  * ```
@@ -63,7 +63,7 @@ export const JSONC_FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * **Example** (Create modification request)
  *
  * ```ts
- * import { JsoncModification } from "@beep/repo-cli/internal/cli/Jsonc"
+ * import { JsoncModification } from "@beep/repo-cli/test/SharedInternals"
  *
  * const request = JsoncModification.make({ content: '{ "a": 1 }', path: ["a"], value: 2 })
  * console.log(request.path)
@@ -92,7 +92,7 @@ export class JsoncModification extends S.Opaque<JsoncModification, { readonly br
  * **Example** (Update value at path)
  *
  * ```ts
- * import { applyJsoncModification } from "@beep/repo-cli/internal/cli/Jsonc"
+ * import { applyJsoncModification } from "@beep/repo-cli/test/SharedInternals"
  *
  * const next = applyJsoncModification({ content: '{\n  "a": 1\n}', path: ["a"], value: 2 })
  * console.log(next.includes('"a": 2'))
@@ -122,7 +122,7 @@ export const applyJsoncModification = (request: JsoncModification): string => {
  * **Example** (Format minified JSON)
  *
  * ```ts
- * import { jsonText } from "@beep/repo-cli/internal/cli/Jsonc"
+ * import { jsonText } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(jsonText('{"a":1}').includes('"a": 1'))
  * ```

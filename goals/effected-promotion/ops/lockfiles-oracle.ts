@@ -29,6 +29,8 @@
  *
  * Exits non-zero when any check fails.
  */
+
+import * as NodeURL from "node:url";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as A from "effect/Array";
@@ -137,7 +139,7 @@ class LockfilesOracleCommandFailed extends Data.TaggedError("LockfilesOracleComm
 
 const TOOL = "goals/effected-promotion/ops/lockfiles-oracle.ts";
 const SAMPLE_LIMIT = 20;
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const fixturePrefix = "packages/foundation/modeling/lockfiles/test/fixtures/";
 const FIXTURE_SUFFIX = ".fixture";
 

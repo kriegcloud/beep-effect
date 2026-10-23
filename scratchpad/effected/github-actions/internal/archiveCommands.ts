@@ -295,7 +295,7 @@ export const TarExtractCommandOptions = S.Struct({
 	/** The directory its contents land in (`-C`). */
 	destination: S.String.pipe($I.annoteKey("TarExtractCommandOptions.destination", { description: "Extraction directory passed to -C." })),
 	/** `tar`'s flags; absent or empty means `xzf`. */
-	flags: S.String.pipe(S.Array, S.optional, $I.annoteKey("TarExtractCommandOptions.flags", { description: "Tar flags; absent or empty uses xzf." })),
+	flags: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("TarExtractCommandOptions.flags", { description: "Tar flags; absent or empty uses xzf." })),
 }).pipe($I.annoteSchema("TarExtractCommandOptions", { description: "Plain-object inputs for constructing a tar extraction command." }));
 
 /** The plain-object tar inputs validated by {@link TarExtractCommandOptions}.

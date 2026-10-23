@@ -1814,7 +1814,7 @@ export class TsMorphProjectInspectionRequest extends S.Opaque<
     sourceFileGlobs: S.Array(S.NonEmptyString),
     loadTsconfigFiles: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefault(Effect.succeed(true))
+      S.withDecodingDefaultKey(Effect.succeed(true))
     ),
   }).pipe(
     $I.annoteSchema("TsMorphProjectInspectionRequest", {

@@ -49,7 +49,7 @@ const causeMessage = (cause: unknown): string => {
  * ```ts
  * import { $RepoCliId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
- * import { commandErrorFields } from "@beep/repo-cli/internal/cli/CommandErrorFields"
+ * import { commandErrorFields } from "@beep/repo-cli/test/Cli"
  *
  * const $I = $RepoCliId.create("commands/Example/Example.errors")
  *
@@ -83,7 +83,7 @@ export const commandErrorFields = {
  * **Example** (Format a command failure)
  *
  * ```ts
- * import { messageWithCause } from "@beep/repo-cli/internal/cli/CommandErrorFields"
+ * import { messageWithCause } from "@beep/repo-cli/test/Cli"
  *
  * console.log(messageWithCause("Version sync failed", { message: "Network unavailable" }))
  * // "Version sync failed: Network unavailable"
@@ -103,7 +103,7 @@ export const messageWithCause: {
  * **Example** (Resolve provided and missing codes)
  *
  * ```ts
- * import { resolveCommandExitCode } from "@beep/repo-cli/internal/cli/CommandErrorFields"
+ * import { resolveCommandExitCode } from "@beep/repo-cli/test/Cli"
  *
  * console.log(resolveCommandExitCode(2))
  * console.log(resolveCommandExitCode(undefined))
@@ -130,7 +130,7 @@ export const resolveCommandExitCode = (exitCode: number | undefined): number => 
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { reportCommandError } from "@beep/repo-cli/internal/cli/CommandErrorFields"
+ * import { reportCommandError } from "@beep/repo-cli/test/Cli"
  *
  * const handler = reportCommandError("version-sync")
  * console.log(Effect.isEffect(handler({ message: "drift detected" })))

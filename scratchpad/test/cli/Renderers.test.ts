@@ -13,7 +13,7 @@ const issueFrom = <A, I>(schema: S.Codec<A, I>, input: unknown) =>
 	);
 
 const Config = S.Struct({
-	owner: S.optional(S.String),
+	owner: S.optionalKey(S.String),
 	groups: S.Record(S.String, S.Struct({ repos: S.Array(S.String) })),
 });
 

@@ -67,8 +67,8 @@ pipe(line, Envelope.decodeResult(events))
 pipe(envelope, Envelope.encode(events))
 ```
 
-Optional configuration and slice keys treat an explicit `undefined` as omission,
-as upstream does. `shutdownPublishTimeout` accepts any `Duration.Input` (a
+Optional configuration and slice keys are exact (EF-40, kept deviation 24): omit
+a key rather than passing `undefined`. `shutdownPublishTimeout` accepts any `Duration.Input` (a
 `Duration`, milliseconds or a string such as `"100 millis"`), and the layer
 decodes it into a `Duration`.
 
@@ -117,8 +117,8 @@ Layer configuration is validated before resources are allocated. Invalid capacit
 values, and a shutdown timeout that `Duration.fromInput` cannot convert, fail with
 `InvalidJournalConfig`; invalid read selections, including negative or fractional
 cursors, fail with `InvalidSlice`. Both retain the structured schema failure. An
-omitted or `undefined` capacity or shutdown timeout keeps its documented default
-(64 and five seconds).
+omitted capacity or shutdown timeout keeps its documented default (64 and five
+seconds); an explicit `undefined` is rejected (EF-40, kept deviation 24).
 
 ## Focused validation
 
@@ -161,7 +161,7 @@ excludes test services so native watch timeouts use the live clock.
 | Upstream suite | Adapted coverage |
 | --- | --- |
 | `Envelope.test.ts` | Registry immutability, frame selection, timestamp/scope semantics, typed failures, hostile keys, deep payloads, walk-back, void encoding, lazy serialization failures and both dual forms. |
-| `EnvelopeTypes.test.ts` | Original facade tests retain tag/payload correlation, Self identity, lifecycle literal types and filtered-read narrowing; compile-negative cases also cover the exact optional `AppendOptions` scope, while configuration and slice keys accept an explicit `undefined`, as upstream. |
+| `EnvelopeTypes.test.ts` | Original facade tests retain tag/payload correlation, Self identity, lifecycle literal types and filtered-read narrowing; compile-negative cases also cover the exact optional `AppendOptions` scope, while configuration and slice keys reject an explicit `undefined` (kept deviation 24). |
 | `Line.test.ts` | UTF-8 widths, lone surrogates, LF/CRLF, blank lines, scalar/object parsing, interior corruption, byte offsets and torn-tail recovery. |
 | `LineProperty.test.ts` | Byte-length oracle, byte-range tiling, no dropped nonblank lines, consumed offset, last successful parse, append/truncation laws and totality. |
 | `JsonlError.test.ts` | Every error message, unterminated-tail distinction, envelope versus payload failure, and circular cause safety. |
@@ -621,8 +621,8 @@ concepts.
       `RangeError: Not an integer`; Infinity returns nothing; an untyped `from`
       string matches every record.
     - Lab: `query`, `changes` and `projection` fail `InvalidSlice` with the
-      schema issue before a subscription or file read. Explicit `undefined` keys
-      select what omitted keys select, as upstream.
+      schema issue before a subscription or file read. Keys are exact: an
+      explicit `undefined` is rejected (kept deviation 24).
     - Reason: `law:7` and `law:EF-3`. `upstream-bug:` probe 12 shows `RangeError`
       defects escaping the typed channel.
 
@@ -758,6 +758,18 @@ concepts.
     - Reason: `law:EF-15` (effects are observable through logs and annotations
       on key workflows).
 
+24. **Optional configuration and slice keys are exact.**
+    - Test: `JournalDeviations.test.ts` ("explicitly undefined configuration
+      keys are rejected"), `Properties.test.ts` ("optional configuration and
+      slice keys reject an explicit undefined") and the compile-negative
+      `rejectsExplicitUndefined` block in `jsonl.test.ts`.
+    - Upstream: `JournalConfig`, `Slice` and `CursoredSlice` keys accept an
+      explicit `undefined` and treat it as omission.
+    - Lab: the keys are exact optional keys; omit a key instead of passing
+      `undefined`. The `Envelope.encode` / `encodeResult` scope still treats an
+      explicit `undefined` as omission, as upstream does.
+    - Reason: `law:EF-40` (optional schema fields use exact keys).
+
 Restored to upstream during the retrofit (these earlier lab deviations had no
 allowed cause and were reverted; each test now pins upstream's behaviour):
 
@@ -765,12 +777,11 @@ allowed cause and were reverted; each test now pins upstream's behaviour):
   a line's start on both halves, as `jsonl-slice.md` specifies, instead of
   clamping it to the sampled EOF (`Journal.regressions.test.ts:610`; probe 10
   rerun matches upstream).
-- **Explicit `undefined`.** `JournalConfig`, `Slice` and `CursoredSlice` keys and
-  the `Envelope.encode` and `encodeResult` scope treat an explicit `undefined` as
-  omission (`Properties.test.ts:327`, `JournalDeviations.test.ts:75` and `:93`,
-  `EnvelopeDeviations.test.ts:186`, `Envelope.test.ts:262`; probes 11 and 12
-  rerun identical). The remaining type-level difference, the exact optional
-  `AppendOptions` scope, is listed under Added exports.
+- **Explicit `undefined` scope.** The `Envelope.encode` and `encodeResult` scope
+  treats an explicit `undefined` as omission (`EnvelopeDeviations.test.ts:186`,
+  `Envelope.test.ts:262`). Configuration and slice keys were later made exact
+  under EF-40 (kept deviation 24). The exact optional `AppendOptions` scope is
+  listed under Added exports.
 - **`shutdownPublishTimeout` input.** Every convertible `Duration.Input` is
   accepted again (`JournalDeviations.test.ts:120`). Only the unconvertible case
   remains (Deviation 15).

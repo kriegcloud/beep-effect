@@ -6,31 +6,14 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as SchemaGetter from "effect/SchemaGetter";
 
 const $I = $SchemaId.create("FileDiff.schema");
 
-// Optional key on the wire (`{ file: undefined }` does not decode) whose decoded
-// side also admits `undefined`, so `make({ file: undefined })` succeeds and
-// encodes with the key omitted. Kept file-local: the retired
-// `SchemaUtils.optional` had no other consumer and upstream has no single
-// symbol with this shape (`S.optionalKey` narrows the decoded type,
-// `S.optional` admits `undefined` on the wire).
-const optionalUndefined = <const Schema extends S.Top>(schema: Schema) =>
-  S.optionalKey(schema).pipe(
-    S.decodeTo(schema.pipe(S.optional, S.toType), {
-      decode: SchemaGetter.passthrough({ strict: false }),
-      encode: SchemaGetter.transformOptional(O.filter(P.isNotUndefined)),
-    })
-  );
-
 class InfoBase extends S.Class<InfoBase, { readonly brand: unique symbol }>($I`InfoBase`)(
   {
-    file: optionalUndefined(S.String),
-    patch: optionalUndefined(S.String),
+    file: S.optionalKey(S.String),
+    patch: S.optionalKey(S.String),
     additions: S.Natural,
     deletions: S.Natural,
   },
