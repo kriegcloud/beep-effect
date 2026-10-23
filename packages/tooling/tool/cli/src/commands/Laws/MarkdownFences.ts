@@ -34,7 +34,9 @@
  * last 20 output lines: `exit-without-diagnostics` for a nonzero exit with no
  * fence diagnostic (a crash, kill or panic), `unattributed-diagnostics` for an
  * error line outside the staged fences, whatever the exit code. A crash
- * therefore never reports `failed=0`.
+ * therefore never reports `failed=0`. Unattributed failures also retain the
+ * first 20 unattributed `error TS` lines and their total count, so later fence
+ * diagnostics cannot hide the offending output.
  *
  * **Gotchas**
  *
@@ -116,6 +118,7 @@ const DIAGNOSTIC_PATTERN = /^fence-(\d+)\.tsx?\((\d+),(\d+)\): error (TS\d+): (.
 const ERROR_LINE_PATTERN = /error TS\d+:/u;
 /** Lines of compiler output carried by a compiler failure. */
 const OUTPUT_TAIL_LINES = 20;
+const UNATTRIBUTED_DIAGNOSTIC_LIMIT = 20;
 const TRAILING_NEWLINE_PATTERN = /\n$/u;
 /** Directives that would silently exempt a staged fence from the check. */
 const SUPPRESSION_PATTERN = /@ts-(?:nocheck|ignore)\b/gu;
@@ -522,13 +525,23 @@ const typecheckStaged = Effect.fnUntraced(function* (
       const diagnostics = mapFenceDiagnostics(fences, step.output);
       const outputLines = Str.split("\n")(Str.trimEnd(step.output));
       const errorLines = A.filter(outputLines, (line) => ERROR_LINE_PATTERN.test(line));
+      const unattributedErrorLines = A.filter(errorLines, (line) =>
+        A.isReadonlyArrayEmpty(mapFenceDiagnostics(fences, line))
+      );
+      const unattributedDiagnostics = A.take(unattributedErrorLines, UNATTRIBUTED_DIAGNOSTIC_LIMIT);
+      const unattributedDiagnosticCount = A.length(unattributedErrorLines);
+      const unattributedDetail = A.isReadonlyArrayEmpty(unattributedDiagnostics)
+        ? ""
+        : `\n${unattributedDiagnosticCount} unattributed error TS lines (first ${UNATTRIBUTED_DIAGNOSTIC_LIMIT}):\n${A.join(unattributedDiagnostics, "\n")}`;
       const outputTail = A.join(A.takeRight(outputLines, OUTPUT_TAIL_LINES), "\n");
       const compilerFailure = (reason: MarkdownFencesCompilerFailureReason, detail: string) =>
         MarkdownFencesCompilerError.make({
           reason,
           exitCode: step.exitCode,
           outputTail,
-          message: `${compiler} exited ${step.exitCode} ${detail}. Last ${OUTPUT_TAIL_LINES} output lines:\n${outputTail}`,
+          unattributedDiagnostics,
+          unattributedDiagnosticCount,
+          message: `${compiler} exited ${step.exitCode} ${detail}.${unattributedDetail}\nLast ${OUTPUT_TAIL_LINES} output lines:\n${outputTail}`,
         });
       if (A.length(errorLines) !== A.length(diagnostics)) {
         return yield* compilerFailure("unattributed-diagnostics", "with diagnostics outside the staged fences");

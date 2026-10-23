@@ -16,7 +16,7 @@ Optional peers:
 
 - **`ink` and `react`**, plus **`@types/react`** for TypeScript, for the interactive screens and live views in `@effected/cli/ui`. The root never reaches them, and `./ui` loads neither until a screen first mounts. Without `@types/react`, a program compiled with `skipLibCheck` silently types every screen as `any`.
 
-- **`@effected/config-file`**, only for `ConfigIssueRenderer`. It is imported as a type, so nothing at runtime reaches for it.
+- **`@effected/config-file`** upstream, only for `ConfigIssueRenderer`. In this port the renderer takes the structural `{ readonly issue }`, so the lab `cli` imports nothing from `@beep/config-file`.
 
 All `@effected/*` packages are ESM-only: the exports maps publish only `import` conditions, so `require()` fails with Node's `ERR_PACKAGE_PATH_NOT_EXPORTED`. Import from an ES module.
 

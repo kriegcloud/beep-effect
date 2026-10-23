@@ -2274,6 +2274,30 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/capability/config-file": {
+      "name": "@beep/config-file",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/toml": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@beep/walker": "workspace:^",
+        "@beep/yaml": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "jsonc-parser": "catalog:",
+        "smol-toml": "^1.9.1",
+        "yaml": "catalog:",
+      },
+    },
     "packages/foundation/capability/file-processing": {
       "name": "@beep/file-processing",
       "version": "0.0.0",
@@ -2739,6 +2763,27 @@
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/package-json": {
+      "name": "@beep/package-json",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/npm-spec": "workspace:^",
+        "@beep/semver": "workspace:^",
+        "@beep/spdx": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "@types/validate-npm-package-name": "catalog:",
+        "bun-types": "catalog:",
+        "validate-npm-package-name": "catalog:",
       },
     },
     "packages/foundation/modeling/pandoc-ast": {
@@ -3780,6 +3825,7 @@
         "@beep/ai-sync": "workspace:^",
         "@beep/chalk": "workspace:^",
         "@beep/colors": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/exiftool": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
@@ -3866,6 +3912,7 @@
       "dependencies": {
         "@babel/code-frame": "catalog:",
         "@beep/chalk": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/repo-utils": "workspace:^",
@@ -3875,7 +3922,6 @@
         "@effect/platform-bun": "catalog:",
         "doctrine": "catalog:",
         "effect": "catalog:",
-        "jsonc-parser": "catalog:",
         "ts-morph": "catalog:",
       },
       "devDependencies": {
@@ -3980,6 +4026,7 @@
       "dependencies": {
         "@azure/storage-blob": "^12.33.0",
         "@beep/commands": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/dock": "workspace:^",
         "@beep/dock-react": "workspace:^",
         "@beep/drizzle": "workspace:^",
@@ -4007,6 +4054,7 @@
         "@beep/npm-spec": "workspace:^",
         "@beep/ontology": "workspace:^",
         "@beep/oxigraph": "workspace:^",
+        "@beep/package-json": "workspace:^",
         "@beep/postgres": "workspace:^",
         "@beep/pretext": "workspace:^",
         "@beep/provenance": "workspace:^",
@@ -4099,6 +4147,7 @@
     "postcss-selector-parser": "^7.1.6",
     "protobufjs": "^7.6.6",
     "sharp": "catalog:",
+    "zod": "4.6.6",
   },
   "catalog": {
     "@arizeai/phoenix-client": "7.16.1",
@@ -4225,6 +4274,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.186.0",
+    "@types/validate-npm-package-name": "4.0.2",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@typescript/typescript6": "6.0.2",
     "@vercel/analytics": "^2.0.1",
@@ -4335,6 +4385,7 @@
     "universal-github-app-jwt": "^2.2.2",
     "unpdf": "^1.9.1",
     "use-stick-to-bottom": "^1.1.6",
+    "validate-npm-package-name": "7.0.2",
     "vaul": "^1.1.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.5",
@@ -4518,6 +4569,8 @@
 
     "@beep/commands": ["@beep/commands@workspace:packages/drivers/commands"],
 
+    "@beep/config-file": ["@beep/config-file@workspace:packages/foundation/capability/config-file"],
+
     "@beep/cosmos": ["@beep/cosmos@workspace:packages/drivers/cosmos"],
 
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
@@ -4685,6 +4738,8 @@
     "@beep/oxigraph": ["@beep/oxigraph@workspace:packages/drivers/oxigraph"],
 
     "@beep/pacer": ["@beep/pacer@workspace:packages/drivers/pacer"],
+
+    "@beep/package-json": ["@beep/package-json@workspace:packages/foundation/modeling/package-json"],
 
     "@beep/palantiri": ["@beep/palantiri@workspace:packages/tooling/library/palantiri"],
 
@@ -9130,7 +9185,7 @@
 
     "zip-stream": ["zip-stream@6.0.1", "", { "dependencies": { "archiver-utils": "^5.0.0", "compress-commons": "^6.0.2", "readable-stream": "^4.0.0" } }, "sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA=="],
 
-    "zod": ["zod@4.6.5", "", {}, "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q=="],
+    "zod": ["zod@4.6.6", "", {}, "sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA=="],
 
     "zod-to-json-schema": ["zod-to-json-schema@3.25.2", "", { "peerDependencies": { "zod": "^3.25.28 || ^4" } }, "sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA=="],
 
