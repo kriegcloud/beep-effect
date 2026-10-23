@@ -18,12 +18,49 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 
 const PlatformLayer = FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer));
 const TestLayer = MarkdownFenceTypechecker.layer.pipe(Layer.provideMerge(PlatformLayer));
 const runInProcess = Command.runWith(lawsCommand, { version: "0.0.0" });
 const withEmptyConfig = Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}));
+
+const encoder = new TextEncoder();
+
+/** A finished compiler process with fixed combined output and exit code. */
+const compilerHandle = (output: string, exitCode: number) =>
+  ChildProcessSpawner.makeHandle({
+    all: Stream.make(encoder.encode(output)),
+    stdout: Stream.make(encoder.encode(output)),
+    stderr: Stream.empty,
+    stdin: Sink.drain,
+    exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(exitCode)),
+    getInputFd: () => Sink.drain,
+    getOutputFd: () => Stream.empty,
+    isRunning: Effect.succeed(false),
+    kill: () => Effect.void,
+    pid: ChildProcessSpawner.ProcessId(1),
+    unref: Effect.succeed(Effect.void),
+  });
+
+/** Replaces only the `tsc-rs` spawn with a stub; git and every other command still run. */
+const withStubCompiler =
+  (output: string, exitCode: number) =>
+  <A, E, R>(self: Effect.Effect<A, E, R>) =>
+    Effect.flatMap(Effect.service(ChildProcessSpawner.ChildProcessSpawner), (real) =>
+      Effect.provideService(
+        self,
+        ChildProcessSpawner.ChildProcessSpawner,
+        ChildProcessSpawner.make((command) =>
+          ChildProcess.isStandardCommand(command) && Str.endsWith("tsc-rs")(command.command)
+            ? Effect.succeed(compilerHandle(output, exitCode))
+            : real.spawn(command)
+        )
+      )
+    );
 
 const failureText = <A, E>(exit: Exit.Exit<A, E>): string => (Exit.isFailure(exit) ? String(exit.cause) : "");
 
@@ -240,6 +277,35 @@ it.layer(TestLayer, { timeout: "120 seconds" })((it) => {
 
         expect(failureText(noRoot)).toContain("Failed to locate the repository root");
         expect(failureText(missingLock)).toContain("Failed to read skills-lock.json");
+      })
+    );
+  });
+});
+
+// The command provides MarkdownFenceTypechecker.layer itself. Under a layer that has already
+// built that layer, Effect memoizes the instance with the real spawner, so this block omits it.
+it.layer(PlatformLayer, { timeout: "120 seconds" })((it) => {
+  describe("markdown-fences law with a crashing compiler", { concurrent: false }, () => {
+    it.effect(
+      "fails the run and the --check command with the compiler error when the compiler crashes",
+      Effect.fnUntraced(function* () {
+        const root = yield* makeFixtureCheckout(true);
+        const crash = withStubCompiler("Killed\n", 137);
+
+        const run = yield* runMarkdownFences(MarkdownFencesOptions.make({ cwd: root, strictCheck: true })).pipe(
+          Effect.provideServiceEffect(MarkdownFenceTypechecker, MarkdownFenceTypechecker.make),
+          crash,
+          Effect.exit
+        );
+        yield* enterDirectory(root);
+        const check = yield* runInProcess(["markdown-fences", "--check"]).pipe(withEmptyConfig, crash, Effect.exit);
+
+        run.pipe(Exit.isFailure, assertTrue);
+        expect(failureText(run)).toContain("MarkdownFencesCompilerError");
+        expect(failureText(run)).toContain("exited 137 without a fence diagnostic");
+        expect(failureText(check)).toContain("exited 137 without a fence diagnostic");
+        expect(failureText(check)).toContain("Killed");
+        expect(failureText(check)).not.toContain("check failed.");
       })
     );
   });

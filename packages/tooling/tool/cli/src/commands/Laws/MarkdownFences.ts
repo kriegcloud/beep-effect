@@ -28,6 +28,14 @@
  * unclosed `{`, `(`, string or template is reported at end of file) is
  * attributed to that last line, so no diagnostic of a staged fence is dropped.
  *
+ * A compiler run is a verdict only when every `error TS` line it prints maps
+ * to a staged fence and, on a nonzero exit, at least one does. Otherwise the
+ * law fails with a `MarkdownFencesCompilerError` naming the exit code and the
+ * last 20 output lines: `exit-without-diagnostics` for a nonzero exit with no
+ * fence diagnostic (a crash, kill or panic), `unattributed-diagnostics` for an
+ * error line outside the staged fences, whatever the exit code. A crash
+ * therefore never reports `failed=0`.
+ *
  * **Gotchas**
  *
  * The compiler reports no semantic diagnostic while any staged fence has a
@@ -60,7 +68,7 @@ import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { readSkillsLockDocument } from "../Skills/internal/LockFile.ts";
 import { messageGitErrorAdapter, scanTrackedTextFiles } from "./internal/TrackedTextFiles.ts";
 import { typescriptFences } from "./internal/TypeScriptFences.ts";
-import { MarkdownFencesExecutionError } from "./Laws.errors.ts";
+import { MarkdownFencesCompilerError, MarkdownFencesExecutionError } from "./Laws.errors.ts";
 import {
   MarkdownFence,
   MarkdownFenceDiagnostic,
@@ -70,6 +78,7 @@ import {
 } from "./MarkdownFences.model.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import type { MarkdownFencesCompilerFailureReason } from "./Laws.errors.ts";
 import type { MarkdownFenceDisposition, MarkdownFencesOptions } from "./MarkdownFences.model.ts";
 
 const $I = $RepoCliId.create("commands/Laws/MarkdownFences");
@@ -105,6 +114,8 @@ const SKILLS_PREFIX = ".claude/skills/";
 /** Staged module names are `fence-<index>.ts(x)`; `tsc --pretty false` prints diagnostics as `file(line,col): error TSn: message`. */
 const DIAGNOSTIC_PATTERN = /^fence-(\d+)\.tsx?\((\d+),(\d+)\): error (TS\d+): (.*)$/gmu;
 const ERROR_LINE_PATTERN = /error TS\d+:/u;
+/** Lines of compiler output carried by a compiler failure. */
+const OUTPUT_TAIL_LINES = 20;
 const TRAILING_NEWLINE_PATTERN = /\n$/u;
 /** Directives that would silently exempt a staged fence from the check. */
 const SUPPRESSION_PATTERN = /@ts-(?:nocheck|ignore)\b/gu;
@@ -386,9 +397,48 @@ export class MarkdownFenceTypechecker extends Context.Service<
     readonly typecheck: (
       repoRoot: string,
       fences: ReadonlyArray<MarkdownFence>
-    ) => Effect.Effect<ReadonlyArray<MarkdownFenceDiagnostic>, MarkdownFencesExecutionError>;
+    ) => Effect.Effect<
+      ReadonlyArray<MarkdownFenceDiagnostic>,
+      MarkdownFencesExecutionError | MarkdownFencesCompilerError
+    >;
   }
 >()($I`MarkdownFenceTypechecker`) {
+  /**
+   * Builds the live typechecker from the file system, path, crypto and process
+   * spawner in the current context.
+   *
+   * **Details**
+   *
+   * The service captures that context once, so a test that replaces the
+   * process spawner before building it stubs the compiler run.
+   *
+   * **Example** (Build the typechecker in place)
+   *
+   * ```ts
+   * import * as Effect from "effect/Effect"
+   * import { MarkdownFenceTypechecker } from "@beep/repo-cli/commands/Laws/MarkdownFences"
+   *
+   * console.log(Effect.isEffect(MarkdownFenceTypechecker.make)) // true
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly make: Effect.Effect<
+    MarkdownFenceTypechecker["Service"],
+    never,
+    FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+  > = Effect.gen(function* () {
+    const context = yield* Effect.context<
+      FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+    >();
+    return MarkdownFenceTypechecker.of({
+      typecheck: Effect.fn("MarkdownFenceTypechecker.typecheck")(function* (repoRoot, fences) {
+        return yield* typecheckStaged(repoRoot, fences).pipe(Effect.provideContext(context));
+      }),
+    });
+  });
+
   /**
    * Live typechecker over the repository's `tsc-rs`, the file system and the process spawner.
    *
@@ -408,19 +458,7 @@ export class MarkdownFenceTypechecker extends Context.Service<
     MarkdownFenceTypechecker,
     never,
     FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
-  > = Layer.effect(
-    MarkdownFenceTypechecker,
-    Effect.gen(function* () {
-      const context = yield* Effect.context<
-        FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
-      >();
-      return MarkdownFenceTypechecker.of({
-        typecheck: Effect.fn("MarkdownFenceTypechecker.typecheck")(function* (repoRoot, fences) {
-          return yield* typecheckStaged(repoRoot, fences).pipe(Effect.provideContext(context));
-        }),
-      });
-    })
-  );
+  > = Layer.effect(MarkdownFenceTypechecker, MarkdownFenceTypechecker.make);
 }
 
 const typecheckStaged = Effect.fnUntraced(function* (
@@ -428,7 +466,7 @@ const typecheckStaged = Effect.fnUntraced(function* (
   fences: ReadonlyArray<MarkdownFence>
 ): Effect.fn.Return<
   ReadonlyArray<MarkdownFenceDiagnostic>,
-  MarkdownFencesExecutionError,
+  MarkdownFencesExecutionError | MarkdownFencesCompilerError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
   if (A.isReadonlyArrayEmpty(fences)) {
@@ -482,10 +520,23 @@ const typecheckStaged = Effect.fnUntraced(function* (
         source: "merge",
       }).pipe(MarkdownFencesExecutionError.mapError(`Failed to run ${compiler}`));
       const diagnostics = mapFenceDiagnostics(fences, step.output);
-      const errorLines = A.filter(Str.split("\n")(step.output), (line) => ERROR_LINE_PATTERN.test(line));
-      if (step.exitCode !== 0 && A.length(errorLines) !== A.length(diagnostics)) {
-        return yield* MarkdownFencesExecutionError.new(
-          `${compiler} exited ${step.exitCode} with diagnostics outside the staged fences:\n${step.output}`
+      const outputLines = Str.split("\n")(Str.trimEnd(step.output));
+      const errorLines = A.filter(outputLines, (line) => ERROR_LINE_PATTERN.test(line));
+      const outputTail = A.join(A.takeRight(outputLines, OUTPUT_TAIL_LINES), "\n");
+      const compilerFailure = (reason: MarkdownFencesCompilerFailureReason, detail: string) =>
+        MarkdownFencesCompilerError.make({
+          reason,
+          exitCode: step.exitCode,
+          outputTail,
+          message: `${compiler} exited ${step.exitCode} ${detail}. Last ${OUTPUT_TAIL_LINES} output lines:\n${outputTail}`,
+        });
+      if (A.length(errorLines) !== A.length(diagnostics)) {
+        return yield* compilerFailure("unattributed-diagnostics", "with diagnostics outside the staged fences");
+      }
+      if (step.exitCode !== 0 && A.isReadonlyArrayEmpty(diagnostics)) {
+        return yield* compilerFailure(
+          "exit-without-diagnostics",
+          "without a fence diagnostic (a crash, kill or panic is not a verdict)"
         );
       }
       return diagnostics;
@@ -609,7 +660,7 @@ export const runMarkdownFences = Effect.fn("MarkdownFences.runMarkdownFences")(f
   options: MarkdownFencesOptions
 ): Effect.fn.Return<
   MarkdownFencesSummary,
-  MarkdownFencesExecutionError,
+  MarkdownFencesExecutionError | MarkdownFencesCompilerError,
   MarkdownFenceTypechecker | FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
   const repoRoot = yield* findRepoRoot(options.cwd).pipe(

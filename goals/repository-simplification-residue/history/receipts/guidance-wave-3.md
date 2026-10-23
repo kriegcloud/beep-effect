@@ -262,6 +262,57 @@ and statements; `beep laws markdown-fences --check` `failed=0`; schema-tag-idiom
 findings; schema-first `introduced=0`; effect-vitest `introduced=0`; fallow audit
 `introduced=0`; Biome and oxlint clean; retired-effect-paths 0 findings.
 
+## Review round 2 (#2135)
+
+- **PRRT_kwDOPbO_N86vq0uK, module doc line 23.** Round 1 corrected only the
+  `@ts-expect-error` mention in the "negative example" clause; the sentence naming the
+  rejected directives still said `@ts-expect-error`. It now reads `@ts-ignore` or
+  `@ts-nocheck`, matching `SUPPRESSION_PATTERN`. The round-1 bullet above claimed this
+  was already fixed; it was not until this round. `rg -n "ts-expect-error"` over
+  `MarkdownFences.ts`, `internal/TypeScriptFences.ts`, `MarkdownFences.model.ts`, both
+  test files, this receipt, the SPEC Decision Log rows, `.patterns/README.md` and
+  `docs/runbooks/turbo-cache-inputs.md` leaves only legitimate mentions: a negative
+  example proves its failure with `@ts-expect-error`, and the gate's suppression message
+  recommends it.
+- **PRRT_kwDOPbO_N86vq0ud, compiler crash read as `failed=0`.** A nonzero `tsc-rs` exit
+  with no `error TS` line (a panic, OOM kill or crash) returned no diagnostics, so the
+  gate passed. The run is now a verdict only when every `error TS` line maps to a staged
+  fence and, on a nonzero exit, at least one does. Otherwise the typechecker fails with the
+  new schema'd `MarkdownFencesCompilerError` (`Laws.errors.ts`): `reason` is the
+  `MarkdownFencesCompilerFailureReason` `LiteralKit`
+  (`exit-without-diagnostics` or `unattributed-diagnostics`, the latter for any exit
+  code, so a zero exit with unparseable error lines is also a tool failure), plus
+  `exitCode`, `outputTail` (the last 20 combined output lines) and a message naming
+  both. The earlier "diagnostics outside the staged fences" execution error now uses this
+  error with the `unattributed-diagnostics` reason. A nonzero exit with mapped
+  diagnostics stays the normal failed-fences path. The rule is in the module doc. The
+  error travels on the command's error channel, so `--check` (and report mode) exits
+  nonzero instead of printing `failed=0`.
+- **Seam and tests.** `MarkdownFenceTypechecker.make` builds the service from the current
+  context (`layer` is `Layer.effect` over it), so a test that replaces the process spawner
+  first stubs the compiler. The stub swaps only the `tsc-rs` spawn for a
+  `ChildProcessSpawner.makeHandle` process with fixed output and exit code (checked
+  against the installed `effect/process/ChildProcessSpawner` declarations) and forwards
+  every other command, so git still runs. New failing-first tests: the typechecker
+  reports `exit-without-diagnostics` for exit 134 with empty output and for exit 101
+  with a 26-line panic (tail of exactly 20 lines), `unattributed-diagnostics` for exit 0
+  with an unmapped `error TS5083`, and the normal diagnostic for exit 2 with a mapped
+  one; the whole run and `laws markdown-fences --check` both fail with "exited 137
+  without a fence diagnostic" and the output tail, never "check failed." or a summary.
+  Both new tests failed with the exit rule disabled and pass with it. The crash command
+  test runs under a platform-only layer, because Effect memoizes
+  `MarkdownFenceTypechecker.layer` once a test layer has built it.
+
+Round-2 reruns, each alone through `beep-heavy` with `</dev/null`: repo-cli `bun run check`
+exit 0 and `tsc-rs -p test/tsconfig.json` 0 errors; the four law test files 48/48 on Node
+and on Bun; `MarkdownFences.ts`, `MarkdownFences.model.ts`,
+`internal/TypeScriptFences.ts` and `SchemaTagIdioms.ts` at 100% lines, functions,
+branches and statements; `beep laws markdown-fences --check` `failed=0`;
+schema-tag-idioms 0 findings; schema-first, effect-vitest and fallow audit
+`introduced=0`; Biome and oxlint clean; retired-effect-paths 0 findings; the schema
+catalog regenerated for the new error schemas (`--write`); the observability catalog
+unchanged (no new span name; `--check` passes); repo-cli docgen succeeded.
+
 ## Verification
 
 Every command ran alone through `beep-heavy` with `</dev/null`, from the worktree root

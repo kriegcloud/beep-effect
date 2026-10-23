@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Err } from "@beep/utils";
 import * as Inspectable from "effect/Inspectable";
 import * as S from "effect/Schema";
@@ -289,3 +290,84 @@ export class MarkdownFencesExecutionError extends S.TaggedError<
     MarkdownFencesExecutionError.new(messageWithCause(message, cause))
   );
 }
+
+/**
+ * Why the Markdown fence compiler run cannot be trusted as a verdict.
+ *
+ * **Details**
+ *
+ * `exit-without-diagnostics`: `tsc-rs` exited nonzero but printed no
+ * diagnostic of a staged fence (a crash, a kill or a panic).
+ * `unattributed-diagnostics`: the output holds an `error TS` line that maps to
+ * no staged fence (a tsconfig or dependency error, or unparseable output).
+ *
+ * **Example** (Recognize a crash)
+ *
+ * ```ts
+ * import { MarkdownFencesCompilerFailureReason } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * console.log(MarkdownFencesCompilerFailureReason.is["exit-without-diagnostics"]("exit-without-diagnostics")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const MarkdownFencesCompilerFailureReason = LiteralKit([
+  "exit-without-diagnostics",
+  "unattributed-diagnostics",
+]).pipe(
+  $I.annoteSchema("MarkdownFencesCompilerFailureReason", {
+    description: "Why a Markdown fence compiler run cannot be read as a verdict.",
+  })
+);
+
+/**
+ * Type-level member of {@link MarkdownFencesCompilerFailureReason}.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type MarkdownFencesCompilerFailureReason = typeof MarkdownFencesCompilerFailureReason.Type;
+
+/**
+ * Failure raised when the fence compiler run is not a verdict: it exited
+ * nonzero without a fence diagnostic, or reported a diagnostic outside the
+ * staged fences.
+ *
+ * **Details**
+ *
+ * The message names the compiler, its exit code and the last 20 lines of its
+ * combined output, so a crash never reads as `failed=0`.
+ *
+ * **Example** (Read a compiler crash)
+ *
+ * ```ts
+ * import { MarkdownFencesCompilerError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = MarkdownFencesCompilerError.make({
+ *   reason: "exit-without-diagnostics",
+ *   exitCode: 134,
+ *   outputTail: "thread 'main' panicked",
+ *   message: "tsc-rs exited 134 without a fence diagnostic.",
+ * })
+ * console.log(error.reason) // "exit-without-diagnostics"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class MarkdownFencesCompilerError extends S.TaggedError<
+  MarkdownFencesCompilerError,
+  { readonly brand: unique symbol }
+>($I`MarkdownFencesCompilerError`)(
+  "MarkdownFencesCompilerError",
+  {
+    reason: MarkdownFencesCompilerFailureReason,
+    exitCode: S.Finite,
+    outputTail: S.String,
+    message: S.String,
+  },
+  $I.annoteError<MarkdownFencesCompilerError>("MarkdownFencesCompilerError", {
+    description: "The Markdown fence compiler run exited without a usable verdict.",
+  })
+) {}

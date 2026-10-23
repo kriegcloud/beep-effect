@@ -22,6 +22,10 @@ import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 
 const fence = Str.repeat(3)("`");
@@ -29,6 +33,40 @@ const markdownOf = (...lines: ReadonlyArray<string>): string => A.join(lines, "\
 const vendored = HashSet.make("shadcn");
 const PlatformLayer = FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer));
 const TypecheckerLayer = MarkdownFenceTypechecker.layer.pipe(Layer.provideMerge(PlatformLayer));
+
+const encoder = new TextEncoder();
+
+/** A finished compiler process with fixed combined output and exit code. */
+const compilerHandle = (output: string, exitCode: number) =>
+  ChildProcessSpawner.makeHandle({
+    all: Stream.make(encoder.encode(output)),
+    stdout: Stream.make(encoder.encode(output)),
+    stderr: Stream.empty,
+    stdin: Sink.drain,
+    exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(exitCode)),
+    getInputFd: () => Sink.drain,
+    getOutputFd: () => Stream.empty,
+    isRunning: Effect.succeed(false),
+    kill: () => Effect.void,
+    pid: ChildProcessSpawner.ProcessId(1),
+    unref: Effect.succeed(Effect.void),
+  });
+
+/** Replaces only the `tsc-rs` spawn with a stub; git and every other command still run. */
+const withStubCompiler =
+  (output: string, exitCode: number) =>
+  <A, E, R>(self: Effect.Effect<A, E, R>) =>
+    Effect.flatMap(Effect.service(ChildProcessSpawner.ChildProcessSpawner), (real) =>
+      Effect.provideService(
+        self,
+        ChildProcessSpawner.ChildProcessSpawner,
+        ChildProcessSpawner.make((command) =>
+          ChildProcess.isStandardCommand(command) && Str.endsWith("tsc-rs")(command.command)
+            ? Effect.succeed(compilerHandle(output, exitCode))
+            : real.spawn(command)
+        )
+      )
+    );
 
 const checkedFence = (path: string, line: number, body: string, language: "ts" | "tsx" = "ts") =>
   MarkdownFence.make({ path, line, infoString: language, language, body, disposition: "checked" });
@@ -231,6 +269,50 @@ describe("Markdown fence typecheck law", () => {
 
   it.layer(TypecheckerLayer, { timeout: "120 seconds" })((it) => {
     describe("live typechecker", () => {
+      it.effect(
+        "fails with a typed compiler error, never an empty verdict, when the compiler crashes or prints unattributed errors",
+        Effect.fnUntraced(function* () {
+          const repoRoot = yield* findRepoRoot();
+          const fences = [checkedFence("docs/a.md", 1, "export const a = 1\n")];
+          const typecheckWith = (output: string, exitCode: number) =>
+            Effect.gen(function* () {
+              const typechecker = yield* MarkdownFenceTypechecker;
+              return yield* typechecker.typecheck(repoRoot, fences);
+            }).pipe(
+              Effect.provideServiceEffect(MarkdownFenceTypechecker, MarkdownFenceTypechecker.make),
+              withStubCompiler(output, exitCode)
+            );
+          const compilerFailure = (output: string, exitCode: number) =>
+            typecheckWith(output, exitCode).pipe(
+              Effect.catchTag("MarkdownFencesExecutionError", Effect.die),
+              Effect.flip
+            );
+          const panic = A.join(
+            A.map(A.range(1, 25), (index) => `frame ${index}`),
+            "\n"
+          );
+
+          const silent = yield* compilerFailure("", 134);
+          const panicked = yield* compilerFailure(`thread 'main' panicked\n${panic}\n`, 101);
+          const unattributed = yield* compilerFailure("error TS5083: Cannot read file 'gone.json'.\n", 0);
+          const failedFence = yield* typecheckWith("fence-0.ts(1,1): error TS2304: Cannot find name 'x'.\n", 2);
+
+          expect([silent._tag, silent.reason, silent.exitCode, silent.outputTail]).toEqual([
+            "MarkdownFencesCompilerError",
+            "exit-without-diagnostics",
+            134,
+            "",
+          ]);
+          expect(silent.message).toContain("exited 134 without a fence diagnostic");
+          expect([panicked.reason, panicked.exitCode]).toEqual(["exit-without-diagnostics", 101]);
+          expect(A.length(Str.split("\n")(panicked.outputTail))).toBe(20);
+          expect(panicked.message).toContain("frame 25");
+          expect(panicked.message).not.toContain("panicked");
+          expect([unattributed.reason, unattributed.exitCode]).toEqual(["unattributed-diagnostics", 0]);
+          expect(A.map(failedFence, (diagnostic) => `${diagnostic.path}:${diagnostic.line}`)).toEqual(["docs/a.md:2"]);
+        })
+      );
+
       it.effect(
         "passes a compiling fence and fails a broken one with its Markdown path and line",
         Effect.fnUntraced(function* () {
