@@ -18,6 +18,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { accumulation } from "./accumulation.ts";
 
 const $I = $JsoncId.create("internal/scanner");
 
@@ -316,7 +317,7 @@ export const createScanner: {
       pos++;
       const simple = simpleEscape(escaped);
       if (O.isSome(simple)) {
-        chunks.push(simple.value);
+        accumulation.append(chunks, simple.value);
         return;
       }
       if (escaped !== 0x75) {
@@ -325,7 +326,7 @@ export const createScanner: {
       }
       const code = scanHexDigits(4);
       if (O.isSome(code)) {
-        chunks.push(String.fromCharCode(code.value));
+        accumulation.append(chunks, String.fromCharCode(code.value));
       } else {
         tokenError = "InvalidUnicode";
       }
@@ -365,7 +366,7 @@ export const createScanner: {
       while (!done) {
         const start = pos;
         skipStringRun();
-        chunks.push(Str.substring(start, pos)(text));
+        accumulation.append(chunks, Str.substring(start, pos)(text));
         done = scanStringBoundary(chunks);
       }
       return A.join(chunks, "");
