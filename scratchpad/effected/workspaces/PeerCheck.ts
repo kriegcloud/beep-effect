@@ -855,7 +855,7 @@ interface Policy {
  * **Example** (Parse a pnpm lockfile and collect required peer failures)
  *
  * ```ts
- * import { Lockfile } from "@beep/lockfiles";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
  * import * as Effect from "effect/Effect";
  *
@@ -1021,7 +1021,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
 	 *
 	 * ```ts
 	 * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
-	 * import { Lockfile } from "@beep/lockfiles";
+	 * import { Lockfile } from "@beep/lockfiles/Lockfile";
 	 * import * as Effect from "effect/Effect";
 	 * const program = Effect.gen(function* () {
 	 *   const lockfile = yield* Lockfile.parse("lockfileVersion: '9.0'\nimporters: {}\n", { format: "pnpm" });

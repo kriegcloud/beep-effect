@@ -135,7 +135,7 @@ export interface PnpmEnvLockfileReaders {
  * **Example** (Read the env preamble)
  *
  * ```ts
- * import { PnpmEnvLockfile } from "@beep/lockfiles";
+ * import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
  * import * as Effect from "effect/Effect";
  * import * as HashMap from "effect/HashMap";
  * import * as O from "effect/Option";

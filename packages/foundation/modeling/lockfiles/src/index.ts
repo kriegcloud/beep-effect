@@ -22,7 +22,7 @@
  * **Example** (Parse a pnpm lockfile and count workspace packages)
  *
  * ```ts
- * import { Lockfile } from "@beep/lockfiles";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import * as Effect from "effect/Effect";
  *
  * const content = "lockfileVersion: '9.0'\nimporters:\n  .: {}\npackages: {}"; // the text of a pnpm-lock.yaml
