@@ -2,21 +2,21 @@
   "schemaVersion": 1,
   "tool": "goals/effected-promotion/ops/sbom-corpus.ts",
   "scope": "git ls-files '*package.json' excluding **/test/fixtures/**",
-  "commit": "bb775d8c1cd804f420f3d22a24e5f98ffa4632ff",
+  "commit": "54dee05504b2617121ba1f71218757eecee33653",
   "timestamp": "2026-10-23T00:00:00.000Z",
   "totals": {
-    "manifests": 188,
+    "manifests": 190,
     "packageRejected": 1,
-    "generated": 187,
+    "generated": 189,
     "schemaFailures": 0,
     "unstable": 0,
     "ntiaCompliant": 0,
-    "dependencyComponents": 1427
+    "dependencyComponents": 1446
   },
   "ntiaMissing": [
     {
       "element": "supplierName",
-      "manifests": 187
+      "manifests": 189
     },
     {
       "element": "componentName",
@@ -36,7 +36,7 @@
     },
     {
       "element": "sbomAuthor",
-      "manifests": 185
+      "manifests": 187
     },
     {
       "element": "timestamp",
@@ -873,6 +873,14 @@
       "stable": true
     },
     {
+      "path": "packages/foundation/capability/config-file/package.json",
+      "verdict": "valid",
+      "components": 8,
+      "ntiaCompliant": false,
+      "ntiaMissing": ["supplierName", "sbomAuthor"],
+      "stable": true
+    },
+    {
       "path": "packages/foundation/capability/file-processing/package.json",
       "verdict": "valid",
       "components": 5,
@@ -1020,6 +1028,14 @@
       "path": "packages/foundation/modeling/lexical/package.json",
       "verdict": "valid",
       "components": 5,
+      "ntiaCompliant": false,
+      "ntiaMissing": ["supplierName", "sbomAuthor"],
+      "stable": true
+    },
+    {
+      "path": "packages/foundation/modeling/lockfiles/package.json",
+      "verdict": "valid",
+      "components": 8,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -1467,7 +1483,7 @@
     {
       "path": "packages/tooling/tool/cli/package.json",
       "verdict": "valid",
-      "components": 66,
+      "components": 67,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -1531,7 +1547,7 @@
     {
       "path": "scratchpad/package.json",
       "verdict": "valid",
-      "components": 67,
+      "components": 69,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true

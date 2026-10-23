@@ -8,7 +8,7 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 
 4-S moves only lab importers; `@beep/sbom` has no repo adopter yet (modeling, so no capability gate). Its consumers are
 the lab `github-actions` adapters (wave 5 `@beep/github-actions`) and the lab Sigstore signer (deferred
-`@beep/sigstore`, W4-m). The live corpus (`research/sbom-corpus-w4.json`) generates an SBOM for 187 of the 188 tracked
+`@beep/sigstore`, W4-m). The live corpus (`research/sbom-corpus-w4.json`) generates an SBOM for 189 of the 190 tracked
 manifests with 0 full-schema failures.
 
 | Site | Map id | Status | Notes |
