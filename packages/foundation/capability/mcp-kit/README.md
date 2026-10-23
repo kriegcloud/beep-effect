@@ -165,6 +165,9 @@ Proving a host from a test:
 
 ```ts
 import { conformance2026 } from "@beep/mcp-kit/test/Conformance"
+import * as Layer from "effect/Layer"
+
+declare const registrations: Layer.Layer<never>;
 
 conformance2026({
   name: "example",

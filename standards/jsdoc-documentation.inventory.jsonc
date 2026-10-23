@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-23T15:55:40.478Z",
+  "generatedAt": "2026-10-23T16:20:15.926Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -65,8 +65,8 @@
     "cleanPackages": 94,
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
-    "publicModules": 3595,
-    "publicExports": 25252,
+    "publicModules": 3597,
+    "publicExports": 25275,
     "openModules": 604,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -433469,9 +433469,9 @@
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
-        "sourceFileCount": 465,
-        "publicModuleCount": 463,
-        "publicExportCount": 4308
+        "sourceFileCount": 467,
+        "publicModuleCount": 465,
+        "publicExportCount": 4331
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -438886,7 +438886,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 7,
+          "exportCount": 11,
           "remediationStatus": "resolved"
         },
         {
@@ -438931,6 +438931,50 @@
           "categoryViolations": [],
           "documentationShapeViolations": [],
           "exportCount": 2,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 1,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "exportCount": 10,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 1,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "exportCount": 7,
           "remediationStatus": "resolved"
         },
         {
@@ -439150,7 +439194,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 9,
+          "exportCount": 11,
           "remediationStatus": "resolved"
         },
         {
@@ -494436,8 +494480,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/Laws.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-          "line": 830,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-command-ts-830-lawscommand",
+          "line": 891,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-command-ts-891-lawscommand",
           "currentTags": [
             "@category",
             "@since"
@@ -494458,8 +494502,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 32,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-32-effectimportrulesconfigurationerror",
+          "line": 33,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-33-effectimportrulesconfigurationerror",
           "currentTags": [
             "@category",
             "@since"
@@ -494480,8 +494524,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 63,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-63-effectimportrulespersistenceerror",
+          "line": 64,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-64-effectimportrulespersistenceerror",
           "currentTags": [
             "@category",
             "@since"
@@ -494502,8 +494546,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 98,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-98-nonativeruntimerulesexecutionerror",
+          "line": 99,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-99-nonativeruntimerulesexecutionerror",
           "currentTags": [
             "@category",
             "@since"
@@ -494524,8 +494568,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 133,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-133-terseeffectrulespersistenceerror",
+          "line": 134,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-134-terseeffectrulespersistenceerror",
           "currentTags": [
             "@category",
             "@since"
@@ -494546,8 +494590,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 168,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-168-retiredeffectpathsexecutionerror",
+          "line": 169,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-169-retiredeffectpathsexecutionerror",
           "currentTags": [
             "@category",
             "@since"
@@ -494568,8 +494612,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 203,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-203-retirediriauthoritiesexecutionerror",
+          "line": 204,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-204-retirediriauthoritiesexecutionerror",
           "currentTags": [
             "@category",
             "@since"
@@ -494590,8 +494634,96 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 238,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-238-schematagidiomsexecutionerror",
+          "line": 239,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-239-schematagidiomsexecutionerror",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFencesExecutionError",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/Laws.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
+          "line": 274,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-274-markdownfencesexecutionerror",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFencesCompilerFailureReason",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/Laws.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
+          "line": 315,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-315-markdownfencescompilerfailurereason",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFencesCompilerFailureReason",
+          "exportKind": "type",
+          "filePath": "src/commands/Laws/Laws.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
+          "line": 330,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-330-markdownfencescompilerfailurereason",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFencesCompilerError",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/Laws.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
+          "line": 359,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-359-markdownfencescompilererror",
           "currentTags": [
             "@category",
             "@since"
@@ -494747,6 +494879,392 @@
           "line": 75,
           "anchor": "packages-tooling-tool-cli-src-commands-laws-lawspackage-ts-75-scanlawspackage",
           "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceLanguage",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 39,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-39-markdownfencelanguage",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceLanguage",
+          "exportKind": "type",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 51,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-51-markdownfencelanguage",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceDisposition",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 74,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-74-markdownfencedisposition",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceDisposition",
+          "exportKind": "type",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 86,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-86-markdownfencedisposition",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFence",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 116,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-116-markdownfence",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceDiagnostic",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 153,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-153-markdownfencediagnostic",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceVerdict",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 196,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-196-markdownfenceverdict",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceVerdict",
+          "exportKind": "type",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 212,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-212-markdownfenceverdict",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFencesOptions",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 233,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-233-markdownfencesoptions",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFencesSummary",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/MarkdownFences.model.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
+          "line": 278,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-278-markdownfencessummary",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "isMarkdownFenceSurfacePath",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 161,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-161-ismarkdownfencesurfacepath",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "collectMarkdownFences",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 227,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-227-collectmarkdownfences",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "stagedFenceFileName",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 309,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-309-stagedfencefilename",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "mapFenceDiagnostics",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 353,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-353-mapfencediagnostics",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "MarkdownFenceTypechecker",
+          "exportKind": "class",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 394,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-394-markdownfencetypechecker",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "formatMarkdownFenceFailure",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 617,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-617-formatmarkdownfencefailure",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "runMarkdownFences",
+          "exportKind": "const",
+          "filePath": "src/commands/Laws/MarkdownFences.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
+          "line": 659,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-659-runmarkdownfences",
+          "currentTags": [
+            "@param",
+            "@returns",
             "@category",
             "@since"
           ],
@@ -495922,8 +496440,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/SchemaTagIdioms.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaTagIdioms.ts",
-          "line": 895,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-895-scanschematagidioms",
+          "line": 890,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-890-scanschematagidioms",
           "currentTags": [
             "@param",
             "@returns",
@@ -495946,8 +496464,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/SchemaTagIdioms.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaTagIdioms.ts",
-          "line": 933,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-933-scanschematagidiomsmarkdown",
+          "line": 928,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-928-scanschematagidiomsmarkdown",
           "currentTags": [
             "@param",
             "@returns",
@@ -495970,8 +496488,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/SchemaTagIdioms.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaTagIdioms.ts",
-          "line": 959,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-959-isschematagidiomstypescriptpath",
+          "line": 954,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-954-isschematagidiomstypescriptpath",
           "currentTags": [
             "@param",
             "@returns",
@@ -495994,8 +496512,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/SchemaTagIdioms.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaTagIdioms.ts",
-          "line": 979,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-979-isschematagidiomsmarkdownpath",
+          "line": 974,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-974-isschematagidiomsmarkdownpath",
           "currentTags": [
             "@param",
             "@returns",
@@ -496018,8 +496536,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/SchemaTagIdioms.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaTagIdioms.ts",
-          "line": 1001,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-1001-formatschematagidiomfinding",
+          "line": 996,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-996-formatschematagidiomfinding",
           "currentTags": [
             "@param",
             "@returns",
@@ -496042,8 +496560,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/SchemaTagIdioms.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaTagIdioms.ts",
-          "line": 1062,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-1062-runschematagidioms",
+          "line": 1057,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-schematagidioms-ts-1057-runschematagidioms",
           "currentTags": [
             "@param",
             "@returns",
@@ -496194,12 +496712,56 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "export * from \"./RetiredEffectPaths.model.ts\";",
+          "symbolName": "export * from \"./MarkdownFences.model.ts\";",
           "exportKind": "re-export",
           "filePath": "src/commands/Laws/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
           "line": 34,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-34-export-from-retiredeffectpaths-model-ts",
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-34-export-from-markdownfences-model-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./MarkdownFences.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/commands/Laws/index.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
+          "line": 41,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-41-export-from-markdownfences-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./RetiredEffectPaths.model.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/commands/Laws/index.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
+          "line": 48,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-48-export-from-retiredeffectpaths-model-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -496220,8 +496782,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Laws/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
-          "line": 41,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-41-export-from-retiredeffectpaths-ts",
+          "line": 55,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-55-export-from-retiredeffectpaths-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -496242,8 +496804,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Laws/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
-          "line": 48,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-48-export-from-retirediriauthorities-model-ts",
+          "line": 62,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-62-export-from-retirediriauthorities-model-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -496264,8 +496826,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Laws/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
-          "line": 55,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-55-export-from-retirediriauthorities-ts",
+          "line": 69,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-69-export-from-retirediriauthorities-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -496286,8 +496848,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Laws/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
-          "line": 62,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-62-export-from-schematagidioms-model-ts",
+          "line": 76,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-76-export-from-schematagidioms-model-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -496308,8 +496870,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Laws/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/index.ts",
-          "line": 69,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-69-export-from-schematagidioms-ts",
+          "line": 83,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-index-ts-83-export-from-schematagidioms-ts",
           "currentTags": [
             "@category",
             "@since"

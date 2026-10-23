@@ -18,8 +18,8 @@
 Import as:
 
 ```ts
-// or
 import * as Atom from "effect/reactivity/Atom"
+// or
 ```
 
 ### Constructors
@@ -67,6 +67,12 @@ import * as Atom from "effect/reactivity/Atom"
 ### URL and Persistence
 
 ```ts
+import * as Layer from "effect/Layer";
+import * as KeyValueStore from "effect/persistence/KeyValueStore";
+import * as Atom from "effect/reactivity/Atom";
+import * as S from "effect/Schema";
+declare const appRuntime: Atom.AtomRuntime<KeyValueStore.KeyValueStore>;
+const ThemeSchema = S.Literals(["system", "light", "dark"]);
 // URL search param state
 const filterAtom = Atom.searchParam("filter")
 // => Writable<string> that syncs with ?filter=...
@@ -80,7 +86,7 @@ const themeAtom = Atom.kvs({
   runtime: appRuntime,          // AtomRuntime with KeyValueStore
   key: "user-theme",
   schema: ThemeSchema,
-  defaultValue: () => "system",
+  defaultValue: (): typeof ThemeSchema.Type => "system",
   mode: "sync"                  // "sync" for synchronous reads, "async" for AsyncResult
 })
 ```
@@ -88,12 +94,18 @@ const themeAtom = Atom.kvs({
 ### Effect Interop
 
 ```ts
+import * as Effect from "effect/Effect";
+import * as Atom from "effect/reactivity/Atom";
+const atom = Atom.make(0);
+const asyncAtom = Atom.make(Effect.succeed(0));
+const value = 1;
+const fn = (n: number) => n + 1;
 // Read atom value as Effect
 Atom.get(atom)                              // Effect<A, never, AtomRegistry>
 Atom.getResult(asyncAtom)                   // Effect<A, E, AtomRegistry>
 Atom.set(atom, value)                       // Effect<void, never, AtomRegistry>
 Atom.update(atom, fn)                       // Effect<void, never, AtomRegistry>
-Atom.modify(atom, fn)                       // Effect<A, never, AtomRegistry>
+Atom.modify(atom, (n) => [n, fn(n)])                       // Effect<A, never, AtomRegistry>
 Atom.refresh(atom)                          // Effect<void, never, AtomRegistry>
 Atom.mount(atom)                            // Effect<void, never, AtomRegistry | Scope>
 Atom.toStream(atom)                         // Stream<A, never, AtomRegistry>
@@ -102,7 +114,7 @@ Atom.toStreamResult(asyncAtom)              // Stream<A, E, AtomRegistry>
 
 ### AtomContext (available inside `readable`/`writable` read functions)
 
-```ts
+```ts skip-type-checking
 Atom.readable((get) => {
   const value = get(someAtom)                      // Read another atom (tracks dependency)
   const value2 = get.get(someAtom)                 // Same as get(someAtom)
@@ -132,7 +144,11 @@ The runtime bridges Effect services into the atom world. Services are shared
 via a `MemoMap` across all atoms created from the same runtime.
 
 ```ts
+import * as Layer from "effect/Layer";
 import * as Atom from "effect/reactivity/Atom";
+declare const MyServiceLayer: Layer.Layer<never>;
+declare const ServiceLayer1: Layer.Layer<never>;
+declare const ServiceLayer2: Layer.Layer<never>;
 // Default runtime (uses Atom.defaultMemoMap)
 const myAtom = Atom.runtime(MyServiceLayer)
 
@@ -170,6 +186,7 @@ Note: The `reactivityKeys` option is only available on `runtime.fn`, not on the 
 The lifecycle type for all async atoms.
 
 ```ts
+import type { Initial, Success, Failure } from "effect/reactivity/AsyncResult";
 type AsyncResult<A, E = never> = Initial<A, E> | Success<A, E> | Failure<A, E>
 ```
 
@@ -184,7 +201,11 @@ The `waiting` flag on `Success` indicates an in-flight re-fetch (stale data disp
 ### Key operations
 
 ```ts
+import * as Cause from "effect/Cause";
 import * as AsyncResult from "effect/reactivity/AsyncResult";
+declare const result: AsyncResult.AsyncResult<number, string>;
+const transform = (n: number) => n + 1;
+const fallback = 0;
 AsyncResult.match(result, {
   onInitial: (r) => "loading...",
   onFailure: (r) => `error: ${Cause.squash(r.cause)}`,
@@ -208,7 +229,12 @@ Key-based invalidation service. Mutations invalidate keys, queries
 re-execute when their keys are invalidated.
 
 ```ts
+import * as Effect from "effect/Effect";
 import * as Reactivity from "effect/reactivity/Reactivity";
+const effect = Effect.void;
+const userId = "u-1";
+const postId = "p-1";
+const fetchEffect = Effect.succeed([]);
 // In service code
 Reactivity.mutation(effect, ["users"])         // Invalidate "users" key after effect
 Reactivity.invalidate(["users", "posts"])      // Manual invalidation
@@ -222,6 +248,11 @@ Reactivity.stream(fetchEffect, ["users"])      // Stream of re-executions (data-
 Keys can be arrays or records for namespaced invalidation:
 
 ```ts
+import * as Effect from "effect/Effect";
+import * as Reactivity from "effect/reactivity/Reactivity";
+const effect = Effect.void;
+const userId = "u-1";
+const postId = "p-1";
 // Array keys: invalidate all matching handlers
 Reactivity.mutation(effect, ["users"])
 
@@ -234,7 +265,15 @@ Reactivity.mutation(effect, { users: [userId], posts: [postId] })
 Typed RPC service atoms bridging `RpcGroup` to the atom world.
 
 ```ts
+import * as S from "effect/Schema";
+import * as Rpc from "effect/rpc/Rpc";
+import * as RpcGroup from "effect/rpc/RpcGroup";
+import * as RpcClient from "effect/rpc/RpcClient";
+import * as Layer from "effect/Layer";
+import * as Duration from "effect/Duration";
 import * as AtomRpc from "effect/reactivity/AtomRpc";
+const TodoRpcGroup = RpcGroup.make(Rpc.make("ListTodos", { payload: { limit: S.Number }, success: S.Array(S.String) }), Rpc.make("CreateTodo", { payload: { title: S.String }, success: S.String }));
+declare const HttpRpcProtocolLayer: Layer.Layer<RpcClient.Protocol>;
 
 class TodoClient extends AtomRpc.Service<TodoClient>()(
   "TodoClient",
@@ -261,6 +300,7 @@ const createTodoFn = TodoClient.mutation("CreateTodo")
 
 ```tsx
 import { RegistryProvider } from "@effect/atom-react"
+declare const MyApp: () => React.ReactNode;
 
 function App() {
   return (
@@ -305,6 +345,8 @@ All hooks use `useSyncExternalStore` internally for React concurrent-mode safety
 For component-scoped atom instances (replaces `React.createContext` + `useState`):
 
 ```tsx
+import * as Atom from "effect/reactivity/Atom";
+import { useAtom } from "@effect/atom-react";
 import * as ScopedAtom from "@effect/atom-react/ScopedAtom"
 
 const Counter = ScopedAtom.make(() => Atom.make(0))
@@ -327,6 +369,8 @@ function App() {
 With input:
 
 ```tsx
+import * as Atom from "effect/reactivity/Atom";
+import * as ScopedAtom from "@effect/atom-react/ScopedAtom";
 const UserAtom = ScopedAtom.make((name: string) => Atom.make(name))
 
 // <UserAtom.Provider value="Ada"><UserName /></UserAtom.Provider>
@@ -335,9 +379,11 @@ const UserAtom = ScopedAtom.make((name: string) => Atom.make(name))
 ### HydrationBoundary (SSR)
 
 ```tsx
+import type { ComponentProps } from "react";
 import { HydrationBoundary } from "@effect/atom-react"
+declare const Content: () => React.ReactNode;
 
-function Page({ dehydratedState }) {
+function Page({ dehydratedState }: { readonly dehydratedState: NonNullable<ComponentProps<typeof HydrationBoundary>["state"]> }) {
   return (
     <HydrationBoundary state={dehydratedState}>
       <Content />

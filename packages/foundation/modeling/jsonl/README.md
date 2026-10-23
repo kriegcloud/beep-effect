@@ -52,6 +52,17 @@ Binary envelope codecs accept the line or envelope first; their curried form
 accepts the registry:
 
 ```ts
+import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import { pipe } from "effect/Function";
+
+const events = [JsonlEvent.make("started", { data: S.String })];
+const line = O.getOrThrow(A.head(Line.split('{"at":"2026-10-06T00:00:00Z","event":"started","data":"ready"}')));
+const envelope = Result.getOrThrow(Envelope.decodeResult(line, events));
+
 pipe(line, Envelope.decodeResult(events))
 pipe(envelope, Envelope.encode(events))
 ```

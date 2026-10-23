@@ -45,7 +45,7 @@ const program = Effect.gen(function* () {
 
 const AppLayer = ToolDiscovery.layer.pipe(Layer.provide(LocalExec.layerNone), Layer.provide(NodeServices.layer));
 
-Effect.runPromise(program.pipe(Effect.provide(AppLayer))).then(console.log);
+Effect.runPromise(program.pipe(Effect.provide(AppLayer), Effect.provide(NodeServices.layer))).then(console.log);
 // example output (varies by environment): "Version: 1.9.4"
 ```
 

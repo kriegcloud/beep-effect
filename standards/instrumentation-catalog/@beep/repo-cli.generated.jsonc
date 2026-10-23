@@ -2141,6 +2141,8 @@
     {"name":"Lint.resolvePackage","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Lint.validateAssignmentEvidence","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"MailExportTreeIndexer.indexTree","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"MarkdownFenceTypechecker.typecheck","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"MarkdownFences.runMarkdownFences","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Models.applySpans","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Models.eligibility","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Models.readLocator","owner":"@beep/repo-cli","family":"tooling","conforms":true},

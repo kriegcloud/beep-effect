@@ -423,6 +423,7 @@
     "jsdoc:ratchet:check": "bun run beep quality jsdoc-ratchet --inventory .beep/ci/jsdoc-documentation.inventory.jsonc",
     "lint:circular": "bun run beep lint circular",
     "lint:effect-imports-markdown": "bun run beep laws effect-imports --mode markdown --check --enforce-documentation",
+    "lint:markdown-fences": "bun run beep laws markdown-fences --check",
     "lint:retired-effect-paths": "bun run beep laws retired-effect-paths --check",
     "lint:retired-iri-authorities": "bun run beep laws retired-iri-authorities --check",
     "lint:schema-tag-idioms": "bun run beep laws schema-tag-idioms --check",

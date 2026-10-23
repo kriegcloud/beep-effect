@@ -1280,6 +1280,27 @@
         "!**/storybook-static/**"
       ]
     },
+    "//#lint:markdown-fences": {
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*.{ts,tsx,mts,cts,md,mdx}",
+        "tsconfig.json",
+        "tsconfig.base.json",
+        "skills-lock.json",
+        "!.git/**",
+        "!graft/**",
+        "!.repos/**",
+        "!**/node_modules/**",
+        "!**/.beep/**",
+        "!**/.turbo/**",
+        "!**/dist/**",
+        "!**/coverage/**",
+        "!**/.next/**",
+        "!**/storybook-static/**"
+      ]
+    },
     "//#lint:schema-tag-idioms": {
       "cache": false,
       "outputs": [],
