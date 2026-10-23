@@ -183,21 +183,29 @@ describe("GitHubMarkdown", () => {
   });
 
   describe("list", () => {
-    it("bare CR and CRLF continuations stay in one list item", () => {
-      for (const ending of ["\r", "\r\n"]) {
-        for (const ordered of [false, true]) {
-          const rendered = GitHubMarkdown.list([`a${ending}b`], { ordered });
-          assert.strictEqual(rendered, ordered ? "1. a\n   b" : "- a\n  b");
-          const root = Result.getOrThrow(Markdown.parseResult(rendered));
-          assert.lengthOf(root.children, 1);
-          const list = root.children[0];
-          if (list?.type !== "list") return assert.fail("expected a list");
-          assert.strictEqual(list.ordered, ordered);
-          assert.lengthOf(list.children, 1);
-          assert.lengthOf(list.children[0]?.children ?? [], 1);
-        }
+    const assertOneItemList = (rendered: string, ordered: boolean) => {
+      const root = Result.getOrThrow(Markdown.parseResult(rendered));
+      assert.lengthOf(root.children, 1);
+      const list = root.children[0];
+      if (list?.type !== "list") return assert.fail("expected a list");
+      assert.strictEqual(list.ordered, ordered);
+      assert.lengthOf(list.children, 1);
+      assert.lengthOf(list.children[0]?.children ?? [], 1);
+    };
+
+    it.each([
+      { ending: "\r", ordered: false, expected: "- a\n  b" },
+      { ending: "\r", ordered: true, expected: "1. a\n   b" },
+      { ending: "\r\n", ordered: false, expected: "- a\n  b" },
+      { ending: "\r\n", ordered: true, expected: "1. a\n   b" },
+    ])(
+      "bare CR and CRLF continuations stay in one list item ($ending, ordered $ordered)",
+      ({ ending, ordered, expected }) => {
+        const rendered = GitHubMarkdown.list([`a${ending}b`], { ordered });
+        assert.strictEqual(rendered, expected);
+        assertOneItemList(rendered, ordered);
       }
-    });
+    );
 
     it("renders bullets, and a multi-line item stays inside its bullet", () => {
       assert.strictEqual(
