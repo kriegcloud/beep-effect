@@ -40,8 +40,8 @@ const literalKeyByType: Readonly<Record<string, (literal: LiteralValue) => strin
  * A record keyed by `typeof` rather than an `effect/Match` pipeline: this runs
  * on every dispatch, and the four entries are the closed `LiteralValue` union,
  * so one property lookup replaces a matcher's allocation and type cost. A value
- * outside the union (a cast, `undefined`) falls back to `String`, so dispatch
- * can still report it as an unhandled case.
+ * outside the union (a cast, `undefined`, `null`) falls back to `String` here;
+ * dispatch never keys such a value, so it always reaches the miss path.
  *
  * **Example** (Derive helper keys)
  *
@@ -87,8 +87,11 @@ const unhandled = (literals: Literals, key: string, value: LiteralValue): never 
 // The hit path is one own-property check and one call; `orElse` is consulted
 // only on a miss, so a total `match` allocates nothing per dispatch.
 const dispatch = (literals: Literals, cases: Cases, value: LiteralValue, orElse: O.Option<Handler>): unknown => {
-  const key = literalKey(value);
-  if (R.has(cases, key)) {
+  // Only a value of a literal type is keyed: `String(null)` is `"null"`, which
+  // could otherwise reach a `"null"` member's case.
+  const keyer = literalKeyByType[typeof value];
+  const key = keyer === undefined ? String(value) : keyer(value);
+  if (keyer !== undefined && R.has(cases, key)) {
     return cases[key]!(value);
   }
   return O.match(orElse, { onNone: () => unhandled(literals, key, value), onSome: (fallback) => fallback(value) });

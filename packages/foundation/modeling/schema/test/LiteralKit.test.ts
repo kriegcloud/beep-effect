@@ -381,6 +381,14 @@ describe("LiteralKit dispatch", () => {
     expect(() => Tier.match(stray, cases)).toThrow(LiteralKitUnhandledCaseError);
   });
 
+  it("never dispatches a non-literal value to the case its String form names", () => {
+    const Node = LiteralKit(["null", "undefined", "[object Object]"]);
+    const cases = { null: () => 1, undefined: () => 2, "[object Object]": () => 3 };
+    for (const stray of [null, undefined, {}]) {
+      expect(() => Node.match(stray as unknown as "null", cases)).toThrow(LiteralKitUnhandledCaseError);
+    }
+  });
+
   it("raises the unhandled-case defect for out-of-domain runtime values", () => {
     const cases = { free: () => "f", pro: () => "p" };
     for (const stray of [undefined, null, Number.NaN, { kind: "free" }]) {
