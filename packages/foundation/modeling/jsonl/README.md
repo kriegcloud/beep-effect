@@ -117,8 +117,8 @@ Layer configuration is validated before resources are allocated. Invalid capacit
 values, and a shutdown timeout that `Duration.fromInput` cannot convert, fail with
 `InvalidJournalConfig`; invalid read selections, including negative or fractional
 cursors, fail with `InvalidSlice`. Both retain the structured schema failure. An
-omitted or `undefined` capacity or shutdown timeout keeps its documented default
-(64 and five seconds).
+omitted capacity or shutdown timeout keeps its documented default (64 and five
+seconds); an explicit `undefined` is rejected (EF-40, kept deviation 24).
 
 ## Focused validation
 
@@ -621,8 +621,8 @@ concepts.
       `RangeError: Not an integer`; Infinity returns nothing; an untyped `from`
       string matches every record.
     - Lab: `query`, `changes` and `projection` fail `InvalidSlice` with the
-      schema issue before a subscription or file read. Explicit `undefined` keys
-      select what omitted keys select, as upstream.
+      schema issue before a subscription or file read. Keys are exact: an
+      explicit `undefined` is rejected (kept deviation 24).
     - Reason: `law:7` and `law:EF-3`. `upstream-bug:` probe 12 shows `RangeError`
       defects escaping the typed channel.
 
