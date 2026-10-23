@@ -186,6 +186,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 - **host-platform** — `CurrentPlatform` and its `globalThis.process` read are replaced by `currentPlatform` over `@beep/utils/HostProcess` `HostProcessPlatform` (test/Xdg.coverage.test.ts).
 - **opaque-records** — `XdgPaths`, `NativeDirs`, `ResolvedAppDirs`, `AppDirOverrides` and `AppDirsOptions` are branded `S.Opaque` schemas, admitted once where they are built; `AppDirs.layer` takes `AppDirsOptions.Encoded`, and `AppDirsShape` is derived from the service (test/AppDirs.test.ts).
 - **subpath** — `XdgConfig` is no longer re-exported from the root; import `@beep/xdg/XdgConfig` (test/rootClosure.test.ts).
+- **known gaps** — absolute-only does not reach two inputs, both carried from the lab: `Xdg.layer` keeps any non-empty `HOME` verbatim, a relative one included (test/Xdg.test.ts "keeps a relative HOME verbatim"), and `AppDirOverrides` paths are not validated, so a relative override wins as rung 1. `XdgBase` treats a relative `HOME` as absent.
 - **systemd-path oracle** — `XdgBase` matches `systemd-path` on every recorded case except the documented `passwd-fallback` rows, where `systemd-path` reads the user database and `XdgBase` answers none (test/XdgBase.test.ts).
 
 ## Provenance

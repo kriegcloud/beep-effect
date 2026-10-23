@@ -88,6 +88,15 @@ describe("Xdg", () => {
       })
     );
 
+    // Known gap, carried from the lab: absolute-only does not reach HOME here,
+    // unlike XdgBase. A relative HOME is kept verbatim (README Port notes).
+    it.effect("keeps a relative HOME verbatim, unlike XdgBase", () =>
+      Effect.gen(function* () {
+        const paths = yield* Xdg;
+        assert.strictEqual(paths.home, "relative/home");
+      }).pipe(provideLayer(env({ HOME: "relative/home" })))
+    );
+
     it.effect("HOME being unset is a typed failure, never a defect", () =>
       Effect.gen(function* () {
         const exit = yield* Effect.exit(Effect.void.pipe(provideLayer(env({}))));

@@ -111,6 +111,18 @@ const lenient = (name: string): Config.Config<string | undefined> =>
 const dir = (kind: XdgBaseKind): Config.Config<O.Option<string>> =>
   Config.all({ value: lenient(variableOf(kind)), home: lenient("HOME") }).pipe(Config.map((env) => resolve(kind, env)));
 
+// A valid variable, else a strict read of `HOME` joined with the kind's default suffix.
+const requireUnderHome = (kind: XdgBaseKind, suffix: string): Config.Config<string> =>
+  lenient(variableOf(kind)).pipe(
+    Config.map(absolute),
+    Config.flatMap(
+      O.match({
+        onNone: () => Config.schema(AbsolutePath, "HOME").pipe(Config.map((home) => underHome(home, suffix))),
+        onSome: Config.succeed,
+      })
+    )
+  );
+
 /**
  * The same answer as {@link dir}, failing instead of answering none. The runtime
  * directory is a strict read of its own variable; the other kinds take a valid
@@ -120,16 +132,7 @@ const dir = (kind: XdgBaseKind): Config.Config<O.Option<string>> =>
 const require = (kind: XdgBaseKind): Config.Config<string> =>
   O.match(defaultUnderHome(kind), {
     onNone: () => Config.schema(AbsolutePath, variableOf(kind)),
-    onSome: (suffix) =>
-      lenient(variableOf(kind)).pipe(
-        Config.map(absolute),
-        Config.flatMap(
-          O.match({
-            onNone: () => Config.schema(AbsolutePath, "HOME").pipe(Config.map((home) => underHome(home, suffix))),
-            onSome: Config.succeed,
-          })
-        )
-      ),
+    onSome: (suffix) => requireUnderHome(kind, suffix),
   });
 
 /**

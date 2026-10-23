@@ -7,6 +7,7 @@
  */
 import { $XdgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { getSomesStruct } from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
@@ -214,7 +215,12 @@ export class ResolvedAppDirs extends S.Opaque<ResolvedAppDirs, { readonly brand:
 ) {}
 
 /**
- * Per-kind absolute directory overrides. Each wins outright over every other rung.
+ * Per-kind directory overrides. Each wins outright over every other rung.
+ *
+ * **Gotchas**
+ *
+ * The paths are not validated: `AppDirs.layer` does not decode its options, so
+ * a relative override is used as given.
  *
  * **Example** (Decode directory overrides)
  *
@@ -231,29 +237,29 @@ export class ResolvedAppDirs extends S.Opaque<ResolvedAppDirs, { readonly brand:
  */
 export class AppDirOverrides extends S.Opaque<AppDirOverrides, { readonly brand: unique symbol }>()(
   S.Struct({
-    /** An absolute path for the config directory. */
+    /** The config directory path, used as given. */
     config: S.optionalKey(S.String).pipe(
-      $I.annoteKey("AppDirOverrides.config", { description: "An absolute path for the config directory." })
+      $I.annoteKey("AppDirOverrides.config", { description: "The config directory path, used as given." })
     ),
-    /** An absolute path for the data directory. */
+    /** The data directory path, used as given. */
     data: S.optionalKey(S.String).pipe(
-      $I.annoteKey("AppDirOverrides.data", { description: "An absolute path for the data directory." })
+      $I.annoteKey("AppDirOverrides.data", { description: "The data directory path, used as given." })
     ),
-    /** An absolute path for the cache directory. */
+    /** The cache directory path, used as given. */
     cache: S.optionalKey(S.String).pipe(
-      $I.annoteKey("AppDirOverrides.cache", { description: "An absolute path for the cache directory." })
+      $I.annoteKey("AppDirOverrides.cache", { description: "The cache directory path, used as given." })
     ),
-    /** An absolute path for the state directory. */
+    /** The state directory path, used as given. */
     state: S.optionalKey(S.String).pipe(
-      $I.annoteKey("AppDirOverrides.state", { description: "An absolute path for the state directory." })
+      $I.annoteKey("AppDirOverrides.state", { description: "The state directory path, used as given." })
     ),
-    /** An absolute path for the runtime directory. */
+    /** The runtime directory path, used as given. */
     runtime: S.optionalKey(S.String).pipe(
-      $I.annoteKey("AppDirOverrides.runtime", { description: "An absolute path for the runtime directory." })
+      $I.annoteKey("AppDirOverrides.runtime", { description: "The runtime directory path, used as given." })
     ),
   }).pipe(
     $I.annoteSchema("AppDirOverrides", {
-      description: "Per-kind absolute directory overrides. Each wins outright over every other rung.",
+      description: "Per-kind directory overrides, used as given. Each wins outright over every other rung.",
     })
   )
 ) {}
@@ -431,7 +437,7 @@ const resolveAll: {
       cache: forKind("cache"),
       state: forKind("state"),
       // A present key holding `undefined` is not an absent key: v4 constructors validate.
-      ...O.match(runtime, { onNone: () => ({}), onSome: (dir) => ({ runtime: dir }) }),
+      ...getSomesStruct({ runtime }),
       configSearchPath: searchPath(config, paths.configDirs, options.namespace, path),
       dataSearchPath: searchPath(data, paths.dataDirs, options.namespace, path),
     });

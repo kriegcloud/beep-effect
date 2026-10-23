@@ -9,10 +9,14 @@ In this repo `@effected/xdg` is `@beep/xdg` at `packages/foundation/capability/x
 upstream `packages/xdg/src/<Module>.ts` maps to `src/<Module>.ts`, and upstream
 `__test__/` maps to `test/`. Other names: `@effected/walker`, `@effected/config-file`
 and `@effected/memfs` are `@beep/walker`, `@beep/config-file` and `@beep/memfs`,
-regular `dependencies` (memfs a devDependency) rather than peers. Two upstream facts
-below changed in the promotion: `CurrentPlatform` is now `currentPlatform` over
-`@beep/utils/HostProcess` `HostProcessPlatform`, and `XdgConfig` is served from the
-`@beep/xdg/XdgConfig` subpath only (README.md → Port notes). The upstream
+regular `dependencies` (memfs a devDependency) rather than peers. Three upstream facts
+below changed in the promotion. `CurrentPlatform` is now `currentPlatform` over
+`@beep/utils/HostProcess` `HostProcessPlatform`, so `Layer.succeed(CurrentPlatform, "win32")`
+becomes `Effect.provideService(HostProcessPlatform, "win32")`. `XdgConfig` is served from
+the `@beep/xdg/XdgConfig` subpath only. And only absolute values count: empty,
+whitespace-only, leading-space and relative `$XDG_*` values and relative search-list
+entries are ignored, not just empty ones, and `APPDATA`/`LOCALAPPDATA` count only as
+drive or UNC roots (README.md → Port notes → Promotion shifts). The upstream
 `pnpm vitest` / `pnpm build` commands map to `bun run test` / `bun run build` in the
 package, or `bun run beep quality package-verify @beep/xdg` from the repository root.
 

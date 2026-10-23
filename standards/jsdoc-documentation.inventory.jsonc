@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-23T19:33:22.661Z",
+  "generatedAt": "2026-10-23T20:48:03.764Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -323273,8 +323273,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 45,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-45-appdirsnamespaceerror",
+          "line": 46,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-46-appdirsnamespaceerror",
           "currentTags": [
             "@category",
             "@since"
@@ -323295,8 +323295,8 @@
           "exportKind": "const",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 77,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-77-appdirkind",
+          "line": 78,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-78-appdirkind",
           "currentTags": [
             "@public",
             "@category",
@@ -323318,8 +323318,8 @@
           "exportKind": "type",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 88,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-88-appdirkind",
+          "line": 89,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-89-appdirkind",
           "currentTags": [
             "@public",
             "@category",
@@ -323341,8 +323341,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 114,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-114-appdirserror",
+          "line": 115,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-115-appdirserror",
           "currentTags": [
             "@public",
             "@category",
@@ -323364,8 +323364,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 168,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-168-resolvedappdirs",
+          "line": 169,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-169-resolvedappdirs",
           "currentTags": [
             "@public",
             "@category",
@@ -323387,8 +323387,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 232,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-232-appdiroverrides",
+          "line": 238,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-238-appdiroverrides",
           "currentTags": [
             "@category",
             "@since"
@@ -323409,8 +323409,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 283,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-283-appdirsoptions",
+          "line": 289,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-289-appdirsoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -323431,8 +323431,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 519,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-519-appdirs",
+          "line": 525,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-525-appdirs",
           "currentTags": [
             "@public",
             "@category",
@@ -323454,8 +323454,8 @@
           "exportKind": "type",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 639,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-639-appdirsshape",
+          "line": 645,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-645-appdirsshape",
           "currentTags": [
             "@public",
             "@category",
@@ -323684,8 +323684,8 @@
           "exportKind": "class",
           "filePath": "src/XdgBase.ts",
           "repoPath": "packages/foundation/capability/xdg/src/XdgBase.ts",
-          "line": 165,
-          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-165-xdgbase",
+          "line": 168,
+          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-168-xdgbase",
           "currentTags": [
             "@public",
             "@category",
@@ -425953,8 +425953,8 @@
           "exportKind": "const",
           "filePath": "src/OutboxConfig.ts",
           "repoPath": "packages/drivers/m365-mcp/src/OutboxConfig.ts",
-          "line": 51,
-          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-51-outbox-env",
+          "line": 52,
+          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-52-outbox-env",
           "currentTags": [
             "@category",
             "@since"
@@ -425975,8 +425975,8 @@
           "exportKind": "class",
           "filePath": "src/OutboxConfig.ts",
           "repoPath": "packages/drivers/m365-mcp/src/OutboxConfig.ts",
-          "line": 84,
-          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-84-outboxconfigerror",
+          "line": 85,
+          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-85-outboxconfigerror",
           "currentTags": [
             "@category",
             "@since"
@@ -425997,8 +425997,8 @@
           "exportKind": "class",
           "filePath": "src/OutboxConfig.ts",
           "repoPath": "packages/drivers/m365-mcp/src/OutboxConfig.ts",
-          "line": 126,
-          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-126-outboxconfig",
+          "line": 127,
+          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-127-outboxconfig",
           "currentTags": [
             "@category",
             "@since"
@@ -426019,8 +426019,8 @@
           "exportKind": "const",
           "filePath": "src/OutboxConfig.ts",
           "repoPath": "packages/drivers/m365-mcp/src/OutboxConfig.ts",
-          "line": 252,
-          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-252-loadoutboxconfig",
+          "line": 253,
+          "anchor": "packages-drivers-m365-mcp-src-outboxconfig-ts-253-loadoutboxconfig",
           "currentTags": [
             "@category",
             "@since"

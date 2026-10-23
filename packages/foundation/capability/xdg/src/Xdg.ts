@@ -285,6 +285,13 @@ export class Xdg extends Context.Service<Xdg, XdgPaths>()($I`Xdg`) {
    * A test drives it with `ConfigProvider.layer(ConfigProvider.fromUnknown({…}))`
    * and never mutates the real environment.
    *
+   * **Gotchas**
+   *
+   * The absolute-only rule covers the `$XDG_*`, `APPDATA` and `LOCALAPPDATA`
+   * values, not `HOME`: any non-empty `HOME` is kept verbatim, a relative one
+   * included, so `AppDirs` and `NativeDirs` can then resolve relative
+   * fallbacks. `XdgBase` treats a relative `HOME` as absent.
+   *
    * **Example** (Construct the environment-reading layer)
    *
    * ```ts
