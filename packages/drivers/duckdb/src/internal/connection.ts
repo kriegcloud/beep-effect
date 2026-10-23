@@ -66,6 +66,7 @@ import type {
   DuckDBValueConverter,
 } from "@duckdb/node-api";
 import type * as SqlConnection from "effect/sql/SqlConnection";
+import type { DuckDbAppendRows } from "../DuckDb.models.ts";
 
 const $I = $DuckdbId.create("internal/connection");
 class SessionSnapshot extends S.Opaque<SessionSnapshot, { readonly brand: unique symbol }>()(
@@ -128,12 +129,20 @@ type CachedStatement = Data.TaggedEnum<{
 
 const CachedStatement = Data.taggedEnum<CachedStatement>();
 
-type DuckDbConnection = SqlConnection.Connection & {
+/**
+ * Native driver connection contract shared by the extras.
+ *
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export type DuckDbConnection = SqlConnection.Connection & {
   readonly [ConnectionTypeId]: typeof ConnectionTypeId;
   readonly native: DuckDBConnection;
   readonly gate: NativeGate;
   readonly isTransaction: () => boolean;
   readonly commit: Effect.Effect<void, SqlError>;
+  readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly sessionSnapshot: Effect.Effect<SessionSnapshot, SqlError>;
   readonly sameSessionSnapshot: ReturnType<typeof S.toEquivalence<SessionSnapshot>>;
   readonly runDriverStatement: (sql: string, operation: string) => Effect.Effect<void, SqlError>;
@@ -496,6 +505,52 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     gate,
     isTransaction,
     commit,
+    appendRows: (request) =>
+      gate.withLock(
+        Effect.acquireUseRelease(
+          gate.runUnlocked(
+            "appendRows",
+            () => native.createAppender(request.table, request.schema),
+            (late) => late.closeSync()
+          ),
+          (appender) =>
+            Effect.gen(function* () {
+              const types = yield* gate.runUnlocked("appendRows", () =>
+                Promise.resolve(A.makeBy(appender.columnCount, (i) => appender.columnType(i)))
+              );
+              for (const row of request.rows) {
+                const values = yield* Effect.fromResult(normalizeParameters(row, "appendRows"));
+                yield* gate.runUnlocked("appendRows", () => {
+                  if (values.length !== types.length) {
+                    return Promise.reject("Appender rows must contain every table column");
+                  }
+                  for (let i = 0; i < values.length; i++) {
+                    appender.appendValue(values[i] ?? null, types[i]);
+                  }
+                  appender.endRow();
+                  return Promise.resolve();
+                });
+              }
+              yield* gate.runUnlocked("appendRows", () => {
+                appender.flushSync();
+                appender.closeSync();
+                return Promise.resolve();
+              });
+            }),
+          (appender, exit) =>
+            Effect.sync(() => {
+              if (Exit.isFailure(exit)) {
+                ignoreNative(() => appender.clear());
+              }
+              ignoreNative(() => appender.closeSync());
+            })
+        ).pipe(
+          Effect.tapError((error) => Effect.sync(() => MutableRef.update(state, afterFailure("statement", error)))),
+          Effect.onInterrupt(() =>
+            Effect.sync(() => MutableRef.update(state, afterInterrupt("statement", "appendRows")))
+          )
+        )
+      ),
     sessionSnapshot,
     sameSessionSnapshot: S.toEquivalence(SessionSnapshot),
     runDriverStatement: (sql, operation) => Effect.asVoid(runStatement(sql, [], operation, false, readRows, [])),

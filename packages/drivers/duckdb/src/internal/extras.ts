@@ -28,12 +28,20 @@ import { isDuckDbConnection } from "./connection.ts";
 import type * as Scope from "effect/Scope";
 import type * as SqlClient from "effect/sql/SqlClient";
 import type * as SqlConnection from "effect/sql/SqlConnection";
-import type { DuckDbParquetExport } from "../DuckDb.models.ts";
+import type {
+  DuckDbAppendRows,
+  DuckDbDatabaseExport,
+  DuckDbDatabaseImport,
+  DuckDbParquetExport,
+} from "../DuckDb.models.ts";
+import type { DuckDbConnection } from "./connection.ts";
 
 const $I = $DuckdbId.create("internal/extras");
 
 const DuckDbDriverOperation = LiteralKit([
   "copyTableToParquet",
+  "exportDatabase",
+  "importDatabase",
   "checkpoint",
   "loadExtension",
   "installExtension",
@@ -54,11 +62,11 @@ const CHECKPOINT_IN_TRANSACTION = "DuckDB checkpoint is a database-level operati
 
 const runOn = (
   connection: SqlConnection.Connection,
-  sql: string,
-  operation: DuckDbDriverOperation
+  operation: string,
+  run: (connection: DuckDbConnection) => Effect.Effect<void, SqlError>
 ): Effect.Effect<void, SqlError> =>
   isDuckDbConnection(connection)
-    ? connection.runDriverStatement(sql, operation)
+    ? run(connection)
     : Effect.die(`DuckDbClient.${operation}: the connection is not a DuckDB connection`);
 
 /**
@@ -104,7 +112,11 @@ export const makeExtras = (options: {
       Effect.serviceOption(options.client.transactionService),
       O.match({
         onNone: () =>
-          Effect.scoped(Effect.flatMap(options.acquirer, (connection) => runOn(connection, sql, operation))),
+          Effect.scoped(
+            Effect.flatMap(options.acquirer, (connection) =>
+              runOn(connection, operation, (native) => native.runDriverStatement(sql, operation))
+            )
+          ),
         onSome: ([connection]) =>
           O.isSome(refusal)
             ? Effect.fail(
@@ -112,7 +124,7 @@ export const makeExtras = (options: {
                   reason: UnknownError.make({ cause: "active transaction", message: refusal.value, operation }),
                 })
               )
-            : runOn(connection, sql, operation),
+            : runOn(connection, operation, (native) => native.runDriverStatement(sql, operation)),
       })
     );
 
@@ -122,6 +134,37 @@ export const makeExtras = (options: {
         DuckDbDriverOperation.Enum.copyTableToParquet,
         O.some(PARQUET_IN_TRANSACTION),
         `COPY ${quotedIdentifier(request.tableName)} TO ${quotedString(request.filePath)} (FORMAT parquet)`
+      )
+  );
+
+  const appendRows = Effect.fn("DuckDbClient.appendRows")(
+    (request: typeof DuckDbAppendRows.Encoded): Effect.Effect<void, SqlError> => {
+      const appendOn = (connection: SqlConnection.Connection) =>
+        runOn(connection, "appendRows", (native) => native.appendRows(request));
+      return Effect.flatMap(
+        Effect.serviceOption(options.client.transactionService),
+        O.match({
+          onNone: () => Effect.scoped(Effect.flatMap(options.acquirer, appendOn)),
+          onSome: ([connection]) => appendOn(connection),
+        })
+      );
+    }
+  );
+
+  const exportDatabase = Effect.fn("DuckDbClient.exportDatabase")(
+    (request: typeof DuckDbDatabaseExport.Encoded): Effect.Effect<void, SqlError> =>
+      useConnection(
+        DuckDbDriverOperation.Enum.exportDatabase,
+        O.some("DuckDB database export cannot run inside withTransaction: filesystem writes survive rollback."),
+        `EXPORT DATABASE ${quotedString(request.directory)} (FORMAT ${request.format === "parquet" ? "parquet" : "csv"})`
+      )
+  );
+  const importDatabase = Effect.fn("DuckDbClient.importDatabase")(
+    (request: typeof DuckDbDatabaseImport.Encoded): Effect.Effect<void, SqlError> =>
+      useConnection(
+        DuckDbDriverOperation.Enum.importDatabase,
+        O.none(),
+        `IMPORT DATABASE ${quotedString(request.directory)}`
       )
   );
 
@@ -162,7 +205,17 @@ export const makeExtras = (options: {
       useConnection(DuckDbDriverOperation.Enum.detach, O.none(), `DETACH ${quotedIdentifier(alias)}`)
   );
 
-  return { copyTableToParquet, checkpoint, loadExtension, installExtension, attach, detach };
+  return {
+    exportDatabase,
+    importDatabase,
+    appendRows,
+    copyTableToParquet,
+    checkpoint,
+    loadExtension,
+    installExtension,
+    attach,
+    detach,
+  };
 };
 
 /**

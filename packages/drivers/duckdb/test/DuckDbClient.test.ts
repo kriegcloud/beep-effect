@@ -14,8 +14,10 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
@@ -762,6 +764,80 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "appends complete rows and guards a caught failed flush",
+      Effect.fnUntraced(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        yield* client`CREATE TABLE appended (id INTEGER PRIMARY KEY, xs INTEGER[], data JSON)`;
+        yield* client.appendRows({ table: "appended", rows: [[1, [null, 7], { ok: true }]] });
+        yield* client.withTransaction(client.appendRows({ table: "appended", rows: [[2, [], null]] }));
+        yield* client
+          .withTransaction(
+            client
+              .appendRows({ table: "appended", rows: [[3, [], null]] })
+              .pipe(Effect.andThen(Effect.fail("rollback")))
+          )
+          .pipe(Effect.flip);
+        assert.deepStrictEqual(yield* client`SELECT id, xs FROM appended ORDER BY id`, [
+          { id: 1, xs: [null, 7] },
+          { id: 2, xs: [] },
+        ]);
+        const duplicate = yield* Effect.flip(
+          client.appendRows({
+            table: "appended",
+            rows: [
+              [4, [], null],
+              [1, [], null],
+            ],
+          })
+        );
+        assert.strictEqual(duplicate.reason._tag, "UniqueViolation");
+        const refused = yield* Effect.flip(
+          client.withTransaction(
+            Effect.gen(function* () {
+              yield* client`INSERT INTO appended VALUES (5, [], NULL)`;
+              yield* client.appendRows({ table: "appended", rows: [[1, [], null]] }).pipe(Effect.ignore);
+            })
+          )
+        );
+        assertUnknownError(refused, "commitTransaction");
+        assert.deepStrictEqual(yield* client`SELECT id FROM appended ORDER BY id`, [{ id: 1 }, { id: 2 }]);
+        assertUnknownError(yield* Effect.flip(client.appendRows({ table: "appended", rows: [[6]] })), "appendRows");
+        assertUnknownError(
+          yield* Effect.flip(client.appendRows({ table: "appended", rows: [["bad", [], null]] })),
+          "appendRows"
+        );
+        assertUnknownError(
+          yield* Effect.flip(client.appendRows({ table: "appended", rows: [[Symbol("bad"), [], null]] })),
+          "appendRows"
+        );
+        yield* client.appendRows({ table: "appended", rows: [] });
+        yield* client`CREATE TABLE append_required (id INTEGER NOT NULL)`;
+        const constraint = yield* client.appendRows({ table: "append_required", rows: [[null]] }).pipe(Effect.flip);
+        assert.strictEqual(constraint.reason._tag, "ConstraintError");
+        yield* client`CREATE SCHEMA append_schema`;
+        yield* client`CREATE TABLE append_schema.scoped (id INTEGER)`;
+        yield* client.appendRows({ table: "scoped", schema: "append_schema", rows: [[42]] });
+        assert.deepStrictEqual(yield* client`SELECT * FROM append_schema.scoped`, [{ id: 42 }]);
+      })
+    );
+
+    it.effect("discards buffered rows when a later append value fails", () =>
+      Effect.gen(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        yield* client`CREATE TABLE append_failed_batch (id INTEGER)`;
+        for (const bad of ["bad", Symbol("bad")]) {
+          const error = yield* client
+            .appendRows({ table: "append_failed_batch", rows: [[1], [bad]] })
+            .pipe(Effect.flip);
+          assertUnknownError(error, "appendRows");
+          assert.deepStrictEqual(yield* client`SELECT * FROM append_failed_batch`, []);
+        }
+        yield* client.appendRows({ table: "append_failed_batch", rows: [[1], [2]] });
+        assert.deepStrictEqual(yield* client`SELECT * FROM append_failed_batch ORDER BY id`, [{ id: 1 }, { id: 2 }]);
+      })
+    );
+
+    it.effect(
       "runs driver extras",
       Effect.fnUntraced(function* () {
         const client = yield* DuckDbClient.DuckDbClient;
@@ -819,7 +895,12 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
   });
 
-  it.layer(DuckDbClient.layerClient({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
+  it.layer(
+    Layer.mergeAll(DuckDbClient.layerClient({ databasePath: ":memory:" }), FileSystem.layerNoop({}), Path.layer),
+    {
+      timeout: "30 seconds",
+    }
+  )((it) => {
     it.effect(
       "layerClient provides DuckDbClient only",
       Effect.fnUntraced(function* () {

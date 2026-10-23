@@ -4,7 +4,9 @@ import { assert, describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as SqlClient from "effect/sql/SqlClient";
 
@@ -39,7 +41,7 @@ const tableExists = (name: string) =>
   );
 
 describe("DuckDbMigrator", () => {
-  it.layer(DuckDbTestLayer, { timeout: "30 seconds" })((it) => {
+  it.layer(Layer.mergeAll(DuckDbTestLayer, FileSystem.layerNoop({}), Path.layer), { timeout: "30 seconds" })((it) => {
     it.effect("fromRecord runs migrations in order and records them", () =>
       Effect.gen(function* () {
         const sql = yield* SqlClient.SqlClient;
@@ -164,7 +166,7 @@ describe("DuckDbMigrator", () => {
         "1_init": withSql((sql) => sql`CREATE TABLE layer_test (id INTEGER PRIMARY KEY, value TEXT)`),
         "2_insert": withSql((sql) => sql`INSERT INTO layer_test VALUES (1, 'hello')`),
       }),
-    }).pipe(Layer.provideMerge(DuckDbTestLayer)),
+    }).pipe(Layer.provideMerge(DuckDbTestLayer), Layer.provide(Layer.merge(FileSystem.layerNoop({}), Path.layer))),
     { timeout: "30 seconds" }
   )((it) => {
     it.effect("DuckDbMigrator.layer builds and migrates", () =>
