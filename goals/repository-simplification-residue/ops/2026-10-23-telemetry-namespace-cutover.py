@@ -3,7 +3,9 @@
 
 Run with Python 3 and `--apply` after reviewing this file. Use the printed native
 launcher names for future sessions. `--rollback` restores only unchanged owned
-files. Existing sessions and historical observations retain their old regimes.
+files. Re-applying after rollback moves the recovery directory to a timestamped
+sibling, preserving every backup. Existing sessions and historical observations
+retain their old regimes.
 """
 import argparse
 import hashlib
@@ -79,12 +81,20 @@ def main():
             print('already applied; original cutover and backups retained')
             return
         raise SystemExit('projection drift; apply refused')
-    if state.exists():
+    if state.exists() and (not (state / 'rolled-back.json').is_file()
+                           or (state / 'rolled-back.json').is_symlink()):
         raise SystemExit('recovery state already exists; inspect before a new cutover')
     for name in targets:
         path = bindir / name
         if path.is_symlink() or (path.exists() and not path.is_file()):
             raise SystemExit('unsupported owned path type')
+    if state.exists():
+        stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
+        retained = state.with_name(f'{state.name}.rolled-back-{stamp}')
+        if retained.exists():
+            raise SystemExit('recovery generation already exists; retry later')
+        state.rename(retained)
+        print(f'preserved rolled-back recovery generation: {retained.name}')
     state.mkdir(parents=True, mode=0o700)
     bindir.mkdir(parents=True, exist_ok=True)
     prior = {}

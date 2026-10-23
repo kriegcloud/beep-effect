@@ -94,8 +94,10 @@
       "tracked": 0,
       "live_cwds": 0,
       "exists": false,
-      "disposition": "retain: live owner",
-      "recovery": "in place; existing checkout history and prior archive receipt unchanged"
+      "disposition": "archived: #1877 (#2173)",
+      "recovery": "Restore checkout from refs/archive/worktrees/effect-vitest-capability-leaves/20261023-205027 (38ac5d9da9) in $HOME/YeeBois/projects/beep-effect2, then restore residue from $HOME/.cache/beep/worktree-residue/beep-effect2-ed013b4f7edc/effect-vitest-capability-leaves-20261023-205027; none in place",
+      "prior_archive_receipt_tracked_files": 10365,
+      "retirement_provenance": "TS7 #1877 apply, PR #2173; archive refs and residue locations verified by S44 orchestrator"
     },
     {
       "path": "~/YeeBois/projects/beep-effect2-worktrees/effect-vitest-inventory-proof/goals",
@@ -106,8 +108,10 @@
       "tracked": 0,
       "live_cwds": 0,
       "exists": false,
-      "disposition": "retain: live owner",
-      "recovery": "in place; existing checkout history and prior archive receipt unchanged"
+      "disposition": "archived: #1877 (#2173)",
+      "recovery": "Restore checkout from refs/archive/worktrees/effect-vitest-inventory-proof/20261023-205213 (d9f74d230a) in $HOME/YeeBois/projects/beep-effect2, then restore residue from $HOME/.cache/beep/worktree-residue/beep-effect2-ed013b4f7edc/effect-vitest-inventory-proof-20261023-205213; none in place",
+      "prior_archive_receipt_tracked_files": 10201,
+      "retirement_provenance": "TS7 #1877 apply, PR #2173; archive refs and residue locations verified by S44 orchestrator"
     },
     {
       "path": "~/YeeBois/projects/beep-effect2-worktrees/qualification-acceptance/goals",
@@ -349,5 +353,12 @@
       "disposition": "retain: live owner; checkout retirement fence",
       "recovery": "in place; existing checkout history and prior archive receipt unchanged"
     }
-  ]
+  ],
+  "existence_rechecked_utc": "2026-10-23T22:04:03.756065+00:00",
+  "existence_recheck_summary": {
+    "rows": 29,
+    "present": 27,
+    "absent": 2,
+    "new_absences": 0
+  }
 }

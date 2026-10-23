@@ -18,12 +18,28 @@ It refuses symlinked owned paths/ancestry, backs up prior files before applying,
 records the real UTC application timestamp, and preserves that timestamp on a
 repeat apply. Use `--rollback` to restore prior owned files/remove newly created
 ones; backup/projection drift refuses before any rollback writes.
+After a completed rollback, `--apply` automatically renames the retained state
+directory to a sibling named `telemetry-namespace-s44.rolled-back-<UTC timestamp>`
+(with microseconds), then creates a fresh recovery journal and backups. Every
+prior `.before` file and `rolled-back.json` remains in that sibling unchanged;
+never delete a generation to retry the cutover. An unrecognized state directory
+without a regular, non-symlink `rolled-back.json` still refuses application.
 
 Lane-local synthetic fixture verification passed: first apply, repeat apply
 without rewriting the cutover, equal salt variables delivered to a fake native
 client, refusal on drift before other paths changed, and exact prior-content
 restoration/removal. Python compilation also passed. No real home file was
 written and no actual secret was used by those fixtures.
+
+Round-one retry fixture (Python 3, temporary HOME directories confined to the
+lane's ignored `.beep/` directory) passed for both an absent launcher and an
+existing launcher with mode `0751`: apply → repeat apply → rollback → apply →
+repeat apply → rollback. Assertions checked unchanged journal on repeat apply,
+a fresh journal after re-apply, exactly one timestamped recovery generation,
+byte-identical retained journal/backups, restored prior content and mode, removal
+of previously absent launchers, and refusal of unrecognized recovery state.
+In-memory `compile(...)` passed too; the fixture invoked no launcher or secret
+lookup and its temporary directories were removed on exit.
 
 The **live cutover and tested production join remain unmet**. After the
 operator runs the script, launch future native roots through these wrappers
