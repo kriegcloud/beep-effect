@@ -225,7 +225,7 @@ const pickMoveCandidate = (
 };
 
 const requiresRemoteId = (operationType: DomainSyncOperation.SyncOperationType): boolean =>
-  SyncOperationType.$match(operationType, {
+  SyncOperationType.match(operationType, {
     createFolder: F.constFalse,
     moveItem: F.constTrue,
     renameItem: F.constTrue,
@@ -242,7 +242,7 @@ const requiresRemoteId = (operationType: DomainSyncOperation.SyncOperationType):
  * is fully pushed, so it yields `none`.
  */
 const stalledOperationType = (item: DomainSyncItem.SyncItem): O.Option<DomainSyncOperation.SyncOperationType> =>
-  SyncItemKind.$match(item.itemKind, {
+  SyncItemKind.match(item.itemKind, {
     file: () =>
       O.some(O.isNone(item.remoteId) ? SyncOperationType.Enum.uploadFile : SyncOperationType.Enum.uploadFileVersion),
     folder: () =>
@@ -252,7 +252,7 @@ const stalledOperationType = (item: DomainSyncItem.SyncItem): O.Option<DomainSyn
   });
 
 const knownItemConflictKind = (eventType: DmsEventType): DomainSyncConflict.SyncConflictKind =>
-  DmsEventType.$match(eventType, {
+  DmsEventType.match(eventType, {
     created: () => SyncConflictKind.Enum.remoteEdit,
     deleted: () => SyncConflictKind.Enum.remoteDelete,
     edited: () => SyncConflictKind.Enum.remoteEdit,
@@ -262,7 +262,7 @@ const knownItemConflictKind = (eventType: DmsEventType): DomainSyncConflict.Sync
   });
 
 const unknownItemConflictKind = (eventType: DmsEventType): DomainSyncConflict.SyncConflictKind =>
-  DmsEventType.$match(eventType, {
+  DmsEventType.match(eventType, {
     created: () => SyncConflictKind.Enum.remoteCreate,
     deleted: () => SyncConflictKind.Enum.remoteUnknown,
     edited: () => SyncConflictKind.Enum.remoteCreate,
@@ -285,7 +285,7 @@ const EchoClass = LiteralKit(["content", "moved", "renamed"]).pipe(
 type EchoClass = typeof EchoClass.Type;
 
 const echoClassForOperation = (operationType: DomainSyncOperation.SyncOperationType): EchoClass =>
-  SyncOperationType.$match(operationType, {
+  SyncOperationType.match(operationType, {
     createFolder: F.constant(EchoClass.Enum.content),
     moveItem: F.constant(EchoClass.Enum.moved),
     renameItem: F.constant(EchoClass.Enum.renamed),
@@ -294,7 +294,7 @@ const echoClassForOperation = (operationType: DomainSyncOperation.SyncOperationT
   });
 
 const echoClassForEvent = (eventType: DmsEventType): O.Option<EchoClass> =>
-  DmsEventType.$match(eventType, {
+  DmsEventType.match(eventType, {
     created: () => O.some<EchoClass>(EchoClass.Enum.content),
     deleted: O.none<EchoClass>,
     edited: () => O.some<EchoClass>(EchoClass.Enum.content),
@@ -350,7 +350,7 @@ const PushRecord = S.Union([ContentPushRecord, MovedPushRecord, RenamedPushRecor
 type PushRecord = typeof PushRecord.Type;
 
 const makePushRecord = (echoClass: EchoClass, remoteId: RemoteItemId): PushRecord =>
-  EchoClass.$match(echoClass, {
+  EchoClass.match(echoClass, {
     content: () => ContentPushRecord.make({ remoteId }),
     moved: () => MovedPushRecord.make({ remoteId }),
     renamed: () => RenamedPushRecord.make({ remoteId }),
@@ -969,7 +969,7 @@ export const makeVaultSyncEngine = Effect.fn($I`makeVaultSyncEngine`)(function* 
     item: DomainSyncItem.SyncItem,
     parentRemoteId: O.Option<RemoteItemId>
   ): Effect.Effect<DmsRemoteItem, DmsMirrorUnavailable | VaultScanFailed> =>
-    SyncOperationType.$match(operation.operationType, {
+    SyncOperationType.match(operation.operationType, {
       createFolder: () =>
         mirror.ensureFolder(
           EnsureFolderInput.make({

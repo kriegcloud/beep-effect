@@ -59,6 +59,9 @@ const isSeparatorOrEnd = (ch: string): boolean => isLineEnd(ch) || isWhitespace(
 
 const isFlowIndicator = (ch: string): boolean => ch === "{" || ch === "}" || ch === "[" || ch === "]" || ch === ",";
 
+/** A first character the parser reads as a scalar's style: a quote or a block-scalar indicator. */
+const isStyleIndicator = (ch: string): boolean => ch === '"' || ch === "'" || ch === "|" || ch === ">";
+
 /** YAML 1.2 ns-anchor-char (and tag suffix char): any non-whitespace char except c-flow-indicator. */
 const isNameChar = (ch: string): boolean => !isWhitespace(ch) && !isNewline(ch) && !isFlowIndicator(ch);
 
@@ -362,6 +365,24 @@ export function createScanner(text: string): YamlScanner {
    */
   let prevWasQuoted = false;
   let prevWasFlowEnd = false;
+  /**
+   * Indents of the open block collections, ascending: the column of a `-` or
+   * `?` indicator, or of the key that an implicit `:` closes (so a compact
+   * `- a: x` mapping records column 2, not the line indent).
+   */
+  const collectionIndents: number[] = [];
+  /**
+   * Column where the current line's node started (its first content token
+   * after the line start or the last block indicator); `-1` until then.
+   */
+  let nodeStartCol = -1;
+  /**
+   * While the last content token was a plain scalar, the indent `n` of its
+   * parent collection (`-1` at the document root); `undefined` otherwise. A
+   * later line indented past `n` continues the scalar (YAML 1.2
+   * s-ns-plain-next-line), whatever character it starts with.
+   */
+  let plainFloor: number | undefined;
   /** Buffer of tokens to emit before scanning the next real token. */
   const pending: YamlToken.Data[] = [];
   /** Mutable holder for the most recently produced token, set by the public {@link scan} method. */
@@ -392,6 +413,7 @@ export function createScanner(text: string): YamlScanner {
       col = 0;
       lineIndent = 0;
       lineIndentLocked = false;
+      nodeStartCol = -1;
     } else {
       col++;
     }
@@ -422,7 +444,104 @@ export function createScanner(text: string): YamlScanner {
           MutableHashMap.remove(blockStarted, key);
         }
       }
+      if (flowDepth === 0) closeCollectionsAfter(lineIndent);
     }
+  }
+
+  /** The indent of the innermost open collection, or `-1` when none is open. */
+  function innermostIndent(): number {
+    return O.getOrElse(A.last(collectionIndents), () => -1);
+  }
+
+  /** Drop the open collections indented deeper than `indent`. */
+  function closeCollectionsAfter(indent: number): void {
+    while (innermostIndent() > indent) collectionIndents.pop();
+  }
+
+  /** Record a block collection at `indent` (a `-`/`?` column or an implicit key's column). */
+  function openCollectionAt(indent: number): void {
+    closeCollectionsAfter(indent);
+    if (innermostIndent() !== indent) collectionIndents.push(indent);
+  }
+
+  /**
+   * Record the block collection a `-`, `?` or `:` indicator at `column` opens
+   * or continues. A `:` belongs to the key that opened its mapping at the
+   * key's column (the `:` itself when it starts the node, as an explicit
+   * value does).
+   */
+  function recordIndicatorCollection(kind: YamlTokenKind, column: number): void {
+    if (flowDepth > 0) return;
+    openCollectionAt(kind === "block-map-value" ? nodeStartCol : column);
+    nodeStartCol = -1;
+  }
+
+  /** The indent of the innermost open collection left of `column`, or `-1` at the document root. */
+  function parentIndentBefore(column: number): number {
+    return O.getOrElse(
+      A.findLast(collectionIndents, (indent) => indent < column),
+      () => -1
+    );
+  }
+
+  /**
+   * Whether `ch`, the first content at offset `at` on its line, continues the
+   * open plain scalar (YAML 1.2 s-ns-plain-next-line): the line's indentation
+   * (spaces only; separation blanks, tabs included, may follow it) reaches
+   * past the scalar's parent collection, and `ch` is an ns-plain-char, so
+   * indicators are scalar text. A comment, a `: ` value indicator, a flow
+   * indicator inside flow context and a line-start document marker still end
+   * the scalar.
+   */
+  function continuesPlainAt(ch: string, at: number): boolean {
+    const lineStart = lineStartOf(text, at);
+    if (plainFloor === undefined || countSpaces(text, lineStart) <= plainFloor) return false;
+    if (ch === "#" || plainScalarStopsAt(at)) return false;
+    // A line whose run ends at a `:` value indicator would make a multi-line
+    // implicit key, which is invalid: the indicator scanners keep its diagnostic.
+    if (charAt(plainRunEnd(at)) === ":") return false;
+    return !(at === lineStart && isDocumentMarkerAt(text, at));
+  }
+
+  /**
+   * Whether the line's first content at the cursor continues the open plain
+   * scalar as its own token. Quote and block-scalar indicators are excluded:
+   * the parser reads a scalar's style from its first source character, so
+   * {@link scanPlainScalar} absorbs those lines into the scalar's token.
+   */
+  function continuesPlainScalar(ch: string): boolean {
+    return !lineIndentLocked && !isStyleIndicator(ch) && continuesPlainAt(ch, pos);
+  }
+
+  /**
+   * The offset of the first content character on the next non-blank line
+   * after the line break at the cursor, past its leading spaces and tabs, or
+   * `-1` at the end of input.
+   */
+  function nextLineContent(): number {
+    let lineStart = lineBreakEnd(text, pos);
+    while (lineStart < text.length) {
+      const content = blankRunEnd(lineStart);
+      if (!isLineEnd(charAt(content))) return content;
+      lineStart = lineBreakEnd(text, content);
+    }
+    return -1;
+  }
+
+  /**
+   * Consume the line break, blank lines and indentation before a
+   * continuation line that starts with a quote or block-scalar indicator, so
+   * the open plain scalar's token runs on through that line.
+   */
+  function absorbsStyleIndicatorLine(): boolean {
+    if (!isNewline(peek())) return false;
+    const content = nextLineContent();
+    if (content < 0) return false;
+    const ch = charAt(content);
+    if (!isStyleIndicator(ch) || !continuesPlainAt(ch, content)) return false;
+    advance(content - pos);
+    lockLineIndent();
+    return true;
   }
 
   const makeToken: {
@@ -624,6 +743,7 @@ export function createScanner(text: string): YamlScanner {
     const sLine = line;
     const sCol = col;
     const indicator = peek();
+    recordIndicatorCollection(kind, sCol);
     advance();
     const { end, firstTab } = checkTab ? scanSeparation() : { end: pos, firstTab: -1 };
     if (firstTab >= 0 && end < text.length && tabIsIndent(end)) {
@@ -771,31 +891,50 @@ export function createScanner(text: string): YamlScanner {
     const kind = marker === "---" ? "document-start" : "document-end";
     // Reset block tracking so the next document gets fresh block-start tokens.
     MutableHashMap.clear(blockStarted);
+    collectionIndents.length = 0;
     return makeToken(kind, marker, start, sLine, sCol);
   }
 
   /**
-   * Whether the plain scalar stops before `ch`: a line break or the end of
-   * input, a flow indicator in flow context, a `:` value indicator (followed
-   * by a separator, the end of input, or a flow indicator in flow context),
-   * or the blank of a ` #` / `\t#` comment start.
+   * Whether the plain scalar stops before offset `at`: a line break or the
+   * end of input, a flow indicator in flow context, a `:` value indicator
+   * (followed by a separator, the end of input, or a flow indicator in flow
+   * context), or the blank of a ` #` / `\t#` comment start.
    */
-  function plainScalarStopsAt(ch: string): boolean {
+  function plainScalarStopsAt(at: number): boolean {
+    const ch = charAt(at);
     if (isPlainScalarBreak(ch)) return true;
-    const next = peek(1);
-    if (ch === ":") return isSeparatorOrEnd(next) || (flowDepth > 0 && isFlowIndicator(next));
+    const next = charAt(at + 1);
+    if (ch === ":") return isPlainColonStop(next);
     return isWhitespace(ch) && next === "#";
   }
 
+  /** Whether a `:` followed by `next` is a value indicator rather than plain scalar text. */
+  function isPlainColonStop(next: string): boolean {
+    return isSeparatorOrEnd(next) || (flowDepth > 0 && isFlowIndicator(next));
+  }
+
+  /** The offset where a plain scalar run starting at `from` stops. */
+  function plainRunEnd(from: number): number {
+    let at = from;
+    while (at < text.length && !plainScalarStopsAt(at)) at++;
+    return at;
+  }
+
+  /**
+   * Scan a plain scalar. Its token runs on across continuation lines that
+   * start with a quote or block-scalar indicator, so the parser never reads
+   * such a line as a quoted or block scalar of its own.
+   */
   function scanPlainScalar(): YamlToken.Data {
     lockLineIndent();
     const start = pos;
     const sLine = line;
     const sCol = col;
 
-    while (pos < text.length && !plainScalarStopsAt(peek())) {
-      advance();
-    }
+    do {
+      advance(plainRunEnd(pos) - pos);
+    } while (absorbsStyleIndicatorLine());
 
     // Trim trailing whitespace from plain scalar value
     let end = pos;
@@ -1334,12 +1473,25 @@ export function createScanner(text: string): YamlScanner {
     '"': scanDoubleQuoted,
   };
 
-  /** Scan a content token (anything but a line break or whitespace) starting with `ch`. */
+  /**
+   * Scan a content token (anything but a line break or whitespace) starting
+   * with `ch`. A continuation line of an open plain scalar lexes as plain
+   * text before any indicator scanner sees its first character.
+   */
   function scanContent(ch: string): YamlToken.Data {
+    if (continuesPlainScalar(ch)) return scanPlainFallback();
+    if (ch !== "#" && nodeStartCol < 0) nodeStartCol = col;
+    plainFloor = undefined;
     const scanner = R.get(contentScanners, ch);
     const token = O.isSome(scanner) ? scanner.value() : null;
     if (token !== null) return token;
-    // Plain scalar (fallback)
+    lockLineIndent();
+    plainFloor = parentIndentBefore(col);
+    return scanPlainFallback();
+  }
+
+  /** Scan a plain scalar outside any indicator scanner. */
+  function scanPlainFallback(): YamlToken.Data {
     afterQuotedScalar = false;
     return scanPlainScalar();
   }
@@ -1414,6 +1566,9 @@ export function createScanner(text: string): YamlScanner {
     lineIndentLocked = false;
     flowDepth = 0;
     MutableHashMap.clear(blockStarted);
+    collectionIndents.length = 0;
+    nodeStartCol = -1;
+    plainFloor = undefined;
     pending.length = 0;
     afterEmptyBlockScalar = false;
     afterQuotedScalar = false;

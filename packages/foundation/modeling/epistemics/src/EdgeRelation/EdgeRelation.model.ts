@@ -53,7 +53,7 @@ export const EdgeRelation = EdgeRelationBase.pipe(
  */
 export type EdgeRelation = typeof EdgeRelation.Type;
 
-const SymmetricEdgeRelationBase = LiteralKit(EdgeRelationBase.pick(["contradicts"]).literals);
+const SymmetricEdgeRelationBase = EdgeRelationBase.pick(["contradicts"]);
 
 /**
  * The subset of {@link EdgeRelation} whose meaning is order-independent: an edge

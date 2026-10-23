@@ -111,7 +111,7 @@ export type GraphPartition = typeof GraphPartition.Type;
  * @since 0.0.0
  */
 export const graphPartitionIri = (partition: GraphPartition): string =>
-  GraphPartition.$match(partition, {
+  GraphPartition.match(partition, {
     asserted: () => "urn:beep:ontology:graph:asserted",
     ontologies: () => "urn:beep:ontology:graph:ontologies",
     inferred: () => "urn:beep:ontology:graph:inferred",
@@ -136,7 +136,7 @@ export const graphPartitionIri = (partition: GraphPartition): string =>
  * @since 0.0.0
  */
 export const isExcludedFromReasoning = (partition: GraphPartition): boolean =>
-  GraphPartition.$match(partition, {
+  GraphPartition.match(partition, {
     asserted: () => false,
     ontologies: () => false,
     inferred: () => true,

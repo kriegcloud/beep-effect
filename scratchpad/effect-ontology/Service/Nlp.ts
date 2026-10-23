@@ -613,7 +613,7 @@ function chunkBySize(text: string, maxChunkSize: number, startIndex: number): Ar
 
 type SpecializedChunker = (text: string, maxChunkSize: number, overlapSentences: number) => Array<TextChunk>;
 
-const chunkerForStrategy = ChunkingStrategy.$match({
+const chunkerForStrategy = ChunkingStrategy.match({
   standard: O.none<SpecializedChunker>,
   fine_grained: O.none<SpecializedChunker>,
   high_overlap: O.none<SpecializedChunker>,

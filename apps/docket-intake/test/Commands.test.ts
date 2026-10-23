@@ -492,6 +492,29 @@ describe("@beep/docket-intake commands", () => {
     }
   );
 
+  it.layer(commandsLayer({ ...fixtureEnv, DOCKET_INTAKE_REVIEW_HUB_DIR: REVIEW_HUB }), { timeout: "10 seconds" })(
+    (it) => {
+      it.effect(
+        "backfill-questions reports an unreadable review hub as a command failure",
+        Effect.fnUntraced(function* () {
+          const handlers = yield* makeTestHandlers;
+          const fs = yield* FileSystem.FileSystem;
+          yield* handlers.poll(noFlags);
+          yield* fs.makeDirectory(REVIEW_HUB, { recursive: true });
+          yield* fs.writeFileString(`${REVIEW_HUB}/items.jsonl`, "not json\n");
+
+          const failed = yield* kindOf(handlers.backfillQuestions({ apply: false }));
+
+          assertSome(
+            O.map(failed, (error) => error.kind),
+            "failed"
+          );
+          assertTrue(O.exists(failed, (error) => Str.startsWith("review hub items, read: ")(error.message)));
+        })
+      );
+    }
+  );
+
   it.layer(CommandsLayer, { timeout: "10 seconds" })((it) => {
     it.effect(
       "backfill-questions fails without a review hub directory",

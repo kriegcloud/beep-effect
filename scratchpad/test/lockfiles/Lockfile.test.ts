@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Per-format fixture tests: the ported corpus (pnpm v1–v3, npm v1–v2,
 // yarn v1–v2, bun v1–v3) asserted against the unified model — package
 // counts, workspace identification, integrity hashes, workspace dependency

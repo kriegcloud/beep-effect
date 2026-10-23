@@ -70,6 +70,7 @@ export * as DuckDbClient from "./DuckDbClient.service.ts";
  *
  * ```ts
  * import { DuckDbClient, DuckDbMigrator } from "@beep/duckdb"
+ * import { NodeServices } from "@effect/platform-node"
  * import * as Effect from "effect/Effect"
  * import * as SqlClient from "effect/sql/SqlClient"
  *
@@ -77,7 +78,7 @@ export * as DuckDbClient from "./DuckDbClient.service.ts";
  *   loader: DuckDbMigrator.fromRecord({
  *     "1_create": Effect.flatMap(SqlClient.SqlClient, (sql) => sql`create table t (id integer primary key)`)
  *   })
- * }).pipe(Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" })))
+ * }).pipe(Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" })), Effect.provide(NodeServices.layer))
  *
  * Effect.runPromise(program).then((applied) => console.log(applied)) // [[1, "create"]]
  * ```

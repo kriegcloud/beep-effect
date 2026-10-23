@@ -72,7 +72,7 @@ export type SiteRoute = typeof SiteRoute.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FileRoute = LiteralKit(SiteRoute.pick(["llms.txt", "sitemap.xml"]).literals).pipe(
+export const FileRoute = SiteRoute.pick(["llms.txt", "sitemap.xml"]).pipe(
   $I.annoteSchema("FileRoute", {
     description: "A reserved route that names a single file and accepts no nested path.",
   })
@@ -105,20 +105,18 @@ export type FileRoute = typeof FileRoute.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PathRoute = LiteralKit(
-  SiteRoute.pick([
-    "ns",
-    "taxonomy",
-    "docs",
-    "api",
-    "storybook",
-    "mcp",
-    "goals",
-    "explorations",
-    "research",
-    ".well-known",
-  ]).literals
-).pipe(
+export const PathRoute = SiteRoute.pick([
+  "ns",
+  "taxonomy",
+  "docs",
+  "api",
+  "storybook",
+  "mcp",
+  "goals",
+  "explorations",
+  "research",
+  ".well-known",
+]).pipe(
   $I.annoteSchema("PathRoute", {
     description: "A reserved route that accepts a nested path below it.",
   })

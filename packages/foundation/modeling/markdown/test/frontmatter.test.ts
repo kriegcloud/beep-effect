@@ -114,9 +114,18 @@ describe("frontmatter capture", () => {
       assert.notStrictEqual(types[0], "frontmatter");
     });
 
-    it("rejects trailing whitespace on the opening fence", () => {
-      const types = A.map(parseOn("--- \na: 1\n---\n").children, (child) => child.type);
-      assert.notStrictEqual(types[0], "frontmatter");
+    it("rejects indentation on either fence line", () => {
+      for (const source of [" ---\na: 1\n---\n", "---\na: 1\n ---\n", "\t---\na: 1\n---\n"]) {
+        const types = A.map(parseOn(source).children, (child) => child.type);
+        assert.notStrictEqual(types[0], "frontmatter", source);
+      }
+    });
+
+    it("rejects text after the fence's trailing whitespace", () => {
+      for (const source of ["--- x\na: 1\n---\n", "---\na: 1\n--- x\n", "+++ toml\na = 1\n+++\n"]) {
+        const types = A.map(parseOn(source).children, (child) => child.type);
+        assert.notStrictEqual(types[0], "frontmatter", source);
+      }
     });
 
     it("rejects a longer dash run", () => {
@@ -139,6 +148,71 @@ describe("frontmatter capture", () => {
       const root = parseOn("---\na: 1\n---\n# Title\n");
       assert.strictEqual(root.children[0]?.type, "frontmatter");
       assert.strictEqual(root.children[1]?.type, "heading");
+    });
+  });
+
+  describe("fence trailing whitespace", () => {
+    // micromark-extension-frontmatter@2.0.0 (remark-frontmatter) lets both
+    // fence lines carry trailing spaces and tabs; @changesets/parse closes
+    // on `--- ` too. The grammar widens to match, for every fence style.
+    const cases: ReadonlyArray<readonly [open: string, close: string, format: string]> = [
+      ["---", "---", "yaml"],
+      ["+++", "+++", "toml"],
+      ["---json", "---", "json"],
+    ];
+    const pads = [" ", "\t", " \t ", "\t\t"];
+
+    it("captures with trailing spaces or tabs on the opening fence, the closing fence, or both", () => {
+      for (const [open, close, format] of cases) {
+        for (const pad of pads) {
+          for (const source of [
+            `${open}${pad}\nkey\n${close}\nrest\n`,
+            `${open}\nkey\n${close}${pad}\nrest\n`,
+            `${open}${pad}\nkey\n${close}${pad}\nrest\n`,
+          ]) {
+            const node = captureOf(source);
+            assert.strictEqual(node.format, format, source);
+            assert.strictEqual(node.value, "key", source);
+          }
+        }
+      }
+    });
+
+    it("captures padded fences under CRLF and CR terminators", () => {
+      assert.strictEqual(captureOf("--- \r\na: 1\r\nb: 2\r\n---\t\r\nrest\r\n").value, "a: 1\r\nb: 2");
+      assert.strictEqual(captureOf("+++\t\ra = 1\r+++ \rrest\r").value, "a = 1");
+    });
+
+    it("spans the padded closing fence and starts the body on the next line", () => {
+      // "---\na: 1\n--- \t\nrest\n": the closing fence line is 9-14.
+      const root = parseOn("---\na: 1\n--- \t\nrest\n");
+      const node = root.children[0];
+      assert.strictEqual(node?.type, "frontmatter");
+      assert.deepStrictEqual({ ...node?.position.end }, { line: 3, column: 6, offset: 14 });
+      assert.strictEqual(root.children[1]?.type, "paragraph");
+      assert.strictEqual(root.children[1]?.position.start.offset, 15);
+    });
+
+    it("leaves a padded thematic break in the body to the block pass", () => {
+      const root = parseOn("---\na: 1\n---\nintro\n\n--- \n\nafter\n");
+      assert.deepStrictEqual(
+        A.map(root.children, (child) => child.type),
+        ["frontmatter", "paragraph", "thematicBreak", "paragraph"]
+      );
+      assert.strictEqual(captureOf("---\na: 1\n---\nintro\n\n--- \n\nafter\n").value, "a: 1");
+    });
+
+    it("still rejects a four-dash run, padded or not", () => {
+      for (const source of ["---- \na: 1\n---\n", "---\na: 1\n---- \n"]) {
+        const types = A.map(parseOn(source).children, (child) => child.type);
+        assert.notStrictEqual(types[0], "frontmatter", source);
+      }
+    });
+
+    it("agrees with hasFrontmatterBlock on padded fences", () => {
+      const result = MarkdownDocument.parseResult("--- \na: 1\n---\t\n");
+      assertSuccess(result, Result.getOrThrow(result));
+      assert.isTrue(Result.getOrThrow(result).hasFrontmatterBlock);
     });
   });
 

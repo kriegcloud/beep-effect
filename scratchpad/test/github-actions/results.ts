@@ -1,5 +1,4 @@
-// This response factory is an internal test helper with a direct-call contract.
-// @effect-diagnostics asyncFunction:skip-file missingPipeableSignature:skip-file
+// @effect-diagnostics asyncFunction:skip-file missingPipeableSignature:skip-file -- asyncFunction because the fetch doubles must be async functions shaped like globalThis.fetch; missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Shared fixtures for the three services that speak the Actions results
 // backend: the cache, the artifact protocol and the GitHub-cache blob store.
 //

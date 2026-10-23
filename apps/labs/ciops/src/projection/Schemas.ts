@@ -70,7 +70,7 @@ export const AdmissionPriority = S.Literals(AdmissionPriorityKit.literals).pipe(
     description: "Priority class attached to a pending admission request.",
   }),
   SchemaUtils.withStatics(() => ({
-    $match: AdmissionPriorityKit.$match,
+    match: AdmissionPriorityKit.match,
     Enum: AdmissionPriorityKit.Enum,
     is: AdmissionPriorityKit.is,
     toTaggedUnion: AdmissionPriorityKit.toTaggedUnion,

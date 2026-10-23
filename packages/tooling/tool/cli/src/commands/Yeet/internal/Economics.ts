@@ -112,7 +112,7 @@ const WRAPPER_LANE_PREFIXES = [
 // case-sensitively for comparability, the receipt proxy lowercased.
 const LOCK_BOUNCE_SENTENCE = "Another Yeet full proof";
 
-const EconomicsComparableMode = LiteralKit(YeetRunMode.pick(["verify", "repair", "publish"]).literals).pipe(
+const EconomicsComparableMode = YeetRunMode.pick(["verify", "repair", "publish"]).pipe(
   $I.annoteSchema("EconomicsComparableMode", {
     description: "Yeet run modes whose red-to-green episodes are comparable to the A1 article baseline.",
   })
@@ -136,9 +136,11 @@ const EconomicsReceiptProxyClass = LiteralKit([
 // Ruling 75: the termination reasons `reconcileJournalLocked` stamps with its
 // own clock when it sweeps an unfinished start, so their `recordedAt` is the
 // sweep, not the moment the attempt died.
-const EconomicsReconcilerStampedReason = LiteralKit(
-  YeetAttemptTerminationReason.pick(["legacy-unowned-start", "owner-dead", "stale-unverifiable-owner"]).literals
-).pipe(
+const EconomicsReconcilerStampedReason = YeetAttemptTerminationReason.pick([
+  "legacy-unowned-start",
+  "owner-dead",
+  "stale-unverifiable-owner",
+]).pipe(
   $I.annoteSchema("EconomicsReconcilerStampedReason", {
     description:
       "Termination reasons written by the journal reconciler at sweep time rather than at the attempt's death.",

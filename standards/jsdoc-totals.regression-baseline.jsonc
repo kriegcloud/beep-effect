@@ -8,7 +8,7 @@
   "regeneration_command": "bun run beep quality jsdoc-inventory",
   "snapshot_command": "bun run beep quality jsdoc-ratchet --write-baseline",
   "comparison": "fail-on-growth: generated inventory totals must not exceed this committed baseline",
-  "generated_at": "2026-10-21T07:33:23.265Z",
+  "generated_at": "2026-10-23T02:06:36.671Z",
   "tracked_totals": {
     "packagesNeedingRemediation": 80,
     "missingExportExamples": 7,

@@ -199,7 +199,7 @@ export class PracticeMailTaggingError extends S.TaggedError<
  * @since 0.0.0
  */
 export const practiceMailTaggingExitCode: (kind: PracticeMailTaggingFailureKind) => number =
-  PracticeMailTaggingFailureKind.$match({
+  PracticeMailTaggingFailureKind.match({
     failed: () => 1,
     refused: () => 2,
     throttled: () => 3,

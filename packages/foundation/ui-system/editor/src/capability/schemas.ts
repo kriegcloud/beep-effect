@@ -335,7 +335,7 @@ const ModifierToken = LiteralKit(["ctrl", "control", "cmd", "meta", "win", "alt"
 );
 const isModifierToken = S.is(ModifierToken);
 
-const modifierFromToken = ModifierToken.$match({
+const modifierFromToken = ModifierToken.match({
   ctrl: () => "control" as const,
   control: () => "control" as const,
   cmd: () => "meta" as const,
@@ -346,7 +346,7 @@ const modifierFromToken = ModifierToken.$match({
   shift: () => "shift" as const,
 });
 
-const modifierToToken = Modifier.$match({
+const modifierToToken = Modifier.match({
   control: () => "Control",
   meta: () => "Meta",
   alt: () => "Alt",

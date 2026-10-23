@@ -987,7 +987,7 @@ const ReconstructedEvidenceTier = LiteralKit([
 ]);
 
 const atMostReconstructedEvidenceTier = (tiers: ReadonlyArray<EvidenceTier>) =>
-  EvidenceTier.$match({
+  EvidenceTier.match({
     observed: constant(EvidenceTier.Enum.reconstructed),
     derived: constant(EvidenceTier.Enum.reconstructed),
     reconstructed: constant(EvidenceTier.Enum.reconstructed),

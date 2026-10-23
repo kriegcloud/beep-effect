@@ -117,7 +117,7 @@ const ModelIdentityFields = S.Struct({
 
 const ModelIdentityDimensionCheck = S.makeFilter(
   (model: typeof ModelIdentityFields.Type) =>
-    TaskType.$match(model.taskType, {
+    TaskType.match(model.taskType, {
       embedding: () => O.isSome(model.dimension),
       extraction: () => O.isNone(model.dimension),
       "gold-proposal": () => O.isNone(model.dimension),

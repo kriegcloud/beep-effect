@@ -272,7 +272,7 @@ const load = Effect.fn("ClassificationRegistry.load")(function* (
       () => failure("unvetted", asset.id)
     )
   );
-  const concepts = yield* ClassificationSchemeKind.$match(pin.kind, {
+  const concepts = yield* ClassificationSchemeKind.match(pin.kind, {
     ipc: Effect.fnUntraced(function* () {
       const asset = A.headNonEmpty(assets);
       return yield* parseIpc(yield* readAsset(asset, vendorRoot), pin);

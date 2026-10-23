@@ -1,4 +1,3 @@
-// @effect-diagnostics globalConsole:skip-file strictEffectProvide:skip-file preferSchemaOverJson:skip-file
 /**
  * Run the mail-index adapter over corpus provenance JSONL files and write a
  * count-only census.
@@ -29,6 +28,7 @@ import { adaptMailRecord } from "../adapters/MailIndex.ts";
 import { ActivityId } from "../Ids.ts";
 import { UtcInstant } from "../Time.ts";
 import { thunkTrue } from "@beep/utils";
+import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils";
 
 const decodeRow = S.decodeUnknownEffect(S.fromJsonString(MailMessageIndexRecord));
 
@@ -59,15 +59,17 @@ const program = Effect.fn("mail-census")(function* (out: string, filter: O.Optio
   }
 
   const summary = { inputs: A.length(inputs), filtered: O.isSome(filter), ...summarize(census) };
-  yield* fs.writeFileString(out, `${JSON.stringify(summary, null, 2)}\n`);
+  yield* fs.writeFileString(out, `${yield* jsonStringifyPretty(summary)}\n`);
   yield* Effect.log(`census written: ${out} (${summary.rows} rows)`);
 });
 
 const [out, filterArg, ...inputs] = A.drop(process.argv, 2);
 if (out === undefined || filterArg === undefined || A.isReadonlyArrayEmpty(inputs)) {
+  // @effect-diagnostics-next-line globalConsole:off -- the usage error is written before the Effect runtime starts. Owner: @beep/scratchpad. Exit: the party-slice CLI parses arguments with effect/cli.
   console.error("usage: mail-census.ts <out.json> <filter-regex|-> <index.jsonl>...");
   process.exit(2);
 }
 const filter = filterArg === "-" ? O.none() : O.some(new RegExp(filterArg, "i"));
 
+// @effect-diagnostics-next-line strictEffectProvide:off -- this is the script's entry point, where the platform layer is provided once. Owner: @beep/scratchpad. Exit: never while this file is a bun entry script.
 program(out, filter, inputs).pipe(Effect.provide(BunServices.layer), BunRuntime.runMain);

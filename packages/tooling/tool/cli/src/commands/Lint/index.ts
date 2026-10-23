@@ -66,6 +66,7 @@ export * from "./internal/SchemaParityCodemodImports.ts";
  * @category policies
  * @since 0.0.0
  */
+export * from "./internal/SchemaParityCodemodLiteralKitMatchRule.ts";
 export * from "./internal/SchemaParityCodemodLiteralKitRule.ts";
 /**
  * Judge-rubric lens drift lint utilities.

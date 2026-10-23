@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import { SemanticSchemaSpecification, SemanticSchemaSpecificationDisposition } from "./SemanticSchemaMetadata/index.ts";
 
 const specificationDisposition: (role: Conformance.SpecificationSourceRole) => SemanticSchemaSpecificationDisposition =
-  Conformance.SpecificationSourceRole.$match({
+  Conformance.SpecificationSourceRole.match({
     primarySpecification: F.constant(SemanticSchemaSpecificationDisposition.Enum.normative),
     normativeDependency: F.constant(SemanticSchemaSpecificationDisposition.Enum.normative),
     conformanceCorpus: F.constant(SemanticSchemaSpecificationDisposition.Enum.informative),

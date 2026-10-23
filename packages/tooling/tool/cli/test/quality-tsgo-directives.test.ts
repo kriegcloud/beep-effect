@@ -15,7 +15,7 @@ describe("Effect diagnostics directive policy", () => {
   const shimPath = "vitest.setup.ts";
   const sharedConfigPath = "vitest.shared.ts";
   const sharedConfigDirective = `// ${directive} nodeBuiltinImport:skip-file`;
-  const shimRules = ["nodeBuiltinImport", "asyncFunction", "newPromise", "processEnv", "globalTimers", "globalRandom"];
+  const shimRules = ["nodeBuiltinImport", "asyncFunction", "newPromise", "globalTimers", "globalRandom"];
 
   it("declares exactly two exemptions: the root Bun shim and the root shared Vitest config", () => {
     expect(A.map(effectDiagnosticsDirectiveExemptions, (exemption) => exemption.path)).toEqual([

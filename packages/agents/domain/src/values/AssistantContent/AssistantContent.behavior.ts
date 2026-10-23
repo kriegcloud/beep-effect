@@ -88,7 +88,7 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
     paragraph: (b): Md.Block.Type => Md.P.make({ children: inlinesToMd(b.children) }),
     heading: (b): Md.Block.Type => {
       const children = inlinesToMd(b.children);
-      const level = AssistantHeadingTag.$match(b.level, {
+      const level = AssistantHeadingTag.match(b.level, {
         h1: () => 1 as const,
         h2: () => 2 as const,
         h3: () => 3 as const,
@@ -101,7 +101,7 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
       }),
     list: (b): Md.Block.Type => {
       const children = A.map(b.items, (item) => Md.Li.make({ children: inlinesToMd(item.children) }));
-      return AssistantListType.$match(b.listType, {
+      return AssistantListType.match(b.listType, {
         bullet: () => Md.Ul.make({ children }),
         number: () => Md.Ol.make({ children }),
       });

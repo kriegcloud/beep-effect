@@ -183,7 +183,7 @@ const makeVisibleActions = (
   workItem: DomainWorkItem.WorkItem,
   config: WorkItemPublicConfig
 ): ReadonlyArray<WorkItemVisibleAction> => {
-  const baseActions: ReadonlyArray<WorkItemVisibleAction> = DomainWorkItem.WorkItemStatus.$match(workItem.status, {
+  const baseActions: ReadonlyArray<WorkItemVisibleAction> = DomainWorkItem.WorkItemStatus.match(workItem.status, {
     open: () => activeVisibleActions,
     assigned: () => activeVisibleActions,
     completed: () => completedVisibleActions,

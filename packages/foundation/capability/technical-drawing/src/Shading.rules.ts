@@ -334,7 +334,7 @@ const faintRamp = (share: number) => {
   };
 };
 const toneSpacing = (tone: ShadingTone, faintShare: O.Option<number>) =>
-  ShadingTone.$match(tone, {
+  ShadingTone.match(tone, {
     faint: () => faintRamp(O.getOrElse(faintShare, () => 1)),
     light: () => faintRamp(O.getOrElse(faintShare, () => 0)),
     medium: () => ({ coverage: 0.35, maxLines: 7 }),
@@ -1360,10 +1360,10 @@ export const hatchDirectionOf = (input: {
     O.fromNullishOr(input.view),
     O.flatMap((view) => darkestEdgeDirection(face, view))
   );
-  return HatchAxis.$match(input.axis, {
+  return HatchAxis.match(input.axis, {
     "longest-edge": () => longestEdgeDirection(face),
     "surface-class": () =>
-      SurfaceClass.$match(surfaceClassOf(face.normal), {
+      SurfaceClass.match(surfaceClassOf(face.normal), {
         upright: () => O.some(MODEL_UP),
         inclined: () => O.orElse(darkest, () => O.some(unitOf(crossOf(unitOf(face.normal), MODEL_UP)))),
         level: () =>
@@ -2060,7 +2060,7 @@ export const bandRunLengths = (input: {
  * @since 0.0.0
  */
 export const nextBandTaper = (taper: BandTaper): O.Option<BandTaper> =>
-  BandTaper.$match(taper, {
+  BandTaper.match(taper, {
     full: () => O.some<BandTaper>("lit"),
     lit: () => O.some<BandTaper>("lit-floor"),
     "lit-floor": O.none<BandTaper>,

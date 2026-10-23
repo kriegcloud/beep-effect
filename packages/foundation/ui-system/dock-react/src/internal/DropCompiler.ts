@@ -142,7 +142,7 @@ const groupBox = (geometry: DockGeometry, groupId: GroupId): O.Option<DockBox> =
 
 const splitPreviewBox = (box: DockBox, side: DockSide, ratio: SplitRatio): DockBox => {
   const share = N.divideUnsafe(ratio, 10_000);
-  return DockSide.$match(side, {
+  return DockSide.match(side, {
     left: () => DockBox.make({ ...box, width: N.multiply(box.width, share) }),
     right: () => {
       const width = N.multiply(box.width, share);

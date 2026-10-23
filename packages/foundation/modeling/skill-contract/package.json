@@ -68,6 +68,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/markdown": "workspace:^",
     "@beep/md": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"

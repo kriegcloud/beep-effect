@@ -1226,11 +1226,11 @@
       }
     },
     "@beep/skill-contract": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2d-A, feat/effected-promotion-w2da)",
+      "reason": "Record the wave-2d-A dependency edges @beep/repo-cli -> @beep/markdown and @beep/skill-contract -> @beep/markdown with their tsconfig references, and the policy-fingerprint input set that follows repo-cli's new runtime closure; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2da.md",
+        "sha256": "e6f85a47b18dbd245f8ec860dc1df9b7129e2e7fcf68250d43b43604ad23784f"
       }
     },
     "@beep/spdx": {
@@ -2886,6 +2886,8 @@
             "packages/foundation/modeling/identity/src/**",
             "packages/foundation/modeling/jsonc/package.json",
             "packages/foundation/modeling/jsonc/src/**",
+            "packages/foundation/modeling/markdown/package.json",
+            "packages/foundation/modeling/markdown/src/**",
             "packages/foundation/modeling/md/package.json",
             "packages/foundation/modeling/md/src/**",
             "packages/foundation/modeling/provenance/package.json",
@@ -2898,10 +2900,14 @@
             "packages/foundation/modeling/skill-contract/src/**",
             "packages/foundation/modeling/spdx/package.json",
             "packages/foundation/modeling/spdx/src/**",
+            "packages/foundation/modeling/toml/package.json",
+            "packages/foundation/modeling/toml/src/**",
             "packages/foundation/modeling/tsconfig/package.json",
             "packages/foundation/modeling/tsconfig/src/**",
             "packages/foundation/modeling/utils/package.json",
             "packages/foundation/modeling/utils/src/**",
+            "packages/foundation/modeling/yaml/package.json",
+            "packages/foundation/modeling/yaml/src/**",
             "packages/foundation/primitive/data/package.json",
             "packages/foundation/primitive/data/src/**",
             "packages/tooling/library/ai-metrics/package.json",
@@ -93542,6 +93548,7 @@
           "@beep/identity#audit",
           "@beep/libpff#audit",
           "@beep/m365#audit",
+          "@beep/markdown#audit",
           "@beep/mcp-kit#audit",
           "@beep/md#audit",
           "@beep/memfs#audit",
@@ -93646,6 +93653,7 @@
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
+          "@beep/markdown#build",
           "@beep/mcp-kit#build",
           "@beep/md#build",
           "@beep/memfs#build",
@@ -93739,6 +93747,7 @@
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
+          "@beep/markdown#build",
           "@beep/mcp-kit#build",
           "@beep/md#build",
           "@beep/memfs#build",
@@ -93819,6 +93828,7 @@
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
+          "@beep/markdown#build",
           "@beep/mcp-kit#build",
           "@beep/md#build",
           "@beep/memfs#build",
@@ -93948,6 +93958,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/memfs#transit",
@@ -94073,6 +94084,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/memfs#transit",
@@ -94316,6 +94328,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/memfs#transit",
@@ -94399,6 +94412,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/memfs#transit",
@@ -94507,6 +94521,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/memfs#transit",
@@ -105080,6 +105095,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#audit",
+          "@beep/markdown#audit",
           "@beep/md#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
@@ -105146,6 +105162,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/md#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -105201,6 +105218,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/md#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -105243,6 +105261,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/md#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -105334,6 +105353,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/md#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -105421,6 +105441,7 @@
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/md#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -105626,6 +105647,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/md#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -105671,6 +105693,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/md#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -105722,6 +105745,7 @@
         "commandDigest": "7b5a80fbe334599f0b37e34e1fb9265f496230fd68890aae5038d21de47388df",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/md#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -123390,7 +123414,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "76d74284c5c5e941484169ea058ef02d578c2cbe755c5c5a0c0ab9913e24e446"
+        "sha256": "8d95e965658a13c348d791c89beac89dfb262ecd6ac479072d0d944ef8dc17da"
       }
     ]
   }

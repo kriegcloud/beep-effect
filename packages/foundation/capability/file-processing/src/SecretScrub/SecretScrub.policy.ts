@@ -67,7 +67,7 @@ export const promptTextFromScrub = (result: SecretScrubResult): O.Option<PromptA
  * @since 0.0.0
  */
 export const secretRetentionDeadline = (record: SecretRetentionRecord): number =>
-  SecretRetentionClass.$match(record.retentionClass, {
+  SecretRetentionClass.match(record.retentionClass, {
     "transient-raw": () => record.createdAtEpochMillis + Duration.toMillis(Duration.days(7)),
     "scrub-proof": () => record.createdAtEpochMillis + Duration.toMillis(Duration.days(30)),
     audit: () => DateTime.toEpochMillis(DateTime.add(DateTime.makeUnsafe(record.createdAtEpochMillis), { months: 12 })),

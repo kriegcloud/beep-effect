@@ -19,7 +19,7 @@ const withLiteralKitHelpers =
   <const L extends LiteralValues>(kit: LiteralKitSchema<L>) =>
   <const Schema extends object>(schema: Schema) =>
     SchemaUtils.withStatics(schema, () => ({
-      $match: kit.$match,
+      match: kit.match,
       Enum: kit.Enum,
       toTaggedUnion: kit.toTaggedUnion,
     }));

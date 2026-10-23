@@ -207,7 +207,7 @@ export const ExpandedTerm = ExpandedTermSource.mapMembers(
  */
 export type ExpandedTerm = typeof ExpandedTerm.Type;
 
-const selectExpandedTermCase = ExpandedTermSource.$match({
+const selectExpandedTermCase = ExpandedTermSource.match({
   original: () => ExpandedTerm.cases.original,
   altLabel: () => ExpandedTerm.cases.altLabel,
   broader: () => ExpandedTerm.cases.broader,

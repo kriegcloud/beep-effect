@@ -34,10 +34,60 @@ describe("FrontmatterSource", () => {
     it("recognizes the whole closed fence set and nothing else", () => {
       assert.strictEqual(split("+++\na = 1\n+++\nb\n").frontmatter?.format, "toml");
       assert.strictEqual(split('---json\n{"a":1}\n---\nb\n').frontmatter?.format, "json");
-      // Not fences: wrong spelling, padding, unknown language hints.
-      for (const source of ["----\nx\n----\n", "---yaml\nx\n---\n", " ---\nx\n---\n", "--- \nx\n---\n"]) {
+      // Not fences: wrong spelling, indentation, unknown language hints.
+      for (const source of [
+        "----\nx\n----\n",
+        "---- \nx\n---\n",
+        "---yaml\nx\n---\n",
+        " ---\nx\n---\n",
+        "---\nx\n ---\n",
+        "--- x\nx\n---\n",
+      ]) {
         assert.strictEqual(split(source).frontmatter, undefined, source);
       }
+    });
+
+    it("accepts trailing spaces and tabs on both fence lines for every fence style", () => {
+      for (const [open, close, format] of [
+        ["---", "---", "yaml"],
+        ["+++", "+++", "toml"],
+        ["---json", "---", "json"],
+      ] as const) {
+        for (const pad of [" ", "\t", " \t"]) {
+          for (const [opening, closing] of [
+            [`${open}${pad}`, close],
+            [open, `${close}${pad}`],
+            [`${open}${pad}`, `${close}${pad}`],
+          ]) {
+            const source = `${opening}\nkey\n${closing}\nBody\n`;
+            const result = split(source);
+            assert.strictEqual(result.frontmatter?.format, format, source);
+            assert.strictEqual(result.frontmatter?.value, "key\n", source);
+            assert.strictEqual(result.body, "Body\n", source);
+            assert.strictEqual(result.bodyOffset, source.length - "Body\n".length, source);
+          }
+        }
+      }
+    });
+
+    it("closes the changeset shape '--- ' that @changesets/parse releases", () => {
+      const result = split('---\n"@beep/x": patch\n--- \n\nBody\n');
+      assert.strictEqual(result.frontmatter?.format, "yaml");
+      assert.strictEqual(result.frontmatter?.value, '"@beep/x": patch\n');
+      assert.strictEqual(result.body, "\nBody\n");
+    });
+
+    it("accepts padded fences under CRLF", () => {
+      const result = split("--- \r\na: 1\r\n---\t\r\nbody");
+      assert.strictEqual(result.frontmatter?.newline, "\r\n");
+      assert.strictEqual(result.frontmatter?.value, "a: 1\r\n");
+      assert.strictEqual(result.body, "body");
+    });
+
+    it("closes at the first fence and leaves a later padded thematic break in the body", () => {
+      const result = split("---\na: 1\n---\n\nintro\n\n--- \n\nafter\n");
+      assert.strictEqual(result.frontmatter?.value, "a: 1\n");
+      assert.strictEqual(result.body, "\nintro\n\n--- \n\nafter\n");
     });
 
     it("treats an unclosed fence as no frontmatter, body verbatim", () => {
@@ -96,6 +146,11 @@ describe("FrontmatterSource", () => {
         "---\nunclosed\n",
         "# plain\n",
         "---\n---\n",
+        "--- \na: 1\n---\t\n",
+        "+++\t\na = 1\n+++ \n",
+        '---json \n{"a":1}\n--- \n',
+        "---\na: 1\n ---\n",
+        "---- \na: 1\n---\n",
       ]) {
         assert.strictEqual(split(source).frontmatter?.format, capturedFormat(source), source);
       }
@@ -123,6 +178,12 @@ describe("FrontmatterSource", () => {
     it("normalizes the one unterminated spelling: a closing fence at EOF gains a newline", () => {
       const source = "---\nfoo: 1\n---";
       assert.strictEqual(join(split(source)), `${source}\n`);
+    });
+
+    it("writes canonical fences when the source fences carried trailing whitespace", () => {
+      assert.strictEqual(join(split("--- \na: 1\n---\t\nbody\n")), "---\na: 1\n---\nbody\n");
+      assert.strictEqual(join(split("+++ \t\na = 1\n+++ \nbody\n")), "+++\na = 1\n+++\nbody\n");
+      assert.strictEqual(join(split('---json\t\n{"a":1}\n--- \r\nbody')), '---json\n{"a":1}\n---\nbody');
     });
 
     it("serializes hand-built parts, appending the missing value terminator", () => {
