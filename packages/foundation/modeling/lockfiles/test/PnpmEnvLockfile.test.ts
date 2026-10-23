@@ -26,10 +26,13 @@ import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
 import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { fixture as readFixture } from "./support/fixtures.ts";
 
 const fixture = (relative: string): string => readFixture(`pnpm/${relative}/pnpm-lock.yaml`);
@@ -42,7 +45,7 @@ const EXE_LINUX_X64_12_SRI =
   "sha512-qFWBneHJAJ73W4whtbaFOL1M/7DBC6ILHXuxc7ZPtEhfPuT1zeZiGrmKHoMAfJA+mcm6xhOFljqVTUS+00Jabw==";
 
 /** A well-formed SRI string, distinct per seed. */
-const sri = (seed: string): string => `sha512-${seed.repeat(86).slice(0, 86)}==`;
+const sri = (seed: string): string => `sha512-${Str.slice(0, 86)(Str.repeat(86)(seed))}==`;
 
 interface PreambleOptions {
   readonly lockfileVersion?: string;
@@ -60,7 +63,8 @@ interface PreambleOptions {
 const preamble = (options: PreambleOptions = {}): string => {
   const pmDeps =
     options.pmDeps ??
-    ["    packageManagerDependencies:", "      pnpm:", "        specifier: 12.6.0", "        version: 12.6.0"].join(
+    A.join(
+      ["    packageManagerDependencies:", "      pnpm:", "        specifier: 12.6.0", "        version: 12.6.0"],
       "\n"
     );
   const pnpmPackage =
@@ -75,24 +79,27 @@ const preamble = (options: PreambleOptions = {}): string => {
     options.pnpmSnapshot === undefined
       ? "  pnpm@12.6.0:\n    optionalDependencies:\n      '@pnpm/exe.linux-x64': 12.6.0"
       : options.pnpmSnapshot;
-  return [
-    "---",
-    `lockfileVersion: '${options.lockfileVersion ?? "9.0"}'`,
-    "importers:",
-    "  .:",
-    pmDeps,
-    "packages:",
-    ...(pnpmPackage === null ? [] : [pnpmPackage]),
-    ...(nativePackage === null ? [] : [nativePackage]),
-    "snapshots:",
-    "  '@pnpm/exe.linux-x64@12.6.0':\n    optional: true",
-    ...(pnpmSnapshot === null ? [] : [pnpmSnapshot]),
-    "---",
-    "lockfileVersion: '9.0'",
-    "importers:",
-    "  .: {}",
-    "",
-  ].join("\n");
+  return A.join(
+    [
+      "---",
+      `lockfileVersion: '${options.lockfileVersion ?? "9.0"}'`,
+      "importers:",
+      "  .:",
+      pmDeps,
+      "packages:",
+      ...(pnpmPackage === null ? [] : [pnpmPackage]),
+      ...(nativePackage === null ? [] : [nativePackage]),
+      "snapshots:",
+      "  '@pnpm/exe.linux-x64@12.6.0':\n    optional: true",
+      ...(pnpmSnapshot === null ? [] : [pnpmSnapshot]),
+      "---",
+      "lockfileVersion: '9.0'",
+      "importers:",
+      "  .: {}",
+      "",
+    ],
+    "\n"
+  );
 };
 
 const lockOf = Effect.fn("lockOf")(function* (content: string) {
@@ -125,9 +132,9 @@ describe("PnpmEnvLockfile.packageManager", () => {
         assert.strictEqual(lock.specifier, "12.6.0");
         assert.strictEqual(lock.version, "12.6.0");
         assert.strictEqual(lock.integrity, PNPM_12_SRI);
-        const names = Object.keys(lock.nativeIntegrity);
+        const names = R.keys(lock.nativeIntegrity);
         assert.strictEqual(names.length, 14);
-        assert.isTrue(names.every((name) => name.startsWith("@pnpm/exe.") && !name.includes("@12.6.0")));
+        assert.isTrue(A.every(names, (name) => Str.startsWith("@pnpm/exe.")(name) && !Str.includes("@12.6.0")(name)));
         assert.strictEqual(lock.nativeIntegrity["@pnpm/exe.linux-x64"], EXE_LINUX_X64_12_SRI);
       })
     );
@@ -135,11 +142,11 @@ describe("PnpmEnvLockfile.packageManager", () => {
     it.effect("pnpm 12 with configDependencies: the specifier keeps its +sha512 suffix verbatim", () =>
       Effect.gen(function* () {
         const lock = yield* lockOf(fixture("env-configdeps"));
-        assert.isTrue(lock.specifier.startsWith("12.6.0+sha512.3ef68f951cb111ac"));
+        assert.isTrue(Str.startsWith("12.6.0+sha512.3ef68f951cb111ac")(lock.specifier));
         assert.strictEqual(lock.version, "12.6.0");
         assert.strictEqual(lock.integrity, PNPM_12_SRI);
-        assert.strictEqual(Object.keys(lock.nativeIntegrity).length, 14);
-        assert.isFalse(Object.hasOwn(lock.nativeIntegrity, "@effected/pnpm-plugin-effect"));
+        assert.strictEqual(R.keys(lock.nativeIntegrity).length, 14);
+        assert.isFalse(R.has(lock.nativeIntegrity, "@effected/pnpm-plugin-effect"));
       })
     );
 
@@ -166,7 +173,7 @@ describe("PnpmEnvLockfile.packageManager", () => {
       Effect.gen(function* () {
         // The first document of a real two-document lockfile, alone: position,
         // not content, is what makes a document the preamble.
-        const onlyPreamble = preamble().split("\n---\n")[0] ?? "";
+        const onlyPreamble = Str.split(preamble(), "\n---\n")[0] ?? "";
         assert.include(onlyPreamble, "packageManagerDependencies");
         const result = yield* PnpmEnvLockfile.packageManager(onlyPreamble);
         assertNone(result);
@@ -183,12 +190,15 @@ describe("PnpmEnvLockfile.packageManager", () => {
     it.effect("a preamble whose packageManagerDependencies names no pnpm", () =>
       Effect.gen(function* () {
         const content = preamble({
-          pmDeps: [
-            "    packageManagerDependencies:",
-            "      constructor:",
-            "        specifier: 1.0.0",
-            "        version: 1.0.0",
-          ].join("\n"),
+          pmDeps: A.join(
+            [
+              "    packageManagerDependencies:",
+              "      constructor:",
+              "        specifier: 1.0.0",
+              "        version: 1.0.0",
+            ],
+            "\n"
+          ),
         });
         const result = yield* PnpmEnvLockfile.packageManager(content);
         assertNone(result);
@@ -225,7 +235,7 @@ describe("PnpmEnvLockfile.packageManager", () => {
 
     it.effect("the pnpm integrity is not SRI (the corepack hex form)", () =>
       validationError(
-        preamble({ pnpmPackage: `  pnpm@12.6.0:\n    resolution: {integrity: sha512.${"ab".repeat(64)}}` })
+        preamble({ pnpmPackage: `  pnpm@12.6.0:\n    resolution: {integrity: sha512.${Str.repeat(64)("ab")}}` })
       )
     );
 
@@ -246,12 +256,10 @@ describe("PnpmEnvLockfile.packageManager", () => {
     it.effect("an empty recorded version", () =>
       validationError(
         preamble({
-          pmDeps: [
-            "    packageManagerDependencies:",
-            "      pnpm:",
-            "        specifier: 12.6.0",
-            "        version: ''",
-          ].join("\n"),
+          pmDeps: A.join(
+            ["    packageManagerDependencies:", "      pnpm:", "        specifier: 12.6.0", "        version: ''"],
+            "\n"
+          ),
         })
       )
     );
@@ -298,8 +306,8 @@ describe("PnpmEnvLockfile.packageManager", () => {
             pnpmSnapshot: "  pnpm@12.6.0:\n    optionalDependencies:\n      __proto__: 12.6.0",
           })
         );
-        assert.isTrue(Object.hasOwn(lock.nativeIntegrity, "__proto__"));
-        assert.strictEqual(Object.keys(lock.nativeIntegrity).length, 1);
+        assert.isTrue(R.has(lock.nativeIntegrity, "__proto__"));
+        assert.strictEqual(R.keys(lock.nativeIntegrity).length, 1);
         const empty: Record<string, unknown> = {};
         assert.strictEqual(empty.integrity, undefined);
       })
@@ -313,18 +321,21 @@ describe("PnpmEnvLockfile.packageManager", () => {
  * two halves a test breaks.
  */
 const configPreamble = (options: { readonly importer?: string; readonly packages?: string } = {}): string =>
-  [
-    "---",
-    "lockfileVersion: '9.0'",
-    "importers:",
-    "  .:",
-    options.importer ??
-      ["    configDependencies:", "      cfg:", "        specifier: 1.0.0", "        version: 1.0.0"].join("\n"),
-    "packages:",
-    options.packages ?? `  cfg@1.0.0:\n    resolution: {integrity: ${sri("d")}}`,
-    "---",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "---",
+      "lockfileVersion: '9.0'",
+      "importers:",
+      "  .:",
+      options.importer ??
+        A.join(["    configDependencies:", "      cfg:", "        specifier: 1.0.0", "        version: 1.0.0"], "\n"),
+      "packages:",
+      options.packages ?? `  cfg@1.0.0:\n    resolution: {integrity: ${sri("d")}}`,
+      "---",
+      "",
+    ],
+    "\n"
+  );
 
 const configValidationError = Effect.fn("configValidationError")(function* (content: string) {
   const error = yield* Effect.flip(PnpmEnvLockfile.configDependencies(content));
@@ -432,7 +443,7 @@ describe("PnpmEnvLockfile.configDependencies", () => {
 
     it.effect("the integrity is not SRI", () =>
       configValidationError(
-        configPreamble({ packages: `  cfg@1.0.0:\n    resolution: {integrity: sha512.${"ab".repeat(64)}}` })
+        configPreamble({ packages: `  cfg@1.0.0:\n    resolution: {integrity: sha512.${Str.repeat(64)("ab")}}` })
       )
     );
 
@@ -440,7 +451,8 @@ describe("PnpmEnvLockfile.configDependencies", () => {
       Effect.gen(function* () {
         const error = yield* configValidationError(
           configPreamble({
-            importer: ["    configDependencies:", "      cfg:", "        specifier: 1.0.0", "        version: ''"].join(
+            importer: A.join(
+              ["    configDependencies:", "      cfg:", "        specifier: 1.0.0", "        version: ''"],
               "\n"
             ),
           })
@@ -469,12 +481,10 @@ describe("PnpmEnvLockfile.configDependencies", () => {
       Effect.gen(function* () {
         const locks = yield* PnpmEnvLockfile.configDependencies(
           configPreamble({
-            importer: [
-              "    configDependencies:",
-              "      __proto__:",
-              "        specifier: 1.0.0",
-              "        version: 1.0.0",
-            ].join("\n"),
+            importer: A.join(
+              ["    configDependencies:", "      __proto__:", "        specifier: 1.0.0", "        version: 1.0.0"],
+              "\n"
+            ),
             packages: `  '__proto__@1.0.0':\n    resolution: {integrity: ${sri("e")}}`,
           })
         );

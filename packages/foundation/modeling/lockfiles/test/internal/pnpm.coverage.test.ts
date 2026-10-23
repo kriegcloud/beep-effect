@@ -2,6 +2,7 @@ import { parsePnpm } from "@beep/lockfiles/internal/pnpm";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { Yaml } from "@beep/yaml/Yaml";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -31,14 +32,14 @@ it.effect(
       });
       const fields = yield* parsePnpm(text, false);
       assert.deepStrictEqual(
-        fields.packages.map((pkg) => [pkg.instanceId, pkg.resolved, pkg.unresolvedEdges]),
+        A.map(fields.packages, (pkg) => [pkg.instanceId, pkg.resolved, pkg.unresolvedEdges]),
         [
           ["lib", {}, ["root"]],
           ["a@1", {}, ["escape", "root"]],
         ]
       );
       assert.deepStrictEqual(
-        fields.importers[0]?.dependencies.map((dep) => dep.name),
+        A.map(O.getOrThrow(A.head(fields.importers)).dependencies, (dep) => dep.name),
         ["escape", "root"]
       );
     })

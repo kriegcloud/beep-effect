@@ -5,6 +5,7 @@ import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -24,7 +25,7 @@ const canonicalDependency = (dependency: ImporterDependency): ImporterDependency
   });
 
 const canonicalImporter = (importer: LockfileImporter): LockfileImporter =>
-  LockfileImporter.make({ ...importer, dependencies: importer.dependencies.map(canonicalDependency) });
+  LockfileImporter.make({ ...importer, dependencies: A.map(importer.dependencies, canonicalDependency) });
 
 const runs = { arbitrary: fcRuns(100) };
 

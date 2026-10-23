@@ -24,7 +24,7 @@ it.effect("link stubs preserve fallbacks, omit missing manifests and skip namele
     });
     const fields = yield* parseNpm(text);
     assert.deepStrictEqual(
-      fields.packages.map((pkg) => [pkg.name, pkg.version, pkg.resolved]),
+      A.map(fields.packages, (pkg) => [pkg.name, pkg.version, pkg.resolved]),
       [
         ["fallback", "0.0.0", {}],
         ["explicit", "0.0.0", {}],
@@ -33,7 +33,7 @@ it.effect("link stubs preserve fallbacks, omit missing manifests and skip namele
       ]
     );
     assert.deepStrictEqual(
-      fields.importers.map((entry) => [entry.path, entry.dependencies]),
+      A.map(fields.importers, (entry) => [entry.path, entry.dependencies]),
       [["absent", []]]
     );
   })

@@ -5,6 +5,7 @@ import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { LockfileIntegrity, WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 
 const workspace = (name: string, relativePath: string): ResolvedPackage =>
   ResolvedPackage.make({ name, version: "1.0.0", instanceId: relativePath, isWorkspace: true, relativePath });
@@ -160,7 +161,7 @@ describe("LockfileIntegrity.compare", () => {
     const report = LockfileIntegrity.compare(lockfile, manifests);
 
     assert.deepStrictEqual(
-      report.unsatisfiedConstraints.map((row) => [row.dependency, row.depType]),
+      A.map(report.unsatisfiedConstraints, (row) => [row.dependency, row.depType]),
       [
         ["a", "dependencies"],
         ["b", "devDependencies"],

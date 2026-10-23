@@ -39,6 +39,7 @@ import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -63,7 +64,7 @@ const dictionary = <V extends Schema.Top>(
   keys: ReadonlyArray<string>,
   value: V
 ): Arbitrary.Arbitrary<Record<string, V["Type"]>> =>
-  Arbitrary.schema(Schema.Struct(R.fromEntries(keys.map((key) => [key, Schema.optionalKey(value)] as const)))).pipe(
+  Arbitrary.schema(Schema.Struct(R.fromEntries(A.map(keys, (key) => [key, Schema.optionalKey(value)] as const)))).pipe(
     Arbitrary.map((entries) => {
       assertTrue(Schema.is(Schema.Record(Schema.String, Schema.toType(value)))(entries));
       return { ...entries };

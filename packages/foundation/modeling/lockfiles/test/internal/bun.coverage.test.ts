@@ -1,6 +1,7 @@
 import { parseBun } from "@beep/lockfiles/internal/bun";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -17,7 +18,7 @@ it.effect("skips empty identities and malformed metadata while retaining workspa
     });
     const fields = yield* parseBun(text);
     assert.deepStrictEqual(
-      fields.packages.map((pkg) => [pkg.name, pkg.version, pkg.resolved]),
+      A.map(fields.packages, (pkg) => [pkg.name, pkg.version, pkg.resolved]),
       [
         ["lib", "0.0.0", {}],
         ["a", "1", {}],
@@ -26,7 +27,7 @@ it.effect("skips empty identities and malformed metadata while retaining workspa
       ]
     );
     assert.deepStrictEqual(
-      fields.importers.map((entry) => entry.dependencies),
+      A.map(fields.importers, (entry) => entry.dependencies),
       [[]]
     );
   })

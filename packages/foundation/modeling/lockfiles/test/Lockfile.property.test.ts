@@ -10,6 +10,7 @@ import { Yaml } from "@beep/yaml/Yaml";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -29,7 +30,7 @@ const canonicalDependency = (dependency: ImporterDependency): ImporterDependency
   });
 
 const canonicalImporter = (importer: LockfileImporter): LockfileImporter =>
-  LockfileImporter.make({ ...importer, dependencies: importer.dependencies.map(canonicalDependency) });
+  LockfileImporter.make({ ...importer, dependencies: A.map(importer.dependencies, canonicalDependency) });
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -37,7 +38,7 @@ it.effect.prop(
   "Lockfile: encoded values decode without failure and preserve the model",
   [
     Arbitrary.schema(Lockfile).pipe(
-      Arbitrary.map((value) => Lockfile.make({ ...value, importers: value.importers.map(canonicalImporter) }))
+      Arbitrary.map((value) => Lockfile.make({ ...value, importers: A.map(value.importers, canonicalImporter) }))
     ),
   ],
   ([value]) =>
@@ -124,7 +125,7 @@ for (const format of LockfileFormat.literals) {
         const reparsed = yield* Lockfile.parse(canonical, { format });
         assertTrue(S.toEquivalence(Lockfile)(reparsed, parsed));
         assert.deepStrictEqual(
-          parsed.packagesNamed("effect").map((pkg) => pkg.version),
+          A.map(parsed.packagesNamed("effect"), (pkg) => pkg.version),
           [sample.version]
         );
         if (format === "bun") {

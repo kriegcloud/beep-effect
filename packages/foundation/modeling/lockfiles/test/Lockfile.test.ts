@@ -1,26 +1,27 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Per-format fixture tests: the ported corpus (pnpm v1–v3, npm v1–v2,
 // yarn v1–v2, bun v1–v3) asserted against the unified model — package
 // counts, workspace identification, integrity hashes, workspace dependency
 // edges and extension payloads — plus the model's own instance surface
 // (packagesNamed, workspacePackages) and the withImporterNames seam repair.
 
-import { existsSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { filenameFor } from "@beep/lockfiles/LockfileFormat";
-import { PnpmCatalogPin } from "@beep/lockfiles/PnpmExtension";
+import { PnpmCatalogPin, PnpmExtension } from "@beep/lockfiles/PnpmExtension";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { fixture, fixturePath } from "./support/fixtures.ts";
+import * as Str from "effect/String";
+import { corpus, fixture } from "./support/fixtures.ts";
 import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
 const JsonString = S.fromJsonString(S.Unknown);
@@ -44,6 +45,59 @@ const CONFIG_ONLY_FIXTURE_PREFIX = "env-configonly-";
 const parseFixture = (relative: string, format: LockfileFormat, configOnly = false) =>
   Lockfile.parse(fixture(relative), { format, configOnly });
 
+// The first element of a non-empty result, failing the test otherwise.
+const first = <T>(items: ReadonlyArray<T>): T => O.getOrThrow(A.head(items));
+
+// A value the fixture must record, failing the test when it is absent.
+const defined = <T>(value: T | undefined): T => O.getOrThrow(O.fromUndefinedOr(value));
+
+// The pnpm extension a pnpm parse attaches, failing the test for any other.
+const pnpmExtensionOf = (lockfile: Lockfile): PnpmExtension =>
+  O.getOrThrow(O.filter(O.fromUndefinedOr(lockfile.extension), S.is(PnpmExtension)));
+
+const hasParenthesis = (text: string): boolean => Str.includes("(")(text) || Str.includes(")")(text);
+
+// A HashMap-backed instance-id lookup built straight from `packages`,
+// independent of the model's own lazy index.
+const instanceIndex = (lockfile: Lockfile) => {
+  const index = HashMap.fromIterable(A.map(lockfile.packages, (p) => [p.instanceId, p] as const));
+  return { get: (id: string): ResolvedPackage | undefined => O.getOrUndefined(HashMap.get(index, id)) };
+};
+
+// The fixture sets (directories) stored for a format, minus the negative
+// `unsupported-*` sets that assert a typed failure.
+const positiveFixtureSets = (format: LockfileFormat): ReadonlyArray<string> =>
+  A.dedupe(
+    A.flatMap(R.keys(corpus), (path) => {
+      const [root, fixtureSet] = Str.split(path, "/");
+      return root === format && fixtureSet !== undefined && !Str.startsWith(NEGATIVE_FIXTURE_PREFIX)(fixtureSet)
+        ? [fixtureSet]
+        : [];
+    })
+  );
+
+// `filenameFor` names the PRIMARY filename only, so a set holding, say,
+// `npm-shrinkwrap.json` instead is reported by path before parsing. The parse
+// runs through `Effect.exit` so a fixture that has aged below the gate reports
+// *which* fixture, rather than surfacing as a bare parse error with no path in
+// it — this guard is read by whoever added the fixture that broke it.
+const gatedVersion = Effect.fn("gatedVersion")(function* (
+  relative: string,
+  format: LockfileFormat,
+  configOnly: boolean
+) {
+  assert.isTrue(
+    R.has(corpus, relative),
+    `${relative} is missing: this guard reads each format's primary filename with the inert .fixture suffix`
+  );
+  const parsed = yield* parseFixture(relative, format, configOnly).pipe(
+    Effect.mapError((cause) => new Error(`${relative} no longer parses: it may have aged below the gate`, { cause })),
+    Effect.exit
+  );
+  assertExitSuccess(parsed, Exit.isSuccess(parsed) ? parsed.value : undefined);
+  return parsed.value.lockfileVersion;
+});
+
 describe("Lockfile.parse", () => {
   describe("pnpm", () => {
     it.effect("v1: normalizes importers, packages, edges and the pnpm extension", () =>
@@ -58,26 +112,26 @@ describe("Lockfile.parse", () => {
         // the honest first stage; withImporterNames is the second.
         const workspaces = lockfile.workspacePackages;
         assert.deepStrictEqual(
-          workspaces.map((p) => p.name),
+          A.map(workspaces, (p) => p.name),
           ["packages/core", "packages/utils"]
         );
-        assert.isTrue(workspaces.every((p) => p.version === "0.0.0"));
-        assert.isTrue(workspaces.every((p) => p.relativePath === p.name));
+        assert.isTrue(A.every(workspaces, (p) => p.version === "0.0.0"));
+        assert.isTrue(A.every(workspaces, (p) => p.relativePath === p.name));
 
-        const chalk = lockfile.packagesNamed("chalk");
-        assert.strictEqual(chalk.length, 1);
-        assert.strictEqual(chalk[0]?.version, "5.6.2");
-        assert.isFalse(chalk[0]?.isWorkspace);
-        assert.isTrue(chalk[0]?.integrity?.startsWith("sha512-"));
+        assert.strictEqual(lockfile.packagesNamed("chalk").length, 1);
+        const chalk = first(lockfile.packagesNamed("chalk"));
+        assert.strictEqual(chalk.version, "5.6.2");
+        assert.isFalse(chalk.isWorkspace);
+        assert.isTrue(O.exists(O.fromUndefinedOr(chalk.integrity), Str.startsWith("sha512-")));
 
         // The instance-id index answers the same object a scan would, so a
         // consumer walking resolved edges need not rebuild the map itself.
-        const byId = lockfile.packageByInstanceId(chalk[0]?.instanceId ?? "");
+        const byId = lockfile.packageByInstanceId(chalk.instanceId);
         assertSome(
           O.map(byId, (pkg) => pkg.name),
           "chalk"
         );
-        assert.strictEqual(O.getOrUndefined(byId)?.name, "chalk");
+        assert.strictEqual(O.getOrThrow(byId).name, "chalk");
 
         // A miss is None, not a throw and not a stray object member.
         assertNone(lockfile.packageByInstanceId("nope@0.0.0"));
@@ -85,21 +139,23 @@ describe("Lockfile.parse", () => {
         assertNone(lockfile.packageByInstanceId("constructor"));
 
         assert.strictEqual(lockfile.workspaceDependencies.length, 1);
-        const edge = lockfile.workspaceDependencies[0];
-        assert.strictEqual(edge?.from, "packages/core");
-        assert.strictEqual(edge?.to, "@test-monorepo/utils");
-        assert.strictEqual(edge?.depType, "dependencies");
-        assert.strictEqual(edge?.constraint, "workspace:*");
+        const edge = first(lockfile.workspaceDependencies);
+        assert.strictEqual(edge.from, "packages/core");
+        assert.strictEqual(edge.to, "@test-monorepo/utils");
+        assert.strictEqual(edge.depType, "dependencies");
+        assert.strictEqual(edge.constraint, "workspace:*");
 
-        assert.strictEqual(lockfile.extension?._tag, "pnpm");
-        if (lockfile.extension?._tag === "pnpm") {
-          assert.deepStrictEqual(lockfile.extension.catalogs?.default, {
+        const extension = pnpmExtensionOf(lockfile);
+        assert.deepStrictEqual(
+          R.get(defined(extension.catalogs), "default"),
+          O.some({
             chalk: PnpmCatalogPin.make({ specifier: "^5.3.0", version: "5.6.2" }),
-          });
-          assert.deepStrictEqual(lockfile.extension.overrides, { lodash: "4.17.21" });
-          assert.strictEqual(lockfile.extension.settings?.autoInstallPeers, true);
-          assert.strictEqual(lockfile.extension.settings?.excludeLinksFromLockfile, false);
-        }
+          })
+        );
+        assert.deepStrictEqual(extension.overrides, { lodash: "4.17.21" });
+        const settings = defined(extension.settings);
+        assert.strictEqual(settings.autoInstallPeers, true);
+        assert.strictEqual(settings.excludeLinksFromLockfile, false);
       })
     );
 
@@ -109,40 +165,32 @@ describe("Lockfile.parse", () => {
 
         assert.strictEqual(lockfile.format, "pnpm");
         assert.deepStrictEqual(
-          lockfile.workspacePackages.map((p) => p.name),
+          A.map(lockfile.workspacePackages, (p) => p.name),
           ["packages/core", "packages/new-pkg", "packages/utils"]
         );
 
         const edges = lockfile.workspaceDependencies;
         assert.deepStrictEqual(
-          edges.map((e) => [e.from, e.to]),
+          A.map(edges, (e) => [e.from, e.to]),
           [
             ["packages/core", "@test-monorepo/utils"],
             ["packages/new-pkg", "@test-monorepo/utils"],
           ]
         );
 
-        assert.strictEqual(lockfile.extension?._tag, "pnpm");
-        if (lockfile.extension?._tag === "pnpm") {
-          const silk = lockfile.extension.catalogs?.silk;
-          assert.isDefined(silk);
-          for (const entry of Object.values(silk ?? {})) {
-            assert.isObject(entry);
-            assert.property(entry, "specifier");
-            assert.property(entry, "version");
-          }
+        const silk = O.getOrThrow(R.get(defined(pnpmExtensionOf(lockfile).catalogs), "silk"));
+        for (const entry of R.values(silk)) {
+          assert.isObject(entry);
+          assert.property(entry, "specifier");
+          assert.property(entry, "version");
         }
 
         // Peer-resolution suffixes in packages: keys must not corrupt the
         // name@version split: "fdir@6.5.0(picomatch@4.0.4)" is fdir at 6.5.0.
-        assert.strictEqual(lockfile.packagesNamed("fdir")[0]?.version, "6.5.0");
-        assert.strictEqual(lockfile.packagesNamed("@effect/platform")[0]?.version, "0.96.0");
-        assert.strictEqual(lockfile.packagesNamed("@vitest/mocker")[0]?.version, "3.2.4");
-        assert.isFalse(
-          lockfile.packages.some(
-            (p) => p.name.includes("(") || p.name.includes(")") || p.version.includes("(") || p.version.includes(")")
-          )
-        );
+        assert.strictEqual(first(lockfile.packagesNamed("fdir")).version, "6.5.0");
+        assert.strictEqual(first(lockfile.packagesNamed("@effect/platform")).version, "0.96.0");
+        assert.strictEqual(first(lockfile.packagesNamed("@vitest/mocker")).version, "3.2.4");
+        assert.isFalse(A.some(lockfile.packages, (p) => hasParenthesis(p.name) || hasParenthesis(p.version)));
       })
     );
 
@@ -170,7 +218,7 @@ describe("Lockfile.parse", () => {
 
         const workspaces = lockfile.workspacePackages;
         assert.deepStrictEqual(
-          workspaces.map((p) => [p.name, p.version, p.relativePath]),
+          A.map(workspaces, (p) => [p.name, p.version, p.relativePath]),
           [
             ["@test-monorepo/core", "1.0.0", "packages/core"],
             ["@test-monorepo/utils", "1.0.0", "packages/utils"],
@@ -178,7 +226,9 @@ describe("Lockfile.parse", () => {
         );
 
         assert.strictEqual(lockfile.packagesNamed("typescript")[0]?.version, "5.9.3");
-        assert.isTrue(lockfile.packagesNamed("chalk")[0]?.integrity?.startsWith("sha512-"));
+        assert.isTrue(
+          O.exists(O.fromUndefinedOr(lockfile.packagesNamed("chalk")[0]?.integrity), Str.startsWith("sha512-"))
+        );
 
         assert.strictEqual(lockfile.workspaceDependencies.length, 1);
         const edge = lockfile.workspaceDependencies[0];
@@ -196,13 +246,13 @@ describe("Lockfile.parse", () => {
         const lockfile = yield* parseFixture("npm/v2/package-lock.json", "npm");
 
         assert.deepStrictEqual(
-          lockfile.workspacePackages.map((p) => p.name),
+          A.map(lockfile.workspacePackages, (p) => p.name),
           ["@test-monorepo/core", "@test-monorepo/new-pkg", "@test-monorepo/utils"]
         );
         // 104 registry packages + 3 workspaces.
         assert.strictEqual(lockfile.packages.length, 107);
         assert.deepStrictEqual(
-          lockfile.workspaceDependencies.map((e) => [e.from, e.to]),
+          A.map(lockfile.workspaceDependencies, (e) => [e.from, e.to]),
           [
             ["@test-monorepo/core", "@test-monorepo/utils"],
             ["@test-monorepo/new-pkg", "@test-monorepo/utils"],
@@ -222,12 +272,12 @@ describe("Lockfile.parse", () => {
         assert.strictEqual(lockfile.packages.length, 7);
 
         const workspaces = lockfile.workspacePackages;
-        assert.deepStrictEqual(workspaces.map((p) => p.name).sort(), [
+        assert.deepStrictEqual(A.map(workspaces, (p) => p.name).sort(), [
           "@test-monorepo/core",
           "@test-monorepo/utils",
           "test-yarn-monorepo",
         ]);
-        assert.isTrue(workspaces.every((p) => p.version === "0.0.0-use.local"));
+        assert.isTrue(A.every(workspaces, (p) => p.version === "0.0.0-use.local"));
 
         // The compound key "@test-monorepo/utils@workspace:*, ...@workspace:packages/utils"
         // yields the non-* path.
@@ -238,7 +288,7 @@ describe("Lockfile.parse", () => {
         // `IntegrityHash` (the yarn textual form), so they are preserved.
         const chalk = lockfile.packagesNamed("chalk")[0];
         assert.strictEqual(chalk?.version, "5.6.2");
-        assert.isTrue(chalk?.integrity?.startsWith("10c0/"));
+        assert.isTrue(O.exists(O.fromUndefinedOr(chalk?.integrity), Str.startsWith("10c0/")));
 
         assert.strictEqual(lockfile.workspaceDependencies.length, 1);
         const edge = lockfile.workspaceDependencies[0];
@@ -254,7 +304,7 @@ describe("Lockfile.parse", () => {
       Effect.gen(function* () {
         const lockfile = yield* parseFixture("yarn/v2/yarn.lock", "yarn");
 
-        const workspaceNames = lockfile.workspacePackages.map((p) => p.name).sort();
+        const workspaceNames = A.map(lockfile.workspacePackages, (p) => p.name).sort();
         assert.deepStrictEqual(workspaceNames, [
           "@test-monorepo/core",
           "@test-monorepo/new-pkg",
@@ -262,7 +312,7 @@ describe("Lockfile.parse", () => {
           "test-yarn-monorepo",
         ]);
 
-        assert.deepStrictEqual(lockfile.workspaceDependencies.map((e) => [e.from, e.to]).sort(), [
+        assert.deepStrictEqual(A.map(lockfile.workspaceDependencies, (e) => [e.from, e.to]).sort(), [
           ["@test-monorepo/core", "@test-monorepo/utils"],
           ["@test-monorepo/new-pkg", "@test-monorepo/utils"],
         ]);
@@ -308,7 +358,7 @@ describe("Lockfile.parse", () => {
 
         const workspaces = lockfile.workspacePackages;
         assert.deepStrictEqual(
-          workspaces.map((p) => [p.name, p.version, p.relativePath]),
+          A.map(workspaces, (p) => [p.name, p.version, p.relativePath]),
           [
             ["@test-monorepo/core", "1.0.0", "packages/core"],
             ["@test-monorepo/utils", "1.0.0", "packages/utils"],
@@ -318,7 +368,7 @@ describe("Lockfile.parse", () => {
         // Integrity is assumed at tuple index 3 (the pinned bun tuple shape).
         const chalk = lockfile.packagesNamed("chalk")[0];
         assert.strictEqual(chalk?.version, "5.6.2");
-        assert.isTrue(chalk?.integrity?.startsWith("sha512-"));
+        assert.isTrue(O.exists(O.fromUndefinedOr(chalk?.integrity), Str.startsWith("sha512-")));
 
         assert.strictEqual(lockfile.workspaceDependencies.length, 1);
         assert.strictEqual(lockfile.workspaceDependencies[0]?.from, "@test-monorepo/core");
@@ -338,11 +388,11 @@ describe("Lockfile.parse", () => {
         const lockfile = yield* parseFixture("bun/v2/bun.lock", "bun");
 
         assert.deepStrictEqual(
-          lockfile.workspacePackages.map((p) => p.name),
+          A.map(lockfile.workspacePackages, (p) => p.name),
           ["@test-monorepo/core", "@test-monorepo/new-pkg", "@test-monorepo/utils"]
         );
         assert.deepStrictEqual(
-          lockfile.workspaceDependencies.map((e) => [e.from, e.to]),
+          A.map(lockfile.workspaceDependencies, (e) => [e.from, e.to]),
           [
             ["@test-monorepo/core", "@test-monorepo/utils"],
             ["@test-monorepo/new-pkg", "@test-monorepo/utils"],
@@ -389,7 +439,7 @@ describe("Lockfile instance surface", () => {
     Effect.gen(function* () {
       const lockfile = yield* parseFixture("npm/v1/package-lock.json", "npm");
       assert.strictEqual(lockfile.workspacePackages.length, 2);
-      assert.isTrue(lockfile.workspacePackages.every((p) => p.isWorkspace));
+      assert.isTrue(A.every(lockfile.workspacePackages, (p) => p.isWorkspace));
     })
   );
 });
@@ -406,14 +456,14 @@ describe("Lockfile#withImporterNames (seam repair 1)", () => {
       const lockfile = parsed.withImporterNames(names);
 
       assert.deepStrictEqual(
-        lockfile.workspacePackages.map((p) => [p.name, p.relativePath]),
+        A.map(lockfile.workspacePackages, (p) => [p.name, p.relativePath]),
         [
           ["@test-monorepo/core", "packages/core"],
           ["@test-monorepo/utils", "packages/utils"],
         ]
       );
       // Versions stay "0.0.0": the map carries names only.
-      assert.isTrue(lockfile.workspacePackages.every((p) => p.version === "0.0.0"));
+      assert.isTrue(A.every(lockfile.workspacePackages, (p) => p.version === "0.0.0"));
 
       const edge = lockfile.workspaceDependencies[0];
       assert.strictEqual(edge?.from, "@test-monorepo/core");
@@ -444,12 +494,12 @@ describe("Lockfile#withImporterNames (seam repair 1)", () => {
       const lockfile = parsed.withImporterNames(names);
 
       assert.deepStrictEqual(
-        lockfile.workspacePackages.map((p) => p.name),
+        A.map(lockfile.workspacePackages, (p) => p.name),
         ["@test-monorepo/core", "packages/new-pkg", "@test-monorepo/utils"]
       );
       // The unmapped importer's edge keeps its path-named end.
       assert.deepStrictEqual(
-        lockfile.workspaceDependencies.map((e) => [e.from, e.to]),
+        A.map(lockfile.workspaceDependencies, (e) => [e.from, e.to]),
         [
           ["@test-monorepo/core", "@test-monorepo/utils"],
           ["packages/new-pkg", "@test-monorepo/utils"],
@@ -464,12 +514,12 @@ describe("Lockfile#withImporterNames (seam repair 1)", () => {
       const lockfile = parsed.withImporterNames(HashMap.fromIterable([["not-a-path", "renamed"]]));
 
       assert.deepStrictEqual(
-        lockfile.workspacePackages.map((p) => p.name),
-        parsed.workspacePackages.map((p) => p.name)
+        A.map(lockfile.workspacePackages, (p) => p.name),
+        A.map(parsed.workspacePackages, (p) => p.name)
       );
       assert.deepStrictEqual(
-        lockfile.workspaceDependencies.map((e) => [e.from, e.to]),
-        parsed.workspaceDependencies.map((e) => [e.from, e.to])
+        A.map(lockfile.workspaceDependencies, (e) => [e.from, e.to]),
+        A.map(parsed.workspaceDependencies, (e) => [e.from, e.to])
       );
     })
   );
@@ -479,8 +529,8 @@ describe("Lockfile#withImporterNames (seam repair 1)", () => {
       const parsed = yield* parseFixture("pnpm/v3/pnpm-lock.yaml", "pnpm");
       const lockfile = parsed.withImporterNames(HashMap.empty());
       assert.deepStrictEqual(
-        lockfile.workspacePackages.map((p) => p.name),
-        parsed.workspacePackages.map((p) => p.name)
+        A.map(lockfile.workspacePackages, (p) => p.name),
+        A.map(parsed.workspacePackages, (p) => p.name)
       );
     })
   );
@@ -529,7 +579,7 @@ describe("peer declarations", () => {
         // pnpm records a workspace project's resolved dependencies only —
         // never its own peer declarations — so workspace rows keep the
         // empty defaults.
-        assert.isTrue(lockfile.workspacePackages.every((p) => Object.keys(p.peerDependencies).length === 0));
+        assert.isTrue(A.every(lockfile.workspacePackages, (p) => R.keys(p.peerDependencies).length === 0));
       })
     );
   });
@@ -651,7 +701,7 @@ describe("peer declarations", () => {
 // and ms@2.0.0 under debug against a hoisted 2.1.3.
 describe("instance identity and resolved edges", () => {
   const instance = (lockfile: Lockfile, name: string, version: string) => {
-    const found = lockfile.packagesNamed(name).filter((p) => p.version === version);
+    const found = A.filter(lockfile.packagesNamed(name), (p) => p.version === version);
     assert.strictEqual(found.length, 1, `expected exactly one ${name}@${version}`);
     const pkg = found[0];
     assertDefined(pkg);
@@ -666,19 +716,19 @@ describe("instance identity and resolved edges", () => {
         // `packages:` carries ONE react-dom entry; `snapshots:` carries two.
         // Rows follow snapshots, because that is where an instance lives.
         const variants = lockfile.packagesNamed("react-dom");
-        assert.deepStrictEqual(variants.map((p) => p.instanceId).sort(), [
+        assert.deepStrictEqual(A.map(variants, (p) => p.instanceId).sort(), [
           "react-dom@18.3.1(react@17.0.2)",
           "react-dom@18.3.1(react@18.3.1)",
         ]);
-        assert.isTrue(variants.every((p) => p.version === "18.3.1"));
+        assert.isTrue(A.every(variants, (p) => p.version === "18.3.1"));
         // The peer declaration is joined on from the per-version `packages:`
         // entry, so both instances still carry it.
-        assert.isTrue(variants.every((p) => p.peerDependencies.react === "^18.3.1"));
+        assert.isTrue(A.every(variants, (p) => p.peerDependencies.react === "^18.3.1"));
 
         // Each variant resolved a *different* react, which is the entire point.
-        const old = variants.find((p) => p.instanceId.includes("(react@17.0.2)"));
+        const old = O.getOrThrow(A.findFirst(variants, (p) => Str.includes("(react@17.0.2)")(p.instanceId)));
         assertDefined(old);
-        const fresh = variants.find((p) => p.instanceId.includes("(react@18.3.1)"));
+        const fresh = O.getOrThrow(A.findFirst(variants, (p) => Str.includes("(react@18.3.1)")(p.instanceId)));
         assertDefined(fresh);
         assert.strictEqual(old.resolved.react, "react@17.0.2");
         assert.strictEqual(fresh.resolved.react, "react@18.3.1");
@@ -714,7 +764,7 @@ describe("instance identity and resolved edges", () => {
         // peer with no recorded provider reads as an UNSATISFIED peer, so a
         // satisfied link became a false positive.
         const lockfile = yield* parseFixture("pnpm/linkedpeer/pnpm-lock.yaml", "pnpm");
-        const byId = new Map(lockfile.packages.map((p) => [p.instanceId, p]));
+        const byId = instanceIndex(lockfile);
 
         const redux = byId.get("react-redux@9.2.0(react@packages+fakereact)");
         assertDefined(redux);
@@ -772,7 +822,7 @@ describe("instance identity and resolved edges", () => {
         // The other half: the linked-peer fixture's target IS an importer, so
         // nothing is unnameable there.
         const lockfile = yield* parseFixture("pnpm/linkedpeer/pnpm-lock.yaml", "pnpm");
-        assert.isTrue(lockfile.packages.every((p) => p.unresolvedEdges.length === 0));
+        assert.isTrue(A.every(lockfile.packages, (p) => p.unresolvedEdges.length === 0));
       })
     );
 
@@ -789,17 +839,20 @@ describe("instance identity and resolved edges", () => {
         // build output and never will be. Leaving the edge unnameable makes every
         // such workspace permanently unverifiable downstream, on a lockfile pnpm
         // itself reports as clean (savvy-web/systems: 25 such edges, 12 packages).
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/app:",
-          "    devDependencies:",
-          "      '@scope/lib':",
-          "        specifier: workspace:*",
-          "        version: link:../lib/dist/dev/pkg",
-          "  packages/lib: {}",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/app:",
+            "    devDependencies:",
+            "      '@scope/lib':",
+            "        specifier: workspace:*",
+            "        version: link:../lib/dist/dev/pkg",
+            "  packages/lib: {}",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const app = lockfile.packagesNamed("packages/app")[0];
 
@@ -815,17 +868,20 @@ describe("instance identity and resolved edges", () => {
         // workspace package — it may hold a vendored stub with its own identity —
         // so naming the enclosing importer would answer with the wrong package's
         // peers rather than admit the edge could not be named.
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/app:",
-          "    devDependencies:",
-          "      '@scope/stub':",
-          "        specifier: link:../lib/vendor/stub",
-          "        version: link:../lib/vendor/stub",
-          "  packages/lib: {}",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/app:",
+            "    devDependencies:",
+            "      '@scope/stub':",
+            "        specifier: link:../lib/vendor/stub",
+            "        version: link:../lib/vendor/stub",
+            "  packages/lib: {}",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const app = lockfile.packagesNamed("packages/app")[0];
 
@@ -840,21 +896,24 @@ describe("instance identity and resolved edges", () => {
         // package nested inside another package's tree is not swallowed by its
         // parent. The root importer is excluded outright — it is an ancestor of
         // every path, so admitting it would resolve every stray link to the root.
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/app:",
-          "    dependencies:",
-          "      '@scope/inner':",
-          "        specifier: workspace:*",
-          "        version: link:../lib/nested/inner/dist/pkg",
-          "      '@scope/nowhere':",
-          "        specifier: workspace:*",
-          "        version: link:../../elsewhere/dist/pkg",
-          "  packages/lib: {}",
-          "  packages/lib/nested/inner: {}",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/app:",
+            "    dependencies:",
+            "      '@scope/inner':",
+            "        specifier: workspace:*",
+            "        version: link:../lib/nested/inner/dist/pkg",
+            "      '@scope/nowhere':",
+            "        specifier: workspace:*",
+            "        version: link:../../elsewhere/dist/pkg",
+            "  packages/lib: {}",
+            "  packages/lib/nested/inner: {}",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const app = lockfile.packagesNamed("packages/app")[0];
 
@@ -872,20 +931,23 @@ describe("instance identity and resolved edges", () => {
         // still resolves to nothing, because compose-then-verify emits only
         // what it can match. Widening what legitimately matches must not
         // soften verification into "compose and hope".
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "packages:",
-          "  host@1.0.0: {}",
-          "snapshots:",
-          "  host@1.0.0:",
-          "    dependencies:",
-          "      ghost: link:build/output/dir",
-          // The same rule on the OTHER composition path: a plain
-          // `name@version` naming no snapshot must not resolve either.
-          "      phantom: 9.9.9",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "packages:",
+            "  host@1.0.0: {}",
+            "snapshots:",
+            "  host@1.0.0:",
+            "    dependencies:",
+            "      ghost: link:build/output/dir",
+            // The same rule on the OTHER composition path: a plain
+            // `name@version` naming no snapshot must not resolve either.
+            "      phantom: 9.9.9",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const host = lockfile.packagesNamed("host")[0];
 
@@ -910,7 +972,7 @@ describe("instance identity and resolved edges", () => {
         assert.strictEqual(cliui.resolved["string-width-cjs"], "string-width@4.2.3");
         assert.strictEqual(cliui.resolved["strip-ansi-cjs"], "strip-ansi@6.0.1");
         // And the whole lockfile is as clean as pnpm says it is.
-        assert.isTrue(lockfile.packages.every((p) => p.unresolvedEdges.length === 0));
+        assert.isTrue(A.every(lockfile.packages, (p) => p.unresolvedEdges.length === 0));
       })
     );
 
@@ -923,7 +985,7 @@ describe("instance identity and resolved edges", () => {
         // is no importer, with no specifier beside it. The importer entry's
         // own `publishDirectory: dist/pkg` is the evidence that names it.
         const lockfile = yield* parseFixture("pnpm/publishdir/pnpm-lock.yaml", "pnpm");
-        const byId = new Map(lockfile.packages.map((p) => [p.instanceId, p]));
+        const byId = instanceIndex(lockfile);
 
         const reactDom = byId.get("react-dom@18.2.0(react@packages+react+dist+pkg)");
         assertDefined(reactDom);
@@ -932,7 +994,7 @@ describe("instance identity and resolved edges", () => {
         // the `workspace:`-gated ancestor walk has to.
         const app = lockfile.packagesNamed("packages/app")[0];
         assert.strictEqual(app?.resolved.react, "packages/react");
-        assert.isTrue(lockfile.packages.every((p) => p.unresolvedEdges.length === 0));
+        assert.isTrue(A.every(lockfile.packages, (p) => p.unresolvedEdges.length === 0));
       })
     );
 
@@ -944,20 +1006,23 @@ describe("instance identity and resolved edges", () => {
         // nothing, so the edge used to land in unresolvedEdges — a false
         // fail-closed marker on a lockfile pnpm itself reports as clean
         // (spencerbeggs/type-registry-effect is the real reproduction).
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/app:",
-          "    devDependencies:",
-          "      typescript-classic:",
-          "        specifier: npm:typescript@^6.0.3",
-          "        version: typescript@6.0.3",
-          "packages:",
-          "  typescript@6.0.3: {}",
-          "snapshots:",
-          "  typescript@6.0.3: {}",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/app:",
+            "    devDependencies:",
+            "      typescript-classic:",
+            "        specifier: npm:typescript@^6.0.3",
+            "        version: typescript@6.0.3",
+            "packages:",
+            "  typescript@6.0.3: {}",
+            "snapshots:",
+            "  typescript@6.0.3: {}",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const app = lockfile.packagesNamed("packages/app")[0];
 
@@ -975,25 +1040,28 @@ describe("instance identity and resolved edges", () => {
         // instance's key is exact evidence on both paths; a plain version like
         // `9.9.9` never is one (instance ids always carry a name), so the
         // dangling control must stay unresolved.
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "packages:",
-          "  host@1.0.0: {}",
-          "  typescript@6.0.3: {}",
-          "  react-dom@18.3.1: {}",
-          "  react@18.3.1: {}",
-          "snapshots:",
-          "  host@1.0.0:",
-          "    dependencies:",
-          "      typescript-classic: typescript@6.0.3",
-          "      renderer: react-dom@18.3.1(react@18.3.1)",
-          "      phantom: 9.9.9",
-          "  typescript@6.0.3: {}",
-          "  react-dom@18.3.1(react@18.3.1): {}",
-          "  react@18.3.1: {}",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "packages:",
+            "  host@1.0.0: {}",
+            "  typescript@6.0.3: {}",
+            "  react-dom@18.3.1: {}",
+            "  react@18.3.1: {}",
+            "snapshots:",
+            "  host@1.0.0:",
+            "    dependencies:",
+            "      typescript-classic: typescript@6.0.3",
+            "      renderer: react-dom@18.3.1(react@18.3.1)",
+            "      phantom: 9.9.9",
+            "  typescript@6.0.3: {}",
+            "  react-dom@18.3.1(react@18.3.1): {}",
+            "  react@18.3.1: {}",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const host = lockfile.packagesNamed("host")[0];
 
@@ -1008,22 +1076,25 @@ describe("instance identity and resolved edges", () => {
         // The importer-section spelling of the suffixed case: the recorded
         // version names the peer-resolved INSTANCE, suffix and all, and that
         // full string is the key it must match.
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/app:",
-          "    dependencies:",
-          "      renderer:",
-          "        specifier: npm:react-dom@^18.0.0",
-          "        version: react-dom@18.3.1(react@18.3.1)",
-          "packages:",
-          "  react-dom@18.3.1: {}",
-          "  react@18.3.1: {}",
-          "snapshots:",
-          "  react-dom@18.3.1(react@18.3.1): {}",
-          "  react@18.3.1: {}",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/app:",
+            "    dependencies:",
+            "      renderer:",
+            "        specifier: npm:react-dom@^18.0.0",
+            "        version: react-dom@18.3.1(react@18.3.1)",
+            "packages:",
+            "  react-dom@18.3.1: {}",
+            "  react@18.3.1: {}",
+            "snapshots:",
+            "  react-dom@18.3.1(react@18.3.1): {}",
+            "  react@18.3.1: {}",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const app = lockfile.packagesNamed("packages/app")[0];
 
@@ -1042,22 +1113,25 @@ describe("instance identity and resolved edges", () => {
         // `publishDirectory: dist/dev/pkg` — so the target is matched against
         // the declared publish directories, not guessed from ancestry.
         // (effected's own pnpm-lock.yaml is the real reproduction.)
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/lib:",
-          "    publishDirectory: dist/dev/pkg",
-          "packages:",
-          "  host@1.0.0: {}",
-          "snapshots:",
-          "  host@1.0.0:",
-          "    dependencies:",
-          "      '@scope/lib': link:packages/lib/dist/dev/pkg",
-          // A link into a directory NO importer declares as its publish
-          // directory stays unnameable — the map is evidence, not a guess.
-          "      '@scope/stray': link:packages/lib/dist/prod/pkg",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/lib:",
+            "    publishDirectory: dist/dev/pkg",
+            "packages:",
+            "  host@1.0.0: {}",
+            "snapshots:",
+            "  host@1.0.0:",
+            "    dependencies:",
+            "      '@scope/lib': link:packages/lib/dist/dev/pkg",
+            // A link into a directory NO importer declares as its publish
+            // directory stays unnameable — the map is evidence, not a guess.
+            "      '@scope/stray': link:packages/lib/dist/prod/pkg",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const host = lockfile.packagesNamed("host")[0];
 
@@ -1071,18 +1145,21 @@ describe("instance identity and resolved edges", () => {
         // A declared publishDirectory identifies the root importer, but pnpm
         // emits no root package instance. Keep the recorded dependency as an
         // unresolved edge rather than a dangling reference to ".".
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .:",
-          "    publishDirectory: dist/dev/pkg",
-          "packages:",
-          "  host@1.0.0: {}",
-          "snapshots:",
-          "  host@1.0.0:",
-          "    dependencies:",
-          "      '@scope/root': link:dist/dev/pkg",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .:",
+            "    publishDirectory: dist/dev/pkg",
+            "packages:",
+            "  host@1.0.0: {}",
+            "snapshots:",
+            "  host@1.0.0:",
+            "    dependencies:",
+            "      '@scope/root': link:dist/dev/pkg",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const host = lockfile.packagesNamed("host")[0];
 
@@ -1100,21 +1177,24 @@ describe("instance identity and resolved edges", () => {
         // declines. The declared publishDirectory is exact evidence, so it
         // resolves regardless of specifier — while the sibling target no
         // importer declares stays unnameable, exactly as before.
-        const content = [
-          "lockfileVersion: '9.0'",
-          "importers:",
-          "  .: {}",
-          "  packages/app:",
-          "    devDependencies:",
-          "      '@scope/lib':",
-          "        specifier: link:../lib/dist/dev/pkg",
-          "        version: link:../lib/dist/dev/pkg",
-          "      '@scope/stub':",
-          "        specifier: link:../lib/vendor/stub",
-          "        version: link:../lib/vendor/stub",
-          "  packages/lib:",
-          "    publishDirectory: dist/dev/pkg",
-        ].join("\n");
+        const content = A.join(
+          [
+            "lockfileVersion: '9.0'",
+            "importers:",
+            "  .: {}",
+            "  packages/app:",
+            "    devDependencies:",
+            "      '@scope/lib':",
+            "        specifier: link:../lib/dist/dev/pkg",
+            "        version: link:../lib/dist/dev/pkg",
+            "      '@scope/stub':",
+            "        specifier: link:../lib/vendor/stub",
+            "        version: link:../lib/vendor/stub",
+            "  packages/lib:",
+            "    publishDirectory: dist/dev/pkg",
+          ],
+          "\n"
+        );
         const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
         const app = lockfile.packagesNamed("packages/app")[0];
 
@@ -1136,7 +1216,7 @@ describe("instance identity and resolved edges", () => {
 
         const chalk = instance(lockfile, "chalk", "5.3.0");
         assert.strictEqual(chalk.instanceId, "chalk@5.3.0");
-        assert.isTrue(chalk.integrity?.startsWith("sha512-"));
+        assert.isTrue(O.exists(O.fromUndefinedOr(chalk.integrity), Str.startsWith("sha512-")));
 
         const app = lockfile.packagesNamed("packages/app")[0];
         assertDefined(app);
@@ -1150,7 +1230,7 @@ describe("instance identity and resolved edges", () => {
         // computation @effected/workspaces has to run, with no format
         // knowledge anywhere in it.
         const lockfile = yield* parseFixture("pnpm/peers/pnpm-lock.yaml", "pnpm");
-        const byId = new Map(lockfile.packages.map((p) => [p.instanceId, p]));
+        const byId = instanceIndex(lockfile);
 
         const app = lockfile.packagesNamed("packages/app")[0];
         assertDefined(app);
@@ -1174,13 +1254,7 @@ describe("instance identity and resolved edges", () => {
         // model reported react@17.0.2 as the only react in the workspace.
         const lockfile = yield* parseFixture("npm/nested/package-lock.json", "npm");
 
-        assert.deepStrictEqual(
-          lockfile
-            .packagesNamed("react")
-            .map((p) => p.version)
-            .sort(),
-          ["17.0.2", "18.3.1"]
-        );
+        assert.deepStrictEqual(A.map(lockfile.packagesNamed("react"), (p) => p.version).sort(), ["17.0.2", "18.3.1"]);
         assert.strictEqual(instance(lockfile, "react", "18.3.1").instanceId, "packages/lib/node_modules/react");
 
         // And the workspace resolves the react actually installed for it —
@@ -1197,7 +1271,7 @@ describe("instance identity and resolved edges", () => {
         // The other defect: single-prefix stripping named this entry
         // "debug/node_modules/ms".
         const lockfile = yield* parseFixture("npm/nested/package-lock.json", "npm");
-        assert.isTrue(lockfile.packages.every((p) => !p.name.includes("node_modules")));
+        assert.isTrue(A.every(lockfile.packages, (p) => !Str.includes("node_modules")(p.name)));
 
         const nested = instance(lockfile, "ms", "2.0.0");
         assert.strictEqual(nested.name, "ms");
@@ -1209,7 +1283,7 @@ describe("instance identity and resolved edges", () => {
     it.effect("resolves deepest-first, so a shadowed copy wins over the hoisted one", () =>
       Effect.gen(function* () {
         const lockfile = yield* parseFixture("npm/nested/package-lock.json", "npm");
-        const byId = new Map(lockfile.packages.map((p) => [p.instanceId, p]));
+        const byId = instanceIndex(lockfile);
 
         // ms@2.1.3 is hoisted at node_modules/ms; debug pins ms@2.0.0 beside
         // itself. An outermost-first walk would report 2.1.3 here.
@@ -1241,7 +1315,7 @@ describe("instance identity and resolved edges", () => {
         // under a, has no c of its own, and must find a's c@2.0.0 at the
         // INTERMEDIATE level rather than the root's c@1.0.0.
         const lockfile = yield* parseFixture("npm/ancestor-walk/package-lock.json", "npm");
-        const byId = new Map(lockfile.packages.map((p) => [p.instanceId, p]));
+        const byId = instanceIndex(lockfile);
 
         const b = byId.get("node_modules/a/node_modules/b");
         assertDefined(b);
@@ -1298,7 +1372,7 @@ describe("instance identity and resolved edges", () => {
         // lockfile that RECORDS an edge this model cannot name still fills it.
         const unnameable = yield* parseFixture("pnpm/unnameablelink/pnpm-lock.yaml", "pnpm");
         assert.isAbove(
-          unnameable.packages.filter((p) => p.unresolvedEdges.length > 0).length,
+          A.filter(unnameable.packages, (p) => p.unresolvedEdges.length > 0).length,
           0,
           "the control fixture must populate unresolvedEdges, or the assertions above prove nothing"
         );
@@ -1312,7 +1386,7 @@ describe("instance identity and resolved edges", () => {
         const lockfile = yield* parseFixture("bun/nested/bun.lock", "bun");
 
         const reacts = lockfile.packagesNamed("react");
-        assert.strictEqual(new Set(reacts.map((p) => p.instanceId)).size, reacts.length);
+        assert.strictEqual(HashSet.size(HashSet.fromIterable(A.map(reacts, (p) => p.instanceId))), reacts.length);
         // The nesting key is the workspace's *scoped* name, spanning two "/"
         // segments — so a parent chain derived by splitting on "/" would take
         // "@nested" as the parent and miss it. The chain is read off the key
@@ -1335,7 +1409,7 @@ describe("instance identity and resolved edges", () => {
     it.effect("resolves deepest-first over the key space", () =>
       Effect.gen(function* () {
         const lockfile = yield* parseFixture("bun/nested/bun.lock", "bun");
-        const byId = new Map(lockfile.packages.map((p) => [p.instanceId, p]));
+        const byId = instanceIndex(lockfile);
 
         // ms@2.1.3 is hoisted at "ms"; debug's own ms@2.0.0 is keyed "debug/ms".
         // An outermost-first walk would report the hoisted one.
@@ -1424,7 +1498,7 @@ describe("peer suffixes on protocol versions", () => {
     Effect.gen(function* () {
       for (const pkg of (yield* load()).packages) {
         assert.notInclude(pkg.name, "(", pkg.instanceId);
-        assert.isFalse(pkg.version.endsWith(")"), pkg.instanceId);
+        assert.isFalse(Str.endsWith(")")(pkg.version), pkg.instanceId);
       }
     })
   );
@@ -1457,17 +1531,17 @@ describe("peer suffixes on protocol versions", () => {
   it.effect("splits the importer versions likewise, and leaves an unsuffixed link: whole", () =>
     Effect.gen(function* () {
       const host = O.getOrThrow((yield* load()).importer("packages/host"));
-      const dep = (name: string) => host.dependencies.find((d) => d.name === name);
-      assert.strictEqual(dep("lib")?.version, "file:vendor/lib");
-      assert.strictEqual(dep("lib")?.peerSuffix, "(react-dom@18.3.1(react@18.3.1))(react@18.3.1)");
-      assert.strictEqual(dep("tarlib")?.version, "file:vendor/tarlib-1.0.0.tgz");
-      assert.strictEqual(dep("tarlib")?.peerSuffix, "(react@18.3.1)");
+      const dep = (name: string) => O.getOrThrow(host.dependency(name));
+      assert.strictEqual(dep("lib").version, "file:vendor/lib");
+      assert.strictEqual(dep("lib").peerSuffix, "(react-dom@18.3.1(react@18.3.1))(react@18.3.1)");
+      assert.strictEqual(dep("tarlib").version, "file:vendor/tarlib-1.0.0.tgz");
+      assert.strictEqual(dep("tarlib").peerSuffix, "(react@18.3.1)");
       // pnpm does not suffix a `link:` even when its target declares peers.
-      assert.strictEqual(dep("linklib")?.version, "link:../../vendor/linklib");
-      assert.isFalse(Object.hasOwn(dep("linklib") ?? {}, "peerSuffix"));
+      assert.strictEqual(dep("linklib").version, "link:../../vendor/linklib");
+      assert.isFalse(P.hasProperty(dep("linklib"), "peerSuffix"));
       // A registry version is unchanged.
-      assert.strictEqual(dep("react-dom")?.version, "18.3.1");
-      assert.strictEqual(dep("react-dom")?.peerSuffix, "(react@18.3.1)");
+      assert.strictEqual(dep("react-dom").version, "18.3.1");
+      assert.strictEqual(dep("react-dom").peerSuffix, "(react@18.3.1)");
     })
   );
 
@@ -1483,25 +1557,28 @@ describe("peer suffixes on protocol versions", () => {
   /** Hand-authored edge shapes no workspace here needed to produce. */
   const edges = () =>
     Lockfile.parse(
-      [
-        "lockfileVersion: '9.0'",
-        "importers:",
-        "  .:",
-        "    dependencies:",
-        "      mid:",
-        "        specifier: file:vendor/a(b)/mid",
-        "        version: file:vendor/a(b)/mid(react@18.3.1)",
-        "      scoped:",
-        "        specifier: file:../@scope/lib",
-        "        version: file:../@scope/lib(react@18.3.1)",
-        "      stub:",
-        "        specifier: link:vendor/stub(x)",
-        "        version: link:vendor/stub(x)",
-        "snapshots:",
-        "  mid@file:vendor/a(b)/mid(react@18.3.1): {}",
-        "  scoped@file:../@scope/lib(react@18.3.1): {}",
-        "  '@scope/reg@1.0.0(react@18.3.1)': {}",
-      ].join("\n"),
+      A.join(
+        [
+          "lockfileVersion: '9.0'",
+          "importers:",
+          "  .:",
+          "    dependencies:",
+          "      mid:",
+          "        specifier: file:vendor/a(b)/mid",
+          "        version: file:vendor/a(b)/mid(react@18.3.1)",
+          "      scoped:",
+          "        specifier: file:../@scope/lib",
+          "        version: file:../@scope/lib(react@18.3.1)",
+          "      stub:",
+          "        specifier: link:vendor/stub(x)",
+          "        version: link:vendor/stub(x)",
+          "snapshots:",
+          "  mid@file:vendor/a(b)/mid(react@18.3.1): {}",
+          "  scoped@file:../@scope/lib(react@18.3.1): {}",
+          "  '@scope/reg@1.0.0(react@18.3.1)': {}",
+        ],
+        "\n"
+      ),
       { format: "pnpm" }
     );
 
@@ -1512,8 +1589,8 @@ describe("peer suffixes on protocol versions", () => {
       const lockfile = yield* edges();
       assert.strictEqual(lockfile.packagesNamed("mid")[0]?.version, "file:vendor/a(b)/mid");
       const root = O.getOrThrow(lockfile.importer("."));
-      assert.strictEqual(root.dependencies.find((d) => d.name === "mid")?.version, "file:vendor/a(b)/mid");
-      assert.strictEqual(root.dependencies.find((d) => d.name === "mid")?.peerSuffix, "(react@18.3.1)");
+      assert.strictEqual(O.getOrThrow(root.dependency("mid")).version, "file:vendor/a(b)/mid");
+      assert.strictEqual(O.getOrThrow(root.dependency("mid")).peerSuffix, "(react@18.3.1)");
     })
   );
 
@@ -1528,9 +1605,9 @@ describe("peer suffixes on protocol versions", () => {
   it.effect("leaves a link: whole, since pnpm never suffixes one", () =>
     Effect.gen(function* () {
       const root = O.getOrThrow((yield* edges()).importer("."));
-      const stub = root.dependencies.find((d) => d.name === "stub");
-      assert.strictEqual(stub?.version, "link:vendor/stub(x)");
-      assert.isFalse(Object.hasOwn(stub ?? {}, "peerSuffix"));
+      const stub = O.getOrThrow(root.dependency("stub"));
+      assert.strictEqual(stub.version, "link:vendor/stub(x)");
+      assert.isFalse(P.hasProperty(stub, "peerSuffix"));
     })
   );
 });
@@ -1805,33 +1882,11 @@ describe("supported lockfile versions", () => {
       const checkedConfigOnly: Array<string> = [];
 
       for (const [format, minimum] of R.toEntries(gated)) {
-        const filename = filenameFor(format);
-        const formatDir = join(import.meta.dirname, "fixtures", format);
-        for (const entry of readdirSync(formatDir, { withFileTypes: true })) {
-          if (!entry.isDirectory() || entry.name.startsWith(NEGATIVE_FIXTURE_PREFIX)) continue;
-          const relative = `${format}/${entry.name}/${filename}`;
-          // `filenameFor` names the PRIMARY filename only, and `fixture()` reads
-          // eagerly — so a directory holding, say, `npm-shrinkwrap.json` instead
-          // would throw ENOENT OUTSIDE the Effect, where `Effect.exit` cannot
-          // capture it and the path is lost from the message. Report it here.
-          assert.isTrue(
-            existsSync(fixturePath(relative)),
-            `${relative} is missing: this guard reads each format's primary filename with the inert .fixture suffix`
-          );
-          // Through `Effect.exit` so a fixture that has aged below the gate
-          // reports *which* fixture, rather than surfacing as a bare parse
-          // error with no path in it — this guard is read by whoever added
-          // the fixture that broke it.
-          const configOnly = format === "pnpm" && entry.name.startsWith(CONFIG_ONLY_FIXTURE_PREFIX);
-          const parsed = yield* parseFixture(relative, format, configOnly).pipe(
-            Effect.mapError(
-              (cause) => new Error(`${relative} no longer parses: it may have aged below the gate`, { cause })
-            ),
-            Effect.exit
-          );
-          assertExitSuccess(parsed, Exit.isSuccess(parsed) ? parsed.value : undefined);
-          const lockfile = parsed.value;
-          assert.isAtLeast(Number.parseFloat(lockfile.lockfileVersion), minimum, relative);
+        for (const fixtureSet of positiveFixtureSets(format)) {
+          const relative = `${format}/${fixtureSet}/${filenameFor(format)}`;
+          const configOnly = format === "pnpm" && Str.startsWith(CONFIG_ONLY_FIXTURE_PREFIX)(fixtureSet);
+          const version = yield* gatedVersion(relative, format, configOnly);
+          assert.isAtLeast(Number.parseFloat(version), minimum, relative);
           checked.push(relative);
           if (configOnly) checkedConfigOnly.push(relative);
         }
@@ -1839,10 +1894,10 @@ describe("supported lockfile versions", () => {
 
       // The enumeration itself must not silently find nothing — a mistyped
       // directory would turn this guard into a vacuous pass.
-      assert.isAtLeast(checked.length, 12, `enumerated too few fixtures: ${checked.join(", ")}`);
+      assert.isAtLeast(checked.length, 12, `enumerated too few fixtures: ${A.join(checked, ", ")}`);
       // Nor may the marker silently match nothing: a mistyped prefix would
       // leave the flag path of this guard unexercised.
-      assert.isAtLeast(checkedConfigOnly.length, 2, `marked too few config-only fixtures: ${checked.join(", ")}`);
+      assert.isAtLeast(checkedConfigOnly.length, 2, `marked too few config-only fixtures: ${A.join(checked, ", ")}`);
     })
   );
 });

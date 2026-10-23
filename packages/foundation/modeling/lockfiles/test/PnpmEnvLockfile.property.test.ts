@@ -6,6 +6,7 @@ import { Yaml } from "@beep/yaml/Yaml";
 import { assert, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
@@ -41,7 +42,7 @@ it.effect.prop(
       const text = `${yield* Yaml.stringify(preamble)}---\n${yield* Yaml.stringify(main)}`;
       const render = Effect.fnUntraced(function* (content: string) {
         const docs = yield* Yaml.parseAll(content);
-        return (yield* Effect.forEach(docs, (doc) => Yaml.stringify(doc))).join("---\n");
+        return A.join(yield* Effect.forEach(docs, (doc) => Yaml.stringify(doc)), "---\n");
       });
       const canonical = yield* render(text);
       assert.strictEqual(yield* render(canonical), canonical);

@@ -21,8 +21,10 @@ import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
 import { PnpmCatalogPin } from "@beep/lockfiles/PnpmExtension";
 import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { fixture } from "./support/fixtures.ts";
 import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
@@ -35,28 +37,31 @@ const framingError = Effect.fn("framingError")(function* (content: string, forma
 });
 
 /** A pnpm config-dependencies preamble document, verbatim in shape. */
-const preamble = [
-  "---",
-  "lockfileVersion: '9.0'",
-  "",
-  "importers:",
-  "",
-  "  .:",
-  "    configDependencies:",
-  "      '@effected/pnpm-plugin-effect':",
-  "        specifier: 0.1.0",
-  "        version: 0.1.0",
-  "",
-  "packages:",
-  "",
-  "  '@effected/pnpm-plugin-effect@0.1.0':",
-  "    resolution: {integrity: sha512-abc}",
-  "",
-  "snapshots:",
-  "",
-  "  '@effected/pnpm-plugin-effect@0.1.0': {}",
-  "",
-].join("\n");
+const preamble = A.join(
+  [
+    "---",
+    "lockfileVersion: '9.0'",
+    "",
+    "importers:",
+    "",
+    "  .:",
+    "    configDependencies:",
+    "      '@effected/pnpm-plugin-effect':",
+    "        specifier: 0.1.0",
+    "        version: 0.1.0",
+    "",
+    "packages:",
+    "",
+    "  '@effected/pnpm-plugin-effect@0.1.0':",
+    "    resolution: {integrity: sha512-abc}",
+    "",
+    "snapshots:",
+    "",
+    "  '@effected/pnpm-plugin-effect@0.1.0': {}",
+    "",
+  ],
+  "\n"
+);
 
 describe("document framing", () => {
   describe("pnpm: a two-document lockfile parses the lockfile, not the preamble", () => {
@@ -67,7 +72,7 @@ describe("document framing", () => {
         // The preamble also declares lockfileVersion/importers/packages, so
         // these assertions are what tell the two documents apart.
         assert.deepStrictEqual(
-          lockfile.workspacePackages.map((p) => p.name),
+          A.map(lockfile.workspacePackages, (p) => p.name),
           ["packages/core", "packages/utils"]
         );
         assert.strictEqual(lockfile.packages.length, 5);
@@ -118,7 +123,7 @@ describe("document framing", () => {
 
         assert.strictEqual(lockfile.packages.length, 5);
         assert.deepStrictEqual(
-          lockfile.workspacePackages.map((p) => p.name),
+          A.map(lockfile.workspacePackages, (p) => p.name),
           ["packages/core", "packages/utils"]
         );
       })
@@ -199,7 +204,7 @@ describe("document framing", () => {
 
     it.effect("configOnly: the version is the preamble's, not a constant", () =>
       Effect.gen(function* () {
-        const lockfile = yield* Lockfile.parse(`${preamble.replace("'9.0'", "'9.5'")}\n---\n`, configOnly);
+        const lockfile = yield* Lockfile.parse(`${Str.replace("'9.0'", "'9.5'")(preamble)}\n---\n`, configOnly);
 
         assert.strictEqual(lockfile.lockfileVersion, "9.5");
         assert.deepStrictEqual(lockfile.packages, []);
@@ -208,7 +213,9 @@ describe("document framing", () => {
 
     it.effect("configOnly: a preamble below the supported version still fails the gate", () =>
       Effect.gen(function* () {
-        const error = yield* Effect.flip(Lockfile.parse(`${preamble.replace("'9.0'", "'6.0'")}\n---\n`, configOnly));
+        const error = yield* Effect.flip(
+          Lockfile.parse(`${Str.replace("'9.0'", "'6.0'")(preamble)}\n---\n`, configOnly)
+        );
 
         assert.instanceOf(error, LockfileParseError);
         assert.strictEqual(error.stage, "validation");
@@ -358,7 +365,7 @@ describe("document framing", () => {
   });
 
   describe("yarn: no document framing means multi-document input is refused, not truncated", () => {
-    const berry = ["__metadata:\n  version: 8\n", '"a@npm:^1.0.0":\n  version: 1.0.0\n  linkType: hard\n'].join("");
+    const berry = A.join(["__metadata:\n  version: 8\n", '"a@npm:^1.0.0":\n  version: 1.0.0\n  linkType: hard\n'], "");
 
     it.effect("a multi-document yarn.lock fails 'unexpectedDocuments'", () =>
       Effect.gen(function* () {

@@ -1,36 +1,52 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it reads the on-disk lockfile fixtures and hashes them with Node's real SHA backend as the oracle. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { assert, describe, it } from "@effect/vitest";
+import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint";
+import { assert, describe, layer } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as Crypto from "effect/Crypto";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 import captures from "./fixtures/digests.json" with { type: "json" };
-import { fixture, fixturePath } from "./support/fixtures.ts";
+import { corpus, fixture, unsuffixedCaptures } from "./support/fixtures.ts";
+
+// A real SHA-256 backend over WebCrypto, wired through core's Crypto.make: the
+// oracle that hashes each capture's UTF-8 bytes through @beep/jsonc's
+// content fingerprint.
+const WebCrypto = Layer.succeed(
+  Crypto.Crypto,
+  Crypto.make({
+    randomBytes: (size) => globalThis.crypto.getRandomValues(new Uint8Array(size)),
+    digest: (algorithm, data) =>
+      Effect.map(
+        Effect.promise(() => globalThis.crypto.subtle.digest(algorithm, new Uint8Array(data))),
+        (buffer) => new Uint8Array(buffer)
+      ),
+  })
+);
 
 describe("historical lockfile documents", () => {
-  it("preserves every captured document verbatim behind a non-installable filename", () => {
-    assert.strictEqual(captures.length, 38);
-    for (const { logicalPath, sha256 } of captures) {
-      assert.isTrue(existsSync(fixturePath(logicalPath)), logicalPath);
-      assert.isFalse(existsSync(join(import.meta.dirname, "fixtures", logicalPath)), logicalPath);
-      const original = readFileSync(fixturePath(logicalPath));
-      assert.strictEqual(createHash("sha256").update(original).digest("hex"), sha256, logicalPath);
-      assert.strictEqual(fixture(logicalPath), original.toString("utf8"), logicalPath);
-    }
-  });
-
-  it("enumerates the stored corpus so a new capture cannot escape the byte-preservation guard", () => {
-    const stored = A.filter(
-      readdirSync(join(import.meta.dirname, "fixtures"), { recursive: true, encoding: "utf8" }),
-      Str.endsWith(".fixture")
+  layer(WebCrypto)((it) => {
+    it.effect("preserves every captured document verbatim behind a non-installable filename", () =>
+      Effect.gen(function* () {
+        assert.strictEqual(captures.length, 38);
+        assert.deepStrictEqual(unsuffixedCaptures, []);
+        for (const { logicalPath, sha256 } of captures) {
+          assert.isTrue(R.has(corpus, logicalPath), logicalPath);
+          assert.strictEqual(yield* JsoncFingerprint.hashText(fixture(logicalPath)), sha256, logicalPath);
+        }
+      })
     );
-    assert.deepEqual(
-      A.sort(
-        A.map(captures, ({ logicalPath }) => `${logicalPath}.fixture`),
-        Str.Order
-      ),
-      A.sort(A.map(stored, Str.replace(/\\/g, "/")), Str.Order)
+
+    it.effect("enumerates the stored corpus so a new capture cannot escape the byte-preservation guard", () =>
+      Effect.sync(() => {
+        assert.deepStrictEqual(
+          A.sort(
+            A.map(captures, ({ logicalPath }) => logicalPath),
+            Str.Order
+          ),
+          A.sort(R.keys(corpus), Str.Order)
+        );
+      })
     );
   });
 });
