@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-22",
+  "generatedOn": "2026-10-23",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -2262,14 +2262,6 @@
     {
       "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
       "symbol": "PrHead",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "Repository",
       "kind": "plain-data-schema-class",
       "status": "exception",
       "owner": "@beep/repo-cli",
