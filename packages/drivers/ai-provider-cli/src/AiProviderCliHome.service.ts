@@ -400,7 +400,7 @@ const makeHome = (fs: FileSystem.FileSystem, path: Path.Path): AiProviderCliHome
   const ensureCodexShadowHome = Effect.fn("AiProviderCliHome.ensureCodexShadowHome")(function* (
     layout: AiProviderCliCodexHomeLayout
   ) {
-    yield* AiProviderCliHomeMode.$match(layout.mode, {
+    yield* AiProviderCliHomeMode.match(layout.mode, {
       direct: () => Effect.void,
       authOverlay: () =>
         O.match(layout.effectiveHomePath, {

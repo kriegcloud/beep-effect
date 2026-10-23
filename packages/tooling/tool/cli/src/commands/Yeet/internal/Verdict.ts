@@ -333,7 +333,7 @@ export const mergeReadyCriterionHolds: {
   (criterion: YeetMergeReadyCriterion): (criteria: YeetMergeReadyCriteria) => boolean;
   (criteria: YeetMergeReadyCriteria, criterion: YeetMergeReadyCriterion): boolean;
 } = dual(2, (criteria: YeetMergeReadyCriteria, criterion: YeetMergeReadyCriterion): boolean =>
-  YeetMergeReadyCriterion.$match(criterion, {
+  YeetMergeReadyCriterion.match(criterion, {
     "pr-open": () => criteria.prOpen,
     "not-draft": () => criteria.notDraft,
     "closeout-run": () => criteria.closeoutRun,
@@ -452,7 +452,7 @@ const currentMergeReadyCriterion = (
 ): O.Option<YeetMergeReadyCriterion> =>
   S.is(YeetMergeReadyCriterion)(criterion)
     ? O.some(criterion)
-    : LegacyMergeReadyCriterion.$match(criterion, {
+    : LegacyMergeReadyCriterion.match(criterion, {
         "checks-green": () => O.some(YeetMergeReadyCriterion.Enum["required-checks-green"]),
         "closeout-gates-passed": O.none,
       });

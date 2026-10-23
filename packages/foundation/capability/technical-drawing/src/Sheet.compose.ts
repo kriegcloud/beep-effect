@@ -376,12 +376,12 @@ const letteringOf = (
       const outline = (vendored: LabelFace): LabelLettering => {
         const face = O.getOrElse(override, () => vendored);
         const scale = s.sizePt / face.unitsPerEm;
-        return LabelRender.$match(s.render, {
+        return LabelRender.match(s.render, {
           outline: (): LabelLettering => ({ _tag: "outline", face, scale }),
           text: (): LabelLettering => ({ _tag: "text", face, scale, family: labelFontFamily(s), sizePt: s.sizePt }),
         });
       };
-      return LabelTypeface.$match(s.typeface, {
+      return LabelTypeface.match(s.typeface, {
         stroke: (): LabelLettering => ({
           _tag: "stroke",
           cap: (s.sizePt * SANS_FACE.capHeight) / SANS_FACE.unitsPerEm,

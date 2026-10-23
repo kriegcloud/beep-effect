@@ -252,7 +252,7 @@ const commitMessagesBody = (messages: ReadonlyArray<string>): string =>
   });
 
 const defaultTitle = (source: SquashMessageSource): string =>
-  GitHubSquashTitleDefault.$match(source.defaults.title, {
+  GitHubSquashTitleDefault.match(source.defaults.title, {
     PR_TITLE: () => source.title,
     COMMIT_OR_PR_TITLE: () =>
       A.length(source.commitMessages) === 1 ? firstLine(Str.trim(source.commitMessages[0] ?? "")) : source.title,
@@ -297,7 +297,7 @@ const defaultTitle = (source: SquashMessageSource): string =>
  */
 export const predictSquashCommitMessage = (source: SquashMessageSource): SquashCommitMessage => {
   const title = O.getOrElse(source.commitTitle, () => Str.trim(`${defaultTitle(source)} (#${source.prNumber})`));
-  const body = GitHubSquashMessageDefault.$match(source.defaults.message, {
+  const body = GitHubSquashMessageDefault.match(source.defaults.message, {
     PR_BODY: () => Str.trim(source.body),
     COMMIT_MESSAGES: () => commitMessagesBody(source.commitMessages),
     BLANK: () => Str.empty,

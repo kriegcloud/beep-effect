@@ -12,7 +12,6 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { LiteralKit } from "../LiteralKit/index.ts";
 import { FileTypeCatalog } from "./FileTypeChecker.catalog.ts";
 import {
   Byte,
@@ -43,7 +42,7 @@ const isArrayBufferRepresentation = S.is(S.instanceOf(globalThis.ArrayBuffer));
 const byteEquivalence = S.toEquivalence(Byte);
 const fileTypeEquivalence = S.toEquivalence(FileType);
 const containsFileType = A.containsWith(fileTypeEquivalence);
-const CollisionFileType = LiteralKit(FileType.pick(["avif", "heic", "flv", "m4v", "mp4", "mkv", "webm"]).literals);
+const CollisionFileType = FileType.pick(["avif", "heic", "flv", "m4v", "mp4", "mkv", "webm"]);
 const isCollisionType = S.is(CollisionFileType);
 
 const copyBoundedUint8Array = O.liftThrowable(

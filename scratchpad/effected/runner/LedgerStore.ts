@@ -569,7 +569,7 @@ export const appendToRow: {
 ) {
   const invalid = (issue: unknown) => LedgerInvalid.make({ path: `--append ${payload.field}`, detail: String(issue) });
   return yield* updateRow(config, module, (row) =>
-    AppendField.$match(payload.field, {
+    AppendField.match(payload.field, {
       deviations: () =>
         Effect.map(decodeDeviations(payload.json).pipe(Effect.mapError(invalid)), (items) =>
           LedgerRow.make({ ...row, deviations: [...row.deviations, ...items] })

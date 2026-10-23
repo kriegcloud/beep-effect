@@ -1010,7 +1010,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
   const fetchOutcome = (provider: AccountProvider, login: ProxyAuthFile) => {
     const identity = O.some(login.email);
     const token = Redacted.value(login.access_token);
-    return AccountProvider.$match(provider, {
+    return AccountProvider.match(provider, {
       claude: () =>
         fetchText(
           HttpClientRequest.get(CLAUDE_USAGE_URL).pipe(

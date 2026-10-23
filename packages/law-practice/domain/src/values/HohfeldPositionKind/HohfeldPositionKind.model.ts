@@ -74,9 +74,7 @@ export const HohfeldPositionKind = HohfeldPositionKindBase.pipe(
  */
 export type HohfeldPositionKind = typeof HohfeldPositionKind.Type;
 
-const AdvantagePositionKindBase = LiteralKit(
-  HohfeldPositionKindBase.pick(["claim", "privilege", "power", "immunity"]).literals
-);
+const AdvantagePositionKindBase = HohfeldPositionKindBase.pick(["claim", "privilege", "power", "immunity"]);
 
 /**
  * The advantage-side subdomain of {@link HohfeldPositionKind}: the only kinds a
@@ -147,9 +145,7 @@ export type AdvantagePositionKind = typeof AdvantagePositionKind.Type;
 export const isAdvantagePositionKind: (kind: HohfeldPositionKind) => kind is AdvantagePositionKind =
   S.is(AdvantagePositionKind);
 
-const DeonticPositionKindBase = LiteralKit(
-  HohfeldPositionKindBase.pick(["claim", "duty", "privilege", "noRight"]).literals
-);
+const DeonticPositionKindBase = HohfeldPositionKindBase.pick(["claim", "duty", "privilege", "noRight"]);
 
 /**
  * The first-order orbit of {@link HohfeldPositionKind}: what a party may or must
@@ -207,9 +203,7 @@ export type DeonticPositionKind = typeof DeonticPositionKind.Type;
 export const isDeonticPositionKind: (kind: HohfeldPositionKind) => kind is DeonticPositionKind =
   S.is(DeonticPositionKind);
 
-const PotestativePositionKindBase = LiteralKit(
-  HohfeldPositionKindBase.pick(["power", "liability", "immunity", "disability"]).literals
-);
+const PotestativePositionKindBase = HohfeldPositionKindBase.pick(["power", "liability", "immunity", "disability"]);
 
 /**
  * The second-order orbit of {@link HohfeldPositionKind}: who may change whose

@@ -519,7 +519,7 @@ export type SymbolCategory = typeof SymbolCategory.Type;
  * @category utilities
  * @since 0.0.0
  */
-export const symbolCategoryFromKind = SymbolKind.$match({
+export const symbolCategoryFromKind = SymbolKind.match({
   FunctionDeclaration: F.constant(SymbolCategory.Enum.function),
   ClassDeclaration: F.constant(SymbolCategory.Enum.class),
   MethodDeclaration: F.constant(SymbolCategory.Enum.member),

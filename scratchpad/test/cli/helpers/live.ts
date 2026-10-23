@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { dual } from "effect/Function";
 // Shared by the CliUi.live tests: a small event model, its fold and frame, and the fake-terminal runner.
 import type * as Cause from "effect/Cause";

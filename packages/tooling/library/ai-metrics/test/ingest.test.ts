@@ -445,7 +445,7 @@ const stampKeepingScenarios = ["qualified", "closed-before-refusal", "corrupt", 
 const unevaluableScenarios = ["empty-sentinel", "custom-sentinel"];
 // The completeness/qualification pair each scenario reaches, pinned per scenario.
 const expectedStampVerdict = (scenario: StampScenario): string =>
-  ForwarderStampScenario.$match(scenario, {
+  ForwarderStampScenario.match(scenario, {
     qualified: () => "complete/qualified",
     "mixed-refusal": () => "partial/unqualified",
     "rejected-refusal": () => "partial/qualified",
@@ -471,7 +471,7 @@ const scenarioPulseRows = (
   start: HookPulseV1,
   tool: HookPulseV1
 ): ReadonlyArray<HookPulseV1> =>
-  ForwarderStampScenario.$match(scenario, {
+  ForwarderStampScenario.match(scenario, {
     qualified: () => [start, tool],
     "mixed-refusal": () => [start, tool],
     "rejected-refusal": () => [start, tool],

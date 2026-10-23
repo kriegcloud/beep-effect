@@ -407,7 +407,7 @@ const hasCoherentEnforcement = (descriptor: typeof InvariantDescriptorFields.Typ
 
   return (
     gapDoesNotContradictMechanicalEvidence &&
-    InvariantDecidability.$match({
+    InvariantDecidability.match({
       typeLevel: () => typeLevel,
       localRuntime: () => runtime || staticAnalysis || explicitGap,
       contextualRuntime: () => runtime || staticAnalysis || explicitGap,

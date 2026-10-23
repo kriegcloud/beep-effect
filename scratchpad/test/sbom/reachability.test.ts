@@ -1,6 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file
-// Tests are runtime entrypoints and own their native compiler layer scopes.
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The confinement invariant, as a test rather than a promise.
 //
 // This package is two independent capabilities in one: emitting an SBOM is pure

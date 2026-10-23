@@ -96,7 +96,7 @@ const main = Effect.gen(function* () {
     SkillPublisher
   );
   const encoder = new TextEncoder();
-  yield* Mode.$match(mode, {
+  yield* Mode.match(mode, {
     "publish-file": () => publisher.publishFile(root, target, intendedFile),
     "publish-directory": () =>
       publisher.publishDirectory(

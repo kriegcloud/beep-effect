@@ -725,7 +725,7 @@ const latest = extremeOf((values) => A.max(values, Order.String));
 
 const tallied = (tally: Tally, message: PracticeKgEmailMessage, participant: PracticeKgEmailParticipant): Tally => ({
   ...tally,
-  ...PracticeKgEmailParticipantRole.$match(participant.role, {
+  ...PracticeKgEmailParticipantRole.match(participant.role, {
     cc: () => ({ cc: HashSet.add(tally.cc, identityOf(message)) }),
     from: () => ({ from: HashSet.add(tally.from, identityOf(message)) }),
     to: () => ({ to: HashSet.add(tally.to, identityOf(message)) }),

@@ -9,8 +9,6 @@
     {"file":"packages/foundation/modeling/public-site/src/HostedUrl.schema.ts","symbol":"LabPortlessName","kind":"codec","owner":"@beep/public-site","identity":"LabPortlessName","description":"A portless lab host or bare lab label, decoded to the lab label."},
     {"file":"packages/foundation/modeling/public-site/src/HostedUrl.schema.ts","symbol":"SitePath","kind":"schema-const","owner":"@beep/public-site","identity":"SitePath","description":"A relative path below a reserved route: non-empty segments, no whitespace or backslash, no query or fragment, no plain or percent-encoded dot segments."},
     {"file":"packages/foundation/modeling/public-site/src/PublicOrigin.schema.ts","symbol":"PublicOrigin","kind":"schema-const","owner":"@beep/public-site","identity":"PublicOrigin","description":"The apex origin that hosts public, unauthenticated projections of the beep-effect substrate."},
-    {"file":"packages/foundation/modeling/public-site/src/SiteRoute.schema.ts","symbol":"FileRoute","kind":"literal-kit","owner":"@beep/public-site","identity":"FileRoute","description":"A reserved route that names a single file and accepts no nested path."},
-    {"file":"packages/foundation/modeling/public-site/src/SiteRoute.schema.ts","symbol":"PathRoute","kind":"literal-kit","owner":"@beep/public-site","identity":"PathRoute","description":"A reserved route that accepts a nested path below it."},
     {"file":"packages/foundation/modeling/public-site/src/SiteRoute.schema.ts","symbol":"SiteRoute","kind":"literal-kit","owner":"@beep/public-site","identity":"SiteRoute","description":"A reserved top-level route slug on the public origin."}
   ]
 }

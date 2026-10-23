@@ -289,7 +289,7 @@ export const grokSandboxRefusal = (stderr: string): O.Option<CriticSeatUnavailab
 
 // How a summary and the command name a seat that ended without a report.
 const seatOutcome = (seat: CriticSeatUnavailable) =>
-  CriticSeatUnavailableReason.$match(seat.reason, {
+  CriticSeatUnavailableReason.match(seat.reason, {
     "sandbox-deny-path-unresolved": () => ({ verb: "did not run", line: "seat unavailable on this host, skipped" }),
     "time-limit": () => ({ verb: "did not finish", line: "stopped at its time limit, no report" }),
     "output-limit": () => ({ verb: "did not finish", line: "stopped at its output-token cap, no report" }),

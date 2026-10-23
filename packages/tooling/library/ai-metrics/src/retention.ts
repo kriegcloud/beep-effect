@@ -1318,7 +1318,7 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
     );
   }
 
-  const deletesRawArchive = AiMetricsRetentionMutationMode.$match(mode, {
+  const deletesRawArchive = AiMetricsRetentionMutationMode.match(mode, {
     compact: () => false,
     delete: () => true,
   });

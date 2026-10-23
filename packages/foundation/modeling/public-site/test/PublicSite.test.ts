@@ -85,22 +85,22 @@ describe("hostedUrl", () => {
   });
 
   it("rejects a path on file routes and labs at the type level", () => {
-    // @ts-expect-error file routes take no path
+    // @ts-expect-error -- file routes take no path. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     hostedUrl("llms.txt", "extra");
-    // @ts-expect-error file routes take no path
+    // @ts-expect-error -- file routes take no path. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     hostedUrl("sitemap.xml", "extra");
-    // @ts-expect-error lab URLs go through labRoute
+    // @ts-expect-error -- lab URLs go through labRoute. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     hostedUrl("labs", "semantica");
-    // @ts-expect-error unknown route
+    // @ts-expect-error -- unknown route. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     hostedUrl("blog");
   });
 
   it("rejects a path when a union route may be a file route or labs", () => {
     const anyRoute = (route: SiteRoute) =>
-      // @ts-expect-error the union includes file routes and labs
+      // @ts-expect-error -- the union includes file routes and labs. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
       hostedUrl(route, "x");
     const fileOrDocs = (route: "llms.txt" | "docs") =>
-      // @ts-expect-error the union includes a file route
+      // @ts-expect-error -- the union includes a file route. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
       hostedUrl(route, "extra");
     const bare = (route: SiteRoute) => hostedUrl(route);
     expect([anyRoute, fileOrDocs].length).toBe(2);
@@ -108,9 +108,9 @@ describe("hostedUrl", () => {
   });
 
   it("rejects empty and absolute literal paths at the type level", () => {
-    // @ts-expect-error a nested path is relative
+    // @ts-expect-error -- a nested path is relative. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     hostedUrl("docs", "/leading");
-    // @ts-expect-error a nested path is non-empty
+    // @ts-expect-error -- a nested path is non-empty. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     hostedUrl("docs", "");
   });
 
@@ -182,22 +182,22 @@ describe("labRoute", () => {
   });
 
   it("rejects literal labels that are not DNS labels at the type level", () => {
-    // @ts-expect-error uppercase is not a lowercase DNS label
+    // @ts-expect-error -- uppercase is not a lowercase DNS label. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute("Api-Docs");
-    // @ts-expect-error underscore is not a DNS label character
+    // @ts-expect-error -- underscore is not a DNS label character. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute("api_docs.labs.beep.localhost");
-    // @ts-expect-error a DNS label may not start with a hyphen
+    // @ts-expect-error -- a DNS label may not start with a hyphen. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute("-api.labs.beep.localhost");
-    // @ts-expect-error a DNS label may not end with a hyphen
+    // @ts-expect-error -- a DNS label may not end with a hyphen. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute("api-");
-    // @ts-expect-error a dot leaves more than one label
+    // @ts-expect-error -- a dot leaves more than one label. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute("a.b");
-    // @ts-expect-error a port is not part of the portless name
+    // @ts-expect-error -- a port is not part of the portless name. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute("api-docs.labs.beep.localhost:1355");
-    // @ts-expect-error the label may not be empty
+    // @ts-expect-error -- the label may not be empty. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute(".labs.beep.localhost");
     const dynamicName: string = "semantica";
-    // @ts-expect-error a dynamic name must be decoded through LabPortlessName first
+    // @ts-expect-error -- a dynamic name must be decoded through LabPortlessName first. Owner: @beep/public-site. Exit: remove if the API is meant to accept this.
     labRoute(dynamicName);
     expectTypeOf<
       IsDnsLabel<"a234567890123456789012345678901234567890123456789012345678901234">

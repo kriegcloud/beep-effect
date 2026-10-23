@@ -708,7 +708,7 @@ export const makeAiMetricsSourceAttribution = Effect.fn("AiMetrics.makeAiMetrics
     });
   });
 
-  return yield* AiMetricsTranscriptSource.$match(sourceKind, {
+  return yield* AiMetricsTranscriptSource.match(sourceKind, {
     claude: claudeAttribution,
     codex: codexAttribution,
     openclaw: openClawAttribution,

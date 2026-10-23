@@ -123,7 +123,7 @@ export const scanLawsPackage = Effect.fn("LawsPackage.scan")(function* (scope: L
   const program = Effect.gen(function* () {
     let findings = A.empty<LawsPackageFinding>();
     for (const law of scope.laws) {
-      const finding = yield* LawsPackageLaw.$match({
+      const finding = yield* LawsPackageLaw.match({
         "terse-effect": () =>
           runTerseEffectRules(TerseEffectRulesOptions.make({ includePaths: files })).pipe(
             Effect.map((result) =>
