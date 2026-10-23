@@ -12,7 +12,7 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { LiteralKitEmptyComplementError, matchLiteral } from "../LiteralKit/index.ts";
+import { LiteralKitEmptySubsetError, matchLiteral } from "../LiteralKit/index.ts";
 import { deriveKeys, literalKitBuilders, makeMatch, makeMatchOrElse } from "../LiteralKit/internal/builders.ts";
 import type * as SchemaAST from "effect/SchemaAST";
 import type { LiteralKit as LiteralKitSchema, LiteralToKey } from "../LiteralKit/index.ts";
@@ -362,7 +362,7 @@ export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): Mapp
     const pickedSet = HashSet.fromIterable<LiteralValue>(picked);
     const kept = pairsWhere((fromLiteral) => HashSet.has(pickedSet, fromLiteral));
     if (!A.isReadonlyArrayNonEmpty(kept)) {
-      throw LiteralKitEmptyComplementError.make({ literals: from, dropped: from });
+      throw LiteralKitEmptySubsetError.make({ operation: "pick", literals: from, argument: picked });
     }
     return MappedLiteralKit(kept);
   };
@@ -370,7 +370,7 @@ export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): Mapp
     const droppedSet = HashSet.fromIterable<LiteralValue>(dropped);
     const kept = pairsWhere((fromLiteral) => !HashSet.has(droppedSet, fromLiteral));
     if (!A.isReadonlyArrayNonEmpty(kept)) {
-      throw LiteralKitEmptyComplementError.make({ literals: from, dropped });
+      throw LiteralKitEmptySubsetError.make({ operation: "omit", literals: from, argument: dropped });
     }
     return MappedLiteralKit(kept);
   };

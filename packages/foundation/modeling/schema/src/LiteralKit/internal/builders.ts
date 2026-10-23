@@ -79,7 +79,7 @@ export const literalKey = (literal: LiteralValue): string => {
 export const deriveKeys = (literals: Literals): Keys => A.map(literals, literalKey);
 
 const unhandled = (literals: Literals, key: string, value: LiteralValue): never => {
-  throw LiteralKitUnhandledCaseError.make({ key, value, literals });
+  throw LiteralKitUnhandledCaseError.make({ key: String(key), value, literals });
 };
 
 /**

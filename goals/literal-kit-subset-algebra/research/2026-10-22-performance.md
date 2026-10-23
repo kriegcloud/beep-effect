@@ -36,7 +36,7 @@ two changes are the likely drivers:
 
 The fixture rows rise by a flat ~3.2k. That is the fixed cost of importing
 the `LiteralKit` subpath, and it is the same on every fixture. Two new tagged
-error classes (`LiteralKitUnhandledCaseError`, `LiteralKitEmptyComplementError`)
+error classes (`LiteralKitUnhandledCaseError`, `LiteralKitEmptySubsetError`)
 account for about half of it: the whole errors module costs 2,864 on its own.
 The rest is the new `pick` / `omit` / `matchOrElse` declarations. The keyed
 API's marginal cost over the import is flat: 580 before, 623 after.

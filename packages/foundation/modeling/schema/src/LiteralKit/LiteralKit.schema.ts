@@ -10,7 +10,7 @@ import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { deriveKeys, literalKey, literalKitBuilders, makeMatch, makeMatchOrElse } from "./internal/builders.ts";
-import { LiteralKitEmptyComplementError, LiteralKitTaggedUnionLiteralError } from "./LiteralKit.errors.ts";
+import { LiteralKitEmptySubsetError, LiteralKitTaggedUnionLiteralError } from "./LiteralKit.errors.ts";
 import type * as SchemaAST from "effect/SchemaAST";
 import type * as Struct from "effect/Struct";
 import type * as Unify from "effect/Unify";
@@ -105,10 +105,18 @@ type MatchReturn<Cases> = {
 }[keyof Cases];
 
 /**
- * The members a partial cases object handles, read back from its keys.
+ * The keys a cases object is guaranteed to carry. An optional key may be
+ * absent at runtime, so its member still reaches `orElse`.
+ */
+type RequiredCaseKeys<Cases> = {
+  [K in keyof Cases]-?: {} extends Pick<Cases, K> ? never : K;
+}[keyof Cases];
+
+/**
+ * The members a partial cases object handles, read back from its required keys.
  */
 type HandledLiteral<K, Cases> = K extends SchemaAST.LiteralValue
-  ? LiteralToKey<K> extends keyof Cases
+  ? LiteralToKey<K> extends RequiredCaseKeys<Cases>
     ? K
     : never
   : never;
@@ -402,12 +410,17 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
 
   // The subset helpers construct a fresh kit over the kept literals; their
   // precise types live on the interface and the runtime shape is the loose one.
-  const pick = (picked: Literals): LiteralKit<Literals> => LiteralKit<Literals>(picked);
+  const pick = (picked: Literals): LiteralKit<Literals> => {
+    if (!A.isReadonlyArrayNonEmpty(picked)) {
+      throw LiteralKitEmptySubsetError.make({ operation: "pick", literals, argument: picked });
+    }
+    return LiteralKit<Literals>(picked);
+  };
   const omit = (dropped: Literals): LiteralKit<Literals> => {
     const droppedSet = HashSet.fromIterable<SchemaAST.LiteralValue>(dropped);
     const kept = A.filter(literals, (literal: SchemaAST.LiteralValue) => !HashSet.has(droppedSet, literal));
     if (!A.isReadonlyArrayNonEmpty(kept)) {
-      throw LiteralKitEmptyComplementError.make({ literals, dropped });
+      throw LiteralKitEmptySubsetError.make({ operation: "omit", literals, argument: dropped });
     }
     return LiteralKit<Literals>(kept);
   };

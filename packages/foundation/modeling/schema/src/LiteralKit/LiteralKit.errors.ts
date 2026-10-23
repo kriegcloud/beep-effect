@@ -98,7 +98,8 @@ export class LiteralKitKeyCollisionError extends S.TaggedError<
  * `matchOrElse` routes the remainder to its fallback. It fires only when a
  * cast or an out-of-domain runtime value reaches the dispatcher, and it names
  * the value, its helper key and the kit's members so the miss can be read
- * without a debugger. The lookup is an own-property check, so a value such as
+ * without a debugger. `value` is unknown because an out-of-domain value
+ * (`undefined`, `NaN`, an object) is exactly what reaches this error. The lookup is an own-property check, so a value such as
  * `"toString"` never resolves to a prototype method.
  *
  * **Example** (Create unhandled case error)
@@ -124,7 +125,7 @@ export class LiteralKitUnhandledCaseError extends S.TaggedError<
   "LiteralKitUnhandledCaseError",
   {
     key: S.String,
-    value: LiteralValueSchema,
+    value: S.Unknown,
     literals: S.Array(LiteralValueSchema),
   },
   $I.annoteError<LiteralKitUnhandledCaseError>("LiteralKitUnhandledCaseError", {
@@ -134,39 +135,43 @@ export class LiteralKitUnhandledCaseError extends S.TaggedError<
 ) {}
 
 /**
- * Error thrown when `omit` would leave a kit with no members.
+ * Error thrown when `pick` or `omit` would leave a kit with no members.
  *
  * **Details**
  *
- * The type of `omit` already rejects a call that drops every member, so this
- * is a defect guard for callers that widened the argument past the checker.
+ * The types of `pick` and `omit` already reject an empty selection and a
+ * complement that drops every member, so this is a defect guard for callers
+ * that widened the argument past the checker. It names the operation, the
+ * kit's members and the argument as passed.
  *
- * **Example** (Create empty complement error)
+ * **Example** (Create empty subset error)
  *
- * ```ts import.meta.vitest name="Create empty complement error"
- * import { LiteralKitEmptyComplementError } from "@beep/schema/LiteralKit"
+ * ```ts import.meta.vitest name="Create empty subset error"
+ * import { LiteralKitEmptySubsetError } from "@beep/schema/LiteralKit"
  *
- * const error = LiteralKitEmptyComplementError.make({
+ * const error = LiteralKitEmptySubsetError.make({
+ *   operation: "omit",
  *   literals: ["ready"],
- *   dropped: ["ready"]
+ *   argument: ["ready"]
  * })
- * error.dropped // => ["ready"]
+ * error.operation // => "omit"
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
-export class LiteralKitEmptyComplementError extends S.TaggedError<
-  LiteralKitEmptyComplementError,
+export class LiteralKitEmptySubsetError extends S.TaggedError<
+  LiteralKitEmptySubsetError,
   { readonly brand: unique symbol }
->($I.make("LiteralKitEmptyComplementError"))(
-  "LiteralKitEmptyComplementError",
+>($I.make("LiteralKitEmptySubsetError"))(
+  "LiteralKitEmptySubsetError",
   {
+    operation: S.Literals(["pick", "omit"]),
     literals: S.Array(LiteralValueSchema),
-    dropped: S.Array(LiteralValueSchema),
+    argument: S.Array(S.Unknown),
   },
-  $I.annoteError<LiteralKitEmptyComplementError>("LiteralKitEmptyComplementError", {
-    title: "LiteralKit Empty Complement Error",
-    description: "LiteralKit.omit dropped every member of the kit.",
+  $I.annoteError<LiteralKitEmptySubsetError>("LiteralKitEmptySubsetError", {
+    title: "LiteralKit Empty Subset Error",
+    description: "LiteralKit.pick or LiteralKit.omit would leave the kit with no members.",
   })
 ) {}

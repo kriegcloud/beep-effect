@@ -699,7 +699,7 @@ facets come back, and in what shape?
 - `omit` is new and returns
   `LiteralKit<readonly [Exclude<L[number], D[number]>, ...Array<...>]>`. Its
   argument must be non-empty. An empty complement is a compile error, and at
-  runtime it throws `LiteralKitEmptyComplementError`.
+  runtime it throws `LiteralKitEmptySubsetError`.
 - `$match` is renamed to `match`. It stays exhaustive and keeps both
   overloads. `matchOrElse` is added, with both overloads, and its `orElse`
   receives the unhandled remainder, mirroring `Schema.TaggedUnion.matchOrElse`.

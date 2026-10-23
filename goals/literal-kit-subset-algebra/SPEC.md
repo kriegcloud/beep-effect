@@ -62,7 +62,7 @@ Higher sources outrank lower sources when they conflict.
 - [ ] `Kit.pick([...])` returns `LiteralKit<P>` and `Kit.omit([...])` returns a kit
       over the complement. Both reject an empty argument at compile time, and `omit`
       rejects an empty complement at compile time and at runtime
-      (`LiteralKitEmptyComplementError`).
+      (`LiteralKitEmptySubsetError`).
 - [ ] `match` is exhaustive with both overloads. `matchOrElse` passes the unhandled
       remainder to `orElse`. Unary handlers no longer collapse the return type
       to `never`.
@@ -110,7 +110,7 @@ them and record each in the Decision Log.
 | Date | Decision | Reason | How to reverse |
 | --- | --- | --- | --- |
 | 2026-10-22 | The kit overrides upstream `pick` to return `LiteralKit<P>` instead of adding `pickLiterals`. Its argument must be non-empty. | 24 sites re-wrapped upstream's bare `Literals` result. A second name beside `pick` would leave the weaker one as the default. Rulings: `research/2026-10-22-grill-rulings.md`. | Drop the override; the codemod's unwrap is the inverse of a mechanical re-wrap. |
-| 2026-10-22 | `omit` is added and computes the complement. An empty complement is a compile error, and at runtime it throws `LiteralKitEmptyComplementError`. | An enumerated complement goes stale when the parent kit grows (§11 rule 6). `CitingApplicationIdentity` spelled out 238 literals. | Replace the `omit` calls with explicit `pick` lists. |
+| 2026-10-22 | `omit` is added and computes the complement. An empty complement is a compile error, and at runtime it throws `LiteralKitEmptySubsetError`. | An enumerated complement goes stale when the parent kit grows (§11 rule 6). `CitingApplicationIdentity` spelled out 238 literals. | Replace the `omit` calls with explicit `pick` lists. |
 | 2026-10-22 | `$match` becomes `match`, exhaustive with both overloads. `matchOrElse` is added, and its `orElse` gets the remainder. No alias is kept. | This matches upstream `TaggedUnion.match` / `matchOrElse`. Upstream `Literals` has no `match` to collide with. §11 rule 3 forbids aliases. | Run the codemod rule in reverse (rename `match` back to `$match`). |
 | 2026-10-22 | A dispatch miss throws `LiteralKitUnhandledCaseError`. Lookups go through `R.get` (own properties only). | Before, a miss called `undefined`, and an inherited key such as `toString` could dispatch. | Restore the direct index lookup. |
 | 2026-10-22 | `withLiteralKitStatics` returns `S & LiteralKitStatics<L>`, a named exported interface; the `Pick` alias stays internal. | Copying `matchOrElse` made the inlined `Pick` expand past the declaration-emit limit. TS7056 hit `@beep/box` (`Box.errors.ts`, five sites) and `@beep/ui` (`country-select.tsx`, two sites). A named interface emits by reference. | Return the alias, or drop `matchOrElse` from the copied statics. |

@@ -1,14 +1,14 @@
 import { fcRuns } from "@beep/fc-runs";
 import {
   LiteralKit,
-  LiteralKitEmptyComplementError,
+  LiteralKitEmptySubsetError,
   LiteralKitKeyCollisionError,
   LiteralKitUnhandledCaseError,
 } from "@beep/schema/LiteralKit";
 import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
+import { assertInstanceOf, deepStrictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
@@ -313,9 +313,26 @@ describe("LiteralKit subsets stay kits", () => {
     expect(Paid.is.team("team")).toBe(true);
   });
 
-  it("throws the empty-complement defect when every member is dropped past the checker", () => {
+  it("throws the empty-subset defect when omit drops every member past the checker", () => {
     const everything = Tier.literals as unknown as readonly ["free"];
-    expect(() => Tier.omit(everything)).toThrow(LiteralKitEmptyComplementError);
+    const failure = Result.try({ try: () => Tier.omit(everything), catch: (error) => error }).pipe(
+      Result.flip,
+      Result.getOrUndefined
+    );
+    assertInstanceOf(failure, LiteralKitEmptySubsetError);
+    expect(failure.operation).toBe("omit");
+    deepStrictEqual(failure.argument, Tier.literals);
+  });
+
+  it("throws the empty-subset defect when pick selects nothing past the checker", () => {
+    const nothing = [] as unknown as readonly ["free"];
+    const failure = Result.try({ try: () => Tier.pick(nothing), catch: (error) => error }).pipe(
+      Result.flip,
+      Result.getOrUndefined
+    );
+    assertInstanceOf(failure, LiteralKitEmptySubsetError);
+    expect(failure.operation).toBe("pick");
+    deepStrictEqual(failure.argument, []);
   });
 });
 
@@ -332,6 +349,17 @@ describe("LiteralKit matchOrElse", () => {
     expect(price("free")).toBe(0);
     expect(price("pro")).toBe(10);
     expect(price("team")).toBe("quote:team");
+  });
+
+  it("keeps optional case keys in the orElse remainder", () => {
+    const cases: { readonly free?: (value: "free") => number; readonly pro?: (value: "pro") => number } = {
+      free: () => 0,
+    };
+    const priced = Tier.matchOrElse("pro", cases, (rest) => {
+      const remainder: typeof rest = "pro";
+      return remainder;
+    });
+    expect(priced).toBe("pro");
   });
 
   it("narrows the orElse argument to the unhandled members", () => {
@@ -351,16 +379,23 @@ describe("LiteralKit dispatch", () => {
     expect(() => Tier.match(stray, cases)).toThrow(LiteralKitUnhandledCaseError);
   });
 
+  it("raises the unhandled-case defect for out-of-domain runtime values", () => {
+    const cases = { free: () => "f", pro: () => "p" };
+    for (const stray of [undefined, null, Number.NaN, { kind: "free" }]) {
+      expect(() => Tier.match(stray as unknown as "free", cases)).toThrow(LiteralKitUnhandledCaseError);
+    }
+  });
+
   it("names the value, key and members in the unhandled-case defect", () => {
     const cases = { free: () => "f" } as unknown as { free: () => string; pro: () => string };
-    const result = Result.try({ try: () => Tier.match("pro", cases), catch: (error) => error });
-    assertTrue(Result.isFailure(result));
-    if (Result.isFailure(result)) {
-      assertInstanceOf(result.failure, LiteralKitUnhandledCaseError);
-      expect(result.failure.key).toBe("pro");
-      expect(result.failure.value).toBe("pro");
-      deepStrictEqual(result.failure.literals, ["free", "pro"]);
-    }
+    const failure = Result.try({ try: () => Tier.match("pro", cases), catch: (error) => error }).pipe(
+      Result.flip,
+      Result.getOrUndefined
+    );
+    assertInstanceOf(failure, LiteralKitUnhandledCaseError);
+    expect(failure.key).toBe("pro");
+    expect(failure.value).toBe("pro");
+    deepStrictEqual(failure.literals, ["free", "pro"]);
   });
 
   it("defines the new helpers as readonly and non-configurable", () => {

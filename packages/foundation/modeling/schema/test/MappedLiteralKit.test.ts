@@ -1,5 +1,5 @@
 import { fcRuns } from "@beep/fc-runs";
-import { LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit";
+import { LiteralKitEmptySubsetError, LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit";
 import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
@@ -227,6 +227,11 @@ describe("MappedLiteralKit subsets and matchOrElse", () => {
       expect(S.is(Success.To)(404)).toBe(false);
     })
   );
+
+  it("pick reports an empty selection as an empty-subset defect", () => {
+    const nothing = [] as unknown as readonly ["OK"];
+    expect(() => Code.pick(nothing)).toThrow(LiteralKitEmptySubsetError);
+  });
 
   it("omit drops the pairs whose from-side literal was dropped", () => {
     const Failures = Code.omit(["OK", "CREATED"]);
