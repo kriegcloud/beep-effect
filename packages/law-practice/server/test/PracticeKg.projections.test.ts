@@ -2028,9 +2028,12 @@ describe("practice KG projections", () => {
           Layer.provide(fixtureLanguageModel),
           Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ BEEP_LANGEXTRACT_ALLOW_REMOTE: "true" })))
         );
-        const summary = yield* runPracticeKgClaimsBatch(PracticeKgClaimsOptions.make({ bundleOut, inputs })).pipe(
-          provideScopedLayer(claimsLayer)
-        );
+        // Keep the host's read-write connection open while resolving source digests.
+        const summary = yield* Effect.gen(function* () {
+          const db = yield* DuckDb;
+          yield* db.run("CHECKPOINT");
+          return yield* runPracticeKgClaimsBatch(PracticeKgClaimsOptions.make({ bundleOut, inputs }));
+        }).pipe(withDuckDb(path.join(bundleOut, "practice.duckdb")), provideScopedLayer(claimsLayer));
         expect(summary.claims).toBe(2);
         expect(summary.files).toBe(2);
         expect(summary.failedFiles).toBe(2);
