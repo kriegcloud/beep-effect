@@ -357,12 +357,13 @@ const compilerOptions: {
  * **Example** (Resolve with Node platform operations)
  *
  * ```ts
- * import { existsSync, readFileSync } from "node:fs";
+ * import { existsSync, readFileSync, realpathSync } from "node:fs";
  * import * as path from "node:path";
  * import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
  *
+ * // `realPath` gives tsc's symlink handling for package-resolved bases.
  * const resolved = TsconfigLoaderSync.resolve("./tsconfig.json", {
- * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8") },
+ * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync },
  * 	path,
  * });
  * console.log(typeof resolved.compilerOptions) // object
