@@ -34,10 +34,19 @@ import {
   VcsRevision,
   Workstation,
 } from "@beep/observability/catalog";
+import { ScopedPackageName } from "@beep/package-json/PackageName";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe } from "@effect/vitest";
-import { assertFalse, assertNone, assertSome, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
+import {
+  assertFailure,
+  assertFalse,
+  assertNone,
+  assertSome,
+  assertTrue,
+  deepStrictEqual,
+  strictEqual,
+} from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
@@ -47,6 +56,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { CatalogConflict } from "@beep/observability/catalog";
 
+const CatalogOwner = S.Struct({ owner: PackageName });
 const pkgA = PackageName.make("@beep/a");
 const pkgB = PackageName.make("@beep/b");
 const matterId = AttributeKeyName.make("beep.matter_id");
@@ -183,6 +193,19 @@ describe("catalog names", () => {
     assertFalse(isPackageName(`@beep/${Str.repeat(209)("a")}`));
     assertFalse(isPackageName("@Beep/observability"));
     assertFalse(isPackageName("@beep/"));
+  });
+
+  it("shares the ScopedPackageName brand and its decode message (3-A9)", () => {
+    // Type-level: a @beep/package-json ScopedPackageName is a catalog owner name, and back.
+    const owner: PackageName = ScopedPackageName.make("@beep/observability");
+    const scoped: ScopedPackageName = PackageName.make("@beep/observability");
+    strictEqual(owner, scoped);
+    // Accepted shift: the generic pattern message replaces the old custom text.
+    const decoded = S.decodeResult(CatalogOwner)({ owner: "observability" });
+    assertFailure(
+      Result.mapError(decoded, (error) => error.message),
+      'Expected a string matching the RegExp ^@[a-z0-9-][a-z0-9._-]*\\/[a-z0-9-][a-z0-9._-]*$\n  at ["owner"]'
+    );
   });
 });
 

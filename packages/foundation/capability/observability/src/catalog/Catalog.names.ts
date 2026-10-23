@@ -278,7 +278,10 @@ export type AttributeKeyName = typeof AttributeKeyName.Type;
  * **Details**
  *
  * Validated by `@beep/package-json` `ScopedPackageName`, the npm naming rules
- * for scoped names, including the 214-character limit.
+ * for scoped names, including the 214-character limit. Its brand is
+ * `ScopedPackageName`, so values decoded by `@beep/package-json` are catalog
+ * owner names without re-validation, and a malformed owner fails with the
+ * generic pattern message of that schema.
  *
  * **Example** (Check package names)
  *
