@@ -1464,6 +1464,8 @@ const resolveBaseRef = Effect.fn("FallowQuality.resolveBaseRef")(function* (
  *
  * @param repoRoot - Absolute repository root used as the Git working directory.
  * @param base - Base revision for tracked changes.
+ * @param context - Number of context lines in each diff hunk.
+ * @param noRenames - Disable rename detection for exact codemod-site attribution.
  * @returns A successful combined binary diff, or the first failed Git process result.
  * @category testing
  * @since 0.0.0
@@ -1471,12 +1473,13 @@ const resolveBaseRef = Effect.fn("FallowQuality.resolveBaseRef")(function* (
 export const collectAuditDiffInputForTesting = Effect.fn("FallowQuality.collectAuditDiffInput")(function* (
   repoRoot: string,
   base: string,
-  context = 3
+  context = 3,
+  noRenames?: boolean
 ): Effect.fn.Return<ProcessResult, QualityScriptCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const trackedDiff = yield* collectProcessOutput(repoRoot, "git", [
     "diff",
     "--binary",
-    "--no-renames",
+    ...(noRenames === true ? ["--no-renames"] : []),
     `--unified=${context}`,
     base,
     "--",
@@ -1599,7 +1602,7 @@ const collectCodemodInheritance = Effect.fn("FallowQuality.collectCodemodInherit
     "--",
     "goals/*/research/codemod-write.jsonc",
   ]);
-  const diff = yield* collectAuditDiffInputForTesting(repoRoot, base, 0);
+  const diff = yield* collectAuditDiffInputForTesting(repoRoot, base, 0, true);
   if (files.exitCode !== 0 || diff.exitCode !== 0) return 0;
   const reports = yield* Effect.forEach(A.filter(Str.split(files.stdout, "\n"), Str.isNonEmpty), (file) =>
     fs.readFileString(path.join(repoRoot, file)).pipe(
