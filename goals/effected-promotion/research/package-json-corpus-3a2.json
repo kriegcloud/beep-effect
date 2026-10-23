@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "tool": "goals/effected-promotion/ops/package-json-corpus.ts",
   "scope": "git ls-files '*package.json' excluding **/test/fixtures/**",
-  "commit": "21f823f36c4072601f29bf998643f5dda36d7249",
+  "commit": "20352d7709aedbdefae889a5175b86e4b743cbf7",
   "totals": {
     "manifests": 189,
     "strictDecodes": 188,
