@@ -34,6 +34,7 @@ import type {
   DuckDbDatabaseImport,
   DuckDbParquetExport,
 } from "../DuckDb.models.ts";
+import type { DuckDbConnection } from "./connection.ts";
 
 const $I = $DuckdbId.create("internal/extras");
 
@@ -61,11 +62,11 @@ const CHECKPOINT_IN_TRANSACTION = "DuckDB checkpoint is a database-level operati
 
 const runOn = (
   connection: SqlConnection.Connection,
-  sql: string,
-  operation: DuckDbDriverOperation
+  operation: string,
+  run: (connection: DuckDbConnection) => Effect.Effect<void, SqlError>
 ): Effect.Effect<void, SqlError> =>
   isDuckDbConnection(connection)
-    ? connection.runDriverStatement(sql, operation)
+    ? run(connection)
     : Effect.die(`DuckDbClient.${operation}: the connection is not a DuckDB connection`);
 
 /**
@@ -111,7 +112,11 @@ export const makeExtras = (options: {
       Effect.serviceOption(options.client.transactionService),
       O.match({
         onNone: () =>
-          Effect.scoped(Effect.flatMap(options.acquirer, (connection) => runOn(connection, sql, operation))),
+          Effect.scoped(
+            Effect.flatMap(options.acquirer, (connection) =>
+              runOn(connection, operation, (native) => native.runDriverStatement(sql, operation))
+            )
+          ),
         onSome: ([connection]) =>
           O.isSome(refusal)
             ? Effect.fail(
@@ -119,7 +124,7 @@ export const makeExtras = (options: {
                   reason: UnknownError.make({ cause: "active transaction", message: refusal.value, operation }),
                 })
               )
-            : runOn(connection, sql, operation),
+            : runOn(connection, operation, (native) => native.runDriverStatement(sql, operation)),
       })
     );
 
@@ -135,9 +140,7 @@ export const makeExtras = (options: {
   const appendRows = Effect.fn("DuckDbClient.appendRows")(
     (request: typeof DuckDbAppendRows.Encoded): Effect.Effect<void, SqlError> => {
       const appendOn = (connection: SqlConnection.Connection) =>
-        isDuckDbConnection(connection)
-          ? connection.appendRows(request)
-          : Effect.die("DuckDbClient.appendRows: the connection is not a DuckDB connection");
+        runOn(connection, "appendRows", (native) => native.appendRows(request));
       return Effect.flatMap(
         Effect.serviceOption(options.client.transactionService),
         O.match({

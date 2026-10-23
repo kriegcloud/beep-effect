@@ -255,7 +255,7 @@ export class DuckDbAppendRows extends S.Opaque<DuckDbAppendRows, { readonly bran
   S.Struct({
     table: S.NonEmptyString,
     schema: S.optionalKey(S.NonEmptyString),
-    rows: S.Array(S.Array(S.Unknown)),
+    rows: S.Unknown.pipe(S.Array, S.Array),
   }).pipe($I.annoteSchema("DuckDbAppendRows", { description: "Complete rows to append to a DuckDB table." }))
 ) {}
 

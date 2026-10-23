@@ -97,6 +97,8 @@ and describes code that does not exist until that issue closes.
 | D64 | Tiered by the probed failure (designed, #2084). Tier A, where only INT32 columns are wrong (`SqlEventJournal`, `Persistence.layerBackingSqlMultiTable`): DuckDB DDL with `BIGINT` first, then the unchanged upstream layer. Tier B, where DDL does not parse or queries call SQLite functions (`Persistence.layerBackingSql`, `PersistedQueue`, `SqlMessageStorage`, `SqlRunnerStorage`, `SqlEventLogServerEncrypted`): a DuckDB port of the upstream service contract from its SQLite branch, marked `// beep:` (D48). Both proven by the vendored upstream shared suite | pre-created tables turn the upstream `CREATE TABLE IF NOT EXISTS` into a no-op, and the journal and multi-table store then pass (probed); `AUTOINCREMENT` fails to parse before the existence check, `CREATE INDEX IF NOT EXISTS … WHERE` is refused even when the index exists, and DuckDB has no `datetime()` or SQLite-order `strftime('%s', …)`; rewriting SQL text needs a tokenizer (the D45/D59 stance), `datetime` macros cannot fix the DDL, `"pg"` breaks the Migrator (D1), and an upstream `"duckdb"` dialect alone changes nothing (HEAD added `clickhouse` without storage branches) | upstream DuckDB branches (re-evaluate at the effect bump, then delete the Tier B ports) |
 | D65 | Cluster storages on DuckDB serve single-process deployments (`SingleRunner`) only (designed, #2084) | DuckDB holds a per-process file lock, so runners in other processes cannot share the file | none on DuckDB; use a server database |
 
+| D66 | `DuckDbMigrator.dumpSchema` emits user enums, sequences, scalar/table macros, tables and views in one global catalog OID stream, then indexes and migration rows; restrict to the current database and non-internal, non-temporary objects (#2085, S44 amendment) | table macros bind eagerly and views bind against macros, so no category order restores both dependency directions; creation OIDs preserve the order originally accepted by DuckDB. ALTER can introduce dependencies on higher OIDs without renewing the table OID, so such dumps can fail to restore (pinned by a test); CREATE OR REPLACE renews view/macro OIDs on 1.5.6. Macro default argument expressions are not exposed by `duckdb_functions()` and are not preserved | replace the catalog stream with a dependency-aware schema-only API once DuckDB exposes one; revert the migrator callback and tests to disable dumping |
+
 ## Known hazards
 
 - **Legacy READ_ONLY beside a read-write open of the same file.** The legacy
@@ -171,11 +173,8 @@ and describes code that does not exist until that issue closes.
 Tracked in #2088. Each sub-issue carries the constraint probed on DuckDB 1.5.6
 and its acceptance criteria:
 
-- #2082 `exportDatabase` / `importDatabase` over `EXPORT DATABASE`, instead of
-  a `backup` extra (D17).
 - #2083 Reader connections for streams (D60–D62).
 - #2084 DuckDB-native storages for the unsupported consumers, demand-gated
   (D11, D63–D65).
-- #2085 `DuckDbMigrator` `dumpSchema` from the DuckDB catalog.
 - #2086 Route law-practice READ_ONLY lookups through the read-write
   connection, then move legacy READ_ONLY opens onto `fromCache` (D35).

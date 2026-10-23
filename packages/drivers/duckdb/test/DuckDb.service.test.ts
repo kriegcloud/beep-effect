@@ -4,6 +4,7 @@ import {
   DuckDbConnectionOptions,
   DuckDbError,
   DuckDbErrorFromUnknownOptions,
+  DuckDbMigrator,
   DuckDbOperation,
   DuckDbParquetExport,
   DuckDbRow,
@@ -1011,17 +1012,16 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
         const release = makeLatch();
         const original = native.createAppender.bind(native);
         let closed = 0;
-        native.createAppender = async (...args) => {
-          const appender = await original(...args);
-          const close = appender.closeSync.bind(appender);
-          appender.closeSync = () => {
-            closed += 1;
-            close();
-          };
-          started.resolve();
-          await release.promise;
-          return appender;
-        };
+        native.createAppender = (...args) =>
+          original(...args).then((appender) => {
+            const close = appender.closeSync.bind(appender);
+            appender.closeSync = () => {
+              closed += 1;
+              close();
+            };
+            started.resolve();
+            return release.promise.then(() => appender);
+          });
         const fiber = yield* client
           .appendRows({ table: "append_cancel", rows: [[1]] })
           .pipe(Effect.forkChild({ startImmediately: true }));
@@ -1340,6 +1340,120 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
         const directory = path.join(tmpDir, "readonly-export");
         yield* reader.exportDatabase({ directory });
         expect(yield* fs.exists(path.join(directory, "schema.sql"))).toBe(true);
+      })
+    );
+
+    it.effect(
+      "dumps deterministic catalog DDL and migration history only after applied migrations",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const source = yield* DuckDbClient.make({ databasePath: ":memory:" });
+        yield* source`ATTACH ':memory:' AS ignored`;
+        yield* source`CREATE TABLE ignored.main.outside (id INTEGER)`;
+        const run = DuckDbMigrator.run({
+          schemaDirectory: path.join(tmpDir, "dump"),
+          loader: DuckDbMigrator.fromRecord({
+            "1_catalog": Effect.gen(function* () {
+              const sql = yield* SqlClient.SqlClient;
+              yield* sql`CREATE TYPE mood AS ENUM ('good', 'isn''t bad')`;
+              yield* sql`CREATE SEQUENCE serial START 7`;
+              yield* sql`CREATE TABLE base (id INTEGER DEFAULT nextval('serial'), mood mood)`;
+              yield* sql`CREATE MACRO from_base() AS TABLE SELECT * FROM base`;
+              yield* sql`CREATE MACRO plus_one(x) AS x + 1`;
+              yield* sql`CREATE VIEW scalar_view AS SELECT plus_one(41) AS n`;
+              yield* sql`CREATE VIEW table_view AS SELECT * FROM from_base()`;
+              yield* sql`CREATE VIEW nested_view AS SELECT * FROM scalar_view`;
+              yield* sql`CREATE INDEX mood_idx ON base(mood)`;
+              yield* sql`CREATE SCHEMA custom`;
+              yield* sql`CREATE TABLE custom.other (id INTEGER)`;
+              yield* sql`UPDATE effect_sql_migrations SET created_at = TIMESTAMP '2024-01-01 00:00:00'`;
+            }),
+          }),
+        }).pipe(Effect.provideService(SqlClient.SqlClient, source));
+        expect(yield* run).toEqual([[1, "catalog"]]);
+        const file = path.join(tmpDir, "dump", "_schema.sql");
+        const text = yield* fs.readFileString(file);
+        expect(text).not.toContain("outside");
+        const target = yield* DuckDbClient.make({ databasePath: ":memory:" });
+        yield* target.unsafe(text);
+        expect(yield* target`SELECT * FROM nested_view`).toEqual([{ n: 42 }]);
+        expect(yield* target`SELECT * FROM table_view`).toEqual([]);
+        yield* target`INSERT INTO base (mood) VALUES ('good')`;
+        expect(yield* target`SELECT * FROM base`).toEqual([{ id: 7, mood: "good" }]);
+        expect(yield* target`SELECT index_name FROM duckdb_indexes()`).toEqual([{ index_name: "mood_idx" }]);
+        expect(yield* target`SELECT * FROM custom.other`).toEqual([]);
+        expect(yield* target`SELECT * FROM effect_sql_migrations`).toEqual(
+          yield* source`SELECT * FROM effect_sql_migrations`
+        );
+        yield* fs.writeFileString(file, "unchanged");
+        expect(yield* run).toEqual([]);
+        expect(yield* fs.readFileString(file)).toBe("unchanged");
+        // Re-applying a no-op migration triggers a second dump of the same catalog.
+        yield* source`DELETE FROM effect_sql_migrations`;
+        const redump = DuckDbMigrator.run({
+          schemaDirectory: path.join(tmpDir, "redump"),
+          loader: DuckDbMigrator.fromRecord({
+            "1_catalog": source`UPDATE effect_sql_migrations SET created_at = TIMESTAMP '2024-01-01 00:00:00'`,
+          }),
+        }).pipe(Effect.provideService(SqlClient.SqlClient, source));
+        yield* redump;
+        const second = yield* fs.readFileString(path.join(tmpDir, "redump", "_schema.sql"));
+        // Both runs fix the history timestamp so the catalog and rows are identical.
+        expect(second).toBe(text);
+      })
+    );
+
+    it.effect(
+      "pins ALTER dependencies beyond OID order and replacement OID renewal",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const source = yield* DuckDbClient.make({ databasePath: ":memory:" });
+        yield* source`CREATE TABLE early (id INTEGER)`;
+        yield* source`CREATE SEQUENCE late`;
+        yield* source`ALTER TABLE early ALTER COLUMN id SET DEFAULT nextval('late')`;
+        yield* source`CREATE VIEW before_view AS SELECT 1 AS n`;
+        yield* source`CREATE VIEW after_view AS SELECT 2 AS n`;
+        yield* source`CREATE OR REPLACE VIEW before_view AS SELECT * FROM after_view`;
+        expect(yield* source`SELECT view_name FROM duckdb_views() WHERE NOT internal ORDER BY view_oid`).toEqual([
+          { view_name: "after_view" },
+          { view_name: "before_view" },
+        ]);
+        yield* DuckDbMigrator.run({
+          schemaDirectory: path.join(tmpDir, "alter"),
+          loader: DuckDbMigrator.fromRecord({ "1_noop": Effect.void }),
+        }).pipe(Effect.provideService(SqlClient.SqlClient, source));
+        const text = yield* fs.readFileString(path.join(tmpDir, "alter", "_schema.sql"));
+        expect(text.indexOf("CREATE TABLE early")).toBeLessThan(text.indexOf("CREATE SEQUENCE late"));
+        const target = yield* DuckDbClient.make({ databasePath: ":memory:" });
+        const error = yield* target.unsafe(text).pipe(Effect.flip);
+        expect(error.reason._tag).toBe("SqlSyntaxError");
+        expect(error.reason.cause).toMatchObject({
+          message: expect.stringContaining("Sequence with name late does not exist"),
+        });
+      })
+    );
+
+    it.effect(
+      "keeps applied migrations when writing the schema artifact fails",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const source = yield* DuckDbClient.make({ databasePath: ":memory:" });
+        const schemaDirectory = path.join(tmpDir, "not-a-directory");
+        yield* fs.writeFileString(schemaDirectory, "preserved");
+        expect(
+          yield* DuckDbMigrator.run({
+            schemaDirectory,
+            loader: DuckDbMigrator.fromRecord({ "1_noop": Effect.void }),
+          }).pipe(Effect.provideService(SqlClient.SqlClient, source))
+        ).toEqual([[1, "noop"]]);
+        expect(yield* fs.readFileString(schemaDirectory)).toBe("preserved");
+        expect(yield* source`SELECT migration_id FROM effect_sql_migrations`).toEqual([{ migration_id: 1 }]);
       })
     );
 

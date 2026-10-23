@@ -89,7 +89,14 @@ type CachedStatement = Data.TaggedEnum<{
 
 const CachedStatement = Data.taggedEnum<CachedStatement>();
 
-type DuckDbConnection = SqlConnection.Connection & {
+/**
+ * Native driver connection contract shared by the extras.
+ *
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export type DuckDbConnection = SqlConnection.Connection & {
   readonly [ConnectionTypeId]: typeof ConnectionTypeId;
   readonly native: DuckDBConnection;
   readonly gate: NativeGate;

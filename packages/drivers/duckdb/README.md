@@ -139,6 +139,7 @@ is always closed, including after interruption or a failed flush.
 
 ```ts
 import { DuckDbClient, DuckDbMigrator } from "@beep/duckdb"
+import { NodeServices } from "@effect/platform-node"
 import * as Effect from "effect/Effect"
 import * as SqlClient from "effect/sql/SqlClient"
 
@@ -147,7 +148,8 @@ const loader = DuckDbMigrator.fromRecord({
 })
 
 const program = DuckDbMigrator.run({ loader }).pipe(
-  Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" }))
+  Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" })),
+  Effect.provide(NodeServices.layer)
 )
 
 Effect.runPromise(program).then(console.log) // [[1, "create"]]
@@ -158,6 +160,7 @@ provides it, so hand the DuckDB client over explicitly:
 
 ```ts
 import { DuckDbClient, DuckDbMigrator } from "@beep/duckdb"
+import { NodeServices } from "@effect/platform-node"
 import * as Effect from "effect/Effect"
 import * as SqlClient from "effect/sql/SqlClient"
 
@@ -165,14 +168,29 @@ declare const loader: DuckDbMigrator.Loader
 
 const migrate = DuckDbMigrator.run({ loader }).pipe(
   Effect.provideServiceEffect(SqlClient.SqlClient, Effect.service(DuckDbClient.DuckDbClient)),
-  Effect.provide(DuckDbClient.layerClient({ databasePath: "analytics.duckdb" }))
+  Effect.provide(DuckDbClient.layerClient({ databasePath: "analytics.duckdb" })),
+  Effect.provide(NodeServices.layer)
 )
 ```
 
 At effect 4.0.5 a failing migration is a defect (`MigrationError` through
 `Effect.die`), and every migration of that run is rolled back, earlier ones
-included. `dumpSchema` is not implemented (#2085), so `schemaDirectory`
-writes nothing.
+included.
+
+With `schemaDirectory`, a run that applies migrations writes `_schema.sql` in
+process through `FileSystem` and `Path` (provide platform services, such as
+`NodeServices.layer`). A run with no pending migrations leaves the file alone.
+The dump includes the current database's user enums, sequences, scalar and table
+macros, tables and views in one stream sorted by creation OID, followed by indexes
+and migration history rows. This order handles eager table-macro binding and
+views that call macros; a fixed category order cannot handle both. Custom schemas
+are created first; attached databases and temporary/internal objects are excluded.
+
+Limitation: `ALTER` can add a dependency on a newer object without renewing an
+older table's OID (for example a DEFAULT using a later sequence). Such dumps can
+fail to restore; use export/import for a restorable database artifact in that
+case. `CREATE OR REPLACE` renews view and macro OIDs on DuckDB 1.5.6. Macro default
+argument expressions are not exposed by the catalog and are not preserved.
 
 ## The legacy `DuckDb` service
 

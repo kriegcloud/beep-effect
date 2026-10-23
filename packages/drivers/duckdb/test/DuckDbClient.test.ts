@@ -12,8 +12,10 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
@@ -806,6 +808,14 @@ describe("DuckDbClient", { concurrent: false }, () => {
           yield* Effect.flip(client.appendRows({ table: "appended", rows: [[Symbol("bad"), [], null]] })),
           "appendRows"
         );
+        yield* client.appendRows({ table: "appended", rows: [] });
+        yield* client`CREATE TABLE append_required (id INTEGER NOT NULL)`;
+        const constraint = yield* client.appendRows({ table: "append_required", rows: [[null]] }).pipe(Effect.flip);
+        assert.strictEqual(constraint.reason._tag, "ConstraintError");
+        yield* client`CREATE SCHEMA append_schema`;
+        yield* client`CREATE TABLE append_schema.scoped (id INTEGER)`;
+        yield* client.appendRows({ table: "scoped", schema: "append_schema", rows: [[42]] });
+        assert.deepStrictEqual(yield* client`SELECT * FROM append_schema.scoped`, [{ id: 42 }]);
       })
     );
 
@@ -867,7 +877,12 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
   });
 
-  it.layer(DuckDbClient.layerClient({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
+  it.layer(
+    Layer.mergeAll(DuckDbClient.layerClient({ databasePath: ":memory:" }), FileSystem.layerNoop({}), Path.layer),
+    {
+      timeout: "30 seconds",
+    }
+  )((it) => {
     it.effect(
       "layerClient provides DuckDbClient only",
       Effect.fnUntraced(function* () {
