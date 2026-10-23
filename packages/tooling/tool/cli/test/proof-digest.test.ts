@@ -12,7 +12,7 @@ const CryptoLayer = NodeCrypto.layer;
 const PlatformLayer = Layer.mergeAll(NodeCrypto.layer, NodeFileSystem.layer, NodePath.layer);
 
 describe("proof digest derivation", () => {
-  it.live("pins the proof input key golden value", () =>
+  it.effect("pins the proof input key golden value", () =>
     proofInputKey({
       laneId: "coverage",
       commandDigest: "command-digest",
@@ -29,7 +29,7 @@ describe("proof digest derivation", () => {
     )
   );
 
-  it.live("pins the six-component epoch digest golden value", () =>
+  it.effect("pins the six-component epoch digest golden value", () =>
     proofEpochDigest({
       lockfileDigest: "lock-digest",
       bunVersion: "1.4.0",
@@ -47,7 +47,7 @@ describe("proof digest derivation", () => {
     )
   );
 
-  it.live("collects the epoch from fixture files and pins its combined digest", () =>
+  it.effect("collects the epoch from fixture files and pins its combined digest", () =>
     Effect.gen(function* () {
       const path = yield* Path.Path;
       const fixtureRoot = path.join(import.meta.dirname, "fixtures", "proof-epoch");
