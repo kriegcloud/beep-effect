@@ -79,8 +79,7 @@ describe("Obs live integration", () => {
         });
         yield* LiveObsLayer.pipe(
           Layer.build,
-          Effect.flatMap((context) => Effect.provideContext(body, context)),
-          Effect.scoped
+          Effect.flatMap((context) => Effect.provideContext(body, context))
         );
       }),
       30_000

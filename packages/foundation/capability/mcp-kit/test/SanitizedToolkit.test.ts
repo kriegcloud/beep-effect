@@ -570,7 +570,6 @@ describe("sanitizedToolkit", () => {
         sanitizedToolkit,
         Layer.provide(StrictDynamicHandlersLive),
         Layer.build,
-        Effect.scoped,
         Effect.exit
       );
 
