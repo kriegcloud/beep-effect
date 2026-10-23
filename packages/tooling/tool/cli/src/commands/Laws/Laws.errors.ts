@@ -337,7 +337,10 @@ export type MarkdownFencesCompilerFailureReason = typeof MarkdownFencesCompilerF
  * **Details**
  *
  * The message names the compiler, its exit code and the last 20 lines of its
- * combined output, so a crash never reads as `failed=0`.
+ * combined output, so a crash never reads as `failed=0`. Unattributed errors
+ * also carry their first 20 diagnostic lines and the total count, separately
+ * from the output tail. A crash without diagnostics carries an empty sample
+ * and a zero count.
  *
  * **Example** (Read a compiler crash)
  *
@@ -348,6 +351,8 @@ export type MarkdownFencesCompilerFailureReason = typeof MarkdownFencesCompilerF
  *   reason: "exit-without-diagnostics",
  *   exitCode: 134,
  *   outputTail: "thread 'main' panicked",
+ *   unattributedDiagnostics: [],
+ *   unattributedDiagnosticCount: 0,
  *   message: "tsc-rs exited 134 without a fence diagnostic.",
  * })
  * console.log(error.reason) // "exit-without-diagnostics"
@@ -365,6 +370,8 @@ export class MarkdownFencesCompilerError extends S.TaggedError<
     reason: MarkdownFencesCompilerFailureReason,
     exitCode: S.Finite,
     outputTail: S.String,
+    unattributedDiagnostics: S.Array(S.String).check(S.isMaxLength(20)),
+    unattributedDiagnosticCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     message: S.String,
   },
   $I.annoteError<MarkdownFencesCompilerError>("MarkdownFencesCompilerError", {

@@ -370,6 +370,9 @@
       "path": "packages/foundation/modeling/ontology"
     },
     {
+      "path": "packages/foundation/modeling/package-json"
+    },
+    {
       "path": "packages/foundation/modeling/pandoc-ast"
     },
     {
