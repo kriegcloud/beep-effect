@@ -155,16 +155,16 @@ export class NoNativeRuntimeRulesOptions extends S.Opaque<
   S.Struct({
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     excludePaths: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
     includePrefixes: S.Array(RepoRelativeDirectoryPrefix).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("NoNativeRuntimeRulesOptions", {
@@ -254,19 +254,19 @@ export class NoNativeRuntimeRulesSummary extends S.Opaque<
     strictFailure: S.Boolean,
     affectedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     allowlistedCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     unusedAllowlistEntries: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     diagnostics: S.Array(NoNativeRuntimeDiagnostic).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic.Encoded>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic.Encoded>()))
     ),
   }).pipe(
     $I.annoteSchema("NoNativeRuntimeRulesSummary", {
