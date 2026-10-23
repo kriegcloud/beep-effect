@@ -28,6 +28,7 @@ import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -78,13 +79,40 @@ class SessionSnapshot extends S.Opaque<SessionSnapshot, { readonly brand: unique
   }).pipe($I.annoteSchema("SessionSnapshot", { description: "Resolved writer session settings mirrored to readers." }))
 ) {}
 const decodeSessionSnapshot = S.decodeUnknownEffect(SessionSnapshot);
+const decodeSessionSchemas = S.decodeUnknownEffect(S.Array(S.Struct({ catalog: S.String, schema: S.String })));
 const SESSION_QUERY =
   "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar";
+
+// DuckDB retains dangling qualified entries after DROP SCHEMA. Tokenize only
+// outside quoted identifiers, retaining each surviving entry verbatim.
+const searchPathEntries = (path: string): ReadonlyArray<string> =>
+  pipe(
+    path,
+    Str.matchAll(/(?:"(?:[^"]|"")*"|[^,])+/g),
+    A.fromIterable,
+    A.map((match) => match[0])
+  );
+const searchPathIdentifiers = (entry: string): ReadonlyArray<string> =>
+  pipe(
+    entry,
+    Str.matchAll(/"(?:[^"]|"")*"|[^.]+/g),
+    A.fromIterable,
+    A.map((match) =>
+      pipe(
+        match[0],
+        (part) => (Str.startsWith('"')(part) ? pipe(part, Str.slice(1, -1), Str.replaceAll('""', '"')) : part),
+        Str.toLowerCase
+      )
+    )
+  );
 const changesSession = (sql: string): boolean =>
   A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET|PRAGMA)\b/i.test(text));
 
 const changesWriterSession = (sql: string): boolean =>
-  changesSession(sql) || A.some(splitStatements(sql), (text) => /^\s*(?:DROP\s+SCHEMA|DETACH)\b/i.test(text));
+  changesSession(sql) ||
+  A.some(splitStatements(sql), (text) =>
+    /^\s*(?:(?:CREATE(?:\s+OR\s+REPLACE)?|DROP)\s+SCHEMA|ATTACH|DETACH)\b/i.test(text)
+  );
 
 const readerStreamRefusal = (
   reader: boolean,
@@ -144,7 +172,7 @@ export type DuckDbConnection = SqlConnection.Connection & {
   readonly commit: Effect.Effect<void, SqlError>;
   readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly sessionSnapshot: Effect.Effect<SessionSnapshot, SqlError>;
-  readonly sameSessionSnapshot: ReturnType<typeof S.toEquivalence<SessionSnapshot>>;
+  readonly normalizeSessionSnapshot: (snapshot: SessionSnapshot) => Effect.Effect<SessionSnapshot, SqlError>;
   readonly runDriverStatement: (sql: string, operation: string) => Effect.Effect<void, SqlError>;
 };
 
@@ -551,7 +579,30 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         )
       ),
     sessionSnapshot,
-    sameSessionSnapshot: S.toEquivalence(SessionSnapshot),
+    normalizeSessionSnapshot: Effect.fnUntraced(function* (current) {
+      const rows = yield* gate.run("executeStream", () =>
+        native
+          .runAndReadAll("SELECT database_name AS catalog, schema_name AS schema FROM duckdb_schemas()")
+          .then((result) => result.getRowObjects())
+      );
+      const schemas = yield* decodeSessionSchemas(rows).pipe(
+        Effect.mapError((cause) => toSqlError(cause, "executeStream"))
+      );
+      const searchPath = pipe(
+        searchPathEntries(current.searchPath),
+        A.filter((entry) => {
+          const identifiers = searchPathIdentifiers(entry);
+          return A.some(schemas, ({ catalog, schema }) =>
+            identifiers.length === 2
+              ? Str.toLowerCase(catalog) === identifiers[0] && Str.toLowerCase(schema) === identifiers[1]
+              : (catalog === current.database || catalog === "system" || catalog === "temp") &&
+                Str.toLowerCase(schema) === identifiers[0]
+          );
+        }),
+        A.join(",")
+      );
+      return SessionSnapshot.make({ ...current, searchPath });
+    }),
     runDriverStatement: (sql, operation) => Effect.asVoid(runStatement(sql, [], operation, false, readRows, [])),
     execute: (sql, params, transformRows) => runRows(sql, params, "execute", true, transformRows),
     executeUnprepared: (sql, params, transformRows) => runRows(sql, params, "executeUnprepared", false, transformRows),
