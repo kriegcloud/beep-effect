@@ -58,7 +58,7 @@ and describes code that does not exist until that issue closes.
 | D25 | Legacy `DuckDb.makeNodeClient` deleted (#2087); `makeNodeLayer` is the managed constructor | it was unscoped and never closed its shared connection, and nothing in the repo called it | restore `makeNodeClient` from `src/DuckDb.service.ts` at `61dcdbad9d` |
 | D26 | Legacy `DuckDbError.cause` = classified `SqlError` | classifier reuse; still an `Error` with the native error one level down | keep the raw error |
 | D27 | `threads`, `memory_limit`, `temp_directory` stay in `databaseOptions`; no default temp directory | minimal typed surface; a default needs a path policy the driver does not own | typed fields later |
-| D28 | Appender out of scope | scope; a failed flush inside a transaction aborts it and the next COMMIT reports success (probed), so support must feed the D3 tracker | `appendRows` (#2081) |
+| D28 | `appendRows` uses the native Appender under the writer op lock, with complete rows normalized by the bind converter and typed by `columnType`; flush failures and interruption feed the D3 tracker; cleanup closes even a late appender and preserves the first error (#2081) | a failed flush aborts a transaction, whose COMMIT would otherwise silently discard earlier writes; native append/flush calls are synchronous | remove the extra |
 | D29 | An empty array binds as an empty LIST typed `LIST(SQLNULL)` through `bindTypes` (R2-DF-1); it casts into `INTEGER[]`, `VARCHAR[]` and nested LIST columns, and `SELECT ?` reads it as `INTEGER[]` | the untyped native bind refuses an empty `listValue` ("Cannot create lists with item type of ANY") but accepts it with the explicit `LIST(SQLNULL)` type the driver already passes | reject empty arrays |
 | D30 | DuckDB `infinity`/`-infinity` read as those strings at every DATE/TIMESTAMP precision (sentinels checked before conversion); other values outside the JS `Date` range read as `String(value)`, TIMESTAMPTZ rendered in UTC (`+00`) instead of the upstream module-load host offset (R2-DF-3); in-range values are floored to the millisecond | the JS reader throws on out-of-range values and would fail the whole query; DATE and TIMESTAMP_S/MS `toString` print the sentinels as huge finite dates and ±infinity TIMESTAMP_NS fits the `Date` range; the upstream reader truncates toward zero and moved pre-epoch instants forward | `Date(NaN)` |
 | D31 | INTERVAL `micros` follows SafeIntegers | consistency with integer columns | keep `bigint` |
@@ -171,7 +171,6 @@ and describes code that does not exist until that issue closes.
 Tracked in #2088. Each sub-issue carries the constraint probed on DuckDB 1.5.6
 and its acceptance criteria:
 
-- #2081 Appender-backed bulk loads (D28).
 - #2082 `exportDatabase` / `importDatabase` over `EXPORT DATABASE`, instead of
   a `backup` extra (D17).
 - #2083 Reader connections for streams (D60–D62).

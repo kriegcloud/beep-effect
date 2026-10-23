@@ -54,7 +54,7 @@ import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 import type * as Scope from "effect/Scope";
 import type { SqlError } from "effect/sql/SqlError";
 import type * as Statement from "effect/sql/Statement";
-import type { DuckDbClientConfigData, DuckDbParquetExport } from "./DuckDb.models.ts";
+import type { DuckDbAppendRows, DuckDbClientConfigData, DuckDbParquetExport } from "./DuckDb.models.ts";
 
 const $I = $DuckdbId.create("DuckDbClient.service");
 
@@ -227,6 +227,7 @@ export type DuckDbClientFromConnectionOptions = Omit<
 export type DuckDbClientValue = SqlClient.SqlClient & {
   readonly [TypeId]: TypeId;
   readonly config: DuckDbClientConfig;
+  readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly copyTableToParquet: (request: DuckDbParquetExport) => Effect.Effect<void, SqlError>;
   readonly checkpoint: (
     options?: { readonly force?: boolean | undefined } | undefined

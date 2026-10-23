@@ -21,6 +21,7 @@
  */
 
 import { ResultReturnType } from "@duckdb/node-api";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";
@@ -62,6 +63,7 @@ import type {
 } from "@duckdb/node-api";
 import type * as SqlConnection from "effect/sql/SqlConnection";
 import type { SqlError } from "effect/sql/SqlError";
+import type { DuckDbAppendRows } from "../DuckDb.models.ts";
 
 const ConnectionTypeId = "~@beep/duckdb/internal/connection";
 
@@ -93,6 +95,7 @@ type DuckDbConnection = SqlConnection.Connection & {
   readonly gate: NativeGate;
   readonly isTransaction: () => boolean;
   readonly commit: Effect.Effect<void, SqlError>;
+  readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly runDriverStatement: (sql: string, operation: string) => Effect.Effect<void, SqlError>;
 };
 
@@ -407,6 +410,46 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     gate,
     isTransaction,
     commit,
+    appendRows: (request) =>
+      gate.withLock(
+        Effect.acquireUseRelease(
+          gate.runUnlocked(
+            "appendRows",
+            () => native.createAppender(request.table, request.schema),
+            (late) => late.closeSync()
+          ),
+          (appender) =>
+            Effect.gen(function* () {
+              const types = yield* gate.runUnlocked("appendRows", () =>
+                Promise.resolve(A.makeBy(appender.columnCount, (i) => appender.columnType(i)))
+              );
+              for (const row of request.rows) {
+                const values = yield* Effect.fromResult(normalizeParameters(row, "appendRows"));
+                yield* gate.runUnlocked("appendRows", () => {
+                  if (values.length !== types.length) {
+                    return Promise.reject("Appender rows must contain every table column");
+                  }
+                  for (let i = 0; i < values.length; i++) {
+                    appender.appendValue(values[i] ?? null, types[i]);
+                  }
+                  appender.endRow();
+                  return Promise.resolve();
+                });
+              }
+              yield* gate.runUnlocked("appendRows", () => {
+                appender.flushSync();
+                appender.closeSync();
+                return Promise.resolve();
+              });
+            }),
+          (appender) => Effect.sync(() => ignoreNative(() => appender.closeSync()))
+        ).pipe(
+          Effect.tapError((error) => Effect.sync(() => MutableRef.update(state, afterFailure("statement", error)))),
+          Effect.onInterrupt(() =>
+            Effect.sync(() => MutableRef.update(state, afterInterrupt("statement", "appendRows")))
+          )
+        )
+      ),
     runDriverStatement: (sql, operation) => Effect.asVoid(runStatement(sql, [], operation, false, readRows, [])),
     execute: (sql, params, transformRows) => runRows(sql, params, "execute", true, transformRows),
     executeUnprepared: (sql, params, transformRows) => runRows(sql, params, "executeUnprepared", false, transformRows),

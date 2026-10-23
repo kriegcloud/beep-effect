@@ -760,6 +760,56 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "appends complete rows and guards a caught failed flush",
+      Effect.fnUntraced(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        yield* client`CREATE TABLE appended (id INTEGER PRIMARY KEY, xs INTEGER[], data JSON)`;
+        yield* client.appendRows({ table: "appended", rows: [[1, [null, 7], { ok: true }]] });
+        yield* client.withTransaction(client.appendRows({ table: "appended", rows: [[2, [], null]] }));
+        yield* client
+          .withTransaction(
+            client
+              .appendRows({ table: "appended", rows: [[3, [], null]] })
+              .pipe(Effect.andThen(Effect.fail("rollback")))
+          )
+          .pipe(Effect.flip);
+        assert.deepStrictEqual(yield* client`SELECT id, xs FROM appended ORDER BY id`, [
+          { id: 1, xs: [null, 7] },
+          { id: 2, xs: [] },
+        ]);
+        const duplicate = yield* Effect.flip(
+          client.appendRows({
+            table: "appended",
+            rows: [
+              [4, [], null],
+              [1, [], null],
+            ],
+          })
+        );
+        assert.strictEqual(duplicate.reason._tag, "UniqueViolation");
+        const refused = yield* Effect.flip(
+          client.withTransaction(
+            Effect.gen(function* () {
+              yield* client`INSERT INTO appended VALUES (5, [], NULL)`;
+              yield* client.appendRows({ table: "appended", rows: [[1, [], null]] }).pipe(Effect.ignore);
+            })
+          )
+        );
+        assertUnknownError(refused, "commitTransaction");
+        assert.deepStrictEqual(yield* client`SELECT id FROM appended ORDER BY id`, [{ id: 1 }, { id: 2 }]);
+        assertUnknownError(yield* Effect.flip(client.appendRows({ table: "appended", rows: [[6]] })), "appendRows");
+        assertUnknownError(
+          yield* Effect.flip(client.appendRows({ table: "appended", rows: [["bad", [], null]] })),
+          "appendRows"
+        );
+        assertUnknownError(
+          yield* Effect.flip(client.appendRows({ table: "appended", rows: [[Symbol("bad"), [], null]] })),
+          "appendRows"
+        );
+      })
+    );
+
+    it.effect(
       "runs driver extras",
       Effect.fnUntraced(function* () {
         const client = yield* DuckDbClient.DuckDbClient;

@@ -236,3 +236,25 @@ export class DuckDbClientConfigData extends S.Opaque<DuckDbClientConfigData, { r
     })
   )
 ) {}
+
+/**
+ * Rows for a native Appender, in complete table column order.
+ *
+ * **Example** (Load two rows)
+ *
+ * ```ts
+ * import { DuckDbAppendRows } from "@beep/duckdb"
+ * const request = DuckDbAppendRows.make({ table: "people", rows: [[1, "Ada"], [2, "Bob"]] })
+ * console.log(request.rows.length) // 2
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DuckDbAppendRows extends S.Opaque<DuckDbAppendRows, { readonly brand: unique symbol }>()(
+  S.Struct({
+    table: S.NonEmptyString,
+    schema: S.optionalKey(S.NonEmptyString),
+    rows: S.Array(S.Array(S.Unknown)),
+  }).pipe($I.annoteSchema("DuckDbAppendRows", { description: "Complete rows to append to a DuckDB table." }))
+) {}

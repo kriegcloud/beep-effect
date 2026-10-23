@@ -1002,6 +1002,38 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
   });
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("closes an appender acquired after interruption before reusing the connection", () =>
+      Effect.gen(function* () {
+        const native = yield* acquireNativeDuckDbConnection;
+        const client = yield* DuckDbClient.fromConnection({ connection: native });
+        yield* client`CREATE TABLE append_cancel (id INTEGER)`;
+        const started = makeLatch();
+        const release = makeLatch();
+        const original = native.createAppender.bind(native);
+        let closed = 0;
+        native.createAppender = async (...args) => {
+          const appender = await original(...args);
+          const close = appender.closeSync.bind(appender);
+          appender.closeSync = () => {
+            closed += 1;
+            close();
+          };
+          started.resolve();
+          await release.promise;
+          return appender;
+        };
+        const fiber = yield* client
+          .appendRows({ table: "append_cancel", rows: [[1]] })
+          .pipe(Effect.forkChild({ startImmediately: true }));
+        yield* awaitLatch(started);
+        const interrupted = yield* Fiber.interrupt(fiber).pipe(Effect.forkChild({ startImmediately: true }));
+        release.resolve();
+        yield* Fiber.join(interrupted);
+        expect(closed).toBe(1);
+        expect(yield* client`SELECT count(*) AS n FROM append_cancel`).toEqual([{ n: 0 }]);
+      })
+    );
+
     it.effect("serializes statements on the shared native connection", () =>
       Effect.gen(function* () {
         const liveConnection = yield* acquireNativeDuckDbConnection;

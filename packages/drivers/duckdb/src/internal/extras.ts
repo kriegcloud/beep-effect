@@ -28,7 +28,7 @@ import { isDuckDbConnection } from "./connection.ts";
 import type * as Scope from "effect/Scope";
 import type * as SqlClient from "effect/sql/SqlClient";
 import type * as SqlConnection from "effect/sql/SqlConnection";
-import type { DuckDbParquetExport } from "../DuckDb.models.ts";
+import type { DuckDbAppendRows, DuckDbParquetExport } from "../DuckDb.models.ts";
 
 const $I = $DuckdbId.create("internal/extras");
 
@@ -125,6 +125,22 @@ export const makeExtras = (options: {
       )
   );
 
+  const appendRows = Effect.fn("DuckDbClient.appendRows")(
+    (request: typeof DuckDbAppendRows.Encoded): Effect.Effect<void, SqlError> => {
+      const appendOn = (connection: SqlConnection.Connection) =>
+        isDuckDbConnection(connection)
+          ? connection.appendRows(request)
+          : Effect.die("DuckDbClient.appendRows: the connection is not a DuckDB connection");
+      return Effect.flatMap(
+        Effect.serviceOption(options.client.transactionService),
+        O.match({
+          onNone: () => Effect.scoped(Effect.flatMap(options.acquirer, appendOn)),
+          onSome: ([connection]) => appendOn(connection),
+        })
+      );
+    }
+  );
+
   const checkpoint = Effect.fn("DuckDbClient.checkpoint")(
     (checkpointOptions?: { readonly force?: boolean | undefined } | undefined): Effect.Effect<void, SqlError> =>
       useConnection(
@@ -162,7 +178,7 @@ export const makeExtras = (options: {
       useConnection(DuckDbDriverOperation.Enum.detach, O.none(), `DETACH ${quotedIdentifier(alias)}`)
   );
 
-  return { copyTableToParquet, checkpoint, loadExtension, installExtension, attach, detach };
+  return { appendRows, copyTableToParquet, checkpoint, loadExtension, installExtension, attach, detach };
 };
 
 /**

@@ -111,6 +111,7 @@ The client value carries these on top of `SqlClient`:
 
 | Extra | SQL | Inside `withTransaction` |
 | --- | --- | --- |
+| `appendRows({ table, schema?, rows })` | Native Appender; complete rows in table column order | participates; a failed flush poisons commit |
 | `copyTableToParquet({ tableName, filePath })` | `COPY "t" TO 'file' (FORMAT parquet)` | refused: file writes are not rolled back |
 | `checkpoint()` / `checkpoint({ force: true })` | `CHECKPOINT` / `FORCE CHECKPOINT` | refused: database-level operation |
 | `loadExtension(name)` | `LOAD 'name'` | runs on the transaction connection, not rolled back |
@@ -118,8 +119,12 @@ The client value carries these on top of `SqlClient`:
 | `attach(path, alias, { readOnly })` | `ATTACH 'path' AS "alias" [(READ_ONLY)]` | runs on the transaction connection; DuckDB rolls the attach back with the transaction |
 | `detach(alias)` | `DETACH "alias"` | runs on the transaction connection |
 
-There is no `backup` extra and no Appender yet: `exportDatabase` is #2082 and
-Appender bulk loads are #2081 (backlog: #2088).
+There is no `backup` extra; `exportDatabase` is #2082 (backlog: #2088).
+
+`appendRows` normalizes values like statement binds, then uses each table column's
+native type. Every row must include every column; use explicit values for defaults.
+Append and flush calls are synchronous and can block the event loop. The appender
+is always closed, including after interruption or a failed flush.
 
 ## DuckDbMigrator
 
