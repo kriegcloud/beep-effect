@@ -93,3 +93,19 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | `@beep/md` `Md.ts`: write-side DSL with no parser | #290 | resolved in 2d-2 | Merged into #237: `@beep/md/Md.parse` parses text. `@beep/schema`'s Markdown-to-HTML path stays (excluded with #227 and #258, MQ7 cycle). |
 | `@beep/md` merge design and hand-rolled frontmatter splitting | #259 | partly resolved in 2d-2 | Placement decided (D-02: parser in `@beep/markdown`, bridge in `@beep/md`) and the unsupported-node policy written (D-48). The frontmatter splitters are the 2d-A sites #37, #27, #276 and #231 above. |
 
+
+## `@beep/semver` (roadmap R1, SPEC W4-h)
+
+R1 is the owner switch. Parity is recorded in `research/semver-owner-switch-differential-r1.json`
+(`ops/semver-owner-switch-differential.ts`, run on a clean tree before the deletion commit): 0 unclassified differences
+in every section.
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| `@beep/schema/Semver` (`Semver`, `SemverFromString`) | #41 | retired (R1) | Zero importers. Deleted with its test, both export entries, the root re-export and the generated aliases, catalog and inventory rows. 2,265 versions parse alike with the same format; 5,130,225 ordered pairs agree except 14 probe pairs where the old `localeCompare` disagrees with ASCII order (§11.4.2). The old loose normalization (`v1.2.3`, `1.2`) had no caller. |
+| repo-cli VersionSync `BunResolver` `BunSemver` pattern and comparator | #42, #308 | adopted (R1) | `SemVer.isPinnable` after an optional leading `v`, then `SemVer.gte`. 602,625 of 606,062 pairs pick the same pin; the rest all involve a pin the kit rejects (leading zero, unsafe integer). `BunSemver` export removed (no importer). |
+| repo-cli VersionSync `DockerResolver` triple parser, comparator and the duplicated latest-tag loops | #43, #308 | adopted (R1) | One exported `selectLatestDockerTag` over `SemVer`: stable, pinnable, first-listed wins among equal versions. 8,846 of 9,000 seeded tag lists agree; the rest all carry a non-SemVer core. |
+| `@beep/repo-configs` `CacheClientPin.version` inline regex | #46 | adopted (R1) | `SemVer.PinnableVersionString`. All 5 committed pins pass both; the 6 old-only accepts are leading zeros, an empty identifier and an unsafe integer. |
+| repo-cli VersionSync `RootCatalog` bun.lock versions | #269 | 3-A1 | The semver half rides the lockfiles adoption. |
+| repo-utils `schemas/PackageJson.ts` version fields | #243 | 3-A3 | Re-based on `@beep/package-json`, which already types versions through `@beep/semver`. |
+| repo-cli `EffectResolver` `VERSION_SPECIFIER_PATTERN`, `TurboResolver` `STABLE_VERSION_PATTERN` | - | excluded | Shape checks on a specifier or schema URL; neither parses nor orders versions. |

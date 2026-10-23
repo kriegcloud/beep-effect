@@ -27,7 +27,7 @@ fingerprinted closure gains no glob.
 
 ## Turbo coupling
 
-Measured on this branch after merging `origin/main` 4dc0d2a97e (and before that against its base 6c0bb54d55, with the same result), by walking the
+Measured on this branch after merging `origin/main` 9846549000 (and before that against its base 6c0bb54d55, with the same result), by walking the
 workspace dependency closure (dependencies, devDependencies, peer and
 optional, `workspace:` specifiers only) of every manifest:
 
