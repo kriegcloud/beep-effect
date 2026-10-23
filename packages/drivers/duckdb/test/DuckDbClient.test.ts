@@ -819,6 +819,22 @@ describe("DuckDbClient", { concurrent: false }, () => {
       })
     );
 
+    it.effect("discards buffered rows when a later append value fails", () =>
+      Effect.gen(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        yield* client`CREATE TABLE append_failed_batch (id INTEGER)`;
+        for (const bad of ["bad", Symbol("bad")]) {
+          const error = yield* client
+            .appendRows({ table: "append_failed_batch", rows: [[1], [bad]] })
+            .pipe(Effect.flip);
+          assertUnknownError(error, "appendRows");
+          assert.deepStrictEqual(yield* client`SELECT * FROM append_failed_batch`, []);
+        }
+        yield* client.appendRows({ table: "append_failed_batch", rows: [[1], [2]] });
+        assert.deepStrictEqual(yield* client`SELECT * FROM append_failed_batch ORDER BY id`, [{ id: 1 }, { id: 2 }]);
+      })
+    );
+
     it.effect(
       "runs driver extras",
       Effect.fnUntraced(function* () {

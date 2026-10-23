@@ -1034,6 +1034,43 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
       })
     );
 
+    it.effect("discards buffered rows when interrupted between appender rows", () =>
+      Effect.gen(function* () {
+        const native = yield* acquireNativeDuckDbConnection;
+        const client = yield* DuckDbClient.fromConnection({ connection: native });
+        yield* client`CREATE TABLE append_cancel_buffer (id INTEGER)`;
+        const original = native.createAppender.bind(native);
+        let interruptAppend = () => {};
+        let endedRows = 0;
+        let closed = 0;
+        native.createAppender = (...args) =>
+          original(...args).then((appender) => {
+            const endRow = appender.endRow.bind(appender);
+            const close = appender.closeSync.bind(appender);
+            appender.endRow = () => {
+              endRow();
+              endedRows += 1;
+              interruptAppend();
+            };
+            appender.closeSync = () => {
+              closed += 1;
+              close();
+            };
+            return appender;
+          });
+        const fiber = yield* client
+          .appendRows({ table: "append_cancel_buffer", rows: [[1], [2]] })
+          .pipe(Effect.forkChild({ startImmediately: true }));
+        interruptAppend = () => fiber.interruptUnsafe();
+        expect(Exit.hasInterrupts(yield* Fiber.await(fiber))).toBe(true);
+        expect(endedRows).toBe(1);
+        expect(closed).toBe(1);
+        expect(yield* client`SELECT count(*) AS n FROM append_cancel_buffer`).toEqual([{ n: 0 }]);
+        yield* client.appendRows({ table: "append_cancel_buffer", rows: [[3]] });
+        expect(yield* client`SELECT * FROM append_cancel_buffer`).toEqual([{ id: 3 }]);
+      })
+    );
+
     it.effect("serializes statements on the shared native connection", () =>
       Effect.gen(function* () {
         const liveConnection = yield* acquireNativeDuckDbConnection;
@@ -1362,6 +1399,9 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
               yield* sql`CREATE TABLE base (id INTEGER DEFAULT nextval('serial'), mood mood)`;
               yield* sql`CREATE MACRO from_base() AS TABLE SELECT * FROM base`;
               yield* sql`CREATE MACRO plus_one(x) AS x + 1`;
+              yield* sql`CREATE MACRO overloaded(x) AS x + 1, (x, y) AS x + y`;
+              yield* sql`CREATE MACRO overloaded_table(x) AS TABLE (SELECT x AS n),
+                (x, y) AS TABLE (SELECT x + y AS n)`;
               yield* sql`CREATE VIEW scalar_view AS SELECT plus_one(41) AS n`;
               yield* sql`CREATE VIEW table_view AS SELECT * FROM from_base()`;
               yield* sql`CREATE VIEW nested_view AS SELECT * FROM scalar_view`;
@@ -1379,6 +1419,9 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
         const target = yield* DuckDbClient.make({ databasePath: ":memory:" });
         yield* target.unsafe(text);
         expect(yield* target`SELECT * FROM nested_view`).toEqual([{ n: 42 }]);
+        expect(yield* target`SELECT overloaded(41) AS a, overloaded(20, 22) AS b`).toEqual([{ a: 42, b: 42 }]);
+        expect(yield* target`SELECT * FROM overloaded_table(42)`).toEqual([{ n: 42 }]);
+        expect(yield* target`SELECT * FROM overloaded_table(20, 22)`).toEqual([{ n: 42 }]);
         expect(yield* target`SELECT * FROM table_view`).toEqual([]);
         yield* target`INSERT INTO base (mood) VALUES ('good')`;
         expect(yield* target`SELECT * FROM base`).toEqual([{ id: 7, mood: "good" }]);

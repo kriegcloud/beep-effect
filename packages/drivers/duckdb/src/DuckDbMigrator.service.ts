@@ -26,6 +26,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Migrator from "effect/sql/Migrator";
 import * as SqlClient from "effect/sql/SqlClient";
@@ -75,11 +76,21 @@ const dumpSchema = Effect.fn("DuckDbMigrator.dumpSchema")(
     const objects = A.sort(
       [
         ...statements,
-        ...A.map(macros, (m) => ({
-          oid: m.oid,
-          schema_name: m.schema_name,
-          sql: `CREATE MACRO ${qualifiedName(m.schema_name, m.function_name)}(${A.join(A.map(m.parameters, quotedIdentifier), ", ")}) AS ${m.function_type === "table_macro" ? "TABLE " : ""}${m.macro_definition};`,
-        })),
+        ...A.map(
+          R.values(A.groupBy(macros, (m) => `${m.oid}:${qualifiedName(m.schema_name, m.function_name)}`)),
+          ([m, ...overloads]) => ({
+            oid: m.oid,
+            schema_name: m.schema_name,
+            sql: `CREATE MACRO ${qualifiedName(m.schema_name, m.function_name)}${A.join(
+              A.map(
+                [m, ...overloads],
+                (overload) =>
+                  `(${A.join(A.map(overload.parameters, quotedIdentifier), ", ")}) AS ${overload.function_type === "table_macro" ? `TABLE (${overload.macro_definition})` : overload.macro_definition}`
+              ),
+              ", "
+            )};`,
+          })
+        ),
         ...A.map(enums, (e) => ({
           oid: e.oid,
           schema_name: e.schema_name,

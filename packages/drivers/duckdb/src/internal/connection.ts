@@ -449,7 +449,13 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
                 return Promise.resolve();
               });
             }),
-          (appender) => Effect.sync(() => ignoreNative(() => appender.closeSync()))
+          (appender, exit) =>
+            Effect.sync(() => {
+              if (Exit.isFailure(exit)) {
+                ignoreNative(() => appender.clear());
+              }
+              ignoreNative(() => appender.closeSync());
+            })
         ).pipe(
           Effect.tapError((error) => Effect.sync(() => MutableRef.update(state, afterFailure("statement", error)))),
           Effect.onInterrupt(() =>

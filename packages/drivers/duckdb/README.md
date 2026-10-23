@@ -125,6 +125,8 @@ The client value carries these on top of `SqlClient`:
 `importDatabase` requires an empty target and restores sequence state. Export
 also works from a read-only client. There is no single-file `backup` extra.
 
+On failure or interruption, `appendRows` clears buffered rows before closing the
+appender, so cleanup does not commit an earlier row outside a transaction.
 `appendRows` normalizes values like statement binds, then uses each table column's
 native type. Every row must include every column; use explicit values for defaults.
 Append and flush calls are synchronous and can block the event loop. The appender
@@ -182,7 +184,9 @@ process through `FileSystem` and `Path` (provide platform services, such as
 `NodeServices.layer`). A run with no pending migrations leaves the file alone.
 The dump includes the current database's user enums, sequences, scalar and table
 macros, tables and views in one stream sorted by creation OID, followed by indexes
-and migration history rows. This order handles eager table-macro binding and
+and migration history rows. Scalar and table macro overloads are grouped into
+one CREATE statement per catalog macro, preserving every signature.
+This order handles eager table-macro binding and
 views that call macros; a fixed category order cannot handle both. Custom schemas
 are created first; attached databases and temporary/internal objects are excluded.
 
