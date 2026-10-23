@@ -53,7 +53,7 @@ const run = Effect.fn("run")(function* (args: ReadonlyArray<string>, stdin: stri
     // Node itself, under either test runner: the fixture runs the sources through Node's type stripping and its
     // resolve hooks, and the behaviour under test is NodeTerminal's readline on a real piped stdin.
     "node",
-    ["--import", path.join(FIXTURES, "register-ts.mjs"), path.join(FIXTURES, "stdin-gate.mts"), ...args],
+    ["--import", path.join(FIXTURES, "register-ts.mjs"), path.join(FIXTURES, "stdin-gate.mjs"), ...args],
     { env: { PATH: yield* HOST_PATH, NO_COLOR: "1" }, stdin: Stream.make(new TextEncoder().encode(stdin)) }
   );
   const handle = yield* spawner.spawn(command);
