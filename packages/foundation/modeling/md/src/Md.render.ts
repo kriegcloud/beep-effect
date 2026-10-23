@@ -7,6 +7,7 @@
 
 import { $MdId } from "@beep/identity";
 import { HtmlFragment, SchemaUtils } from "@beep/schema";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import { A, Html, R, thunkEmptyStr } from "@beep/utils";
 import { replaceAllWith } from "@beep/utils/Str";
 import * as Effect from "effect/Effect";
@@ -44,7 +45,21 @@ import {
   TableRow,
 } from "./Md.model.ts";
 import type { Markdown } from "@beep/schema";
-import type { Block, Document, Heading, Inline, Li, ListItemChild, Table, TaskItem } from "./Md.model.ts";
+import type {
+  Block,
+  Document,
+  Em,
+  Heading,
+  Inline,
+  Li,
+  ListItemChild,
+  Ol,
+  Strong,
+  Table,
+  TaskItem,
+  TaskList,
+  Ul,
+} from "./Md.model.ts";
 
 const $I = $MdId.create("Md.render");
 const joinEmpty = A.join("");
@@ -53,7 +68,52 @@ const lineSeparatorGlobalPattern = /\r\n?|\n/g;
 const markdownTitleEscapePattern = /["\\]/g;
 const jsonStringEscapePattern = /["\\\u0000-\u001f]/g;
 const mathFencePattern = /\$\$/g;
-const mathDelimiterPattern = /\$/g;
+// A `$` that no backslash escapes yet: an inline-math value is raw TeX, where
+// `\$` already is a literal dollar, so escaping only the bare ones keeps
+// render(parse(render(x))) equal to render(x).
+const unescapedDollarPattern = /(?<!\\)((?:\\\\)*)\$/g;
+// An `&` that opens something shaped like a character reference (`&amp;`,
+// `&#38;`, `&#x26;`), which a parser would decode. Md carries no entity
+// table, so an unknown name such as `&foo;` is escaped too; a bare `&` is not.
+const characterReferencePattern = /&(?=#[0-9]{1,7};|#[xX][0-9A-Fa-f]{1,6};|[A-Za-z][A-Za-z0-9]{0,31};)/g;
+// A `$` that could open inline math under pandoc's rules: one followed by a
+// non-space character, or one that ends the text node (its neighbour is
+// unknown here). A `$` followed by whitespace never opens math.
+const mathOpenerPattern = /\$(?=[^ \t\n]|$)/g;
+// The scheme colon of an `http://` or `https://` URL in text, which GFM's
+// autolink-literal extension would turn into a link; `http\://` stays text.
+const autolinkSchemePattern = /(?<![A-Za-z0-9])(https?):(?=\/\/)/gi;
+const tableCellPipePattern = /(?<!\\)((?:\\\\)*)\|/g;
+const leadingBlockWhitespacePattern = /^[ \t]+/g;
+const trailingBlockWhitespacePattern = /[ \t]+$/g;
+const titleLineSeparatorPattern = /[\r\n]/g;
+
+// Escapes only what a parser would read back differently: `escapeMarkdownText`
+// covers the block and inline markers, and an `&` that opens a character
+// reference is escaped so it stays literal. For strings no math recognizer
+// reads (titles, alt text, admonition titles).
+const escapeMarkdownLiteral = flow(escapeMarkdownText, Str.replace(characterReferencePattern, "\\&"));
+
+// Text in phrasing content, where the bridge's inline-math recognizer runs
+// when math parsing is on and GFM links bare URLs: every `$` that could open
+// math and every URL scheme colon is escaped too.
+const escapeMarkdownPhrasing = flow(
+  escapeMarkdownLiteral,
+  Str.replace(mathOpenerPattern, "\\$"),
+  Str.replace(autolinkSchemePattern, "$1\\:")
+);
+
+const characterReferenceOf = (char: string): string => `&#${pipe(char, Str.charCodeAt(0), O.getOrElse(constant(0)))};`;
+
+const characterReferencesOf: (run: string) => string = flow(Str.split(""), A.map(characterReferenceOf), joinEmpty);
+
+// A paragraph, heading or cell drops whitespace at its edges, and `joinBlocks`
+// trims each block, so edge spaces and tabs are written as character
+// references, which a parser decodes back into the text.
+const protectBlockEdgeWhitespace: (rendered: string) => string = flow(
+  replaceAllWith(leadingBlockWhitespacePattern, characterReferencesOf),
+  replaceAllWith(trailingBlockWhitespacePattern, characterReferencesOf)
+);
 
 type JsonRecord = Readonly<Record<string, S.Json>>;
 
@@ -199,26 +259,91 @@ export interface EffectRenderAdapter<Output, Error = never, Requirements = never
   readonly render: (document: Document) => Effect.Effect<Output, Error, Requirements>;
 }
 
-const renderMarkdownInlines: (children: ReadonlyArray<Inline>) => string = flow(A.map(renderMarkdownInline), joinEmpty);
+// A text node ending in `!` right before a link would turn the link into an
+// image, so that one `!` is escaped.
+const guardImageBang = (rendered: string, inline: Inline, next: O.Option<Inline>): string =>
+  inline._tag === "text" && O.exists(next, (sibling) => sibling._tag === "a") && Str.endsWith("!")(rendered)
+    ? `${Str.slice(0, -1)(rendered)}\\!`
+    : rendered;
 
-const renderMarkdownLinkLabelInlines: (children: ReadonlyArray<Inline>) => string = flow(
-  A.map(renderMarkdownInlineForLinkLabel),
-  joinEmpty
-);
+const wordCharacterPattern = /[\p{L}\p{N}\p{M}]/u;
+
+const isWordCharacter = (char: string): boolean => wordCharacterPattern.test(char);
+
+// `_` delimiters cannot open after, or close before, a letter or digit, so an
+// emphasis that took them falls back to `*` when a neighbour touches it there.
+const touchesWord = (rendered: ReadonlyArray<string>, index: number): boolean =>
+  O.exists(A.get(rendered, index - 1), flow(Str.slice(-1), isWordCharacter)) ||
+  O.exists(A.get(rendered, index + 1), flow(Str.slice(0, 1), isWordCharacter));
+
+const starDelimiter = (inline: Em | Strong): string => (inline._tag === "em" ? "*" : "**");
+
+const isEmphasis = (inline: Inline): inline is Em | Strong => inline._tag === "em" || inline._tag === "strong";
+
+const fitEmphasisDelimiters = (
+  inline: Inline,
+  rendered: ReadonlyArray<string>,
+  index: number,
+  renderChildren: (children: ReadonlyArray<Inline>) => string
+): string => {
+  const own = A.get(rendered, index).pipe(O.getOrElse(thunkEmptyStr));
+  return isEmphasis(inline) && Str.startsWith("_")(own) && touchesWord(rendered, index)
+    ? `${starDelimiter(inline)}${renderChildren(inline.children)}${starDelimiter(inline)}`
+    : own;
+};
+
+// Renders an inline sequence, then adjusts each node for its neighbours:
+// emphasis delimiters that would not flank and a `!` that would form an image.
+const renderInlineSequence = (
+  children: ReadonlyArray<Inline>,
+  renderInline: (inline: Inline) => string,
+  renderChildren: (children: ReadonlyArray<Inline>) => string
+): string => {
+  const rendered = A.map(children, renderInline);
+  return joinEmpty(
+    A.map(children, (inline, index) =>
+      guardImageBang(fitEmphasisDelimiters(inline, rendered, index, renderChildren), inline, A.get(children, index + 1))
+    )
+  );
+};
+
+const renderMarkdownInlines = (children: ReadonlyArray<Inline>): string =>
+  renderInlineSequence(children, renderMarkdownInline, renderMarkdownInlines);
+
+const renderMarkdownLinkLabelInlines = (children: ReadonlyArray<Inline>): string =>
+  renderInlineSequence(children, renderMarkdownInlineForLinkLabel, renderMarkdownLinkLabelInlines);
 
 const renderHtmlInlines: (children: ReadonlyArray<Inline>) => string = flow(A.map(renderHtmlInline), joinEmpty);
 
-const renderMarkdownListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
-  (items: ReadonlyArray<ListItemChild>) =>
-    segmentInlineRuns(items, {
-      isInline: S.is(InlineSchema),
-      renderInlineRun: renderMarkdownInlines,
-      renderBlock: renderMarkdownBlock,
-    }),
-  A.join("\n")
-);
+const isInlineChild = S.is(InlineSchema);
 
-const renderMarkdownListItem = (item: Li): string => renderMarkdownListItemChildren(item.children);
+const isBlockChild = S.is(BlockSchema);
+
+// One segment per inline run and per block of a list item. A run of blocks
+// is a sibling sequence, so adjacent lists in an item alternate markers too.
+const renderListItemSegments = (
+  children: ReadonlyArray<ListItemChild>,
+  renderInlineRun: (run: ReadonlyArray<Inline>) => string,
+  renderBlocks: (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>
+): ReadonlyArray<string> =>
+  A.match(children, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: flow(
+      A.groupWith((left, right) => isInlineChild(left) === isInlineChild(right)),
+      A.flatMap((run) =>
+        A.every(run, isInlineChild)
+          ? [renderInlineRun(A.filter(run, isInlineChild))]
+          : renderBlocks(A.filter(run, isBlockChild))
+      )
+    ),
+  });
+
+const renderMarkdownListItemSegments = (children: ReadonlyArray<ListItemChild>): ReadonlyArray<string> =>
+  renderListItemSegments(children, flow(renderMarkdownInlines, protectBlockEdgeWhitespace), (blocks) =>
+    renderSiblingBlocks(blocks, renderMarkdownBlock, (list, markers) =>
+      renderMarkdownList(list, markers, renderMarkdownListItemSegments)
+    )
+  );
 
 const renderHtmlListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
   (items: ReadonlyArray<ListItemChild>) =>
@@ -238,18 +363,25 @@ const renderHtmlTaskItem = (item: TaskItem): string => {
   return `<li><input type="checkbox" disabled${checked} /> ${renderHtmlListItemChildren(item.children)}</li>`;
 };
 
+// `escapeMarkdownText` already writes a text `|` as `\|`, so only a pipe
+// behind an even run of backslashes (code spans, link destinations) still
+// needs its cell escape.
 const renderMarkdownTableCell = (cell: TableCell): string =>
   pipe(
     renderMarkdownInlines(cell.children),
-    Str.replace(/\|/g, "\\|"),
-    Str.replace(lineSeparatorGlobalPattern, "<br/>")
+    Str.replace(tableCellPipePattern, "$1\\|"),
+    Str.replace(lineSeparatorGlobalPattern, "<br/>"),
+    protectBlockEdgeWhitespace
   );
 
 const renderMarkdownTableFence = (cells: string): string => `| ${cells} |`;
 
+// A title keeps its line breaks as character references, so the link stays
+// on one line and re-parses to the same title.
 const escapeMarkdownTitle = flow(
-  Str.replace(lineSeparatorGlobalPattern, " "),
-  Str.replace(markdownTitleEscapePattern, "\\$&")
+  Str.replace(markdownTitleEscapePattern, "\\$&"),
+  Str.replace(characterReferencePattern, "\\&"),
+  replaceAllWith(titleLineSeparatorPattern, characterReferenceOf)
 );
 
 const renderMarkdownTitle: (title: O.Option<string>) => string = flow(
@@ -261,7 +393,8 @@ const renderMarkdownDestinationWithTitle = (
   destination: string,
   title: O.Option<string>,
   policy: UrlPolicySpec
-): string => `${escapeMarkdownDestinationWithPolicy(destination, policy)}${renderMarkdownTitle(title)}`;
+): string =>
+  `${pipe(escapeMarkdownDestinationWithPolicy(destination, policy), Str.replace(characterReferencePattern, "\\&"))}${renderMarkdownTitle(title)}`;
 
 const tableAlignmentAt = (align: ReadonlyArray<TableAlignment>, index: number): TableAlignment =>
   pipe(A.get(align, index), O.getOrElse(constant(TableAlignment.Enum.none)));
@@ -364,11 +497,11 @@ const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/wa
 const youtubeEmbedUrl = (videoId: string): string => `https://www.youtube-nocookie.com/embed/${videoId}`;
 
 // Built-in adapters keep `rawHtml` escaped by default; trusted passthrough is a custom-adapter concern.
-const renderEscapedRawHtmlAsMarkdown = ({ value }: { readonly value: string }): string => escapeMarkdownText(value);
+const renderEscapedRawHtmlAsMarkdown = ({ value }: { readonly value: string }): string => escapeMarkdownPhrasing(value);
 const renderEscapedRawHtmlAsHtml = ({ value }: { readonly value: string }): string => Html.escapeHtml(value);
 
 const renderMarkdownHeading = (block: Heading): string =>
-  `${pipe("#", Str.repeat(block.level))} ${renderMarkdownInlines(block.children)}`;
+  `${pipe("#", Str.repeat(block.level))} ${protectBlockEdgeWhitespace(renderMarkdownInlines(block.children))}`;
 
 const isHeadingValue = S.is(HeadingValue);
 
@@ -391,7 +524,10 @@ const renderHtmlHeading = (block: Heading): string => {
   return `<${tag}>${renderHtmlInlines(block.children)}</${tag}>`;
 };
 
-const escapeInlineMath = flow(Str.replace(lineSeparatorGlobalPattern, " "), Str.replace(mathDelimiterPattern, "\\$"));
+const escapeInlineMath = flow(
+  Str.replace(lineSeparatorGlobalPattern, " "),
+  Str.replace(unescapedDollarPattern, "$1\\$")
+);
 
 const escapeBlockMath = Str.replace(mathFencePattern, "\\$\\$");
 
@@ -409,6 +545,13 @@ const renderMarkdownFootnoteDefinition = (block: {
     : `[^${block.identifier}]: ${indentContinuationLines(body, "    ")}`;
 };
 
+// The body starts after a blank quoted line, so the marker line is a
+// paragraph of its own: a table, an ordered list starting above 1 or a bare
+// URL cannot interrupt a paragraph and would merge into the marker line, and
+// inline math in a first paragraph that continued the marker line would sit
+// in a text run spanning the `> ` prefix, which the recognizer skips.
+const admonitionBodySeparator = ">\n";
+
 const renderMarkdownAdmonition = (block: {
   readonly kind: string;
   readonly title: O.Option<string>;
@@ -416,13 +559,13 @@ const renderMarkdownAdmonition = (block: {
 }): string => {
   const title = pipe(
     block.title,
-    O.map((value) => ` ${escapeMarkdownText(value)}`),
+    O.map((value) => ` ${escapeMarkdownLiteral(value)}`),
     O.getOrElse(thunkEmptyStr)
   );
   const header = `> [!${Str.toUpperCase(block.kind)}]${title}`;
   const body = renderMarkdownBlocks(block.children);
 
-  return Str.isEmpty(body) ? header : `${header}\n${prefixLines(body, "> ")}`;
+  return Str.isEmpty(body) ? header : `${header}\n${admonitionBodySeparator}${prefixLines(body, "> ")}`;
 };
 
 const embedTitle = (block: { readonly src: string; readonly title: O.Option<string> }): string =>
@@ -432,7 +575,7 @@ const embedTitle = (block: { readonly src: string; readonly title: O.Option<stri
   );
 
 const embedDescriptionMarkdown: (description: O.Option<string>) => string = flow(
-  O.map((value) => `\n\n${escapeMarkdownText(value)}`),
+  O.map((value) => `\n\n${escapeMarkdownPhrasing(value)}`),
   O.getOrElse(thunkEmptyStr)
 );
 
@@ -445,8 +588,8 @@ const renderMarkdownEmbed = (block: {
   const title = embedTitle(block);
   const destination = renderMarkdownDestinationWithTitle(block.src, block.title, CompatibilityUrlPolicySpec);
   const rendered = Match.value(block.kind).pipe(
-    Match.when("image", () => `![${escapeMarkdownText(title)}](${destination})`),
-    Match.orElse(() => `[${escapeMarkdownText(title)}](${destination})`)
+    Match.when("image", () => `![${escapeMarkdownLiteral(title)}](${destination})`),
+    Match.orElse(() => `[${escapeMarkdownPhrasing(title)}](${destination})`)
   );
 
   return `${rendered}${embedDescriptionMarkdown(block.description)}`;
@@ -491,9 +634,125 @@ const indentContinuationLines = (text: string, indent: string): string =>
   pipe(
     text,
     Str.split(lineSeparatorPattern),
-    A.map((line, index) => (index === 0 ? line : `${indent}${line}`)),
+    A.map((line, index) => (index === 0 || Str.isEmpty(line) ? line : `${indent}${line}`)),
     A.join("\n")
   );
+
+// The list item markers a list renders with. Two adjacent lists of the same
+// family would merge into one list, so the second takes the alternate
+// markers (`+` for bullets, `)` for ordered items). `*` is never a bullet:
+// `* ***` would read as a thematic break.
+class ListMarkers {
+  readonly bullet: string;
+  readonly ordered: string;
+
+  constructor(bullet: string, ordered: string) {
+    this.bullet = bullet;
+    this.ordered = ordered;
+  }
+}
+
+const primaryListMarkers = new ListMarkers("-", ".");
+const alternateListMarkers = new ListMarkers("+", ")");
+
+const ListFamily = LiteralKit(["bullet", "ordered"]);
+
+type ListFamily = typeof ListFamily.Type;
+
+const listFamily: (block: Block) => O.Option<ListFamily> = Match.type<Block>().pipe(
+  Match.tag("ul", "taskList", () => O.some(ListFamily.Enum.bullet)),
+  Match.tag("ol", () => O.some(ListFamily.Enum.ordered)),
+  Match.orElse(O.none<ListFamily>)
+);
+
+class ListRun {
+  readonly family: O.Option<ListFamily>;
+  readonly alternate: boolean;
+
+  constructor(family: O.Option<ListFamily>, alternate: boolean) {
+    this.family = family;
+    this.alternate = alternate;
+  }
+}
+
+const nextListRun = (previous: ListRun, block: Block): ListRun => {
+  const family = listFamily(block);
+  return new ListRun(family, O.isSome(family) && O.contains(previous.family, family.value) && !previous.alternate);
+};
+
+// The markers each block of a sibling sequence renders its list with.
+const listMarkersOf = (blocks: ReadonlyArray<Block>): ReadonlyArray<ListMarkers> =>
+  pipe(
+    A.scan(blocks, new ListRun(O.none(), false), nextListRun),
+    A.drop(1),
+    A.map((run) => (run.alternate ? alternateListMarkers : primaryListMarkers))
+  );
+
+type MarkdownList = Ul | Ol | TaskList;
+
+const isParagraph = (child: ListItemChild): boolean => child._tag === "p";
+
+// Md marks a loose item by paragraph children (a tight item holds inline
+// runs), so a list with any paragraph child renders loose: blank lines
+// between items and between the blocks of an item.
+const isLooseList = (list: MarkdownList): boolean =>
+  A.some(list.children, (item: Li | TaskItem) => A.some(item.children, isParagraph));
+
+const taskBox = (item: TaskItem): string => `[${item.checked ? "x" : " "}] `;
+
+const listItemMarker = (list: MarkdownList, markers: ListMarkers, index: number): string =>
+  list._tag === "ol" ? `${index + list.start}${markers.ordered} ` : `${markers.bullet} `;
+
+const listItemPrefix = (item: Li | TaskItem): string => (item._tag === "taskItem" ? taskBox(item) : "");
+
+const renderMarkdownList = (
+  list: MarkdownList,
+  markers: ListMarkers,
+  segments: (children: ReadonlyArray<ListItemChild>) => ReadonlyArray<string>
+): string => {
+  const separator = isLooseList(list) ? "\n\n" : "\n";
+  return pipe(
+    list.children,
+    A.map((item: Li | TaskItem, index) =>
+      renderMarkdownMarkedItem(
+        listItemMarker(list, markers, index),
+        `${listItemPrefix(item)}${A.join(segments(item.children), separator)}`
+      )
+    ),
+    A.join(separator)
+  );
+};
+
+const isMarkdownList = (block: Block): block is MarkdownList =>
+  block._tag === "ul" || block._tag === "ol" || block._tag === "taskList";
+
+// Renders a sibling sequence, giving each list the markers that keep it apart
+// from an adjacent list of the same family.
+const renderSiblingBlocks = (
+  blocks: ReadonlyArray<Block>,
+  renderBlock: (block: Block) => string,
+  renderList: (list: MarkdownList, markers: ListMarkers) => string
+): ReadonlyArray<string> =>
+  A.zipWith(blocks, listMarkersOf(blocks), (block, markers) =>
+    isMarkdownList(block) ? renderList(block, markers) : renderBlock(block)
+  );
+
+const renderMarkdownSiblings = (
+  blocks: ReadonlyArray<Block>,
+  renderBlock: (block: Block) => string,
+  renderList: (list: MarkdownList, markers: ListMarkers) => string
+): Markdown => joinBlocks(renderSiblingBlocks(blocks, renderBlock, renderList));
+
+// An emphasis that opens or closes on another emphasis takes `_` delimiters:
+// `**foo**` would read `*` + `*foo*` + `*` as strong, and `***foo***` as
+// emphasis around strong.
+const opensOrClosesOnEm = (children: ReadonlyArray<Inline>): boolean =>
+  O.exists(A.head(children), (child) => child._tag === "em") ||
+  O.exists(A.last(children), (child) => child._tag === "em");
+
+const emDelimiter = (children: ReadonlyArray<Inline>): string => (opensOrClosesOnEm(children) ? "_" : "*");
+
+const strongDelimiter = (children: ReadonlyArray<Inline>): string => (opensOrClosesOnEm(children) ? "__" : "**");
 
 const renderMarkdownMarkedItem: {
   (marker: string, content: string): string;
@@ -549,17 +808,17 @@ const makeMarkdownInlineMatcher = (
   urlPolicy: UrlPolicySpec
 ) =>
   Match.typeTags<Inline>()({
-    text: ({ value }) => escapeMarkdownText(value),
+    text: ({ value }) => escapeMarkdownPhrasing(value),
     rawMarkdown: renderRawMarkdown,
     rawHtml: renderEscapedRawHtmlAsMarkdown,
-    strong: ({ children }) => `**${renderInlines(children)}**`,
-    em: ({ children }) => `*${renderInlines(children)}*`,
+    strong: ({ children }) => `${strongDelimiter(children)}${renderInlines(children)}${strongDelimiter(children)}`,
+    em: ({ children }) => `${emDelimiter(children)}${renderInlines(children)}${emDelimiter(children)}`,
     del: ({ children }) => `~~${renderInlines(children)}~~`,
     code: ({ value }) => renderInlineCode(value),
     a: ({ href, children, title }) =>
       `[${renderMarkdownLinkLabelInlines(children)}](${renderMarkdownDestinationWithTitle(href, title, urlPolicy)})`,
     img: ({ src, alt, title }) =>
-      `![${escapeMarkdownText(alt)}](${renderMarkdownDestinationWithTitle(src, title, urlPolicy)})`,
+      `![${escapeMarkdownLiteral(alt)}](${renderMarkdownDestinationWithTitle(src, title, urlPolicy)})`,
     br: () => "<br/>",
     inlineMath: ({ value }) => `$${escapeInlineMath(value)}$`,
     footnoteReference: ({ identifier }) => `[^${identifier}]`,
@@ -573,7 +832,7 @@ const renderMarkdownInlineMatcher = makeMarkdownInlineMatcher(
 
 const renderMarkdownInlineForLinkLabelMatcher = makeMarkdownInlineMatcher(
   renderMarkdownLinkLabelInlines,
-  ({ value }) => escapeMarkdownText(value),
+  ({ value }) => escapeMarkdownPhrasing(value),
   CompatibilityUrlPolicySpec
 );
 
@@ -676,40 +935,22 @@ export function renderHtmlInline(inline: Inline): string {
  */
 export const renderMarkdownBlock: (block: Block) => string = Match.typeTags<Block>()({
   heading: renderMarkdownHeading,
-  p: (block) => renderMarkdownInlines(block.children),
+  p: (block) => protectBlockEdgeWhitespace(renderMarkdownInlines(block.children)),
   blockquote: (block) => pipe(block.children, renderMarkdownBlocks, prefixLines("> ")),
   pre: (block) => renderFencedCode(block.value, languageToMarkdown(block.language)),
-  ul: (block) =>
-    pipe(
-      block.children,
-      A.map((item) => renderMarkdownMarkedItem("- ", renderMarkdownListItem(item))),
-      A.join("\n")
-    ),
-  ol: (block) =>
-    pipe(
-      block.children,
-      A.map((item, index) => {
-        const marker = `${index + block.start}. `;
-
-        return renderMarkdownMarkedItem(marker, renderMarkdownListItem(item));
-      }),
-      A.join("\n")
-    ),
-  taskList: (block) =>
-    pipe(
-      block.children,
-      A.map((item) =>
-        renderMarkdownMarkedItem(`- [${item.checked ? "x" : " "}] `, renderMarkdownListItemChildren(item.children))
-      ),
-      A.join("\n")
-    ),
+  ul: (block) => renderMarkdownList(block, primaryListMarkers, renderMarkdownListItemSegments),
+  ol: (block) => renderMarkdownList(block, primaryListMarkers, renderMarkdownListItemSegments),
+  taskList: (block) => renderMarkdownList(block, primaryListMarkers, renderMarkdownListItemSegments),
   table: renderMarkdownTable,
   youtube: (block) => youtubeWatchUrl(block.videoId),
   mathBlock: renderMarkdownMathBlock,
   footnoteDefinition: renderMarkdownFootnoteDefinition,
   admonition: renderMarkdownAdmonition,
   embed: renderMarkdownEmbed,
-  hr: () => "---",
+  // `***` rather than `---`: a leading `---` reads as a frontmatter fence, a
+  // `---` under a paragraph line as a setext underline, and `- ---` as one
+  // thematic break instead of a list item holding one.
+  hr: () => "***",
 });
 
 /**
@@ -762,10 +1003,10 @@ export const renderHtmlBlock: (block: Block) => string = Match.typeTags<Block>()
  * @category utilities
  * @since 0.0.0
  */
-export const renderMarkdownBlocks: (blocks: ReadonlyArray<Block>) => Markdown = flow(
-  A.map(renderMarkdownBlock),
-  joinBlocks
-);
+export const renderMarkdownBlocks = (blocks: ReadonlyArray<Block>): Markdown =>
+  renderMarkdownSiblings(blocks, renderMarkdownBlock, (list, markers) =>
+    renderMarkdownList(list, markers, renderMarkdownListItemSegments)
+  );
 
 /**
  * Renders block nodes as an HTML fragment body.
@@ -1034,19 +1275,25 @@ const renderMarkdownInlinesWithPolicy = (
   children: ReadonlyArray<Inline>,
   linkLabel = false
 ): string =>
-  pipe(
+  renderInlineSequence(
     children,
-    A.map((inline) => renderMarkdownInlineWithPolicy(policy, inline, linkLabel)),
-    joinEmpty
+    (inline) => renderMarkdownInlineWithPolicy(policy, inline, linkLabel),
+    (inlines) => renderMarkdownInlinesWithPolicy(policy, inlines, linkLabel)
   );
 
 const renderMarkdownInlineWithPolicy = (policy: UrlPolicySpec, inline: Inline, linkLabel = false): string =>
   Match.value(inline).pipe(
-    Match.tag("text", ({ value }) => escapeMarkdownText(value)),
-    Match.tag("rawMarkdown", ({ value }) => (linkLabel ? escapeMarkdownText(value) : value)),
+    Match.tag("text", ({ value }) => escapeMarkdownPhrasing(value)),
+    Match.tag("rawMarkdown", ({ value }) => (linkLabel ? escapeMarkdownPhrasing(value) : value)),
     Match.tag("rawHtml", renderEscapedRawHtmlAsMarkdown),
-    Match.tag("strong", ({ children }) => `**${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}**`),
-    Match.tag("em", ({ children }) => `*${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}*`),
+    Match.tag("strong", ({ children }) => {
+      const delimiter = strongDelimiter(children);
+      return `${delimiter}${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}${delimiter}`;
+    }),
+    Match.tag("em", ({ children }) => {
+      const delimiter = emDelimiter(children);
+      return `${delimiter}${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}${delimiter}`;
+    }),
     Match.tag("del", ({ children }) => `~~${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}~~`),
     Match.tag("code", ({ value }) => renderInlineCode(value)),
     Match.tag(
@@ -1057,7 +1304,7 @@ const renderMarkdownInlineWithPolicy = (policy: UrlPolicySpec, inline: Inline, l
     Match.tag(
       "img",
       ({ src, alt, title }) =>
-        `![${escapeMarkdownText(alt)}](${renderMarkdownDestinationWithTitle(src, title, policy)})`
+        `![${escapeMarkdownLiteral(alt)}](${renderMarkdownDestinationWithTitle(src, title, policy)})`
     ),
     Match.tag("br", () => "<br/>"),
     Match.tag("inlineMath", ({ value }) => `$${escapeInlineMath(value)}$`),
@@ -1101,18 +1348,19 @@ const renderHtmlInlineWithPolicy = (policy: UrlPolicySpec, inline: Inline): stri
     Match.exhaustive
   );
 
-const renderMarkdownListItemChildrenWithPolicy = (
-  policy: UrlPolicySpec,
-  children: ReadonlyArray<ListItemChild>
-): string =>
-  pipe(
-    segmentInlineRuns<Inline, Block>(children, {
-      isInline: S.is(InlineSchema),
-      renderInlineRun: (inlines) => renderMarkdownInlinesWithPolicy(policy, inlines),
-      renderBlock: (block: Block) => renderMarkdownBlockWithPolicy(policy, block),
-    }),
-    A.join("\n")
-  );
+const renderMarkdownListItemSegmentsWithPolicy =
+  (policy: UrlPolicySpec) =>
+  (children: ReadonlyArray<ListItemChild>): ReadonlyArray<string> =>
+    renderListItemSegments(
+      children,
+      (inlines) => protectBlockEdgeWhitespace(renderMarkdownInlinesWithPolicy(policy, inlines)),
+      (blocks) =>
+        renderSiblingBlocks(
+          blocks,
+          (block) => renderMarkdownBlockWithPolicy(policy, block),
+          (list, markers) => renderMarkdownList(list, markers, renderMarkdownListItemSegmentsWithPolicy(policy))
+        )
+    );
 
 const renderHtmlListItemChildrenWithPolicy = (policy: UrlPolicySpec, children: ReadonlyArray<ListItemChild>): string =>
   pipe(
@@ -1133,8 +1381,9 @@ const renderMarkdownTableWithPolicy = (policy: UrlPolicySpec, block: Table): str
   const renderCell = (cell: TableCell): string =>
     pipe(
       renderMarkdownInlinesWithPolicy(policy, cell.children),
-      Str.replace(/\|/g, "\\|"),
-      Str.replace(lineSeparatorGlobalPattern, "<br/>")
+      Str.replace(tableCellPipePattern, "$1\\|"),
+      Str.replace(lineSeparatorGlobalPattern, "<br/>"),
+      protectBlockEdgeWhitespace
     );
   const renderRow = (row: TableRow): string =>
     pipe(row.children, A.map(renderCell), A.join(" | "), renderMarkdownTableFence);
@@ -1179,43 +1428,14 @@ const renderMarkdownBlockWithPolicy = (policy: UrlPolicySpec, block: Block): str
   Match.value(block).pipe(
     Match.tag(
       "heading",
-      ({ children, level }) => `${pipe("#", Str.repeat(level))} ${renderMarkdownInlinesWithPolicy(policy, children)}`
+      ({ children, level }) =>
+        `${pipe("#", Str.repeat(level))} ${protectBlockEdgeWhitespace(renderMarkdownInlinesWithPolicy(policy, children))}`
     ),
-    Match.tag("p", ({ children }) => renderMarkdownInlinesWithPolicy(policy, children)),
+    Match.tag("p", ({ children }) => protectBlockEdgeWhitespace(renderMarkdownInlinesWithPolicy(policy, children))),
     Match.tag("blockquote", ({ children }) => prefixLines(renderMarkdownBlocksWithPolicy(policy, children), "> ")),
     Match.tag("pre", ({ language, value }) => renderFencedCode(value, languageToMarkdown(language))),
-    Match.tag("ul", ({ children }) =>
-      pipe(
-        children,
-        A.map((item) =>
-          renderMarkdownMarkedItem("- ", renderMarkdownListItemChildrenWithPolicy(policy, item.children))
-        ),
-        A.join("\n")
-      )
-    ),
-    Match.tag("ol", ({ children, start }) =>
-      pipe(
-        children,
-        A.map((item, index) =>
-          renderMarkdownMarkedItem(
-            `${index + start}. `,
-            renderMarkdownListItemChildrenWithPolicy(policy, item.children)
-          )
-        ),
-        A.join("\n")
-      )
-    ),
-    Match.tag("taskList", ({ children }) =>
-      pipe(
-        children,
-        A.map((item) =>
-          renderMarkdownMarkedItem(
-            `- [${item.checked ? "x" : " "}] `,
-            renderMarkdownListItemChildrenWithPolicy(policy, item.children)
-          )
-        ),
-        A.join("\n")
-      )
+    Match.tag("ul", "ol", "taskList", (list) =>
+      renderMarkdownList(list, primaryListMarkers, renderMarkdownListItemSegmentsWithPolicy(policy))
     ),
     Match.tag("table", (table) => renderMarkdownTableWithPolicy(policy, table)),
     Match.tag("youtube", ({ videoId }) => {
@@ -1232,12 +1452,12 @@ const renderMarkdownBlockWithPolicy = (policy: UrlPolicySpec, block: Block): str
     Match.tag("admonition", ({ children, kind, title }) => {
       const renderedTitle = pipe(
         title,
-        O.map((value) => ` ${escapeMarkdownText(value)}`),
+        O.map((value) => ` ${escapeMarkdownLiteral(value)}`),
         O.getOrElse(thunkEmptyStr)
       );
       const header = `> [!${Str.toUpperCase(kind)}]${renderedTitle}`;
       const body = renderMarkdownBlocksWithPolicy(policy, children);
-      return Str.isEmpty(body) ? header : `${header}\n${prefixLines(body, "> ")}`;
+      return Str.isEmpty(body) ? header : `${header}\n${admonitionBodySeparator}${prefixLines(body, "> ")}`;
     }),
     Match.tag("embed", ({ description, kind, src, title }) => {
       const label = pipe(
@@ -1247,19 +1467,19 @@ const renderMarkdownBlockWithPolicy = (policy: UrlPolicySpec, block: Block): str
       const destination = renderMarkdownDestinationWithTitle(src, title, policy);
       const rendered =
         kind === "image"
-          ? `![${escapeMarkdownText(label)}](${destination})`
-          : `[${escapeMarkdownText(label)}](${destination})`;
+          ? `![${escapeMarkdownLiteral(label)}](${destination})`
+          : `[${escapeMarkdownPhrasing(label)}](${destination})`;
       return `${rendered}${embedDescriptionMarkdown(description)}`;
     }),
-    Match.tag("hr", () => "---"),
+    Match.tag("hr", () => "***"),
     Match.exhaustive
   );
 
 const renderMarkdownBlocksWithPolicy = (policy: UrlPolicySpec, blocks: ReadonlyArray<Block>): Markdown =>
-  pipe(
+  renderMarkdownSiblings(
     blocks,
-    A.map((block) => renderMarkdownBlockWithPolicy(policy, block)),
-    joinBlocks
+    (block) => renderMarkdownBlockWithPolicy(policy, block),
+    (list, markers) => renderMarkdownList(list, markers, renderMarkdownListItemSegmentsWithPolicy(policy))
   );
 
 const renderHtmlBlockWithPolicy = (policy: UrlPolicySpec, block: Block): string =>
