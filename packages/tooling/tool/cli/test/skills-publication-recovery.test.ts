@@ -40,6 +40,7 @@ import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -1023,21 +1024,23 @@ layer(
         const { journals, root, target } = yield* fixture("file", true);
         yield* crash("publish-file", root, target, "staged");
         const recorded = O.getOrThrow((yield* firstTracked(journals)).owner);
+        const boot = Match.value(procfs).pipe(
+          Match.when("empty-boot", () => ""),
+          Match.when("rebooted", () => "new-boot"),
+          Match.orElse(() => recorded.bootId)
+        );
+        const state = procfs === "zombie" ? "Z" : "X";
+        const stat =
+          procfs === "malformed-stat"
+            ? "malformed"
+            : `${recorded.pid} (fixture) ${A.join([state, ...A.replicate("0", 18), recorded.startTicks], " ")}`;
         const wrapped = FileSystem.FileSystem.of({
           ...fs,
           readFileString: Effect.fn("SkillsCoverage.readFileString")(
             (...[file, options]: Parameters<FileSystem.FileSystem["readFileString"]>) => {
               if (!Str.startsWith("/proc/")(file)) return fs.readFileString(file, options);
               if (procfs === "unavailable") return fs.readFileString(`${root}/missing`);
-              if (Str.endsWith("boot_id")(file))
-                return Effect.succeed(
-                  procfs === "empty-boot" ? "" : procfs === "rebooted" ? "new-boot" : recorded.bootId
-                );
-              return Effect.succeed(
-                procfs === "malformed-stat"
-                  ? "malformed"
-                  : `${recorded.pid} (fixture) ${A.join([procfs === "zombie" ? "Z" : "X", ...A.replicate("0", 18), recorded.startTicks], " ")}`
-              );
+              return Effect.succeed(Str.endsWith("boot_id")(file) ? boot : stat);
             }
           ),
         });
@@ -1128,15 +1131,18 @@ layer(
         const journal = O.getOrThrow(A.head(yield* journalsIn(journals)));
         const tracked = trackedOf(journal);
         const journalPath = path.join(journals, `${journal.id}.json`);
-        if (mutation === "target-link") {
-          yield* fs.remove(target);
-          yield* fs.symlink(tracked.staging, target);
-        } else if (mutation === "target-missing") yield* fs.remove(target);
-        else if (mutation === "foreign-stage") yield* fs.writeFileString(tracked.staging, competitorFile);
-        else if (mutation === "failed-return-confirmation") {
-          yield* fs.writeFileString(target, yield* fs.readFileString(tracked.staging));
-          yield* fs.writeFileString(tracked.staging, competitorFile);
-        }
+        yield* Match.value(mutation).pipe(
+          Match.when("target-link", () => fs.remove(target).pipe(Effect.andThen(fs.symlink(tracked.staging, target)))),
+          Match.when("target-missing", () => fs.remove(target)),
+          Match.when("foreign-stage", () => fs.writeFileString(tracked.staging, competitorFile)),
+          Match.when("failed-return-confirmation", () =>
+            fs.readFileString(tracked.staging).pipe(
+              Effect.flatMap((text) => fs.writeFileString(target, text)),
+              Effect.andThen(fs.writeFileString(tracked.staging, competitorFile))
+            )
+          ),
+          Match.orElse(() => Effect.void)
+        );
         const wrapped = FileSystem.FileSystem.of({
           ...fs,
           link: Effect.fn("SkillsCoverage.link")((...[from, to]: Parameters<FileSystem.FileSystem["link"]>) =>
