@@ -337,7 +337,7 @@ const primaryOutputPath = (result: SyncDataTargetResult): string =>
   );
 
 const renderChangedTargetMessage = (result: SyncDataTargetResult, mode: SyncDataRunMode): string =>
-  SyncDataRunMode.$match(mode, {
+  SyncDataRunMode.match(mode, {
     write: () => `sync-data-to-ts: updated ${result.targetId} -> ${primaryOutputPath(result)} (${result.summary})`,
     "dry-run": () =>
       `sync-data-to-ts: would update ${result.targetId} -> ${primaryOutputPath(result)} (${result.summary})`,
@@ -374,7 +374,7 @@ const reportTargetResult = Effect.fn("SyncDataToTs.reportTargetResult")(function
 });
 
 const renderSummaryMessage = (mode: SyncDataRunMode, changedCount: number, totalCount: number): string =>
-  SyncDataRunMode.$match(mode, {
+  SyncDataRunMode.match(mode, {
     write: () => `sync-data-to-ts: wrote ${changedCount} of ${totalCount} target(s)`,
     "dry-run": () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) would change`,
     check: () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) have drift`,

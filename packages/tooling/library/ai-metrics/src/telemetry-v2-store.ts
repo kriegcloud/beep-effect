@@ -258,7 +258,7 @@ const storeFailure = (
 ): TelemetryV2StoreError => TelemetryV2StoreError.make({ cause, message, operation });
 
 const artifactDirectory = (kind: TelemetryV2ArtifactKind): string =>
-  TelemetryV2ArtifactKind.$match(kind, {
+  TelemetryV2ArtifactKind.match(kind, {
     "flight-record-event": () => "flight-record-events",
     "ingest-enumeration": () => "ingest-enumerations",
     "ingest-manifest": () => "ingest-manifests",

@@ -828,7 +828,7 @@ const worktreeIsDirty = Effect.fnUntraced(function* (
 const FALLOW_CACHE_IDLE_THRESHOLD = Duration.hours(1);
 
 const thresholdFor = (candidate: DiscoveredCandidate): Duration.Duration =>
-  TmpfsReapClass.$match(candidate.reapClass, {
+  TmpfsReapClass.match(candidate.reapClass, {
     "git-worktree": () => Duration.hours(2),
     "head-install": () => Duration.hours(1),
     "fallow-cache": () => (O.contains(candidate.ownerRootMissing, true) ? Duration.zero : FALLOW_CACHE_IDLE_THRESHOLD),
@@ -844,7 +844,7 @@ const classificationSkipReason = (
   O.firstSomeOf([
     candidate.shapeSkipReason,
     candidate.classified ? O.none<TmpfsReapSkipReason>() : O.some<TmpfsReapSkipReason>("unclassified"),
-    TmpfsReapClass.$match(candidate.reapClass, {
+    TmpfsReapClass.match(candidate.reapClass, {
       "git-worktree": O.none<TmpfsReapSkipReason>,
       "head-install": O.none<TmpfsReapSkipReason>,
       "fallow-cache": O.none<TmpfsReapSkipReason>,

@@ -546,7 +546,7 @@ const doctorFailure = (tool: string) =>
         failure(tool, "probe-unavailable", `The check for ${error.requirement} could not run: ${error.reason}`),
       SetupRepairFailed: (error) => failure(tool, "repair-failed", error.reason),
       SetupRepairRefused: (error) =>
-        RepairRefusal.$match(error.refusal, {
+        RepairRefusal.match(error.refusal, {
           "unknown-requirement": () =>
             failure(tool, "unknown-requirement", `${error.requirement} is not one of this practice's requirements.`),
           "needs-human": () =>

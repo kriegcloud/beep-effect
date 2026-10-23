@@ -362,7 +362,7 @@ const normalize = (v: readonly [number, number, number]): [number, number, numbe
  * @internal
  */
 const passOrigin = (camera: Camera): O.Option<V3> =>
-  HiddenLinePassAbout.$match(camera.hiddenLinePassAbout, {
+  HiddenLinePassAbout.match(camera.hiddenLinePassAbout, {
     origin: (): O.Option<V3> => O.none(),
     target: () => O.some(camera.target),
   });

@@ -149,7 +149,7 @@ type MailboxFolders = {
 
 const IN_MAILBOX: DocketSourceFolder = "mailbox";
 
-const categoryColor = DocketCategory.$match({
+const categoryColor = DocketCategory.match({
   "Docket - digest": (): GraphCategoryColor => "preset12",
   "Docket - entered": (): GraphCategoryColor => "preset5",
   "Docket - needs review": (): GraphCategoryColor => "preset1",

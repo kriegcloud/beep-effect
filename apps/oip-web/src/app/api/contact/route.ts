@@ -25,7 +25,7 @@ const rejectedContactSubmission = ContactSubmissionResponse.make({
 });
 
 const contactJsonStatus = (response: ContactSubmissionResponse): 202 | 400 =>
-  ContactSubmissionStatus.$match(response.status, {
+  ContactSubmissionStatus.match(response.status, {
     accepted: () => 202 as const,
     rejected: () => 400 as const,
   });

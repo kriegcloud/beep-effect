@@ -489,12 +489,12 @@ const gateAuditRecordImpl = <const Identifier extends string, const Outcome exte
     reason: S.NonEmptyString,
   }).pipe(
     $I.annoteSchema(
-      GateOutcome.$match(outcome, {
+      GateOutcome.match(outcome, {
         allowed: () => `${identifier}AllowedAudit`,
         denied: () => `${identifier}DeniedAudit`,
       }),
       {
-        description: GateOutcome.$match(outcome, {
+        description: GateOutcome.match(outcome, {
           allowed: () => "Audit record carried by an allowed gate verdict.",
           denied: () => "Audit record carried by a denied gate verdict.",
         }),

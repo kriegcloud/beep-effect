@@ -474,7 +474,7 @@ const pandocInlineToMd = (
       ),
       Match.tag("math", (node) =>
         Effect.succeed(
-          PandocMathType.$match(node.mathType, {
+          PandocMathType.match(node.mathType, {
             InlineMath: () => emptyProjection([Md.InlineMath.make({ value: node.text })]),
             DisplayMath: () => ({
               issues: [

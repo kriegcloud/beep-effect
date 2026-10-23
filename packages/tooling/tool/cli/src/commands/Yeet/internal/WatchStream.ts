@@ -506,7 +506,7 @@ export class YeetCheckTransition extends S.Opaque<YeetCheckTransition, { readonl
  * @since 0.0.0
  */
 export const yeetWatchThreadOutstanding = (thread: YeetWatchThread): boolean =>
-  YeetReviewThreadStateTag.$match(thread.state, {
+  YeetReviewThreadStateTag.match(thread.state, {
     unresolved: () => true,
     "resolved-follow-up": () => true,
     "resolved-answered": () => false,
@@ -982,7 +982,7 @@ const threadStates = (snapshot: YeetWatchSnapshot): HashMap.HashMap<string, Yeet
 // is the quiet state: reaching it is a thread going away, which the stream
 // reports as `resolved`.
 const threadTransitionTarget = (state: YeetReviewThreadStateTag): YeetThreadTransitionTarget =>
-  YeetReviewThreadStateTag.$match(state, {
+  YeetReviewThreadStateTag.match(state, {
     unresolved: () => "unresolved" as const,
     "resolved-answered": () => "resolved" as const,
     "resolved-follow-up": () => "follow-up" as const,

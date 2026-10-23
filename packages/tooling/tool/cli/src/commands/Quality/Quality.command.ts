@@ -1482,7 +1482,7 @@ export const runGithubChecks = Effect.fn("QualityScriptCommands.runGithubChecks"
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
   const failurePolicy = options.failurePolicy ?? GithubCheckFailurePolicy.Enum["fail-fast"];
 
-  yield* GithubCheckMode.$match(mode, {
+  yield* GithubCheckMode.match(mode, {
     "cheap-gates": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runCheapGates(repoRoot))),
     quality: () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runQuality(repoRoot, failurePolicy))),
     "review-fix": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runReviewFix(repoRoot, options))),

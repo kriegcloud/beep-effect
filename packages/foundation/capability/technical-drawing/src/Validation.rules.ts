@@ -236,7 +236,7 @@ export const labelTextFindings = (input: {
 }): ReadonlyArray<SheetFinding> => {
   const { page, pages, text, options } = input;
   const expected = A.map(options.textLabels, (label) =>
-    SheetLabel.$match(label, {
+    SheetLabel.match(label, {
       figure: () => `FIG. ${page}`,
       "sheet-number": () => `${page}/${pages}`,
     })

@@ -431,7 +431,7 @@ export const matterCategoryPreset = (key: MatterKey): OutlookCategoryPreset =>
  * @category constructors
  * @since 0.0.0
  */
-export const practiceCategoryPreset: (category: PracticeCategory) => OutlookCategoryPreset = PracticeCategory.$match({
+export const practiceCategoryPreset: (category: PracticeCategory) => OutlookCategoryPreset = PracticeCategory.match({
   "P: USPTO": () => OutlookCategoryPreset.Enum.preset7,
   "P: Client": () => OutlookCategoryPreset.Enum.preset4,
   "P: Opposing counsel": () => OutlookCategoryPreset.Enum.preset8,

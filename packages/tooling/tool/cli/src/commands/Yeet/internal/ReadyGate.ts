@@ -363,7 +363,7 @@ const readyGateCriterionHolds = (
   criterion: YeetReadyGateCriterion
 ): boolean =>
   O.exists(read.mergeReady, (ready) =>
-    YeetReadyGateCriterion.$match(criterion, {
+    YeetReadyGateCriterion.match(criterion, {
       "pr-open": () => mergeReadyCriterionHolds(ready.criteria, "pr-open"),
       "no-required-red": () => noRequiredRed(read.remote, inherited),
       "threads-resolved": () => mergeReadyCriterionHolds(ready.criteria, "threads-resolved"),

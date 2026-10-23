@@ -78,7 +78,7 @@ const main = Effect.gen(function* () {
       ]),
       (publication) => publication.state._tag
     );
-    return Mode.$match(mode, {
+    return Mode.match(mode, {
       apply: () => journal.value.publication._tag === "tracked" && journal.value.publication.state._tag === halt,
       restore: () => O.exists(journal.value.restoration, (restoration) => restoration.state._tag === halt),
       recover: () => A.contains(states, halt),
@@ -122,7 +122,7 @@ const main = Effect.gen(function* () {
     ),
     ModelsApply
   );
-  yield* Mode.$match(mode, {
+  yield* Mode.match(mode, {
     apply: () => writer.apply(file, [request], "write", backups).pipe(Effect.asVoid),
     restore: () => writer.restore(path.join(backups, `${journalId}.json`), backups),
     recover: () => writer.recover(backups).pipe(Effect.asVoid),

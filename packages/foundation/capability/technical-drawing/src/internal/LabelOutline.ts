@@ -176,7 +176,7 @@ const commandOf = (command: Readonly<Record<string, unknown>>): O.Option<GlyphCo
     O.orElse(() => O.liftPredicate(command.type, OutlineKind.is.Z)),
     O.map(
       (kind): GlyphCommand =>
-        OutlineKind.$match(kind, {
+        OutlineKind.match(kind, {
           M: () => ["M", coordinate(command, "x"), coordinate(command, "y")] as const,
           L: () => ["L", coordinate(command, "x"), coordinate(command, "y")] as const,
           Q: () =>

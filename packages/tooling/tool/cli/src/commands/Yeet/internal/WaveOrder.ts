@@ -561,7 +561,7 @@ export const WAVE_ORDER_KEYS: ReadonlyArray<readonly [GateOrderSortKey, Order.Or
       pipe(
         entry[1].orderEstimate,
         O.map((estimate) =>
-          GateOrderLaneClass.$match(estimate.laneClass, { "policy-preflight": () => 0, heavy: () => 1 })
+          GateOrderLaneClass.match(estimate.laneClass, { "policy-preflight": () => 0, heavy: () => 1 })
         ),
         O.getOrElse(() => 0)
       )
@@ -584,7 +584,7 @@ export const WAVE_ORDER_KEYS: ReadonlyArray<readonly [GateOrderSortKey, Order.Or
     Order.mapInput(Order.Number, (entry: IndexedLane) =>
       pipe(
         entry[1].orderEstimate,
-        O.map((estimate) => GatePrecisionClass.$match(estimate.precision, { precise: () => 0, imprecise: () => 1 })),
+        O.map((estimate) => GatePrecisionClass.match(estimate.precision, { precise: () => 0, imprecise: () => 1 })),
         O.getOrElse(() => 0)
       )
     ),

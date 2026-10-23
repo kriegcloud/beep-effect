@@ -463,7 +463,7 @@ const makeParcels = Effect.gen(function* () {
     );
     yield* Effect.annotateCurrentSpan(ParcelAttribute, parcel);
     const { budget, session } = options ?? ParcelReadOptions.make({});
-    const envelope = yield* ParcelId.$match(parcel, {
+    const envelope = yield* ParcelId.match(parcel, {
       "account-headroom": () => readAccountHeadroom(budget),
       "lane-reds": () => readLaneReds(budget),
       "host-pressure": () => readHostPressure(budget),

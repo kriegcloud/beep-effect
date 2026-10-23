@@ -1906,7 +1906,7 @@ const windowRunOrder = Order.combine(
 );
 
 const windowEventsFor = (event: CiLaneTimingWindowEvent): ReadonlyArray<typeof CiLaneTimingWindowRunEvent.Type> =>
-  CiLaneTimingWindowEvent.$match(event, {
+  CiLaneTimingWindowEvent.match(event, {
     all: () => CiLaneTimingWindowRunEvent.literals,
     pull_request: () => [CiLaneTimingWindowRunEvent.Enum.pull_request],
     push: () => [CiLaneTimingWindowRunEvent.Enum.push],
@@ -1916,7 +1916,7 @@ const branchForWindowEvent = (
   options: CiLaneTimingWindowOptions,
   event: typeof CiLaneTimingWindowRunEvent.Type
 ): O.Option<string> =>
-  CiLaneTimingWindowRunEvent.$match(event, {
+  CiLaneTimingWindowRunEvent.match(event, {
     pull_request: () => options.branch,
     push: () => O.orElse(options.branch, () => O.some("main")),
   });

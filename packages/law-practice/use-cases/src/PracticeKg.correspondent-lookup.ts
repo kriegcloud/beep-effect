@@ -89,14 +89,12 @@ export type PracticeKgContactLinkSource = typeof PracticeKgContactLinkSource.Typ
  * @category schemas
  * @since 0.0.0
  */
-export const PracticeKgAttorneyLinkSource = LiteralKit(
-  PracticeKgContactLinkSource.pick([
-    "attorney-answer",
-    "attorney-pc-folder",
-    "attorney-docket-sheet",
-    "attorney-filed-email",
-  ]).literals
-).pipe(
+export const PracticeKgAttorneyLinkSource = PracticeKgContactLinkSource.pick([
+  "attorney-answer",
+  "attorney-pc-folder",
+  "attorney-docket-sheet",
+  "attorney-filed-email",
+]).pipe(
   $I.annoteSchema("PracticeKgAttorneyLinkSource", {
     description: "Contact link sources that are the attorney's own evidence.",
   })
@@ -135,9 +133,10 @@ export type PracticeKgAttorneyLinkSource = typeof PracticeKgAttorneyLinkSource.T
  * @category schemas
  * @since 0.0.0
  */
-export const PracticeKgInferredLinkSource = LiteralKit(
-  PracticeKgContactLinkSource.pick(["org-name-match", "email-subject-ref"]).literals
-).pipe(
+export const PracticeKgInferredLinkSource = PracticeKgContactLinkSource.pick([
+  "org-name-match",
+  "email-subject-ref",
+]).pipe(
   $I.annoteSchema("PracticeKgInferredLinkSource", {
     description: "Contact link sources inferred from organization names or mail subjects.",
   })

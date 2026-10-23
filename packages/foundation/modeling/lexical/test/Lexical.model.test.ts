@@ -641,7 +641,7 @@ describe("Lexical.model", { concurrent: false }, () => {
             },
           };
           const source = yield* encodeJsonEffect(state);
-          const canonicalTag = ListType.$match(listType, {
+          const canonicalTag = ListType.match(listType, {
             number: F.constant(ListTag.Enum.ol),
             bullet: F.constant(ListTag.Enum.ul),
             check: F.constant(ListTag.Enum.ul),
@@ -678,7 +678,7 @@ describe("Lexical.model", { concurrent: false }, () => {
     "generates only runtime-canonical list metadata",
     { node: ListNodeArbitrary },
     ({ node }) => {
-      const expectedTag = ListType.$match(node.listType, {
+      const expectedTag = ListType.match(node.listType, {
         number: F.constant(ListTag.Enum.ol),
         bullet: F.constant(ListTag.Enum.ul),
         check: F.constant(ListTag.Enum.ul),

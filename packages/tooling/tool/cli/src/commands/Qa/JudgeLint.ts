@@ -23,13 +23,7 @@ import {
   renderCrossCheckFailure,
   requireInventoryRound,
 } from "./JudgeCheck.ts";
-import {
-  evaluateJudgeOutputInventoryDecodes,
-  JudgeOutputDecodeFailure,
-  JudgeOutputInventoryDecodesInput,
-  JudgeOutputInventoryDecodesVerdict,
-} from "./JudgeContract.ts";
-import { inventoryJsonPath } from "./JudgeIngest.ts";
+import { decodeJudgeInventory, inventoryJsonPath } from "./JudgeIngest.ts";
 import { QaCommandError } from "./Qa.errors.ts";
 import { qaRootPath, readEventLog } from "./Qa.session.ts";
 import type { CliReportedExit } from "../../internal/cli/ExitCodeError.ts";
@@ -68,22 +62,9 @@ export const runQaJudgeLint = Effect.fn("QaJudgeLint.run")(function* (
         `qa judge-lint could not read ${inventoryPath}; run \`bun run beep qa judge-ingest --round ${options.round} --from <file>\` first.`
       )
     );
-  const decodeVerdict = yield* evaluateJudgeOutputInventoryDecodes(
-    JudgeOutputInventoryDecodesInput.make({ candidate: raw })
-  );
-  const inventory = yield* JudgeOutputInventoryDecodesVerdict.match(decodeVerdict, {
-    allowed: ({ audit }) => Effect.succeed(audit.detail.inventory),
-    denied: ({ audit }) =>
-      Effect.fail(
-        QaCommandError.make({
-          cause: audit.detail.issue,
-          message: JudgeOutputDecodeFailure.$match(audit.detail.failure, {
-            "inventory-schema-rejected": () =>
-              `qa judge-lint rejected ${inventoryPath} against the qa-inventory/v1 schema.`,
-            "malformed-json": () => `qa judge-lint could not parse ${inventoryPath} as JSON.`,
-          }),
-        })
-      ),
+  const inventory = yield* decodeJudgeInventory(raw, {
+    "inventory-schema-rejected": `qa judge-lint rejected ${inventoryPath} against the qa-inventory/v1 schema.`,
+    "malformed-json": `qa judge-lint could not parse ${inventoryPath} as JSON.`,
   });
   // A copied inventory can pass another round's cross-check (seqs restart per
   // round, frame names repeat), so round coherence is checked explicitly.

@@ -234,7 +234,7 @@ const getCanonicalDataset = (
   { readonly canonicalText: string; readonly dataset: ReturnType<typeof makeDataset> },
   CanonicalizationError
 > =>
-  CanonicalizationAlgorithm.$match(request.algorithm, {
+  CanonicalizationAlgorithm.match(request.algorithm, {
     "rdfc-1.0": () => canonicalizeSemantically(request.dataset.quads),
     "lexical-sort-v1": () => Effect.succeed(canonicalizeLexically(request.dataset.quads)),
   });
