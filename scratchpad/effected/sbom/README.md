@@ -18,7 +18,8 @@ All `@effected/*` packages are ESM-only: the exports maps publish only `import` 
 Generating an SBOM needs no layer, no service and no network call:
 
 ```ts
-import { Package, Sbom, SbomMetadataSource } from "@beep/scratchpad/effected/sbom/index";
+import type { Package } from "@beep/package-json/Package";
+import { Sbom, SbomMetadataSource } from "@beep/scratchpad/effected/sbom/index";
 
 declare const pkg: Package;
 
@@ -36,7 +37,7 @@ console.log(Sbom.toJson(document));
 
 Components are sorted by name so the document's digest — which becomes an attestation subject — does not change between runs over the same inputs for no reason.
 
-`Package`, `Person` and `Repository` come from `@beep/package-json` and are re-exported here, so naming the type `fromPackage` takes does not mean declaring a dependency you would not otherwise have. Inside `src/` the manifest types stay a type-only import; the entry point is the one place they cross as values.
+`fromPackage` takes a `Package` from `@beep/package-json`. This entry point does not re-export `Package`, `Person` or `Repository`; import them from `@beep/package-json` directly. The SBOM modules import the manifest types only, so they have no runtime edge to that package.
 
 ## NTIA compliance
 
