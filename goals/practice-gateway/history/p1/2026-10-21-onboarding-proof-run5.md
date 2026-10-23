@@ -76,3 +76,24 @@ offered as a repair.
 
 Operator steps this run: signing in to Claude Desktop (account
 credentials). There was no UAC prompt.
+
+## Follow-ups resolved (2026-10-22)
+
+Findings 6, 7 and 10 are fixed in gateway 0.1.3 and the matching
+`practice-setup`: a second bundle hand-off and watch, a permission-prompt note
+in the console hand-off and in onboarding skill Step 1, and BitLocker wording
+that follows the profile's admin rights. Finding 6 was not solved with a
+cookie check. Claude's `sessionKey` cookie carries a 28-day expiry, yet the
+session signed in on 10-14 had ended by 10-20, so the cookie cannot prove a
+live session.
+
+Checked on the proof VM (2026-10-22, `claude-signed-in` snapshot, gateway
+0.1.2 to 0.1.3, agent-driven): `practice-setup` finished all four steps, and
+the console showed the sign-in-first line and the "Always allow" note. Claude
+listed the gateway at 0.1.3. With the saved profile's `adminRights:
+available`, `--self-check` gives "Turn on BitLocker for drive C: open
+Settings, search for BitLocker (on some computers it is called Device
+encryption), turn it on, and approve the Windows prompt." The second hand-off
+needs an expired session, so it is covered by unit tests only. Claude's own
+"Make Claude Docs…" promo opened over the gateway dialog on this run; the
+lawyer has to close it first.

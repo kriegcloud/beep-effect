@@ -1,11 +1,14 @@
 import {
   CapabilityDeclined,
   CapabilitySupported,
+  ItLimits,
   PracticeProfile,
+  Remediation,
   SetupRequirementId,
 } from "@beep/law-practice-domain";
 import {
   baseRequirements,
+  bitLockerInstruction,
   profileSelects,
   RequirementCatalog,
   requirementsFor,
@@ -91,5 +94,26 @@ describe("requirementsFor", () => {
   it("marks Box Drive install and the Microsoft 365 sign-in page as the automatic remediations", () => {
     const automatic = A.filter(R.values(RequirementCatalog), (entry) => entry.remediation.kind === "automatic");
     expect(ids(automatic)).toEqual(["box-drive-installed", "m365-consented"]);
+  });
+
+  it("words the BitLocker step for the firm's admin rights", () => {
+    const instructionFor = (adminRights: ItLimits["adminRights"]) =>
+      O.flatMap(
+        A.findFirst(
+          requirementsFor(
+            PracticeProfile.make({ ...fullProfile, itLimits: ItLimits.make({ adminRights, proxy: "none" }) })
+          ),
+          (requirement) => requirement.id === "bitlocker-on"
+        ),
+        (requirement) =>
+          Remediation.guards["needs-human"](requirement.remediation)
+            ? O.some(requirement.remediation.instruction)
+            : O.none()
+      );
+    assertSome(instructionFor("available"), bitLockerInstruction("available"));
+    assertSome(instructionFor("blocked"), "Ask your IT administrator to turn on BitLocker for drive C:.");
+    assertSome(instructionFor("unknown"), bitLockerInstruction("unknown"));
+    expect(bitLockerInstruction("available")).not.toContain("IT administrator");
+    expect(bitLockerInstruction("unknown")).toContain("IT administrator");
   });
 });

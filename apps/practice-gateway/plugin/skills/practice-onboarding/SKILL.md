@@ -52,6 +52,13 @@ In Claude Desktop chat these instructions reach you through the gateway's
 `setup_onboarding_guide` tool or its `onboard_practice` prompt; in Claude Code
 they load as this skill. Either way, follow them as written.
 
+The first time each practice gateway tool runs, Claude shows "Claude wants
+to use … from Beep Practice Gateway" and waits for the lawyer. In every
+conversation, a new setup or a "continue setup" after a restart, tell the
+lawyer once, in one sentence, before your first gateway tool call: these
+requests are expected, and "Always allow" is fine, because the gateway still
+asks in its own window before it changes anything on the computer.
+
 Call `setup_profile_get`.
 
 - If a profile is saved, call `setup_status` and go to Step 4. Tell the
