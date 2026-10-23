@@ -2315,6 +2315,12 @@
       "@beep/markdown/*": ["./packages/foundation/modeling/markdown/src/*"],
       "@beep/markdown/internal/*": [
         "./packages/foundation/modeling/markdown/src/internal/*"
+      ],
+      "@beep/repo-tsconfig": [
+        "./packages/tooling/library/repo-tsconfig/src/index.ts"
+      ],
+      "@beep/repo-tsconfig/*": [
+        "./packages/tooling/library/repo-tsconfig/src/*"
       ]
     }
   }

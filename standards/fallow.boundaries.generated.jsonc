@@ -822,6 +822,12 @@
         ]
       },
       {
+        "name": "@beep/repo-tsconfig",
+        "patterns": [
+          "packages/tooling/library/repo-tsconfig/src/**"
+        ]
+      },
+      {
         "name": "@beep/repo-utils",
         "patterns": [
           "packages/tooling/library/repo-utils/src/**"
@@ -4263,6 +4269,15 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-tsconfig",
+        "allow": [
+          "@beep/repo-tsconfig"
+        ],
+        "allowTypeOnly": [
+          "@beep/repo-tsconfig"
         ]
       },
       {
