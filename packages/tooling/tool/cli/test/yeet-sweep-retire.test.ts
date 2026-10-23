@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
   WorktreeInotifyWatcher,
@@ -370,7 +371,7 @@ const retireMergedLane = (repoRoot: string, lane: string) =>
     })
   );
 
-const RETIRE_FENCE_INVOKER = new URL("./support/RetireFenceInvoker.ts", import.meta.url).pathname;
+const RETIRE_FENCE_INVOKER = NodeURL.fileURLToPath(new URL("./support/RetireFenceInvoker.ts", import.meta.url));
 
 const RetireInvokerOutcome = S.Struct({ ok: S.Boolean, message: S.String });
 const decodeRetireInvokerOutcome = S.decodeUnknownEffect(S.fromJsonString(RetireInvokerOutcome));

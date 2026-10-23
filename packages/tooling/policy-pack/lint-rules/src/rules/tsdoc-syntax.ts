@@ -5,6 +5,7 @@
  * @since 0.1.0
  */
 
+import * as NodeURL from "node:url";
 import { $LintRulesId } from "@beep/identity/packages";
 import { TextRange, TSDocConfiguration, TSDocParser } from "@microsoft/tsdoc";
 import { TSDocConfigFile } from "@microsoft/tsdoc-config";
@@ -29,7 +30,7 @@ class TSDocConfigurationError extends S.TaggedError<TSDocConfigurationError, { r
 const loadConfiguration = Effect.fn("Docs.loadTSDocConfiguration")(function* () {
   const file = yield* Effect.try({
     try: () =>
-      TSDocConfigFile.loadFile(decodeURIComponent(new URL("../../../../../../tsdoc.json", import.meta.url).pathname)),
+      TSDocConfigFile.loadFile(NodeURL.fileURLToPath(new URL("../../../../../../tsdoc.json", import.meta.url))),
     catch: (cause) => TSDocConfigurationError.make({ message: "Error loading repository TSDoc configuration.", cause }),
   });
   if (file.fileNotFound || file.hasErrors) {
