@@ -2,8 +2,12 @@
  * `@beep/repo-tsconfig` differential (wave 3-2, W3-c).
  *
  * Compares `TsconfigLoader.resolve` against `tsc --showConfig` (the authority, `@typescript/native`, which
- * stays installed) and, with `--three-way`, against `get-tsconfig` `parseTsconfig` (run while it is still
- * installed; the drop commit removes it from the catalog).
+ * stays installed) and, with `--three-way`, against `get-tsconfig` `parseTsconfig`. The drop commit removes
+ * get-tsconfig from the root catalog and repo-cli, so after it `--three-way` works only while drizzle-kit
+ * keeps get-tsconfig@4.14.3 hoisted into the root `node_modules` (no declared dependency remains).
+ *
+ * The report records `commit` (HEAD) and `dirty` (uncommitted changes when the run started); a committed
+ * report should come from a clean tree so `commit` names the script version that produced it.
  *
  * Corpus A is every git-tracked `*tsconfig*.json` outside packet research output. It compares the fields the repo-cli adopters read:
  * `references` (absolute and realpathed), `include` / `exclude` / `files` (absolute against the top config),
@@ -459,6 +463,9 @@ const program = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const commit = Str.trim(yield* spawner.string(ChildProcess.make("git", ["rev-parse", "HEAD"], { cwd: repoRoot })));
+  const dirty = Str.isNonEmpty(
+    Str.trim(yield* spawner.string(ChildProcess.make("git", ["status", "--porcelain"], { cwd: repoRoot })))
+  );
   const tscVersion = Str.trim((yield* run(tscBin, ["--version"])).stdout);
   const a = yield* corpusA();
   const b = yield* Effect.scoped(corpusB());
@@ -469,6 +476,7 @@ const program = Effect.gen(function* () {
   const report = {
     tool: "goals/effected-promotion/ops/repo-tsconfig-differential.ts",
     commit,
+    dirty,
     tsc: tscVersion,
     mode: threeWay ? "three-way (loader, get-tsconfig, tsc)" : "two-way (loader, tsc)",
     fields: { againstTsc: FIELDS, againstGetTsconfigAlso: ["plugins"] },
