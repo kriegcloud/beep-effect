@@ -79,9 +79,10 @@ describe("ImportGraph.runtimeImportsOf", () => {
       '  return `from "@beep/markdown"`;',
       "}",
       'import Default, { value } from "./real.ts";',
-      'export * as ns from "./namespace.ts";'
+      'export * as ns from "./namespace.ts";',
+      'export{compact}from"./compact.ts";'
     );
-    expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual(["./real.ts", "./namespace.ts"]);
+    expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual(["./real.ts", "./namespace.ts", "./compact.ts"]);
   });
 
   it("ignores a side-effect import that does not start a line and a dynamic import of a non-literal", () => {
