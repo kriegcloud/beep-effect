@@ -97,6 +97,7 @@ them and record each in the Decision Log.
 | 2026-10-23 | Option-valued exception spelled as an explicit local helper (`OptionFromLexicalUndefinedOr`) | `S.OptionFromOptionalKey(S.UndefinedOr(X))` would decode `undefined` to `Some(undefined)`; the helper mirrors upstream `OptionFromOptional` without the banned symbol | Replace with `S.OptionFromOptional` under a rule exemption |
 | 2026-10-23 | `ApiTransportDurationObject` keeps `UndefinedOr` | It mirrors effect's `Duration.DurationObject`, whose members admit `undefined` | Make exact once effect's `DurationObject` does |
 | 2026-10-23 | FileDiff's `optionalUndefined` helper deleted | Its only purpose was decoded-side `undefined` | Restore the helper from `9e3aff5de8^` |
+| 2026-10-23 | Publish past the cheap-gate `fallow:audit` red; attribute it under S11 | 19 duplication groups are pre-existing clones the codemod rename touched (0 hand-edited files; receipt in `research/OPPORTUNITIES.md`); operator ruling | Add reasoned `fallow-ignore-next-line code-duplication` suppressions, or land the dedupe follow-up first |
 | 2026-10-23 | Codemod pairing covers companion interfaces, not only type aliases | Lexical companions are `interface Encoded`; found on the first run, fixed in the rule and re-run from a clean tree | n/a |
 
 ## Exception Ledger
