@@ -8,7 +8,8 @@
  * records per manifest:
  *
  * - the full-schema verdict against the vendored CycloneDX 1.6 schema, through
- *   the package's own `ajv` validator (`test/support/cyclonedx.ts`);
+ *   an `ajv` validator built here over the package's vendored schema file
+ *   (read as data, so this script imports nothing from the package's tests);
  * - the `NtiaReport` verdict and its missing elements;
  * - byte stability: two generations from the same manifest serialize to the
  *   same bytes.
@@ -30,6 +31,8 @@ import { Sbom } from "@beep/sbom/Sbom";
 import { SbomMetadataSource } from "@beep/sbom/SbomMetadataSource";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { Ajv } from "ajv";
+import { fullFormats } from "ajv-formats/dist/formats.js";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Data from "effect/Data";
@@ -45,7 +48,6 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { cycloneDxViolations } from "../../../packages/foundation/modeling/sbom/test/support/cyclonedx.ts";
 
 // --- report schema ------------------------------------------------------------
 
@@ -98,6 +100,38 @@ const parseJson = S.decodeUnknownResult(S.fromJsonString(S.Unknown));
 
 class CorpusGateFailed extends Data.TaggedError("CorpusGateFailed")<{ readonly message: string }> {}
 
+// --- validator ----------------------------------------------------------------
+
+/** The vendored CycloneDX 1.6 schema, read as data; `test/fixtures/VENDORED.md` pins its bytes by sha256. */
+const VENDORED_SCHEMA = "packages/foundation/modeling/sbom/test/fixtures/bom-1.6.SNAPSHOT.schema.json";
+
+const SchemaDocument = S.Record(S.String, S.Unknown);
+const decodeSchema = S.decodeEffect(S.fromJsonString(SchemaDocument));
+
+/** One emitted document's full-schema violations, as `<instancePath> <keyword>` lines; empty when valid. */
+type Violations = (document: unknown) => ReadonlyArray<string>;
+
+/**
+ * The full-schema validator, with the same recorded stand-ins and format
+ * registrations as the package's `test/support/cyclonedx.ts` (VENDORED.md
+ * records why): the SPDX and JSF sibling schemas are not vendored yet, and
+ * `ajv-formats` implements neither `idn-email` nor `iri-reference`.
+ */
+const violationsAgainst = (schema: typeof SchemaDocument.Type): Violations => {
+  const validator = new Ajv({
+    allErrors: true,
+    strict: false,
+    formats: { ...fullFormats, "iri-reference": true, "idn-email": true },
+  })
+    .addSchema({ $id: "http://cyclonedx.org/schema/jsf-0.82.SNAPSHOT.schema.json", definitions: { signature: {} } })
+    .addSchema({ $id: "http://cyclonedx.org/schema/spdx.SNAPSHOT.schema.json", type: "string" })
+    .compile(schema);
+  return (document) =>
+    validator(document)
+      ? A.empty()
+      : A.map(validator.errors ?? [], ({ instancePath, keyword }) => `${instancePath} ${keyword}`);
+};
+
 // --- census -------------------------------------------------------------------
 
 const repoRoot = new URL("../../..", import.meta.url).pathname;
@@ -120,7 +154,11 @@ const sbomOf = (pkg: Package) =>
     metadata: SbomMetadataSource.fromPackage(pkg, { timestamp: TIMESTAMP }),
   });
 
-const censusOne = Effect.fn("SbomCorpus.censusOne")(function* (path: string, text: string) {
+const censusOne = Effect.fn("SbomCorpus.censusOne")(function* (
+  cycloneDxViolations: Violations,
+  path: string,
+  text: string
+) {
   const decoded = yield* decodeJson(text).pipe(Effect.flatMap(Package.decode), Effect.option);
   if (O.isNone(decoded)) {
     const rejected: ManifestRow = { path, verdict: "package-rejected" };
@@ -173,8 +211,11 @@ const program = Effect.gen(function* () {
     A.filter(Str.split(listing, "\u0000"), (path) => path === "package.json" || Str.endsWith("/package.json")(path)),
     Order.String
   );
+  const violations = violationsAgainst(
+    yield* fileSystem.readFileString(`${repoRoot}${VENDORED_SCHEMA}`).pipe(Effect.flatMap(decodeSchema))
+  );
   const rows = yield* Effect.forEach(paths, (path) =>
-    fileSystem.readFileString(`${repoRoot}${path}`).pipe(Effect.flatMap((text) => censusOne(path, text)))
+    fileSystem.readFileString(`${repoRoot}${path}`).pipe(Effect.flatMap((text) => censusOne(violations, path, text)))
   );
   const commit = yield* spawner.string(ChildProcess.make("git", ["rev-parse", "HEAD"], { cwd: repoRoot })).pipe(
     Effect.map(Str.trim),
