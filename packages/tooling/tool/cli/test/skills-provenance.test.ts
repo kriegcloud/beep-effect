@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import {
   decodeSkillEffective,
   decodeSkillLicense,
@@ -68,7 +69,7 @@ import type { SkillMigrationRow, VendoredMigrationRow } from "@beep/repo-cli/com
 
 const PINNED_SHADCN_REVISION = "91f21dfe1328585670275781b4525fff2507f917";
 
-const fixtureRoot = new URL("./fixtures/skills-provenance", import.meta.url).pathname;
+const fixtureRoot = fileURLToPath(new URL("./fixtures/skills-provenance", import.meta.url));
 const textEncoder = new TextEncoder();
 const emptyDigest = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const hashBytes = S.decodeUnknownEffect(Sha256HexFromBytes);

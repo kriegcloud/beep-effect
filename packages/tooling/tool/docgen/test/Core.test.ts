@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import * as Core from "@beep/repo-docgen/Core";
 import { it } from "@beep/test-runner";
 import * as BunServices from "@effect/platform-bun/BunServices";
@@ -11,8 +12,8 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 
-const fixturePath = new URL("./fixtures/section-example/", import.meta.url).pathname;
-const docgenBinPath = new URL("../src/bin.ts", import.meta.url).pathname;
+const fixturePath = fileURLToPath(new URL("./fixtures/section-example/", import.meta.url));
+const docgenBinPath = fileURLToPath(new URL("../src/bin.ts", import.meta.url));
 
 const expectFencedCode = (
   markdown: string,

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import * as Result from "effect/Result";
 import * as A from "@beep/utils/Array";
 import type * as CauseType from "effect/Cause";
@@ -176,7 +177,7 @@ interface Frame {
 const asPath = (location: string): string | undefined => {
   if (location.startsWith("file:")) {
     return Result.getOrElse(Result.try(() => {
-      const path = decodeURIComponent(new URL(location).pathname);
+      const path = fileURLToPath(new URL(location));
       return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
     }), () => undefined);
   }

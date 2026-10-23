@@ -1,9 +1,10 @@
 /** Validate one complete design surface for every qualified inventory record. */
+import { fileURLToPath } from "node:url";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const inventoryPath = `${repoRoot}goals/boolean-creep/data/inventory.jsonl`;
 const InventoryDesignKey = S.Struct({
   id: S.NonEmptyString,

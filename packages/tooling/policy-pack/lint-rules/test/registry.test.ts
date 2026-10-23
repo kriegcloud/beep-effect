@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { RULE_NAMES, RULES, RuleRegistrySchema, rulePath, rulesDir } from "@beep/lint-rules";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { it } from "@beep/test-runner";
@@ -28,9 +29,47 @@ const decodeRuleRegistry = S.decodeUnknownEffect(RuleRegistrySchema);
 const encodeRuleRegistry = S.encodeEffect(RuleRegistrySchema);
 
 /** Repo root (five levels up from `test/registry.test.ts`). */
-const repoRoot = decodeURIComponent(new URL("../../../../../", import.meta.url).pathname);
+const repoRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
 
 describe("rule registry", () => {
+  it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) =>
+    it.effect("resolves rule paths from a checkout containing spaces, Unicode and percent escapes", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        yield* Effect.acquireUseRelease(
+          fs.makeTempDirectory({ prefix: "beep file URL 雪 %20 " }),
+          (root) =>
+            Effect.gen(function* () {
+              const sourceDir = path.join(root, "src");
+              yield* fs.makeDirectory(sourceDir);
+              yield* fs.copyFile(
+                path.join(repoRoot, "packages/tooling/policy-pack/lint-rules/src/index.ts"),
+                path.join(sourceDir, "index.ts")
+              );
+              yield* fs.symlink(path.join(repoRoot, "node_modules"), path.join(root, "node_modules"));
+              const result = yield* Effect.sync(() =>
+                Bun.spawnSync(
+                  [
+                    "bun",
+                    "-e",
+                    'const { rulePath, rulesDir } = await import(process.argv[1]); process.stdout.write(rulePath("no-file-url-pathname") + "\\n" + rulesDir());',
+                    path.join(sourceDir, "index.ts"),
+                  ],
+                  { cwd: repoRoot, stdout: "pipe", stderr: "pipe" }
+                )
+              );
+              expect(result.exitCode, result.stderr.toString()).toBe(0);
+              expect(result.stdout.toString()).toBe(
+                path.join(root, "rules/no-file-url-pathname.grit") + "\n" + path.join(root, "rules") + path.sep
+              );
+            }),
+          (root) => fs.remove(root, { recursive: true, force: true }).pipe(Effect.orDie)
+        );
+      })
+    )
+  );
+
   it("RULES keys match RULE_NAMES exactly", () => {
     expect(R.keys(RULES).sort()).toEqual(sortedRuleNames);
   });
@@ -80,6 +119,13 @@ describe("rule registry", () => {
     "preserves the encoded rule registry wire shape",
     Effect.fnUntraced(function* () {
       expect(yield* encodeRuleRegistry(RuleRegistrySchema.make(RULES))).toEqual({
+        "no-file-url-pathname": {
+          name: "no-file-url-pathname",
+          severity: "error",
+          replaces: null,
+          summary: "Use fileURLToPath instead of pathname when converting module-relative file URLs to paths.",
+          scope: null,
+        },
         "no-native-error": {
           name: "no-native-error",
           severity: "error",

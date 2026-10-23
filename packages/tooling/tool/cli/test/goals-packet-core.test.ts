@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import {
   canonicalJsonText,
   canonicalJsonTextPretty,
@@ -49,7 +50,7 @@ const encodeUnknownPacketTraceEntryEffect = S.encodeUnknownEffect(PacketTraceEnt
 
 const testLayer = Layer.mergeAll(NodeServices.layer, PacketEventStoreLive.pipe(Layer.provideMerge(NodeServices.layer)));
 
-const FIXTURES_ROOT = new URL("./fixtures/packet-core", import.meta.url).pathname;
+const FIXTURES_ROOT = fileURLToPath(new URL("./fixtures/packet-core", import.meta.url));
 const GOLDEN_PATH = `${FIXTURES_ROOT}/golden-linear`;
 const FORKED_PATH = `${FIXTURES_ROOT}/forked`;
 const RISK_OVERRIDE_PATH = `${FIXTURES_ROOT}/risk-override`;

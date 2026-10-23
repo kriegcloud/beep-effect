@@ -1,9 +1,11 @@
 #!/usr/bin/env bun
 
+import { fileURLToPath } from "node:url";
+
 type JsonRecord = Record<string, unknown>;
 
 const textDecoder = new TextDecoder();
-const repoRoot = new URL("../../../", import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 // Post-remediation contract (goals/fallow-zero-dead-code): the audit lane is
 // blocking under the new-only gate, so a clean branch must introduce no

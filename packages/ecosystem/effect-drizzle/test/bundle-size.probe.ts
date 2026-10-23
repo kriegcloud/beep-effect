@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { BunRuntime } from "@effect/platform-bun";
 import { layer as bunServicesLayer } from "@effect/platform-bun/BunServices";
 import { findFirst, join } from "effect/Array";
@@ -22,7 +23,7 @@ import { buildBundleConsumer, bundleConsumerEntrypointId, esbuildVersion } from 
 import committedBaseline from "./bundle-size.baseline.json" with { type: "json" };
 import { compareBundleSize, formatBundleSizeLine, minimumBundleRawBytes } from "./bundle-size.ts";
 
-const baselinePath = new URL("./bundle-size.baseline.json", import.meta.url).pathname;
+const baselinePath = fileURLToPath(new URL("./bundle-size.baseline.json", import.meta.url));
 const testBaselineArgumentPrefix = "--test-baseline-raw-bytes=";
 
 class BundleProbeError extends TaggedError<BundleProbeError, { readonly brand: unique symbol }>(

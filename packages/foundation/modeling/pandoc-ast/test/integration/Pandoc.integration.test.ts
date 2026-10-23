@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { decodePandocJsonString, encodePandocJsonString } from "@beep/pandoc-ast/Pandoc.codec";
 import { documentToPandoc, pandocToDocument } from "@beep/pandoc-ast/Pandoc.mapping";
 import { PandocDocument } from "@beep/pandoc-ast/Pandoc.model";
@@ -14,7 +15,7 @@ const PandocDocumentEquivalence = S.toEquivalence(PandocDocument);
 const fixture = Effect.fn("PandocIntegrationTest.fixture")((name: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    return yield* fs.readFileString(new URL(`../fixtures/${name}`, import.meta.url).pathname);
+    return yield* fs.readFileString(fileURLToPath(new URL(`../fixtures/${name}`, import.meta.url)));
   })
 );
 

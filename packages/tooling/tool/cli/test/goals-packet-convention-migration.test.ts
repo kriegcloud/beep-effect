@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import {
   applyPacketGenesisSeed,
   foldPacketEvents,
@@ -55,7 +56,7 @@ import {
 
 const mutationLayer = PacketForkRepairApplierLive.pipe(Layer.provideMerge(PacketEventStoreLive));
 const testLayer = Layer.mergeAll(NodeServices.layer, mutationLayer.pipe(Layer.provideMerge(NodeServices.layer)));
-const FORKED_PATH = new URL("./fixtures/packet-core/forked", import.meta.url).pathname;
+const FORKED_PATH = fileURLToPath(new URL("./fixtures/packet-core/forked", import.meta.url));
 const encodeJsonResult = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 const encodeJson = (value: unknown): string => Result.getOrThrow(encodeJsonResult(value));
 const runMigration = Command.runWith(goalsMigrateConventionsCommand, { version: "0.0.0" });

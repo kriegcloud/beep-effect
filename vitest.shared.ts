@@ -5,6 +5,7 @@
 
 import * as NodeFS from "node:fs";
 import * as NodePath from "node:path";
+import { fileURLToPath } from "node:url";
 import { A, P, Str, Struct } from "@beep/utils";
 import * as Doctest from "@effect/doctest/Plugin";
 import * as Config from "effect/Config";
@@ -166,7 +167,7 @@ const coverageThresholds = undefined;
 const escapeRegExp = Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const toAliasEntry = (find: string, replacement: string): AliasEntry => {
-  const absoluteReplacement = new URL(replacement, projectRootDirectory).pathname;
+  const absoluteReplacement = fileURLToPath(new URL(replacement, projectRootDirectory));
 
   if (!Str.includes("*")(find)) {
     return {
@@ -257,7 +258,7 @@ const config: ViteUserConfig = {
       "**/node_modules/**",
       ...(vitestDoctestActive ? ["**/test/fixtures/**", "**/*.d.ts"] : []),
     ],
-    setupFiles: [new URL("./vitest.setup.ts", import.meta.url).pathname],
+    setupFiles: [fileURLToPath(new URL("./vitest.setup.ts", import.meta.url))],
     // V8 gates Float16Array behind --js-float16array below Node 24 and rejects
     // that flag inside NODE_OPTIONS, so the coverage lane's Node 22 runtime can
     // only receive it as real argv. Granting it to forked test workers scopes

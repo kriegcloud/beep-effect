@@ -1,6 +1,7 @@
 /** Real-file SQLite execution proofs for the round-seven dialect. */
 
 import { Database } from "bun:sqlite";
+import { fileURLToPath } from "node:url";
 import { makeNativeRepository, VersionConflictError } from "@beep/effect-drizzle";
 import { it } from "@beep/test-runner";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -86,9 +87,9 @@ const invokeFindMany = (query: unknown, config: unknown): Promise<unknown> => {
   return Promise.reject(new Error("SQLite RQBv2 findMany is unavailable"));
 };
 
-const repositoryRoot = new URL("../../../../../", import.meta.url).pathname;
+const repositoryRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
 const schemaPath = "packages/ecosystem/effect-drizzle/test/integration/sqlite-drizzle-schema.ts";
-const preloadPath = new URL("./drizzle-kit-sqlite-rc-compat.cjs", import.meta.url).pathname;
+const preloadPath = fileURLToPath(new URL("./drizzle-kit-sqlite-rc-compat.cjs", import.meta.url));
 
 // drizzle-kit needs Node's CJS module loader, but under `bunx --bun vitest`
 // every PATH entry named `node` (including `/usr/bin/env node`) resolves to

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { makeStrictSpool, StrictSpoolKey, StrictSpoolOptions } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
@@ -370,10 +371,10 @@ describe("bundle graph", () => {
     "proves the host entrypoint cannot reach the OpenTelemetry SDK or the observability server",
     () =>
       Effect.gen(function* () {
-        const inputs = yield* assertBundleGraph(new URL("../src/bin.ts", import.meta.url).pathname);
+        const inputs = yield* assertBundleGraph(fileURLToPath(new URL("../src/bin.ts", import.meta.url)));
         expect(inputs).toBeGreaterThan(100);
         const refused = yield* Effect.flip(
-          assertBundleGraph(new URL("./fixtures/experimental-server-entry.ts", import.meta.url).pathname)
+          assertBundleGraph(fileURLToPath(new URL("./fixtures/experimental-server-entry.ts", import.meta.url)))
         );
         expect(refused).toBeInstanceOf(PackageFailure);
         expect(Str.includes("observability/src/experimental/server/")(refused.message)).toBe(true);

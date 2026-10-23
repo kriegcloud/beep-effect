@@ -11,6 +11,7 @@
  * @since 0.1.0
  */
 
+import { fileURLToPath } from "node:url";
 import { $LintRulesId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -27,6 +28,7 @@ const $I = $LintRulesId;
  * import { RULE_NAMES } from "@beep/lint-rules"
  *
  * deepStrictEqual(RULE_NAMES, [
+ *   "no-file-url-pathname",
  *   "no-native-error",
  *   "no-bigint-literals",
  *   "no-empty-named-blocks",
@@ -40,6 +42,7 @@ const $I = $LintRulesId;
  * @since 0.1.0
  */
 export const RULE_NAMES = [
+  "no-file-url-pathname",
   "no-native-error",
   "no-bigint-literals",
   "no-empty-named-blocks",
@@ -160,6 +163,7 @@ type RuleMetadata = RuleMetadataSchema;
  */
 export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly brand: unique symbol }>()(
   S.Struct({
+    "no-file-url-pathname": RuleMetadataSchema,
     "no-native-error": RuleMetadataSchema,
     "no-bigint-literals": RuleMetadataSchema,
     "no-empty-named-blocks": RuleMetadataSchema,
@@ -190,6 +194,13 @@ export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly 
  * @since 0.1.0
  */
 export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySchema.make({
+  "no-file-url-pathname": RuleMetadataSchema.make({
+    name: "no-file-url-pathname",
+    severity: "error",
+    replaces: O.none(),
+    summary: "Use fileURLToPath instead of pathname when converting module-relative file URLs to paths.",
+    scope: O.none(),
+  }),
   "no-native-error": RuleMetadataSchema.make({
     name: "no-native-error",
     severity: "error",
@@ -256,8 +267,7 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
  * @category configuration
  * @since 0.1.0
  */
-export const rulePath = (name: RuleName): string =>
-  decodeURIComponent(new URL(`../rules/${name}.grit`, import.meta.url).pathname);
+export const rulePath = (name: RuleName): string => fileURLToPath(new URL(`../rules/${name}.grit`, import.meta.url));
 
 /**
  * Absolute filesystem path to the directory holding the `.grit` rule files.
@@ -277,4 +287,4 @@ export const rulePath = (name: RuleName): string =>
  * @category configuration
  * @since 0.1.0
  */
-export const rulesDir = (): string => decodeURIComponent(new URL("../rules/", import.meta.url).pathname);
+export const rulesDir = (): string => fileURLToPath(new URL("../rules/", import.meta.url));

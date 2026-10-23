@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import {
   parseYeetReviewBodySignal,
   YeetReviewBodySignalInput,
@@ -15,7 +16,7 @@ import * as Str from "effect/String";
 
 const readFixture = Effect.fnUntraced(function* (name: string) {
   const fs = yield* FileSystem.FileSystem;
-  return yield* fs.readFileString(new URL(`./fixtures/pr-review-bodies/${name}`, import.meta.url).pathname);
+  return yield* fs.readFileString(fileURLToPath(new URL(`./fixtures/pr-review-bodies/${name}`, import.meta.url)));
 });
 
 const fixture = (name: string): Promise<string> =>

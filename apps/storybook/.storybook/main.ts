@@ -1,5 +1,6 @@
 import * as NodeModule from "node:module";
 import * as NodeURL from "node:url";
+import { fileURLToPath } from "node:url";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -9,7 +10,7 @@ import { mergeConfig } from "vite";
 import type { StorybookConfig } from "@storybook/react-vite";
 import type { Plugin, ServerOptions } from "vite";
 
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const require = NodeModule.createRequire(import.meta.url);
 const epistemicStories = NodeURL.fileURLToPath(
   new URL("./stories/**/*.stories.@(ts|tsx)", NodeURL.pathToFileURL(require.resolve("@beep/epistemic-ui/package.json")))

@@ -29,6 +29,7 @@
  * (also parse every git-tracked `*.md` file outside `scratchpad/` once and
  * record total ms and peak RSS; informational, never gated).
  */
+import { fileURLToPath } from "node:url";
 import { Markdown, MarkdownParseOptions } from "@beep/markdown/Markdown";
 import { InlineCode, Paragraph, Root, Text } from "@beep/markdown/MarkdownNode";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
@@ -152,8 +153,8 @@ const DEPTHS = A.make(32, 64, 128, 256);
 const NESTED_COPIES = 200;
 const CONFORMANCE_COPIES = 50;
 const WIDE_PARAGRAPHS = 5_000;
-const repoRoot = new URL("../../..", import.meta.url).pathname;
-const scriptPath = new URL(import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const scriptPath = fileURLToPath(new URL(import.meta.url));
 const packageRoot = `${repoRoot}packages/foundation/modeling/markdown`;
 const commonmark = MarkdownParseOptions.make({ dialect: "commonmark" });
 const gfm = MarkdownParseOptions.make({ dialect: "gfm" });

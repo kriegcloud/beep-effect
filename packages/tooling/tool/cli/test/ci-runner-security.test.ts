@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import {
   CI_LANE_DESCRIPTORS,
   CiOperationalPatterns,
@@ -1401,7 +1402,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
     "maps every hosted job to a descriptor or explicit orchestration exemption",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const root = new URL("../../../../..", import.meta.url).pathname;
+      const root = fileURLToPath(new URL("../../../../..", import.meta.url));
       const exemptions = [
         "check.yml:Heavy Admission",
         "check.yml:Heavy",

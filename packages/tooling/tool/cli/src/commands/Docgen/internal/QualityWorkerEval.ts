@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 
+import { fileURLToPath } from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
@@ -613,7 +614,7 @@ export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Opaque<
 
 const errorMessage = (error: unknown): string => cliErrorMessage(error, "Unknown worker eval failure.");
 
-const fileUrlPath = (value: string): string => decodeURIComponent(new URL(value).pathname);
+const fileUrlPath = (value: string): string => fileURLToPath(new URL(value));
 
 const providerHint = (provider: DocgenQualityWorkerEvalProvider): string =>
   Match.value(provider).pipe(

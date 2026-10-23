@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig, mergeConfig } from "vitest/config";
 import shared from "../../../../vitest.shared.ts";
 
@@ -9,7 +10,7 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      root: new URL(".", import.meta.url).pathname,
+      root: fileURLToPath(new URL(".", import.meta.url)),
       include: ["*.test.ts"],
       sequence: {
         concurrent: false,

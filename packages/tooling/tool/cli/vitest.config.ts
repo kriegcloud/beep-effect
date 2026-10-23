@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig, mergeConfig } from "vitest/config";
 import shared, { packageTestTimeout } from "../../../../vitest.shared.ts";
 
@@ -10,7 +11,7 @@ export default mergeConfig(
       isolate: true,
       exclude: ["test/fixtures/**"],
       fileParallelism: false,
-      globalSetup: [new URL("./test/global-cleanup.ts", import.meta.url).pathname],
+      globalSetup: [fileURLToPath(new URL("./test/global-cleanup.ts", import.meta.url))],
       sequence: {
         concurrent: false,
       },

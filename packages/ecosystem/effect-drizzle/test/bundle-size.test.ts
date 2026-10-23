@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -66,7 +67,7 @@ const acquireProbe = fnUntraced(function* (command: Array<string>) {
   return yield* acquireRelease(
     tryPromise(() => {
       const process = Bun.spawn(command, {
-        cwd: new URL("../", import.meta.url).pathname,
+        cwd: fileURLToPath(new URL("../", import.meta.url)),
         stdout: "pipe",
         stderr: "pipe",
       });
@@ -99,7 +100,7 @@ describe.runIf(hasBunSpawn)("bundle size probe process", () => {
       const baselineRawBytes = artifact.rawBytes - 1;
       const probe = yield* acquireProbe([
         Bun.which("bun") ?? "bun",
-        new URL("./bundle-size.probe.ts", import.meta.url).pathname,
+        fileURLToPath(new URL("./bundle-size.probe.ts", import.meta.url)),
         `--test-baseline-raw-bytes=${baselineRawBytes}`,
       ]);
       const [exitCode, stdout, stderr] = yield* tryPromise(() => Promise.all(probe.output)).pipe(
