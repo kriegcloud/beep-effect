@@ -42,7 +42,7 @@ Run from the repository root with `bun run apps/docket-intake/src/bin.ts <comman
 | `runs` | Prints one line per run in the write journal, newest first. Calls no provider. |
 | `undo --run <runId> [--dry-run] [--yes]` | Takes back one run's writes. Needs `--yes` unless `--dry-run`. `--run latest` picks the newest run. |
 | `smoke [--write]` | Read-only connection check; with `--write` it also creates, finds and deletes one test event. |
-| `backfill-questions [--apply]` | Makes stored review hub questions that do not say which email they are about name it. Counts only, unless `--apply`. |
+| `backfill-questions [--apply]` | Adds the email to stored review hub questions that do not name it. Prints counts; writes nothing without `--apply`. |
 
 - `poll` reads new mail, processes it, and writes every digest that is owed:
   one for each day that is over and not digested yet, earliest first. After
@@ -367,13 +367,15 @@ about, in this order, leaving out what is not known:
 Then come the flags, the dates the deadline could be, and the review rounds.
 The question text names the email by its subject. Each candidate date (the
 first reader's, the second reader's and the docket sheet's) is also an
-answer that moves the needs-review entry to that date.
+answer that moves the needs-review entry to that date, under the docket
+item's own title.
 
 The ledger keeps the subject, the sender, the Outlook link, the candidate
-dates and the matter on each needs-review record for this. The state file
-stays in the state directory; none of it is logged or put in the digest.
-Questions stored before 2026-10-22, whose ledger records are gone, are fixed
-with `backfill-questions`.
+dates, the matter and the item's title on each needs-review record for this.
+The state file stays in the state directory; none of it is logged or put in
+the digest. Questions stored before the service ran a revision whose
+questions name their email, whose ledger records are gone, are fixed with
+`backfill-questions`.
 
 ## Development
 

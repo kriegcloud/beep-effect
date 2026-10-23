@@ -953,10 +953,11 @@ export class DocketEntered extends S.Opaque<DocketEntered, { readonly brand: uni
  *
  * Besides ids and flags, the outcome keeps what the attorney needs to know
  * which email it is about: its subject, sender, day of receipt and Outlook
- * link, its thread, the dates the deadline could be, and the matter. Every
- * one of those keys is optional or defaults to empty, so ledger records
- * written before they existed still decode. The subject, the sender and the
- * matter are never logged.
+ * link, its thread, the dates the deadline could be, and the matter. It also
+ * keeps the docket item's title, the calendar title a date the attorney picks
+ * gives the entry. Every one of those keys is optional or defaults to empty,
+ * so ledger records written before they existed still decode. The subject,
+ * the sender, the title and the matter are never logged.
  *
  * **Example** (Read the outcome tag)
  *
@@ -987,6 +988,10 @@ export class DocketNeedsReview extends S.Opaque<DocketNeedsReview, { readonly br
     review: opt(ReviewVerdict, "Verdict of the review, when the item went through one."),
     sender: opt(S.NonEmptyString, "Sender address of the message (never logged)."),
     subject: opt(S.NonEmptyString, "Subject line of the message (never logged)."),
+    title: opt(
+      S.NonEmptyString,
+      "Title of the docket item, without the needs-review prefix: the calendar title a chosen date writes (never logged)."
+    ),
   }).pipe($I.annoteSchema("DocketNeedsReview", { description: "A docket item needs the attorney's review." }))
 ) {}
 
@@ -1057,12 +1062,12 @@ export type DocketIntakeOutcome = typeof DocketIntakeOutcome.Type;
  *
  * A settled record holds ids, dates and flags, and, for a needs-review
  * message, what identifies the email to the attorney: its subject, sender,
- * Outlook link, candidate dates and matter (see {@link DocketNeedsReview}).
- * The record stays in the state directory, and those fields are never
- * logged. While a review is still running, `review` holds its completed
- * rounds so a restart continues from the next round; a record that has
- * `review` is not settled, and the rounds are dropped when the message
- * settles.
+ * Outlook link, candidate dates, matter and the item's title (see
+ * {@link DocketNeedsReview}). The record stays in the state directory, and
+ * those fields are never logged. While a review is still running, `review`
+ * holds its completed rounds so a restart continues from the next round; a
+ * record that has `review` is not settled, and the rounds are dropped when
+ * the message settles.
  *
  * **Example** (Make a ledger record)
  *

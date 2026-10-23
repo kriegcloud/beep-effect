@@ -62,11 +62,12 @@ export class DocketQuestionPublisher extends Context.Service<
  * **Details**
  *
  * A needs-review record carries what it recorded about the email (subject,
- * sender, day received and Outlook link), its thread, the matter, the docket
- * and the candidate dates; the link to its needs-review calendar entry comes
- * from the entry itself. A record written before those keys existed carries
- * none of them, and its question says less. Every other outcome is passed on
- * alone: it raises no question.
+ * sender, day received and Outlook link), its thread, the matter, the docket,
+ * the candidate dates and the item's title, which a chosen date writes to the
+ * calendar; the link to its needs-review calendar entry comes from the entry
+ * itself. A record written before those keys existed carries none of them,
+ * and its question says less. Every other outcome is passed on alone: it
+ * raises no question.
  *
  * **Example** (Map a record that raises no question)
  *
@@ -102,6 +103,7 @@ export const questionInput = ({ outcome }: DocketLedgerRecord): DocketQuestionIn
         receivedDate: needsReview.receivedDate,
         sender: needsReview.sender,
         subject: needsReview.subject,
+        title: needsReview.title,
       }),
   });
 

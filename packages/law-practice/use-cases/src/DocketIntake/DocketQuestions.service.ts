@@ -75,7 +75,10 @@ const longDate = (date: LocalDate): string =>
 // Subjects and senders are shown on one line, whatever whitespace the mail carried.
 const oneLine = (text: string): string => Str.trim(Str.replace(/\s+/gu, " ")(text));
 
-const quoted = (subject: string): string => `"${oneLine(subject)}"`;
+// A text a question shows: on one line, and none when nothing is left of it.
+const shown = (text: O.Option<string>): O.Option<string> => O.filter(O.map(text, oneLine), Str.isNonEmpty);
+
+const quoted = (subject: string): string => `"${subject}"`;
 
 // The question names the email by its subject when it is known, and says "a message" otherwise.
 const questionText = (reason: DocketNeedsReview["reason"], subject: O.Option<string>): string => {
@@ -208,11 +211,22 @@ const EMAIL_WAS = "The email was ";
 const OPEN_EMAIL = "Open the email in Outlook: ";
 const NEEDS_REVIEW_ENTRY = "The message is on the calendar as a needs-review entry.";
 
+// What a question shows of an email: its texts on one line, without the ones that are blank, so a
+// subject of only spaces reads as no subject.
+const shownEmail = (email: DocketQuestionEmail): DocketQuestionEmail =>
+  DocketQuestionEmail.make({
+    messageLink: shown(email.messageLink),
+    receivedDate: email.receivedDate,
+    sender: shown(email.sender),
+    subject: shown(email.subject),
+  });
+
 // "The email is "<subject>" from <sender>, received <date>.", leaving out the parts that are missing.
+// It takes an email `shownEmail` made.
 const emailSentence = (email: DocketQuestionEmail): O.Option<string> => {
   const received = O.map(email.receivedDate, (date) => `received ${longDate(date)}`);
   const named = A.join(
-    A.getSomes([O.map(email.subject, quoted), O.map(email.sender, (sender) => `from ${oneLine(sender)}`)]),
+    A.getSomes([O.map(email.subject, quoted), O.map(email.sender, (sender) => `from ${sender}`)]),
     " "
   );
   return Str.isNonEmpty(named)
@@ -225,15 +239,21 @@ const emailFacts = (email: DocketQuestionEmail): ReadonlyArray<QuestionFact> =>
   A.map(A.getSomes([emailSentence(email), O.map(email.messageLink, (link) => `${OPEN_EMAIL}${link}`)]), plainFact);
 
 const emailOf = (input: DocketQuestionInput): DocketQuestionEmail =>
-  DocketQuestionEmail.make({
-    messageLink: input.messageLink,
-    receivedDate: input.receivedDate,
-    sender: input.sender,
-    subject: input.subject,
-  });
+  shownEmail(
+    DocketQuestionEmail.make({
+      messageLink: input.messageLink,
+      receivedDate: input.receivedDate,
+      sender: input.sender,
+      subject: input.subject,
+    })
+  );
 
-const questionFacts = (input: DocketQuestionInput, needsReview: DocketNeedsReview): ReadonlyArray<QuestionFact> => [
-  ...emailFacts(emailOf(input)),
+const questionFacts = (
+  email: DocketQuestionEmail,
+  input: DocketQuestionInput,
+  needsReview: DocketNeedsReview
+): ReadonlyArray<QuestionFact> => [
+  ...emailFacts(email),
   plainFact(
     O.match(input.entryLink, {
       onNone: () => NEEDS_REVIEW_ENTRY,
@@ -258,12 +278,13 @@ const questionFor = (
   itemId: ReviewItemId
 ): QuestionReviewItem => {
   const nonWriting = nonWritingOptions(needsReview.reason);
+  const email = emailOf(input);
   return ReviewItem.cases.question.make({
     itemId,
-    text: questionText(needsReview.reason, input.subject),
+    text: questionText(needsReview.reason, email.subject),
     label: O.some("Docket intake"),
     sourceRefs: input.sourceRefs,
-    facts: questionFacts(input, needsReview),
+    facts: questionFacts(email, input, needsReview),
     options: [...dateOptions(input, needsReview, MAX_OPTIONS - A.length(nonWriting)), ...nonWriting],
     docket: input.docket,
     conversationId: input.conversationId,
@@ -279,14 +300,15 @@ const questionFor = (
  * entered, non-docket and failed outcomes give none. The question asks the
  * reason's plain-language question, naming the email by its subject when the
  * input has one. Its facts are, in order: which email it is (subject, sender
- * and day received, leaving out what is missing), the link that opens the
- * email in Outlook, the link to its needs-review calendar entry (or a plain
- * mention of the entry without one), the matter, each flag, each candidate
- * date (with the input's source documents) and the review rounds. Links live
- * in the fact text because a source reference names Box files only. Its
- * options are one calendar write per distinct candidate date,
- * earliest first, each moving the needs-review entry to that date, followed by
- * the reason's answers that write nothing; there are two to five in all.
+ * and day received, each on one line, leaving out what is missing or blank),
+ * the link that opens the email in Outlook, the link to its needs-review
+ * calendar entry (or a plain mention of the entry without one), the matter,
+ * each flag, each candidate date (with the input's source documents) and the
+ * review rounds. Links live in the fact text because a source reference
+ * names Box files only. Its options are one calendar write per distinct
+ * candidate date, earliest first, each moving the needs-review entry to that
+ * date under the input's title, followed by the reason's answers that write
+ * nothing; there are two to five in all.
  *
  * **Example** (Raise no question for a non-docket message)
  *
@@ -352,6 +374,22 @@ export const docketQuestionNamesEmail = (item: QuestionReviewItem): boolean =>
     ({ text }) => Str.startsWith(EMAIL_IS)(text) || Str.startsWith(EMAIL_WAS)(text) || Str.startsWith(OPEN_EMAIL)(text)
   );
 
+// A stored question with the facts naming its email first, asked again naming it by its subject.
+const namedQuestion = (item: QuestionReviewItem, email: DocketQuestionEmail): QuestionReviewItem =>
+  ReviewItem.cases.question.make({
+    itemId: item.itemId,
+    text: O.match(decodeItemId(item.itemId), {
+      onNone: () => item.text,
+      onSome: ([, reason]) => questionText(reason, email.subject),
+    }),
+    label: item.label,
+    sourceRefs: item.sourceRefs,
+    facts: [...emailFacts(email), ...item.facts],
+    options: item.options,
+    docket: item.docket,
+    conversationId: item.conversationId,
+  });
+
 /**
  * A stored docket question rewritten to say which email it is about.
  *
@@ -396,21 +434,7 @@ export const withDocketQuestionEmail: {
 } = dual(
   2,
   (item: QuestionReviewItem, email: DocketQuestionEmail): QuestionReviewItem =>
-    docketQuestionNamesEmail(item)
-      ? item
-      : ReviewItem.cases.question.make({
-          itemId: item.itemId,
-          text: O.match(decodeItemId(item.itemId), {
-            onNone: () => item.text,
-            onSome: ([, reason]) => questionText(reason, email.subject),
-          }),
-          label: item.label,
-          sourceRefs: item.sourceRefs,
-          facts: [...emailFacts(email), ...item.facts],
-          options: item.options,
-          docket: item.docket,
-          conversationId: item.conversationId,
-        })
+    docketQuestionNamesEmail(item) ? item : namedQuestion(item, shownEmail(email))
 );
 
 /**
@@ -427,8 +451,19 @@ export const withDocketQuestionEmail: {
  *
  * ```ts
  * import { docketQuestionDigest } from "@beep/law-practice-use-cases/DocketIntake"
+ * import * as Crypto from "effect/Crypto"
+ * import * as Effect from "effect/Effect"
  *
- * console.log(docketQuestionDigest("message-1"))
+ * const webCrypto = Crypto.make({
+ *   digest: (algorithm, data) =>
+ *     Effect.promise(() => globalThis.crypto.subtle.digest(algorithm, new Uint8Array(data))).pipe(
+ *       Effect.map((buffer) => new Uint8Array(buffer))
+ *     ),
+ *   randomBytes: (size) => globalThis.crypto.getRandomValues(new Uint8Array(size))
+ * })
+ *
+ * const program = docketQuestionDigest("message-1").pipe(Effect.provideService(Crypto.Crypto, webCrypto))
+ * Effect.runPromise(program).then(console.log) // "9deb880b43bdf6f465a0afb130aed71b"
  * ```
  *
  * @category utilities

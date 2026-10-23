@@ -11,14 +11,13 @@ import { $DocketIntakeId } from "@beep/identity/packages";
 import { ReviewItem } from "@beep/law-practice-domain";
 import {
   DocketJournalKind,
-  docketDayInZone,
+  docketQuestionEmailOf,
   readDocketJournal,
   readDocketStateFile,
 } from "@beep/law-practice-server/DocketIntake";
 import {
   DocketIntakeError,
   DocketIntakeOutcome,
-  DocketQuestionEmail,
   DocketQuestionItemId,
   docketQuestionDigest,
   docketQuestionNamesEmail,
@@ -27,7 +26,6 @@ import {
 import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
 import { M365, M365GetMessageRequest } from "@beep/m365";
 import * as A from "effect/Array";
-import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -35,11 +33,11 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type { DocketJournalEntry } from "@beep/law-practice-server/DocketIntake";
-import type { DocketIntakeState } from "@beep/law-practice-use-cases/DocketIntake";
+import type { DocketIntakeState, DocketQuestionEmail } from "@beep/law-practice-use-cases/DocketIntake";
 import type { QuestionReviewItem } from "@beep/law-practice-use-cases/QuestionQueue";
-import type { GraphMessage, M365Error, M365Shape } from "@beep/m365";
+import type { M365Error, M365Shape } from "@beep/m365";
+import type * as DateTime from "effect/DateTime";
 import type { DocketIntakeAppConfig } from "./Config.ts";
 
 const $I = $DocketIntakeId.create("Backfill");
@@ -109,7 +107,7 @@ const unnamedOf = (item: ReviewItem): O.Option<Unnamed> =>
     O.flatMap((question) => O.map(decodeItemId(question.itemId), ([, , , digest]) => ({ digest, question })))
   );
 
-const isMarked = (line: DocketJournalEntry): boolean => line.kind === DocketJournalKind.Enum["message-marked"];
+const isMarked = (line: DocketJournalEntry): boolean => DocketJournalKind.is["message-marked"](line.kind);
 
 // Every message the service marked, so every message it wrote a needs-review entry for.
 const markedMessageIds = (journal: ReadonlyArray<DocketJournalEntry>): ReadonlyArray<string> =>
@@ -209,32 +207,18 @@ export const backfillQuestions = Effect.fn("DocketIntakeApp.backfillQuestions")(
 
 const isGone = (error: M365Error): boolean => error.reason === "response status" && O.contains(error.status, NOT_FOUND);
 
-const senderOf = (message: GraphMessage): O.Option<string> =>
-  pipe(
-    message.from,
-    O.flatMap((recipient) => recipient.emailAddress),
-    O.flatMap((emailAddress) => emailAddress.address),
-    O.filter(Str.isNonEmpty)
-  );
-
-const emailOf = (message: GraphMessage, zone: DateTime.TimeZone): DocketQuestionEmail =>
-  DocketQuestionEmail.make({
-    messageLink: O.filter(message.webLink, Str.isNonEmpty),
-    receivedDate: pipe(message.receivedDateTime, O.flatMap(DateTime.make), O.map(docketDayInZone(zone))),
-    sender: senderOf(message),
-    subject: O.filter(message.subject, Str.isNonEmpty),
-  });
-
 /**
  * Read what names one message from the mailbox: its subject, sender, day of
  * receipt in the practice time zone, and Outlook link.
  *
  * **Details**
  *
- * Graph is asked for those four fields only, never the body. A message the
- * mailbox no longer has (Graph answers 404, as it does for a message moved to
- * another folder) reads as none. Any other Graph failure fails at stage
- * `mailbox`, with cause `throttled` when Graph throttled the read.
+ * Graph is asked for those four fields only, never the body, and they are
+ * read by `docketQuestionEmailOf`, as the mailbox port reads a message the
+ * service processes. A message the mailbox no longer has (Graph answers 404,
+ * as it does for a message moved to another folder) reads as none. Any other
+ * Graph failure fails at stage `mailbox`, with cause `throttled` when Graph
+ * throttled the read.
  *
  * **Example** (Reference the reader)
  *
@@ -255,7 +239,7 @@ export const describeDocketMessage =
         M365GetMessageRequest.make({ messageId, select: O.some(MESSAGE_FIELDS), userId: O.some(input.mailbox) })
       )
       .pipe(
-        Effect.map((message) => O.some(emailOf(message, input.timeZone))),
+        Effect.map((message) => O.some(docketQuestionEmailOf(message, input.timeZone))),
         Effect.catchIf(isGone, () => Effect.succeedNone),
         Effect.mapError((error) => DocketIntakeError.make({ cause: error.reason, stage: "mailbox" }))
       );

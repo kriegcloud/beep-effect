@@ -67,6 +67,7 @@ const identified = DocketLedgerRecord.make({
     receivedDate: O.some(RECEIVED),
     sender: O.some("examiner@example.com"),
     subject: O.some("Office action response"),
+    title: O.some("Response to office action"),
   }),
   processedOn: RECEIVED,
   receivedAt: "2030-01-09T09:00:00.000Z",
@@ -90,10 +91,12 @@ describe("@beep/docket-intake review hub questions", () => {
       "2030-01-09"
     );
     expect(A.map(input.candidateDates, ({ date }) => date.toISOString())).toStrictEqual(["2030-04-08"]);
+    assertSome(input.title, "Response to office action");
 
     const old = questionInput(needsReview);
     assertNone(old.subject);
     assertNone(old.entryLink);
+    assertNone(old.title);
     expect(old.candidateDates).toStrictEqual([]);
 
     const failed = questionInput(
@@ -138,11 +141,17 @@ describe("@beep/docket-intake review hub questions", () => {
           "Its needs-review calendar entry: https://outlook.fixture.invalid/calendar/evt-named",
           "Matter: family 0000.00001 · dockets 0000.00001US01",
         ]);
-        expect(A.map(item?.kind === "question" ? item.options : [], ({ optionId }) => optionId)).toStrictEqual([
+        const options = item?.kind === "question" ? item.options : [];
+        expect(A.map(options, ({ optionId }) => optionId)).toStrictEqual([
           "use-2030-04-08",
           "handle-myself",
           "not-a-deadline",
         ]);
+        // Choosing the date moves the needs-review entry under the item's own title, not a generic one.
+        assertSome(
+          O.flatMap(A.head(options), ({ write }) => O.map(write, ({ dueOn, title }) => [dueOn.toISOString(), title])),
+          ["2030-04-08", "Response to office action"]
+        );
       })
     );
   });

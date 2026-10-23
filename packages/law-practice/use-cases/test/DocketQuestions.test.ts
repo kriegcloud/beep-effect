@@ -139,6 +139,11 @@ describe("@beep/law-practice-use-cases docket questions", () => {
           O.flatMap(A.head(question.options), ({ write }) => O.flatMap(write, ({ eventId }) => eventId)),
           NEEDS_REVIEW_EVENT
         );
+        // A chosen date gives the entry the item's title, not a generic one.
+        expect(A.map(A.getSomes(A.map(question.options, ({ write }) => write)), ({ title }) => title)).toStrictEqual([
+          "Response to office action",
+          "Response to office action",
+        ]);
         assertSome(question.docket, "90001US01");
         assertSome(question.conversationId, "AAQkADsynthetic-thread");
         expect(A.map(question.facts, ({ text }) => text)).toStrictEqual([
@@ -230,6 +235,33 @@ describe("@beep/law-practice-use-cases docket questions", () => {
     );
 
     it.effect(
+      "treats a subject or sender of only whitespace as unknown",
+      Effect.fnUntraced(function* () {
+        const outcome = needsReview("no-usable-date");
+        const plain = yield* Effect.fromOption(yield* raise(DocketQuestionInput.make({ outcome })));
+        const blank = yield* Effect.fromOption(
+          yield* raise(
+            DocketQuestionInput.make({
+              outcome,
+              receivedDate: O.some(day(10, 20)),
+              sender: O.some(" \n "),
+              subject: O.some("   "),
+            })
+          )
+        );
+        const backfilled = withDocketQuestionEmail(
+          plain,
+          DocketQuestionEmail.make({ messageLink: O.some("  "), sender: O.some("\t"), subject: O.some("  ") })
+        );
+
+        expect(A.take(factTexts(blank), 1)).toStrictEqual(["The email was received October 20, 2026."]);
+        expect(blank.text).toBe(plain.text);
+        expect(backfilled).toStrictEqual(plain);
+        assertTrue(!docketQuestionNamesEmail(backfilled));
+      })
+    );
+
+    it.effect(
       "names the email of a stored question once, keeping its id, options and other facts",
       Effect.fnUntraced(function* () {
         const stored = yield* Effect.fromOption(
@@ -259,6 +291,21 @@ describe("@beep/law-practice-use-cases docket questions", () => {
           `Docket intake is not confident about the deadline in the email "${SUBJECT}". Which date is right?`
         );
         expect(withDocketQuestionEmail(email)(named)).toStrictEqual(named);
+      })
+    );
+
+    it.effect(
+      "pins a question's id to the first 32 hex digits of its message id's SHA-256",
+      Effect.fnUntraced(function* () {
+        // `printf '%s' 'AAMkAGsynthetic-message-1=' | sha256sum`, cut to 32 digits. Changing the hash, its
+        // encoding or its length would re-key every stored docket question.
+        const golden = "eb740d95d0e01389172d8c72ac30e815";
+        const question = yield* Effect.fromOption(
+          yield* raise(DocketQuestionInput.make({ outcome: needsReview("no-usable-date") }))
+        );
+
+        expect(question.itemId).toBe(`docket-intake:no-usable-date:${golden}`);
+        expect(yield* docketQuestionDigest("AAMkAGsynthetic-message-1=")).toBe(golden);
       })
     );
 

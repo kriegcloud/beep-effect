@@ -7,6 +7,7 @@
 import { DocketCategory } from "@beep/law-practice-domain/values/DocketDeadline";
 import {
   DocketGraphConfig,
+  docketQuestionEmailOf,
   makeDocketGraphLayer,
   makeDocketGraphReadOnlyLayer,
   withDocketCategory,
@@ -18,6 +19,9 @@ import {
   DocketMessage,
 } from "@beep/law-practice-use-cases/DocketIntake";
 import {
+  GraphEmailAddress,
+  GraphMessage,
+  GraphRecipient,
   M365,
   M365_IDEMPOTENCY_KEY_PROPERTY_ID,
   M365AppOnlyConfigInput,
@@ -803,6 +807,45 @@ describe("@beep/law-practice-server DocketIntake Graph adapters", () => {
         expect(A.map(yield* testHttp.calls, (capture) => capture.method)).toStrictEqual(["GET", "GET"]);
       })
     );
+  });
+
+  it("names a message by its subject, sender, practice day and link, leaving out what it lacks", () => {
+    const chicago = DateTime.zoneMakeNamedUnsafe("America/Chicago");
+    const email = docketQuestionEmailOf(chicago)(
+      GraphMessage.make({
+        from: O.some(
+          GraphRecipient.make({
+            emailAddress: O.some(GraphEmailAddress.make({ address: O.some("sender@fixture.invalid") })),
+          })
+        ),
+        id: "message-1",
+        // Late on 9 January in Chicago, already 10 January in UTC.
+        receivedDateTime: O.some("2030-01-10T03:30:00Z"),
+        subject: O.some("Fixture notice"),
+        webLink: O.some("https://outlook.fixture.invalid/mail/message-1"),
+      })
+    );
+    const bare = docketQuestionEmailOf(
+      GraphMessage.make({
+        id: "message-2",
+        receivedDateTime: O.some("not a date"),
+        subject: O.some(""),
+        webLink: O.some(""),
+      }),
+      chicago
+    );
+
+    assertSome(email.subject, "Fixture notice");
+    assertSome(email.sender, "sender@fixture.invalid");
+    assertSome(email.messageLink, "https://outlook.fixture.invalid/mail/message-1");
+    assertSome(
+      O.map(email.receivedDate, (day) => day.toISOString()),
+      "2030-01-09"
+    );
+    for (const absent of [bare.subject, bare.sender, bare.messageLink]) {
+      assertNone(absent);
+    }
+    assertNone(bare.receivedDate);
   });
 
   it("cannot be configured with a time zone it cannot resolve", () => {

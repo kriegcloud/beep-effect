@@ -701,8 +701,8 @@ const placeNeedsReview = (
   });
 
 // A needs-review outcome keeps what tells the attorney which email it is about, the dates the
-// deadline could be and the matter, so the question raised from it can say so. None of it is
-// logged or put in the digest.
+// deadline could be, the matter and the item's title (what a date the attorney picks writes), so
+// the question raised from it can say so. None of it is logged or put in the digest.
 const writeNeedsReview = Effect.fnUntraced(function* (
   ports: Ports,
   message: DocketMessage,
@@ -768,6 +768,7 @@ const writeNeedsReview = Effect.fnUntraced(function* (
     review: input.review,
     sender: O.filter(message.sender, Str.isNonEmpty),
     subject: O.filter(message.subject, Str.isNonEmpty),
+    title: O.liftPredicate(input.title, Str.isNonEmpty),
   });
 });
 

@@ -19,6 +19,7 @@ import {
   DocketIntakeError,
   DocketMailbox,
   DocketMessage,
+  DocketQuestionEmail,
   DocketSourceDocument,
   DocketWrittenEntry,
 } from "@beep/law-practice-use-cases/DocketIntake";
@@ -269,12 +270,61 @@ export const docketDayInZone: {
   return LocalDate.make({ day: parts.day, month: parts.month, year: parts.year });
 });
 
+const receivedInstant = (message: GraphMessage): O.Option<DateTime.DateTime> =>
+  O.flatMap(message.receivedDateTime, DateTime.make);
+
+/**
+ * What names a Graph message to the attorney: its subject, sender address,
+ * day of receipt in the practice time zone, and Outlook link.
+ *
+ * **Details**
+ *
+ * The sender and the day of receipt are read as the mailbox port reads them
+ * into a `DocketMessage`, so a question named from the mailbox later matches
+ * one raised while the message was processed. Empty values are left out. The
+ * subject and the sender are never logged.
+ *
+ * **Example** (Name a message)
+ *
+ * ```ts
+ * import { docketQuestionEmailOf } from "@beep/law-practice-server/DocketIntake";
+ * import { GraphMessage } from "@beep/m365";
+ * import * as DateTime from "effect/DateTime";
+ * import * as O from "effect/Option";
+ *
+ * const email = docketQuestionEmailOf(
+ *   GraphMessage.make({
+ *     id: "message-1",
+ *     receivedDateTime: O.some("2030-01-10T03:30:00Z"),
+ *     subject: O.some("Office action response")
+ *   }),
+ *   DateTime.zoneMakeNamedUnsafe("America/Chicago")
+ * );
+ * console.log(O.map(email.receivedDate, (day) => day.toISOString())); // Some("2030-01-09")
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const docketQuestionEmailOf: {
+  (zone: DateTime.TimeZone): (message: GraphMessage) => DocketQuestionEmail;
+  (message: GraphMessage, zone: DateTime.TimeZone): DocketQuestionEmail;
+} = dual(
+  2,
+  (message: GraphMessage, zone: DateTime.TimeZone): DocketQuestionEmail =>
+    DocketQuestionEmail.make({
+      messageLink: O.filter(message.webLink, Str.isNonEmpty),
+      receivedDate: O.map(receivedInstant(message), docketDayInZone(zone)),
+      sender: O.filter(senderAddress(message), Str.isNonEmpty),
+      subject: O.filter(message.subject, Str.isNonEmpty),
+    })
+);
+
 const toDocketMessage =
   (zone: DateTime.TimeZone, folders: MailboxFolders) =>
   (message: GraphMessage): O.Option<DocketMessage> =>
     pipe(
-      message.receivedDateTime,
-      O.flatMap(DateTime.make),
+      receivedInstant(message),
       O.map((instant) =>
         DocketMessage.make({
           bodyText: pipe(

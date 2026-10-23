@@ -234,10 +234,11 @@ describe("@beep/docket-intake backfill-questions", () => {
         yield* Ref.update(fake.script, (script) => ({ ...script, getMessage: Effect.fail(throttled) }));
         const error = yield* Effect.flip(read("m-journaled"));
         expect([error.stage, error.cause]).toStrictEqual(["mailbox", "throttled"]);
+        // Graph is asked for the four fields that name the message, never the body.
         expect(yield* Ref.get(fake.calls)).toStrictEqual([
-          "getMessage m-journaled",
-          "getMessage m-moved",
-          "getMessage m-journaled",
+          "getMessage m-journaled select=subject,from,receivedDateTime,webLink",
+          "getMessage m-moved select=subject,from,receivedDateTime,webLink",
+          "getMessage m-journaled select=subject,from,receivedDateTime,webLink",
         ]);
       })
     );

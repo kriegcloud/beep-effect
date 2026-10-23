@@ -172,13 +172,17 @@ the variable, docket intake runs exactly as before.
 
 Each question says which email it is about: its subject, sender and day
 received, a link that opens it in Outlook, a link to its needs-review
-calendar entry, and the matter. The docket intake ledger keeps those for
-each needs-review message. A ledger record is pruned about a day after its
-message is digested, and the question stored for it then stays as it was.
+calendar entry, and the matter. A date it offers moves the needs-review
+entry to that date under the docket item's own title. The docket intake
+ledger keeps those for each needs-review message. A ledger record is pruned
+in the first cycle after the digest of its day is written, about a day after
+the message was processed, and the question stored for it then stays as it
+was.
 
 ### Questions stored before they named their email
 
-Questions stored before 2026-10-22 only say "a message". `backfill-questions`
+Questions stored before the service ran a revision whose questions name
+their email only say "a message". `backfill-questions`
 finds each docket intake question that does not name its email, matches it to
 a message the write journal marked (by the message-id digest in the
 question's id), reads that message's subject, sender, time of receipt and

@@ -2383,6 +2383,7 @@ describe("@beep/law-practice-use-cases DocketIntake needs-review identity", () =
         outcome.messageLink,
         outcome.sender,
         outcome.subject,
+        outcome.title,
       ]) {
         assertNone(absent);
       }
@@ -2449,6 +2450,7 @@ describe("@beep/law-practice-use-cases DocketIntake needs-review identity", () =
         ]);
         assertSome(outcome.matter, "family 0000.00001 · client 0000 · dockets 0000.00001US01, 0000.00001EP02");
         assertSome(outcome.docket, "0000.00001US01");
+        assertSome(outcome.title, "Due Date: fixture response");
         for (const content of [NAMED_SUBJECT, NAMED_SENDER, "0000.00001"]) {
           assertTrue(!Str.includes(content)(digest.bodyText));
         }
@@ -2481,6 +2483,90 @@ describe("@beep/law-practice-use-cases DocketIntake needs-review identity", () =
         expect(needsReview.candidateDates).toStrictEqual([]);
         assertNone(needsReview.matter);
         assertNone(needsReview.docket);
+      })
+    );
+  });
+
+  it.layer(
+    testLayer({
+      matter: Effect.succeed(
+        MatterUnique.make({
+          client: O.some("0000"),
+          dockets: ["0000.00001US01", "0000.00001EP02"],
+          familyKey: "0000.00001",
+          matchedDockets: ["0000.00001US01"],
+          verified: true,
+        })
+      ),
+      messages: [namedMessage],
+      sheet: true,
+      tracked: sheetRows(tracked(RECEIVED, "due-date")),
+    }),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "keeps the email, both readers' dates, the sheet's date, the matter and the title on an entered item now past due",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+
+        // Both readers agree on 8 April; the docket sheet's earlier 9 January moves the item past due.
+        const outcome = yield* intake.processMessage(namedMessage, TODAY);
+        const needsReview = yield* Effect.fromOption(
+          O.liftPredicate(outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        );
+
+        expect(needsReview.reason).toBe("due-date-past");
+        assertSome(needsReview.subject, NAMED_SUBJECT);
+        assertSome(needsReview.sender, NAMED_SENDER);
+        assertSome(needsReview.messageLink, "https://outlook.fixture.invalid/mail/m-named");
+        assertSome(
+          O.map(needsReview.receivedDate, (date) => date.toISOString()),
+          "2030-01-09"
+        );
+        expect(A.map(needsReview.candidateDates, ({ date, source }) => [date.toISOString(), source])).toStrictEqual([
+          ["2030-04-08", "extractor"],
+          ["2030-04-08", "reviewer"],
+          ["2030-01-09", "tracked"],
+        ]);
+        assertSome(needsReview.matter, "family 0000.00001 · client 0000 · dockets 0000.00001US01, 0000.00001EP02");
+        assertSome(needsReview.docket, "0000.00001US01");
+        assertSome(needsReview.title, "Fixture response due");
+      })
+    );
+  });
+
+  it.layer(
+    testLayer(
+      {
+        messages: [namedMessage],
+        review: () => Effect.fail(DocketIntakeError.make({ cause: "timeout", stage: "review" })),
+      },
+      { maxAttempts: 1 }
+    ),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "keeps the email on a message that could not be processed, with no dates and no matter",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+
+        const report = yield* intake.pollOnce(TODAY);
+        const record = yield* Effect.fromOption(yield* ledgerRecord("m-named"));
+        const outcome = yield* Effect.fromOption(
+          O.liftPredicate(record.outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        );
+
+        expect(report.needsReview).toBe(1);
+        expect(outcome.reason).toBe("processing-failed");
+        assertSome(outcome.subject, NAMED_SUBJECT);
+        assertSome(outcome.messageLink, "https://outlook.fixture.invalid/mail/m-named");
+        assertSome(
+          O.map(outcome.receivedDate, (date) => date.toISOString()),
+          "2030-01-09"
+        );
+        expect(outcome.candidateDates).toStrictEqual([]);
+        assertNone(outcome.matter);
+        assertNone(outcome.docket);
       })
     );
   });
