@@ -244,7 +244,7 @@ export class WorkspaceRootNotFoundError extends S.TaggedError<
  * A malformed root `package.json` is "not a root", not an error — the ascent
  * continues past it, matching walker's absorption contract.
  */
-const isWorkspaceRoot = Effect.fn("isWorkspaceRoot")(function* (
+const isWorkspaceRoot = Effect.fn("WorkspaceRoot.isWorkspaceRoot")(function* (
   dir: string
 ): Effect.fn.Return<boolean, never, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;

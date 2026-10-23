@@ -634,7 +634,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * @category constructors
    * @since 0.0.0
    */
-  static readonly make = Effect.fn("make")(function* (
+  static readonly make = Effect.fn("WorkspaceDiscovery.make")(function* (
     options?: WorkspaceDiscoveryOptions.Encoded
   ): Effect.fn.Return<WorkspaceDiscoveryShape, never, WorkspaceRoot | FileSystem.FileSystem | Path.Path> {
     const roots = yield* WorkspaceRoot;
@@ -1253,7 +1253,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         return index;
       };
       return {
-        versionOf: Effect.fn("WorkspaceResolver.versionOf")((packageName: string) => {
+        versionOf: Effect.fn("WorkspaceDiscovery.workspaceVersionOf")((packageName: string) => {
           const specifier = `workspace:${packageName}`;
           return discovery.listPackages.pipe(
             Effect.mapError((cause) => DependencyResolutionError.make({ specifier, cause })),

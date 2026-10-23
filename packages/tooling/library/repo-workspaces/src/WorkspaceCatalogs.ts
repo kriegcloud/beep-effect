@@ -1554,7 +1554,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
     Effect.gen(function* () {
       const catalogs = yield* WorkspaceCatalogs;
       return {
-        rangeOf: Effect.fn("CatalogResolver.rangeOf")((packageName: string, catalog: O.Option<string>) =>
+        rangeOf: Effect.fn("WorkspaceCatalogs.catalogRangeOf")((packageName: string, catalog: O.Option<string>) =>
           catalogs.set.pipe(
             Effect.map((set) => set.rangeOf(packageName, catalog)),
             Effect.catchTag("WorkspaceRootNotFoundError", (cause) =>

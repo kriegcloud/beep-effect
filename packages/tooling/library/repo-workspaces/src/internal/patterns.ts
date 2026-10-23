@@ -194,7 +194,7 @@ export const manifestPatternsOf = (manifest: unknown): ReadonlyArray<string> => 
  * @category parsing
  * @since 0.0.0
  */
-export const readPatterns = Effect.fn("readPatterns")(function* (
+export const readPatterns = Effect.fn("WorkspacePatterns.readPatterns")(function* (
   root: string
 ): Effect.fn.Return<ReadonlyArray<string>, PatternReadFailure, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;

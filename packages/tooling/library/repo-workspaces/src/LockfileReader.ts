@@ -308,7 +308,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * @category constructors
    * @since 0.0.0
    */
-  static readonly make = Effect.fn("make")(function* (
+  static readonly make = Effect.fn("LockfileReader.make")(function* (
     options?: LockfileReaderOptions.Encoded
   ): Effect.fn.Return<
     LockfileReaderShape,

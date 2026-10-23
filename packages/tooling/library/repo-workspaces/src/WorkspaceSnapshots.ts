@@ -473,7 +473,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * @category constructors
    * @since 0.0.0
    */
-  static readonly make = Effect.fn("make")(function* (
+  static readonly make = Effect.fn("WorkspaceSnapshots.make")(function* (
     options?: WorkspaceSnapshotsOptions.Input
   ): Effect.fn.Return<
     WorkspaceSnapshotsShape,
