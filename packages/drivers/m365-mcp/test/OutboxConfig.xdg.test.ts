@@ -42,40 +42,44 @@ const resolved: ReadonlyArray<Resolved> = [
   ["XDG variables without HOME", { XDG_DATA_HOME: "/d", XDG_STATE_HOME: "/s" }, `/d/${STAGING}`, `/s/${AUDIT}`],
 ];
 
-/** Rows where the resolution before @beep/xdg differs from the XDG spec. */
+/**
+ * Inverted rows: before @beep/xdg a relative XDG_STATE_HOME became a relative audit
+ * directory, a space-padded one was trimmed, and HOME was joined unnormalized.
+ * The spec ignores a relative value, and the padded value is relative.
+ */
 const divergent: ReadonlyArray<Resolved> = [
   [
     "a relative XDG_STATE_HOME",
     { HOME: "/h", XDG_STATE_HOME: "relative" },
     `/h/.local/share/${STAGING}`,
-    `relative/${AUDIT}`,
+    `/h/.local/state/${AUDIT}`,
   ],
   [
     "a space-padded XDG_STATE_HOME",
     { HOME: "/h", XDG_STATE_HOME: " /s " },
     `/h/.local/share/${STAGING}`,
-    `/s/${AUDIT}`,
+    `/h/.local/state/${AUDIT}`,
   ],
-  ["a HOME with a trailing slash", { HOME: "/h/" }, `/h//.local/share/${STAGING}`, `/h//.local/state/${AUDIT}`],
-];
-
-const rejected: ReadonlyArray<Rejected> = [
-  ["nothing set", {}, "Neither XDG_DATA_HOME nor HOME is set."],
-  ["no state directory", { XDG_DATA_HOME: "/d" }, "Neither XDG_STATE_HOME nor HOME is set."],
-];
-
-/** Rejections before @beep/xdg: a relative data root reaches the absolute-roots check. */
-const divergentRejected: ReadonlyArray<Rejected> = [
+  ["a HOME with a trailing slash", { HOME: "/h/" }, `/h/.local/share/${STAGING}`, `/h/.local/state/${AUDIT}`],
   [
     "a relative XDG_DATA_HOME",
     { HOME: "/h", XDG_DATA_HOME: "relative" },
-    "M365_OUTBOX_ATTACHMENT_ROOTS must list absolute directories separated by ':'.",
+    `/h/.local/share/${STAGING}`,
+    `/h/.local/state/${AUDIT}`,
   ],
-  [
-    "a relative HOME",
-    { HOME: "relative" },
-    "M365_OUTBOX_ATTACHMENT_ROOTS must list absolute directories separated by ':'.",
-  ],
+];
+
+const rejected: ReadonlyArray<Rejected> = [
+  ["nothing set", {}, "Neither XDG_DATA_HOME nor HOME is set to an absolute path."],
+  ["no state directory", { XDG_DATA_HOME: "/d" }, "Neither XDG_STATE_HOME nor HOME is set to an absolute path."],
+];
+
+/**
+ * Inverted rejection: before @beep/xdg a relative HOME produced a relative staging
+ * root that only the absolute-roots check caught; it is now no HOME at all.
+ */
+const divergentRejected: ReadonlyArray<Rejected> = [
+  ["a relative HOME", { HOME: "relative" }, "Neither XDG_DATA_HOME nor HOME is set to an absolute path."],
 ];
 
 describe("@beep/m365-mcp outbox XDG roots env matrix", () => {

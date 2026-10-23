@@ -15,6 +15,7 @@
 import { $M365McpId } from "@beep/identity/packages";
 import { GraphPathSegment, M365AppOnlyConfigInput, M365CertificateCredential } from "@beep/m365";
 import { getSomesStruct } from "@beep/utils/Option";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -169,23 +170,17 @@ const optionalInt = (name: string): Effect.Effect<O.Option<number>, OutboxConfig
     Effect.mapError(() => OutboxConfigError.make({ message: `${name} must be a whole number.` }))
   );
 
-const stateRoot = Effect.fnUntraced(function* (
-  variable: string,
-  homeRelative: string
-): Effect.fn.Return<string, OutboxConfigError> {
-  const configured = yield* optionalText(variable);
-  if (O.isSome(configured)) {
-    return configured.value;
-  }
-  const home = yield* optionalText("HOME");
-  return yield* pipe(
-    home,
-    O.match({
-      onNone: () => fail(`Neither ${variable} nor HOME is set.`),
-      onSome: (directory) => Effect.succeed(`${directory}/${homeRelative}`),
-    })
+// The XDG base directory with its spec default; a relative value or HOME is ignored (@beep/xdg).
+const stateRoot = (kind: "data" | "state"): Effect.Effect<string, OutboxConfigError> =>
+  XdgBase.dir(kind).pipe(
+    Effect.mapError(() => OutboxConfigError.make({ message: `${XdgBase.variable(kind)} could not be read.` })),
+    Effect.flatMap(
+      O.match({
+        onNone: () => fail(`Neither ${XdgBase.variable(kind)} nor HOME is set to an absolute path.`),
+        onSome: Effect.succeed,
+      })
+    )
   );
-});
 
 const splitRoots = flow(Str.split(ROOT_SEPARATOR), A.map(Str.trim), A.filter(Str.isNonEmpty));
 
@@ -198,8 +193,7 @@ const attachmentPolicy = Effect.fnUntraced(function* () {
   const roots = yield* pipe(
     configuredRoots,
     O.match({
-      onNone: () =>
-        stateRoot("XDG_DATA_HOME", ".local/share").pipe(Effect.map((dataHome) => [`${dataHome}/${STAGING_SUFFIX}`])),
+      onNone: () => stateRoot("data").pipe(Effect.map((dataHome) => [`${dataHome}/${STAGING_SUFFIX}`])),
       onSome: flow(splitRoots, Effect.succeed),
     })
   );
@@ -238,7 +232,9 @@ const attachmentPolicy = Effect.fnUntraced(function* () {
  * the server creates), `M365_OUTBOX_MAX_ATTACHMENT_BYTES`,
  * `M365_OUTBOX_MAX_MESSAGE_ATTACHMENT_BYTES`, `M365_OUTBOX_MAX_ATTACHMENTS`
  * and `M365_OUTBOX_AUDIT_DIR` (default
- * `${XDG_STATE_HOME:-$HOME/.local/state}/beep/m365-outbox/audit`).
+ * `${XDG_STATE_HOME:-$HOME/.local/state}/beep/m365-outbox/audit`). Both
+ * defaults resolve through `@beep/xdg` `XdgBase`: an XDG variable or `HOME`
+ * counts only when it holds an absolute path.
  *
  * **Example** (Load the configuration)
  *
@@ -266,8 +262,7 @@ export const loadOutboxConfig = Effect.fn("OutboxConfig.load")(function* (): Eff
   const auditDirectory = yield* pipe(
     yield* optionalText(OUTBOX_ENV.auditDirectory),
     O.match({
-      onNone: () =>
-        stateRoot("XDG_STATE_HOME", ".local/state").pipe(Effect.map((stateHome) => `${stateHome}/${AUDIT_SUFFIX}`)),
+      onNone: () => stateRoot("state").pipe(Effect.map((stateHome) => `${stateHome}/${AUDIT_SUFFIX}`)),
       onSome: Effect.succeed,
     })
   );
