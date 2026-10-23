@@ -587,6 +587,21 @@ export const a = other.$match();
     assert.strictEqual(plan(text)._tag, "Unchanged");
   });
 
+  it("renames aliases and decorated receivers while rejecting locally replaced kit records", () => {
+    const text = `${kitTyped}type Direction = MatchKit;
+declare const Mapped: Direction;
+declare const Decorated: MatchKit & { readonly annotations: object };
+declare const Replaced: Omit<MatchKit, "Enum"> & { readonly Enum: {} };
+export const a = Mapped.$match();
+export const b = Decorated.$match();
+export const c = Replaced.$match();
+`;
+    assert.strictEqual(
+      plannedText(plan(text)),
+      pipe(text, Str.replace("Mapped.$match", "Mapped.match"), Str.replace("Decorated.$match", "Decorated.match"))
+    );
+  });
+
   it("unwraps LiteralKit(X.pick([...]).literals) to X.pick([...])", () => {
     const text = `${kitImport}${kitTyped}export const Open = LiteralKit(Status.pick(["draft"]).literals);
 export const Piped = LiteralKit(Status.pick(["live"]).literals).pipe((s) => s);

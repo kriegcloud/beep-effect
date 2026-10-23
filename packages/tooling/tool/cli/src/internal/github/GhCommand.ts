@@ -35,7 +35,7 @@ import type { GhPageInfo } from "./GhSchema.ts";
  * **Example** (Classify a truncated capture)
  *
  * ```ts
- * import type { GhCommandFailure } from "@beep/repo-cli/internal/github"
+ * import type { GhCommandFailure } from "@beep/repo-cli/test/SharedInternals"
  *
  * const failure: GhCommandFailure = { _tag: "truncated", label: "gh pr view", command: "gh pr view" }
  * console.log(failure._tag)
@@ -76,7 +76,7 @@ export interface GhOutputOptions<E> {
  * **Example** (Fetch PR facts with a caller-owned error)
  *
  * ```ts
- * import { ghOutput } from "@beep/repo-cli/internal/github"
+ * import { ghOutput } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * const program = ghOutput({
  *   args: ["pr", "view", "--json", "number,headRefName,state"],
@@ -121,7 +121,7 @@ export const ghOutput = Effect.fn("GhCommand.ghOutput")(function* <E>(options: G
  * **Example** (Render cursor arguments for both cases)
  *
  * ```ts
- * import { cursorArgs } from "@beep/repo-cli/internal/github"
+ * import { cursorArgs } from "@beep/repo-cli/test/SharedInternals"
  * import * as O from "effect/Option"
  *
  * console.log(cursorArgs(O.some("abc")))
@@ -143,7 +143,7 @@ export const cursorArgs = (cursor: O.Option<string>): ReadonlyArray<string> =>
  * **Example** (Finish pagination on the last page)
  *
  * ```ts
- * import { GhPageInfo, nextCursor } from "@beep/repo-cli/internal/github"
+ * import { GhPageInfo, nextCursor } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -200,7 +200,7 @@ export interface GhGraphqlPageOptions<E> {
  * **Example** (Request the first page of a PR query)
  *
  * ```ts
- * import { ghGraphqlPage } from "@beep/repo-cli/internal/github"
+ * import { ghGraphqlPage } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -281,7 +281,7 @@ export interface CollectTruncatableThreadPagesOptions<T extends GhTruncatableThr
  * **Example** (Collect a single closed page)
  *
  * ```ts
- * import { collectTruncatableThreadPages, GhPageInfo } from "@beep/repo-cli/internal/github"
+ * import { collectTruncatableThreadPages, GhPageInfo } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
