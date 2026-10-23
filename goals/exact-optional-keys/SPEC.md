@@ -53,11 +53,11 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] `beep lint schema-parity-codemod --rule exact-optional-keys` dry-run reports 0 rewrites and 0 residue on the branch.
-- [ ] The rg census and the Biome rule both report 0 hits outside ledgered exceptions.
-- [ ] `prefer-exact-optional-key.grit` runs at severity error and fails on fixtures for every banned form (recall), with no hit on `optionalKey`, `withDecodingDefaultKey`, `OptionFromOptionalKey`, `optionalKey(UndefinedOr(X))` or `Flag.optional` (precision).
-- [ ] The rule fails the hosted Biome lint job on a planted violation (proved locally via the same command the CI lane runs).
-- [ ] EF-40 is in `standards/effect-first-development.md` and the schema-first repo-laws; EF-2/EF-17 no longer sanction `OptionFromOptional`.
+- [x] `beep lint schema-parity-codemod --rule exact-optional-keys` dry-run reports 0 rewrites and 0 residue on the branch.
+- [x] The rg census and the Biome rule both report 0 hits outside ledgered exceptions.
+- [x] `prefer-exact-optional-key.grit` runs at severity error and fails on fixtures for every banned form (recall), with no hit on `optionalKey`, `withDecodingDefaultKey`, `OptionFromOptionalKey`, `optionalKey(UndefinedOr(X))` or `Flag.optional` (precision).
+- [x] The rule fails the hosted Biome lint job on a planted violation (proved locally via the same command the CI lane runs).
+- [x] EF-40 is in `standards/effect-first-development.md` and the schema-first repo-laws; EF-2/EF-17 no longer sanction `OptionFromOptional`.
 - [ ] Typecheck, tests and package-verify are green for every touched package.
 - [ ] No unrelated refactors or formatting churn.
 
@@ -92,6 +92,12 @@ them and record each in the Decision Log.
 | 2026-10-23 | New law EF-40 "Optional fields use exact keys"; grit rule `prefer-exact-optional-key.grit` at error | Distinct from EF-17's Option decoding (grill R2) | Remove EF-40 and the plugin registration |
 | 2026-10-23 | One PR from lane `refactor/exact-optional-keys` off origin/main | Operator request: migration + law ship together (grill R2) | Revert the squash commit |
 | 2026-10-23 | No changeset | Every affected package is private; `privatePackages.version: false` | Add changesets if a package goes public |
+| 2026-10-23 | schema-org drops its documented `Schema.optional` exception | No src caller passes `undefined` to a node (repo-wide typecheck after the rewrite); evidence in `research/classification-ledger.md` | Restore `S.optionalKey(S.UndefinedOr(X))` on `ThingFields` and the README sentence |
+| 2026-10-23 | jsonl config and slice keys become exact; D15 recorded as kept deviation 24 | Upstream parity is a choice, not an undefined producer; the operator asked for every instance | Revert to `optionalKey(UndefinedOr(X))` and restore the D15 pins |
+| 2026-10-23 | Option-valued exception spelled as an explicit local helper (`OptionFromLexicalUndefinedOr`) | `S.OptionFromOptionalKey(S.UndefinedOr(X))` would decode `undefined` to `Some(undefined)`; the helper mirrors upstream `OptionFromOptional` without the banned symbol | Replace with `S.OptionFromOptional` under a rule exemption |
+| 2026-10-23 | `ApiTransportDurationObject` keeps `UndefinedOr` | It mirrors effect's `Duration.DurationObject`, whose members admit `undefined` | Make exact once effect's `DurationObject` does |
+| 2026-10-23 | FileDiff's `optionalUndefined` helper deleted | Its only purpose was decoded-side `undefined` | Restore the helper from `9e3aff5de8^` |
+| 2026-10-23 | Codemod pairing covers companion interfaces, not only type aliases | Lexical companions are `interface Encoded`; found on the first run, fixed in the rule and re-run from a clean tree | n/a |
 
 ## Exception Ledger
 

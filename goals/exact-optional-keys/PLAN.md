@@ -2,15 +2,15 @@
 
 ## Status
 
-Status: `active` (P0 complete 2026-10-23)
+Status: `active` (P0-P1 complete 2026-10-23; P2 verify in progress)
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | done | Ground `optional` vs `optionalKey` in Effect v4 source + runtime probe; census; grill decisions. | `research/optional-vs-optional-key.md` and the SPEC Decision Log are written. |
-| P1 Implement | pending | (a) `exact-optional-keys` codemod rule + fixture tests for every form; (b) run it with `--write`; (c) typecheck/test-driven fixes: call-site conditional spreads, ledgered `UndefinedOr` exceptions; (d) `prefer-exact-optional-key.grit` + recall/precision tests + biome.json registration; (e) EF-40 + doc amendments. | Codemod dry-run 0, rg 0, grit 0 outside ledger. |
-| P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
+| P0 Research | complete | Ground `optional` vs `optionalKey` in Effect v4 source + runtime probe; census; grill decisions. | `research/optional-vs-optional-key.md` and the SPEC Decision Log are written. |
+| P1 Implement | complete | (a) `exact-optional-keys` codemod rule + fixture tests for every form; (b) run it with `--write`; (c) typecheck/test-driven fixes: call-site conditional spreads, ledgered `UndefinedOr` exceptions; (d) `prefer-exact-optional-key.grit` + recall/precision tests + biome.json registration; (e) EF-40 + doc amendments. | Codemod dry-run 0, rg 0, grit 0 outside ledger. |
+| P2 Verify | in-progress | Run required checks and capture evidence. | Verification is green or blockers are documented. |
 | P3 Yeet: PR to mergeable | pending | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
 | P4 Close | pending | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 

@@ -30,7 +30,14 @@
     "goals/exact-optional-keys/GOAL.md",
     "goals/exact-optional-keys/research/SOURCES.md"
   ],
-  "researchReports": ["research/SOURCES.md"],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/optional-vs-optional-key.md",
+    "research/classification-ledger.md",
+    "research/verification.md",
+    "research/codemod-dry-run.jsonc",
+    "research/codemod-write.jsonc"
+  ],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -46,17 +53,17 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Implement",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P3",
