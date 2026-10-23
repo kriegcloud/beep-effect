@@ -56,6 +56,52 @@ it.layer(platform, { timeout: "30 seconds" })((it) => {
   });
 });
 
+// The workspace-root markers and a present system config, as unit cases on
+// memfs: the integration suite covers them on a real tree, and these keep the
+// coverage lane (which excludes test/integration) at full branch coverage.
+const markers = Layer.mergeAll(
+  MemoryFileSystem.layerWith({
+    "/npm/package.json": `{"workspaces":["packages/*"]}`,
+    "/npm/.apprc": "{}",
+    "/npm/sub/keep": "",
+    "/pnpm/pnpm-workspace.yaml": "packages: []\n",
+    "/pnpm/.apprc": "{}",
+    "/plain/package.json": `{"name":"plain"}`,
+    "/plain/.apprc": "{}",
+    "/broken/package.json": "{not json",
+    "/broken/.apprc": "{}",
+    "/etc-root/app/config": "{}",
+  }),
+  Path.layer
+);
+
+it.layer(markers, { timeout: "30 seconds" })((it) => {
+  describe("workspace-root markers and a present system config", () => {
+    it.effect("a package.json with workspaces marks the root, from a nested cwd", () =>
+      Effect.gen(function* () {
+        assertSome(yield* ConfigResolver.workspaceRoot({ filename: ".apprc", cwd: "/npm/sub" }).resolve, "/npm/.apprc");
+      })
+    );
+    it.effect("pnpm-workspace.yaml marks the root", () =>
+      Effect.gen(function* () {
+        assertSome(yield* ConfigResolver.workspaceRoot({ filename: ".apprc", cwd: "/pnpm" }).resolve, "/pnpm/.apprc");
+      })
+    );
+    it.effect("a package.json without workspaces, or one that is not JSON, marks nothing", () =>
+      Effect.gen(function* () {
+        assertNone(yield* ConfigResolver.workspaceRoot({ filename: ".apprc", cwd: "/plain" }).resolve);
+        assertNone(yield* ConfigResolver.workspaceRoot({ filename: ".apprc", cwd: "/broken" }).resolve);
+      })
+    );
+    it.effect("systemEtc finds a config that exists under its root", () =>
+      Effect.gen(function* () {
+        const etc = ConfigResolver.systemEtc({ app: "app", filename: "config", dir: "/etc-root" });
+        assertSome(yield* Effect.provideService(etc.resolve, HostProcessPlatform, "linux"), "/etc-root/app/config");
+      })
+    );
+  });
+});
+
 it.effect("the exported resolver facade is constructible for JavaScript consumers", () =>
   Effect.sync(() => {
     assert.isTrue(Reflect.construct(ConfigResolver, []) instanceof ConfigResolver);
