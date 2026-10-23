@@ -66,15 +66,15 @@ class SkillOptTaskCompletionCriteria extends S.Opaque<
   S.Struct({
     requiredExports: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     requiredPatterns: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     forbiddenPatterns: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("SkillOptTaskCompletionCriteria", {
@@ -128,11 +128,11 @@ export class SkillOptTaskManifest extends S.Opaque<SkillOptTaskManifest, { reado
     id: S.String,
     ruleIds: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     derivedFrom: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     prompt: S.String,
     fixture: S.String,
@@ -403,11 +403,11 @@ export class AgentEffectivenessEvalScoreReport extends S.Opaque<
     violations: S.Array(AgentEffectivenessEvalViolation),
     status: AgentEffectivenessEvalReportStatus.pipe(
       S.withConstructorDefault(Effect.succeed<"scored">("scored")),
-      S.withDecodingDefault(Effect.succeed<"scored">("scored"))
+      S.withDecodingDefaultKey(Effect.succeed<"scored">("scored"))
     ),
     lanes: S.Array(AgentEffectivenessEvalLaneReport).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>()))
     ),
   }).pipe(
     $I.annoteSchema("AgentEffectivenessEvalScoreReport", {

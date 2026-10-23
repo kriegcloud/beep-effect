@@ -162,11 +162,11 @@ export class WorkflowInfo extends S.Opaque<WorkflowInfo, { readonly brand: uniqu
 export class PollOptions extends S.Opaque<PollOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** How often to check. Defaults to ten seconds. */
-    interval: S.optional(S.Duration).pipe(
+    interval: S.optionalKey(S.Duration).pipe(
       $I.annoteKey("PollOptions.interval", { description: "How often to check; defaults to ten seconds." })
     ),
     /** How long to keep checking. Defaults to five minutes. */
-    timeout: S.optional(S.Duration).pipe(
+    timeout: S.optionalKey(S.Duration).pipe(
       $I.annoteKey("PollOptions.timeout", { description: "How long to keep checking; defaults to five minutes." })
     ),
   }).pipe(

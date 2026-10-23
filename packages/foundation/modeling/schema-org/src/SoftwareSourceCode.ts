@@ -65,7 +65,7 @@ export class SoftwareSourceCode extends S.Opaque<SoftwareSourceCode, { readonly 
      *
      * @since 0.0.0
      */
-    codeRepository: S.optional(S.String).pipe(
+    codeRepository: S.optionalKey(S.String).pipe(
       $I.annoteKey("SoftwareSourceCode.codeRepository", {
         description: "The repository the code lives in. Single-valued.",
       })
@@ -77,7 +77,7 @@ export class SoftwareSourceCode extends S.Opaque<SoftwareSourceCode, { readonly 
      */
     programmingLanguage: S.String.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("SoftwareSourceCode.programmingLanguage", {
         description: "The languages the code is written in. Repeatable.",
       })
@@ -89,7 +89,7 @@ export class SoftwareSourceCode extends S.Opaque<SoftwareSourceCode, { readonly 
      */
     runtimePlatform: S.String.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("SoftwareSourceCode.runtimePlatform", {
         description: "Runtime platforms the code targets. Repeatable.",
       })
@@ -101,7 +101,7 @@ export class SoftwareSourceCode extends S.Opaque<SoftwareSourceCode, { readonly 
      */
     targetProduct: NodeRef.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("SoftwareSourceCode.targetProduct", {
         description: "Products this code produces, by reference. Repeatable.",
       })

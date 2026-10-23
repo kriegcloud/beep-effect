@@ -353,19 +353,19 @@ export class ResidueReapCandidate extends S.Opaque<ResidueReapCandidate, { reado
     root: S.String,
     path: S.String,
     reapClass: ResidueReapClass,
-    ageDays: S.optional(S.Finite),
+    ageDays: S.optionalKey(S.Finite),
     action: ResidueReapAction,
-    skipReason: S.optional(ResidueReapSkipReason),
-    entriesScanned: S.optional(S.Int),
-    bytes: S.optional(S.Finite),
-    checkoutRoot: S.optional(S.String),
-    mtimeMillis: S.optional(S.Finite),
-    groupKey: S.optional(S.String),
-    owner: S.optional(S.String),
-    terminalState: S.optional(ResidueTerminalState),
-    recoveryDestination: S.optional(S.String),
-    retentionReason: S.optional(S.String),
-    bytesExclusive: S.optional(ResidueReapByteCap),
+    skipReason: S.optionalKey(ResidueReapSkipReason),
+    entriesScanned: S.optionalKey(S.Int),
+    bytes: S.optionalKey(S.Finite),
+    checkoutRoot: S.optionalKey(S.String),
+    mtimeMillis: S.optionalKey(S.Finite),
+    groupKey: S.optionalKey(S.String),
+    owner: S.optionalKey(S.String),
+    terminalState: S.optionalKey(ResidueTerminalState),
+    recoveryDestination: S.optionalKey(S.String),
+    retentionReason: S.optionalKey(S.String),
+    bytesExclusive: S.optionalKey(ResidueReapByteCap),
   }).pipe(
     $I.annoteSchema("ResidueReapCandidate", {
       description: "One home-residue candidate with age, census, action, and fail-closed skip evidence.",
@@ -416,8 +416,8 @@ export class ResidueReapCandidate extends S.Opaque<ResidueReapCandidate, { reado
 export class ResidueReapReport extends S.Opaque<ResidueReapReport, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: S.tag("residue-reap/v3"),
-    runId: S.optional(S.String),
-    reportPath: S.optional(S.String),
+    runId: S.optionalKey(S.String),
+    reportPath: S.optionalKey(S.String),
     scannedAt: S.String,
     homeRoot: S.String,
     repoRoot: S.String,
@@ -431,7 +431,7 @@ export class ResidueReapReport extends S.Opaque<ResidueReapReport, { readonly br
     fleet: S.Boolean,
     checkoutRoots: S.Array(S.String),
     applied: S.Boolean,
-    mode: S.optional(ResidueReapMode),
+    mode: S.optionalKey(ResidueReapMode),
     classes: S.Array(ResidueReapClass),
     candidates: S.Array(ResidueReapCandidate),
     reapedCount: S.Int,
@@ -538,7 +538,7 @@ export class ResidueArchiveError extends S.TaggedError<ResidueArchiveError, { re
   $I`ResidueArchiveError`
 )(
   "ResidueArchiveError",
-  { message: S.String, skipReason: S.optional(ResidueReapSkipReason) },
+  { message: S.String, skipReason: S.optionalKey(ResidueReapSkipReason) },
   $I.annoteError<ResidueArchiveError>("ResidueArchiveError", {
     description: "Archive recovery refused a changed boundary, inode, or live owner.",
   })

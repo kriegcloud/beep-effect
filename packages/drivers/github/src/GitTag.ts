@@ -165,21 +165,21 @@ export const versionFromTag: VersionFromTag = (tag) => {
 export class LatestSemverOptions extends S.Opaque<LatestSemverOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Override the tag-name → version convention. */
-    extract: S.optional(S.declare((input: unknown): input is VersionFromTag => P.isFunction(input))).pipe(
+    extract: S.optionalKey(S.declare((input: unknown): input is VersionFromTag => P.isFunction(input))).pipe(
       $I.annoteKey("LatestSemverOptions.extract", { description: "Override the tag-name to version convention." })
     ),
     /** Consider prereleases too. Off by default: `1.0.0-rc.1` is not the latest release. */
-    includePrerelease: S.optional(S.Boolean).pipe(
+    includePrerelease: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("LatestSemverOptions.includePrerelease", {
         description: "Consider prereleases too; off by default because 1.0.0-rc.1 is not the latest release.",
       })
     ),
     /** How far to walk. */
-    page: S.optional(PageOptions.pipe(S.toType)).pipe(
+    page: S.optionalKey(PageOptions.pipe(S.toType)).pipe(
       $I.annoteKey("LatestSemverOptions.page", { description: "How far to walk the tag pages." })
     ),
     /** Only consider tags starting with this. */
-    prefix: S.optional(S.String).pipe(
+    prefix: S.optionalKey(S.String).pipe(
       $I.annoteKey("LatestSemverOptions.prefix", { description: "Only consider tags starting with this." })
     ),
   }).pipe($I.annoteSchema("LatestSemverOptions", { description: "How to pick the newest version-shaped tag." }))

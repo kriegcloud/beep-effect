@@ -359,7 +359,7 @@ export class GoalAcceptanceEvidenceRef extends S.Opaque<GoalAcceptanceEvidenceRe
   S.Struct({
     kind: GoalAcceptanceEvidenceKind,
     ref: S.NonEmptyString,
-    gating: S.Boolean.pipe(S.withDecodingDefault(Effect.succeed(true))),
+    gating: S.Boolean.pipe(S.withDecodingDefaultKey(Effect.succeed(true))),
   }).pipe(
     $I.annoteSchema("GoalAcceptanceEvidenceRef", {
       description: "Points to acceptance evidence bound to a commit, with an explicit gating policy.",
@@ -954,11 +954,11 @@ export class GoalRequiredCheckSnapshot extends S.Opaque<GoalRequiredCheckSnapsho
     ),
     mergeTimeInventory: S.OptionFromNullOr(GoalMergeTimeInventory).pipe(
       S.withConstructorDefault(Effect.succeedNone),
-      S.withDecodingDefault(Effect.succeed(null))
+      S.withDecodingDefaultKey(Effect.succeed(null))
     ),
     gaps: S.Array(GoalCompletionEvidenceGap).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<GoalCompletionEvidenceGap>())),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
   }).pipe(
     $I.annoteSchema("GoalRequiredCheckSnapshot", {
@@ -1015,7 +1015,7 @@ export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { rea
     acceptedDeclarationDigest: S.OptionFromNullOr(S.NonEmptyString),
     requiredChecks: S.OptionFromNullOr(GoalRequiredCheckSnapshot).pipe(
       S.withConstructorDefault(Effect.succeedNone),
-      S.withDecodingDefault(Effect.succeed(null))
+      S.withDecodingDefaultKey(Effect.succeed(null))
     ),
     finalPullRequest: S.Int.check(S.isGreaterThan(0)),
     acceptedHead: S.OptionFromNullOr(S.NonEmptyString),
@@ -1023,7 +1023,7 @@ export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { rea
     evidence: S.Array(GoalEvidenceCheck),
     requiredCheckFacts: S.Array(GoalRequiredCheckFact).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<GoalRequiredCheckFact>())),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     nonRequiredReds: S.Array(GoalNonRequiredRed),
     subClaims: S.Array(GoalEvidenceCheck),
@@ -1263,7 +1263,7 @@ export const isCapabilitySlug = S.is(CapabilitySlug);
 
 const CapabilitySlugList = S.Array(CapabilitySlug).pipe(
   S.withConstructorDefault(Effect.succeed(A.empty<CapabilitySlug>())),
-  S.withDecodingDefault(Effect.succeed(A.empty<CapabilitySlug>())),
+  S.withDecodingDefaultKey(Effect.succeed(A.empty<CapabilitySlug>())),
   $I.annoteSchema("CapabilitySlugList", {
     description: "Defaulted ordered declarations of goal capabilities.",
   })

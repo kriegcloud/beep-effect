@@ -86,11 +86,11 @@ export class RootPackageJsonDocument extends S.Opaque<RootPackageJsonDocument, {
   S.Struct({
     catalog: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, string>()))
     ),
     devDependencies: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, string>()))
     ),
   }).pipe(
     $I.annoteSchema("RootPackageJsonDocument", {

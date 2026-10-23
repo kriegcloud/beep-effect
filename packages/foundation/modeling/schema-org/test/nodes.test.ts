@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { APIReference } from "@beep/schema-org/APIReference";
 import { CreativeWork, CreativeWorkFields } from "@beep/schema-org/CreativeWork";
 import { JsonLdDocument } from "@beep/schema-org/JsonLdDocument";
@@ -8,8 +9,11 @@ import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { TechArticle, TechArticleFields } from "@beep/schema-org/TechArticle";
 import { ThingFields } from "@beep/schema-org/Thing";
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -32,24 +36,21 @@ describe("node classes", () => {
     }
   });
 
-  it("accepts an explicit undefined for any optional field", () => {
-    // This is the scoped `Schema.optional` exception. Under `optionalKey`
-    // every one of these would throw, and every consumer call site would
-    // need a conditional spread, because every field originates in a
-    // possibly-absent piece of upstream metadata.
-    const node = TechArticle.make({
-      "@id": ID,
-      headline: undefined,
-      description: undefined,
-      datePublished: undefined,
-      author: undefined,
-      mainEntity: undefined,
-      additional: undefined,
-    });
-
-    assert.strictEqual(node["@id"], ID);
-    assert.isUndefined(node.headline);
-  });
+  // Optional fields are exact keys (EF-40): absence is spelled by omitting the
+  // key, so a present key holding undefined never decodes.
+  it.effect.prop(
+    "rejects an explicit undefined for any optional field",
+    [Arbitrary.schema(TechArticle)],
+    ([node]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(TechArticle)(node);
+        for (const key of ["headline", "description", "datePublished", "author", "mainEntity", "additional"]) {
+          const explicit = yield* S.decodeEffect(TechArticle)({ ...encoded, [key]: undefined }).pipe(Effect.exit);
+          explicit.pipe(Exit.isFailure, assertTrue);
+        }
+      }),
+    { arbitrary: fcRuns(25) }
+  );
 
   it("requires @id and nothing else", () => {
     assert.strictEqual(Person.make({ "@id": ID })["@id"], ID);

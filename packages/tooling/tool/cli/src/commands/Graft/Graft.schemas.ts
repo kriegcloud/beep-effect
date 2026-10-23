@@ -133,7 +133,7 @@ export class GraftCacheSyncPlanEntry extends S.Opaque<GraftCacheSyncPlanEntry, {
     target: GraftCacheSyncTarget,
     artifact: GraftCacheArtifact,
     action: GraftCacheSyncAction,
-    reason: S.optional(S.String),
+    reason: S.optionalKey(S.String),
     sourcePath: S.String,
     targetPath: S.String,
   }).pipe(
@@ -441,7 +441,7 @@ export const parseDeepCoverage = (text: string): O.Option<GraftDeepCoverage> => 
 export class GraftDeepRefreshOptions extends S.Opaque<GraftDeepRefreshOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     owner: S.String,
-    model: S.optional(S.String),
+    model: S.optionalKey(S.String),
     jobs: PosInt,
     minCoverage: UnitInterval,
     seed: S.Boolean,
@@ -523,18 +523,18 @@ export class GraftDeepRefreshStatus extends S.Opaque<GraftDeepRefreshStatus, { r
   S.Struct({
     schemaVersion: S.tag("beep-graft-deep-refresh/v1"),
     owner: S.String,
-    head: S.optional(S.String),
+    head: S.optionalKey(S.String),
     model: S.String,
     jobs: PosInt,
     startedAt: S.String,
-    finishedAt: S.optional(S.String),
+    finishedAt: S.optionalKey(S.String),
     phase: GraftDeepRefreshPhase,
-    outcome: S.optional(GraftDeepRefreshOutcome),
-    coverage: S.optional(GraftDeepCoverage),
-    seed: S.optional(GraftCacheSyncReport),
+    outcome: S.optionalKey(GraftDeepRefreshOutcome),
+    coverage: S.optionalKey(GraftDeepCoverage),
+    seed: S.optionalKey(GraftCacheSyncReport),
     rebuilt: S.Array(GraftDeepSiblingRebuild),
     log: S.String,
-    message: S.optional(S.String),
+    message: S.optionalKey(S.String),
   }).pipe(
     $I.annoteSchema("GraftDeepRefreshStatus", {
       description: "Phase, coverage, seed receipt, and rebuild results of the most recent refresh run.",
@@ -741,11 +741,11 @@ export class GraftDeepRunnerStep extends S.Opaque<GraftDeepRunnerStep, { readonl
     command: S.String,
     args: S.Array(S.String),
     cwd: S.String,
-    env: S.optional(S.Record(S.String, S.String)),
-    log: S.optional(S.String),
+    env: S.optionalKey(S.Record(S.String, S.String)),
+    log: S.optionalKey(S.String),
     phase: GraftDeepRefreshPhase,
-    source: S.optional(GraftDeepCaptureSource),
-    timeout: S.optional(DurationExpression),
+    source: S.optionalKey(GraftDeepCaptureSource),
+    timeout: S.optionalKey(DurationExpression),
   }).pipe(
     $I.annoteSchema("GraftDeepRunnerStep", {
       description: "Command, working directory, environment, and bound of one refresh subprocess.",

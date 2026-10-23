@@ -137,7 +137,7 @@ export class YeetAttemptJournalCompacted extends S.Opaque<
     evictedCount: S.Natural,
     evictedAttemptIds: S.Array(UUIDSchema).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<UUID>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<UUID>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<UUID>()))
     ),
     oldestEvictedRecordedAt: S.String,
     terminalEvictionCutoffRecordedAt: S.String.pipe(

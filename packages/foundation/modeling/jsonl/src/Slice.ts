@@ -23,13 +23,13 @@ const $I = $JsonlId.create("Slice");
 
 // Selection options are plain boundary inputs. Their schemas retain literal tags
 // while preserving ordinary object-literal calls to query, changes and projection.
-// Every key is optional with upstream omission semantics: an explicitly
-// undefined key selects exactly what an omitted one does.
+// Every key is an exact optional key (EF-40, kept deviation 24): omit a key
+// rather than passing undefined.
 const fields = <T extends string>(event: S.Codec<T>) => ({
-  events: event.pipe(S.Array, S.optional),
-  scopes: S.String.pipe(S.Array, S.optional),
-  from: S.optional(S.DateTimeUtc),
-  to: S.optional(S.DateTimeUtc),
+  events: event.pipe(S.Array, S.optionalKey),
+  scopes: S.String.pipe(S.Array, S.optionalKey),
+  from: S.optionalKey(S.DateTimeUtc),
+  to: S.optionalKey(S.DateTimeUtc),
 });
 /**
  * Build selection options whose event filter retains the supplied tag domain.
@@ -68,7 +68,7 @@ export const Slice = <T extends string>(event: S.Codec<T>) =>
 export const CursoredSlice = <T extends string>(event: S.Codec<T>) =>
   S.Struct({
     ...fields(event),
-    cursor: S.optional(ByteCount),
+    cursor: S.optionalKey(ByteCount),
   }).pipe(
     $I.annoteSchema("CursoredSlice", { description: "Frame selection resumed at a logical post-BOM byte offset." })
   );
