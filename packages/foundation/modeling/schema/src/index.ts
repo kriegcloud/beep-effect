@@ -217,11 +217,6 @@ export * from "./SemanticVersion.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./Semver.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
 export * from "./SeverityLevel.ts";
 /**
  * @since 0.0.0

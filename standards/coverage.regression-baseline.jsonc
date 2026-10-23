@@ -42698,18 +42698,6 @@
             "functions": 0
           }
         },
-        "packages/foundation/modeling/schema/src/Semver.ts": {
-          "lines": 95.07,
-          "statements": 95.13,
-          "branches": 77.14,
-          "functions": 89.39,
-          "uncovered": {
-            "lines": 7,
-            "statements": 7,
-            "branches": 8,
-            "functions": 7
-          }
-        },
         "packages/foundation/modeling/schema/src/SeverityLevel.ts": {
           "lines": 100,
           "statements": 100,

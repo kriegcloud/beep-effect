@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-23T16:44:59.134Z
+Generated: 2026-10-23T18:20:50.828Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 95 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
-| publicModules | 3595 |
-| publicExports | 25272 |
+| publicModules | 3594 |
+| publicExports | 25268 |
 | openModules | 585 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -62,7 +62,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 4 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 8 | 273 | 2 | 198 |
 | 5 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 28 | 218 | 6 | 101 |
 | 6 | `@beep/data` | `packages/foundation/primitive/data` | needs-remediation | 12 | 162 | 10 | 16 |
-| 7 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 169 | 974 | 14 | 33 |
+| 7 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 168 | 970 | 14 | 33 |
 | 8 | `@beep/glob` | `packages/foundation/modeling/glob` | clean | 4 | 9 | 0 | 0 |
 | 9 | `@beep/memfs` | `packages/tooling/test-kit/memfs` | clean | 3 | 23 | 0 | 0 |
 | 10 | `@beep/walker` | `packages/foundation/capability/walker` | clean | 4 | 24 | 0 | 0 |
@@ -777,30 +777,30 @@ Export findings:
 - `src/Md.behavior.ts:167` `renderPlainTextBlocks` (const) - 1 example import violation(s)
 - `src/Md.conformance.ts:402` `refineStrictMarkdownDocument` (const) - 1 example import violation(s)
 - `src/Md.conformance.ts:486` `inspectMarkdownSpecificationConformance` (const) - 1 example import violation(s)
-- `src/Md.escape.ts:716` `maxBackticks` (const) - 1 example import violation(s)
-- `src/Md.escape.ts:781` `renderFencedCode` (const) - 1 example import violation(s)
+- `src/Md.escape.ts:717` `maxBackticks` (const) - 1 example import violation(s)
+- `src/Md.escape.ts:786` `renderFencedCode` (const) - 1 example import violation(s)
 - `src/Md.html.ts:42` `renderSafeHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:599` `renderMarkdownInline` (function) - 1 example import violation(s)
-- `src/Md.render.ts:658` `renderHtmlInline` (function) - 1 example import violation(s)
-- `src/Md.render.ts:677` `renderMarkdownBlock` (const) - 1 example import violation(s)
-- `src/Md.render.ts:730` `renderHtmlBlock` (const) - 1 example import violation(s)
-- `src/Md.render.ts:765` `renderMarkdownBlocks` (const) - 1 example import violation(s)
-- `src/Md.render.ts:785` `renderHtmlBlocks` (const) - 1 example import violation(s)
-- `src/Md.render.ts:810` `renderUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:831` `renderHtmlUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:852` `renderPlainTextUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:897` `renderWithUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:932` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:974` `renderEffectWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1379` `makeMarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1407` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1433` `MarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1457` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1476` `PlainTextAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1503` `renderWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1537` `render` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1562` `renderHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1587` `renderPlainText` (const) - 1 example import violation(s)
+- `src/Md.render.ts:858` `renderMarkdownInline` (function) - 1 example import violation(s)
+- `src/Md.render.ts:917` `renderHtmlInline` (function) - 1 example import violation(s)
+- `src/Md.render.ts:936` `renderMarkdownBlock` (const) - 1 example import violation(s)
+- `src/Md.render.ts:971` `renderHtmlBlock` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1006` `renderMarkdownBlocks` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1026` `renderHtmlBlocks` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1051` `renderUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1072` `renderHtmlUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1093` `renderPlainTextUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1138` `renderWithUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1173` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1215` `renderEffectWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1599` `makeMarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1627` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1653` `MarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1677` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1696` `PlainTextAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1723` `renderWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1757` `render` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1782` `renderHtml` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1807` `renderPlainText` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:750` `documentSafetyIssues` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:776` `inlineSafetyIssuesAtRoot` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:968` `refineSafeDocument` (const) - 1 example import violation(s)

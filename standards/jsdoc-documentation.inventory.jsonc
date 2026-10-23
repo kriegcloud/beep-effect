@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-23T16:44:59.134Z",
+  "generatedAt": "2026-10-23T18:20:50.828Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -65,8 +65,8 @@
     "cleanPackages": 95,
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
-    "publicModules": 3595,
-    "publicExports": 25272,
+    "publicModules": 3594,
+    "publicExports": 25268,
     "openModules": 585,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -18731,9 +18731,9 @@
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
-        "sourceFileCount": 169,
-        "publicModuleCount": 169,
-        "publicExportCount": 974
+        "sourceFileCount": 168,
+        "publicModuleCount": 168,
+        "publicExportCount": 970
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -22226,28 +22226,6 @@
         },
         {
           "docKind": "packageDocumentation",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 1,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-1-module",
-          "currentTags": [
-            "@packageDocumentation",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "exportCount": 3,
-          "remediationStatus": "resolved"
-        },
-        {
-          "docKind": "packageDocumentation",
           "filePath": "src/SeverityLevel.ts",
           "repoPath": "packages/foundation/modeling/schema/src/SeverityLevel.ts",
           "line": 1,
@@ -22534,7 +22512,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 44,
+          "exportCount": 43,
           "remediationStatus": "resolved"
         }
       ],
@@ -42027,72 +42005,6 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "Semver",
-          "exportKind": "class",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 382,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-382-semver",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "SemverFromString",
-          "exportKind": "const",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 657,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-657-semverfromstring",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "SemverFromString",
-          "exportKind": "type",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 683,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-683-semverfromstring",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
           "symbolName": "SeverityLevel",
           "exportKind": "const",
           "filePath": "src/SeverityLevel.ts",
@@ -44175,34 +44087,12 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "export * from \"./Semver.ts\";",
-          "exportKind": "re-export",
-          "filePath": "src/index.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 220,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-220-export-from-semver-ts",
-          "currentTags": [
-            "@since",
-            "@category"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
           "symbolName": "export * from \"./SeverityLevel.ts\";",
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 225,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-225-export-from-severitylevel-ts",
+          "line": 220,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-220-export-from-severitylevel-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44223,8 +44113,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 230,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-230-export-from-sha256-ts",
+          "line": 225,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-225-export-from-sha256-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44245,8 +44135,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 235,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-235-export-from-slug-ts",
+          "line": 230,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-230-export-from-slug-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44267,8 +44157,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 240,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-240-export-from-territorycode-ts",
+          "line": 235,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-235-export-from-territorycode-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44289,8 +44179,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 245,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-245-export-from-url-ts",
+          "line": 240,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-240-export-from-url-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44311,8 +44201,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 250,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-250-export-from-xml-ts",
+          "line": 245,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-245-export-from-xml-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -86085,8 +85975,8 @@
           "exportKind": "class",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 94,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-94-compatibilityurlpolicy",
+          "line": 95,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-95-compatibilityurlpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -86107,8 +85997,8 @@
           "exportKind": "class",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 123,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-123-allowlisturlpolicyspec",
+          "line": 124,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-124-allowlisturlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86129,8 +86019,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 162,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-162-urlpolicyspec",
+          "line": 163,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-163-urlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86151,8 +86041,8 @@
           "exportKind": "type",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 185,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-185-urlpolicyspec",
+          "line": 186,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-186-urlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86173,8 +86063,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 201,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-201-compatibilityurlpolicyspec",
+          "line": 202,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-202-compatibilityurlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86195,8 +86085,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 217,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-217-browsersafeurlpolicyspec",
+          "line": 218,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-218-browsersafeurlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86217,8 +86107,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 237,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-237-strictweburlpolicyspec",
+          "line": 238,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-238-strictweburlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86239,8 +86129,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 257,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-257-usercontentlinkurlpolicyspec",
+          "line": 258,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-258-usercontentlinkurlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86261,8 +86151,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 277,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-277-usercontentimageurlpolicyspec",
+          "line": 278,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-278-usercontentimageurlpolicyspec",
           "currentTags": [
             "@category",
             "@since"
@@ -86283,8 +86173,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 479,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-479-isurldestinationallowedwithpolicy",
+          "line": 480,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-480-isurldestinationallowedwithpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -86305,8 +86195,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 507,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-507-isurldestinationallowed",
+          "line": 508,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-508-isurldestinationallowed",
           "currentTags": [
             "@category",
             "@since"
@@ -86327,8 +86217,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 524,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-524-joinblocks",
+          "line": 525,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-525-joinblocks",
           "currentTags": [
             "@category",
             "@since"
@@ -86349,8 +86239,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 545,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-545-prefixlines",
+          "line": 546,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-546-prefixlines",
           "currentTags": [
             "@category",
             "@since"
@@ -86371,8 +86261,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 567,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-567-escapemarkdowntext",
+          "line": 568,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-568-escapemarkdowntext",
           "currentTags": [
             "@category",
             "@since"
@@ -86393,8 +86283,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 587,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-587-sanitizeurldestinationwithpolicy",
+          "line": 588,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-588-sanitizeurldestinationwithpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -86415,8 +86305,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 613,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-613-sanitizeurldestination",
+          "line": 614,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-614-sanitizeurldestination",
           "currentTags": [
             "@category",
             "@since"
@@ -86437,8 +86327,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 630,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-630-escapemarkdowndestinationwithpolicy",
+          "line": 631,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-631-escapemarkdowndestinationwithpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -86459,8 +86349,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 652,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-652-escapemarkdowndestination",
+          "line": 653,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-653-escapemarkdowndestination",
           "currentTags": [
             "@category",
             "@since"
@@ -86481,8 +86371,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 672,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-672-escapehtmlurlattributewithpolicy",
+          "line": 673,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-673-escapehtmlurlattributewithpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -86503,8 +86393,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 693,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-693-escapehtmlurlattribute",
+          "line": 694,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-694-escapehtmlurlattribute",
           "currentTags": [
             "@category",
             "@since"
@@ -86525,8 +86415,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 716,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-716-maxbackticks",
+          "line": 717,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-717-maxbackticks",
           "currentTags": [
             "@category",
             "@since"
@@ -86553,8 +86443,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 745,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-745-renderinlinecode",
+          "line": 746,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-746-renderinlinecode",
           "currentTags": [
             "@category",
             "@since"
@@ -86575,8 +86465,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 781,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-781-renderfencedcode",
+          "line": 786,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-786-renderfencedcode",
           "currentTags": [
             "@category",
             "@since"
@@ -86603,8 +86493,8 @@
           "exportKind": "const",
           "filePath": "src/Md.escape.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.escape.ts",
-          "line": 805,
-          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-805-isstringarray",
+          "line": 810,
+          "anchor": "packages-foundation-modeling-md-src-md-escape-ts-810-isstringarray",
           "currentTags": [
             "@category",
             "@since"
@@ -89255,8 +89145,8 @@
           "exportKind": "function",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 599,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-599-rendermarkdowninline",
+          "line": 858,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-858-rendermarkdowninline",
           "currentTags": [
             "@category",
             "@since"
@@ -89283,8 +89173,8 @@
           "exportKind": "function",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 658,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-658-renderhtmlinline",
+          "line": 917,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-917-renderhtmlinline",
           "currentTags": [
             "@category",
             "@since"
@@ -89311,8 +89201,8 @@
           "exportKind": "class",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 138,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-138-rendererror",
+          "line": 198,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-198-rendererror",
           "currentTags": [
             "@category",
             "@since"
@@ -89333,8 +89223,8 @@
           "exportKind": "interface",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 168,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-168-purerenderadapter",
+          "line": 228,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-228-purerenderadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89355,8 +89245,8 @@
           "exportKind": "interface",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 197,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-197-effectrenderadapter",
+          "line": 257,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-257-effectrenderadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89377,8 +89267,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 677,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-677-rendermarkdownblock",
+          "line": 936,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-936-rendermarkdownblock",
           "currentTags": [
             "@category",
             "@since"
@@ -89405,8 +89295,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 730,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-730-renderhtmlblock",
+          "line": 971,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-971-renderhtmlblock",
           "currentTags": [
             "@category",
             "@since"
@@ -89433,8 +89323,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 765,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-765-rendermarkdownblocks",
+          "line": 1006,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1006-rendermarkdownblocks",
           "currentTags": [
             "@category",
             "@since"
@@ -89461,8 +89351,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 785,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-785-renderhtmlblocks",
+          "line": 1026,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1026-renderhtmlblocks",
           "currentTags": [
             "@category",
             "@since"
@@ -89489,8 +89379,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 810,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-810-renderunsafe",
+          "line": 1051,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1051-renderunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89517,8 +89407,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 831,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-831-renderhtmlunsafe",
+          "line": 1072,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1072-renderhtmlunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89545,8 +89435,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 852,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-852-renderplaintextunsafe",
+          "line": 1093,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1093-renderplaintextunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89573,8 +89463,8 @@
           "exportKind": "type",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 875,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-875-renderoutputof",
+          "line": 1116,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1116-renderoutputof",
           "currentTags": [
             "@category",
             "@since"
@@ -89595,8 +89485,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 897,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-897-renderwithunsafe",
+          "line": 1138,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1138-renderwithunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89623,8 +89513,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 932,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-932-rendereffectwithunsafe",
+          "line": 1173,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1173-rendereffectwithunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89651,8 +89541,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 974,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-974-rendereffectwith",
+          "line": 1215,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1215-rendereffectwith",
           "currentTags": [
             "@category",
             "@since"
@@ -89679,8 +89569,8 @@
           "exportKind": "class",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1014,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1014-urlrenderoptions",
+          "line": 1255,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1255-urlrenderoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -89701,8 +89591,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1379,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1379-makemarkdownadapter",
+          "line": 1599,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1599-makemarkdownadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89729,8 +89619,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1407,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1407-makehtmlfragmentadapter",
+          "line": 1627,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1627-makehtmlfragmentadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89757,8 +89647,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1433,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1433-markdownadapter",
+          "line": 1653,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1653-markdownadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89785,8 +89675,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1457,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1457-htmlfragmentadapter",
+          "line": 1677,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1677-htmlfragmentadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89813,8 +89703,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1476,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1476-plaintextadapter",
+          "line": 1696,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1696-plaintextadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89841,8 +89731,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1503,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1503-renderwith",
+          "line": 1723,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1723-renderwith",
           "currentTags": [
             "@category",
             "@since"
@@ -89869,8 +89759,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1537,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1537-render",
+          "line": 1757,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1757-render",
           "currentTags": [
             "@category",
             "@since"
@@ -89897,8 +89787,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1562,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1562-renderhtml",
+          "line": 1782,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1782-renderhtml",
           "currentTags": [
             "@category",
             "@since"
@@ -89925,8 +89815,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1587,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1587-renderplaintext",
+          "line": 1807,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1807-renderplaintext",
           "currentTags": [
             "@category",
             "@since"
@@ -90525,8 +90415,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 93,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-93-mdlossreason",
+          "line": 95,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-95-mdlossreason",
           "currentTags": [
             "@category",
             "@since"
@@ -90547,8 +90437,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 126,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-126-mdlossreason",
+          "line": 128,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-128-mdlossreason",
           "currentTags": [
             "@category",
             "@since"
@@ -90569,8 +90459,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 144,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-144-mdlossseverity",
+          "line": 146,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-146-mdlossseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -90591,8 +90481,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 156,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-156-mdlossseverity",
+          "line": 158,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-158-mdlossseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -90613,8 +90503,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 216,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-216-mdloss",
+          "line": 218,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-218-mdloss",
           "currentTags": [
             "@category",
             "@since"
@@ -90635,8 +90525,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 246,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-246-mdloss",
+          "line": 248,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-248-mdloss",
           "currentTags": [
             "@category",
             "@since"
@@ -90657,8 +90547,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 279,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-279-lossseverity",
+          "line": 281,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-281-lossseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -90679,8 +90569,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 302,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-302-mdsourceorigin",
+          "line": 304,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-304-mdsourceorigin",
           "currentTags": [
             "@category",
             "@since"
@@ -90701,8 +90591,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 314,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-314-mdsourceorigin",
+          "line": 316,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-316-mdsourceorigin",
           "currentTags": [
             "@category",
             "@since"
@@ -90723,8 +90613,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 347,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-347-mdsourceentry",
+          "line": 349,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-349-mdsourceentry",
           "currentTags": [
             "@category",
             "@since"
@@ -90745,8 +90635,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 375,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-375-mdsourceentry",
+          "line": 377,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-377-mdsourceentry",
           "currentTags": [
             "@category",
             "@since"
@@ -90767,8 +90657,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 422,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-422-mdsourcemap",
+          "line": 424,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-424-mdsourcemap",
           "currentTags": [
             "@category",
             "@since"
@@ -90789,8 +90679,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 442,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-442-mdsourcemap",
+          "line": 444,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-444-mdsourcemap",
           "currentTags": [
             "@category",
             "@since"
@@ -90811,8 +90701,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 599,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-599-positionat",
+          "line": 601,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-601-positionat",
           "currentTags": [
             "@category",
             "@since"
@@ -90833,8 +90723,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 627,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-627-mdhtmlpolicy",
+          "line": 629,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-629-mdhtmlpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -90855,8 +90745,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 637,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-637-mdhtmlpolicy",
+          "line": 639,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-639-mdhtmlpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -90877,8 +90767,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 656,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-656-mdhtmlcommentpolicy",
+          "line": 658,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-658-mdhtmlcommentpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -90899,8 +90789,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 666,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-666-mdhtmlcommentpolicy",
+          "line": 668,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-668-mdhtmlcommentpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -90921,8 +90811,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 684,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-684-mdautolinkliteralpolicy",
+          "line": 686,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-686-mdautolinkliteralpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -90943,8 +90833,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 694,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-694-mdautolinkliteralpolicy",
+          "line": 696,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-696-mdautolinkliteralpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -90965,8 +90855,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 712,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-712-mdsoftbreak",
+          "line": 714,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-714-mdsoftbreak",
           "currentTags": [
             "@category",
             "@since"
@@ -90987,8 +90877,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 722,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-722-mdsoftbreak",
+          "line": 724,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-724-mdsoftbreak",
           "currentTags": [
             "@category",
             "@since"
@@ -91009,8 +90899,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 740,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-740-mdfrontmatterpolicy",
+          "line": 742,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-742-mdfrontmatterpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91031,8 +90921,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 750,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-750-mdfrontmatterpolicy",
+          "line": 752,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-752-mdfrontmatterpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91053,8 +90943,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 768,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-768-mdfrontmatterfailure",
+          "line": 770,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-770-mdfrontmatterfailure",
           "currentTags": [
             "@category",
             "@since"
@@ -91075,8 +90965,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 778,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-778-mdfrontmatterfailure",
+          "line": 780,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-780-mdfrontmatterfailure",
           "currentTags": [
             "@category",
             "@since"
@@ -91097,8 +90987,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 795,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-795-mdsyntaxoptionfields",
+          "line": 797,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-797-mdsyntaxoptionfields",
           "currentTags": [
             "@category",
             "@since"
@@ -91119,8 +91009,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 876,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-876-mdsyntaxoptions",
+          "line": 879,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-879-mdsyntaxoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -91141,8 +91031,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 890,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-890-mdsyntaxoptions",
+          "line": 893,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-893-mdsyntaxoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -91163,8 +91053,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 923,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-923-mdfromsyntax",
+          "line": 926,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-926-mdfromsyntax",
           "currentTags": [
             "@category",
             "@since"
@@ -91185,8 +91075,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 943,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-943-mdfromsyntax",
+          "line": 946,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-946-mdfromsyntax",
           "currentTags": [
             "@category",
             "@since"
@@ -91207,8 +91097,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 969,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-969-mdfrontmattererrorreason",
+          "line": 972,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-972-mdfrontmattererrorreason",
           "currentTags": [
             "@category",
             "@since"
@@ -91229,8 +91119,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 979,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-979-mdfrontmattererrorreason",
+          "line": 982,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-982-mdfrontmattererrorreason",
           "currentTags": [
             "@category",
             "@since"
@@ -91251,8 +91141,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 1003,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1003-mdfrontmattererror",
+          "line": 1006,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1006-mdfrontmattererror",
           "currentTags": [
             "@category",
             "@since"
@@ -91273,8 +91163,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 1039,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1039-mdlocatedviolation",
+          "line": 1042,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1042-mdlocatedviolation",
           "currentTags": [
             "@category",
             "@since"
@@ -91295,8 +91185,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 1073,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1073-mdunsafedocumenterror",
+          "line": 1076,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1076-mdunsafedocumenterror",
           "currentTags": [
             "@category",
             "@since"
@@ -91317,8 +91207,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 2074,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2074-frommarkdowndocument",
+          "line": 2088,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2088-frommarkdowndocument",
           "currentTags": [
             "@category",
             "@since"
@@ -91339,8 +91229,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 2117,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2117-locateviolations",
+          "line": 2131,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2131-locateviolations",
           "currentTags": [
             "@category",
             "@since"
@@ -91361,8 +91251,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 2140,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2140-refinesafe",
+          "line": 2154,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2154-refinesafe",
           "currentTags": [
             "@category",
             "@since"
@@ -369761,8 +369651,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 31,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-31-cachequalificationstate",
+          "line": 32,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-32-cachequalificationstate",
           "currentTags": [
             "@category",
             "@since"
@@ -369783,8 +369673,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 45,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-45-cachequalificationstate",
+          "line": 46,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-46-cachequalificationstate",
           "currentTags": [
             "@category",
             "@since"
@@ -369805,8 +369695,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 60,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-60-cachereuselayer",
+          "line": 61,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-61-cachereuselayer",
           "currentTags": [
             "@category",
             "@since"
@@ -369827,8 +369717,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 77,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-77-cachereuselayer",
+          "line": 78,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-78-cachereuselayer",
           "currentTags": [
             "@category",
             "@since"
@@ -369849,8 +369739,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 92,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-92-cacheevidencekind",
+          "line": 93,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-93-cacheevidencekind",
           "currentTags": [
             "@category",
             "@since"
@@ -369871,8 +369761,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 115,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-115-cacheevidencekind",
+          "line": 116,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-116-cacheevidencekind",
           "currentTags": [
             "@category",
             "@since"
@@ -369893,8 +369783,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 130,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-130-cacheclientchannel",
+          "line": 131,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-131-cacheclientchannel",
           "currentTags": [
             "@category",
             "@since"
@@ -369915,8 +369805,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 139,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-139-cacheclientchannel",
+          "line": 140,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-140-cacheclientchannel",
           "currentTags": [
             "@category",
             "@since"
@@ -369937,8 +369827,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 155,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-155-cachequalificationkey",
+          "line": 156,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-156-cachequalificationkey",
           "currentTags": [
             "@category",
             "@since"
@@ -369959,8 +369849,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 182,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-182-cachequalificationpins",
+          "line": 183,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-183-cachequalificationpins",
           "currentTags": [
             "@category",
             "@since"
@@ -369981,8 +369871,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 210,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-210-cachetaskconfiguration",
+          "line": 211,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-211-cachetaskconfiguration",
           "currentTags": [
             "@category",
             "@since"
@@ -370003,8 +369893,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 243,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-243-cacheclientpin",
+          "line": 244,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-244-cacheclientpin",
           "currentTags": [
             "@category",
             "@since"
@@ -370025,8 +369915,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 265,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-265-cacheevidencereference",
+          "line": 266,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-266-cacheevidencereference",
           "currentTags": [
             "@category",
             "@since"
@@ -370047,8 +369937,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 296,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-296-cacheactivationprojection",
+          "line": 297,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-297-cacheactivationprojection",
           "currentTags": [
             "@category",
             "@since"
@@ -370069,8 +369959,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 326,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-326-cachesignedexecutionprofile",
+          "line": 327,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-327-cachesignedexecutionprofile",
           "currentTags": [
             "@category",
             "@since"
@@ -370091,8 +369981,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 360,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-360-cachetaskcontract",
+          "line": 361,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-361-cachetaskcontract",
           "currentTags": [
             "@category",
             "@since"
@@ -370113,8 +370003,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 399,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-399-cachequalificationobservation",
+          "line": 400,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-400-cachequalificationobservation",
           "currentTags": [
             "@category",
             "@since"
@@ -370135,8 +370025,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 434,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-434-iscachetransitionallowed",
+          "line": 435,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-435-iscachetransitionallowed",
           "currentTags": [
             "@category",
             "@since"
@@ -370157,8 +370047,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 581,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-581-cachepromotionfailures",
+          "line": 582,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-582-cachepromotionfailures",
           "currentTags": [
             "@category",
             "@since"
@@ -496694,8 +496584,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/Laws.errors.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
-          "line": 359,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-359-markdownfencescompilererror",
+          "line": 364,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-errors-ts-364-markdownfencescompilererror",
           "currentTags": [
             "@category",
             "@since"
@@ -497090,8 +496980,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 161,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-161-ismarkdownfencesurfacepath",
+          "line": 164,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-164-ismarkdownfencesurfacepath",
           "currentTags": [
             "@param",
             "@returns",
@@ -497114,8 +497004,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 227,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-227-collectmarkdownfences",
+          "line": 230,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-230-collectmarkdownfences",
           "currentTags": [
             "@param",
             "@returns",
@@ -497138,8 +497028,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 309,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-309-stagedfencefilename",
+          "line": 312,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-312-stagedfencefilename",
           "currentTags": [
             "@param",
             "@returns",
@@ -497162,8 +497052,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 353,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-353-mapfencediagnostics",
+          "line": 356,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-356-mapfencediagnostics",
           "currentTags": [
             "@param",
             "@returns",
@@ -497186,8 +497076,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 394,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-394-markdownfencetypechecker",
+          "line": 397,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-397-markdownfencetypechecker",
           "currentTags": [
             "@category",
             "@since"
@@ -497208,8 +497098,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 617,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-617-formatmarkdownfencefailure",
+          "line": 630,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-630-formatmarkdownfencefailure",
           "currentTags": [
             "@param",
             "@returns",
@@ -497232,8 +497122,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/MarkdownFences.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.ts",
-          "line": 659,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-659-runmarkdownfences",
+          "line": 672,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-ts-672-runmarkdownfences",
           "currentTags": [
             "@param",
             "@returns",
