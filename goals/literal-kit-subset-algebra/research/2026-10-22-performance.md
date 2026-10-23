@@ -48,7 +48,7 @@ panel's 48 against 3,159 measurement for the property alone.
 
 During the lane, a first cut of `literalKey` used a module-level
 `effect/Match` pipeline. It raised the import cost to +5,826 and was replaced
-by the `typeof` switch the grill ruled; the numbers above are after that
+by a `typeof`-keyed lookup (the grill ruled a `typeof` switch; the native-runtime law bans `switch`, and the record measures the same); the numbers above are after that
 change.
 
 ## Dispatch (`research/tools/dispatch-bench.ts`, Bun, 5M calls, six literals)
@@ -62,7 +62,7 @@ change.
 | kit `matchOrElse`, curried | — | 11.68 ns |
 
 The merge-base ran an `effect/Match` pipeline per call (`matchLiteral`). The
-lane does one `typeof` switch for the key and one own-property check
+lane does one `typeof`-keyed lookup for the key and one own-property check
 (`Record.has`), and it allocates nothing on a hit. A direct-index fast path
 would save the remaining ~2–4 ns and stays out of scope: a miss would then
 reach inherited properties, and nothing here needs the speed.

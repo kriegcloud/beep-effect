@@ -13,7 +13,6 @@ import { A, R } from "@beep/utils";
 import { identity } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import { staticDescriptorInstaller } from "../../SchemaUtils/internal/staticDescriptors.ts";
 import { LiteralKitKeyCollisionError, LiteralKitUnhandledCaseError } from "../LiteralKit.errors.ts";
 import type * as S from "effect/Schema";
 import type * as SchemaAST from "effect/SchemaAST";
@@ -25,15 +24,24 @@ type Handler = (value: LiteralValue) => unknown;
 type Cases = Record<string, Handler>;
 type Dispatcher = (...args: ReadonlyArray<unknown>) => unknown;
 
+const literalKeyByType: Readonly<Record<string, (literal: LiteralValue) => string>> = {
+  boolean: (literal) => (literal === true ? "true" : "false"),
+  bigint: (literal) => `bigint${literal}n`,
+  number: (literal) => `number${literal}`,
+  string: String,
+};
+
 /**
  * Derives the helper key of one literal: strings as-is, `number200`,
  * `bigint1n`, `true` / `false`.
  *
  * **Details**
  *
- * A `typeof` switch rather than an `effect/Match` pipeline: this runs on every
- * dispatch, and the four arms are the closed `LiteralValue` union, so the
- * switch is exhaustive without a matcher's allocation or type cost.
+ * A record keyed by `typeof` rather than an `effect/Match` pipeline: this runs
+ * on every dispatch, and the four entries are the closed `LiteralValue` union,
+ * so one property lookup replaces a matcher's allocation and type cost. A value
+ * outside the union (a cast, `undefined`) falls back to `String`, so dispatch
+ * can still report it as an unhandled case.
  *
  * **Example** (Derive helper keys)
  *
@@ -48,18 +56,7 @@ type Dispatcher = (...args: ReadonlyArray<unknown>) => unknown;
  * @category utilities
  * @since 0.0.0
  */
-export const literalKey = (literal: LiteralValue): string => {
-  switch (typeof literal) {
-    case "boolean":
-      return literal ? "true" : "false";
-    case "bigint":
-      return `bigint${literal}n`;
-    case "number":
-      return `number${literal}`;
-    default:
-      return literal;
-  }
-};
+export const literalKey = (literal: LiteralValue): string => (literalKeyByType[typeof literal] ?? String)(literal);
 
 /**
  * Derives the helper keys of a literal tuple, in tuple order.
@@ -214,15 +211,26 @@ export const literalKitBuilders = {
    *
    * Upstream `annotate`, `annotateKey` and `check` all return
    * `this.rebuild(ast)`, so this one override keeps the helpers on whatever
-   * upstream returns. The statics object is frozen before installation, which
-   * is what makes the installed descriptors readonly and non-configurable.
+   * upstream returns. Each static is defined with an explicit readonly,
+   * non-configurable descriptor.
    */
   attachStatics<T extends S.Top, Statics extends Record<string, unknown>>(
     schema: T,
     makeStatics: (schema: T) => Statics
   ): T & Statics {
     const upstreamRebuild: (ast: SchemaAST.AST) => S.Top = schema.rebuild;
-    const installed = staticDescriptorInstaller.install(schema, Object.freeze(makeStatics(schema)));
+    const installed = Object.defineProperties(
+      schema,
+      R.map(
+        makeStatics(schema),
+        (value): PropertyDescriptor => ({
+          value,
+          enumerable: true,
+          writable: false,
+          configurable: false,
+        })
+      )
+    ) as T & Statics;
     const reattach = (rebuilt: S.Top): S.Top => this.attachStatics(rebuilt as T, makeStatics);
     Object.defineProperty(installed, "rebuild", {
       value(this: S.Top, ast: SchemaAST.AST): S.Top {
