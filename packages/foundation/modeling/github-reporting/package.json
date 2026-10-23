@@ -77,6 +77,8 @@
     "@beep/github": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "bun-types": "catalog:"
+    "bun-types": "catalog:",
+    "micromark": "catalog:",
+    "micromark-extension-gfm": "catalog:"
   }
 }
