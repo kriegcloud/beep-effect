@@ -5,7 +5,7 @@ tree on 2026-10-09 after step 2 (zero type, lint and tsgo diagnostics; tests at 
 Each entry is a deliberate choice that the operator can overrule: remove the directive and the
 diagnostic comes back.
 
-Totals: 28 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
+Totals: 25 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
 
 ## Source
 
@@ -13,9 +13,6 @@ Totals: 28 in source, 10 in tests beyond the entry-point headers, 1 service anno
 | --- | --- | --- | --- | --- |
 | `effected/cli/ui/internal/inkChalk.ts` | 2 | whole file | nodeBuiltinImport | Ink shares its Chalk instance by Node realpath and module resolution; resolving another copy changes colours. |
 | `effected/cli/ui/testing/fakeStreams.ts` | 2 | whole file | nodeBuiltinImport | Ink requires Node stream events, raw-mode methods and write-callback barriers in these terminal fakes. |
-| `effected/config-file/JsonCodec.ts` | 22 | next line | preferSchemaOverJson | The codec preserves the original SyntaxError in cause; Schema JSON decoding discards that throwable. |
-| `effected/config-file/JsonCodec.ts` | 29 | next line | preferSchemaOverJson | The codec preserves native TypeError causes and JSON.stringify returning undefined; Schema encoding changes both. |
-| `effected/config-file/JsoncCodec.ts` | 29 | next line | preferSchemaOverJson | The codec preserves native TypeError causes and JSON.stringify returning undefined; Schema encoding changes both. |
 | `effected/engine/ProcessGuard.ts` | 2 | whole file | asyncFunction, newPromise, globalTimers | These process guards install and inject native crashes before Effect loads, preserving host uncaught-error timing. |
 | `effected/github-actions/DetachedProcess.ts` | 2 | whole file | nodeBuiltinImport | Detached children must outlive the Effect scope and inherit native log descriptors before unref. |
 | `effected/github-actions/DetachedProcess.ts` | 60 | next line | schemaNumber | The error reports the pid it refused, which may be NaN or infinite. |
