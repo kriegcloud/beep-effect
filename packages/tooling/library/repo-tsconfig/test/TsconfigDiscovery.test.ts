@@ -2,26 +2,26 @@ import { MemoryFileSystem } from "@beep/memfs";
 import { FindNearestOptions, TsconfigDiscovery } from "@beep/repo-tsconfig/TsconfigDiscovery";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
-import { fixtureLayer } from "./support/fixtures.ts";
+import * as Tracer from "effect/Tracer";
+import { fixtureLayer, tree } from "./support/fixtures.ts";
+import type { FixtureTree } from "./support/fixtures.ts";
 
 describe("FindNearestOptions runtime model", () => {
   it("decodes plain options and preserves exact optional-key semantics", () => {
-    const options: FindNearestOptions = { filename: "tsconfig.build.json", stopAt: "/a/b" };
+    const options: FindNearestOptions.Encoded = { filename: "tsconfig.build.json", stopAt: "/a/b" };
     assertSome(S.decodeOption(FindNearestOptions)(options), options);
-    assertSome(S.decodeOption(FindNearestOptions)({}), {});
+    assertSome(S.decodeOption(FindNearestOptions)({}), FindNearestOptions.make({}));
     assert.isFalse(S.is(FindNearestOptions)({ filename: undefined }));
     assert.isFalse(S.is(FindNearestOptions)({ stopAt: undefined }));
     assert.isFalse(S.is(FindNearestOptions)({ filename: 1 }));
   });
 });
-
-/** Build a fixture tree from `[absolutePath, contents]` pairs; contents are irrelevant to discovery. */
-const tree = (...entries: ReadonlyArray<readonly [string, string]>): ReadonlyMap<string, string> => new Map(entries);
 
 const EMPTY = "{}";
 
@@ -32,6 +32,28 @@ layer(fixtureLayer(tree(["/a/b/tsconfig.json", EMPTY], ["/a/tsconfig.json", EMPT
       Effect.gen(function* () {
         const found = yield* TsconfigDiscovery.findNearest("/a/b/c");
         assertSome(found, "/a/b/tsconfig.json");
+      })
+    );
+  }
+);
+
+layer(fixtureLayer(tree(["/a/tsconfig.json", EMPTY])), { timeout: "30 seconds" })(
+  "TsconfigDiscovery.findNearest, tracing",
+  (it) => {
+    // Conformance shift (wave 3-2): the span is qualified by its owner, matching TsconfigLoader.*.
+    it.effect("names its span TsconfigDiscovery.findNearest, never the bare findNearest", () =>
+      Effect.gen(function* () {
+        let spanNames = A.empty<string>();
+        const tracer = Tracer.make({
+          span(options) {
+            spanNames = A.append(spanNames, options.name);
+            return new Tracer.NativeSpan(options);
+          },
+        });
+        const found = yield* TsconfigDiscovery.findNearest("/a/b").pipe(Effect.withTracer(tracer));
+        assertSome(found, "/a/tsconfig.json");
+        assert.isTrue(A.contains(spanNames, "TsconfigDiscovery.findNearest"));
+        assert.isFalse(A.contains(spanNames, "findNearest"));
       })
     );
   }
@@ -91,8 +113,8 @@ layer(fixtureLayer(tree(["/a/b/tsconfig.json", EMPTY], ["/a/tsconfig.json", EMPT
  * The fixture volume, with an `exists` fault that denies permission on one
  * path. Every other probe delegates to the seeded volume.
  */
-const FsDenying = (denied: string, tree: ReadonlyMap<string, string>) =>
-  MemoryFileSystem.layerWith(Object.fromEntries(tree), {
+const FsDenying = (denied: string, tree: FixtureTree) =>
+  MemoryFileSystem.layerWith(tree, {
     faults: {
       exists: (path: string) =>
         path === denied

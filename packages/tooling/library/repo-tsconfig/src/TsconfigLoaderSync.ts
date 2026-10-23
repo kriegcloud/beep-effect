@@ -1,19 +1,24 @@
-// The synchronous escape hatch over the async loader pipeline: consumers in
-// sync-only host APIs (bundler plugin hooks, config factories) supply their
-// OWN file and path operations, this module adapts them into the core
-// `FileSystem`/`Path` services, and the UNCHANGED `TsconfigLoader` pipeline
-// runs under `Effect.runSyncExit` — zero logic duplication, no `node:*`
-// import, no posix assumption. Windows correctness comes from the consumer
-// passing a win32-appropriate `path` implementation (`node:path` on Windows,
-// or `node:path/win32` explicitly).
-//
-// Failure contract: exactly the async pipeline's typed errors, thrown —
-// `TsconfigParseError`, `TsconfigExtendsError`, or a `PlatformError` wrapping
-// what the consumer's `readFile` threw. Defects rethrow as-is; a caller never
-// sees a fiber-failure wrapper. The services are built per call from the
-// consumer's functions (plain service values via `Effect.provideService`, not
-// layers, so there is no memoization to poison across calls with different
-// options).
+/**
+ * The synchronous escape hatch over the async loader pipeline: consumers in
+ * sync-only host APIs (bundler plugin hooks, config factories) supply their
+ * OWN file and path operations, this module adapts them into the core
+ * `FileSystem`/`Path` services, and the UNCHANGED `TsconfigLoader` pipeline
+ * runs under `Effect.runSyncExit` — zero logic duplication, no `node:*`
+ * import, no posix assumption. Windows correctness comes from the consumer
+ * passing a win32-appropriate `path` implementation (`node:path` on Windows,
+ * or `node:path/win32` explicitly).
+ *
+ * Failure contract: exactly the async pipeline's typed errors, thrown —
+ * `TsconfigParseError`, `TsconfigExtendsError`, or a `PlatformError` wrapping
+ * what the consumer's `readFile` threw. Defects rethrow as-is; a caller never
+ * sees a fiber-failure wrapper. The services are built per call from the
+ * consumer's functions (plain service values via `Effect.provideService`, not
+ * layers, so there is no memoization to poison across calls with different
+ * options).
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $RepoTsconfigId } from "@beep/identity/packages";
 import * as Cause from "effect/Cause";
@@ -176,14 +181,24 @@ export interface TsconfigLoaderSyncOptions {
   readonly path: SyncPath;
 }
 
-/** A `Path.Path` member the loader pipeline never calls: throw an informative defect if something reaches it. */
+/**
+ * A `Path.Path` member the loader pipeline never calls: throw an informative defect if something reaches it.
+ *
+ * @param member - The unsupported `Path` member name.
+ * @returns Never; always throws.
+ */
 const unsupported = (member: string): never => {
   throw UnsupportedPathOperationError.make({
     message: `Path.${member} is not supported by TsconfigLoaderSync — its SyncPath adapter only carries resolve/dirname/join/isAbsolute/basename`,
   });
 };
 
-/** Adapt the consumer's `SyncPath` into a core `Path.Path` service value. */
+/**
+ * Adapt the consumer's `SyncPath` into a core `Path.Path` service value.
+ *
+ * @param path - The consumer's path implementation.
+ * @returns The core `Path` service value.
+ */
 const makePathService = (path: SyncPath): Path.Path =>
   Path.Path.of({
     [Path.TypeId]: Path.TypeId,
@@ -221,6 +236,9 @@ const makePathService = (path: SyncPath): Path.Path =>
  * a future loader change reaches for a filesystem operation not overridden
  * here, it surfaces as a spurious `NotFound` (not a crash), and this adapter
  * must be extended to cover the new operation.
+ *
+ * @param fileSystem - The consumer's file operations.
+ * @returns The core `FileSystem` service value.
  */
 const makeFileSystemService = (fileSystem: SyncFileSystem): FileSystem.FileSystem =>
   FileSystem.makeNoop({

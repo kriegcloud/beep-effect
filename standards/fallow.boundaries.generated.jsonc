@@ -4279,6 +4279,7 @@
           "@beep/jsonc",
           "@beep/memfs",
           "@beep/repo-tsconfig",
+          "@beep/schema",
           "@beep/tsconfig",
           "@beep/walker"
         ],
@@ -4288,6 +4289,7 @@
           "@beep/jsonc",
           "@beep/memfs",
           "@beep/repo-tsconfig",
+          "@beep/schema",
           "@beep/tsconfig",
           "@beep/walker"
         ]

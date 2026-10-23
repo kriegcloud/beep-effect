@@ -1,3 +1,10 @@
+/**
+ * Nearest-config upward discovery: find the closest `tsconfig.json` (or another
+ * config filename) at or above a start directory.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoTsconfigId } from "@beep/identity/packages";
 import { Walker } from "@beep/walker/Walker";
 import * as Effect from "effect/Effect";
@@ -26,44 +33,54 @@ const $I = $RepoTsconfigId.create("TsconfigDiscovery");
  * @category schemas
  * @since 0.0.0
  */
-export const FindNearestOptions = S.Struct({
-  /** The config file name to search for. Defaults to `"tsconfig.json"`. */
-  filename: S.optionalKey(S.String).pipe(
-    $I.annoteKey("FindNearestOptions.filename", { description: "The config filename; defaults to tsconfig.json." })
-  ),
-  /** Stop ascending after this directory, inclusive. */
-  stopAt: S.optionalKey(S.String).pipe(
-    $I.annoteKey("FindNearestOptions.stopAt", { description: "Stop ascending after this directory, inclusive." })
-  ),
-}).pipe(
-  $I.annoteSchema("FindNearestOptions", {
-    description: "Filename and inclusive directory boundary for nearest tsconfig discovery.",
-  })
-);
+export class FindNearestOptions extends S.Opaque<FindNearestOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The config file name to search for. Defaults to `"tsconfig.json"`. */
+    filename: S.optionalKey(S.String).pipe(
+      $I.annoteKey("FindNearestOptions.filename", { description: "The config filename; defaults to tsconfig.json." })
+    ),
+    /** Stop ascending after this directory, inclusive. */
+    stopAt: S.optionalKey(S.String).pipe(
+      $I.annoteKey("FindNearestOptions.stopAt", { description: "Stop ascending after this directory, inclusive." })
+    ),
+  }).pipe(
+    $I.annoteSchema("FindNearestOptions", {
+      description: "Filename and inclusive directory boundary for nearest tsconfig discovery.",
+    })
+  )
+) {}
 
 /**
- * The schema-derived nearest-config discovery options.
+ * Companion types for {@link FindNearestOptions}.
  *
- * @public
  * @category type-level
  * @since 0.0.0
  */
-export type FindNearestOptions = typeof FindNearestOptions.Type;
+export declare namespace FindNearestOptions {
+  /**
+   * The plain, unbranded options shape `TsconfigDiscovery.findNearest` accepts, so a caller can pass an
+   * object literal.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FindNearestOptions.Encoded;
+}
 
 // Implementation of TsconfigDiscovery.findNearest; the public contract lives on the static.
 const findNearest: {
   (
     start: string,
-    options?: FindNearestOptions
+    options?: FindNearestOptions.Encoded
   ): Effect.Effect<O.Option<string>, never, FileSystem.FileSystem | Path.Path>;
   (
-    options?: FindNearestOptions
+    options?: FindNearestOptions.Encoded
   ): (start: string) => Effect.Effect<O.Option<string>, never, FileSystem.FileSystem | Path.Path>;
 } = dual(
   (args) => P.isString(args[0]),
-  Effect.fn("findNearest")(function* (
+  Effect.fn("TsconfigDiscovery.findNearest")(function* (
     start: string,
-    options?: FindNearestOptions
+    options?: FindNearestOptions.Encoded
   ): Effect.fn.Return<O.Option<string>, never, FileSystem.FileSystem | Path.Path> {
     const path = yield* Path.Path;
     const filename = options?.filename ?? "tsconfig.json";

@@ -4,12 +4,11 @@ import { assert, describe, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
-import { fixtureLayer } from "./support/fixtures.ts";
-
-/** Build a fixture tree from `[absolutePath, contents]` pairs. */
-const tree = (...entries: ReadonlyArray<readonly [string, string]>): ReadonlyMap<string, string> => new Map(entries);
+import { fixtureLayer, tree } from "./support/fixtures.ts";
+import type { FixtureTree } from "./support/fixtures.ts";
 
 const EMPTY = "{}";
 
@@ -602,12 +601,12 @@ layer(fixtureLayer(tree(["/proj/a.json", '{"extends":"./b.json"}'], ["/proj/b.js
   );
 });
 
-const deepTree = (): ReadonlyMap<string, string> => {
+const deepTree = (): FixtureTree => {
   const entries: Array<readonly [string, string]> = [];
   for (let i = 0; i < 40; i += 1) {
     entries.push([`/proj/c${i}.json`, i < 39 ? `{"extends":"./c${i + 1}.json"}` : EMPTY]);
   }
-  return new Map(entries);
+  return R.fromEntries(entries);
 };
 
 layer(fixtureLayer(deepTree()), { timeout: "30 seconds" })("TsconfigLoader.resolve, depth guard", (it) => {

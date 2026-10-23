@@ -3589,6 +3589,7 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
         "@beep/tsconfig": "workspace:^",
         "@beep/walker": "workspace:^",
         "effect": "catalog:",

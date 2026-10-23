@@ -9,12 +9,12 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { fixtureLayer } from "./support/fixtures.ts";
+import * as Str from "effect/String";
+import { fixtureLayer, tree } from "./support/fixtures.ts";
 import type { SyncFileSystem, TsconfigLoaderSyncOptions } from "@beep/repo-tsconfig/TsconfigLoaderSync";
-
-/** Build a fixture tree from `[absolutePath, contents]` pairs (forward-slash keys). */
-const tree = (...entries: ReadonlyArray<readonly [string, string]>): ReadonlyMap<string, string> => new Map(entries);
+import type { FixtureTree } from "./support/fixtures.ts";
 
 /**
  * A `SyncFileSystem` over a real memfs volume: the handle's `sync` port is
@@ -22,8 +22,7 @@ const tree = (...entries: ReadonlyArray<readonly [string, string]>): ReadonlyMap
  * throws node's exact errno on a miss), so it satisfies the consumer contract
  * structurally with no adapter. Contents are only what the tree seeds.
  */
-const syncFs = (files: ReadonlyMap<string, string>): SyncFileSystem =>
-  MemoryFileSystem.makeSync(Object.fromEntries(files)).sync;
+const syncFs = (files: FixtureTree): SyncFileSystem => MemoryFileSystem.makeSync(files).sync;
 
 // Pure Layer.succeed providers retain Node's exact POSIX and Win32 path methods.
 const posixPath = NodePath.layerPosix.pipe(
@@ -39,7 +38,7 @@ const win32Path = NodePath.layerWin32.pipe(
   Effect.runSync
 );
 
-const posixOptions = (files: ReadonlyMap<string, string>): TsconfigLoaderSyncOptions => ({
+const posixOptions = (files: FixtureTree): TsconfigLoaderSyncOptions => ({
   fileSystem: syncFs(files),
   path: posixPath,
 });
@@ -176,12 +175,12 @@ layer(fixtureLayer(CHAIN_TREE), { timeout: "30 seconds" })("TsconfigLoaderSync p
  * content still come from the volume. This suite is about the consumer's
  * `SyncPath` driving resolution, not about Windows filesystem semantics.
  */
-const win32Fs = (files: ReadonlyMap<string, string>): SyncFileSystem => {
+const win32Fs = (files: FixtureTree): SyncFileSystem => {
   const toVolume = (p: string): string => {
-    const slashed = p.replace(/\\/g, "/");
+    const slashed = Str.replace(/\\/g, "/")(p);
     return /^[A-Za-z]:\//.test(slashed) ? `/${slashed}` : slashed;
   };
-  const port = MemoryFileSystem.makeSync(Object.fromEntries([...files].map(([p, c]) => [toVolume(p), c]))).sync;
+  const port = MemoryFileSystem.makeSync(R.mapKeys(files, toVolume)).sync;
   return { exists: (p) => port.exists(toVolume(p)), readFile: (p) => port.readFile(toVolume(p)) };
 };
 

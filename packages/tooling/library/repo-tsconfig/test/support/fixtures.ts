@@ -1,11 +1,17 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import type * as FileSystem from "effect/FileSystem";
 
+/** A fixture file tree: absolute file path -> file contents. */
+export type FixtureTree = Readonly<Record<string, string>>;
+
+/** Build a fixture tree from `[absolutePath, contents]` pairs (forward-slash keys). */
+export const tree = (...entries: ReadonlyArray<readonly [string, string]>): FixtureTree => R.fromEntries(entries);
+
 /**
- * An in-memory fixture filesystem for the resolution suites. The map is
- * absolute file path -> file contents.
+ * The fixture filesystem merged with a POSIX `Path`, the layer every resolution suite provides.
  *
  * The volume is `@beep/memfs`, a real virtual POSIX filesystem, rather than
  * a `FileSystem.layerNoop` answering the two methods the resolver happens to
@@ -20,9 +26,5 @@ import type * as FileSystem from "effect/FileSystem";
  * stub reported it absent. That is more faithful, and harmless here — the
  * resolution engine probes config *files*, never directories.
  */
-export const fixtureFs = (tree: ReadonlyMap<string, string>): Layer.Layer<FileSystem.FileSystem> =>
-  MemoryFileSystem.layerWith(Object.fromEntries(tree));
-
-/** The fixture filesystem merged with a POSIX `Path`, the layer every resolution suite provides. */
-export const fixtureLayer = (tree: ReadonlyMap<string, string>): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
-  Layer.mergeAll(fixtureFs(tree), Path.layer);
+export const fixtureLayer = (files: FixtureTree): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
+  Layer.mergeAll(MemoryFileSystem.layerWith(files), Path.layer);

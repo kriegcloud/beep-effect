@@ -3,7 +3,7 @@ import { describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { fixtureLayer } from "../support/fixtures.ts";
+import { fixtureLayer, tree } from "../support/fixtures.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -81,7 +81,7 @@ describe("extendsTarget boundary coverage", () => {
     ["empty tsconfig field", "pkg", { "/project/node_modules/pkg/package.json": '{"tsconfig":""}' }],
   ];
   for (const [name, spec, files] of scenarios) {
-    it.layer(fixtureLayer(new Map(Object.entries(files))), { timeout: "10 seconds" })(name, (it) => {
+    it.layer(fixtureLayer(files), { timeout: "10 seconds" })(name, (it) => {
       it.effect("continues lookup and returns absence", () =>
         Effect.gen(function* () {
           assertNone(yield* resolveExtendsTarget(spec, "/project/tsconfig.json"));
@@ -90,7 +90,7 @@ describe("extendsTarget boundary coverage", () => {
     });
   }
 
-  it.layer(fixtureLayer(new Map([["/node_modules/@scope/pkg/base.json", "{}"]])), { timeout: "10 seconds" })(
+  it.layer(fixtureLayer(tree(["/node_modules/@scope/pkg/base.json", "{}"])), { timeout: "10 seconds" })(
     "ancestor retry",
     (it) => {
       it.effect("subpath json retry misses before a farther ancestor succeeds", () =>
