@@ -152,8 +152,6 @@ describe("@beep/api-transport", () => {
           auth,
           key: "explicit-undefined",
           rateLimit: { limit: 1000, window: { seconds: undefined } },
-          retryBaseDelay: undefined,
-          retryTimes: undefined,
         },
         {
           auth,

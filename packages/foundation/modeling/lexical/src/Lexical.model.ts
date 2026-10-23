@@ -35,6 +35,22 @@ import type * as R from "effect/Record";
 import type * as AST from "effect/SchemaAST";
 
 const $I = $LexicalSchemaId.create("Lexical.model");
+
+/**
+ * `Option` field for a key Lexical's `exportJSON()` writes with an explicit
+ * `undefined` (`checked: this.getChecked()`, `theme: this.getTheme()`,
+ * `frozenRowCount: x ? x : undefined`, ...).
+ *
+ * Absent and `undefined` both decode to `None`; this is the EF-40 exception
+ * spelling of `S.OptionFromOptional`, kept explicit because the producer is
+ * third-party (pinned `@lexical/*` `exportJSON` sources).
+ */
+const OptionFromLexicalUndefinedOr = <Schema extends S.Top>(schema: Schema) =>
+  schema.pipe(
+    S.UndefinedOr,
+    S.optionalKey,
+    S.decodeTo(schema.pipe(S.toType, S.Option), SchemaTransformation.optionFromOptional<Schema["Type"]>())
+  );
 type MdYouTubeVideoId = typeof Md.YouTubeVideoId.Type;
 
 const strictSemanticParseOptions = {
@@ -1753,7 +1769,7 @@ export declare namespace HeadingNode {
 export class QuoteNode extends ElementNode.extend<QuoteNode>($I`QuoteNode`)(
   {
     type: S.tag("quote"),
-    shadowRoot: S.OptionFromOptional(S.Boolean).pipe(
+    shadowRoot: S.OptionFromOptionalKey(S.Boolean).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description: "Whether this quote is a multi-block shadow-root region rather than a legacy inline quote.",
@@ -1832,7 +1848,7 @@ export declare namespace QuoteNode {
    * @since 0.0.0
    */
   export interface Encoded extends ElementNode.Encoded {
-    readonly shadowRoot?: boolean | undefined;
+    readonly shadowRoot?: boolean;
     readonly type: "quote";
   }
 }
@@ -2019,7 +2035,7 @@ export type ListNodeValue = typeof ListNodeValue.Type;
 export class ListItemNode extends ElementNode.extend<ListItemNode>($I`ListItemNode`)(
   {
     type: S.tag("listitem"),
-    checked: S.OptionFromOptional(S.Boolean).pipe(
+    checked: OptionFromLexicalUndefinedOr(S.Boolean).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description: "Checkbox state for check lists; absent otherwise.",
@@ -2196,7 +2212,7 @@ export class CodeNode extends ElementNode.extend<CodeNode>($I`CodeNode`)(
         description: "Optional code-fence language identifier.",
       })
     ),
-    theme: S.OptionFromOptional(S.String).pipe(
+    theme: OptionFromLexicalUndefinedOr(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional code highlight theme." })
     ),
@@ -2439,17 +2455,17 @@ export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCel
       description: "TableCellHeaderState bitmask: 0 none, 1 row header, 2 column header, 3 both.",
     }),
     colSpan: TableCellSpan.pipe(
-      S.OptionFromOptional,
+      S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional colspan for merged table cells." })
     ),
     rowSpan: TableCellSpan.pipe(
-      S.OptionFromOptional,
+      S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional rowspan for merged table cells." })
     ),
     width: TableDimension.pipe(
-      S.OptionFromOptional,
+      OptionFromLexicalUndefinedOr,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional cell width emitted by Lexical table nodes." })
     ),
@@ -2461,7 +2477,7 @@ export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCel
       })
     ),
     verticalAlign: SafeStyleValue.pipe(
-      S.OptionFromOptional,
+      S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description: "Optional vertical alignment emitted by Lexical table nodes, sanitized to a safe CSS value.",
@@ -2526,11 +2542,11 @@ export declare namespace TableCellNode {
    */
   export interface Encoded extends ElementNode.Encoded {
     readonly backgroundColor?: string | null | undefined;
-    readonly colSpan?: number | undefined;
+    readonly colSpan?: number;
     readonly headerState: TableCellHeaderState;
-    readonly rowSpan?: number | undefined;
+    readonly rowSpan?: number;
     readonly type: "tablecell";
-    readonly verticalAlign?: string | undefined;
+    readonly verticalAlign?: string;
     readonly width?: number | undefined;
   }
 }
@@ -2553,7 +2569,7 @@ export class TableRowNode extends ElementNode.extend<TableRowNode>($I`TableRowNo
   {
     type: S.tag("tablerow"),
     height: TableDimension.pipe(
-      S.OptionFromOptional,
+      S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional row height emitted by Lexical table nodes." })
     ),
@@ -2609,7 +2625,7 @@ export declare namespace TableRowNode {
    * @since 0.0.0
    */
   export interface Encoded extends ElementNode.Encoded {
-    readonly height?: number | undefined;
+    readonly height?: number;
     readonly type: "tablerow";
   }
 }
@@ -2632,22 +2648,22 @@ export class TableNode extends ElementNode.extend<TableNode>($I`TableNode`)(
   {
     type: S.tag("table"),
     colWidths: S.Array(TableDimension).pipe(
-      S.OptionFromOptional,
+      OptionFromLexicalUndefinedOr,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional table column widths emitted by Lexical table nodes." })
     ),
     rowStriping: S.Boolean.pipe(
-      S.OptionFromOptional,
+      OptionFromLexicalUndefinedOr,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional row-striping flag emitted by Lexical table nodes." })
     ),
     frozenColumnCount: S.Natural.pipe(
-      S.OptionFromOptional,
+      OptionFromLexicalUndefinedOr,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional number of frozen columns emitted by Lexical table nodes." })
     ),
     frozenRowCount: S.Natural.pipe(
-      S.OptionFromOptional,
+      OptionFromLexicalUndefinedOr,
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional number of frozen rows emitted by Lexical table nodes." })
     ),

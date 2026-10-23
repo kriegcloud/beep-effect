@@ -17,7 +17,7 @@ import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { TechArticle } from "@beep/schema-org/TechArticle";
 import { Vocabulary } from "@beep/schema-org/Vocabulary";
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
@@ -396,8 +396,14 @@ describe("Conformance catch-all references", () => {
 });
 
 describe("ConformanceOptions schema and compatible runtime input", () => {
-  it("decodes omitted and explicitly undefined policies to safe defaults", () => {
-    for (const input of [{}, { unknownTerms: undefined, deprecations: undefined, danglingReferences: undefined }]) {
+  it("decodes omitted policies to safe defaults and rejects explicit undefined ones", () => {
+    const explicit = S.decodeUnknownResult(ConformanceOptions)({
+      unknownTerms: undefined,
+      deprecations: undefined,
+      danglingReferences: undefined,
+    });
+    explicit.pipe(Result.isFailure, assertTrue);
+    for (const input of [{}]) {
       assert.deepStrictEqual(
         Result.getOrThrow(S.decodeResult(ConformanceOptions)(input)),
         ConformanceOptions.make({
@@ -418,14 +424,7 @@ describe("ConformanceOptions schema and compatible runtime input", () => {
       })
     );
     assertSuccess(
-      Result.map(
-        Conformance.validateResult(graph, {
-          unknownTerms: undefined,
-          deprecations: undefined,
-          danglingReferences: undefined,
-        }),
-        () => undefined
-      ),
+      Result.map(Conformance.validateResult(graph, {}), () => undefined),
       undefined
     );
     assertSuccess(

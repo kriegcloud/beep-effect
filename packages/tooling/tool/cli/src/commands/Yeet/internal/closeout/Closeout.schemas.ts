@@ -28,11 +28,17 @@ export class PrCloseoutOptions extends S.Opaque<PrCloseoutOptions, { readonly br
     requireGreptileScore: S.String,
     requireReviewComments: S.Finite,
     retriggerGreptile: S.Boolean,
-    replyBody: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    replyThread: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    replyBody: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefaultKey(Effect.succeed(""))
+    ),
+    replyThread: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefaultKey(Effect.succeed(""))
+    ),
     resolveThreads: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
   }).pipe(
     $I.annoteSchema("PrCloseoutOptions", {
@@ -174,14 +180,17 @@ export class PrCloseoutReport extends S.Opaque<PrCloseoutReport, { readonly bran
   S.Struct({
     acknowledgedThreadCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     actionableReviewThreadCount: S.Finite,
-    advisoryCount: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0)), S.withDecodingDefault(Effect.succeed(0))),
+    advisoryCount: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
     botCommentCount: S.Finite,
     followUpThreadCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     greptile: GreptileSummary,
     issueCount: S.Finite,
@@ -193,11 +202,11 @@ export class PrCloseoutReport extends S.Opaque<PrCloseoutReport, { readonly bran
     schemaVersion: S.tag("yeet-pr-closeout/v1"),
     states: S.Array(PrCloseoutGateState).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutGateState>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutGateState>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<PrCloseoutGateState>()))
     ),
     writeActions: S.Array(PrCloseoutWriteAction).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<PrCloseoutWriteAction>()))
     ),
   }).pipe(
     $I.annoteSchema("PrCloseoutReport", {

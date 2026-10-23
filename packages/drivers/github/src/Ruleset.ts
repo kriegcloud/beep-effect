@@ -54,7 +54,7 @@ export class RulesetInfo extends S.Opaque<RulesetInfo, { readonly brand: unique 
   S.Struct({
     id: S.Finite.pipe($I.annoteKey("RulesetInfo.id", { description: "The ruleset's numeric id." })),
     name: S.String.pipe($I.annoteKey("RulesetInfo.name", { description: "The ruleset's name." })),
-    source_type: S.optional(S.String).pipe(
+    source_type: S.optionalKey(S.String).pipe(
       $I.annoteKey("RulesetInfo.source_type", {
         description:
           "Repository for an owned ruleset, Organization for an inherited ruleset; absent when GitHub omits it.",
@@ -363,7 +363,7 @@ const make = (client: GitHubClient["Service"]): RulesetShape => {
         S.decodeEffect(RulesetInfo)({
           id: ruleset.id,
           name: ruleset.name,
-          source_type: ruleset.source_type,
+          ...O.getSomesStruct({ source_type: O.fromUndefinedOr(ruleset.source_type) }),
         }).pipe(
           Effect.mapError((error) => GitHubError.decode("Ruleset.list", "GitHub returned an unexpected ruleset", error))
         )
