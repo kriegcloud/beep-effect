@@ -1564,6 +1564,11 @@ const recordHeadHtml = (state: BridgeState, node: Kit.Html, path: SlotPath): voi
 const isHeadBreak = (state: BridgeState, kid: Kit.PhrasingContent): boolean =>
   kid.type === "break" || (kid.type === "html" && state.options.breakTag && isBreakTag(kid.value));
 
+// The literal text a leaf head-line node carries: its value, or an image's
+// alt text.
+const leafPlainText = (node: Kit.PhrasingContent): string =>
+  "value" in node ? node.value : "alt" in node ? (node.alt ?? "") : "";
+
 // The plain text a head-line node contributes to the title, recording a loss
 // for every raw HTML node inside it. A break nested in inline markup
 // contributes nothing, as a nested hard break does.
@@ -1580,11 +1585,7 @@ const headPlainText = (state: BridgeState, path: SlotPath, node: Kit.PhrasingCon
         A.map(node.children, (child) => headPlainText(state, path, child)),
         ""
       )
-    : "value" in node
-      ? node.value
-      : "alt" in node
-        ? (node.alt ?? "")
-        : "";
+    : leafPlainText(node);
 };
 
 // A head-line node flattens into the title unless it is plain text or raw

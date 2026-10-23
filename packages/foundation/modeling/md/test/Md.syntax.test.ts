@@ -548,27 +548,53 @@ describe("@beep/md/Md.syntax phrasing mapping", () => {
 const isMathSpace = (char: string | undefined): boolean => char === " " || char === "\t" || char === "\n";
 const isMathDigit = (char: string | undefined): boolean => char !== undefined && char >= "0" && char <= "9";
 
-const oracleInlineMath = (text: string): ReadonlyArray<{ readonly _tag: string; readonly value: string }> => {
-  const pieces: Array<{ readonly _tag: string; readonly value: string }> = [];
+type OraclePiece = { readonly _tag: string; readonly value: string };
+
+const opensMathAt = (text: string, index: number): boolean =>
+  text[index] === "$" && text[index + 1] !== "$" && !isMathSpace(text[index + 1]);
+
+const closesMathAt = (text: string, probe: number): boolean =>
+  text[probe] === "$" && !isMathSpace(text[probe - 1]) && !isMathDigit(text[probe + 1]);
+
+// The direct scan: from every opener, walk right to the first valid closer.
+const oracleCloser = (text: string, index: number): number => {
+  if (!opensMathAt(text, index)) {
+    return -1;
+  }
+  for (let probe = index + 2; probe < Str.length(text); probe++) {
+    if (closesMathAt(text, probe)) {
+      return probe;
+    }
+  }
+  return -1;
+};
+
+const skipWidth = (text: string, index: number): number => (text[index] === "$" && text[index + 1] === "$" ? 2 : 1);
+
+const pushMathSpan = (
+  pieces: Array<OraclePiece>,
+  text: string,
+  textStart: number,
+  open: number,
+  close: number
+): void => {
+  if (open > textStart) {
+    pieces.push({ _tag: "text", value: Str.slice(textStart, open)(text) });
+  }
+  pieces.push({ _tag: "inlineMath", value: Str.slice(open + 1, close)(text) });
+};
+
+const oracleInlineMath = (text: string): ReadonlyArray<OraclePiece> => {
+  const pieces: Array<OraclePiece> = [];
   let textStart = 0;
   let index = 0;
   while (index < Str.length(text)) {
-    let close = -1;
-    if (text[index] === "$" && text[index + 1] !== "$" && !isMathSpace(text[index + 1])) {
-      for (let probe = index + 2; probe < Str.length(text) && close < 0; probe++) {
-        if (text[probe] === "$" && !isMathSpace(text[probe - 1]) && !isMathDigit(text[probe + 1])) {
-          close = probe;
-        }
-      }
-    }
+    const close = oracleCloser(text, index);
     if (close < 0) {
-      index += text[index] === "$" && text[index + 1] === "$" ? 2 : 1;
+      index += skipWidth(text, index);
       continue;
     }
-    if (index > textStart) {
-      pieces.push({ _tag: "text", value: Str.slice(textStart, index)(text) });
-    }
-    pieces.push({ _tag: "inlineMath", value: Str.slice(index + 1, close)(text) });
+    pushMathSpan(pieces, text, textStart, index, close);
     textStart = close + 1;
     index = textStart;
   }
