@@ -38,7 +38,9 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // Wave 2b promoted `walker` whole as `@beep/walker` and `env` whole as `@beep/runtime-env`;
 // wave 2d promoted `markdown` whole as `@beep/markdown`. Wave 3-1 split `github-actions`:
 // its reporting suite is `@beep/github-reporting` and the drivers stay a lab
-// directory, so the package folds into the `github-actions` lab module.
+// directory, so the package folds into the `github-actions` lab module. Wave 3-2 promoted
+// the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
+// beside `@beep/tsconfig`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
@@ -54,6 +56,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/markdown": "markdown",
 	"@beep/memfs": "memfs",
 	"@beep/npm-spec": "npm",
+	"@beep/repo-tsconfig": "tsconfig-json",
 	"@beep/runtime-env": "env",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",

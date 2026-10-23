@@ -387,7 +387,8 @@ split two modules, moving the pure half of `npm` to `@beep/npm-spec` and the pur
 half of `tsconfig-json` to `@beep/tsconfig` (their IO halves stay in the lab until
 their consumers arrive); wave 2b moved `walker` (`@beep/walker`, foundation/capability) and
 `env` (`@beep/runtime-env`, foundation/capability); wave 2d moved `markdown`
-(`@beep/markdown`, foundation/modeling).
+(`@beep/markdown`, foundation/modeling); wave 3 moved the `tsconfig-json` loader half
+(`@beep/repo-tsconfig`, tooling/library), so `tsconfig-json` has left the lab.
 Lab modules that depend on them import the `@beep/*`
 package, not a `../<dep>/index.ts` sibling.
 

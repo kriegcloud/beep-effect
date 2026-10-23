@@ -828,6 +828,12 @@
         ]
       },
       {
+        "name": "@beep/repo-tsconfig",
+        "patterns": [
+          "packages/tooling/library/repo-tsconfig/src/**"
+        ]
+      },
+      {
         "name": "@beep/repo-utils",
         "patterns": [
           "packages/tooling/library/repo-utils/src/**"
@@ -4192,6 +4198,7 @@
           "@beep/repo-cli",
           "@beep/repo-configs",
           "@beep/repo-docgen",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
           "@beep/schema",
@@ -4238,6 +4245,7 @@
           "@beep/repo-cli",
           "@beep/repo-configs",
           "@beep/repo-docgen",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
           "@beep/schema",
@@ -4296,6 +4304,29 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-tsconfig",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/repo-tsconfig",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/repo-tsconfig",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/walker"
         ]
       },
       {
@@ -4448,6 +4479,7 @@
           "@beep/provenance",
           "@beep/rdf",
           "@beep/repo-cli",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runtime-env",
           "@beep/schema",
@@ -4500,6 +4532,7 @@
           "@beep/provenance",
           "@beep/rdf",
           "@beep/repo-cli",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runtime-env",
           "@beep/schema",
