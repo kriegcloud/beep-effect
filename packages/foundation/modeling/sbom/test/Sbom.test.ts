@@ -48,8 +48,8 @@ describe("Sbom.generate", () => {
     // `refType` has minLength 1), never inside `generate`.
     assert.throws(() => Component.make({ type: "application", name: "x", bomRef: "" }));
     // A plain record is not an admitted component, so it does not type-check.
-    // @ts-expect-error: `root` must be a `Component`, not its encoded shape.
     const unadmitted: Parameters<typeof Sbom.generate>[0] = {
+      // @ts-expect-error: `root` must be a `Component`, not its encoded shape.
       root: { type: "application", name: "x" },
       components: [],
     };
