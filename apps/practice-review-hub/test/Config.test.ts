@@ -1,8 +1,62 @@
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
-import { decodeReviewHubConfig } from "@/Config";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
+import * as Stdio from "effect/Stdio";
+import * as Terminal from "effect/Terminal";
+import { decodeReviewHubConfig, ReviewNoticeConfig, reviewNoticeFlags } from "@/Config";
+import { Platform } from "./Hub.fixture.ts";
+
+// What a command line needs to run in a test: the real file system and paths, and no terminal or processes.
+const CommandEnvironment = Layer.mergeAll(
+  Platform,
+  Stdio.layerTest({}),
+  Layer.succeed(
+    Terminal.Terminal,
+    Terminal.make({
+      columns: Effect.succeed(80),
+      rows: Effect.succeed(24),
+      readInput: Effect.die("Unexpected terminal input"),
+      readLine: Effect.die("Unexpected terminal input"),
+      display: () => Effect.void,
+    })
+  ),
+  Layer.succeed(
+    ChildProcessSpawner.ChildProcessSpawner,
+    ChildProcessSpawner.make(() => Effect.die("Unexpected process execution"))
+  )
+);
+
+const noticeConfig = (claudeFolder: O.Option<string>) =>
+  S.decodeEffect(ReviewNoticeConfig)({ claudeFolder, dataDirectory: "/synthetic/review-hub", timeZone: "UTC" });
+
+// Runs `notice` with the given extra arguments and environment, and returns the Claude Code folder it resolved.
+const resolvedFolder = Effect.fnUntraced(function* (
+  args: ReadonlyArray<string>,
+  environment: Readonly<Record<string, string>>
+) {
+  const seen = yield* Ref.make<ReadonlyArray<string>>([]);
+  const notice = Command.make("notice", reviewNoticeFlags, (flags) =>
+    Effect.flatMap(S.decodeEffect(ReviewNoticeConfig)(flags), ({ claudeFolder }) =>
+      Ref.update(seen, A.append(O.getOrElse(claudeFolder, () => "none")))
+    )
+  );
+  yield* Command.runWith(notice, { version: "0.0.0" })([
+    "--data-dir",
+    "/synthetic/review-hub",
+    "--time-zone",
+    "UTC",
+    ...args,
+  ]).pipe(Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(environment)));
+  return yield* Ref.get(seen);
+});
 
 describe("review hub configuration", () => {
   it.effect("trims the login allow-list and preserves the configured server settings", () =>
@@ -47,4 +101,50 @@ describe("review hub configuration", () => {
       }
     })
   );
+
+  it.effect("accepts an absolute Windows review folder with either separator, or none", () =>
+    Effect.gen(function* () {
+      const folders = yield* Effect.forEach(
+        [O.some("C:\\Users\\attorney\\Review"), O.some("C:/Users/attorney/Review"), O.none()],
+        noticeConfig
+      );
+      expect(A.map(folders, ({ claudeFolder }) => O.getOrElse(claudeFolder, () => "none"))).toStrictEqual([
+        "C:\\Users\\attorney\\Review",
+        "C:/Users/attorney/Review",
+        "none",
+      ]);
+    })
+  );
+
+  it.effect("rejects a relative, drive-relative or POSIX review folder", () =>
+    Effect.gen(function* () {
+      const results = yield* Effect.forEach(
+        ["Review", "Users\\attorney\\Review", "C:Review", "/srv/review"],
+        (folder) => O.some(folder).pipe(noticeConfig, Effect.result)
+      );
+      expect(A.map(results, ({ _tag }) => _tag)).toStrictEqual(["Failure", "Failure", "Failure", "Failure"]);
+    })
+  );
+
+  it.layer(CommandEnvironment)("notice flags", (it) => {
+    it.effect("reads --claude-folder, then PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER, and is none without either", () =>
+      Effect.gen(function* () {
+        const fromFlag = yield* resolvedFolder(["--claude-folder", "C:/Users/attorney/Review"], {});
+        const fromEnvironment = yield* resolvedFolder([], {
+          PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER: "C:\\Users\\attorney\\Review",
+        });
+        const flagFirst = yield* resolvedFolder(["--claude-folder", "C:/Users/attorney/Review"], {
+          PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER: "D:/Elsewhere",
+        });
+        const neither = yield* resolvedFolder([], {});
+
+        expect([fromFlag, fromEnvironment, flagFirst, neither]).toStrictEqual([
+          ["C:/Users/attorney/Review"],
+          ["C:\\Users\\attorney\\Review"],
+          ["C:/Users/attorney/Review"],
+          ["none"],
+        ]);
+      })
+    );
+  });
 });

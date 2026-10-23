@@ -17,6 +17,9 @@ import {
   M365MailDraft,
   M365SendDraftMessageRequest,
 } from "@beep/m365";
+import { WindowsDrivePath } from "@beep/schema/FilePath";
+import { escapeHtml } from "@beep/utils/Html";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -24,6 +27,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { NoticeMailboxOperation, NoticeMessage } from "@beep/law-practice-use-cases/DailyNotice";
 import type { M365Shape } from "@beep/m365";
 import type { LocalDate } from "@beep/schema/LocalDate";
@@ -32,7 +36,111 @@ import type { PlatformError } from "effect/PlatformError";
 const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
 
 /**
- * The attorney's mailbox the notice goes from and to, and the data directory its day claims are kept in.
+ * An absolute Windows folder on the attorney's PC, written with `\` or `/`
+ * separators.
+ *
+ * **Details**
+ *
+ * It is a `WindowsDrivePath` that also starts at the drive's root, so a
+ * drive-relative path such as `C:Review` is refused.
+ *
+ * **Example** (Check a review folder)
+ *
+ * ```ts
+ * import { NoticeClaudeFolder } from "@beep/law-practice-server/NoticeMailbox"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(NoticeClaudeFolder)("C:/Users/attorney/Review")) // true
+ * console.log(S.is(NoticeClaudeFolder)("C:Review")) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const NoticeClaudeFolder = WindowsDrivePath.check(
+  S.isPattern(
+    /^[A-Za-z]:[\\/]/u,
+    $I.annote("NoticeClaudeFolderAbsoluteCheck", {
+      title: "Notice Claude Folder Absolute",
+      description: "A Windows drive path that starts at the drive's root, such as C:\\ or C:/.",
+      message: "The Claude Code folder must be an absolute Windows path, such as C:/Users/attorney/Review.",
+    })
+  )
+).pipe(
+  $I.annoteSchema("NoticeClaudeFolder", {
+    description: "An absolute Windows folder on the attorney's PC, with \\ or / separators.",
+  })
+);
+
+/**
+ * Type of {@link NoticeClaudeFolder}.
+ *
+ * **Example** (Type a review folder)
+ *
+ * ```ts
+ * import { NoticeClaudeFolder } from "@beep/law-practice-server/NoticeMailbox"
+ * import * as S from "effect/Schema"
+ *
+ * const folder: NoticeClaudeFolder = S.decodeUnknownSync(NoticeClaudeFolder)("C:\\Users\\attorney\\Review")
+ * console.log(folder) // "C:\\Users\\attorney\\Review"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NoticeClaudeFolder = typeof NoticeClaudeFolder.Type;
+
+/**
+ * The Claude Code link a notice can carry: the folder on the attorney's PC
+ * Claude Code opens in, and the request it types there.
+ *
+ * **Details**
+ *
+ * The link uses the `claude-cli://open` scheme, which opens Claude Code with
+ * the request typed in but not sent. It belongs to the deployment, not to the
+ * notice: the notice itself still says only how many questions wait.
+ *
+ * **Example** (Make a link)
+ *
+ * ```ts
+ * import { NoticeClaudeFolder, NoticeClaudeLink } from "@beep/law-practice-server/NoticeMailbox"
+ * import * as S from "effect/Schema"
+ *
+ * const link = NoticeClaudeLink.make({
+ *   folder: S.decodeUnknownSync(NoticeClaudeFolder)("C:/Users/attorney/Review"),
+ *   prompt: "Walk me through my waiting review questions."
+ * })
+ * console.log(link.prompt) // "Walk me through my waiting review questions."
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NoticeClaudeLink extends S.Opaque<NoticeClaudeLink, { readonly brand: unique symbol }>()(
+  S.Struct({
+    folder: NoticeClaudeFolder.annotateKey({
+      description: "Folder on the attorney's PC that Claude Code opens in; \\ or / separators.",
+    }),
+    prompt: S.NonEmptyString.annotateKey({
+      description: "Request Claude Code types in that folder; the attorney presses Enter to send it.",
+    }),
+  }).pipe(
+    $I.annoteSchema("NoticeClaudeLink", {
+      description: "Folder and typed request of the notice's Claude Code link.",
+    })
+  )
+) {}
+
+/**
+ * The attorney's mailbox the notice goes from and to, the data directory its
+ * day claims are kept in, and an optional Claude Code link.
+ *
+ * **Details**
+ *
+ * Without `claudeLink` the notice is plain text. With it, the notice is HTML
+ * that adds an "Answer them in Claude Code" link and a sentence naming the
+ * folder and the request for when the link does not open. `make` defaults
+ * `claudeLink` to none.
  *
  * **Example** (Decode a notice config)
  *
@@ -47,6 +155,21 @@ const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
  * console.log(config._tag) // "Some"
  * ```
  *
+ * **Example** (Decode a notice config with a Claude Code link)
+ *
+ * ```ts
+ * import { NoticeMailboxConfig } from "@beep/law-practice-server/NoticeMailbox"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(NoticeMailboxConfig)({
+ *   mailbox: "attorney@example.test",
+ *   dataDirectory: "/var/lib/practice-review-hub",
+ *   claudeLink: { folder: "C:/Users/attorney/Review", prompt: "Walk me through my waiting review questions." }
+ * })
+ * console.log(O.isSome(config.claudeLink)) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -58,12 +181,42 @@ export class NoticeMailboxConfig extends S.Opaque<NoticeMailboxConfig, { readonl
     dataDirectory: S.NonEmptyString.annotateKey({
       description: "Directory whose notice-sent/ subdirectory holds one claim file per notice day.",
     }),
+    claudeLink: NoticeClaudeLink.pipe(
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description: "Claude Code link the notice carries as HTML; absent, the notice is plain text.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("NoticeMailboxConfig", {
-      description: "The attorney's mailbox the notice goes from and to, and the directory of its day claims.",
+      description:
+        "The attorney's mailbox the notice goes from and to, the directory of its day claims, and an optional Claude Code link.",
     })
   )
 ) {}
+
+// The link Claude Code opens: the folder, with \ separators, as the working directory and the request as the
+// typed-in prompt. Both are percent-encoded; the caller escapes the whole URL for the HTML attribute.
+const windowsFolder = Str.replaceAll("/", "\\");
+const claudeCodeHref = (link: NoticeClaudeLink): string =>
+  `claude-cli://open?cwd=${encodeURIComponent(windowsFolder(link.folder))}&q=${encodeURIComponent(link.prompt)}`;
+
+// The HTML notice: the count sentence first, so an inbox preview still shows only the count, then the link and
+// what to do when it does not open. Every value is escaped.
+const noticeHtml = (message: NoticeMessage, link: NoticeClaudeLink): string => {
+  const folder = escapeHtml(windowsFolder(link.folder));
+  const prompt = escapeHtml(link.prompt);
+  return A.join(
+    [
+      `<p>${escapeHtml(message.body)}</p>`,
+      `<p><a href="${escapeHtml(claudeCodeHref(link))}">Answer them in Claude Code</a></p>`,
+      "<p>The link opens Claude Code with the request typed in. Press Enter to start.</p>",
+      `<p>If the link does not open, open Claude Code in ${folder} and type: ${prompt}</p>`,
+    ],
+    "\n"
+  );
+};
 
 // Subdirectory of the data directory that holds one claim file per notice day.
 const NOTICE_CLAIMS_DIRECTORY = "notice-sent";
@@ -89,7 +242,10 @@ const makeNoticeMailbox = (
         M365CreateDraftMessageRequest.make({
           draft: M365MailDraft.make({
             subject: message.subject,
-            body: M365MailBody.make({ content: message.body, contentType: "text" }),
+            body: O.match(config.claudeLink, {
+              onNone: () => M365MailBody.make({ content: message.body, contentType: "text" }),
+              onSome: (link) => M365MailBody.make({ content: noticeHtml(message, link), contentType: "html" }),
+            }),
             toRecipients: [config.mailbox],
           }),
           userId,
@@ -125,9 +281,10 @@ const makeNoticeMailbox = (
  *
  * **Details**
  *
- * `send` creates a plain-text draft in the configured mailbox, addressed to
- * that same mailbox, and sends it, so the notice uses no grant beyond the
- * mailbox's own. `claimDay` creates `notice-sent/<YYYY-MM-DD>` in the data
+ * `send` creates a draft in the configured mailbox, addressed to that same
+ * mailbox, and sends it, so the notice uses no grant beyond the mailbox's own.
+ * The draft is plain text, or HTML with an "Answer them in Claude Code" link
+ * when the config has a `claudeLink`. `claimDay` creates `notice-sent/<YYYY-MM-DD>` in the data
  * directory with an exclusive create: the run whose create succeeds gets
  * `true`, and a run that finds the file gets `false`, so two runs on one day,
  * at the same time or not, claim it once. Every failure is a

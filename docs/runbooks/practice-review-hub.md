@@ -14,7 +14,8 @@ Three things feed or read the hub's data directory:
 - the hub reads the items and appends verdicts and answers;
 - the daily notice reads the items and answers and, at most once a day,
   emails the attorney how many questions wait. The email holds the count only,
-  never a question.
+  never a question. When a review folder is configured, it also carries a link
+  that opens Claude Code in that folder on the attorney's PC (section 6).
 
 Nothing in the repository installs these units, and the hub never writes the
 calendar. This runbook is the manual install.
@@ -245,6 +246,51 @@ rm <data-dir>/notice-sent/$(TZ=<time-zone> date +%F)
 systemctl --user start practice-review-notice.service
 journalctl --user -u practice-review-notice.service -n 20
 ```
+
+### Answer link (optional)
+
+The email says how many questions wait. It can also carry an
+"Answer them in Claude Code" link. The link opens Claude Code on the
+attorney's PC, in a review folder, with this request typed in:
+"Walk me through my waiting review questions."
+
+1. On the attorney's PC, create a folder used only for answering review
+   questions, for example `C:\Users\<user>\Review`. Put a `CLAUDE.md` in it
+   with the rules Claude follows for the walk-through. For example: read the
+   waiting questions with `review_open_items`, take them one at a time with
+   their options as written, and record an answer with `review_record_answer`
+   only after the attorney picks one. Do not use the section 8 working folder
+   that holds the token scripts. Claude Code reaches the hub from this folder
+   because the hub is registered at user scope (section 8, step 3).
+2. Add one line to the notice's environment file. Write the folder with
+   forward slashes. It is a plain value, not an `op://` reference, and
+   `op run` passes it through unchanged:
+
+   ```bash
+   PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER="C:/Users/<user>/Review"
+   ```
+
+   Forward slashes avoid escaping problems: if the folder is passed as
+   `--claude-folder` on the unit's `ExecStart=` instead, systemd treats a
+   backslash as the start of an escape. The email shows and links the folder
+   with backslashes either way. The notice fails at start-up, before it claims
+   the day, if the folder is not an absolute Windows path.
+3. Send one notice and click the link on the PC. If today's notice already
+   went out, release the day's claim first (the steps above). The first click
+   asks once whether Outlook or the browser may open Claude Code: allow it.
+   The first time Claude Code opens in the folder, it asks whether to trust
+   the folder: trust it.
+
+The link types the request into Claude Code but does not send it. The
+attorney reads it and presses Enter to start, as the email says. If the link
+does not open, for example because the mail client blocks links that are not
+web addresses, the email's last sentence names the folder to open Claude Code
+in and the request to type.
+
+The journal line stays count-only: the folder and the link appear only in the
+email. To turn the link off, delete the line from the environment file. The
+next notice is plain text again; no reload is needed, because the service
+reads the file on every run.
 
 ## 7. Verify
 

@@ -6,6 +6,8 @@
 
 import { QuestionOption } from "@beep/law-practice-domain/values/Question";
 import { ReviewItem } from "@beep/law-practice-domain/values/ReviewItem";
+import { NoticeClaudeFolder } from "@beep/law-practice-server/NoticeMailbox";
+import { DailyNoticeOutcome } from "@beep/law-practice-use-cases/DailyNotice";
 import { QuestionQueue, RecordAnswerInput } from "@beep/law-practice-use-cases/QuestionQueue";
 import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
 import { GraphMessage, M365 } from "@beep/m365";
@@ -17,15 +19,20 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
 import { makeNoticeLayer, sendDailyNotice } from "@/Notice";
 import { Platform } from "./Hub.fixture.ts";
 
 const MAILBOX = "attorney@example.test";
 const UTC = DateTime.zoneMakeNamedUnsafe("UTC");
 
-/** What the fake mailbox was asked to send: one subject and recipient list per draft. */
-class SentMail extends Context.Service<SentMail, Ref.Ref<ReadonlyArray<string>>>()(
+/** One draft the fake mailbox was asked to send: its subject, recipients and body type, and its body. */
+type Sent = { readonly summary: string; readonly content: string };
+
+/** What the fake mailbox was asked to send, in order. */
+class SentMail extends Context.Service<SentMail, Ref.Ref<ReadonlyArray<Sent>>>()(
   "@beep/practice-review-hub/test/Notice.test/SentMail"
 ) {}
 
@@ -34,13 +41,19 @@ class DataDirectory extends Context.Service<DataDirectory, string>()(
   "@beep/practice-review-hub/test/Notice.test/DataDirectory"
 ) {}
 
-// Records each draft's subject and recipients; sending succeeds without doing anything.
+// Records each draft; sending succeeds without doing anything.
 const FakeMailbox = Layer.unwrap(
   Effect.map(SentMail, (sent) =>
     Layer.mock(M365)({
       createDraftMessage: ({ draft }) =>
         Effect.as(
-          Ref.update(sent, A.append(`${draft.subject} -> ${A.join(draft.toRecipients, ",")}`)),
+          Ref.update(
+            sent,
+            A.append({
+              summary: `${draft.subject} -> ${A.join(draft.toRecipients, ",")} (${draft.body.contentType})`,
+              content: draft.body.content,
+            })
+          ),
           GraphMessage.make({ id: "draft-1" })
         ),
       sendDraftMessage: () => Effect.void,
@@ -48,15 +61,27 @@ const FakeMailbox = Layer.unwrap(
   )
 );
 
-const NoticeTest = Layer.unwrap(
-  Effect.gen(function* () {
-    const dataDirectory = yield* (yield* FileSystem.FileSystem).makeTempDirectoryScoped({ prefix: "review-notice-" });
-    return makeNoticeLayer({ dataDirectory, mailbox: MAILBOX }).pipe(
-      Layer.provide(FakeMailbox),
-      Layer.provideMerge(Layer.succeed(DataDirectory, dataDirectory))
-    );
-  })
-).pipe(Layer.provideMerge(Layer.merge(Platform, Layer.effect(SentMail, Ref.make<ReadonlyArray<string>>([])))));
+const summaries = A.map(({ summary }: Sent) => summary);
+const contents = A.map(({ content }: Sent) => content);
+
+const noticeTest = (claudeFolder: O.Option<NoticeClaudeFolder>) =>
+  Layer.unwrap(
+    Effect.gen(function* () {
+      const dataDirectory = yield* (yield* FileSystem.FileSystem).makeTempDirectoryScoped({ prefix: "review-notice-" });
+      return makeNoticeLayer({ claudeFolder, dataDirectory, mailbox: MAILBOX }).pipe(
+        Layer.provide(FakeMailbox),
+        Layer.provideMerge(Layer.succeed(DataDirectory, dataDirectory))
+      );
+    })
+  ).pipe(Layer.provideMerge(Layer.merge(Platform, Layer.effect(SentMail, Ref.make<ReadonlyArray<Sent>>([])))));
+
+const NoticeTest = noticeTest(O.none());
+
+// The outcome as the one JSON line `notice` prints to the journal.
+const encodeOutcomeLine = S.encodeEffect(S.fromJsonString(DailyNoticeOutcome));
+
+// A synthetic review folder, written with / as the runbook recommends for the environment file.
+const ReviewFolderTest = noticeTest(O.some(NoticeClaudeFolder.make("C:/Users/attorney/Review")));
 
 const question = (itemId: string) =>
   ReviewItem.cases.question.make({
@@ -95,8 +120,42 @@ describe("@beep/practice-review-hub daily notice", () => {
         const claims = yield* (yield* FileSystem.FileSystem).readDirectory(`${yield* DataDirectory}/notice-sent`);
 
         expect([first.status, second.status]).toStrictEqual(["sent", "already-sent"]);
-        expect(yield* Ref.get(yield* SentMail)).toStrictEqual(["Claude: 1 question waiting -> attorney@example.test"]);
+        expect(summaries(yield* Ref.get(yield* SentMail))).toStrictEqual([
+          "Claude: 1 question waiting -> attorney@example.test (text)",
+        ]);
+        expect(contents(yield* Ref.get(yield* SentMail))).toStrictEqual([
+          "1 question is waiting for you in Claude. Open the review queue to answer.",
+        ]);
         expect(claims).toStrictEqual(["1970-01-01"]);
+      })
+    );
+  });
+
+  it.layer(ReviewFolderTest, { timeout: "10 seconds" })("questions waiting, with a Claude Code folder", (it) => {
+    it.effect(
+      "emails an Answer them in Claude Code link and keeps the printed outcome count-only",
+      Effect.fnUntraced(function* () {
+        yield* (yield* ReviewItemStore).upsert([question("question:notice-link-1")]);
+
+        const outcome = yield* sendDailyNotice(UTC);
+        const printed = yield* encodeOutcomeLine(outcome);
+        const sent = yield* Ref.get(yield* SentMail);
+
+        expect(summaries(sent)).toStrictEqual(["Claude: 1 question waiting -> attorney@example.test (html)"]);
+        expect(contents(sent)).toStrictEqual([
+          A.join(
+            [
+              "<p>1 question is waiting for you in Claude. Open the review queue to answer.</p>",
+              '<p><a href="claude-cli://open?cwd=C%3A%5CUsers%5Cattorney%5CReview&amp;q=Walk%20me%20through%20my%20waiting%20review%20questions.">Answer them in Claude Code</a></p>',
+              "<p>The link opens Claude Code with the request typed in. Press Enter to start.</p>",
+              "<p>If the link does not open, open Claude Code in C:\\Users\\attorney\\Review and type: Walk me through my waiting review questions.</p>",
+            ],
+            "\n"
+          ),
+        ]);
+        expect(printed).toBe(
+          '{"status":"sent","message":{"subject":"Claude: 1 question waiting","body":"1 question is waiting for you in Claude. Open the review queue to answer."},"sentOn":"1970-01-01"}'
+        );
       })
     );
   });

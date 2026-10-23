@@ -6,6 +6,7 @@
  */
 
 import { $PracticeReviewHubId } from "@beep/identity/packages";
+import { NoticeClaudeFolder } from "@beep/law-practice-server/NoticeMailbox";
 import { Port } from "@beep/schema/Port";
 import { splitCommaSeparatedTrimmed } from "@beep/utils/Text";
 import * as Config from "effect/Config";
@@ -142,17 +143,25 @@ export const decodeReviewHubConfig = Effect.fn("ReviewHubConfig.decode")(functio
 /**
  * Resolved settings of the daily notice.
  *
+ * **Details**
+ *
+ * `claudeFolder` is the folder on the attorney's PC that the notice's
+ * "Answer them in Claude Code" link opens; with none, the notice stays plain
+ * text.
+ *
  * **Example** (Decode the notice settings)
  *
  * ```ts
  * import { ReviewNoticeConfig } from "@/Config"
+ * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
  * const config = S.decodeUnknownSync(ReviewNoticeConfig)({
+ *   claudeFolder: O.some("C:/Users/attorney/Review"),
  *   dataDirectory: "/var/lib/practice-review-hub",
  *   timeZone: "America/Chicago"
  * })
- * console.log(config.dataDirectory) // "/var/lib/practice-review-hub"
+ * console.log(O.getOrElse(config.claudeFolder, () => "none")) // "C:/Users/attorney/Review"
  * ```
  *
  * @category models
@@ -160,6 +169,9 @@ export const decodeReviewHubConfig = Effect.fn("ReviewHubConfig.decode")(functio
  */
 export class ReviewNoticeConfig extends S.Opaque<ReviewNoticeConfig, { readonly brand: unique symbol }>()(
   S.Struct({
+    claudeFolder: S.Option(NoticeClaudeFolder).annotateKey({
+      description: "Absolute Windows folder the notice's Claude Code link opens; none sends the plain notice.",
+    }),
     dataDirectory: S.NonEmptyString.annotateKey({
       description: "Directory of the hub's item and answer files, and of the notice's last-sent day.",
     }),
@@ -171,25 +183,36 @@ export class ReviewNoticeConfig extends S.Opaque<ReviewNoticeConfig, { readonly 
 
 /**
  * Command-line flags of `notice`: `--data-dir` and `--time-zone`, falling
- * back to `PRACTICE_REVIEW_HUB_DATA_DIR` and `PRACTICE_REVIEW_HUB_TIME_ZONE`.
+ * back to `PRACTICE_REVIEW_HUB_DATA_DIR` and `PRACTICE_REVIEW_HUB_TIME_ZONE`,
+ * and the optional `--claude-folder`, falling back to
+ * `PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER`.
  *
  * **Details**
  *
  * The mailbox connection is not a flag: it comes from the
  * `PRACTICE_REVIEW_NOTICE_*` environment variables, which `op run` resolves.
+ * When neither `--claude-folder` nor its variable is set, `claudeFolder` is
+ * none and the notice has no Claude Code link.
  *
  * **Example** (List the flags)
  *
  * ```ts
  * import { reviewNoticeFlags } from "@/Config"
  *
- * console.log(Object.keys(reviewNoticeFlags)) // ["dataDirectory", "timeZone"]
+ * console.log(Object.keys(reviewNoticeFlags)) // ["claudeFolder", "dataDirectory", "timeZone"]
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
 export const reviewNoticeFlags = {
+  claudeFolder: Flag.String("claude-folder").pipe(
+    Flag.withFallbackConfig(Config.String("PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER")),
+    Flag.optional,
+    Flag.withDescription(
+      "Absolute Windows folder on the attorney's PC, such as C:/Users/attorney/Review, that the email's Claude Code answer link opens."
+    )
+  ),
   dataDirectory: dataDirectoryFlag,
   timeZone: Flag.String("time-zone").pipe(
     Flag.withFallbackConfig(Config.String("PRACTICE_REVIEW_HUB_TIME_ZONE")),

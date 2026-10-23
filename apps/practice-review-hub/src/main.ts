@@ -25,6 +25,7 @@ const serve = Command.make("serve", reviewHubFlags, (flags) =>
 
 // Send today's notice if one is due, and print its outcome as one JSON line: a
 // status, the day, and for a sent notice the count it said, never a question.
+// The Claude Code folder goes only into the email, never into this line.
 const notice = Command.make(
   "notice",
   reviewNoticeFlags,
@@ -33,7 +34,9 @@ const notice = Command.make(
     const settings = yield* loadM365AppOnlyEnv(NOTICE_ENV_PREFIX);
     const mailbox = yield* S.decodeEffect(M365MailAddress)(settings.mailbox);
     yield* Layer.effectDiscard(printOutcome(config.timeZone)).pipe(
-      Layer.provide(makeNoticeLayer({ dataDirectory: config.dataDirectory, mailbox })),
+      Layer.provide(
+        makeNoticeLayer({ claudeFolder: config.claudeFolder, dataDirectory: config.dataDirectory, mailbox })
+      ),
       Layer.provide(M365.makeAppOnlyLiveLayer(M365AppOnlyConfigInput.make(settings.appOnly))),
       Layer.build,
       Effect.scoped
