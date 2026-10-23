@@ -3,6 +3,7 @@ import { WorkspaceVaultActionError } from "@beep/workspace-use-cases/public";
 import { afterEach, describe, expect, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Clock from "effect/Clock";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -246,7 +247,10 @@ describe("intake file input", { concurrent: false }, () => {
       yield* AtomRegistry.getResult(registry, setInput);
       releaseSetInput();
 
+      const releasedAt = yield* Clock.currentTimeMillis;
       yield* Effect.sleep(Duration.millis(50));
+      // The live clock has moved past the 10 ms idle TTL, and the witness proves the registry evicted.
+      expect((yield* Clock.currentTimeMillis) - releasedAt).toBeGreaterThan(10);
       expect(registry.get(idleWitness)).toBe(0);
       assertSome(registry.get(intakeFileInputAtoms(workspaceId)), input);
 

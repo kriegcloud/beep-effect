@@ -16,6 +16,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Clock from "effect/Clock";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
@@ -761,16 +762,18 @@ describe("proof job launcher", () => {
       })
     )
   );
-  // it.live: wait polls the record with real sleeps against a shimmed systemctl; under the
-  // TestClock the poll loop would never advance to its timeout.
-  it.live("times out while a unit remains active", () =>
+  // The wait starts immediately, so its 15 ms deadline is armed on this test's own TestClock
+  // before the clock advances; the active unit keeps the poll loop from ever settling first.
+  it.effect("times out while a unit remains active", () =>
     fixture(
       Effect.fnUntraced(function* (root) {
         const launcher = yield* ProofJobLauncher.make(root);
         const record = yield* launcher.submit(submission(root));
-        const error = yield* launcher
+        const waiting = yield* launcher
           .wait(record.jobId, Job.ProofJobWaitOptions.make({ timeoutMs: O.some(15), pollIntervalMs: 1 }))
-          .pipe(Effect.flip);
+          .pipe(Effect.flip, Effect.forkChild({ startImmediately: true }));
+        yield* TestClock.adjust("15 millis");
+        const error = yield* Fiber.join(waiting);
         expect(error.message).toContain("Timed out");
       })
     )
@@ -1981,8 +1984,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("proof job record guards
   );
 });
 
-// it.live: a contender on a held record lock sleeps 25 ms between attempts; under the TestClock
-// that sleep never advances and the busy verdict never arrives.
+// it.live: a contender on a held record lock sleeps 25 ms between file-lock attempts, with real
+// filesystem IO between sleeps, so a TestClock adjustment cannot drive the retry loop. The live
+// clock proves the busy verdict arrives only after the contender's real backoff (199 pauses of
+// 25 ms, about 5 s), not on its first refused attempt.
 it.live("reports a record lock held by a live process as busy", () =>
   fixture(
     Effect.fnUntraced(function* (root) {
@@ -1992,9 +1997,12 @@ it.live("reports a record lock held by a live process as busy", () =>
       const lockPath = `${root}/.beep/yeet/jobs/${record.jobId}.lock`;
       const holder = `${process.pid}:test-holder`;
       expect(yield* acquireJournalFileLock(lockPath, holder, 1)).toBe(true);
+      const contendedAt = yield* Clock.currentTimeMillis;
       const busy = yield* launcher.cancel(record.jobId).pipe(Effect.flip);
+      const busyAfterMillis = (yield* Clock.currentTimeMillis) - contendedAt;
       yield* releaseJournalFileLock(lockPath, holder);
       expect(busy).toMatchObject({ message: `Proof job ${record.jobId} stayed busy.` });
+      expect(busyAfterMillis).toBeGreaterThanOrEqual(4_000);
       expect(yield* fs.exists(lockPath)).toBe(false);
     })
   )
