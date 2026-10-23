@@ -168,6 +168,12 @@
         ]
       },
       {
+        "name": "@beep/config-file",
+        "patterns": [
+          "packages/foundation/capability/config-file/src/**"
+        ]
+      },
+      {
         "name": "@beep/cosmos",
         "patterns": [
           "packages/drivers/cosmos/src/**"
@@ -1666,6 +1672,15 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/config-file",
+        "allow": [
+          "@beep/config-file"
+        ],
+        "allowTypeOnly": [
+          "@beep/config-file"
         ]
       },
       {

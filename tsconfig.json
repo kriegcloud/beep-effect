@@ -2315,6 +2315,12 @@
       "@beep/markdown/*": ["./packages/foundation/modeling/markdown/src/*"],
       "@beep/markdown/internal/*": [
         "./packages/foundation/modeling/markdown/src/internal/*"
+      ],
+      "@beep/config-file": [
+        "./packages/foundation/capability/config-file/src/index.ts"
+      ],
+      "@beep/config-file/*": [
+        "./packages/foundation/capability/config-file/src/*"
       ]
     }
   }

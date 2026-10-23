@@ -232,7 +232,8 @@ const generatedComposers = $I.compose(
   "github",
   "runtime-env",
   "epistemics",
-  "markdown"
+  "markdown",
+  "config-file"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3370,3 +3371,20 @@ export const $EpistemicsId: Identity.IdentityComposer<"@beep/epistemics"> = comp
  * @since 0.0.0
  */
 export const $MarkdownId: Identity.IdentityComposer<"@beep/markdown"> = composers.$MarkdownId;
+
+/**
+ * Identity composer for `@beep/config-file`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $ConfigFileId } from "@beep/identity/packages"
+ *
+ * const id = $ConfigFileId.make("ConfigFile")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = composers.$ConfigFileId;
