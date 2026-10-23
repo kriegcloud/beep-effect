@@ -87,7 +87,7 @@ const npmPurl = (name: string, version?: string): string => {
  */
 export const SbomMetadataOptions = S.Struct({
   /** The supplying organization — NTIA minimum element 1. */
-  supplier: S.optionalKey(Supplier).pipe(
+  supplier: S.optional(Supplier).pipe(
     $I.annoteKey("SbomMetadataOptions.supplier", {
       description: "The supplying organization — NTIA minimum element 1.",
     })
@@ -99,31 +99,31 @@ export const SbomMetadataOptions = S.Struct({
     $I.annoteKey("SbomMetadataOptions.authors", { description: "Who assembled the BOM — NTIA minimum element 6." })
   ),
   /** When it was assembled — NTIA minimum element 7, as an ISO 8601 string. */
-  timestamp: S.optionalKey(S.String).pipe(
+  timestamp: S.optional(S.String).pipe(
     $I.annoteKey("SbomMetadataOptions.timestamp", {
       description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string.",
     })
   ),
   /** The publishing entity. Falls back to the supplier, then the manifest's author. */
-  publisher: S.optionalKey(S.String).pipe(
+  publisher: S.optional(S.String).pipe(
     $I.annoteKey("SbomMetadataOptions.publisher", {
       description: "The publishing entity. Falls back to the supplier, then the manifest's author.",
     })
   ),
   /** A copyright statement; {@link SbomMetadataSource.formatCopyright} builds one. */
-  copyright: S.optionalKey(S.String).pipe(
+  copyright: S.optional(S.String).pipe(
     $I.annoteKey("SbomMetadataOptions.copyright", {
       description: "A copyright statement; SbomMetadataSource.formatCopyright builds one.",
     })
   ),
   /** The documentation URL, winning over the manifest's `homepage`. */
-  documentationUrl: S.optionalKey(S.String).pipe(
+  documentationUrl: S.optional(S.String).pipe(
     $I.annoteKey("SbomMetadataOptions.documentationUrl", {
       description: "The documentation URL, winning over the manifest's homepage.",
     })
   ),
   /** The root component's type. Defaults to `library`. */
-  type: S.optionalKey(ComponentType).pipe(
+  type: S.optional(ComponentType).pipe(
     $I.annoteKey("SbomMetadataOptions.type", { description: "The root component's type. Defaults to library." })
   ),
 }).pipe(
@@ -165,21 +165,21 @@ export const ComponentInput = S.Struct({
    * statically optional version (e.g. `WorkspacePackage.version` from
    * `@effected/workspaces`) compiles under `exactOptionalPropertyTypes`.
    */
-  version: S.optionalKey(S.String).pipe(
+  version: S.optional(S.String).pipe(
     $I.annoteKey("ComponentInput.version", {
       description: "Its resolved version. Absent produces a component with no version and no purl version segment.",
     })
   ),
   /** An SPDX identifier or expression. */
-  license: S.optionalKey(S.String).pipe(
+  license: S.optional(S.String).pipe(
     $I.annoteKey("ComponentInput.license", { description: "An SPDX identifier or expression." })
   ),
   /** A short description. */
-  description: S.optionalKey(S.String).pipe(
+  description: S.optional(S.String).pipe(
     $I.annoteKey("ComponentInput.description", { description: "A short description." })
   ),
   /** The component type. Defaults to `library`. */
-  type: S.optionalKey(ComponentType).pipe(
+  type: S.optional(ComponentType).pipe(
     $I.annoteKey("ComponentInput.type", { description: "The component type. Defaults to library." })
   ),
 }).pipe(
@@ -212,7 +212,7 @@ export type ComponentInput = typeof ComponentInput.Type;
  */
 export const CopyrightYears = S.Struct({
   /** The first year of the range. Omit for a single-year statement. */
-  startYear: S.optionalKey(S.Finite).pipe(
+  startYear: S.optional(S.Finite).pipe(
     $I.annoteKey("CopyrightYears.startYear", {
       description: "The first year of the range. Omit for a single-year statement.",
     })

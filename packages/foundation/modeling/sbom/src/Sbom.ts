@@ -45,7 +45,7 @@ export const SbomInput = S.Struct({
     $I.annoteKey("SbomInput.components", { description: "Its dependencies, in any order — the document sorts them." })
   ),
   /** Document metadata. `root` is threaded onto it automatically. */
-  metadata: S.optionalKey(SbomMetadata).pipe(
+  metadata: S.optional(SbomMetadata).pipe(
     $I.annoteKey("SbomInput.metadata", { description: "Document metadata. `root` is threaded onto it automatically." })
   ),
 }).pipe($I.annoteSchema("SbomInput", { description: "Input to Sbom.generate." }));
@@ -77,7 +77,7 @@ export type SbomInput = typeof SbomInput.Type;
  */
 export const SbomJsonOptions = S.Struct({
   /** `JSON.stringify` indentation. Defaults to `2`; `0` emits one line. */
-  space: S.optionalKey(S.Finite).pipe(
+  space: S.optional(S.Finite).pipe(
     $I.annoteKey("SbomJsonOptions.space", {
       description: "JSON.stringify indentation. Defaults to 2; 0 emits one line.",
     })

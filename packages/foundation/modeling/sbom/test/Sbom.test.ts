@@ -6,7 +6,7 @@
 // could only happen because the CycloneDX library might throw; with an owned
 // model over already-validated Schema values, neither can fail.
 
-import { Component, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
+import { Component, Contact, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as S from "effect/Schema";
@@ -104,7 +104,7 @@ describe("Sbom.toJson", () => {
       metadata: SbomMetadata.make({
         timestamp: "2026-07-25T00:00:00.000Z",
         supplier: Supplier.make({ name: "Acme", url: ["https://acme.example"] }),
-        authors: [{ name: "Dee", email: "dee@example.com" }],
+        authors: [Contact.make({ name: "Dee", email: "dee@example.com" })],
       }),
     });
     const json: unknown = JSON.parse(Sbom.toJson(document));
