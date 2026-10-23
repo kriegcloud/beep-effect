@@ -89,10 +89,10 @@ import type { DuckDbShape } from "@beep/duckdb";
 import type { TestContext } from "@effect/vitest";
 
 class ConcurrentClaimsReader extends Context.Service<ConcurrentClaimsReader, DuckDbShape>()(
-  "test/ConcurrentClaimsReader"
+  "@beep/law-practice-server/test/PracticeKg.projections.test/ConcurrentClaimsReader"
 ) {}
 class ConcurrentClaimsOptions extends Context.Service<ConcurrentClaimsOptions, PracticeKgClaimsOptions>()(
-  "test/ConcurrentClaimsOptions"
+  "@beep/law-practice-server/test/PracticeKg.projections.test/ConcurrentClaimsOptions"
 ) {}
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
@@ -1846,8 +1846,12 @@ describe("practice KG projections", () => {
             Layer.succeed(
               OfficeActionReview,
               OfficeActionReview.of({
-                extractCandidate: () => Effect.die("Normalized patent claims must not invoke extraction."),
-                review: () => Effect.die("Normalized patent claims must not invoke review."),
+                extractCandidate: Effect.fn("OfficeActionReview.extractCandidate")(() =>
+                  Effect.die("Normalized patent claims must not invoke extraction.")
+                ),
+                review: Effect.fn("OfficeActionReview.review")(() =>
+                  Effect.die("Normalized patent claims must not invoke review.")
+                ),
               })
             ),
             Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
@@ -1870,6 +1874,19 @@ describe("practice KG projections", () => {
           expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
           expect(rows.length).toBeGreaterThan(0);
           expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
+        }),
+        { timeout: 120_000 }
+      );
+
+      it.effect(
+        "resolves claims through a DuckDb connection the caller already holds",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+
+          const summary = yield* runPracticeKgClaimsBatch(options).pipe(Effect.provideService(DuckDb, reader));
+
+          expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
         }),
         { timeout: 120_000 }
       );

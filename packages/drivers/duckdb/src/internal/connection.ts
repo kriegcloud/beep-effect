@@ -352,8 +352,8 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     );
     return gate.withLock(
       run.pipe(
-        Effect.onExit(() =>
-          Effect.gen(function* () {
+        Effect.onExit(
+          Effect.fnUntraced(function* () {
             // A later statement can fail after USE/SET has already changed the session.
             // Invalidate on failure too, and retain a failed snapshot read until a
             // subsequent rollback/control statement makes the session readable again.
@@ -513,30 +513,29 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
             () => native.createAppender(request.table, request.schema),
             (late) => late.closeSync()
           ),
-          (appender) =>
-            Effect.gen(function* () {
-              const types = yield* gate.runUnlocked("appendRows", () =>
-                Promise.resolve(A.makeBy(appender.columnCount, (i) => appender.columnType(i)))
-              );
-              for (const row of request.rows) {
-                const values = yield* Effect.fromResult(normalizeParameters(row, "appendRows"));
-                yield* gate.runUnlocked("appendRows", () => {
-                  if (values.length !== types.length) {
-                    return Promise.reject("Appender rows must contain every table column");
-                  }
-                  for (let i = 0; i < values.length; i++) {
-                    appender.appendValue(values[i] ?? null, types[i]);
-                  }
-                  appender.endRow();
-                  return Promise.resolve();
-                });
-              }
+          Effect.fnUntraced(function* (appender) {
+            const types = yield* gate.runUnlocked("appendRows", () =>
+              Promise.resolve(A.makeBy(appender.columnCount, (i) => appender.columnType(i)))
+            );
+            for (const row of request.rows) {
+              const values = yield* Effect.fromResult(normalizeParameters(row, "appendRows"));
               yield* gate.runUnlocked("appendRows", () => {
-                appender.flushSync();
-                appender.closeSync();
+                if (values.length !== types.length) {
+                  return Promise.reject("Appender rows must contain every table column");
+                }
+                for (let i = 0; i < values.length; i++) {
+                  appender.appendValue(values[i] ?? null, types[i]);
+                }
+                appender.endRow();
                 return Promise.resolve();
               });
-            }),
+            }
+            yield* gate.runUnlocked("appendRows", () => {
+              appender.flushSync();
+              appender.closeSync();
+              return Promise.resolve();
+            });
+          }),
           (appender, exit) =>
             Effect.sync(() => {
               if (Exit.isFailure(exit)) {
