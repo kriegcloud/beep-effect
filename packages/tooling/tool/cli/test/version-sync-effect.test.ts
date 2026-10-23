@@ -506,8 +506,16 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
         (item) => [item.file, item.expected]
       );
 
-    it("reads local Bun pins through @beep/semver with an optional leading v", () => {
-      expect(localTarget("v1.4.0", "1.3.9")).toEqual([["package.json", "bun@v1.4.0"]]);
+    it("reads local Bun pins through @beep/semver with an optional leading v and writes them canonical", () => {
+      // The `v` spelling is itself drift: both pins are rewritten to the canonical version.
+      expect(localTarget("v1.4.0", "1.3.9")).toEqual([
+        [".bun-version", "1.4.0"],
+        ["package.json", "bun@1.4.0"],
+      ]);
+      expect(localTarget("1.3.9", "v1.4.0")).toEqual([
+        [".bun-version", "1.4.0"],
+        ["package.json", "bun@1.4.0"],
+      ]);
       expect(localTarget("1.4.0-rc.10", "1.4.0-rc.9")).toEqual([["package.json", "bun@1.4.0-rc.10"]]);
       expect(localTarget("1.4.0-alpha", "1.4.0-1")).toEqual([["package.json", "bun@1.4.0-alpha"]]);
     });

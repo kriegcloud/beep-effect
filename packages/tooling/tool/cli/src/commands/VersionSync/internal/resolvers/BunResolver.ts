@@ -175,16 +175,18 @@ const selectLatestLocalBunVersion = (
   const bunVersionFile = parseBunVersion(state.bunVersionFile);
   const packageManagerField = parseBunVersion(state.packageManagerField);
 
+  // A parsed pin is written in canonical form (no leading `v`): corepack and
+  // `PackageManager.version` reject `bun@v1.4.0`.
   if (O.isSome(bunVersionFile) && O.isSome(packageManagerField)) {
-    return SemVer.gte(bunVersionFile.value, packageManagerField.value)
-      ? state.bunVersionFile
-      : state.packageManagerField;
+    return (
+      SemVer.gte(bunVersionFile.value, packageManagerField.value) ? bunVersionFile.value : packageManagerField.value
+    ).toString();
   }
   if (O.isSome(bunVersionFile)) {
-    return state.bunVersionFile;
+    return bunVersionFile.value.toString();
   }
   if (O.isSome(packageManagerField)) {
-    return state.packageManagerField;
+    return packageManagerField.value.toString();
   }
 
   return Str.isNonEmpty(state.bunVersionFile) ? state.bunVersionFile : state.packageManagerField;
