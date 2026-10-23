@@ -82,6 +82,25 @@ const SESSION_QUERY =
 const changesSession = (sql: string): boolean =>
   A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET)\b/i.test(text));
 
+const readerStreamRefusal = (
+  reader: boolean,
+  sql: string,
+  control: ReturnType<typeof classifyControl>
+): O.Option<SqlError> => {
+  if (!reader) return O.none();
+  return changesSession(sql) || (control !== "statement" && control !== "catalogContext")
+    ? O.some(
+        SqlError.make({
+          reason: AuthorizationError.make({
+            cause: sql,
+            message: "Reader streams cannot change session settings or transaction control",
+            operation: "executeStream",
+          }),
+        })
+      )
+    : O.none();
+};
+
 const ConnectionTypeId = "~@beep/duckdb/internal/connection";
 
 const RUN_DIRECT_PATTERN =
@@ -487,31 +506,19 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       Stream.unwrap(
         Effect.suspend((): Effect.Effect<Stream.Stream<Row, SqlError>, SqlError, Scope.Scope> => {
           const control = classifyControl(sql);
-          if (
-            options.readOnlyReader === true &&
-            (changesSession(sql) || (control !== "statement" && control !== "catalogContext"))
-          ) {
-            return Effect.fail(
-              SqlError.make({
-                reason: AuthorizationError.make({
-                  cause: sql,
-                  message: "Reader streams cannot change session settings or transaction control",
-                  operation: "executeStream",
-                }),
-              })
-            );
-          }
+          const refusal = readerStreamRefusal(options.readOnlyReader === true, sql, control);
+          if (O.isSome(refusal)) return Effect.fail(refusal.value);
           // Multi-statement catalog-context streams keep native.stream's last
           // result while invalidating the prepared cache under its op lock.
           const incremental =
             control === "statement" || (control === "catalogContext" && splitStatements(sql).length > 1);
-          return (isTransaction() && options.readOnlyReader !== true) || !incremental
-            ? Effect.succeed(
-                runRows(sql, params, "executeStream", false, transformRows).pipe(Stream.fromIterableEffect)
-              )
-            : isBlank(sql)
-              ? Effect.succeed(Stream.empty)
-              : incrementalStream(sql, params, transformRows);
+          if ((isTransaction() && options.readOnlyReader !== true) || !incremental) {
+            return Effect.succeed(
+              runRows(sql, params, "executeStream", false, transformRows).pipe(Stream.fromIterableEffect)
+            );
+          }
+          if (isBlank(sql)) return Effect.succeed(Stream.empty);
+          return incrementalStream(sql, params, transformRows);
         })
       ),
   };

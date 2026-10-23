@@ -277,6 +277,68 @@ const hasTimeZoneKey = (options: Record<string, string> | undefined): boolean =>
 const stringField = (row: unknown, key: string): O.Option<string> =>
   P.hasProperty(row, key) && P.isString(row[key]) ? O.some(row[key]) : O.none();
 
+const makeAcquirers = Effect.fnUntraced(function* (
+  instance: DuckDBInstance | undefined,
+  connection: Effect.Success<ReturnType<typeof makeConnection>>,
+  readerConnections: number
+) {
+  const acquirers = SqlClient.makeSqliteAcquirers({
+    connection: Effect.succeed(connection),
+    semaphore: yield* Semaphore.make(1),
+  });
+  if (instance === undefined || readerConnections <= 0) {
+    return { ...acquirers, streamAcquirer: acquirers.acquirer };
+  }
+  yield* connection.sessionSnapshot;
+  const readerPool = yield* Pool.make({
+    size: readerConnections,
+    acquire: Effect.gen(function* () {
+      const readerNative = yield* acquireConnection(instance);
+      const reader = yield* makeConnection({
+        native: readerNative,
+        prepareCacheSize: 0,
+        prepareCacheTTL: Duration.zero,
+        readOnlyReader: true,
+      });
+      // A reader never executes session-changing user text, so only a new
+      // writer snapshot can invalidate its applied settings.
+      let applied: O.Option<Effect.Success<typeof connection.sessionSnapshot>> = O.none();
+      return {
+        reader,
+        synchronize: Effect.fnUntraced(function* () {
+          const snapshot = yield* connection.sessionSnapshot;
+          if (O.isSome(applied) && connection.sameSessionSnapshot(applied.value, snapshot)) return;
+          applied = O.none();
+          yield* reader.runDriverStatement(`USE ${quotedIdentifier(snapshot.database)}`, "executeStream");
+          yield* reader.runDriverStatement(`SET search_path = ${quotedString(snapshot.searchPath)}`, "executeStream");
+          yield* reader.runDriverStatement(`SET TimeZone = ${quotedString(snapshot.timeZone)}`, "executeStream");
+          yield* reader.runDriverStatement(`SET Calendar = ${quotedString(snapshot.calendar)}`, "executeStream");
+          applied = O.some(snapshot);
+        }),
+      };
+    }),
+  });
+  const streamAcquirer = Effect.gen(function* () {
+    const lease = yield* Pool.get(readerPool);
+    yield* lease.synchronize();
+    yield* Effect.acquireRelease(
+      lease.reader.runDriverStatement("BEGIN TRANSACTION READ ONLY", "beginTransaction"),
+      () => lease.reader.runDriverStatement("ROLLBACK", "rollbackTransaction").pipe(Effect.orDie)
+    );
+    return lease.reader;
+  });
+  return { ...acquirers, streamAcquirer };
+});
+
+const configureTimeZone = Effect.fnUntraced(function* (
+  connection: Effect.Success<ReturnType<typeof makeConnection>>,
+  timeZone: string | undefined,
+  skipDefault: boolean
+) {
+  if (timeZone === undefined && skipDefault) return;
+  yield* connection.runDriverStatement(`SET TimeZone = ${quotedString(timeZone ?? DEFAULT_TIME_ZONE)}`, "connect");
+});
+
 const makeFromNative = Effect.fnUntraced(function* (
   native: DuckDBConnection,
   options: CoreOptions,
@@ -290,65 +352,16 @@ const makeFromNative = Effect.fnUntraced(function* (
     prepareCacheSize: options.prepareCacheSize ?? DEFAULT_PREPARE_CACHE_SIZE,
     prepareCacheTTL: options.prepareCacheTTL ?? Duration.minutes(10),
   });
-  if (options.timeZone !== undefined || !skipDefaultTimeZone) {
-    yield* connection.runDriverStatement(
-      `SET TimeZone = ${quotedString(options.timeZone ?? DEFAULT_TIME_ZONE)}`,
-      "connect"
-    );
-  }
+  yield* configureTimeZone(connection, options.timeZone, skipDefaultTimeZone);
   const database = A.head(yield* connection.executeUnprepared(DATABASE_QUERY, [], undefined));
   const databaseName = O.getOrElse(
     O.flatMap(database, (row) => stringField(row, "database_name")),
     () => "memory"
   );
   const databasePath = O.flatMap(database, (row) => stringField(row, "path"));
-  const acquirers = SqlClient.makeSqliteAcquirers({
-    connection: Effect.succeed(connection),
-    semaphore: yield* Semaphore.make(1),
-  });
-  let streamAcquirer = acquirers.acquirer;
-  if (instance !== undefined && readerConnections > 0) {
-    yield* connection.sessionSnapshot;
-    const readerPool = yield* Pool.make({
-      size: readerConnections,
-      acquire: Effect.gen(function* () {
-        const readerNative = yield* acquireConnection(instance);
-        const reader = yield* makeConnection({
-          native: readerNative,
-          prepareCacheSize: 0,
-          prepareCacheTTL: Duration.zero,
-          readOnlyReader: true,
-        });
-        // A reader never executes session-changing user text, so only a new
-        // writer snapshot can invalidate its applied settings.
-        let applied: O.Option<Effect.Success<typeof connection.sessionSnapshot>> = O.none();
-        return {
-          reader,
-          synchronize: Effect.fnUntraced(function* () {
-            const snapshot = yield* connection.sessionSnapshot;
-            if (O.isSome(applied) && connection.sameSessionSnapshot(applied.value, snapshot)) return;
-            applied = O.none();
-            yield* reader.runDriverStatement(`USE ${quotedIdentifier(snapshot.database)}`, "executeStream");
-            yield* reader.runDriverStatement(`SET search_path = ${quotedString(snapshot.searchPath)}`, "executeStream");
-            yield* reader.runDriverStatement(`SET TimeZone = ${quotedString(snapshot.timeZone)}`, "executeStream");
-            yield* reader.runDriverStatement(`SET Calendar = ${quotedString(snapshot.calendar)}`, "executeStream");
-            applied = O.some(snapshot);
-          }),
-        };
-      }),
-    });
-    streamAcquirer = Effect.gen(function* () {
-      const lease = yield* Pool.get(readerPool);
-      yield* lease.synchronize();
-      yield* Effect.acquireRelease(
-        lease.reader.runDriverStatement("BEGIN TRANSACTION READ ONLY", "beginTransaction"),
-        () => lease.reader.runDriverStatement("ROLLBACK", "rollbackTransaction").pipe(Effect.orDie)
-      );
-      return lease.reader;
-    });
-  }
+  const acquirers = yield* makeAcquirers(instance, connection, readerConnections);
   const client = yield* SqlClient.make({
-    acquirer: streamAcquirer,
+    acquirer: acquirers.streamAcquirer,
     borrower: acquirers.borrower,
     transactionAcquirer: acquirers.transactionAcquirer,
     onCommitFailure: acquirers.onCommitFailure,
