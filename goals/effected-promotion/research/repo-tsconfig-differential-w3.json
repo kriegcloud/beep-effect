@@ -1,0 +1,72 @@
+{
+  "tool": "goals/effected-promotion/ops/repo-tsconfig-differential.ts",
+  "commit": "4753e24399d61926c647341a2f1c7300642f6ce9",
+  "tsc": "Version 7.0.2+effect-tsgo.0.55.0",
+  "mode": "three-way (loader, get-tsconfig, tsc)",
+  "fields": {
+    "againstTsc": [
+      "references",
+      "include",
+      "exclude",
+      "files",
+      "outDir",
+      "rootDir",
+      "declarationDir",
+      "tsBuildInfoFile",
+      "baseUrl",
+      "paths"
+    ],
+    "againstGetTsconfigAlso": ["plugins"]
+  },
+  "gates": {
+    "corpusA": true,
+    "corpusB": true
+  },
+  "corpusA": {
+    "configs": 667,
+    "wallMs": 3141,
+    "loaderOk": 667,
+    "tscOk": 667,
+    "getTsconfigOk": 667,
+    "loaderFailsTscSucceeds": [],
+    "tscFails": [],
+    "fieldVerdictsAgainstTsc": {
+      "equal": 5431,
+      "tsc-implicit-exclude": 553,
+      "tsc-expanded-files": 634,
+      "tsc-omits-empty-list": 52
+    },
+    "adopterFieldDiffsAgainstTsc": 0,
+    "adopterFieldDiffExamples": [],
+    "getTsconfigDiffFieldCounts": {
+      "exclude": 553,
+      "tsBuildInfoFile": 38
+    }
+  },
+  "corpusB": {
+    "packages": 222,
+    "specifiers": 666,
+    "wallMs": 11341,
+    "verdict": "tsc success = `--showConfig` stdout parses as a JSON object, its stderr has no `error TS`, and `--listFilesOnly` reports none of the extends-resolution codes TS6053, TS5083, TS18000",
+    "tscLiteralVerdictSucceeds": 666,
+    "tscAnyErrorSucceeds": 9,
+    "tscCodesWhereBothSucceed": {
+      "TS6059": 82,
+      "TS5108": 33,
+      "TS5102": 21
+    },
+    "bothSucceed": 103,
+    "bothFail": 563,
+    "loaderOnly": 0,
+    "tscOnly": 0,
+    "mismatches": [],
+    "getTsconfigAgainstTsc": {
+      "agree": 430,
+      "getTsconfigOnly": 236,
+      "tscOnly": 0
+    },
+    "tscExitCodes": {
+      "0": 666
+    }
+  }
+}
