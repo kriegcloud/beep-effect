@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const JsonString = S.fromJsonString(S.String);
 const runs = { arbitrary: fcRuns(100) };
@@ -54,8 +55,8 @@ it.effect.prop(
       assert.strictEqual(reparsed.text, parsed.text);
       assert.strictEqual((yield* rendered.withRegions([["body", content, meta]])).text, rendered.text);
       const changed = yield* reparsed.withRegions([["body", `${content} updated`, meta]]);
-      assert.isTrue(changed.text.startsWith(`${before}\n`));
-      assert.isTrue(changed.text.endsWith(`\n${after}`));
+      assert.isTrue(Str.startsWith(`${before}\n`)(changed.text));
+      assert.isTrue(Str.endsWith(`\n${after}`)(changed.text));
       assertSome(changed.entry("body"), { content: `${content} updated`, meta });
     }),
   runs

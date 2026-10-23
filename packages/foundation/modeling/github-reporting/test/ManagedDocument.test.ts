@@ -1,9 +1,12 @@
 import { ManagedDocument, ManagedDocumentError, ManagedDocumentSource } from "@beep/github-reporting/ManagedDocument";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const NS = "savvy-web";
 const KEY = "release-validation";
@@ -53,7 +56,7 @@ describe("ManagedDocument", () => {
       ]);
       assert.include(doc.text, marker("BEGIN", "header"));
       assert.include(doc.text, marker("END", "footer"));
-      assert.strictEqual(doc.text.split(doc.sentinel).length - 1, 1, "exactly one sentinel");
+      assert.strictEqual(Str.split(doc.text, doc.sentinel).length - 1, 1, "exactly one sentinel");
       assert.deepStrictEqual(doc.region("header"), O.some("## Validating Release"));
       assert.deepStrictEqual(doc.region("body"), O.some(""));
       assert.deepStrictEqual(doc.region("missing"), O.none());
@@ -64,7 +67,7 @@ describe("ManagedDocument", () => {
       const reread = Result.getOrThrow(ManagedDocument.parseResult({ namespace: NS, key: KEY, text: first.text }));
       assert.deepStrictEqual(reread.region("header"), O.some("v1"));
       assert.deepStrictEqual(
-        reread.regions.map((entry) => entry.key),
+        A.map(reread.regions, (entry) => entry.key),
         ["header"]
       );
     });
@@ -88,7 +91,7 @@ describe("ManagedDocument", () => {
       const v2 = apply(v1, [["header", "state: fail"]]);
       assert.deepStrictEqual(v2.region("header"), O.some("state: fail"));
       assert.notInclude(v2.text, "state: pass", "the stale render must be gone");
-      assert.strictEqual(v2.text.split(marker("BEGIN", "header")).length - 1, 1, "one region, not two");
+      assert.strictEqual(Str.split(v2.text, marker("BEGIN", "header")).length - 1, 1, "one region, not two");
     });
 
     it("regions not named in a call are left exactly as they are", () => {
@@ -123,11 +126,11 @@ describe("ManagedDocument", () => {
     });
 
     it("another document's regions in the same text are preserved and never reported", () => {
-      const foreign = [
+      const foreign = A.join("\n")([
         "<!-- --- BEGIN other-tool.status.header MANAGED REGION --- -->",
         "someone else's block",
         "<!-- --- END other-tool.status.header MANAGED REGION --- -->",
-      ].join("\n");
+      ]);
       const doc = Result.getOrThrow(ManagedDocument.parseResult({ namespace: NS, key: KEY, text: foreign }));
       assert.deepStrictEqual(doc.regions, []);
       const ours = apply(doc, [["header", "our block"]]);
@@ -158,13 +161,13 @@ describe("ManagedDocument", () => {
     });
 
     it("overlappingRegions", () => {
-      const text = [marker("BEGIN", "a"), marker("BEGIN", "b"), marker("END", "a"), marker("END", "b")].join("\n");
+      const text = A.join([marker("BEGIN", "a"), marker("BEGIN", "b"), marker("END", "a"), marker("END", "b")], "\n");
       const error = failureOf(ManagedDocument.parseResult({ namespace: NS, key: KEY, text }));
       assert.strictEqual(error.kind, "overlappingRegions");
     });
 
     it("duplicateRegion", () => {
-      const block = [marker("BEGIN", "a"), "x", marker("END", "a")].join("\n");
+      const block = A.join([marker("BEGIN", "a"), "x", marker("END", "a")], "\n");
       const error = failureOf(ManagedDocument.parseResult({ namespace: NS, key: KEY, text: `${block}\n${block}` }));
       assert.strictEqual(error.kind, "duplicateRegion");
     });
@@ -213,8 +216,9 @@ describe("ManagedDocument", () => {
       // also defines on every Error, so Bun rendered an absent line as the
       // construction site and hid a present one from Object.keys.
       const located = ManagedDocumentError.make({ kind: "orphanedEnd", markerLine: 2 });
-      assert.include(Object.keys(located), "markerLine");
-      assert.notInclude(Object.keys(located), "line");
+      const fields: Readonly<Record<string, unknown>> = { ...located };
+      assert.include(R.keys(fields), "markerLine");
+      assert.notInclude(R.keys(fields), "line");
       assert.strictEqual(located.message, "Region end marker closes no open region at line 2");
       const unlocated = ManagedDocumentError.make({ kind: "orphanedEnd" });
       assert.isUndefined(unlocated.markerLine);
@@ -227,7 +231,7 @@ describe("ManagedDocument", () => {
       const meta = { at: "2024-01-01T00:00:00Z", runId: "42" };
       const doc = apply(fresh(), [["header", "the table", meta]]);
       assert.deepStrictEqual(
-        doc.regions.map((region) => ({ key: region.key, meta: region.meta })),
+        A.map(doc.regions, (region) => ({ key: region.key, meta: region.meta })),
         [{ key: "header", meta }]
       );
       assert.deepStrictEqual(doc.entry("header"), O.some({ content: "the table", meta }));

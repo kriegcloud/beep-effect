@@ -1,9 +1,11 @@
 import { GitHubHeadingDepth, GitHubListOptions, GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 
 describe("GitHubMarkdown", () => {
@@ -131,7 +133,7 @@ describe("GitHubMarkdown", () => {
       const link = paragraph.children[0];
       if (link?.type !== "link") return assert.fail("expected one link");
       assert.deepStrictEqual(
-        link.children.map((child) => child.type),
+        A.map(link.children, (child) => child.type),
         ["strong", "text", "emphasis", "text", "inlineCode", "text"]
       );
       const code = link.children[4];
@@ -165,7 +167,7 @@ describe("GitHubMarkdown", () => {
         if (heading?.type !== "heading") return assert.fail("expected one heading");
         assert.strictEqual(heading.depth, 2);
         assert.deepStrictEqual(
-          heading.children.map((child) => child.type),
+          A.map(heading.children, (child) => child.type),
           ["text", "html", "text"]
         );
       }
@@ -358,7 +360,7 @@ describe("GitHubMarkdown", () => {
     it("a deeply nested fragment from elsewhere is one passthrough node, not a tree", () => {
       // The adversarial case the guard exists for: markup that WOULD nest 500
       // deep if it were parsed. It is not parsed — it passes through.
-      const deep = "> ".repeat(500).concat("quoted");
+      const deep = `${Str.repeat(500)("> ")}quoted`;
       const out = GitHubMarkdown.table(["Note"], [[deep]]);
       assert.include(out, "quoted");
     });
@@ -367,7 +369,7 @@ describe("GitHubMarkdown", () => {
       // Each member's own escaping hazard, at size — fences inside code
       // blocks, pipes and newlines inside cells, backticks inside inline code,
       // parens inside a URL. None reaches the serializer's failure arm.
-      const hostile = "`".repeat(300).concat("\n```\n| a | b |\n");
+      const hostile = `${Str.repeat(300)("`")}\n\`\`\`\n| a | b |\n`;
       assert.isString(GitHubMarkdown.codeBlock(hostile, "text"));
       assert.isString(GitHubMarkdown.code(hostile));
       assert.isString(GitHubMarkdown.table(["A"], [[hostile]]));

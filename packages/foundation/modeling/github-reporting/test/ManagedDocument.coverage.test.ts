@@ -28,7 +28,8 @@ describe("ManagedDocument coverage", () => {
   );
 });
 
-import { SectionDocument, SectionRenderError } from "@beep/managed-section";
+import { SectionRenderError } from "@beep/managed-section/SectionDialect";
+import { SectionDocument } from "@beep/managed-section/SectionDocument";
 import * as Result from "effect/Result";
 
 it.effect("a dialect invariant failure throws the typed error instead of returning an empty document", () =>

@@ -14,8 +14,10 @@ import {
   TableRow,
 } from "@beep/markdown/MarkdownNode";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { thunkEmptyStr } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import { dual, flow } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -245,13 +247,15 @@ interface ColumnRuntime {
 const passthrough = (value: string): Html => Html.make({ value });
 
 const escapeLinkLabel = (text: string): string => {
-  const characters = text.split("");
+  const characters = Str.split(text, "");
   const openings: Array<number> = [];
   // Escaped characters and complete code spans do not participate in label
   // bracket pairing. Exact backtick runs keep wider code delimiters intact.
-  for (const token of text.matchAll(/\\[\s\S]|(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)|[[\]]/g)) {
-    if (token[0] === "[") openings.push(token.index);
-    else if (token[0] === "]" && openings.pop() === undefined) characters[token.index] = "\\]";
+  for (const token of Str.matchAll(/\\[\s\S]|(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)|[[\]]/g)(text)) {
+    // `matchAll` always sets `index`; the type only widens it for `match`.
+    const index = token.index ?? 0;
+    if (token[0] === "[") openings.push(index);
+    else if (token[0] === "]" && openings.pop() === undefined) characters[index] = "\\]";
   }
   for (const index of openings) characters[index] = "\\[";
   // An odd trailing run would escape the closing label bracket. Existing
@@ -284,7 +288,7 @@ const escapeLinkLabel = (text: string): string => {
  * that re-parses a fragment into one, makes depth input-dependent and this
  * whole argument — and the no-wrapping guidance on the class — collapses.
  */
-const render = (root: Root): string => Result.getOrThrow(Markdown.stringifyResult(root)).trimEnd();
+const render = (root: Root): string => Markdown.stringifyResult(root).pipe(Result.getOrThrow, Str.trimEnd);
 
 const block = (node: Root["children"][number]): string => render(Root.make({ children: [node] }));
 
@@ -371,11 +375,11 @@ export abstract class GitHubMarkdown {
     // corruption class the pipe escaping exists to prevent, reachable
     // through a multi-line `format` result or a multi-line value. GitHub
     // renders `<br>` inside a cell, so line structure survives inline.
-    const inline = (value: string): string => value.replace(/\r\n|\r|\n/g, "<br>");
+    const inline: (value: string) => string = Str.replace(/\r\n|\r|\n/g, "<br>");
     const cells = (values: ReadonlyArray<string>): TableRow =>
       TableRow.make({
         children: A.map(headers, (_, index) =>
-          TableCell.make({ children: [passthrough(inline(values[index] ?? ""))] })
+          TableCell.make({ children: [A.get(values, index).pipe(O.getOrElse(thunkEmptyStr), inline, passthrough)] })
         ),
       });
     return block(Table.make({ children: [cells(headers), ...A.map(rows, cells)] }));

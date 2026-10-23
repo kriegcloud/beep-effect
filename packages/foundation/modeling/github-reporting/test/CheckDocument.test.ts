@@ -20,6 +20,7 @@ import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type * as Duration from "effect/Duration";
 
@@ -173,7 +174,7 @@ describe("CheckDocument", () => {
           assert.strictEqual(all.length, 2);
           const final = all[1] ?? "";
           assert.strictEqual(
-            final.split(`BEGIN ${NS}.${KEY}.check-build`).length - 1,
+            Str.split(final, `BEGIN ${NS}.${KEY}.check-build`).length - 1,
             1,
             "one region for the check, not one per resolution"
           );
@@ -556,7 +557,7 @@ describe("CheckDocument", () => {
 
         // The debug-level repeat is below the default minimum level, so the
         // consumer-visible count across both stale passes is exactly one.
-        const dropped = (yield* Ref.get(lines)).filter((line) => line.includes("pass dropped"));
+        const dropped = A.filter(yield* Ref.get(lines), Str.includes("pass dropped"));
         assert.strictEqual(dropped.length, 1, "one INFO drop line across two stale passes");
       })
     );

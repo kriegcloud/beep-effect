@@ -1,5 +1,8 @@
 import { $GithubReportingId } from "@beep/identity/packages";
-import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "@beep/managed-section";
+import { CommentStyle } from "@beep/managed-section/CommentStyle";
+import { SectionId } from "@beep/managed-section/Section";
+import { SectionDialect } from "@beep/managed-section/SectionDialect";
+import { SectionDocument } from "@beep/managed-section/SectionDocument";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -7,7 +10,7 @@ import { pipe } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { SectionParseError } from "@beep/managed-section";
+import type { SectionParseError } from "@beep/managed-section/SectionDocument";
 
 const $I = $GithubReportingId.create("ManagedDocument");
 
@@ -457,7 +460,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * @since 0.0.0
    */
   matches(text: string): boolean {
-    return text.includes(this.sentinel);
+    return Str.includes(this.sentinel)(text);
   }
 
   /**
@@ -754,7 +757,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
   private regionKeyOf(wireKey: string): string {
     // Reconciliation failures name a declaration made by withRegionsResult,
     // and every declaration is constructed with this prefix.
-    return wireKey.slice(this.wirePrefix.length);
+    return Str.slice(this.wirePrefix.length)(wireKey);
   }
 
   /**
@@ -797,9 +800,9 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
     const prefix = this.wirePrefix;
     return pipe(
       parsed.success.sections,
-      A.filter((placed) => placed.section.key.startsWith(prefix)),
+      A.filter((placed) => Str.startsWith(prefix)(placed.section.key)),
       A.map((placed) => ({
-        key: placed.section.key.slice(prefix.length),
+        key: Str.slice(prefix.length)(placed.section.key),
         content: placed.section.content,
         meta: placed.section.attributes,
       }))
@@ -830,7 +833,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * @since 0.0.0
    */
   private ensureSentinel(text: string, eol: "\n" | "\r\n"): string {
-    if (text.includes(this.sentinel)) {
+    if (Str.includes(this.sentinel)(text)) {
       return text;
     }
     const separator = Str.isEmpty(text) || Str.endsWith("\n")(text) ? "" : eol;
