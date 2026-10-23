@@ -35,6 +35,8 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { renderHtml } from "./support/htmlWriter.ts";
 import type { MarkdownNode, PhrasingContent } from "@beep/markdown/MarkdownNode";
@@ -509,6 +511,44 @@ describe("MarkdownFormat round-3 boundary regressions", () => {
       assert.strictEqual(error.code, "UnsupportedTarget");
       assert.strictEqual(error.detail, "the flow replacement would absorb or change its following sibling");
       assert.strictEqual(doc.root.children.length, 3);
+    })
+  );
+
+  // A target equal to the tree's node at the same span — a copy from a
+  // document view or a `make` re-wrap — must reach every check the tree's own
+  // node does, including the following-sibling check.
+  it.effect("rejects the list-merging empty replacement for a copied heading target", () =>
+    Effect.gen(function* () {
+      const doc = yield* parseDoc("- before\n# separator\n- after\n");
+      const found = doc.find("heading");
+      if (found === undefined) assert.fail("expected a separating heading");
+      const copies: ReadonlyArray<readonly [string, MarkdownNode | undefined]> = [
+        ["headings[0].node", doc.headings[0]?.node],
+        ["sections[0].heading", doc.sections[0]?.heading],
+        ["Heading.make copy", Heading.make(found)],
+      ];
+      for (const [label, target] of copies) {
+        if (target === undefined) assert.fail(`expected ${label}`);
+        assert.notStrictEqual(target, found, label);
+        const error = yield* Effect.flip(MarkdownFormat.modify(doc, target, ""));
+        assert.strictEqual(error.code, "UnsupportedTarget", label);
+        assert.strictEqual(error.detail, "the flow replacement would absorb or change its following sibling", label);
+      }
+    })
+  );
+
+  it.effect("rejects the list-merging empty replacement for a definitions-map target", () =>
+    Effect.gen(function* () {
+      const doc = yield* parseDoc("- before\n\n[a]: /u\n- after\n");
+      const found = doc.find("definition");
+      const target = O.getOrUndefined(HashMap.get(doc.definitions, "A"));
+      if (found === undefined || target === undefined) assert.fail("expected the root definition");
+      assert.notStrictEqual(target, found);
+      const treeError = yield* Effect.flip(MarkdownFormat.modify(doc, found, ""));
+      const copyError = yield* Effect.flip(MarkdownFormat.modify(doc, target, ""));
+      assert.strictEqual(treeError.detail, "the flow replacement would absorb or change its following sibling");
+      assert.strictEqual(copyError.code, treeError.code);
+      assert.strictEqual(copyError.detail, treeError.detail);
     })
   );
 

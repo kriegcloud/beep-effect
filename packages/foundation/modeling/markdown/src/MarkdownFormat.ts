@@ -1373,25 +1373,40 @@ const isSameNode = (node: MarkdownNode, target: MarkdownNode): boolean =>
     node.position.end.offset === target.position.end.offset &&
     Equal.equals(node, target));
 
-/** Find `target` (see `isSameNode`); returns its ancestor chain (nearest first). */
-const findAncestry: {
-  (root: Root, target: MarkdownNode): O.Option<ReadonlyArray<MarkdownNode>>;
-  (target: MarkdownNode): (root: Root) => O.Option<ReadonlyArray<MarkdownNode>>;
-} = dual(2, (root: Root, target: MarkdownNode): O.Option<ReadonlyArray<MarkdownNode>> => {
-  const search = (node: MarkdownNode, trail: ReadonlyArray<MarkdownNode>): O.Option<ReadonlyArray<MarkdownNode>> =>
+/** The tree's own node matched for a `modify` target, with its ancestor chain (nearest first). */
+interface TreeMatch {
+  readonly ancestry: ReadonlyArray<MarkdownNode>;
+  readonly node: MarkdownNode;
+}
+
+/**
+ * Find `target` (see `isSameNode`). The result carries the tree's own node,
+ * never the caller's object, so every later step works on the admitted tree
+ * and none depends on whether the caller passed the tree's reference or an
+ * equal copy (a `MarkdownDocument` view entry or a `make` re-wrap).
+ */
+const matchTarget: {
+  (root: Root, target: MarkdownNode): O.Option<TreeMatch>;
+  (target: MarkdownNode): (root: Root) => O.Option<TreeMatch>;
+} = dual(2, (root: Root, target: MarkdownNode): O.Option<TreeMatch> => {
+  const search = (node: MarkdownNode, ancestry: ReadonlyArray<MarkdownNode>): O.Option<TreeMatch> =>
     isSameNode(node, target)
-      ? O.some(trail)
-      : A.findFirst(childrenOf(node), (child) => search(child, A.prepend(trail, node)));
+      ? O.some({ ancestry, node })
+      : A.findFirst(childrenOf(node), (child) => search(child, A.prepend(ancestry, node)));
   return search(root, []);
 });
 
 /** Builds the typed failure for the current target's span. */
 type FailModification = (code: MarkdownModificationErrorCode, detail: string) => MarkdownModificationError;
 
-/** Where a `modify` target sits: its span, ancestor chain (nearest first), parent and slot category. */
+/**
+ * Where a `modify` target sits: the tree's own matched node, its span,
+ * ancestor chain (nearest first), parent and slot category.
+ */
 interface ModifySite {
   readonly ancestry: ReadonlyArray<MarkdownNode>;
   readonly end: number;
+  readonly node: MarkdownNode;
   readonly parent: MarkdownNode;
   readonly slot: ReplacementSlot;
   readonly start: number;
@@ -1418,20 +1433,19 @@ const locateTarget: {
 } = dual(
   3,
   (root: Root, target: MarkdownNode, fail: FailModification): Result.Result<ModifySite, MarkdownModificationError> => {
-    const ancestry = findAncestry(root, target);
-    if (O.isNone(ancestry)) {
+    const match = matchTarget(root, target);
+    if (O.isNone(match)) {
       return Result.fail(fail("NodeNotInDocument", "the target node is not part of the document's tree"));
     }
-    const parent = A.head(ancestry.value);
-    if (O.isNone(parent) || target.type === "frontmatter") {
-      return Result.fail(fail("UnsupportedTarget", `a ${target.type} node cannot be replaced`));
+    const { ancestry, node } = match.value;
+    const parent = A.head(ancestry);
+    if (O.isNone(parent) || node.type === "frontmatter") {
+      return Result.fail(fail("UnsupportedTarget", `a ${node.type} node cannot be replaced`));
     }
-    return O.match(slotOf(target, parent.value), {
+    return O.match(slotOf(node, parent.value), {
       onNone: () =>
-        Result.fail(
-          fail("UnsupportedTarget", `a ${target.type} node inside a ${parent.value.type} cannot be replaced`)
-        ),
-      onSome: (slot) => Result.succeed({ ancestry: ancestry.value, parent: parent.value, slot, ...spanOf(target) }),
+        Result.fail(fail("UnsupportedTarget", `a ${node.type} node inside a ${parent.value.type} cannot be replaced`)),
+      onSome: (slot) => Result.succeed({ ancestry, node, parent: parent.value, slot, ...spanOf(node) }),
     });
   }
 );
@@ -1657,17 +1671,18 @@ const hasBlockAt: {
   )
 );
 
-/** The sibling after `target` in its parent, by reference. */
-const followingSibling: {
-  (parent: MarkdownNode, target: MarkdownNode): O.Option<MarkdownNode>;
-  (target: MarkdownNode): (parent: MarkdownNode) => O.Option<MarkdownNode>;
-} = dual(2, (parent: MarkdownNode, target: MarkdownNode): O.Option<MarkdownNode> => {
-  const siblings = childrenOf(parent);
+/**
+ * The sibling after the site's node in its parent. Reference matching is
+ * exact here because `site.node` and `site.parent` both come from the
+ * document's own tree (`locateTarget`), never from the caller.
+ */
+const followingSibling = (site: ModifySite): O.Option<MarkdownNode> => {
+  const siblings = childrenOf(site.parent);
   return O.flatMap(
-    A.findFirstIndex(siblings, (node) => node === target),
+    A.findFirstIndex(siblings, (node) => node === site.node),
     (index) => A.get(siblings, index + 1)
   );
-});
+};
 
 /**
  * Why a flow replacement does not survive its source context, if it does
@@ -1676,9 +1691,9 @@ const followingSibling: {
  * the following sibling must keep its span shifted by the length delta.
  */
 const flowContextFailure: {
-  (content: string, document: MarkdownDocument, site: ModifySite, target: MarkdownNode): O.Option<string>;
-  (document: MarkdownDocument, site: ModifySite, target: MarkdownNode): (content: string) => O.Option<string>;
-} = dual(4, (content: string, document: MarkdownDocument, site: ModifySite, target: MarkdownNode): O.Option<string> => {
+  (content: string, document: MarkdownDocument, site: ModifySite): O.Option<string>;
+  (document: MarkdownDocument, site: ModifySite): (content: string) => O.Option<string>;
+} = dual(3, (content: string, document: MarkdownDocument, site: ModifySite): O.Option<string> => {
   const parseOptions = { dialect: document.dialect, frontmatter: document.frontmatter !== undefined };
   const standalone = Markdown.parseResult(content, parseOptions);
   const projected = Markdown.parseResult(
@@ -1697,7 +1712,7 @@ const flowContextFailure: {
   }
   const delta = content.length - (site.end - site.start);
   const changesFollowing = O.exists(
-    followingSibling(site.parent, target),
+    followingSibling(site),
     (following) => !hasBlockAt(blocks, following.type, spanOf(following).start + delta, spanOf(following).end + delta)
   );
   return changesFollowing ? O.some("the flow replacement would absorb or change its following sibling") : O.none();
@@ -1930,11 +1945,13 @@ export abstract class MarkdownFormat {
       const content = yield* Effect.fromResult(
         spliceContent(rendered.success, site, replacement, renderRoot, document.source, fail)
       );
-      const flowFailure = site.slot === "flow" ? flowContextFailure(content, document, site, target) : O.none();
+      const flowFailure = site.slot === "flow" ? flowContextFailure(content, document, site) : O.none();
       if (O.isSome(flowFailure)) {
         return yield* fail("UnsupportedTarget", flowFailure.value);
       }
-      const edits: ReadonlyArray<MarkdownEdit> = [MarkdownEdit.make({ offset: start, length: end - start, content })];
+      const edits: ReadonlyArray<MarkdownEdit> = [
+        MarkdownEdit.make({ offset: site.start, length: site.end - site.start, content }),
+      ];
       return edits;
     })
   );
