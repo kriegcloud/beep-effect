@@ -9,8 +9,8 @@
  * This module owns that decision instead. A checkout is honored only when the
  * whole remote-read quad is present and unambiguous (`TURBO_API`,
  * `TURBO_TOKEN`, `TURBO_TEAM`, and `TURBO_CACHE` pinned to the sanctioned
- * `local:rw,remote:r` posture); every other configuration fails closed to
- * local-only.
+ * `local:rw,remote:r` posture). Explicitly enrolled hosts may select read-write
+ * with `BEEP_TURBO_TRUSTED_WRITER=true`; incomplete access stays local-only.
  *
  * The domain is deliberately pure: the environment is modeled as value
  * *sources* (a literal value versus an unresolved `op://` secret reference),
@@ -38,8 +38,8 @@ const $I = $RepoCliId.create("internal/cli/TurboCache");
  * **Details**
  *
  * `local:rw` is the fail-closed default. `local:rw,remote:r` is the only
- * sanctioned remote posture for a workstation: agents read the shared cache and
- * never hold a write credential (writes stay with the trusted main-push jobs).
+ * default remote posture for a workstation. Explicitly enrolled trusted hosts
+ * may also use `local:rw,remote:rw` with their own write credential.
  *
  * **Example** (Read the sanctioned remote-read posture)
  *
@@ -52,7 +52,7 @@ const $I = $RepoCliId.create("internal/cli/TurboCache");
  * @category models
  * @since 0.0.0
  */
-export const TurboCacheMode = LiteralKit(["local:rw", "local:rw,remote:r"]).pipe(
+export const TurboCacheMode = LiteralKit(["local:rw", "local:rw,remote:r", "local:rw,remote:rw"]).pipe(
   $I.annoteSchema("TurboCacheMode", {
     description: "Cache postures the repo CLI is willing to hand to Turbo.",
   })
@@ -198,9 +198,7 @@ export const turboCachePullRequestPosture = {
  * @category models
  * @since 0.0.0
  */
-export const TurboCacheSecretEnvName = LiteralKit(
-  TurboCacheEnvName.pick(["TURBO_API", "TURBO_TOKEN", "TURBO_TEAM"]).literals
-).pipe(
+export const TurboCacheSecretEnvName = TurboCacheEnvName.pick(["TURBO_API", "TURBO_TOKEN", "TURBO_TEAM"]).pipe(
   $I.annoteSchema("TurboCacheSecretEnvName", {
     description: "Turbo credential environment variables whose references a secret session may resolve.",
   })
@@ -334,6 +332,7 @@ export class TurboCacheEnvironment extends S.Opaque<TurboCacheEnvironment, { rea
     token: S.optionalKey(TurboCacheValueSource),
     team: S.optionalKey(TurboCacheValueSource),
     cache: S.optionalKey(S.String),
+    trustedWriter: S.optionalKey(S.Boolean),
     cacheDir: S.optionalKey(S.String),
     home: S.optionalKey(S.String),
   }).pipe(
@@ -358,7 +357,7 @@ export class TurboCacheEnvironment extends S.Opaque<TurboCacheEnvironment, { rea
  * @category models
  * @since 0.0.0
  */
-export const TurboCachePlanTag = LiteralKit(["caller-controlled", "local-only", "remote-read"]).pipe(
+export const TurboCachePlanTag = LiteralKit(["caller-controlled", "local-only", "remote-read", "remote-write"]).pipe(
   $I.annoteSchema("TurboCachePlanTag", {
     description: "Tags of the resolved local Turbo cache plan.",
   })
@@ -454,12 +453,44 @@ export class LocalOnlyTurboCache extends S.Opaque<LocalOnlyTurboCache, { readonl
  */
 export class RemoteReadTurboCache extends S.Opaque<RemoteReadTurboCache, { readonly brand: unique symbol }>()(
   S.TaggedStruct("remote-read", {
-    mode: TurboCacheMode,
+    mode: S.tag("local:rw,remote:r"),
     requiresSecretSession: S.Boolean,
     cacheDir: S.optionalKey(S.String),
   }).pipe(
     $I.annoteSchema("RemoteReadTurboCache", {
       description: "The checkout carries a complete, sanctioned Turbo remote-read configuration.",
+    })
+  )
+) {}
+
+/**
+ * An explicitly enrolled host may read and populate the shared cache.
+ *
+ * **Details**
+ *
+ * The opt-in selects client behavior; the host's separate bucket-scoped
+ * credential remains the authority that permits uploads.
+ *
+ * **Example** (Describe an enrolled writer)
+ *
+ * ```ts
+ * import { RemoteWriteTurboCache } from "@beep/repo-cli/internal/cli/TurboCache"
+ *
+ * const plan = RemoteWriteTurboCache.make({ requiresSecretSession: true })
+ * console.log(plan.mode)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RemoteWriteTurboCache extends S.Opaque<RemoteWriteTurboCache, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("remote-write", {
+    mode: S.tag("local:rw,remote:rw"),
+    requiresSecretSession: S.Boolean,
+    cacheDir: S.optionalKey(S.String),
+  }).pipe(
+    $I.annoteSchema("RemoteWriteTurboCache", {
+      description: "An explicitly enrolled host may read and populate the shared remote cache.",
     })
   )
 ) {}
@@ -485,7 +516,12 @@ export class RemoteReadTurboCache extends S.Opaque<RemoteReadTurboCache, { reado
  * @since 0.0.0
  */
 export const TurboCachePlan = TurboCachePlanTag.mapMembers(
-  Tuple.evolve([() => CallerControlledTurboCache, () => LocalOnlyTurboCache, () => RemoteReadTurboCache])
+  Tuple.evolve([
+    () => CallerControlledTurboCache,
+    () => LocalOnlyTurboCache,
+    () => RemoteReadTurboCache,
+    () => RemoteWriteTurboCache,
+  ])
 ).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("TurboCachePlan", {
@@ -697,7 +733,15 @@ const missingTurboCacheEnvNames = (environment: TurboCacheEnvironment): Readonly
 };
 
 const requestedTurboCacheMode = (environment: TurboCacheEnvironment): O.Option<TurboCacheMode> =>
-  pipe(O.fromUndefinedOr(environment.cache), O.map(Str.trim), O.filter(TurboCacheMode.is["local:rw,remote:r"]));
+  pipe(
+    O.fromUndefinedOr(environment.cache),
+    O.map(Str.trim),
+    O.filter(
+      (mode): mode is Exclude<TurboCacheMode, "local:rw"> =>
+        TurboCacheMode.is["local:rw,remote:r"](mode) ||
+        (TurboCacheMode.is["local:rw,remote:rw"](mode) && environment.trustedWriter === true)
+    )
+  );
 
 /**
  * Resolve the cache plan for one Turbo invocation.
@@ -707,11 +751,12 @@ const requestedTurboCacheMode = (environment: TurboCacheEnvironment): O.Option<T
  * The decision is total and fails closed. CI and any caller-supplied cache flag
  * are left untouched; a complete quad pinned to `local:rw,remote:r` is honored;
  * anything else — a missing quad member, a blank value, or any other posture
- * including a remote *write* posture, which no workstation is credentialed for
- * — resolves to local-only.
+ * including a remote write posture without the trusted-host opt-in
+ * — resolves to local-only. `BEEP_TURBO_TRUSTED_WRITER=true` permits the complete
+ * read-write posture for a host enrolled with a separate write credential.
  *
- * Only the four {@link TurboCacheEnvName} entries participate in this decision.
- * Unrelated reference failures belong to the separate environment-health check:
+ * The four {@link TurboCacheEnvName} entries determine complete remote access;
+ * the trusted-writer opt-in additionally permits uploads. Unrelated reference failures belong to the separate environment-health check:
  * they are rendered as named warnings and never downgrade a healthy cache quad.
  *
  * **Gotchas**
@@ -766,11 +811,16 @@ export const resolveTurboCachePlan: {
     O.match({
       onNone: () => LocalOnlyTurboCache.make({ reason: "unsupported-cache-mode", missing: A.empty(), ...cacheDir }),
       onSome: (mode) =>
-        RemoteReadTurboCache.make({
-          mode,
-          requiresSecretSession: turboCacheEnvironmentNeedsSecretSession(environment),
-          ...cacheDir,
-        }),
+        mode === TurboCacheMode.Enum["local:rw,remote:rw"]
+          ? RemoteWriteTurboCache.make({
+              requiresSecretSession: turboCacheEnvironmentNeedsSecretSession(environment),
+              ...cacheDir,
+            })
+          : RemoteReadTurboCache.make({
+              mode: TurboCacheMode.Enum["local:rw,remote:r"],
+              requiresSecretSession: turboCacheEnvironmentNeedsSecretSession(environment),
+              ...cacheDir,
+            }),
     })
   );
 });
@@ -812,6 +862,10 @@ export const turboCachePlanArgs = (plan: TurboCachePlan): ReadonlyArray<string> 
       `${CACHE_ARG_PREFIX}${mode}`,
       ...cacheDirArgs(cacheDir),
     ]),
+    Match.discriminator("_tag")("remote-write", ({ mode, cacheDir }) => [
+      `${CACHE_ARG_PREFIX}${mode}`,
+      ...cacheDirArgs(cacheDir),
+    ]),
     Match.exhaustive
   );
 
@@ -839,7 +893,7 @@ const cacheDirArgs = (cacheDir: string | undefined): ReadonlyArray<string> =>
  * @since 0.0.0
  */
 export const turboCachePlanNeedsSecretSession = (plan: TurboCachePlan): boolean =>
-  plan._tag === "remote-read" && plan.requiresSecretSession;
+  (plan._tag === "remote-read" || plan._tag === "remote-write") && plan.requiresSecretSession;
 
 /**
  * Downgrade already-built Turbo arguments to the local-only cache posture.

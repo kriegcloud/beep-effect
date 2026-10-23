@@ -240,7 +240,7 @@ const prepareRecordingTarget = Effect.fn("LeJeuneProviderSmoke.prepareRecordingT
     )
   );
   const frozenTarget = path.resolve(RECORDING_PATH);
-  const target = RecordingMode.$match(mode, {
+  const target = RecordingMode.match(mode, {
     freeze: () => frozenTarget,
     "reviewed-refresh": () => path.resolve(reviewRecordingPath),
   });
@@ -261,7 +261,7 @@ const prepareRecordingTarget = Effect.fn("LeJeuneProviderSmoke.prepareRecordingT
     return yield* providerSmokeError("preflight", "The recording target already exists and will not be overwritten.");
   }
   return RecordingTarget.make({
-    kind: RecordingMode.$match(mode, {
+    kind: RecordingMode.match(mode, {
       freeze: () => RecordingTargetKind.literals[0],
       "reviewed-refresh": () => RecordingTargetKind.literals[1],
     }),

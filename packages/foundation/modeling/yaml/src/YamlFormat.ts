@@ -183,7 +183,7 @@ class NonFiniteIndex extends S.TaggedClass<NonFiniteIndex, { readonly brand: uni
   })
 ) {
   override toString(): string {
-    return NonFiniteIndexKind.$match(this.kind, {
+    return NonFiniteIndexKind.match(this.kind, {
       NaN: () => "NaN",
       PositiveInfinity: () => "Infinity",
       NegativeInfinity: () => "-Infinity",

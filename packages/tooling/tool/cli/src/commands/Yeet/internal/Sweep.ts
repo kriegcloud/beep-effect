@@ -1420,7 +1420,7 @@ const performSweepStep = (
   never,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > =>
-  SweepStepId.$match(planStep.id, {
+  SweepStepId.match(planStep.id, {
     "fetch-prune": () => runCommandStep("git", ["fetch", "--prune", "origin"], context.repoRoot, planStep.action),
     "ff-main": () =>
       state.headBranch === state.mainBranch

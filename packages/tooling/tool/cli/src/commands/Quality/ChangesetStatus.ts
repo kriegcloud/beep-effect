@@ -642,7 +642,7 @@ export const runChangesetStatus = Effect.fn("ChangesetStatus.runChangesetStatus"
     `[changeset-status] lab_paths=${A.length(partition.labPaths)} product_workspaces=${A.length(partition.productWorkspaceDirs)} neutral_paths=${A.length(partition.neutralPaths)} blocking_paths=${A.length(partition.blockingPaths)} verdict=${verdict}`
   );
 
-  return yield* ChangesetStatusVerdict.$match(verdict, {
+  return yield* ChangesetStatusVerdict.match(verdict, {
     "lab-exempt": () => Console.log("[changeset-status] changeset ceremony exempt: lab-only change set"),
     enforced: () => runEnforcedCheck(repoRoot, base, partition),
   });

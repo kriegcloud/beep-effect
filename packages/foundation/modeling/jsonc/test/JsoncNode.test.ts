@@ -56,7 +56,7 @@ describe("JsoncNode", () => {
 
     it("JsoncNodeType is a literal kit with an exhaustive matcher", () => {
       assert.isTrue(JsoncNodeType.is.property("property"));
-      const arity = JsoncNodeType.$match({
+      const arity = JsoncNodeType.match({
         object: () => "container",
         array: () => "container",
         property: () => "pair",

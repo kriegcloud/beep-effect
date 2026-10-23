@@ -1,6 +1,7 @@
 import * as NodeURL from "node:url";
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { WorkspacesObject } from "@beep/repo-utils/schemas/PackageJson";
 import {
   getWorkspaceDir,
   resolveWorkspaceDirs,
@@ -193,6 +194,24 @@ rootIt.layer(TestLayer, { timeout: "10 seconds" })("Workspaces", (it) => {
     );
 
     it.effect(
+      "should report a valid JSON root manifest that fails schema decoding",
+      Effect.fn(function* () {
+        const pathApi = yield* Path.Path;
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const rootPackageJsonPath = pathApi.join(tmpDir, "package.json");
+
+        yield* fs.writeFileString(rootPackageJsonPath, '{ "name": 42, "workspaces": ["packages/*"] }');
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain(`Failed to decode root package.json at "${rootPackageJsonPath}"`);
+      })
+    );
+
+    it.effect(
       "should fail with DomainError for invalid child package.json",
       Effect.fn(function* () {
         const pathApi = yield* Path.Path;
@@ -229,6 +248,23 @@ rootIt.layer(TestLayer, { timeout: "10 seconds" })("Workspaces", (it) => {
         );
 
         expect(result).toContain('Unsafe workspace glob "../*" escapes the repository root.');
+      })
+    );
+
+    it.effect(
+      "should reject an empty workspace glob before scanning members",
+      Effect.fn(function* () {
+        const pathApi = yield* Path.Path;
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+        yield* fs.writeFileString(pathApi.join(tmpDir, "package.json"), '{ "name": "root", "workspaces": [""] }');
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain('Unsafe workspace glob "" escapes the repository root.');
       })
     );
 
@@ -332,6 +368,13 @@ rootIt.layer(TestLayer, { timeout: "10 seconds" })("Workspaces", (it) => {
       "should return an empty array when workspaces is None",
       Effect.fn(function* () {
         expect(workspaceGlobsFrom(O.none())).toEqual([]);
+      })
+    );
+
+    it.effect(
+      "should treat a Yarn-style workspace object without packages as empty",
+      Effect.fn(function* () {
+        expect(workspaceGlobsFrom(O.some(WorkspacesObject.make({})))).toEqual([]);
       })
     );
   });

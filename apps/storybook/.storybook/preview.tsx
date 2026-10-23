@@ -1,4 +1,4 @@
-/** @effect-diagnostics globalConsole:skip-file */
+/** @effect-diagnostics globalConsole:skip-file -- the one console.warn is a dev-only notice in the Storybook preview iframe, outside any Effect runtime; file-level because its biome-ignore must sit on the line above it. Owner: @beep/storybook. Exit: the preview boots through an Effect runtime with a browser Logger. */
 // `previewHead` installs this shape before hoisted imports evaluate. Keep the
 // fallback for preview consumers that evaluate this module outside Storybook.
 const globalWithProcess = globalThis as unknown as {

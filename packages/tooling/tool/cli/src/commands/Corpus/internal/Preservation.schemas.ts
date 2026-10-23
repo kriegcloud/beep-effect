@@ -358,9 +358,11 @@ export type PreservationAttemptKind = typeof PreservationAttemptKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PreservationPassKind = LiteralKit(
-  PreservationAttemptKind.pick(["copied", "resume-completed", "already-complete"]).literals
-).pipe(
+export const PreservationPassKind = PreservationAttemptKind.pick([
+  "copied",
+  "resume-completed",
+  "already-complete",
+]).pipe(
   $I.annoteSchema("PreservationPassKind", {
     title: "Preservation Pass Kind",
     description: "Attempt kinds that may stand as approved terminal manifest rows.",

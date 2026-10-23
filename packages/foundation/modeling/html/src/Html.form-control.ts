@@ -78,7 +78,7 @@ export const InputState = HtmlInputStateName.toTaggedUnion("state")({
  */
 export type InputState = typeof InputState.Type;
 
-const makeInputState: (state: HtmlInputStateName) => InputState = HtmlInputStateName.$match({
+const makeInputState: (state: HtmlInputStateName) => InputState = HtmlInputStateName.match({
   hidden: () => InputState.cases.hidden.make({}),
   text: () => InputState.cases.text.make({}),
   search: () => InputState.cases.search.make({}),

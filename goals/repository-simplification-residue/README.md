@@ -33,7 +33,8 @@ and renewed holds proved ([register](./history/receipts/hold-register.md)).
 Issue #1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
 every stale file ([record](./history/receipts/guidance-classification.md)); the
 660-directive review and a Markdown example compile check remain.
-Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 ([record](./history/receipts/guidance-wave-2a.md)); wave 2b takes the other directive kinds.
+Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 ([record](./history/receipts/guidance-wave-2a.md)); wave 2b takes the TypeScript suppressions.
+Wave 2b reviewed every `@ts-expect-error` and `@effect-diagnostics` directive, removing 13 stale rule entries and fixing 5 suppressions at the source ([record](./history/receipts/guidance-wave-2b.md)); wave 2c takes the remaining directive kinds.
 Issue #1855 is in progress: wave 1 closed F-S31-EV010 (already fixed by #1899) and taught
 the EV010 proof to follow same-file helpers, resolving 16 more rows with no exception
 added ([record](./history/receipts/detectors-wave-1.md)); FP-1..FP-7 come next.

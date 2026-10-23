@@ -33,7 +33,7 @@ const gibibytes = (bytes: number): number => Math.round((bytes / 1024 / 1024 / 1
  * @since 0.0.0
  */
 export const qualityProfileConfigForTesting = (profile: QualityHardwareProfile): QualityProfileConfig =>
-  QualityHardwareProfile.$match(profile, {
+  QualityHardwareProfile.match(profile, {
     ci: () =>
       QualityProfileConfig.make({
         profile,

@@ -159,7 +159,7 @@ const sessionWindow = (row: AccountRanking): O.Option<UsageWindow> =>
 
 // Hours until an account that cannot take work now can take it again.
 const hoursUntilAvailable = (row: AccountRanking, now: DateTime.Utc): O.Option<number> =>
-  AccountAvailability.$match(row.availability, {
+  AccountAvailability.match(row.availability, {
     "session-capped": () =>
       O.flatMap(sessionWindow(row), (window) => O.map(window.resetsAt, (at) => hoursUntil(now, at))),
     "weekly-exhausted": () => row.hoursUntilWeeklyReset,
@@ -179,7 +179,7 @@ const statusOf = (row: AccountRanking, palette: Palette): Status =>
     NeedsLogin: (): Status => ["needs login", palette.bad],
     Failed: (): Status => ["unreadable", palette.bad],
     Ok: (): Status =>
-      AccountAvailability.$match(row.availability, {
+      AccountAvailability.match(row.availability, {
         "weekly-exhausted": (): Status => ["week used up", palette.bad],
         "session-capped": (): Status => ["session full", palette.warn],
         ready: (): Status => (row.estimated ? ["ready (est.)", palette.dim] : ["ready", palette.good]),

@@ -124,7 +124,7 @@ export type ActionStyle = typeof ActionStyle.Type;
 const defaultActionStyleClassName =
   "bg-foreground/5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground";
 
-const actionStyleClassName = ActionStyle.$match({
+const actionStyleClassName = ActionStyle.match({
   primary: () => "bg-info/10 text-info-text hover:bg-info/20",
   danger: () => "bg-destructive/10 text-destructive hover:bg-destructive/20",
   default: () => defaultActionStyleClassName,

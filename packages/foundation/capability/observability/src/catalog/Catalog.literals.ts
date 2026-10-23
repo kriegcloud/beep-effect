@@ -52,7 +52,7 @@ export const TelemetryTier = LiteralKit(["shape-only", "standard", "dev-verbose"
  */
 export type TelemetryTier = typeof TelemetryTier.Type;
 
-const telemetryTierRank = TelemetryTier.$match({
+const telemetryTierRank = TelemetryTier.match({
   "shape-only": () => 0,
   standard: () => 1,
   "dev-verbose": () => 2,

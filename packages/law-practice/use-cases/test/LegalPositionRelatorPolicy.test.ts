@@ -273,11 +273,11 @@ describe("LegalPositionRelatorPolicy — kind and content move together, or not 
 
   it.effect("cannot be applied to a kind alone or to content alone", () =>
     Effect.sync(() => {
-      // @ts-expect-error - the derivation is defined over (kind, content); a kind-only map is unrepresentable.
+      // @ts-expect-error -- the derivation is defined over (kind, content); a kind-only map is unrepresentable. Owner: @beep/law-practice-use-cases. Exit: remove if the API is meant to accept this.
       const kindOnly: (kind: HohfeldPositionKind) => HohfeldPositionKind = oppositePosition;
-      // @ts-expect-error - the derivation is defined over (kind, content); a content-only map is unrepresentable.
+      // @ts-expect-error -- the derivation is defined over (kind, content); a content-only map is unrepresentable. Owner: @beep/law-practice-use-cases. Exit: remove if the API is meant to accept this.
       const contentOnly: (content: LegalActContent) => LegalActContent = oppositePosition;
-      // @ts-expect-error - the correlative derivation is likewise defined only over the pair.
+      // @ts-expect-error -- the correlative derivation is likewise defined only over the pair. Owner: @beep/law-practice-use-cases. Exit: remove if the API is meant to accept this.
       const correlativeKindOnly: (kind: HohfeldPositionKind) => HohfeldPositionKind = correlativePosition;
       expect(typeof kindOnly).toBe("function");
       expect(typeof contentOnly).toBe("function");

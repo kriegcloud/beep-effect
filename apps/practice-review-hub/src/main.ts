@@ -1,4 +1,3 @@
-import { DailyNoticeOutcome } from "@beep/law-practice-use-cases/DailyNotice";
 import { loadM365AppOnlyEnv, M365, M365AppOnlyConfigInput, M365MailAddress } from "@beep/m365";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BunServices from "@effect/platform-bun/BunServices";
@@ -9,14 +8,11 @@ import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { decodeReviewHubConfig, ReviewNoticeConfig, reviewHubFlags, reviewNoticeFlags } from "./Config.ts";
-import { makeNoticeLayer, NOTICE_ENV_PREFIX, sendDailyNotice } from "./Notice.ts";
+import { makeNoticeLayer, NOTICE_ENV_PREFIX, noticeOutcomeLine } from "./Notice.ts";
 import { makeReviewHubServer } from "./runtime/Layer.ts";
 
-const printOutcome = flow(
-  sendDailyNotice,
-  Effect.flatMap(S.encodeEffect(S.fromJsonString(DailyNoticeOutcome))),
-  Effect.flatMap(Console.log)
-);
+// Prints only the outcome line, which Notice.test.ts checks exactly.
+const printOutcome = flow(noticeOutcomeLine, Effect.flatMap(Console.log));
 
 // Serve until interrupted. Portless injects PORT for practice-review-hub.beep.localhost.
 const serve = Command.make("serve", reviewHubFlags, (flags) =>
@@ -25,6 +21,7 @@ const serve = Command.make("serve", reviewHubFlags, (flags) =>
 
 // Send today's notice if one is due, and print its outcome as one JSON line: a
 // status, the day, and for a sent notice the count it said, never a question.
+// The Claude Code folder goes only into the email, never into this line.
 const notice = Command.make(
   "notice",
   reviewNoticeFlags,
@@ -33,7 +30,9 @@ const notice = Command.make(
     const settings = yield* loadM365AppOnlyEnv(NOTICE_ENV_PREFIX);
     const mailbox = yield* S.decodeEffect(M365MailAddress)(settings.mailbox);
     yield* Layer.effectDiscard(printOutcome(config.timeZone)).pipe(
-      Layer.provide(makeNoticeLayer({ dataDirectory: config.dataDirectory, mailbox })),
+      Layer.provide(
+        makeNoticeLayer({ claudeFolder: config.claudeFolder, dataDirectory: config.dataDirectory, mailbox })
+      ),
       Layer.provide(M365.makeAppOnlyLiveLayer(M365AppOnlyConfigInput.make(settings.appOnly))),
       Layer.build,
       Effect.scoped

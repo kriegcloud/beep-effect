@@ -175,7 +175,7 @@ export const validateCacheSignedPilotShadow = Effect.fn("CachePilot.validateSign
 });
 
 const mutationSeedFails = S.is(CacheSignedPilotMutation.fields.case.pick(["root-lint-config", "dependency-source"]));
-const mutationPaths = CacheSignedPilotMutation.fields.case.$match({
+const mutationPaths = CacheSignedPilotMutation.fields.case.match({
   "root-task-config": () => "turbo.json",
   "child-task-config": () => "packages/foundation/modeling/identity/turbo.json",
   "root-lint-config": () => "biome.jsonc",

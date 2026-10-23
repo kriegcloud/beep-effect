@@ -206,7 +206,7 @@ const datasetSelectorExtras = (
 
 const datasetSelectorToSdk = (selector: PhoenixDatasetSelector): SdkDatasetSelector => {
   const extras = datasetSelectorExtras(selector);
-  return PhoenixDatasetSelectorKind.$match(selector.kind, {
+  return PhoenixDatasetSelectorKind.match(selector.kind, {
     "dataset-id": () => ({ datasetId: selector.value, ...extras }),
     "dataset-name": () => ({ datasetName: selector.value, ...extras }),
   });
@@ -405,7 +405,7 @@ const promptVersionInputBase = (input: PhoenixPromptCreateInput) => ({
 
 const promptVersionForProvider = (input: PhoenixPromptCreateInput) => {
   const base = promptVersionInputBase(input);
-  return PhoenixPromptModelProvider.$match(input.modelProvider, {
+  return PhoenixPromptModelProvider.match(input.modelProvider, {
     AWS: () => promptVersion({ ...base, modelProvider: "AWS" }),
     AZURE_OPENAI: () => promptVersion({ ...base, modelProvider: "AZURE_OPENAI" }),
     DEEPSEEK: () => promptVersion({ ...base, modelProvider: "DEEPSEEK" }),
@@ -421,7 +421,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
 
   return {
     addAnnotation: (input) =>
-      PhoenixAnnotationTargetKind.$match(input.targetKind, {
+      PhoenixAnnotationTargetKind.match(input.targetKind, {
         session: () =>
           addSessionAnnotation({
             client,

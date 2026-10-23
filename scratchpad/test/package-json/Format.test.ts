@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Formatting surface: indent modes (spaces / "tab" / "preserve"), the
 // sort-package-json@4.0.0 canonical top-level key order, map alphabetization,
 // and byte parity against frozen sort-package-json output for real manifests

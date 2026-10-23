@@ -9,8 +9,8 @@ import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { CalendarDate } from "../../internal/CalendarDate.ts";
 import { PosInt } from "../../internal/PosInt.ts";
+import { CalendarDate } from "../CalendarDate/index.ts";
 import { QuestionOptionId } from "../Question/index.ts";
 import { ReviewItemId } from "../ReviewItem/index.ts";
 

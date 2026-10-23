@@ -23,7 +23,7 @@ const isEventNameForSource = (
   sourceKind: AiMetricsTranscriptSource,
   value: unknown
 ): value is AiMetricsTranscriptEventName =>
-  AiMetricsTranscriptSource.$match(sourceKind, {
+  AiMetricsTranscriptSource.match(sourceKind, {
     claude: () => S.is(ClaudeTranscriptEventName)(value),
     codex: () => S.is(CodexTranscriptEventName)(value),
     openclaw: () => S.is(OpenClawTranscriptEventName)(value),

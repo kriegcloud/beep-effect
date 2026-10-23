@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file processEnv:skip-file processEnvInEffect:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file processEnv:skip-file processEnvInEffect:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; processEnv because it points PATH and the fake-pnpm variables at a real fake pnpm binary and restores them; processEnvInEffect because it points PATH and the fake-pnpm variables at a real fake pnpm binary and restores them. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // effected#842: a diff across a config-dependency bump, where the BASE side
 // declares a version this checkout never installed.
 //

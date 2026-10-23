@@ -241,7 +241,7 @@ const makeEmbedder = Effect.fn("Embedder.make")(function* (provider: O.Option<Em
         )
       );
       const misses = A.filter(resolutions, (resolution): resolution is CacheMiss => resolution._tag === "Miss");
-      const generatedEffect: Effect.Effect<ReadonlyArray<GeneratedEmbedding>> = RuntimeMode.$match(mode, {
+      const generatedEffect: Effect.Effect<ReadonlyArray<GeneratedEmbedding>> = RuntimeMode.match(mode, {
         live: () =>
           provider.pipe(
             O.match({
@@ -368,7 +368,7 @@ export const EmbedderRuntimeLive = <E, R>(
   Layer.unwrap(
     LabConfig.pipe(
       Effect.map((config) =>
-        RuntimeMode.$match(config.mode, {
+        RuntimeMode.match(config.mode, {
           live: () => LiveEmbedder.pipe(Layer.provide(live)),
           replay: () => ReplayEmbedder,
         })

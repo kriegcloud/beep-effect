@@ -23,7 +23,7 @@ type SubmitContact = (payload: ContactSubmissionPayload) => Effect.Effect<Contac
 const contactHttpApiResponse = (
   response: ContactSubmissionResponse
 ): Effect.Effect<ContactSubmissionAccepted, ContactSubmissionRejected> =>
-  ContactSubmissionStatus.$match(response.status, {
+  ContactSubmissionStatus.match(response.status, {
     accepted: (status) =>
       Effect.succeed(
         ContactSubmissionAccepted.make({
