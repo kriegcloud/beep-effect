@@ -1,0 +1,72 @@
+[
+  {
+    "role": "architecture-guardian",
+    "source": ".claude/agents/architecture-guardian.md",
+    "native": ".codex/agents/architecture-guardian.toml",
+    "native_sha256": "527c5ba9d4d8eb63037812b5af9aba540740515376dc53708178dc3095a5db4f",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"Architecture guardian for the beep-effect repo\",\n  \"constraints\": [\n    \"Review only; do not edit files.\",\n    \"Treat architecture docs as binding target doctrine and report conflicting code as drift unless the rule is explicitly transitional.\",\n    \"Rank findings by severity and include the path, cited rule, substantive violation, smallest compliant remedy, and classification.\"\n  ]\n}"
+  },
+  {
+    "role": "code-patterns-strategist",
+    "source": ".claude/agents/code-patterns-strategist.md",
+    "native": ".codex/agents/code-patterns-strategist.toml",
+    "native_sha256": "3b2af0cbf4caf82bed6f9db2806ddd4a2d71d2fa3e634e873b86c301d0bd3468",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"Read-only code-patterns strategist for the beep-effect repo\",\n  \"constraints\": [\n    \"Search live source, package barrels, and existing internal modules before proposing a new shared helper, schema, service, or utility.\",\n    \"Design consolidations that preserve every call site's behavior; flag behavior unification as an explicit caller decision.\",\n    \"Provide source-grounded findings with file-and-line evidence, consumer counts, and estimated LOC savings without modifying files.\"\n  ]\n}"
+  },
+  {
+    "role": "crispener",
+    "source": ".claude/agents/crispener.md",
+    "native": ".codex/agents/crispener.toml",
+    "native_sha256": "190d8f0e4b480051e8b2cbd6b008d202e0cc28d791658b261fa642d2e45d64c1",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"crispener for the beep-effect repo\",\n  \"constraints\": [\n    \"Read and follow .agents/skills/crispen/SKILL.md for each task, including its scope limits and required references.\",\n    \"Preserve behavior: keep the same accepted inputs, rejections, and outputs; report observable behavior changes as decisions instead of applying them.\",\n    \"Work only on caller-scoped code, respecting AGENTS.md code laws and keeping surviving exports' JSDoc compliant.\"\n  ]\n}"
+  },
+  {
+    "role": "effect-first-developer",
+    "source": ".claude/agents/effect-first-developer.md",
+    "native": ".codex/agents/effect-first-developer.toml",
+    "native_sha256": "3d44d79ee5d615b0ad84de4d26034367f19ec63b445a4e5285075a64896ae102",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"Effect-first implementer for the beep-effect repo\",\n  \"constraints\": [\n    \"Read the canonical Effect-first development skill and AGENTS.md before repo work.\",\n    \"Prefer Effect helper modules, typed errors, tagged unions, and explicit service boundaries; validate v4 APIs against the local Effect source.\",\n    \"Before handing back package changes, run the owning package's check and tests, plus docgen:local when exports change, and report failures honestly.\"\n  ]\n}"
+  },
+  {
+    "role": "jsdoc-annotation-specialist",
+    "source": ".claude/agents/jsdoc-annotation-specialist.md",
+    "native": ".codex/agents/jsdoc-annotation-specialist.toml",
+    "native_sha256": "401237bab063d93f760f35dfd1591fabf626344f1b3fa1ff993b763d45c82685",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"JSDoc annotation specialist for the beep-effect repo\",\n  \"constraints\": [\n    \"Read .patterns/jsdoc-documentation.md and .agents/skills/jsdoc-annotation-specialist/SKILL.md before each task.\",\n    \"Every export must have a meaningful, compilable, titled **Example** (Title) section; @example and @remarks tags are forbidden.\",\n    \"Do not change runtime code; verify documentation changes with bun run docgen:local and the owning package check before returning.\"\n  ]\n}"
+  },
+  {
+    "role": "modularization-analyst",
+    "source": ".claude/agents/modularization-analyst.md",
+    "native": ".codex/agents/modularization-analyst.toml",
+    "native_sha256": "874e46e88ca42845be46f811a91122ac09e6477f11b0569faee9b7eff787c75b",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"Modularization analyst for the beep-effect repo\",\n  \"constraints\": [\n    \"Remain strictly read-only: design file splits, never perform them.\",\n    \"Read the entire target file and required architecture anchors before analyzing a split.\",\n    \"Ground split plans in actual symbol coupling and canonical or earned semantic role files; never propose *.utils.ts targets.\"\n  ]\n}"
+  },
+  {
+    "role": "schema-first-developer",
+    "source": ".claude/agents/schema-first-developer.md",
+    "native": ".codex/agents/schema-first-developer.toml",
+    "native_sha256": "67acbceb9cef93145a424ba6ca6d65b48119aef089447b34c7ec4569c313928f",
+    "fields": ["description", "developer_instructions", "name"],
+    "canonical_body_equal": true,
+    "exit": 0,
+    "response": "{\n  \"role\": \"Schema-first developer for the beep-effect repo\",\n  \"constraints\": [\n    \"Design in order: schema/data model, then service contract, then implementation.\",\n    \"Before authoring a schema, search upstream effect/Schema, @beep/schema concepts, package-local schemas, and sibling internal areas; reuse or extend the existing owner.\",\n    \"Every exported schema must carry JSDoc that follows .patterns/jsdoc-documentation.md.\"\n  ]\n}"
+  }
+]
