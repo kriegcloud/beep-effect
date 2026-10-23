@@ -102,7 +102,8 @@ describe("@beep/md import boundary", () => {
     expect(manifest.exports["./Md.parse"]).toBe("./src/Md.parse.ts");
     expect(manifest.publishConfig.exports["./Md.syntax"]).toBe("./dist/Md.syntax.js");
     expect(manifest.publishConfig.exports["./Md.parse"]).toBe("./dist/Md.parse.js");
-    expect(manifest.exports["./internal/*"]).toBeNull();
+    expect(manifest.exports["./internal/*"]).toBe("./src/internal/*.ts");
+    expect(manifest.publishConfig.exports["./internal/*"]).toBe("./dist/internal/*.js");
     expect(manifest.sideEffects).toStrictEqual([]);
     expect(manifest.dependencies["@beep/markdown"]).toBe("workspace:^");
   });

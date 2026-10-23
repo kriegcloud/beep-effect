@@ -2330,6 +2330,9 @@
       ],
       "@beep/md/Md.syntax": [
         "./packages/foundation/modeling/md/src/Md.syntax.ts"
+      ],
+      "@beep/md/internal/*": [
+        "./packages/foundation/modeling/md/src/internal/*"
       ]
     }
   }

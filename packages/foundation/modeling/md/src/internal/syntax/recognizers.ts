@@ -9,7 +9,7 @@
 
 import { Point, Position } from "@beep/markdown/MarkdownNode";
 import * as A from "@beep/utils/Array";
-import { dual, pipe } from "effect/Function";
+import { constVoid, dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as N from "effect/Number";
@@ -78,26 +78,29 @@ const isSpace = (char: string | undefined): boolean => char === " " || char === 
 
 const isDigit = (char: string | undefined): boolean => char !== undefined && char >= "0" && char <= "9";
 
-const isClosingDollar = (text: string, index: number): boolean =>
-  text[index] === "$" && !isSpace(text[index - 1]) && !isDigit(text[index + 1]);
+// Every character the scan inspects is read through a `CharAt`, so a metered
+// reader counts all of the scan's work, including any search for a closer.
+type CharAt = (index: number) => string | undefined;
+
+const isClosingDollar = (charAt: CharAt, index: number): boolean =>
+  charAt(index) === "$" && !isSpace(charAt(index - 1)) && !isDigit(charAt(index + 1));
 
 // `closers[k]` is the first valid closing `$` at or after `k`, or -1. One
 // right-to-left pass builds it, so an opener finds its closer in O(1) and a
 // run of openers that never close ("$a $a $a …") stays linear instead of
 // re-scanning to the end of the text once per opener.
-const closingDollars = (text: string): ReadonlyArray<number> => {
-  const length = Str.length(text);
+const closingDollars = (charAt: CharAt, length: number): ReadonlyArray<number> => {
   const closers = A.makeBy(length + 2, () => -1);
   for (let index = length - 1; index >= 0; index--) {
-    closers[index] = isClosingDollar(text, index) ? index : (closers[index + 1] ?? -1);
+    closers[index] = isClosingDollar(charAt, index) ? index : (closers[index + 1] ?? -1);
   }
   return closers;
 };
 
-const isDoubleDollar = (text: string, index: number): boolean => text[index] === "$" && text[index + 1] === "$";
+const isDoubleDollar = (charAt: CharAt, index: number): boolean => charAt(index) === "$" && charAt(index + 1) === "$";
 
-const mathCloseAt = (text: string, closers: ReadonlyArray<number>, index: number): O.Option<number> =>
-  text[index] === "$" && !isDoubleDollar(text, index) && !isSpace(text[index + 1])
+const mathCloseAt = (charAt: CharAt, closers: ReadonlyArray<number>, index: number): O.Option<number> =>
+  charAt(index) === "$" && !isDoubleDollar(charAt, index) && !isSpace(charAt(index + 1))
     ? O.filter(O.fromUndefinedOr(closers[index + 2]), N.isGreaterThanOrEqualTo(0))
     : O.none();
 
@@ -106,6 +109,61 @@ const pushText = (segments: Array<MathSegment>, from: number, to: number): void 
     segments.push(MathSegment.make({ math: false, from, to }));
   }
 };
+
+/**
+ * {@link scanInlineMath} with its work metered: `step` is called once per
+ * character the scan reads, so the number of calls is the scan's step count.
+ *
+ * **Details**
+ *
+ * The scan behaves exactly as {@link scanInlineMath}; the meter only observes.
+ * Every read, the closer table and the opener checks alike, goes through the
+ * metered reader, so a closer search that re-reads the text shows up in the
+ * count. `test/Md.syntax.test.ts` pins the step count as an exact linear
+ * function of the text length instead of timing the scan.
+ *
+ * **Example** (Count the steps of one scan)
+ *
+ * ```ts
+ * import { scanInlineMathMetered } from "@beep/md/internal/syntax/recognizers"
+ *
+ * let steps = 0
+ * scanInlineMathMetered("a $b$ c", () => {
+ *   steps += 1
+ * })
+ * console.log(steps) // 22
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanInlineMathMetered: {
+  (step: () => void): (text: string) => ReadonlyArray<MathSegment>;
+  (text: string, step: () => void): ReadonlyArray<MathSegment>;
+} = dual(2, (text: string, step: () => void): ReadonlyArray<MathSegment> => {
+  const charAt: CharAt = (at) => {
+    step();
+    return text[at];
+  };
+  const closers = closingDollars(charAt, Str.length(text));
+  const segments: Array<MathSegment> = [];
+  let textStart = 0;
+  let index = 0;
+  while (index < Str.length(text)) {
+    const close = mathCloseAt(charAt, closers, index);
+    if (O.isNone(close)) {
+      index += isDoubleDollar(charAt, index) ? 2 : 1;
+      continue;
+    }
+    pushText(segments, textStart, index);
+    segments.push(MathSegment.make({ math: true, from: index + 1, to: close.value }));
+    textStart = close.value + 1;
+    index = textStart;
+  }
+  pushText(segments, textStart, Str.length(text));
+  return segments;
+});
 
 /**
  * Split a text run into text and inline-math segments using pandoc's
@@ -119,25 +177,7 @@ const pushText = (segments: Array<MathSegment>, from: number, to: number): void 
  * @category parsing
  * @since 0.0.0
  */
-export const scanInlineMath = (text: string): ReadonlyArray<MathSegment> => {
-  const closers = closingDollars(text);
-  const segments: Array<MathSegment> = [];
-  let textStart = 0;
-  let index = 0;
-  while (index < Str.length(text)) {
-    const close = mathCloseAt(text, closers, index);
-    if (O.isNone(close)) {
-      index += isDoubleDollar(text, index) ? 2 : 1;
-      continue;
-    }
-    pushText(segments, textStart, index);
-    segments.push(MathSegment.make({ math: true, from: index + 1, to: close.value }));
-    textStart = close.value + 1;
-    index = textStart;
-  }
-  pushText(segments, textStart, Str.length(text));
-  return segments;
-};
+export const scanInlineMath = (text: string): ReadonlyArray<MathSegment> => scanInlineMathMetered(text, constVoid);
 
 /**
  * The body of a `$$ … $$` display-math paragraph, read from its raw slice.

@@ -1945,10 +1945,14 @@ const frontmatterObject = (
   if (O.isNone(object)) {
     return frontmatterFailure(state, node, "notObject", value);
   }
+  // An object emptied by projection leaves no frontmatter behind, so its
+  // coercions name no destination (`mdPath` None) rather than a missing field.
+  const empty = R.isEmptyReadonlyRecord(object.value);
+  const landing = empty ? O.none() : frontmatterPath;
   for (const coercion of projection.coercions) {
-    recordLoss(state, "frontmatterValueCoerced", node, frontmatterPath, `${coercion.pointer}: ${coercion.detail}`);
+    recordLoss(state, "frontmatterValueCoerced", node, landing, `${coercion.pointer}: ${coercion.detail}`);
   }
-  if (R.isEmptyReadonlyRecord(object.value)) {
+  if (empty) {
     return Result.succeed(O.none());
   }
   if (node.format !== "json") {

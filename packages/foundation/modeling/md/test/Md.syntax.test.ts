@@ -8,6 +8,7 @@ import {
 } from "@beep/markdown/MarkdownMdx";
 import { Paragraph, Position, Root, Text } from "@beep/markdown/MarkdownNode";
 import * as MdRoot from "@beep/md";
+import { scanInlineMathMetered } from "@beep/md/internal/syntax/recognizers";
 import { Document } from "@beep/md/Md.model";
 import { MdParseError, MdParseOptions, parse, parseResult, parseSafe, parseSafeResult } from "@beep/md/Md.parse";
 import { documentSafetyIssues } from "@beep/md/Md.safe";
@@ -617,26 +618,44 @@ const stringsUpTo = (alphabet: ReadonlyArray<string>, length: number): ReadonlyA
         ),
       ];
 
-// Two passes, keep the faster: damps JIT and GC noise without hiding an
-// algorithmic blowup. Only the bridge is timed; parsing happens before.
-const bridgeMillis = (markdown: string): number => {
-  const parsed = Result.getOrThrow(MarkdownDocument.parseResult(markdown));
-  let best = Number.POSITIVE_INFINITY;
-  for (let pass = 0; pass < 2; pass += 1) {
-    const started = performance.now();
-    Result.getOrThrow(fromMarkdownDocument(parsed, { math: true, sourceMap: false }));
-    best = Math.min(best, performance.now() - started);
-  }
-  return best;
+// The scan's work, counted instead of timed: the number of characters the
+// metered scan reads over `count` copies of `unit`.
+const linearScanSteps = (unit: string, count: number): number => {
+  let steps = 0;
+  scanInlineMathMetered(Str.repeat(count)(unit), () => {
+    steps += 1;
+  });
+  return steps;
 };
 
-// Quadrupling the input costs ~4x when recognition is linear and ~16x when
-// it is quadratic; the threshold of 8 sits between the two.
-const growthRatio = (unit: string, small: number): number => {
-  bridgeMillis(Str.repeat(small / 4)(unit));
-  const smallMillis = bridgeMillis(Str.repeat(small)(unit));
-  const largeMillis = bridgeMillis(Str.repeat(small * 4)(unit));
-  return largeMillis / Math.max(smallMillis, 1);
+// A deliberately quadratic scan counted the same way: one read per position,
+// plus one per character the oracle's forward walk probes from each opener.
+const forwardProbes = (text: string, index: number): number => {
+  if (!opensMathAt(text, index)) {
+    return 0;
+  }
+  let probes = 0;
+  for (let probe = index + 2; probe < Str.length(text) && !closesMathAt(text, probe); probe++) {
+    probes += 1;
+  }
+  return probes;
+};
+
+const quadraticScanSteps = (unit: string, count: number): number => {
+  const text = Str.repeat(count)(unit);
+  return A.reduce(A.range(0, Str.length(text) - 1), 0, (steps, index) => steps + 1 + forwardProbes(text, index));
+};
+
+const SCAN_SIZES = [1_000, 2_000, 4_000, 8_000];
+
+// Exact linear growth: every increment of the size series adds the same
+// number of steps per added unit, so steps(n) = a * n + b on the whole series.
+const growsLinearly = (counts: ReadonlyArray<number>): boolean => {
+  const slopes = A.map(A.range(1, counts.length - 1), (at) => {
+    const added = (counts[at] ?? 0) - (counts[at - 1] ?? 0);
+    return added / ((SCAN_SIZES[at] ?? 0) - (SCAN_SIZES[at - 1] ?? 0));
+  });
+  return A.every(slopes, (slope) => slope === slopes[0]);
 };
 
 describe("@beep/md/Md.syntax inline math scan", () => {
@@ -648,15 +667,26 @@ describe("@beep/md/Md.syntax inline math scan", () => {
     }
   });
 
-  it("scales linearly over openers that never close", () => {
-    const ratio = growthRatio("$a ", 4000);
-    expect(ratio, `4x the input cost ${ratio.toFixed(1)}x the time; linear is ~4x, quadratic ~16x`).toBeLessThan(8);
-  }, 120_000);
+  it("reads exactly 14 characters per unit over openers that never close", () => {
+    const counts = A.map(SCAN_SIZES, (count) => linearScanSteps("$a ", count));
+    // Closer table 4n + 1 reads, scan loop 10n (6 per opener, 2 per other character).
+    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => 14 * count + 1));
+    expect(growsLinearly(counts)).toBe(true);
+  });
 
-  it("scales linearly over many closed inline math spans", () => {
-    const ratio = growthRatio("$a$ ", 4000);
-    expect(ratio, `4x the input cost ${ratio.toFixed(1)}x the time; linear is ~4x, quadratic ~16x`).toBeLessThan(8);
-  }, 120_000);
+  it("reads exactly 13 characters per unit over many closed inline math spans", () => {
+    const counts = A.map(SCAN_SIZES, (count) => linearScanSteps("$a$ ", count));
+    // Closer table 7n + 1 reads, scan loop 6n (4 per opener that jumps its span, 2 per space).
+    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => 13 * count + 1));
+    expect(growsLinearly(counts)).toBe(true);
+  });
+
+  it("rejects the oracle's quadratic forward scan with the same growth check", () => {
+    const counts = A.map(SCAN_SIZES, (count) => quadraticScanSteps("$a ", count));
+    // 3n positions plus 3(n - k) - 2 probes from the opener of unit k.
+    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => count + (3 * count * (count + 1)) / 2));
+    expect(growsLinearly(counts)).toBe(false);
+  });
 });
 
 describe("@beep/md/Md.syntax recognizers", () => {
@@ -725,6 +755,13 @@ describe("@beep/md/Md.syntax frontmatter", () => {
     assertSome(result.document.frontmatter, { when: "1979-05-27T07:32:00Z" });
     expect(reasons(result)).toEqual(["frontmatterValueCoerced", "frontmatterFormatChanged"]);
     expect(O.getOrThrow(lossOf(result, "frontmatterValueCoerced").detail)).toMatch(/^\/when: /);
+  });
+
+  it("reports coercions with no landing path when projection empties the frontmatter", () => {
+    const result = bridge("---\ninf: .inf\n---\nBody");
+    assertNone(result.document.frontmatter);
+    expect(reasons(result)).toEqual(["frontmatterValueCoerced"]);
+    assertNone(lossOf(result, "frontmatterValueCoerced").mdPath);
   });
 
   it("projects TOML big integers, dates and times with JSON-pointer coercions", () => {

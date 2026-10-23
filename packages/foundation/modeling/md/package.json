@@ -49,7 +49,7 @@
     "./Md.render": "./src/Md.render.ts",
     "./Md.safe": "./src/Md.safe.ts",
     "./Md.syntax": "./src/Md.syntax.ts",
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -75,7 +75,7 @@
       "./Md.render": "./dist/Md.render.js",
       "./Md.safe": "./dist/Md.safe.js",
       "./Md.syntax": "./dist/Md.syntax.js",
-      "./internal/*": null,
+      "./internal/*": "./dist/internal/*.js",
       "./package.json": "./package.json"
     }
   },
