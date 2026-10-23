@@ -80,9 +80,17 @@ describe("ImportGraph.runtimeImportsOf", () => {
       "}",
       'import Default, { value } from "./real.ts";',
       'export * as ns from "./namespace.ts";',
-      'export{compact}from"./compact.ts";'
+      'export{compact}from"./compact.ts";',
+      'import*as ns from"./star.ts";',
+      'import D,*as other from"./default-star.ts";'
     );
-    expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual(["./real.ts", "./namespace.ts", "./compact.ts"]);
+    expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual([
+      "./real.ts",
+      "./namespace.ts",
+      "./compact.ts",
+      "./star.ts",
+      "./default-star.ts",
+    ]);
   });
 
   it("ignores a side-effect import that does not start a line and a dynamic import of a non-literal", () => {
