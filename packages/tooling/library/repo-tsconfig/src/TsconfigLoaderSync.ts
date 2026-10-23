@@ -8,6 +8,8 @@
  * passing a win32-appropriate `path` implementation (`node:path` on Windows,
  * or `node:path/win32` explicitly).
  *
+ * **Details**
+ *
  * Failure contract: exactly the async pipeline's typed errors, thrown —
  * `TsconfigParseError`, `TsconfigExtendsError`, or a `PlatformError` wrapping
  * what the consumer's `readFile` threw. Defects rethrow as-is; a caller never

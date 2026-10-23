@@ -6,6 +6,8 @@
  * disk goes through core `FileSystem`/`Path` in `R`; a `PlatformError` from the
  * underlying IO flows through untranslated.
  *
+ * **Details**
+ *
  * Phase order per file, exactly per tsc: decode -\> absolutize path options
  * against the config's OWN directory (parse phase) -\> recurse into `extends`
  * depth-first -\> fold each config onto the accumulated base, own config
@@ -14,6 +16,8 @@
  * files, so it carries a cycle guard and a depth guard (MAX_EXTENDS_DEPTH), both
  * failing through the typed `TsconfigExtendsError` channel — never as a defect
  * (hardening-a-parser-port invariant).
+ *
+ * **Gotchas**
  *
  * FILE-EXISTENCE CONTRACT (a deliberate divergence from tsc). Target resolution
  * probes candidates with core `FileSystem.exists`, which on a real filesystem is
