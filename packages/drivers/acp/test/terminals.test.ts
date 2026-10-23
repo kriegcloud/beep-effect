@@ -1,10 +1,12 @@
 import * as AcpClient from "@beep/acp/client";
 import * as AcpJson from "@beep/acp/json";
 import { AcpClientTerminalLimits, AcpClientTerminals, layer, make, register } from "@beep/acp/terminals";
+import { fcRuns } from "@beep/test-utils";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
@@ -26,6 +28,14 @@ const encoder = new TextEncoder();
 const encodeJsonText = S.encodeUnknownEffect(AcpJson.fromJsonText(S.Unknown));
 const decodeResponse = S.decodeEffect(AcpJson.fromJsonText(S.Struct({ id: S.Finite, result: S.Unknown })));
 const decodeTerminalId = S.decodeUnknownEffect(S.Struct({ terminalId: S.String }));
+const decodeErrorResponse = S.decodeEffect(
+  AcpJson.fromJsonText(
+    S.Struct({
+      id: S.Finite,
+      error: S.Struct({ code: S.Finite, message: S.String }),
+    })
+  )
+);
 
 // The spawner reads the filesystem only to check that an explicit cwd is accessible; every
 // command here runs in the test's own working directory.
@@ -44,28 +54,41 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
         Effect.provideService(AcpClient.AcpClient, client),
         Effect.provideService(AcpClientTerminals, terminals)
       );
-      const encode = S.encodeEffect(AcpJson.fromJsonText(S.Unknown));
-      const decode = S.decodeEffect(
-        AcpJson.fromJsonText(
-          S.Struct({
-            id: S.Finite,
-            error: S.Struct({ code: S.Finite, message: S.String }),
-          })
-        )
-      );
       for (const [id, method] of A.make("create", "output", "wait_for_exit", "kill", "release").entries()) {
         const params =
           method === "create"
             ? { sessionId: "session", command: "/nonexistent/acp-terminal-command" }
             : { sessionId: "session", terminalId: "missing" };
-        const message = yield* encode({ jsonrpc: "2.0", id, method: `terminal/${method}`, params });
-        yield* Queue.offer(input, new TextEncoder().encode(`${message}\n`));
-        const response = yield* Queue.take(output).pipe(Effect.flatMap(decode));
+        const message = yield* encodeJsonText({ jsonrpc: "2.0", id, method: `terminal/${method}`, params });
+        yield* Queue.offer(input, encoder.encode(`${message}\n`));
+        const response = yield* Queue.take(output).pipe(Effect.flatMap(decodeErrorResponse));
         assert.strictEqual(response.id, id);
         assert.strictEqual(response.error.code, -32603);
         assert.include(response.error.message, method === "create" ? "Could not start" : "unknown terminal ID");
       }
     })
+  );
+
+  it.effect.prop(
+    "answers terminal/output for any unknown terminal ID with an error",
+    [Arbitrary.schema(S.String)],
+    Effect.fnUntraced(function* ([terminalId]) {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const client = yield* AcpClient.make(stdio);
+      const terminals = yield* make({ defaultCwd: cwd });
+      yield* register.pipe(
+        Effect.provideService(AcpClient.AcpClient, client),
+        Effect.provideService(AcpClientTerminals, terminals)
+      );
+      const params = { sessionId: "session", terminalId };
+      const message = yield* encodeJsonText({ jsonrpc: "2.0", id: 1, method: "terminal/output", params });
+      yield* Queue.offer(input, encoder.encode(`${message}\n`));
+      const response = yield* Queue.take(output).pipe(Effect.flatMap(decodeErrorResponse));
+      assert.strictEqual(response.id, 1);
+      assert.strictEqual(response.error.code, -32603);
+      assert.include(response.error.message, "unknown terminal ID");
+    }),
+    { arbitrary: fcRuns(12) }
   );
 
   it.effect(
@@ -331,9 +354,10 @@ it.layer(SpawnerLayer, { excludeTestServices: true, timeout: "30 seconds" })(
           return response.result;
         });
 
+        const terminals = Context.get(yield* Layer.build(layer({ defaultCwd: cwd })), AcpClientTerminals);
         yield* register.pipe(
           Effect.provideService(AcpClient.AcpClient, acp),
-          Effect.provide(layer({ defaultCwd: cwd }))
+          Effect.provideService(AcpClientTerminals, terminals)
         );
 
         const { terminalId } = yield* decodeTerminalId(

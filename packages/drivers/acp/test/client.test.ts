@@ -12,13 +12,17 @@ import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A, currentHostPlatform } from "@beep/utils";
 import * as O from "@beep/utils/Option";
-import * as NodeServices from "@effect/platform-node/NodeServices";
+import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
+import * as NodePath from "@effect/platform-node/NodePath";
 import { assert } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as Context from "effect/Context";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -1073,22 +1077,29 @@ const spawnChildAgent = Effect.fnUntraced(function* (script: string) {
   );
 });
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("effect-acp client child-process layer", (it) => {
+// The spawner reads the filesystem only to check that an explicit cwd is accessible; every child
+// agent here runs in the test's own working directory.
+const SpawnerLayer = NodeChildProcessSpawner.layer.pipe(
+  Layer.provide(Layer.mergeAll(FileSystem.layerNoop({ access: () => Effect.void }), NodePath.layer))
+);
+
+it.layer(SpawnerLayer, { timeout: "30 seconds" })("effect-acp client child-process layer", (it) => {
   it.effect(
     "talks to the child over its stdio, reading stdout through transformStdout",
     Effect.fnUntraced(function* () {
       const handle = yield* spawnChildAgent(echoAgentScript);
       yield* handle.stderr.pipe(Stream.runDrain, Effect.forkScoped);
       const chunks = yield* Ref.make(0);
-      const sessions = yield* AcpClient.AcpClient.pipe(
-        Effect.flatMap((acp) => acp.agent.listSessions({})),
-        Effect.provide(
+      const acp = Context.get(
+        yield* Layer.build(
           AcpClient.layerChildProcess({
             handle,
             transformStdout: Stream.tap(() => Ref.update(chunks, (count) => count + 1)),
           })
-        )
+        ),
+        AcpClient.AcpClient
       );
+      const sessions = yield* acp.agent.listSessions({});
       assert.deepEqual(sessions, { sessions: [] });
       assert.isAtLeast(yield* Ref.get(chunks), 1);
     })
@@ -1100,16 +1111,14 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("effect-acp client child
       const handle = yield* spawnChildAgent(crashingAgentScript(3));
       const stderrTail = yield* collectStderrTail(handle.stderr);
       const terminated = yield* Deferred.make<AcpError.AcpError>();
-      const error = yield* AcpClient.AcpClient.pipe(
-        Effect.andThen(Deferred.await(terminated)),
-        Effect.provide(
-          AcpClient.layerChildProcess({
-            handle,
-            stderrTail,
-            onTermination: (terminal) => Deferred.succeed(terminated, terminal).pipe(Effect.asVoid),
-          })
-        )
+      yield* Layer.build(
+        AcpClient.layerChildProcess({
+          handle,
+          stderrTail,
+          onTermination: (terminal) => Deferred.succeed(terminated, terminal).pipe(Effect.asVoid),
+        })
       );
+      const error = yield* Deferred.await(terminated);
       if (error._tag !== "AcpProcessExitedError") {
         return assert.fail("expected a process exit error");
       }
@@ -1127,15 +1136,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("effect-acp client child
       const handle = yield* spawnChildAgent(crashingAgentScript(4));
       yield* handle.stderr.pipe(Stream.runDrain, Effect.forkScoped);
       const terminated = yield* Deferred.make<AcpError.AcpError>();
-      const error = yield* AcpClient.AcpClient.pipe(
-        Effect.andThen(Deferred.await(terminated)),
-        Effect.provide(
-          AcpClient.layerChildProcess({
-            handle,
-            onTermination: (terminal) => Deferred.succeed(terminated, terminal).pipe(Effect.asVoid),
-          })
-        )
+      yield* Layer.build(
+        AcpClient.layerChildProcess({
+          handle,
+          onTermination: (terminal) => Deferred.succeed(terminated, terminal).pipe(Effect.asVoid),
+        })
       );
+      const error = yield* Deferred.await(terminated);
       if (error._tag !== "AcpProcessExitedError") {
         return assert.fail("expected a process exit error");
       }

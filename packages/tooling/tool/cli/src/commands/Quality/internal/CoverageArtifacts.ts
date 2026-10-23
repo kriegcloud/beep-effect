@@ -297,7 +297,6 @@ const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (
         produceSourceMap: true,
         autoWrap: false,
         esModules: true,
-        compact: false,
         coverageVariable: "__VITEST_COVERAGE__",
         coverageGlobalScope: "globalThis",
         coverageGlobalScopeFunc: false,
