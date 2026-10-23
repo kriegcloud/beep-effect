@@ -236,22 +236,25 @@ Retrying is handled once, in the client: `RetryPolicy.default` retries a `transp
 Every resource ships `makeTest(overrides?)` and `layerTest(overrides?)`: stub the members a test exercises, and every other member dies naming itself, so a test proves it touches nothing it did not stub:
 
 ```ts
-import { GitBranch } from "@beep/github/GitBranch";
+import { GitBranch, type GitBranchShape } from "@beep/github/GitBranch";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+
+const upsert: GitBranchShape["upsert"] = dual(2, (_name: string, _sha: string) => Effect.succeed("created"));
 
 const TestBranches = GitBranch.layerTest({
-  upsert: () => Effect.succeed("created"),
+  upsert,
 });
 ```
 
 `GitHubClient.layerFixture(fixtures)` is the one recorded-response double that pages for real: it builds a `PageSource` over the recorded array and hands it to the same pagination engine the live client uses, so a truncation path behaves identically under test and in production. Three things about its contract are worth knowing before you write against it:
 
 ```ts
-import { GitHubClient, type GitHubFixtures } from "@beep/github/GitHubClient";
+import { GitHubClient, GitHubFixtures } from "@beep/github/GitHubClient";
 import { GitHubError } from "@beep/github/GitHubError";
 import * as Result from "effect/Result";
 
-const fixtures: GitHubFixtures = {
+const fixtures = GitHubFixtures.make({
   request: {
     "GET /repos/{owner}/{repo}/languages": Result.succeed({ TypeScript: 12000 }),
     // A recorded Result failure answers this route with a typed error.
@@ -259,11 +262,11 @@ const fixtures: GitHubFixtures = {
   },
   paginate: {
     "GET /repos/{owner}/{repo}/rulesets": Result.succeed([
-      { id: 1, name: "main", enforcement: "active", source_type: "Repository" },
+      { id: 1, name: "main", enforcement: "active", source_type: "Repository", source: "effect-ts/effect" },
     ]),
   },
   requested: [], // filled in as the test runs
-};
+});
 
 const TestClient = GitHubClient.layerFixture(fixtures);
 // A route with no entry above DIES naming itself, rather than failing typed.

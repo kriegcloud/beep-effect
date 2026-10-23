@@ -284,9 +284,13 @@ function parseBlockScalar(state: ParserState): CstNode {
  * Check if the current position has a block scalar indicator in the original text.
  */
 function isBlockScalarToken(state: ParserState): boolean {
-  const token = peek(state);
+  return isBlockScalarAt(peek(state), state.text);
+}
+
+/** Whether `token` is a scalar whose source starts with a block scalar indicator. */
+function isBlockScalarAt(token: YamlToken.Data | undefined, text: string): boolean {
   if (token?.kind !== "scalar") return false;
-  const ch = state.text[token.offset];
+  const ch = text[token.offset];
   return ch === "|" || ch === ">";
 }
 
@@ -576,7 +580,7 @@ function parseBlockValueEnd(
   if (token.kind === "block-seq-start" || token.kind === "block-seq-entry") {
     return parseBlockSequence(state, findFirstSeqEntryColumn(state));
   }
-  return token.kind === "scalar" && hasImplicitMapAhead(state, parentIndent)
+  return token.kind === "scalar" && hasImplicitMapAhead(state)
     ? parseImplicitBlockMapping(state, parentIndent)
     : undefined;
 }
@@ -662,34 +666,37 @@ const parseBlockSequenceInner: {
   return makeContainerNode("block-seq", children, state.text);
 });
 
-/** Whether a block-flow token settles {@link hasImplicitMapAhead}; `undefined` keeps scanning. */
-function implicitMapVerdict(t: YamlToken.Data, seqIndent: number): boolean | undefined {
-  if (t.kind === "newline") return false;
-  if (t.kind === "block-seq-entry" && t.column <= seqIndent) return false;
+/**
+ * Whether a block-flow token settles {@link hasImplicitMapAhead}; `undefined`
+ * keeps scanning. A block scalar ends the line like a newline does: its token
+ * swallows the line breaks of its body, so a ":" after it sits on a later line.
+ * Every token the scan meets before either sits on the entry's own line, so
+ * none can be a sibling entry.
+ */
+function implicitMapVerdict(t: YamlToken.Data, text: string): boolean | undefined {
+  if (t.kind === "newline" || isBlockScalarAt(t, text)) return false;
   return t.kind === "block-map-value" ? true : undefined;
 }
 
 /**
  * Look ahead (without consuming) to see if a block-map-value token exists
- * before the next newline / sequence entry at this indent.
- * Document boundaries are line-start tokens, so their preceding newline stops the scan.
+ * before the end of the current line.
+ * Document boundaries and sibling sequence entries are line-start tokens, so
+ * their preceding newline stops the scan.
  * Flow depth is tracked so a ":" inside `{ }` or `[ ]` is not mistaken for a
  * block mapping value indicator.
  */
-const hasImplicitMapAhead: {
-  (state: ParserState, seqIndent: number): boolean;
-  (seqIndent: number): (state: ParserState) => boolean;
-} = dual(2, (state: ParserState, seqIndent: number): boolean => {
+function hasImplicitMapAhead(state: ParserState): boolean {
   let flowDepth = 0;
   for (let i = state.pos; i < state.tokens.length; i++) {
     const t = A.getUnsafe(state.tokens, i);
     const delta = flowDepthDeltas[t.kind] ?? 0;
     flowDepth += delta;
-    const verdict = delta === 0 && flowDepth <= 0 ? implicitMapVerdict(t, seqIndent) : undefined;
+    const verdict = delta === 0 && flowDepth <= 0 ? implicitMapVerdict(t, state.text) : undefined;
     if (verdict !== undefined) return verdict;
   }
   return false;
-});
+}
 
 /**
  * Whether `token` ends a sequence entry's content: a document boundary, an
@@ -715,7 +722,7 @@ function seqEntryContentStops(state: ParserState, token: YamlToken.Data, seqInde
 function entryIsImplicitMap(state: ParserState, seqIndent: number): boolean {
   const nextToken = findNextNonTrivia(state);
   const nestedSeqFirst = nextToken?.kind === "block-seq-entry" && nextToken.column > seqIndent;
-  return !nestedSeqFirst && hasImplicitMapAhead(state, seqIndent);
+  return !nestedSeqFirst && hasImplicitMapAhead(state);
 }
 
 /**
@@ -784,11 +791,22 @@ function implicitMapStops(
  * Parse a structure token inside an implicit mapping. A block-map-start at
  * the same (or shallower) indent as the entries is just the lexer re-emitting
  * a scope marker — it is consumed silently (`undefined`); a deeper one opens
- * a nested sub-mapping.
+ * a nested sub-mapping. A block-seq-entry at the entries' indent after a
+ * dangling ":" starts a compact sequence value (YAML 1.2 l+block-sequence(n-1)
+ * for a block mapping value); the lexer emits no block-seq-start for it once
+ * an earlier compact sequence opened that indent.
  */
-function parseImplicitMapNode(state: ParserState, token: YamlToken.Data, entryIndent: number): CstNode | undefined {
+function parseImplicitMapNode(
+  state: ParserState,
+  token: YamlToken.Data,
+  entryIndent: number,
+  children: readonly CstNode[]
+): CstNode | undefined {
   if (token.kind === "block-map-start" && entryIndent >= 0 && token.column <= entryIndent) {
     return skipScopeMarker(state);
+  }
+  if (token.kind === "block-seq-entry" && token.column === entryIndent && lastNonTriviaIsValueSep(children)) {
+    return parseCompactSeqValue(state, entryIndent);
   }
   return parseBlockNode(state, token);
 }
@@ -820,7 +838,7 @@ function parseImplicitMapToken(
     children.push(...parseBlockValue(state, seqIndent));
     return entryIndent;
   }
-  const node = parseImplicitMapNode(state, token, entryIndent);
+  const node = parseImplicitMapNode(state, token, entryIndent, children);
   if (node !== undefined) children.push(node);
   return entryIndent;
 }

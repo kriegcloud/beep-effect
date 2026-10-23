@@ -26,6 +26,20 @@ export * from "./Laws.command.ts";
  */
 export * from "./Laws.errors.ts";
 /**
+ * Markdown TypeScript fence typecheck law schemas.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./MarkdownFences.model.ts";
+/**
+ * Markdown TypeScript fence typecheck law: fence collection, compile service, and repository runner.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./MarkdownFences.ts";
+/**
  * Retired Effect module path law schemas, mapping table, and allowlist.
  *
  * @category models

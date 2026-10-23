@@ -6,25 +6,28 @@ Effect-based monorepo utilities for repository analysis and workspace management
 
 ```typescript
 import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Option from "effect/Option";
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
 import {
   FsUtils, FsUtilsLive, findRepoRoot, resolveWorkspaceDirs,
   buildRepoDependencyIndex, topologicalSort,
-  TSMorphService, TSMorphServiceLive, TsMorphProjectScopeRequest
+  TSMorphService, TSMorphServiceLive, TsMorphProjectScopeRequest, TsMorphScopeEntrypoint
 } from "@beep/repo-utils"
 
 const program = Effect.gen(function* () {
   const root = yield* findRepoRoot()
   const workspaces = yield* resolveWorkspaceDirs(root)
   const depIndex = yield* buildRepoDependencyIndex(root)
-  const buildOrder = yield* topologicalSort(/* adjacency list */)
+  const buildOrder = yield* topologicalSort(HashMap.make(["app", HashSet.make("lib")], ["lib", HashSet.empty<string>()]))
   const tsmorph = yield* TSMorphService
   const scope = yield* tsmorph.resolveProjectScope(
-    new TsMorphProjectScopeRequest({
-      rootTsConfigPath: `${root}/tsconfig.json`,
-      changedFiles: Option.none(),
-      idMode: Option.none()
+    TsMorphProjectScopeRequest.make({
+      entrypoint: TsMorphScopeEntrypoint.make(`${root}/tsconfig.json`),
+      repoRootPath: Option.none(),
+      mode: "semantic",
+      referencePolicy: "followReferences"
     })
   )
   return { root, workspaces, depIndex, buildOrder, scope }

@@ -58,6 +58,7 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { ts } from "ts-morph";
 import { runGitRawOutput } from "../../internal/repo-run/GitExec.ts";
+import { typescriptFences as sharedTypeScriptFences } from "./internal/TypeScriptFences.ts";
 import { SchemaTagIdiomsExecutionError } from "./Laws.errors.ts";
 import { SchemaTagIdiomFinding, SchemaTagIdiomsSummary } from "./SchemaTagIdioms.model.ts";
 import type * as Crypto from "effect/Crypto";
@@ -75,8 +76,6 @@ const READ_CONCURRENCY = 32;
 /** Source that cannot bind `effect/Schema` is skipped before parsing. */
 const SCHEMA_IMPORT_PATTERN = /["']effect(?:\/Schema)?["']/u;
 
-const TYPESCRIPT_FENCE_PATTERN =
-  /^ {0,3}(`{3,}|~{3,})(typescript|tsx|mts|cts|ts)(?![\w-])[^\r\n]*\r?\n([\s\S]*?)^ {0,3}\1[ \t]*$/gimu;
 const JSDOC_BLOCK_PATTERN = /\/\*\*[\s\S]*?\*\//gu;
 
 const TYPESCRIPT_PATHSPECS = ["*.ts", "*.tsx", "*.mts", "*.cts"] as const;
@@ -825,16 +824,12 @@ const matchIndex = (match: RegExpMatchArray): number => O.getOrElse(O.fromNullis
 const lineIndexAt = (text: string, index: number): number => A.length(Str.split("\n")(Str.slice(0, index)(text))) - 1;
 
 const typescriptFences = (content: string): ReadonlyArray<Fence> =>
-  pipe(
-    Str.matchAll(TYPESCRIPT_FENCE_PATTERN)(content),
-    A.fromIterable,
-    A.map((match): Fence => {
-      const openingLength = O.getOrElse(Str.indexOf("\n")(groupText(match, 0)), zero) + 1;
-      return {
-        code: groupText(match, 3),
-        lineOffset: lineIndexAt(content, matchIndex(match) + openingLength),
-        scriptKind: Str.toLowerCase(groupText(match, 2)) === "tsx" ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-      };
+  A.map(
+    sharedTypeScriptFences(content),
+    (fence): Fence => ({
+      code: fence.code,
+      lineOffset: fence.codeLineIndex,
+      scriptKind: fence.language === "tsx" ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
     })
   );
 

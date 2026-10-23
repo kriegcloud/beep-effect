@@ -55,7 +55,8 @@ Test pattern:
 `Effect.fn` that returns `MembershipAlreadyRevoked` when the lifecycle rule
 rejects the transition. Both can be tested without booting any Layer.
 
-````ts
+````ts skip-type-checking
+// Illustrative iam slice packages do not exist; imports must refer to the real model and package-owned fixtures.
 import { describe, expect, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -136,6 +137,9 @@ canonical compile-ready example.
 and `MembershipRepository` (persistence port). The revoke test stubs both:
 
 ````ts
+import { LiteralKit } from "@beep/schema";
+import * as Context from "effect/Context";
+import * as S from "effect/Schema";
 import { expect, layer } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -143,14 +147,45 @@ import * as Cause from "effect/Cause";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import {
-  MembershipAccess,
-  MembershipNotFound,
-  MembershipRepository,
-  MembershipService,
-} from "@beep/iam-use-cases/server";
-import { MembershipServerLayer } from "@beep/iam-server/layer";
-import { activeMembership, revokeMembershipCommand } from "@beep/iam-use-cases/test";
+
+// Small local stand-ins for the illustrative slice imports.
+class MembershipNotFound extends S.TaggedError<MembershipNotFound, { readonly brand: unique symbol }>()("MembershipNotFound", {}) {}
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+const RevokeMembershipCommand = S.Struct({ membershipId: MembershipId });
+type RevokeMembershipCommand = typeof RevokeMembershipCommand.Type;
+class MembershipRevocationDenied extends S.TaggedError<MembershipRevocationDenied, { readonly brand: unique symbol }>()("MembershipRevocationDenied", { reason: S.String }) {}
+class MembershipRevocationFailed extends S.TaggedError<MembershipRevocationFailed, { readonly brand: unique symbol }>()("MembershipRevocationFailed", {}) {}
+class MembershipService extends Context.Service<MembershipService, {
+  readonly revoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
+}>()("example/MembershipService") {}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>>;
+}>()("example/MembershipRepository") {}
+class MembershipAccess extends Context.Service<MembershipAccess, {
+  readonly assertCanRevoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipRevocationDenied>;
+}>()("example/MembershipAccess") {}
+const activeMembership = Membership.make({ id: MembershipId.make("membership-1"), organizationId: "org-1", actorId: "actor-1", role: "member", status: "active" });
+const revokeMembershipCommand = RevokeMembershipCommand.make({ membershipId: MembershipId.make("membership-1") });
+declare const MembershipServerLayer: Layer.Layer<MembershipService, never, MembershipAccess | MembershipRepository>;
+// import { MembershipAccess, MembershipNotFound, MembershipRepository, MembershipService, } from "@beep/iam-use-cases/server";
+// import { MembershipServerLayer } from "@beep/iam-server/layer";
+// import { activeMembership, revokeMembershipCommand } from "@beep/iam-use-cases/test";
 
 const MembershipAccessAllow = Layer.mock(MembershipAccess)({
   assertCanRevoke: () => Effect.void,
@@ -197,7 +232,8 @@ Each slice's `/test` subpath publishes shared fixtures: test data, common stubs,
 test-only Layers. A slice's tests import its own `/test` through the package
 alias, never through a relative path into another package's `src/`:
 
-````ts
+````ts skip-type-checking
+// Illustrative iam slice packages do not exist; imports must refer to the real model and package-owned fixtures.
 import { activeMembership } from "@beep/iam-domain/test";
 import { revokeMembershipCommand } from "@beep/iam-use-cases/test";
 ````
@@ -230,12 +266,39 @@ slice provides:
 
 ````ts
 // packages/iam/use-cases/test/MembershipRepository.contract.ts
+import { LiteralKit } from "@beep/schema";
+import * as Context from "effect/Context";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import type * as Layer from "effect/Layer";
-import { MembershipRepository } from "@beep/iam-use-cases/server";
-import { activeMembership } from "@beep/iam-use-cases/test";
+
+// Small local stand-ins for the illustrative slice imports.
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>>;
+}>()("example/MembershipRepository") {}
+const activeMembership = Membership.make({ id: MembershipId.make("membership-1"), organizationId: "org-1", actorId: "actor-1", role: "member", status: "active" });
+// import { MembershipRepository } from "@beep/iam-use-cases/server";
+// import { activeMembership } from "@beep/iam-use-cases/test";
 
 /**
  * Contract suite shared between every `MembershipRepository` implementation.
@@ -279,16 +342,78 @@ export const MembershipRepositoryContract = (
 
 ````ts
 // packages/iam/server/test/MembershipRepositoryLive.contract.test.ts
-import { MembershipRepositoryContract } from "@beep/iam-use-cases/test";
-import { MembershipRepositoryLive } from "@beep/iam-server/test";
+import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+import * as O from "effect/Option";
+import { LiteralKit } from "@beep/schema";
+
+// Small local stand-ins for the illustrative slice imports.
+// Small local stand-ins for the illustrative slice imports.
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>>;
+}>()("example/MembershipRepository") {}
+declare const MembershipRepositoryLive: Layer.Layer<MembershipRepository>;
+declare const MembershipRepositoryContract: (layer: Layer.Layer<MembershipRepository>, label: string) => void;
+// import { MembershipRepositoryContract } from "@beep/iam-use-cases/test";
+// import { MembershipRepositoryLive } from "@beep/iam-server/test";
 
 MembershipRepositoryContract(MembershipRepositoryLive, "live (drizzle test db)");
 ````
 
 ````ts
 // packages/iam/use-cases/test/MembershipRepositoryInMemory.contract.test.ts
-import { MembershipRepositoryContract } from "@beep/iam-use-cases/test";
-import { MembershipRepositoryInMemory } from "@beep/iam-use-cases/test";
+import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+import * as O from "effect/Option";
+import { LiteralKit } from "@beep/schema";
+
+// Small local stand-ins for the illustrative slice imports.
+declare const MembershipRepositoryContract: (layer: Layer.Layer<MembershipRepository>, label: string) => void;
+// Small local stand-ins for the illustrative slice imports.
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>>;
+}>()("example/MembershipRepository") {}
+declare const MembershipRepositoryInMemory: Layer.Layer<MembershipRepository>;
+// import { MembershipRepositoryContract } from "@beep/iam-use-cases/test";
+// import { MembershipRepositoryInMemory } from "@beep/iam-use-cases/test";
 
 MembershipRepositoryContract(MembershipRepositoryInMemory, "in-memory");
 ````

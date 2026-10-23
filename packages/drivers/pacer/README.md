@@ -41,7 +41,7 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import { PacerConfigLoadOptions, PclClient, loadPacerConfig, makePacerLayer } from "@beep/pacer"
 
 const program = Effect.gen(function*() {
-  const config = yield* loadPacerConfig(PacerConfigLoadOptions.make({ environment: "qa" }))
+  const config = yield* loadPacerConfig({ environment: "qa" })
   const layers = makePacerLayer(config, FetchHttpClient.layer)
   return layers.full
 })

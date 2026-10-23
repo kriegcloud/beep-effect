@@ -1,254 +1,254 @@
-# Upstream Effect library development reference
+# Effect development patterns
 
 ## Scope and authority
 
-This file is retained as an upstream Effect library reference. It was copied
-and later adapted from library-internal guidance; it does not define Beep's
-package topology or override repository laws. For work in this repository,
-follow [the architecture standard](../standards/ARCHITECTURE.md),
-[Effect-first development](../standards/effect-first-development.md), and the
-applicable package's `AGENTS.md`.
+This is the repository's pattern reference for writing Effect code in
+beep-effect packages. It is subordinate to
+[Effect-first development](../standards/effect-first-development.md), which is
+the canonical law, and to [the architecture standard](../standards/ARCHITECTURE.md)
+for package topology. The applicable package's `AGENTS.md` still governs work
+inside that package.
 
-The examples below include partial snippets and deliberately incorrect examples.
-They have not all been compiled as written. A displayed API or directory tree
-must be checked against the current Effect reference before reuse; the earlier
-guidance scan is not a current API or compilation guarantee. The local reference
-is provisioned with `bun run beep refs provision`; its own `AGENTS.md` governs
-work inside that checkout. Upstream commands and relative paths apply there.
+Every TypeScript example below is compiled by `bun run beep laws markdown-fences --check`.
+Examples that show a forbidden form keep it visible and mark the failing line
+with `// @ts-expect-error`, so the gate proves the form is rejected.
 
-Disposition recorded 2026-10-20 for #1856: keep as a labeled upstream reference.
-The local Effect checkout was inspected at
-`1b740862e3d25ec5d4b6f86b9fe792b6dabbf84c` for its source/test layout and
-validation instructions. This is provenance for that inspection, not a claim
-that every example below was revalidated at that revision.
+Disposition recorded 2026-10-23 for #1856 wave 3: rewritten for this
+repository. The earlier text was an adapted copy of upstream Effect library
+guidance; its library-internal and upstream-command material is gone.
 
-## 🎯 OVERVIEW
+## Forbidden patterns
 
-Fundamental patterns for developing high-quality, type-safe code within the Effect library ecosystem. These patterns ensure consistency, reliability, and maintainability across the codebase.
+### Never: try/catch in a generator
 
-## 🚨 CRITICAL FORBIDDEN PATTERNS
+Effect generators carry failures in the error channel, not as JavaScript
+exceptions. A `try/catch` around `yield*` never sees a typed failure.
 
-### ❌ NEVER: try-catch in Effect.gen
+```ts
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
 
-**REASON**: Effect generators handle errors through the Effect type system, not JavaScript exceptions.
+declare const someEffect: Effect.Effect<number, string>
 
-```typescript
-// ❌ WRONG - This will cause runtime errors
-Effect.gen(function*() {
+// Wrong: the catch block never runs for a typed failure.
+const wrong = Effect.gen(function* () {
   try {
-    const result = yield* someEffect
-    return result
+    return yield* someEffect
   } catch (error) {
-    // This will never be reached and breaks Effect semantics
-    console.error(error)
+    return yield* Console.error(error)
   }
 })
 
-// ✅ CORRECT - Use Effect's built-in error handling
-Effect.gen(function*() {
+// Right: read the outcome with Effect.result and branch on it.
+const right = Effect.gen(function* () {
   const result = yield* Effect.result(someEffect)
   if (result._tag === "Failure") {
-    // Handle error case properly
-    console.error("Effect failed:", result.cause)
+    yield* Console.error("Effect failed:", result.failure)
     return yield* Effect.fail("Handled error")
   }
-  return result.value
+  return result.success
 })
 ```
 
-### ❌ NEVER: Type Assertions
+### Never: type assertions
 
-**REASON**: Type assertions hide real type errors and break TypeScript's safety guarantees.
+Type assertions hide real type errors. Fix the types instead: use generic
+parameters and the Effect constructors that model the failure.
 
-```typescript
-// ❌ FORBIDDEN - These break type safety
-const value = something as any
-const value = something as never
-const value = something as unknown
+```ts
+import * as Effect from "effect/Effect"
 
-// ✅ CORRECT - Fix the underlying type issues
-// Use proper generic type parameters
-function processValue<T>(value: T): Effect.Effect<T, never, never> {
-  return Effect.succeed(value)
-}
+declare const urlString: string
 
-// Use proper Effect constructors
-const safeValue = Effect.try(() => new URL(urlString))
+// Wrong: `as` widens or forges a type the value does not have.
+// @ts-expect-error a string is not a number, and an assertion cannot make it one
+const forged: number = urlString as number
+
+// Right: a generic parameter keeps the caller's type.
+const processValue = <T>(value: T): Effect.Effect<T> => Effect.succeed(value)
+
+// Right: a fallible constructor puts the failure in the error channel.
+const safeUrl = Effect.try({
+  try: () => new URL(urlString),
+  catch: (cause) => `Invalid URL: ${String(cause)}`,
+})
 ```
 
-## ✅ MANDATORY PATTERNS
+## Mandatory patterns
 
-### 🔄 return yield* Pattern for Errors
+### `return yield*` for terminal effects
 
-**CRITICAL**: Always use `return yield*` when yielding terminal effects.
+Always `return yield*` a failure or an interruption. At runtime a bare
+`yield* Effect.fail(...)` already stops the generator, but TypeScript cannot
+see that: without `return`, the branch looks like it falls through, so values
+are not narrowed after it and the reader has to know the runtime rule.
+`return yield*` makes the termination visible to both.
 
-```typescript
-// ✅ CORRECT - Makes termination explicit
-Effect.gen(function*() {
-  if (invalidCondition) {
-    return yield* Effect.fail("Validation failed")
+```ts
+import * as Effect from "effect/Effect"
+
+declare const input: string | undefined
+declare const shouldInterrupt: boolean
+
+// Right: termination is explicit, so `input` is narrowed to `string` below.
+const checked = Effect.gen(function* () {
+  if (input === undefined) {
+    return yield* Effect.fail("Input is required")
   }
 
   if (shouldInterrupt) {
     return yield* Effect.interrupt
   }
 
-  // Continue with normal flow
-  const result = yield* someOtherEffect
-  return result
+  return input.length
 })
 
-// ❌ WRONG - Missing return keyword leads to unreachable code
-Effect.gen(function*() {
-  if (invalidCondition) {
-    yield* Effect.fail("Validation failed") // Missing return!
-    // Unreachable code after error!
+// Wrong: without `return`, TypeScript still thinks `input` may be undefined.
+const unchecked = Effect.gen(function* () {
+  if (input === undefined) {
+    yield* Effect.fail("Input is required") // Missing return!
   }
+
+  // @ts-expect-error 'input' is possibly 'undefined'
+  return input.length
 })
 ```
 
-## 🏗️ CORE DEVELOPMENT PATTERNS
+## Core development patterns
 
-### Effect.gen Composition Pattern
+### Sequential composition with `Effect.fn`
 
-Use `Effect.fn` for sequential operations with proper error propagation:
+Generator functions are always `Effect.fn` (traced) or `Effect.fnUntraced`.
 
-```typescript
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
+```ts
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import * as S from "effect/Schema"
+
+const decodeJson = S.decodeUnknownEffect(S.fromJsonString(S.Unknown))
+
 const processData = Effect.fn("processData")(function* (input: string) {
-    // Validate input
-    if (input.length === 0) {
-      return yield* Effect.fail("Input cannot be empty")
-    }
+  if (input.length === 0) {
+    return yield* Effect.fail("Input cannot be empty")
+  }
 
-    // Transform data
-    const processed = yield* Effect.try({
-      try: () => JSON.parse(input),
-      catch: (error) => `Invalid JSON: ${error}`
-    })
+  const processed = yield* decodeJson(input)
 
-    // Log progress
-    yield* Console.log(`Processed: ${JSON.stringify(processed)}`)
-
-    return processed
-  })
+  yield* Console.log("Processed input", processed)
+  return processed
+})
 ```
 
-### Effect.gen vs Effect.fn vs Effect.fnUntraced
-
-Choose the right function constructor based on your use case:
+### `Effect.gen` vs `Effect.fn` vs `Effect.fnUntraced`
 
 | Feature         | `Effect.gen`               | `Effect.fn`                    | `Effect.fnUntraced`            |
 |-----------------|----------------------------|--------------------------------|--------------------------------|
 | **Purpose**     | One-off effect composition | Reusable effectful functions   | Internal/performance-critical  |
 | **Returns**     | `Effect<A, E, R>`          | `(...args) => Effect<A, E, R>` | `(...args) => Effect<A, E, R>` |
 | **Tracing**     | Uses parent span           | Creates new span + stack trace | No tracing overhead            |
-| **Performance** | Standard                   | Overhead for tracing           | Minimal overhead               |
-| **Use case**    | Inline composition         | Public API methods             | Library internals              |
+| **Use case**    | Inline composition         | Public API and service methods | Internal helpers, hot paths    |
 
-#### Effect.gen - Inline Composition
+#### `Effect.gen`: inline composition
 
-Use for one-off effect composition that doesn't need to be reused as a function:
+```ts
+import * as Effect from "effect/Effect"
 
-```typescript
-import * as Effect from "effect/Effect";
-// One-off effect, no function wrapper needed
-const program = Effect.gen(function*() {
-  const user = yield* fetchUser(id)
+type User = { readonly id: string }
+declare const fetchUser: (id: string) => Effect.Effect<User>
+declare const fetchPosts: (userId: string) => Effect.Effect<ReadonlyArray<string>>
+
+const program = Effect.gen(function* () {
+  const user = yield* fetchUser("123")
   const posts = yield* fetchPosts(user.id)
   return { user, posts }
 })
 ```
 
-#### Effect.fn - Traced Reusable Functions (Public API)
+#### `Effect.fn`: traced reusable functions
 
-Use for reusable effectful functions that benefit from tracing and stack traces:
+```ts
+import * as Effect from "effect/Effect"
 
-```typescript
-import * as Effect from "effect/Effect";
-// Creates a traced function with span + stack capture
-const fetchUserPosts = Effect.fn("fetchUserPosts")(function*(userId: string) {
+type User = { readonly id: string }
+declare const fetchUser: (id: string) => Effect.Effect<User>
+declare const fetchPosts: (userId: string) => Effect.Effect<ReadonlyArray<string>>
+
+// Calling creates a span named "fetchUserPosts" with stack traces.
+const fetchUserPosts = Effect.fn("fetchUserPosts")(function* (userId: string) {
   yield* Effect.annotateCurrentSpan("userId", userId)
   const user = yield* fetchUser(userId)
   const posts = yield* fetchPosts(user.id)
   return { user, posts }
 })
 
-// Calling creates a span named "fetchUserPosts" with stack traces
-await Effect.runPromise(fetchUserPosts("123"))
+const program = fetchUserPosts("123")
 ```
 
-`Effect.fn` also supports piping transformations after the function body:
+`Effect.fn` also takes pipeable transformations after the function body. HTTP
+goes through `effect/http/HttpClient`, never native `fetch`, so the client is an
+explicit requirement:
 
-```typescript
+```ts
+import * as Effect from "effect/Effect"
+import * as HttpClient from "effect/http/HttpClient"
+
 const fetchWithTimeout = Effect.fn("fetchWithTimeout")(
-  function*(url: string) {
-    return yield* Effect.tryPromise(() => fetch(url))
+  function* (url: string) {
+    return yield* HttpClient.get(url)
   },
   Effect.timeout("5 seconds"),
   Effect.retry({ times: 3 })
 )
 ```
 
-#### Effect.fnUntraced - Untraced Functions (Library Internals)
+#### `Effect.fnUntraced`: untraced internal helpers
 
-Use for internal implementations where tracing overhead is unacceptable:
+```ts
+import * as Effect from "effect/Effect"
+import * as Scope from "effect/Scope"
 
-```typescript
-import * as Effect from "effect/Effect";
-import * as Scope from "effect/Scope";
-// No tracing overhead - used in Stream, Channel, Sink internals
-const internalTransform = Effect.fnUntraced(function*(pull, scope) {
-  const reader = options.evaluate().getReader()
+declare const openReader: () => { readonly releaseLock: () => void }
+
+// No span: a helper called many times per operation.
+const withReader = Effect.fnUntraced(function* (scope: Scope.Scope) {
+  const reader = openReader()
   yield* Scope.addFinalizer(scope, Effect.sync(() => reader.releaseLock()))
-  // ... internal implementation
+  return reader
 })
 ```
 
-#### When to Use What
+#### When to use what
 
-**Use `Effect.gen`** when:
+- **`Effect.gen`**: inline composition and one-off programs, or the body of a
+  function that is already traced.
+- **`Effect.fn`**: reusable effectful functions, public APIs and service
+  methods, and anything whose spans and stack traces help debugging.
+- **`Effect.fnUntraced`**: internal helpers on hot paths where a span per call
+  costs more than it tells.
 
-- Writing inline effect composition
-- One-off operations that don't need to be reused
-- Inside other functions already being traced
+### Typed errors with `S.TaggedError`
 
-**Use `Effect.fn`** when:
+Model failures as schema-backed tagged errors with an identity from the owning
+package's composer (`$I`).
 
-- Creating reusable effectful functions
-- Building public API methods
-- You want automatic tracing/spans for debugging
-- Error stack traces matter for users
+```ts
+import { $SchemaId } from "@beep/identity/packages"
+import * as Effect from "effect/Effect"
+import * as HttpClient from "effect/http/HttpClient"
+import * as S from "effect/Schema"
+import * as Str from "effect/String"
 
-**Use `Effect.fnUntraced`** when:
+// Use the composer of the package that owns the file.
+const $I = $SchemaId.create("relative/path/to/file")
 
-- Building internal library implementations
-- Performance is critical (hot paths)
-- Function is called many times per operation
-- Tracing overhead is unacceptable
-
-### Error Handling with S.TaggedError
-
-Create structured, typed errors using `S.TaggedError` from `effect/Schema`:
-
-```typescript
-import * as Effect from "effect/Effect";
-import { $SchemaId } from "@beep/identity";
-import * as Str from "effect/String";
-import * as S from "effect/Schema";
-
-const $I = $SchemaId.create("relative/path/to/file");
-
-// Define custom error types
 class ValidationError extends S.TaggedError<ValidationError>($I`ValidationError`)(
   "ValidationError",
   {
     field: S.String,
-    message: S.String
+    message: S.String,
   },
   $I.annoteError<ValidationError>("ValidationError", {
-    description: "a meaningful description of the error"
+    description: "A request field failed validation.",
   })
 ) {}
 
@@ -256,73 +256,64 @@ class NetworkError extends S.TaggedError<NetworkError>($I`NetworkError`)(
   "NetworkError",
   {
     status: S.Int,
-    url: S.String
+    url: S.String,
   },
   $I.annoteError<NetworkError>("NetworkError", {
-    description: "a meaningful description of the error"
+    description: "A network request failed.",
   })
 ) {}
 
-// Use in operations
-const validateAndFetch = 
-  Effect.fn("validateAndFetch")(function* (url: string) {
-    if (!Str.startsWith("https://")(url)) {
-      return yield* Effect.fail(
-        new ValidationError({
-          field: "url",
-          message: "URL must use HTTPS"
-        })
-      )
-    }
+const validateAndFetch = Effect.fn("validateAndFetch")(function* (url: string) {
+  if (!Str.startsWith("https://")(url)) {
+    return yield* new ValidationError({ field: "url", message: "URL must use HTTPS" })
+  }
 
-    const response = yield* Effect.tryPromise({
-      try: () => fetch(url),
-      catch: () => new NetworkError({status: 0, url})
-    })
+  const response = yield* HttpClient.get(url).pipe(Effect.mapError(() => new NetworkError({ status: 0, url })))
 
-    if (!response.ok) {
-      return yield* Effect.fail(
-        new NetworkError({
-          status: response.status,
-          url
-        })
-      )
-    }
+  if (response.status >= 400) {
+    return yield* new NetworkError({ status: response.status, url })
+  }
 
-    return response
-  })
+  return response
+})
 ```
 
-### Resource Management Pattern
+### Resource management
 
-Use `Effect.acquireUseRelease` for automatic resource cleanup:
+Pair every acquisition with its release through `Effect.acquireUseRelease` (or
+`Effect.acquireRelease` in a scope).
 
-```typescript
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
-// Resource acquisition pattern
-const withDatabase = <A, E>(
-  operation: (db: Database) => Effect.Effect<A, E, never>
-): Effect.Effect<A, E | DatabaseError, never> =>
+```ts
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import * as S from "effect/Schema"
+
+class DatabaseError extends S.TaggedError<DatabaseError>()("DatabaseError", { cause: S.Defect() }) {}
+class QueryError extends S.TaggedError<QueryError>()("QueryError", { query: S.String, cause: S.Defect() }) {}
+
+type User = { readonly name: string }
+type Database = {
+  readonly query: (sql: string, params: ReadonlyArray<string>) => Promise<User>
+  readonly close: () => Promise<void>
+}
+declare const createDatabaseConnection: () => Promise<Database>
+
+const withDatabase = <A, E>(operation: (db: Database) => Effect.Effect<A, E>): Effect.Effect<A, E | DatabaseError> =>
   Effect.acquireUseRelease(
-    // Acquire
     Effect.tryPromise({
       try: () => createDatabaseConnection(),
-      catch: (error) => new DatabaseError({ cause: error })
+      catch: (cause) => new DatabaseError({ cause }),
     }),
-    // Use
     operation,
-    // Release
     (db) => Effect.promise(() => db.close())
   )
 
-// Usage
 const queryUser = (id: string) =>
   withDatabase(
-    Effect.fn(function* (db) {
+    Effect.fnUntraced(function* (db: Database) {
       const user = yield* Effect.tryPromise({
         try: () => db.query("SELECT * FROM users WHERE id = ?", [id]),
-        catch: (error) => new QueryError({ query: "users", cause: error })
+        catch: (cause) => new QueryError({ query: "users", cause }),
       })
 
       yield* Console.log(`Found user: ${user.name}`)
@@ -331,254 +322,251 @@ const queryUser = (id: string) =>
   )
 ```
 
-### Layer Composition Pattern
+### Layer composition
 
-Build applications using layered architecture:
+Declare each dependency as a `Context.Service`, implement it as a layer, and
+compose the layers once at the entry point.
 
-```typescript
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import {$SomePackageId} from "@beep/identity/packages";
+```ts
+import { $SchemaId } from "@beep/identity/packages"
+import * as A from "effect/Array"
+import * as Context from "effect/Context"
+import * as Effect from "effect/Effect"
+import * as Layer from "effect/Layer"
+import * as S from "effect/Schema"
 
-const $I = $SomePackageId.create("relative/path/to/file");
+const $I = $SchemaId.create("relative/path/to/file")
 
-// Define service interfaces
-class DatabaseService extends Context.Service<DatabaseService, {
-  readonly query: (sql: string) => Effect.Effect<unknown[], DatabaseError, never>
-}>()($I`DatabaseService`) {
-}
+class DatabaseError extends S.TaggedError<DatabaseError>()("DatabaseError", { cause: S.Defect() }) {}
+class UserError extends S.TaggedError<UserError>()("UserError", { message: S.String }) {}
 
-class UserService extends Context.Service<UserService, {
-  readonly getUser: (id: string) => Effect.Effect<User, UserError, never>
-}>()($I`UserService`) {
-}
+class User extends S.Class<User>("User")({ id: S.String, name: S.String }) {}
 
-// Implement services as layers
+declare const database: { readonly execute: (sql: string) => Promise<ReadonlyArray<unknown>> }
+
+class DatabaseService extends Context.Service<
+  DatabaseService,
+  { readonly query: (sql: string) => Effect.Effect<ReadonlyArray<unknown>, DatabaseError> }
+>()($I`DatabaseService`) {}
+
+class UserService extends Context.Service<
+  UserService,
+  { readonly getUser: (id: string) => Effect.Effect<User, UserError | DatabaseError> }
+>()($I`UserService`) {}
+
 const DatabaseServiceLive = Layer.succeed(
   DatabaseService,
   DatabaseService.of({
-    query: (sql) => Effect.tryPromise({
-      try: () => database.execute(sql),
-      catch: (error) => new DatabaseError({cause: error})
-    })
+    query: (sql) =>
+      Effect.tryPromise({
+        try: () => database.execute(sql),
+        catch: (cause) => new DatabaseError({ cause }),
+      }),
   })
-);
+)
+
+const decodeUser = S.decodeUnknownEffect(User)
 
 const UserServiceLive = Layer.effect(
   UserService,
   Effect.gen(function* () {
-    const db = yield* DatabaseService;
+    const db = yield* DatabaseService
 
     return UserService.of({
-      getUser: Effect.fn(function* (id) {
-        const rows = yield* db.query(`SELECT * FROM users WHERE id = '${id}'`);
-        if (rows.length === 0) {
-          return yield* Effect.fail(new UserError({message: "User not found"}));
+      getUser: Effect.fn("UserService.getUser")(function* (id: string) {
+        const rows = yield* db.query(`SELECT * FROM users WHERE id = '${id}'`)
+        const row = A.head(rows)
+        if (row._tag === "None") {
+          return yield* new UserError({ message: "User not found" })
         }
-        return rows[0] as User;
-      })
-    });
+        return yield* decodeUser(row.value).pipe(Effect.mapError(() => new UserError({ message: "Malformed row" })))
+      }),
+    })
   })
-);
+)
 
-// Compose layers
-const AppLayer = UserServiceLive.pipe(Layer.provide(DatabaseServiceLive));
+const AppLayer = UserServiceLive.pipe(Layer.provide(DatabaseServiceLive))
 ```
 
-## 🔧 DEVELOPMENT WORKFLOW PATTERNS
+## Development workflow
 
-### Immediate Linting Pattern
-
-**MANDATORY**: Always lint TypeScript files immediately after editing:
+### Lint after every edit
 
 ```bash
-# After editing any TypeScript file
-biome check --write packages/<family>/<package>/src/ModifiedFile.ts
-
-# This ensures:
-# - Consistent code formatting
-# - Early detection of style issues
-# - Compliance with project standards
+# After editing a TypeScript file
+bunx biome check --write packages/<family>/<package>/src/ModifiedFile.ts
 ```
 
-### Validation Checkpoint Pattern
+### Validation checkpoint
 
-Run comprehensive validation after implementation:
+Run the owning package's gates before handing work back
+(`bun run beep quality package-verify <@beep/package>` runs the full set):
 
 ```bash
-# 1. Lint all modified files
-biome check --write packages/<family>/<package>/src/*.ts
+# 1. Lint the modified files
+bunx biome check --write packages/<family>/<package>/src/*.ts
 
-# 2. Validate JSDoc examples compile
-bun run docgen
+# 2. Validate JSDoc examples compile (bounded to the branch diff)
+bun run docgen:local
 
 # 3. Check types
-bun run check
+bun run --cwd packages/<family>/<package> check
 
-# 4. Run tests
-bun run test packages/<family>/<package>/test/ModifiedTest.ts
-
-# 5. Build project
-bun run build
+# 4. Run the affected tests
+bunx --bun vitest run packages/<family>/<package>/test/ModifiedTest.test.ts
 ```
 
-### Progressive Implementation Pattern
+### Progressive implementation
 
-Break complex features into validated increments:
+Break a feature into validated increments: schema first, then the service
+contract, then the implementation.
 
-```typescript
-import {$SomePackageId} from "@beep/identity/packages";
-import * as S from "effect/Schema";
+```ts
+import { $SchemaId } from "@beep/identity/packages"
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import * as S from "effect/Schema"
 
-const $I = $SomePackageId.create("relative/path/to/file");
+const $I = $SchemaId.create("relative/path/to/file")
 
-// Plain data: a branded Opaque over an annotated Struct.
-export class FeatureConfig extends S.Opaque<FeatureConfig, { readonly brand: unique symbol }>()(
+// Step 1: the data, as a branded Opaque over an annotated Struct.
+class FeatureConfig extends S.Opaque<FeatureConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     option1: S.String,
-    option2: S.Number
+    option2: S.Number,
   }).pipe(
     $I.annoteSchema("FeatureConfig", {
-      description: "Configuration for a feature"
+      description: "Configuration for a feature",
     })
   )
 ) {}
 
-// Step 1: Basic structure with effect/Schema
-
-// Step 2: Core implementation
+// Step 2: the core implementation.
 const createFeature = Effect.fn("createFeature")(function* (
   config: FeatureConfig // nominal through the brand; an unbranded schema class is only structural
 ) {
-  // Basic implementation
-  yield* Console.log("Feature created");
-  return {config};
-});
+  yield* Console.log("Feature created")
+  return { config }
+})
 
-// Step 3: Add error handling
-const createFeatureWithValidation = Effect.fn("createFeatureWithValidation")(function* (
-  config: FeatureConfig
-) {
+// Step 3: error handling.
+const createFeatureWithValidation = Effect.fn("createFeatureWithValidation")(function* (config: FeatureConfig) {
   if (config.option2 < 0) {
-    return yield* Effect.fail("Option2 must be positive");
+    return yield* Effect.fail("option2 must not be negative")
   }
 
-  const feature = yield* createFeature(config);
-  return feature;
-});
-
-// Step 4: Add comprehensive functionality
-// ... continue building incrementally
+  return yield* createFeature(config)
+})
 ```
 
-## 📚 INTEGRATION PATTERNS
+## Integration patterns
 
-### Module Export Pattern
+### Module export pattern
 
-Structure module exports for clarity and discoverability:
+Each exported symbol carries JSDoc with a titled, compilable example
+(`.patterns/jsdoc-documentation.md`), a category and a `@since` tag.
 
-````typescript
-// ModuleName.ts
+````ts
+import * as Effect from "effect/Effect"
+
 /**
- * @since 1.0.0
+ * A configured instance.
+ *
+ * @category models
+ * @since 0.0.0
  */
-
-// Internal implementations
-const internal = {
-  // Private helper functions
+export interface Instance<A> {
+  readonly config: A
 }
-
-// Public API exports
 
 /**
  * Creates a new instance with the given configuration.
  *
- * @example
- * ```typescript
- * import * as ModuleName from "effect/ModuleName"
+ * **Example** (Create an instance)
  *
- * const instance = ModuleName.create({ value: 42 })
+ * ```ts
+ * import * as Effect from "effect/Effect"
+ * import { create } from "@beep/demo/ModuleName"
+ *
+ * const program = Effect.map(create({ value: 42 }), (instance) => instance.config.value)
  * ```
  *
- * @since 1.0.0
- * @category Utility
+ * @category constructors
+ * @since 0.0.0
  */
-export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never, never> = (config) =>
-  Effect.succeed({ config })
+export const create = <A>(config: A): Effect.Effect<Instance<A>> => Effect.succeed({ config })
 
 /**
- * Transforms an instance using the provided function.
+ * Transforms an instance's configuration.
  *
- * @example
- * ```typescript
- * import * as ModuleName from "effect/ModuleName"
+ * **Example** (Double a value)
+ *
+ * ```ts
  * import * as Effect from "effect/Effect"
+ * import { create, map } from "@beep/demo/ModuleName"
  *
- * const program = Effect.gen(function*() {
- * 
- * 
- * 
- * })
+ * const program = Effect.flatMap(create(10), (instance) => map(instance, (value) => value * 2))
  * ```
  *
- * @since 1.0.0
- * @category Utility
+ * @category combinators
+ * @since 0.0.0
  */
-export const map: <A, B>(instance: Instance<A>, f: (a: A) => B) => Effect.Effect<Instance<B>, never, never> = (
-  instance,
-  f
-) => Effect.succeed({ config: f(instance.config) })
+export const map = <A, B>(instance: Instance<A>, f: (a: A) => B): Effect.Effect<Instance<B>> =>
+  Effect.succeed({ config: f(instance.config) })
 ````
 
-### Testing Integration Pattern
+### Testing integration
 
-Structure tests to validate all aspects of functionality:
+Test each export group with `@effect/vitest`; `.patterns/testing-patterns.md`
+has the full set of patterns.
 
-```typescript
+```ts
 import { assert, describe, it } from "@effect/vitest"
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Fiber from "effect/Fiber";
-import * as TestClock from "effect/testing/TestClock";
-import * as ModuleName from "../src/ModuleName.js"
+import * as Duration from "effect/Duration"
+import * as Effect from "effect/Effect"
+import * as Fiber from "effect/Fiber"
+import * as TestClock from "effect/testing/TestClock"
+
+const ModuleName = {
+  create: <A>(config: A) => Effect.succeed({ config }),
+  map: <A, B>(instance: { readonly config: A }, f: (a: A) => B) => Effect.succeed({ config: f(instance.config) }),
+  delayedOperation: (delay: Duration.Duration) => Effect.as(Effect.sleep(delay), "completed"),
+}
 
 describe("ModuleName", () => {
   describe("constructors", () => {
-    it.effect("create should initialize with config", 
-      Effect.fn(function*() {
+    it.effect("create initializes with the config", () =>
+      Effect.gen(function* () {
         const config = { value: 42 }
         const instance = yield* ModuleName.create(config)
 
         assert.deepStrictEqual(instance.config, config)
-      }))
+      })
+    )
   })
 
   describe("combinators", () => {
-    it.effect("map should transform instance", 
-      Effect.fn(function*() {
-        const instance = yield* ModuleName.create({ value: 10 })
-        const transformed = yield* ModuleName.map(instance, (x) => x * 2)
+    it.effect("map transforms the instance", () =>
+      Effect.gen(function* () {
+        const instance = yield* ModuleName.create(10)
+        const transformed = yield* ModuleName.map(instance, (value) => value * 2)
 
-        assert.strictEqual(transformed.config.value, 20)
-      }))
+        assert.strictEqual(transformed.config, 20)
+      })
+    )
   })
 
   describe("time-dependent operations", () => {
-    it.effect("should handle delays properly", 
-      Effect.fn(function*() {
-        const fiber = yield* Effect.forkChild(
-          ModuleName.delayedOperation(Duration.seconds(5))
-        )
+    it.effect("completes once the clock moves", () =>
+      Effect.gen(function* () {
+        const fiber = yield* Effect.forkChild(ModuleName.delayedOperation(Duration.seconds(5)))
 
-        // Use TestClock to advance time
         yield* TestClock.adjust(Duration.seconds(5))
 
         const result = yield* Fiber.join(fiber)
         assert.strictEqual(result, "completed")
-      }))
+      })
+    )
   })
 })
 ```
-
-This comprehensive set of patterns ensures consistent, high-quality development across the Effect library while maintaining type safety and functional programming principles.

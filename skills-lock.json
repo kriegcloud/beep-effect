@@ -15,7 +15,7 @@
         ".claude/skills/atom-reactivity-specialist",
         ".agents/skills/atom-reactivity-specialist"
       ],
-      "installedTreeHash": "ca8191d35199ca4e00f9d2047a85927470c6a5c8b85603fb1d97148f17bb8fe7"
+      "installedTreeHash": "bc40a308da203587a69b6cd9c3e03e1f0a7b58741f64e48cd8eeab7a3e5d7081"
     },
     "browser-qa-loop": {
       "_tag": "local",
@@ -47,7 +47,7 @@
         ".claude/skills/crispen",
         ".agents/skills/crispen"
       ],
-      "installedTreeHash": "35baa0a575b3c908ef2be1e7b450e7b730c0cbf4a999a4e058622c01ebc77c48"
+      "installedTreeHash": "5b05048be9f11ee394a494a5043abc70046c137ac37ee011b9ad793ca6825834"
     },
     "effect-first-development": {
       "_tag": "local",
@@ -55,7 +55,7 @@
         ".claude/skills/effect-first-development",
         ".agents/skills/effect-first-development"
       ],
-      "installedTreeHash": "cdf870cc849908503dfb245ca92e6d554ed9b2b30162e663e0e32690e1c684d2"
+      "installedTreeHash": "28b91d58a84c1e128ffca6d01a7119b7b03e3faef98ac72bfab4315f68c325d7"
     },
     "explore": {
       "_tag": "local",
@@ -155,7 +155,7 @@
         ".claude/skills/jsdoc-annotation-specialist",
         ".agents/skills/jsdoc-annotation-specialist"
       ],
-      "installedTreeHash": "8a07c8e251e0a1c69585bc5006ab65dad7e34c53b3fa97b8598b3b6248a60993"
+      "installedTreeHash": "40d11cf1b35866996aa4ca6b99fb70761e99cb5013b0eef3f37a64f235da50f6"
     },
     "motion-evidence-review": {
       "_tag": "local",
@@ -322,6 +322,14 @@
       ],
       "installedTreeHash": "1d392f0511cefce3b16c34a335b32607f9808e2b32e56b307fa8864e4a8a0720"
     },
+    "plasma-sensitive-entry": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/plasma-sensitive-entry",
+        ".agents/skills/plasma-sensitive-entry"
+      ],
+      "installedTreeHash": "1c9d7df41fcce35a9628c1849bc39312d9bb7ea70c9777aa5af9146ce233441a"
+    },
     "portless": {
       "_tag": "vendored",
       "sourceType": "github",
@@ -407,7 +415,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "9105e9975f8c04528e0e7d99d58e9c4918ff8cb775888a3b504408e52336032e"
+      "installedTreeHash": "215f35ce2014fe1d8d2734bbfdeab4b475397c930bff28bd5a1c8a94504d256f"
     },
     "shadcn": {
       "_tag": "vendored",
@@ -729,15 +737,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "0bd71a05776b7afb7bfe9ce86791cb8e69f2d419a93a402edccb18291f0be535"
-    },
-    "plasma-sensitive-entry": {
-      "_tag": "local",
-      "installedTargets": [
-        ".claude/skills/plasma-sensitive-entry",
-        ".agents/skills/plasma-sensitive-entry"
-      ],
-      "installedTreeHash": "1c9d7df41fcce35a9628c1849bc39312d9bb7ea70c9777aa5af9146ce233441a"
+      "installedTreeHash": "8ab174579cb447da58f9820659a4c69afdfba628ad54cb16028a8382f2de76d1"
     }
   }
 }

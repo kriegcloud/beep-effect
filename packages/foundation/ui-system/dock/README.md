@@ -15,6 +15,7 @@ The package may use the pure `@beep/pretext` root for title measurement contract
 ```ts
 import { GroupId, Panel, PanelId, PopulatedWorkspace, TabsNode, TextPanelView, validateWorkspace } from "@beep/dock"
 import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 const panel = Panel.make({
   id: PanelId.make("panel-one"),
   title: "Panel One",
@@ -25,7 +26,9 @@ const workspace = PopulatedWorkspace.make({
 })
 const validated = Effect.runSync(validateWorkspace(workspace))
 
-console.log(validated.root.groupId)
+if (validated.kind === "populated" && S.is(TabsNode)(validated.root)) {
+  console.log(validated.root.groupId)
+}
 ```
 
 ## Development

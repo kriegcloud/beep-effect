@@ -17,7 +17,9 @@
 
 ## 1) Client state (replaces useState)
 
-```ts
+```tsx
+import * as Atom from "effect/reactivity/Atom";
+import { useAtom } from "@effect/atom-react";
 // NEVER:
 // const [isOpen, setIsOpen] = React.useState(false)
 
@@ -32,7 +34,21 @@ function Panel() {
 
 ## 2) Server state (replaces useEffect + useState fetch)
 
-```ts
+```tsx
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as Atom from "effect/reactivity/Atom";
+import * as Effect from "effect/Effect";
+import * as Cause from "effect/Cause";
+import * as A from "effect/Array";
+import * as Context from "effect/Context";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import { useAtomValue } from "@effect/atom-react";
+type User = { readonly id: string; readonly name: string };
+class UserService extends Context.Service<UserService, { readonly list: Effect.Effect<ReadonlyArray<User>>; readonly getById: (id: string) => Effect.Effect<User> }>()($I`UserService`) {}
+declare const appRuntime: Atom.AtomRuntime<UserService>;
+declare const Spinner: () => React.ReactNode;
+declare const ErrorView: (props: { readonly cause: Cause.Cause<never> }) => React.ReactNode;
 // NEVER:
 // const [users, setUsers] = React.useState([])
 // React.useEffect(() => { fetch("/api/users").then(...).then(setUsers) }, [])
@@ -47,14 +63,24 @@ function UserList() {
   return AsyncResult.match(result, {
     onInitial: () => <Spinner />,
     onFailure: (r) => <ErrorView cause={r.cause} />,
-    onSuccess: (r) => <ul>{r.value.map(u => <li key={u.id}>{u.name}</li>)}</ul>
+    onSuccess: (r) => <ul>{A.map(r.value, u => <li key={u.id}>{u.name}</li>)}</ul>
   })
 }
 ```
 
 ## 3) Mutation with invalidation
 
-```ts
+```tsx
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as Atom from "effect/reactivity/Atom";
+import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import { useAtom } from "@effect/atom-react";
+type Todo = { readonly id: string; readonly title: string };
+class TodoService extends Context.Service<TodoService, { readonly list: Effect.Effect<ReadonlyArray<Todo>>; readonly create: (title: string) => Effect.Effect<Todo>; readonly toggle: (id: string) => Effect.Effect<ReadonlyArray<Todo>> }>()($I`TodoService`) {}
+declare const todoRuntime: Atom.AtomRuntime<TodoService>;
 // NEVER:
 // const handleCreate = React.useCallback(async () => {
 //   await fetch("/api/todos", { method: "POST", body: ... })
@@ -83,6 +109,12 @@ function CreateButton() {
 ## 4) Derived state (replaces useMemo)
 
 ```ts
+import * as Atom from "effect/reactivity/Atom";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as A from "effect/Array";
+declare const itemsAtom: Atom.Atom<AsyncResult.AsyncResult<ReadonlyArray<{ readonly active: boolean }>>>;
+declare const usersAtom: Atom.Atom<AsyncResult.AsyncResult<ReadonlyArray<string>>>;
+declare const postsAtom: Atom.Atom<AsyncResult.AsyncResult<ReadonlyArray<string>>>;
 // NEVER:
 // const filtered = React.useMemo(() => items.filter(i => i.active), [items])
 
@@ -108,6 +140,10 @@ const summaryAtom = Atom.readable((get) => {
 ## 5) Side-effect subscription (replaces useEffect)
 
 ```ts
+import * as Atom from "effect/reactivity/Atom";
+import { useAtomSubscribe } from "@effect/atom-react";
+const themeAtom = Atom.make("system");
+declare const document: { readonly body: { readonly classList: { readonly toggle: (token: string, force: boolean) => boolean } } };
 // NEVER:
 // React.useEffect(() => {
 //   if (theme === "dark") document.body.classList.add("dark")
@@ -126,6 +162,10 @@ function ThemeSync() {
 ## 6) Stale-while-revalidate
 
 ```ts
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Atom from "effect/reactivity/Atom";
+import * as Duration from "effect/Duration";
+declare const usersAtom: Atom.Atom<AsyncResult.AsyncResult<ReadonlyArray<string>>>;
 const cachedUsersAtom = Atom.swr(usersAtom, {
   staleTime: Duration.minutes(5),
   revalidateOnMount: true,
@@ -137,6 +177,14 @@ const cachedUsersAtom = Atom.swr(usersAtom, {
 ## 7) Debounced search
 
 ```ts
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as Context from "effect/Context";
+import * as Atom from "effect/reactivity/Atom";
+import * as Effect from "effect/Effect";
+import * as Duration from "effect/Duration";
+class SearchService extends Context.Service<SearchService, { readonly search: (query: string) => Effect.Effect<ReadonlyArray<string>> }>()($I`SearchService`) {}
+declare const appRuntime: Atom.AtomRuntime<SearchService>;
 const searchInputAtom = Atom.make("")
 const debouncedSearchAtom = Atom.debounce(searchInputAtom, Duration.millis(300))
 
@@ -150,6 +198,15 @@ const searchResultsAtom = appRuntime.atom((get) => {
 ## 8) Parameterized atoms (family)
 
 ```ts
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+import * as Atom from "effect/reactivity/Atom";
+import { useAtomValue } from "@effect/atom-react";
+type User = { readonly id: string; readonly name: string };
+class UserService extends Context.Service<UserService, { readonly list: Effect.Effect<ReadonlyArray<User>>; readonly getById: (id: string) => Effect.Effect<User> }>()($I`UserService`) {}
+declare const appRuntime: Atom.AtomRuntime<UserService>;
 const userByIdAtom = Atom.family((userId: string) =>
   appRuntime.atom(
     UserService.use((_) => _.getById(userId))
@@ -164,7 +221,18 @@ function UserCard({ userId }: { readonly userId: string }) {
 
 ## 9) Optimistic updates
 
-```ts
+```tsx
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+import * as Atom from "effect/reactivity/Atom";
+import { useAtom } from "@effect/atom-react";
+type Todo = { readonly id: string; readonly title: string };
+class TodoService extends Context.Service<TodoService, { readonly list: Effect.Effect<ReadonlyArray<Todo>>; readonly create: (title: string) => Effect.Effect<Todo>; readonly toggle: (id: string) => Effect.Effect<ReadonlyArray<Todo>> }>()($I`TodoService`) {}
+declare const todoRuntime: Atom.AtomRuntime<TodoService>;
+declare const todosAtom: Atom.Atom<ReadonlyArray<Todo>>;
 const optimisticTodos = Atom.optimistic(todosAtom)
 
 function TodoItem({ todo }: { readonly todo: Todo }) {
@@ -186,6 +254,14 @@ function TodoItem({ todo }: { readonly todo: Todo }) {
 ## 10) Reactivity keys with factory.withReactivity
 
 ```ts
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as Atom from "effect/reactivity/Atom";
+import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+type Todo = { readonly id: string; readonly title: string };
+class TodoService extends Context.Service<TodoService, { readonly list: Effect.Effect<ReadonlyArray<Todo>>; readonly create: (title: string) => Effect.Effect<Todo>; readonly toggle: (id: string) => Effect.Effect<ReadonlyArray<Todo>> }>()($I`TodoService`) {}
+declare const appRuntime: Atom.AtomRuntime<TodoService>;
 // Attach reactivity-based refresh to any atom
 const todosAtom = appRuntime.atom(
   TodoService.use((_) => _.list)

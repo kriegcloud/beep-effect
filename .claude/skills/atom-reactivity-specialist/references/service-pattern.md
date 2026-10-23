@@ -18,32 +18,74 @@ Every frontend feature follows this exact sequence.
 ## Step 1: Define the service
 
 ```ts
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
 import * as Context from "effect/Context";
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
 
 class TodoService extends Context.Service<TodoService, {
-  readonly list: Effect.Effect<ReadonlyArray<Todo>>
-  readonly create: (title: string) => Effect.Effect<Todo>
-}>()("app/TodoService") {}
+  readonly list: Effect.Effect<ReadonlyArray<Todo>, HttpClientError.HttpClientError | S.SchemaError>
+  readonly create: (title: string) => Effect.Effect<Todo, HttpClientError.HttpClientError | S.SchemaError>
+}>()($I`TodoService`) {}
 ```
 
 ## Step 2: Create the Layer
 
 ```ts
-const TodoServiceLive = Layer.succeed(TodoService, TodoService.of({
-  list: HttpClient.get("/api/todos").pipe(
+import { $SchemaId } from "@beep/identity/packages";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as Context from "effect/Context";
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+const $I = $SchemaId.create("examples");
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
+class TodoService extends Context.Service<TodoService, { readonly list: Effect.Effect<ReadonlyArray<Todo>, HttpClientError.HttpClientError | S.SchemaError>; readonly create: (title: string) => Effect.Effect<Todo, HttpClientError.HttpClientError | S.SchemaError> }>()($I`TodoService`) {}
+const TodoServiceLive = Layer.effect(TodoService, Effect.gen(function* () {
+  const client = yield* HttpClient.HttpClient
+  return TodoService.of({
+  list: client.get("/api/todos").pipe(
     Effect.flatMap(HttpClientResponse.schemaBodyJson(S.Array(Todo)))
   ),
-  create: (title) => HttpClient.post("/api/todos").pipe(
+  create: (title) => client.post("/api/todos").pipe(
     Effect.flatMap(HttpClientResponse.schemaBodyJson(Todo))
   )
+  })
 }))
 ```
 
 ## Step 3: Create the runtime
 
 ```ts
+import * as Atom from "effect/reactivity/Atom";
+import * as Layer from "effect/Layer";
+import { $SchemaId } from "@beep/identity/packages";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+const $I = $SchemaId.create("examples");
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
+class TodoService extends Context.Service<TodoService, {
+  readonly list: Effect.Effect<ReadonlyArray<Todo>, HttpClientError.HttpClientError | S.SchemaError>
+  readonly create: (title: string) => Effect.Effect<Todo, HttpClientError.HttpClientError | S.SchemaError>
+}>()($I`TodoService`) {}
+declare const TodoServiceLive: Layer.Layer<TodoService, never, HttpClient.HttpClient>;
+declare const LoggingLayer: Layer.Layer<never>;
+declare const TracingLayer: Layer.Layer<never>;
 const todoRuntime = Atom.runtime(
   TodoServiceLive.pipe(
+    Layer.provide(FetchHttpClient.layer),
     Layer.merge(LoggingLayer),
     Layer.merge(TracingLayer)
   )
@@ -53,16 +95,47 @@ const todoRuntime = Atom.runtime(
 Or with a shared factory:
 
 ```ts
+import * as Atom from "effect/reactivity/Atom";
+import * as Layer from "effect/Layer";
+import { $SchemaId } from "@beep/identity/packages";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+const $I = $SchemaId.create("examples");
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
+class TodoService extends Context.Service<TodoService, {
+  readonly list: Effect.Effect<ReadonlyArray<Todo>, HttpClientError.HttpClientError | S.SchemaError>
+  readonly create: (title: string) => Effect.Effect<Todo, HttpClientError.HttpClientError | S.SchemaError>
+}>()($I`TodoService`) {}
+declare const TodoServiceLive: Layer.Layer<TodoService, never, HttpClient.HttpClient>;
+declare const LoggingLayer: Layer.Layer<never>;
+class UserService extends Context.Service<UserService, { readonly currentUser: Effect.Effect<string> }>()($I`UserService`) {}
+declare const UserServiceLive: Layer.Layer<UserService, never, HttpClient.HttpClient>;
 const factory = Atom.context({ memoMap: Layer.makeMemoMapUnsafe() })
 factory.addGlobalLayer(LoggingLayer)
 
-const todoRuntime = factory(TodoServiceLive)
-const userRuntime = factory(UserServiceLive)
+const todoRuntime = factory(TodoServiceLive.pipe(Layer.provide(FetchHttpClient.layer)))
+const userRuntime = factory(UserServiceLive.pipe(Layer.provide(FetchHttpClient.layer)))
 ```
 
 ## Step 4: Create atoms
 
 ```ts
+import * as Atom from "effect/reactivity/Atom";
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import { $SchemaId } from "@beep/identity/packages";
+import * as Context from "effect/Context";
+import * as HttpClientError from "effect/http/HttpClientError";
+const $I = $SchemaId.create("examples");
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
+class TodoService extends Context.Service<TodoService, { readonly list: Effect.Effect<ReadonlyArray<Todo>, HttpClientError.HttpClientError | S.SchemaError>; readonly create: (title: string) => Effect.Effect<Todo, HttpClientError.HttpClientError | S.SchemaError> }>()($I`TodoService`) {}
+declare const todoRuntime: Atom.AtomRuntime<TodoService>;
 // Query: auto-fetches when runtime resolves
 const todosAtom = todoRuntime.atom(
   TodoService.use((_) => _.list)
@@ -78,6 +151,21 @@ const createTodoFn = todoRuntime.fn<string>()(
 ## Step 5: Use in React
 
 ```tsx
+import * as Atom from "effect/reactivity/Atom";
+import * as Cause from "effect/Cause";
+import * as A from "effect/Array";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import { useAtom } from "@effect/atom-react";
+import { useAtomValue } from "@effect/atom-react";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as S from "effect/Schema";
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
+type TodoError = HttpClientError.HttpClientError | S.SchemaError;
+declare const todosAtom: Atom.Atom<AsyncResult.AsyncResult<ReadonlyArray<Todo>, TodoError>>;
+declare const Spinner: () => React.ReactNode;
+declare const createTodoFn: Atom.AtomResultFn<string, Todo, TodoError>;
+declare const Error: (props: { readonly cause: Cause.Cause<TodoError> }) => React.ReactNode;
 function TodoList() {
   const result = useAtomValue(todosAtom)
   const [createResult, create] = useAtom(createTodoFn)
@@ -87,7 +175,7 @@ function TodoList() {
     onFailure: (r) => <Error cause={r.cause} />,
     onSuccess: (r) => (
       <ul>
-        {r.value.map(todo => <li key={todo.id}>{todo.title}</li>)}
+        {A.map(r.value, todo => <li key={todo.id}>{todo.title}</li>)}
         <button onClick={() => create("New todo")}>Add</button>
       </ul>
     )
@@ -98,12 +186,25 @@ function TodoList() {
 Or with Suspense:
 
 ```tsx
+import * as Atom from "effect/reactivity/Atom";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as A from "effect/Array";
+import { Suspense } from "react";
+import { useAtomSuspense } from "@effect/atom-react";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as S from "effect/Schema";
+const Todo = S.Struct({ id: S.String, title: S.String });
+type Todo = typeof Todo.Type;
+type TodoError = HttpClientError.HttpClientError | S.SchemaError;
+declare const todosAtom: Atom.Atom<AsyncResult.AsyncResult<ReadonlyArray<Todo>, TodoError>>;
+declare const Spinner: () => React.ReactNode;
+declare const ErrorBoundary: (props: { readonly children: React.ReactNode }) => React.ReactNode;
 function TodoList() {
   const result = useAtomSuspense(todosAtom)
   // result is guaranteed Success here
   return (
     <ul>
-      {result.value.map(todo => <li key={todo.id}>{todo.title}</li>)}
+      {A.map(result.value, todo => <li key={todo.id}>{todo.title}</li>)}
     </ul>
   )
 }
