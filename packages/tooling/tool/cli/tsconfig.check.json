@@ -111,6 +111,9 @@
       "path": "../../library/qa-capture/tsconfig.json"
     },
     {
+      "path": "../../library/repo-tsconfig/tsconfig.json"
+    },
+    {
       "path": "../../library/repo-utils/tsconfig.json"
     },
     {

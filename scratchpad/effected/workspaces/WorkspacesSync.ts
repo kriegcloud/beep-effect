@@ -10,7 +10,7 @@ import { dual } from "effect/Function";
 // operations (`node:fs` / `node:path` satisfy them one-liner each), so the kit
 // source never touches `node:*` and never assumes posix. Windows correctness is
 // the consumer passing a win32-appropriate `path` (`node:path` on Windows, or
-// `node:path/win32` explicitly) — the `TsconfigLoaderSync` convention.
+// `node:path/win32` explicitly) — the `@beep/repo-tsconfig` `TsconfigLoaderSync` convention.
 //
 // It does not keep a second pattern semantic: it compiles through the same
 // `GlobSet` and walks the same worklist as the Effect enumerator, so

@@ -52,14 +52,14 @@ bun add @beep/api-transport
 ```ts
 import * as Effect from "effect/Effect";
 import * as RateLimiter from "effect/persistence/RateLimiter"
-import { ApiAuth, makeApiTransport } from "@beep/api-transport"
+import { ApiAuth, ApiTransportOptions, makeApiTransport } from "@beep/api-transport"
 
 const program = Effect.gen(function* () {
-  const transport = yield* makeApiTransport({
+  const transport = yield* makeApiTransport(ApiTransportOptions.make({
     auth: ApiAuth.NoAuth(),
     key: "example",
     rateLimit: { limit: 1000, window: "1 hour" },
-  })
+  }))
   return transport.transformClient
 }).pipe(Effect.provide(RateLimiter.layerStoreMemory))
 

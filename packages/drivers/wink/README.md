@@ -29,7 +29,7 @@ AI-facing tools declare `AiToolError` as their failure schema with `failureMode:
 
 ```ts
 import * as Effect from "effect/Effect";
-import { tokenizeToDocument } from "@beep/nlp/Core"
+import { tokenizeToDocument } from "@beep/nlp-processing/Core/Tokenization"
 import { WinkLayerLive } from "@beep/wink"
 
 const document = await Effect.runPromise(

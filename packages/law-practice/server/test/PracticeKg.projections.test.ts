@@ -1809,13 +1809,15 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.layer(
+    // Tests run concurrently (`sequence.concurrent`), so each block below gets its own bundle,
+    // claims store and read-only reader: claims one block writes never reach another block's counts.
+    const claimsReaderLayer = (bundleName: string) =>
       Layer.unwrap(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const corpusRoot = yield* makeFixtureCorpus();
-          const bundleOut = path.join(corpusRoot, "bundle-concurrent-claims-readers");
+          const bundleOut = path.join(corpusRoot, bundleName);
           yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
           const inputs = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-concurrent-claims-" });
           const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
@@ -1857,9 +1859,9 @@ describe("practice KG projections", () => {
             Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
           );
         })
-      ),
-      { timeout: "120 seconds" }
-    )((it) => {
+      );
+
+    it.layer(claimsReaderLayer("bundle-concurrent-claims-readers"), { timeout: "120 seconds" })((it) => {
       it.effect(
         "resolves standalone claims while an independent cached read-only connection remains open",
         Effect.fnUntraced(function* () {
@@ -1877,7 +1879,9 @@ describe("practice KG projections", () => {
         }),
         { timeout: 120_000 }
       );
+    });
 
+    it.layer(claimsReaderLayer("bundle-shared-claims-reader"), { timeout: "120 seconds" })((it) => {
       it.effect(
         "resolves claims through a DuckDb connection the caller already holds",
         Effect.fnUntraced(function* () {

@@ -31,13 +31,13 @@ bun add @beep/pretext
 Consumers test DOM-free against the fixture layer:
 
 ```ts
-import { chromeLinuxArial16, lineCount, naturalWidth } from "@beep/pretext"
+import { chromeLinuxArial16, lineCount, naturalWidth, TextLayoutInput } from "@beep/pretext"
 import * as Effect from "effect/Effect"
 import * as O from "effect/Option"
 
 const metrics = Effect.runSync(chromeLinuxArial16).metrics
 const width = naturalWidth(metrics, "the dragon")                        // Option<number>
-const lines = lineCount(metrics, { text: "the dragon", maxWidth: 320 }) // Option<number>
+const lines = lineCount(metrics, TextLayoutInput.make({ text: "the dragon", maxWidth: 320 })) // Option<number>
 console.log(O.isSome(width), O.isSome(lines))
 ```
 
