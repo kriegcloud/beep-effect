@@ -4,6 +4,20 @@ Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
 decisions live in README.md → Port notes, not here.
 
+Upstream paths map onto this package as follows: `packages/lockfiles/` is
+`packages/foundation/modeling/lockfiles/`, `packages/lockfiles/src/` is `src/` here and
+`packages/lockfiles/__test__/` is `test/` here. The captures under `__test__/fixtures/` are at
+`test/fixtures/` with an inert `.fixture` suffix on every lockfile name, and the suites read them
+through `import.meta.glob` in `test/support/fixtures.ts`, so no test touches the filesystem.
+`@effected/lockfiles` is `@beep/lockfiles`; `@effected/jsonc`, `@effected/yaml`, `@effected/npm`
+and `@effected/semver` are `@beep/jsonc`, `@beep/yaml`, `@beep/npm-spec` and `@beep/semver`; its
+consumer `workspaces` is still the lab module `scratchpad/effected/workspaces`. Where the text
+names a class's shape, read README.md → Port notes: `ResolvedPackage`, `WorkspaceDependency` and
+`LockfileImporter` stay schema classes with instance members, and the other records are branded
+`S.Opaque` structs. The upstream `pnpm` commands below do not apply; run `bun run test` and
+`bun run check` in this directory, or `bun run beep quality package-verify @beep/lockfiles` from
+the repo root.
+
 ---
 <!-- packages/lockfiles/CLAUDE.md -->
 # @effected/lockfiles

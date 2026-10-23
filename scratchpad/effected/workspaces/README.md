@@ -561,6 +561,12 @@ A name miss in the derived `getPackage` fails with the service's own typed `Pack
 - scratchpad/effected/workspaces/internal/catalogs.ts:7 // be replaced or vendored, this is what changes.
 - scratchpad/effected/workspaces/testing.ts:9 * A separate subpath, never re-exported from `.`, so the main entry's
 
+### Promoted siblings
+
+`@effected/lockfiles` ships as `@beep/lockfiles` since wave 3-5 of `goals/effected-promotion`; the lab
+imports its leaves (`@beep/lockfiles/Lockfile`, `LockfileImporter`, …). Mentions of
+`@effected/lockfiles` in this README, KNOWLEDGE.md and the source comments are upstream text.
+
 ### Added exports
 
 | Export | Facets | Why |

@@ -1,20 +1,23 @@
-# lockfiles (lab port of @effected/lockfiles)
+# @beep/lockfiles
 
-Lockfile parsing for [Effect](https://effect.website) v4: bun (`bun.lock`), npm (`package-lock.json`), pnpm (`pnpm-lock.yaml`) and yarn Berry (`yarn.lock`) all normalized into one `Lockfile` schema model, plus pure integrity checking of that model against workspace manifests. Four formats, one model, no IO and no external runtime dependencies.
+Lockfile parsing for [Effect](https://effect.website) v4: bun (`bun.lock`), npm (`package-lock.json`), pnpm (`pnpm-lock.yaml`) and yarn Berry (`yarn.lock`) all normalized into one `Lockfile` schema model, plus pure integrity checking of that model against workspace manifests. Four formats, one model, no IO and no third-party runtime dependencies (the JSONC and YAML engines are `@beep/jsonc` and `@beep/yaml`).
 
-## Why @effected/lockfiles
+## Why this package
 
 Every package manager writes its lockfile in a different dialect — JSONC for bun, JSON for npm, YAML for pnpm and yarn — and each encodes packages, workspace edges and integrity data differently. Tooling that wants to answer "which version of `typescript` is resolved here" ends up with four code paths and four sets of bugs. This package normalizes all four into one model, so the question is asked once regardless of which package manager produced the file.
 
 Every entrypoint takes content as a **string**. The package performs no IO at all: reading files, finding workspace roots and detecting which package manager a repo uses belong to its consumers, and keeping them out means the parser is a pure function you can drive from a fixture, a network response or a git blob. Malformed input always exits through a typed error channel, never as a defect, and the two ways a lockfile can be unusable are distinct tags rather than one blurry `reason` string. Yarn support is Berry only, and that is enforced: classic v1 content fails typed instead of being mis-normalized into something that looks plausible.
 
-## Quick start
+## Usage
+
+### Parse, name and check
 
 ```ts
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { LockfileIntegrity, WorkspaceManifest } from "@beep/lockfiles/LockfileIntegrity";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
 
 const content = "lockfileVersion: '9.0'\nimporters:\n  packages/core: {}";
 const program = Effect.gen(function* () {
@@ -23,7 +26,7 @@ const program = Effect.gen(function* () {
 
   // pnpm workspace packages come back keyed by importer path; rewrite them
   // once you have read the manifests. Total and pure — no error channel.
-  const named = lockfile.withImporterNames(new Map([["packages/core", "@acme/core"]]));
+  const named = lockfile.withImporterNames(HashMap.make(["packages/core", "@acme/core"]));
 
   // Total lookups over the model.
   const versions = A.map(named.packagesNamed("typescript"), (p) => p.version);
@@ -39,7 +42,7 @@ const result = Effect.runSync(program);
 console.log(result.versions.length, result.workspaces, result.valid); // 0 1 true
 ```
 
-## Formats
+### Formats
 
 `format` is a literal, and `filenameFor` / `fromFilename` map between the literal and the file on disk so a consumer that detected a package manager never has to hard-code a filename.
 
@@ -50,7 +53,7 @@ console.log(result.versions.length, result.workspaces, result.valid); // 0 1 tru
 | `"pnpm"` | `pnpm-lock.yaml` | YAML | `lockfileVersion` 9+ — older fails typed. Catalogs preserved on `PnpmExtension`; see below |
 | `"yarn"` | `yarn.lock` | YAML | Berry only — classic v1 fails typed |
 
-### Supported lockfile versions
+#### Supported lockfile versions
 
 The gate is on the **lockfile format version**, which is the only version a lockfile records:
 
@@ -85,7 +88,7 @@ Older formats are rejected rather than parsed because they cannot answer the que
 
 **Tested against** pnpm 11.22.0, npm 11.19.0, bun 1.3.14 and yarn 4.9.1 — a separate claim from the gate, and deliberately so. A lockfile does not record which package manager wrote it, and the mapping is many-to-one (pnpm 9, 10 and 11 all write format `9.0`), so no manager-version requirement could be enforced here even in principle.
 
-## Errors
+### Errors
 
 `Lockfile.parse` is the only fallible entrypoint, and it fails two ways.
 
@@ -98,7 +101,7 @@ The framing error exists because `pnpm-lock.yaml` is a YAML **stream**, not a YA
 
 yarn defines no document framing at all, so multi-document `yarn.lock` content fails with `"unexpectedDocuments"` rather than being silently truncated to its first document. Where a format states no rule, this package refuses to guess.
 
-## Instances and resolution
+### Instances and resolution
 
 A row in `lockfile.packages` is one package **instance**, not one package. A dependency installed twice under different peers is two rows, and `instanceId` is that row's lockfile-native identity, carried verbatim. Treat it as **opaque**: look an id up in the model, never split or pattern-match one, because its spelling is the format's business and differs per manager.
 
@@ -133,30 +136,53 @@ console.log(O.getOrUndefined(react)?.version); // 18.3.1
 - `WorkspaceManifest` — the manifest input shape for integrity checking: a package name plus four optional dependency records. Deliberately a plain value rather than a strict manifest model, so consumers can derive it from anything.
 - `ResolvedPackage` — one package *instance*: name, version, optional integrity hash, workspace flag and relative path, dependency map, the peer declarations (`peerDependencies`, `peerDependenciesMeta`), the opaque `instanceId`, the `resolved` name-to-instance map and the `unresolvedEdges` the model could not name.
 - `isUnsupportedLockfileVersion` and the `UnsupportedLockfileVersion` type — the predicate that narrows a `LockfileParseError.cause` to a version-gate rejection, so "too old" and "malformed" are told apart on a tag rather than on prose.
-- `WorkspaceDependency` — a `from`/`to` edge between workspace packages, with `depType` spelled in `@effected/npm`'s `DependencyField` vocabulary and its declared constraint.
-- `PnpmExtension` and `BunExtension` — format-specific data such as pnpm catalogs and bun trusted dependencies, preserved on the model's optional `extension` field.
+- `WorkspaceDependency` — a `from`/`to` edge between workspace packages, with `depType` spelled in `@beep/npm-spec`'s `DependencyField` vocabulary and its declared constraint.
+- `PnpmExtension` (with `PnpmCatalogPin`) and `BunExtension` — format-specific data such as pnpm catalogs and bun trusted dependencies, preserved on the model's optional `extension` field.
+- `PnpmEnvLockfile` — the pnpm 11+ env preamble reader (pinned package manager and config dependencies).
+- `@beep/lockfiles/internal/*` — the per-format parsers and shared helpers, exported for tests and adopters (D-15); not a stable surface.
 
-## License
+## Development
 
-[MIT](LICENSE)
+```sh
+# from the repository root
+bun run beep quality package-verify @beep/lockfiles
 
+# from packages/foundation/modeling/lockfiles
+bun run test
+bun run check
+```
 
-## Port notes
+The suites read the frozen captures in `test/fixtures/` (each lockfile carries an inert `.fixture` suffix; `test/fixtures/README.md` records their provenance and `digests.json` their bytes) through `import.meta.glob`, so no test reads the filesystem or the repo's own lockfile. The live comparison against the repo's `bun.lock` and `bun pm ls --all` is an ops script outside the package: `bun goals/effected-promotion/ops/lockfiles-oracle.ts`. Parse and `withImporterNames` timings are `goals/effected-promotion/ops/lockfiles-bench.ts`.
+
+## Provenance
+
+Ported from upstream `@effected/lockfiles` (MIT, C. Spencer Beggs) through the effected port, which landed it in the scratchpad module `scratchpad/effected/lockfiles`. Wave 3-5 of `goals/effected-promotion` then promoted it into this package. The promotion moved the sources to `src/`, the tests to `test/` and the fixtures to `test/fixtures/`, and renamed the schema identities from `@beep/scratchpad/effected/lockfiles/<Name>` to `@beep/lockfiles/<Name>`. It also made the changes listed under Deviations. The lab review rounds and canon exceptions are archived under `goals/effected-promotion/history/`.
 
 ### Attribution
 
 - Upstream package: `@effected/lockfiles` 0.15.0
-- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
-- License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
+- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (`~/YeeBois/references/effect/effected`)
+- License: [LICENSE](./LICENSE) (MIT; beep-effect and upstream notices)
 - Vendored-engine notices: none found in source headers.
 
 ### Added exports
 
-None.
+- `PnpmCatalogPin`: the named catalog-entry schema behind `PnpmExtension.catalogs`, added in the promotion so the record is a branded `S.Opaque` value.
+- `ResolvedPackage#withName`, `WorkspaceDependency#withEndpoints`, `LockfileImporter#dependency`: instance members added in the promotion (see Deviations).
 
 ### Deviations
 
-One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
+One entry per class of change (law- or ruling-forced) and one per behavioural divergence. The lab ledger rows hold the full upstream and port behaviour for the port-era entries.
+
+Promotion (wave 3-5):
+
+- **schema-first** — the plain-data records are branded `S.Opaque` structs built with `X.make`, which copies its input: compare them structurally, never with `===`. That covers `ImporterDependency`, `PackageManagerLock`, `ConfigDependencyLock`, `WorkspaceManifest`, `BunExtension`, `PnpmExtension`, `PnpmCatalogPin`, `LockfileIntegrity` (which keeps its static `compare`) and the internal records. A rewritten lockfile's `extension` is therefore deep-equal to the receiver's, not identical (`Lockfile.coverage.test.ts`), and the env reader's records are checked with `S.is` (`PnpmEnvLockfile.test.ts`).
+- **performance** — `ResolvedPackage`, `WorkspaceDependency` and `LockfileImporter` stay `S.Class`. Made Opaque, they cost `withImporterNames` +889% on the repo's `bun.lock` (0.96 ms to 8.2 ms), because the one `Lockfile.make` then re-validates every package structurally where a class schema checks `instanceof`. Their behaviour moved onto them as instance members (`withName`, `withEndpoints`, `dependency`). Each `parse` and each `withImporterNames` admits the lockfile through exactly one `Lockfile.make`; `Lockfile` keeps its three lazy indexes.
+- **effect-string** — string, array and record operations go through `effect/String`, `effect/Array` and `effect/Record`; key splitting shares named helpers in `internal/shared.ts`, and the four `toFields` parsers are decomposed under the complexity ceiling.
+- **option-returns** — internal helpers return `Option` instead of `null`/`undefined`: `splitNameVersion`, `toIntegrityHash` (an `Effect` of `Option`), `readPnpmPackageManager` and the yarn and pnpm path helpers.
+- **test-environment** — the fixtures are read through `import.meta.glob` (`?raw`, eager), and the digest guard hashes with `JsoncFingerprint.hashText` on a WebCrypto `Crypto` layer, so no test imports `node:fs` or `node:crypto` and the four archived EV010 exceptions are cleared.
+
+Carried from the port:
 
 - **native-runtime** — Lab uses Effect collections and Record/Array helpers for parser indexes and edges, and returns HashMap with Option lookup and unspecified iteration order for config dependencies where upstream returns a native Map. (packages/foundation/modeling/lockfiles/test/PnpmEnvLockfile.test.ts:340,457; Lockfile.test.ts instance identity and resolved edges; hostile.test.ts hostile keys; LockfileIntegrity.test.ts)
 - **tagged-errors** — Lab represents unaccounted pnpm preamble causes as PnpmEnvPreambleError with a schema tag where upstream uses native Error, preserving validation stage and message text. (packages/foundation/modeling/lockfiles/test/PnpmEnvLockfile.test.ts:213,230,237,409,416,420)
@@ -179,3 +205,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 ### Dependency backlog
 
 None.
+
+## License
+
+[MIT](LICENSE)
