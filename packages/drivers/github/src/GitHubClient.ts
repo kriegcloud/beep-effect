@@ -210,7 +210,7 @@ export interface GitHubClientShape {
 export class GitHubClientOptions extends S.Opaque<GitHubClientOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** A GitHub Enterprise API root, e.g. `https://github.acme.com/api/v3`. */
-    baseUrl: S.optional(S.String).pipe(
+    baseUrl: S.optionalKey(S.String).pipe(
       $I.annoteKey("GitHubClientOptions.baseUrl", {
         description: "A GitHub Enterprise API root, e.g. `https://github.acme.com/api/v3`.",
       })
@@ -225,11 +225,11 @@ export class GitHubClientOptions extends S.Opaque<GitHubClientOptions, { readonl
      * pagination all exercised against canned HTTP responses instead of against
      * a hand-written double of this service.
      */
-    fetch: S.optional(FetchFunction).pipe(
+    fetch: S.optionalKey(FetchFunction).pipe(
       $I.annoteKey("GitHubClientOptions.fetch", { description: "A replacement for the global `fetch`." })
     ),
     /** Retry behavior. Defaults to {@link RetryPolicy.default}; `"off"` disables it. */
-    retry: S.optional(S.Union([RetryPolicySchema, S.Literal("off")])).pipe(
+    retry: S.optionalKey(S.Union([RetryPolicySchema, S.Literal("off")])).pipe(
       $I.annoteKey("GitHubClientOptions.retry", {
         description: 'Retry behavior. Defaults to RetryPolicy.default; "off" disables it.',
       })
@@ -239,7 +239,7 @@ export class GitHubClientOptions extends S.Opaque<GitHubClientOptions, { readonl
       $I.annoteKey("GitHubClientOptions.token", { description: "The token every request authenticates with." })
     ),
     /** Appended to octokit's own user agent. */
-    userAgent: S.optional(S.String).pipe(
+    userAgent: S.optionalKey(S.String).pipe(
       $I.annoteKey("GitHubClientOptions.userAgent", { description: "Appended to octokit's own user agent." })
     ),
   }).pipe($I.annoteSchema("GitHubClientOptions", { description: "How a GitHub client layer is built." }))
@@ -357,7 +357,7 @@ const UnstubbedPolicy = LiteralKit(["die", "fail", "empty"]).pipe(
 export class GitHubFixtures extends S.Opaque<GitHubFixtures, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Keyed by document name; the value is the raw payload to decode. */
-    graphql: S.optional(S.Record(S.String, S.Unknown)).pipe(
+    graphql: S.optionalKey(S.Record(S.String, S.Unknown)).pipe(
       $I.annoteKey("GitHubFixtures.graphql", {
         description: "Keyed by document name; the value is the raw payload to decode.",
       })
@@ -366,13 +366,13 @@ export class GitHubFixtures extends S.Opaque<GitHubFixtures, { readonly brand: u
      * Keyed by route; each success contains the whole collection, paged on demand, or a
      * `Result.fail(GitHubError)` the paginated read fails with.
      */
-    paginate: S.optional(PaginateFixturesSchema).pipe(
+    paginate: S.optionalKey(PaginateFixturesSchema).pipe(
       $I.annoteKey("GitHubFixtures.paginate", {
         description: "Keyed by route; each entry is the whole collection or the failure the read fails with.",
       })
     ),
     /** What `rateLimit` answers. */
-    rateLimit: S.optional(RateLimitSnapshotValue).pipe(
+    rateLimit: S.optionalKey(RateLimitSnapshotValue).pipe(
       $I.annoteKey("GitHubFixtures.rateLimit", { description: "What `rateLimit` answers." })
     ),
     /**
@@ -385,13 +385,13 @@ export class GitHubFixtures extends S.Opaque<GitHubFixtures, { readonly brand: u
      * rather than relying on a route's absence to produce one — absence is a
      * wiring mistake and `unstubbed` treats it as such.
      */
-    request: S.optional(RequestFixturesSchema).pipe(
+    request: S.optionalKey(RequestFixturesSchema).pipe(
       $I.annoteKey("GitHubFixtures.request", {
         description: "Keyed by route; each entry is the route's complete data payload or the failure it answers.",
       })
     ),
     /** Raw responses for schema-decoded routes, keyed by route. */
-    requestDecoded: S.optional(S.Record(S.String, S.Unknown)).pipe(
+    requestDecoded: S.optionalKey(S.Record(S.String, S.Unknown)).pipe(
       $I.annoteKey("GitHubFixtures.requestDecoded", {
         description: "Raw responses for schema-decoded routes, keyed by route.",
       })
@@ -407,7 +407,7 @@ export class GitHubFixtures extends S.Opaque<GitHubFixtures, { readonly brand: u
      * method sent the right `owner`/`repo`/body rather than only the right
      * route. `graphql` records the document name as `route`.
      */
-    requested: S.optional(RecordedCalls).pipe(
+    requested: S.optionalKey(RecordedCalls).pipe(
       $I.annoteKey("GitHubFixtures.requested", {
         description: "Every call the fixture served, in order. Populated as the test runs.",
       })
@@ -439,7 +439,7 @@ export class GitHubFixtures extends S.Opaque<GitHubFixtures, { readonly brand: u
      * `graphql` ignores this and always dies: its payload is decoded against the
      * document's schema, so there is no empty value that would satisfy it.
      */
-    unstubbed: S.optional(UnstubbedPolicy).pipe(
+    unstubbed: S.optionalKey(UnstubbedPolicy).pipe(
       $I.annoteKey("GitHubFixtures.unstubbed", {
         description: 'What a route with no fixture entry does. Defaults to "die".',
       })

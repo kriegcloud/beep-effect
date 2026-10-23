@@ -51,8 +51,8 @@ const PositiveDollars = S.Finite.check(S.isGreaterThan(0)).pipe(
 export class AccountCostControlsConfig extends S.Opaque<AccountCostControlsConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     expectedAccountId: AccountId,
-    monthlyBudgetUsd: PositiveDollars.pipe(S.withDecodingDefault(Effect.succeed(500))),
-    anomalyImpactUsd: PositiveDollars.pipe(S.withDecodingDefault(Effect.succeed(10))),
+    monthlyBudgetUsd: PositiveDollars.pipe(S.withDecodingDefaultKey(Effect.succeed(500))),
+    anomalyImpactUsd: PositiveDollars.pipe(S.withDecodingDefaultKey(Effect.succeed(10))),
   }).pipe(
     $I.annoteSchema("AccountCostControlsConfig", {
       description: "Account-scoped cost controls that never stop or resize workloads.",

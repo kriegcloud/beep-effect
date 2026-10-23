@@ -53,30 +53,36 @@ class EffectImportsCommandOptions extends S.Opaque<EffectImportsCommandOptions, 
   S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     candidate: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     mode: EffectImportCorpusMode.pipe(
       S.withConstructorDefault(Effect.succeed("code" as const)),
-      S.withDecodingDefault(Effect.succeed("code" as const))
+      S.withDecodingDefaultKey(Effect.succeed("code" as const))
     ),
     enforceDocumentation: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    json: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
+    json: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+    include: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("*")),
+      S.withDecodingDefaultKey(Effect.succeed("*"))
+    ),
     includePrefix: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
   }).pipe(
     $I.annoteSchema("EffectImportsCommandOptions", {
@@ -101,17 +107,20 @@ class TerseEffectCommandOptions extends S.Opaque<TerseEffectCommandOptions, { re
   S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+    include: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("*")),
+      S.withDecodingDefaultKey(Effect.succeed("*"))
+    ),
     advisory: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
   }).pipe(
     $I.annoteSchema("TerseEffectCommandOptions", {
@@ -136,10 +145,13 @@ class EffectFnCommandOptions extends S.Opaque<EffectFnCommandOptions, { readonly
   S.Struct({
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+    include: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("*")),
+      S.withDecodingDefaultKey(Effect.succeed("*"))
+    ),
   }).pipe(
     $I.annoteSchema("EffectFnCommandOptions", {
       description: "CLI options for the Effect.fn supplemental law.",
@@ -163,10 +175,13 @@ class FrozenGrantSetCommandOptions extends S.Opaque<FrozenGrantSetCommandOptions
   S.Struct({
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+    include: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("*")),
+      S.withDecodingDefaultKey(Effect.succeed("*"))
+    ),
   }).pipe(
     $I.annoteSchema("FrozenGrantSetCommandOptions", {
       description: "CLI options for the FrozenGrantSet construction law.",
@@ -193,13 +208,16 @@ class NoNativeRuntimeCommandOptions extends S.Opaque<
   S.Struct({
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+    include: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("*")),
+      S.withDecodingDefaultKey(Effect.succeed("*"))
+    ),
     includePrefix: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
   }).pipe(
     $I.annoteSchema("NoNativeRuntimeCommandOptions", {

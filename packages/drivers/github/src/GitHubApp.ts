@@ -227,13 +227,13 @@ export class TokenRequest extends S.Opaque<TokenRequest, { readonly brand: uniqu
   S.Struct({
     ...AppCredentialsFields,
     /** The installation. Discovered from `owner` when omitted. */
-    installationId: S.optional(S.Int).pipe(
+    installationId: S.optionalKey(S.Int).pipe(
       $I.annoteKey("TokenRequest.installationId", {
         description: "The installation. Discovered from `owner` when omitted.",
       })
     ),
     /** The account whose installation to use, when `installationId` is omitted. */
-    owner: S.optional(S.String).pipe(
+    owner: S.optionalKey(S.String).pipe(
       $I.annoteKey("TokenRequest.owner", {
         description: "The account whose installation to use, when `installationId` is omitted.",
       })
@@ -607,19 +607,19 @@ export class Installation extends S.Opaque<Installation, { readonly brand: uniqu
 export class GitHubAppOptions extends S.Opaque<GitHubAppOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** A GitHub Enterprise API root. */
-    baseUrl: S.optional(S.String).pipe(
+    baseUrl: S.optionalKey(S.String).pipe(
       $I.annoteKey("GitHubAppOptions.baseUrl", { description: "A GitHub Enterprise API root." })
     ),
     /** A replacement `fetch`, for tests and proxies. */
-    fetch: S.optional(FetchFunction).pipe(
+    fetch: S.optionalKey(FetchFunction).pipe(
       $I.annoteKey("GitHubAppOptions.fetch", { description: "A replacement `fetch`, for tests and proxies." })
     ),
     /** Retry behavior for the app's own calls. */
-    retry: S.optional(S.Union([RetryPolicySchema, S.Literal("off")])).pipe(
+    retry: S.optionalKey(S.Union([RetryPolicySchema, S.Literal("off")])).pipe(
       $I.annoteKey("GitHubAppOptions.retry", { description: "Retry behavior for the app's own calls." })
     ),
     /** Appended to octokit's user agent. */
-    userAgent: S.optional(S.String).pipe(
+    userAgent: S.optionalKey(S.String).pipe(
       $I.annoteKey("GitHubAppOptions.userAgent", { description: "Appended to octokit's user agent." })
     ),
   }).pipe($I.annoteSchema("GitHubAppOptions", { description: "Transport settings for the app's own API calls." }))
@@ -1075,10 +1075,10 @@ const appFailure = (kind: GitHubAppError["kind"]) => (error: GitHubError) =>
 // Selected wire fields are decoded before projection; unrelated response fields stay ignored.
 const InstallationResponse = S.Struct({
   id: S.Union([S.Finite, S.BigInt]),
-  account: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optional),
+  account: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optionalKey),
 }).pipe($I.annoteSchema("InstallationResponse", { description: "Selected GitHub installation fields." }));
 const IdentityResponse = S.Struct({
-  slug: S.String.pipe(S.NullOr, S.optional),
+  slug: S.String.pipe(S.NullOr, S.optionalKey),
   name: S.String,
 }).pipe($I.annoteSchema("IdentityResponse", { description: "Selected GitHub App identity fields." }));
 const BotResponse = S.Struct({ id: S.Union([S.Finite, S.BigInt]) }).pipe(

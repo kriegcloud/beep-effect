@@ -21,7 +21,7 @@ const $I = $SchemaId.create("FileDiff.schema");
 // `S.optional` admits `undefined` on the wire).
 const optionalUndefined = <const Schema extends S.Top>(schema: Schema) =>
   S.optionalKey(schema).pipe(
-    S.decodeTo(schema.pipe(S.optional, S.toType), {
+    S.decodeTo(schema.pipe(S.optionalKey, S.toType), {
       decode: SchemaGetter.passthrough({ strict: false }),
       encode: SchemaGetter.transformOptional(O.filter(P.isNotUndefined)),
     })

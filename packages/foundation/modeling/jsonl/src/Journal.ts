@@ -359,14 +359,14 @@ const DurationNumber = S.declare(P.isNumber).pipe(
 
 /** The object member of `Duration.Input`; every component is optional and additive. */
 const DurationObject = S.Struct({
-  weeks: S.optional(DurationNumber),
-  days: S.optional(DurationNumber),
-  hours: S.optional(DurationNumber),
-  minutes: S.optional(DurationNumber),
-  seconds: S.optional(DurationNumber),
-  milliseconds: S.optional(DurationNumber),
-  microseconds: S.optional(DurationNumber),
-  nanoseconds: S.optional(DurationNumber),
+  weeks: S.optionalKey(DurationNumber),
+  days: S.optionalKey(DurationNumber),
+  hours: S.optionalKey(DurationNumber),
+  minutes: S.optionalKey(DurationNumber),
+  seconds: S.optionalKey(DurationNumber),
+  milliseconds: S.optionalKey(DurationNumber),
+  microseconds: S.optionalKey(DurationNumber),
+  nanoseconds: S.optionalKey(DurationNumber),
 }).pipe(
   $I.annoteSchema("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
 );
@@ -444,11 +444,11 @@ export class JournalConfig extends S.Opaque<JournalConfig, { readonly brand: uni
     /** Journal path; construction permits a missing file. */
     path: S.String,
     /** Directory to watch until creation; defaults to the parent of path. */
-    directory: S.optional(S.String),
+    directory: S.optionalKey(S.String),
     /** Backpressured subscriber capacity; defaults to 64. */
-    capacity: S.optional(Capacity),
+    capacity: S.optionalKey(Capacity),
     /** Bound on graceful shutdown publication, as any Duration.Input; defaults to five seconds. */
-    shutdownPublishTimeout: S.optional(DurationInput),
+    shutdownPublishTimeout: S.optionalKey(DurationInput),
   }).pipe($I.annoteSchema("JournalConfig", { description: "File and subscription settings for one journal layer." }))
 ) {}
 
@@ -467,7 +467,7 @@ const SHUTDOWN_PUBLISH_TIMEOUT = Duration.seconds(5);
 // default, and the shutdown bound becomes a Duration.
 const JournalSettings = S.Struct({
   ...JournalConfig.fields,
-  capacity: Capacity.pipe(S.withDecodingDefault(Effect.succeed(64))),
+  capacity: Capacity.pipe(S.withDecodingDefaultKey(Effect.succeed(64))),
   shutdownPublishTimeout: DurationFromInput.pipe(S.withDecodingDefaultType(Effect.succeed(SHUTDOWN_PUBLISH_TIMEOUT))),
 }).pipe(
   $I.annoteSchema("JournalSettings", {

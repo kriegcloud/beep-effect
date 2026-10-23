@@ -149,7 +149,7 @@ export const ExtractOptions = S.Struct({
   * is last inside the cluster; a custom set like `["xz", "--strip=1", "-f"]`
   * must end the same way, deliberately rather than by ordering luck.
   */
-	flags: S.String.pipe(S.Array, S.optional, $I.annoteKey("ExtractOptions.flags", { description: "Custom tar flags in argv order; omission retains the extraction default." })),
+	flags: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("ExtractOptions.flags", { description: "Custom tar flags in argv order; omission retains the extraction default." })),
 }).pipe($I.annoteSchema("ExtractOptions", { description: "Structural archive extraction options, preserving absent and explicit undefined fields." }));
 
 /**

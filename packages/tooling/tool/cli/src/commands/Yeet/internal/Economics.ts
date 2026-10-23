@@ -196,7 +196,7 @@ class EconomicsVerdictRow extends S.Opaque<EconomicsVerdictRow, { readonly brand
     createdAt: LenientString,
     elapsedMs: S.OptionFromOptionalNullOr(S.Finite),
     lanes: S.Array(EconomicsVerdictLaneRow).pipe(
-      S.withDecodingDefault(Effect.succeed(A.empty<typeof EconomicsVerdictLaneRow.Encoded>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<typeof EconomicsVerdictLaneRow.Encoded>()))
     ),
   }).pipe(
     $I.annoteSchema("EconomicsVerdictRow", {

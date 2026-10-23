@@ -270,7 +270,7 @@ const admissionOwnerFields = {
   branch: S.String,
   coordinationProtocol: AdmissionCoordinationProtocol.pipe(
     S.withConstructorDefault(Effect.succeed(AdmissionCoordinationProtocol.Enum["scheduler-origin-concurrency/v1"])),
-    S.withDecodingDefault(Effect.succeed(AdmissionCoordinationProtocol.Enum["legacy-origin-lock/v1"]))
+    S.withDecodingDefaultKey(Effect.succeed(AdmissionCoordinationProtocol.Enum["legacy-origin-lock/v1"]))
   ),
 };
 
@@ -322,12 +322,12 @@ export class YeetAdmissionLease extends S.Opaque<YeetAdmissionLease, { readonly 
     heartbeatAtMillis: S.Finite,
     enqueuedAtMillis: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
-    nonce: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    nonce: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
     hotPaths: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     runScope: S.optionalKey(RunScopeRecord),
   }).pipe(
@@ -388,7 +388,7 @@ export class YeetAdmissionTicket extends S.Opaque<YeetAdmissionTicket, { readonl
     heartbeatAtMillis: S.Finite,
     blockedOnOriginAtMillis: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     nonce: S.String,
   }).pipe(

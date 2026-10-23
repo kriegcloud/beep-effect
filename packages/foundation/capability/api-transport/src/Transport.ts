@@ -212,14 +212,14 @@ const ApiTransportDurationNumber = S.declare<number>(
 );
 
 const ApiTransportDurationObject = S.Struct({
-  weeks: S.optional(ApiTransportDurationNumber),
-  days: S.optional(ApiTransportDurationNumber),
-  hours: S.optional(ApiTransportDurationNumber),
-  minutes: S.optional(ApiTransportDurationNumber),
-  seconds: S.optional(ApiTransportDurationNumber),
-  milliseconds: S.optional(ApiTransportDurationNumber),
-  microseconds: S.optional(ApiTransportDurationNumber),
-  nanoseconds: S.optional(ApiTransportDurationNumber),
+  weeks: S.optionalKey(ApiTransportDurationNumber),
+  days: S.optionalKey(ApiTransportDurationNumber),
+  hours: S.optionalKey(ApiTransportDurationNumber),
+  minutes: S.optionalKey(ApiTransportDurationNumber),
+  seconds: S.optionalKey(ApiTransportDurationNumber),
+  milliseconds: S.optionalKey(ApiTransportDurationNumber),
+  microseconds: S.optionalKey(ApiTransportDurationNumber),
+  nanoseconds: S.optionalKey(ApiTransportDurationNumber),
 });
 
 type ApiTransportDurationString = Extract<Duration.Input, string>;
@@ -301,12 +301,12 @@ export class ApiTransportOptions extends S.Opaque<ApiTransportOptions, { readonl
         })
       ),
     }),
-    retryBaseDelay: S.optional(ApiTransportDurationInput).pipe(
+    retryBaseDelay: S.optionalKey(ApiTransportDurationInput).pipe(
       $I.annoteKey("ApiTransportOptions.retryBaseDelay", {
         description: "Optional base delay for the jittered exponential retry schedule.",
       })
     ),
-    retryTimes: S.optional(ApiTransportDurationNumber).pipe(
+    retryTimes: S.optionalKey(ApiTransportDurationNumber).pipe(
       $I.annoteKey("ApiTransportOptions.retryTimes", {
         description: "Optional maximum number of transient transport retries.",
       })

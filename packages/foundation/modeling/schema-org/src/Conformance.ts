@@ -524,7 +524,7 @@ export class ConformanceOptions extends S.Opaque<ConformanceOptions, { readonly 
      * term in their graph and wants an invented one to break the build.
      */
     unknownTerms: UnknownTermPolicy.pipe(
-      S.withDecodingDefault(Effect.succeed(defaultUnknownTermPolicy)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultUnknownTermPolicy)),
       $I.annoteKey("ConformanceOptions.unknownTerms", { description: "Unknown-term gate policy; defaults to report." })
     ),
     /**
@@ -532,7 +532,7 @@ export class ConformanceOptions extends S.Opaque<ConformanceOptions, { readonly 
      * {@link DeprecatedProperty} out of the gate; `"report"` makes them fail it.
      */
     deprecations: DeprecationPolicy.pipe(
-      S.withDecodingDefault(Effect.succeed(defaultDeprecationPolicy)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultDeprecationPolicy)),
       $I.annoteKey("ConformanceOptions.deprecations", { description: "Deprecation gate policy; defaults to ignore." })
     ),
     /**
@@ -541,7 +541,7 @@ export class ConformanceOptions extends S.Opaque<ConformanceOptions, { readonly 
      * is meant to be closed wants.
      */
     danglingReferences: DanglingReferencePolicy.pipe(
-      S.withDecodingDefault(Effect.succeed(defaultDanglingReferencePolicy)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultDanglingReferencePolicy)),
       $I.annoteKey("ConformanceOptions.danglingReferences", {
         description: "Graph-closure gate policy; defaults to ignore.",
       })

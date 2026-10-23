@@ -52,7 +52,7 @@ const RunOptionsSample = RunOptions.mapFields((fields) => ({
           encode: SchemaGetter.forbiddenEncoding,
         }),
     })
-    .pipe(S.optional),
+    .pipe(S.optionalKey),
   maxOutputBytes: fields.maxOutputBytes.schema.members[0]
     .annotate({
       toCodecArbitrary: () =>
@@ -61,7 +61,7 @@ const RunOptionsSample = RunOptions.mapFields((fields) => ({
           encode: SchemaGetter.forbiddenEncoding,
         }),
     })
-    .pipe(S.optional),
+    .pipe(S.optionalKey),
 }));
 it.effect.prop(
   "RunOptions: encoded policies decode without changing duration, budget or secrets",

@@ -19,15 +19,15 @@ const ScriptResultSample = S.Union([
   ScriptResult.members[1],
 ]);
 const OptionsSample = S.Struct({
-  cwd: S.optional(S.String),
-  env: S.optional(S.Record(S.String, S.UndefinedOr(S.String))),
-  extendEnv: S.optional(S.Boolean),
-  shell: S.optional(S.Union([S.Boolean, S.String])),
-  detached: S.optional(S.Boolean),
-  windowsHide: S.optional(S.Boolean),
-  stdin: S.optional(S.Literals(["pipe", "ignore", "inherit", "overlapped"])),
-  stdout: S.optional(S.Literals(["pipe", "ignore", "inherit", "overlapped"])),
-  stderr: S.optional(S.Literals(["pipe", "ignore", "inherit", "overlapped"])),
+  cwd: S.optionalKey(S.String),
+  env: S.optionalKey(S.Record(S.String, S.UndefinedOr(S.String))),
+  extendEnv: S.optionalKey(S.Boolean),
+  shell: S.optionalKey(S.Union([S.Boolean, S.String])),
+  detached: S.optionalKey(S.Boolean),
+  windowsHide: S.optionalKey(S.Boolean),
+  stdin: S.optionalKey(S.Literals(["pipe", "ignore", "inherit", "overlapped"])),
+  stdout: S.optionalKey(S.Literals(["pipe", "ignore", "inherit", "overlapped"])),
+  stderr: S.optionalKey(S.Literals(["pipe", "ignore", "inherit", "overlapped"])),
 });
 const SpawnRecordSample = SpawnRecord.mapFields((fields) => ({
   ...fields,
