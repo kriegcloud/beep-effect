@@ -699,7 +699,8 @@ ${Md.h3("Inside")}
     expect(renderMarkdownBlock(Md.p("Body"))).toBe("Body");
     expect(renderMarkdownBlock(Md.ul([Md.li("Item")]))).toBe("- Item");
     expect(renderMarkdownBlock(Md.ul([Md.li("One"), ["Two", Md.code("2")]]))).toBe("- One\n- Two`2`");
-    expect(renderMarkdownBlock(Md.ul([Md.li([Md.p("Parent"), Md.ul(["Child"])])]))).toBe("- Parent\n  - Child");
+    expect(renderMarkdownBlock(Md.ul([Md.li([Md.p("Parent"), Md.ul(["Child"])])]))).toBe("- Parent\n\n  - Child");
+    expect(renderMarkdownBlock(Md.ul([Md.li(["Parent", Md.ul(["Child"])])]))).toBe("- Parent\n  - Child");
     expect(renderMarkdownBlock(Md.ol(["One", "Two"]))).toBe("1. One\n2. Two");
     expect(
       renderMarkdownBlock(
@@ -708,16 +709,16 @@ ${Md.h3("Inside")}
     ).toBe("- [ ] Todo\n- [x] Done\n- [ ] Maybe");
     expect(
       renderMarkdownBlock(Md.taskListFromItems([Md.taskItem([Md.p("Parent"), Md.ul(["Child"])], { checked: true })]))
-    ).toBe("- [x] Parent\n      - Child");
-    expect(renderMarkdownBlock(Md.ul(["one\n\ntwo"]))).toBe("- one\n  \n  two");
-    expect(renderMarkdownBlock(Md.ul(["one\r\rtwo"]))).toBe("- one\n  \n  two");
+    ).toBe("- [x] Parent\n\n  - Child");
+    expect(renderMarkdownBlock(Md.ul(["one\n\ntwo"]))).toBe("- one\n\n  two");
+    expect(renderMarkdownBlock(Md.ul(["one\r\rtwo"]))).toBe("- one\n\n  two");
     expect(renderMarkdownBlock(Md.ol(["one\ntwo"]))).toBe("1. one\n   two");
-    expect(renderMarkdownBlock(Md.taskListFromItems([Md.taskItem("one\ntwo")]))).toBe("- [ ] one\n      two");
+    expect(renderMarkdownBlock(Md.taskListFromItems([Md.taskItem("one\ntwo")]))).toBe("- [ ] one\n  two");
     expect(renderMarkdownBlock(Md.blockquote`one\rtwo`)).toBe("> one\n> two");
     expect(renderMarkdownBlock(Md.pre("plain"))).toBe("```\nplain\n```");
     expect(renderMarkdownBlock(Md.pre("plain", { language: "ts bad" }))).toBe("```\nplain\n```");
     expect(renderFencedCode("plain", "ts bad")).toBe("```\nplain\n```");
-    expect(renderMarkdownBlock(Md.hr)).toBe("---");
+    expect(renderMarkdownBlock(Md.hr)).toBe("***");
 
     expect(renderHtmlBlock(Md.h1("H1"))).toBe("<h1>H1</h1>");
     expect(renderHtmlBlock(Md.h2("H2"))).toBe("<h2>H2</h2>");
@@ -866,6 +867,7 @@ $$
 [^eq]: Equation note
 
 > [!WARNING] Pay attention
+>
 > Body
 
 [Demo](https://example.com/demo "Demo")

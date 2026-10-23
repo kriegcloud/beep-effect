@@ -224,6 +224,123 @@ export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError
 }
 
 /**
+ * Why a parsed frontmatter capture has no faithful JSON-object reading.
+ *
+ * **Details**
+ *
+ * `"DuplicateKey"` — one object names the same key twice (the json codec;
+ * the yaml and toml engines reject duplicates themselves).
+ * `"ComplexKey"` — a yaml mapping key is a collection, or an alias to one;
+ * a JSON object key is a string.
+ * `"SetCollection"` — a yaml `!!set`, which has no JSON counterpart.
+ *
+ * **Example** (Recognize a duplicate-key reason)
+ *
+ * ```ts
+ * import { FrontmatterKeyIssue } from "@beep/markdown/Frontmatter";
+ *
+ * console.log(FrontmatterKeyIssue.is.DuplicateKey("DuplicateKey")) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const FrontmatterKeyIssue = LiteralKit(["DuplicateKey", "ComplexKey", "SetCollection"]).pipe(
+  $I.annoteSchema("FrontmatterKeyIssue", {
+    description: "Why a parsed frontmatter capture has no faithful JSON-object reading.",
+  })
+);
+
+/**
+ * Why a parsed frontmatter capture has no faithful JSON-object reading.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type FrontmatterKeyIssue = typeof FrontmatterKeyIssue.Type;
+
+/**
+ * Indicates that a frontmatter capture parsed, but its keys have no faithful
+ * JSON-object reading.
+ *
+ * **Details**
+ *
+ * Carried as the `cause` of a {@link FrontmatterDecodeError}, the same place
+ * the engines' own parse failures sit, so a duplicate key fails every codec
+ * through one outer shape. `offset` and `length` locate the offending key
+ * or collection within the capture's raw value. The engines themselves are
+ * unchanged: `Yaml.parse` and `Jsonc.parse` keep their general-purpose
+ * projections, and only the frontmatter codecs apply this stricter check.
+ *
+ * **Example** (Read a FrontmatterKeyError from a duplicate JSON key)
+ *
+ * ```ts
+ * import { FrontmatterDecodeError, FrontmatterKeyError } from "@beep/markdown/Frontmatter";
+ * import { JsonFrontmatter } from "@beep/markdown/JsonFrontmatter";
+ * import { Frontmatter } from "@beep/markdown/MarkdownNode";
+ * import * as Result from "effect/Result";
+ * import * as S from "effect/Schema";
+ *
+ * const result = JsonFrontmatter.decodeResult(Frontmatter.make({ format: "json", value: '{"a":1,"a":2}' }));
+ * if (Result.isFailure(result) && S.is(FrontmatterDecodeError)(result.failure)) {
+ *   const cause = result.failure.cause;
+ *   console.log(S.is(FrontmatterKeyError)(cause) && cause.reason) // DuplicateKey
+ * }
+ * ```
+ *
+ * @public
+ * @category errors
+ * @since 0.0.0
+ */
+export class FrontmatterKeyError extends S.TaggedError<FrontmatterKeyError, { readonly brand: unique symbol }>(
+  $I`FrontmatterKeyError`
+)(
+  "FrontmatterKeyError",
+  {
+    /** Why the capture has no faithful JSON-object reading. */
+    reason: FrontmatterKeyIssue.pipe(
+      $I.annoteKey("FrontmatterKeyError.reason", {
+        description: "Why the capture has no faithful JSON-object reading.",
+      })
+    ),
+    /** Offset of the offending key or collection within the capture's raw value. */
+    offset: S.Finite.pipe(
+      $I.annoteKey("FrontmatterKeyError.offset", {
+        description: "Offset of the offending key or collection within the capture's raw value.",
+      })
+    ),
+    /** Length of the offending key or collection. */
+    length: S.Finite.pipe(
+      $I.annoteKey("FrontmatterKeyError.length", { description: "Length of the offending key or collection." })
+    ),
+  },
+  $I.annoteError<FrontmatterKeyError>("FrontmatterKeyError", {
+    description: "Indicates that a frontmatter capture parsed, but its keys have no faithful JSON-object reading.",
+  })
+) {
+  /**
+   * Describes the rejected key and where it sits.
+   *
+   * **Example** (Read the FrontmatterKeyError message)
+   *
+   * ```ts
+   * import { FrontmatterKeyError } from "@beep/markdown/Frontmatter";
+   *
+   * const error = FrontmatterKeyError.make({ reason: "ComplexKey", offset: 2, length: 6 });
+   * console.log(error.message) // frontmatter key rejected: ComplexKey at offset 2
+   * ```
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  override get message(): string {
+    return `frontmatter key rejected: ${this.reason} at offset ${this.offset}`;
+  }
+}
+
+/**
  * A frontmatter codec: how to turn a raw `Frontmatter` capture into decoded
  * data, and data back into a serialized frontmatter body.
  *
