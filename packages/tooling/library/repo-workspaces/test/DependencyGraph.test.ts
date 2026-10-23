@@ -1,14 +1,9 @@
+import { CyclicDependencyError, DependencyGraph, PackageNotFoundError, WorkspacePackage } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import {
-  CyclicDependencyError,
-  DependencyGraph,
-  PackageNotFoundError,
-  WorkspacePackage,
-} from "../../effected/workspaces/index.ts";
 
 /** A workspace member with the given dependency edges. */
 const pkg = (

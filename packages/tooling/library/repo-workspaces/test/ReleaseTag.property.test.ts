@@ -1,8 +1,4 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   classifyTag,
   ReleaseTag,
@@ -11,7 +7,11 @@ import {
   TagStyle,
   TrackingTag,
   TrackingTagOptions,
-} from "../../effected/workspaces/ReleaseTag.ts";
+} from "@beep/repo-workspaces/ReleaseTag";
+import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {

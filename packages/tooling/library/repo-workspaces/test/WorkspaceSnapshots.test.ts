@@ -2,6 +2,14 @@ import { Git, GitCommandError, LsTreeEntry } from "@beep/git";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import {
+  CatalogSet,
+  ConfigDependencyHooks,
+  PackageStateSnapshot,
+  WorkspaceSnapshots,
+  WorkspaceStateSnapshot,
+  Workspaces,
+} from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -13,18 +21,10 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import {
-  CatalogSet,
-  ConfigDependencyHooks,
-  PackageStateSnapshot,
-  WorkspaceSnapshots,
-  WorkspaceStateSnapshot,
-  Workspaces,
-} from "../../effected/workspaces/index.ts";
-import { manifest, platform, rootManifest } from "./fixtures.ts";
+import { manifest, platform, rootManifest } from "./support/fixtures.ts";
 import type { GitStubs } from "@beep/git";
-import type { HookInjection, HookReplay, PeerDependencyRules } from "../../effected/workspaces/index.ts";
-import type { Tree } from "./fixtures.ts";
+import type { HookInjection, HookReplay, PeerDependencyRules } from "@beep/repo-workspaces";
+import type { Tree } from "./support/fixtures.ts";
 
 // ── A scripted `Git` over a per-ref, root-relative content map ──────────────
 //
@@ -866,11 +866,11 @@ describe("WorkspaceSnapshots.at — tolerant JSON schema decoding", () => {
   });
 });
 
+import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
-import { WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
-import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
 
 const ownNameReplayEntries: ReadonlyArray<readonly [string, HookReplay]> = [
   ["first", { version: "1.0.0", source: "supplied" }],

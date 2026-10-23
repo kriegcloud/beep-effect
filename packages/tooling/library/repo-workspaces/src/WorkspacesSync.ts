@@ -18,7 +18,7 @@ import * as Str from "effect/String";
 // `packages/**` means the same thing in both worlds.
 
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import { Yaml } from "@beep/yaml";
 import * as Effect from "effect/Effect";
@@ -35,7 +35,7 @@ import { PublishConfig, WorkspacePackage } from "./WorkspacePackage.ts";
 
 const isDependencyMap = S.is(WorkspacePackage.fields.dependencies);
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspacesSync");
+const $I = $RepoWorkspacesId.create("WorkspacesSync");
 
 const JsonValue = S.fromJsonString(S.Unknown).pipe(
   $I.annoteSchema("JsonValue", { description: "A JSON value parsed before the tolerant manifest shape checks." })
@@ -61,7 +61,7 @@ class WorkspaceSyncManifestError extends S.TaggedError<WorkspaceSyncManifestErro
  * **Example** (Inspect an invalid depth diagnostic)
  *
  * ```ts
- * import { WorkspaceEnumerationDepthError } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces/WorkspacesSync";
  *
  * const error = WorkspaceEnumerationDepthError.make({
  *   message: "getWorkspacePackagesSync: maxDepth must be a positive integer, got 0",
@@ -100,7 +100,7 @@ export class WorkspaceEnumerationDepthError extends S.TaggedError<
  * **Example** (Supply Node synchronous file operations)
  *
  * ```ts
- * import type { SyncFileSystem } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import type { SyncFileSystem } from "@beep/repo-workspaces/WorkspacesSync";
  * import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
  *
  * const fileSystem: SyncFileSystem = {
@@ -177,7 +177,7 @@ export interface SyncFileSystem {
  * **Example** (Recognize a typed filesystem entry)
  *
  * ```ts
- * import { SyncDirectoryEntry } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import { SyncDirectoryEntry } from "@beep/repo-workspaces/WorkspacesSync";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(SyncDirectoryEntry)({ name: "core", isDirectory: true, isSymbolicLink: false })); // true
@@ -232,7 +232,7 @@ export type SyncDirectoryEntry = typeof SyncDirectoryEntry.Type;
  * ```ts
  * import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
  * import * as path from "node:path";
- * import type { WorkspacesSyncOptions } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import type { WorkspacesSyncOptions } from "@beep/repo-workspaces/WorkspacesSync";
  *
  * const options: WorkspacesSyncOptions = {
  * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), readDirectory: (p) => readdirSync(p), isDirectory: (p) => statSync(p).isDirectory() },
@@ -306,7 +306,7 @@ export interface WorkspacesSyncOptions {
  * **Example** (Recognize a manifest-only skip kind)
  *
  * ```ts
- * import { WorkspaceDiscoverySkipKind } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import { WorkspaceDiscoverySkipKind } from "@beep/repo-workspaces/WorkspacesSync";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(WorkspaceDiscoverySkipKind)("missingName")); // true
@@ -371,7 +371,7 @@ const workspaceDiscoverySkipCase = <const Kind extends WorkspaceDiscoverySkipKin
  * **Example** (Recognize a synchronous manifest skip)
  *
  * ```ts
- * import { WorkspaceDiscoverySkip } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import { WorkspaceDiscoverySkip } from "@beep/repo-workspaces/WorkspacesSync";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(WorkspaceDiscoverySkip)({ root: "/repo", path: "/repo/package.json", kind: "missingName", cause: undefined })); // true
@@ -627,7 +627,7 @@ export interface FindWorkspaceRootSyncOptions extends WorkspacesSyncOptions {
  * ```ts
  * import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
  * import * as path from "node:path";
- * import { findWorkspaceRootSync } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import { findWorkspaceRootSync } from "@beep/repo-workspaces/WorkspacesSync";
  *
  * const root = findWorkspaceRootSync(process.cwd(), {
  * 	fileSystem: {
@@ -858,7 +858,7 @@ export interface GetWorkspacePackagesSyncOptions extends WorkspacesSyncOptions {
  * import * as A from "effect/Array";
  * import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
  * import * as path from "node:path";
- * import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
+ * import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/repo-workspaces/WorkspacesSync";
  *
  * const ops = {
  * 	fileSystem: {

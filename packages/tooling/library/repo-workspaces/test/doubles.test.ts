@@ -8,19 +8,19 @@
 
 import { Lockfile, ResolvedPackage } from "@beep/lockfiles";
 import { ReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
-import { assert, describe, it, layer } from "@effect/vitest";
-import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as O from "effect/Option";
 import {
   CatalogSet,
   LockfileReader,
   WorkspaceCatalogs,
   WorkspaceSnapshots,
   WorkspaceStateSnapshot,
-} from "../../effected/workspaces/index.ts";
+} from "@beep/repo-workspaces";
+import { assert, describe, it, layer } from "@effect/vitest";
+import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as Cause from "effect/Cause";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as O from "effect/Option";
 
 /** Assert an exit is a DIE (never a typed failure) whose defect message carries `fragment`. */
 const assertDies = (exit: Exit.Exit<unknown, unknown>, fragment: string): void => {

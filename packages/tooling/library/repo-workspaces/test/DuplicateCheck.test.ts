@@ -13,12 +13,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Lockfile } from "@beep/lockfiles";
+import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { DuplicateCheck } from "../../effected/workspaces/DuplicateCheck.ts";
-import type { Dependent, DuplicatedPackage } from "../../effected/workspaces/DuplicateCheck.ts";
+import type { Dependent, DuplicatedPackage } from "@beep/repo-workspaces/DuplicateCheck";
 
 const fixture = (relative: string): string => readFileSync(join(import.meta.dirname, "fixtures", relative), "utf8");
 

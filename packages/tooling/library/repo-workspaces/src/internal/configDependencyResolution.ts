@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual, pipe } from "effect/Function";
 import * as S from "effect/Schema";
 // Resolving a declared pnpm config dependency to the pnpmfile of the version
@@ -48,7 +48,7 @@ import type { HookReplayContext } from "../ConfigDependencyHooks.ts";
 import type { FetchConfigDependency, FetchFailure, RecordedLocks } from "./configDependencyFetch.ts";
 import type { ManifestVersion } from "./configDependencyShared.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyResolution");
+const $I = $RepoWorkspacesId.create("internal/configDependencyResolution");
 
 /** The resolution failure retained as the cause of a catalog assembly error. */
 class ConfigDependencyResolutionError extends S.TaggedError<
@@ -75,7 +75,7 @@ const { basename, dirname, join } = process.getBuiltinModule("node:path");
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ResolvedPnpmfile } from "@beep/scratchpad/effected/workspaces/internal/configDependencyResolution";
+ * import { ResolvedPnpmfile } from "@beep/repo-workspaces/internal/configDependencyResolution";
  *
  * console.log(S.is(ResolvedPnpmfile)({ name: "cfg", version: "1.0.0", source: "installed", path: undefined })) // true
  * console.log(S.is(ResolvedPnpmfile)(null)) // false
@@ -623,7 +623,7 @@ export interface ResolveOptions {
  * **Example** (Resolve an empty dependency declaration)
  *
  * ```ts
- * import { resolvePnpmfiles } from "@beep/scratchpad/effected/workspaces/internal/configDependencyResolution"
+ * import { resolvePnpmfiles } from "@beep/repo-workspaces/internal/configDependencyResolution"
  * import * as Effect from "effect/Effect"
  *
  * const resolved = await Effect.runPromise(resolvePnpmfiles("/workspace", {}))
@@ -684,7 +684,7 @@ export const resolvePnpmfiles: {
  * **Example** (Resolve a hook from a supplied map)
  *
  * ```ts
- * import { lookupPnpmfiles } from "@beep/scratchpad/effected/workspaces/internal/configDependencyResolution"
+ * import { lookupPnpmfiles } from "@beep/repo-workspaces/internal/configDependencyResolution"
  * import * as Effect from "effect/Effect"
  *
  * const resolved = Effect.runSync(lookupPnpmfiles(

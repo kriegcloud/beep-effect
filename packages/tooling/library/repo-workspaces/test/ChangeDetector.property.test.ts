@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ChangeDetectionError, ChangeDetectionOptions } from "@beep/repo-workspaces/ChangeDetector";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { ChangeDetectionError, ChangeDetectionOptions } from "../../effected/workspaces/ChangeDetector.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {

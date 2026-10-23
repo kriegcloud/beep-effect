@@ -8,8 +8,8 @@
 // here is pure derivation, formatting and parsing; actually MOVING a git tag is
 // a consumer concern and lives nowhere in this package.
 
+import { classifyTag, ReleaseTag, TrackingTag } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
-import { classifyTag, ReleaseTag, TrackingTag } from "../../effected/workspaces/index.ts";
 
 describe("TrackingTag.forVersion", () => {
   it("derives the broadest-first pair for a stable release", () => {

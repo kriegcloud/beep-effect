@@ -1,9 +1,9 @@
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
-import { platform } from "./fixtures.ts";
+import { platform } from "./support/fixtures.ts";
 
 describe("WorkspaceRoot test-layer boundary semantics", () => {
   it.layer(Path.layer, { timeout: "30 seconds" })((it) => {

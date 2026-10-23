@@ -1,13 +1,13 @@
 import { Lockfile } from "@beep/lockfiles";
+import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
+import { Workspaces } from "@beep/repo-workspaces/Workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
-import { LockfileReader } from "../../effected/workspaces/LockfileReader.ts";
-import { Workspaces } from "../../effected/workspaces/Workspaces.ts";
-import { platform } from "./fixtures.ts";
+import { platform } from "./support/fixtures.ts";
 
 describe("LockfileReader coverage", () => {
   it.effect("unstubbed operations defect with the operation name; refresh is harmless", () =>
@@ -66,7 +66,7 @@ describe("LockfileReader coverage", () => {
   });
 });
 
-import { LockfileReadError } from "../../effected/workspaces/LockfileReader.ts";
+import { LockfileReadError } from "@beep/repo-workspaces/LockfileReader";
 
 it.effect("read errors identify the format and path", () =>
   Effect.sync(() => {

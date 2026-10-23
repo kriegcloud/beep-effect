@@ -19,13 +19,13 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { ConfigDependencyHooks, WorkspaceSnapshots, Workspaces } from "@beep/repo-workspaces";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, beforeAll, beforeEach, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { ConfigDependencyHooks, WorkspaceSnapshots, Workspaces } from "../../../effected/workspaces/index.ts";
 import { installConfigDependency, writeFakePnpm, writeModulesYaml } from "./utils/configDependencyFixtures.ts";
 
 const NAME = "cfg-842";

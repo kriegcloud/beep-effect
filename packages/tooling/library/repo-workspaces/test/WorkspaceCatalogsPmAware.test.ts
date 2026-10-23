@@ -1,5 +1,6 @@
 import { Lockfile } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { CatalogSet, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -8,9 +9,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { CatalogSet, WorkspaceCatalogs, Workspaces } from "../../effected/workspaces/index.ts";
-import { manifest, platform } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { manifest, platform } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

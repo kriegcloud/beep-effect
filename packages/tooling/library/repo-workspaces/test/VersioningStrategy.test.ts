@@ -4,17 +4,17 @@
 // tested against `WorkspaceDiscovery.layerTest` plus a stub
 // `PublishabilityDetector`, so nothing here touches a filesystem.
 
-import { assert, describe, it, layer } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Ref from "effect/Ref";
 import {
   PublishabilityDetector,
   PublishTarget,
   VersioningStrategy,
   WorkspaceDiscovery,
   WorkspacePackage,
-} from "../../effected/workspaces/index.ts";
+} from "@beep/repo-workspaces";
+import { assert, describe, it, layer } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Ref from "effect/Ref";
 
 const pkg = (name: string) =>
   WorkspacePackage.make({

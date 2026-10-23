@@ -7,7 +7,7 @@ import { dual } from "effect/Function";
 //
 // `instanceId` is OPAQUE here — composed and looked up, never parsed.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -15,7 +15,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { Lockfile } from "@beep/lockfiles";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/roots");
+const $I = $RepoWorkspacesId.create("internal/roots");
 
 const OwnImporterRoots = S.TaggedStruct("own", {
   instance: ResolvedPackage.pipe(
@@ -57,7 +57,7 @@ export interface InstanceIndex {
  * **Example** (Index an empty lockfile)
  *
  * ```ts
- * import { indexInstances } from "@beep/scratchpad/effected/workspaces/internal/roots";
+ * import { indexInstances } from "@beep/repo-workspaces/internal/roots";
  * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import * as MutableHashMap from "effect/MutableHashMap";
  *
@@ -96,7 +96,7 @@ export const indexInstances = (lockfile: Lockfile): InstanceIndex => {
  * **Example** (Check plain dependency roots)
  *
  * ```ts
- * import { ImporterRoots } from "@beep/scratchpad/effected/workspaces/internal/roots";
+ * import { ImporterRoots } from "@beep/repo-workspaces/internal/roots";
  * import * as S from "effect/Schema";
  *
  * const roots: ImporterRoots = { _tag: "dependencies", instances: [] };
@@ -131,7 +131,7 @@ export type ImporterRoots = typeof ImporterRoots.Type;
  * **Example** (Distinguish a dependency-free importer from a missing importer)
  *
  * ```ts
- * import { indexInstances, rootInstances } from "@beep/scratchpad/effected/workspaces/internal/roots";
+ * import { indexInstances, rootInstances } from "@beep/repo-workspaces/internal/roots";
  * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
  *

@@ -12,7 +12,7 @@
 // with the hook-replay ladder, which keeps its lenient (unvalidated) reading of
 // the version half — see that module for why.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { SriIntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
@@ -24,7 +24,7 @@ import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { splitConfigDependencySpec } from "./internal/configDependencySpecGrammar.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/ConfigDependencySpec");
+const $I = $RepoWorkspacesId.create("ConfigDependencySpec");
 
 /**
  * Indicates that a string could not be parsed as a pnpm `configDependencies`
@@ -41,7 +41,7 @@ const $I = $ScratchpadId.create("effected/workspaces/ConfigDependencySpec");
  * **Example** (Inspect an invalid version)
  *
  * ```ts
- * import { InvalidConfigDependencySpecError } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+ * import { InvalidConfigDependencySpecError } from "@beep/repo-workspaces/ConfigDependencySpec";
  *
  * const error = InvalidConfigDependencySpecError.make({ input: "^0.11.1", reason: "version" });
  * console.log(error.reason) // version
@@ -87,7 +87,7 @@ export class InvalidConfigDependencySpecError extends S.TaggedError<
    * **Example** (Render an integrity failure)
    *
    * ```ts
-   * import { InvalidConfigDependencySpecError } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { InvalidConfigDependencySpecError } from "@beep/repo-workspaces/ConfigDependencySpec";
    *
    * const error = InvalidConfigDependencySpecError.make({ input: "0.11.1+", reason: "integrity" });
    * console.log(error.message) // Invalid config dependency spec "0.11.1+": integrity must be an SRI <algo>-<base64> hash
@@ -146,7 +146,7 @@ const specVersion = SemVer.pipe(
  * **Example** (Parse an inline config dependency integrity)
  *
  * ```ts
- * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+ * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -202,7 +202,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * **Example** (Decode and encode a bare config dependency)
    *
    * ```ts
-   * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
    * import * as S from "effect/Schema";
    *
    * const spec = S.decodeSync(ConfigDependencySpec.FromString)("0.11.1");
@@ -247,7 +247,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * **Example** (Inspect an invalid integrity result)
    *
    * ```ts
-   * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
    * import * as Result from "effect/Result";
    *
    * const parsed = ConfigDependencySpec.parseResult("0.11.1+");
@@ -289,7 +289,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * **Example** (Parse a bare version in an effect)
    *
    * ```ts
-   * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
    * import * as Effect from "effect/Effect";
    *
    * const spec = Effect.runSync(ConfigDependencySpec.parse("0.11.1"));
@@ -312,7 +312,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * **Example** (Inspect the bare form)
    *
    * ```ts
-   * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
    * import * as Effect from "effect/Effect";
    *
    * const spec = Effect.runSync(ConfigDependencySpec.parse("0.11.1"));
@@ -333,7 +333,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * **Example** (Normalize inline integrity to a bare version)
    *
    * ```ts
-   * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
    * import * as Effect from "effect/Effect";
    *
    * const spec = Effect.runSync(ConfigDependencySpec.parse("0.11.1+sha512-YWJj"));
@@ -354,7 +354,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * **Example** (Preserve inline integrity spelling)
    *
    * ```ts
-   * import { ConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/ConfigDependencySpec";
+   * import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
    * import * as Effect from "effect/Effect";
    *
    * const spec = Effect.runSync(ConfigDependencySpec.parse("0.11.1+sha512-YWJj"));

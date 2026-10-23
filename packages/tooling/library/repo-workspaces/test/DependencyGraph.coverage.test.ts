@@ -1,7 +1,7 @@
+import { CyclicDependencyError, DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CyclicDependencyError, DependencyGraph } from "../../effected/workspaces/DependencyGraph.ts";
-import { WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
 
 const pkg = (name: string, dependencies: Record<string, string> = {}) =>
   WorkspacePackage.make({

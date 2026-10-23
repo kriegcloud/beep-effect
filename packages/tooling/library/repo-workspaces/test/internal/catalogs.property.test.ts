@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { catalogNameOf, normalize, rangeOf } from "@beep/repo-workspaces/internal/catalogs";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { catalogNameOf, normalize, rangeOf } from "../../../effected/workspaces/internal/catalogs.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

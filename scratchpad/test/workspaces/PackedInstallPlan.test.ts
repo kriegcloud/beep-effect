@@ -5,7 +5,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
-import { WorkspacePackage } from "../../effected/workspaces/index.ts";
+import { WorkspacePackage } from "@beep/repo-workspaces";
 import {
 	binConflict,
 	binTargetOf,

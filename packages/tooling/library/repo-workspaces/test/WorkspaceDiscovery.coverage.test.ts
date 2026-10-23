@@ -1,10 +1,10 @@
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
-import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
 
 describe("discovery double behavior", () => {
   it.effect("owns trailing-slash paths, picks longest prefix and sorts unique owners", () =>
@@ -39,12 +39,12 @@ describe("discovery double behavior", () => {
 });
 
 import { MemoryFileSystem } from "@beep/memfs";
+import { PackageNotFoundError, WorkspacePatternError } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as Scheduler from "effect/Scheduler";
-import { PackageNotFoundError, WorkspacePatternError } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
 
 it.effect("error messages preserve requested name and pattern diagnostics", () =>
   Effect.gen(function* () {

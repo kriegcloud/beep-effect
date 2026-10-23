@@ -431,7 +431,7 @@ describe("SourceBoundary on the real tree", () => {
 	// ConfigDependencyHooks.ts embeds a node program (REPLAY_SCRIPT) as template
 	// text: it reads process.argv, writes process.stdout and calls import(url),
 	// all as TEXT that this module never executes.
-	const file = resolve(dirname(fileURLToPath(import.meta.url)), "../../effected/workspaces/ConfigDependencyHooks.ts");
+	const file = resolve(dirname(fileURLToPath(import.meta.url)), "../../../packages/tooling/library/repo-workspaces/src/ConfigDependencyHooks.ts");
 	const text = readFileSync(file, "utf8");
 	const open = text.indexOf("const REPLAY_SCRIPT = `");
 	const script = text.slice(text.indexOf("`", open) + 1, text.indexOf("\n`;", open));

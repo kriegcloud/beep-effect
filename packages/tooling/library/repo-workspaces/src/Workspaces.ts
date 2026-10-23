@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 // The composite layers.
@@ -30,7 +30,7 @@ import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { DetectedPackageManager } from "./PackageManagerName.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/Workspaces");
+const $I = $RepoWorkspacesId.create("Workspaces");
 
 /**
  * Options shared by the composite layers.
@@ -47,7 +47,7 @@ const $I = $ScratchpadId.create("effected/workspaces/Workspaces");
  * **Example** (Read composed workspace inputs)
  *
  * ```ts
- * import { WorkspacesOptions } from "@beep/scratchpad/effected/workspaces/Workspaces";
+ * import { WorkspacesOptions } from "@beep/repo-workspaces/Workspaces";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(WorkspacesOptions)({ cwd: "/repo", stopAt: "/repo" })) // true
@@ -121,7 +121,7 @@ export type WorkspacesOptions = typeof WorkspacesOptions.Type;
  * **Example** (Read composed snapshot inputs)
  *
  * ```ts
- * import { WorkspacesGitOptions } from "@beep/scratchpad/effected/workspaces/Workspaces";
+ * import { WorkspacesGitOptions } from "@beep/repo-workspaces/Workspaces";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(WorkspacesGitOptions)({})) // true
@@ -413,7 +413,7 @@ const localExecLayer = (options?: {
  * **Example** (Construct the core workspace composite)
  *
  * ```ts
- * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+ * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
  * import * as Layer from "effect/Layer";
  *
  * const workspaceLayer = Workspaces.layer();
@@ -452,7 +452,7 @@ export class Workspaces {
    * **Example** (Construct a workspace layer requiring platform services)
    *
    * ```ts
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Layer from "effect/Layer";
    *
    * const WorkspacesLayer = Workspaces.layer();
@@ -481,7 +481,7 @@ export class Workspaces {
    * **Example** (Construct in-process catalog hook replay)
    *
    * ```ts
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Layer from "effect/Layer";
    *
    * const workspaceLayer = Workspaces.layerWithConfigDependencies();
@@ -521,7 +521,7 @@ export class Workspaces {
    * **Example** (Construct subprocess catalog hook replay)
    *
    * ```ts
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Layer from "effect/Layer";
    *
    * const workspaceLayer = Workspaces.layerWithConfigDependenciesSubprocess();
@@ -549,7 +549,7 @@ export class Workspaces {
    * **Example** (Construct workspace services with git)
    *
    * ```ts
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Layer from "effect/Layer";
    *
    * const workspaceLayer = Workspaces.layerWithGit();
@@ -591,7 +591,7 @@ export class Workspaces {
    *
    * ```ts
    * import * as Layer from "effect/Layer";
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    *
    * const KitLayer = Workspaces.layerWithGitAndConfigDependencies();
    * console.log(Layer.isLayer(KitLayer)) // true
@@ -624,7 +624,7 @@ export class Workspaces {
    *
    * ```ts
    * import * as Layer from "effect/Layer";
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    *
    * // A bundled CLI or MCP server: the computed import never enters the graph.
    * const KitLayer = Workspaces.layerWithGitAndConfigDependenciesSubprocess();
@@ -659,8 +659,8 @@ export class Workspaces {
    *
    * ```ts
    * import * as Layer from "effect/Layer";
-   * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    *
    * // A test pinning what at(ref) replays for two declared plugin versions.
    * const KitLayer = Workspaces.layerWithGitAndHooks(
@@ -725,7 +725,7 @@ export class Workspaces {
    *
    * ```ts
    * import { ToolDiscovery } from "@beep/commands/ToolDiscovery";
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Layer from "effect/Layer";
    *
    * // Bound to consts per the warning above: each factory call mints a
@@ -769,7 +769,7 @@ export class Workspaces {
    *
    * ```ts
    * import { Manifest } from "@beep/npm-spec/Manifest";
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -810,7 +810,7 @@ export class Workspaces {
    * **Example** (Provide workspace resolvers to an Effect program)
    *
    * ```ts
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.succeed("ready").pipe(
@@ -835,7 +835,7 @@ export class Workspaces {
    * **Example** (Build resolver contracts over the workspace layer)
    *
    * ```ts
-   * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
+   * import { Workspaces } from "@beep/repo-workspaces/Workspaces";
    * import * as Layer from "effect/Layer";
    *
    * const WorkspacesLayer = Workspaces.layer();

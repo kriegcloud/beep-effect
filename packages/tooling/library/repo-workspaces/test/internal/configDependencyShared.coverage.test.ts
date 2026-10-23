@@ -1,12 +1,12 @@
-import { assert, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
 import {
   hooksError,
   ioOrNone,
   manifestVersion,
   messageOf,
-} from "../../../effected/workspaces/internal/configDependencyShared.ts";
+} from "@beep/repo-workspaces/internal/configDependencyShared";
+import { assert, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
 
 const fs = process.getBuiltinModule("node:fs/promises");
 const path = process.getBuiltinModule("node:path");

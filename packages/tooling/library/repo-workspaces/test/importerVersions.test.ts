@@ -11,6 +11,8 @@
 // diff resolved it to the same raw string, so `from !== to` was false.
 
 import { Lockfile } from "@beep/lockfiles";
+import { CatalogSet, WorkspaceStateSnapshot } from "@beep/repo-workspaces";
+import { importerVersionsOf, unanimousVersionOf } from "@beep/repo-workspaces/internal/importerVersions";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -18,8 +20,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { CatalogSet, WorkspaceStateSnapshot } from "../../effected/workspaces/index.ts";
-import { importerVersionsOf, unanimousVersionOf } from "../../effected/workspaces/internal/importerVersions.ts";
 
 /**
  * A pnpm lockfile whose root importer records `effect` only as a

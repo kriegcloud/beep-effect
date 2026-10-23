@@ -23,6 +23,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { ScriptedSpawner } from "@beep/commands";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { ConfigDependencyHooks } from "@beep/repo-workspaces";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
@@ -31,7 +32,6 @@ import * as Layer from "effect/Layer";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ConfigDependencyHooks } from "../../effected/workspaces/index.ts";
 
 const ManifestText = S.fromJsonString(S.Struct({ name: S.String, version: S.String }));
 const ReplayText = S.fromJsonString(

@@ -5,6 +5,8 @@
 // which is why only the FIRST `+` may separate version from integrity.
 
 import { IntegrityHash, SriIntegrityHash } from "@beep/npm-spec/IntegrityHash";
+import { ConfigDependencySpec, InvalidConfigDependencySpecError } from "@beep/repo-workspaces/ConfigDependencySpec";
+import { lookupPnpmfiles } from "@beep/repo-workspaces/internal/configDependencyResolution";
 import { SemVer } from "@beep/semver";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
@@ -12,11 +14,6 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import {
-  ConfigDependencySpec,
-  InvalidConfigDependencySpecError,
-} from "../../effected/workspaces/ConfigDependencySpec.ts";
-import { lookupPnpmfiles } from "../../effected/workspaces/internal/configDependencyResolution.ts";
 
 const SRI = "sha512-m35mtvgU4nbE8ZHd4EFqKu5jJeQY0gPUYHzKTno57JT/QeHzM9RRLNQsIcG0npsFYBxJfJ1tC/NH4zEWc2gdxQ==";
 const SRI_WITH_PLUS = "sha512-6GbxZtliXuGHKFzJGFkqqNAbZzErb42XvCLdnr29KVR3OwvwU+D1MxNPpfzKOkde/TlM/KLsciuNqqmCSS/Yag==";

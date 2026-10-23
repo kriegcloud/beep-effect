@@ -4460,10 +4460,38 @@
       {
         "from": "@beep/repo-workspaces",
         "allow": [
-          "@beep/repo-workspaces"
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/lockfiles",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/repo-workspaces",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
         ],
         "allowTypeOnly": [
-          "@beep/repo-workspaces"
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/lockfiles",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/repo-workspaces",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
         ]
       },
       {
@@ -4596,6 +4624,7 @@
           "@beep/repo-cli",
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
+          "@beep/repo-workspaces",
           "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
@@ -4652,6 +4681,7 @@
           "@beep/repo-cli",
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
+          "@beep/repo-workspaces",
           "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",

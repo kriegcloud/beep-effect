@@ -1,9 +1,9 @@
+import { PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
-import { PackageManagerDetector } from "../../effected/workspaces/PackageManagerName.ts";
 
 describe("PackageManagerDetector coverage", () => {
   it.effect("the unstubbed layer defects with a diagnostic naming detect", () =>
@@ -18,10 +18,10 @@ describe("PackageManagerDetector coverage", () => {
 });
 
 import { MemoryFileSystem } from "@beep/memfs";
+import { PackageManagerDetectionError } from "@beep/repo-workspaces/PackageManagerName";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { PackageManagerDetectionError } from "../../effected/workspaces/PackageManagerName.ts";
 
 it.effect("detection errors render the checked markers", () =>
   Effect.sync(() => {

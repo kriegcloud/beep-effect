@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -20,7 +20,7 @@ import type { Catalogs } from "@pnpm/catalogs.types";
 
 export type { Catalogs };
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/catalogs");
+const $I = $RepoWorkspacesId.create("internal/catalogs");
 
 /**
  * The normalized entries shape: catalog name → dependency → range.
@@ -34,7 +34,7 @@ export type CatalogEntries = Record<string, Record<string, string>>;
  * **Example** (Recognize a catalog resolution failure)
  *
  * ```ts
- * import { CatalogMisconfiguration } from "@beep/scratchpad/effected/workspaces/internal/catalogs";
+ * import { CatalogMisconfiguration } from "@beep/repo-workspaces/internal/catalogs";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CatalogMisconfiguration)({ catalogName: "default", detail: "missing dependency" })); // true
@@ -71,7 +71,7 @@ export type CatalogMisconfiguration = typeof CatalogMisconfiguration.Type;
  * **Example** (Read the default inline catalog)
  *
  * ```ts
- * import { inlineCatalogs } from "@beep/scratchpad/effected/workspaces/internal/catalogs";
+ * import { inlineCatalogs } from "@beep/repo-workspaces/internal/catalogs";
  *
  * const catalogs = inlineCatalogs({ catalog: { effect: "^4.0.0" } });
  * console.log(catalogs.default?.effect) // ^4.0.0
@@ -99,7 +99,7 @@ export const inlineCatalogs = (manifest: {
  * **Example** (Override a dependency with a later catalog source)
  *
  * ```ts
- * import { merge } from "@beep/scratchpad/effected/workspaces/internal/catalogs";
+ * import { merge } from "@beep/repo-workspaces/internal/catalogs";
  *
  * const catalogs = merge({ default: { effect: "^3.0.0" } }, { default: { effect: "^4.0.0" } });
  * console.log(catalogs.default?.effect) // ^4.0.0
@@ -115,7 +115,7 @@ export const merge = (...sources: ReadonlyArray<Catalogs | undefined>): Catalogs
  * **Example** (Distinguish named catalogs from other protocols)
  *
  * ```ts
- * import { catalogNameOf } from "@beep/scratchpad/effected/workspaces/internal/catalogs";
+ * import { catalogNameOf } from "@beep/repo-workspaces/internal/catalogs";
  *
  * console.log(catalogNameOf("catalog:tools")) // tools
  * console.log(catalogNameOf("workspace:*")) // null
@@ -131,7 +131,7 @@ export const catalogNameOf = (specifier: string): string | null => parseCatalogP
  * **Example** (Normalize string and lockfile catalog entries)
  *
  * ```ts
- * import { normalize } from "@beep/scratchpad/effected/workspaces/internal/catalogs";
+ * import { normalize } from "@beep/repo-workspaces/internal/catalogs";
  *
  * const catalogs = normalize({ default: { effect: { specifier: "^4.0.0" }, invalid: 42 } });
  * console.log(catalogs.default?.effect) // ^4.0.0
@@ -176,7 +176,7 @@ export const normalize = (raw: unknown): CatalogEntries => {
  * **Example** (Resolve a catalog entry and inspect a miss)
  *
  * ```ts
- * import { rangeOf } from "@beep/scratchpad/effected/workspaces/internal/catalogs";
+ * import { rangeOf } from "@beep/repo-workspaces/internal/catalogs";
  *
  * const catalogs = { default: { effect: "^4.0.0" } };
  * console.log(rangeOf(catalogs, "effect", "catalog:")) // ^4.0.0

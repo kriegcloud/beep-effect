@@ -1,12 +1,12 @@
 import { GlobSet } from "@beep/glob";
 import { MemoryFileSystem } from "@beep/memfs";
+import { enumerate } from "@beep/repo-workspaces/internal/enumerate";
+import { Traversal } from "@beep/repo-workspaces/internal/traverse";
 import { assert, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { enumerate } from "../../../effected/workspaces/internal/enumerate.ts";
-import { Traversal } from "../../../effected/workspaces/internal/traverse.ts";
 
 const error = (tag: "NotFound" | "PermissionDenied", path: string) =>
   PlatformError.systemError({ _tag: tag, module: "FileSystem", method: "readDirectory", pathOrDescriptor: path });

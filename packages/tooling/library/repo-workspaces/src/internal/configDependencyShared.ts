@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 // What the config-dependency ladder (`configDependencyResolution.ts`) and its
 // fetch rung (`configDependencyFetch.ts`) share: the typed `hooks` failure,
@@ -17,7 +17,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { HookReplayContext } from "../ConfigDependencyHooks.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyShared");
+const $I = $RepoWorkspacesId.create("internal/configDependencyShared");
 
 // The caller's Effect FileSystem may be virtual; replay must read the real Node module store.
 const { readFile } = process.getBuiltinModule("node:fs/promises");
@@ -31,7 +31,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  * **Example** (Attribute a hook failure)
  *
  * ```ts
- * import { hooksError } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { hooksError } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * const error = hooksError("plugin", new Error("read failed"), undefined)
  * console.log(error.source) // hooks
@@ -61,7 +61,7 @@ export const hooksError: {
  * **Example** (Format error and string causes)
  *
  * ```ts
- * import { messageOf } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { messageOf } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * console.log(messageOf(new Error("read failed"))) // read failed
  * console.log(messageOf("missing plugin")) // missing plugin
@@ -78,7 +78,7 @@ export const messageOf = (cause: unknown): string => (cause instanceof Error ? c
  * **Example** (Label both declaring sides)
  *
  * ```ts
- * import { sideLabel } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { sideLabel } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * console.log(sideLabel({})) // the working tree
  * console.log(sideLabel({ ref: "main" })) // ref main
@@ -111,7 +111,7 @@ const isAbsent = (cause: unknown): boolean =>
  * ```ts
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
- * import { ioOrNone } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { ioOrNone } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * const result = await Effect.runPromise(ioOrNone("plugin", () => Promise.resolve("manifest")))
  * console.log(O.getOrElse(result, () => "absent")) // manifest
@@ -146,7 +146,7 @@ export const ioOrNone: {
  * **Example** (Distinguish versioned and absent manifests)
  *
  * ```ts
- * import { ManifestVersion } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { ManifestVersion } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * const versioned = ManifestVersion.cases.version.make({ version: "1.2.3" })
  * const absent = ManifestVersion.cases.absent.make({})
@@ -194,7 +194,7 @@ const UNVERSIONED: ManifestVersion = ManifestVersion.cases.unversioned.make({});
  * **Example** (Compare a declared version)
  *
  * ```ts
- * import { carries, ManifestVersion } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { carries, ManifestVersion } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * const manifest = ManifestVersion.cases.version.make({ version: "1.2.3" })
  * console.log(carries(manifest, "1.2.3")) // true
@@ -230,7 +230,7 @@ export const carries: {
  *
  * ```ts
  * import * as Effect from "effect/Effect"
- * import { manifestVersion } from "@beep/scratchpad/effected/workspaces/internal/configDependencyShared"
+ * import { manifestVersion } from "@beep/repo-workspaces/internal/configDependencyShared"
  *
  * const program = manifestVersion("plugin", "/workspace/node_modules/plugin")
  * console.log(Effect.isEffect(program)) // true

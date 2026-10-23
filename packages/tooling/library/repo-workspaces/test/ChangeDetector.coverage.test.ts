@@ -1,16 +1,12 @@
 import { Git } from "@beep/git";
 import { MemoryFileSystem } from "@beep/memfs";
+import { ChangeDetectionError, ChangeDetectionOptions, ChangeDetector } from "@beep/repo-workspaces/ChangeDetector";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import {
-  ChangeDetectionError,
-  ChangeDetectionOptions,
-  ChangeDetector,
-} from "../../effected/workspaces/ChangeDetector.ts";
-import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
 
 const base = Layer.mergeAll(
   Path.layer,

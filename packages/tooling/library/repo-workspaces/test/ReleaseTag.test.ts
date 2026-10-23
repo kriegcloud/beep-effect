@@ -6,9 +6,9 @@
 // file breaks tag naming for every consumer repo — do that deliberately or not
 // at all.
 
+import { ReleaseTag } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import * as SchemaIssue from "effect/SchemaIssue";
-import { ReleaseTag } from "../../effected/workspaces/index.ts";
 
 // beta.105 gives construction throws the generic message "Schema validation
 // failed" and carries the structured issue in `cause`; formatting the cause is

@@ -14,7 +14,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
-import { WorkspaceDiscovery, WorkspaceInfo, WorkspacePackage } from "../../effected/workspaces/index.ts";
+import { WorkspaceDiscovery, WorkspaceInfo, WorkspacePackage } from "@beep/repo-workspaces";
 import { PackedInstallError } from "../../effected/workspaces/PackedInstall.ts";
 import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/testing.ts";
 

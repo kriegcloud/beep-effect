@@ -1,12 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { configDependenciesOf, inlinePeerDependencyRules } from "@beep/repo-workspaces/internal/workspaceYaml";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import {
-  configDependenciesOf,
-  inlinePeerDependencyRules,
-} from "../../../effected/workspaces/internal/workspaceYaml.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const codec = S.fromJsonString(S.Json);

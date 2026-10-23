@@ -1,13 +1,13 @@
 import { LocalExec } from "@beep/commands";
+import { PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
+import { WorkspaceRoot, WorkspaceRootNotFoundError } from "@beep/repo-workspaces/WorkspaceRoot";
+import { Workspaces } from "@beep/repo-workspaces/Workspaces";
 import { assert, it, vi } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
-import { PackageManagerDetector } from "../../effected/workspaces/PackageManagerName.ts";
-import { WorkspaceRoot, WorkspaceRootNotFoundError } from "../../effected/workspaces/WorkspaceRoot.ts";
-import { Workspaces } from "../../effected/workspaces/Workspaces.ts";
 
 const calls: Array<string> = [];
 it.layer(

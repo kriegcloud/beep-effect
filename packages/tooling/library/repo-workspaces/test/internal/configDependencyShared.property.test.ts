@@ -1,15 +1,15 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as P from "effect/Predicate";
-import * as S from "effect/Schema";
 import {
   ManifestVersion,
   manifestVersion,
   messageOf,
   sideLabel,
-} from "../../../effected/workspaces/internal/configDependencyShared.ts";
+} from "@beep/repo-workspaces/internal/configDependencyShared";
+import { assert, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

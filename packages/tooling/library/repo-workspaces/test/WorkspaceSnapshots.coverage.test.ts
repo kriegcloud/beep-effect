@@ -1,4 +1,10 @@
 import { Git, LsTreeEntry } from "@beep/git";
+import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { CatalogSet, WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
+import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
+import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -9,12 +15,6 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Scheduler from "effect/Scheduler";
-import { ConfigDependencyHooks } from "../../effected/workspaces/ConfigDependencyHooks.ts";
-import { CatalogSet, WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
-import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
-import { WorkspaceSnapshots } from "../../effected/workspaces/WorkspaceSnapshots.ts";
-import { WorkspaceStateSnapshot } from "../../effected/workspaces/WorkspaceStateSnapshot.ts";
 
 const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
 const atLayer = (files: Readonly<Record<string, string>>) =>

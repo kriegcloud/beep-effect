@@ -7,7 +7,7 @@
 // parse), and because `@beep/package-json` already exports a
 // `PackageManager` class for the corepack `pnpm@10.33.0` field.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { PackageManager } from "@beep/package-json";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
@@ -22,7 +22,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { WorkspaceManifestError } from "./WorkspacePackage.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/PackageManagerName");
+const $I = $RepoWorkspacesId.create("PackageManagerName");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -45,7 +45,7 @@ class PackageManagerDetectorDefect extends S.TaggedError<
  * **Example** (Validate supported manager names)
  *
  * ```ts
- * import { PackageManagerName } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(PackageManagerName)("pnpm")) // true
@@ -88,7 +88,7 @@ export type PackageManagerName = typeof PackageManagerName.Type;
  * **Example** (Recognize a declaration marker)
  *
  * ```ts
- * import { PackageManagerEvidence } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { PackageManagerEvidence } from "@beep/repo-workspaces/PackageManagerName";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(PackageManagerEvidence)("package.json#packageManager")) // true
@@ -154,7 +154,7 @@ export type PackageManagerEvidence = typeof PackageManagerEvidence.Type;
  * **Example** (Construct a detection with workspace evidence)
  *
  * ```ts
- * import { DetectedPackageManager } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { DetectedPackageManager } from "@beep/repo-workspaces/PackageManagerName";
  * import * as O from "effect/Option";
  *
  * const detected = DetectedPackageManager.make({
@@ -222,7 +222,7 @@ type ManagerHint = typeof ManagerHint.Type;
  * **Example** (Validate a manifest object)
  *
  * ```ts
- * import { JsonObject } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { JsonObject } from "@beep/repo-workspaces/PackageManagerName";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(JsonObject)({ packageManager: "pnpm@10.33.0" })) // true
@@ -251,7 +251,7 @@ export type JsonObject = typeof JsonObject.Type;
  * **Example** (Reject an array as a manifest object)
  *
  * ```ts
- * import { isPlainObject } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { isPlainObject } from "@beep/repo-workspaces/PackageManagerName";
  *
  * console.log(isPlainObject([])) // false
  * ```
@@ -329,7 +329,7 @@ const corepackHint = (manifest: Record<string, unknown>): O.Option<ManagerHint> 
  * **Example** (Report the root and checked marker)
  *
  * ```ts
- * import { PackageManagerDetectionError } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { PackageManagerDetectionError } from "@beep/repo-workspaces/PackageManagerName";
  *
  * const error = PackageManagerDetectionError.make({
  *   root: "/repo",
@@ -371,7 +371,7 @@ export class PackageManagerDetectionError extends S.TaggedError<
    * **Example** (Read the detection failure message)
    *
    * ```ts
-   * import { PackageManagerDetectionError } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+   * import { PackageManagerDetectionError } from "@beep/repo-workspaces/PackageManagerName";
    *
    * const error = PackageManagerDetectionError.make({
    *   root: "/repo",
@@ -426,7 +426,7 @@ export interface PackageManagerDetectorShape {
    * **Example** (Compose a stubbed detection)
    *
    * ```ts
-   * import { PackageManagerDetectionError, PackageManagerDetector } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+   * import { PackageManagerDetectionError, PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
    * import * as Effect from "effect/Effect";
    *
    * const detector = PackageManagerDetector.makeTest({
@@ -488,7 +488,7 @@ export interface PackageManagerDetectorShape {
  * **Example** (Compose detection through the service)
  *
  * ```ts
- * import { PackageManagerDetector } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+ * import { PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.flatMap(PackageManagerDetector, (detector) => detector.detect("/repo"));
@@ -509,7 +509,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
    * **Example** (Construct the filesystem-backed service effect)
    *
    * ```ts
-   * import { PackageManagerDetector } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+   * import { PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
    * import * as Effect from "effect/Effect";
    *
    * console.log(Effect.isEffect(PackageManagerDetector.make)) // true
@@ -775,7 +775,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
    * **Example** (Inspect the live detector layer)
    *
    * ```ts
-   * import { PackageManagerDetector } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+   * import { PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(PackageManagerDetector.layer)) // true
@@ -813,7 +813,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
    * **Example** (Stub pnpm detection with workspace evidence)
    *
    * ```ts
-   * import { DetectedPackageManager, PackageManagerDetector } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+   * import { DetectedPackageManager, PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -862,7 +862,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
    * **Example** (Provide a stubbed detector layer)
    *
    * ```ts
-   * import { DetectedPackageManager, PackageManagerDetector } from "@beep/scratchpad/effected/workspaces/PackageManagerName";
+   * import { DetectedPackageManager, PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *

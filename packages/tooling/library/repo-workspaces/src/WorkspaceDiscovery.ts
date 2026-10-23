@@ -8,7 +8,7 @@
 // implemented: `versionOf` is a lookup over the discovered package list.
 
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { DependencyResolutionError, WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
@@ -33,7 +33,7 @@ import { WorkspacePackage } from "./WorkspacePackage.ts";
 import { WorkspaceRoot } from "./WorkspaceRoot.ts";
 import type { WorkspaceRootNotFoundError } from "./WorkspaceRoot.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspaceDiscovery");
+const $I = $RepoWorkspacesId.create("WorkspaceDiscovery");
 
 const WorkspaceDiscoveryErrorKind = LiteralKit([
   "read",
@@ -92,7 +92,7 @@ class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause, { r
  * **Example** (Report an invalid workspace manifest)
  *
  * ```ts
- * import { WorkspaceDiscoveryError } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { WorkspaceDiscoveryError } from "@beep/repo-workspaces/WorkspaceDiscovery";
  *
  * const error = WorkspaceDiscoveryError.make({ root: "/repo", path: "/repo/package.json", kind: "missingName", cause: undefined });
  * console.log(error.message) // Workspace discovery failed at /repo/package.json (missingName)
@@ -133,7 +133,7 @@ export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryErr
    * **Example** (Render the failure message)
    *
    * ```ts
-   * import { WorkspaceDiscoveryError } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspaceDiscoveryError } from "@beep/repo-workspaces/WorkspaceDiscovery";
    *
    * const error = WorkspaceDiscoveryError.make({ root: "/repo", path: "/repo/package.json", kind: "missingName", cause: undefined });
    * console.log(error.message) // Workspace discovery failed at /repo/package.json (missingName)
@@ -155,7 +155,7 @@ export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryErr
  * **Example** (Report a missing pattern base)
  *
  * ```ts
- * import { WorkspacePatternError } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { WorkspacePatternError } from "@beep/repo-workspaces/WorkspaceDiscovery";
  *
  * const error = WorkspacePatternError.make({ root: "/repo", pattern: "packages/*", kind: "missingBaseDir", detail: "packages" });
  * console.log(error.message) // Workspace pattern "packages/*" could not be enumerated (missingBaseDir: packages)
@@ -202,7 +202,7 @@ export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, 
    * **Example** (Render the failure message)
    *
    * ```ts
-   * import { WorkspacePatternError } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspacePatternError } from "@beep/repo-workspaces/WorkspaceDiscovery";
    *
    * const error = WorkspacePatternError.make({ root: "/repo", pattern: "packages/*", kind: "missingBaseDir", detail: "packages" });
    * console.log(error.message) // Workspace pattern "packages/*" could not be enumerated (missingBaseDir: packages)
@@ -227,7 +227,7 @@ export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, 
  * **Example** (Report an unknown package name)
  *
  * ```ts
- * import { PackageNotFoundError } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { PackageNotFoundError } from "@beep/repo-workspaces/WorkspaceDiscovery";
  *
  * const error = PackageNotFoundError.make({ name: "@app/missing", available: ["@app/core"] });
  * console.log(error.message) // No workspace package named "@app/missing"
@@ -259,7 +259,7 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
    * **Example** (Render the failure message)
    *
    * ```ts
-   * import { PackageNotFoundError } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { PackageNotFoundError } from "@beep/repo-workspaces/WorkspaceDiscovery";
    *
    * const error = PackageNotFoundError.make({ name: "@app/missing", available: ["@app/core"] });
    * console.log(error.message) // No workspace package named "@app/missing"
@@ -280,7 +280,7 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
  * **Example** (Inspect workspace membership patterns)
  *
  * ```ts
- * import { WorkspaceInfo } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { WorkspaceInfo } from "@beep/repo-workspaces/WorkspaceDiscovery";
  *
  * const info = WorkspaceInfo.make({ root: "/repo", patterns: ["packages/*"] });
  * console.log(info.patterns.join(", ")) // packages/*
@@ -340,7 +340,7 @@ const DiscoveryDepth = S.declare(P.isNumber).pipe(
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { WorkspaceDiscoveryOptions } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { WorkspaceDiscoveryOptions } from "@beep/repo-workspaces/WorkspaceDiscovery";
  *
  * console.log(S.is(WorkspaceDiscoveryOptions)({ cwd: "/repo" })) // true
  * console.log(S.is(WorkspaceDiscoveryOptions)(null)) // false
@@ -520,7 +520,7 @@ export interface WorkspaceDiscoveryShape {
  * **Example** (List workspace package names)
  *
  * ```ts
- * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -545,7 +545,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * **Example** (Construct discovery with an explicit root)
    *
    * ```ts
-   * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
    * import * as Effect from "effect/Effect";
    *
    * const program = WorkspaceDiscovery.make({ cwd: "/repo" });
@@ -974,7 +974,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * **Example** (Build a reusable discovery layer)
    *
    * ```ts
-   * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
    * import * as Layer from "effect/Layer";
    *
    * const LiveDiscovery = WorkspaceDiscovery.layer({ cwd: "/repo" });
@@ -1021,8 +1021,8 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * **Example** (Stub discovery with a workspace package)
    *
    * ```ts
-   * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const double = WorkspaceDiscovery.makeTest({
@@ -1136,7 +1136,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * **Example** (Provide an empty workspace discovery test layer)
    *
    * ```ts
-   * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
    * import * as Effect from "effect/Effect";
    *
    * const TestDiscovery = WorkspaceDiscovery.layerTest({
@@ -1173,7 +1173,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
    * **Example** (Provide a resolver for workspace dependencies)
    *
    * ```ts
-   * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
    * import * as Layer from "effect/Layer";
    *
    * const resolvers = WorkspaceDiscovery.workspaceResolver.pipe(

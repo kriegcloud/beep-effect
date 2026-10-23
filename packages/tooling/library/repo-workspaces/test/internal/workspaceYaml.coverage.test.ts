@@ -1,9 +1,6 @@
+import { configDependenciesOf, inlinePeerDependencyRules } from "@beep/repo-workspaces/internal/workspaceYaml";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import {
-  configDependenciesOf,
-  inlinePeerDependencyRules,
-} from "../../../effected/workspaces/internal/workspaceYaml.ts";
 
 it.effect("malformed documents and rule axes degrade independently", () =>
   Effect.sync(() => {

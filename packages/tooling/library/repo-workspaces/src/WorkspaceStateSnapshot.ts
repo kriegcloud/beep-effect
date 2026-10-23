@@ -9,7 +9,7 @@
 // set it captured. It also hands back `@effected/npm` resolver layers bound to
 // itself, so code written to those contracts can run "as of" a ref.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { DependencyResolutionError, WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
@@ -27,7 +27,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import { unanimousVersionOf } from "./internal/importerVersions.ts";
 import { CatalogSet, ImporterVersions } from "./WorkspaceCatalogs.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspaceStateSnapshot");
+const $I = $RepoWorkspacesId.create("WorkspaceStateSnapshot");
 
 // A readonly empty record shared as the default for every absent
 // dependency record — the `WorkspacePackage` precedent, so an omitted record
@@ -76,7 +76,7 @@ const SnapshotVersion = S.optionalKey(S.String).pipe(
  * **Example** (Capture a versionless member)
  *
  * ```ts
- * import { PackageStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+ * import { PackageStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
  *
  * const member = PackageStateSnapshot.make({ name: "app", relativePath: "." });
  * console.log(member.name) // app
@@ -156,7 +156,7 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
    * **Example** (Read the merged dependency records)
    *
    * ```ts
-   * import { PackageStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { PackageStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const member = PackageStateSnapshot.make({
    *   name: "app", relativePath: ".",
@@ -198,7 +198,7 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
  * **Example** (Resolve a catalog specifier at a git ref)
  *
  * ```ts
- * import { WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/index";
+ * import { WorkspaceSnapshots } from "@beep/repo-workspaces";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -307,8 +307,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Observe the cached version index)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.versions === snapshot.versions) // true
@@ -323,8 +323,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Observe the cached version name order)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.versionNames === snapshot.versionNames) // true
@@ -340,8 +340,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(O.isNone(snapshot.package("missing"))) // true
@@ -356,8 +356,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Observe catalog layer memoization)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.catalogResolver === snapshot.catalogResolver) // true
@@ -372,8 +372,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Observe workspace layer memoization)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.workspaceResolver === snapshot.workspaceResolver) // true
@@ -388,8 +388,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Observe merged layer memoization)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.resolvers === snapshot.resolvers) // true
@@ -405,8 +405,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Trigger lazy version indexing)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.versions === snapshot.versions) // true
@@ -436,8 +436,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(O.isNone(snapshot.package("missing"))) // true
@@ -466,8 +466,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as HashMap from "effect/HashMap";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(HashMap.size(snapshot.versions)) // 0
@@ -485,8 +485,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Read versioned names in insertion order)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.versionNames.length) // 0
@@ -506,8 +506,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(O.isNone(snapshot.package("missing"))) // true
@@ -555,8 +555,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(O.isNone(snapshot.resolve("effect", "^4.0.0"))) // true
@@ -594,8 +594,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({
    *   packages: [], catalogs: CatalogSet.empty(),
@@ -626,8 +626,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(O.isNone(snapshot.resolve("effect", "^4.0.0"))) // true
@@ -667,8 +667,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * ```ts
    * import * as O from "effect/Option";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(O.isNone(snapshot.resolve("effect", "catalog:"))) // true
@@ -704,7 +704,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Seed a historical snapshot with live catalogs)
    *
    * ```ts
-   * import { WorkspaceCatalogs, WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/index";
+   * import { WorkspaceCatalogs, WorkspaceSnapshots } from "@beep/repo-workspaces";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -776,7 +776,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Cross-seed snapshots for catalog resolution)
    *
    * ```ts
-   * import { WorkspaceSnapshots, WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/index";
+   * import { WorkspaceSnapshots, WorkspaceStateSnapshot } from "@beep/repo-workspaces";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -852,8 +852,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * const program = Effect.gen(function* () {
@@ -890,8 +890,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * const program = Effect.gen(function* () {
@@ -937,8 +937,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * **Example** (Reuse the merged snapshot layers)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    *
    * const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
    * console.log(snapshot.resolvers === snapshot.resolvers) // true

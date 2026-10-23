@@ -67,7 +67,7 @@ const isNegation = (pattern: string): boolean => pattern.startsWith("!");
  * **Example** (Observe ordered peer inclusions and exclusions)
  *
  * ```ts
- * import { peerNameMatcher } from "@beep/scratchpad/effected/workspaces/internal/peerPatterns";
+ * import { peerNameMatcher } from "@beep/repo-workspaces/internal/peerPatterns";
  *
  * console.log(peerNameMatcher(["*", "!redux"])("redux")); // false
  * console.log(peerNameMatcher(["!redux", "*"])("redux")); // true

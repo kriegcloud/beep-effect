@@ -1,8 +1,8 @@
+import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
 import { assert, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import { CatalogSet } from "../../effected/workspaces/WorkspaceCatalogs.ts";
-import { WorkspaceStateSnapshot } from "../../effected/workspaces/WorkspaceStateSnapshot.ts";
 
 it.effect("missing importer records abstain and resolver layers are memoized", () =>
   Effect.sync(() => {

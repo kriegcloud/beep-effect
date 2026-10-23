@@ -27,7 +27,7 @@ import {
   WorkspaceDiscoveryError,
   WorkspaceInfo,
   WorkspacePatternError,
-} from "../../effected/workspaces/WorkspaceDiscovery.ts";
+} from "@beep/repo-workspaces/WorkspaceDiscovery";
 
 describe("WorkspaceDiscovery property floor", () => {
   roundTrip("WorkspaceDiscoveryError", WorkspaceDiscoveryError);
@@ -37,11 +37,11 @@ describe("WorkspaceDiscovery property floor", () => {
 });
 
 import { MemoryFileSystem } from "@beep/memfs";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
 
 const discoveryFiles = MemoryFileSystem.layerWith({ "/repo/package.json": '{"name":"initial","workspaces":[]}' });
 it.layer(

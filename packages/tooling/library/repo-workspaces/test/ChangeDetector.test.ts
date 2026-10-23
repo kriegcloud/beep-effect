@@ -1,9 +1,4 @@
 import { Git, GitCommandError, NotARepositoryError } from "@beep/git";
-import { assert, describe, layer } from "@effect/vitest";
-import { assertSuccess } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
 import {
   ChangeDetectionOptions,
   ChangeDetector,
@@ -11,9 +6,14 @@ import {
   WorkspaceDiscovery,
   WorkspacePackage,
   WorkspaceRoot,
-} from "../../effected/workspaces/index.ts";
-import { manifest, platform, rootManifest } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+} from "@beep/repo-workspaces";
+import { assert, describe, layer } from "@effect/vitest";
+import { assertSuccess } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Layer from "effect/Layer";
+import { manifest, platform, rootManifest } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 // a → b → c: `web` depends on `beta`, `beta` depends on `alpha`. Touching a file
 // in `alpha` must therefore affect `beta` AND `web`.

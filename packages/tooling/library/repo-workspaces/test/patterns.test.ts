@@ -7,11 +7,11 @@
 // `readPatterns` swallows the error — it cannot fail for the right reason, which
 // is worse than not existing. This one can.
 
+import { readPatterns } from "@beep/repo-workspaces/internal/patterns";
 import { assert, describe, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { readPatterns } from "../../effected/workspaces/internal/patterns.ts";
-import { platform } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { platform } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 const tree: Tree = {
   "/repo/pnpm-workspace.yaml": "packages:\n  - 'packages/*'\n",

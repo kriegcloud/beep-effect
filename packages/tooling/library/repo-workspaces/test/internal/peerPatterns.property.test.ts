@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { peerNameMatcher } from "@beep/repo-workspaces/internal/peerPatterns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { peerNameMatcher } from "../../../effected/workspaces/internal/peerPatterns.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const literalSuffix = Arbitrary.schema(S.String).pipe(Arbitrary.filter((name) => Str.includes("*")(name) === false));

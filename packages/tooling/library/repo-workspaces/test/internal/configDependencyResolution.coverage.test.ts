@@ -9,7 +9,7 @@ vi.spyOn(os, "homedir").mockReturnValue("/tmp/workspaces-v6-no-home");
 const directoryReads = vi.spyOn(fs, "readdir");
 const fileReads = vi.spyOn(fs, "readFile");
 const realpaths = vi.spyOn(fs, "realpath");
-const subject = await import("../../../effected/workspaces/internal/configDependencyResolution.ts");
+const subject = await import("@beep/repo-workspaces/internal/configDependencyResolution");
 const root = () =>
   Effect.acquireRelease(
     Effect.promise(() => fs.mkdtemp("/tmp/workspaces-v6-resolution-")),

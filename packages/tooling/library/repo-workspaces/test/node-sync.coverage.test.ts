@@ -1,10 +1,10 @@
+import { nodeFileSystem, nodePath, nodeSyncOps } from "@beep/repo-workspaces/node-sync";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { nodeFileSystem, nodePath, nodeSyncOps } from "../../effected/workspaces/node-sync.ts";
 
 it.effect("Node sync binding reads actual source entries and reports directory types", () =>
   Effect.sync(() => {
-    const source = nodePath.resolve("scratchpad/effected/workspaces/node-sync.ts");
+    const source = nodePath.resolve(import.meta.dirname, "..", "src", "node-sync.ts");
     const directory = nodePath.dirname(source);
     assert.isTrue(nodeFileSystem.exists(source));
     assert.isFalse(nodeFileSystem.exists(""));

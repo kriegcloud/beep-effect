@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
@@ -20,7 +20,7 @@ import * as S from "effect/Schema";
 
 import { MAX_ENUMERATION_ENTRIES, PRUNED_DIRECTORIES } from "./limits.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/traverse");
+const $I = $RepoWorkspacesId.create("internal/traverse");
 
 /** A positive integer depth bound, including integers beyond the safe-integer range. */
 const MaxDepth = S.Finite.check(
@@ -45,7 +45,7 @@ const MaxDepth = S.Finite.check(
  * **Example** (Recognize a queued directory frame)
  *
  * ```ts
- * import { TraversalFrame } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { TraversalFrame } from "@beep/repo-workspaces/internal/traverse";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(TraversalFrame)({ relative: "packages", absolute: "/repo/packages", depth: 0 })); // true
@@ -83,7 +83,7 @@ export type TraversalFrame = typeof TraversalFrame.Type;
  * **Example** (Recognize an existing traversal stop)
  *
  * ```ts
- * import { TraversalStop } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { TraversalStop } from "@beep/repo-workspaces/internal/traverse";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(TraversalStop)({ kind: "budgetExceeded", detail: "visited more than 1 directories" })); // true
@@ -131,7 +131,7 @@ export type TraversalStop = typeof TraversalStop.Type;
  * **Example** (Check a pruned directory name)
  *
  * ```ts
- * import { isPruned } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { isPruned } from "@beep/repo-workspaces/internal/traverse";
  *
  * console.log(isPruned("node_modules")); // true
  * ```
@@ -147,7 +147,7 @@ export const isPruned = (entry: string): boolean => HashSet.has(PRUNED_DIRECTORI
  * **Example** (Join paths from the root and a package directory)
  *
  * ```ts
- * import { joinRelative } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { joinRelative } from "@beep/repo-workspaces/internal/traverse";
  *
  * console.log(joinRelative("", "packages")); // packages
  * console.log(joinRelative("core")("packages")); // packages/core
@@ -175,7 +175,7 @@ export const joinRelative: {
  * **Example** (Reject nonintegral and nonfinite depth bounds)
  *
  * ```ts
- * import { isValidMaxDepth } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { isValidMaxDepth } from "@beep/repo-workspaces/internal/traverse";
  *
  * console.log(isValidMaxDepth(2)); // true
  * console.log(isValidMaxDepth(2.5)); // false
@@ -193,7 +193,7 @@ export const isValidMaxDepth = S.is(MaxDepth);
  * **Example** (Explain an invalid depth bound)
  *
  * ```ts
- * import { badMaxDepthMessage } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { badMaxDepthMessage } from "@beep/repo-workspaces/internal/traverse";
  *
  * console.log(badMaxDepthMessage(0)); // maxDepth must be a positive integer, received 0
  * ```
@@ -215,7 +215,7 @@ export const badMaxDepthMessage = (maxDepth: number): string =>
  * **Example** (Start a traversal at the base directory)
  *
  * ```ts
- * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+ * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
  *
  * const traversal = new Traversal("packages", "/repo/packages", 2);
  * console.log(traversal.next()?.depth); // 0
@@ -231,7 +231,7 @@ export class Traversal {
    * **Example** (Read the initial queued frame)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("packages", "/repo/packages", 1);
    * console.log(traversal.next()?.relative); // packages
@@ -247,7 +247,7 @@ export class Traversal {
    * **Example** (Advance past the only queued frame)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1);
    * traversal.next();
@@ -264,7 +264,7 @@ export class Traversal {
    * **Example** (Count reads until the budget is exceeded)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1, 1);
    * traversal.charge();
@@ -281,7 +281,7 @@ export class Traversal {
    * **Example** (Include the base path in a depth diagnostic)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("packages", "/repo/packages", 1);
    * console.log(traversal.depthStop().detail); // descended past 1 levels below "packages"
@@ -297,7 +297,7 @@ export class Traversal {
    * **Example** (Reject a child beyond the configured depth)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1);
    * console.log(traversal.admits({ relative: "packages", absolute: "/repo/packages", depth: 1 })); // false
@@ -313,7 +313,7 @@ export class Traversal {
    * **Example** (Report the configured directory budget)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1, 1);
    * traversal.charge();
@@ -345,7 +345,7 @@ export class Traversal {
    * **Example** (Drain the initial worklist)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1);
    * console.log(traversal.next()?.absolute); // /repo
@@ -368,7 +368,7 @@ export class Traversal {
    * **Example** (Exhaust a one-directory visit budget)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1, 1);
    * console.log(traversal.charge()); // undefined
@@ -399,7 +399,7 @@ export class Traversal {
    * **Example** (Check the child depth before accepting a package)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1);
    * console.log(traversal.admits({ relative: "", absolute: "/repo", depth: 0 })); // true
@@ -419,7 +419,7 @@ export class Traversal {
    * **Example** (Describe the exceeded depth cap)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("packages", "/repo/packages", 1);
    * console.log(traversal.depthStop().detail); // descended past 1 levels below "packages"
@@ -442,7 +442,7 @@ export class Traversal {
    * **Example** (Queue an admitted child directory)
    *
    * ```ts
-   * import { Traversal } from "@beep/scratchpad/effected/workspaces/internal/traverse";
+   * import { Traversal } from "@beep/repo-workspaces/internal/traverse";
    *
    * const traversal = new Traversal("", "/repo", 1);
    * const parent = traversal.next();

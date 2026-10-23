@@ -161,6 +161,9 @@
       "path": "../packages/tooling/library/repo-utils/tsconfig.json"
     },
     {
+      "path": "../packages/tooling/library/repo-workspaces/tsconfig.json"
+    },
+    {
       "path": "../packages/tooling/test-kit/fc-runs/tsconfig.json"
     },
     {

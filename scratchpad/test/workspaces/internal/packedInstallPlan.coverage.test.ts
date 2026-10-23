@@ -3,7 +3,7 @@ import { assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
-import { WorkspacePackage } from "../../../effected/workspaces/WorkspacePackage.ts";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { binTargetOf, closureOf, consumerFiles, readPackedManifest, versionOf } from "../../../effected/workspaces/internal/packedInstallPlan.ts";
 
 it.effect("accepts version lines amid noise and handles a Yarn version lacking a minor component", () => Effect.sync(() => {

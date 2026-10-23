@@ -1,10 +1,10 @@
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
+import { ImporterRoots, indexInstances, rootInstances } from "@beep/repo-workspaces/internal/roots";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
-import { ImporterRoots, indexInstances, rootInstances } from "../../../effected/workspaces/internal/roots.ts";
 
 it.effect("indexes workspace rows only when they carry an importer path", () =>
   Effect.sync(() => {

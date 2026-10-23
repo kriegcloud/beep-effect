@@ -36,9 +36,9 @@ import {
     scrubEnv,
     versionOf,
 } from "./internal/packedInstallPlan.ts";
-import { PackageManagerName } from "./PackageManagerName.ts";
-import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
-import { WorkspacePackage } from "./WorkspacePackage.ts";
+import { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 
 const $I = $ScratchpadId.create("effected/workspaces/PackedInstall");
 

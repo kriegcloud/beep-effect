@@ -1,6 +1,6 @@
+import { inlineCatalogs, normalize, rangeOf } from "@beep/repo-workspaces/internal/catalogs";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { inlineCatalogs, normalize, rangeOf } from "../../../effected/workspaces/internal/catalogs.ts";
 
 it.effect("absent and conflicting inline catalogs yield an empty set", () =>
   Effect.sync(() => {

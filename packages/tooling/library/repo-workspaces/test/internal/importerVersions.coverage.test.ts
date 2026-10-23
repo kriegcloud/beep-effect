@@ -1,8 +1,8 @@
 import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { importerVersionsOf, unanimousVersionOf } from "@beep/repo-workspaces/internal/importerVersions";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { importerVersionsOf, unanimousVersionOf } from "../../../effected/workspaces/internal/importerVersions.ts";
 
 it.effect("ignores absent, empty and filesystem resolutions while retaining concrete versions", () =>
   Effect.gen(function* () {

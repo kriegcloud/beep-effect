@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
@@ -23,7 +23,7 @@ import { MAX_ENUMERATION_DEPTH } from "./limits.ts";
 import { badMaxDepthMessage, isPruned, isValidMaxDepth, joinRelative, Traversal } from "./traverse.ts";
 import type { GlobPattern, GlobSet } from "@beep/glob";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/enumerate");
+const $I = $RepoWorkspacesId.create("internal/enumerate");
 
 class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError, { readonly brand: unique symbol }>(
   $I`EnumerationOptionsError`
@@ -43,7 +43,7 @@ class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError, { r
  * **Example** (Recognize an accepted package directory)
  *
  * ```ts
- * import { EnumeratedDirectory } from "@beep/scratchpad/effected/workspaces/internal/enumerate";
+ * import { EnumeratedDirectory } from "@beep/repo-workspaces/internal/enumerate";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(EnumeratedDirectory)({ relativePath: "packages/core", path: "/repo/packages/core" })); // true
@@ -81,7 +81,7 @@ export type EnumeratedDirectory = typeof EnumeratedDirectory.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { EnumerationFailureKind } from "@beep/scratchpad/effected/workspaces/internal/enumerate"
+ * import { EnumerationFailureKind } from "@beep/repo-workspaces/internal/enumerate"
  *
  * console.log(S.is(EnumerationFailureKind)("missingBaseDir")) // true
  * console.log(S.is(EnumerationFailureKind)("unknown")) // false
@@ -130,7 +130,7 @@ const enumerationFailureCase = <const Kind extends EnumerationFailureKind>(kind:
  * **Example** (Recognize an enumeration failure)
  *
  * ```ts
- * import { EnumerationFailure } from "@beep/scratchpad/effected/workspaces/internal/enumerate";
+ * import { EnumerationFailure } from "@beep/repo-workspaces/internal/enumerate";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(EnumerationFailure)({ kind: "missingBaseDir", pattern: "packages/*", detail: "missing packages" })); // true
@@ -166,7 +166,7 @@ export type EnumerationFailure = typeof EnumerationFailure.Type;
  * **Example** (Leave enumeration defaults unresolved)
  *
  * ```ts
- * import { EnumerateOptions } from "@beep/scratchpad/effected/workspaces/internal/enumerate";
+ * import { EnumerateOptions } from "@beep/repo-workspaces/internal/enumerate";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(EnumerateOptions)({})); // true
@@ -215,7 +215,7 @@ const baseOf = (pattern: GlobPattern): string => pattern.enumerationPrefix.repla
  * ```ts
  * import * as Effect from "effect/Effect"
  * import { GlobSet } from "@beep/glob/GlobSet"
- * import { enumerate } from "@beep/scratchpad/effected/workspaces/internal/enumerate"
+ * import { enumerate } from "@beep/repo-workspaces/internal/enumerate"
  *
  * const globs = Effect.runSync(GlobSet.compile(["packages/*"]))
  * const program = enumerate("/workspace", globs, { maxDepth: 2 })

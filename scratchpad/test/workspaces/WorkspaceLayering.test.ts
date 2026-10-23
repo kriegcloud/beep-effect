@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import { DependencyGraph, WorkspaceDiscovery, WorkspacePackage } from "../../effected/workspaces/index.ts";
+import { DependencyGraph, WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
 import type { LayeringGraph } from "../../effected/workspaces/testing.ts";
 import { LayerEdge, LayerPolicy, WorkspaceLayering } from "../../effected/workspaces/testing.ts";
 

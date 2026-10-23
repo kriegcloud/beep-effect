@@ -5,7 +5,7 @@
 // absorption is load-bearing — one unreadable ancestor must not hide a valid
 // root above it.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import { Walker } from "@beep/walker/Walker";
 import * as A from "effect/Array";
@@ -20,7 +20,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspaceRoot");
+const $I = $RepoWorkspacesId.create("WorkspaceRoot");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -30,7 +30,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  * **Example** (Inspect root marker priority)
  *
  * ```ts
- * import { WORKSPACE_MARKERS } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+ * import { WORKSPACE_MARKERS } from "@beep/repo-workspaces/WorkspaceRoot";
  *
  * console.log(WORKSPACE_MARKERS.join(", ")) // pnpm-workspace.yaml, package.json
  * ```
@@ -55,7 +55,7 @@ const PACKAGE_JSON_MARKER_PROSE = 'package.json with a "workspaces" field';
  * **Example** (Read optional ascent bounds)
  *
  * ```ts
- * import { FindWorkspaceRootOptions } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+ * import { FindWorkspaceRootOptions } from "@beep/repo-workspaces/WorkspaceRoot";
  * import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { identity } from "effect/Function";
@@ -132,7 +132,7 @@ export type FindWorkspaceRootOptions = typeof FindWorkspaceRootOptions.Type;
  * **Example** (Describe a bounded root search failure)
  *
  * ```ts
- * import { WORKSPACE_MARKERS, WorkspaceRootNotFoundError } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+ * import { WORKSPACE_MARKERS, WorkspaceRootNotFoundError } from "@beep/repo-workspaces/WorkspaceRoot";
  *
  * const error = WorkspaceRootNotFoundError.make({
  *   searchPath: "/repo/packages/app",
@@ -198,7 +198,7 @@ export class WorkspaceRootNotFoundError extends S.TaggedError<
    * **Example** (Render an unbounded root search failure)
    *
    * ```ts
-   * import { WORKSPACE_MARKERS, WorkspaceRootNotFoundError } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+   * import { WORKSPACE_MARKERS, WorkspaceRootNotFoundError } from "@beep/repo-workspaces/WorkspaceRoot";
    *
    * const error = WorkspaceRootNotFoundError.make({ searchPath: "/repo", markers: WORKSPACE_MARKERS });
    * console.log(error.message) // No workspace root above /repo (looked for pnpm-workspace.yaml, package.json with a "workspaces" field)
@@ -307,7 +307,7 @@ const isAtOrBelow: {
  * **Example** (Find the workspace root from a package directory)
  *
  * ```ts
- * import { WorkspaceRoot } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+ * import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -323,7 +323,7 @@ const isAtOrBelow: {
  * the enclosing repository.
  *
  * ```ts
- * import { WorkspaceRoot } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+ * import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -344,7 +344,7 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
    * **Example** (Construct the live root service effect)
    *
    * ```ts
-   * import { WorkspaceRoot } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+   * import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
    * import * as Effect from "effect/Effect";
    *
    * console.log(Effect.isEffect(WorkspaceRoot.make)) // true
@@ -417,7 +417,7 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
    * **Example** (Compose live root discovery with its layer)
    *
    * ```ts
-   * import { WorkspaceRoot } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+   * import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.flatMap(WorkspaceRoot, (roots) => roots.find("/repo/packages/app"));
@@ -461,7 +461,7 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
    * **Example** (Resolve a root with the filesystem-free double)
    *
    * ```ts
-   * import { WorkspaceRoot } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+   * import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
    * import * as Effect from "effect/Effect";
    * import * as Path from "effect/Path";
    *
@@ -522,8 +522,8 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
    * **Example** (Provide root and discovery test layers)
    *
    * ```ts
-   * import { WorkspaceRoot } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
-   * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+   * import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
+   * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    *

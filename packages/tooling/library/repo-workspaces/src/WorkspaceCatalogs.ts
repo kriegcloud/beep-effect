@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 
 // pnpm catalogs: the `CatalogSet` value, the service that assembles it for a
@@ -45,7 +45,7 @@ import type { ConfigDependencyHooksShape, HookInjection, HookReplayContext } fro
 import type { LockfileReadFailure } from "./LockfileReader.ts";
 import type { WorkspaceRootNotFoundError } from "./WorkspaceRoot.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspaceCatalogs");
+const $I = $RepoWorkspacesId.create("WorkspaceCatalogs");
 
 /** A catalog shape or test-wiring defect with the original diagnostic message. */
 class WorkspaceCatalogsDefect extends S.TaggedError<WorkspaceCatalogsDefect, { readonly brand: unique symbol }>(
@@ -87,7 +87,7 @@ const CatalogRecords = S.Record(S.String, CatalogRecord).pipe(
  * **Example** (Read recorded importer versions)
  *
  * ```ts
- * import { ImporterVersions } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import { ImporterVersions } from "@beep/repo-workspaces/WorkspaceCatalogs";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(ImporterVersions)({ ".": { effect: "4.0.2" } })) // true
@@ -124,7 +124,7 @@ export type ImporterVersions = typeof ImporterVersions.Type;
  * **Example** (Normalize the default catalog)
  *
  * ```ts
- * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
  *
  * const catalogs = CatalogSet.fromBunBlocks({ catalog: { effect: "^4.0.0" } });
  * console.log(catalogs.entries.default?.effect) // ^4.0.0
@@ -152,7 +152,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Create a workspace without catalogs)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    *
    * console.log(CatalogSet.empty().isEmpty) // true
    * ```
@@ -170,7 +170,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Normalize named catalog ranges)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    *
    * const catalogs = CatalogSet.fromCatalogs({ build: { typescript: "^6.0.0" } });
    * console.log(catalogs.entries.build?.typescript) // ^6.0.0
@@ -189,7 +189,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Read the default YAML catalog)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Effect from "effect/Effect";
    *
    * const catalogs = Effect.runSync(CatalogSet.fromWorkspaceYaml("catalog:\n  effect: ^4.0.0\n"));
@@ -214,7 +214,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Read a recorded catalog specifier)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    *
    * const catalogs = CatalogSet.fromLockfileCatalogs({ default: { effect: { specifier: "^4.0.0", version: "4.0.0" } } });
    * console.log(catalogs.entries.default?.effect) // ^4.0.0
@@ -241,9 +241,9 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Compose catalog extraction from a lockfile read)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Effect from "effect/Effect";
-   * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+   * import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
    *
    * const program = Effect.flatMap(LockfileReader, (reader) => Effect.map(reader.read, CatalogSet.fromLockfile));
    * console.log(Effect.isEffect(program)) // true
@@ -271,7 +271,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Normalize an unnamed Bun catalog)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    *
    * const catalogs = CatalogSet.fromBunBlocks({ catalog: { effect: "^4.0.0" } });
    * console.log(catalogs.entries.default?.effect) // ^4.0.0
@@ -307,7 +307,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Read a top-level Bun catalog)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Effect from "effect/Effect";
    *
    * const catalogs = Effect.runSync(CatalogSet.fromManifestWorkspaces(
@@ -345,7 +345,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Let later catalog ranges win)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    *
    * const before = CatalogSet.fromCatalogs({ default: { effect: "^4.0.0" } });
    * const after = CatalogSet.fromCatalogs({ default: { effect: "^4.1.0" } });
@@ -365,7 +365,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Check whether a catalog set is empty)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    *
    * console.log(CatalogSet.fromCatalogs({ default: { effect: "^4.0.0" } }).isEmpty) // false
    * ```
@@ -390,7 +390,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Resolve a default catalog specifier)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as O from "effect/Option";
    *
    * const catalogs = CatalogSet.fromCatalogs({ default: { effect: "^4.0.0" } });
@@ -418,7 +418,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * **Example** (Look up a named catalog range)
    *
    * ```ts
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as O from "effect/Option";
    *
    * const catalogs = CatalogSet.fromCatalogs({ build: { typescript: "^6.0.0" } });
@@ -716,9 +716,9 @@ type Assembled = typeof Assembled.Type;
  * **Example** (Construct a seeded hook replay)
  *
  * ```ts
- * import { CatalogSet, injectFromDocument } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import { CatalogSet, injectFromDocument } from "@beep/repo-workspaces/WorkspaceCatalogs";
  * import * as Effect from "effect/Effect";
- * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
  *
  * const program = Effect.flatMap(ConfigDependencyHooks, (hooks) =>
  *   injectFromDocument(hooks, "/workspace", {}, CatalogSet.empty(), {}),
@@ -883,7 +883,7 @@ export interface WorkspaceCatalogsShape {
  * **Example** (Read lazy catalog options)
  *
  * ```ts
- * import { WorkspaceCatalogsOptions } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import { WorkspaceCatalogsOptions } from "@beep/repo-workspaces/WorkspaceCatalogs";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(WorkspaceCatalogsOptions)({})) // true
@@ -965,7 +965,7 @@ export type WorkspaceCatalogsOptions = typeof WorkspaceCatalogsOptions.Type;
  * **Example** (Read catalogs through the service)
  *
  * ```ts
- * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.flatMap(WorkspaceCatalogs, (catalogs) => catalogs.set);
@@ -985,7 +985,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Construct deferred catalog assembly)
    *
    * ```ts
-   * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Effect from "effect/Effect";
    *
    * const program = WorkspaceCatalogs.make({ cwd: "/workspace" });
@@ -1228,9 +1228,9 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Choose a shared hook layer)
    *
    * ```ts
-   * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Layer from "effect/Layer";
-   * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+   * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
    *
    * const Catalogs = WorkspaceCatalogs.layerWithHooks(ConfigDependencyHooks.layerNoop);
    * console.log(Layer.isLayer(Catalogs)) // true
@@ -1273,7 +1273,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Construct the default catalog layer)
    *
    * ```ts
-   * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Layer from "effect/Layer";
    *
    * const Catalogs = WorkspaceCatalogs.layer({ cwd: "/workspace" });
@@ -1303,7 +1303,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Construct in-process hook replay)
    *
    * ```ts
-   * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Layer from "effect/Layer";
    *
    * const Catalogs = WorkspaceCatalogs.layerWithConfigDependencies({ cwd: "/workspace" });
@@ -1339,7 +1339,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Construct subprocess hook replay)
    *
    * ```ts
-   * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Layer from "effect/Layer";
    *
    * const Catalogs = WorkspaceCatalogs.layerWithConfigDependenciesSubprocess({ cwd: "/workspace" });
@@ -1389,7 +1389,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Stub catalogs with consistent specifier resolution)
    *
    * ```ts
-   * import { CatalogSet, WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet, WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -1448,7 +1448,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Provide an empty catalog test layer)
    *
    * ```ts
-   * import { CatalogSet, WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { CatalogSet, WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Effect from "effect/Effect";
    *
    * const TestCatalogs = WorkspaceCatalogs.layerTest({ set: Effect.succeed(CatalogSet.empty()) });
@@ -1478,7 +1478,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
    * **Example** (Compose the catalog resolver adapter)
    *
    * ```ts
-   * import { WorkspaceCatalogs } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+   * import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(WorkspaceCatalogs.catalogResolver)) // true

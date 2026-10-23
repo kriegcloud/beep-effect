@@ -4,7 +4,7 @@
 // Cycle detection is ITERATIVE, so a long dependency chain cannot overflow the
 // stack.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -20,7 +20,7 @@ import * as Str from "effect/String";
 import { PackageNotFoundError } from "./WorkspaceDiscovery.ts";
 import { WorkspacePackage } from "./WorkspacePackage.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/DependencyGraph");
+const $I = $RepoWorkspacesId.create("DependencyGraph");
 
 /**
  * Raised when the workspace dependency graph cannot be topologically ordered
@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/workspaces/DependencyGraph");
  * **Example** (Inspect the cycle members)
  *
  * ```ts
- * import { CyclicDependencyError } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
+ * import { CyclicDependencyError } from "@beep/repo-workspaces/DependencyGraph";
  *
  * const error = CyclicDependencyError.make({ cycle: ["a", "b"] });
  * console.log(error.cycle.join(", ")) // a, b
@@ -67,7 +67,7 @@ export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError, 
    * **Example** (Render a cycle diagnostic)
    *
    * ```ts
-   * import { CyclicDependencyError } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
+   * import { CyclicDependencyError } from "@beep/repo-workspaces/DependencyGraph";
    *
    * const error = CyclicDependencyError.make({ cycle: ["a", "b"] });
    * console.log(error.message) // Cyclic workspace dependencies among: a, b
@@ -145,8 +145,8 @@ type Edges = typeof Edges.Type;
  * **Example** (Group workspace packages into build levels)
  *
  * ```ts
- * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
- * import { WorkspaceDiscovery } from "@beep/scratchpad/effected/workspaces/WorkspaceDiscovery";
+ * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+ * import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -183,7 +183,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Reuse the cached adjacency map)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
    *
    * const graph = DependencyGraph.make({ packages: [] });
    * console.log(graph.adjacency === graph.adjacency) // true
@@ -204,7 +204,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Initialize indexes through a public accessor)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
    *
    * const graph = DependencyGraph.make({ packages: [] });
    * console.log(graph.adjacency === graph.adjacency) // true
@@ -247,8 +247,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (List workspace names lexicographically)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const core = WorkspacePackage.make({
    *   name: "core", path: "/repo/core", packageJsonPath: "/repo/core/package.json",
@@ -275,8 +275,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Read the direct edge index)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as HashMap from "effect/HashMap";
    *
    * const core = WorkspacePackage.make({
@@ -309,8 +309,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Check an acyclic workspace graph)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const core = WorkspacePackage.make({
    *   name: "core", path: "/repo/core", packageJsonPath: "/repo/core/package.json",
@@ -370,8 +370,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Look up direct workspace dependencies)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const core = WorkspacePackage.make({
@@ -404,8 +404,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Look up direct workspace dependents)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const core = WorkspacePackage.make({
@@ -440,8 +440,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Include dependents and unknown changed names)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const core = WorkspacePackage.make({
@@ -488,8 +488,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Partition dependency-first build levels)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const core = WorkspacePackage.make({
@@ -524,8 +524,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Flatten the dependency-first build order)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const core = WorkspacePackage.make({
@@ -561,8 +561,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Include transitive dependencies in a subset build)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const core = WorkspacePackage.make({
@@ -648,8 +648,8 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * **Example** (Render the Mermaid flowchart header)
    *
    * ```ts
-   * import { DependencyGraph } from "@beep/scratchpad/effected/workspaces/DependencyGraph";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { DependencyGraph } from "@beep/repo-workspaces/DependencyGraph";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const core = WorkspacePackage.make({
    *   name: "core", path: "/repo/core", packageJsonPath: "/repo/core/package.json",

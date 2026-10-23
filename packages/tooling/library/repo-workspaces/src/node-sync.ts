@@ -6,7 +6,7 @@
  *
  * **Details**
  *
- * Deliberately a **separate subpath** (`@beep/scratchpad/effected/workspaces/node-sync`), not
+ * Deliberately a **separate subpath** (`@beep/repo-workspaces/node-sync`), not
  * part of the main entry: the main entry imports nothing platform-shaped, and
  * re-exporting these from it would drag `node:*` imports into every consumer —
  * including the ones supplying their own operations (a win32-explicit `path`,
@@ -17,8 +17,8 @@
  * **Example** (Enumerate workspace packages with the Node sync binding)
  *
  * ```ts
- * import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/scratchpad/effected/workspaces/WorkspacesSync";
- * import { nodeSyncOps } from "@beep/scratchpad/effected/workspaces/node-sync";
+ * import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/repo-workspaces/WorkspacesSync";
+ * import { nodeSyncOps } from "@beep/repo-workspaces/node-sync";
  * import * as A from "effect/Array";
  *
  * const root = findWorkspaceRootSync(process.cwd(), nodeSyncOps);
@@ -55,7 +55,7 @@ export type { SyncDirectoryEntry, SyncFileSystem, SyncPath, WorkspacesSyncOption
  * **Example** (Check a missing workspace file without throwing)
  *
  * ```ts
- * import { nodeFileSystem } from "@beep/scratchpad/effected/workspaces/node-sync";
+ * import { nodeFileSystem } from "@beep/repo-workspaces/node-sync";
  *
  * console.log(nodeFileSystem.exists("")) // false
  * ```
@@ -91,7 +91,7 @@ export const nodeFileSystem: SyncFileSystem = {
  * **Example** (Find a workspace manifest directory across platforms)
  *
  * ```ts
- * import { nodePath } from "@beep/scratchpad/effected/workspaces/node-sync";
+ * import { nodePath } from "@beep/repo-workspaces/node-sync";
  *
  * console.log(nodePath.dirname(nodePath.join("workspace", "package.json"))) // workspace
  * ```
@@ -115,7 +115,7 @@ export const nodePath: SyncPath = path;
  * **Example** (Add a traversal depth to the Node options)
  *
  * ```ts
- * import { nodeFileSystem, nodePath, nodeSyncOps } from "@beep/scratchpad/effected/workspaces/node-sync";
+ * import { nodeFileSystem, nodePath, nodeSyncOps } from "@beep/repo-workspaces/node-sync";
  *
  * const options = { ...nodeSyncOps, maxDepth: 2 };
  * console.log(options.fileSystem === nodeFileSystem) // true

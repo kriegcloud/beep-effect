@@ -10,14 +10,14 @@
 // convention passes `versionPrefix: "v"` explicitly. Git tag history is not an
 // API, so changing a default here would not rewrite a consumer's existing tags.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/workspaces/ReleaseTag");
+const $I = $RepoWorkspacesId.create("ReleaseTag");
 
 /**
  * Whether one shared tag names a whole release, or one tag names each package.
@@ -31,7 +31,7 @@ const $I = $ScratchpadId.create("effected/workspaces/ReleaseTag");
  * **Example** (Recognize scoped release tagging)
  *
  * ```ts
- * import { TagStyle } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { TagStyle } from "@beep/repo-workspaces/ReleaseTag";
  * import * as S from "effect/Schema";
  * console.log(S.is(TagStyle)("scoped")) // true
  * ```
@@ -62,7 +62,7 @@ export type TagStyle = typeof TagStyle.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { TagFormatOptions } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { TagFormatOptions } from "@beep/repo-workspaces/ReleaseTag";
  *
  * S.is(TagFormatOptions)({ versionPrefix: "v" }) // => true
  * ```
@@ -174,7 +174,7 @@ const versionCore = (version: string): VersionCore | undefined => {
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { TrackingTagOptions } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { TrackingTagOptions } from "@beep/repo-workspaces/ReleaseTag";
  *
  * S.is(TrackingTagOptions)({ packageName: "@scope/pkg", precision: "major" }) // => true
  * ```
@@ -248,7 +248,7 @@ export type TrackingTagOptions = typeof TrackingTagOptions.Type;
  * **Example** (Derive stable tracking aliases with optional package prefixes)
  *
  * ```ts
- * import { TrackingTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { TrackingTag } from "@beep/repo-workspaces/ReleaseTag";
  *
  * console.log(TrackingTag.forVersion("1.2.3").map((t) => t.value).join(", ")) // v1, v1.2
  * console.log(TrackingTag.forVersion("1.0.0-beta.3").length) // 0 — never float onto a beta
@@ -298,7 +298,7 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
    * **Example** (Inspect alias precision)
    *
    * ```ts
-   * import { TrackingTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+   * import { TrackingTag } from "@beep/repo-workspaces/ReleaseTag";
    * const tag = TrackingTag.make({ value: "v1.2", major: 1, minor: 2 });
    * console.log(tag.precision) // minor
    * ```
@@ -332,7 +332,7 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
    * **Example** (Derive stable aliases and skip prereleases)
    *
    * ```ts
-   * import { TrackingTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+   * import { TrackingTag } from "@beep/repo-workspaces/ReleaseTag";
    * console.log(TrackingTag.forVersion("1.2.3").length) // 2
    * console.log(TrackingTag.forVersion("1.0.0-beta.3").length) // 0
    * ```
@@ -413,7 +413,7 @@ const splitTag = (tag: string): { readonly packageName?: string; readonly rest: 
  * **Example** (Distinguish release tags from tracking aliases)
  *
  * ```ts
- * import { classifyTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { classifyTag } from "@beep/repo-workspaces/ReleaseTag";
  * console.log(classifyTag("@scope/pkg@1.0.0").kind) // release
  * console.log(classifyTag("v1").kind) // tracking
  * console.log(classifyTag("latest").kind) // unrecognized
@@ -488,7 +488,7 @@ export const classifyTag = (tag: string): TagClassification => {
  * **Example** (Format shared and package-scoped release tags)
  *
  * ```ts
- * import { ReleaseTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { ReleaseTag } from "@beep/repo-workspaces/ReleaseTag";
  *
  * console.log(ReleaseTag.single("1.2.3").value) // 1.2.3
  * console.log(ReleaseTag.scoped("@acme/cli", "1.2.3").value) // @acme/cli@1.2.3
@@ -535,7 +535,7 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
    * **Example** (Prefix a shared release tag)
    *
    * ```ts
-   * import { ReleaseTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+   * import { ReleaseTag } from "@beep/repo-workspaces/ReleaseTag";
    * console.log(ReleaseTag.single("1.2.3", { versionPrefix: "v" }).value) // v1.2.3
    * ```
    *
@@ -568,7 +568,7 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
    * **Example** (Name a package release)
    *
    * ```ts
-   * import { ReleaseTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+   * import { ReleaseTag } from "@beep/repo-workspaces/ReleaseTag";
    * console.log(ReleaseTag.scoped("@scope/pkg", "1.2.3").value) // @scope/pkg@1.2.3
    * ```
    *
@@ -608,7 +608,7 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { TagClassification, classifyTag } from "@beep/scratchpad/effected/workspaces/ReleaseTag";
+ * import { TagClassification, classifyTag } from "@beep/repo-workspaces/ReleaseTag";
  *
  * console.log(S.is(TagClassification)(classifyTag("v1"))) // true
  * ```

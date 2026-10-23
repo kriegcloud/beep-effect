@@ -16,14 +16,14 @@ import * as Path from "effect/Path";
 
 import { fileURLToPath } from "node:url";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
 import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "../../../effected/workspaces/index.ts";
-import { manifest, platform } from "../fixtures.ts";
-import type { Tree } from "../fixtures.ts";
+import { manifest, platform } from "../support/fixtures.ts";
+import type { Tree } from "../support/fixtures.ts";
 
 const { dirname, join } = Effect.runSync(
   Path.layer.pipe(
@@ -33,7 +33,7 @@ const { dirname, join } = Effect.runSync(
   )
 );
 class RealFileSystem extends Context.Service<RealFileSystem, FileSystem.FileSystem>()(
-  "@beep/scratchpad/test/workspaces/integration/ConfigDependencyHooksSubprocess.int.test/RealFileSystem"
+  "@beep/repo-workspaces/test/integration/ConfigDependencyHooksSubprocess.int.test/RealFileSystem"
 ) {}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
@@ -344,7 +344,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
   });
 
   class InProcessHooks extends Context.Service<InProcessHooks, ConfigDependencyHooks["Service"]>()(
-    "@beep/scratchpad/test/workspaces/integration/ConfigDependencyHooksSubprocess.int.test/InProcessHooks"
+    "@beep/repo-workspaces/test/integration/ConfigDependencyHooksSubprocess.int.test/InProcessHooks"
   ) {}
   const ParityHooks = Layer.mergeAll(
     Layer.effect(InProcessHooks, ConfigDependencyHooks).pipe(Layer.provide(ConfigDependencyHooks.layerLive)),

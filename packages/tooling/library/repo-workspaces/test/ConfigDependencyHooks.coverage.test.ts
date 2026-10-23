@@ -4,14 +4,14 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import type { PeerDependencyRules } from "../../effected/workspaces/ConfigDependencyHooks.ts";
+import type { PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
 // The resolution ladder intentionally reads real disk. Its public result is
 // supplied here so the tests isolate replay and protocol behavior without IO.
-vi.doMock("../../effected/workspaces/internal/configDependencyResolution.ts", (original) =>
-  original<typeof import("../../effected/workspaces/internal/configDependencyResolution.ts")>().then((actual) => ({
+vi.doMock("../src/internal/configDependencyResolution.ts", (original) =>
+  original<typeof import("@beep/repo-workspaces/internal/configDependencyResolution")>().then((actual) => ({
     ...actual,
     resolvePnpmfiles: () =>
       Effect.succeed([
@@ -62,9 +62,7 @@ vi.doMock("./fixtures/hook-pnpmfile-age-garbage.mjs", () => ({
   updateConfig: undefined,
 }));
 
-const { ConfigDependencyHooks, NoPeerDependencyRules } = await import(
-  "../../effected/workspaces/ConfigDependencyHooks.ts"
-);
+const { ConfigDependencyHooks, NoPeerDependencyRules } = await import("@beep/repo-workspaces/ConfigDependencyHooks");
 
 const replayLayer = ConfigDependencyHooks.layerFrom({
   "cfg@1.0.0": `${import.meta.dirname}/fixtures/hook-pnpmfile.mjs`,

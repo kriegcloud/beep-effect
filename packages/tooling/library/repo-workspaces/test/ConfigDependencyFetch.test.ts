@@ -12,11 +12,11 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { ScriptedSpawner } from "@beep/commands";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { ConfigDependencyHooks } from "@beep/repo-workspaces";
+import { storeDirArgument } from "@beep/repo-workspaces/internal/configDependencyFetch";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { ConfigDependencyHooks } from "../../effected/workspaces/index.ts";
-import { storeDirArgument } from "../../effected/workspaces/internal/configDependencyFetch.ts";
 
 const NAME = "cfg-fetch-guard";
 const SRI = `sha512-${"C".repeat(86)}==`;

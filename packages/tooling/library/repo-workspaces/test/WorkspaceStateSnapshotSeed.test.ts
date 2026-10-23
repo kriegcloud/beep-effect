@@ -7,13 +7,13 @@
 // catalog gap exactly where it was.
 
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { CatalogSet, PackageStateSnapshot, WorkspaceStateSnapshot } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { CatalogSet, PackageStateSnapshot, WorkspaceStateSnapshot } from "../../effected/workspaces/index.ts";
 
 const catalogs = (entries: Record<string, Record<string, string>>): CatalogSet => CatalogSet.make({ entries });
 

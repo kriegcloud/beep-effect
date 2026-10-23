@@ -1,5 +1,8 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { LockfileReadError, LockfileReader } from "@beep/repo-workspaces/LockfileReader";
+import { CatalogSet, WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
+import { WorkspaceRoot, WorkspaceRootNotFoundError } from "@beep/repo-workspaces/WorkspaceRoot";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -12,9 +15,6 @@ import * as P from "effect/Predicate";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { LockfileReadError, LockfileReader } from "../../effected/workspaces/LockfileReader.ts";
-import { CatalogSet, WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
-import { WorkspaceRoot, WorkspaceRootNotFoundError } from "../../effected/workspaces/WorkspaceRoot.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

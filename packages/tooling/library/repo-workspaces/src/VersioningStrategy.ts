@@ -8,7 +8,7 @@
 // entry point, `detect`, is a static over two services that already exist and
 // already have their own test doubles.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -21,7 +21,7 @@ import { ReleaseTag } from "./ReleaseTag.ts";
 import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
 import type { TagFormatOptions, TagStyle } from "./ReleaseTag.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/VersioningStrategy");
+const $I = $RepoWorkspacesId.create("VersioningStrategy");
 
 /**
  * How a workspace assigns versions across its publishable packages.
@@ -38,7 +38,7 @@ const $I = $ScratchpadId.create("effected/workspaces/VersioningStrategy");
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { VersioningStrategyType } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+ * import { VersioningStrategyType } from "@beep/repo-workspaces/VersioningStrategy";
  *
  * console.log(S.is(VersioningStrategyType)("independent")) // true
  * ```
@@ -69,7 +69,7 @@ export type VersioningStrategyType = typeof VersioningStrategyType.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ClassifyOptions } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+ * import { ClassifyOptions } from "@beep/repo-workspaces/VersioningStrategy";
  *
  * console.log(S.is(ClassifyOptions)({ packages: ["a", "b"], fixedGroups: [["a", "b"]] })) // true
  * ```
@@ -125,7 +125,7 @@ export type ClassifyOptions = typeof ClassifyOptions.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { VersioningDetectOptions } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+ * import { VersioningDetectOptions } from "@beep/repo-workspaces/VersioningStrategy";
  *
  * S.is(VersioningDetectOptions)({ fixedGroups: [["a", "b"]] }) // => true
  * ```
@@ -161,7 +161,7 @@ export type VersioningDetectOptions = typeof VersioningDetectOptions.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackageRelease } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+ * import { PackageRelease } from "@beep/repo-workspaces/VersioningStrategy";
  *
  * console.log(S.is(PackageRelease)({ name: "@acme/cli", version: "1.2.3" })) // true
  * ```
@@ -200,8 +200,8 @@ export type PackageRelease = typeof PackageRelease.Type;
  * **Example** (Detect the versioning strategy and generate release tags)
  *
  * ```ts
- * import { PublishabilityDetector } from "@beep/scratchpad/effected/workspaces/Publishability";
- * import { VersioningStrategy } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+ * import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
+ * import { VersioningStrategy } from "@beep/repo-workspaces/VersioningStrategy";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -244,7 +244,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * **Example** (Inspect independent tag requirements)
    *
    * ```ts
-   * import { VersioningStrategy } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+   * import { VersioningStrategy } from "@beep/repo-workspaces/VersioningStrategy";
    *
    * console.log(VersioningStrategy.classify({ packages: ["a", "b"] }).perPackageTags) // true
    * ```
@@ -262,7 +262,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * **Example** (Inspect a single-package tag style)
    *
    * ```ts
-   * import { VersioningStrategy } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+   * import { VersioningStrategy } from "@beep/repo-workspaces/VersioningStrategy";
    *
    * console.log(VersioningStrategy.classify({ packages: ["a"] }).tagStyle) // single
    * ```
@@ -286,7 +286,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * **Example** (Classify a lockstep release group)
    *
    * ```ts
-   * import { VersioningStrategy } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+   * import { VersioningStrategy } from "@beep/repo-workspaces/VersioningStrategy";
    *
    * const strategy = VersioningStrategy.classify({ packages: ["b", "a", "a"], fixedGroups: [["a", "b"]] });
    * console.log(strategy.type) // fixed-group
@@ -331,7 +331,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    *
    * ```ts
    * import * as Effect from "effect/Effect";
-   * import { VersioningStrategy } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+   * import { VersioningStrategy } from "@beep/repo-workspaces/VersioningStrategy";
    *
    * const program = VersioningStrategy.detect({ fixedGroups: [["a", "b"]] });
    * console.log(Effect.isEffect(program)) // true
@@ -389,7 +389,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * **Example** (Format a shared release tag)
    *
    * ```ts
-   * import { VersioningStrategy } from "@beep/scratchpad/effected/workspaces/VersioningStrategy";
+   * import { VersioningStrategy } from "@beep/repo-workspaces/VersioningStrategy";
    *
    * const strategy = VersioningStrategy.classify({ packages: ["a"] });
    * console.log(strategy.tagsFor([{ name: "a", version: "1.2.3" }])[0]?.value) // 1.2.3

@@ -13,16 +13,16 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Lockfile } from "@beep/lockfiles";
+import { NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { peerNameMatcher } from "@beep/repo-workspaces/internal/peerPatterns";
+import { PeerCheck } from "@beep/repo-workspaces/PeerCheck";
+import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+import { PublishConfig, WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { NoPeerDependencyRules } from "../../effected/workspaces/ConfigDependencyHooks.ts";
-import { peerNameMatcher } from "../../effected/workspaces/internal/peerPatterns.ts";
-import { PeerCheck } from "../../effected/workspaces/PeerCheck.ts";
-import { CatalogSet } from "../../effected/workspaces/WorkspaceCatalogs.ts";
-import { PublishConfig, WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
-import type { PeerCheckOptions, UnsatisfiedPeer } from "../../effected/workspaces/PeerCheck.ts";
+import type { PeerCheckOptions, UnsatisfiedPeer } from "@beep/repo-workspaces/PeerCheck";
 
 const fixture = (relative: string): string => readFileSync(join(import.meta.dirname, "fixtures", relative), "utf8");
 

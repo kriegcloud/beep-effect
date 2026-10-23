@@ -17,10 +17,10 @@
 // `<version>+<sri>`, and pnpm's SRI alphabet contains `+` itself, so only the
 // first `+` can be the separator.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencySpecGrammar");
+const $I = $RepoWorkspacesId.create("internal/configDependencySpecGrammar");
 
 /**
  * A `configDependencies` spec split into its two textual halves, neither validated.
@@ -29,7 +29,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencySp
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ConfigDependencySpecParts } from "@beep/scratchpad/effected/workspaces/internal/configDependencySpecGrammar";
+ * import { ConfigDependencySpecParts } from "@beep/repo-workspaces/internal/configDependencySpecGrammar";
  *
  * console.log(S.is(ConfigDependencySpecParts)({ version: "1.0.0", integrity: undefined })) // true
  * console.log(S.is(ConfigDependencySpecParts)(null)) // false
@@ -77,7 +77,7 @@ export type ConfigDependencySpecParts = typeof ConfigDependencySpecParts.Type;
  * **Example** (Preserve integrity plus signs)
  *
  * ```ts
- * import { splitConfigDependencySpec } from "@beep/scratchpad/effected/workspaces/internal/configDependencySpecGrammar"
+ * import { splitConfigDependencySpec } from "@beep/repo-workspaces/internal/configDependencySpecGrammar"
  *
  * const parts = splitConfigDependencySpec("0.9.0+sha512-a+b")
  * console.log(parts.version) // 0.9.0

@@ -1,12 +1,12 @@
-import { assert, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
 import {
   badMaxDepthMessage,
   isPruned,
   isValidMaxDepth,
   joinRelative,
   Traversal,
-} from "../../../effected/workspaces/internal/traverse.ts";
+} from "@beep/repo-workspaces/internal/traverse";
+import { assert, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 
 it.effect("traversal drains FIFO, enforces bounds, and reports the root in diagnostics", () =>
   Effect.sync(() => {

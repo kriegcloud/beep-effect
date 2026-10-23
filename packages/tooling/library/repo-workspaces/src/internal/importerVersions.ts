@@ -90,7 +90,7 @@ const isConcreteVersion = (version: string): boolean =>
  * **Example** (Index a pnpm development dependency)
  *
  * ```ts
- * import { importerVersionsOf } from "@beep/scratchpad/effected/workspaces/internal/importerVersions";
+ * import { importerVersionsOf } from "@beep/repo-workspaces/internal/importerVersions";
  * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
  * import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
@@ -144,7 +144,7 @@ export const importerVersionsOf = (lockfile: Lockfile): VersionIndex => {
  * **Example** (Distinguish agreement from conflicting versions)
  *
  * ```ts
- * import { unanimousVersionOf } from "@beep/scratchpad/effected/workspaces/internal/importerVersions";
+ * import { unanimousVersionOf } from "@beep/repo-workspaces/internal/importerVersions";
  *
  * const agreed = { "packages/a": { effect: "4.0.0" }, "packages/b": { effect: "4.0.0" } };
  * const conflicting = { "packages/a": { effect: "4.0.0" }, "packages/b": { effect: "4.0.1" } };

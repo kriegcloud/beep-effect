@@ -7,7 +7,7 @@
 // because building it requires reading every workspace `package.json`, which is
 // IO, which is precisely what a pure package cannot do.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { filenameFor, LockfileFormat, LockfileIntegrity, Lockfile as LockfileModel } from "@beep/lockfiles";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -31,7 +31,7 @@ import type { PackageManagerDetectionFailure } from "./PackageManagerName.ts";
 import type { WorkspaceDiscoveryFailure } from "./WorkspaceDiscovery.ts";
 import type { WorkspaceRootNotFoundError } from "./WorkspaceRoot.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/LockfileReader");
+const $I = $RepoWorkspacesId.create("LockfileReader");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -46,7 +46,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  * **Example** (Describe an unreadable lockfile)
  *
  * ```ts
- * import { LockfileReadError } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+ * import { LockfileReadError } from "@beep/repo-workspaces/LockfileReader";
  *
  * const error = LockfileReadError.make({
  *   lockfilePath: "/repo/pnpm-lock.yaml", format: "pnpm", cause: new Error("Permission denied"),
@@ -91,7 +91,7 @@ export class LockfileReadError extends S.TaggedError<LockfileReadError, { readon
    * **Example** (Render the unreadable lockfile path)
    *
    * ```ts
-   * import { LockfileReadError } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+   * import { LockfileReadError } from "@beep/repo-workspaces/LockfileReader";
    *
    * const error = LockfileReadError.make({
    *   lockfilePath: "/repo/pnpm-lock.yaml", format: "pnpm", cause: new Error("Permission denied"),
@@ -166,7 +166,7 @@ export interface LockfileReaderShape {
  * **Example** (Decode bounded root-resolution options)
  *
  * ```ts
- * import { LockfileReaderOptions } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+ * import { LockfileReaderOptions } from "@beep/repo-workspaces/LockfileReader";
  * import * as S from "effect/Schema";
  *
  * const options = S.decodeUnknownSync(LockfileReaderOptions)({ cwd: "/repo", stopAt: "/repo" });
@@ -255,7 +255,7 @@ const unstubbed = (method: string): Effect.Effect<never> =>
  * **Example** (Count packages in the workspace lockfile)
  *
  * ```ts
- * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+ * import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -277,7 +277,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * **Example** (Construct a bounded lockfile reader)
    *
    * ```ts
-   * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+   * import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
    * import * as Effect from "effect/Effect";
    *
    * const program = LockfileReader.make({ cwd: "/repo", stopAt: "/repo" });
@@ -418,7 +418,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * **Example** (Compose a reusable live lockfile layer)
    *
    * ```ts
-   * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+   * import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
    * import * as Effect from "effect/Effect";
    *
    * const LiveLockfiles = LockfileReader.layer({ cwd: "/repo" });
@@ -470,7 +470,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * **Example** (Stub a lockfile read with consistent version lookup)
    *
    * ```ts
-   * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+   * import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import { Lockfile } from "@beep/lockfiles/Lockfile";
@@ -514,7 +514,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
    * **Example** (Create a reusable unstubbed lockfile test layer)
    *
    * ```ts
-   * import { LockfileReader } from "@beep/scratchpad/effected/workspaces/LockfileReader";
+   * import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
    * import * as Effect from "effect/Effect";
    *
    * const TestLockfiles = LockfileReader.layerTest();

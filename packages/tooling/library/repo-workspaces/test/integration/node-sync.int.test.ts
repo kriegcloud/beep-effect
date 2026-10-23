@@ -11,14 +11,14 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import nodePathModule, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/repo-workspaces";
+import { nodeFileSystem, nodePath, nodeSyncOps } from "@beep/repo-workspaces/node-sync";
 import { assert, describe, it } from "@effect/vitest";
-import { findWorkspaceRootSync, getWorkspacePackagesSync } from "../../../effected/workspaces/index.ts";
-import { nodeFileSystem, nodePath, nodeSyncOps } from "../../../effected/workspaces/node-sync.ts";
-import type { WorkspacesSyncOptions } from "../../../effected/workspaces/index.ts";
+import type { WorkspacesSyncOptions } from "@beep/repo-workspaces";
 
 /** This package's own directory — the repo root is somewhere above it. */
 const here = dirname(fileURLToPath(import.meta.url));
-const cwd = resolve(here, "..", "..", "..", "..", "packages", "foundation", "modeling", "utils");
+const cwd = resolve(here, "..", "..", "..", "..", "..", "packages", "foundation", "modeling", "utils");
 
 // The hand-wiring the preset replaces, kept as the oracle.
 const handWired: WorkspacesSyncOptions = {

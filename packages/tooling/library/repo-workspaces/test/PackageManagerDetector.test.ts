@@ -1,15 +1,15 @@
-import { assert, describe, layer } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import {
   PackageManagerDetectionError,
   PackageManagerDetector,
   PackageManagerEvidence,
   WorkspaceManifestError,
-} from "../../effected/workspaces/index.ts";
-import { platform } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+} from "@beep/repo-workspaces";
+import { assert, describe, layer } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import { platform } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 const detectorOver = (tree: Tree) => PackageManagerDetector.layer.pipe(Layer.provideMerge(platform(tree)));
 

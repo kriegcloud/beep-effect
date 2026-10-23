@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import { dual, flow, identity } from "effect/Function";
@@ -62,7 +62,7 @@ import { splitConfigDependencySpec } from "./configDependencySpecGrammar.ts";
 import type { ConfigDependencyLock, LockfileFramingError, LockfileParseError } from "@beep/lockfiles";
 import type { HookReplayContext } from "../ConfigDependencyHooks.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyFetch");
+const $I = $RepoWorkspacesId.create("internal/configDependencyFetch");
 
 const JsonString = S.fromJsonString(S.String).pipe(
   $I.annoteSchema("JsonString", { description: "A JSON-quoted YAML scalar retaining dependency and registry text." })
@@ -119,7 +119,7 @@ export interface FetchRequest {
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { FetchFailureReason } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch";
+ * import { FetchFailureReason } from "@beep/repo-workspaces/internal/configDependencyFetch";
  *
  * console.log(S.is(FetchFailureReason)("integrityMismatch")) // true
  * console.log(S.is(FetchFailureReason)(null)) // false
@@ -151,7 +151,7 @@ export type FetchFailureReason = typeof FetchFailureReason.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { FetchFailure } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch";
+ * import { FetchFailure } from "@beep/repo-workspaces/internal/configDependencyFetch";
  *
  * console.log(S.is(FetchFailure)({ reason: "fetchFailed", message: "The registry request failed." })) // true
  * console.log(S.is(FetchFailure)(null)) // false
@@ -230,7 +230,7 @@ const FETCH_TIMEOUT = Duration.minutes(2);
  * **Example** (Reject a fetch without a recorded checksum)
  *
  * ```ts
- * import { expectedIntegrity } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch"
+ * import { expectedIntegrity } from "@beep/repo-workspaces/internal/configDependencyFetch"
  * import * as Effect from "effect/Effect"
  *
  * const program = expectedIntegrity({
@@ -307,7 +307,7 @@ export const expectedIntegrity = Effect.fn("expectedIntegrity")(function* (
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { RegistrySettings } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch";
+ * import { RegistrySettings } from "@beep/repo-workspaces/internal/configDependencyFetch";
  *
  * console.log(S.is(RegistrySettings)({ registry: "https://registry.npmjs.org/", registries: { "@x": "https://registry.example.com/" } })) // true
  * console.log(S.is(RegistrySettings)(null)) // false
@@ -349,7 +349,7 @@ export type RegistrySettings = typeof RegistrySettings.Type;
  * **Example** (Keep valid scoped registry URLs)
  *
  * ```ts
- * import { registrySettingsOf } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch"
+ * import { registrySettingsOf } from "@beep/repo-workspaces/internal/configDependencyFetch"
  *
  * const settings = registrySettingsOf({
  *   registry: "https://registry.npmjs.org/",
@@ -382,7 +382,7 @@ export const registrySettingsOf = (document: unknown): RegistrySettings => {
  * **Example** (Quote a config dependency in workspace YAML)
  *
  * ```ts
- * import { scratchWorkspaceYaml } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch"
+ * import { scratchWorkspaceYaml } from "@beep/repo-workspaces/internal/configDependencyFetch"
  *
  * const yaml = scratchWorkspaceYaml("workspace-config", "1.0.0")
  *
@@ -461,7 +461,7 @@ const scratchLockfile: {
  * **Example** (Remove the pnpm store format suffix)
  *
  * ```ts
- * import { storeDirArgument } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch"
+ * import { storeDirArgument } from "@beep/repo-workspaces/internal/configDependencyFetch"
  *
  * console.log(storeDirArgument(["/pnpm/store/v11"])) // /pnpm/store
  * ```
@@ -481,7 +481,7 @@ export const storeDirArgument = (stores: ReadonlyArray<string>): string | undefi
  * **Example** (Construct a frozen install using the default store)
  *
  * ```ts
- * import { fetchArgs } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch"
+ * import { fetchArgs } from "@beep/repo-workspaces/internal/configDependencyFetch"
  *
  * console.log(fetchArgs("/scratch", []).join(" ")) // install --frozen-lockfile --dir /scratch
  * ```
@@ -518,7 +518,7 @@ const isStoreEntry: {
  * **Example** (Construct a fetcher from the subprocess service)
  *
  * ```ts
- * import { makeFetchConfigDependency } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch"
+ * import { makeFetchConfigDependency } from "@beep/repo-workspaces/internal/configDependencyFetch"
  * import * as Effect from "effect/Effect"
  * import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner"
  *

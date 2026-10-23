@@ -8,7 +8,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ALL_DEPENDENCY_FIELDS } from "./internal/dependencyFields.ts";
-import { isPlainObject } from "./PackageManagerName.ts";
+import { isPlainObject } from "@beep/repo-workspaces/PackageManagerName";
 import * as R from "effect/Record";
 import * as O from "@beep/utils/Option";
 import * as Match from "effect/Match";

@@ -10,7 +10,7 @@ import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
-import { WorkspaceDiscovery, Workspaces } from "../../../effected/workspaces/index.ts";
+import { WorkspaceDiscovery, Workspaces } from "@beep/repo-workspaces";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 const Live = Workspaces.layer({ cwd: REPO }).pipe(

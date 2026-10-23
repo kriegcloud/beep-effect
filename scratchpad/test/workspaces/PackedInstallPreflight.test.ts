@@ -9,7 +9,7 @@ import * as Redacted from "effect/Redacted";
 import * as Stream from "effect/Stream";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { WorkspaceDiscovery, WorkspacePackage } from "../../effected/workspaces/index.ts";
+import { WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
 import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/testing.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);

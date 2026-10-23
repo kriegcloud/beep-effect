@@ -9,6 +9,7 @@
 // here. The trap is that re-rooting looks correct in any fixture whose two
 // roots hold the same packages.
 
+import { WorkspaceDiscovery, WorkspaceRoot, WorkspaceRootNotFoundError } from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -16,9 +17,8 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { WorkspaceDiscovery, WorkspaceRoot, WorkspaceRootNotFoundError } from "../../effected/workspaces/index.ts";
-import { manifest, platform, rootManifest } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { manifest, platform, rootManifest } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 // `/primary` is the long-lived host's startup checkout; `/worktree` is a git
 // worktree of the same repo on a different branch. `alpha` exists in both at

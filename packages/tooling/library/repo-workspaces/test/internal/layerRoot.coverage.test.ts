@@ -1,9 +1,9 @@
+import { findLayerRoot } from "@beep/repo-workspaces/internal/layerRoot";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import { findLayerRoot } from "../../../effected/workspaces/internal/layerRoot.ts";
-import type { FindWorkspaceRootOptions, WorkspaceRootShape } from "../../../effected/workspaces/WorkspaceRoot.ts";
+import type { FindWorkspaceRootOptions, WorkspaceRootShape } from "@beep/repo-workspaces/WorkspaceRoot";
 
 it.effect("defers root lookup and forwards ambient cwd, explicit cwd and the optional ceiling", () =>
   Effect.gen(function* () {

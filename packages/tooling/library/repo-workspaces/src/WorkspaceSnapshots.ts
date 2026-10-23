@@ -14,7 +14,7 @@
 
 import { Git } from "@beep/git";
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { filenameFor, Lockfile as LockfileModel } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as O from "@beep/utils/Option";
@@ -45,7 +45,7 @@ import type { HookReplay } from "./ConfigDependencyHooks.ts";
 import type { WorkspaceDiscoveryFailure } from "./WorkspaceDiscovery.ts";
 import type { WorkspaceRootNotFoundError } from "./WorkspaceRoot.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspaceSnapshots");
+const $I = $RepoWorkspacesId.create("WorkspaceSnapshots");
 const JsonValue = S.fromJsonString(S.Unknown);
 const JsonObject = S.Record(S.String, S.Unknown).pipe(
   $I.annoteSchema("JsonObject", { description: "A non-array JSON object read from a manifest." })
@@ -100,7 +100,7 @@ export type WorkspaceSnapshotWorktreeFailure = WorkspaceDiscoveryFailure | Catal
  * **Example** (Read optional snapshot inputs)
  *
  * ```ts
- * import { WorkspaceSnapshotsOptions } from "@beep/scratchpad/effected/workspaces/WorkspaceSnapshots";
+ * import { WorkspaceSnapshotsOptions } from "@beep/repo-workspaces/WorkspaceSnapshots";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(WorkspaceSnapshotsOptions)({})) // true
@@ -356,7 +356,7 @@ const unstubbed = (method: string): Effect.Effect<never> =>
  * **Example** (Read package versions from a git ref and the worktree)
  *
  * ```ts
- * import { WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/WorkspaceSnapshots";
+ * import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -389,7 +389,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * **Example** (Construct a workspace snapshot reader)
    *
    * ```ts
-   * import { WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/WorkspaceSnapshots";
+   * import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
    * import * as Effect from "effect/Effect";
    *
    * const construction = WorkspaceSnapshots.make({ cwd: "/repo", stopAt: "/repo" });
@@ -691,7 +691,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * **Example** (Compose a ref read with a reusable live layer)
    *
    * ```ts
-   * import { WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/WorkspaceSnapshots";
+   * import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
    * import * as Effect from "effect/Effect";
    *
    * const LiveSnapshots = WorkspaceSnapshots.layer({ cwd: "/repo", stopAt: "/repo" });
@@ -738,9 +738,9 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * **Example** (Stub both workspace snapshot reads)
    *
    * ```ts
-   * import { WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/WorkspaceSnapshots";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    * import * as Effect from "effect/Effect";
    *
    * const empty = WorkspaceStateSnapshot.make({
@@ -778,9 +778,9 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
    * **Example** (Provide a test layer for worktree snapshots)
    *
    * ```ts
-   * import { WorkspaceSnapshots } from "@beep/scratchpad/effected/workspaces/WorkspaceSnapshots";
-   * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
-   * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
+   * import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
+   * import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
+   * import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
    * import * as Effect from "effect/Effect";
    *
    * const TestSnapshots = WorkspaceSnapshots.layerTest({

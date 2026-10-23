@@ -1,11 +1,11 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/repo-workspaces/WorkspacesSync";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { findWorkspaceRootSync, getWorkspacePackagesSync } from "../../effected/workspaces/WorkspacesSync.ts";
-import type { SyncFileSystem, WorkspaceDiscoverySkip } from "../../effected/workspaces/WorkspacesSync.ts";
+import type { SyncFileSystem, WorkspaceDiscoverySkip } from "@beep/repo-workspaces/WorkspacesSync";
 
 const WorkspaceText = S.fromJsonString(S.Struct({ name: S.String, workspaces: S.Array(S.String) }));
 

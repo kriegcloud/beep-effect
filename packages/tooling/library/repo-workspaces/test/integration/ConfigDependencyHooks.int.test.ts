@@ -3,6 +3,14 @@ import { fileURLToPath } from "node:url";
 import { ScriptedSpawner } from "@beep/commands";
 import { Git } from "@beep/git";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import {
+  CatalogSet,
+  ChangeDetector,
+  ConfigDependencyHooks,
+  WorkspaceCatalogs,
+  WorkspaceSnapshots,
+  Workspaces,
+} from "@beep/repo-workspaces";
 import { NodeFileSystem } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -12,16 +20,8 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import {
-  CatalogSet,
-  ChangeDetector,
-  ConfigDependencyHooks,
-  WorkspaceCatalogs,
-  WorkspaceSnapshots,
-  Workspaces,
-} from "../../../effected/workspaces/index.ts";
-import { manifest, platform } from "../fixtures.ts";
-import type { Tree } from "../fixtures.ts";
+import { manifest, platform } from "../support/fixtures.ts";
+import type { Tree } from "../support/fixtures.ts";
 
 // The hook-replay seam is inherently real-filesystem: the live layer dynamically
 // `import()`s a `pnpmfile.cjs`, driving Node's module loader over disk fixtures.
@@ -42,7 +42,7 @@ const { dirname, join } = Effect.runSync(
   )
 );
 class RealFileSystem extends Context.Service<RealFileSystem, FileSystem.FileSystem>()(
-  "@beep/scratchpad/test/workspaces/integration/ConfigDependencyHooks.int.test/RealFileSystem"
+  "@beep/repo-workspaces/test/integration/ConfigDependencyHooks.int.test/RealFileSystem"
 ) {}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");

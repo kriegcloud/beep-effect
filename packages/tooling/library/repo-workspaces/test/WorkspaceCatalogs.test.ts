@@ -1,6 +1,16 @@
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import {
+  CatalogSet,
+  LockfileReadError,
+  LockfileReader,
+  PackageManagerDetector,
+  WorkspaceCatalogs,
+  WorkspaceDiscovery,
+  WorkspaceRoot,
+  Workspaces,
+} from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -11,18 +21,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import {
-  CatalogSet,
-  LockfileReadError,
-  LockfileReader,
-  PackageManagerDetector,
-  WorkspaceCatalogs,
-  WorkspaceDiscovery,
-  WorkspaceRoot,
-  Workspaces,
-} from "../../effected/workspaces/index.ts";
-import { manifest, platform } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { manifest, platform } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 /** The full workspaces stack over a virtual tree, rooted at `/repo`. */
 const workspacesOver = (tree: Tree) => {

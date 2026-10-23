@@ -1,7 +1,7 @@
+import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { PublishabilityDetector } from "../../effected/workspaces/Publishability.ts";
-import { WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
 
 const pkg = (options: Partial<Pick<WorkspacePackage, "private" | "publishConfig">> = {}) =>
   WorkspacePackage.make({

@@ -1,13 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { registrySettingsOf, scratchWorkspaceYaml } from "@beep/repo-workspaces/internal/configDependencyFetch";
 import { Yaml } from "@beep/yaml";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import {
-  registrySettingsOf,
-  scratchWorkspaceYaml,
-} from "../../../effected/workspaces/internal/configDependencyFetch.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const settings = S.Struct({ registry: S.String, registries: S.Record(S.String, S.String) });

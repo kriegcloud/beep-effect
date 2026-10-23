@@ -1,5 +1,12 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { MemoryFileSystem } from "@beep/memfs";
+import {
+  manifestPatternsOf,
+  PatternReadFailureKind,
+  pnpmPatternsOf,
+  readPatterns,
+  stringsOf,
+} from "@beep/repo-workspaces/internal/patterns";
 import { Yaml } from "@beep/yaml";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -9,13 +16,6 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  manifestPatternsOf,
-  PatternReadFailureKind,
-  pnpmPatternsOf,
-  readPatterns,
-  stringsOf,
-} from "../../../effected/workspaces/internal/patterns.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const json = S.fromJsonString(S.Json);

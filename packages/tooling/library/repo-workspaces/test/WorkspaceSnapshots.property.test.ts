@@ -1,5 +1,11 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Git, LsTreeEntry } from "@beep/git";
+import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
+import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
+import { WorkspaceSnapshots, WorkspaceSnapshotsOptions } from "@beep/repo-workspaces/WorkspaceSnapshots";
+import { PackageStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
@@ -8,12 +14,6 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { ConfigDependencyHooks } from "../../effected/workspaces/ConfigDependencyHooks.ts";
-import { WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
-import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
-import { WorkspaceSnapshots, WorkspaceSnapshotsOptions } from "../../effected/workspaces/WorkspaceSnapshots.ts";
-import { PackageStateSnapshot } from "../../effected/workspaces/WorkspaceStateSnapshot.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const PackageText = S.fromJsonString(PackageStateSnapshot);

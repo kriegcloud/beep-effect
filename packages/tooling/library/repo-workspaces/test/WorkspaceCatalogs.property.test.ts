@@ -22,7 +22,7 @@ const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { CatalogSet, ImporterVersions, WorkspaceCatalogsOptions } from "../../effected/workspaces/WorkspaceCatalogs.ts";
+import { CatalogSet, ImporterVersions, WorkspaceCatalogsOptions } from "@beep/repo-workspaces/WorkspaceCatalogs";
 
 describe("WorkspaceCatalogs property floor", () => {
   roundTrip("CatalogSet", CatalogSet);

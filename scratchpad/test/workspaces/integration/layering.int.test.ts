@@ -7,14 +7,15 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, layer } from "@effect/vitest";
-import { platform, type Tree } from "../fixtures.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import type { DependencyField } from "@beep/npm-spec/DependencySection";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
 import * as R from "effect/Record";
-import { DependencyGraph, WorkspaceDiscovery, Workspaces } from "../../../effected/workspaces/index.ts";
+import { DependencyGraph, WorkspaceDiscovery, Workspaces } from "@beep/repo-workspaces";
 import type { LayeringGraph } from "../../../effected/workspaces/testing.ts";
 import { LayerEdge, LayerPolicy, SourceBoundary, WorkspaceLayering } from "../../../effected/workspaces/testing.ts";
 
@@ -41,6 +42,9 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // directory, so the package folds into the `github-actions` lab module. Wave 3-2 promoted
 // the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
 // beside `@beep/tsconfig`. Wave 3-3 promoted `config-file` whole as `@beep/config-file`.
+// Wave 4-W-a split `workspaces`: its core and config-deps half is `@beep/repo-workspaces`
+// and the `./testing` cluster stays a lab directory without an `index.ts`, so a promoted
+// module's remaining lab directory counts as that module even without its barrel.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
@@ -60,6 +64,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/npm-spec": "npm",
 	"@beep/package-json": "package-json",
 	"@beep/repo-tsconfig": "tsconfig-json",
+	"@beep/repo-workspaces": "workspaces",
 	"@beep/runtime-env": "env",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
@@ -78,7 +83,7 @@ const promotedRoot = (pkg: string): string => dirname(realpathSync(labRequire.re
 // promoted kit modules are reached through their bare package specifiers.
 const moduleGraph = (): LayeringGraph => {
 	const labModules = readdirSync(LAB, { withFileTypes: true })
-		.filter((entry) => entry.isDirectory() && readdirSync(join(LAB, entry.name)).includes("index.ts"))
+		.filter((entry) => entry.isDirectory() && (readdirSync(join(LAB, entry.name)).includes("index.ts") || R.values(PROMOTED).includes(entry.name)))
 		.map((entry) => entry.name);
 	const modules = A.dedupe([...labModules, ...R.values(PROMOTED)]);
 	const edges: Array<LayerEdge> = [];
@@ -115,7 +120,7 @@ const moduleGraph = (): LayeringGraph => {
 // above because the source imports themselves are the regression oracle.
 const LAB_WORKSPACE = "/lab-module-graph";
 const sourceGraph = moduleGraph();
-const tree: Tree = {
+const tree: Readonly<Record<string, string>> = {
 	[POLICY]: readFileSync(POLICY, "utf8"),
 	[join(LAB_WORKSPACE, "package.json")]: JSON.stringify({
 		name: "lab-module-graph", private: true, workspaces: ["modules/*"],
@@ -130,7 +135,7 @@ const tree: Tree = {
 		})];
 	})),
 };
-const Live = Workspaces.layer({ cwd: LAB_WORKSPACE }).pipe(Layer.provideMerge(platform(tree)));
+const Live = Workspaces.layer({ cwd: LAB_WORKSPACE }).pipe(Layer.provideMerge(Layer.mergeAll(MemoryFileSystem.layerWith(tree), Path.layer)));
 
 const facts = Effect.gen(function* () {
 	const policy = yield* LayerPolicy.load(POLICY);

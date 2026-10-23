@@ -20,7 +20,7 @@ import type { PeerDependencyRules } from "../ConfigDependencyHooks.ts";
  * **Example** (Keep string config dependency specifications)
  *
  * ```ts
- * import { configDependenciesOf } from "@beep/scratchpad/effected/workspaces/internal/workspaceYaml";
+ * import { configDependenciesOf } from "@beep/repo-workspaces/internal/workspaceYaml";
  *
  * const dependencies = configDependenciesOf({
  *   configDependencies: { hooks: "1.0.0+sha512-integrity", invalid: 42 },
@@ -60,7 +60,7 @@ export const configDependenciesOf = (document: unknown): Record<string, string> 
  * **Example** (Preserve allowed versions despite malformed ignore rules)
  *
  * ```ts
- * import { inlinePeerDependencyRules } from "@beep/scratchpad/effected/workspaces/internal/workspaceYaml";
+ * import { inlinePeerDependencyRules } from "@beep/repo-workspaces/internal/workspaceYaml";
  *
  * const rules = inlinePeerDependencyRules({
  *   peerDependencyRules: { allowedVersions: { react: "^19" }, ignoreMissing: 42 },

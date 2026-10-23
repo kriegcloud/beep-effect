@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { lookupPnpmfiles, ResolvedPnpmfile } from "@beep/repo-workspaces/internal/configDependencyResolution";
+import { splitConfigDependencySpec } from "@beep/repo-workspaces/internal/configDependencySpecGrammar";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { lookupPnpmfiles, ResolvedPnpmfile } from "../../../effected/workspaces/internal/configDependencyResolution.ts";
-import { splitConfigDependencySpec } from "../../../effected/workspaces/internal/configDependencySpecGrammar.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

@@ -11,14 +11,7 @@
 
 import { LocalExec, ScriptedSpawner } from "@beep/commands";
 import { Git, LsTreeEntry } from "@beep/git";
-import { $ScratchpadId } from "@beep/identity";
-import { assert, describe, layer, vi } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import {
   ConfigDependencyHooks,
   LockfileReader,
@@ -28,12 +21,19 @@ import {
   WorkspaceRootNotFoundError,
   WorkspaceSnapshots,
   Workspaces,
-} from "../../effected/workspaces/index.ts";
-import { manifest, platform } from "./fixtures.ts";
+} from "@beep/repo-workspaces";
+import { assert, describe, layer, vi } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import { manifest, platform } from "./support/fixtures.ts";
 import type { LocalExecShape } from "@beep/commands";
-import type { Tree } from "./fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
-const $I = $ScratchpadId.create("test/workspaces/WorkspacesStopAt.test");
+const $I = $RepoWorkspacesId.create("test/WorkspacesStopAt.test");
 
 const CWD = "/outer/checkout";
 

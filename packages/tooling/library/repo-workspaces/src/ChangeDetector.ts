@@ -7,7 +7,7 @@
 // the consumer's platform layer discharges at the edge.
 
 import { Git } from "@beep/git";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -24,7 +24,7 @@ import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@bee
 import type { WorkspaceDiscoveryFailure } from "./WorkspaceDiscovery.ts";
 import type { WorkspacePackage } from "./WorkspacePackage.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/ChangeDetector");
+const $I = $RepoWorkspacesId.create("ChangeDetector");
 
 /**
  * Which git refs to compare, and whether to fold in the working tree.
@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effected/workspaces/ChangeDetector");
  * **Example** (Inspect default and branch comparison refs)
  *
  * ```ts
- * import { ChangeDetectionOptions } from "@beep/scratchpad/effected/workspaces/ChangeDetector";
+ * import { ChangeDetectionOptions } from "@beep/repo-workspaces/ChangeDetector";
  *
  * const defaults = ChangeDetectionOptions.make({});
  * const branch = ChangeDetectionOptions.make({ base: "origin/main" });
@@ -104,7 +104,7 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { re
  * **Example** (Render a detection failure)
  *
  * ```ts
- * import { ChangeDetectionError } from "@beep/scratchpad/effected/workspaces/ChangeDetector";
+ * import { ChangeDetectionError } from "@beep/repo-workspaces/ChangeDetector";
  *
  * const error = ChangeDetectionError.make({ operation: "compare", cause: new Error("unavailable") });
  * console.log(error.message) // Change detection failed during compare
@@ -139,7 +139,7 @@ export class ChangeDetectionError extends S.TaggedError<ChangeDetectionError, { 
    * **Example** (Read the failed operation message)
    *
    * ```ts
-   * import { ChangeDetectionError } from "@beep/scratchpad/effected/workspaces/ChangeDetector";
+   * import { ChangeDetectionError } from "@beep/repo-workspaces/ChangeDetector";
    *
    * const error = ChangeDetectionError.make({ operation: "compare", cause: new Error("unavailable") });
    * console.log(error.message) // Change detection failed during compare
@@ -208,7 +208,7 @@ export interface ChangeDetectorShape {
  * **Example** (Find packages affected since origin/main)
  *
  * ```ts
- * import { ChangeDetectionOptions, ChangeDetector } from "@beep/scratchpad/effected/workspaces/ChangeDetector";
+ * import { ChangeDetectionOptions, ChangeDetector } from "@beep/repo-workspaces/ChangeDetector";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -232,7 +232,7 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
    * **Example** (Construct the change detector service)
    *
    * ```ts
-   * import { ChangeDetector } from "@beep/scratchpad/effected/workspaces/ChangeDetector";
+   * import { ChangeDetector } from "@beep/repo-workspaces/ChangeDetector";
    * import * as Effect from "effect/Effect";
    *
    * console.log(Effect.isEffect(ChangeDetector.make)) // true
@@ -347,7 +347,7 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
    * **Example** (Inspect the live change detector layer)
    *
    * ```ts
-   * import { ChangeDetector } from "@beep/scratchpad/effected/workspaces/ChangeDetector";
+   * import { ChangeDetector } from "@beep/repo-workspaces/ChangeDetector";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ChangeDetector.layer)) // true

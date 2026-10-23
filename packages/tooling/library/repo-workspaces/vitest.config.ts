@@ -5,7 +5,13 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      // The config-dependency suites point process.env at real fake-pnpm and
+      // hook-marker paths and mock modules per file, so tests run in order
+      // and each file keeps its own module graph (the lab's settings).
+      isolate: true,
+      sequence: {
+        concurrent: false,
+      },
     },
   })
 );

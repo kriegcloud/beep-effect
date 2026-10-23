@@ -16,8 +16,8 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { PackageManagerName } from "../PackageManagerName.ts";
-import type { WorkspacePackage } from "../WorkspacePackage.ts";
+import { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
+import type { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { RUNTIME_DEPENDENCY_FIELDS } from "./dependencyFields.ts";
 
 const $I = $ScratchpadId.create("effected/workspaces/internal/packedInstallPlan");

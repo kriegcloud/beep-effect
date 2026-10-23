@@ -1,4 +1,14 @@
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import {
+  PackageNotFoundError,
+  WorkspaceDiscovery,
+  WorkspaceDiscoveryError,
+  WorkspaceInfo,
+  WorkspacePackage,
+  WorkspacePatternError,
+  WorkspaceRoot,
+  WorkspaceRootNotFoundError,
+} from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -10,18 +20,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  PackageNotFoundError,
-  WorkspaceDiscovery,
-  WorkspaceDiscoveryError,
-  WorkspaceInfo,
-  WorkspacePackage,
-  WorkspacePatternError,
-  WorkspaceRoot,
-  WorkspaceRootNotFoundError,
-} from "../../effected/workspaces/index.ts";
-import { manifest, platform, rootManifest } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { manifest, platform, rootManifest } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 /** Discovery over a tree, rooted at `/repo`. */
 const discoveryOver = (

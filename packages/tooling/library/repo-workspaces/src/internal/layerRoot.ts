@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 // The layer-bound root lookup every root-consuming service shares.
@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import type { WorkspaceRootNotFoundError, WorkspaceRootShape } from "../WorkspaceRoot.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/layerRoot");
+const $I = $RepoWorkspacesId.create("internal/layerRoot");
 
 /**
  * Shares the layer-level options every root-consuming service reads its root from.
@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/layerRoot");
  * **Example** (Leave the ambient directory unresolved)
  *
  * ```ts
- * import { LayerRootOptions } from "@beep/scratchpad/effected/workspaces/internal/layerRoot";
+ * import { LayerRootOptions } from "@beep/repo-workspaces/internal/layerRoot";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(LayerRootOptions)({})); // true
@@ -64,8 +64,8 @@ export type LayerRootOptions = typeof LayerRootOptions.Type;
  * **Example** (Resolve an explicit starting directory)
  *
  * ```ts
- * import { findLayerRoot } from "@beep/scratchpad/effected/workspaces/internal/layerRoot";
- * import type { WorkspaceRootShape } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
+ * import { findLayerRoot } from "@beep/repo-workspaces/internal/layerRoot";
+ * import type { WorkspaceRootShape } from "@beep/repo-workspaces/WorkspaceRoot";
  * import * as Effect from "effect/Effect";
  * import { dual } from "effect/Function";
  *

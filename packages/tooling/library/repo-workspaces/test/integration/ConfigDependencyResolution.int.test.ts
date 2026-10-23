@@ -14,6 +14,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
 import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -21,8 +22,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "../../../effected/workspaces/index.ts";
-import { manifest, platform } from "../fixtures.ts";
+import { manifest, platform } from "../support/fixtures.ts";
 import {
   installConfigDependency,
   installedDir,
@@ -32,7 +32,7 @@ import {
   storeConfigDependency,
   writeModulesYaml,
 } from "./utils/configDependencyFixtures.ts";
-import type { Tree } from "../fixtures.ts";
+import type { Tree } from "../support/fixtures.ts";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
 const SEED = { default: { effect: "^4.0.0" } } as const;
@@ -494,7 +494,7 @@ ladderCases("ConfigDependencyHooks.layerLive", ConfigDependencyHooks.layerLive);
 ladderCases("ConfigDependencyHooks.layerSubprocess", HooksSubprocess);
 
 class SubprocessHooks extends Context.Service<SubprocessHooks, ConfigDependencyHooks["Service"]>()(
-  "@beep/scratchpad/test/workspaces/integration/ConfigDependencyResolution.int.test/SubprocessHooks"
+  "@beep/repo-workspaces/test/integration/ConfigDependencyResolution.int.test/SubprocessHooks"
 ) {}
 const ComparisonLayers = Layer.mergeAll(
   ConfigDependencyHooks.layerLive,

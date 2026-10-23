@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { badMaxDepthMessage, joinRelative, Traversal } from "@beep/repo-workspaces/internal/traverse";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { badMaxDepthMessage, joinRelative, Traversal } from "../../../effected/workspaces/internal/traverse.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

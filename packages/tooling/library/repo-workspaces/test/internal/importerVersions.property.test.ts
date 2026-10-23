@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { importerVersionsOf, unanimousVersionOf } from "@beep/repo-workspaces/internal/importerVersions";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { importerVersionsOf, unanimousVersionOf } from "../../../effected/workspaces/internal/importerVersions.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Version = S.Int.check(S.isBetween({ minimum: 0, maximum: 10000 }));

@@ -13,16 +13,12 @@
 // the test is "would a real implementation legitimately answer this?", not "is
 // it convenient".
 
+import { DetectedPackageManager, PackageManagerDetectionError, PackageManagerDetector } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
-import {
-  DetectedPackageManager,
-  PackageManagerDetectionError,
-  PackageManagerDetector,
-} from "../../effected/workspaces/index.ts";
 
 const pnpm = DetectedPackageManager.make({
   name: "pnpm",

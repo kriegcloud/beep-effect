@@ -4,14 +4,14 @@
 // semantics are the default, and an organization with its own publish rules
 // replaces the layer with `Layer.succeed` instead of forking the package.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import type { WorkspacePackage } from "./WorkspacePackage.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/Publishability");
+const $I = $RepoWorkspacesId.create("Publishability");
 
 /**
  * The public npm registry, used when `publishConfig.registry` says nothing.
@@ -24,7 +24,7 @@ const DEFAULT_REGISTRY = "https://registry.npmjs.org/";
  * **Example** (Construct a public npm destination)
  *
  * ```ts
- * import { PublishTarget } from "@beep/scratchpad/effected/workspaces/Publishability";
+ * import { PublishTarget } from "@beep/repo-workspaces/Publishability";
  * const target = PublishTarget.make({ name: "@acme/cli", registry: "https://registry.npmjs.org/", directory: ".", access: "public" });
  * console.log(target.provenance) // false
  * ```
@@ -125,7 +125,7 @@ export interface PublishabilityDetectorShape {
  * **Example** (Restrict publishing to an internal registry)
  *
  * ```ts
- * import { PublishabilityDetector, PublishTarget } from "@beep/scratchpad/effected/workspaces/Publishability";
+ * import { PublishabilityDetector, PublishTarget } from "@beep/repo-workspaces/Publishability";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  *
@@ -154,7 +154,7 @@ export interface PublishabilityDetectorShape {
  * message — and either degrades to a safe answer or dies:
  *
  * ```ts
- * import { PublishabilityDetector, type PublishTarget } from "@beep/scratchpad/effected/workspaces/Publishability";
+ * import { PublishabilityDetector, type PublishTarget } from "@beep/repo-workspaces/Publishability";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  *
@@ -196,7 +196,7 @@ export class PublishabilityDetector extends Context.Service<PublishabilityDetect
    * **Example** (Veto private packages and defer to npm semantics)
    *
    * ```ts
-   * import { PublishabilityDetector } from "@beep/scratchpad/effected/workspaces/Publishability";
+   * import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    *
@@ -239,8 +239,8 @@ export class PublishabilityDetector extends Context.Service<PublishabilityDetect
    * **Example** (Disable all publish targets)
    *
    * ```ts
-   * import { PublishabilityDetector } from "@beep/scratchpad/effected/workspaces/Publishability";
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    * const pkg = WorkspacePackage.make({ name: "@acme/cli", version: "1.2.3", path: "/repo/cli", packageJsonPath: "/repo/cli/package.json", relativePath: "cli", workspaceRoot: "/repo" });
    * console.log(Effect.runSync(PublishabilityDetector.none.detect(pkg)).length) // 0
@@ -276,7 +276,7 @@ export class PublishabilityDetector extends Context.Service<PublishabilityDetect
    * **Example** (Provide npm publishability policy)
    *
    * ```ts
-   * import { PublishabilityDetector } from "@beep/scratchpad/effected/workspaces/Publishability";
+   * import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
    * import * as Effect from "effect/Effect";
    * const program = Effect.gen(function* () {
    *   const detector = yield* PublishabilityDetector;
@@ -301,7 +301,7 @@ export class PublishabilityDetector extends Context.Service<PublishabilityDetect
    * **Example** (Provide disabled publishing policy)
    *
    * ```ts
-   * import { PublishabilityDetector } from "@beep/scratchpad/effected/workspaces/Publishability";
+   * import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
    * import * as Effect from "effect/Effect";
    * const program = Effect.gen(function* () {
    *   const detector = yield* PublishabilityDetector;

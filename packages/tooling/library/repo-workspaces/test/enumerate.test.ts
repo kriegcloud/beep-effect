@@ -1,10 +1,10 @@
 import { GlobSet } from "@beep/glob";
 import { MemoryFileSystem } from "@beep/memfs";
+import { enumerate } from "@beep/repo-workspaces/internal/enumerate";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { enumerate } from "../../effected/workspaces/internal/enumerate.ts";
 
 const literals = Array.from({ length: 24 }, (_, index) => `packages/pkg-${index}`);
 

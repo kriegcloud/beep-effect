@@ -16,7 +16,7 @@ import * as HashSet from "effect/HashSet";
  * **Example** (Inspect the traversal depth cap)
  *
  * ```ts
- * import { MAX_ENUMERATION_DEPTH } from "@beep/scratchpad/effected/workspaces/internal/limits";
+ * import { MAX_ENUMERATION_DEPTH } from "@beep/repo-workspaces/internal/limits";
  *
  * console.log(MAX_ENUMERATION_DEPTH); // 32
  * ```
@@ -38,7 +38,7 @@ export const MAX_ENUMERATION_DEPTH = 32;
  * **Example** (Inspect the directory visit ceiling)
  *
  * ```ts
- * import { MAX_ENUMERATION_ENTRIES } from "@beep/scratchpad/effected/workspaces/internal/limits";
+ * import { MAX_ENUMERATION_ENTRIES } from "@beep/repo-workspaces/internal/limits";
  *
  * console.log(MAX_ENUMERATION_ENTRIES); // 100000
  * ```
@@ -61,7 +61,7 @@ export const MAX_ENUMERATION_ENTRIES = 100_000;
  * **Example** (Check directories excluded from traversal)
  *
  * ```ts
- * import { PRUNED_DIRECTORIES } from "@beep/scratchpad/effected/workspaces/internal/limits";
+ * import { PRUNED_DIRECTORIES } from "@beep/repo-workspaces/internal/limits";
  * import * as HashSet from "effect/HashSet";
  *
  * console.log(HashSet.has(PRUNED_DIRECTORIES, "node_modules")); // true

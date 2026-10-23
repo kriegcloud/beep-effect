@@ -16,18 +16,13 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { ConfigDependencyHooks, WorkspaceSnapshots, WorkspaceStateSnapshot, Workspaces } from "@beep/repo-workspaces";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import {
-  ConfigDependencyHooks,
-  WorkspaceSnapshots,
-  WorkspaceStateSnapshot,
-  Workspaces,
-} from "../../../effected/workspaces/index.ts";
 import { installConfigDependency, storeConfigDependency, writeModulesYaml } from "./utils/configDependencyFixtures.ts";
 
 const NAME = "cfg-replay";

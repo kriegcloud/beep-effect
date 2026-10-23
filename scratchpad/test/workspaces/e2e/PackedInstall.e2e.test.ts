@@ -32,8 +32,8 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import type { PackageManagerName } from "../../../effected/workspaces/index.ts";
-import { Workspaces } from "../../../effected/workspaces/index.ts";
+import type { PackageManagerName } from "@beep/repo-workspaces";
+import { Workspaces } from "@beep/repo-workspaces";
 import type { InstalledConsumer, PackedInstallBudget } from "../../../effected/workspaces/testing.ts";
 import { PackedInstall } from "../../../effected/workspaces/testing.ts";
 

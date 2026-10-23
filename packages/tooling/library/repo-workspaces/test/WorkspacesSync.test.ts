@@ -28,10 +28,6 @@ import {
 import { tmpdir } from "node:os";
 import nodePath, { join } from "node:path";
 import { MemoryFileSystem } from "@beep/memfs";
-import { afterAll, afterEach, assert, beforeAll, describe, it, vi } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as S from "effect/Schema";
 import {
   findWorkspaceRootSync,
   getWorkspacePackagesSync,
@@ -39,10 +35,14 @@ import {
   WorkspaceDiscoveryError,
   WorkspacePatternError,
   WorkspaceRoot,
-} from "../../effected/workspaces/index.ts";
-import { WorkspaceEnumerationDepthError } from "../../effected/workspaces/WorkspacesSync.ts";
+} from "@beep/repo-workspaces";
+import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces/WorkspacesSync";
+import { afterAll, afterEach, assert, beforeAll, describe, it, vi } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import type { MemoryFileSystemHandle } from "@beep/memfs";
-import type { SyncFileSystem, WorkspacePackage, WorkspacesSyncOptions } from "../../effected/workspaces/index.ts";
+import type { SyncFileSystem, WorkspacePackage, WorkspacesSyncOptions } from "@beep/repo-workspaces";
 
 /** Sync ops over a fresh memfs volume holding exactly `seed`. */
 const memOps = (seed: Readonly<Record<string, string>>): WorkspacesSyncOptions => ({

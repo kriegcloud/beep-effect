@@ -15,7 +15,7 @@ import { dual } from "effect/Function";
 // `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on "@"
 // or "(" would re-introduce the format knowledge this module exists without.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { Lockfile, ResolvedPackage } from "@beep/lockfiles";
 import { Range, SemVer } from "@beep/semver";
 import * as A from "effect/Array";
@@ -35,7 +35,7 @@ import { WorkspacePackage } from "./WorkspacePackage.ts";
 import type { PeerNameMatcher } from "./internal/peerPatterns.ts";
 import type { ImporterRoots } from "./internal/roots.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/PeerCheck");
+const $I = $RepoWorkspacesId.create("PeerCheck");
 
 /**
  * Why a report is not a complete answer.
@@ -96,7 +96,7 @@ const $I = $ScratchpadId.create("effected/workspaces/PeerCheck");
  * **Example** (Recognize an incomplete report reason)
  *
  * ```ts
- * import { UnverifiedReason } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+ * import { UnverifiedReason } from "@beep/repo-workspaces/PeerCheck";
  * import * as S from "effect/Schema";
  * console.log(S.is(UnverifiedReason)("unresolvedEdge")) // true
  * ```
@@ -141,7 +141,7 @@ export type UnverifiedReason = typeof UnverifiedReason.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PeerCheckOptions } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+ * import { PeerCheckOptions } from "@beep/repo-workspaces/PeerCheck";
  *
  * console.log(S.is(PeerCheckOptions)({ peerDependencyRules: { allowedVersions: {}, ignoreMissing: [], allowAny: [] } })) // true
  * console.log(S.is(PeerCheckOptions)(null)) // false
@@ -247,7 +247,7 @@ export type PeerCheckOptions = typeof PeerCheckOptions.Type;
  * **Example** (Record the declaring package)
  *
  * ```ts
- * import { PeerParent } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+ * import { PeerParent } from "@beep/repo-workspaces/PeerCheck";
  * const parent = PeerParent.make({ name: "react-dom", version: "18.3.1" });
  * console.log(parent.name) // react-dom
  * ```
@@ -302,7 +302,7 @@ export class PeerParent extends S.Class<PeerParent, { readonly brand: unique sym
  * **Example** (Record a missing required peer)
  *
  * ```ts
- * import { UnsatisfiedPeer } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+ * import { UnsatisfiedPeer } from "@beep/repo-workspaces/PeerCheck";
  * const peer = UnsatisfiedPeer.make({ importer: ".", dependency: "react", wanted: "^18.0.0", found: null, optional: false, parents: [] });
  * console.log(peer.found) // null
  * ```
@@ -966,7 +966,7 @@ interface Policy {
  *
  * ```ts
  * import { Lockfile } from "@beep/lockfiles/Lockfile";
- * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+ * import { PeerCheck } from "@beep/repo-workspaces/PeerCheck";
  * import * as Effect from "effect/Effect";
  *
  * const text = "lockfileVersion: '9.0'\nimporters: {}\n"; // pnpm-lock.yaml text
@@ -1051,7 +1051,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
    * **Example** (Read required findings)
    *
    * ```ts
-   * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+   * import { PeerCheck } from "@beep/repo-workspaces/PeerCheck";
    * const report = PeerCheck.make({ supported: true, unsatisfied: [], unresolvedImporters: [], unverified: [] });
    * console.log(report.required.length) // 0
    * ```
@@ -1146,7 +1146,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
    * **Example** (Check a parsed pnpm lockfile)
    *
    * ```ts
-   * import { PeerCheck } from "@beep/scratchpad/effected/workspaces/PeerCheck";
+   * import { PeerCheck } from "@beep/repo-workspaces/PeerCheck";
    * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * import * as Effect from "effect/Effect";
    * const program = Effect.gen(function* () {

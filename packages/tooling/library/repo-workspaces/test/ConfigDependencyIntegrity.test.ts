@@ -1,8 +1,8 @@
 import { PnpmEnvLockfile } from "@beep/lockfiles";
+import { expectedIntegrity } from "@beep/repo-workspaces/internal/configDependencyFetch";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { expectedIntegrity } from "../../effected/workspaces/internal/configDependencyFetch.ts";
 
 const integrity = "sha512-YWJj";
 const lockfile = A.join(

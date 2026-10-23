@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { FindWorkspaceRootOptions, WorkspaceRootNotFoundError } from "@beep/repo-workspaces/WorkspaceRoot";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { FindWorkspaceRootOptions, WorkspaceRootNotFoundError } from "../../effected/workspaces/WorkspaceRoot.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {

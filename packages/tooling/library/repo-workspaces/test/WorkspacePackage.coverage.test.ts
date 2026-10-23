@@ -1,8 +1,8 @@
+import { WorkspaceManifestError, WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import { WorkspaceManifestError, WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
-import { platform } from "./fixtures.ts";
+import { platform } from "./support/fixtures.ts";
 
 const pkg = WorkspacePackage.make({
   name: "@scope/member",

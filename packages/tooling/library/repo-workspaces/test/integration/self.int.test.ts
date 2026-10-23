@@ -13,12 +13,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import nodePath, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { assert, describe, layer } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import {
   DependencyGraph,
   findWorkspaceRootSync,
@@ -28,8 +22,14 @@ import {
   WorkspaceCatalogs,
   WorkspaceDiscovery,
   Workspaces,
-} from "../../../effected/workspaces/index.ts";
-import type { WorkspacesSyncOptions } from "../../../effected/workspaces/index.ts";
+} from "@beep/repo-workspaces";
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { assert, describe, layer } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import type { WorkspacesSyncOptions } from "@beep/repo-workspaces";
 
 /** This package's own directory — the repo root is somewhere above it. */
 const here = dirname(fileURLToPath(import.meta.url));
@@ -64,7 +64,7 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const names = (yield* discovery.listPackages).map((pkg) => pkg.name);
-        assert.include(names, "@beep/scratchpad");
+        assert.include(names, "@beep/repo-workspaces");
         assert.include(names, "@beep/schema");
         assert.include(names, "@beep/utils");
         assert.include(names, "@beep/identity");
@@ -79,7 +79,7 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
           O.map(owner, () => undefined),
           undefined
         );
-        assert.strictEqual(O.getOrThrow(owner).name, "@beep/scratchpad");
+        assert.strictEqual(O.getOrThrow(owner).name, "@beep/repo-workspaces");
       })
     );
 
@@ -102,8 +102,8 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
         const order = yield* graph.sort();
         // The lab package depends on schema, utils and identity; all three
         // must precede it in a topological order.
-        assert.include(order, "@beep/scratchpad");
-        const self = order.indexOf("@beep/scratchpad");
+        assert.include(order, "@beep/repo-workspaces");
+        const self = order.indexOf("@beep/repo-workspaces");
         for (const dependency of ["@beep/schema", "@beep/utils", "@beep/identity"]) {
           assert.include(order, dependency);
           assert.isBelow(order.indexOf(dependency), self, `${dependency} must build before workspaces`);
@@ -169,8 +169,8 @@ describe("the sync escape hatch agrees with the Effect surface", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const info = yield* discovery.info;
-        const async = yield* discovery.getPackage("@beep/scratchpad");
-        const sync = getWorkspacePackagesSync(info.root, syncOps).find((pkg) => pkg.name === "@beep/scratchpad");
+        const async = yield* discovery.getPackage("@beep/repo-workspaces");
+        const sync = getWorkspacePackagesSync(info.root, syncOps).find((pkg) => pkg.name === "@beep/repo-workspaces");
         assert.isDefined(sync);
         assert.deepStrictEqual(sync?.dependencies, async.dependencies);
         assert.strictEqual(sync?.relativePath, async.relativePath);

@@ -9,20 +9,14 @@
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { Manifest, UnresolvedDependencyError } from "@beep/npm-spec/Manifest";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import { CatalogSet, PublishabilityDetector, PublishTarget, WorkspacePackage, Workspaces } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import {
-  CatalogSet,
-  PublishabilityDetector,
-  PublishTarget,
-  WorkspacePackage,
-  Workspaces,
-} from "../../effected/workspaces/index.ts";
-import { platform } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { platform } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 const TREE: Tree = {
   "/repo/pnpm-workspace.yaml": [
@@ -242,11 +236,11 @@ describe("Workspaces.layer — the publishability seam", () => {
 });
 
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { WorkspacesGitOptions, WorkspacesOptions } from "@beep/repo-workspaces/Workspaces";
 import * as Arbitrary from "effect/Arbitrary";
 import { identity } from "effect/Function";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
-import { WorkspacesGitOptions, WorkspacesOptions } from "../../effected/workspaces/Workspaces.ts";
 
 describe("composite workspace option schemas", () => {
   const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>, generated: S.Schema<T>): void => {

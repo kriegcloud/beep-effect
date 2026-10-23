@@ -14,7 +14,7 @@
 // `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on "@"
 // or "(" would re-introduce the format knowledge this module exists without.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { Lockfile } from "@beep/lockfiles";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
@@ -27,7 +27,7 @@ import * as S from "effect/Schema";
 import { indexInstances, rootInstances } from "./internal/roots.ts";
 import type { ResolvedPackage } from "@beep/lockfiles";
 
-const $I = $ScratchpadId.create("effected/workspaces/DuplicateCheck");
+const $I = $RepoWorkspacesId.create("DuplicateCheck");
 
 /**
  * Controls which package names appear in a {@link DuplicateCheck.run} report.
@@ -72,7 +72,7 @@ export interface DuplicateCheckOptions {
  * **Example** (Decode an importer dependent)
  *
  * ```ts
- * import { Dependent } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+ * import { Dependent } from "@beep/repo-workspaces/DuplicateCheck";
  * import * as S from "effect/Schema";
  *
  * const dependent = S.decodeUnknownSync(Dependent)({ _tag: "importer", path: "." });
@@ -119,7 +119,7 @@ const encodeRelationshipKey = S.encodeResult(RelationshipKey);
  * **Example** (Record who pulls a resolved instance)
  *
  * ```ts
- * import { DuplicateInstance } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+ * import { DuplicateInstance } from "@beep/repo-workspaces/DuplicateCheck";
  *
  * const instance = DuplicateInstance.make({
  *   instanceId: "effect@4.0.0", dependents: [{ _tag: "importer", path: "." }],
@@ -157,7 +157,7 @@ export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly bra
  * **Example** (Group instances at one version)
  *
  * ```ts
- * import { DuplicatedVersion, DuplicateInstance } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+ * import { DuplicatedVersion, DuplicateInstance } from "@beep/repo-workspaces/DuplicateCheck";
  *
  * const version = DuplicatedVersion.make({
  *   version: "4.0.0", instances: [DuplicateInstance.make({ instanceId: "effect@4.0.0", dependents: [] })],
@@ -199,7 +199,7 @@ export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly bra
  * **Example** (Represent two resolved versions)
  *
  * ```ts
- * import { DuplicatedPackage, DuplicatedVersion } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+ * import { DuplicatedPackage, DuplicatedVersion } from "@beep/repo-workspaces/DuplicateCheck";
  *
  * const pkg = DuplicatedPackage.make({
  *   name: "effect",
@@ -248,7 +248,7 @@ export class DuplicatedPackage extends S.Class<DuplicatedPackage, { readonly bra
  *
  * ```ts
  * import { Lockfile } from "@beep/lockfiles/Lockfile";
- * import { DuplicateCheck } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+ * import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
  * import * as Effect from "effect/Effect";
  *
  * const text = "lockfileVersion: '9.0'\nimporters: { '.': {} }\npackages: {}\nsnapshots: {}\n";
@@ -321,7 +321,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * **Example** (Inspect a report with unresolved importers)
    *
    * ```ts
-   * import { DuplicateCheck } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+   * import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
    *
    * const report = DuplicateCheck.make({ duplicates: [], unresolvedImporters: ["."] });
    * console.log(report.isClean) // true
@@ -348,7 +348,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * **Example** (Select only kit package names)
    *
    * ```ts
-   * import { DuplicateCheck } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+   * import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
    *
    * console.log(DuplicateCheck.kit("effect")) // true
    * console.log(DuplicateCheck.kit("@effected/workspaces")) // true
@@ -392,7 +392,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * **Example** (Check an empty normalized lockfile)
    *
    * ```ts
-   * import { DuplicateCheck } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
+   * import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
    * import { Lockfile } from "@beep/lockfiles/Lockfile";
    * const lockfile = Lockfile.make({
    *   format: "pnpm", lockfileVersion: "9.0", packages: [], workspaceDependencies: [],

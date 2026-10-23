@@ -1,3 +1,10 @@
+import {
+  ChangeDetectionError,
+  LockfileReadError,
+  LockfileReader,
+  WorkspaceDiscovery,
+  Workspaces,
+} from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -6,16 +13,8 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import {
-  ChangeDetectionError,
-  LockfileReadError,
-  LockfileReader,
-  WorkspaceDiscovery,
-  Workspaces,
-} from "../../effected/workspaces/index.ts";
-import { LayerPolicyError } from "../../effected/workspaces/LayerPolicy.ts";
-import { manifest, platform } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { manifest, platform } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 const workspacesOver = (tree: Tree) => Workspaces.layer({ cwd: "/repo" }).pipe(Layer.provideMerge(platform(tree)));
 
@@ -282,7 +281,7 @@ describe("LockfileReader — a malformed lockfile", () => {
 });
 
 describe("workspace error encoding", () => {
-  it.effect("preserves the originating failure stack in all three error schemas", () =>
+  it.effect("preserves the originating failure stack in both error schemas", () =>
     Effect.gen(function* () {
       const cause = new Error("originating failure");
       assert.isString(cause.stack);
@@ -291,7 +290,6 @@ describe("workspace error encoding", () => {
           LockfileReadError.make({ lockfilePath: "/repo/pnpm-lock.yaml", format: "pnpm", cause })
         ),
         S.encodeEffect(ChangeDetectionError)(ChangeDetectionError.make({ operation: "diff", cause })),
-        S.encodeEffect(LayerPolicyError)(LayerPolicyError.make({ reason: "read", cause })),
       ]);
       for (const error of encoded) {
         assert.isTrue(P.isObject(error.cause));

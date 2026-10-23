@@ -7,6 +7,13 @@
 // is exactly the silent escape `stopAt` exists to refuse.
 
 import { MemoryFileSystem } from "@beep/memfs";
+import {
+  WORKSPACE_MARKERS,
+  WorkspaceDiscovery,
+  WorkspacePackage,
+  WorkspaceRoot,
+  WorkspaceRootNotFoundError,
+} from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -16,15 +23,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import {
-  WORKSPACE_MARKERS,
-  WorkspaceDiscovery,
-  WorkspacePackage,
-  WorkspaceRoot,
-  WorkspaceRootNotFoundError,
-} from "../../effected/workspaces/index.ts";
-import { manifest, platform, rootManifest } from "./fixtures.ts";
-import type { Tree } from "./fixtures.ts";
+import { manifest, platform, rootManifest } from "./support/fixtures.ts";
+import type { Tree } from "./support/fixtures.ts";
 
 const rootsOver = (tree: Tree) => {
   const base = platform(tree);

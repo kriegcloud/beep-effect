@@ -4,7 +4,7 @@
 // root package.json `workspaces` field (array form, or the legacy
 // `{ packages: [...] }` object form). The YAML is parsed with `@effected/yaml`.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { Yaml } from "@beep/yaml";
 import * as A from "effect/Array";
@@ -14,7 +14,7 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/patterns");
+const $I = $RepoWorkspacesId.create("internal/patterns");
 
 /**
  * The caller-visible reasons reading workspace patterns can fail.
@@ -22,7 +22,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/patterns");
  * **Example** (Recognize a workspace configuration failure kind)
  *
  * ```ts
- * import { PatternReadFailureKind } from "@beep/scratchpad/effected/workspaces/internal/patterns";
+ * import { PatternReadFailureKind } from "@beep/repo-workspaces/internal/patterns";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(PatternReadFailureKind)("invalidYaml")); // true
@@ -70,7 +70,7 @@ const patternReadFailureCase = <const Kind extends PatternReadFailureKind>(kind:
  * **Example** (Retain an arbitrary pattern-read cause)
  *
  * ```ts
- * import { PatternReadFailure } from "@beep/scratchpad/effected/workspaces/internal/patterns";
+ * import { PatternReadFailure } from "@beep/repo-workspaces/internal/patterns";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(PatternReadFailure)({ path: "/repo/pnpm-workspace.yaml", kind: "read", cause: undefined })); // true
@@ -101,7 +101,7 @@ export type PatternReadFailure = typeof PatternReadFailure.Type;
  * **Example** (Filter a mixed pattern array)
  *
  * ```ts
- * import { stringsOf } from "@beep/scratchpad/effected/workspaces/internal/patterns";
+ * import { stringsOf } from "@beep/repo-workspaces/internal/patterns";
  *
  * console.log(stringsOf(["packages/*", 42])?.join(",")); // packages/*
  * console.log(stringsOf({ packages: [] })); // undefined
@@ -123,7 +123,7 @@ export const stringsOf = (value: unknown): ReadonlyArray<string> | undefined =>
  * **Example** (Read patterns from a parsed pnpm document)
  *
  * ```ts
- * import { pnpmPatternsOf } from "@beep/scratchpad/effected/workspaces/internal/patterns";
+ * import { pnpmPatternsOf } from "@beep/repo-workspaces/internal/patterns";
  *
  * console.log(pnpmPatternsOf({ packages: ["packages/*", 42] }).join(",")); // packages/*
  * console.log(pnpmPatternsOf(null).length); // 0
@@ -143,7 +143,7 @@ export const pnpmPatternsOf = (document: unknown): ReadonlyArray<string> => {
  * **Example** (Read both manifest workspace shapes)
  *
  * ```ts
- * import { manifestPatternsOf } from "@beep/scratchpad/effected/workspaces/internal/patterns";
+ * import { manifestPatternsOf } from "@beep/repo-workspaces/internal/patterns";
  *
  * console.log(manifestPatternsOf({ workspaces: ["packages/*"] }).join(",")); // packages/*
  * console.log(manifestPatternsOf({ workspaces: { packages: ["apps/*"] } }).join(",")); // apps/*
@@ -180,7 +180,7 @@ export const manifestPatternsOf = (manifest: unknown): ReadonlyArray<string> => 
  * **Example** (Construct a workspace pattern read)
  *
  * ```ts
- * import { readPatterns } from "@beep/scratchpad/effected/workspaces/internal/patterns";
+ * import { readPatterns } from "@beep/repo-workspaces/internal/patterns";
  * import * as Effect from "effect/Effect";
  *
  * const program = readPatterns("/repo");

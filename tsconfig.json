@@ -2373,6 +2373,9 @@
       ],
       "@beep/repo-workspaces/*": [
         "./packages/tooling/library/repo-workspaces/src/*"
+      ],
+      "@beep/repo-workspaces/internal/*": [
+        "./packages/tooling/library/repo-workspaces/src/internal/*"
       ]
     }
   }

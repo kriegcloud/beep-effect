@@ -1,6 +1,6 @@
+import { ConfigDependencySpec } from "@beep/repo-workspaces/ConfigDependencySpec";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { ConfigDependencySpec } from "../../effected/workspaces/ConfigDependencySpec.ts";
 
 it.effect("version failures explain the exact-version requirement", () =>
   Effect.gen(function* () {

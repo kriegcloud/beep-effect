@@ -32,7 +32,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 import { pathToFileURL } from "node:url";
 import { Run } from "@beep/commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { PartialReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -54,7 +54,7 @@ import { isPlainObject, JsonObject } from "./PackageManagerName.ts";
 import type { CatalogEntries } from "./internal/catalogs.ts";
 import type { ResolvedPnpmfile } from "./internal/configDependencyResolution.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/ConfigDependencyHooks");
+const $I = $RepoWorkspacesId.create("ConfigDependencyHooks");
 
 /** A replay failure reconstructed from the subprocess protocol. */
 class ConfigDependencyReplayError extends S.TaggedError<ConfigDependencyReplayError, { readonly brand: unique symbol }>(
@@ -94,7 +94,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  * **Example** (Construct independent peer suppression axes)
  *
  * ```ts
- * import { PeerDependencyRules } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
  *
  * const rules = PeerDependencyRules.make({ allowedVersions: {}, ignoreMissing: ["react"], allowAny: [] });
  * console.log(rules.ignoreMissing.join(",")) // react
@@ -195,7 +195,7 @@ type HookConfig = typeof HookConfig.Type;
  * **Example** (Inspect an explicitly empty suppression policy)
  *
  * ```ts
- * import { NoPeerDependencyRules } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
  *
  * console.log(NoPeerDependencyRules.ignoreMissing.length) // 0
  * console.log(NoPeerDependencyRules.allowAny.length) // 0
@@ -223,7 +223,7 @@ const NO_PEER_RULES: PeerDependencyRules = NoPeerDependencyRules;
  * **Example** (Validate replay resolution sources)
  *
  * ```ts
- * import { HookReplaySource } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { HookReplaySource } from "@beep/repo-workspaces/ConfigDependencyHooks";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(HookReplaySource)("installed")) // true
@@ -268,7 +268,7 @@ export type HookReplaySource = typeof HookReplaySource.Type;
  * **Example** (Record the declaring git ref)
  *
  * ```ts
- * import { HookReplayContext } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { HookReplayContext } from "@beep/repo-workspaces/ConfigDependencyHooks";
  *
  * const context = HookReplayContext.make({ ref: "origin/main" });
  * console.log(context.ref) // origin/main
@@ -327,7 +327,7 @@ export type HookReplayContext = typeof HookReplayContext.Type;
  * **Example** (Record a supplied hook version)
  *
  * ```ts
- * import { HookReplay } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyHooks";
  *
  * const replay = HookReplay.make({ version: "1.0.0", source: "supplied" });
  * console.log(replay.source) // supplied
@@ -376,7 +376,7 @@ export type HookReplay = typeof HookReplay.Type;
  * **Example** (Construct an empty replay result)
  *
  * ```ts
- * import { HookInjection, NoPeerDependencyRules } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { HookInjection, NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
  *
  * const injection = HookInjection.make({ catalogs: {}, releaseAge: {}, peerDependencyRules: NoPeerDependencyRules, replays: {} });
  * console.log(injection.peerDependencyRules.ignoreMissing.length) // 0
@@ -994,7 +994,7 @@ const replayFailureCause = (payload: { readonly message?: string; readonly stack
  * **Example** (Replay a seed without executing hooks)
  *
  * ```ts
- * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+ * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -1020,7 +1020,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * **Example** (Preserve seed catalogs through the no-op layer)
    *
    * ```ts
-   * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+   * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -1089,7 +1089,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * **Example** (Construct the in-process replay layer)
    *
    * ```ts
-   * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+   * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ConfigDependencyHooks.layerLive)) // true
@@ -1143,7 +1143,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * **Example** (Map plugin versions to fixture pnpmfiles)
    *
    * ```ts
-   * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+   * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
    * import * as Layer from "effect/Layer";
    *
    * const hooks = ConfigDependencyHooks.layerFrom({
@@ -1259,7 +1259,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * **Example** (Construct the subprocess replay layer)
    *
    * ```ts
-   * import { ConfigDependencyHooks } from "@beep/scratchpad/effected/workspaces/ConfigDependencyHooks";
+   * import { ConfigDependencyHooks } from "@beep/repo-workspaces/ConfigDependencyHooks";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ConfigDependencyHooks.layerSubprocess)) // true

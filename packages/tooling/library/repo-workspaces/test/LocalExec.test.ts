@@ -14,13 +14,6 @@
 // table cannot leave this package silently disagreeing with it.
 
 import { ExecContext, LocalExec, LocalExecError } from "@beep/commands";
-import { assert, describe, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import {
   DetectedPackageManager,
   PackageManagerDetectionError,
@@ -29,8 +22,15 @@ import {
   WorkspaceRoot,
   WorkspaceRootNotFoundError,
   Workspaces,
-} from "../../effected/workspaces/index.ts";
-import type { PackageManagerName } from "../../effected/workspaces/index.ts";
+} from "@beep/repo-workspaces";
+import { assert, describe, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import type { PackageManagerName } from "@beep/repo-workspaces";
 
 /** A detector that reports `name` at any root. */
 const detects = (name: PackageManagerName, runtime: "node" | "bun" = "node") =>

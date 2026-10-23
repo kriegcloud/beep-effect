@@ -8,7 +8,7 @@
 // is a *decoded manifest*.
 
 import { GlobPattern } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { WorkspaceManifest } from "@beep/lockfiles";
 import { Package } from "@beep/package-json";
 import * as A from "effect/Array";
@@ -20,7 +20,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as PlatformError from "effect/PlatformError";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspacePackage");
+const $I = $RepoWorkspacesId.create("WorkspacePackage");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -46,7 +46,7 @@ const EMPTY_MANIFEST: Readonly<Record<string, unknown>> = R.fromEntries([]);
  * **Example** (Choose scoped package visibility)
  *
  * ```ts
- * import { PublishConfig } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+ * import { PublishConfig } from "@beep/repo-workspaces/WorkspacePackage";
  *
  * const config = PublishConfig.make({ access: "public", tag: "next" });
  * console.log(config.access, config.tag); // public next
@@ -120,7 +120,7 @@ const ChangedDependencyVersion = S.Struct({
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { DependencyDiff } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+ * import { DependencyDiff } from "@beep/repo-workspaces/WorkspacePackage";
  *
  * console.log(S.is(DependencyDiff)({ added: { effect: "^4" }, removed: {}, changed: { vitest: { from: "^3", to: "^4" } } })) // true
  * console.log(S.is(DependencyDiff)(null)) // false
@@ -170,7 +170,7 @@ export type DependencyDiff = typeof DependencyDiff.Type;
  * **Example** (Identify a manifest read failure)
  *
  * ```ts
- * import { WorkspaceManifestError } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+ * import { WorkspaceManifestError } from "@beep/repo-workspaces/WorkspacePackage";
  *
  * const error = WorkspaceManifestError.make({
  *   packageJsonPath: "/repo/packages/utils/package.json",
@@ -219,7 +219,7 @@ export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError
    * **Example** (Render the failing manifest path)
    *
    * ```ts
-   * import { WorkspaceManifestError } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspaceManifestError } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const error = WorkspaceManifestError.make({
    *   packageJsonPath: "/repo/packages/utils/package.json",
@@ -249,7 +249,7 @@ export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError
  * **Example** (Construct and inspect a workspace package)
  *
  * ```ts
- * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+ * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
  *
  * const pkg = WorkspacePackage.make({
  *   name: "@my-org/utils",
@@ -388,7 +388,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Recognize the workspace root)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -413,7 +413,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Inspect a private package)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -439,7 +439,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Read a scoped package name)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as O from "effect/Option";
    *
    * const pkg = WorkspacePackage.make({
@@ -466,7 +466,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Strip a package scope)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -498,7 +498,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Observe dependency kind precedence)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -530,7 +530,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Check dependencies membership)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -556,7 +556,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Check devDependencies membership)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -582,7 +582,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Check peerDependencies membership)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -608,7 +608,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Check optionalDependencies membership)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -634,7 +634,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Check peerDependencies membership)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -665,7 +665,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Find an optional dependency specifier)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as O from "effect/Option";
    *
    * const pkg = WorkspacePackage.make({
@@ -706,7 +706,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Match a dependency name with a glob)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -735,7 +735,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Compare changed dependency specifiers)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -788,7 +788,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Project dependencies for lockfile comparison)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const pkg = WorkspacePackage.make({
    *   name: "@my-org/utils",
@@ -828,7 +828,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Construct a strict manifest read)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = WorkspacePackage.make({
@@ -873,7 +873,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * **Example** (Construct an instance manifest read)
    *
    * ```ts
-   * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+   * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = WorkspacePackage.make({

@@ -13,7 +13,7 @@ const path = process.getBuiltinModule("node:path");
 const read = vi.spyOn(fs, "readFile");
 const copy = vi.spyOn(fs, "copyFile");
 const remove = vi.spyOn(fs, "rm");
-const subject = await import("../../../effected/workspaces/internal/configDependencyFetch.ts");
+const subject = await import("@beep/repo-workspaces/internal/configDependencyFetch");
 const sri = `sha512-${"A".repeat(86)}==`;
 const root = () =>
   Effect.acquireRelease(
