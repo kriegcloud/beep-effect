@@ -52,14 +52,9 @@ it.effect("malformed file URLs and positionless application frames remain report
 it.effect("file URL frames follow fileURLToPath: encoded separators and remote hosts are not paths (#2152)", () =>
   Effect.sync(() => {
     const defect = new Error("boom");
-    defect.stack = [
-      "Error: boom",
-      " at file:///repo/src/esm%20x.ts:1:2",
-      " at file://localhost/repo/local.ts:3:4",
-      " at file:///repo/a%2Fb.ts:5:6",
-      " at file:///repo/c%5cd.ts:7:8",
-      " at file://server/share/e.ts:9:1",
-    ].join("\n");
+    defect.stack =
+      "Error: boom\n at file:///repo/src/esm%20x.ts:1:2\n at file://localhost/repo/local.ts:3:4" +
+      "\n at file:///repo/a%2Fb.ts:5:6\n at file:///repo/c%5cd.ts:7:8\n at file://server/share/e.ts:9:1";
     const rendered = plain(Cause.die(defect), { stackFrames: "all" });
     assert.include(rendered, "/repo/src/esm x.ts:1:2");
     assert.include(rendered, "/repo/local.ts:3:4");
