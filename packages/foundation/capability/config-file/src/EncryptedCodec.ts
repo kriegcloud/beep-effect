@@ -276,7 +276,7 @@ export const EncryptedCodec: {
 
   return {
     name,
-    parse: Effect.fn("parse")(function* (raw: string) {
+    parse: Effect.fn("EncryptedCodec.parse")(function* (raw: string) {
       // Validate the envelope before resolving the key: malformed input must
       // not be able to force a key resolution, which may be a KMS round-trip.
       const combined = yield* Effect.mapError(fromBase64(raw), toPublic);
@@ -295,7 +295,7 @@ export const EncryptedCodec: {
 
       return yield* inner.parse(new TextDecoder().decode(plaintext));
     }),
-    stringify: Effect.fn("stringify")(function* (value: unknown) {
+    stringify: Effect.fn("EncryptedCodec.stringify")(function* (value: unknown) {
       const key = yield* getKey;
       const serialized = yield* inner.stringify(value);
 

@@ -314,7 +314,7 @@ const make: (options: ConfigMigrationOptions) => ConfigCodec<ConfigCodecError | 
   return {
     name: options.codec.name,
     stringify: options.codec.stringify,
-    parse: Effect.fn("parse")(function* (raw: string) {
+    parse: Effect.fn("ConfigMigration.parse")(function* (raw: string) {
       let parsed = yield* options.codec.parse(raw);
       if (sorted.length === 0) return parsed;
 
