@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 (`@beep/markdown`, D-38..D-46) in review, with 2d-2, 2d-A and 2d-3 queued behind it.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 (`@beep/markdown`, D-38..D-46) in review, with 2d-2, 2d-A and 2d-3 queued behind it. Wave 3 runs as parallel promotion lanes (W3-a): 3-4 (`@beep/package-json`, W3-f) is in review, with its adoption PRs 3-A2..3-A4 and the optional 3-A9 queued behind it.
 
 ## Phases
 
@@ -30,6 +30,7 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 | 2d-A (queued) | adoption (no new package) | D-46. After 2d-1, in parallel with 2d-2: repo-cli `extractFrontmatter`, the `ChangesetGraph` fence, skill-contract `SkillProjection`, `Goals/Inventory`. Closes the "Duplicate frontmatter splitting and README heading parsing" ledger row. |
 | 2d-3 (queued, evidence-gated) | `@beep/md` `Md.render` writer fixes | `&` and `$` escaping, only if the 2d-2 ledger and writer differential show the need; its own changeset. `math` stays off by default in `Md.parse` until it lands. |
 | 2d-later | adoption, one PR each | D-46 deferred sites, tracked in `history/reuse-ledger.md`. |
+| 3-4 (in review) | `@beep/package-json` | W3-f, W3-h (3-4). Lab importers only: the sbom re-export is dropped (type-only `SbomMetadataSource`), workspaces imports the package, both PROMOTED maps list it. `PackageName` follows `validForOldPackages` with a `validate-npm-package-name@7.0.2` differential; live census `ops/package-json-corpus.ts`. Adopters follow in 3-A2 (field growth), 3-A3 (repo-utils re-base) and 3-A4 (repo-cli and docgen readers); Exception Ledger row "Duplicate package.json field models". |
 | 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
 | 4 | `@beep/sbom`, `@beep/xdg`, `@beep/cli-kit`, `@beep/repo-workspaces` | `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 | `@beep/github-actions` | Leaf driver. |
