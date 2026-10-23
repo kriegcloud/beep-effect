@@ -259,11 +259,10 @@ const escapeLinkLabel = (text: string): string => {
   const openings: Array<number> = [];
   // Escaped characters and complete code spans do not participate in label
   // bracket pairing. Exact backtick runs keep wider code delimiters intact.
-  for (const token of Str.matchAll(/\\[\s\S]|(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)|[[\]]/g)(text)) {
-    // `matchAll` always sets `index`; the type only widens it for `match`.
-    const index = token.index ?? 0;
-    if (token[0] === "[") openings.push(index);
-    else if (token[0] === "]" && openings.pop() === undefined) characters[index] = "\\]";
+  const tokens = /\\[\s\S]|(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)|[[\]]/g;
+  for (let token = tokens.exec(text); token !== null; token = tokens.exec(text)) {
+    if (token[0] === "[") openings.push(token.index);
+    else if (token[0] === "]" && openings.pop() === undefined) characters[token.index] = "\\]";
   }
   for (const index of openings) characters[index] = "\\[";
   // An odd trailing run would escape the closing label bracket. Existing

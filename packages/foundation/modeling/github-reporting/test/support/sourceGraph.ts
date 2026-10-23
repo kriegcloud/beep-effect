@@ -10,6 +10,7 @@ import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 
@@ -68,25 +69,35 @@ const resolveFrom = (module: string, specifier: string): string =>
     "/"
   );
 
+const isRelative = Str.startsWith(".");
+
+/** One walk step: a module's relative edges resolved, and its bare edges. */
+const stepFrom = (module: string): readonly [modules: ReadonlyArray<string>, packages: ReadonlyArray<string>] => {
+  const edges = runtimeEdges(textOf(module));
+  return [
+    A.map(A.filter(edges, isRelative), (specifier) => resolveFrom(module, specifier)),
+    A.filter(edges, P.not(isRelative)),
+  ];
+};
+
 /**
  * The bare (package) specifiers reachable from one `src` module at runtime.
  * Relative edges are followed; bare edges are collected and not entered.
  */
 export const reachablePackages = (entry: string): ReadonlyArray<string> => {
-  let visited = HashSet.empty<string>();
-  let packages = HashSet.empty<string>();
-  let frontier: ReadonlyArray<string> = [entry];
-  while (A.isReadonlyArrayNonEmpty(frontier)) {
-    const next: Array<string> = [];
-    for (const module of frontier) {
-      if (HashSet.has(visited, module)) continue;
-      visited = HashSet.add(visited, module);
-      for (const specifier of runtimeEdges(textOf(module))) {
-        if (Str.startsWith(".")(specifier)) next.push(resolveFrom(module, specifier));
-        else packages = HashSet.add(packages, specifier);
-      }
-    }
-    frontier = next;
-  }
-  return A.sort(A.fromIterable(packages), Str.Order);
+  const walk = (
+    frontier: ReadonlyArray<string>,
+    visited: HashSet.HashSet<string>,
+    packages: HashSet.HashSet<string>
+  ): HashSet.HashSet<string> => {
+    const fresh = A.dedupe(A.filter(frontier, (module) => !HashSet.has(visited, module)));
+    if (!A.isReadonlyArrayNonEmpty(fresh)) return packages;
+    const steps = A.map(fresh, stepFrom);
+    return walk(
+      A.flatMap(steps, ([modules]) => modules),
+      HashSet.union(visited, HashSet.fromIterable(fresh)),
+      HashSet.union(packages, HashSet.fromIterable(A.flatMap(steps, ([, bare]) => bare)))
+    );
+  };
+  return A.sort(A.fromIterable(walk([entry], HashSet.empty(), HashSet.empty())), Str.Order);
 };
