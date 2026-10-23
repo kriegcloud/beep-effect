@@ -233,7 +233,8 @@ const generatedComposers = $I.compose(
   "runtime-env",
   "epistemics",
   "markdown",
-  "github-reporting"
+  "github-reporting",
+  "repo-tsconfig"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3388,3 +3389,20 @@ export const $MarkdownId: Identity.IdentityComposer<"@beep/markdown"> = composer
  * @since 0.0.0
  */
 export const $GithubReportingId: Identity.IdentityComposer<"@beep/github-reporting"> = composers.$GithubReportingId;
+
+/**
+ * Identity composer for `@beep/repo-tsconfig`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $RepoTsconfigId } from "@beep/identity/packages"
+ *
+ * const id = $RepoTsconfigId.make("RepoTsconfig")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $RepoTsconfigId: Identity.IdentityComposer<"@beep/repo-tsconfig"> = composers.$RepoTsconfigId;
