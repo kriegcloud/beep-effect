@@ -16,11 +16,15 @@
  * - the sorted formatter is never an adopter path: it rewrites almost every
  *   repo manifest (`formatterRewrites`).
  *
- * With `--compare <baseline.json>` it re-runs the census and fails when any
- * gated count regresses: fewer manifests decoding, a same-value `modify` that
- * changes bytes, or a `name` the two validators disagree on. The manifest count
- * itself may grow as packages are added; the per-manifest rows explain any
- * change. Nothing here runs in CI; the output rides in the PR body.
+ * Each row carries its gated finding `classes` (a strict or presence reject,
+ * lenient issues, a same-value `modify` that changes bytes, a `name` the two
+ * validators disagree on) and a `verdict`. With `--compare <baseline.json>` it
+ * re-runs the census and judges every current manifest by path: a tracked path
+ * fails when it gains a class its baseline row did not record, and a path the
+ * baseline does not know fails on any class at all, so a newly tracked bad
+ * manifest cannot hide behind an unchanged total. Formatter rewrites are
+ * recorded but never gated. Paths that left the repository are listed, not
+ * failed. Nothing here runs in CI; the output rides in the PR body.
  *
  * Usage (from the repo root):
  *
@@ -32,6 +36,7 @@ import { Package } from "@beep/package-json/Package";
 import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
 import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { PackageName } from "@beep/package-json/PackageName";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
@@ -39,6 +44,7 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -56,6 +62,19 @@ import validate from "validate-npm-package-name";
 const TOOL = "goals/effected-promotion/ops/package-json-corpus.ts";
 const SCOPE = "git ls-files '*package.json' excluding **/test/fixtures/**";
 
+// The gated findings a manifest can carry. Formatter rewrites are not one: the
+// sorted formatter rewrites almost every repo manifest by design.
+const FindingClass = LiteralKit([
+  "strict-reject",
+  "presence-reject",
+  "lenient-issues",
+  "modify-noop-changed",
+  "name-validator-disagreement",
+]);
+type FindingClass = typeof FindingClass.Type;
+
+const Verdict = LiteralKit(["clean", "flagged"]);
+
 const ManifestRow = S.Struct({
   path: S.NonEmptyString,
   name: S.optionalKey(S.String),
@@ -66,6 +85,8 @@ const ManifestRow = S.Struct({
   modifyNoopIdentical: S.optionalKey(S.Boolean),
   packageNameValid: S.optionalKey(S.Boolean),
   npmValidForOldPackages: S.optionalKey(S.Boolean),
+  classes: S.Array(FindingClass),
+  verdict: Verdict,
 });
 type ManifestRow = typeof ManifestRow.Type;
 
@@ -85,7 +106,7 @@ const Totals = S.Struct({
 type Totals = typeof Totals.Type;
 
 const CorpusReport = S.Struct({
-  schemaVersion: S.tag(1),
+  schemaVersion: S.tag(2),
   tool: S.tag(TOOL),
   scope: S.tag(SCOPE),
   commit: S.optionalKey(S.String),
@@ -113,6 +134,17 @@ const flagValue = (name: string): O.Option<string> =>
 
 const JsonObject = S.fromJsonString(S.Record(S.String, S.Unknown));
 
+type ManifestFacts = Omit<ManifestRow, "classes" | "verdict">;
+
+// One test per gated class, in the order the classes are recorded.
+const CLASS_TESTS: ReadonlyArray<readonly [FindingClass, (facts: ManifestFacts) => boolean]> = [
+  ["strict-reject", (facts) => !facts.strict],
+  ["presence-reject", (facts) => !facts.presence],
+  ["lenient-issues", (facts) => facts.lenientIssues !== 0],
+  ["modify-noop-changed", (facts) => facts.modifyNoopIdentical === false],
+  ["name-validator-disagreement", (facts) => facts.packageNameValid !== facts.npmValidForOldPackages],
+];
+
 const isSuccess = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<boolean, never, R> =>
   effect.pipe(
     Effect.as(true),
@@ -133,7 +165,7 @@ const censusOne = Effect.fn("PackageJsonCorpus.censusOne")(function* (path: stri
         Effect.orElseSucceed(() => O.some(false))
       ),
   });
-  const row: ManifestRow = {
+  const facts = {
     path,
     ...O.match(name, { onNone: () => ({}), onSome: (current) => ({ name: current }) }),
     strict: yield* isSuccess(Package.decode(value)),
@@ -149,6 +181,10 @@ const censusOne = Effect.fn("PackageJsonCorpus.censusOne")(function* (path: stri
       }),
     }),
   };
+  const classes = A.filterMap(CLASS_TESTS, ([findingClass, test]) =>
+    test(facts) ? Result.succeed(findingClass) : Result.failVoid
+  );
+  const row: ManifestRow = { ...facts, classes, verdict: A.isArrayNonEmpty(classes) ? "flagged" : "clean" };
   return row;
 });
 
@@ -171,7 +207,8 @@ const totalsOf = (rows: ReadonlyArray<ManifestRow>): Totals => ({
 
 // --- compare ------------------------------------------------------------------
 
-// A gated count may only stay level or move in the named direction.
+// A gated count may only stay level or move in the named direction. The totals
+// are printed for the PR body; the per-path check below is the gate.
 const GATES: ReadonlyArray<readonly [keyof Totals, "atLeast" | "atMost"]> = [
   ["strictDecodes", "atLeast"],
   ["presenceDecodes", "atLeast"],
@@ -184,20 +221,40 @@ const compareReports = Effect.fn("PackageJsonCorpus.compare")(function* (
   baseline: CorpusReport,
   current: CorpusReport
 ) {
-  const regressions = A.filter(GATES, ([key, direction]) =>
-    direction === "atLeast" ? current.totals[key] < baseline.totals[key] : current.totals[key] > baseline.totals[key]
+  for (const [key, direction] of GATES) {
+    yield* Console.log(
+      `${Str.padEnd(28)(key)} baseline ${baseline.totals[key]}  current ${current.totals[key]}  (${direction})`
+    );
+  }
+  const recorded = HashMap.fromIterable(A.map(baseline.manifests, (row) => [row.path, row] as const));
+  const regressions = A.filterMap(current.manifests, (row) => {
+    const known = HashMap.get(recorded, row.path);
+    const allowed = O.match(known, { onNone: () => [], onSome: (previous) => previous.classes });
+    const gained = A.difference(row.classes, allowed);
+    return A.isArrayNonEmpty(gained)
+      ? Result.succeed(`${row.path} (${O.isSome(known) ? "tracked" : "new path"}): ${A.join(gained, ", ")}`)
+      : Result.failVoid;
+  });
+  const currentPaths = HashMap.fromIterable(A.map(current.manifests, (row) => [row.path, row] as const));
+  const removed = A.filter(baseline.manifests, (row) => !HashMap.has(currentPaths, row.path));
+  const added = A.filter(current.manifests, (row) => !HashMap.has(recorded, row.path));
+  yield* Console.log(
+    `paths: baseline ${A.length(baseline.manifests)}  current ${A.length(current.manifests)}  added ${A.length(
+      added
+    )}  removed ${A.length(removed)}`
   );
-  for (const [key] of GATES) {
-    yield* Console.log(`${Str.padEnd(28)(key)} baseline ${baseline.totals[key]}  current ${current.totals[key]}`);
+  for (const row of added) {
+    yield* Console.log(`  added   ${row.path}: ${row.verdict}`);
+  }
+  for (const row of removed) {
+    yield* Console.log(`  removed ${row.path}`);
   }
   if (A.isArrayNonEmpty(regressions)) {
     return yield* new CorpusRegression({
-      message: `package.json corpus regressed: ${A.join(
-        A.map(regressions, ([key]) => key),
-        ", "
-      )}`,
+      message: `package.json corpus regressed by path:\n${A.join(regressions, "\n")}`,
     });
   }
+  yield* Console.log(`per-path verdicts: no manifest gained a finding class (${A.length(current.manifests)} checked)`);
 });
 
 // --- program ------------------------------------------------------------------
@@ -223,7 +280,7 @@ const program = Effect.gen(function* () {
     Effect.orElseSucceed(() => O.none<string>())
   );
   const report: CorpusReport = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     tool: TOOL,
     scope: SCOPE,
     ...O.match(commit, { onNone: () => ({}), onSome: (sha) => ({ commit: sha }) }),

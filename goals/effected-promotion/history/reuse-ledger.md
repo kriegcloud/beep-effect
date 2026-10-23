@@ -43,7 +43,7 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 3-4 moves only the lab importers (sbom, workspaces). Every repo adopter waits for its adoption PR, in the order of the
 wave-3 file-contention table. Writes to repo manifests go only through `PackageJsonFile.modify` /
 `PackageJsonFormat.modifyToString`: the census (`research/package-json-corpus-baseline-w3.json`) shows the sorted
-formatter rewrites 184 of the 185 repo manifests, while a same-value `modifyToString` is byte-identical for all 185.
+formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToString` is byte-identical for all 186.
 
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
