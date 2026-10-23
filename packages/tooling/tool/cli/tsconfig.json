@@ -84,6 +84,9 @@
       "path": "../../../foundation/capability/walker/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/xdg/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/glob/tsconfig.json"
     },
     {

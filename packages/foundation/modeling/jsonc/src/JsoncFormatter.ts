@@ -20,6 +20,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { accumulation } from "./internal/accumulation.ts";
 import { createScanner, SyntaxKind } from "./internal/scanner.ts";
 import { JsoncEdit, JsoncFormattingOptions } from "./JsoncEdit.ts";
 import type { JsoncFormattingOptionsLike, JsoncRange } from "./JsoncEdit.ts";
@@ -165,7 +166,7 @@ const formatImpl: {
       offset + length <= rangeEnd &&
       Str.substring(offset, offset + length)(text) !== content
     ) {
-      edits.push(JsoncEdit.make({ offset, length, content }));
+      accumulation.append(edits, JsoncEdit.make({ offset, length, content }));
     }
   });
 
