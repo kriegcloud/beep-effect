@@ -71,6 +71,7 @@
     "@beep/mcp-kit": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/xdg": "workspace:^",
     "@effect/platform-node": "catalog:",
     "effect": "catalog:"
   },

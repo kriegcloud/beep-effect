@@ -238,6 +238,7 @@ const generatedComposers = $I.compose(
   "package-json",
   "config-file",
   "lockfiles",
+  "xdg",
   "cli-kit"
 );
 
@@ -3461,6 +3462,23 @@ export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = com
  * @since 0.0.0
  */
 export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
+
+/**
+ * Identity composer for `@beep/xdg`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $XdgId } from "@beep/identity/packages"
+ *
+ * const id = $XdgId.make("Xdg")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $XdgId: Identity.IdentityComposer<"@beep/xdg"> = composers.$XdgId;
 
 /**
  * Identity composer for `@beep/cli-kit`.
