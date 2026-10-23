@@ -1,3 +1,10 @@
+/**
+ * A marker-delimited managed document: tool-owned regions inside text whose
+ * surrounding content belongs to a human, with the parse and render errors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $GithubReportingId } from "@beep/identity/packages";
 import { CommentStyle } from "@beep/managed-section/CommentStyle";
 import { SectionId } from "@beep/managed-section/Section";

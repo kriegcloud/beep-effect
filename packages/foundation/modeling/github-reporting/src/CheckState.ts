@@ -1,3 +1,10 @@
+/**
+ * The check-state vocabulary a run reports, and its projection onto GitHub's
+ * check-run status and conclusion.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $GithubReportingId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Match from "effect/Match";

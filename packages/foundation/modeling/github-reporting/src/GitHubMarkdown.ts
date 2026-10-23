@@ -1,3 +1,11 @@
+/**
+ * The fluent GitHub-flavored Markdown writer for PR comments, check-run
+ * summaries and job summaries. Subpath-only: this module is the package's
+ * only importer of `@beep/markdown`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $GithubReportingId } from "@beep/identity/packages";
 import { Markdown } from "@beep/markdown/Markdown";
 import {
@@ -281,7 +289,7 @@ const escapeLinkLabel = (text: string): string => {
  * Either way nothing re-parses a fragment into child nodes, so a composition
  * nests strings rather than nodes and the deepest tree the writer can build
  * is a table's five levels, whatever it is handed. Pinned by
- * `__test__/GitHubMarkdown.test.ts`, which nests the writer's own output a
+ * `test/GitHubMarkdown.test.ts`, which nests the writer's own output a
  * thousand deep — four times the cap — and still renders.
  *
  * Keep that property when adding a member: a member that accepts a *node*, or

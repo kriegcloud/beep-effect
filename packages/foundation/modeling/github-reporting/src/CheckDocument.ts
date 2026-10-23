@@ -1,3 +1,11 @@
+/**
+ * A living document of check state: the `CheckDocument` reconciler service,
+ * the `CheckReport` and `CheckDocumentSnapshot` records it holds, the
+ * `CheckDocumentStamp` staleness order and the flush outcome.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $GithubReportingId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
