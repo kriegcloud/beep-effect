@@ -1,7 +1,9 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { GlobPattern } from "@beep/glob";
 import { PublishConfig, WorkspaceManifestError, WorkspacePackage } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -56,7 +58,7 @@ describe("WorkspacePackage", () => {
   });
 
   it("allDependencies merges all four kinds", () => {
-    assert.deepStrictEqual(Object.keys(utils.allDependencies).sort(), [
+    assert.deepStrictEqual(R.keys(utils.allDependencies).sort(), [
       "@types/node",
       "effect",
       "fsevents",
@@ -360,3 +362,14 @@ describe("WorkspaceManifestError encoding", () => {
     })
   );
 });
+
+it.effect.prop(
+  "a publish config generated from its schema survives an encode/decode round trip",
+  [Arbitrary.schema(PublishConfig)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(PublishConfig)(yield* S.encodeEffect(PublishConfig)(value));
+      assert.isTrue(S.toEquivalence(PublishConfig)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
+);

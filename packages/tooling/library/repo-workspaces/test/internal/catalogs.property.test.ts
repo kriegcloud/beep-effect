@@ -5,6 +5,7 @@ import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(
@@ -25,12 +26,12 @@ it.effect.prop(
   ([name, version]) =>
     Effect.sync(() => {
       const spec = `catalog:${name}`;
-      const parsed = name.trim() === "" ? "default" : name.trim();
+      const parsed = Str.trim(name) === "" ? "default" : Str.trim(name);
       assertSome(catalogNameOf(spec), parsed);
       assertSome(catalogNameOf(`catalog:${parsed}`), parsed);
       const catalogs = { [parsed]: { pkg: version } };
       const result = rangeOf(catalogs, "pkg", spec);
-      if (version.startsWith("catalog:") || version.startsWith("file:") || version.startsWith("link:"))
+      if (Str.startsWith("catalog:")(version) || Str.startsWith("file:")(version) || Str.startsWith("link:")(version))
         assert.isObject(result);
       else assert.strictEqual(result, version);
     }),

@@ -10,7 +10,7 @@
 import { readPatterns } from "@beep/repo-workspaces/internal/patterns";
 import { assert, describe, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { platform } from "./support/fixtures.ts";
+import { platform, platformWith } from "./support/fixtures.ts";
 import type { Tree } from "./support/fixtures.ts";
 
 const tree: Tree = {
@@ -63,30 +63,25 @@ describe("readPatterns — an absent config is not an error", () => {
 // a permission error yielded "this workspace declares no packages".
 
 describe("readPatterns — an unreadable pnpm-workspace.yaml", () => {
-  layer(platform(tree, { unreadableFiles: new Set(["/repo/pnpm-workspace.yaml"]) }), { timeout: "30 seconds" })(
-    (it) => {
-      it.effect("fails typed rather than reading as an empty document", () =>
-        Effect.gen(function* () {
-          const failure = yield* Effect.flip(readPatterns("/repo"));
-          assert.strictEqual(failure.kind, "read");
-          assert.strictEqual(failure.path, "/repo/pnpm-workspace.yaml");
-        })
-      );
-    }
-  );
+  layer(platformWith({ unreadableFiles: ["/repo/pnpm-workspace.yaml"] })(tree), { timeout: "30 seconds" })((it) => {
+    it.effect("fails typed rather than reading as an empty document", () =>
+      Effect.gen(function* () {
+        const failure = yield* Effect.flip(readPatterns("/repo"));
+        assert.strictEqual(failure.kind, "read");
+        assert.strictEqual(failure.path, "/repo/pnpm-workspace.yaml");
+      })
+    );
+  });
 });
 
 describe("readPatterns — an unreadable package.json", () => {
   // The pnpm config parses but declares no `packages:`, so pattern reading falls
   // through to the manifest — and THAT is the unreadable file.
   layer(
-    platform(
-      {
-        "/repo/pnpm-workspace.yaml": "onlyBuiltDependencies:\n  - esbuild\n",
-        "/repo/package.json": JSON.stringify({ name: "root", workspaces: ["apps/*"] }),
-      },
-      { unreadableFiles: new Set(["/repo/package.json"]) }
-    ),
+    platformWith({ unreadableFiles: ["/repo/package.json"] })({
+      "/repo/pnpm-workspace.yaml": "onlyBuiltDependencies:\n  - esbuild\n",
+      "/repo/package.json": JSON.stringify({ name: "root", workspaces: ["apps/*"] }),
+    }),
     { timeout: "30 seconds" }
   )((it) => {
     it.effect("fails typed rather than reading as `{}`", () =>

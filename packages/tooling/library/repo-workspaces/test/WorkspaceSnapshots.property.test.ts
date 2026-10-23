@@ -8,12 +8,14 @@ import { WorkspaceSnapshots, WorkspaceSnapshotsOptions } from "@beep/repo-worksp
 import { PackageStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const PackageText = S.fromJsonString(PackageStateSnapshot);
@@ -47,8 +49,8 @@ it.layer(platform, { timeout: "30 seconds" })((it) => {
             ),
           lsTree: () =>
             Effect.succeed(
-              ["package.json", "packages/member/package.json"].map((path) =>
-                LsTreeEntry.make({ path, type: "blob", mode: "100644", oid: "0".repeat(40) })
+              A.map(["package.json", "packages/member/package.json"], (path) =>
+                LsTreeEntry.make({ path, type: "blob", mode: "100644", oid: Str.repeat(40)("0") })
               )
             ),
         });

@@ -22,18 +22,20 @@ import {
 } from "@beep/repo-workspaces";
 import { nodeSyncOps } from "@beep/repo-workspaces/node-sync";
 import { resolve } from "@beep/utils/Path";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, describe, layer } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
+import { nodeHost } from "./utils/nodeFixture.ts";
 
 /** This package's own directory — the repo root is somewhere above it. */
 const cwd = resolve(import.meta.dirname, "..", "..");
 const syncOps = nodeSyncOps;
 
-const Live = Workspaces.layer({ cwd }).pipe(Layer.provideMerge(NodeServices.layer));
+const Live = Workspaces.layer({ cwd }).pipe(Layer.provideMerge(nodeHost));
 
 describe("the lab Bun workspace, discovered by the package that lives in it", () => {
   layer(Live, { timeout: "30 seconds" })((it) => {
@@ -41,7 +43,7 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const info = yield* discovery.info;
-        assert.isTrue(cwd.startsWith(info.root), "the root must be an ancestor of this package");
+        assert.isTrue(Str.startsWith(info.root)(cwd), "the root must be an ancestor of this package");
         assert.isAbove(info.patterns.length, 0);
       })
     );
@@ -49,7 +51,7 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
     it.effect("discovers itself, and its siblings", () =>
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
-        const names = (yield* discovery.listPackages).map((pkg) => pkg.name);
+        const names = A.map(yield* discovery.listPackages, (pkg) => pkg.name);
         assert.include(names, "@beep/repo-workspaces");
         assert.include(names, "@beep/schema");
         assert.include(names, "@beep/utils");
@@ -117,7 +119,10 @@ describe("the lab Bun workspace, discovered by the package that lives in it", ()
         const lockfile = yield* reader.read;
         assert.strictEqual(lockfile.format, "bun");
 
-        const workspaceNames = lockfile.packages.filter((pkg) => pkg.isWorkspace).map((pkg) => pkg.name);
+        const workspaceNames = A.map(
+          A.filter(lockfile.packages, (pkg) => pkg.isWorkspace),
+          (pkg) => pkg.name
+        );
         // Workspace entries must be exposed by their manifest names,
         // rather than the paths of the lab workspace members.
         assert.include(workspaceNames, "@beep/utils");
@@ -141,10 +146,8 @@ describe("the sync escape hatch agrees with the Effect surface", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const info = yield* discovery.info;
-        const async = (yield* discovery.listPackages).map((pkg) => pkg.name).sort();
-        const sync = getWorkspacePackagesSync(info.root, syncOps)
-          .map((pkg) => pkg.name)
-          .sort();
+        const async = A.map(yield* discovery.listPackages, (pkg) => pkg.name).sort();
+        const sync = A.map(getWorkspacePackagesSync(info.root, syncOps), (pkg) => pkg.name).sort();
         // The whole point of routing both through one GlobSet: if the sync
         // enumerator ever grows a private pattern semantic again, this diverges.
         assert.deepStrictEqual(sync, async);
@@ -156,7 +159,9 @@ describe("the sync escape hatch agrees with the Effect surface", () => {
         const discovery = yield* WorkspaceDiscovery;
         const info = yield* discovery.info;
         const async = yield* discovery.getPackage("@beep/repo-workspaces");
-        const sync = getWorkspacePackagesSync(info.root, syncOps).find((pkg) => pkg.name === "@beep/repo-workspaces");
+        const sync = O.getOrUndefined(
+          A.findFirst(getWorkspacePackagesSync(info.root, syncOps), (pkg) => pkg.name === "@beep/repo-workspaces")
+        );
         assert.isDefined(sync);
         assert.deepStrictEqual(sync?.dependencies, async.dependencies);
         assert.strictEqual(sync?.relativePath, async.relativePath);

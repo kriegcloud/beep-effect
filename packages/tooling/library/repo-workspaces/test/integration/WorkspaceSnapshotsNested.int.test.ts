@@ -20,14 +20,14 @@
 
 import { WorkspaceSnapshots, Workspaces } from "@beep/repo-workspaces";
 import { dirname, join } from "@beep/utils/Path";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
-import { gitIn, makeNodeFixture } from "./utils/nodeFixture.ts";
+import { gitIn, makeNodeFixture, nodeHost } from "./utils/nodeFixture.ts";
 
 let root: string;
 let inner: string;
@@ -50,7 +50,7 @@ beforeAll(() =>
       // ── OUTER workspace (the whole temp dir is the git repo) ─────────────────
       yield* write(
         join(root, "pnpm-workspace.yaml"),
-        ["packages:", "  - packages/*", "catalog:", "  effect: ^3.0.0", ""].join("\n")
+        A.join(["packages:", "  - packages/*", "catalog:", "  effect: ^3.0.0", ""], "\n")
       );
       yield* write(join(root, "package.json"), '{"name":"outer-root","version":"0.0.0","private":true}');
       yield* write(join(root, "packages", "outer-a", "package.json"), '{"name":"@outer/a","version":"9.9.9"}');
@@ -58,7 +58,7 @@ beforeAll(() =>
       // ── INNER workspace (nested, its OWN pnpm-workspace.yaml and catalog) ─────
       yield* write(
         join(inner, "pnpm-workspace.yaml"),
-        ["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", ""].join("\n")
+        A.join(["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", ""], "\n")
       );
       yield* write(join(inner, "package.json"), '{"name":"inner-root","version":"1.0.0","private":true}');
       yield* write(
@@ -83,7 +83,7 @@ beforeAll(() =>
 afterAll(() => fixture.close());
 
 const Live = Layer.unwrap(
-  Effect.sync(() => Workspaces.layerWithGit({ cwd: inner }).pipe(Layer.provideMerge(NodeServices.layer)))
+  Effect.sync(() => Workspaces.layerWithGit({ cwd: inner }).pipe(Layer.provideMerge(nodeHost)))
 );
 
 describe("WorkspaceSnapshots.at — a workspace root nested inside a larger git repo", () => {

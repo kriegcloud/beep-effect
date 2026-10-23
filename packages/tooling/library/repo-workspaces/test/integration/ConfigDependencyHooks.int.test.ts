@@ -12,15 +12,17 @@ import {
 import { HookInjection, NoPeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { join } from "@beep/utils/Path";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { manifest, platform } from "../support/fixtures.ts";
+import { nodeHost } from "./utils/nodeFixture.ts";
 import type { Tree } from "../support/fixtures.ts";
 
 // The hook-replay seam is inherently real-filesystem: the live layer dynamically
@@ -114,7 +116,7 @@ const FixtureLayer = Layer.effect(
     yield* fs.copyFile(PEER_RULES_FIXTURE, join(peerRulesDir, "pnpmfile.mjs"));
     return fs;
   })
-).pipe(Layer.provideMerge(NodeServices.layer));
+).pipe(Layer.provideMerge(nodeHost));
 
 /**
  * The virtual-tree entries mirroring one real `.pnpm-config/<name>` install, so
@@ -319,15 +321,18 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
       Layer.unwrap(
         Effect.sync(() => {
           const tree: Tree = {
-            [`${root}/pnpm-workspace.yaml`]: [
-              "packages:",
-              "  - packages/*",
-              "catalog:",
-              "  effect: ^4.0.0",
-              "configDependencies:",
-              `  ${DEP_NAME}: '1.0.0'`,
-              "",
-            ].join("\n"),
+            [`${root}/pnpm-workspace.yaml`]: A.join(
+              [
+                "packages:",
+                "  - packages/*",
+                "catalog:",
+                "  effect: ^4.0.0",
+                "configDependencies:",
+                `  ${DEP_NAME}: '1.0.0'`,
+                "",
+              ],
+              "\n"
+            ),
             [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
             [`${root}/packages/a/package.json`]: manifest("@x/a", { dependencies: { effect: "catalog:" } }),
           };
@@ -384,20 +389,23 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
   // change makes composing this layer shell out, these tests fail loudly instead
   // of quietly spawning during an assembly test.
   const noSpawns = ScriptedSpawner.make((command, args) => {
-    throw new Error(`unexpected spawn: ${command} ${args.join(" ")}`);
+    throw new Error(`unexpected spawn: ${command} ${A.join(args, " ")}`);
   });
 
   describe("Workspaces.layerWithGitAndConfigDependencies", () => {
     const hookedTree = (): Tree => ({
-      [`${root}/pnpm-workspace.yaml`]: [
-        "packages:",
-        "  - packages/*",
-        "catalog:",
-        "  effect: ^4.0.0",
-        "configDependencies:",
-        `  ${DEP_NAME}: '1.0.0'`,
-        "",
-      ].join("\n"),
+      [`${root}/pnpm-workspace.yaml`]: A.join(
+        [
+          "packages:",
+          "  - packages/*",
+          "catalog:",
+          "  effect: ^4.0.0",
+          "configDependencies:",
+          `  ${DEP_NAME}: '1.0.0'`,
+          "",
+        ],
+        "\n"
+      ),
       [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
       [`${root}/packages/a/package.json`]: manifest("@x/a", { dependencies: { effect: "catalog:" } }),
       ...installed(DEP_NAME, "pnpmfile.cjs"),
@@ -581,19 +589,22 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
     // dependency's real pnpmfile hits disk under the same root — the same split the
     // default-layer test above relies on.
     const treeWith = (inlineAge: number, inlineExclude: readonly string[], dep: string): Tree => ({
-      [`${root}/pnpm-workspace.yaml`]: [
-        "packages:",
-        "  - packages/*",
-        `minimumReleaseAge: ${inlineAge}`,
-        // Emit the exclude block only when non-empty — a bare `key:` line yields a
-        // null value pnpm treats as no excludes.
-        ...(inlineExclude.length > 0
-          ? ["minimumReleaseAgeExclude:", ...inlineExclude.map((pattern) => `  - "${pattern}"`)]
-          : []),
-        "configDependencies:",
-        `  ${dep}: '1.0.0'`,
-        "",
-      ].join("\n"),
+      [`${root}/pnpm-workspace.yaml`]: A.join(
+        [
+          "packages:",
+          "  - packages/*",
+          `minimumReleaseAge: ${inlineAge}`,
+          // Emit the exclude block only when non-empty — a bare `key:` line yields a
+          // null value pnpm treats as no excludes.
+          ...(inlineExclude.length > 0
+            ? ["minimumReleaseAgeExclude:", ...A.map(inlineExclude, (pattern) => `  - "${pattern}"`)]
+            : []),
+          "configDependencies:",
+          `  ${dep}: '1.0.0'`,
+          "",
+        ],
+        "\n"
+      ),
       [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
       [`${root}/packages/a/package.json`]: manifest("@x/a"),
       ...installed(dep, "pnpmfile.mjs"),
@@ -655,18 +666,21 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
   // "this workspace declares none".
   describe("WorkspaceCatalogs.peerDependencyRules — the injected rules reach the caller", () => {
     const tree = (): Tree => ({
-      [`${root}/pnpm-workspace.yaml`]: [
-        "packages:",
-        "  - packages/*",
-        // The workspace-file half, in the parent-VERSIONED spelling `pnpm:export`
-        // materializes.
-        "peerDependencyRules:",
-        "  allowedVersions:",
-        '    "inline-parent@1.2.3>inline-peer": "^1.0.0"',
-        "configDependencies:",
-        `  ${PEER_RULES_DEP_NAME}: '1.0.0'`,
-        "",
-      ].join("\n"),
+      [`${root}/pnpm-workspace.yaml`]: A.join(
+        [
+          "packages:",
+          "  - packages/*",
+          // The workspace-file half, in the parent-VERSIONED spelling `pnpm:export`
+          // materializes.
+          "peerDependencyRules:",
+          "  allowedVersions:",
+          '    "inline-parent@1.2.3>inline-peer": "^1.0.0"',
+          "configDependencies:",
+          `  ${PEER_RULES_DEP_NAME}: '1.0.0'`,
+          "",
+        ],
+        "\n"
+      ),
       [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
       [`${root}/packages/a/package.json`]: manifest("@x/a"),
       ...installed(PEER_RULES_DEP_NAME, "pnpmfile.mjs"),
@@ -695,7 +709,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
           assert.strictEqual(rules.allowedVersions["inline-parent@1.2.3>inline-peer"], "^1.0.0");
           // Both key spellings coexist, unversioned from the plugin and versioned
           // from the file.
-          assert.strictEqual(Object.keys(rules.allowedVersions).length, 2);
+          assert.strictEqual(R.keys(rules.allowedVersions).length, 2);
         })
       );
     });

@@ -13,15 +13,16 @@
 
 import { ConfigDependencyHooks, WorkspaceSnapshots, WorkspaceStateSnapshot, Workspaces } from "@beep/repo-workspaces";
 import { dirname, join } from "@beep/utils/Path";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterAll, assert, beforeAll, describe, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { installConfigDependency, storeConfigDependency, writeModulesYaml } from "./utils/configDependencyFixtures.ts";
-import { gitIn, makeNodeFixture } from "./utils/nodeFixture.ts";
+import { gitIn, makeNodeFixture, nodeHost } from "./utils/nodeFixture.ts";
 
 const NAME = "cfg-replay";
 
@@ -31,28 +32,26 @@ let markerPath: string;
 
 /** A pnpmfile injecting `hooked-dep` at `range`, and touching `HOOK_MARKER` so execution is observable. */
 const markingPnpmfile = (range: string): string =>
-  [
-    'import { writeFileSync } from "node:fs";',
-    "export const hooks = {",
-    "\tupdateConfig(config) {",
-    "\t\tconst marker = process.env.HOOK_MARKER;",
-    `\t\tif (marker) writeFileSync(marker, "${range}");`,
-    `\t\treturn { ...config, catalog: { ...(config.catalog ?? {}), "hooked-dep": "${range}" } };`,
-    "\t},",
-    "};",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      'import { writeFileSync } from "node:fs";',
+      "export const hooks = {",
+      "\tupdateConfig(config) {",
+      "\t\tconst marker = process.env.HOOK_MARKER;",
+      `\t\tif (marker) writeFileSync(marker, "${range}");`,
+      `\t\treturn { ...config, catalog: { ...(config.catalog ?? {}), "hooked-dep": "${range}" } };`,
+      "\t},",
+      "};",
+      "",
+    ],
+    "\n"
+  );
 
 const workspaceYaml = (spec: string): string =>
-  [
-    "packages:",
-    "  - packages/*",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "configDependencies:",
-    `  ${NAME}: '${spec}'`,
-    "",
-  ].join("\n");
+  A.join(
+    ["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", "configDependencies:", `  ${NAME}: '${spec}'`, ""],
+    "\n"
+  );
 
 const fixture = makeNodeFixture();
 
@@ -67,7 +66,10 @@ beforeAll(() =>
       // 1.0.0 installed under .pnpm-config; 2.0.0 only in the store.
       yield* writeModulesYaml(root, store);
       yield* installConfigDependency(root, NAME, "1.0.0", ["pnpmfile.mjs", markingPnpmfile("^1.0.0")]);
-      yield* storeConfigDependency(store, NAME, "2.0.0", "f".repeat(64), ["pnpmfile.mjs", markingPnpmfile("^2.0.0")]);
+      yield* storeConfigDependency(store, NAME, "2.0.0", Str.repeat(64)("f"), [
+        "pnpmfile.mjs",
+        markingPnpmfile("^2.0.0"),
+      ]);
 
       yield* fs.writeFileString(join(root, "package.json"), '{"name":"root","version":"0.0.0","private":true}');
       yield* fs.makeDirectory(join(root, "packages", "a"), { recursive: true });
@@ -101,9 +103,7 @@ describe("Workspaces.layerWithGitAndConfigDependencies — at(ref) replays the r
   it.layer(
     Layer.unwrap(
       Effect.sync(() => {
-        const Live = Workspaces.layerWithGitAndConfigDependencies({ cwd: root }).pipe(
-          Layer.provideMerge(NodeServices.layer)
-        );
+        const Live = Workspaces.layerWithGitAndConfigDependencies({ cwd: root }).pipe(Layer.provideMerge(nodeHost));
         return Live;
       })
     ),
@@ -137,9 +137,7 @@ describe("Workspaces.layerWithGitAndConfigDependencies — at(ref) replays the r
   it.layer(
     Layer.unwrap(
       Effect.sync(() => {
-        const Live = Workspaces.layerWithGitAndConfigDependencies({ cwd: root }).pipe(
-          Layer.provideMerge(NodeServices.layer)
-        );
+        const Live = Workspaces.layerWithGitAndConfigDependencies({ cwd: root }).pipe(Layer.provideMerge(nodeHost));
         return Live;
       })
     ),
@@ -165,9 +163,9 @@ describe("Workspaces.layerWithGitAndHooks — the hermetic seam reaches at(ref) 
     Layer.unwrap(
       Effect.sync(() => {
         const installed = join(root, "node_modules", ".pnpm-config", NAME, "pnpmfile.mjs");
-        const stored = join(store, "links", NAME, "2.0.0", "f".repeat(64), "node_modules", NAME, "pnpmfile.mjs");
+        const stored = join(store, "links", NAME, "2.0.0", Str.repeat(64)("f"), "node_modules", NAME, "pnpmfile.mjs");
         const hooks = ConfigDependencyHooks.layerFrom({ [`${NAME}@1.0.0`]: stored, [`${NAME}@2.0.0`]: installed });
-        const Live = Workspaces.layerWithGitAndHooks(hooks, { cwd: root }).pipe(Layer.provideMerge(NodeServices.layer));
+        const Live = Workspaces.layerWithGitAndHooks(hooks, { cwd: root }).pipe(Layer.provideMerge(nodeHost));
         return Live;
       })
     ),
@@ -196,7 +194,7 @@ describe("Workspaces.layerWithGit — the default composite executes no config-d
   it.layer(
     Layer.unwrap(
       Effect.sync(() => {
-        const Default = Workspaces.layerWithGit({ cwd: root }).pipe(Layer.provideMerge(NodeServices.layer));
+        const Default = Workspaces.layerWithGit({ cwd: root }).pipe(Layer.provideMerge(nodeHost));
         return Default;
       })
     ),

@@ -10,6 +10,7 @@ import {
 } from "@beep/repo-workspaces/ReleaseTag";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -101,7 +102,7 @@ it.effect.prop(
             packageName: parts.name,
             precision: parsed.tag.precision === "major" ? "major" : "both",
           });
-          assert.isTrue(aliases.some((alias) => alias.value === tag.value));
+          assert.isTrue(A.some(aliases, (alias) => alias.value === tag.value));
           assert.deepStrictEqual(classifyTag(parsed.tag.value), parsed);
         }
       }

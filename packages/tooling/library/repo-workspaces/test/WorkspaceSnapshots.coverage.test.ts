@@ -7,6 +7,7 @@ import { WorkspaceSnapshots } from "@beep/repo-workspaces/WorkspaceSnapshots";
 import { WorkspaceStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -15,6 +16,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Scheduler from "effect/Scheduler";
+import * as Str from "effect/String";
 
 const snapshot = WorkspaceStateSnapshot.make({ packages: [], catalogs: CatalogSet.empty() });
 const atLayer = (files: Readonly<Record<string, string>>) =>
@@ -24,8 +26,8 @@ const atLayer = (files: Readonly<Record<string, string>>) =>
         show: (_cwd, _ref, path) => Effect.succeed(R.get(files, path)),
         lsTree: () =>
           Effect.succeed(
-            R.keys(files).map((path) =>
-              LsTreeEntry.make({ path: path.slice(2), type: "blob", mode: "100644", oid: "0".repeat(40) })
+            A.map(R.keys(files), (path) =>
+              LsTreeEntry.make({ path: Str.slice(2)(path), type: "blob", mode: "100644", oid: Str.repeat(40)("0") })
             )
           ),
       })
@@ -115,7 +117,7 @@ describe("WorkspaceSnapshots explicit doubles and historical fallbacks", () => {
       })
     );
   });
-  it.layer(atLayer({ "./package.json": `{"name":"root","workspaces":["${"a".repeat(65537)}"]}` }), {
+  it.layer(atLayer({ "./package.json": `{"name":"root","workspaces":["${Str.repeat(65537)("a")}"]}` }), {
     timeout: "30 seconds",
   })((it) => {
     it.effect("a malformed historical pattern fails with its source", () =>
@@ -151,7 +153,7 @@ describe("WorkspaceSnapshots explicit doubles and historical fallbacks", () => {
           show: () => Effect.succeedNone,
           lsTree: () =>
             Effect.succeed([
-              LsTreeEntry.make({ path: "package.json", type: "blob", mode: "100644", oid: "0".repeat(40) }),
+              LsTreeEntry.make({ path: "package.json", type: "blob", mode: "100644", oid: Str.repeat(40)("0") }),
             ]),
         })
       ),
@@ -178,7 +180,7 @@ it.layer(
         show: () => Effect.succeedNone,
         lsTree: () =>
           Effect.succeed([
-            LsTreeEntry.make({ path: "package.json", type: "tree", mode: "040000", oid: "0".repeat(40) }),
+            LsTreeEntry.make({ path: "package.json", type: "tree", mode: "040000", oid: Str.repeat(40)("0") }),
           ]),
       })
     ),

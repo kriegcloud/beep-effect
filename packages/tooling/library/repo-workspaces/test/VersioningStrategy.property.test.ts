@@ -8,6 +8,7 @@ import {
 } from "@beep/repo-workspaces/VersioningStrategy";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -73,10 +74,10 @@ it.effect.prop(
       const strategy = VersioningStrategy.classify({ packages: ["one", "two"] });
       const tags = strategy.tagsFor(releases);
       assert.deepStrictEqual(
-        tags.map((tag) => ({ name: tag.packageName, version: tag.version })),
+        A.map(tags, (tag) => ({ name: tag.packageName, version: tag.version })),
         [...releases]
       );
-      const rendered = tags.map((tag) => ({ name: tag.packageName ?? "", version: tag.version }));
+      const rendered = A.map(tags, (tag) => ({ name: tag.packageName ?? "", version: tag.version }));
       assert.deepStrictEqual(strategy.tagsFor(rendered), tags);
     }),
   runs
@@ -90,7 +91,7 @@ it.effect.prop(
       const tags = strategy.tagsFor(releases);
       assert.strictEqual(tags.length, releases.length === 0 ? 0 : 1);
       assert.strictEqual(tags[0]?.version, releases[0]?.version);
-      assert.deepStrictEqual(strategy.tagsFor(tags.map((tag) => ({ name: "one", version: tag.version }))), tags);
+      assert.deepStrictEqual(strategy.tagsFor(A.map(tags, (tag) => ({ name: "one", version: tag.version }))), tags);
     }),
   runs
 );

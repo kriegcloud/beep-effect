@@ -7,13 +7,14 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { manifest, platform } from "./support/fixtures.ts";
+import { manifest, platform, platformWith } from "./support/fixtures.ts";
 import type { Tree } from "./support/fixtures.ts";
 
 const workspacesOver = (tree: Tree) => Workspaces.layer({ cwd: "/repo" }).pipe(Layer.provideMerge(platform(tree)));
@@ -30,31 +31,34 @@ const multiDocument: Tree = {
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
   "/repo/packages/a/package.json": manifest("@x/a"),
   "/repo/packages/b/package.json": manifest("@x/b"),
-  "/repo/pnpm-lock.yaml": [
-    "---",
-    "lockfileVersion: '9.0'",
-    "importers:",
-    "  .:",
-    "    configDependencies:",
-    "      some-plugin:",
-    "        specifier: 1.0.0",
-    "        version: 1.0.0",
-    "---",
-    "lockfileVersion: '9.0'",
-    "catalogs:",
-    "  default:",
-    "    effect:",
-    "      specifier: ^4.0.0",
-    "      version: 4.0.0",
-    "importers:",
-    "  .:",
-    "    dependencies: {}",
-    "  packages/a:",
-    "    dependencies: {}",
-    "  packages/b:",
-    "    dependencies: {}",
-    "",
-  ].join("\n"),
+  "/repo/pnpm-lock.yaml": A.join(
+    [
+      "---",
+      "lockfileVersion: '9.0'",
+      "importers:",
+      "  .:",
+      "    configDependencies:",
+      "      some-plugin:",
+      "        specifier: 1.0.0",
+      "        version: 1.0.0",
+      "---",
+      "lockfileVersion: '9.0'",
+      "catalogs:",
+      "  default:",
+      "    effect:",
+      "      specifier: ^4.0.0",
+      "      version: 4.0.0",
+      "importers:",
+      "  .:",
+      "    dependencies: {}",
+      "  packages/a:",
+      "    dependencies: {}",
+      "  packages/b:",
+      "    dependencies: {}",
+      "",
+    ],
+    "\n"
+  ),
 };
 
 describe("LockfileReader — a multi-document pnpm lockfile", () => {
@@ -63,7 +67,7 @@ describe("LockfileReader — a multi-document pnpm lockfile", () => {
       Effect.gen(function* () {
         const reader = yield* LockfileReader;
         const lockfile = yield* reader.read;
-        const workspaces = lockfile.packages.filter((pkg) => pkg.isWorkspace);
+        const workspaces = A.filter(lockfile.packages, (pkg) => pkg.isWorkspace);
         // The preamble document has zero workspace importers. Taking it would
         // look like an empty workspace rather than a failure.
         assert.isAbove(workspaces.length, 0);
@@ -74,7 +78,10 @@ describe("LockfileReader — a multi-document pnpm lockfile", () => {
       Effect.gen(function* () {
         const reader = yield* LockfileReader;
         const lockfile = yield* reader.read;
-        const names = lockfile.packages.filter((pkg) => pkg.isWorkspace).map((pkg) => pkg.name);
+        const names = A.map(
+          A.filter(lockfile.packages, (pkg) => pkg.isWorkspace),
+          (pkg) => pkg.name
+        );
         assert.include(names, "@x/a");
         assert.include(names, "@x/b");
         assert.notInclude(names, "packages/a");
@@ -112,14 +119,14 @@ describe("LockfileReader — a multi-document pnpm lockfile", () => {
         // The root importer is not a workspace *package* in the lockfile model
         // (`@effected/lockfiles` emits only the non-root importers), so the
         // comparison is against discovery's non-root members.
-        const discovered = (yield* discovery.listPackages)
-          .filter((pkg) => !pkg.isRootWorkspace)
-          .map((pkg) => pkg.name)
-          .sort();
-        const locked = (yield* reader.read).packages
-          .filter((pkg) => pkg.isWorkspace)
-          .map((pkg) => pkg.name)
-          .sort();
+        const discovered = A.map(
+          A.filter(yield* discovery.listPackages, (pkg) => !pkg.isRootWorkspace),
+          (pkg) => pkg.name
+        ).sort();
+        const locked = A.map(
+          A.filter((yield* reader.read).packages, (pkg) => pkg.isWorkspace),
+          (pkg) => pkg.name
+        ).sort();
         assert.deepStrictEqual(locked, discovered);
       })
     );
@@ -135,30 +142,33 @@ describe("LockfileReader — a multi-document pnpm lockfile", () => {
 // dependencies were in (fixture `pnpm/unsupported-interrupted-pnpm12`, byte-
 // identical). Only the root package.json tells the two apart, and only this
 // reader can look at it.
-const configOnlyLockfile = [
-  "---",
-  "lockfileVersion: '9.0'",
-  "",
-  "importers:",
-  "",
-  "  .:",
-  "    configDependencies:",
-  "      '@effected/pnpm-plugin-effect':",
-  "        specifier: 0.11.1",
-  "        version: 0.11.1",
-  "",
-  "packages:",
-  "",
-  "  '@effected/pnpm-plugin-effect@0.11.1':",
-  "    resolution: {integrity: sha512-m35mtvgU4nbE8ZHd4EFqKu5jJeQY0gPUYHzKTno57JT/QeHzM9RRLNQsIcG0npsFYBxJfJ1tC/NH4zEWc2gdxQ==}",
-  "",
-  "snapshots:",
-  "",
-  "  '@effected/pnpm-plugin-effect@0.11.1': {}",
-  "",
-  "---",
-  "",
-].join("\n");
+const configOnlyLockfile = A.join(
+  [
+    "---",
+    "lockfileVersion: '9.0'",
+    "",
+    "importers:",
+    "",
+    "  .:",
+    "    configDependencies:",
+    "      '@effected/pnpm-plugin-effect':",
+    "        specifier: 0.11.1",
+    "        version: 0.11.1",
+    "",
+    "packages:",
+    "",
+    "  '@effected/pnpm-plugin-effect@0.11.1':",
+    "    resolution: {integrity: sha512-m35mtvgU4nbE8ZHd4EFqKu5jJeQY0gPUYHzKTno57JT/QeHzM9RRLNQsIcG0npsFYBxJfJ1tC/NH4zEWc2gdxQ==}",
+    "",
+    "snapshots:",
+    "",
+    "  '@effected/pnpm-plugin-effect@0.11.1': {}",
+    "",
+    "---",
+    "",
+  ],
+  "\n"
+);
 
 const configOnlyWorkspace: Tree = {
   "/repo/pnpm-workspace.yaml": "configDependencies:\n  '@effected/pnpm-plugin-effect': 0.11.1\n",
@@ -211,7 +221,7 @@ describe("LockfileReader — the root package.json probe itself fails", () => {
   // reader must not read "could not look" as "absent": configOnly is an
   // assertion of absence, so it fails closed.
   const deniedProbe = Workspaces.layer({ cwd: "/repo" }).pipe(
-    Layer.provideMerge(platform(configOnlyWorkspace, { unreadableExists: new Set(["/repo/package.json"]) }))
+    Layer.provideMerge(platformWith({ unreadableExists: ["/repo/package.json"] })(configOnlyWorkspace))
   );
   it.layer(deniedProbe, { timeout: "30 seconds" })((it) => {
     it.effect("does not assert configOnly: the ambiguous stream fails 'noLockfileDocument'", () =>
@@ -251,7 +261,7 @@ describe("LockfileReader — no lockfile on disk", () => {
     it.effect("discovery is unaffected — a missing lockfile is not a missing workspace", () =>
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
-        const names = (yield* discovery.listPackages).map((pkg) => pkg.name);
+        const names = A.map(yield* discovery.listPackages, (pkg) => pkg.name);
         assert.include(names, "@x/a");
       })
     );

@@ -16,6 +16,7 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -108,7 +109,7 @@ describe("WorkspaceRoot.find — ascent bounds", () => {
           O.getOrElse(Exit.getCause(exit), () => Cause.empty)
         );
         assert.isTrue(Cause.hasDies(exit.cause));
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason));
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason));
       })
     );
   });
@@ -269,7 +270,7 @@ describe("WorkspacePackage.workspaceRoot — carried by discovery", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        const root = packages.find((pkg) => pkg.isRootWorkspace);
+        const root = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.isRootWorkspace));
         assert.isDefined(root);
         assert.strictEqual(root?.workspaceRoot, root?.path);
       })

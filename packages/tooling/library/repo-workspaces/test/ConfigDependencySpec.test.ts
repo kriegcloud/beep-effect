@@ -10,6 +10,7 @@ import { lookupPnpmfiles } from "@beep/repo-workspaces/internal/configDependency
 import { SemVer } from "@beep/semver";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -157,7 +158,7 @@ describe("hook replay keeps its lenient reading", () => {
       assert.strictEqual(reasonOf("0.11.1+garbage"), "integrity");
       const resolved = yield* lookupPnpmfiles({ "cfg@0.11.1": "/p/pnpmfile.mjs" }, { cfg: "0.11.1+garbage" });
       assert.deepStrictEqual(
-        resolved.map((entry) => [entry.name, entry.version, entry.path]),
+        A.map(resolved, (entry) => [entry.name, entry.version, entry.path]),
         [["cfg", "0.11.1", "/p/pnpmfile.mjs"]]
       );
     })

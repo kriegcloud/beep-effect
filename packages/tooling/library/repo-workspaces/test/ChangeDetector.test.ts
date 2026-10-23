@@ -9,6 +9,7 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, layer } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
@@ -80,7 +81,7 @@ describe("ChangeDetector — committed changes", () => {
         const detector = yield* ChangeDetector;
         const changed = yield* detector.changedPackages();
         assert.deepStrictEqual(
-          changed.map((pkg: WorkspacePackage) => pkg.name),
+          A.map(changed, (pkg: WorkspacePackage) => pkg.name),
           ["@x/alpha"]
         );
       })
@@ -93,7 +94,7 @@ describe("ChangeDetector — committed changes", () => {
         // `@x/web` is two hops from `@x/alpha`. A one-hop implementation
         // returns only alpha and beta and passes a lazier assertion.
         assert.deepStrictEqual(
-          affected.map((pkg: WorkspacePackage) => pkg.name),
+          A.map(affected, (pkg: WorkspacePackage) => pkg.name),
           ["@x/alpha", "@x/beta", "@x/web"]
         );
       })
@@ -138,7 +139,7 @@ describe("ChangeDetector — includeUncommitted", () => {
         const detector = yield* ChangeDetector;
         const changed = yield* detector.changedPackages(ChangeDetectionOptions.make({ includeUncommitted: true }));
         assert.deepStrictEqual(
-          changed.map((pkg: WorkspacePackage) => pkg.name),
+          A.map(changed, (pkg: WorkspacePackage) => pkg.name),
           ["@x/alpha", "@x/beta", "@x/web"]
         );
       })
@@ -159,7 +160,7 @@ describe("ChangeDetector — a custom base ref reaches git", () => {
         const detector = yield* ChangeDetector;
         const changed = yield* detector.changedPackages(ChangeDetectionOptions.make({ base: "origin/main" }));
         assert.deepStrictEqual(
-          changed.map((pkg: WorkspacePackage) => pkg.name),
+          A.map(changed, (pkg: WorkspacePackage) => pkg.name),
           ["@x/beta"]
         );
       })
@@ -318,7 +319,7 @@ describe("ChangeDetector — a workspace nested inside a larger git repository",
     it.effect("changedPackages resolves the owning package from the relative path", () =>
       Effect.gen(function* () {
         const detector = yield* ChangeDetector;
-        const names = (yield* detector.changedPackages()).map((pkg) => pkg.name);
+        const names = A.map(yield* detector.changedPackages(), (pkg) => pkg.name);
         // A repository-relative path joined onto the workspace root yields
         // /repo/repo/packages/alpha/... — which owns nothing. Silent and wrong.
         assert.deepStrictEqual(names, ["@x/alpha"]);
@@ -328,7 +329,7 @@ describe("ChangeDetector — a workspace nested inside a larger git repository",
     it.effect("affectedPackages walks the reverse graph from the correctly-resolved package", () =>
       Effect.gen(function* () {
         const detector = yield* ChangeDetector;
-        const names = (yield* detector.affectedPackages()).map((pkg) => pkg.name).sort();
+        const names = A.map(yield* detector.affectedPackages(), (pkg) => pkg.name).sort();
         assert.deepStrictEqual(names, ["@x/alpha", "@x/beta", "@x/web"]);
       })
     );

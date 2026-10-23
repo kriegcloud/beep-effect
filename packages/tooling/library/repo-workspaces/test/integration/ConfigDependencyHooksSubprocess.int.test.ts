@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 // `ConfigDependencyHooks.layerSubprocess` against a real `node` child process.
 //
@@ -18,7 +19,6 @@ import { HookInjection, NoPeerDependencyRules } from "@beep/repo-workspaces/Conf
 import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { join } from "@beep/utils/Path";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -26,6 +26,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { manifest, platform } from "../support/fixtures.ts";
+import { nodeHost } from "./utils/nodeFixture.ts";
 import type { Tree } from "../support/fixtures.ts";
 
 class RealFileSystem extends Context.Service<RealFileSystem, FileSystem.FileSystem>()(
@@ -68,8 +69,8 @@ let root: string;
 
 // The real spawner over the real filesystem — the only platform surface the
 // subprocess layer needs.
-const Spawner = NodeChildProcessSpawner.layer.pipe(Layer.provide(NodeServices.layer));
-const HooksSubprocess = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(NodeServices.layer));
+const Spawner = NodeChildProcessSpawner.layer.pipe(Layer.provide(nodeHost));
+const HooksSubprocess = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(nodeHost));
 
 const FixtureLayer = Layer.effect(
   RealFileSystem,
@@ -147,7 +148,7 @@ const FixtureLayer = Layer.effect(
     );
     return fs;
   })
-).pipe(Layer.provide(NodeServices.layer));
+).pipe(Layer.provide(nodeHost));
 
 it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
   describe("ConfigDependencyHooks.layerSubprocess — replays the pnpmfile in a child process", () => {
@@ -375,7 +376,7 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
   const ParityHooks = Layer.mergeAll(
     Layer.effect(InProcessHooks, ConfigDependencyHooks).pipe(
       Layer.provide(ConfigDependencyHooks.layerLive),
-      Layer.provide(NodeServices.layer)
+      Layer.provide(nodeHost)
     ),
     HooksSubprocess
   );
@@ -408,16 +409,19 @@ it.layer(FixtureLayer, { timeout: "30 seconds" })((it) => {
       Layer.unwrap(
         Effect.sync(() => {
           const tree: Tree = {
-            [`${root}/pnpm-workspace.yaml`]: [
-              "packages:",
-              "  - packages/*",
-              "catalog:",
-              "  effect: ^4.0.0",
-              "minimumReleaseAge: 720",
-              "configDependencies:",
-              `  ${AGE_1440_DEP_NAME}: '1.0.0'`,
-              "",
-            ].join("\n"),
+            [`${root}/pnpm-workspace.yaml`]: A.join(
+              [
+                "packages:",
+                "  - packages/*",
+                "catalog:",
+                "  effect: ^4.0.0",
+                "minimumReleaseAge: 720",
+                "configDependencies:",
+                `  ${AGE_1440_DEP_NAME}: '1.0.0'`,
+                "",
+              ],
+              "\n"
+            ),
             [`${root}/package.json`]: manifest("root", { version: "0.0.0", private: true }),
             [`${root}/packages/a/package.json`]: manifest("@x/a"),
             // The real install under `root`, mirrored so the ladder (which reads the

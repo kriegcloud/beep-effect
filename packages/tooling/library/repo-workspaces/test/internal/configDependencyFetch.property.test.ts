@@ -4,6 +4,7 @@ import { Yaml } from "@beep/yaml";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -20,7 +21,7 @@ it.effect.prop(
       assert.deepStrictEqual(parsed, {
         configDependencies: { [name]: version },
         registry: normalized.registry,
-        ...(Object.keys(normalized.registries).length === 0 ? {} : { registries: normalized.registries }),
+        ...(R.keys(normalized.registries).length === 0 ? {} : { registries: normalized.registries }),
       });
       assert.deepStrictEqual(registrySettingsOf(parsed), normalized);
       assert.strictEqual(scratchWorkspaceYaml(name, version, registrySettingsOf(parsed)), formatted);

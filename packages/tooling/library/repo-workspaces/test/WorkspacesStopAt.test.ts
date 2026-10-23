@@ -24,11 +24,14 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, layer, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { manifest, platform } from "./support/fixtures.ts";
 import type { LocalExecShape } from "@beep/commands";
 import type { Tree } from "./support/fixtures.ts";
@@ -38,20 +41,23 @@ const $I = $RepoWorkspacesId.create("test/WorkspacesStopAt.test");
 const CWD = "/outer/checkout";
 
 const outerWorkspaceYaml = "packages:\n  - 'pkgs/*'\ncatalog:\n  effect: ^4.0.0\n";
-const outerLockfile = [
-  "lockfileVersion: '9.0'",
-  "catalogs:",
-  "  default:",
-  "    effect:",
-  "      specifier: ^4.0.0",
-  "      version: 4.0.0",
-  "importers:",
-  "  .:",
-  "    dependencies: {}",
-  "  pkgs/other:",
-  "    dependencies: {}",
-  "",
-].join("\n");
+const outerLockfile = A.join(
+  [
+    "lockfileVersion: '9.0'",
+    "catalogs:",
+    "  default:",
+    "    effect:",
+    "      specifier: ^4.0.0",
+    "      version: 4.0.0",
+    "importers:",
+    "  .:",
+    "    dependencies: {}",
+    "  pkgs/other:",
+    "    dependencies: {}",
+    "",
+  ],
+  "\n"
+);
 const outerRootManifest = JSON.stringify({ name: "outer-root", version: "0.0.0", private: true });
 
 const nestedCheckout: Tree = {
@@ -73,13 +79,13 @@ const outerAtHead: Readonly<Record<string, string>> = {
 /** A scripted `Git` over the outer workspace at `HEAD`; every other method dies named. */
 const outerGit: Layer.Layer<Git> = Git.layerTest({
   show: (_cwd: string, _ref: string, path: string) => {
-    const content = outerAtHead[path.startsWith("./") ? path.slice(2) : path];
+    const content = outerAtHead[Str.startsWith("./")(path) ? Str.slice(2)(path) : path];
     return Effect.succeed(content === undefined ? O.none() : O.some(content));
   },
   lsTree: () =>
     Effect.succeed(
-      Object.keys(outerAtHead).map((path) =>
-        LsTreeEntry.make({ mode: "100644", type: "blob", oid: "0".repeat(40), path })
+      A.map(R.keys(outerAtHead), (path) =>
+        LsTreeEntry.make({ mode: "100644", type: "blob", oid: Str.repeat(40)("0"), path })
       )
     ),
 });
@@ -116,7 +122,7 @@ describe("stopAt — the unbounded controls resolve the OUTER workspace", () => 
         assert.strictEqual(info.root, "/outer");
         const lockfile = yield* (yield* LockfileReader).read;
         assert.include(
-          lockfile.importers.map((importer) => importer.path),
+          A.map(lockfile.importers, (importer) => importer.path),
           "pkgs/other"
         );
         const catalogs = yield* (yield* WorkspaceCatalogs).set;
@@ -181,7 +187,7 @@ const gitFreeComposites = {
   layerWithConfigDependencies: Workspaces.layerWithConfigDependencies(bounded),
 } as const;
 
-for (const [name, composite] of Object.entries(gitFreeComposites)) {
+for (const [name, composite] of R.toEntries(gitFreeComposites)) {
   describe(`stopAt — Workspaces.${name} fails consistently`, () => {
     layer(composite.pipe(Layer.provideMerge(platform(nestedCheckout))), { timeout: "30 seconds" })((it) => {
       it.effect("discovery, lockfile and catalogs all refuse the enclosing workspace", () => coreRefuses);
@@ -217,7 +223,7 @@ const gitComposites = {
   layerWithGitAndHooks: Workspaces.layerWithGitAndHooks(ConfigDependencyHooks.layerNoop, bounded),
 } as const;
 
-for (const [name, composite] of Object.entries(gitComposites)) {
+for (const [name, composite] of R.toEntries(gitComposites)) {
   describe(`stopAt — Workspaces.${name} fails consistently`, () => {
     const spawner = spawnerFor();
     layer(composite.pipe(Layer.provide(spawner.layer), Layer.provideMerge(platform(nestedCheckout))), {

@@ -17,6 +17,7 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -26,9 +27,9 @@ import * as O from "effect/Option";
 const assertDies = (exit: Exit.Exit<unknown, unknown>, fragment: string): void => {
   assertExitFailure(exit, Exit.isFailure(exit) ? exit.cause : Cause.empty);
   if (Exit.isFailure(exit)) {
-    assert.isFalse(exit.cause.reasons.some(Cause.isFailReason));
+    assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason));
     assert.isTrue(Cause.hasDies(exit.cause));
-    const defect = exit.cause.reasons.filter(Cause.isDieReason).map((reason) => reason.defect)[0];
+    const defect = A.map(A.filter(exit.cause.reasons, Cause.isDieReason), (reason) => reason.defect)[0];
     assert.instanceOf(defect, Error);
     if (!(defect instanceof Error)) {
       assert.fail("expected an Error defect");

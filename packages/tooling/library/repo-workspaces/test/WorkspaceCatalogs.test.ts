@@ -13,6 +13,7 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
@@ -21,7 +22,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import { manifest, platform } from "./support/fixtures.ts";
+import { manifest, platform, platformWith } from "./support/fixtures.ts";
 import type { Tree } from "./support/fixtures.ts";
 
 /** The full workspaces stack over a virtual tree, rooted at `/repo`. */
@@ -40,7 +41,7 @@ describe("CatalogSet", () => {
   it.effect("normalizes pnpm's unnamed top-level catalog under 'default'", () =>
     Effect.gen(function* () {
       const set = yield* CatalogSet.fromWorkspaceYaml("catalog:\n  effect: ^4.0.0\n");
-      assert.deepStrictEqual(Object.keys(set.entries), ["default"]);
+      assert.deepStrictEqual(R.keys(set.entries), ["default"]);
       assertSome(set.rangeOf("effect", O.none()), "^4.0.0");
     })
   );
@@ -50,7 +51,7 @@ describe("CatalogSet", () => {
       const set = yield* CatalogSet.fromWorkspaceYaml(
         "catalogs:\n  build:\n    typescript: ^6.0.0\n  test:\n    vitest: ^3.0.0\n"
       );
-      assert.deepStrictEqual(Object.keys(set.entries).sort(), ["build", "test"]);
+      assert.deepStrictEqual(R.keys(set.entries).sort(), ["build", "test"]);
       // The SECOND named catalog — a bug that keeps only the first passes on `build`.
       assertSome(set.rangeOf("vitest", O.some("test")), "^3.0.0");
       assertSome(set.rangeOf("typescript", O.some("build")), "^6.0.0");
@@ -116,7 +117,7 @@ describe("CatalogSet", () => {
     // assert nothing. This is the shape a hostile lockfile actually produces.
     const hostile: unknown = JSON.parse('{"__proto__": {"evil": "1.0.0"}}');
     const set = CatalogSet.fromLockfileCatalogs(hostile);
-    assert.isTrue(Object.hasOwn(set.entries, "__proto__"));
+    assert.isTrue(R.has(set.entries, "__proto__"));
     const empty: Record<string, unknown> = {};
     assert.isUndefined(empty.evil);
     const prototype: unknown = Object.prototype;
@@ -132,44 +133,50 @@ describe("CatalogSet", () => {
     assert.isUndefined(prototype["1.0.0"]);
     const entries = set.entries.default;
     if (entries === undefined) return assert.fail("expected the default catalog");
-    assert.isTrue(Object.hasOwn(entries, "__proto__"));
+    assert.isTrue(R.has(entries, "__proto__"));
   });
 });
 
 // ── WorkspaceCatalogs: assembly precedence ─────────────────────────────────
 
 const withLockfileAndInline: Tree = {
-  "/repo/pnpm-workspace.yaml": [
-    "packages:",
-    "  - 'packages/*'",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "catalogs:",
-    "  build:",
-    "    typescript: ^6.0.0",
-    "",
-  ].join("\n"),
+  "/repo/pnpm-workspace.yaml": A.join(
+    [
+      "packages:",
+      "  - 'packages/*'",
+      "catalog:",
+      "  effect: ^4.0.0",
+      "catalogs:",
+      "  build:",
+      "    typescript: ^6.0.0",
+      "",
+    ],
+    "\n"
+  ),
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
   "/repo/packages/a/package.json": manifest("@x/a", { dependencies: { effect: "catalog:" } }),
   // The lockfile records a STALE effect range and a react range the inline
   // catalog says nothing about. Inline must win on effect; react must survive.
-  "/repo/pnpm-lock.yaml": [
-    "lockfileVersion: '9.0'",
-    "catalogs:",
-    "  default:",
-    "    effect:",
-    "      specifier: ^3.0.0",
-    "      version: 3.21.4",
-    "    react:",
-    "      specifier: ^18.0.0",
-    "      version: 18.3.1",
-    "importers:",
-    "  .:",
-    "    dependencies: {}",
-    "  packages/a:",
-    "    dependencies: {}",
-    "",
-  ].join("\n"),
+  "/repo/pnpm-lock.yaml": A.join(
+    [
+      "lockfileVersion: '9.0'",
+      "catalogs:",
+      "  default:",
+      "    effect:",
+      "      specifier: ^3.0.0",
+      "      version: 3.21.4",
+      "    react:",
+      "      specifier: ^18.0.0",
+      "      version: 18.3.1",
+      "importers:",
+      "  .:",
+      "    dependencies: {}",
+      "  packages/a:",
+      "    dependencies: {}",
+      "",
+    ],
+    "\n"
+  ),
 };
 
 describe("WorkspaceCatalogs — assembly precedence", () => {
@@ -252,7 +259,7 @@ describe("the @effected/npm resolver contracts", () => {
   // DependencyResolutionError's defect `cause`, which forced consumers to
   // _tag-sniff `unknown` to tell assembly from resolution failures.
   const withMalformedInline: Tree = {
-    "/repo/pnpm-workspace.yaml": ["packages:", "  - 'packages/*'", "catalog:", "\t- [", ""].join("\n"),
+    "/repo/pnpm-workspace.yaml": A.join(["packages:", "  - 'packages/*'", "catalog:", "\t- [", ""], "\n"),
     "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
   };
 
@@ -313,7 +320,7 @@ describe("WorkspaceCatalogs — a workspace with no pnpm-workspace.yaml", () => 
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
         assert.deepStrictEqual(
-          packages.map((pkg) => pkg.name),
+          A.map(packages, (pkg) => pkg.name),
           ["root", "@x/a"]
         );
       })
@@ -339,7 +346,7 @@ describe("WorkspaceCatalogs — a presence-probe failure is not silent absence",
       // discovery finds /repo via its package.json marker, so assembly runs and
       // its probe must FAIL typed rather than silently selecting the package.json
       // reader — the "every dependency looks newly added" bug.
-      Layer.provideMerge(platform(probeFailTree, { unreadableExists: new Set(["/repo/pnpm-workspace.yaml"]) }))
+      Layer.provideMerge(platformWith({ unreadableExists: ["/repo/pnpm-workspace.yaml"] })(probeFailTree))
     ),
     { timeout: "30 seconds" }
   )((it) => {
@@ -396,7 +403,7 @@ describe("WorkspaceCatalogs — a bun/package.json presence-probe failure is not
         ),
       })
     ),
-    Layer.provideMerge(platform(bunProbeFailTree, { unreadableExists: new Set(["/repo/package.json"]) }))
+    Layer.provideMerge(platformWith({ unreadableExists: ["/repo/package.json"] })(bunProbeFailTree))
   );
   it.layer(bunProbeFailLayer, { timeout: "30 seconds" })((it) => {
     it.effect("a PermissionDenied on the package.json presence probe fails typed as CatalogAssemblyError", () =>
@@ -414,21 +421,25 @@ describe("WorkspaceCatalogs — a bun/package.json presence-probe failure is not
 // ── the pnpm inline path hard-fails on malformed / duplicate-default (Fix 5) ─
 
 const duplicateDefaultTree: Tree = {
-  "/repo/pnpm-workspace.yaml": [
-    "packages:",
-    "  - 'packages/*'",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "catalogs:",
-    "  default:",
-    "    react: ^18.0.0",
-    "",
-  ].join("\n"),
+  "/repo/pnpm-workspace.yaml": A.join(
+    [
+      "packages:",
+      "  - 'packages/*'",
+      "catalog:",
+      "  effect: ^4.0.0",
+      "catalogs:",
+      "  default:",
+      "    react: ^18.0.0",
+      "",
+    ],
+    "\n"
+  ),
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
 };
 
 const malformedCatalogTree: Tree = {
-  "/repo/pnpm-workspace.yaml": ["packages:", "  - 'packages/*'", "catalog:", "  effect:", "    nested: bad", ""].join(
+  "/repo/pnpm-workspace.yaml": A.join(
+    ["packages:", "  - 'packages/*'", "catalog:", "  effect:", "    nested: bad", ""],
     "\n"
   ),
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
@@ -463,23 +474,26 @@ describe("WorkspaceCatalogs — the pnpm inline path hard-fails, like the bun pa
 // ── the effective release-age gate, inline source (no-op hooks) ─────────────
 
 const inlineGateTree: Tree = {
-  "/repo/pnpm-workspace.yaml": [
-    "packages:",
-    "  - 'packages/*'",
-    "minimumReleaseAge: 1440",
-    "minimumReleaseAgeExclude:",
-    '  - "@x/*"',
-    "  - typescript",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "",
-  ].join("\n"),
+  "/repo/pnpm-workspace.yaml": A.join(
+    [
+      "packages:",
+      "  - 'packages/*'",
+      "minimumReleaseAge: 1440",
+      "minimumReleaseAgeExclude:",
+      '  - "@x/*"',
+      "  - typescript",
+      "catalog:",
+      "  effect: ^4.0.0",
+      "",
+    ],
+    "\n"
+  ),
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
   "/repo/packages/a/package.json": manifest("@x/a"),
 };
 
 const malformedGateTree: Tree = {
-  "/repo/pnpm-workspace.yaml": ["packages:", "  - 'packages/*'", 'minimumReleaseAge: "soon"', ""].join("\n"),
+  "/repo/pnpm-workspace.yaml": A.join(["packages:", "  - 'packages/*'", 'minimumReleaseAge: "soon"', ""], "\n"),
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
 };
 
@@ -537,16 +551,19 @@ describe("WorkspaceCatalogs.releaseAgeGate — the inline pnpm-workspace.yaml so
 // gating wants the before-state, a post-install peer check the after-state,
 // and one infinite memo cannot serve both without an explicit boundary.
 const workspaceYamlWithRules = (allowedKey: string): string =>
-  [
-    "packages:",
-    "  - 'packages/*'",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "peerDependencyRules:",
-    "  allowedVersions:",
-    `    "${allowedKey}": ^4.0.0`,
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "packages:",
+      "  - 'packages/*'",
+      "catalog:",
+      "  effect: ^4.0.0",
+      "peerDependencyRules:",
+      "  allowedVersions:",
+      `    "${allowedKey}": ^4.0.0`,
+      "",
+    ],
+    "\n"
+  );
 
 const refreshTree: Tree = {
   "/repo/pnpm-workspace.yaml": workspaceYamlWithRules("@x/before>effect"),

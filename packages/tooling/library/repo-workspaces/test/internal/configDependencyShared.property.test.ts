@@ -14,6 +14,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(
@@ -45,7 +46,7 @@ it.effect.prop(
     Effect.sync(() => {
       const label = sideLabel({ ref });
       assert.strictEqual(label, `ref ${ref}`);
-      assert.strictEqual(sideLabel({ ref: label.slice(4) }), label);
+      assert.strictEqual(sideLabel({ ref: Str.slice(4)(label) }), label);
     }),
   runs
 );

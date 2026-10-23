@@ -1,4 +1,3 @@
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `PackageManagerDetector.makeTest` / `layerTest` — the sanctioned double.
 //
 // The house pattern, matching `WorkspaceRoot` and `WorkspaceDiscovery` in this
@@ -15,6 +14,7 @@
 
 import { DetectedPackageManager, PackageManagerDetectionError, PackageManagerDetector } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -74,7 +74,7 @@ describe("PackageManagerDetector.makeTest", () => {
       if (!Exit.isFailure(exit)) {
         assert.fail("expected the unstubbed member to die");
       }
-      const die = exit.cause.reasons.find(Cause.isDieReason);
+      const die = O.getOrUndefined(A.findFirst(exit.cause.reasons, Cause.isDieReason));
       assert.instanceOf(die?.defect, Error);
       const message = die?.defect instanceof Error ? die.defect.message : "";
       assert.include(message, "PackageManagerDetector.makeTest");
@@ -84,40 +84,43 @@ describe("PackageManagerDetector.makeTest", () => {
 });
 
 describe("PackageManagerDetector.layerTest", () => {
-  it.effect("provides the double as the service", () =>
-    Effect.gen(function* () {
-      const detector = yield* PackageManagerDetector;
-      const detected = yield* detector.detect("/repo");
-      assert.strictEqual(detected.name, "bun");
-      assert.strictEqual(detected.runtime, "bun");
-    }).pipe(
-      Effect.provide(
-        PackageManagerDetector.layerTest({
-          detect: () =>
-            Effect.succeed(
-              DetectedPackageManager.make({
-                name: "bun",
-                version: O.none(),
-                runtime: "bun",
-                evidence: "bun.lock",
-              })
-            ),
-        })
-      )
-    )
-  );
+  it.layer(
+    PackageManagerDetector.layerTest({
+      detect: () =>
+        Effect.succeed(
+          DetectedPackageManager.make({
+            name: "bun",
+            version: O.none(),
+            runtime: "bun",
+            evidence: "bun.lock",
+          })
+        ),
+    }),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect("provides the double as the service", () =>
+      Effect.gen(function* () {
+        const detector = yield* PackageManagerDetector;
+        const detected = yield* detector.detect("/repo");
+        assert.strictEqual(detected.name, "bun");
+        assert.strictEqual(detected.runtime, "bun");
+      })
+    );
+  });
 
-  it.effect("with no overrides, a consumer that calls detect still dies loudly", () =>
-    // The point of the die: a test that wires the double and then depends on
-    // detection is a wiring mistake, and it must fail rather than proceed on a
-    // fabricated manager.
-    Effect.gen(function* () {
-      const detector = yield* PackageManagerDetector;
-      const exit = yield* Effect.exit(detector.detect("/repo"));
-      if (!Exit.isFailure(exit)) {
-        assert.fail("expected the unstubbed member to die");
-      }
-      assert.isTrue(Cause.hasDies(exit.cause));
-    }).pipe(Effect.provide(PackageManagerDetector.layerTest()))
-  );
+  it.layer(PackageManagerDetector.layerTest(), { timeout: "30 seconds" })((it) => {
+    it.effect("with no overrides, a consumer that calls detect still dies loudly", () =>
+      // The point of the die: a test that wires the double and then depends on
+      // detection is a wiring mistake, and it must fail rather than proceed on a
+      // fabricated manager.
+      Effect.gen(function* () {
+        const detector = yield* PackageManagerDetector;
+        const exit = yield* Effect.exit(detector.detect("/repo"));
+        if (!Exit.isFailure(exit)) {
+          assert.fail("expected the unstubbed member to die");
+        }
+        assert.isTrue(Cause.hasDies(exit.cause));
+      })
+    );
+  });
 });

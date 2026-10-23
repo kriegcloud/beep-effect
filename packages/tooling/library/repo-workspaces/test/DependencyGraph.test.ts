@@ -1,5 +1,6 @@
 import { CyclicDependencyError, DependencyGraph, PackageNotFoundError, WorkspacePackage } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -257,7 +258,7 @@ describe("DependencyGraph", () => {
     });
     assert.strictEqual(
       graph.toMermaid(),
-      ["flowchart TD", '  0["@scope/a"]', '  1["@scope/b"]', '  2["@scope/c"]', "  0 --> 1", "  0 --> 2"].join("\n")
+      A.join(["flowchart TD", '  0["@scope/a"]', '  1["@scope/b"]', '  2["@scope/c"]', "  0 --> 1", "  0 --> 2"], "\n")
     );
   });
 

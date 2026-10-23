@@ -3,7 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { platform } from "./support/fixtures.ts";
+import { platformWith } from "./support/fixtures.ts";
 
 describe("WorkspaceRoot test-layer boundary semantics", () => {
   it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
@@ -31,12 +31,12 @@ for (const [label, tree, options] of [
   [
     "probe failures",
     { "/repo/package.json": "{}" },
-    { unreadableExists: new Set(["/repo/pnpm-workspace.yaml", "/repo/package.json"]) },
+    { unreadableExists: ["/repo/pnpm-workspace.yaml", "/repo/package.json"] },
   ],
-  ["read failures", { "/repo/package.json": "{}" }, { unreadableFiles: new Set(["/repo/package.json"]) }],
+  ["read failures", { "/repo/package.json": "{}" }, { unreadableFiles: ["/repo/package.json"] }],
   ["invalid JSON", { "/repo/package.json": "{" }, {}],
 ] as const) {
-  it.layer(WorkspaceRoot.layer.pipe(Layer.provide(platform(tree, options))), { timeout: "30 seconds" })((it) => {
+  it.layer(WorkspaceRoot.layer.pipe(Layer.provide(platformWith(options)(tree))), { timeout: "30 seconds" })((it) => {
     it.effect(`${label} cannot invent a workspace root`, () =>
       Effect.gen(function* () {
         const roots = yield* WorkspaceRoot;

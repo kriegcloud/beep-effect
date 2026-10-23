@@ -1,4 +1,3 @@
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Classification is pure and total, so most of this file is plain `it()`.
 // Only `detect` — the one effectful entry point — needs a runner, and it is
 // tested against `WorkspaceDiscovery.layerTest` plus a stub
@@ -12,6 +11,7 @@ import {
   WorkspacePackage,
 } from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Ref from "effect/Ref";
@@ -136,7 +136,7 @@ describe("VersioningStrategy.tagsFor", () => {
   it("independent versioning cuts one tag per package", () => {
     const tags = VersioningStrategy.classify({ packages: ["@acme/cli", "helper"] }).tagsFor(releases);
     assert.deepStrictEqual(
-      tags.map((tag) => tag.value),
+      A.map(tags, (tag) => tag.value),
       // The default versionPrefix is "" uniformly (strict SemVer,
       // 2026-07-25) — no scoped/unscoped asymmetry.
       ["@acme/cli@1.2.3", "helper@1.2.3"]
@@ -157,7 +157,7 @@ describe("VersioningStrategy.tagsFor", () => {
   it("a single-package repo cuts one bare-version tag", () => {
     const tags = VersioningStrategy.classify({ packages: ["solo"] }).tagsFor([{ name: "solo", version: "4.0.0" }]);
     assert.deepStrictEqual(
-      tags.map((tag) => tag.value),
+      A.map(tags, (tag) => tag.value),
       ["4.0.0"]
     );
   });
@@ -170,7 +170,7 @@ describe("VersioningStrategy.tagsFor", () => {
   it("passes formatting options through to every tag", () => {
     const tags = VersioningStrategy.classify({ packages: ["a", "b"] }).tagsFor(releases, { versionPrefix: "" });
     assert.deepStrictEqual(
-      tags.map((tag) => tag.value),
+      A.map(tags, (tag) => tag.value),
       ["@acme/cli@1.2.3", "helper@1.2.3"]
     );
   });
@@ -183,7 +183,8 @@ describe("VersioningStrategy.detect — independent", () => {
         listPackages: Effect.suspend(() => Effect.succeed([pkg("a"), pkg("b"), pkg("internal")])),
       }),
       publishes("a", "b")
-    )
+    ),
+    { timeout: "30 seconds" }
   )((it) => {
     it.effect("classifies over the PUBLISHABLE packages only", () =>
       Effect.gen(function* () {
@@ -203,7 +204,8 @@ describe("VersioningStrategy.detect — fixed groups supplied by the caller", ()
     Layer.mergeAll(
       WorkspaceDiscovery.layerTest({ listPackages: Effect.suspend(() => Effect.succeed([pkg("a"), pkg("b")])) }),
       publishes("a", "b")
-    )
+    ),
+    { timeout: "30 seconds" }
   )((it) => {
     it.effect("honours the fixedGroups argument", () =>
       Effect.gen(function* () {
@@ -228,7 +230,8 @@ describe("VersioningStrategy.detect — nothing publishes", () => {
     Layer.mergeAll(
       WorkspaceDiscovery.layerTest({ listPackages: Effect.suspend(() => Effect.succeed([pkg("a"), pkg("b")])) }),
       publishes()
-    )
+    ),
+    { timeout: "30 seconds" }
   )((it) => {
     it.effect("a workspace that publishes nothing is `single` with an empty set", () =>
       Effect.gen(function* () {
@@ -247,7 +250,7 @@ describe("VersioningStrategy.detect — concurrency", () => {
       const inFlight = yield* Ref.make(0);
       const maxInFlight = yield* Ref.make(0);
 
-      const publishingDetector = Layer.succeed(PublishabilityDetector, {
+      const publishingDetector: PublishabilityDetector["Service"] = {
         detect: Effect.fn("PublishabilityDetector.detect")(function* (candidate: WorkspacePackage) {
           yield* Ref.update(inFlight, (n) => n + 1);
           const running = yield* Ref.get(inFlight);
@@ -263,17 +266,16 @@ describe("VersioningStrategy.detect — concurrency", () => {
             }),
           ];
         }),
-      });
+      };
 
       const strategy = yield* VersioningStrategy.detect().pipe(
-        Effect.provide(
-          Layer.mergeAll(
-            WorkspaceDiscovery.layerTest({
-              listPackages: Effect.suspend(() => Effect.succeed([pkg("d"), pkg("b"), pkg("a"), pkg("c")])),
-            }),
-            publishingDetector
-          )
-        )
+        Effect.provideService(
+          WorkspaceDiscovery,
+          WorkspaceDiscovery.makeTest({
+            listPackages: Effect.suspend(() => Effect.succeed([pkg("d"), pkg("b"), pkg("a"), pkg("c")])),
+          })
+        ),
+        Effect.provideService(PublishabilityDetector, publishingDetector)
       );
 
       assert.deepStrictEqual(strategy.publishablePackages, ["a", "b", "c", "d"]);

@@ -23,6 +23,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { manifest, platform, rootManifest } from "./support/fixtures.ts";
 import type { GitStubs } from "@beep/git";
 import type { HookInjection } from "@beep/repo-workspaces";
@@ -47,7 +48,7 @@ const scriptGit = (
       // The reader passes `<ref>:./<path>` to make git resolve relative to cwd;
       // with the fixture map keyed root-relative and cwd == root, that is exactly
       // the bare-path lookup — so strip a leading `./`, as real git does.
-      const relative = path.startsWith("./") ? path.slice(2) : path;
+      const relative = Str.startsWith("./")(path) ? Str.slice(2)(path) : path;
       const content = trees[ref]?.[relative];
       return Effect.succeed(content === undefined ? O.none() : O.some(content));
     },
@@ -55,8 +56,8 @@ const scriptGit = (
       overrides.lsTree ??
       ((_cwd: string, ref: string) =>
         Effect.succeed(
-          Object.keys(trees[ref] ?? {}).map((path) =>
-            LsTreeEntry.make({ mode: "100644", type: "blob", oid: "0".repeat(40), path })
+          A.map(R.keys(trees[ref] ?? {}), (path) =>
+            LsTreeEntry.make({ mode: "100644", type: "blob", oid: Str.repeat(40)("0"), path })
           )
         )),
   });
@@ -88,8 +89,8 @@ const snapshotsLayer = (
 const refFromTree = (tree: Tree, root = "/repo"): RefTrees => {
   const prefix = `${root}/`;
   const rel: Record<string, string> = {};
-  for (const [abs, content] of Object.entries(tree)) {
-    if (abs.startsWith(prefix)) rel[abs.slice(prefix.length)] = content;
+  for (const [abs, content] of R.toEntries(tree)) {
+    if (Str.startsWith(prefix)(abs)) rel[Str.slice(prefix.length)(abs)] = content;
   }
   return { HEAD: rel };
 };
@@ -257,8 +258,8 @@ describe("WorkspaceSnapshots.at — a failed init is retried", () => {
       );
     }
     return Effect.succeed(
-      Object.keys(npmRefTrees[ref] ?? {}).map((path) =>
-        LsTreeEntry.make({ mode: "100644", type: "blob", oid: "0".repeat(40), path })
+      A.map(R.keys(npmRefTrees[ref] ?? {}), (path) =>
+        LsTreeEntry.make({ mode: "100644", type: "blob", oid: Str.repeat(40)("0"), path })
       )
     );
   };
@@ -338,7 +339,7 @@ describe('WorkspaceStateSnapshot — a version-less member is absent, never `""`
         relativePath: "packages/bare",
       })
     );
-    assert.isFalse(Object.hasOwn(legacy, "version"));
+    assert.isFalse("version" in legacy);
     assert.isTrue(Equal.equals(legacy, bareVersionSnapshot.packages[0]));
     // Control: a real version survives the same decode.
     const versioned = Result.getOrThrow(
@@ -355,7 +356,7 @@ describe('WorkspaceStateSnapshot — a version-less member is absent, never `""`
     const pkg = bareVersionSnapshot.packages[0];
     if (pkg === undefined) return assert.fail("expected a snapshot package");
     const encoded = Result.getOrThrow(S.encodeResult(PackageStateSnapshot)(pkg));
-    assert.isFalse(Object.hasOwn(encoded, "version"));
+    assert.isFalse("version" in encoded);
   });
 
   it("versions lists only members that declared a version; package() still answers membership", () => {
@@ -374,7 +375,7 @@ describe('WorkspaceStateSnapshot — a version-less member is absent, never `""`
     })
   );
 
-  it.layer(bareVersionSnapshot.workspaceResolver)((it) => {
+  it.layer(bareVersionSnapshot.workspaceResolver, { timeout: "30 seconds" })((it) => {
     it.effect("the snapshot's WorkspaceResolver fails typed for a version-less member, like discovery's", () =>
       Effect.gen(function* () {
         const workspace = yield* WorkspaceResolver;
@@ -418,15 +419,15 @@ describe("WorkspaceSnapshots — version-less manifests at a ref and in the work
           for (const snapshot of [atHead, worktree]) {
             const bare = O.getOrThrow(snapshot.package("@x/bare"));
             const root = O.getOrThrow(snapshot.package("root"));
-            assert.isFalse(Object.hasOwn(bare, "version"));
-            assert.isFalse(Object.hasOwn(root, "version"));
+            assert.isFalse("version" in bare);
+            assert.isFalse("version" in root);
             assert.deepStrictEqual(snapshot.versionNames, ["@x/alpha"]);
             assertNone(snapshot.resolve("@x/bare", "workspace:^"));
           }
           // The two sides are the same value, member for member, so a diff of a
           // clean tree reports nothing — the reason the key must match.
           const byName = (snapshot: WorkspaceStateSnapshot) =>
-            [...snapshot.packages].sort((a, b) => a.name.localeCompare(b.name));
+            [...snapshot.packages].sort((a, b) => Str.localeCompare(b.name)(a.name));
           const [left, right] = [byName(atHead), byName(worktree)];
           assert.strictEqual(left.length, right.length);
           for (const [index, pkg] of left.entries()) assert.isTrue(Equal.equals(pkg, right[index]), pkg.name);
@@ -440,7 +441,7 @@ describe("WorkspaceSnapshots — version-less manifests at a ref and in the work
 });
 
 describe("WorkspaceStateSnapshot — snapshot-scoped resolver layers", () => {
-  it.layer(resolveSnapshot.resolvers)((it) => {
+  it.layer(resolveSnapshot.resolvers, { timeout: "30 seconds" })((it) => {
     it.effect("CatalogResolver and WorkspaceResolver resolve against the snapshot", () =>
       Effect.gen(function* () {
         const catalog = yield* CatalogResolver;
@@ -545,7 +546,7 @@ describe("WorkspaceSnapshots — hook-injected catalog symmetry", () => {
 // share it with the ref side without executing anything.
 
 const HOOKED_MARKER: Tree = {
-  "/repo/pnpm-workspace.yaml": ["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", ""].join("\n"),
+  "/repo/pnpm-workspace.yaml": A.join(["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", ""], "\n"),
   "/repo/package.json": rootManifest(["packages/*"]),
   "/repo/packages/alpha/package.json": manifest("@x/alpha", {
     dependencies: { effect: "catalog:", "hooked-dep": "catalog:" },
@@ -645,8 +646,8 @@ const recordingHooks = (answers: Readonly<Record<string, Readonly<Record<string,
             calls.push({ root, configDependencies, seed, rules });
             let injected: Record<string, string> = {};
             const replays: Record<string, HookReplay> = {};
-            for (const [name, spec] of Object.entries(configDependencies)) {
-              const declared = spec.split("+")[0] ?? spec;
+            for (const [name, spec] of R.toEntries(configDependencies)) {
+              const declared = Str.split(spec, "+")[0] ?? spec;
               injected = { ...injected, ...(answers[`${name}@${declared}`] ?? {}) };
               replays[name] = HookReplay.make({ version: declared, source: "supplied" });
             }
@@ -665,15 +666,18 @@ const recordingHooks = (answers: Readonly<Record<string, Readonly<Record<string,
 };
 
 const replayWorkspaceYaml = (spec: string): string =>
-  [
-    "packages:",
-    "  - packages/*",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "configDependencies:",
-    `  '@scope/plugin': '${spec}'`,
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "packages:",
+      "  - packages/*",
+      "catalog:",
+      "  effect: ^4.0.0",
+      "configDependencies:",
+      `  '@scope/plugin': '${spec}'`,
+      "",
+    ],
+    "\n"
+  );
 
 const REPLAY_MEMBER = manifest("@x/alpha", { dependencies: { effect: "catalog:", "hooked-dep": "catalog:" } });
 
@@ -709,7 +713,9 @@ describe("WorkspaceSnapshots.at — replays the ref's configDependencies at the 
       Effect.gen(function* () {
         const snapshots = yield* WorkspaceSnapshots;
         yield* snapshots.at("before");
-        const call = hooks.calls.find((entry) => entry.configDependencies["@scope/plugin"] === "1.0.0+sha512-abc");
+        const call = O.getOrUndefined(
+          A.findFirst(hooks.calls, (entry) => entry.configDependencies["@scope/plugin"] === "1.0.0+sha512-abc")
+        );
         assert.isDefined(call);
         assert.strictEqual(call?.root, "/repo");
         // The seed is the ref's inline catalogs, the rules the ref's (none).
@@ -783,7 +789,7 @@ describe("WorkspaceSnapshots.at — a hook replay failure at the ref surfaces ty
         Effect.fail(
           CatalogAssemblyError.make({
             source: "hooks",
-            path: Object.keys(configDependencies)[0] ?? "",
+            path: R.keys(configDependencies)[0] ?? "",
             cause: new Error("not installed"),
           })
         )
@@ -852,13 +858,13 @@ describe("WorkspaceSnapshots.at — tolerant JSON schema decoding", () => {
         const snapshots = yield* WorkspaceSnapshots;
         const state = yield* snapshots.at("HEAD");
         assert.deepStrictEqual(
-          state.packages.map((pkg) => pkg.name),
+          A.map(state.packages, (pkg) => pkg.name),
           ["root", "bad-fields", "valid"]
         );
         const valid = O.getOrThrow(state.package("valid"));
         assert.deepStrictEqual(
           valid.dependencies,
-          Object.fromEntries([
+          R.fromEntries([
             ["constructor", "^1.0.0"],
             ["__proto__", "^2.0.0"],
           ])
@@ -872,9 +878,11 @@ describe("WorkspaceSnapshots.at — tolerant JSON schema decoding", () => {
   });
 });
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { WorkspaceCatalogs } from "@beep/repo-workspaces/WorkspaceCatalogs";
 import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
 import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 
@@ -922,7 +930,7 @@ const ownNameDependencies = Layer.mergeAll(
 );
 
 describe("snapshot hook-version projection preserves own replay names", () => {
-  it.layer(ownNameDependencies)((it) => {
+  it.layer(ownNameDependencies, { timeout: "30 seconds" })((it) => {
     it.effect("both historical and live projections keep every version in replay order", () =>
       Effect.gen(function* () {
         const snapshots = yield* WorkspaceSnapshots.make({ cwd: "/repo" });
@@ -1048,3 +1056,14 @@ describe("historical Bun catalogs retain tolerant malformed-input degradation", 
     );
   });
 });
+
+it.effect.prop(
+  "a captured member generated from its schema survives an encode/decode round trip",
+  [Arbitrary.schema(PackageStateSnapshot)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(PackageStateSnapshot)(yield* S.encodeEffect(PackageStateSnapshot)(value));
+      assert.isTrue(S.toEquivalence(PackageStateSnapshot)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
+);

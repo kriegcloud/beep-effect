@@ -14,9 +14,9 @@ import { ConfigDependencyHooks, WorkspaceCatalogs, Workspaces } from "@beep/repo
 import { HookInjection, NoPeerDependencyRules, PeerDependencyRules } from "@beep/repo-workspaces/ConfigDependencyHooks";
 import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { join } from "@beep/utils/Path";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -24,6 +24,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import { manifest, platform } from "../support/fixtures.ts";
 import {
   installConfigDependency,
@@ -34,6 +35,7 @@ import {
   storeConfigDependency,
   writeModulesYaml,
 } from "./utils/configDependencyFixtures.ts";
+import { nodeHost } from "./utils/nodeFixture.ts";
 import type { Vitest } from "@effect/vitest";
 import type { Tree } from "../support/fixtures.ts";
 
@@ -78,8 +80,8 @@ let envHome: string;
 /** A root whose `.modules.yaml` names `store` through a SYMLINK spelling, beside a `.pnpm-config` symlink that realpaths into it. */
 let aliasRoot: string;
 
-const HooksLive = ConfigDependencyHooks.layerLive.pipe(Layer.provide(NodeServices.layer));
-const HooksSubprocess = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(NodeServices.layer));
+const HooksLive = ConfigDependencyHooks.layerLive.pipe(Layer.provide(nodeHost));
+const HooksSubprocess = ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(nodeHost));
 
 /** The ladder's environment rung sees `$PNPM_HOME` = `envHome`, and nothing else. */
 const withPnpmHome = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
@@ -105,31 +107,34 @@ const Fixture = Layer.effectDiscard(
     yield* installConfigDependency(root, UNVERSIONED, undefined, ["pnpmfile.mjs", pnpmfileInjecting("^6.0.0")]);
     yield* installConfigDependency(root, EMPTY_VERSION, "");
 
-    const stored = yield* storeConfigDependency(store, NAME, "2.0.0", "a".repeat(64), [
+    const stored = yield* storeConfigDependency(store, NAME, "2.0.0", Str.repeat(64)("a"), [
       "pnpmfile.mjs",
       pnpmfileInjecting("^2.0.0"),
     ]);
     // A second hash directory for the same version whose manifest LIES (a
     // different version) — the ladder must verify the inner manifest, not trust
     // the path.
-    const liar = path.join(store, "links", NAME, "2.0.0", "b".repeat(64), "node_modules", NAME);
+    const liar = path.join(store, "links", NAME, "2.0.0", Str.repeat(64)("b"), "node_modules", NAME);
     yield* fs.makeDirectory(liar, { recursive: true });
     yield* fs.writeFileString(path.join(liar, "package.json"), `{"name":"${NAME}","version":"9.9.9"}`);
     yield* fs.writeFileString(path.join(liar, "pnpmfile.mjs"), pnpmfileInjecting("^9.9.9"));
-    yield* storeConfigDependency(store, JS_ONLY, "1.0.0", "c".repeat(64), [
+    yield* storeConfigDependency(store, JS_ONLY, "1.0.0", Str.repeat(64)("c"), [
       "pnpmfile.js",
       pnpmfileInjectingCjs("^7.0.0"),
     ]);
-    yield* storeConfigDependency(store, SCOPED, "1.0.0", "d".repeat(64), ["pnpmfile.mjs", pnpmfileInjecting("^5.0.0")]);
+    yield* storeConfigDependency(store, SCOPED, "1.0.0", Str.repeat(64)("d"), [
+      "pnpmfile.mjs",
+      pnpmfileInjecting("^5.0.0"),
+    ]);
 
     // Two HONEST copies of one version: neither manifest lies, so the version
     // check cannot separate them — only an integrity the store does not record
     // could, and the ladder must refuse to guess.
-    yield* storeConfigDependency(store, AMBIGUOUS, "1.0.0", "e".repeat(64), [
+    yield* storeConfigDependency(store, AMBIGUOUS, "1.0.0", Str.repeat(64)("e"), [
       "pnpmfile.mjs",
       pnpmfileInjecting("^1.0.0"),
     ]);
-    yield* storeConfigDependency(store, AMBIGUOUS, "1.0.0", "f".repeat(64), [
+    yield* storeConfigDependency(store, AMBIGUOUS, "1.0.0", Str.repeat(64)("f"), [
       "pnpmfile.mjs",
       pnpmfileInjecting("^1.0.1"),
     ]);
@@ -140,17 +145,17 @@ const Fixture = Layer.effectDiscard(
 
     // Rung 3: a store that ONLY `$PNPM_HOME/store` can name.
     envHome = yield* temp("effected-ladder-pnpmhome-");
-    yield* storeConfigDependency(path.join(envHome, "store", "v11"), ENV_ONLY, "1.0.0", "1".repeat(64), [
+    yield* storeConfigDependency(path.join(envHome, "store", "v11"), ENV_ONLY, "1.0.0", Str.repeat(64)("1"), [
       "pnpmfile.mjs",
       pnpmfileInjecting("^8.0.0"),
     ]);
     // One version in TWO distinct stores, each with a different pnpmfile so the
     // injected range proves which store answered.
-    yield* storeConfigDependency(store, TWO_STORES, "1.0.0", "2".repeat(64), [
+    yield* storeConfigDependency(store, TWO_STORES, "1.0.0", Str.repeat(64)("2"), [
       "pnpmfile.mjs",
       pnpmfileInjecting("^3.0.0"),
     ]);
-    yield* storeConfigDependency(path.join(envHome, "store", "v11"), TWO_STORES, "1.0.0", "3".repeat(64), [
+    yield* storeConfigDependency(path.join(envHome, "store", "v11"), TWO_STORES, "1.0.0", Str.repeat(64)("3"), [
       "pnpmfile.mjs",
       pnpmfileInjecting("^4.0.0"),
     ]);
@@ -162,7 +167,7 @@ const Fixture = Layer.effectDiscard(
       ["v10", "^10.0.0"],
       ["v11", "^11.0.0"],
     ] as const) {
-      yield* storeConfigDependency(path.join(envHome, "store", format), FORMATS, "1.0.0", "4".repeat(64), [
+      yield* storeConfigDependency(path.join(envHome, "store", format), FORMATS, "1.0.0", Str.repeat(64)("4"), [
         "pnpmfile.mjs",
         pnpmfileInjecting(range),
       ]);
@@ -177,7 +182,7 @@ const Fixture = Layer.effectDiscard(
     yield* writeModulesYaml(aliasRoot, alias);
     yield* linkConfigDependency(aliasRoot, NAME, stored);
   })
-).pipe(Layer.provide(NodeServices.layer));
+).pipe(Layer.provide(nodeHost));
 
 const hooked = (result: { readonly catalogs: Readonly<Record<string, Readonly<Record<string, string>>>> }) =>
   result.catalogs.default?.["hooked-dep"];
@@ -277,7 +282,7 @@ const ladderCases = (it: Vitest.MethodsNonLive, label: string, hooksLayer: Layer
           // The subprocess layer would fetch, but a bare spec with no lockfile
           // records no integrity, so it fails before any spawn — with the same
           // not-installed diagnosis.
-          const reason = label.includes("layerSubprocess") ? "integrityUnavailable" : "notInstalled";
+          const reason = Str.includes("layerSubprocess")(label) ? "integrityUnavailable" : "notInstalled";
           for (const name of [UNVERSIONED, EMPTY_VERSION]) {
             const error = yield* Effect.flip(hooks.inject(root, { [name]: "1.0.0" }, SEED));
             assert.instanceOf(error, CatalogAssemblyError);
@@ -405,8 +410,8 @@ const ladderCases = (it: Vitest.MethodsNonLive, label: string, hooksLayer: Layer
           // The store is named by its REALPATH (macOS's `/var` is `/private/var`):
           // discovery canonicalizes spellings so one store never counts twice.
           assert.include(message, `store at ${storeReal}`);
-          assert.include(message, "e".repeat(64));
-          assert.include(message, "f".repeat(64));
+          assert.include(message, Str.repeat(64)("e"));
+          assert.include(message, Str.repeat(64)("f"));
           // The control that makes this discriminating: the SAME two-hash shape
           // with one manifest lying (NAME@2.0.0) resolves fine — ambiguity is
           // about two HONEST copies, not about a second directory existing.
@@ -639,15 +644,18 @@ it.layer(Fixture, { timeout: "30 seconds" })((it) => {
       Layer.unwrap(
         Effect.sync(() => {
           const tree: Tree = {
-            "/repo/pnpm-workspace.yaml": [
-              "packages:",
-              "  - packages/*",
-              "catalog:",
-              "  effect: ^4.0.0",
-              "configDependencies:",
-              "  '@scope/plugin': '2.0.0+sha512-abc'",
-              "",
-            ].join("\n"),
+            "/repo/pnpm-workspace.yaml": A.join(
+              [
+                "packages:",
+                "  - packages/*",
+                "catalog:",
+                "  effect: ^4.0.0",
+                "configDependencies:",
+                "  '@scope/plugin': '2.0.0+sha512-abc'",
+                "",
+              ],
+              "\n"
+            ),
             "/repo/package.json": '{"name":"root","version":"0.0.0","private":true}',
             "/repo/packages/a/package.json": manifest("@x/a", { dependencies: { effect: "catalog:" } }),
           };

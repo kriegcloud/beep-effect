@@ -3,8 +3,10 @@ import { findWorkspaceRootSync, getWorkspacePackagesSync } from "@beep/repo-work
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { SyncFileSystem, WorkspaceDiscoverySkip } from "@beep/repo-workspaces/WorkspacesSync";
 
 const WorkspaceText = S.fromJsonString(S.Struct({ name: S.String, workspaces: S.Array(S.String) }));
@@ -47,7 +49,7 @@ describe("WorkspacesSync bounded and degraded enumeration", () => {
           },
         };
         assert.deepStrictEqual(
-          getWorkspacePackagesSync("/repo", { fileSystem, path }).map((pkg) => pkg.name),
+          A.map(getWorkspacePackagesSync("/repo", { fileSystem, path }), (pkg) => pkg.name),
           ["root"]
         );
       })
@@ -57,27 +59,33 @@ describe("WorkspacesSync bounded and degraded enumeration", () => {
         const path = yield* Path.Path;
         const fs = MemoryFileSystem.makeSync(seed).sync;
         assert.deepStrictEqual(
-          getWorkspacePackagesSync("/repo", {
-            fileSystem: {
-              ...fs,
-              isDirectory: () => {
-                throw new Error("stat denied");
+          A.map(
+            getWorkspacePackagesSync("/repo", {
+              fileSystem: {
+                ...fs,
+                isDirectory: () => {
+                  throw new Error("stat denied");
+                },
               },
-            },
-            path,
-          }).map((pkg) => pkg.name),
+              path,
+            }),
+            (pkg) => pkg.name
+          ),
           ["root"]
         );
         assert.deepStrictEqual(
-          getWorkspacePackagesSync("/repo", {
-            fileSystem: {
-              ...fs,
-              readDirectory: () => {
-                throw new Error("readdir denied");
+          A.map(
+            getWorkspacePackagesSync("/repo", {
+              fileSystem: {
+                ...fs,
+                readDirectory: () => {
+                  throw new Error("readdir denied");
+                },
               },
-            },
-            path,
-          }).map((pkg) => pkg.name),
+              path,
+            }),
+            (pkg) => pkg.name
+          ),
           ["root"]
         );
       })
@@ -90,7 +98,7 @@ describe("WorkspacesSync bounded and degraded enumeration", () => {
           "/repo/packages/a/package.json": '{"name":"a"}',
         }).sync;
         assert.deepStrictEqual(
-          getWorkspacePackagesSync("/repo", { fileSystem: fs, path }).map((pkg) => pkg.name),
+          A.map(getWorkspacePackagesSync("/repo", { fileSystem: fs, path }), (pkg) => pkg.name),
           ["root", "a"]
         );
         const skips: Array<WorkspaceDiscoverySkip> = [];
@@ -105,7 +113,7 @@ describe("WorkspacesSync bounded and degraded enumeration", () => {
           []
         );
         assert.deepStrictEqual(
-          skips.map((skip) => skip.kind),
+          A.map(skips, (skip) => skip.kind),
           ["read"]
         );
       })
@@ -117,12 +125,12 @@ describe("WorkspacesSync bounded and degraded enumeration", () => {
         const fileSystem: SyncFileSystem = {
           ...fs,
           readFile: (file) => {
-            if (file.endsWith(".yaml")) throw new Error("denied");
+            if (Str.endsWith(".yaml")(file)) throw new Error("denied");
             return fs.readFile(file);
           },
         };
         assert.deepStrictEqual(
-          getWorkspacePackagesSync("/repo", { fileSystem, path }).map((pkg) => pkg.name),
+          A.map(getWorkspacePackagesSync("/repo", { fileSystem, path }), (pkg) => pkg.name),
           ["root", "a", "child"]
         );
       })
@@ -144,10 +152,10 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
       const skips: Array<WorkspaceDiscoverySkip> = [];
       const packages = getWorkspacePackagesSync("/repo", { fileSystem: fs, path, onSkip: (skip) => skips.push(skip) });
       assert.deepStrictEqual(
-        packages.map((pkg) => pkg.name),
+        A.map(packages, (pkg) => pkg.name),
         ["root", "a", "child"]
       );
-      const member = packages.find((pkg) => pkg.name === "a");
+      const member = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "a"));
       assert.isUndefined(member?.publishConfig);
       assert.deepStrictEqual(member?.manifestRecord, {
         name: "a",
@@ -156,14 +164,17 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
         extra: { keep: true },
       });
       assert.deepStrictEqual(
-        skips.map((skip) => [skip.path, skip.kind]),
+        A.map(skips, (skip) => [skip.path, skip.kind]),
         [
           ["/repo/packages/array/package.json", "invalidShape"],
           ["/repo/packages/broken/package.json", "invalidJson"],
           ["/repo/packages/scalar/package.json", "invalidShape"],
         ]
       );
-      assert.instanceOf(skips.find((skip) => skip.kind === "invalidJson")?.cause, S.SchemaError);
+      assert.instanceOf(
+        O.getOrUndefined(A.findFirst(skips, (skip) => skip.kind === "invalidJson"))?.cause,
+        S.SchemaError
+      );
       for (const text of ["{", "42", "[]", "null"]) {
         const badRoot = MemoryFileSystem.makeSync({ "/repo/package.json": text }).sync;
         assert.isNull(findWorkspaceRootSync("/repo", { fileSystem: badRoot, path }));
@@ -177,7 +188,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
       assert.isNull(findWorkspaceRootSync("/repo", { fileSystem: scalar, path }));
       const fs = MemoryFileSystem.makeSync({ ...seed, "/repo/pnpm-workspace.yaml": "[" }).sync;
       assert.deepStrictEqual(
-        getWorkspacePackagesSync("/repo", { fileSystem: fs, path }).map((pkg) => pkg.name),
+        A.map(getWorkspacePackagesSync("/repo", { fileSystem: fs, path }), (pkg) => pkg.name),
         ["root", "a", "child"]
       );
     })
@@ -185,13 +196,13 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
   it.effect("bad patterns and exclusions never admit excluded literals", () =>
     Effect.gen(function* () {
       const path = yield* Path.Path;
-      for (const patterns of [["a".repeat(65537)], ["packages/a", "!packages/a"], ["packages/*", "!packages/a"]]) {
+      for (const patterns of [[Str.repeat(65537)("a")], ["packages/a", "!packages/a"], ["packages/*", "!packages/a"]]) {
         const text = yield* S.encodeEffect(WorkspaceText)({
           name: "root",
           workspaces: patterns,
         });
         const fs = MemoryFileSystem.makeSync({ ...seed, "/repo/package.json": text }).sync;
-        const names = getWorkspacePackagesSync("/repo", { fileSystem: fs, path }).map((pkg) => pkg.name);
+        const names = A.map(getWorkspacePackagesSync("/repo", { fileSystem: fs, path }), (pkg) => pkg.name);
         assert.deepStrictEqual(names, patterns.length === 1 ? [] : ["root"]);
       }
     })
@@ -204,7 +215,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
         "/repo/packages/node_modules/x/package.json": '{"name":"ignored"}',
       }).sync;
       assert.deepStrictEqual(
-        getWorkspacePackagesSync("/repo", { fileSystem: fs, path }).map((pkg) => pkg.name),
+        A.map(getWorkspacePackagesSync("/repo", { fileSystem: fs, path }), (pkg) => pkg.name),
         ["root", "a", "child"]
       );
     })
@@ -227,7 +238,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
         },
       };
       assert.deepStrictEqual(
-        getWorkspacePackagesSync("/repo", { fileSystem, path }).map((pkg) => pkg.name),
+        A.map(getWorkspacePackagesSync("/repo", { fileSystem, path }), (pkg) => pkg.name),
         ["root", "a"]
       );
       assert.strictEqual(reads, 100000);
@@ -243,7 +254,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
         "/repo/package.json": '{"name":"root","workspaces":["packages/missing"]}',
       }).sync;
       assert.deepStrictEqual(
-        getWorkspacePackagesSync("/repo", { fileSystem: fs, path }).map((pkg) => pkg.name),
+        A.map(getWorkspacePackagesSync("/repo", { fileSystem: fs, path }), (pkg) => pkg.name),
         ["root"]
       );
     })

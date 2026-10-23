@@ -3,6 +3,7 @@ import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { CatalogSet, WorkspaceCatalogs, Workspaces } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
@@ -153,7 +154,8 @@ describe("CatalogSet.fromLockfile", () => {
   it.effect("assembles a pnpm lockfile's catalogs", () =>
     Effect.gen(function* () {
       const lockfile = yield* Lockfile.parse(
-        ["lockfileVersion: '9.0'", "catalogs:", "  default:", "    effect: ^4.0.0", "importers:", "  .: {}", ""].join(
+        A.join(
+          ["lockfileVersion: '9.0'", "catalogs:", "  default:", "    effect: ^4.0.0", "importers:", "  .: {}", ""],
           "\n"
         ),
         { format: "pnpm" }

@@ -1,6 +1,7 @@
 import { Lockfile, LockfileImporter, ResolvedPackage } from "@beep/lockfiles";
 import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
 const workspace = (version: string, relativePath: string, resolved: Record<string, string> = {}) =>
@@ -30,11 +31,11 @@ describe("DuplicateCheck coverage", () => {
       assert.isFalse(report.isClean);
       assert.deepStrictEqual(report.unresolvedImporters, []);
       assert.deepStrictEqual(
-        report.duplicates.map((row) => ({
+        A.map(report.duplicates, (row) => ({
           name: row.name,
-          versions: row.versions.map((version) => ({
+          versions: A.map(row.versions, (version) => ({
             version: version.version,
-            instances: version.instances.map((instance) => ({
+            instances: A.map(version.instances, (instance) => ({
               instanceId: instance.instanceId,
               dependents: instance.dependents,
             })),

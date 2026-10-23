@@ -3,6 +3,7 @@ import { LockfileReader } from "@beep/repo-workspaces/LockfileReader";
 import { Workspaces } from "@beep/repo-workspaces/Workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -58,7 +59,7 @@ describe("LockfileReader coverage", () => {
         const lockfile = yield* reader.read;
         yield* reader.refresh;
         assert.deepStrictEqual(
-          lockfile.packages.map((pkg) => pkg.name),
+          A.map(lockfile.packages, (pkg) => pkg.name),
           ["missing", "empty", "invalid", "primitive", "noname"]
         );
       })

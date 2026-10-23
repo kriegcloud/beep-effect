@@ -19,7 +19,6 @@ import { ConfigDependencyHooks, WorkspaceSnapshots, Workspaces } from "@beep/rep
 import { HookReplay } from "@beep/repo-workspaces/ConfigDependencyReplay";
 import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import { join } from "@beep/utils/Path";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterAll, assert, beforeAll, beforeEach, describe, it, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -31,13 +30,13 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { installConfigDependency, writeFakePnpm, writeModulesYaml } from "./utils/configDependencyFixtures.ts";
-import { gitIn, makeNodeFixture } from "./utils/nodeFixture.ts";
+import { gitIn, makeNodeFixture, nodeHost } from "./utils/nodeFixture.ts";
 
 const NAME = "cfg-842";
 /** The integrity the base lockfile records for 0.11.1, and what the fake registry serves. */
-const BASE_SRI = `sha512-${"A".repeat(86)}==`;
+const BASE_SRI = `sha512-${Str.repeat(86)("A")}==`;
 /** A different, well-formed integrity. */
-const OTHER_SRI = `sha512-${"B".repeat(86)}==`;
+const OTHER_SRI = `sha512-${Str.repeat(86)("B")}==`;
 
 let root: string;
 let store: string;
@@ -47,47 +46,45 @@ let pnpmLog: string;
 const fixture = makeNodeFixture();
 
 const workspaceYaml = (spec: string): string =>
-  [
-    "packages:",
-    "  - packages/*",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "configDependencies:",
-    `  ${NAME}: '${spec}'`,
-    "",
-  ].join("\n");
+  A.join(
+    ["packages:", "  - packages/*", "catalog:", "  effect: ^4.0.0", "configDependencies:", `  ${NAME}: '${spec}'`, ""],
+    "\n"
+  );
 
 /** The two-document pnpm-lock.yaml pnpm 11/12 write for one config dependency (see the lockfiles fixtures env-configdeps-pnpm11/12). */
 const lockfileRecording = (version: string, integrity: string): string =>
-  [
-    "---",
-    "lockfileVersion: '9.0'",
-    "",
-    "importers:",
-    "",
-    "  .:",
-    "    configDependencies:",
-    `      ${NAME}:`,
-    `        specifier: ${version}`,
-    `        version: ${version}`,
-    "",
-    "packages:",
-    "",
-    `  ${NAME}@${version}:`,
-    `    resolution: {integrity: ${integrity}}`,
-    "",
-    "snapshots:",
-    "",
-    `  ${NAME}@${version}: {}`,
-    "",
-    "---",
-    "lockfileVersion: '9.0'",
-    "",
-    "importers:",
-    "",
-    "  .: {}",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "---",
+      "lockfileVersion: '9.0'",
+      "",
+      "importers:",
+      "",
+      "  .:",
+      "    configDependencies:",
+      `      ${NAME}:`,
+      `        specifier: ${version}`,
+      `        version: ${version}`,
+      "",
+      "packages:",
+      "",
+      `  ${NAME}@${version}:`,
+      `    resolution: {integrity: ${integrity}}`,
+      "",
+      "snapshots:",
+      "",
+      `  ${NAME}@${version}: {}`,
+      "",
+      "---",
+      "lockfileVersion: '9.0'",
+      "",
+      "importers:",
+      "",
+      "  .: {}",
+      "",
+    ],
+    "\n"
+  );
 
 /** One line of the fake pnpm's log. */
 const PnpmRun = S.Struct({
@@ -189,9 +186,8 @@ afterAll(() => {
 });
 
 const Subprocess = () =>
-  Workspaces.layerWithGitAndConfigDependenciesSubprocess({ cwd: root }).pipe(Layer.provideMerge(NodeServices.layer));
-const InProcess = () =>
-  Workspaces.layerWithGitAndConfigDependencies({ cwd: root }).pipe(Layer.provideMerge(NodeServices.layer));
+  Workspaces.layerWithGitAndConfigDependenciesSubprocess({ cwd: root }).pipe(Layer.provideMerge(nodeHost));
+const InProcess = () => Workspaces.layerWithGitAndConfigDependencies({ cwd: root }).pipe(Layer.provideMerge(nodeHost));
 
 /** `at(ref)`'s failure, which must be a typed hooks-source assembly error. */
 const failureAt = Effect.fn("failureAt")(function* (ref: string) {
@@ -234,23 +230,25 @@ describe("effected#842 — the base side of a config-dependency bump", () => {
     );
   });
 
-  it.layer(
-    Layer.unwrap(Effect.sync(() => ConfigDependencyHooks.layerSubprocess.pipe(Layer.provideMerge(NodeServices.layer)))),
-    { timeout: "30 seconds" }
-  )((it) => {
+  it.layer(Layer.unwrap(Effect.sync(() => ConfigDependencyHooks.layerSubprocess.pipe(Layer.provideMerge(nodeHost)))), {
+    timeout: "30 seconds",
+  })((it) => {
     it.effect("the fetch inherits the workspace's .npmrc verbatim and its registry keys", () => {
       // A scoped registry with an env-var token and a default-registry mirror:
       // the fetch must reach the registries `pnpm install` in the checkout would.
       // A literal `${NPM_TOKEN}` reference, spelled so it reads as npmrc text, not a template.
-      const tokenRef = "$".concat("{NPM_TOKEN}");
+      const tokenRef = `${"$"}{NPM_TOKEN}`;
       const npmrc = `@acme:registry=https://npm.acme.example/\n//npm.acme.example/:_authToken=${tokenRef}\n`;
-      const yamlWithRegistries = [
-        workspaceYaml("0.11.2"),
-        "registry: https://mirror.example/",
-        "registries:",
-        "  '@acme': https://npm.acme.example/",
-        "",
-      ].join("\n");
+      const yamlWithRegistries = A.join(
+        [
+          workspaceYaml("0.11.2"),
+          "registry: https://mirror.example/",
+          "registries:",
+          "  '@acme': https://npm.acme.example/",
+          "",
+        ],
+        "\n"
+      );
       return Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         yield* fs.writeFileString(join(root, ".npmrc"), npmrc);
@@ -279,10 +277,9 @@ describe("effected#842 — the base side of a config-dependency bump", () => {
     });
   });
 
-  it.layer(
-    Layer.unwrap(Effect.sync(() => ConfigDependencyHooks.layerSubprocess.pipe(Layer.provideMerge(NodeServices.layer)))),
-    { timeout: "30 seconds" }
-  )((it) => {
+  it.layer(Layer.unwrap(Effect.sync(() => ConfigDependencyHooks.layerSubprocess.pipe(Layer.provideMerge(nodeHost)))), {
+    timeout: "30 seconds",
+  })((it) => {
     it.effect("the replay records that the fetch rung answered, and the next replay finds it in the store", () =>
       Effect.gen(function* () {
         const hooks = yield* ConfigDependencyHooks;

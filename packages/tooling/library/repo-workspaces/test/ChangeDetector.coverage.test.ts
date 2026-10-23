@@ -4,6 +4,7 @@ import { ChangeDetectionError, ChangeDetectionOptions, ChangeDetector } from "@b
 import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
 import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
@@ -35,11 +36,11 @@ describe("ChangeDetector coverage", () => {
         const service = yield* ChangeDetector;
         const options = ChangeDetectionOptions.make({ base: "main" });
         assert.deepStrictEqual(
-          (yield* service.changedPackages(options)).map((pkg) => pkg.name),
+          A.map(yield* service.changedPackages(options), (pkg) => pkg.name),
           ["core"]
         );
         assert.deepStrictEqual(
-          (yield* service.affectedPackages(options)).map((pkg) => pkg.name),
+          A.map(yield* service.affectedPackages(options), (pkg) => pkg.name),
           ["core"]
         );
       })

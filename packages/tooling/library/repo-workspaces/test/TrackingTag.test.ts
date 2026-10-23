@@ -11,11 +11,14 @@
 import { classifyTag, ReleaseTag, TrackingTag } from "@beep/repo-workspaces";
 import { UnrecognizedTagClassification } from "@beep/repo-workspaces/ReleaseTag";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as HashSet from "effect/HashSet";
+import * as Str from "effect/String";
 
 describe("TrackingTag.forVersion", () => {
   it("derives the broadest-first pair for a stable release", () => {
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3").map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3"), (tag) => tag.value),
       ["v1", "v1.2"]
     );
   });
@@ -41,25 +44,25 @@ describe("TrackingTag.forVersion", () => {
     // is the CONSUMER's policy call — the derivation is mechanical, and which
     // of these to actually publish is decided where the tags are moved.
     assert.deepStrictEqual(
-      TrackingTag.forVersion("0.5.2").map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("0.5.2"), (tag) => tag.value),
       ["v0", "v0.5"]
     );
   });
 
   it('`precision: "major"` derives only the broad alias', () => {
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", { precision: "major" }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", { precision: "major" }), (tag) => tag.value),
       ["v1"]
     );
   });
 
   it("prefixes with the package name when one is given", () => {
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", { packageName: "@scope/pkg" }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", { packageName: "@scope/pkg" }), (tag) => tag.value),
       ["@scope/pkg@v1", "@scope/pkg@v1.2"]
     );
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", { packageName: "pkg" }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", { packageName: "pkg" }), (tag) => tag.value),
       ["pkg@v1", "pkg@v1.2"]
     );
   });
@@ -81,7 +84,7 @@ describe("TrackingTag.forVersion — the prerelease guard", () => {
     // the stable 1.2.3. Treating any `-`-or-`+` suffix as prerelease is the
     // obvious wrong implementation.
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3+sha.abc123").map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3+sha.abc123"), (tag) => tag.value),
       ["v1", "v1.2"]
     );
   });
@@ -93,7 +96,7 @@ describe("TrackingTag.forVersion — the prerelease guard", () => {
   it("`includePrerelease` overrides the guard, for callers who mean it", () => {
     // Aliases derive from the numeric core, so a beta of 1.0.0 floats v1/v1.0.
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.0.0-beta.3", { includePrerelease: true }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.0.0-beta.3", { includePrerelease: true }), (tag) => tag.value),
       ["v1", "v1.0"]
     );
   });
@@ -108,19 +111,19 @@ describe("TrackingTag.forVersion — non-derivable input", () => {
 
   it("omitted and valid package names still derive the requested aliases", () => {
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", {}).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", {}), (tag) => tag.value),
       ["v1", "v1.2"]
     );
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", { precision: "major" }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", { precision: "major" }), (tag) => tag.value),
       ["v1"]
     );
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", { packageName: "pkg", precision: "major" }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", { packageName: "pkg", precision: "major" }), (tag) => tag.value),
       ["pkg@v1"]
     );
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3", { packageName: "@scope/pkg" }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3", { packageName: "@scope/pkg" }), (tag) => tag.value),
       ["@scope/pkg@v1", "@scope/pkg@v1.2"]
     );
   });
@@ -143,7 +146,7 @@ describe("TrackingTag.forVersion — non-derivable input", () => {
 
 describe("TrackingTag.forVersion — numeric and suffix regressions", () => {
   it("oversized major and minor fields derive nothing without throwing", () => {
-    for (const oversized of ["9007199254740992", "9".repeat(400)]) {
+    for (const oversized of ["9007199254740992", Str.repeat(400)("9")]) {
       for (const version of [`${oversized}.2.3`, `1.${oversized}.3`]) {
         assert.deepStrictEqual(TrackingTag.forVersion(version), []);
         assert.deepStrictEqual(TrackingTag.forVersion(version, { precision: "major" }), []);
@@ -151,7 +154,7 @@ describe("TrackingTag.forVersion — numeric and suffix regressions", () => {
       }
     }
     assert.deepStrictEqual(
-      TrackingTag.forVersion("9007199254740991.9007199254740991.0").map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("9007199254740991.9007199254740991.0"), (tag) => tag.value),
       ["v9007199254740991", "v9007199254740991.9007199254740991"]
     );
   });
@@ -174,11 +177,11 @@ describe("TrackingTag.forVersion — numeric and suffix regressions", () => {
       assert.deepStrictEqual(TrackingTag.forVersion(version, { includePrerelease: true }), [], version);
     }
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3+build.01-alpha").map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3+build.01-alpha"), (tag) => tag.value),
       ["v1", "v1.2"]
     );
     assert.deepStrictEqual(
-      TrackingTag.forVersion("1.2.3-01alpha.0+build.01", { includePrerelease: true }).map((tag) => tag.value),
+      A.map(TrackingTag.forVersion("1.2.3-01alpha.0+build.01", { includePrerelease: true }), (tag) => tag.value),
       ["v1", "v1.2"]
     );
   });
@@ -263,7 +266,7 @@ describe("classifyTag — release vs tracking vs neither", () => {
 
 describe("classifyTag — numeric and suffix regressions", () => {
   it("oversized tracking fields are unrecognized without throwing", () => {
-    for (const oversized of ["9007199254740992", "9".repeat(400)]) {
+    for (const oversized of ["9007199254740992", Str.repeat(400)("9")]) {
       for (const tag of [`v${oversized}`, `v${oversized}.2`, `v1.${oversized}`]) {
         assert.deepStrictEqual(classifyTag(tag), UnrecognizedTagClassification.make({ kind: "unrecognized" }));
         assert.deepStrictEqual(
@@ -350,7 +353,7 @@ describe("classifyTag — round-trips against the producers", () => {
     // tracking tag could clobber a release tag.
     const release = ReleaseTag.single("1.2.3");
     const tracking = TrackingTag.forVersion("1.2.3");
-    const values = new Set([release.value, ...tracking.map((tag) => tag.value)]);
-    assert.strictEqual(values.size, 3);
+    const values = HashSet.fromIterable([release.value, ...A.map(tracking, (tag) => tag.value)]);
+    assert.strictEqual(HashSet.size(values), 3);
   });
 });

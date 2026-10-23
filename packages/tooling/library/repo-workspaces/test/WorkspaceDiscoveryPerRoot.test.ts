@@ -12,6 +12,7 @@
 import { WorkspaceDiscovery, WorkspaceRoot, WorkspaceRootNotFoundError } from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -44,7 +45,7 @@ const discoveryOver = (tree: Tree) => {
 };
 
 const names = (packages: ReadonlyArray<{ readonly name: string }>): ReadonlyArray<string> =>
-  [...packages.map((pkg) => pkg.name)].sort();
+  [...A.map(packages, (pkg) => pkg.name)].sort();
 
 describe("WorkspaceDiscovery.listPackagesIn — a root the layer was not bound to", () => {
   layer(discoveryOver(TREE), { timeout: "30 seconds" })((it) => {
@@ -66,7 +67,7 @@ describe("WorkspaceDiscovery.listPackagesIn — a root the layer was not bound t
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const worktree = yield* discovery.listPackagesIn("/worktree");
-        const alpha = worktree.find((pkg) => pkg.name === "@x/alpha");
+        const alpha = O.getOrUndefined(A.findFirst(worktree, (pkg) => pkg.name === "@x/alpha"));
         // The limitation the re-rooting workaround could not lift: names and
         // versions came from the layer-bound root's manifests even after paths
         // were rewritten.
@@ -78,7 +79,7 @@ describe("WorkspaceDiscovery.listPackagesIn — a root the layer was not bound t
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const worktree = yield* discovery.listPackagesIn("/worktree");
-        const alpha = worktree.find((pkg) => pkg.name === "@x/alpha");
+        const alpha = O.getOrUndefined(A.findFirst(worktree, (pkg) => pkg.name === "@x/alpha"));
         assert.strictEqual(alpha?.workspaceRoot, "/worktree");
         assert.strictEqual(alpha?.path, "/worktree/packages/alpha");
         assert.strictEqual(alpha?.relativePath, "packages/alpha");

@@ -19,11 +19,12 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import { fakeProcess } from "./support/fakeProcess.ts";
 import type { FakeProcess, ProcessAction } from "./support/fakeProcess.ts";
 
 const NAME = "cfg-fetch-guard";
-const SRI = `sha512-${"C".repeat(86)}==`;
+const SRI = `sha512-${Str.repeat(86)("C")}==`;
 const SPEC = `1.0.0+${SRI}`;
 const ROOT = "/repo";
 const STORE = "/store/v11";

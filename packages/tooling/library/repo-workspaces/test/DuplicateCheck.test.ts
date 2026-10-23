@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // DuplicateCheck: which names resolve at more than one version, and who pulls
 // each copy.
 //
@@ -10,17 +9,18 @@
 // same limitation. No `FileSystem` service is involved: DuplicateCheck is a
 // pure value over an already-parsed Lockfile.
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Lockfile } from "@beep/lockfiles";
-import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
+import { DuplicateCheck, DuplicatedPackage } from "@beep/repo-workspaces/DuplicateCheck";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type { Dependent, DuplicatedPackage } from "@beep/repo-workspaces/DuplicateCheck";
-
-const fixture = (relative: string): string => readFileSync(join(import.meta.dirname, "fixtures", relative), "utf8");
+import { fixture } from "./support/fixtureText.ts";
+import type { Dependent } from "@beep/repo-workspaces/DuplicateCheck";
 
 const parse = (dir: string) => Lockfile.parse(fixture(`duplicates/${dir}/pnpm-lock.yaml`), { format: "pnpm" });
 
@@ -30,15 +30,15 @@ const render = (dependent: Dependent): string =>
 
 /** One duplicated package flattened to `version → instanceId → dependents`. */
 const flatten = (row: DuplicatedPackage): Record<string, Record<string, ReadonlyArray<string>>> =>
-  Object.fromEntries(
-    row.versions.map((version) => [
+  R.fromEntries(
+    A.map(row.versions, (version) => [
       version.version,
-      Object.fromEntries(version.instances.map((instance) => [instance.instanceId, instance.dependents.map(render)])),
+      R.fromEntries(A.map(version.instances, (instance) => [instance.instanceId, A.map(instance.dependents, render)])),
     ])
   );
 
 const byName = (report: DuplicateCheck, name: string): DuplicatedPackage | undefined =>
-  report.duplicates.find((row) => row.name === name);
+  O.getOrUndefined(A.findFirst(report.duplicates, (row) => row.name === name));
 
 describe("DuplicateCheck.run", () => {
   for (const [label, secondVersion] of [
@@ -243,7 +243,7 @@ describe("DuplicateCheck.run", () => {
       assert.isFalse(report.isClean);
       assert.deepStrictEqual(report.unresolvedImporters, []);
       assert.deepStrictEqual(
-        report.duplicates.map((row) => row.name),
+        A.map(report.duplicates, (row) => row.name),
         ["@effected/commands"]
       );
 
@@ -295,7 +295,7 @@ describe("DuplicateCheck.run", () => {
 
       assert.isFalse(report.isClean);
       assert.deepStrictEqual(
-        report.duplicates.map((row) => row.name),
+        A.map(report.duplicates, (row) => row.name),
         ["foo"]
       );
       const foo = byName(report, "foo");
@@ -321,13 +321,13 @@ describe("DuplicateCheck.run", () => {
       // the skew without naming the culprit.
       const unfiltered = DuplicateCheck.run(yield* parse("filtered"));
       assert.deepStrictEqual(
-        unfiltered.duplicates.map((row) => row.name),
+        A.map(unfiltered.duplicates, (row) => row.name),
         ["@effected/commands", "semver"]
       );
 
       const kit = DuplicateCheck.run(yield* parse("filtered"), { names: DuplicateCheck.kit });
       assert.deepStrictEqual(
-        kit.duplicates.map((row) => row.name),
+        A.map(kit.duplicates, (row) => row.name),
         ["@effected/commands"]
       );
       assert.isFalse(kit.isClean);
@@ -410,7 +410,7 @@ describe("DuplicateCheck.run", () => {
       );
 
       assert.deepStrictEqual(
-        report.duplicates.map((row) => row.name),
+        A.map(report.duplicates, (row) => row.name),
         ["react"]
       );
       const react = byName(report, "react");
@@ -422,3 +422,14 @@ describe("DuplicateCheck.run", () => {
     })
   );
 });
+
+it.effect.prop(
+  "a duplicated package generated from its schema survives an encode/decode round trip",
+  [Arbitrary.schema(DuplicatedPackage)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(DuplicatedPackage)(yield* S.encodeEffect(DuplicatedPackage)(value));
+      assert.isTrue(S.toEquivalence(DuplicatedPackage)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
+);

@@ -47,6 +47,108 @@ export const DependencyMap = DependencyBlock.pipe(
 );
 
 /**
+ * A model's four dependency records.
+ *
+ * **Example** (Check a model's dependency records)
+ *
+ * ```ts
+ * import { DependencyBlocks } from "@beep/repo-workspaces/internal/manifestFields";
+ * import * as S from "effect/Schema";
+ *
+ * const blocks = { dependencies: {}, devDependencies: {}, peerDependencies: {}, optionalDependencies: {} };
+ * console.log(S.is(DependencyBlocks)(blocks)); // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class DependencyBlocks extends S.Opaque<DependencyBlocks, { readonly brand: unique symbol }>()(
+  S.Struct({
+    dependencies: DependencyBlock.pipe(
+      $I.annoteKey("DependencyBlocks.dependencies", { description: "Runtime dependencies." })
+    ),
+    devDependencies: DependencyBlock.pipe(
+      $I.annoteKey("DependencyBlocks.devDependencies", { description: "Development dependencies." })
+    ),
+    peerDependencies: DependencyBlock.pipe(
+      $I.annoteKey("DependencyBlocks.peerDependencies", { description: "Peer dependencies." })
+    ),
+    optionalDependencies: DependencyBlock.pipe(
+      $I.annoteKey("DependencyBlocks.optionalDependencies", { description: "Optional dependencies." })
+    ),
+  }).pipe($I.annoteSchema("DependencyBlocks", { description: "A model's four dependency records." }))
+) {}
+/**
+ * Companion types for {@link DependencyBlocks}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DependencyBlocks {
+  /**
+   * The plain, unbranded encoded shape of a {@link DependencyBlocks}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DependencyBlocks.Encoded;
+}
+
+/**
+ * The dependency records a manifest carries with the expected shape; a
+ * malformed or absent block is omitted.
+ *
+ * **Example** (Check a partial set of dependency records)
+ *
+ * ```ts
+ * import { PresentDependencyBlocks } from "@beep/repo-workspaces/internal/manifestFields";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(PresentDependencyBlocks)({ dependencies: { effect: "^4.0.0" } })); // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class PresentDependencyBlocks extends S.Opaque<PresentDependencyBlocks, { readonly brand: unique symbol }>()(
+  S.Struct({
+    dependencies: S.optionalKey(DependencyBlock).pipe(
+      $I.annoteKey("PresentDependencyBlocks.dependencies", { description: "Runtime dependencies, when usable." })
+    ),
+    devDependencies: S.optionalKey(DependencyBlock).pipe(
+      $I.annoteKey("PresentDependencyBlocks.devDependencies", { description: "Development dependencies, when usable." })
+    ),
+    peerDependencies: S.optionalKey(DependencyBlock).pipe(
+      $I.annoteKey("PresentDependencyBlocks.peerDependencies", { description: "Peer dependencies, when usable." })
+    ),
+    optionalDependencies: S.optionalKey(DependencyBlock).pipe(
+      $I.annoteKey("PresentDependencyBlocks.optionalDependencies", {
+        description: "Optional dependencies, when usable.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PresentDependencyBlocks", {
+      description: "The usable dependency records a manifest carries, each omitted when absent or malformed.",
+    })
+  )
+) {}
+/**
+ * Companion types for {@link PresentDependencyBlocks}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PresentDependencyBlocks {
+  /**
+   * The plain, unbranded encoded shape of a {@link PresentDependencyBlocks}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PresentDependencyBlocks.Encoded;
+}
+
+/**
  * Merges a model's four dependency records into one.
  *
  * **Details**
@@ -71,12 +173,7 @@ export const DependencyMap = DependencyBlock.pipe(
  * @category combinators
  * @since 0.0.0
  */
-export const mergedDependencies = (blocks: {
-  readonly dependencies: { readonly [name: string]: string };
-  readonly devDependencies: { readonly [name: string]: string };
-  readonly optionalDependencies: { readonly [name: string]: string };
-  readonly peerDependencies: { readonly [name: string]: string };
-}): Record<string, string> =>
+export const mergedDependencies = (blocks: DependencyBlocks.Encoded): Record<string, string> =>
   R.fromEntries([
     ...R.toEntries(blocks.optionalDependencies),
     ...R.toEntries(blocks.peerDependencies),
@@ -143,14 +240,7 @@ export const manifestVersionOf = (version: unknown): Result.Result<string | unde
  * @category getters
  * @since 0.0.0
  */
-export const dependencyBlocksOf = (manifest: {
-  readonly [key: string]: unknown;
-}): {
-  readonly dependencies?: { readonly [name: string]: string };
-  readonly devDependencies?: { readonly [name: string]: string };
-  readonly optionalDependencies?: { readonly [name: string]: string };
-  readonly peerDependencies?: { readonly [name: string]: string };
-} => ({
+export const dependencyBlocksOf = (manifest: Readonly<Record<string, unknown>>): PresentDependencyBlocks.Encoded => ({
   ...(isDependencyBlock(manifest.dependencies) ? { dependencies: manifest.dependencies } : {}),
   ...(isDependencyBlock(manifest.devDependencies) ? { devDependencies: manifest.devDependencies } : {}),
   ...(isDependencyBlock(manifest.peerDependencies) ? { peerDependencies: manifest.peerDependencies } : {}),

@@ -12,6 +12,7 @@ import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import { CatalogSet, PublishabilityDetector, PublishTarget, WorkspacePackage, Workspaces } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -19,16 +20,19 @@ import { platform } from "./support/fixtures.ts";
 import type { Tree } from "./support/fixtures.ts";
 
 const TREE: Tree = {
-  "/repo/pnpm-workspace.yaml": [
-    "packages:",
-    "  - 'packages/*'",
-    "catalog:",
-    "  effect: ^4.0.0",
-    "catalogs:",
-    "  react18:",
-    "    react: ^18.2.0",
-    "",
-  ].join("\n"),
+  "/repo/pnpm-workspace.yaml": A.join(
+    [
+      "packages:",
+      "  - 'packages/*'",
+      "catalog:",
+      "  effect: ^4.0.0",
+      "catalogs:",
+      "  react18:",
+      "    react: ^18.2.0",
+      "",
+    ],
+    "\n"
+  ),
   "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0", private: true }),
   "/repo/packages/a/package.json": JSON.stringify({ name: "@x/a", version: "1.2.3" }),
 };

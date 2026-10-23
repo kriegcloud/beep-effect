@@ -8,6 +8,7 @@ import {
 } from "@beep/repo-workspaces/PackageManagerName";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -47,7 +48,7 @@ it.effect.prop(
       assert.strictEqual(decoded.message, value.message);
       assert.strictEqual(
         decoded.message,
-        `No package manager detected at ${value.root} (checked ${value.checked.join(", ")})`
+        `No package manager detected at ${value.root} (checked ${A.join(value.checked, ", ")})`
       );
     }),
   runs

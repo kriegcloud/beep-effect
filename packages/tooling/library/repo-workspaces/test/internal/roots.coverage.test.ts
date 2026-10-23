@@ -1,7 +1,9 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { ImporterRoots, indexInstances, rootInstances } from "@beep/repo-workspaces/internal/roots";
 import { assert, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
@@ -98,4 +100,15 @@ it.effect("schema-owns plain roots while preserving instance identity, tolerant 
     assert.deepStrictEqual(rootInstances(lockfile, "empty", index), { _tag: "dependencies", instances: [] });
     assert.isUndefined(rootInstances(lockfile, "missing", index));
   })
+);
+
+it.effect.prop(
+  "a resolved instance generated from its schema survives an encode/decode round trip",
+  [Arbitrary.schema(ResolvedPackage)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(ResolvedPackage)(yield* S.encodeEffect(ResolvedPackage)(value));
+      assert.isTrue(S.toEquivalence(ResolvedPackage)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
 );

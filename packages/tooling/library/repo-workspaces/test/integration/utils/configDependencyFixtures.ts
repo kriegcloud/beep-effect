@@ -5,6 +5,7 @@
 // them on the real filesystem, because the replaying layers `import()` the
 // pnpmfiles and the fetch rung spawns a fake `pnpm` that must see the files.
 
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -19,26 +20,32 @@ type FixtureServices = FileSystem.FileSystem | Path.Path;
 
 /** A pnpmfile whose hook injects `hooked-dep` at `range` into the default catalog — the value proves WHICH file ran. */
 export const pnpmfileInjecting = (range: string): string =>
-  [
-    "export const hooks = {",
-    "\tupdateConfig(config) {",
-    `\t\treturn { ...config, catalog: { ...(config.catalog ?? {}), "hooked-dep": "${range}" } };`,
-    "\t},",
-    "};",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "export const hooks = {",
+      "\tupdateConfig(config) {",
+      `\t\treturn { ...config, catalog: { ...(config.catalog ?? {}), "hooked-dep": "${range}" } };`,
+      "\t},",
+      "};",
+      "",
+    ],
+    "\n"
+  );
 
 /** The CommonJS spelling of {@link pnpmfileInjecting}, for a `pnpmfile.js` / `pnpmfile.cjs` candidate. */
 export const pnpmfileInjectingCjs = (range: string): string =>
-  [
-    '"use strict";',
-    "exports.hooks = {",
-    "\tupdateConfig(config) {",
-    `\t\treturn { ...config, catalog: { ...(config.catalog ?? {}), "hooked-dep": "${range}" } };`,
-    "\t},",
-    "};",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      '"use strict";',
+      "exports.hooks = {",
+      "\tupdateConfig(config) {",
+      `\t\treturn { ...config, catalog: { ...(config.catalog ?? {}), "hooked-dep": "${range}" } };`,
+      "\t},",
+      "};",
+      "",
+    ],
+    "\n"
+  );
 
 /** A `package.json` naming a package, with or without a version. */
 const ManifestJson = S.fromJsonString(S.Struct({ name: S.String, version: S.optionalKey(S.String) }));

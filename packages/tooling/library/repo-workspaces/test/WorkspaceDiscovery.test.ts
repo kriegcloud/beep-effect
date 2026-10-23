@@ -11,6 +11,7 @@ import {
 } from "@beep/repo-workspaces";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -20,7 +21,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { manifest, platform, rootManifest } from "./support/fixtures.ts";
+import { manifest, platform, platformWith, rootManifest } from "./support/fixtures.ts";
 import type { Tree } from "./support/fixtures.ts";
 
 /** Discovery over a tree, rooted at `/repo`. */
@@ -28,15 +29,15 @@ const discoveryOver = (
   tree: Tree,
   options?: {
     readonly maxDepth?: number;
-    readonly unreadable?: ReadonlySet<string>;
-    readonly unreadableFiles?: ReadonlySet<string>;
+    readonly unreadable?: ReadonlyArray<string>;
+    readonly unreadableFiles?: ReadonlyArray<string>;
   }
 ) => {
   const { unreadable, unreadableFiles, ...discoveryOptions } = options ?? {};
-  const base = platform(tree, {
+  const base = platformWith({
     ...(unreadable === undefined ? {} : { unreadable }),
     ...(unreadableFiles === undefined ? {} : { unreadableFiles }),
-  });
+  })(tree);
   const roots = WorkspaceRoot.layer.pipe(Layer.provide(base));
   return Layer.mergeAll(
     roots,
@@ -61,7 +62,7 @@ describe("WorkspaceDiscovery — one-level patterns", () => {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
         assert.deepStrictEqual(
-          packages.map((pkg) => pkg.name),
+          A.map(packages, (pkg) => pkg.name),
           ["root", "@x/web", "@x/alpha", "@x/beta"]
         );
         const root = packages[0];
@@ -75,7 +76,7 @@ describe("WorkspaceDiscovery — one-level patterns", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        const beta = packages.find((pkg) => pkg.name === "@x/beta");
+        const beta = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@x/beta"));
         // The whole parsed record, not the typed slice: dependency fields AND
         // everything discovery never modeled ride along from the one read.
         assert.deepStrictEqual(beta?.manifestRecord, {
@@ -90,7 +91,7 @@ describe("WorkspaceDiscovery — one-level patterns", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        assert.isFalse(packages.some((pkg) => pkg.relativePath === "packages/no-manifest"));
+        assert.isFalse(A.some(packages, (pkg) => pkg.relativePath === "packages/no-manifest"));
       })
     );
 
@@ -139,7 +140,7 @@ describe("WorkspaceDiscovery — one-level patterns", () => {
           "/repo/apps/web/c.ts",
         ]);
         assert.deepStrictEqual(
-          owners.map((pkg) => pkg.name),
+          A.map(owners, (pkg) => pkg.name),
           ["@x/beta", "@x/web"]
         );
       })
@@ -163,7 +164,7 @@ describe("WorkspaceDiscovery — packages/** crosses segments (workspaces #62)",
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        const names = packages.map((pkg) => pkg.name);
+        const names = A.map(packages, (pkg) => pkg.name);
         // v3 silently rewrote `packages/**` to `packages/*`, so it found alpha
         // and nothing else. Every name below is a package v3 could not see.
         assert.include(names, "@x/alpha");
@@ -205,7 +206,7 @@ describe("WorkspaceDiscovery — pruning and exclusion", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        assert.isFalse(packages.some((pkg) => pkg.name === "evil"));
+        assert.isFalse(A.some(packages, (pkg) => pkg.name === "evil"));
       })
     );
 
@@ -213,7 +214,7 @@ describe("WorkspaceDiscovery — pruning and exclusion", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        assert.isFalse(packages.some((pkg) => pkg.name === "git-junk"));
+        assert.isFalse(A.some(packages, (pkg) => pkg.name === "git-junk"));
       })
     );
 
@@ -221,8 +222,8 @@ describe("WorkspaceDiscovery — pruning and exclusion", () => {
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
-        assert.isTrue(packages.some((pkg) => pkg.name === "@x/alpha"));
-        assert.isFalse(packages.some((pkg) => pkg.name === "@x/private"));
+        assert.isTrue(A.some(packages, (pkg) => pkg.name === "@x/alpha"));
+        assert.isFalse(A.some(packages, (pkg) => pkg.name === "@x/private"));
       })
     );
 
@@ -235,8 +236,8 @@ describe("WorkspaceDiscovery — pruning and exclusion", () => {
         // `traversal.push` for an excluded directory — would drop this member
         // with no diagnostic, which is the same silent-degradation shape as
         // the trailing-`/**` bug the enumerator exists to fix.
-        assert.isFalse(packages.some((pkg) => pkg.name === "@x/private"));
-        assert.isTrue(packages.some((pkg) => pkg.name === "@x/nested"));
+        assert.isFalse(A.some(packages, (pkg) => pkg.name === "@x/private"));
+        assert.isTrue(A.some(packages, (pkg) => pkg.name === "@x/nested"));
       })
     );
   });
@@ -266,7 +267,7 @@ describe("WorkspaceDiscovery — a fractional maxDepth is a DEFECT, not a typed 
         assertExitFailure(exit, Exit.match(exit, { onFailure: identity, onSuccess: () => Cause.empty }));
         // A bare `depth < maxDepth` guard would admit 2.5 AND NaN; the
         // discriminating assertion is that no typed Fail is produced.
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason));
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason));
         assert.isTrue(Cause.hasDies(exit.cause));
       })
     );
@@ -280,7 +281,7 @@ describe("WorkspaceDiscovery — NaN maxDepth is a DEFECT", () => {
         const discovery = yield* WorkspaceDiscovery;
         const exit = yield* Effect.exit(discovery.listPackages);
         assertExitFailure(exit, Exit.match(exit, { onFailure: identity, onSuccess: () => Cause.empty }));
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason));
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason));
         assert.isTrue(Cause.hasDies(exit.cause));
       })
     );
@@ -363,7 +364,7 @@ describe("WorkspaceDiscovery — a manifest without a version is discovered (#47
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
         assert.deepStrictEqual(
-          packages.map((pkg) => pkg.name),
+          A.map(packages, (pkg) => pkg.name),
           ["root", "@x/bare", "@x/versioned"]
         );
         const root = packages[0];
@@ -371,7 +372,7 @@ describe("WorkspaceDiscovery — a manifest without a version is discovered (#47
         assert.isTrue(root.isRootWorkspace);
         // Absent, not a placeholder: no `"0.0.0"`, no `""`, and no present
         // `undefined` key either (exact-optional semantics).
-        assert.isFalse(Object.hasOwn(root, "version"));
+        assert.isFalse("version" in root);
         assert.strictEqual(root.version, undefined);
       })
     );
@@ -380,7 +381,7 @@ describe("WorkspaceDiscovery — a manifest without a version is discovered (#47
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
         const bare = yield* discovery.getPackage("@x/bare");
-        assert.isFalse(Object.hasOwn(bare, "version"));
+        assert.isFalse("version" in bare);
         const versioned = yield* discovery.getPackage("@x/versioned");
         assert.strictEqual(versioned.version, "1.0.0");
       })
@@ -543,7 +544,7 @@ describe("WorkspaceDiscovery — no stopAt adopts an enclosing workspace", () =>
         assert.strictEqual(info.root, "/outer");
         const packages = yield* discovery.listPackages;
         assert.deepStrictEqual(
-          packages.map((pkg) => `${pkg.name}@${pkg.relativePath}`),
+          A.map(packages, (pkg) => `${pkg.name}@${pkg.relativePath}`),
           ["outer-root@.", "other@pkgs/other"]
         );
       })
@@ -591,7 +592,7 @@ describe("WorkspaceDiscovery — stopAt: cwd refuses the enclosing workspace", (
         assert.strictEqual(info.root, "/outer/checkout");
         const packages = yield* discovery.listPackages;
         assert.deepStrictEqual(
-          packages.map((pkg) => `${pkg.name}@${pkg.relativePath}`),
+          A.map(packages, (pkg) => `${pkg.name}@${pkg.relativePath}`),
           ["checkout@.", "inner@packages/inner"]
         );
       })
@@ -644,8 +645,8 @@ describe("WorkspaceDiscovery — a member package.json that is `null`", () => {
         assertExitFailure(exit, Exit.match(exit, { onFailure: identity, onSuccess: () => Cause.empty }));
         // The discriminating assertion: no Die reason. An implementation that
         // lets the TypeError escape still "fails", but it fails as a defect.
-        assert.isFalse(exit.cause.reasons.some(Cause.isDieReason));
-        assert.isTrue(exit.cause.reasons.some(Cause.isFailReason));
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isDieReason));
+        assert.isTrue(A.some(exit.cause.reasons, Cause.isFailReason));
 
         const error = yield* Effect.flip(discovery.listPackages);
         assert.instanceOf(error, WorkspaceDiscoveryError);
@@ -696,7 +697,7 @@ const permissionTree: Tree = {
 };
 
 describe("WorkspaceDiscovery — a directory that cannot be read", () => {
-  layer(discoveryOver(permissionTree, { unreadable: new Set(["/repo/packages"]) }), { timeout: "30 seconds" })((it) => {
+  layer(discoveryOver(permissionTree, { unreadable: ["/repo/packages"] }), { timeout: "30 seconds" })((it) => {
     it.effect("surfaces a typed unreadableDirectory rather than reporting an empty workspace", () =>
       Effect.gen(function* () {
         const discovery = yield* WorkspaceDiscovery;
@@ -721,7 +722,7 @@ const unreadablePnpmWorkspace: Tree = {
 };
 
 describe("WorkspaceDiscovery — an unreadable pnpm-workspace.yaml", () => {
-  layer(discoveryOver(unreadablePnpmWorkspace, { unreadableFiles: new Set(["/repo/pnpm-workspace.yaml"]) }), {
+  layer(discoveryOver(unreadablePnpmWorkspace, { unreadableFiles: ["/repo/pnpm-workspace.yaml"] }), {
     timeout: "30 seconds",
   })((it) => {
     it.effect("fails typed rather than reading as a workspace with no patterns", () =>
@@ -779,7 +780,7 @@ describe("WorkspaceDiscovery.layerTest — one stubbed method", () => {
         const discovery = yield* WorkspaceDiscovery;
         const packages = yield* discovery.listPackages;
         assert.deepStrictEqual(
-          packages.map((pkg) => pkg.name),
+          A.map(packages, (pkg) => pkg.name),
           ["@x/utils", "@x/utils-extra"]
         );
       })
@@ -827,7 +828,7 @@ describe("WorkspaceDiscovery.layerTest — one stubbed method", () => {
           "/repo/packages/utils/src/b.ts",
         ]);
         assert.deepStrictEqual(
-          owners.map((pkg) => pkg.name),
+          A.map(owners, (pkg) => pkg.name),
           ["@x/utils", "@x/utils-extra"]
         );
       })

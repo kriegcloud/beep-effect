@@ -1,6 +1,7 @@
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { importerVersionsOf, unanimousVersionOf } from "@beep/repo-workspaces/internal/importerVersions";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -16,7 +17,7 @@ it.effect("ignores absent, empty and filesystem resolutions while retaining conc
           path: ".",
           dependencies: [
             { name: "absent", specifier: "*", depType: "dependencies" },
-            ...["", "file:../local", "link:../local", "1.2.3(peer@4)", "2.0.0"].map((version, index) => ({
+            ...A.map(["", "file:../local", "link:../local", "1.2.3(peer@4)", "2.0.0"], (version, index) => ({
               name: `dep${index}`,
               specifier: "*",
               version,

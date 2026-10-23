@@ -1,4 +1,3 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The synchronous escape hatch takes CONSUMER-SUPPLIED operations. These tests
 // drive it over `@effected/memfs`' node-shaped sync port (`handle.sync`), which
 // throws node's exact errno on a miss — so nothing below exists on disk, and a
@@ -7,26 +6,13 @@
 // path implementation is respected end to end.
 //
 // The documented one-liner `node:fs` wiring is pinned ONCE, against this real
-// repository, by `integration/node-sync.int.test.ts` (its `handWired` oracle).
-// The one real-disk suite left here is the `readDirectoryWithTypes` fast path,
-// which pins node `Dirent` semantics over real symlinks — see its header.
+// repository, by `integration/node-sync.int.test.ts` (its `handWired` oracle),
+// which also pins node `Dirent` semantics over real symlinks for the
+// `readDirectoryWithTypes` fast path.
 //
 // `findWorkspaceRootSync` / `getWorkspacePackagesSync` are plain synchronous
 // functions, not Effects, so plain `it()` is correct where no Effect runs.
 
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import nodePath, { join } from "node:path";
 import { MemoryFileSystem } from "@beep/memfs";
 import {
   findWorkspaceRootSync,
@@ -37,17 +23,23 @@ import {
   WorkspaceRoot,
 } from "@beep/repo-workspaces";
 import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces/WorkspacesSync";
-import { afterAll, afterEach, assert, beforeAll, describe, it, vi } from "@effect/vitest";
+import { afterEach, assert, describe, it, vi } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { hostPath } from "./support/hostPath.ts";
 import type { MemoryFileSystemHandle } from "@beep/memfs";
 import type { SyncFileSystem, WorkspacePackage, WorkspacesSyncOptions } from "@beep/repo-workspaces";
 
 /** Sync ops over a fresh memfs volume holding exactly `seed`. */
 const memOps = (seed: Readonly<Record<string, string>>): WorkspacesSyncOptions => ({
   fileSystem: MemoryFileSystem.makeSync(seed).sync,
-  path: nodePath.posix,
+  path: hostPath.posix,
 });
 
 describe("getWorkspacePackagesSync — hostile manifests", () => {
@@ -73,26 +65,26 @@ describe("getWorkspacePackagesSync — hostile manifests", () => {
     // TypeError — malformed input escaping as a DEFECT out of a function
     // documented as total. A Vitest config calling this would simply crash.
     const packages = getWorkspacePackagesSync("/repo", ops);
-    const names = packages.map((pkg) => pkg.name);
+    const names = A.map(packages, (pkg) => pkg.name);
     assert.include(names, "@x/good");
   });
 
   it("every non-object manifest is skipped, not decoded into a member", () => {
-    const names = getWorkspacePackagesSync("/repo", ops).map((pkg) => pkg.name);
+    const names = A.map(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name);
     // Only the root and the one good member survive; the five hostile
     // directories contribute nothing.
     assert.deepStrictEqual(names.slice().sort(), ["@x/good", "root"]);
   });
 
   it("the good member is still fully decoded alongside the hostile ones", () => {
-    const good = getWorkspacePackagesSync("/repo", ops).find((pkg) => pkg.name === "@x/good");
+    const good = O.getOrUndefined(A.findFirst(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name === "@x/good"));
     assert.isDefined(good);
     assert.strictEqual(good?.version, "1.0.0");
     assert.strictEqual(good?.relativePath, "packages/good");
   });
 
   it("the as-read manifest record rides along on every member", () => {
-    const good = getWorkspacePackagesSync("/repo", ops).find((pkg) => pkg.name === "@x/good");
+    const good = O.getOrUndefined(A.findFirst(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name === "@x/good"));
     assert.deepStrictEqual(good?.manifestRecord, { name: "@x/good", version: "1.0.0" });
   });
 
@@ -113,7 +105,7 @@ describe("findWorkspaceRootSync", () => {
     assert.strictEqual(findWorkspaceRootSync("/hostile/packages/a", ops), "/hostile");
     // And enumeration over that root still works, skipping the null root manifest.
     assert.deepStrictEqual(
-      getWorkspacePackagesSync("/hostile", ops).map((pkg) => pkg.name),
+      A.map(getWorkspacePackagesSync("/hostile", ops), (pkg) => pkg.name),
       ["@h/a"]
     );
   });
@@ -135,7 +127,10 @@ describe("findWorkspaceRootSync", () => {
 /** `packages/**` with a package at exactly `depth` levels below `packages/`, as ONE volume. */
 const treeOfDepth = (depth: number) => {
   // depth 1 => packages/deep ; depth 2 => packages/n1/deep ; depth 3 => packages/n1/n2/deep
-  const segments = Array.from({ length: depth - 1 }, (_, i) => `n${i + 1}/`).join("");
+  const segments = A.join(
+    Array.from({ length: depth - 1 }, (_, i) => `n${i + 1}/`),
+    ""
+  );
   return MemoryFileSystem.makeSync({
     "/repo/pnpm-workspace.yaml": "packages:\n  - 'packages/**'\n",
     "/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0" }),
@@ -145,32 +140,33 @@ const treeOfDepth = (depth: number) => {
 
 /** The Effect enumerator over a handle's pinned volume, through the public discovery service. */
 const listPackagesOver = (handle: MemoryFileSystemHandle, options: { readonly maxDepth?: number } = {}) =>
-  Effect.gen(function* () {
-    const discovery = yield* WorkspaceDiscovery;
-    return yield* discovery.listPackages;
-  }).pipe(
-    Effect.provide(
-      WorkspaceDiscovery.layer({ cwd: "/repo", ...options }).pipe(
-        Layer.provide(WorkspaceRoot.layer),
-        Layer.provideMerge(handle.layer)
-      )
+  Layer.build(
+    WorkspaceDiscovery.layer({ cwd: "/repo", ...options }).pipe(
+      Layer.provide(WorkspaceRoot.layer),
+      Layer.provide(handle.layer)
     )
+  ).pipe(
+    // The layer's scope is the calling test's: it is released when the test ends.
+    Effect.flatMap((services) => Context.get(services, WorkspaceDiscovery).listPackages)
   );
 
 /** The Effect side's package names over the SAME volume the sync side reads. */
 const effectNames = (handle: MemoryFileSystemHandle, maxDepth: number) =>
-  listPackagesOver(handle, { maxDepth }).pipe(Effect.map((packages) => packages.map((pkg) => pkg.name)));
+  listPackagesOver(handle, { maxDepth }).pipe(Effect.map((packages) => A.map(packages, (pkg) => pkg.name)));
 
 describe("the sync hatch and the Effect enumerator agree at the depth boundary", () => {
   it.effect("AT the cap, both find the deep package", () =>
     Effect.gen(function* () {
       // The leaf sits exactly `maxDepth` levels below `packages/`.
       const handle = treeOfDepth(2);
-      const sync = getWorkspacePackagesSync("/repo", {
-        fileSystem: handle.sync,
-        path: nodePath.posix,
-        maxDepth: 2,
-      }).map((pkg) => pkg.name);
+      const sync = A.map(
+        getWorkspacePackagesSync("/repo", {
+          fileSystem: handle.sync,
+          path: hostPath.posix,
+          maxDepth: 2,
+        }),
+        (pkg) => pkg.name
+      );
       const eff = yield* effectNames(handle, 2);
       assert.include(sync, "@d/deep");
       assert.deepStrictEqual(sync.slice().sort(), eff.slice().sort());
@@ -181,11 +177,14 @@ describe("the sync hatch and the Effect enumerator agree at the depth boundary",
     Effect.gen(function* () {
       // The leaf sits one level past `maxDepth`.
       const handle = treeOfDepth(3);
-      const sync = getWorkspacePackagesSync("/repo", {
-        fileSystem: handle.sync,
-        path: nodePath.posix,
-        maxDepth: 2,
-      }).map((pkg) => pkg.name);
+      const sync = A.map(
+        getWorkspacePackagesSync("/repo", {
+          fileSystem: handle.sync,
+          path: hostPath.posix,
+          maxDepth: 2,
+        }),
+        (pkg) => pkg.name
+      );
       // THE DRIFT: the old sync worklist accepted the child and then declined
       // to descend, so `@d/deep` came back here while the Effect enumerator
       // failed with depthExceeded on the identical tree.
@@ -203,7 +202,7 @@ describe("the sync hatch and the Effect enumerator agree at the depth boundary",
   );
 
   it("a maxDepth that is not a positive integer is a caller error, not a silent empty result", () => {
-    const ops = { fileSystem: treeOfDepth(1).sync, path: nodePath.posix };
+    const ops = { fileSystem: treeOfDepth(1).sync, path: hostPath.posix };
     // NaN and 2.5 both slip past a bare `maxDepth < 1`, and a NaN bound then
     // enumerates nothing — indistinguishable from a legitimately empty
     // workspace. Same predicate as the enumerator's `Effect.die`.
@@ -234,7 +233,7 @@ describe("getWorkspacePackagesSync over pure in-memory ops (no ambient Node fs)"
   });
 
   it("enumerates the virtual workspace", () => {
-    const names = getWorkspacePackagesSync("/repo", ops).map((pkg) => pkg.name);
+    const names = A.map(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name);
     assert.deepStrictEqual(names, ["root", "@mem/a", "@mem/b"]);
   });
 
@@ -243,7 +242,7 @@ describe("getWorkspacePackagesSync over pure in-memory ops (no ambient Node fs)"
   });
 
   it("carries fields outside the discovery slice through manifestRecord", () => {
-    const a = getWorkspacePackagesSync("/repo", ops).find((pkg) => pkg.name === "@mem/a");
+    const a = O.getOrUndefined(A.findFirst(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name === "@mem/a"));
     assert.deepStrictEqual(a?.manifestRecord.scripts, { build: "tsc" });
   });
 });
@@ -325,13 +324,13 @@ describe("getWorkspacePackagesSync — exclusions", () => {
   });
 
   it("a leading-bang pattern excludes the package the includes matched", () => {
-    const names = getWorkspacePackagesSync("/repo", ops).map((pkg) => pkg.name);
+    const names = A.map(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name);
     assert.include(names, "@mem/alpha");
     assert.notInclude(names, "@mem/private");
   });
 
   it("an excluded directory is still DESCENDED — a package under it stays discovered", () => {
-    const names = getWorkspacePackagesSync("/repo", ops).map((pkg) => pkg.name);
+    const names = A.map(getWorkspacePackagesSync("/repo", ops), (pkg) => pkg.name);
     assert.include(names, "@mem/nested");
   });
 });
@@ -348,7 +347,7 @@ describe("getWorkspacePackagesSync — exclusions", () => {
 
 /** A win32-path view of a POSIX port: backslashes become slashes, under `/`. */
 const win32Shim = (port: SyncFileSystem): SyncFileSystem => {
-  const posix = (p: string): string => `/${p.replace(/\\/g, "/")}`;
+  const posix = (p: string): string => `/${Str.replace(/\\/g, "/")(p)}`;
   return {
     exists: (p) => port.exists(posix(p)),
     readFile: (p) => port.readFile(posix(p)),
@@ -363,7 +362,7 @@ describe("WorkspacesSync with a win32 SyncPath", () => {
     "/C:/repo/package.json": JSON.stringify({ name: "root", version: "0.0.0", private: true }),
     "/C:/repo/packages/a/package.json": JSON.stringify({ name: "@win/a", version: "1.0.0" }),
   });
-  const ops: WorkspacesSyncOptions = { fileSystem: win32Shim(handle.sync), path: nodePath.win32 };
+  const ops: WorkspacesSyncOptions = { fileSystem: win32Shim(handle.sync), path: hostPath.win32 };
 
   it("finds the root by ascending a drive-letter path", () => {
     assert.strictEqual(findWorkspaceRootSync("C:\\repo\\packages\\a", ops), "C:\\repo");
@@ -372,10 +371,10 @@ describe("WorkspacesSync with a win32 SyncPath", () => {
   it("enumerates the workspace under a drive-letter root", () => {
     const packages = getWorkspacePackagesSync("C:\\repo", ops);
     assert.deepStrictEqual(
-      packages.map((pkg) => pkg.name),
+      A.map(packages, (pkg) => pkg.name),
       ["root", "@win/a"]
     );
-    const a = packages.find((pkg) => pkg.name === "@win/a");
+    const a = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@win/a"));
     // Absolute paths come from the CONSUMER's implementation (backslashes);
     // the workspace-relative path stays POSIX by the `packages:` contract.
     assert.strictEqual(a?.path, "C:\\repo\\packages\\a");
@@ -386,9 +385,9 @@ describe("WorkspacesSync with a win32 SyncPath", () => {
     // The premise the suite rests on, pinned: under posix the ascent is a
     // no-op fixpoint at ".", so the win32 result above could never have come
     // from the posix implementation.
-    assert.strictEqual(nodePath.posix.dirname("C:\\repo\\packages\\a"), ".");
-    assert.strictEqual(nodePath.win32.dirname("C:\\repo\\packages\\a"), "C:\\repo\\packages");
-    assert.isNull(findWorkspaceRootSync("C:\\repo\\packages\\a", { ...ops, path: nodePath.posix }));
+    assert.strictEqual(hostPath.posix.dirname("C:\\repo\\packages\\a"), ".");
+    assert.strictEqual(hostPath.win32.dirname("C:\\repo\\packages\\a"), "C:\\repo\\packages");
+    assert.isNull(findWorkspaceRootSync("C:\\repo\\packages\\a", { ...ops, path: hostPath.posix }));
   });
 });
 
@@ -396,62 +395,39 @@ describe("WorkspacesSync with a win32 SyncPath", () => {
 // saving: identical results to the four-operation fallback on every tree,
 // including one whose package directories are SYMLINKS — the case where a
 // naive implementation trusting `Dirent.isDirectory()` silently drops packages,
-// because a dirent describes the link and not its target.
-//
-// This is the one suite left on the REAL disk, deliberately: it pins node's own
-// `readdirSync(p, { withFileTypes: true })` Dirent semantics over a real
-// symlink. memfs' sync port has no `withFileTypes` form (only its promises port
-// does), so serving the fast path from a volume would mean hand-writing the
-// very Dirent adapter this suite exists to check against node.
+// because a dirent describes the link and not its target. Node's own Dirent
+// semantics over a real symlink are pinned on the real disk by
+// `integration/node-sync.int.test.ts`; these cases drive the same contract
+// over a memfs volume.
 describe("SyncFileSystem.readDirectoryWithTypes (optional fast path)", () => {
-  let root: string;
-
-  beforeAll(() => {
-    root = mkdtempSync(join(tmpdir(), "ws-dirent-"));
-    mkdirSync(join(root, "packages/a"), { recursive: true });
-    mkdirSync(join(root, "real/b"), { recursive: true });
-    writeFileSync(join(root, "package.json"), `{ "name": "root", "version": "0.0.0", "private": true }`);
-    writeFileSync(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n");
-    writeFileSync(join(root, "packages/a/package.json"), `{ "name": "@x/a", "version": "1.0.0" }`);
-    writeFileSync(join(root, "real/b/package.json"), `{ "name": "@x/b", "version": "2.0.0" }`);
-    // packages/b is a SYMLINK to a directory holding a real package.
-    symlinkSync(join(root, "real/b"), join(root, "packages/b"), "dir");
-  });
-
-  afterAll(() => {
-    rmSync(root, { recursive: true, force: true });
-  });
-
-  // The fallback: exactly the documented four-operation wiring, no fast path.
-  const slow: SyncFileSystem = {
-    exists: existsSync,
-    readFile: (p) => readFileSync(p, "utf8"),
-    readDirectory: (p) => readdirSync(p),
-    isDirectory: (p) => statSync(p).isDirectory(),
-  };
-
-  const fast: SyncFileSystem = {
-    ...slow,
-    readDirectoryWithTypes: (p) =>
-      readdirSync(p, { withFileTypes: true }).map((entry) => ({
-        name: entry.name,
-        isDirectory: entry.isDirectory(),
-        isSymbolicLink: entry.isSymbolicLink(),
-      })),
-  };
-
-  it("agrees with the fallback, symlinked package directories included", () => {
-    const viaSlow = getWorkspacePackagesSync(root, { fileSystem: slow, path: nodePath });
-    const viaFast = getWorkspacePackagesSync(root, { fileSystem: fast, path: nodePath });
-
-    // The positive control: the symlinked package must actually be found, or
-    // "the two agree" would be satisfied by both finding nothing.
+  it("re-resolves an entry the fast path reports as a link", () => {
+    const handle = MemoryFileSystem.makeSync({
+      "/repo/package.json": `{ "name": "root", "version": "0.0.0", "private": true }`,
+      "/repo/pnpm-workspace.yaml": "packages:\n  - packages/*\n",
+      "/repo/packages/a/package.json": `{ "name": "@x/a", "version": "1.0.0" }`,
+      "/repo/real/b/package.json": `{ "name": "@x/b", "version": "2.0.0" }`,
+      "/repo/packages/b": MemoryFileSystem.symlink("/repo/real/b"),
+    });
+    // A Dirent describes the link, not its target: `b` reports as a link and
+    // not as a directory, exactly as node's `withFileTypes` form does.
+    const fast: SyncFileSystem = {
+      ...handle.sync,
+      readDirectoryWithTypes: (p) =>
+        A.map(handle.sync.readDirectory(p), (name) => ({
+          name,
+          isDirectory: name !== "b" && handle.sync.isDirectory(hostPath.posix.join(p, name)),
+          isSymbolicLink: name === "b",
+        })),
+    };
+    const viaSlow = getWorkspacePackagesSync("/repo", { fileSystem: handle.sync, path: hostPath.posix });
+    const viaFast = getWorkspacePackagesSync("/repo", { fileSystem: fast, path: hostPath.posix });
     assert.deepStrictEqual(
-      viaSlow.map((pkg) => pkg.name).sort(),
-      ["@x/a", "@x/b", "root"],
-      "fallback must resolve the symlinked package"
+      A.sort(
+        A.map(viaSlow, (pkg) => pkg.name),
+        Str.Order
+      ),
+      ["@x/a", "@x/b", "root"]
     );
-    assert.deepStrictEqual(viaFast.map((pkg) => pkg.name).sort(), viaSlow.map((pkg) => pkg.name).sort());
     assert.deepStrictEqual(viaFast, viaSlow);
   });
 
@@ -471,13 +447,13 @@ describe("SyncFileSystem.readDirectoryWithTypes (optional fast path)", () => {
     };
     // Positive control: without the throwing fast path the member IS found.
     assert.include(
-      getWorkspacePackagesSync("/repo", { fileSystem: handle.sync, path: nodePath.posix }).map((pkg) => pkg.name),
+      A.map(getWorkspacePackagesSync("/repo", { fileSystem: handle.sync, path: hostPath.posix }), (pkg) => pkg.name),
       "@x/a"
     );
     // The whole wildcard base is unreadable, so no wildcard member survives —
     // but the root package still resolves and nothing escapes.
     assert.deepStrictEqual(
-      getWorkspacePackagesSync("/repo", { fileSystem: throwing, path: nodePath.posix }).map((pkg) => pkg.name),
+      A.map(getWorkspacePackagesSync("/repo", { fileSystem: throwing, path: hostPath.posix }), (pkg) => pkg.name),
       ["root"]
     );
   });
@@ -503,9 +479,10 @@ describe("SyncFileSystem over a memfs volume", () => {
       const { volume } = yield* MemoryFileSystem.makeHandle(seed);
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
 
-      const found = getWorkspacePackagesSync("/repo", { fileSystem, path: nodePath.posix })
-        .map((pkg) => pkg.name)
-        .sort();
+      const found = A.map(
+        getWorkspacePackagesSync("/repo", { fileSystem, path: hostPath.posix }),
+        (pkg) => pkg.name
+      ).sort();
 
       // The positive control: the symlinked package must actually be found,
       // or this would pass on an empty result.
@@ -517,7 +494,7 @@ describe("SyncFileSystem over a memfs volume", () => {
     Effect.gen(function* () {
       const { volume } = yield* MemoryFileSystem.makeHandle(seed);
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
-      assert.strictEqual(findWorkspaceRootSync("/repo/packages/b", { fileSystem, path: nodePath.posix }), "/repo");
+      assert.strictEqual(findWorkspaceRootSync("/repo/packages/b", { fileSystem, path: hostPath.posix }), "/repo");
     })
   );
 });
@@ -542,9 +519,9 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
     Effect.gen(function* () {
       const { volume } = yield* MemoryFileSystem.makeHandle(seed);
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
-      const packages = getWorkspacePackagesSync("/repo", { fileSystem, path: nodePath.posix });
+      const packages = getWorkspacePackagesSync("/repo", { fileSystem, path: hostPath.posix });
       assert.deepStrictEqual(
-        packages.map((pkg) => pkg.name),
+        A.map(packages, (pkg) => pkg.name),
         ["root", "@x/bare", "@x/versioned"]
       );
       const [root, bare, versioned] = packages;
@@ -552,8 +529,8 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
         return assert.fail("expected three packages");
       assert.isTrue(root.isRootWorkspace);
       // Absent — never a placeholder, never a present `undefined` key.
-      assert.isFalse(Object.hasOwn(root, "version"));
-      assert.isFalse(Object.hasOwn(bare, "version"));
+      assert.isFalse("version" in root);
+      assert.isFalse("version" in bare);
       assert.strictEqual(versioned.version, "1.0.0");
     })
   );
@@ -565,13 +542,13 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
       const skipped: Array<{ readonly path: string; readonly kind: string; readonly root: string }> = [];
       getWorkspacePackagesSync("/repo", {
         fileSystem,
-        path: nodePath.posix,
+        path: hostPath.posix,
         onSkip: (skip) => skipped.push({ path: skip.path, kind: skip.kind, root: skip.root }),
       });
       // One report per unusable manifest, no report for a usable one — and
       // the version-less members above are NOT among them.
       assert.deepStrictEqual(
-        skipped.slice().sort((a, b) => a.path.localeCompare(b.path)),
+        skipped.slice().sort((a, b) => Str.localeCompare(b.path)(a.path)),
         [
           { root: "/repo", path: "/repo/packages/bad-version/package.json", kind: "invalidShape" },
           { root: "/repo", path: "/repo/packages/broken/package.json", kind: "invalidJson" },
@@ -595,14 +572,19 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
         },
       });
       const skipped: Array<{ readonly path: string; readonly kind: string; readonly cause: unknown }> = [];
-      const names = getWorkspacePackagesSync("/repo", {
-        fileSystem,
-        path: nodePath.posix,
-        onSkip: (skip) => skipped.push({ path: skip.path, kind: skip.kind, cause: skip.cause }),
-      }).map((pkg) => pkg.name);
+      const names = A.map(
+        getWorkspacePackagesSync("/repo", {
+          fileSystem,
+          path: hostPath.posix,
+          onSkip: (skip) => skipped.push({ path: skip.path, kind: skip.kind, cause: skip.cause }),
+        }),
+        (pkg) => pkg.name
+      );
       // The unreadable member is gone from the result AND accounted for.
       assert.notInclude(names, "@x/versioned");
-      const read = skipped.find((skip) => skip.path === "/repo/packages/versioned/package.json");
+      const read = O.getOrUndefined(
+        A.findFirst(skipped, (skip) => skip.path === "/repo/packages/versioned/package.json")
+      );
       assert.deepStrictEqual(read, { path: "/repo/packages/versioned/package.json", kind: "read", cause: boom });
     })
   );
@@ -615,11 +597,14 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
       });
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
       const skipped: Array<string> = [];
-      const names = getWorkspacePackagesSync("/repo", {
-        fileSystem,
-        path: nodePath.posix,
-        onSkip: (skip) => skipped.push(`${skip.kind}:${skip.path}`),
-      }).map((pkg) => pkg.name);
+      const names = A.map(
+        getWorkspacePackagesSync("/repo", {
+          fileSystem,
+          path: hostPath.posix,
+          onSkip: (skip) => skipped.push(`${skip.kind}:${skip.path}`),
+        }),
+        (pkg) => pkg.name
+      );
       assert.notInclude(names, "root");
       assert.include(skipped, "invalidShape:/repo/package.json");
     })
@@ -633,11 +618,14 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
       });
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
       const skipped: Array<{ readonly path: string; readonly kind: string }> = [];
-      const names = getWorkspacePackagesSync("/repo", {
-        fileSystem,
-        path: nodePath.posix,
-        onSkip: (skip) => skipped.push({ path: skip.path, kind: skip.kind }),
-      }).map((pkg) => pkg.name);
+      const names = A.map(
+        getWorkspacePackagesSync("/repo", {
+          fileSystem,
+          path: hostPath.posix,
+          onSkip: (skip) => skipped.push({ path: skip.path, kind: skip.kind }),
+        }),
+        (pkg) => pkg.name
+      );
       // `""` was never a legitimate pnpm shape: admitted, it resolves
       // `workspace:^` to a bare `"^"`. Absence is tolerated; an empty string
       // is the manifest's shape being wrong, as on the Effect surface.
@@ -645,7 +633,7 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
       // Positive control: the version-less member IS still admitted.
       assert.include(names, "@x/bare");
       assert.deepStrictEqual(
-        skipped.filter((skip) => skip.path === "/repo/packages/empty/package.json"),
+        A.filter(skipped, (skip) => skip.path === "/repo/packages/empty/package.json"),
         [{ path: "/repo/packages/empty/package.json", kind: "invalidShape" }]
       );
     })
@@ -658,14 +646,14 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
         "/repo/packages/empty/package.json": `{ "name": "@x/empty", "version": "" }`,
       });
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
-      const causes = new Map<string, unknown>();
+      const causes = MutableHashMap.empty<string, unknown>();
       getWorkspacePackagesSync("/repo", {
         fileSystem,
-        path: nodePath.posix,
-        onSkip: (skip) => causes.set(skip.path, skip.cause),
+        path: hostPath.posix,
+        onSkip: (skip) => MutableHashMap.set(causes, skip.path, skip.cause),
       });
       const messageAt = (path: string): unknown => {
-        const cause = causes.get(path);
+        const cause = O.getOrUndefined(MutableHashMap.get(causes, path));
         return cause instanceof Error ? cause.message : cause;
       };
       // The same sentences `WorkspaceDiscovery` attaches, so a consumer reading
@@ -675,9 +663,16 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
       assert.strictEqual(messageAt("/repo/packages/scalar/package.json"), "package.json is not a JSON object");
       // `missingName` is the one kind with nothing to attach — the field is
       // simply absent, and there is no originating throwable.
-      assert.strictEqual(causes.get("/repo/packages/nameless/package.json"), undefined);
+      assert.isTrue(MutableHashMap.has(causes, "/repo/packages/nameless/package.json"));
+      assert.strictEqual(
+        O.getOrUndefined(MutableHashMap.get(causes, "/repo/packages/nameless/package.json")),
+        undefined
+      );
       // Discriminating control: `invalidJson` carries the JSON codec's SchemaError.
-      assert.instanceOf(causes.get("/repo/packages/broken/package.json"), S.SchemaError);
+      assert.instanceOf(
+        O.getOrUndefined(MutableHashMap.get(causes, "/repo/packages/broken/package.json")),
+        S.SchemaError
+      );
     })
   );
 
@@ -685,7 +680,7 @@ describe("getWorkspacePackagesSync — version-less manifests and skip reporting
     Effect.gen(function* () {
       const { volume } = yield* MemoryFileSystem.makeHandle(seed);
       const fileSystem = MemoryFileSystem.syncFileSystem(volume);
-      const names = getWorkspacePackagesSync("/repo", { fileSystem, path: nodePath.posix }).map((pkg) => pkg.name);
+      const names = A.map(getWorkspacePackagesSync("/repo", { fileSystem, path: hostPath.posix }), (pkg) => pkg.name);
       assert.deepStrictEqual(names, ["root", "@x/bare", "@x/versioned"]);
     })
   );
@@ -709,18 +704,18 @@ describe("the sync hatch and the Effect enumerator agree about `version`", () =>
 
   /** `(name, hasOwn version, version)` — the tuple both surfaces must agree on. */
   const tuplesOf = (packages: ReadonlyArray<WorkspacePackage>) =>
-    packages.map((pkg) => [pkg.name, Object.hasOwn(pkg, "version"), pkg.version] as const);
+    A.map(packages, (pkg) => [pkg.name, "version" in pkg, pkg.version] as const);
 
   it.effect("identical (name, hasOwn version, version) tuples, and one skip vocabulary", () =>
     Effect.gen(function* () {
       const handle = yield* MemoryFileSystem.makeHandle(paritySeed);
       const asyncPackages = yield* listPackagesOver(handle);
-      const syncPackages = getWorkspacePackagesSync("/repo", { fileSystem: handle.sync, path: nodePath.posix });
+      const syncPackages = getWorkspacePackagesSync("/repo", { fileSystem: handle.sync, path: hostPath.posix });
 
       // The positive control: both actually found the tree. Comparing two
       // empty arrays would pass under any implementation.
       assert.deepStrictEqual(
-        asyncPackages.map((pkg) => pkg.name),
+        A.map(asyncPackages, (pkg) => pkg.name),
         ["root", "@x/bare", "@x/versioned"]
       );
       assert.deepStrictEqual(tuplesOf(syncPackages), tuplesOf(asyncPackages));
@@ -735,7 +730,7 @@ describe("the sync hatch and the Effect enumerator agree about `version`", () =>
       const skipped: Array<{ readonly path: string; readonly kind: string }> = [];
       getWorkspacePackagesSync("/repo", {
         fileSystem: nameless.sync,
-        path: nodePath.posix,
+        path: hostPath.posix,
         onSkip: (skip) => skipped.push({ path: skip.path, kind: skip.kind }),
       });
       assert.instanceOf(failure, WorkspaceDiscoveryError);

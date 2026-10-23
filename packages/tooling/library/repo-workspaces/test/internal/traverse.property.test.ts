@@ -4,6 +4,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(
@@ -13,10 +14,10 @@ it.effect.prop(
     Effect.sync(() => {
       const prefix = "maxDepth must be a positive integer, received ";
       const formatted = badMaxDepthMessage(depth);
-      const parsed = Number(formatted.slice(prefix.length));
+      const parsed = Number(Str.slice(prefix.length)(formatted));
       assert.strictEqual(parsed, depth);
       assert.strictEqual(badMaxDepthMessage(parsed), formatted);
-      assert.strictEqual(badMaxDepthMessage(Number(badMaxDepthMessage(parsed).slice(prefix.length))), formatted);
+      assert.strictEqual(badMaxDepthMessage(Number(Str.slice(prefix.length)(badMaxDepthMessage(parsed)))), formatted);
     }),
   runs
 );

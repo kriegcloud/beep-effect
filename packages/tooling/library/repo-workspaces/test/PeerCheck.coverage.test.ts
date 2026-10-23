@@ -2,6 +2,7 @@ import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { PeerCheck } from "@beep/repo-workspaces/PeerCheck";
 import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -83,7 +84,7 @@ describe("PeerCheck coverage of linked contexts", () => {
         workspacePackages: [linkedPackage(".", { react: "18" }), linkedPackage(".", { ignored: "1" })],
       });
       assert.deepStrictEqual(
-        report.unsatisfied.map((peer) => peer.dependency),
+        A.map(report.unsatisfied, (peer) => peer.dependency),
         ["react"]
       );
     })
@@ -109,10 +110,10 @@ describe("PeerCheck coverage of linked contexts", () => {
             linkedPackage("provider", {}),
           ],
         });
-        assert.isFalse(report.unsatisfied.some((peer) => peer.dependency === "react"));
-        assert.isTrue(report.unsatisfied.some((peer) => peer.dependency === "required"));
-        if (Array.isArray(meta)) assert.isTrue(report.unsatisfied.some((peer) => peer.dependency === "optional"));
-        else assert.isFalse(report.unsatisfied.some((peer) => peer.dependency === "optional"));
+        assert.isFalse(A.some(report.unsatisfied, (peer) => peer.dependency === "react"));
+        assert.isTrue(A.some(report.unsatisfied, (peer) => peer.dependency === "required"));
+        if (A.isArray(meta)) assert.isTrue(A.some(report.unsatisfied, (peer) => peer.dependency === "optional"));
+        else assert.isFalse(A.some(report.unsatisfied, (peer) => peer.dependency === "optional"));
       }
     })
   );
@@ -127,7 +128,7 @@ describe("PeerCheck coverage of linked contexts", () => {
         workspacePackages: [linkedPackage("a", { "": "1", react: "18" })],
       });
       assert.deepStrictEqual(
-        report.unsatisfied.map((peer) => peer.dependency),
+        A.map(report.unsatisfied, (peer) => peer.dependency),
         ["react"]
       );
     })

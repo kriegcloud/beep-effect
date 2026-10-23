@@ -2,19 +2,23 @@ import { GlobSet } from "@beep/glob";
 import { MemoryFileSystem } from "@beep/memfs";
 import { enumerate } from "@beep/repo-workspaces/internal/enumerate";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 
 const literals = Array.from({ length: 24 }, (_, index) => `packages/pkg-${index}`);
 
-const tree = literals.reduce<Record<string, string>>(
-  (acc, literal, index) => {
-    acc[`/repo/${literal}/package.json`] = JSON.stringify({ name: `@x/pkg-${index}`, version: "1.0.0" });
-    return acc;
-  },
-  { "/repo/package.json": JSON.stringify({ name: "root", version: "1.0.0" }) }
-);
+const tree: Record<string, string> = {
+  "/repo/package.json": JSON.stringify({ name: "root", version: "1.0.0" }),
+  ...R.fromEntries(
+    A.map(literals, (literal, index) => [
+      `/repo/${literal}/package.json`,
+      JSON.stringify({ name: `@x/pkg-${index}`, version: "1.0.0" }),
+    ])
+  ),
+};
 
 describe("enumerate — literal pattern probes", () => {
   let inFlight = 0;
@@ -44,7 +48,7 @@ describe("enumerate — literal pattern probes", () => {
         const directories = yield* enumerate("/repo", globs);
 
         assert.deepStrictEqual(
-          directories.map((directory) => directory.relativePath),
+          A.map(directories, (directory) => directory.relativePath),
           [...literals].sort()
         );
         assert.isAbove(maxInFlight, 1, "expected literal package checks to overlap");

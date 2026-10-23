@@ -1,4 +1,4 @@
-// @effect-diagnostics missingPipeableSignature:skip-file -- missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 // In-memory filesystem fixtures.
 //
@@ -28,7 +28,7 @@ export interface FileSystemOptions {
    * Directories whose `readDirectory` fails with `PermissionDenied` — the case
    * a "treat every failure as an empty directory" enumerator silently loses.
    */
-  readonly unreadable?: ReadonlySet<string>;
+  readonly unreadable?: ReadonlyArray<string>;
   /**
    * Paths whose `exists` PROBE fails with a non-NotFound `PlatformError`
    * (`PermissionDenied`) — the case a `orElseSucceed(() => false)` fallback makes
@@ -36,13 +36,13 @@ export interface FileSystemOptions {
    * which maps NotFound to `false` internally but re-fails any other
    * `PlatformError`.
    */
-  readonly unreadableExists?: ReadonlySet<string>;
+  readonly unreadableExists?: ReadonlyArray<string>;
   /**
    * Files that EXIST but whose `readFileString` fails with `PermissionDenied` —
    * the case a `orElseSucceed(() => "")` fallback makes indistinguishable from
    * an empty file.
    */
-  readonly unreadableFiles?: ReadonlySet<string>;
+  readonly unreadableFiles?: ReadonlyArray<string>;
 }
 
 /**
@@ -50,9 +50,7 @@ export interface FileSystemOptions {
  * this package uses: `exists`, `readFileString`, `readDirectory`, `stat`.
  */
 const fileSystem = (tree: Tree, options: FileSystemOptions = {}): Layer.Layer<FileSystem.FileSystem> => {
-  const unreadable = options.unreadable ?? new Set<string>();
-  const unreadableFiles = options.unreadableFiles ?? new Set<string>();
-  const unreadableExists = options.unreadableExists ?? new Set<string>();
+  const { unreadable = [], unreadableFiles = [], unreadableExists = [] } = options;
 
   // The v4 constructor is `PlatformError.systemError`, not a `new SystemError` —
   // `SystemError` is the reason payload, `PlatformError` is the failure.
@@ -71,23 +69,29 @@ const fileSystem = (tree: Tree, options: FileSystemOptions = {}): Layer.Layer<Fi
   // are the volume's real answers and only the misbehavior is simulated.
   return MemoryFileSystem.layerWith(tree, {
     faults: {
-      exists: (path: string) => (unreadableExists.has(path) ? denied("access", path) : undefined),
-      readFileString: (path: string) => (unreadableFiles.has(path) ? denied("readFileString", path) : undefined),
-      readDirectory: (path: string) => (unreadable.has(path) ? denied("readDirectory", path) : undefined),
+      exists: (path: string) => (A.contains(unreadableExists, path) ? denied("access", path) : undefined),
+      readFileString: (path: string) =>
+        A.contains(unreadableFiles, path) ? denied("readFileString", path) : undefined,
+      readDirectory: (path: string) => (A.contains(unreadable, path) ? denied("readDirectory", path) : undefined),
     },
   });
 };
 
+/** A `FileSystem` + `Path` layer over a virtual tree that misbehaves as `options` says. */
+export const platformWith =
+  (options: FileSystemOptions) =>
+  (tree: Tree): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
+    Layer.mergeAll(fileSystem(tree, options), Path.layer);
+
 /** A `FileSystem` + `Path` layer over a virtual tree — the platform half of every suite. */
-export const platform = (tree: Tree, options: FileSystemOptions = {}): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
-  Layer.mergeAll(fileSystem(tree, options), Path.layer);
+export const platform = (tree: Tree): Layer.Layer<FileSystem.FileSystem | Path.Path> => platformWith({})(tree);
 
 /** A root `package.json` declaring npm-style workspaces. */
 export const rootManifest: {
   (extra?: Record<string, unknown>): (patterns: ReadonlyArray<string>) => string;
   (patterns: ReadonlyArray<string>, extra?: Record<string, unknown>): string;
 } = dual(
-  (args) => Array.isArray(args[0]),
+  (args) => A.isArray(args[0]),
   (patterns: ReadonlyArray<string>, extra: Record<string, unknown> = {}): string =>
     JSON.stringify({ name: "root", version: "0.0.0", private: true, workspaces: patterns, ...extra })
 );

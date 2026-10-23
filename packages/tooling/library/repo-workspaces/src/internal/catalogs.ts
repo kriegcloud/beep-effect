@@ -77,6 +77,56 @@ export declare namespace CatalogMisconfiguration {
 }
 
 /**
+ * The `catalog` / `catalogs` blocks of a workspace manifest, already shaped
+ * as name-to-range records.
+ *
+ * **Example** (Check a manifest's catalog blocks)
+ *
+ * ```ts
+ * import { InlineCatalogBlocks } from "@beep/repo-workspaces/internal/catalogs";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(InlineCatalogBlocks)({ catalog: { effect: "^4.0.0" } })); // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class InlineCatalogBlocks extends S.Opaque<InlineCatalogBlocks, { readonly brand: unique symbol }>()(
+  S.Struct({
+    catalog: S.Record(S.String, S.String).pipe(
+      S.UndefinedOr,
+      S.optionalKey,
+      $I.annoteKey("InlineCatalogBlocks.catalog", { description: "The default catalog block, when declared." })
+    ),
+    catalogs: S.Record(S.String, S.Record(S.String, S.String)).pipe(
+      S.UndefinedOr,
+      S.optionalKey,
+      $I.annoteKey("InlineCatalogBlocks.catalogs", { description: "The named catalog blocks, when declared." })
+    ),
+  }).pipe(
+    $I.annoteSchema("InlineCatalogBlocks", {
+      description: "A workspace manifest's default and named catalog blocks as name-to-range records.",
+    })
+  )
+) {}
+/**
+ * Companion types for {@link InlineCatalogBlocks}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace InlineCatalogBlocks {
+  /**
+   * The plain, unbranded encoded shape of an {@link InlineCatalogBlocks}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof InlineCatalogBlocks.Encoded;
+}
+
+/**
  * Project a pnpm-workspace manifest's `catalog` / `catalogs` fields into a `Catalogs` map.
  *
  * **Example** (Read the default inline catalog)
@@ -90,10 +140,7 @@ export declare namespace CatalogMisconfiguration {
  * @category utilities
  * @since 0.0.0
  */
-export const inlineCatalogs = (manifest: {
-  readonly catalog?: Record<string, string> | undefined;
-  readonly catalogs?: Record<string, Record<string, string>> | undefined;
-}): Catalogs => {
+export const inlineCatalogs = (manifest: InlineCatalogBlocks.Encoded): Catalogs => {
   if (manifest.catalog === undefined && manifest.catalogs === undefined) return {};
   // pnpm throws when the default catalog is defined twice (a top-level
   // `catalog:` *and* a `catalogs.default`). That is a malformed workspace file,

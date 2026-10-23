@@ -17,11 +17,12 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { fakeProcess } from "../support/fakeProcess.ts";
 import type { MemoryFileSystemFaults } from "@beep/memfs/MemoryFileSystem";
 import type { ProcessAction } from "../support/fakeProcess.ts";
 
-const sri = `sha512-${"A".repeat(86)}==`;
+const sri = `sha512-${Str.repeat(86)("A")}==`;
 const ROOT = "/repo";
 const NO_LOCKS = Effect.as(Effect.void, undefined);
 const request = FetchRequest.make({

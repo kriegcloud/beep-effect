@@ -2,9 +2,11 @@ import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
 import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
+import * as Str from "effect/String";
 
 describe("discovery double behavior", () => {
   it.effect("owns trailing-slash paths, picks longest prefix and sorts unique owners", () =>
@@ -101,7 +103,9 @@ it.layer(
   WorkspaceDiscovery.layer({ cwd: "/repo" }).pipe(
     Layer.provide(rootSupport),
     Layer.provide(
-      MemoryFileSystem.layerWith({ "/repo/package.json": `{"name":"root","workspaces":["${"{a,b}".repeat(17)}"]}` })
+      MemoryFileSystem.layerWith({
+        "/repo/package.json": `{"name":"root","workspaces":["${Str.repeat(17)("{a,b}")}"]}`,
+      })
     )
   ),
   { timeout: "10 seconds" }
@@ -113,7 +117,7 @@ it.layer(
       assert.strictEqual(error._tag, "WorkspacePatternError");
       if (error._tag === "WorkspacePatternError") {
         assert.strictEqual(error.kind, "uncompilable");
-        assert.strictEqual(error.pattern, "{a,b}".repeat(17));
+        assert.strictEqual(error.pattern, Str.repeat(17)("{a,b}"));
       }
     })
   );
@@ -157,7 +161,7 @@ it.layer(
       }
       yield* discovery.refreshIn("/");
       assert.deepStrictEqual(
-        (yield* discovery.listPackagesIn("/")).map((pkg) => pkg.name),
+        A.map(yield* discovery.listPackagesIn("/"), (pkg) => pkg.name),
         ["z", "a"]
       );
     })
@@ -180,7 +184,7 @@ it.layer(
       assert.strictEqual(error._tag, "WorkspaceDiscoveryError");
       yield* fs.writeFileString("/repo/package.json", '{"name":"fixed","workspaces":[]}');
       assert.deepStrictEqual(
-        (yield* discovery.listPackagesIn("/repo")).map((pkg) => pkg.name),
+        A.map(yield* discovery.listPackagesIn("/repo"), (pkg) => pkg.name),
         ["fixed"]
       );
     })
@@ -205,7 +209,7 @@ it.layer(
       const discovery = yield* WorkspaceDiscovery;
       const owners = yield* discovery.resolveFiles(["/repo/packages/b/x", "/repo/packages/a/x"]);
       assert.deepStrictEqual(
-        owners.map((pkg) => pkg.name),
+        A.map(owners, (pkg) => pkg.name),
         ["é", "é"]
       );
     })

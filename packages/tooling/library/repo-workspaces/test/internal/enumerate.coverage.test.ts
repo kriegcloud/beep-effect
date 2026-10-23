@@ -7,6 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as Str from "effect/String";
 
 const error = (tag: "NotFound" | "PermissionDenied", path: string) =>
   PlatformError.systemError({ _tag: tag, module: "FileSystem", method: "readDirectory", pathOrDescriptor: path });
@@ -15,7 +16,8 @@ const layer = Layer.merge(
     { "/repo/a/package.json": "{}", "/repo/b/package.json": "{}", "/repo/plain": "file" },
     {
       faults: (base) => ({
-        exists: (path) => (path.includes("faulty") ? Effect.fail(error("PermissionDenied", path)) : base.exists(path)),
+        exists: (path) =>
+          Str.includes("faulty")(path) ? Effect.fail(error("PermissionDenied", path)) : base.exists(path),
         readDirectory: (path) =>
           path === "/repo/a"
             ? Effect.fail(error("NotFound", path))

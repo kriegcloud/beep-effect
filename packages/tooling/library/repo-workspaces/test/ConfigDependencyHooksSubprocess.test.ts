@@ -31,6 +31,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 
 const JsonValue = S.fromJsonString(S.Unknown);
@@ -138,8 +139,8 @@ describe("ConfigDependencyHooks.layerSubprocess — the argv contract", () => {
           // The script is a STATIC constant: no runtime value is spliced into the
           // program text — seed, rules and the resolved pairs travel exclusively
           // as argv.
-          assert.isFalse(script?.includes(ROOT));
-          assert.isFalse(script?.includes("dep-a"));
+          assert.isFalse(Str.includes(ROOT)(script));
+          assert.isFalse(Str.includes("dep-a")(script));
           assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[3] ?? "")), SEED);
           // The rules seed rides the same argv channel, in its own slot ahead of
           // the pairs — never spliced into the program text either.
@@ -199,7 +200,7 @@ describe("ConfigDependencyHooks.layerSubprocess — the argv contract", () => {
           // threaded config so the hooks merge onto them, exactly as pnpm seeds
           // its own config.
           assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[4] ?? "")), rules);
-          assert.isFalse(spawn.args[2]?.includes("1.2.3"));
+          assert.isFalse(Str.includes("1.2.3")(spawn.args[2] ?? ""));
         })
       );
     });

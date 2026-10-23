@@ -1,6 +1,7 @@
 import { PublishabilityDetector } from "@beep/repo-workspaces/Publishability";
 import { PublishConfig, WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
 const pkg = (options: Partial<Pick<WorkspacePackage, "private" | "publishConfig">> = {}) =>
@@ -20,7 +21,7 @@ it.layer(PublishabilityDetector.layerNpm, { timeout: "10 seconds" })((it) => {
       assert.deepStrictEqual(yield* detector.detect(pkg({ private: true })), []);
       const targets = yield* detector.detect(pkg());
       assert.deepStrictEqual(
-        targets.map((target) => ({
+        A.map(targets, (target) => ({
           name: target.name,
           registry: target.registry,
           directory: target.directory,

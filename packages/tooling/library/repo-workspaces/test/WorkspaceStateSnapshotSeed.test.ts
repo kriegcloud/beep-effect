@@ -6,10 +6,12 @@
 // rewrite history, and a seed that never applied would leave the hook-injected
 // catalog gap exactly where it was.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { CatalogSet, PackageStateSnapshot, WorkspaceStateSnapshot } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -124,7 +126,7 @@ describe("WorkspaceStateSnapshot — the seeded catalogResolver", () => {
   const seeded = snapshot({ catalogs: catalogs({ default: { effect: "^4.0.0" } }) }).withSeededCatalogs(
     catalogs({ default: { effect: "^9.9.9", react: "^18.2.0" } })
   );
-  it.layer(seeded.catalogResolver)((it) => {
+  it.layer(seeded.catalogResolver, { timeout: "30 seconds" })((it) => {
     it.effect("resolves through the same precedence as `resolve`", () =>
       Effect.gen(function* () {
         const resolver = yield* CatalogResolver;
@@ -304,3 +306,16 @@ describe("WorkspaceStateSnapshot — inherited names preserve fallback precedenc
     }
   });
 });
+
+it.effect.prop(
+  "a workspace snapshot generated from its schema survives an encode/decode round trip",
+  [Arbitrary.schema(WorkspaceStateSnapshot)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(WorkspaceStateSnapshot)(
+        yield* S.encodeEffect(WorkspaceStateSnapshot)(value)
+      );
+      assert.isTrue(S.toEquivalence(WorkspaceStateSnapshot)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
+);
