@@ -1,8 +1,24 @@
 # tsconfig-json — upstream knowledge bundle (verbatim)
 
-Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
+Provenance: `$HOME/YeeBois/references/effect/effected` @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
 decisions live in README.md → Port notes, not here.
+
+Upstream paths and commands below describe the upstream checkout, not this package.
+Upstream `@effected/tsconfig-json` is split in this repo: the document model
+(`CompilerOptions`, `CompilerOptionsFromProgrammatic`, `JsxConfig`, `PortableTsconfig`,
+`ResolvedTsconfig`, `TsconfigJson`, `TsEnumCodec`) is `@beep/tsconfig` at
+`packages/foundation/modeling/tsconfig`, and the loader half is `@beep/repo-tsconfig` at
+`packages/tooling/library/repo-tsconfig`: upstream `packages/tsconfig-json/src/<Module>.ts`
+maps to `src/<Module>.ts` for `TsconfigLoader`, `TsconfigLoaderSync`, `TsconfigDiscovery`
+and `internal/extendsTarget`, and upstream `__test__/` maps to `test/`, with
+`__test__/fixtures.ts` at `test/support/fixtures.ts`. Other names: `@effected/jsonc` is
+`@beep/jsonc`, `@effected/walker` is `@beep/walker`, `@effected/memfs` is `@beep/memfs`. The
+upstream `pnpm vitest` / `pnpm build` commands map to `bun run test` / `bun run build` in the
+package, or `bun run beep quality package-verify @beep/repo-tsconfig` from the repository
+root. Two upstream statements no longer hold here: a package-resolved `extends` target is
+realpathed, and a `.d.ts`/`.ts`/`.js` export target is read as its `.json` sibling (README
+Port notes).
 
 ---
 <!-- packages/tsconfig-json/CLAUDE.md -->

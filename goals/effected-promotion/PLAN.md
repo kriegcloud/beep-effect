@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 (`@beep/markdown`, D-38..D-46) in review, with 2d-2, 2d-A and 2d-3 queued behind it.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 (`@beep/markdown`, D-38..D-46) in review, with 2d-2, 2d-A and 2d-3 queued behind it; wave 3-2 (`@beep/repo-tsconfig`, W3-c, W3-h, W3-k..W3-m) in review, with get-tsconfig dropped from repo-cli and the root catalog.
 
 ## Phases
 
@@ -31,6 +31,7 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 | 2d-3 (queued, evidence-gated) | `@beep/md` `Md.render` writer fixes | `&` and `$` escaping, only if the 2d-2 ledger and writer differential show the need; its own changeset. `math` stays off by default in `Md.parse` until it lands. |
 | 2d-later | adoption, one PR each | D-46 deferred sites, tracked in `history/reuse-ledger.md`. |
 | 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
+| 3-2 (in review) | `@beep/repo-tsconfig` | W3-c, W3-h, W3-k..W3-m. The lab `tsconfig-json` folder is fully promoted and gone. Realpathed package targets, `.json` siblings of `.ts`/`.js` export targets, and the three-way differential (`ops/repo-tsconfig-differential.ts`; corpus A 0 adopter-field diffs on 667 configs, corpus B loader == tsc on 666). Adopters: EffectDiagnostics (2 sites, the check-program test) and TestTypecheckCoverage; get-tsconfig leaves repo-cli and the root catalog. The `TsconfigValidator` and docgen move is 3-A6. |
 | 4 | `@beep/sbom`, `@beep/xdg`, `@beep/cli-kit`, `@beep/repo-workspaces` | `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 | `@beep/github-actions` | Leaf driver. |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05: each with its first consumer (mcpb-kit tarball, a release attestation step, the Accounts TUI, an MCP server ProcessGuard). |

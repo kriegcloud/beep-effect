@@ -1,180 +1,106 @@
-# tsconfig-json (lab port of @effected/tsconfig-json)
+# @beep/repo-tsconfig
 
-The pure document model of this port (`CompilerOptions`, `CompilerOptionsFromProgrammatic`, `JsxConfig`, `PortableTsconfig`, `ResolvedTsconfig`, `TsconfigJson`, `TsEnumCodec`) was promoted to `@beep/tsconfig` (`packages/foundation/modeling/tsconfig`) in effected-promotion wave 2a; import those modules from `@beep/tsconfig/<Module>`. This directory keeps the filesystem half (`TsconfigLoader`, `TsconfigLoaderSync`, `TsconfigDiscovery`, `internal/extendsTarget`) until wave 3 promotes it as `@beep/repo-tsconfig`.
+`tsconfig.json` loading for repo tooling, with tsc's semantics. `TsconfigLoader` reads and decodes one config, resolves its whole `extends` chain the way `tsc` does, and folds it into one `ResolvedTsconfig`. `TsconfigLoaderSync` runs the same pipeline synchronously over file and path operations the caller supplies. `TsconfigDiscovery.findNearest` finds the nearest config above a directory. All IO goes through `FileSystem` and `Path` from `effect` core, so the caller provides a platform once, at the edge.
 
+## Why this package
 
-Composable tsconfig.json handling for Effect: document and compiler-option schemas, `extends`-chain resolution with tsc's own merge semantics, nearest-config discovery and a portable-config filter for virtual TypeScript environments. Every parse is JSONC — comments and trailing commas are legal everywhere, exactly as tsc treats them — and options the schemas do not know pass through decode and encode untouched instead of being dropped.
+Resolving an `extends` chain takes more than `JSON.parse` and a recursive read. tsc reads every config as JSONC. It resolves a bare specifier through `node_modules` the way the module resolver does: it honours `exports` maps (which block every same-package fallback), the `tsconfig` manifest field and the `.json` retry, and it realpaths the result. Relative paths in an inherited config are re-rooted against the config that declared them, and `${configDir}` is substituted once, against the top config. A loader that gets one of these wrong does not fail. It returns slightly wrong options, and every gate that reads them inherits the error.
 
-## Why @effected/tsconfig-json
+This package replaces `get-tsconfig` in `@beep/repo-cli`. It is checked against `tsc` itself rather than against another resolver: the differential in `goals/effected-promotion/ops/repo-tsconfig-differential.ts` covers every tracked `tsconfig*.json` in the repo and 666 synthetic package specifiers over the real `node_modules`.
 
-Reading a tsconfig.json correctly means reproducing what tsc does, and what tsc does is more than `JSON.parse` plus `Object.assign`. An `extends` target resolves like a module: a bare specifier walks ancestor `node_modules` directories, a package's `exports` map can redirect or block it, and a `tsconfig` field in its manifest can point somewhere else entirely. Merging the chain is per-field, path options absolutize against the config that declared them rather than the one you loaded, and `${configDir}` substitutes once at the end against the top config's directory. These rules were extracted from the TypeScript compiler's source and encoded here as data-driven tests, so the resolution you get is the resolution tsc computes.
+The document model (`TsconfigJson`, `CompilerOptions`, `ResolvedTsconfig` and the rest) lives in `@beep/tsconfig`, which has no IO. This package is the IO half. It is ESM-only. Its runtime dependencies are `effect` v4 and the workspace packages `@beep/identity`, `@beep/jsonc`, `@beep/schema`, `@beep/tsconfig` and `@beep/walker`.
 
-The package does all of this without importing `typescript`, not even as a type. It works at the string level — `"target": "es2023"` stays a string through schema, merge and discovery — and the version-coupled numeric enum mappings live in `TsEnumCodec` as plain data tables, so converting to the numeric shape a real compiler expects is an explicit final step rather than a dependency you carry everywhere. Malformed input always fails through a typed error channel, and the recursive `extends` walk carries cycle and depth guards, because a config file is untrusted input.
-
-All `@effected/*` packages are ESM-only: the exports maps publish only `import` conditions, so `require()` — including tools that resolve in CJS mode — fails with Node's `ERR_PACKAGE_PATH_NOT_EXPORTED` rather than loading a CJS build that does not exist. Import from an ES module.
-
-All IO goes through `FileSystem` and `Path` from `effect` core, not a platform package, so a consumer provides them once at the edge (`@effect/platform-node` on Node, `@effect/platform-bun` on Bun) and a test provides core's `Path.layer` plus an in-memory volume from `@effected/memfs` — no platform package installed.
-
-## Quick start
+## Usage
 
 Resolve a config and its full `extends` chain:
 
 ```ts
-import { TsconfigLoader } from "@beep/scratchpad/effected/tsconfig-json";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 const PlatformLive = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
-const resolved = await Effect.runPromise(TsconfigLoader.resolve("./tsconfig.json").pipe(Effect.provide(PlatformLive)));
-
-console.log(resolved.extendedPaths);
-// every config on the extends chain as normalized absolute paths, base-most first and your own config last
-console.log(resolved.compilerOptions);
-// the merged options after folding the whole chain — later configs win per field, paths replaced wholesale
+const program = TsconfigLoader.resolve("./tsconfig.json").pipe(
+  Effect.tap((resolved) => Effect.log(resolved.extendedPaths)),
+  Effect.provide(PlatformLive)
+);
 ```
 
-`TsconfigLoader.compilerOptions("./tsconfig.json")` is the same pipeline projected down to the merged options, for when the effective options are all you want.
+`extendedPaths` lists every config on the chain as a normalized absolute path, base-most first and the given config last. `compilerOptions` holds the merged options, with path-valued options absolute. `TsconfigLoader.compilerOptions(path)` projects the resolution straight down to the merged options.
 
-Find the nearest config first when you only have a starting directory:
+Find the nearest config when all you have is a starting directory:
 
 ```ts
-import { TsconfigDiscovery } from "@beep/scratchpad/effected/tsconfig-json";
+import { TsconfigDiscovery } from "@beep/repo-tsconfig/TsconfigDiscovery";
 import * as Effect from "effect/Effect";
 
-const nearest = TsconfigDiscovery.findNearest(process.cwd());
-// Effect<Option<string>, never, FileSystem | Path> — absence is Option.none(), never an error
+const nearest = TsconfigDiscovery.findNearest("/repo/packages/app/src");
+// Effect<Option<string>, never, FileSystem | Path>: absence is Option.none(), never an error
 console.log(Effect.isEffect(nearest)); // true
 ```
 
-Hand the result to a real compiler by encoding the enum families to their numeric form, or narrow it to the portable subset a virtual TypeScript environment can safely reuse:
+Load synchronously inside a hook that cannot await. Node's built-ins satisfy the operations directly, and the package itself imports no `node:*` module:
 
 ```ts
-import { PortableTsconfig } from "@beep/tsconfig/PortableTsconfig";
-import { TsEnumCodec } from "@beep/tsconfig/TsEnumCodec";
-
-console.log(TsEnumCodec.encodeCompilerOptions({ target: "es2023", strict: true, lib: ["esnext"] }));
-// { target: 10, strict: true, lib: [ 'lib.esnext.d.ts' ] }
-
-console.log(PortableTsconfig.make(resolved).compilerOptions.noEmit);
-// true — always forced, whatever the source config declared
-
-console.log(PortableTsconfig.make(resolved, { includeTypes: true }).compilerOptions.types);
-// carries the source config's `types` package names when it declares them, omitted when absent
-```
-
-`includeTypes` is opt-in and defaults to `false` because emitting `types` makes tsc demand those `@types` packages resolve — a hard error in a virtual environment with no `node_modules`. Pass it when your environment materializes `@types` itself; leave it off for the permissive default where TypeScript auto-includes whatever it finds.
-
-## Synchronous loading
-
-Bundler plugin hooks and config factories often cannot await. `TsconfigLoaderSync` runs the unchanged loader pipeline synchronously over file and path operations you supply — the package still imports no `node:*` module, and Node's built-ins satisfy the operations directly:
-
-```ts
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import * as path from "node:path";
-import { TsconfigLoaderSync } from "@beep/scratchpad/effected/tsconfig-json";
+import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
 
-const options = {
-  fileSystem: { exists: existsSync, readFile: (p: string) => readFileSync(p, "utf8") },
-  path, // node:path satisfies SyncPath verbatim; path.win32 / path.posix force a convention
-};
-
-const compilerOptions = TsconfigLoaderSync.compilerOptions("./tsconfig.json", options);
-// the merged options for the full extends chain — the same result TsconfigLoader.resolve computes
-console.log(compilerOptions); // the merged compiler options from ./tsconfig.json
-```
-
-`load` and `resolve` have the same synchronous forms. Failures are the async pipeline's own typed errors thrown as themselves — `TsconfigParseError`, `TsconfigExtendsError` or a `PlatformError` wrapping whatever your `readFile` threw — never a fiber-failure wrapper.
-
-## TypeScript 7 and the classic compiler API
-
-TypeScript 7's native `tsc` ships a version-only stub as its `.` export — there is no JS compiler API behind it. A package that drives the typechecker as a library (`@typescript/vfs`, the language service, the Program API) can neither type against nor runtime-load a TypeScript 7 install, and the obvious fix of pinning the dev `typescript` back to 6 forfeits the native `tsc` and leaves toolchain peers on `^7` unmet. The recipe that keeps both starts here, because this package is what removes the compile-time half of the dependency.
-
-1. Type against the tsconfig JSON form, not the compiler. Public option types use `CompilerOptions.Type` — `{ target: "es2022" }`, strings all the way down — so nothing in `src` or the tests imports `typescript`, not even as a type. The dev `typescript` stays on 7, native `tsc --noEmit` still runs the typecheck, and the toolchain's `^7` peer stays satisfied.
-2. Convert at a single runtime seam. `TsEnumCodec.encodeCompilerOptions` maps the string form to the numeric enums a real compiler expects and returns `ProgrammaticCompilerOptions`, the shape a `ts.CompilerOptions`-typed API takes without a cast. Only that one call site knows a compiler exists. The inbound direction is `CompilerOptionsFromProgrammatic`, a schema rather than a function: hand it a live `ts.CompilerOptions`, a numeric enum literal or the output of `encodeCompilerOptions` and validated `CompilerOptions.Type` comes back, with an unmappable numeric failing decode instead of leaking through.
-3. Alias a classic install for the test runtime, where the JS API is genuinely needed: a dev-only `"typescript-classic": "npm:typescript@^6.0.3"` plus a vitest `resolve.alias` mapping `typescript` to it. The consumer-facing peer stays an optional `^6` — runtime-only, for callers of the compiler-touching module.
-4. Pass `tsLibDirectory` explicitly when you drive `@typescript/vfs`. It locates `lib.*.d.ts` through `require.resolve("typescript")`, which under this setup resolves the TypeScript 7 install, and that install has no lib directory: the map comes back **empty**, silently, with no error to follow. Derive the directory from the module you actually loaded.
-
-```json
-{
-  "devDependencies": {
-    "typescript-classic": "npm:typescript@^6.0.3"
-  }
-}
-```
-
-```ts
-import { defineConfig } from "vitest/config";
-
-export default defineConfig({
-  resolve: { alias: { typescript: "typescript-classic" } },
+const options = TsconfigLoaderSync.compilerOptions("./tsconfig.json", {
+  fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync },
+  path,
 });
+console.log(typeof options); // object
 ```
 
-```ts
-import { dirname } from "node:path";
-import { TsEnumCodec } from "@beep/tsconfig/TsEnumCodec";
-import { createDefaultMapFromNodeModules } from "@typescript/vfs";
-import ts from "typescript";
-
-const fsMap = createDefaultMapFromNodeModules(
-  TsEnumCodec.encodeCompilerOptions({ target: "es2023", lib: ["esnext"] }),
-  ts,
-  dirname(ts.sys.getExecutingFilePath()),
-);
-
-console.log(fsMap.size);
-// the lib files the loaded compiler ships; drop the third argument and this is 0
-```
+`realPath` is optional. Without it, a package target reached through a `node_modules` symlink is used as found, so its own relative `extends` resolves from the link's directory. Failures are the async pipeline's typed errors thrown as themselves (`TsconfigParseError`, `TsconfigExtendsError`, or a `PlatformError` wrapping what your operation threw), never a fiber-failure wrapper.
 
 ## Features
 
-- `TsconfigJson` / `TsconfigJsonFromString` — the document schema and its JSONC string codec. Comments and trailing commas are legal in every parse; there is no JSON-strict path.
-- `CompilerOptions` — string-level schemas for `compilerOptions`: enum values decode case-insensitively and encode to canonical lowercase, and unknown or removed options survive a round trip as passthrough.
-- `TsconfigLoader.load` / `TsconfigLoader.resolve` / `TsconfigLoader.compilerOptions` — read and decode one config, resolve its full `extends` chain depth-first with per-branch cycle stacks (diamond chains are legal), a depth guard and tsc's target resolution for relative, rooted and bare-specifier targets including `exports` maps, or project the resolved chain straight down to its merged options.
-- `TsconfigLoaderSync` — the synchronous facade for sync-only hosts: `load`, `resolve` and `compilerOptions` over consumer-supplied `{ fileSystem, path }` operations, running the same pipeline and throwing the same typed errors.
-- `ResolvedTsconfig` — the pure merge engine behind `resolve`: per-field merge semantics, path-option absolutization against the declaring config's directory, final `${configDir}` substitution and `pathsBase` provenance, with no filesystem access at all.
-- `TsconfigDiscovery.findNearest` — the nearest `tsconfig.json` (or any filename via `options.filename`) at or above a starting directory, over `@effected/walker`; one unreadable ancestor cannot hide a config above it.
-- `TsEnumCodec` — the string↔numeric enum tables as plain data with zero `typescript` imports. `encodeCompilerOptions` returns the exported `ProgrammaticCompilerOptions` type — the numeric shape `ts.CompilerOptions` expects, so you hand it to a `ts.CompilerOptions`-shaped API without a cast — with `lib` entries in the file-name form the compiler resolves verbatim; `decodeCompilerOptions` reverses it.
-- `CompilerOptionsFromProgrammatic` — the same tables as a validating codec, for callers holding TypeScript's programmatic spelling. Decode accepts numeric enums, canonical strings, case-varying strings, any mixture of the three and `lib` in any of its three spellings; encode returns the numeric form. A numeric with no table entry fails decode as a typed schema issue rather than passing through, which is the check `TsEnumCodec.decodeCompilerOptions` deliberately does not make.
-- `PortableTsconfig.make` — an allow-list projection down to machine-independent type-semantics options, with `composite: false` and `noEmit: true` forced: the slice a virtual TypeScript environment (Twoslash, API Extractor, an in-memory language service) can safely inherit. An optional `{ includeTypes }` argument carries the source config's `types` package names onto the portable shape too, for a caller whose virtual environment can resolve `@types` packages itself; `typeRoots` stays dropped either way, since it names machine-specific, config-location-dependent directories.
-- `JsxConfig.fromCompilerOptions` — the JSX transform a bundler can configure, projected from decoded options: `react-jsx` / `react-jsxdev` select the automatic runtime with its import source (defaulting to `react`, tsc's own default), `react` selects classic, and `preserve`, `react-native` or an absent `jsx` yield `Option.none()`.
-- Typed failures everywhere: a malformed file is a `TsconfigParseError` carrying its path, a broken chain is a `TsconfigExtendsError` with a `not-found` / `cycle` / `depth` / `empty` reason and the full resolution chain, and IO errors flow through as `PlatformError`. Nothing fails as a defect.
+- `TsconfigLoader.load`, `.resolve`, `.compilerOptions`: read and decode one config; resolve its `extends` chain depth-first with per-branch cycle stacks (diamond chains are legal) and a depth guard; or project the result down to the merged options.
+- Target resolution as tsc does it. Relative and rooted targets try the exact file, then the `.json` retry. Bare specifiers walk the ancestor `node_modules` chain: `exports` maps with longest-prefix `*` patterns, conditions in insertion order, and `.d.ts`/`.ts`/`.js` targets read as their `.json` sibling; then the `tsconfig` manifest field and `<pkg>/tsconfig.json`. A package target is realpathed (`preserveSymlinks: false`).
+- `TsconfigLoaderSync`: the same pipeline under `Effect.runSyncExit` over `{ fileSystem, path }` operations the caller supplies, Windows-correct when the caller passes a win32 `path`.
+- `TsconfigDiscovery.findNearest`: the nearest `tsconfig.json` (or another file name through `FindNearestOptions.filename`) at or above a directory, over `@beep/walker`. An unreadable ancestor cannot hide a config above it.
+- Typed failures. A malformed file is a `TsconfigParseError` carrying its path. A broken chain is a `TsconfigExtendsError` with an `ExtendsFailureReason` (`not-found`, `cycle`, `depth`, `empty`) and the full chain. IO errors flow through as `PlatformError`. Hostile manifests never defect.
 
-## License
+## Development
 
-[MIT](LICENSE)
+```bash
+# from the repository root
+bun run beep quality package-verify @beep/repo-tsconfig
+bun goals/effected-promotion/ops/repo-tsconfig-differential.ts
 
+# from packages/tooling/library/repo-tsconfig
+bun run check
+bun run lint
+bun run test
+bun run docgen
+```
+
+Tests live in `test/` and import package source through `@beep/repo-tsconfig/<Module>` aliases. `test/support/fixtures.ts` builds in-memory volumes on `@beep/memfs`; the symlink suite uses a real temporary directory, since the realpath behaviour needs real links. `KNOWLEDGE.md` carries the upstream design notes verbatim.
 
 ## Port notes
 
 ### Attribution
 
-- Upstream package: `@effected/tsconfig-json` 0.13.0
-- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
-- License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- Vendored-engine notices: none found in source headers.
-
-### Added exports
-
-None.
+- Upstream package: `@effected/tsconfig-json` 0.13.0, the loader half (`TsconfigLoader`, `TsconfigLoaderSync`, `TsconfigDiscovery`, `internal/extendsTarget`). The document model half is `@beep/tsconfig`.
+- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (`$HOME/YeeBois/references/effect/effected`)
+- License: [LICENSE](./LICENSE) (upstream MIT notice alongside the beep-effect notice)
 
 ### Deviations
 
-One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
+The module-level port deviations recorded in the scratchpad port carry over: Effect collections and helpers in place of native runtime operations, a schema-tagged `UnsupportedPathOperationError` in place of the sync adapter's native `Error`, dual overloads on the exports-resolution helpers, per-module Effect imports, and `@beep/identity` annotations. On promotion (`goals/effected-promotion`, wave 3-2):
 
-- **native-runtime** — Lab replaces upstream Map/Set and Object helper sites with MutableHashMap, HashSet and Record helpers, and replaces the sync adapter native Error with a schema error while preserving lookup and filtering contracts (packages/foundation/modeling/tsconfig/test/TsEnumCodec.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:364; module suite scratchpad/test/tsconfig-json/**).
-- **tagged-errors** — Lab gives the upstream sync adapter error a schema tag and preserves diagnostic stacks in parse-error cause encoding that upstream omitted (packages/foundation/modeling/tsconfig/test/TsconfigJson.test.ts; scratchpad/test/tsconfig-json/TsconfigLoaderSync.test.ts:94; scratchpad/test/tsconfig-json/TsconfigLoaderSync.test.ts:108).
-- **schema-first** — Lab replaces upstream handwritten models and literal domains with schemas and LiteralKit, retains facade statics through S.Opaque, and requires automatic JSX importSource while stripping it from classic variants (packages/foundation/modeling/tsconfig/test/JsxConfig.test.ts; packages/foundation/modeling/tsconfig/test/JsxConfig.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; scratchpad/test/tsconfig-json/TsconfigDiscovery.test.ts:13; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts).
-- **numeric-domains** — Lab narrows upstream maxNodeModuleJsDepth from Number to Finite and uses finite enum fields in the new programmatic runtime schema (packages/foundation/modeling/tsconfig/test/CompilerOptions.test.ts; packages/foundation/modeling/tsconfig/test/CompilerOptions.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; no dedicated non-finite rejection test).
-- **type-safety** — Lab removes upstream unsafe casts and full-record compiler assignability, preserves unknown passthrough, and restores cast-free assignability of the known enum/lib subset (packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.test.ts; module suite scratchpad/test/tsconfig-json/**).
-- **tsgo-diagnostics** — Lab adds diagnostic-required dual overloads to the two upstream data-first exports-resolution helpers without changing their full-arity results (scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:66; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:364; module suite scratchpad/test/tsconfig-json/**).
-- **effect-first** — Lab uses Effect functions and helpers and adds pipeable static combinators while retaining upstream internal tracing behavior and existing data-first results (packages/foundation/modeling/tsconfig/test/TsEnumCodec.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:22; packages/foundation/modeling/tsconfig/test/JsxConfig.test.ts).
-- **effect-imports** — Lab uses individual effect/* imports throughout source, tests and examples where upstream used the root Effect barrel (module suite scratchpad/test/tsconfig-json/**).
-- **identity-annotations** — Lab attaches canonical file-local identity annotations and field metadata to upstream unannotated schema and codec surfaces (module suite scratchpad/test/tsconfig-json/**).
-- **schema-first** — The lab uses a precise portable-options schema and public type that enforce flag and field constraints and strip nonportable codec keys, while upstream exposes Record<string, unknown> and enforces portability only through make (packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.property.test.ts).
+- **Realpathed package targets (bug fix).** A package-resolved `extends` target is realpathed, as tsc does. The lab kept the `node_modules` path, so a workspace package linked under `node_modules` resolved its own relative `extends` from the link and failed with `not-found`. Relative and rooted targets are still not realpathed, which matches tsc. `SyncFileSystem.realPath` is new and optional; it defaults to the identity.
+- **`.json` siblings of export targets (bug fix).** An `exports` target ending in `.d.ts`, `.ts` or `.js` is read as its `.json` sibling, as tsc's config lookup does. The lab accepted only `.json` targets.
+- **`exports` blocks the fallback.** A manifest with `exports` that does not resolve the subpath ends the lookup for that package, as in tsc; `get-tsconfig` falls back to the plain file (236 of the 666 synthetic specifiers).
+- **No expansion of tsc defaults.** The resolution reports declared options only: no implied options (`strict` does not expand) and no implicit `outDir` entry in `exclude`.
+- **Schema-first.** `FindNearestOptions` is a branded `S.Opaque` (`findNearest` takes its `Encoded` shape, so object literals still work), and `ExtendsFailureReason` is a `LiteralKit` whose `$match` builds the error message.
+- **Span and identities.** The discovery span is `TsconfigDiscovery.findNearest` (upstream `findNearest`). Schema identities moved from `@beep/scratchpad/effected/tsconfig-json/*` to `@beep/repo-tsconfig/*`.
 
-### Dependency backlog
+## License
 
-None.
+[MIT](LICENSE)
