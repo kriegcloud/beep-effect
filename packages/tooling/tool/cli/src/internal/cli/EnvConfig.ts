@@ -141,8 +141,9 @@ const ambientRuntimeEnv: Effect.Effect<RuntimeEnv> = ConfigProvider.ConfigProvid
  * **Details**
  *
  * The one CI rule for the repo CLI: CI is on when `RuntimeEnv.ci` is `Some`,
- * that is when `GITHUB_ACTIONS` is truthy, or `CI` or `CONTINUOUS_INTEGRATION`
- * is (any value except empty, `false` or `0`). The effectful twin of
+ * that is when `GITHUB_ACTIONS`, `CI` or `CONTINUOUS_INTEGRATION` is truthy:
+ * any value except empty or, in any case, `false`, `no`, `off`, `0` or `n`
+ * (`Config.Boolean`'s false set). The effectful twin of
  * {@link isCiSync}: tests pin CI on or off by providing a `ConfigProvider`
  * instead of mutating `process.env`, whose env-backed provider can keep
  * serving a key it already resolved. A provided `CurrentRuntimeEnv` is used
