@@ -586,7 +586,7 @@ const ownPackage = (raw: PnpmLockfileRawType, key: string): PnpmPackageEntry | u
  * One row per *instance*: one per `snapshots:` entry, because `packages:` is
  * per-*version* metadata and collapses every peer-resolved variant onto one
  * key. Peer declarations live on the matching per-version `packages:` entry,
- * keyed by the plain "name@version" the suffix hangs off. An empty (or absent)
+ * keyed by the plain `name@version` the suffix hangs off. An empty (or absent)
  * `snapshots:` map is valid — a workspace with no dependencies has no
  * instances to record. A `packages:` entry no emitted snapshot covers is an
  * orphan — still emitted rather than dropped, since an unexplained
