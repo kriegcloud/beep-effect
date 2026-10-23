@@ -3,7 +3,9 @@ import {
   LiteralKit,
   LiteralKitEmptySubsetError,
   LiteralKitKeyCollisionError,
+  LiteralKitTaggedUnionLiteralError,
   LiteralKitUnhandledCaseError,
+  matchLiteral,
 } from "@beep/schema/LiteralKit";
 import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { it } from "@beep/test-runner";
@@ -251,6 +253,18 @@ describe("LiteralKit statics across derivations", () => {
     const Branded = Direction.pipe(S.brand("Direction"), SchemaUtils.withLiteralKitStatics(Direction));
     expect(Branded.Enum).toBe(Direction.Enum);
     expect(Branded.is.up("up")).toBe(true);
+  });
+});
+
+describe("LiteralKit defect guards", () => {
+  it("rejects a bigint member in toTaggedUnion past the checker", () => {
+    const Big = LiteralKit([1n, "one"]);
+    const build = Big.toTaggedUnion as unknown as (tag: string) => (cases: Record<string, S.Struct.Fields>) => unknown;
+    expect(() => build("kind")({ bigint1n: {}, one: {} })).toThrow(LiteralKitTaggedUnionLiteralError);
+  });
+
+  it("keys a value outside the literal union through String", () => {
+    expect(matchLiteral(undefined as unknown as string)).toBe("undefined");
   });
 });
 

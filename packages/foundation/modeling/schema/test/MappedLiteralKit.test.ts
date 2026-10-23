@@ -228,6 +228,11 @@ describe("MappedLiteralKit subsets and matchOrElse", () => {
     })
   );
 
+  it("omit reports dropping every pair as an empty-subset defect", () => {
+    const everything = ["OK", "CREATED", "NOT_FOUND"] as unknown as readonly ["OK"];
+    expect(() => Code.omit(everything)).toThrow(LiteralKitEmptySubsetError);
+  });
+
   it("pick reports an empty selection as an empty-subset defect", () => {
     const nothing = [] as unknown as readonly ["OK"];
     expect(() => Code.pick(nothing)).toThrow(LiteralKitEmptySubsetError);
