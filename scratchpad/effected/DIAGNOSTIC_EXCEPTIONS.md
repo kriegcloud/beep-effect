@@ -5,7 +5,7 @@ tree on 2026-10-09 after step 2 (zero type, lint and tsgo diagnostics; tests at 
 Each entry is a deliberate choice that the operator can overrule: remove the directive and the
 diagnostic comes back.
 
-Totals: 28 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
+Totals: 27 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
 
 ## Source
 
@@ -26,7 +26,6 @@ Totals: 28 in source, 10 in tests beyond the entry-point headers, 1 service anno
 | `effected/lockfiles/internal/npm.ts` | 150 | next line | preferSchemaOverJson | Syntax failures retain the original native throwable; Schema JSON decoding discards its identity and details. |
 | `effected/memfs/NodeSyncFileSystem.ts` | 2 | whole file | nodeBuiltinImport | This adapter preserves synchronous Node filesystem throws and errno metadata; Effect FileSystem is asynchronous. |
 | `effected/memfs/internal/errno.ts` | 109 | next line | missingPipeableSignature | String paths overlap method strings, and the optional description makes the two call forms ambiguous. |
-| `effected/package-json/EntryPoint.ts` | 178 | next line | missingPipeableSignature | Manifest and options are both optional-field objects, so even an empty object makes the call forms ambiguous. |
 | `effected/toml/TomlNode.ts` | 90 | next line | schemaNumber | A TOML float may be `inf` or `nan`, so the finite-only schema would reject valid documents. |
 | `effected/workspaces/internal/configDependencyFetch.ts` | 2 | whole file | nodeBuiltinImport | Config-dependency replay reads the real Node module store even when the supplied FileSystem is virtual. |
 | `effected/workspaces/internal/configDependencyResolution.ts` | 2 | whole file | nodeBuiltinImport | Config-dependency replay reads the real Node module store even when the supplied FileSystem is virtual. |

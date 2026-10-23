@@ -2741,6 +2741,27 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/package-json": {
+      "name": "@beep/package-json",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/npm-spec": "workspace:^",
+        "@beep/semver": "workspace:^",
+        "@beep/spdx": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "@types/validate-npm-package-name": "catalog:",
+        "bun-types": "catalog:",
+        "validate-npm-package-name": "catalog:",
+      },
+    },
     "packages/foundation/modeling/pandoc-ast": {
       "name": "@beep/pandoc-ast",
       "version": "0.0.0",
@@ -3606,6 +3627,26 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/tooling/library/repo-tsconfig": {
+      "name": "@beep/repo-tsconfig",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/tsconfig": "workspace:^",
+        "@beep/walker": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/tooling/library/repo-utils": {
       "name": "@beep/repo-utils",
       "version": "0.0.0",
@@ -3783,6 +3824,7 @@
         "@beep/repo-ai-metrics": "workspace:^",
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-docgen": "workspace:^",
+        "@beep/repo-tsconfig": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@beep/runpod": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -3811,7 +3853,6 @@
         "effect": "catalog:",
         "fast-xml-parser": "catalog:",
         "fast-xml-validator": "catalog:",
-        "get-tsconfig": "catalog:",
         "handlebars": "catalog:",
         "image-size": "catalog:",
         "is-unsafe": "2.0.2",
@@ -3987,10 +4028,12 @@
         "@beep/npm-spec": "workspace:^",
         "@beep/ontology": "workspace:^",
         "@beep/oxigraph": "workspace:^",
+        "@beep/package-json": "workspace:^",
         "@beep/postgres": "workspace:^",
         "@beep/pretext": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/rdf": "workspace:^",
+        "@beep/repo-tsconfig": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -4204,6 +4247,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.186.0",
+    "@types/validate-npm-package-name": "4.0.2",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@typescript/typescript6": "6.0.2",
     "@vercel/analytics": "^2.0.1",
@@ -4252,7 +4296,6 @@
     "fflate": "^0.8.3",
     "framer-motion": "^14.4.0",
     "frimousse": "0.4.0",
-    "get-tsconfig": "4.14.3",
     "graphology": "0.26.0",
     "handlebars": "^4.7.10",
     "image-size": "^2.0.4",
@@ -4315,6 +4358,7 @@
     "universal-github-app-jwt": "^2.2.2",
     "unpdf": "^1.9.1",
     "use-stick-to-bottom": "^1.1.6",
+    "validate-npm-package-name": "7.0.2",
     "vaul": "^1.1.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.5",
@@ -4666,6 +4710,8 @@
 
     "@beep/pacer": ["@beep/pacer@workspace:packages/drivers/pacer"],
 
+    "@beep/package-json": ["@beep/package-json@workspace:packages/foundation/modeling/package-json"],
+
     "@beep/palantiri": ["@beep/palantiri@workspace:packages/tooling/library/palantiri"],
 
     "@beep/pandoc-ast": ["@beep/pandoc-ast@workspace:packages/foundation/modeling/pandoc-ast"],
@@ -4717,6 +4763,8 @@
     "@beep/repo-configs": ["@beep/repo-configs@workspace:packages/tooling/policy-pack/repo-configs"],
 
     "@beep/repo-docgen": ["@beep/repo-docgen@workspace:packages/tooling/tool/docgen"],
+
+    "@beep/repo-tsconfig": ["@beep/repo-tsconfig@workspace:packages/tooling/library/repo-tsconfig"],
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:packages/tooling/library/repo-utils"],
 

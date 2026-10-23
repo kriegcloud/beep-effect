@@ -2333,6 +2333,24 @@
       ],
       "@beep/md/internal/*": [
         "./packages/foundation/modeling/md/src/internal/*"
+      ],
+      "@beep/repo-tsconfig": [
+        "./packages/tooling/library/repo-tsconfig/src/index.ts"
+      ],
+      "@beep/repo-tsconfig/*": [
+        "./packages/tooling/library/repo-tsconfig/src/*"
+      ],
+      "@beep/repo-tsconfig/internal/*": [
+        "./packages/tooling/library/repo-tsconfig/src/internal/*"
+      ],
+      "@beep/package-json": [
+        "./packages/foundation/modeling/package-json/src/index.ts"
+      ],
+      "@beep/package-json/*": [
+        "./packages/foundation/modeling/package-json/src/*"
+      ],
+      "@beep/package-json/internal/*": [
+        "./packages/foundation/modeling/package-json/src/internal/*"
       ]
     }
   }

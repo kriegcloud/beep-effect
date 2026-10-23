@@ -110,6 +110,9 @@
       "path": "../packages/foundation/modeling/ontology/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/package-json/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/provenance/tsconfig.json"
     },
     {
@@ -144,6 +147,9 @@
     },
     {
       "path": "../packages/law-practice/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../packages/tooling/library/repo-tsconfig/tsconfig.json"
     },
     {
       "path": "../packages/tooling/library/repo-utils/tsconfig.json"

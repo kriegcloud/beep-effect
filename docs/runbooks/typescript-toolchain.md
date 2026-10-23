@@ -155,7 +155,7 @@ The root and all copied compiler profiles contain only rule names known by
 tsc-rs 0.6.0's embedded 0.51.1 rule set. The eleven newer keys (nine from
 0.52–0.53, `schemaClassObjectLiteral` from 0.54 and `preferEffectString` from 0.55) live in
 `standards/effect-diagnostics.profile.json`, decoded by the CLI with a closed
-schema. Each project is resolved with the pinned `get-tsconfig` resolver.
+schema. Each project's `extends` chain is resolved with `TsconfigLoader` from `@beep/repo-tsconfig`.
 The lane validates that resolved plugin with Schema and keeps its settings and overrides, adds the eleven
 profile severities to its diagnosticSeverity map, and passes the complete plugin
 to `effect-tsgo diagnostics --lspconfig`. This replacement option must receive

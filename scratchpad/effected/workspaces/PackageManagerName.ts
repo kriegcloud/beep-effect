@@ -4,14 +4,14 @@
 // `LockfileFormat` and assigns freely to it — which is exactly what
 // `LockfileReader` relies on. They are kept as separate names because they are
 // separate concepts (which PM runs the repo vs. which lockfile grammar to
-// parse), and because `@effected/package-json` already exports a
+// parse), and because `@beep/package-json` already exports a
 // `PackageManager` class for the corepack `pnpm@10.33.0` field.
 
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { PackageManager } from "../package-json/index.ts";
+import { PackageManager } from "@beep/package-json";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
