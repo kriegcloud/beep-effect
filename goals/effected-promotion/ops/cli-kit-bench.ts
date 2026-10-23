@@ -57,7 +57,7 @@ const WorkloadResult = S.Struct({
   linear: S.Boolean,
 });
 const BenchReport = S.Struct({
-  schemaVersion: S.Literal("cli-kit-bench/v1"),
+  schemaVersion: S.tag("cli-kit-bench/v1"),
   growthLimit: S.Finite,
   workloads: S.Array(WorkloadResult),
 });
