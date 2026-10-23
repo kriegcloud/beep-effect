@@ -236,7 +236,8 @@ const generatedComposers = $I.compose(
   "github-reporting",
   "repo-tsconfig",
   "package-json",
-  "config-file"
+  "config-file",
+  "cli-kit"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3442,3 +3443,20 @@ export const $PackageJsonId: Identity.IdentityComposer<"@beep/package-json"> = c
  * @since 0.0.0
  */
 export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = composers.$ConfigFileId;
+
+/**
+ * Identity composer for `@beep/cli-kit`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $CliKitId } from "@beep/identity/packages"
+ *
+ * const id = $CliKitId.make("CliKit")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $CliKitId: Identity.IdentityComposer<"@beep/cli-kit"> = composers.$CliKitId;

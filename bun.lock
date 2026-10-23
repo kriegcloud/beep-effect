@@ -2257,6 +2257,18 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/capability/cli-kit": {
+      "name": "@beep/cli-kit",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/capability/colors": {
       "name": "@beep/colors",
       "version": "0.0.2",
@@ -4561,6 +4573,8 @@
     "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
     "@beep/ciops": ["@beep/ciops@workspace:apps/labs/ciops"],
+
+    "@beep/cli-kit": ["@beep/cli-kit@workspace:packages/foundation/capability/cli-kit"],
 
     "@beep/codegen-kit": ["@beep/codegen-kit@workspace:packages/tooling/library/codegen-kit"],
 

@@ -2169,5 +2169,7 @@
   "@beep/config-file/*": ["./packages/foundation/capability/config-file/src/*"],
   "@beep/config-file/internal/*": [
     "./packages/foundation/capability/config-file/src/internal/*"
-  ]
+  ],
+  "@beep/cli-kit": ["./packages/foundation/capability/cli-kit/src/index.ts"],
+  "@beep/cli-kit/*": ["./packages/foundation/capability/cli-kit/src/*"]
 }

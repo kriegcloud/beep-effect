@@ -150,6 +150,12 @@
         ]
       },
       {
+        "name": "@beep/cli-kit",
+        "patterns": [
+          "packages/foundation/capability/cli-kit/src/**"
+        ]
+      },
+      {
         "name": "@beep/codegen-kit",
         "patterns": [
           "packages/tooling/library/codegen-kit/src/**"
@@ -1635,6 +1641,15 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/cli-kit",
+        "allow": [
+          "@beep/cli-kit"
+        ],
+        "allowTypeOnly": [
+          "@beep/cli-kit"
         ]
       },
       {

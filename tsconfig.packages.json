@@ -292,6 +292,9 @@
       "path": "packages/foundation/capability/chalk"
     },
     {
+      "path": "packages/foundation/capability/cli-kit"
+    },
+    {
       "path": "packages/foundation/capability/colors"
     },
     {
