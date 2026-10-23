@@ -495,6 +495,12 @@ it.layer(Layer.provideMerge(DependencyReviewLive, RecordedGithub), { timeout: "3
           "unresolved-license:unresolved",
         ]);
         expect(verdict._tag === "fail" && verdict.counts.unlicensedRows).toBe(1);
+        expect(A.join(renderDependencyReview(verdict, LICENSES, dependencyReviewFixturePolicy), "\n")).toContain(
+          "denied license:"
+        );
+        expect(A.join(renderDependencyReview(verdict, LICENSES, dependencyReviewFixturePolicy), "\n")).toContain(
+          "unresolved license:"
+        );
       })
     );
 
@@ -603,3 +609,106 @@ it.layer(Layer.provideMerge(DependencyReviewLive, RecordedGithub), { timeout: "3
     );
   }
 );
+
+const reviewWithClient = Effect.fn("DependencyReviewTest.reviewWithClient")(function* (
+  client: GithubPolicyClient["Service"],
+  target: DependencyReviewRequest
+) {
+  const context = yield* Layer.build(
+    DependencyReviewLive.pipe(Layer.provide(Layer.succeed(GithubPolicyClient, client)))
+  );
+  return yield* review(target).pipe(Effect.provideContext(context));
+}, Effect.scoped);
+
+it.layer(RecordedGithub, { timeout: "30 seconds" })("dependency review boundary failures", (it) => {
+  it.effect("handles unquoted pagination, truncated licenses, absent scopes, and low advisories", () =>
+    Effect.gen(function* () {
+      const client = yield* GithubPolicyClient;
+      const rows = yield* decodePage(
+        yield* encodePage([
+          DependencyChange.make({
+            change_type: "added",
+            manifest: "package.json",
+            ecosystem: "npm",
+            name: "low-risk",
+            version: "1.0.0",
+            package_url: null,
+            license: Str.repeat(255)("x"),
+            source_repository_url: "https://github.com/example/license",
+            vulnerabilities: [
+              {
+                advisory_ghsa_id: "GHSA-0000-0000-0000",
+                advisory_summary: "Fixture advisory",
+                advisory_url: "https://example.invalid/advisory",
+                severity: "low",
+              },
+            ],
+          }),
+        ])
+      );
+      const body = yield* encodePage([
+        ...rows,
+        DependencyChange.make({
+          ...O.getOrThrow(A.head(rows)),
+          name: "long-valid-license",
+          license: `MIT${Str.repeat(36)(" OR MIT")}`,
+          vulnerabilities: [],
+        }),
+      ]);
+      let pages = 0;
+      const adapted = GithubPolicyClient.of({
+        ...client,
+        request: Effect.fn("DependencyReviewTest.request")((args: ReadonlyArray<string>) => {
+          const endpoint = O.getOrElse(A.last(args), () => "");
+          if (Str.includes("/commits/")(endpoint))
+            return pipe(
+              endpoint,
+              Str.split("/"),
+              A.last,
+              O.getOrElse(() => ""),
+              ok,
+              Effect.succeed
+            );
+          if (Str.includes("/compare/")(endpoint)) {
+            pages += 1;
+            return Effect.succeed(
+              ok(pages === 1 ? linkedPage("<https://api.github.com/x?page=2>; rel=next", body) : httpPage(2, 2, "[]"))
+            );
+          }
+          return Effect.succeed(ok('{"license":{"spdx_id":"MIT"}}'));
+        }),
+      });
+      const verdict = yield* reviewWithClient(adapted, PR_911);
+      expect(verdict._tag).toBe("pass");
+      expect(pages).toBe(2);
+    })
+  );
+
+  it.effect("fails closed on wrong commit identities and failed or malformed repository-license responses", () =>
+    Effect.gen(function* () {
+      const client = yield* GithubPolicyClient;
+      for (const scenario of ["wrong-commit", "license-request", "license-json"]) {
+        const adapted = GithubPolicyClient.of({
+          ...client,
+          request: Effect.fn("DependencyReviewTest.request")((args: ReadonlyArray<string>) => {
+            const endpoint = O.getOrElse(A.last(args), () => "");
+            if (scenario === "wrong-commit" && Str.includes("/commits/")(endpoint)) return Effect.succeed(ok(sha("0")));
+            if (Str.includes("/license")(endpoint))
+              return scenario === "license-request"
+                ? Effect.fail(CiCommandError.make({ message: "fixture license transport failed" }))
+                : Effect.succeed(ok("not json"));
+            return client.request(args);
+          }),
+        });
+        const verdict = yield* reviewWithClient(adapted, REPOSITORY_LICENSE);
+        expect(verdict._tag === "unknown" && verdict.reason).toBe(
+          scenario === "wrong-commit"
+            ? "not-found"
+            : scenario === "license-request"
+              ? "request-failed"
+              : "malformed-response"
+        );
+      }
+    })
+  );
+});

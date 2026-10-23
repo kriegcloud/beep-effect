@@ -213,12 +213,7 @@ export const makePublicationLedger = Effect.fn("PublicationLedger.make")(functio
   const createLock = Effect.fnUntraced(function* (lock: string) {
     const stamp = yield* O.match(yield* currentOwner, {
       onNone: () => Effect.succeed(""),
-      onSome: (owner) =>
-        encodeOwner(owner).pipe(
-          Effect.mapError(() =>
-            PublicationLockUnavailable.make({ path: lock, message: "Cannot encode recovery lock." })
-          )
-        ),
+      onSome: (owner) => encodeOwner(owner).pipe(Effect.orDie),
     });
     const sibling = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.stamp`;
     const staged = writeDurable(sibling, textEncoder.encode(stamp)).pipe(Effect.mapError(lockUnavailable(lock)));

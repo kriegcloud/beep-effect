@@ -317,7 +317,7 @@ it.layer(NodeTestLayer, { timeout: "5 seconds" })((it) => {
       Effect.gen(function* () {
         yield* temporaryWorkingDirectory;
         const outcome = yield* writeIn({
-          documents: [doc("findings/CSF-001.md", "See /home/elpresidank/notes.txt\n")],
+          documents: [doc("findings/CSF-001.md", "See /home/example/notes.txt\n")],
         }).pipe(
           Effect.map(() => A.empty<string>()),
           Effect.catchTag("CodexFindingsRedactionError", (error) => Effect.succeed(error.surfaces))

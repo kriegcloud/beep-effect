@@ -504,6 +504,12 @@
         ]
       },
       {
+        "name": "@beep/markdown",
+        "patterns": [
+          "packages/foundation/modeling/markdown/src/**"
+        ]
+      },
+      {
         "name": "@beep/mcp-kit",
         "patterns": [
           "packages/foundation/capability/mcp-kit/src/**"
@@ -2941,6 +2947,29 @@
         ]
       },
       {
+        "from": "@beep/markdown",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/markdown",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/markdown",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/yaml"
+        ]
+      },
+      {
         "from": "@beep/mcp-kit",
         "allow": [
           "@beep/identity",
@@ -4370,6 +4399,7 @@
           "@beep/law-practice-use-cases",
           "@beep/m365",
           "@beep/managed-section",
+          "@beep/markdown",
           "@beep/md",
           "@beep/memfs",
           "@beep/n3",
@@ -4420,6 +4450,7 @@
           "@beep/law-practice-use-cases",
           "@beep/m365",
           "@beep/managed-section",
+          "@beep/markdown",
           "@beep/md",
           "@beep/memfs",
           "@beep/n3",
