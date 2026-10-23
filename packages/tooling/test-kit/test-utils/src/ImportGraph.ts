@@ -45,6 +45,8 @@ const $I = $TestUtilsId.create("ImportGraph");
  * console.log(code.includes("gone")) // false
  * ```
  *
+ * @param source - Module text to clean.
+ * @returns The text with line and block comments removed.
  * @category testing
  * @since 0.0.0
  */
@@ -83,6 +85,8 @@ const edgeOf = (match: RegExpMatchArray): ReadonlyArray<string> =>
  * console.log(edges) // ["effect/Array", "./x.ts"]
  * ```
  *
+ * @param source - Module text to scan.
+ * @returns The runtime import specifiers, in source order.
  * @category testing
  * @since 0.0.0
  */
