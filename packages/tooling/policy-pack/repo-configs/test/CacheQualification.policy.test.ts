@@ -217,6 +217,26 @@ describe("cache qualification policy", () => {
     expect(cachePromotionFailures(disabled, rows)).toContain("reuse-disabled-contract");
   });
 
+  it("pins client versions through @beep/semver's pinnable grammar", () => {
+    const isPin = S.is(CacheClientPin);
+    const pin = (version: string) => ({ version, sha256: digest(1), namespace: "fixture-stable" });
+    assertTrue(isPin(pin("2.10.12")));
+    assertTrue(isPin(pin("2.11.5-canary.2")));
+    // The previous inline regex accepted these; SemVer forbids leading zeros and empty identifiers, and
+    // build metadata has no place in an exact client pin.
+    for (const version of [
+      "02.10.12",
+      "2.10.012",
+      "2.10.12-01",
+      "2.10.12-a..b",
+      "2.10.12+build",
+      "v2.10.12",
+      "latest",
+    ]) {
+      expect(isPin(pin(version)), version).toBe(false);
+    }
+  });
+
   it("rejects changed client bytes and overlapping stable/canary namespaces", () => {
     const rows = completeObservations();
     const mismatched = CacheTaskContract.make({

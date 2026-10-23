@@ -9,19 +9,18 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { SemVer } from "@beep/semver/SemVer";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { constant, dual, identity, pipe } from "effect/Function";
+import { constant, dual, flow, identity } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
-import * as Match from "effect/Match";
-import * as N from "effect/Number";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { decodeYamlTextWith } from "../../../../internal/schema/TextCodec.ts";
@@ -179,40 +178,37 @@ const decodeDockerImageValueToString = S.decodeUnknownOption(UnknownDockerImageV
 const dockerImageValueToString = (value: unknown): string =>
   O.getOrElse(decodeDockerImageValueToString(value), () => `${value}`);
 
-// ── Semver-like sorting ─────────────────────────────────────────────────────
+// ── Version ordering ────────────────────────────────────────────────────────
 
-const SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/;
+/**
+ * Parse a stable `MAJOR.MINOR.PATCH` version after an optional leading `v`: strict SemVer with no
+ * prerelease, no build metadata and no surrounding whitespace.
+ */
+const parseStableVersion: (text: string) => O.Option<SemVer> = flow(
+  Str.replace(/^v/, ""),
+  O.liftPredicate(SemVer.isPinnable),
+  O.flatMap(flow(SemVer.parseResult, Result.getSuccess)),
+  O.filter((version) => version.isStable)
+);
 
-const parseSemverPart = N.parse;
-
-const semverTriple = (match: RegExpMatchArray): O.Option<readonly [number, number, number]> =>
-  pipe(
-    O.all([A.get(match, 1), A.get(match, 2), A.get(match, 3)]),
-    O.flatMap(([major, minor, patch]) =>
-      O.all([parseSemverPart(major), parseSemverPart(minor), parseSemverPart(patch)])
-    )
+/** The first tag holding the highest version; a later tag replaces it only when strictly newer. */
+const newestTag = (candidates: ReadonlyArray<readonly [string, SemVer]>): O.Option<string> =>
+  O.map(
+    A.reduce(candidates, O.none<readonly [string, SemVer]>(), (best, candidate) =>
+      O.isSome(best) && SemVer.lte(candidate[1], best.value[1]) ? best : O.some(candidate)
+    ),
+    ([tag]) => tag
   );
 
-const parseSemver = (tag: string): O.Option<readonly [number, number, number]> =>
-  O.flatMap(Str.match(SEMVER_PATTERN)(tag), semverTriple);
-
-const semverCompare = (a: readonly [number, number, number], b: readonly [number, number, number]): number => {
-  if (a[0] !== b[0]) return a[0] - b[0];
-  if (a[1] !== b[1]) return a[1] - b[1];
-  return a[2] - b[2];
-};
-
-const toOrdering = (n: number): -1 | 0 | 1 =>
-  Match.value(n).pipe(
-    Match.when(
-      (value) => value < 0,
-      () => -1 as const
-    ),
-    Match.when(
-      (value) => value > 0,
-      () => 1 as const
-    ),
-    Match.orElse(() => 0 as const)
+const versionedTags = (
+  tags: ReadonlyArray<string>,
+  version: (tag: string) => O.Option<SemVer>
+): ReadonlyArray<readonly [string, SemVer]> =>
+  A.getSomes(
+    A.map(
+      A.filter(tags, isStableTag),
+      (tag): O.Option<readonly [string, SemVer]> => O.map(version(tag), (parsed) => [tag, parsed] as const)
+    )
   );
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -246,77 +242,59 @@ const dockerHubTagsUrl = (repository: string): string => {
 
 // ── Tag resolution strategies ───────────────────────────────────────────────
 
-const findLatestForRedis = (tags: ReadonlyArray<string>): O.Option<string> => {
-  // Find latest semver tag without alpine/bookworm/etc suffixes
-  let best: O.Option<readonly [number, number, number]> = O.none();
-  let bestTag = "";
+const VERSION_PATTERN = /v?\d+\.\d+\.\d+/;
 
-  for (const tag of tags) {
-    if (!isStableTag(tag)) continue;
-    // Pure semver tags only (no suffix)
-    const sv = parseSemver(tag);
-    if (O.isSome(sv)) {
-      if (O.isNone(best) || semverCompare(sv.value, best.value) > 0) {
-        best = sv;
-        bestTag = tag;
-      }
-    }
-  }
+/** Version embedded in a tag such as `pg17-v0.8.0`. */
+const embeddedVersion = (tag: string): O.Option<SemVer> =>
+  O.flatMap(
+    O.flatMap(Str.match(VERSION_PATTERN)(tag), (match) => A.get(match, 0)),
+    parseStableVersion
+  );
 
-  return Str.equivalence(bestTag, Str.empty) ? O.none() : O.some(bestTag);
-};
-
-const VERSION_PATTERN = /v?(\d+)\.(\d+)\.(\d+)/;
-
-const findLatestForPgvector = (tags: ReadonlyArray<string>, currentTag: string): O.Option<string> => {
-  // Current tag is like "pg17" — find latest "pg17-v*" or similar
-  const prefix = O.getOrElse(
+/** Prefix shared by the current tag's family, such as `pg17` for `pg17` and `pg17-v0.8.0`. */
+const tagFamily = (currentTag: string): string =>
+  O.getOrElse(
     O.flatMap(Str.match(/^(pg\d+)/)(currentTag), (match) => O.fromUndefinedOr(match[1])),
     () => currentTag
   );
 
-  let candidates = A.empty<{ tag: string; version: readonly [number, number, number] }>();
-
-  for (const tag of tags) {
-    if (!Str.startsWith(prefix)(tag)) continue;
-    if (!isStableTag(tag)) continue;
-    // Pattern: pg17-v0.8.0 or similar with version suffix
-    const version = O.flatMap(Str.match(VERSION_PATTERN)(tag), semverTriple);
-    if (O.isSome(version)) {
-      candidates = A.append(candidates, {
-        tag,
-        version: version.value,
-      });
-    }
-  }
-
-  if (A.isArrayEmpty(candidates)) return O.none();
-
-  type Candidate = { tag: string; version: readonly [number, number, number] };
-  const sorted = A.sort(
-    candidates,
-    Order.make<Candidate>((a, b) => toOrdering(semverCompare(b.version, a.version)))
-  );
-  return O.map(A.get(sorted, 0), (c) => c.tag);
-};
-
-const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
-  let best: O.Option<readonly [number, number, number]> = O.none();
-  let bestTag = "";
-
-  for (const tag of tags) {
-    if (!isStableTag(tag)) continue;
-    const sv = parseSemver(tag);
-    if (O.isSome(sv)) {
-      if (O.isNone(best) || semverCompare(sv.value, best.value) > 0) {
-        best = sv;
-        bestTag = tag;
-      }
-    }
-  }
-
-  return Str.equivalence(bestTag, Str.empty) ? O.none() : O.some(bestTag);
-};
+/**
+ * Pick the newest stable Docker Hub tag for an image.
+ *
+ * **Details**
+ *
+ * pgvector images keep the current tag's `pgNN` family and read the version embedded in the tag; every other
+ * image (Redis included) takes the newest pure `MAJOR.MINOR.PATCH` tag, with an optional leading `v`. Tags
+ * carrying prerelease markers, `latest`, or a non-SemVer core (leading zeros) never win. Among tags with the
+ * same version, the first one listed wins.
+ *
+ * **Example** (Pick the newest pure version tag)
+ *
+ * ```ts
+ * import { selectLatestDockerTag } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/DockerResolver"
+ * import * as O from "effect/Option"
+ *
+ * const tags = ["8.10.2-alpine", "8.10.2", "8.9.0", "latest"]
+ * const latest = selectLatestDockerTag({ repository: "redis", tag: "8.2.1" }, tags)
+ * console.log(O.getOrElse(latest, () => "none")) // "8.10.2"
+ * ```
+ *
+ * @param ref - The pinned image: its Docker Hub repository (`redis`, `pgvector/pgvector`) and current tag.
+ * @param tags - Tag names Docker Hub returned, in its listing order.
+ * @returns The newest stable tag, when any tag qualifies.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const selectLatestDockerTag: {
+  (ref: Pick<DockerImageRef, "repository" | "tag">, tags: ReadonlyArray<string>): O.Option<string>;
+  (tags: ReadonlyArray<string>): (ref: Pick<DockerImageRef, "repository" | "tag">) => O.Option<string>;
+} = dual(
+  2,
+  (ref: Pick<DockerImageRef, "repository" | "tag">, tags: ReadonlyArray<string>): O.Option<string> =>
+    Str.includes("pgvector")(Str.toLowerCase(ref.repository))
+      ? newestTag(versionedTags(A.filter(tags, Str.startsWith(tagFamily(ref.tag))), embeddedVersion))
+      : newestTag(versionedTags(tags, parseStableVersion))
+);
 
 // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -405,14 +383,7 @@ const fetchLatestDockerTag: (
 
   const tagNames = A.map(body.results, (r) => r.name);
 
-  // Strategy depends on image
-  const repoLower = Str.toLowerCase(ref.repository);
-  const result: O.Option<string> = Match.value(repoLower).pipe(
-    Match.when("redis", () => findLatestForRedis(tagNames)),
-    Match.when("library/redis", () => findLatestForRedis(tagNames)),
-    Match.when(Str.includes("pgvector"), () => findLatestForPgvector(tagNames, ref.tag)),
-    Match.orElse(() => findLatestSemver(tagNames))
-  );
+  const result = selectLatestDockerTag(ref, tagNames);
 
   if (O.isNone(result)) {
     return yield* NetworkUnavailableError.new(`No suitable tag found for ${ref.repository}`);

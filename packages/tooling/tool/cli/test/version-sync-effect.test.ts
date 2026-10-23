@@ -17,6 +17,7 @@ import {
   resolveInstalledToolVersion,
   resolveNodeVersions,
   resolveTurboSchema,
+  selectLatestDockerTag,
   TurboConfigFile,
   TurboSchemaState,
   UpdateApplierService,
@@ -488,6 +489,68 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
       const digest = "2d03fb5fb83ac8b567aca0a281b2ce1a1a19d488f56c2968d88c3f25e92fe452";
       assertSome(extractBunArchiveChecksum(`${digest}  bun-linux-x64.zip\n`), digest);
       assertNone(extractBunArchiveChecksum(`${digest}  bun-linux-aarch64.zip\n`));
+    });
+
+    const localTarget = (bunVersionFile: string, packageManagerField: string) =>
+      A.map(
+        buildBunReport(BunVersionState.make({ bunVersionFile, packageManagerField, latest: O.none() })).items,
+        (item) => [item.file, item.expected]
+      );
+
+    it("reads local Bun pins through @beep/semver with an optional leading v", () => {
+      expect(localTarget("v1.4.0", "1.3.9")).toEqual([["package.json", "bun@v1.4.0"]]);
+      expect(localTarget("1.4.0-rc.10", "1.4.0-rc.9")).toEqual([["package.json", "bun@1.4.0-rc.10"]]);
+      expect(localTarget("1.4.0-alpha", "1.4.0-1")).toEqual([["package.json", "bun@1.4.0-alpha"]]);
+    });
+
+    it("treats non-SemVer local Bun pins as unparsed instead of comparing them", () => {
+      // The pre-@beep/semver pattern read "01.5.0" as 1.5.0 and picked it; the kit rejects leading zeros.
+      expect(localTarget("1.4.0", "01.5.0")).toEqual([["package.json", "bun@1.4.0"]]);
+      // Build metadata is the integrity slot of a pin, never part of the version, so it does not parse.
+      expect(localTarget("1.4.0", "1.5.0+sha256.abc")).toEqual([["package.json", "bun@1.4.0"]]);
+      expect(localTarget("not-a-version", "also-not")).toEqual([["package.json", "bun@not-a-version"]]);
+    });
+  });
+
+  describe("selectLatestDockerTag", () => {
+    const redis = { repository: "redis", tag: "8.10.2" };
+    const pgvector = { repository: "pgvector/pgvector", tag: "pg17" };
+
+    it("picks the newest pure version tag and skips suffixed, floating and prerelease tags", () => {
+      assertSome(
+        selectLatestDockerTag(redis, ["8.9.0", "8.10.2-alpine", "latest", "8.10.2", "8.11.0-rc1", "8"]),
+        "8.10.2"
+      );
+      assertSome(
+        selectLatestDockerTag({ repository: "grafana/otel-lgtm", tag: "0.37.0" }, ["v0.40.1", "0.40.0"]),
+        "v0.40.1"
+      );
+      assertNone(selectLatestDockerTag(redis, ["latest", "8-alpine", "nightly"]));
+    });
+
+    it("keeps the first listed tag among equal versions", () => {
+      assertSome(selectLatestDockerTag(redis, ["v8.10.2", "8.10.2"]), "v8.10.2");
+      assertSome(selectLatestDockerTag(pgvector, ["pg17-v0.8.0", "pg17-v0.8.0-bookworm"]), "pg17-v0.8.0");
+    });
+
+    it("reads pgvector versions inside the current pg family", () => {
+      assertSome(
+        selectLatestDockerTag(pgvector, [
+          "pg16-v0.9.0",
+          "pg17-v0.8.0",
+          "pg17-v0.8.1-bookworm",
+          "pg17",
+          "pg17-v0.9.0-rc1",
+        ]),
+        "pg17-v0.8.1-bookworm"
+      );
+      assertNone(selectLatestDockerTag(pgvector, ["pg16-v0.9.0", "pg17"]));
+    });
+
+    it("rejects version cores that are not SemVer", () => {
+      // The pre-@beep/semver triples read "01" as 1; the kit rejects leading zeros and unsafe integers.
+      assertSome(selectLatestDockerTag(redis, ["8.10.2", "8.10.03", "9007199254740992.0.0"]), "8.10.2");
+      assertNone(selectLatestDockerTag(pgvector, ["pg17-v0.08.0"]));
     });
   });
 

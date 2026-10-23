@@ -90,6 +90,9 @@
       "path": "../../../foundation/modeling/schema/tsconfig.json"
     },
     {
+      "path": "../../../foundation/modeling/semver/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/skill-contract/tsconfig.json"
     },
     {

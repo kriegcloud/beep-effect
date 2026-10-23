@@ -218,6 +218,7 @@
     "@beep/repo-utils": "workspace:^",
     "@beep/runpod": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/semver": "workspace:^",
     "@beep/skill-contract": "workspace:^",
     "@beep/spdx": "workspace:^",
     "@beep/t3-code": "workspace:^",

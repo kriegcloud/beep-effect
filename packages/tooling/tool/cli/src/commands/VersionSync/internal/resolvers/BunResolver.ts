@@ -10,17 +10,17 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
+import { SemVer } from "@beep/semver/SemVer";
 import { A, Str } from "@beep/utils";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { constant, dual, identity, pipe } from "effect/Function";
+import { constant, dual, flow, identity, pipe } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import {
   NetworkUnavailableError,
@@ -155,159 +155,27 @@ export const extractBunArchiveChecksum = (manifest: string): O.Option<string> =>
     Str.match(BUN_ARCHIVE_CHECKSUM_PATTERN)(manifest),
     O.flatMap((match) => O.fromUndefinedOr(match[1]))
   );
-const BUN_SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
-const NUMERIC_PRERELEASE_IDENTIFIER = /^\d+$/;
-
-const BunSemverIdentifier = S.Union([S.Finite, S.String]);
-
-type BunSemverIdentifier = typeof BunSemverIdentifier.Type;
 
 /**
- * Parsed Bun semantic version components.
+ * Parse a Bun pin as a strict SemVer value after an optional leading `v`.
  *
- * @category models
- * @since 0.0.0
+ * A pin carries no surrounding whitespace and no build metadata (the `+` slot of a
+ * `packageManager` value is its integrity hash), so only corepack-pinnable strings parse.
  */
-export class BunSemver extends S.Opaque<BunSemver, { readonly brand: unique symbol }>()(
-  S.Struct({
-    core: S.Tuple([S.Finite, S.Finite, S.Finite]),
-    prerelease: BunSemverIdentifier.pipe(S.NonEmptyArray, S.Option),
-  }).pipe(
-    $I.annoteSchema("BunSemver", {
-      description: "Parsed Bun semantic version components.",
-    })
-  )
-) {}
-
-const parseBunVersionPart = (value: string): O.Option<number> => {
-  const parsed = globalThis.Number(value);
-  return globalThis.Number.isInteger(parsed) && parsed >= 0 ? O.some(parsed) : O.none();
-};
-
-const parsePrereleaseIdentifier = (value: string): O.Option<BunSemverIdentifier> =>
-  pipe(
-    [
-      pipe(
-        Str.match(NUMERIC_PRERELEASE_IDENTIFIER)(value),
-        O.flatMap(() => parseBunVersionPart(value))
-      ),
-      pipe(value, O.liftPredicate(Str.isNonEmpty)),
-    ] satisfies ReadonlyArray<O.Option<BunSemverIdentifier>>,
-    O.firstSomeOf
-  );
-
-const parsePrerelease = (value: string): O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>> => {
-  const identifiers = A.filter(Str.split(".")(value), Str.isNonEmpty);
-  if (A.isReadonlyArrayEmpty(identifiers)) {
-    return O.none();
-  }
-
-  let parsed = A.empty<BunSemverIdentifier>();
-  for (const identifier of identifiers) {
-    const next = parsePrereleaseIdentifier(identifier);
-    if (O.isNone(next)) {
-      return O.none();
-    }
-    parsed = A.append(parsed, next.value);
-  }
-
-  return A.isReadonlyArrayNonEmpty(parsed) ? O.some(parsed) : O.none();
-};
-
-const parseBunSemver = (value: string): O.Option<BunSemver> => {
-  const match = BUN_SEMVER_PATTERN.exec(value);
-  if (match === null) {
-    return O.none();
-  }
-
-  const majorCapture = match[1];
-  const minorCapture = match[2];
-  const patchCapture = match[3];
-  if (majorCapture === undefined || minorCapture === undefined || patchCapture === undefined) {
-    return O.none();
-  }
-  const major = parseBunVersionPart(majorCapture);
-  const minor = parseBunVersionPart(minorCapture);
-  const patch = parseBunVersionPart(patchCapture);
-
-  if (O.isNone(major) || O.isNone(minor) || O.isNone(patch)) {
-    return O.none();
-  }
-
-  const prerelease = O.flatMap(O.fromNullishOr(match[4]), (identifier) =>
-    Str.isNonEmpty(identifier) ? parsePrerelease(identifier) : O.none()
-  );
-
-  return O.some(
-    BunSemver.make({
-      core: [major.value, minor.value, patch.value] as const,
-      prerelease,
-    })
-  );
-};
-
-const compareBunSemverIdentifier = (left: BunSemverIdentifier, right: BunSemverIdentifier): number => {
-  if (P.isNumber(left) && P.isNumber(right)) {
-    return left - right;
-  }
-  if (P.isNumber(left)) {
-    return -1;
-  }
-  if (P.isNumber(right)) {
-    return 1;
-  }
-  if (left < right) {
-    return -1;
-  }
-  if (left > right) {
-    return 1;
-  }
-  return 0;
-};
-
-const comparePrerelease = (
-  left: O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>>,
-  right: O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>>
-): number => {
-  if (O.isNone(left) && O.isNone(right)) {
-    return 0;
-  }
-  if (O.isNone(left)) {
-    return 1;
-  }
-  if (O.isNone(right)) {
-    return -1;
-  }
-
-  for (const result of A.zipWith(left.value, right.value, compareBunSemverIdentifier)) {
-    if (result !== 0) {
-      return result;
-    }
-  }
-  return Order.Number(left.value.length, right.value.length);
-};
-
-const compareBunSemver = (left: BunSemver, right: BunSemver): number => {
-  if (left.core[0] !== right.core[0]) {
-    return left.core[0] - right.core[0];
-  }
-  if (left.core[1] !== right.core[1]) {
-    return left.core[1] - right.core[1];
-  }
-  if (left.core[2] !== right.core[2]) {
-    return left.core[2] - right.core[2];
-  }
-  return comparePrerelease(left.prerelease, right.prerelease);
-};
+const parseBunVersion: (value: string) => O.Option<SemVer> = flow(
+  Str.replace(/^v/, ""),
+  O.liftPredicate(SemVer.isPinnable),
+  O.flatMap(flow(SemVer.parseResult, Result.getSuccess))
+);
 
 const selectLatestLocalBunVersion = (
   state: Pick<BunVersionState, "bunVersionFile" | "packageManagerField">
 ): string => {
-  const bunVersionFile = parseBunSemver(state.bunVersionFile);
-  const packageManagerField = parseBunSemver(state.packageManagerField);
+  const bunVersionFile = parseBunVersion(state.bunVersionFile);
+  const packageManagerField = parseBunVersion(state.packageManagerField);
 
   if (O.isSome(bunVersionFile) && O.isSome(packageManagerField)) {
-    return compareBunSemver(bunVersionFile.value, packageManagerField.value) >= 0
+    return SemVer.gte(bunVersionFile.value, packageManagerField.value)
       ? state.bunVersionFile
       : state.packageManagerField;
   }
