@@ -355,10 +355,9 @@ describe("practice KG correspondents", () => {
 
         const messages = yield* readPracticeKgEmailMessages(
           PracticeKgEmailMessagesInput.make({
-            databasePath,
             sourceSpecs: [{ sourcesPath, textGlob: path.join(extractRoot, "text", "*.txt") }],
           })
-        );
+        ).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
         expect(A.map(messages, (message) => [message.digest, message.messageId])).toStrictEqual([
           ["sha256:a", "a@example.com"],
           ["sha256:b", "b@example.com"],
@@ -374,8 +373,8 @@ describe("practice KG correspondents", () => {
       "reads no email headers when there is no extraction source",
       Effect.fnUntraced(function* () {
         const messages = yield* readPracticeKgEmailMessages(
-          PracticeKgEmailMessagesInput.make({ databasePath: "/nowhere/practice.duckdb", sourceSpecs: [] })
-        );
+          PracticeKgEmailMessagesInput.make({ sourceSpecs: [] })
+        ).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath: ":memory:" })));
         expect(messages).toStrictEqual([]);
       })
     );
