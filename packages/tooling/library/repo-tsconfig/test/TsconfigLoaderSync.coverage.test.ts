@@ -1,4 +1,6 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
+import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
 import { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Context from "effect/Context";
@@ -6,8 +8,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
-import { TsconfigLoaderSync } from "../../effected/tsconfig-json/TsconfigLoaderSync.ts";
 
 const path = Path.layer.pipe(Layer.build, Effect.map(Context.get(Path.Path)), Effect.scoped, Effect.runSync);
 const options = { fileSystem: MemoryFileSystem.makeSync({ "/project/tsconfig.json": "{}" }).sync, path };

@@ -1,12 +1,12 @@
+import { resolveExports, resolveExtendsTarget } from "@beep/repo-tsconfig/internal/extendsTarget";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
-import { resolveExports, resolveExtendsTarget } from "../../effected/tsconfig-json/internal/extendsTarget.ts";
-import { TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
-import { fixtureLayer } from "./fixtures.ts";
+import { fixtureLayer } from "./support/fixtures.ts";
 
 /** Build a fixture tree from `[absolutePath, contents]` pairs. */
 const tree = (...entries: ReadonlyArray<readonly [string, string]>): ReadonlyMap<string, string> => new Map(entries);

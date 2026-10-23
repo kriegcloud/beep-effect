@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { TsconfigExtendsError } from "@beep/repo-tsconfig/TsconfigLoader";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { TsconfigExtendsError } from "../../effected/tsconfig-json/TsconfigLoader.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -28,6 +28,7 @@ describe("TsconfigLoader property floor", () => {
 });
 
 import { MemoryFileSystem } from "@beep/memfs";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
 import { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
 import { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
 import { TsconfigJsonFromString } from "@beep/tsconfig/TsconfigJson";
@@ -35,11 +36,18 @@ import { layer } from "@effect/vitest";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
 
-layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/prop/tsconfig.json": "{}" }), Path.layer), {
-  timeout: "30 seconds",
-})("loader parser properties", (it) => {
+// Tests run concurrently under the shared vitest config, so each property owns its own
+// file: one shared path lets the two properties overwrite each other mid-run.
+layer(
+  Layer.mergeAll(
+    MemoryFileSystem.layerWith({ "/prop/load/tsconfig.json": "{}", "/prop/resolve/tsconfig.json": "{}" }),
+    Path.layer
+  ),
+  {
+    timeout: "30 seconds",
+  }
+)("loader parser properties", (it) => {
   it.effect.prop(
     "load retains encoded document fidelity and its rendering is idempotent",
     [Arbitrary.schema(TsconfigJsonFromString)],
@@ -47,12 +55,12 @@ layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/prop/tsconfig.json": "{}" })
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const encoded = yield* S.encodeEffect(TsconfigJsonFromString)(value);
-        yield* fs.writeFileString("/prop/tsconfig.json", encoded);
-        const parsed = yield* TsconfigLoader.load("/prop/tsconfig.json");
+        yield* fs.writeFileString("/prop/load/tsconfig.json", encoded);
+        const parsed = yield* TsconfigLoader.load("/prop/load/tsconfig.json");
         assertTrue(S.toEquivalence(TsconfigJsonFromString)(parsed, value));
         const formatted = yield* S.encodeEffect(TsconfigJsonFromString)(parsed);
-        yield* fs.writeFileString("/prop/tsconfig.json", formatted);
-        const reparsed = yield* TsconfigLoader.load("/prop/tsconfig.json");
+        yield* fs.writeFileString("/prop/load/tsconfig.json", formatted);
+        const reparsed = yield* TsconfigLoader.load("/prop/load/tsconfig.json");
         assertTrue(S.toEquivalence(TsconfigJsonFromString)(reparsed, parsed));
         assert.strictEqual(yield* S.encodeEffect(TsconfigJsonFromString)(reparsed), formatted);
       }),
@@ -67,22 +75,29 @@ layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/prop/tsconfig.json": "{}" })
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         yield* fs.writeFileString(
-          "/prop/tsconfig.json",
+          "/prop/resolve/tsconfig.json",
           yield* S.encodeEffect(TsconfigJsonFromString)({ compilerOptions: options })
         );
-        const resolved = yield* TsconfigLoader.resolve("/prop/tsconfig.json");
-        const absolutized = ResolvedTsconfig.absolutize({ compilerOptions: options }, "/prop", path.resolve);
+        const resolved = yield* TsconfigLoader.resolve("/prop/resolve/tsconfig.json");
+        const absolutized = ResolvedTsconfig.absolutize({ compilerOptions: options }, "/prop/resolve", path.resolve);
         const expected = ResolvedTsconfig.substituteConfigDir(
           ResolvedTsconfig.merge(
-            ResolvedTsconfig.make({ configPath: "/prop/tsconfig.json", extendedPaths: [], compilerOptions: {} }),
+            ResolvedTsconfig.make({
+              configPath: "/prop/resolve/tsconfig.json",
+              extendedPaths: [],
+              compilerOptions: {},
+            }),
             absolutized,
-            "/prop/tsconfig.json"
+            "/prop/resolve/tsconfig.json"
           ),
-          "/prop"
+          "/prop/resolve"
         );
         assertTrue(S.toEquivalence(ResolvedTsconfig)(resolved, expected));
-        assert.deepStrictEqual(yield* TsconfigLoader.resolve("/prop/tsconfig.json"), resolved);
-        assert.deepStrictEqual(yield* TsconfigLoader.compilerOptions("/prop/tsconfig.json"), resolved.compilerOptions);
+        assert.deepStrictEqual(yield* TsconfigLoader.resolve("/prop/resolve/tsconfig.json"), resolved);
+        assert.deepStrictEqual(
+          yield* TsconfigLoader.compilerOptions("/prop/resolve/tsconfig.json"),
+          resolved.compilerOptions
+        );
       }),
     runs
   );

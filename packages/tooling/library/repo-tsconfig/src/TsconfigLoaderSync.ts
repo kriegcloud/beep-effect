@@ -15,7 +15,7 @@
 // layers, so there is no memoization to poison across calls with different
 // options).
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoTsconfigId } from "@beep/identity/packages";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -31,7 +31,7 @@ import type { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
 import type { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
 import type { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
 
-const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigLoaderSync");
+const $I = $RepoTsconfigId.create("TsconfigLoaderSync");
 
 /** Defect raised when the sync path adapter receives an unsupported operation. */
 class UnsupportedPathOperationError extends S.TaggedError<
@@ -57,7 +57,7 @@ class UnsupportedPathOperationError extends S.TaggedError<
  * **Example** (Adapt Node file operations)
  *
  * ```ts
- * import type { SyncFileSystem } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoaderSync";
+ * import type { SyncFileSystem } from "@beep/repo-tsconfig/TsconfigLoaderSync";
  * import { existsSync, readFileSync } from "node:fs";
  *
  * const fileSystem: SyncFileSystem = {
@@ -99,7 +99,7 @@ export interface SyncFileSystem {
  * **Example** (Supply Node path operations)
  *
  * ```ts
- * import type { TsconfigLoaderSyncOptions } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoaderSync";
+ * import type { TsconfigLoaderSyncOptions } from "@beep/repo-tsconfig/TsconfigLoaderSync";
  * import { existsSync, readFileSync } from "node:fs";
  * import * as path from "node:path";
  *
@@ -317,7 +317,7 @@ const compilerOptions: {
  * ```ts
  * import { existsSync, readFileSync } from "node:fs";
  * import * as path from "node:path";
- * import { TsconfigLoaderSync } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoaderSync";
+ * import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
  *
  * const resolved = TsconfigLoaderSync.resolve("./tsconfig.json", {
  * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8") },
@@ -342,7 +342,7 @@ export class TsconfigLoaderSync {
    * **Example** (Read a config from supplied text)
    *
    * ```ts
-   * import { TsconfigLoaderSync } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoaderSync";
+   * import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
    * import * as path from "node:path/posix";
    *
    * const config = TsconfigLoaderSync.load("/project/tsconfig.json", {
@@ -370,7 +370,7 @@ export class TsconfigLoaderSync {
    * **Example** (Resolve a config from supplied text)
    *
    * ```ts
-   * import { TsconfigLoaderSync } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoaderSync";
+   * import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
    * import * as path from "node:path/posix";
    *
    * const config = TsconfigLoaderSync.resolve("/project/tsconfig.json", {
@@ -396,7 +396,7 @@ export class TsconfigLoaderSync {
    * **Example** (Read effective options from supplied text)
    *
    * ```ts
-   * import { TsconfigLoaderSync } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoaderSync";
+   * import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
    * import * as path from "node:path/posix";
    *
    * const config = TsconfigLoaderSync.compilerOptions("/project/tsconfig.json", {

@@ -1,10 +1,10 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { TsconfigExtendsError, TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
 import { TsconfigParseError } from "@beep/tsconfig/TsconfigJson";
 import { assert, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { TsconfigExtendsError, TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
 
 it.effect("all extends errors expose the reason and resolution context", () =>
   Effect.gen(function* () {

@@ -7,7 +7,7 @@ import type * as FileSystem from "effect/FileSystem";
  * An in-memory fixture filesystem for the resolution suites. The map is
  * absolute file path -> file contents.
  *
- * The volume is `@effected/memfs`, a real virtual POSIX filesystem, rather than
+ * The volume is `@beep/memfs`, a real virtual POSIX filesystem, rather than
  * a `FileSystem.layerNoop` answering the two methods the resolver happens to
  * call. The difference is not cosmetic: a stub implements only the semantics
  * its author remembered, and an unseeded read there returns whatever the stub

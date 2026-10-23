@@ -27,7 +27,7 @@
 // stat-and-isFile probe) would require rewriting the tsc-cited `extendsTarget`
 // engine and its fixtures for a case no supported test can reach.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoTsconfigId } from "@beep/identity/packages";
 import { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
 import { TsconfigJsonFromString, TsconfigParseError } from "@beep/tsconfig/TsconfigJson";
 import * as A from "effect/Array";
@@ -43,7 +43,7 @@ import type { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
 import type { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
 import type * as PlatformError from "effect/PlatformError";
 
-const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigLoader");
+const $I = $RepoTsconfigId.create("TsconfigLoader");
 
 /**
  * The maximum number of `extends` levels the loader will descend before failing
@@ -67,7 +67,7 @@ const MAX_EXTENDS_DEPTH = 32;
  * **Example** (Inspect an unresolved extends target)
  *
  * ```ts
- * import { TsconfigExtendsError } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoader";
+ * import { TsconfigExtendsError } from "@beep/repo-tsconfig/TsconfigLoader";
  *
  * const error = TsconfigExtendsError.make({
  *   path: "/project/tsconfig.json",
@@ -119,7 +119,7 @@ export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { 
    * **Example** (Describe an empty extends target)
    *
    * ```ts
-   * import { TsconfigExtendsError } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoader";
+   * import { TsconfigExtendsError } from "@beep/repo-tsconfig/TsconfigLoader";
    *
    * const error = TsconfigExtendsError.make({
    *   path: "/project/tsconfig.json",
@@ -287,7 +287,7 @@ const compilerOptions = Effect.fn("TsconfigLoader.compilerOptions")(function* (c
  * **Example** (Read the target from a resolved tsconfig)
  *
  * ```ts
- * import { TsconfigLoader } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoader";
+ * import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
  * import * as Effect from "effect/Effect";
  *
  * // Requires `FileSystem` and `Path` in `R`; provide them from a platform layer.
@@ -316,7 +316,7 @@ export abstract class TsconfigLoader {
    * **Example** (Construct a single-config read)
    *
    * ```ts
-   * import { TsconfigLoader } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoader";
+   * import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
    * import * as Effect from "effect/Effect";
    *
    * const program = TsconfigLoader.load("./tsconfig.json");
@@ -348,7 +348,7 @@ export abstract class TsconfigLoader {
    * **Example** (Construct an extends-chain resolution)
    *
    * ```ts
-   * import { TsconfigLoader } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoader";
+   * import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
    * import * as Effect from "effect/Effect";
    *
    * const program = TsconfigLoader.resolve("./tsconfig.json");
@@ -370,7 +370,7 @@ export abstract class TsconfigLoader {
    * **Example** (Construct an effective-options query)
    *
    * ```ts
-   * import { TsconfigLoader } from "@beep/scratchpad/effected/tsconfig-json/TsconfigLoader";
+   * import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
    * import * as Effect from "effect/Effect";
    *
    * const program = TsconfigLoader.compilerOptions("./tsconfig.json");

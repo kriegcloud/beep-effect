@@ -4274,10 +4274,22 @@
       {
         "from": "@beep/repo-tsconfig",
         "allow": [
-          "@beep/repo-tsconfig"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/repo-tsconfig",
+          "@beep/tsconfig",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
-          "@beep/repo-tsconfig"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/repo-tsconfig",
+          "@beep/tsconfig",
+          "@beep/walker"
         ]
       },
       {

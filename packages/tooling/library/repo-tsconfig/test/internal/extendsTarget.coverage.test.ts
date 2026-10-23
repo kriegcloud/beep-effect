@@ -1,9 +1,9 @@
+import { resolveExports, resolveExtendsTarget } from "@beep/repo-tsconfig/internal/extendsTarget";
 import { describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { resolveExports, resolveExtendsTarget } from "../../../effected/tsconfig-json/internal/extendsTarget.ts";
-import { fixtureLayer } from "../fixtures.ts";
+import { fixtureLayer } from "../support/fixtures.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

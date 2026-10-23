@@ -1,5 +1,7 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { MemoryFileSystem } from "@beep/memfs";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
+import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
 import { TsconfigJson, TsconfigJsonFromString } from "@beep/tsconfig/TsconfigJson";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -9,8 +11,6 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
-import { TsconfigLoaderSync } from "../../effected/tsconfig-json/TsconfigLoaderSync.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const path = Path.layer.pipe(Layer.build, Effect.map(Context.get(Path.Path)), Effect.scoped, Effect.runSync);

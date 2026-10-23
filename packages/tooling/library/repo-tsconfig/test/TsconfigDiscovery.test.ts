@@ -1,4 +1,5 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { FindNearestOptions, TsconfigDiscovery } from "@beep/repo-tsconfig/TsconfigDiscovery";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -6,8 +7,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
-import { FindNearestOptions, TsconfigDiscovery } from "../../effected/tsconfig-json/TsconfigDiscovery.ts";
-import { fixtureLayer } from "./fixtures.ts";
+import { fixtureLayer } from "./support/fixtures.ts";
 
 describe("FindNearestOptions runtime model", () => {
   it("decodes plain options and preserves exact optional-key semantics", () => {

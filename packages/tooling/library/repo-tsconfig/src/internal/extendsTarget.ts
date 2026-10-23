@@ -155,7 +155,7 @@ const resolveConditionValue: {
  * **Example** (Resolve a conditional package subpath)
  *
  * ```ts
- * import { resolveExports } from "@beep/scratchpad/effected/tsconfig-json/internal/extendsTarget";
+ * import { resolveExports } from "@beep/repo-tsconfig/internal/extendsTarget";
  * import * as O from "effect/Option";
  *
  * const target = resolveExports({ "./base": { types: "./base.json" } }, "./base");
@@ -337,7 +337,7 @@ const tryCandidate: {
  * **Example** (Construct a relative extends lookup)
  *
  * ```ts
- * import { resolveExtendsTarget } from "@beep/scratchpad/effected/tsconfig-json/internal/extendsTarget";
+ * import { resolveExtendsTarget } from "@beep/repo-tsconfig/internal/extendsTarget";
  * import * as Effect from "effect/Effect";
  *
  * const program = resolveExtendsTarget("./base.json", "/project/tsconfig.json");

@@ -2321,6 +2321,9 @@
       ],
       "@beep/repo-tsconfig/*": [
         "./packages/tooling/library/repo-tsconfig/src/*"
+      ],
+      "@beep/repo-tsconfig/internal/*": [
+        "./packages/tooling/library/repo-tsconfig/src/internal/*"
       ]
     }
   }

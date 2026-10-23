@@ -1,4 +1,6 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { TsconfigExtendsError, TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
+import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Context from "effect/Context";
@@ -8,10 +10,8 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { TsconfigExtendsError, TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
-import { TsconfigLoaderSync } from "../../effected/tsconfig-json/TsconfigLoaderSync.ts";
-import { fixtureLayer } from "./fixtures.ts";
-import type { SyncFileSystem, TsconfigLoaderSyncOptions } from "../../effected/tsconfig-json/TsconfigLoaderSync.ts";
+import { fixtureLayer } from "./support/fixtures.ts";
+import type { SyncFileSystem, TsconfigLoaderSyncOptions } from "@beep/repo-tsconfig/TsconfigLoaderSync";
 
 /** Build a fixture tree from `[absolutePath, contents]` pairs (forward-slash keys). */
 const tree = (...entries: ReadonlyArray<readonly [string, string]>): ReadonlyMap<string, string> => new Map(entries);

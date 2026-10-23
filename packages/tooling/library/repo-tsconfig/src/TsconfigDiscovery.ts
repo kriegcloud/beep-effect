@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoTsconfigId } from "@beep/identity/packages";
 import { Walker } from "@beep/walker/Walker";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import type * as FileSystem from "effect/FileSystem";
 import type * as O from "effect/Option";
 
-const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigDiscovery");
+const $I = $RepoTsconfigId.create("TsconfigDiscovery");
 
 /**
  * Options for {@link TsconfigDiscovery.findNearest}.
@@ -16,7 +16,7 @@ const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigDiscovery");
  * **Example** (Choose a discovery filename)
  *
  * ```ts
- * import { FindNearestOptions } from "@beep/scratchpad/effected/tsconfig-json/TsconfigDiscovery";
+ * import { FindNearestOptions } from "@beep/repo-tsconfig/TsconfigDiscovery";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(FindNearestOptions)({ filename: "tsconfig.build.json" }).filename) // tsconfig.build.json
@@ -78,7 +78,7 @@ const findNearest: {
  * **Example** (Find the nearest tsconfig from the current directory)
  *
  * ```ts
- * import { TsconfigDiscovery } from "@beep/scratchpad/effected/tsconfig-json/TsconfigDiscovery";
+ * import { TsconfigDiscovery } from "@beep/repo-tsconfig/TsconfigDiscovery";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
  *
@@ -106,7 +106,7 @@ export abstract class TsconfigDiscovery {
    * **Example** (Construct a bounded upward discovery effect)
    *
    * ```ts
-   * import { TsconfigDiscovery } from "@beep/scratchpad/effected/tsconfig-json/TsconfigDiscovery";
+   * import { TsconfigDiscovery } from "@beep/repo-tsconfig/TsconfigDiscovery";
    * import * as Effect from "effect/Effect";
    *
    * // Requires FileSystem and Path services supplied by the caller.
