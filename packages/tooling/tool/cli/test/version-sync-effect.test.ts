@@ -286,7 +286,7 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
         const tmpDir = yield* fs.makeTempDirectoryScoped();
         const workflowDir = path.join(tmpDir, ".github", "workflows");
         yield* fs.makeDirectory(workflowDir, { recursive: true });
-        yield* fs.writeFileString(path.join(tmpDir, ".nvmrc"), "24.22.0\n");
+        yield* fs.writeFileString(path.join(tmpDir, ".nvmrc"), "24.22.1\n");
         yield* fs.writeFileString(
           path.join(workflowDir, "check.yml"),
           A.join(
@@ -295,15 +295,15 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
               "  test-unit-shard:",
               "    steps:",
               "      - with:",
-              '          node-version: "22.22.3"',
+              '          node-version: "22.23.4"',
               "  coverage-regression:",
               "    steps:",
               "      - with:",
-              '          node-version: "22.22.3"',
+              '          node-version: "22.23.4"',
               "  ordinary-check:",
               "    steps:",
               "      - with:",
-              '          node-version: "22.22.3"',
+              '          node-version: "22.23.4"',
             ],
             "\n"
           )
@@ -314,18 +314,18 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
 
         yield* fs.writeFileString(
           path.join(workflowDir, "other.yml"),
-          'jobs:\n  coverage-regression:\n    steps:\n      - with:\n          node-version: "22.22.3"\n'
+          'jobs:\n  coverage-regression:\n    steps:\n      - with:\n          node-version: "22.23.4"\n'
         );
         yield* fs.writeFileString(
           path.join(workflowDir, "check.yml"),
-          'jobs:\n  test-unit-shard:\n    steps:\n      - with:\n          node-version: "20.11.1"\n'
+          'jobs:\n  test-unit-shard:\n    steps:\n      - with:\n          node-version: "22.22.3"\n'
         );
         const drift = yield* resolveNodeVersions(tmpDir);
         expect(drift.workflowLocations).toHaveLength(2);
         const report = buildNodeReport(drift);
         expect(report.status).toBe("drift");
-        expect(A.map(report.items, (item) => item.current)).toEqual(expect.arrayContaining(["20.11.1", "22.22.3"]));
-        expect(A.map(report.items, (item) => item.expected)).toEqual(["24.22.0", "24.22.0"]);
+        expect(A.map(report.items, (item) => item.current)).toEqual(expect.arrayContaining(["22.22.3", "22.23.4"]));
+        expect(A.map(report.items, (item) => item.expected)).toEqual(["24.22.1", "24.22.1"]);
       })
     );
 

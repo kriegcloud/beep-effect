@@ -149,7 +149,6 @@ export const mcpbManifest: {
 
 const encodeManifest = S.encodeEffect(S.fromJsonString(McpbManifest, { space: 2 }));
 
-// fallow-ignore-next-line complexity -- operational packaging lane; exercised end-to-end by package:mcpb, not unit-covered
 const packageTarget = Effect.fn("McpbPackage.packageTarget")(function* (
   spec: McpbPackageSpec,
   target: McpbTarget,

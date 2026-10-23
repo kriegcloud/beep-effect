@@ -813,7 +813,7 @@ export const runQaExtract = Effect.fn("QaExtract.run")(function* (
   const store = yield* SessionStore;
   // Every `beep qa` subcommand opens with the same service acquisition and
   // round-layout read; only the error wording each command owns differs.
-  // fallow-ignore-next-line code-duplication -- every beep qa subcommand shares this service-acquisition and round-layout prologue; only the error wording differs
+  // fallow-ignore-next-line code-duplication -- every `beep qa` subcommand repeats this service-acquisition and round-layout prologue with its own error wording. Owner: @beep/repo-cli. Exit: extract a shared Qa round-layout prologue once a third caller needs different wording rules.
   const correlator = yield* ClockCorrelator;
 
   const layout = yield* resolveRoundLayout(cwd, options.session);
@@ -822,7 +822,7 @@ export const runQaExtract = Effect.fn("QaExtract.run")(function* (
     .pipe(QaCommandError.mapError(`qa extract could not read ${layout.sessionPath}.`));
   // Every `beep qa` subcommand opens with the same service acquisition and
   // round-layout read; only the error wording each command owns differs.
-  // fallow-ignore-next-line code-duplication -- every beep qa subcommand shares this service-acquisition and round-layout prologue; only the error wording differs
+  // fallow-ignore-next-line code-duplication -- every `beep qa` subcommand repeats this service-acquisition and round-layout prologue with its own error wording. Owner: @beep/repo-cli. Exit: extract a shared Qa round-layout prologue once a third caller needs different wording rules.
   const eventLog = yield* readEventLog(layout.eventsPath);
 
   const recordedBudget = yield* readArtifactBudget(artifactBudgetPath(path, layout));

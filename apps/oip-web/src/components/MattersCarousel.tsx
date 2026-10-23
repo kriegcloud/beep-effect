@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// fallow-ignore-file unused-file -- temporarily unmounted carousel is retained for review-gate re-enable
+// fallow-ignore-file unused-file -- the carousel is unmounted while the selected-matters review gate is closed and is kept for re-enable. Owner: @beep/oip-web. Exit: remove when OipHomePage mounts it again, or delete the file if the section is dropped.
 /**
  * Selected-matters carousel for the OIP public home page.
  *

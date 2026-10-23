@@ -150,7 +150,6 @@ export const ProviderActionError = S.Union([
   ProviderUnauthenticated,
   ProviderProbeUnavailable,
 ]).pipe(
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("ProviderActionError", { description: "Client-safe provider-instance action failures." }),
   S.toTaggedUnion("_tag")
 );

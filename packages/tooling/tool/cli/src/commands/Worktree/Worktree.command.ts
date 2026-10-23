@@ -477,6 +477,8 @@ export const resolveWorktreeContext = Effect.fn("Worktree.resolveWorktreeContext
  * **Details**
  *
  * Creates the branch along with the worktree and returns the created path.
+ * The default fetches `origin/main`; if fetching fails, an existing tracking
+ * commit is used with a warning. Creation fails when no base commit resolves.
  *
  * **Gotchas**
  *
@@ -504,7 +506,8 @@ export const resolveWorktreeContext = Effect.fn("Worktree.resolveWorktreeContext
 export const addWorktree = Effect.fn("Worktree.addWorktree")(function* (
   context: WorktreeContext,
   name: string,
-  branch: string
+  branch: string,
+  base = "origin/main"
 ): Effect.fn.Return<
   string,
   WorktreeCommandError | WorktreeExistsError,
@@ -517,9 +520,39 @@ export const addWorktree = Effect.fn("Worktree.addWorktree")(function* (
   if (exists) {
     return yield* WorktreeExistsError.new(targetPath);
   }
+  if (base === "origin/main") {
+    yield* runStreamingStep(
+      "git",
+      ["fetch", "--quiet", "--force", "origin", "main:refs/remotes/origin/main"],
+      context.currentRoot,
+      "Failed to fetch origin/main for the new worktree."
+    ).pipe(
+      Effect.catchTag(
+        "WorktreeCommandError",
+        Effect.fnUntraced(function* () {
+          yield* runWorktreeGitCapture(
+            context.currentRoot,
+            ["rev-parse", "--verify", "refs/remotes/origin/main^{commit}"],
+            "Failed to fetch origin/main and no usable tracking base exists."
+          );
+          yield* Console.warn(
+            "  warning: Failed to fetch origin/main; using the existing tracking commit, which may be stale."
+          );
+        })
+      )
+    );
+  }
+  const baseSha = Str.trim(
+    yield* runWorktreeGitCapture(
+      context.currentRoot,
+      ["rev-parse", "--verify", `${base}^{commit}`],
+      "Failed to resolve the worktree base."
+    )
+  );
+  yield* Console.log(`  base: ${base} (${baseSha})`);
   yield* runStreamingStep(
     "git",
-    worktreeAddArgs(targetPath, branch),
+    [...worktreeAddArgs(targetPath, branch), baseSha],
     context.currentRoot,
     "Failed to add the git worktree."
   );
@@ -838,6 +871,7 @@ export const linkReferences = Effect.fn("Worktree.linkReferences")(
 const runWorktreeNew = Effect.fn("Worktree.runWorktreeNew")(function* (options: {
   readonly name: string;
   readonly branch: O.Option<string>;
+  readonly base: O.Option<string>;
 }): Effect.fn.Return<
   void,
   WorktreeCommandError | WorktreeExistsError,
@@ -845,7 +879,12 @@ const runWorktreeNew = Effect.fn("Worktree.runWorktreeNew")(function* (options: 
 > {
   const context = yield* resolveWorktreeContext();
   const branch = O.getOrElse(options.branch, () => defaultWorktreeBranch(options.name));
-  const targetPath = yield* addWorktree(context, options.name, branch);
+  const targetPath = yield* addWorktree(
+    context,
+    options.name,
+    branch,
+    O.getOrElse(options.base, () => "origin/main")
+  );
   yield* runStreamingStep(
     "git",
     ["submodule", "update", "--init", "--recursive"],
@@ -1087,14 +1126,18 @@ const worktreeNewCommand = Command.make(
     name: Argument.String("name").pipe(
       Argument.withDescription("Worktree name (directory under the worktrees root and default branch suffix)")
     ),
+    base: Flag.String("base").pipe(
+      Flag.withDescription("Starting ref (default: origin/main; warns and uses its tracking commit if fetch fails)"),
+      Flag.optional
+    ),
     branch: Flag.String("branch").pipe(
       Flag.withAlias("b"),
       Flag.withDescription("Branch to create for the new worktree (default: feat/<name>)"),
       Flag.optional
     ),
   },
-  Effect.fn(function* ({ name, branch }) {
-    yield* runWorktreeNew({ name, branch }).pipe(
+  Effect.fn(function* ({ name, branch, base }) {
+    yield* runWorktreeNew({ name, branch, base }).pipe(
       Effect.catchTags({
         WorktreeCommandError: Effect.fn(function* (error) {
           yield* Console.error(`worktree new: ${error.message}`);

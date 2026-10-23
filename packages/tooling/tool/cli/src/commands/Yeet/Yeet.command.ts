@@ -270,7 +270,7 @@ const reuseVerifiedFlag = Flag.Boolean("reuse-verified").pipe(
 
 const pushOnlyFlag = Flag.Boolean("push-only").pipe(
   Flag.withDefault(false),
-  Flag.withDescription("Push an already-verified clean commit without committing or rerunning local proof")
+  Flag.withDescription("Push a clean verified commit or base-sync merge without creating a commit")
 );
 
 const botsFlag = Flag.String("bots").pipe(

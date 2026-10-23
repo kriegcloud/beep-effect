@@ -574,7 +574,7 @@ describe("@beep/infra OpenClaw", () => {
       });
       const manifestContent = tree["manifest.json"]?.content ?? "";
       expect(manifestContent).toContain(`"openclawVersion": "2026.7.1-2"`);
-      expect(manifestContent).toContain(`"nodeVersion": "24.16.0"`);
+      expect(manifestContent).toContain(`"nodeVersion": "24.22.1"`);
       expect(manifestContent).toContain(`"generationId": "${defaultGeneration.generationId}"`);
       expect(manifestContent).toContain(`"configHash": "${defaultGeneration.configHash}"`);
       expect(manifestContent).toContain(`"soulSha256": "${defaultGeneration.soulHash}"`);

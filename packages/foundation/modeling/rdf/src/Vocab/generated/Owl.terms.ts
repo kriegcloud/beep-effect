@@ -37,7 +37,7 @@ export const OWL_NAMESPACE = "http://www.w3.org/2002/07/owl#" as const;
  * @category constants
  * @since 0.0.0
  */
-// fallow-ignore-next-line code-duplication -- generated mirror of the identity CoreVocab registry
+// fallow-ignore-next-line code-duplication -- generator-emitted vocabulary tuple; beep sync-data-to-ts --target vocab-terms writes this directive into every terms file, and only the dcterms tuple currently clones the identity CoreVocab list. Owner: @beep/repo-cli (vocab-terms target). Exit: drop it from the generator template and regenerate once the terms derive from @beep/identity CoreVocab instead of a copy.
 export const OWL_TERMS = [
   "AnnotationProperty",
   "AsymmetricProperty",

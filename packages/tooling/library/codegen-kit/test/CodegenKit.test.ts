@@ -1141,9 +1141,159 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
       expect(unionLast).toEqual(expected);
       expect(hook(unionFirst)).toEqual(expected);
 
-      // Without outer annotations the later member wins the conflicting description, as between objects.
-      expect(hook({ allOf: [modeRef, messageRef] })).toEqual({ ...expected, description: "Message part" });
+      // Without outer annotations the union keeps its own description in either member order.
+      expect(hook({ allOf: [modeRef, messageRef] })).toEqual({ ...expected, description: "Form mode" });
       expect(hook({ allOf: [messageRef, modeRef] })).toEqual({ ...expected, description: "Form mode" });
+    })
+  );
+
+  it.effect("keeps a union's default, examples and discriminator on its anyOf and a branch's on that branch", () =>
+    Effect.sync(() => {
+      const branches = [
+        {
+          type: "object",
+          properties: { kind: { const: "text" } },
+          required: ["kind"],
+          default: { kind: "text" },
+          examples: [{ kind: "text" }],
+        },
+        {
+          type: "object",
+          properties: { kind: { const: "image" }, uri: { type: "string" } },
+          required: ["kind", "uri"],
+        },
+      ];
+      const unionLevel = {
+        default: { kind: "image", uri: "a.png" },
+        examples: [{ kind: "text" }, { kind: "image", uri: "b.png" }],
+        discriminator: { propertyName: "kind" },
+      };
+      const shared = { id: { type: "string" } };
+      const block = { ...unionLevel, type: "object", properties: shared, anyOf: branches };
+      const hook = composeTransforms(["distributeAllOf"], { Block: block });
+      const extend = (properties: Record<string, unknown>) =>
+        A.map(branches, (branch) => ({ ...branch, properties: { ...properties, ...shared, ...branch.properties } }));
+
+      const own = hook(block);
+      expect(own).toEqual({ ...unionLevel, anyOf: extend({}) });
+      expect(hook(own)).toEqual(own);
+
+      const caption = { caption: { type: "string" } };
+      const member = hook({
+        description: "Captioned block",
+        type: "object",
+        properties: caption,
+        allOf: [{ $ref: "#/$defs/Block" }],
+      });
+      expect(member).toEqual({ description: "Captioned block", ...unionLevel, anyOf: extend(caption) });
+      expect(hook(member)).toEqual(member);
+    })
+  );
+
+  it.effect("keeps a union's own annotations over an intersected object's in any member order", () =>
+    Effect.sync(() => {
+      const branches = [
+        {
+          type: "object",
+          properties: { kind: { const: "text" } },
+          description: "Text block",
+          default: { kind: "text" },
+        },
+        { type: "object", properties: { kind: { const: "image" } } },
+      ];
+      const caption = {
+        description: "Caption part",
+        title: "Caption",
+        default: { caption: "" },
+        "x-side": "client",
+        type: "object",
+        properties: { caption: { type: "string" } },
+      };
+      const hook = composeTransforms(["distributeAllOf"], {
+        Block: {
+          description: "Content block",
+          title: "Block",
+          default: { kind: "text" },
+          discriminator: { propertyName: "kind" },
+          anyOf: branches,
+        },
+        Caption: caption,
+        Locale: {
+          description: "Locale",
+          title: "Locale",
+          anyOf: [{ properties: { lang: { const: "en" } } }, { properties: { lang: { const: "fr" } } }],
+        },
+        Meta: { "x-side": "server", type: "object", properties: { meta: { type: "string" } } },
+      });
+      const blockRef = { $ref: "#/$defs/Block" };
+      const captionRef = { $ref: "#/$defs/Caption" };
+      const expected = {
+        description: "Content block",
+        title: "Block",
+        default: { kind: "text" },
+        discriminator: { propertyName: "kind" },
+        "x-side": "client",
+        anyOf: A.map(branches, (branch) => ({
+          ...branch,
+          properties: { ...branch.properties, ...caption.properties },
+        })),
+      };
+
+      const unionFirst = hook({ allOf: [blockRef, captionRef] });
+      expect(unionFirst).toEqual(expected);
+      expect(hook({ allOf: [captionRef, blockRef] })).toEqual(expected);
+      expect(hook(unionFirst)).toEqual(expected);
+
+      // Annotations beside a member's `$ref` override the referenced definition's and rank as that
+      // member's own; the node's own win over every member.
+      const useSite = { $ref: "#/$defs/Block", description: "Use site" };
+      expect(hook({ allOf: [useSite, captionRef] })).toEqual({ ...expected, description: "Use site" });
+      expect(hook({ allOf: [captionRef, useSite] })).toEqual({ ...expected, description: "Use site" });
+      expect(hook({ allOf: [blockRef, { ...captionRef, description: "Captioned" }] })).toEqual(expected);
+      expect(hook({ title: "Outer", allOf: [captionRef, blockRef] })).toEqual({ ...expected, title: "Outer" });
+
+      // Objects resolve a conflict right over left wherever the union sits among the members.
+      const metaRef = { $ref: "#/$defs/Meta" };
+      const sides = A.map(
+        [
+          [blockRef, captionRef, metaRef],
+          [captionRef, blockRef, metaRef],
+          [captionRef, metaRef, blockRef],
+          [metaRef, blockRef, captionRef],
+        ],
+        (allOf) => hook({ allOf })["x-side"]
+      );
+      expect(sides).toEqual(["server", "server", "server", "client"]);
+
+      // Between two unions, as between two objects, the later member wins.
+      const localeRef = { $ref: "#/$defs/Locale" };
+      const localeLast = hook({ allOf: [blockRef, localeRef] });
+      const localeFirst = hook({ allOf: [localeRef, blockRef] });
+      expect([localeLast.description, localeLast.title]).toEqual(["Locale", "Locale"]);
+      expect([localeFirst.description, localeFirst.title]).toEqual(["Content block", "Block"]);
+    })
+  );
+
+  it.effect("keeps object annotation precedence stable across pure allOf regrouping", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["distributeAllOf"], {});
+      const left = { type: "object", description: "a", properties: { a: { type: "string" } } };
+      const right = { type: "object", description: "b", properties: { b: { type: "string" } } };
+      const union = { anyOf: [{ properties: { kind: { const: "x" } } }, { properties: { kind: { const: "y" } } }] };
+      const flat = hook({ allOf: [left, union, right] });
+      expect(flat.description).toBe("b");
+      for (const allOf of [
+        [{ allOf: [left, union] }, right],
+        [left, { allOf: [union, right] }],
+        [{ allOf: [{ allOf: [left, union] }, { allOf: [right] }] }],
+        [{ allOf: [] }, left, union, right],
+      ]) {
+        expect(hook({ allOf })).toEqual(flat);
+      }
+      expect(hook(flat)).toEqual(flat);
+      expect(hook({ allOf: [{ description: "Group", allOf: [left, union] }, right] }).description).toBe("Group");
+      expect(hook({ allOf: [{ type: "object", allOf: [left, union] }, right] }).description).toBe("a");
+      expect(hook({ description: "Outer", allOf: [{ allOf: [left, union] }, right] }).description).toBe("Outer");
     })
   );
 
@@ -1354,6 +1504,19 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
         )
       );
       expect(conflict.message).toContain("conflicting constraint maxLength on overlapping property name");
+
+      for (const [property, message] of [
+        [true, "expected an object schema"],
+        [{ type: "string", anyOf: [{ type: "string" }] }, "anyOf with sibling constraints"],
+        [{ anyOf: [true] }, "expected object alternatives"],
+        [{ $ref: "#/$defs/Name" }, "$ref alternatives"],
+      ] as const) {
+        const failure = yield* transformFailure(() =>
+          hook(overlap({ type: "string" }, { type: "object", properties: { name: property } }))
+        );
+        expect(failure.transform).toBe("intersectSiblingProperties");
+        expect(failure.message).toContain(message);
+      }
 
       const reference = yield* transformFailure(() =>
         hook({

@@ -801,7 +801,6 @@ const collectCandidates = Effect.fn("QaJudgePack.collectCandidates")(function* (
 ): Effect.fn.Return<ReadonlyArray<JudgeEvidenceFile>, never, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  // fallow-ignore-next-line code-duplication -- judge-pack assembles typed image evidence while judge-check resolves cited paths after the same mandatory root guard
   const canonicalRoot = yield* fs.realPath(layout.root).pipe(Effect.orElseSucceed(() => path.resolve(layout.root)));
 
   const listImages = Effect.fn("QaJudgePack.listImages")(function* (dir: string, kind: JudgeEvidenceKind) {

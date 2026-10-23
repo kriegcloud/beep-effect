@@ -347,6 +347,21 @@ it.effect(
       capabilities: {},
     });
     assert.equal(initialized.answer.agentInfo?.name, "mock-agent");
+    const providers = yield* exchange(input, output, acp.agent.listProviders({}), { providers: [] });
+    assert.deepEqual([providers.outbound.method, providers.answer], ["providers/list", { providers: [] }]);
+    const provider = { providerId: "provider", apiType: "openai", baseUrl: "https://x.test" };
+    const configured = yield* exchange(input, output, acp.agent.setProvider(provider));
+    assert.deepEqual([configured.outbound.method, configured.outbound.params], ["providers/set", provider]);
+    const disabled = yield* exchange(input, output, acp.agent.disableProvider({ providerId: "provider" }));
+    assert.deepEqual(
+      [disabled.outbound.method, disabled.outbound.params],
+      ["providers/disable", { providerId: "provider" }]
+    );
+    const deleted = yield* exchange(input, output, acp.agent.deleteSession({ sessionId: "session-1" }));
+    assert.deepEqual(
+      [deleted.outbound.method, deleted.outbound.params],
+      ["session/delete", { sessionId: "session-1" }]
+    );
     yield* expectMethodNotFound(acp.agent.setSessionMode({ sessionId: "session-1", modeId: "ask" }));
     assert.equal(yield* Queue.size(output), 0);
   })

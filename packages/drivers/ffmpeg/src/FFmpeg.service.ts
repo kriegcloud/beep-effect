@@ -309,8 +309,7 @@ export class ProgressState extends S.Opaque<ProgressState, { readonly brand: uni
 const defaultConfig = (input?: FFmpegConfigInputOptions | undefined): FFmpegConfig =>
   FFmpegConfig.make(FFmpegConfigInput.make(input ?? {}));
 
-// shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- ffmpeg owns stream-to-text collection so output errors remain driver-local
+// fallow-ignore-next-line code-duplication -- ffmpeg owns stream-to-text collection so output errors stay driver-local. Owner: @beep/ffmpeg. Exit: use effect/Stream text collection directly once it preserves the driver error channel.
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
@@ -1648,8 +1647,7 @@ const renderManifest = Effect.fn("FFmpeg.renderManifest")(function* (
 ) {
   const encoded = yield* ExtractFramesManifest.encodeEffect(manifest).pipe(
     Effect.mapError((cause) =>
-      // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-      // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+      // fallow-ignore-next-line code-duplication -- intra-file twin: extractFrames and extractFramesAt encode and render their manifests the same way; each operation keeps its own FFmpegError operation tag and message. Owner: @beep/ffmpeg. Exit: extract one helper parameterized by operation name and message when another frame or clip operation is added.
       FFmpegError.fromUnknown("extractFrames", `Failed to encode extract-frames manifest: "${manifestPath}"`, { cause })
     )
   );
@@ -1729,8 +1727,7 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
         FFmpegError.fromUnknown("extractFrames", `Failed to write temporary manifest: "${tempManifestPath}"`, { cause })
       )
     );
-  // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-  // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+  // fallow-ignore-next-line code-duplication -- intra-file twin: extractFrames and extractFramesAt commit the temporary manifest the same way; each operation keeps its own FFmpegError operation tag and message. Owner: @beep/ffmpeg. Exit: extract one helper parameterized by operation name and message when another frame or clip operation is added.
   if (context.request.overwrite) {
     yield* fs.remove(context.manifestPath, { force: true }).pipe(Effect.ignore);
   }
@@ -2042,8 +2039,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     const manifestCandidate = pipe(
       request.manifestPath,
       O.match({
-        // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-        // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+        // fallow-ignore-next-line code-duplication -- intra-file twin: extractFrames and extractFramesAt resolve the manifest path inside the output directory the same way; each operation keeps its own FFmpegError operation tag and message. Owner: @beep/ffmpeg. Exit: extract one helper parameterized by operation name and message when another frame or clip operation is added.
         onNone: () => path.join(outDir, "extract-frames-manifest.json"),
         onSome: path.resolve,
       })
@@ -2386,8 +2382,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
   const extractClip = Effect.fn("FFmpeg.extractClip")(function* (rawRequest: ExtractClipRequest) {
     const request = yield* ExtractClipRequest.decodeEffect(rawRequest).pipe(
-      // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-      // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+      // fallow-ignore-next-line code-duplication -- intra-file twin: extractClip, renderGif and writeContainerMetadata share the decode-and-resolve request prologue; each operation keeps its own FFmpegError operation tag and message. Owner: @beep/ffmpeg. Exit: extract one helper parameterized by operation name and message when another frame or clip operation is added.
       Effect.mapError((cause) => FFmpegError.fromUnknown("extractClip", "Invalid extract-clip request.", { cause }))
     );
     const videoPath = path.resolve(request.videoPath);
@@ -2422,8 +2417,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
   const renderGif = Effect.fn("FFmpeg.renderGif")(function* (rawRequest: RenderGifRequest) {
     const request = yield* RenderGifRequest.decodeEffect(rawRequest).pipe(
-      // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-      // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+      // fallow-ignore-next-line code-duplication -- intra-file twin: extractClip, renderGif and writeContainerMetadata share the decode-and-resolve request prologue; each operation keeps its own FFmpegError operation tag and message. Owner: @beep/ffmpeg. Exit: extract one helper parameterized by operation name and message when another frame or clip operation is added.
       Effect.mapError((cause) => FFmpegError.fromUnknown("renderGif", "Invalid render-gif request.", { cause }))
     );
     const videoPath = path.resolve(request.videoPath);
@@ -2505,8 +2499,6 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
   const writeContainerMetadata = Effect.fn("FFmpeg.writeContainerMetadata")(function* (
     rawRequest: WriteContainerMetadataRequest
   ) {
-    // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-    // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
     const request = yield* WriteContainerMetadataRequest.decodeEffect(rawRequest).pipe(
       Effect.mapError((cause) =>
         FFmpegError.fromUnknown("writeContainerMetadata", "Invalid write-container-metadata request.", { cause })

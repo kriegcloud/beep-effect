@@ -154,6 +154,7 @@ describe("DuckDbClient", { concurrent: false }, () => {
           [2, "two"],
         ]);
         assert.deepStrictEqual(yield* sql`INSERT INTO values_rows VALUES (3, 'three')`.values, []);
+        assert.deepStrictEqual(yield* sql`INSERT INTO values_rows VALUES (4, 'four')`.valuesUnprepared, []);
       })
     );
 
@@ -992,6 +993,10 @@ describe("DuckDbClient", { concurrent: false }, () => {
         assert.deepStrictEqual(yield* sql`SELECT ${2}::INTEGER AS v`, [{ v: 2 }]);
         assert.deepStrictEqual(yield* sql`CREATE TABLE no_cache (i INTEGER); INSERT INTO no_cache VALUES (1), (2)`, []);
         assert.deepStrictEqual(yield* sql`SELECT count(*) AS n FROM no_cache`.raw, { changes: 0, rows: [{ n: 2 }] });
+        assert.deepStrictEqual(
+          yield* sql.unsafe("SET schema = 'main'; SELECT i FROM no_cache ORDER BY i").stream.pipe(Stream.runCollect),
+          [{ i: 1 }, { i: 2 }]
+        );
       })
     );
   });
