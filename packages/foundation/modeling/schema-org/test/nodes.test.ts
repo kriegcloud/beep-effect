@@ -45,8 +45,8 @@ describe("node classes", () => {
       Effect.gen(function* () {
         const encoded = yield* S.encodeEffect(TechArticle)(node);
         for (const key of ["headline", "description", "datePublished", "author", "mainEntity", "additional"]) {
-          const explicit = yield* Effect.exit(S.decodeUnknownEffect(TechArticle)({ ...encoded, [key]: undefined }));
-          assertTrue(Exit.isFailure(explicit));
+          const explicit = yield* S.decodeEffect(TechArticle)({ ...encoded, [key]: undefined }).pipe(Effect.exit);
+          explicit.pipe(Exit.isFailure, assertTrue);
         }
       }),
     { arbitrary: fcRuns(25) }

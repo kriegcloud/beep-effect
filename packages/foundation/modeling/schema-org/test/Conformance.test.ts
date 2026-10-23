@@ -397,15 +397,12 @@ describe("Conformance catch-all references", () => {
 
 describe("ConformanceOptions schema and compatible runtime input", () => {
   it("decodes omitted policies to safe defaults and rejects explicit undefined ones", () => {
-    assertTrue(
-      Result.isFailure(
-        S.decodeUnknownResult(ConformanceOptions)({
-          unknownTerms: undefined,
-          deprecations: undefined,
-          danglingReferences: undefined,
-        })
-      )
-    );
+    const explicit = S.decodeUnknownResult(ConformanceOptions)({
+      unknownTerms: undefined,
+      deprecations: undefined,
+      danglingReferences: undefined,
+    });
+    explicit.pipe(Result.isFailure, assertTrue);
     for (const input of [{}]) {
       assert.deepStrictEqual(
         Result.getOrThrow(S.decodeResult(ConformanceOptions)(input)),

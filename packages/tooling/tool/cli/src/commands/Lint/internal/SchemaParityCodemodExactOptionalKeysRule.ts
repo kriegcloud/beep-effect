@@ -21,7 +21,7 @@ import {
   SchemaParityCodemodRulePlan,
   SchemaParityCodemodSite,
 } from "./SchemaParityCodemod.schemas.ts";
-import type { Identifier, SourceFile, Symbol as TsMorphSymbol } from "ts-morph";
+import type { ClassDeclaration, Identifier, SourceFile, Symbol as TsMorphSymbol, VariableDeclaration } from "ts-morph";
 import type { SchemaParityCodemodRuleContext } from "./SchemaParityCodemod.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Lint/internal/SchemaParityCodemodExactOptionalKeysRule");
@@ -107,7 +107,7 @@ const isOwnerDeclaration = (declaration: Node): boolean => {
 const resolvesToOwner = (symbol: TsMorphSymbol | undefined): boolean =>
   pipe(
     O.fromNullishOr(symbol),
-    O.map((resolved) => (resolved.isAlias() ? (resolved.getAliasedSymbol() ?? resolved) : resolved)),
+    O.map((resolved) => (resolved.isAlias() ? resolved.getAliasedSymbolOrThrow() : resolved)),
     O.exists((resolved) => A.some(resolved.getDeclarations(), isOwnerDeclaration))
   );
 
@@ -167,17 +167,12 @@ const fieldOwner = (site: Node): O.Option<{ readonly key: string; readonly owner
     O.flatMap((assignment) =>
       pipe(
         O.fromNullishOr(
-          site.getFirstAncestor((node) => Node.isClassDeclaration(node) || Node.isVariableDeclaration(node))
-        ),
-        O.flatMap((owner) =>
-          O.fromNullishOr(
-            Node.isClassDeclaration(owner)
-              ? owner.getName()
-              : Node.isVariableDeclaration(owner)
-                ? owner.getName()
-                : undefined
+          site.getFirstAncestor(
+            (node): node is ClassDeclaration | VariableDeclaration =>
+              Node.isClassDeclaration(node) || Node.isVariableDeclaration(node)
           )
         ),
+        O.flatMap((owner) => O.fromNullishOr(owner.getName())),
         O.map((owner) => ({ key: assignment.getName(), owner }))
       )
     )

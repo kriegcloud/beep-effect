@@ -135,7 +135,7 @@ describe("exact-optional-keys rule", () => {
 
   it("never rewrites same-named members owned by other modules", () => {
     const outcome = plan(
-      "declare const Flag: { optional: <A>(a: A) => A };\nconst local = { optional: 1, withDecodingDefault: 2 };\nexport const a = [Flag.optional(1), local.optional, local.withDecodingDefault];\n"
+      'declare const Flag: { optional: <A>(a: A) => A };\nconst local = { optional: 1, withDecodingDefault: 2 };\ndeclare const key: "optional";\nexport const b = [local["optional"], S[key]];\nexport const a = [Flag.optional(1), local.optional, local.withDecodingDefault];\n'
     );
     strictEqual(outcome._tag, "Unchanged");
   });
@@ -168,6 +168,15 @@ describe("exact-optional-keys rule", () => {
         'export class CodeNode extends S.Class<CodeNode>("CodeNode")({ theme: S.OptionFromOptional(S.String) }) {}\nexport declare namespace CodeNode {\n  export interface Type {\n    readonly theme: string;\n  }\n  export interface Encoded {\n    readonly theme?: string | undefined;\n    readonly other?: string | undefined;\n  }\n}\n'
       ),
       'export class CodeNode extends S.Class<CodeNode>("CodeNode")({ theme: S.OptionFromOptionalKey(S.String) }) {}\nexport declare namespace CodeNode {\n  export interface Type {\n    readonly theme: string;\n  }\n  export interface Encoded {\n    readonly theme?: string;\n    readonly other?: string | undefined;\n  }\n}\n'
+    );
+  });
+
+  it("leaves companion members without an undefined union alone", () => {
+    strictEqual(
+      rewrite(
+        'export class B extends S.Class<B>("B")({ a: S.optional(S.String), b: S.optional(S.Number) }) {}\nexport declare namespace B {\n  export type Encoded = { readonly a?: string; readonly b?: number | string };\n}\n'
+      ),
+      'export class B extends S.Class<B>("B")({ a: S.optionalKey(S.String), b: S.optionalKey(S.Number) }) {}\nexport declare namespace B {\n  export type Encoded = { readonly a?: string; readonly b?: number | string };\n}\n'
     );
   });
 
