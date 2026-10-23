@@ -45,16 +45,19 @@ console.log(Effect.isEffect(nearest)); // true
 Load synchronously inside a hook that cannot await. Node's built-ins satisfy the operations directly, and the package itself imports no `node:*` module:
 
 ```ts
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import * as path from "node:path";
 import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
 
 const options = TsconfigLoaderSync.compilerOptions("./tsconfig.json", {
-  fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync },
+  fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync,
+    isFile: (p) => statSync(p, { throwIfNoEntry: false })?.isFile() ?? false },
   path,
 });
 console.log(typeof options); // object
 ```
+
+`isFile` is optional and defaults to `exists`, preserving existing sync adapters. Supply it to distinguish files from directories (following symlinks) and return false for missing paths. Directory targets then fall through to a `.json` sibling, later export candidate or ancestor package, as tsc does. The async loader uses the platform `stat` operation for this classification.
 
 `realPath` is optional. Without it, a package target reached through a `node_modules` symlink is used as found, so its own relative `extends` resolves from the link's directory. Failures are the async pipeline's typed errors thrown as themselves (`TsconfigParseError`, `TsconfigExtendsError`, or a `PlatformError` wrapping what your operation threw), never a fiber-failure wrapper.
 

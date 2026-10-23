@@ -323,7 +323,7 @@ const walkConditions = (conditions: UntrustedRecord, captured: O.Option<string>,
  * **Details**
  *
  * The targets are verbatim from the manifest (still relative to the package
- * directory); the caller joins them and takes the first that exists. tsc keeps
+ * directory); the caller joins them and takes the first that is a file. tsc keeps
  * going past a target whose file is missing, through fallback arrays, nested
  * conditions and later conditions alike. A `null` target ends the walk with
  * `blocked: true`: when no earlier target exists, tsc stops the whole lookup
@@ -376,17 +376,22 @@ const readManifest = Effect.fnUntraced(function* (
 });
 
 /**
- * Probe candidate files in order and return the first that exists.
+ * Probe candidate files in order, skipping directories and missing paths.
  *
  * @param fs - The filesystem service.
  * @param candidates - The absolute candidate paths, in priority order.
- * @returns The first existing candidate, or `Option.none()`.
+ * @returns The first file candidate, or `Option.none()`.
  */
 const firstExisting = (
   fs: FileSystem.FileSystem,
   candidates: ReadonlyArray<string>
 ): Effect.Effect<O.Option<string>, PlatformError.PlatformError> =>
-  Effect.findFirst(candidates, (candidate) => fs.exists(candidate));
+  Effect.findFirst(candidates, (candidate) =>
+    fs.stat(candidate).pipe(
+      Effect.map((info) => info.type === "File"),
+      Effect.catchReason("PlatformError", "NotFound", () => Effect.succeed(false))
+    )
+  );
 
 /**
  * The exact path, then the `.json`-appended path unless the `.json` suffix is already present.
@@ -401,8 +406,8 @@ const withJsonRetry = (abs: string, written: string): ReadonlyArray<string> =>
 
 /**
  * Probe a package whose manifest declares `exports`: exports present blocks every same-package
- * fallback, even when it fails to resolve. The first walked target that exists wins; tsc keeps going
- * past a missing one. A miss lets the ancestor walk continue, except when a `null` target ended the
+ * fallback, even when it fails to resolve. The first walked target that is a file wins; tsc keeps going
+ * past a missing path or a directory. A miss lets the ancestor walk continue, except when a `null` target ended the
  * walk: that decides the whole lookup as unresolved.
  *
  * @param fs - The filesystem service.

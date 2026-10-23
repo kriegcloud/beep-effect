@@ -399,6 +399,28 @@ interface SyntheticCase {
 
 const T = "tsconfig.json";
 const SYNTHETIC: ReadonlyArray<SyntheticCase> = [
+  {
+    name: "directory-condition",
+    exports: '{".":{"types":"./directory.json","default":"./tsconfig.json"}}',
+    files: ["directory.json/child.json", T],
+  },
+  {
+    name: "directory-array",
+    exports: '{".":["./directory.json","./tsconfig.json"]}',
+    files: ["directory.json/child.json", T],
+  },
+  {
+    name: "far-after-directory",
+    exports: '{".":"./directory.json"}',
+    files: ["directory.json/child.json"],
+    ancestor: true,
+  },
+  {
+    name: "far-after-fallback-directory",
+    exports: "null",
+    files: ["tsconfig.json/child.json"],
+    ancestor: true,
+  },
   { name: "review", exports: '{".":{"types":"./index.d.ts","default":"./tsconfig.json"}}', files: [T] },
   {
     name: "sibling-present",

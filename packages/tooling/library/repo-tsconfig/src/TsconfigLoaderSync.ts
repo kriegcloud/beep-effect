@@ -23,6 +23,7 @@
  */
 
 import { $RepoTsconfigId } from "@beep/identity/packages";
+import * as ByteSize from "effect/ByteSize";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -61,18 +62,20 @@ class UnsupportedPathOperationError extends S.TaggedError<
  * may throw on failure (a missing file, a permission error); the throw is wrapped
  * in a `PlatformError` and rethrown through the loader's typed channel. Pass
  * `realPath` (Node: `realpathSync`) to get tsc's symlink resolution for package
- * `extends` targets; without it a package target is used as found.
+ * `extends` targets; without it a package target is used as found. Supply
+ * `isFile` to skip directories during target resolution; it defaults to `exists`.
  *
  * **Example** (Adapt Node file operations)
  *
  * ```ts
  * import type { SyncFileSystem } from "@beep/repo-tsconfig/TsconfigLoaderSync";
- * import { existsSync, readFileSync, realpathSync } from "node:fs";
+ * import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
  *
  * const fileSystem: SyncFileSystem = {
  *   exists: existsSync,
  *   readFile: (p) => readFileSync(p, "utf8"),
  *   realPath: realpathSync,
+ *   isFile: (p) => statSync(p, { throwIfNoEntry: false })?.isFile() ?? false,
  * };
  * console.log(typeof fileSystem.readFile) // function
  * ```
@@ -83,11 +86,19 @@ class UnsupportedPathOperationError extends S.TaggedError<
  */
 export interface SyncFileSystem {
   /**
-   * Whether a file exists at `path`. Directory hits follow the loader's documented file-only contract.
+   * Whether an entry exists at `path` (files and directories).
    *
    * @since 0.0.0
    */
   readonly exists: (path: string) => boolean;
+  /**
+   * Whether `path` is a file, following symlinks; return false for missing paths and directories.
+   * Optional; defaults to `exists` for compatibility with existing adapters. Supply this capability
+   * for tsc's directory fallthrough. May throw; the throw surfaces as a `PlatformError`.
+   *
+   * @since 0.0.0
+   */
+  readonly isFile?: ((path: string) => boolean) | undefined;
   /**
    * Read the file at `path` as text. May throw; the throw surfaces as a `PlatformError`.
    *
@@ -243,11 +254,11 @@ const makePathService = (path: SyncPath): Path.Path =>
  * @param operation - The consumer's synchronous operation.
  * @returns The operation's result, or a `PlatformError` carrying the throw as `cause`.
  */
-const trySync = (
+const trySync = <A>(
   method: string,
   path: string,
-  operation: (path: string) => string
-): Effect.Effect<string, PlatformError.PlatformError> =>
+  operation: (path: string) => A
+): Effect.Effect<A, PlatformError.PlatformError> =>
   Effect.try({
     try: () => operation(path),
     catch: (cause) =>
@@ -256,11 +267,12 @@ const trySync = (
 
 /**
  * Adapt the consumer's `SyncFileSystem` into a core `FileSystem` service
- * value. A `readFile` or `realPath` throw is wrapped exactly as a platform
+ * value. A `readFile`, `realPath` or `isFile` throw is wrapped exactly as a platform
  * filesystem would report it: a `PlatformError` whose `SystemError` reason
  * carries module `"FileSystem"`, the method (`"readFileString"` or
- * `"realPath"`), and the original throw as `cause`. An absent `realPath` is the
- * identity.
+ * `"realPath"` or `"stat"`), and the original throw as `cause`. An absent `realPath` is the
+ * identity; an absent `isFile` falls back to `exists`. The internal `stat` supplies
+ * only the file classification the loader probes; its metadata is empty.
  *
  * **Gotchas**
  *
@@ -276,7 +288,28 @@ const trySync = (
  */
 const makeFileSystemService = (fileSystem: SyncFileSystem): FileSystem.FileSystem => {
   const realPath = O.getOrElse(O.fromUndefinedOr(fileSystem.realPath), () => identity<string>);
+  const isFile = O.getOrElse(O.fromUndefinedOr(fileSystem.isFile), () => fileSystem.exists);
   return FileSystem.makeNoop({
+    stat: (path) =>
+      Effect.map(
+        trySync("stat", path, isFile),
+        (file): FileSystem.File.Info => ({
+          type: file ? "File" : "Unknown",
+          mtime: O.none(),
+          atime: O.none(),
+          birthtime: O.none(),
+          dev: BigInt(0),
+          ino: O.none(),
+          mode: 0,
+          nlink: O.none(),
+          uid: O.none(),
+          gid: O.none(),
+          rdev: O.none(),
+          size: ByteSize.bytes(0),
+          blksize: O.none(),
+          blocks: O.none(),
+        })
+      ),
     exists: (path) => Effect.sync(() => fileSystem.exists(path)),
     readFileString: (path) => trySync("readFileString", path, fileSystem.readFile),
     realPath: (path) => trySync("realPath", path, realPath),
@@ -350,8 +383,8 @@ const compilerOptions: {
  *
  * The two adapters treat unsupported members asymmetrically: a `Path` member
  * the loader pipeline never calls throws a named defect on contact, while a
- * `FileSystem` member outside the three overridden here (`exists`,
- * `readFileString`, `realPath`) inherits `FileSystem.makeNoop`'s typed `NotFound`
+ * `FileSystem` member outside the four overridden here (`exists`,
+ * `readFileString`, `realPath`, `stat`) inherits `FileSystem.makeNoop`'s typed `NotFound`
  * failure. A loader change that starts using a new filesystem operation
  * therefore surfaces as a `NotFound` rather than a defect — extend the
  * adapter when that happens.
@@ -359,13 +392,14 @@ const compilerOptions: {
  * **Example** (Resolve with Node platform operations)
  *
  * ```ts
- * import { existsSync, readFileSync, realpathSync } from "node:fs";
+ * import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
  * import * as path from "node:path";
  * import { TsconfigLoaderSync } from "@beep/repo-tsconfig/TsconfigLoaderSync";
  *
- * // `realPath` gives tsc's symlink handling for package-resolved bases.
+ * // `realPath` follows package symlinks; `isFile` skips directory targets.
  * const resolved = TsconfigLoaderSync.resolve("./tsconfig.json", {
- * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync },
+ * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync,
+ *     isFile: (p) => statSync(p, { throwIfNoEntry: false })?.isFile() ?? false },
  * 	path,
  * });
  * console.log(typeof resolved.compilerOptions) // object
