@@ -1,23 +1,28 @@
-// The frontmatter composition seam: the codec contract the free-standing
-// codec modules (`YamlFrontmatter`, `TomlFrontmatter`, `JsonFrontmatter`)
-// implement, and the typed errors they fail with. The schema composition
-// helper (`MarkdownFrontmatter.schema`, typed gray-matter parity) and its
-// write mirror (`MarkdownFrontmatter.set`/`setToString`, schema-encode →
-// codec-encode → one offset-splice edit) live here too, keeping this module
-// the one lean seam between the raw capture node and a consumer's typed data.
-//
-// The codecs themselves are deliberately NOT defined or re-exported here —
-// one module each, never a namespace object. Collecting them would make this
-// module a dispatch table: referencing it would reach every codec, every
-// codec reaches its format engine, and a JSON-only consumer would drag the
-// yaml and toml engines into their bundle (the config-file tree-shaking
-// rule, applied verbatim).
+/**
+ * The frontmatter composition seam: the codec contract the free-standing
+ * codec modules (`YamlFrontmatter`, `TomlFrontmatter`, `JsonFrontmatter`)
+ * build on, the typed errors they fail with, and the schema composition
+ * facade `MarkdownFrontmatter` (typed decode and the `set`/`setToString`
+ * write mirror).
+ *
+ * **Details**
+ *
+ * The codecs themselves are deliberately not defined or re-exported here:
+ * one module each, never a namespace object. Collecting them would make this
+ * module a dispatch table, so a JSON-only consumer would drag the yaml and
+ * toml engines into their bundle.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { MarkdownEdit } from "./MarkdownEdit.ts";
 import { FrontmatterFormat } from "./MarkdownNode.ts";
 import type { MarkdownDocument } from "./MarkdownDocument.ts";
@@ -226,10 +231,9 @@ export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError
  *
  * The three built-in codecs — `YamlFrontmatter`, `TomlFrontmatter` and
  * `JsonFrontmatter` — are free-standing named exports, one per module, each
- * peering on its format package (`@effected/yaml`, `@effected/toml`,
- * `@effected/jsonc`). They are deliberately never collected into a namespace
- * object: name the one codec you use and a bundler drops the rest, engines
- * included.
+ * peering on its format package (`@beep/yaml`, `@beep/toml`, `@beep/jsonc`).
+ * They are deliberately never collected into a namespace object: name the
+ * one codec you use and a bundler drops the rest, engines included.
  *
  * A codec checks the capture's `format` marker before parsing and fails with
  * {@link FrontmatterFormatMismatchError} when handed the wrong format;
@@ -245,19 +249,130 @@ export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError
  * represent — fail with {@link FrontmatterEncodeError} carrying the format
  * package's failure structurally.
  *
+ * Every direction has a synchronous `Result` twin (`decodeResult`,
+ * `encodeResult`) for sync string builders; the `Effect` forms are defined
+ * in terms of them, so the two can never disagree.
+ *
+ * **Example** (Build a codec over a format engine)
+ *
+ * ```ts
+ * import { FrontmatterCodec } from "@beep/markdown/Frontmatter";
+ * import { Frontmatter } from "@beep/markdown/MarkdownNode";
+ * import * as Result from "effect/Result";
+ *
+ * const codec = FrontmatterCodec.make(
+ *   "json",
+ *   (text) => Result.try({ try: (): unknown => JSON.parse(text), catch: (cause) => cause }),
+ *   (data) => Result.succeed(JSON.stringify(data))
+ * );
+ * const decoded = codec.decodeResult(Frontmatter.make({ format: "json", value: "{\"a\":1}" }));
+ * console.log(Result.isSuccess(decoded)); // true
+ * ```
+ *
  * @public
- * @category type-level
+ * @category models
  * @since 0.0.0
  */
-export interface FrontmatterCodec {
-  /** Decode a capture node's raw value into data. */
+export class FrontmatterCodec {
+  /**
+   * Build a codec from a format and its engine's synchronous parse and
+   * stringify functions.
+   *
+   * **Details**
+   *
+   * The engine failures are kept structurally as the `cause` of
+   * {@link FrontmatterDecodeError} and {@link FrontmatterEncodeError}; the
+   * format-marker check runs before `parse` is ever called.
+   *
+   * **Example** (Build a JSON codec)
+   *
+   * ```ts
+   * import { FrontmatterCodec } from "@beep/markdown/Frontmatter";
+   * import * as Result from "effect/Result";
+   *
+   * const codec = FrontmatterCodec.make(
+   *   "json",
+   *   (text) => Result.try({ try: (): unknown => JSON.parse(text), catch: (cause) => cause }),
+   *   (data) => Result.succeed(JSON.stringify(data))
+   * );
+   * console.log(codec.format); // json
+   * ```
+   *
+   * @param format - The format this codec decodes and encodes.
+   * @param parse - The engine's synchronous parse of a capture's raw value.
+   * @param stringify - The engine's synchronous serialization of data.
+   * @returns The codec.
+   * @category constructors
+   * @since 0.0.0
+   */
+  static make(
+    format: FrontmatterFormat,
+    parse: (text: string) => Result.Result<unknown, unknown>,
+    stringify: (data: unknown) => Result.Result<string, unknown>
+  ): FrontmatterCodec {
+    return new FrontmatterCodec(format, parse, stringify);
+  }
+
+  /**
+   * The format this codec decodes and encodes.
+   *
+   * @since 0.0.0
+   */
+  readonly format: FrontmatterFormat;
+
+  /**
+   * Decode a capture node's raw value into data, synchronously.
+   *
+   * @since 0.0.0
+   */
+  readonly decodeResult: (
+    node: FrontmatterNode
+  ) => Result.Result<unknown, FrontmatterDecodeError | FrontmatterFormatMismatchError>;
+
+  /**
+   * Serialize data into a frontmatter body, without fences, synchronously.
+   *
+   * @since 0.0.0
+   */
+  readonly encodeResult: (data: unknown) => Result.Result<string, FrontmatterEncodeError>;
+
+  /**
+   * Decode a capture node's raw value into data.
+   *
+   * @since 0.0.0
+   */
   readonly decode: (
     node: FrontmatterNode
   ) => Effect.Effect<unknown, FrontmatterDecodeError | FrontmatterFormatMismatchError>;
-  /** Serialize data into a frontmatter body, without fences. */
+
+  /**
+   * Serialize data into a frontmatter body, without fences.
+   *
+   * @since 0.0.0
+   */
   readonly encode: (data: unknown) => Effect.Effect<string, FrontmatterEncodeError>;
-  /** The format this codec decodes and encodes. */
-  readonly format: FrontmatterFormat;
+
+  private constructor(
+    format: FrontmatterFormat,
+    parse: (text: string) => Result.Result<unknown, unknown>,
+    stringify: (data: unknown) => Result.Result<string, unknown>
+  ) {
+    this.format = format;
+    this.decodeResult = (node) =>
+      node.format === format
+        ? Result.mapError(parse(node.value), (cause) => FrontmatterDecodeError.make({ format, cause }))
+        : Result.fail(FrontmatterFormatMismatchError.make({ expected: format, actual: node.format }));
+    this.encodeResult = (data) =>
+      Result.mapError(stringify(data), (cause) => FrontmatterEncodeError.make({ format, cause }));
+    // Suspended so an engine defect thrown while parsing or serializing
+    // surfaces as a defect of the returned effect, never at call time.
+    this.decode = Effect.fn("FrontmatterCodec.decode")((node: FrontmatterNode) =>
+      Effect.suspend(() => Effect.fromResult(this.decodeResult(node)))
+    );
+    this.encode = Effect.fn("FrontmatterCodec.encode")((data: unknown) =>
+      Effect.suspend(() => Effect.fromResult(this.encodeResult(data)))
+    );
+  }
 }
 
 /**
@@ -494,7 +609,7 @@ const renderBlock: {
   (body: string): (format: FrontmatterFormat) => string;
 } = dual(2, (format: FrontmatterFormat, body: string): string => {
   const { open, close } = FENCES[format];
-  const normalized = body === "" || body.endsWith("\n") ? body : `${body}\n`;
+  const normalized = body === "" || Str.endsWith("\n")(body) ? body : `${body}\n`;
   return `${open}\n${normalized}${close}`;
 });
 

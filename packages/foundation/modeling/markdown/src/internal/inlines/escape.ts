@@ -6,11 +6,12 @@
 // the line as a hard break, or stands for itself.
 
 import { makeInlineNode } from "../inlineNode.ts";
+import { unitAt } from "../patterns.ts";
 import { ESCAPABLE } from "../unescape.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
-const C_BACKSLASH = 0x5c;
-const C_NEWLINE = 0x0a;
+const C_BACKSLASH = "\\";
+const C_NEWLINE = "\n";
 
 const reEscapable = new RegExp(`^${ESCAPABLE}`);
 
@@ -43,7 +44,7 @@ export const escapeConstruct: InlineConstruct = {
       return true;
     }
 
-    const escaped = scanner.subject.charAt(scanner.pos);
+    const escaped = unitAt(scanner.subject, scanner.pos);
     if (reEscapable.test(escaped)) {
       scanner.pos += 1;
       scanner.appendText(escaped, from, scanner.pos);

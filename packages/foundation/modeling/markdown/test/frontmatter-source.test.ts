@@ -2,13 +2,22 @@
 // grammar without parsing anything, and join back byte-exactly.
 
 import { FrontmatterSource, FrontmatterSourceBlock, FrontmatterSourceSplit } from "@beep/markdown/FrontmatterSource";
-import { Markdown } from "@beep/markdown/Markdown";
+import { Markdown, MarkdownParseOptions } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 const split = FrontmatterSource.split;
 const join = FrontmatterSource.join;
+
+/** The format of the parser's head frontmatter capture, when it captured one. */
+const capturedFormat = (source: string): string | undefined => {
+  const parsed = Markdown.parseResult(source, MarkdownParseOptions.make({ frontmatter: true }));
+  assertSuccess(parsed, Result.getOrThrow(parsed));
+  const head = Result.getOrThrow(parsed).children[0];
+  return head?.type === "frontmatter" ? head.format : undefined;
+};
 
 describe("FrontmatterSource", () => {
   describe("split", () => {
@@ -75,7 +84,7 @@ describe("FrontmatterSource", () => {
         "",
       ]) {
         const result = split(source);
-        assert.strictEqual(result.body, source.slice(result.bodyOffset), source);
+        assert.strictEqual(result.body, Str.slice(result.bodyOffset)(source), source);
       }
     });
 
@@ -88,17 +97,7 @@ describe("FrontmatterSource", () => {
         "# plain\n",
         "---\n---\n",
       ]) {
-        const stringLevel = split(source).frontmatter;
-        const parsed = Markdown.parseResult(source, { frontmatter: true });
-        assertSuccess(parsed, Result.getOrThrow(parsed));
-        if (Result.isSuccess(parsed)) {
-          const head = parsed.success.children[0];
-          const captured = head?.type === "frontmatter" ? head : undefined;
-          assert.strictEqual(stringLevel === undefined, captured === undefined, source);
-          if (stringLevel !== undefined && captured !== undefined) {
-            assert.strictEqual(stringLevel.format, captured.format, source);
-          }
-        }
+        assert.strictEqual(split(source).frontmatter?.format, capturedFormat(source), source);
       }
     });
   });

@@ -1,19 +1,26 @@
-// String-level frontmatter split and join — the raw-source surface, usable
-// without parsing the body at all.
-//
-// The `MarkdownFrontmatter` seam requires a parsed `MarkdownDocument`; this
-// module serves the consumer whose body the CommonMark engine cannot or
-// should not parse (an MDX page, a template) and whose contract is
-// byte-exact boundaries (a snapshot hash over the body). It runs the SAME
-// closed fence grammar as the parser's offset-0 pre-scan — `---` yaml,
-// `+++` toml, `---json` json, fence lines exactly the fence, an unclosed
-// fence is not frontmatter — over raw bytes, and never parses the
-// frontmatter value or the body: string level only, decoding is the codec
-// modules' business.
+/**
+ * String-level frontmatter split and join: the raw-source surface, usable
+ * without parsing the body at all.
+ *
+ * **Details**
+ *
+ * `MarkdownFrontmatter` requires a parsed `MarkdownDocument`; this module
+ * serves the consumer whose body the CommonMark engine cannot or should not
+ * parse (an MDX page, a template) and whose contract is byte-exact boundaries.
+ * It runs the same closed fence grammar as the parser's offset-0 pre-scan
+ * (`---` yaml, `+++` toml, `---json` json; fence lines exactly the fence; an
+ * unclosed fence is not frontmatter) and never parses the frontmatter value
+ * or the body. Decoding is the codec modules' business.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { RawNewline, scanRawFrontmatter } from "./internal/blocks/frontmatter.ts";
 import { FrontmatterFormat } from "./MarkdownNode.ts";
 
@@ -87,10 +94,8 @@ export type FrontmatterNewline = typeof FrontmatterNewline.Type;
  * @category models
  * @since 0.0.0
  */
-export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock, { readonly brand: unique symbol }>(
-  $I`FrontmatterSourceBlock`
-)(
-  {
+export class FrontmatterSourceBlock extends S.Opaque<FrontmatterSourceBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: FrontmatterFormat.pipe(
       $I.annoteKey("FrontmatterSourceBlock.format", {
         description: "Frontmatter encoding declared by the opening fence: YAML, TOML or JSON",
@@ -107,11 +112,12 @@ export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock, { re
           "Opening fence's line terminator, reused for both fences when joining; defaults to LF when omitted",
       })
     ),
-  },
-  $I.annote("FrontmatterSourceBlock", {
-    description:
-      "A frontmatter block at string level: the format its fence declared, the exact bytes between the fence lines, and the fence lines' terminator.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrontmatterSourceBlock", {
+      description:
+        "A frontmatter block at string level: the format its fence declared, the exact bytes between the fence lines, and the fence lines' terminator.",
+    })
+  )
 ) {}
 
 /**
@@ -145,10 +151,8 @@ export class FrontmatterSourceBlock extends S.Class<FrontmatterSourceBlock, { re
  * @category models
  * @since 0.0.0
  */
-export class FrontmatterSourceSplit extends S.Class<FrontmatterSourceSplit, { readonly brand: unique symbol }>(
-  $I`FrontmatterSourceSplit`
-)(
-  {
+export class FrontmatterSourceSplit extends S.Opaque<FrontmatterSourceSplit, { readonly brand: unique symbol }>()(
+  S.Struct({
     frontmatter: S.optionalKey(FrontmatterSourceBlock).pipe(
       $I.annoteKey("FrontmatterSourceSplit.frontmatter", {
         description:
@@ -168,12 +172,16 @@ export class FrontmatterSourceSplit extends S.Class<FrontmatterSourceSplit, { re
           "Zero-based UTF-16 source offset where the body begins, immediately after the closing fence and terminator, or zero without frontmatter",
       })
     ),
-  },
-  $I.annote("FrontmatterSourceSplit", {
-    description:
-      "The result of FrontmatterSource.split: the frontmatter block when one exists, the exact body remainder, and the body's byte offset.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrontmatterSourceSplit", {
+      description:
+        "The result of FrontmatterSource.split: the frontmatter block when one exists, the exact body remainder, and the body's byte offset.",
+    })
+  )
 ) {}
+
+/** A value whose last line already carries a line terminator (LF, or a CR ending a CR or CRLF). */
+const TERMINATED_VALUE = /[\n\r]$/;
 
 /** The opening fence line per format (the closed grammar's spellings). */
 const OPEN_FENCE: Record<FrontmatterFormat, string> = {
@@ -247,18 +255,18 @@ export abstract class FrontmatterSource {
    * @since 0.0.0
    */
   static split(source: string): FrontmatterSourceSplit {
-    const capture = scanRawFrontmatter(source);
-    if (capture === null) {
-      return FrontmatterSourceSplit.make({ body: source, bodyOffset: 0 });
-    }
-    return FrontmatterSourceSplit.make({
-      frontmatter: FrontmatterSourceBlock.make({
-        format: capture.format,
-        value: capture.value,
-        newline: capture.newline,
-      }),
-      body: source.slice(capture.bodyOffset),
-      bodyOffset: capture.bodyOffset,
+    return O.match(scanRawFrontmatter(source), {
+      onNone: () => FrontmatterSourceSplit.make({ body: source, bodyOffset: 0 }),
+      onSome: (capture) =>
+        FrontmatterSourceSplit.make({
+          frontmatter: FrontmatterSourceBlock.make({
+            format: capture.format,
+            value: capture.value,
+            newline: capture.newline,
+          }),
+          body: Str.slice(capture.bodyOffset)(source),
+          bodyOffset: capture.bodyOffset,
+        }),
     });
   }
 
@@ -306,10 +314,7 @@ export abstract class FrontmatterSource {
       return split.body;
     }
     const newline = block.newline ?? "\n";
-    const value =
-      block.value === "" || block.value.endsWith("\n") || block.value.endsWith("\r")
-        ? block.value
-        : `${block.value}${newline}`;
+    const value = block.value === "" || TERMINATED_VALUE.test(block.value) ? block.value : `${block.value}${newline}`;
     return `${OPEN_FENCE[block.format]}${newline}${value}${CLOSE_FENCE[block.format]}${newline}${split.body}`;
   }
 }

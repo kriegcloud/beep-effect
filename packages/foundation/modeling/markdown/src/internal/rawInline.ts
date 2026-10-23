@@ -7,7 +7,10 @@
 
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { parseInlines } from "./inlineParser.ts";
+import { unitAt } from "./patterns.ts";
+import { sliceWithSegments } from "./segments.ts";
 import type * as HashMap from "effect/HashMap";
 import type * as HashSet from "effect/HashSet";
 import type { BlockNode, PreparedInline, RawInlineSegment } from "./blockTypes.ts";
@@ -56,47 +59,32 @@ const reCmarkSpace = /[ \t\n\r]/;
 export const trimWithSegments: {
   (
     text: string,
-    segments: ReadonlyArray<RawInlineSegment>,
+    segments: ReadonlyArray<RawInlineSegment.Encoded>,
     whitespace: RegExp
-  ): { readonly text: string; readonly segments: ReadonlyArray<RawInlineSegment> };
+  ): { readonly text: string; readonly segments: ReadonlyArray<RawInlineSegment.Encoded> };
   (
-    segments: ReadonlyArray<RawInlineSegment>,
+    segments: ReadonlyArray<RawInlineSegment.Encoded>,
     whitespace: RegExp
-  ): (text: string) => { readonly text: string; readonly segments: ReadonlyArray<RawInlineSegment> };
+  ): (text: string) => { readonly text: string; readonly segments: ReadonlyArray<RawInlineSegment.Encoded> };
 } = dual(
   3,
   (
     text: string,
-    segments: ReadonlyArray<RawInlineSegment>,
+    segments: ReadonlyArray<RawInlineSegment.Encoded>,
     whitespace: RegExp
-  ): { readonly text: string; readonly segments: ReadonlyArray<RawInlineSegment> } => {
+  ): { readonly text: string; readonly segments: ReadonlyArray<RawInlineSegment.Encoded> } => {
     let start = 0;
     let end = text.length;
-    while (start < end && whitespace.test(text.charAt(start))) {
+    while (start < end && whitespace.test(unitAt(text, start))) {
       start += 1;
     }
-    while (end > start && whitespace.test(text.charAt(end - 1))) {
+    while (end > start && whitespace.test(unitAt(text, end - 1))) {
       end -= 1;
     }
 
-    if (start === 0 && end === text.length) {
-      return { text, segments };
-    }
-
-    const trimmed: RawInlineSegment[] = [];
-    for (const segment of segments) {
-      const from = Math.max(segment.textOffset, start);
-      const to = Math.min(segment.textOffset + segment.length, end);
-      if (to > from) {
-        trimmed.push({
-          textOffset: from - start,
-          sourceOffset: segment.sourceOffset + (from - segment.textOffset),
-          length: to - from,
-        });
-      }
-    }
-
-    return { text: text.slice(start, end), segments: trimmed };
+    return start === 0 && end === text.length
+      ? { text, segments }
+      : { text: Str.slice(start, end)(text), segments: sliceWithSegments(segments, start, end) };
   }
 );
 

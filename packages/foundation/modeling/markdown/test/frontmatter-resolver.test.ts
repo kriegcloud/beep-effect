@@ -26,16 +26,23 @@ import {
 } from "@beep/markdown/FrontmatterResolver";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type {
   FrontmatterResolveError,
   FrontmatterSchemaResolver,
   SchemaDeclaration,
 } from "@beep/markdown/FrontmatterResolver";
+
+/** Assert a guard holds, narrowing the value for the field checks that follow. */
+const assertIs: <T>(guard: (input: unknown) => input is T, value: unknown) => asserts value is T = (guard, value) => {
+  assert.isTrue(guard(value));
+};
 
 const Skill = S.Struct({ $schema: S.optionalKey(S.String), title: S.String });
 const BlogPost = S.Struct({ slug: S.String });
@@ -45,7 +52,7 @@ describe("SchemaResolver.classify", () => {
     const result = SchemaResolver.classify("https://example.com/schema.json");
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;
-    assert.instanceOf(result.success, SchemaDeclarationByUrl);
+    assertIs(S.is(SchemaDeclarationByUrl), result.success);
     assert.strictEqual(result.success.url, "https://example.com/schema.json");
   });
 
@@ -54,7 +61,7 @@ describe("SchemaResolver.classify", () => {
       const result = SchemaResolver.classify(path);
       assertSuccess(result, Result.getOrThrow(result));
       if (Result.isFailure(result)) return;
-      assert.instanceOf(result.success, SchemaDeclarationByPath);
+      assertIs(S.is(SchemaDeclarationByPath), result.success);
       assert.strictEqual(result.success.path, path);
     }
   });
@@ -64,7 +71,7 @@ describe("SchemaResolver.classify", () => {
     const result = SchemaResolver.classify(document);
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;
-    assert.instanceOf(result.success, SchemaDeclarationInline);
+    assertIs(S.is(SchemaDeclarationInline), result.success);
     assert.deepStrictEqual(result.success.document, document);
   });
 
@@ -72,16 +79,16 @@ describe("SchemaResolver.classify", () => {
     const result = SchemaResolver.classify("blog-post");
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;
-    assert.instanceOf(result.success, SchemaDeclarationByName);
+    assertIs(S.is(SchemaDeclarationByName), result.success);
     assert.strictEqual(result.success.name, "blog-post");
-    assert.isFalse(Object.hasOwn(result.success, "version"));
+    assert.isFalse(P.hasProperty(result.success, "version"));
   });
 
   it("splits name and version at the last @", () => {
     const result = SchemaResolver.classify("skill@2.1.0");
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;
-    assert.instanceOf(result.success, SchemaDeclarationByName);
+    assertIs(S.is(SchemaDeclarationByName), result.success);
     assert.strictEqual(result.success.name, "skill");
     assert.strictEqual(result.success.version, "2.1.0");
   });
@@ -90,16 +97,16 @@ describe("SchemaResolver.classify", () => {
     const scoped = SchemaResolver.classify("@savvy/skill@2.1.0");
     assertSuccess(scoped, Result.getOrThrow(scoped));
     if (Result.isFailure(scoped)) return;
-    assert.instanceOf(scoped.success, SchemaDeclarationByName);
+    assertIs(S.is(SchemaDeclarationByName), scoped.success);
     assert.strictEqual(scoped.success.name, "@savvy/skill");
     assert.strictEqual(scoped.success.version, "2.1.0");
 
     const bare = SchemaResolver.classify("@savvy/skill");
     assertSuccess(bare, Result.getOrThrow(bare));
     if (Result.isFailure(bare)) return;
-    assert.instanceOf(bare.success, SchemaDeclarationByName);
+    assertIs(S.is(SchemaDeclarationByName), bare.success);
     assert.strictEqual(bare.success.name, "@savvy/skill");
-    assert.isFalse(Object.hasOwn(bare.success, "version"));
+    assert.isFalse(P.hasProperty(bare.success, "version"));
   });
 
   it("accepts one, two and three integer version segments", () => {
@@ -111,7 +118,7 @@ describe("SchemaResolver.classify", () => {
       const result = SchemaResolver.classify(declaration);
       assertSuccess(result, Result.getOrThrow(result));
       if (Result.isFailure(result)) return;
-      assert.instanceOf(result.success, SchemaDeclarationByName);
+      assertIs(S.is(SchemaDeclarationByName), result.success);
       assert.strictEqual(result.success.version, version);
     }
   });
@@ -153,12 +160,12 @@ describe("SchemaResolver.classify", () => {
       const result = SchemaResolver.classify(s);
       if (Result.isSuccess(result)) {
         const declaration = result.success;
-        if (s.includes("://")) {
-          assert.instanceOf(declaration, SchemaDeclarationByUrl);
-        } else if (s.startsWith("./") || s.startsWith("../") || s.startsWith("/")) {
-          assert.instanceOf(declaration, SchemaDeclarationByPath);
+        if (Str.includes("://")(s)) {
+          assertIs(S.is(SchemaDeclarationByUrl), declaration);
+        } else if (Str.startsWith("./")(s) || Str.startsWith("../")(s) || Str.startsWith("/")(s)) {
+          assertIs(S.is(SchemaDeclarationByPath), declaration);
         } else {
-          assert.instanceOf(declaration, SchemaDeclarationByName);
+          assertIs(S.is(SchemaDeclarationByName), declaration);
         }
       }
     },
@@ -171,12 +178,12 @@ describe("SchemaResolver.classify", () => {
     "grammar round-trip: generated integer segments always classify, junk suffixes never do",
     [Segments],
     ([parts]) => {
-      const version = parts.join(".");
+      const version = A.join(A.map(parts, String), ".");
       const result = SchemaResolver.classify(`skill@${version}`);
       assertSuccess(result, Result.getOrThrow(result));
       if (Result.isSuccess(result)) {
         const declaration = result.success;
-        assert.instanceOf(declaration, SchemaDeclarationByName);
+        assertIs(S.is(SchemaDeclarationByName), declaration);
         if (S.is(SchemaDeclarationByName)(declaration)) {
           assert.strictEqual(declaration.version, version);
         }
@@ -193,7 +200,7 @@ describe("SchemaResolver.declarationOf", () => {
     const result = SchemaResolver.declarationOf({ $schema: "skill@2.1.0", title: "t" });
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;
-    assert.instanceOf(result.success, SchemaDeclarationByName);
+    assertIs(S.is(SchemaDeclarationByName), result.success);
   });
 
   it("yields undefined for a missing declaration by default", () => {
@@ -269,7 +276,7 @@ describe("SchemaResolver.fromRegistry", () => {
       const failure = yield* Effect.flip(resolver.resolve(declare("skill@2"), {}));
       assert.instanceOf(failure, SchemaVersionUnresolvableError);
       if (S.is(SchemaVersionUnresolvableError)(failure)) {
-        assert.strictEqual(failure.name, "skill");
+        assert.strictEqual(failure.schemaName, "skill");
         assert.strictEqual(failure.version, "2");
       }
     })
@@ -290,8 +297,8 @@ describe("SchemaResolver.fromRegistry", () => {
         const failure = yield* Effect.flip(resolver.resolve(declare("skill"), {}));
         assert.instanceOf(failure, SchemaVersionUnresolvableError);
         if (S.is(SchemaVersionUnresolvableError)(failure)) {
-          assert.strictEqual(failure.name, "skill");
-          assert.isFalse(Object.hasOwn(failure, "version"));
+          assert.strictEqual(failure.schemaName, "skill");
+          assert.isFalse(P.hasProperty(failure, "version"));
         }
       })
   );
@@ -339,8 +346,10 @@ describe("SchemaResolver.fromRegistry", () => {
         const large = SchemaResolver.fromRegistry({ [`skill@${registered}`]: Skill });
         const failure = yield* Effect.flip(large.resolve(declare(`skill@${requested}`), {}));
         assert.instanceOf(failure, SchemaVersionUnresolvableError);
-        assert.strictEqual(failure.name, "skill");
-        assert.strictEqual(failure.version, requested);
+        if (S.is(SchemaVersionUnresolvableError)(failure)) {
+          assert.strictEqual(failure.schemaName, "skill");
+          assert.strictEqual(failure.version, requested);
+        }
       }
     })
   );

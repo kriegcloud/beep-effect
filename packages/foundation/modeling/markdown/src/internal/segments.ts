@@ -39,9 +39,9 @@ import type { RawInlineSegment } from "./blockTypes.ts";
  * @since 0.0.0
  */
 export const sourceOffsetAt: {
-  (segments: ReadonlyArray<RawInlineSegment>, textIndex: number, fallback: number): number;
-  (textIndex: number, fallback: number): (segments: ReadonlyArray<RawInlineSegment>) => number;
-} = dual(3, (segments: ReadonlyArray<RawInlineSegment>, textIndex: number, fallback: number): number => {
+  (segments: ReadonlyArray<RawInlineSegment.Encoded>, textIndex: number, fallback: number): number;
+  (textIndex: number, fallback: number): (segments: ReadonlyArray<RawInlineSegment.Encoded>) => number;
+} = dual(3, (segments: ReadonlyArray<RawInlineSegment.Encoded>, textIndex: number, fallback: number): number => {
   let low = 0;
   let high = segments.length;
   while (low < high) {
@@ -80,20 +80,34 @@ export const sourceOffsetAt: {
  * @since 0.0.0
  */
 export const sliceWithSegments: {
-  (segments: ReadonlyArray<RawInlineSegment>, from: number, to: number): ReadonlyArray<RawInlineSegment>;
-  (from: number, to: number): (segments: ReadonlyArray<RawInlineSegment>) => ReadonlyArray<RawInlineSegment>;
-} = dual(3, (segments: ReadonlyArray<RawInlineSegment>, from: number, to: number): ReadonlyArray<RawInlineSegment> => {
-  const sliced: RawInlineSegment[] = [];
-  for (const segment of segments) {
-    const start = Math.max(segment.textOffset, from);
-    const end = Math.min(segment.textOffset + segment.length, to);
-    if (end > start) {
-      sliced.push({
-        textOffset: start - from,
-        sourceOffset: segment.sourceOffset + (start - segment.textOffset),
-        length: end - start,
-      });
+  (
+    segments: ReadonlyArray<RawInlineSegment.Encoded>,
+    from: number,
+    to: number
+  ): ReadonlyArray<RawInlineSegment.Encoded>;
+  (
+    from: number,
+    to: number
+  ): (segments: ReadonlyArray<RawInlineSegment.Encoded>) => ReadonlyArray<RawInlineSegment.Encoded>;
+} = dual(
+  3,
+  (
+    segments: ReadonlyArray<RawInlineSegment.Encoded>,
+    from: number,
+    to: number
+  ): ReadonlyArray<RawInlineSegment.Encoded> => {
+    const sliced: RawInlineSegment.Encoded[] = [];
+    for (const segment of segments) {
+      const start = Math.max(segment.textOffset, from);
+      const end = Math.min(segment.textOffset + segment.length, to);
+      if (end > start) {
+        sliced.push({
+          textOffset: start - from,
+          sourceOffset: segment.sourceOffset + (start - segment.textOffset),
+          length: end - start,
+        });
+      }
     }
+    return sliced;
   }
-  return sliced;
-});
+);

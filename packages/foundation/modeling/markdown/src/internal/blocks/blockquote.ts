@@ -7,22 +7,29 @@
 // first becomes reachable (`addLine` pads the remainder back out).
 
 import { dual } from "effect/Function";
-import { flowChildren } from "../blockTypes.ts";
+import { BlockConstruct, BlockStart, containerMaterializer, containsFlow, flowChildren } from "../blockTypes.ts";
 import { trustedNode } from "../nodes.ts";
-import { isSpaceOrTab, peekCode } from "../preprocess.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  BlockStart,
-  BlockStartResult,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import { unitAt } from "../patterns.ts";
+import { isSpaceOrTab } from "../preprocess.ts";
+import type { BlockContinueResult, BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 import type { Blockquote } from "../nodes.ts";
 
-const C_GREATERTHAN = 0x3e;
+/**
+ * Consume a `>` marker at the scan position and the one optional space or
+ * tab after it — where a partially consumed tab first becomes reachable.
+ * Returns whether there was a marker to consume.
+ */
+const consumeMarker = (scanner: BlockScanner): boolean => {
+  if (scanner.indented || unitAt(scanner.currentLine, scanner.nextNonspace) !== ">") {
+    return false;
+  }
+  scanner.advanceNextNonspace();
+  scanner.advanceOffset(1, false);
+  if (isSpaceOrTab(unitAt(scanner.currentLine, scanner.offset))) {
+    scanner.advanceOffset(1, true);
+  }
+  return true;
+};
 
 /**
  * Materializes a blockquote that continues while each line carries its `>` marker.
@@ -39,36 +46,20 @@ const C_GREATERTHAN = 0x3e;
  * @category parsing
  * @since 0.0.0
  */
-export const blockquoteConstruct: BlockConstruct = {
-  type: "blockquote",
-  acceptsLines: false,
-  canContain: (child) => child !== "listItem",
-  continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => {
-    const line = scanner.currentLine;
-    if (scanner.indented || peekCode(line, scanner.nextNonspace) !== C_GREATERTHAN) {
-      return 1;
-    }
-    scanner.advanceNextNonspace();
-    scanner.advanceOffset(1, false);
-    if (isSpaceOrTab(peekCode(line, scanner.offset))) {
-      scanner.advanceOffset(1, true);
-    }
-    return 0;
-  }),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined =>
-      trustedNode<Blockquote>({
-        type: "blockquote",
-        children: flowChildren(children),
-        position: context.position(block.startOffset, block.endOffset),
-      })
+export const blockquoteConstruct = new BlockConstruct("blockquote", false, {
+  canContain: containsFlow,
+  continue: dual(
+    2,
+    (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => (consumeMarker(scanner) ? 0 : 1)
   ),
-};
+  materialize: containerMaterializer((block, children, context) =>
+    trustedNode<Blockquote>({
+      type: "blockquote",
+      children: flowChildren(children),
+      position: context.position(block.startOffset, block.endOffset),
+    })
+  ),
+});
 
 /**
  * Opens a blockquote at an unindented `>` marker.
@@ -84,20 +75,14 @@ export const blockquoteConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const blockquoteStart: BlockStart = {
-  name: "blockquote",
-  trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
-    if (scanner.indented || peekCode(scanner.currentLine, scanner.nextNonspace) !== C_GREATERTHAN) {
+export const blockquoteStart = new BlockStart(
+  "blockquote",
+  dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
+    if (!consumeMarker(scanner)) {
       return 0;
-    }
-
-    scanner.advanceNextNonspace();
-    scanner.advanceOffset(1, false);
-    if (isSpaceOrTab(peekCode(scanner.currentLine, scanner.offset))) {
-      scanner.advanceOffset(1, true);
     }
     scanner.closeUnmatchedBlocks();
     scanner.addChild("blockquote", scanner.nextNonspace);
     return 1;
-  }),
-};
+  })
+);

@@ -10,6 +10,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as Str from "effect/String";
 import type { InlineScanner } from "@beep/markdown/internal/inlineTypes";
@@ -27,7 +28,7 @@ const position: {
 );
 const drive = (text: string, exercise: (scanner: InlineScanner) => void) => {
   const spy = vi.spyOn(Registry, "inlineDialect").mockReturnValue({
-    byTrigger: HashMap.empty(),
+    byTrigger: {},
     postprocess: [],
     text: {
       name: "test-scanner",
@@ -57,7 +58,7 @@ it.effect("matches ahead with observable cursor movement and preserves a failed 
       assert.strictEqual(scanner.pos, 7);
       assert.strictEqual(scanner.matchAhead(/absent/), undefined);
       assert.strictEqual(scanner.pos, 7);
-      assert.strictEqual(scanner.peek(), -1);
+      assert.strictEqual(scanner.peek(), "");
       scanner.appendText("xyz", 4, 7);
     });
     assert.deepStrictEqual(nodes, [Text.make({ value: "xyz", position: position(4, 7) })]);
@@ -92,41 +93,34 @@ it.effect("unputs atomically, trims empty and non-text tails and retains exact s
   })
 );
 
+const DEFAULTED_KINDS = [
+  "link",
+  "image",
+  "linkReference",
+  "imageReference",
+  "footnoteReference",
+  "emphasis",
+  "strong",
+  "break",
+] as const;
+const CONTAINER_KINDS: ReadonlyArray<string> = ["emphasis", "strong", "link", "linkReference"];
+
 it.effect("materializes optional metadata defaults for every reference and link kind", () =>
   Effect.sync(() => {
     const nodes = drive("x", (scanner) => {
-      for (const kind of [
-        "link",
-        "image",
-        "linkReference",
-        "imageReference",
-        "footnoteReference",
-        "emphasis",
-        "strong",
-        "break",
-      ] as const) {
+      for (const kind of DEFAULTED_KINDS) {
         const node = makeInlineNode(kind, 0, 0);
-        if (kind === "emphasis" || kind === "strong" || kind === "link" || kind === "linkReference") {
-          appendChild(node, makeInlineNode("text", 0, 1, "x"));
-        }
+        if (A.contains(CONTAINER_KINDS, kind)) appendChild(node, makeInlineNode("text", 0, 1, "x"));
         scanner.append(node);
       }
     });
     assert.strictEqual(nodes.length, 8);
     const [link, image, reference, imageReference, footnote] = nodes;
-    assert.strictEqual(link?.type === "link" ? link.url : undefined, "");
-    assert.strictEqual(image?.type === "image" ? image.url : undefined, "");
-    for (const node of [reference, imageReference]) {
-      assert.strictEqual(
-        node?.type === "linkReference" || node?.type === "imageReference" ? node.identifier : undefined,
-        ""
-      );
-      assert.strictEqual(
-        node?.type === "linkReference" || node?.type === "imageReference" ? node.referenceType : undefined,
-        "shortcut"
-      );
-    }
-    assert.strictEqual(footnote?.type === "footnoteReference" ? footnote.identifier : undefined, "");
+    assert.deepInclude(link, { type: "link", url: "" });
+    assert.deepInclude(image, { type: "image", url: "" });
+    assert.deepInclude(reference, { type: "linkReference", identifier: "", referenceType: "shortcut" });
+    assert.deepInclude(imageReference, { type: "imageReference", identifier: "", referenceType: "shortcut" });
+    assert.deepInclude(footnote, { type: "footnoteReference", identifier: "" });
   })
 );
 
@@ -207,7 +201,7 @@ it.effect("bounds bracket visits when each link close leaves older image and ina
       let deactivating = false;
       const lookup = vi.spyOn(Registry, "inlineDialect").mockReturnValue({
         ...dialect,
-        byTrigger: HashMap.map(dialect.byTrigger, (constructs) =>
+        byTrigger: R.map(dialect.byTrigger, (constructs) =>
           A.map(constructs, (construct) => ({
             ...construct,
             parse(scanner: InlineScanner) {

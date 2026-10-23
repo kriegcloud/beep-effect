@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({
@@ -38,7 +39,7 @@ const options = MarkdownParseOptions.make({ frontmatter: true });
 const formatting = MarkdownFormattingOptions.make({ frontmatter: true, headingStyle: "atx", fenceChar: "~" });
 describe("atxHeading parser property floor", () => {
   const sourceOf = (sample: typeof Sample.Type): string =>
-    `${"#".repeat(sample.depth)} text ${sample.letters.join("")} end #\n`;
+    `${Str.repeat(sample.depth)("#")} text ${A.join(sample.letters, "")} end #\n`;
   it.effect.prop(
     "parse/stringify/reparse preserves content and syntax fidelity",
     [Arbitrary.schema(Sample)],
@@ -78,7 +79,7 @@ describe("atxHeading parser property floor", () => {
           withoutPositions(yield* S.encodeEffect(Root)(again)),
           withoutPositions(yield* S.encodeEffect(Root)(tree))
         );
-        assert.strictEqual(emitted.startsWith(`${"#".repeat(sample.depth)} `), true);
+        assert.strictEqual(Str.startsWith(`${Str.repeat(sample.depth)("#")} `)(emitted), true);
         const heading = again.children[0];
         if (heading?.type !== "heading") {
           assert.fail("expected heading");
@@ -93,7 +94,7 @@ describe("atxHeading parser property floor", () => {
     [Arbitrary.schema(Sample)],
     ([sample]) =>
       Effect.gen(function* () {
-        const source = `${sourceOf(sample)}\n<!-- untouched -->\n\nTail  \t${sample.letters.join("")}\n`;
+        const source = `${sourceOf(sample)}\n<!-- untouched -->\n\nTail  \t${A.join(sample.letters, "")}\n`;
         const document = yield* MarkdownDocument.parse(source, options);
         const target = document.root.children[0];
         if (target === undefined) {
@@ -102,8 +103,8 @@ describe("atxHeading parser property floor", () => {
         const start = target.position.start.offset;
         const end = target.position.end.offset;
         const edited = yield* MarkdownFormat.modifyToString(document, target, "replacement");
-        assert.strictEqual(edited, `${source.slice(0, start)}replacement${source.slice(end)}`);
-        assert.strictEqual(source.slice(end).includes("<!-- untouched -->"), true);
+        assert.strictEqual(edited, `${Str.slice(0, start)(source)}replacement${Str.slice(end)(source)}`);
+        assert.strictEqual(Str.includes("<!-- untouched -->")(Str.slice(end)(source)), true);
         const reparsed = yield* Markdown.parse(edited, options);
         assert.strictEqual(reparsed.children[0]?.type, "paragraph");
       }),

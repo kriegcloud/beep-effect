@@ -1,109 +1,126 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
 /**
- * Test data loaders for the vendored CommonMark and GFM conformance corpora.
+ * Test data loaders for the vendored CommonMark, GFM and mdast conformance
+ * corpora.
  *
- * Reads the generated `spec.json` fixture at
- * `__test__/fixtures/commonmark/spec.json` (see VENDORED.md there) — one
- * entry per embedded CommonMark 0.31.2 spec example — and the two GFM
- * fixtures at `__test__/fixtures/gfm/` (see VENDORED.md there): the
- * extension-section examples from cmark-gfm's `spec.txt` and the full
- * `extensions.txt` corpus (including the only official footnote examples).
+ * The corpora live under `data/conformance/` (see the VENDORED.md beside each
+ * one) and are exported as `@beep/markdown/conformance/*` JSON subpaths for
+ * other workspace packages. Inside this package Vite's glob import inlines
+ * their raw text at transform time, so loading them needs no filesystem.
+ *
+ * - `commonmark/spec.json`: one entry per embedded CommonMark 0.31.2 spec
+ *   example.
+ * - `gfm/spec-extensions.json` and `gfm/extensions.json`: the
+ *   extension-section examples from cmark-gfm's `spec.txt` and the full
+ *   `extensions.txt` corpus (including the only official footnote examples).
+ * - `mdast/<name>.md` and `mdast/<name>.json`: source and reference tree
+ *   pairs from `mdast-util-from-markdown`.
  */
 
-import { readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-/** Root directory of the vendored CommonMark conformance fixtures. */
-export const COMMONMARK_FIXTURES_DIR = resolve(import.meta.dirname, "../fixtures/commonmark");
+const CONFORMANCE_ROOT = "../../data/conformance/";
 
-/** Root directory of the vendored GFM conformance fixtures. */
-export const GFM_FIXTURES_DIR = resolve(import.meta.dirname, "../fixtures/gfm");
-
-/** A single CommonMark spec conformance example. */
-export interface SpecExample {
-  readonly example: number;
-  readonly html: string;
-  readonly markdown: string;
-  readonly section: string;
-}
-
-/** Shape of a `spec.json` entry as produced by upstream's `spec_tests.py --dump-tests`. */
-const RawSpecExample = S.Struct({
-  markdown: S.String,
-  html: S.String,
-  example: S.Finite,
-  start_line: S.Finite,
-  end_line: S.Finite,
-  section: S.String,
+const specCorpora = import.meta.glob<string>("../../data/conformance/{commonmark,gfm}/*.json", {
+  query: "?raw",
+  import: "default",
+  eager: true,
 });
 
-const decodeExamples = RawSpecExample.pipe(S.Array, S.fromJsonString, S.decodeResult);
+const mdastSources = import.meta.glob<string>("../../data/conformance/mdast/*.md", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+
+const mdastTrees = import.meta.glob<string>("../../data/conformance/mdast/*.json", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+
+const conformanceText = (files: Record<string, string>, relative: string): string =>
+  O.getOrThrowWith(R.get(files, `${CONFORMANCE_ROOT}${relative}`), () => new Error(`no conformance file ${relative}`));
+
+/**
+ * A single spec conformance example. Upstream's `start_line`/`end_line` are
+ * dropped at decode time because nothing under `test/` consumes them.
+ */
+export class SpecExample extends S.Opaque<SpecExample, { readonly brand: unique symbol }>()(
+  S.Struct({
+    example: S.Finite,
+    html: S.String,
+    markdown: S.String,
+    section: S.String,
+  })
+) {}
+
+const decodeExamples = SpecExample.pipe(S.Array, S.fromJsonString, S.decodeResult);
 const decodeTree = S.Unknown.pipe(S.fromJsonString, S.decodeResult);
+
+const loadExamples = (relative: string): ReadonlyArray<SpecExample> =>
+  Result.getOrThrow(decodeExamples(conformanceText(specCorpora, relative)));
 
 /**
  * Load the 652-example CommonMark 0.31.2 conformance corpus from the
- * vendored `spec.json` fixture, narrowed to the package's `SpecExample`
- * shape (upstream's `start_line`/`end_line` are dropped — nothing under
- * `__test__/` consumes them).
+ * vendored `spec.json` fixture.
  */
-export const loadSpecExamples = (): ReadonlyArray<SpecExample> => {
-  const raw = readFileSync(resolve(COMMONMARK_FIXTURES_DIR, "spec.json"), "utf8");
-  const examples = Result.getOrThrow(decodeExamples(raw));
-  return examples.map(({ markdown, html, example, section }) => ({ markdown, html, example, section }));
-};
+export const loadSpecExamples = (): ReadonlyArray<SpecExample> => loadExamples("commonmark/spec.json");
 
 /**
  * Load the 22-example GFM extension-section conformance corpus (Tables,
  * Strikethrough, Autolinks, Disallowed Raw HTML) from the vendored
- * `spec-extensions.json` fixture, narrowed to the package's `SpecExample`
- * shape. See `fixtures/gfm/VENDORED.md` for the extraction method and the
- * discrepancy against the P2 plan's 24-example estimate (the "Task list
- * items (extension)" section's two examples are marked disabled upstream
- * and excluded).
+ * `spec-extensions.json` fixture. See `gfm/VENDORED.md` for the extraction
+ * method and the discrepancy against the P2 plan's 24-example estimate (the
+ * "Task list items (extension)" section's two examples are marked disabled
+ * upstream and excluded).
  */
-export const loadGfmSpecExtensionExamples = (): ReadonlyArray<SpecExample> => {
-  const raw = readFileSync(resolve(GFM_FIXTURES_DIR, "spec-extensions.json"), "utf8");
-  const examples = Result.getOrThrow(decodeExamples(raw));
-  return examples.map(({ markdown, html, example, section }) => ({ markdown, html, example, section }));
-};
+export const loadGfmSpecExtensionExamples = (): ReadonlyArray<SpecExample> => loadExamples("gfm/spec-extensions.json");
 
 /**
  * Load the 30-example `extensions.txt` conformance corpus (Tables,
  * Strikethroughs, Autolinks, HTML tag filter, Footnotes, Interop, Task
- * lists — the only official footnote corpus) from the vendored
- * `extensions.json` fixture, narrowed to the package's `SpecExample` shape.
+ * lists; the only official footnote corpus) from the vendored
+ * `extensions.json` fixture.
  */
-export const loadGfmExtensionsExamples = (): ReadonlyArray<SpecExample> => {
-  const raw = readFileSync(resolve(GFM_FIXTURES_DIR, "extensions.json"), "utf8");
-  const examples = Result.getOrThrow(decodeExamples(raw));
-  return examples.map(({ markdown, html, example, section }) => ({ markdown, html, example, section }));
-};
-
-/** Root directory of the vendored mdast interop fixtures. */
-export const MDAST_FIXTURES_DIR = resolve(import.meta.dirname, "../fixtures/mdast");
+export const loadGfmExtensionsExamples = (): ReadonlyArray<SpecExample> => loadExamples("gfm/extensions.json");
 
 /** One vendored mdast interop fixture: a source and its reference tree. */
-export interface MdastFixturePair {
-  readonly markdown: string;
-  readonly name: string;
-  readonly tree: unknown;
-}
+class MdastFixturePair extends S.Opaque<MdastFixturePair, { readonly brand: unique symbol }>()(
+  S.Struct({
+    markdown: S.String,
+    name: S.String,
+    tree: S.Unknown,
+  })
+) {}
+
+const MDAST_ROOT = `${CONFORMANCE_ROOT}mdast/`;
+
+const isFixtureSource = (path: string): boolean => path !== `${MDAST_ROOT}VENDORED.md`;
 
 /**
  * Load the 27 position-complete `.md`/`.json` interop fixture pairs vendored
- * from `mdast-util-from-markdown@2.0.3` (see `fixtures/mdast/VENDORED.md`).
- * Each pair carries the fixture's markdown source and the reference mdast
- * tree the upstream utility produces for it, positions included.
+ * from `mdast-util-from-markdown@2.0.3` (see `mdast/VENDORED.md`). Each pair
+ * carries the fixture's markdown source and the reference mdast tree the
+ * upstream utility produces for it, positions included.
  */
 export const loadMdastFixturePairs = (): ReadonlyArray<MdastFixturePair> =>
-  readdirSync(MDAST_FIXTURES_DIR)
-    .filter((file) => file.endsWith(".md") && file !== "VENDORED.md")
-    .map((file) => file.slice(0, -3))
-    .sort()
-    .map((name) => ({
-      name,
-      markdown: readFileSync(resolve(MDAST_FIXTURES_DIR, `${name}.md`), "utf8"),
-      tree: Result.getOrThrow(decodeTree(readFileSync(resolve(MDAST_FIXTURES_DIR, `${name}.json`), "utf8"))),
-    }));
+  pipe(
+    R.keys(mdastSources),
+    A.filter(isFixtureSource),
+    A.map(Str.slice(MDAST_ROOT.length, -".md".length)),
+    A.sort(Order.String),
+    A.map((name) =>
+      MdastFixturePair.make({
+        name,
+        markdown: conformanceText(mdastSources, `mdast/${name}.md`),
+        tree: Result.getOrThrow(decodeTree(conformanceText(mdastTrees, `mdast/${name}.json`))),
+      })
+    )
+  );

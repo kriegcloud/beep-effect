@@ -7,10 +7,11 @@ import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
 
 import { unescapeString } from "@beep/markdown/internal/unescape";
+import { replaceWith } from "@beep/utils/Str";
 
 // Decoding is deliberately one-pass: &amp;amp; is not idempotent. These
 // properties apply idempotence to canonical encoded spellings, not raw decode.
-const encode = (value: string): string => value.replace(/[\\&]/g, (char) => (char === "&" ? "&amp;" : "\\\\"));
+const encode = (value: string): string => replaceWith(value, /[\\&]/g, (char) => (char === "&" ? "&amp;" : "\\\\"));
 describe("unescape property floor", () => {
   it.effect.prop(
     "encoding arbitrary literals faithfully decodes and canonical spelling is idempotent",

@@ -41,22 +41,24 @@
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
-import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { GuardExceeded } from "./carriers.ts";
-import { appendChild, childrenOf, insertAfter, makeInlineNode, unlink } from "./inlineNode.ts";
+import { appendChild, childrenOf, insertAfter, makeInlineNode, moveSiblings, unlink } from "./inlineNode.ts";
 import { inlineDialect } from "./inlineRegistry.ts";
-import { C_TILDE, insertStrikethrough } from "./inlines/strikethrough.ts";
+import { insertStrikethrough } from "./inlines/strikethrough.ts";
+import { Bracket, InlineScanner } from "./inlineTypes.ts";
 import { MAX_NESTING_DEPTH } from "./limits.ts";
 import { trustedNode } from "./nodes.ts";
-import { globalOf, stickyOf } from "./patterns.ts";
+import { globalOf, matchFrom, unitAt } from "./patterns.ts";
 import { sourceOffsetAt } from "./segments.ts";
+import type * as HashMap from "effect/HashMap";
 import type { InlineNode } from "./inlineNode.ts";
 import type { InlineDialectName } from "./inlineRegistry.ts";
-import type { Bracket, Delimiter, InlineDialect, InlineScanner, InlineSource } from "./inlineTypes.ts";
+import type { Delimiter, InlineConstruct, InlineDialect, InlineSource } from "./inlineTypes.ts";
 import type {
   Break,
   Definition,
@@ -75,12 +77,13 @@ import type {
   Text,
 } from "./nodes.ts";
 
-const C_UNDERSCORE = 0x5f;
-const C_ASTERISK = 0x2a;
+const C_UNDERSCORE = "_";
+const C_ASTERISK = "*";
 
 const reTrailingSpaces = / +$/;
+const reBacktickRun = /`+/g;
 
-const C_BACKTICK = 0x60;
+const NO_CONSTRUCTS: ReadonlyArray<InlineConstruct> = [];
 
 /**
  * Every backtick run in `subject`, as start offsets grouped by run length.
@@ -88,30 +91,76 @@ const C_BACKTICK = 0x60;
  * **Details**
  *
  * One forward scan, so a code span's search for its closing run is a binary
- * search rather than a walk over every run in between.
+ * search rather than a walk over every run in between. The scan is a global
+ * regex walk, so it touches each run once and never reads a character
+ * through a method call.
  * @since 0.0.0
  */
 const indexBacktickRuns = (subject: string): MutableHashMap.MutableHashMap<number, number[]> => {
   const runs = MutableHashMap.empty<number, number[]>();
-  let index = 0;
-  while (index < subject.length) {
-    if (subject.charCodeAt(index) !== C_BACKTICK) {
-      index += 1;
-      continue;
-    }
-    const start = index;
-    while (index < subject.length && subject.charCodeAt(index) === C_BACKTICK) {
-      index += 1;
-    }
-    const length = index - start;
+  reBacktickRun.lastIndex = 0;
+  for (let found = reBacktickRun.exec(subject); found !== null; found = reBacktickRun.exec(subject)) {
+    const length = found[0].length;
     const starts = O.getOrUndefined(MutableHashMap.get(runs, length));
     if (starts === undefined) {
-      MutableHashMap.set(runs, length, [start]);
+      MutableHashMap.set(runs, length, [found.index]);
     } else {
-      starts.push(start);
+      starts.push(found.index);
     }
   }
   return runs;
+};
+
+/**
+ * `openers_bottom`'s base slot per closer character: upstream's 14-slot
+ * layout for `*` and `_`, with GFM strikethrough's six appended at 14.
+ */
+const OPENERS_BOTTOM_BASE: Readonly<Record<string, number>> = { _: 2, "~": 14 };
+
+/**
+ * One lower bound per (character, can-open, length mod 3) combination.
+ * Slots 0 and 1 belong to upstream's smart quotes and stay unused; 14–19 are
+ * GFM strikethrough's, which shares the loop exactly as cmark-gfm's extension
+ * delimiters share `process_emphasis`.
+ */
+const openersBottomIndex = (closer: Delimiter): number =>
+  (OPENERS_BOTTOM_BASE[closer.cc] ?? 8) + (closer.canOpen ? 3 : 0) + (closer.origdelims % 3);
+
+/**
+ * Whether `opener` may pair with `closer`.
+ *
+ * **Details**
+ *
+ * The multiple-of-three rule: a run that can both open and close cannot pair
+ * when the two lengths sum to a multiple of three unless both are themselves
+ * multiples of three.
+ */
+const canPair = (opener: Delimiter, closer: Delimiter): boolean => {
+  const oddMatch =
+    (closer.canOpen || opener.canClose) &&
+    closer.origdelims % 3 !== 0 &&
+    (opener.origdelims + closer.origdelims) % 3 === 0;
+  return opener.cc === closer.cc && opener.canOpen && !oddMatch;
+};
+
+/**
+ * The nearest opener below `closer` it can pair with, searching no further
+ * than `stackBottom` or the slot's recorded `bottom`.
+ */
+const findOpener = (
+  closer: Delimiter,
+  stackBottom: Delimiter | undefined,
+  bottom: Delimiter | undefined
+): Delimiter | undefined => {
+  for (let opener = closer.previous; opener !== undefined; opener = opener.previous) {
+    if (opener === stackBottom || opener === bottom) {
+      return undefined;
+    }
+    if (canPair(opener, closer)) {
+      return opener;
+    }
+  }
+  return undefined;
 };
 
 /**
@@ -264,7 +313,7 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
   Match.exhaustive
 );
 
-class InlineParser implements InlineScanner {
+class InlineParser extends InlineScanner {
   readonly subject: string;
   pos = 0;
   readonly refmap: HashMap.HashMap<string, Definition>;
@@ -288,7 +337,7 @@ class InlineParser implements InlineScanner {
    */
   private backtickRuns: MutableHashMap.MutableHashMap<number, number[]> | undefined;
 
-  private readonly source: InlineSource;
+  private readonly source: InlineSource.Encoded;
   private readonly dialect: InlineDialect;
   private readonly positionOf: PositionOf;
   /**
@@ -298,12 +347,13 @@ class InlineParser implements InlineScanner {
   private readonly root: InlineNode;
 
   constructor(
-    source: InlineSource,
+    source: InlineSource.Encoded,
     dialect: InlineDialect,
     positionOf: PositionOf,
     refmap: HashMap.HashMap<string, Definition>,
     footnoteLabels: HashSet.HashSet<string>
   ) {
+    super();
     this.source = source;
     this.subject = source.text;
     this.dialect = dialect;
@@ -315,8 +365,8 @@ class InlineParser implements InlineScanner {
 
   // --- cursor -------------------------------------------------------------
 
-  peek(): number {
-    return this.pos < this.subject.length ? this.subject.charCodeAt(this.pos) : -1;
+  peek(): string {
+    return unitAt(this.subject, this.pos);
   }
 
   /**
@@ -348,14 +398,7 @@ class InlineParser implements InlineScanner {
    * @since 0.0.0
    */
   match(pattern: RegExp): string | undefined {
-    const sticky = stickyOf(pattern);
-    sticky.lastIndex = this.pos;
-    const found = sticky.exec(this.subject);
-    if (found === null) {
-      return undefined;
-    }
-    this.pos = sticky.lastIndex;
-    return found[0];
+    return matchFrom(this, pattern);
   }
 
   matchAhead(pattern: RegExp): string | undefined {
@@ -374,7 +417,7 @@ class InlineParser implements InlineScanner {
     if (known !== undefined && this.pos >= known) {
       return false;
     }
-    if (this.subject.indexOf(needle, this.pos) !== -1) {
+    if (Str.includes(needle, this.pos)(this.subject)) {
       return true;
     }
     MutableHashMap.set(this.absentAfter, needle, Math.min(known ?? this.pos, this.pos));
@@ -424,20 +467,9 @@ class InlineParser implements InlineScanner {
   }
 
   unputText(count: number): boolean {
-    if (count === 0) {
-      return true;
-    }
-
     // Check before mutating: a partial unput would leave the output list
     // short of the characters the caller is about to re-emit.
-    let available = 0;
-    for (let node = this.root.lastChild; node !== undefined && available < count; node = node.prev) {
-      if (node.type !== "text") {
-        break;
-      }
-      available += node.value.length;
-    }
-    if (available < count) {
+    if (this.trailingTextLength(count) < count) {
       return false;
     }
 
@@ -446,7 +478,7 @@ class InlineParser implements InlineScanner {
       // The availability check above guarantees a tail until remaining reaches zero.
       const last = O.getOrThrow(O.fromUndefinedOr(this.root.lastChild));
       if (last.value.length > remaining) {
-        last.value = last.value.slice(0, last.value.length - remaining);
+        last.value = Str.slice(0, last.value.length - remaining)(last.value);
         last.end -= remaining;
         return true;
       }
@@ -456,13 +488,26 @@ class InlineParser implements InlineScanner {
     return true;
   }
 
+  /**
+   * How many characters the trailing run of text nodes holds, counting no
+   * further than `limit`.
+   * @since 0.0.0
+   */
+  private trailingTextLength(limit: number): number {
+    let available = 0;
+    for (let node = this.root.lastChild; node?.type === "text" && available < limit; node = node.prev) {
+      available += node.value.length;
+    }
+    return available;
+  }
+
   trimTrailingSpaces(): number {
     const last = this.root.lastChild;
     if (last === undefined || last.type !== "text") {
       return 0;
     }
 
-    const trimmed = last.value.replace(reTrailingSpaces, "");
+    const trimmed = Str.replace(reTrailingSpaces, "")(last.value);
     const removed = last.value.length - trimmed.length;
     if (removed === 0) {
       return 0;
@@ -504,14 +549,7 @@ class InlineParser implements InlineScanner {
       if (this.brackets !== undefined) {
         this.brackets.bracketAfter = true;
       }
-      this.brackets = {
-        node,
-        previous: this.brackets,
-        previousDelimiter: this.delimiters,
-        index,
-        image,
-        active: true,
-      };
+      this.brackets = new Bracket(node, index, image, this.brackets, this.delimiters);
       if (!image) {
         this.activeLinkOpeners += 1;
       }
@@ -570,10 +608,6 @@ class InlineParser implements InlineScanner {
    * @since 0.0.0
    */
   processEmphasis(stackBottom: Delimiter | undefined): void {
-    // One lower bound per (character, can-open, length mod 3) combination.
-    // Slots 0 and 1 belong to upstream's smart quotes and stay unused;
-    // 14–19 are GFM strikethrough's, which shares this loop exactly as
-    // cmark-gfm's extension delimiters share `process_emphasis`.
     const openersBottom: Array<Delimiter | undefined> = new Array(20).fill(stackBottom);
 
     let closer = this.delimiters;
@@ -582,96 +616,80 @@ class InlineParser implements InlineScanner {
     }
 
     while (closer !== undefined) {
-      if (!closer.canClose) {
-        closer = closer.next;
-        continue;
-      }
-
-      const closercc = closer.cc;
-      const openersBottomIndex =
-        (closercc === C_UNDERSCORE ? 2 : closercc === C_TILDE ? 14 : 8) +
-        (closer.canOpen ? 3 : 0) +
-        (closer.origdelims % 3);
-
-      let opener = closer.previous;
-      let matchingOpener: Delimiter | undefined;
-      while (opener !== undefined && opener !== stackBottom && opener !== openersBottom[openersBottomIndex]) {
-        // The multiple-of-three rule: a run that can both open and
-        // close cannot pair when the two lengths sum to a multiple of
-        // three unless both are themselves multiples of three.
-        const oddMatch =
-          (closer.canOpen || opener.canClose) &&
-          closer.origdelims % 3 !== 0 &&
-          (opener.origdelims + closer.origdelims) % 3 === 0;
-        if (opener.cc === closer.cc && opener.canOpen && !oddMatch) {
-          matchingOpener = opener;
-          break;
-        }
-        opener = opener.previous;
-      }
-
-      const oldCloser = closer;
-
-      if (closercc === C_ASTERISK || closercc === C_UNDERSCORE) {
-        if (matchingOpener === undefined) {
-          closer = closer.next;
-        } else {
-          // Two delimiters make strong emphasis, one makes emphasis.
-          const useDelims = closer.numdelims >= 2 && matchingOpener.numdelims >= 2 ? 2 : 1;
-          const openerNode = matchingOpener.node;
-          const closerNode = closer.node;
-
-          matchingOpener.numdelims -= useDelims;
-          closer.numdelims -= useDelims;
-          openerNode.value = openerNode.value.slice(0, openerNode.value.length - useDelims);
-          openerNode.end -= useDelims;
-          closerNode.value = closerNode.value.slice(0, closerNode.value.length - useDelims);
-          closerNode.start += useDelims;
-
-          const emphasis = makeInlineNode(useDelims === 1 ? "emphasis" : "strong", openerNode.end, closerNode.start);
-          emphasis.data.markerChar = closercc === C_UNDERSCORE ? "_" : "*";
-
-          let between = openerNode.next;
-          while (between !== undefined && between !== closerNode) {
-            const following = between.next;
-            appendChild(emphasis, between);
-            between = following;
-          }
-
-          insertAfter(openerNode, emphasis);
-          this.removeDelimitersBetween(matchingOpener, closer);
-
-          if (matchingOpener.numdelims === 0) {
-            unlink(openerNode);
-            this.removeDelimiter(matchingOpener);
-          }
-
-          if (closer.numdelims === 0) {
-            unlink(closerNode);
-            const next = closer.next;
-            this.removeDelimiter(closer);
-            closer = next;
-          }
-        }
-      } else {
-        // GFM strikethrough rides the same stack; the pairing rules
-        // that differ from emphasis live in the construct module.
-        closer = matchingOpener === undefined ? closer.next : insertStrikethrough(this, matchingOpener, closer);
-      }
-
-      if (matchingOpener === undefined) {
-        // Nothing above this point can ever match this closer, so future
-        // searches stop here.
-        openersBottom[openersBottomIndex] = oldCloser.previous;
-        if (!oldCloser.canOpen) {
-          this.removeDelimiter(oldCloser);
-        }
-      }
+      closer = closer.canClose ? this.processCloser(closer, stackBottom, openersBottom) : closer.next;
     }
 
     while (this.delimiters !== undefined && this.delimiters !== stackBottom) {
       this.removeDelimiter(this.delimiters);
     }
+  }
+
+  /**
+   * Pair `closer` with the nearest opener it can, and return the delimiter
+   * the walk continues from.
+   * @since 0.0.0
+   */
+  private processCloser(
+    closer: Delimiter,
+    stackBottom: Delimiter | undefined,
+    openersBottom: Array<Delimiter | undefined>
+  ): Delimiter | undefined {
+    const slot = openersBottomIndex(closer);
+    const opener = findOpener(closer, stackBottom, openersBottom[slot]);
+    if (opener !== undefined) {
+      // GFM strikethrough rides the same stack; the pairing rules that
+      // differ from emphasis live in the construct module.
+      return closer.cc === C_ASTERISK || closer.cc === C_UNDERSCORE
+        ? this.insertEmphasis(opener, closer)
+        : insertStrikethrough(this, opener, closer);
+    }
+
+    // Nothing above this point can ever match this closer, so future
+    // searches stop here.
+    const next = closer.next;
+    openersBottom[slot] = closer.previous;
+    if (!closer.canOpen) {
+      this.removeDelimiter(closer);
+    }
+    return next;
+  }
+
+  /**
+   * Spend one or two delimiters from each side of a matched pair on an
+   * emphasis or strong node, and return the delimiter the walk continues
+   * from — the closer itself while it still has delimiters to spend.
+   * @since 0.0.0
+   */
+  private insertEmphasis(opener: Delimiter, closer: Delimiter): Delimiter | undefined {
+    // Two delimiters make strong emphasis, one makes emphasis.
+    const useDelims = closer.numdelims >= 2 && opener.numdelims >= 2 ? 2 : 1;
+    const openerNode = opener.node;
+    const closerNode = closer.node;
+
+    opener.numdelims -= useDelims;
+    closer.numdelims -= useDelims;
+    openerNode.value = Str.slice(0, openerNode.value.length - useDelims)(openerNode.value);
+    openerNode.end -= useDelims;
+    closerNode.value = Str.slice(0, closerNode.value.length - useDelims)(closerNode.value);
+    closerNode.start += useDelims;
+
+    const emphasis = makeInlineNode(useDelims === 1 ? "emphasis" : "strong", openerNode.end, closerNode.start);
+    emphasis.data.markerChar = closer.cc === C_UNDERSCORE ? "_" : "*";
+    moveSiblings(emphasis, openerNode.next, closerNode);
+    insertAfter(openerNode, emphasis);
+    this.removeDelimitersBetween(opener, closer);
+
+    if (opener.numdelims === 0) {
+      unlink(openerNode);
+      this.removeDelimiter(opener);
+    }
+    if (closer.numdelims > 0) {
+      return closer;
+    }
+    unlink(closerNode);
+    const next = closer.next;
+    this.removeDelimiter(closer);
+    return next;
   }
 
   // --- positions and materialization --------------------------------------
@@ -720,7 +738,7 @@ class InlineParser implements InlineScanner {
    */
   private materialize(parent: InlineNode, depth: number): ReadonlyArray<PhrasingContent> {
     if (depth > MAX_NESTING_DEPTH) {
-      throw new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, this.offsetAt(parent.start));
+      throw GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, this.offsetAt(parent.start));
     }
 
     const children: PhrasingContent[] = [];
@@ -796,11 +814,11 @@ class InlineParser implements InlineScanner {
    */
   private parseOne(): boolean {
     const code = this.peek();
-    if (code === -1) {
+    if (code === "") {
       return false;
     }
 
-    for (const construct of O.getOrElse(HashMap.get(this.dialect.byTrigger, code), () => [])) {
+    for (const construct of this.dialect.byTrigger[code] ?? NO_CONSTRUCTS) {
       if (construct.parse(this)) {
         return true;
       }
@@ -814,7 +832,7 @@ class InlineParser implements InlineScanner {
     // open — is literal text.
     const from = this.pos;
     this.pos += 1;
-    this.appendText(String.fromCodePoint(code), from, this.pos);
+    this.appendText(code, from, this.pos);
     return true;
   }
 
@@ -866,7 +884,7 @@ class InlineParser implements InlineScanner {
  */
 export const parseInlines: {
   (
-    source: InlineSource,
+    source: InlineSource.Encoded,
     refmap: HashMap.HashMap<string, Definition>,
     position: PositionOf,
     dialect?: InlineDialectName,
@@ -877,11 +895,11 @@ export const parseInlines: {
     position: PositionOf,
     dialect?: InlineDialectName,
     footnoteLabels?: HashSet.HashSet<string>
-  ): (source: InlineSource) => ReadonlyArray<PhrasingContent>;
+  ): (source: InlineSource.Encoded) => ReadonlyArray<PhrasingContent>;
 } = dual(
   (args) => !P.isFunction(args[1]),
   (
-    source: InlineSource,
+    source: InlineSource.Encoded,
     refmap: HashMap.HashMap<string, Definition>,
     position: PositionOf,
     dialect: InlineDialectName = "commonmark",

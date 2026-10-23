@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
-    name + ": decoding an encoding succeeds and preserves the value",
+    `${name}: decoding an encoding succeeds and preserves the value`,
     [Arbitrary.schema(schema)],
     ([value]) =>
       Effect.gen(function* () {
@@ -36,13 +36,14 @@ describe("Markdown schema property floor", () => {
 });
 
 import { Paragraph, Root } from "@beep/markdown/MarkdownNode";
+import * as Str from "effect/String";
 import { renderHtml } from "./support/htmlWriter.ts";
 import { normalizeHtml } from "./support/normalizeHtml.ts";
 
 const Word = S.String.check(S.isPattern(/^[a-z]{1,12}$/));
 const Sample = S.Struct({ title: Word, content: Word });
 const render = (sample: typeof Sample.Type): string =>
-  `Title ${sample.title}\n${"=".repeat(6 + sample.title.length)}\n\n+ *${sample.content}*\n+ **${sample.title}**\n\n~~~ts\n${sample.content}\n~~~\n\n> [${sample.title}](/${sample.content})\n`;
+  `Title ${sample.title}\n${Str.repeat(6 + sample.title.length)("=")}\n\n+ *${sample.content}*\n+ **${sample.title}**\n\n~~~ts\n${sample.content}\n~~~\n\n> [${sample.title}](/${sample.content})\n`;
 
 // Source-backed generation represents the parser's domain: arbitrary synthesized
 // Root nodes also admit source offsets and unresolved references that a string

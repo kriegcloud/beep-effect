@@ -14,39 +14,53 @@
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
+import { BlockConstruct, containsNothing, leafMaterializer } from "../blockTypes.ts";
 import { trustedNode } from "../nodes.ts";
-import { CODE_INDENT, isSpaceOrTab, peekCode } from "../preprocess.ts";
+import { unitAt } from "../patterns.ts";
+import { CODE_INDENT, isSpaceOrTab } from "../preprocess.ts";
 import { unescapeString } from "../unescape.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import type { BlockContinueResult, BlockNode, BlockScanner } from "../blockTypes.ts";
 import type { Code } from "../nodes.ts";
 
 const reBlankLine = /^[ \t]*$/;
-const reClosingCodeFence = /^(?:`{3,}|~{3,})(?=[ \t]*$)/;
+/** A closing fence, sticky at the scan position. */
+const reClosingCodeFence = /(?:`{3,}|~{3,})(?=[ \t]*$)/y;
+const reInfoSeparator = /[ \t]/;
+
+const splitLines = Str.split("\n");
+const isContentLine = (line: string): boolean => !reBlankLine.test(line);
 
 /**
  * Drop the trailing blank lines an indented code block accumulates, and pull
  * the block's end back to the last line that survived.
  */
 const finalizeIndented = (block: BlockNode): void => {
-  const lines = block.stringContent.split("\n");
-  while (lines.length > 0 && reBlankLine.test(A.join(lines.slice(-1), ""))) {
-    lines.pop();
-  }
+  const lines = splitLines(block.stringContent);
+  const kept = O.getOrElse(A.findLastIndex(lines, isContentLine), () => -1) + 1;
 
-  block.stringContent = lines.length === 0 ? "" : `${A.join(lines, "\n")}\n`;
+  block.stringContent = kept === 0 ? "" : `${A.join(A.take(lines, kept), "\n")}\n`;
 
-  const lastSegment = block.segments[lines.length - 1];
+  const lastSegment = block.segments[kept - 1];
   if (lastSegment !== undefined) {
     block.endOffset = lastSegment.sourceOffset + lastSegment.length;
-    block.endLine = block.startLine + lines.length - 1;
+    block.endLine = block.startLine + kept - 1;
   }
+};
+
+/** Record the trimmed info string as mdast's `lang` (first word) and `meta` (the rest). */
+const recordInfo = (block: BlockNode, info: string): void => {
+  O.match(Str.search(reInfoSeparator)(info), {
+    onNone: () => {
+      block.data.lang = unescapeString(info);
+    },
+    onSome: (wordEnd) => {
+      block.data.lang = unescapeString(Str.slice(0, wordEnd)(info));
+      // Trimming the info string makes the suffix after an internal
+      // separator nonempty.
+      block.data.meta = unescapeString(Str.trim(Str.slice(wordEnd)(info)));
+    },
+  });
 };
 
 /**
@@ -62,24 +76,69 @@ const finalizeIndented = (block: BlockNode): void => {
  */
 const finalizeFenced = (block: BlockNode): void => {
   const content = block.stringContent;
-  const newlineAt = content.indexOf("\n");
-  const firstLine = (newlineAt === -1 ? content : content.slice(0, newlineAt)).trim();
-  block.stringContent = newlineAt === -1 ? "" : content.slice(newlineAt + 1);
+  const firstLine = O.match(Str.indexOf("\n")(content), {
+    onNone: () => {
+      block.stringContent = "";
+      return content;
+    },
+    onSome: (newlineAt) => {
+      block.stringContent = Str.slice(newlineAt + 1)(content);
+      return Str.slice(0, newlineAt)(content);
+    },
+  });
+  const info = Str.trim(firstLine);
+  if (info.length > 0) {
+    recordInfo(block, info);
+  }
+};
 
-  if (firstLine.length === 0) {
-    return;
+/**
+ * The length of the closing fence at the scan position, or `0` when the line
+ * does not close `block`: at most three columns of indent, the opening
+ * fence's character, and at least as long as the opening fence.
+ */
+const closingFenceLength = (scanner: BlockScanner, block: BlockNode): number => {
+  const line = scanner.currentLine;
+  if (scanner.indent > 3 || unitAt(line, scanner.nextNonspace) !== block.data.fenceChar) {
+    return 0;
+  }
+  reClosingCodeFence.lastIndex = scanner.nextNonspace;
+  const closing = reClosingCodeFence.exec(line);
+  return closing === null || closing[0].length < (block.data.fenceLength ?? 3) ? 0 : closing[0].length;
+};
+
+/**
+ * A fenced block continues until its closing fence; inside it, up to as many
+ * leading spaces as the opening fence was indented by are skipped.
+ */
+const continueFenced = (scanner: BlockScanner, block: BlockNode): BlockContinueResult => {
+  const closing = closingFenceLength(scanner, block);
+  if (closing > 0) {
+    // A closing fence ends the block and the line together.
+    scanner.setLastLineLength(scanner.offset + scanner.indent + closing);
+    scanner.finalizeBlock(block, scanner.lineNumber);
+    return 2;
   }
 
-  const wordEnd = firstLine.search(/[ \t]/);
-  if (wordEnd === -1) {
-    block.data.lang = unescapeString(firstLine);
-    return;
+  let remaining = block.data.fenceOffset ?? 0;
+  while (remaining > 0 && isSpaceOrTab(unitAt(scanner.currentLine, scanner.offset))) {
+    scanner.advanceOffset(1, true);
+    remaining -= 1;
   }
+  return 0;
+};
 
-  block.data.lang = unescapeString(firstLine.slice(0, wordEnd));
-  const meta = firstLine.slice(wordEnd).trim();
-  // Trimming firstLine makes the suffix after an internal separator nonempty.
-  block.data.meta = unescapeString(meta);
+/** An indented block continues on an indented or blank line. */
+const continueIndented = (scanner: BlockScanner): BlockContinueResult => {
+  if (scanner.indent >= CODE_INDENT) {
+    scanner.advanceOffset(CODE_INDENT, true);
+    return 0;
+  }
+  if (scanner.blank) {
+    scanner.advanceNextNonspace();
+    return 0;
+  }
+  return 1;
 };
 
 /**
@@ -97,44 +156,13 @@ const finalizeFenced = (block: BlockNode): void => {
  * @category parsing
  * @since 0.0.0
  */
-export const codeConstruct: BlockConstruct = {
-  type: "code",
-  acceptsLines: true,
-  canContain: () => false,
-  continue: dual(2, (scanner: BlockScanner, block: BlockNode): BlockContinueResult => {
-    if (block.data.isFenced === true) {
-      const line = scanner.currentLine;
-      const closing =
-        scanner.indent <= 3 && line.charAt(scanner.nextNonspace) === block.data.fenceChar
-          ? reClosingCodeFence.exec(line.slice(scanner.nextNonspace))
-          : null;
-
-      if (closing !== null && closing[0].length >= (block.data.fenceLength ?? 3)) {
-        // A closing fence ends the block and the line together.
-        scanner.setLastLineLength(scanner.offset + scanner.indent + closing[0].length);
-        scanner.finalizeBlock(block, scanner.lineNumber);
-        return 2;
-      }
-
-      // Otherwise skip up to as many leading spaces as the opening fence
-      // was indented by.
-      let remaining = block.data.fenceOffset ?? 0;
-      while (remaining > 0 && isSpaceOrTab(peekCode(line, scanner.offset))) {
-        scanner.advanceOffset(1, true);
-        remaining -= 1;
-      }
-      return 0;
-    }
-
-    if (scanner.indent >= CODE_INDENT) {
-      scanner.advanceOffset(CODE_INDENT, true);
-    } else if (scanner.blank) {
-      scanner.advanceNextNonspace();
-    } else {
-      return 1;
-    }
-    return 0;
-  }),
+export const codeConstruct = new BlockConstruct("code", true, {
+  canContain: containsNothing,
+  continue: dual(
+    2,
+    (scanner: BlockScanner, block: BlockNode): BlockContinueResult =>
+      block.data.isFenced === true ? continueFenced(scanner, block) : continueIndented(scanner)
+  ),
   finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
     if (block.data.isFenced === true) {
       finalizeFenced(block);
@@ -142,23 +170,16 @@ export const codeConstruct: BlockConstruct = {
       finalizeIndented(block);
     }
   }),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const { isFenced, fenceChar, fenceLength, lang, meta } = block.data;
-      return trustedNode<Code>({
-        type: "code",
-        value: block.stringContent,
-        position: context.position(block.startOffset, block.endOffset),
-        ...O.getSomesStruct({ lang: O.fromUndefinedOr(lang) }),
-        ...O.getSomesStruct({ meta: O.fromUndefinedOr(meta) }),
-        ...(isFenced === true && fenceChar !== undefined ? { fenceChar } : {}),
-        ...(isFenced === true && fenceLength !== undefined ? { fenceLength } : {}),
-      });
-    }
-  ),
-};
+  materialize: leafMaterializer((block, context) => {
+    const { isFenced, fenceChar, fenceLength, lang, meta } = block.data;
+    return trustedNode<Code>({
+      type: "code",
+      value: block.stringContent,
+      position: context.position(block.startOffset, block.endOffset),
+      ...O.getSomesStruct({ lang: O.fromUndefinedOr(lang) }),
+      ...O.getSomesStruct({ meta: O.fromUndefinedOr(meta) }),
+      ...(isFenced === true && fenceChar !== undefined ? { fenceChar } : {}),
+      ...(isFenced === true && fenceLength !== undefined ? { fenceLength } : {}),
+    });
+  }),
+});

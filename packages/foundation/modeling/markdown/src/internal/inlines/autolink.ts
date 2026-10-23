@@ -11,16 +11,19 @@
 // the same note for link destinations). An autolink also carries no title;
 // upstream sets `""`, and an absent optionalKey is the mdast-faithful form.
 
+import * as Str from "effect/String";
 import { appendChild, makeInlineNode } from "../inlineNode.ts";
+import { stickyOf } from "../patterns.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
-const C_LESSTHAN = 0x3c;
+const C_LESSTHAN = "<";
 
-const reEmailAutolink =
-  /^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/;
+const reEmailAutolink = stickyOf(
+  /^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/
+);
 // Upstream spells the excluded control range `\x00-\x20`; `\0- ` is the
 // same range written the way the linter accepts.
-const reAutolink = /^<[A-Za-z][A-Za-z0-9.+-]{1,31}:[^<>\0- ]*>/i;
+const reAutolink = stickyOf(/^<[A-Za-z][A-Za-z0-9.+-]{1,31}:[^<>\0- ]*>/i);
 
 /**
  * Recognizes an absolute-URI or email autolink enclosed in angle brackets.
@@ -30,7 +33,7 @@ const reAutolink = /^<[A-Za-z][A-Za-z0-9.+-]{1,31}:[^<>\0- ]*>/i;
  * ```ts
  * import { autolinkConstruct } from "@beep/markdown/internal/inlines/autolink";
  *
- * console.log(autolinkConstruct.name, autolinkConstruct.triggers[0]) // autolink 60
+ * console.log(autolinkConstruct.name, autolinkConstruct.triggers[0]) // autolink <
  * ```
  *
  * @category parsing
@@ -44,7 +47,7 @@ export const autolinkConstruct: InlineConstruct = {
 
     const email = scanner.match(reEmailAutolink);
     if (email !== undefined) {
-      const destination = email.slice(1, -1);
+      const destination = Str.slice(1, -1)(email);
       const node = makeInlineNode("link", from, scanner.pos);
       node.data.url = `mailto:${destination}`;
       appendChild(node, makeInlineNode("text", from + 1, scanner.pos - 1, destination));
@@ -54,7 +57,7 @@ export const autolinkConstruct: InlineConstruct = {
 
     const uri = scanner.match(reAutolink);
     if (uri !== undefined) {
-      const destination = uri.slice(1, -1);
+      const destination = Str.slice(1, -1)(uri);
       const node = makeInlineNode("link", from, scanner.pos);
       node.data.url = destination;
       appendChild(node, makeInlineNode("text", from + 1, scanner.pos - 1, destination));

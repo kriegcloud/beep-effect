@@ -33,7 +33,9 @@ import {
   Text,
 } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 import { renderHtml } from "./support/htmlWriter.ts";
 import type { MarkdownNode, PhrasingContent } from "@beep/markdown/MarkdownNode";
 
@@ -80,6 +82,10 @@ describe("MarkdownFormat.format", () => {
   });
 
   describe("headingStyle", () => {
+    it("normalizes nothing when no options are passed", () => {
+      assert.deepStrictEqual(MarkdownFormat.format("* a\n\n*b*\n"), []);
+    });
+
     it("converts setext to atx preserving content verbatim", () => {
       assert.strictEqual(fmt("foo *bar*\n=========\n", { headingStyle: "atx" }), "# foo *bar*\n");
     });
@@ -330,7 +336,7 @@ describe("MarkdownFormat.format", () => {
     it("changes only the opening fence of unclosed foo-backtick blocks", () => {
       for (const source of ["```\nfoo```", "```\nfoo```\n"]) {
         const result = fmt(source, { fenceChar: "~" });
-        assert.strictEqual(result, `~~~${source.slice(3)}`);
+        assert.strictEqual(result, `~~~${Str.slice(3)(source)}`);
         assertEquivalent(source, result);
       }
     });
@@ -452,7 +458,7 @@ describe("MarkdownFormat.format", () => {
     });
 
     it("returns no edits when parsing trips a hardening guard", () => {
-      const hostile = `${">".repeat(300)}a`;
+      const hostile = `${Str.repeat(300)(">")}a`;
       const edits = MarkdownFormat.format(hostile, undefined, MarkdownFormattingOptions.make({ bulletChar: "-" }));
       assert.strictEqual(edits.length, 0);
     });
@@ -543,23 +549,25 @@ describe("MarkdownFormat round-3 boundary regressions", () => {
 
   it.effect("protects terminal whitespace at emphasis, strong and delete closing delimiters", () =>
     Effect.gen(function* () {
-      for (const [source, type] of [
+      const delimited = [
         ["*old*\n", "emphasis"],
         ["**old**\n", "strong"],
         ["~~old~~\n", "delete"],
         ["~old~\n", "delete"],
-      ] as const) {
-        for (const value of ["new ", "new\t", "new \t", "new\u00a0"]) {
-          const doc = yield* parseDoc(source);
-          const target = doc.find("text");
-          if (target === undefined) assert.fail("expected text");
-          for (const replacement of [value, Text.make({ value })]) {
-            const out = yield* MarkdownFormat.modifyToString(doc, target, replacement);
-            const reparsed = yield* parseDoc(out);
-            assert.strictEqual(reparsed.find(type)?.type, type);
-            assert.strictEqual(reparsed.find("text")?.value, value);
-            assert.include(out, "&#");
-          }
+      ] as const;
+      const cases = A.flatMap(delimited, ([source, type]) =>
+        A.map(["new ", "new\t", "new \t", "new\u00a0"], (value) => ({ source, type, value }))
+      );
+      for (const { source, type, value } of cases) {
+        const doc = yield* parseDoc(source);
+        const target = doc.find("text");
+        if (target === undefined) assert.fail("expected text");
+        for (const replacement of [value, Text.make({ value })]) {
+          const out = yield* MarkdownFormat.modifyToString(doc, target, replacement);
+          const reparsed = yield* parseDoc(out);
+          assert.strictEqual(reparsed.find(type)?.type, type);
+          assert.strictEqual(reparsed.find("text")?.value, value);
+          assert.include(out, "&#");
         }
       }
     })

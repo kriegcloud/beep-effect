@@ -5,13 +5,11 @@ import { InlineCode, Paragraph, Position, Root, Table, TableCell, TableRow, Text
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
-import * as Match from "effect/Match";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { vi } from "vitest";
-
-vi.mock("effect/Match", { spy: true });
 
 describe("stringify scalability", () => {
   it("serializes a schema-valid 150000-row shallow table under the Node vitest runner", () => {
@@ -23,7 +21,7 @@ describe("stringify scalability", () => {
       Result.map(result, () => undefined),
       undefined
     );
-    assert.strictEqual(Result.getOrThrow(result), "|  |\n| --- |\n" + Str.repeat(149_999)("|  |\n"));
+    assert.strictEqual(Result.getOrThrow(result), `|  |\n| --- |\n${Str.repeat(149_999)("|  |\n")}`);
   });
 
   for (const size of [4_000, 8_000, 16_000]) {
@@ -58,24 +56,66 @@ describe("stringify scalability", () => {
   }
 });
 
+describe("inline emission scales linearly", () => {
+  // Every inline child used to read the run's growing output (its last
+  // characters, for marker choice and the `!` guard), and each read
+  // flattened the output string: a long paragraph of mixed inline nodes was
+  // quadratic (4x the input cost ~13x the time). The run now keeps its last
+  // chunk pending and reads only that.
+  it("a long paragraph of mixed inline nodes serializes in linear time", () => {
+    const treeAt = (reps: number): Root =>
+      Result.getOrThrow(Markdown.parseResult(Str.repeat(reps)("a_b &amp; www.x.com http://x *y* [z] ![w](u) # 1. ")));
+    const timeAt = (tree: Root): number => {
+      // Two passes, keep the faster: damps JIT and GC noise without
+      // hiding an algorithmic blowup.
+      let best = Number.POSITIVE_INFINITY;
+      for (let pass = 0; pass < 2; pass += 1) {
+        const started = performance.now();
+        stringifyTree(tree);
+        best = Math.min(best, performance.now() - started);
+      }
+      return best;
+    };
+    const [warm, smallTree, largeTree] = [treeAt(500), treeAt(2500), treeAt(10_000)];
+    timeAt(warm);
+    const small = timeAt(smallTree);
+    const large = timeAt(largeTree);
+    const ratio = large / Math.max(small, 1);
+    assert.isBelow(
+      ratio,
+      8,
+      `4x the input cost ${ratio.toFixed(1)}x the time (${small.toFixed(1)}ms -> ${large.toFixed(1)}ms); ` +
+        "linear is ~4x, the per-child output read was ~13x"
+    );
+  }, 120_000);
+});
+
 describe("compiled serializer dispatch", () => {
-  it("builds no Match dispatchers while serializing 10000 inline-code siblings", () => {
+  // The serializer's Match dispatchers are compiled once, at module load: a
+  // `Match.type` or `Match.value` built per node would rebuild a matcher on
+  // every child. Pinned on the module source — every `Match.type` is the
+  // initializer of a module-level constant, and no `Match.value` exists.
+  const source = O.getOrThrow(
+    R.get(
+      import.meta.glob<string>("../src/internal/stringify.ts", { query: "?raw", import: "default", eager: true }),
+      "../src/internal/stringify.ts"
+    )
+  );
+
+  it("builds every Match dispatcher once, at module level", () => {
+    const built = A.length(A.fromIterable(Str.matchAll(/Match\.type</g)(source)));
+    const moduleLevel = A.length(A.fromIterable(Str.matchAll(/^const \w+ = Match\.type</gm)(source)));
+    assert.isAtLeast(built, 3);
+    assert.strictEqual(moduleLevel, built);
+    assert.isFalse(Str.includes("Match.value(")(source));
+  });
+
+  it("serializes 10000 inline-code siblings through the compiled dispatch", () => {
     const root = Root.make({
       children: [Paragraph.make({ children: A.makeBy(10_000, () => InlineCode.make({ value: "x" })) })],
     });
-    const typeCalls = vi.mocked(Match.type);
-    typeCalls.mockClear();
-    const valueCalls = vi.mocked(Match.value);
-    valueCalls.mockClear();
-    try {
-      for (let sample = 0; sample < 3; sample += 1) {
-        assert.strictEqual(stringifyTree(root), `${Str.repeat(10_000)("`x`")}\n`);
-      }
-      assert.strictEqual(typeCalls.mock.calls.length, 0);
-      assert.strictEqual(valueCalls.mock.calls.length, 0);
-    } finally {
-      typeCalls.mockClear();
-      valueCalls.mockClear();
+    for (let sample = 0; sample < 3; sample += 1) {
+      assert.strictEqual(stringifyTree(root), `${Str.repeat(10_000)("`x`")}\n`);
     }
   });
 });

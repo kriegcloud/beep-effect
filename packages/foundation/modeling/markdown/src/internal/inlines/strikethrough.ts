@@ -26,26 +26,27 @@
 
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import { appendChild, insertAfter, makeInlineNode, unlink } from "../inlineNode.ts";
-import { scanDelims } from "./emphasis.ts";
+import { insertAfter, makeInlineNode, moveSiblings, unlink } from "../inlineNode.ts";
+import { InlineConstruct } from "../inlineTypes.ts";
+import { pushDelimiterRun, scanDelims } from "./emphasis.ts";
 import type { InlineNode } from "../inlineNode.ts";
-import type { Delimiter, InlineConstruct, InlineScanner } from "../inlineTypes.ts";
+import type { Delimiter, InlineScanner } from "../inlineTypes.ts";
 
 /**
- * The `~` character code — the construct's only trigger.
+ * The `~` character — the construct's only trigger.
  *
- * **Example** (Inspect the tilde character code)
+ * **Example** (Inspect the tilde trigger)
  *
  * ```ts
  * import { C_TILDE } from "@beep/markdown/internal/inlines/strikethrough"
  *
- * console.log(C_TILDE) // 126
+ * console.log(C_TILDE) // ~
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
-export const C_TILDE = 0x7e;
+export const C_TILDE = "~";
 
 /**
  * Consume a `~` run as literal text and, when it is a viable one- or
@@ -63,27 +64,7 @@ const handleTilde = (scanner: InlineScanner): boolean => {
   }
 
   const run = res.value;
-  const startpos = scanner.pos;
-  scanner.pos += run.numdelims;
-  const node = scanner.appendText(scanner.subject.slice(startpos, scanner.pos), startpos, scanner.pos);
-
-  if ((run.canOpen || run.canClose) && (run.numdelims === 1 || run.numdelims === 2)) {
-    const delimiter: Delimiter = {
-      cc: C_TILDE,
-      numdelims: run.numdelims,
-      origdelims: run.numdelims,
-      node,
-      previous: scanner.delimiters,
-      next: undefined,
-      canOpen: run.canOpen,
-      canClose: run.canClose,
-    };
-    if (delimiter.previous !== undefined) {
-      delimiter.previous.next = delimiter;
-    }
-    scanner.delimiters = delimiter;
-  }
-
+  pushDelimiterRun(scanner, C_TILDE, run, (run.canOpen || run.canClose) && run.numdelims <= 2);
   return true;
 };
 
@@ -106,24 +87,10 @@ const handleTilde = (scanner: InlineScanner): boolean => {
  * ```ts
  * import { insertStrikethrough, C_TILDE } from "@beep/markdown/internal/inlines/strikethrough"
  * import { makeInlineNode } from "@beep/markdown/internal/inlineNode"
- * import type { Delimiter } from "@beep/markdown/internal/inlineTypes"
+ * import { Delimiter } from "@beep/markdown/internal/inlineTypes"
  *
- * const opener: Delimiter = {
- *   cc: C_TILDE,
- *   numdelims: 2,
- *   origdelims: 2,
- *   node: makeInlineNode("text", 0, 2, "~~"),
- *   previous: undefined,
- *   next: undefined,
- *   canOpen: true,
- *   canClose: false
- * }
- * const closer: Delimiter = {
- *   ...opener,
- *   node: makeInlineNode("text", 6, 8, "~~"),
- *   canOpen: false,
- *   canClose: true
- * }
+ * const opener = new Delimiter(C_TILDE, makeInlineNode("text", 0, 2, "~~"), 2, true, false, undefined)
+ * const closer = new Delimiter(C_TILDE, makeInlineNode("text", 6, 8, "~~"), 2, false, true, opener)
  * const insert = insertStrikethrough(opener, closer)
  * console.log(typeof insert) // function
  * ```
@@ -149,14 +116,7 @@ export const insertStrikethrough: {
     closerNode.start += delims;
 
     const strikethrough: InlineNode = makeInlineNode("delete", openerNode.end, closerNode.start);
-
-    let between = openerNode.next;
-    while (between !== undefined && between !== closerNode) {
-      const following = between.next;
-      appendChild(strikethrough, between);
-      between = following;
-    }
-
+    moveSiblings(strikethrough, openerNode.next, closerNode);
     insertAfter(openerNode, strikethrough);
     unlink(openerNode);
     unlink(closerNode);
@@ -183,14 +143,10 @@ export const insertStrikethrough: {
  * ```ts
  * import { strikethroughConstruct } from "@beep/markdown/internal/inlines/strikethrough"
  *
- * console.log(strikethroughConstruct.triggers[0]) // 126
+ * console.log(strikethroughConstruct.triggers[0]) // ~
  * ```
  *
  * @category parsing
  * @since 0.0.0
  */
-export const strikethroughConstruct: InlineConstruct = {
-  name: "strikethrough",
-  triggers: [C_TILDE],
-  parse: (scanner) => handleTilde(scanner),
-};
+export const strikethroughConstruct = new InlineConstruct("strikethrough", [C_TILDE], handleTilde);

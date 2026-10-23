@@ -11,6 +11,10 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import { offsetOf } from "./support/offsets.ts";
 import type { MdxjsEsm } from "@beep/markdown/MarkdownMdx";
 import type { FlowContent, Frontmatter, ListItem, Text } from "@beep/markdown/MarkdownNode";
 
@@ -83,12 +87,12 @@ describe("gfm task-list items", () => {
   describe("checked is genuinely absent on a plain item", () => {
     it("leaves no key at all when there is no marker", () => {
       const item = firstItem("- foo");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
     });
 
     it("leaves no key when the bracket content is not a task marker", () => {
       const item = firstItem("- [@] foo");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
       assert.strictEqual(textOf(item), "[@] foo");
     });
   });
@@ -96,7 +100,7 @@ describe("gfm task-list items", () => {
   describe("the marker grammar", () => {
     it("requires whitespace after the closing bracket", () => {
       const item = firstItem("- [x]foo");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
       assert.strictEqual(textOf(item), "[x]foo");
     });
 
@@ -105,7 +109,7 @@ describe("gfm task-list items", () => {
       // not a `spacechar` — so an item whose whole content is a marker
       // is not a task item.
       const item = firstItem("- [x]");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
       assert.strictEqual(textOf(item), "[x]");
     });
 
@@ -116,19 +120,19 @@ describe("gfm task-list items", () => {
     });
 
     it("requires exactly one character between the brackets", () => {
-      assert.isFalse(Object.hasOwn(firstItem("- [xx] foo"), "checked"));
-      assert.isFalse(Object.hasOwn(firstItem("- [] foo"), "checked"));
+      assert.isFalse(P.hasProperty(firstItem("- [xx] foo"), "checked"));
+      assert.isFalse(P.hasProperty(firstItem("- [] foo"), "checked"));
     });
 
     it("does not match a marker that is not the item's first content", () => {
       const item = firstItem("- foo [x] bar");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
       assert.strictEqual(textOf(item), "foo [x] bar");
     });
 
     it("does not match a marker on a continuation line", () => {
       const item = firstItem("- foo\n  [x] bar");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
     });
 
     it("does not match a marker outside a list", () => {
@@ -144,7 +148,7 @@ describe("gfm task-list items", () => {
       // `>` prefix means the line never looks like a task item to
       // cmark-gfm. Preserved deliberately.
       const item = firstItem("> - [x] foo");
-      assert.isFalse(Object.hasOwn(item, "checked"));
+      assert.isFalse(P.hasProperty(item, "checked"));
       assert.strictEqual(textOf(item), "[x] foo");
     });
 
@@ -154,14 +158,14 @@ describe("gfm task-list items", () => {
       const items = itemsOf("- - [x] foo");
       assert.strictEqual(items.length, 2);
       for (const item of items) {
-        assert.isFalse(Object.hasOwn(item, "checked"));
+        assert.isFalse(P.hasProperty(item, "checked"));
       }
     });
 
     it("matches a nested item opened on its own line", () => {
       const items = itemsOf("- [x] foo\n  - [ ] bar\n  - [X] baz\n- [ ] bim");
       assert.deepStrictEqual(
-        items.map((item) => item.checked),
+        A.map(items, (item) => item.checked),
         [true, false, true, false]
       );
     });
@@ -194,9 +198,9 @@ describe("gfm task-list items", () => {
       const text = firstText(firstItem(source));
       assert.isDefined(text);
       assert.strictEqual(text.value, "foo");
-      assert.strictEqual(text.position.start.offset, source.indexOf("foo"));
+      assert.strictEqual(text.position.start.offset, offsetOf(source, "foo"));
       assert.strictEqual(text.position.end.offset, source.length);
-      assert.strictEqual(text.position.start.column, source.indexOf("foo") + 1);
+      assert.strictEqual(text.position.start.column, offsetOf(source, "foo") + 1);
     });
 
     it("keeps offsets right for a nested task item on a later line", () => {
@@ -206,7 +210,7 @@ describe("gfm task-list items", () => {
       const text = firstText(inner);
       assert.isDefined(text);
       assert.strictEqual(text.value, "bar");
-      assert.strictEqual(text.position.start.offset, source.indexOf("bar"));
+      assert.strictEqual(text.position.start.offset, offsetOf(source, "bar"));
       assert.strictEqual(text.position.start.line, 2);
     });
 
@@ -225,7 +229,7 @@ describe("gfm task-list items", () => {
     it("never forms a task item", () => {
       for (const source of ["- [ ] foo", "- [x] foo", "- [X] foo"]) {
         const item = firstItem(source, "commonmark");
-        assert.isFalse(Object.hasOwn(item, "checked"));
+        assert.isFalse(P.hasProperty(item, "checked"));
       }
     });
 
@@ -234,15 +238,16 @@ describe("gfm task-list items", () => {
       const text = firstText(firstItem(source, "commonmark"));
       assert.isDefined(text);
       assert.strictEqual(text.value, "[x] foo");
-      assert.strictEqual(text.position.start.offset, source.indexOf("[x]"));
+      assert.strictEqual(text.position.start.offset, offsetOf(source, "[x]"));
     });
   });
 
   describe("interaction with other gfm constructs", () => {
     it("leaves a marker inside a table cell as literal text", () => {
       const source = "| a |\n| - |\n| [x] b |\n";
-      const table = parseBlocks(source, { dialect: "gfm" }).root.children.find((child) => child.type === "table");
-      assert.isDefined(table);
+      const table = O.getOrThrow(
+        A.findFirst(parseBlocks(source, { dialect: "gfm" }).root.children, (child) => child.type === "table")
+      );
       const cell = table.children[1]?.children[0];
       assert.isDefined(cell);
       const text = cell.children[0];

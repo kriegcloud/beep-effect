@@ -42,6 +42,7 @@
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { isGuardExceeded } from "@beep/markdown/internal/carriers";
 import { assert, describe, it } from "@effect/vitest";
+import * as Str from "effect/String";
 import { renderHtml } from "../support/htmlWriter.ts";
 import { PATHOLOGICAL_CASES } from "../support/pathological/cases.ts";
 
@@ -88,11 +89,11 @@ const GUARD_REFUSED: ReadonlySet<string> = new Set([
  * the destination scan is capped: the suite's dominant cost is node
  * materialization, and this input is the "tables" case at 1/30th scale, so
  * the calibration and the heaviest case inflate together under
- * instrumentation. (The previous calibration input, `"[a](b".repeat(3000)`,
+ * instrumentation. (The previous calibration input, `Str.repeat(3000)("[a](b")`,
  * measured the then-quadratic destination scan; with the paren cap it costs
  * ~3ms and calibrates nothing.)
  */
-const CALIBRATION_INPUT = "aaa\rbbb\n-\u000b\n".repeat(1000);
+const CALIBRATION_INPUT = Str.repeat(1000)("aaa\rbbb\n-\u000b\n");
 
 /** What {@link CALIBRATION_INPUT} costs uninstrumented. */
 const CALIBRATION_BASELINE_MS = 93;
@@ -172,7 +173,7 @@ describe("pathological inputs", () => {
     "unclosed links B scales linearly",
     () => {
       const timeAt = (reps: number): number => {
-        const input = "[a](b".repeat(reps);
+        const input = Str.repeat(reps)("[a](b");
         // Two passes, keep the faster: damps JIT and GC noise without
         // hiding an algorithmic blowup.
         let best = Number.POSITIVE_INFINITY;

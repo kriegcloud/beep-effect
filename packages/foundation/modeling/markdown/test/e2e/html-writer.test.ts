@@ -17,6 +17,7 @@ import {
   List,
   ListItem,
   Paragraph,
+  Position,
   Root,
   Strong,
   Table,
@@ -26,11 +27,12 @@ import {
   ThematicBreak,
 } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { applyTagfilter, escapeXml, normalizeLabel, normalizeUri, renderHtml } from "../support/htmlWriter.ts";
 import { normalizeHtml } from "../support/normalizeHtml.ts";
-import { span } from "../support/span.ts";
 
-const p = span(0, 0);
+const p = Position.synthetic;
 
 /** A document wrapping the given flow children. */
 const doc = (...children: ReadonlyArray<Parameters<typeof Root.make>[0]["children"][number]>): Root =>
@@ -47,7 +49,7 @@ describe("renderHtml", () => {
     });
 
     it("renders headings at every depth", () => {
-      const headings = ([1, 2, 3, 4, 5, 6] as const).map((depth) =>
+      const headings = A.map([1, 2, 3, 4, 5, 6] as const, (depth) =>
         Heading.make({ depth, children: [Text.make({ value: "t", position: p })], position: p })
       );
       assert.strictEqual(
@@ -384,7 +386,7 @@ describe("renderHtml", () => {
         })
       );
       assert.strictEqual(renderHtml(tree), '<p><a href="/x">text</a></p>\n');
-      assert.isFalse(Object.hasOwn(Object.prototype, "url"));
+      assert.isFalse(P.hasProperty(Object.prototype, "url"));
     });
   });
 
@@ -465,10 +467,10 @@ describe("renderHtml", () => {
     const cell = (value: string): TableCell =>
       TableCell.make({ children: [Text.make({ value, position: p })], position: p });
     const row = (...values: ReadonlyArray<string>): TableRow =>
-      TableRow.make({ children: values.map(cell), position: p });
+      TableRow.make({ children: A.map(values, cell), position: p });
 
     it("renders a header and body, matching the extensions fixture shape", () => {
-      // __test__/fixtures/gfm/extensions.json example 1.
+      // data/conformance/gfm/extensions.json example 1.
       const table = Table.make({ children: [row("abc", "def"), row("ghi", "jkl"), row("mno", "pqr")], position: p });
       assert.strictEqual(
         renderHtml(doc(table)),
@@ -477,7 +479,7 @@ describe("renderHtml", () => {
     });
 
     it("omits tbody entirely when there are no body rows", () => {
-      // __test__/fixtures/gfm/spec-extensions.json example 205.
+      // data/conformance/gfm/spec-extensions.json example 205.
       const table = Table.make({ children: [row("abc", "def")], position: p });
       assert.strictEqual(
         renderHtml(doc(table)),
@@ -486,7 +488,7 @@ describe("renderHtml", () => {
     });
 
     it("emits align only for columns with a declared alignment", () => {
-      // __test__/fixtures/gfm/extensions.json example 6.
+      // data/conformance/gfm/extensions.json example 6.
       const table = Table.make({
         align: ["left", null, "center", null, "right"],
         children: [row("aaa", "bbb", "ccc", "ddd", "eee"), row("fff", "ggg", "hhh", "iii", "jjj")],
@@ -501,7 +503,7 @@ describe("renderHtml", () => {
 
   describe("gfm: task list items", () => {
     it("renders unchecked and checked markers, matching the extensions fixture shape", () => {
-      // __test__/fixtures/gfm/extensions.json example 28.
+      // data/conformance/gfm/extensions.json example 28.
       const list = List.make({
         spread: false,
         children: [
@@ -526,7 +528,7 @@ describe("renderHtml", () => {
     });
 
     it("renders the marker before a nested sublist, matching the extensions fixture shape", () => {
-      // __test__/fixtures/gfm/extensions.json example 29 (outer list only).
+      // data/conformance/gfm/extensions.json example 29 (outer list only).
       const inner = List.make({
         spread: false,
         children: [
@@ -552,7 +554,7 @@ describe("renderHtml", () => {
 
   describe("gfm: footnotes", () => {
     it("renders sup markers and an end-of-document section, matching the extensions fixture shape", () => {
-      // __test__/fixtures/gfm/extensions.json example 23, as a hand-built
+      // data/conformance/gfm/extensions.json example 23, as a hand-built
       // tree (the parser doesn't exist yet — Task 6 builds it). Footnote
       // definitions are placed at their mdast source positions, same as
       // `Definition`; the writer relocates them to the section itself.
@@ -628,43 +630,46 @@ describe("renderHtml", () => {
         FootnoteDefinition.make({ identifier: "unused", children: [para("This is unused.")], position: p })
       );
 
-      const expected = [
-        '<p>This is some text!<sup class="footnote-ref"><a href="#fn-1" id="fnref-1" data-footnote-ref>1</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn-footnote" id="fnref-footnote" data-footnote-ref>2</a></sup>.</p>',
-        '<p>Here\'s a thing<sup class="footnote-ref"><a href="#fn-other-note" id="fnref-other-note" data-footnote-ref>3</a></sup>.</p>',
-        '<p>And another thing<sup class="footnote-ref"><a href="#fn-codeblock-note" id="fnref-codeblock-note" data-footnote-ref>4</a></sup>.</p>',
-        "<p>This doesn't have a referent[^nope].</p>",
-        "<p>Hi!</p>",
-        '<section class="footnotes" data-footnotes>',
-        "<ol>",
-        '<li id="fn-1">',
-        '<p>Some <em>bolded</em> footnote definition. <a href="#fnref-1" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a></p>',
-        "</li>",
-        '<li id="fn-footnote">',
-        "<blockquote>",
-        "<p>Blockquotes can be in a footnote.</p>",
-        "</blockquote>",
-        "<pre><code>as well as code blocks",
-        "</code></pre>",
-        '<p>or, naturally, simple paragraphs. <a href="#fnref-footnote" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="2" aria-label="Back to reference 2">↩</a></p>',
-        "</li>",
-        '<li id="fn-other-note">',
-        '<p>no code block here (spaces are stripped away) <a href="#fnref-other-note" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="3" aria-label="Back to reference 3">↩</a></p>',
-        "</li>",
-        '<li id="fn-codeblock-note">',
-        "<pre><code>this is now a code block (8 spaces indentation)",
-        "</code></pre>",
-        '<a href="#fnref-codeblock-note" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="4" aria-label="Back to reference 4">↩</a>',
-        "</li>",
-        "</ol>",
-        "</section>",
-        "",
-      ].join("\n");
+      const expected = A.join(
+        [
+          '<p>This is some text!<sup class="footnote-ref"><a href="#fn-1" id="fnref-1" data-footnote-ref>1</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn-footnote" id="fnref-footnote" data-footnote-ref>2</a></sup>.</p>',
+          '<p>Here\'s a thing<sup class="footnote-ref"><a href="#fn-other-note" id="fnref-other-note" data-footnote-ref>3</a></sup>.</p>',
+          '<p>And another thing<sup class="footnote-ref"><a href="#fn-codeblock-note" id="fnref-codeblock-note" data-footnote-ref>4</a></sup>.</p>',
+          "<p>This doesn't have a referent[^nope].</p>",
+          "<p>Hi!</p>",
+          '<section class="footnotes" data-footnotes>',
+          "<ol>",
+          '<li id="fn-1">',
+          '<p>Some <em>bolded</em> footnote definition. <a href="#fnref-1" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a></p>',
+          "</li>",
+          '<li id="fn-footnote">',
+          "<blockquote>",
+          "<p>Blockquotes can be in a footnote.</p>",
+          "</blockquote>",
+          "<pre><code>as well as code blocks",
+          "</code></pre>",
+          '<p>or, naturally, simple paragraphs. <a href="#fnref-footnote" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="2" aria-label="Back to reference 2">↩</a></p>',
+          "</li>",
+          '<li id="fn-other-note">',
+          '<p>no code block here (spaces are stripped away) <a href="#fnref-other-note" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="3" aria-label="Back to reference 3">↩</a></p>',
+          "</li>",
+          '<li id="fn-codeblock-note">',
+          "<pre><code>this is now a code block (8 spaces indentation)",
+          "</code></pre>",
+          '<a href="#fnref-codeblock-note" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="4" aria-label="Back to reference 4">↩</a>',
+          "</li>",
+          "</ol>",
+          "</section>",
+          "",
+        ],
+        "\n"
+      );
 
       assert.strictEqual(renderHtml(tree), expected);
     });
 
     it("inserts multiple backrefs when a footnote is referenced more than once, matching the extensions fixture shape", () => {
-      // __test__/fixtures/gfm/extensions.json example 24.
+      // data/conformance/gfm/extensions.json example 24.
       const tree = doc(
         Paragraph.make({
           children: [
@@ -690,24 +695,27 @@ describe("renderHtml", () => {
         })
       );
 
-      const expected = [
-        '<p>This is some text. It has a footnote<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote" data-footnote-ref>1</a></sup>.</p>',
-        '<p>This footnote is referenced<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote-2" data-footnote-ref>1</a></sup> multiple times, in lots of different places.<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote-3" data-footnote-ref>1</a></sup></p>',
-        '<section class="footnotes" data-footnotes>',
-        "<ol>",
-        '<li id="fn-a-footnote">',
-        '<p>This footnote definition should have three backrefs. <a href="#fnref-a-footnote" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a> <a href="#fnref-a-footnote-2" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1-2" aria-label="Back to reference 1-2">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref-a-footnote-3" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1-3" aria-label="Back to reference 1-3">↩<sup class="footnote-ref">3</sup></a></p>',
-        "</li>",
-        "</ol>",
-        "</section>",
-        "",
-      ].join("\n");
+      const expected = A.join(
+        [
+          '<p>This is some text. It has a footnote<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote" data-footnote-ref>1</a></sup>.</p>',
+          '<p>This footnote is referenced<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote-2" data-footnote-ref>1</a></sup> multiple times, in lots of different places.<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote-3" data-footnote-ref>1</a></sup></p>',
+          '<section class="footnotes" data-footnotes>',
+          "<ol>",
+          '<li id="fn-a-footnote">',
+          '<p>This footnote definition should have three backrefs. <a href="#fnref-a-footnote" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a> <a href="#fnref-a-footnote-2" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1-2" aria-label="Back to reference 1-2">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref-a-footnote-3" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1-3" aria-label="Back to reference 1-3">↩<sup class="footnote-ref">3</sup></a></p>',
+          "</li>",
+          "</ol>",
+          "</section>",
+          "",
+        ],
+        "\n"
+      );
 
       assert.strictEqual(renderHtml(tree), expected);
     });
 
     it("href-escapes an identifier containing markup, matching the extensions fixture shape", () => {
-      // __test__/fixtures/gfm/extensions.json example 25.
+      // data/conformance/gfm/extensions.json example 25.
       const identifier = '"><script>alert(1)</script>';
       const tree = doc(
         Paragraph.make({
@@ -717,17 +725,20 @@ describe("renderHtml", () => {
         FootnoteDefinition.make({ identifier, children: [para("pwned")], position: p })
       );
 
-      const expected = [
-        '<p>Hello<sup class="footnote-ref"><a href="#fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" id="fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" data-footnote-ref>1</a></sup></p>',
-        '<section class="footnotes" data-footnotes>',
-        "<ol>",
-        '<li id="fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E">',
-        '<p>pwned <a href="#fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a></p>',
-        "</li>",
-        "</ol>",
-        "</section>",
-        "",
-      ].join("\n");
+      const expected = A.join(
+        [
+          '<p>Hello<sup class="footnote-ref"><a href="#fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" id="fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" data-footnote-ref>1</a></sup></p>',
+          '<section class="footnotes" data-footnotes>',
+          "<ol>",
+          '<li id="fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E">',
+          '<p>pwned <a href="#fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1">↩</a></p>',
+          "</li>",
+          "</ol>",
+          "</section>",
+          "",
+        ],
+        "\n"
+      );
 
       assert.strictEqual(renderHtml(tree), expected);
     });
@@ -758,7 +769,7 @@ describe("renderHtml", () => {
 
   describe("gfm: tagfilter", () => {
     it("leaves the nine disallowed tags alone when the gfm option is off", () => {
-      // __test__/fixtures/gfm/spec-extensions.json example 652, gfm: false.
+      // data/conformance/gfm/spec-extensions.json example 652, gfm: false.
       const tree = doc(
         Paragraph.make({
           children: [
@@ -777,7 +788,7 @@ describe("renderHtml", () => {
     });
 
     it("escapes the leading < of the nine disallowed tags when the gfm option is on", () => {
-      // __test__/fixtures/gfm/spec-extensions.json example 652, gfm: true.
+      // data/conformance/gfm/spec-extensions.json example 652, gfm: true.
       const tree = doc(
         Paragraph.make({
           children: [

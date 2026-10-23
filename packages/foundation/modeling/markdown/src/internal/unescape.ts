@@ -6,7 +6,9 @@
 // references into the literal characters they stand for. Used by link
 // destinations, link titles and fenced-code info strings.
 
+import { replaceWith } from "@beep/utils/Str";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { decodeEntity } from "./entities.ts";
 
 /**
@@ -61,8 +63,8 @@ const reBackslashOrAmp = /[\\&]/;
 const reEntityOrEscapedChar = new RegExp(`\\\\${ESCAPABLE}|${ENTITY}`, "gi");
 
 const unescapeChar = (source: string): string => {
-  if (source.charCodeAt(0) === 0x5c) {
-    return source.charAt(1);
+  if (Str.startsWith("\\")(source)) {
+    return Str.slice(1, 2)(source);
   }
   // An entity this engine cannot decode yet stays literal (see entities.ts).
   return O.getOrElse(decodeEntity(source), () => source);
@@ -93,4 +95,4 @@ const unescapeChar = (source: string): string => {
  * @since 0.0.0
  */
 export const unescapeString = (source: string): string =>
-  reBackslashOrAmp.test(source) ? source.replace(reEntityOrEscapedChar, unescapeChar) : source;
+  reBackslashOrAmp.test(source) ? replaceWith(source, reEntityOrEscapedChar, unescapeChar) : source;

@@ -4,7 +4,9 @@
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
+import { childOfType } from "./support/tree.ts";
 
 const descriptions = [
   { name: "backslash hard break", source: "a\\\nb", alt: "a\nb" },
@@ -14,37 +16,40 @@ const descriptions = [
   { name: "raw comment", source: "a <!-- note -->c", alt: "a <!-- note -->c" },
 ];
 
+type Dialect = "commonmark" | "gfm";
+
+/** The single phrasing node of a one-paragraph document. */
+const onlyInline = (markdown: string, dialect: Dialect) => {
+  const result = Markdown.parseResult(markdown, { dialect });
+  assertSuccess(
+    Result.map(result, () => undefined),
+    undefined
+  );
+  const paragraph = childOfType(Result.getOrThrow(result).children, 0, "paragraph");
+  assert.strictEqual(paragraph.children.length, 1);
+  return paragraph.children;
+};
+
+const cases = A.flatMap(["commonmark", "gfm"] as const, (dialect) =>
+  A.flatMap(descriptions, (description) => [
+    { ...description, dialect, reference: false },
+    { ...description, dialect, reference: true },
+  ])
+);
+
 describe("image alt leaf content", () => {
-  for (const dialect of ["commonmark", "gfm"] as const) {
-    for (const { name, source, alt } of descriptions) {
-      for (const reference of [false, true]) {
-        it(`${dialect}: ${name} in ${reference ? "a reference" : "an inline"} image`, () => {
-          const markdown = reference ? `![${source}][ref]\n\n[ref]: /u\n` : `![${source}](/u)`;
-          const result = Markdown.parseResult(markdown, { dialect });
-          assertSuccess(
-            Result.map(result, () => undefined),
-            undefined
-          );
-          if (Result.isFailure(result)) {
-            return;
-          }
-          const [paragraph] = result.success.children;
-          assert.strictEqual(paragraph?.type, "paragraph");
-          if (paragraph?.type !== "paragraph") {
-            return;
-          }
-          const [image] = paragraph.children;
-          assert.strictEqual(paragraph.children.length, 1);
-          assert.strictEqual(image?.type, reference ? "imageReference" : "image");
-          if (image?.type === "image" || image?.type === "imageReference") {
-            assert.strictEqual(image.alt, alt);
-            if (image.type === "imageReference") {
-              assert.strictEqual(image.identifier, "ref");
-              assert.strictEqual(image.referenceType, "full");
-            }
-          }
-        });
-      }
+  for (const { name, source, alt, dialect, reference } of cases) {
+    if (reference) {
+      it(`${dialect}: ${name} in a reference image`, () => {
+        const image = childOfType(onlyInline(`![${source}][ref]\n\n[ref]: /u\n`, dialect), 0, "imageReference");
+        assert.strictEqual(image.alt, alt);
+        assert.strictEqual(image.identifier, "ref");
+        assert.strictEqual(image.referenceType, "full");
+      });
+    } else {
+      it(`${dialect}: ${name} in an inline image`, () => {
+        assert.strictEqual(childOfType(onlyInline(`![${source}](/u)`, dialect), 0, "image").alt, alt);
+      });
     }
   }
 });

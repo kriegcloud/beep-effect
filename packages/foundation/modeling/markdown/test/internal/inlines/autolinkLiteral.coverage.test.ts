@@ -1,57 +1,17 @@
-import { makeInlineNode } from "@beep/markdown/internal/inlineNode";
 import { urlAutolinkConstruct, wwwAutolinkConstruct } from "@beep/markdown/internal/inlines/autolinkLiteral";
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import type { InlineNode } from "@beep/markdown/internal/inlineNode";
-import type { InlineScanner } from "@beep/markdown/internal/inlineTypes";
-
-const scannerFor = (subject: string): InlineScanner => {
-  const scanner: InlineScanner = {
-    subject,
-    pos: 0,
-    refmap: HashMap.empty(),
-    footnoteLabels: HashSet.empty(),
-    delimiters: undefined,
-    brackets: undefined,
-    peek: () => O.getOrElse(Str.charCodeAt(subject, scanner.pos), () => -1),
-    match: (pattern) => {
-      const matched = pattern.exec(subject.slice(scanner.pos));
-      if (matched === null || matched.index !== 0) return undefined;
-      const value = matched[0];
-      scanner.pos += value.length;
-      return value;
-    },
-    matchAhead: () => undefined,
-    hasAhead: () => false,
-    closingBacktickRun: dual(2, (_from: number, _length: number): number | undefined => undefined),
-    append: () => {},
-    appendText: dual(
-      3,
-      (value: string, from: number, to: number): InlineNode => makeInlineNode("text", from, to, value)
-    ),
-    lastChild: () => undefined,
-    unputText: () => false,
-    trimTrailingSpaces: () => 0,
-    removeDelimiter: () => {},
-    addBracket: dual(3, (_node: InlineNode, _index: number, _image: boolean): void => {}),
-    removeBracket: () => {},
-    deactivateLinkOpeners: () => {},
-    processEmphasis: () => {},
-  };
-  return scanner;
-};
+import { fakeScanner } from "./fakeScanner.ts";
 
 describe("literal autolink boundary behavior", () => {
   for (const subject of ["w", "www", "www.", "wwwa.example", "www._a.org", "www.a_b.org"]) {
     it.effect(`refuses www candidate ${subject}`, () =>
       Effect.sync(() => {
-        const scanner = scannerFor(subject);
+        const scanner = fakeScanner(subject);
         assert.strictEqual(wwwAutolinkConstruct.parse(scanner), false);
         assert.strictEqual(scanner.pos, 0);
       })
@@ -67,8 +27,8 @@ describe("literal autolink boundary behavior", () => {
   ]) {
     it.effect(`refuses invalid or unreclaimable URL ${subject}`, () =>
       Effect.sync(() => {
-        const scanner = scannerFor(subject);
-        scanner.pos = subject.indexOf(":");
+        const scanner = fakeScanner(subject);
+        scanner.pos = O.getOrThrow(Str.indexOf(":")(subject));
         const before = scanner.pos;
         assert.strictEqual(urlAutolinkConstruct.parse(scanner), false);
         assert.strictEqual(scanner.pos, before);
@@ -94,7 +54,7 @@ describe("literal autolink boundary behavior", () => {
       Effect.gen(function* () {
         const doc = yield* MarkdownDocument.parse(source);
         assert.deepStrictEqual(
-          doc.links.map((link) => link.url),
+          A.map(doc.links, (link) => link.url),
           [...expected]
         );
       })

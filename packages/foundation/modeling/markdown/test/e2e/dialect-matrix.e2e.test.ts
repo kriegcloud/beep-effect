@@ -17,6 +17,8 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
+import * as HashMap from "effect/HashMap";
+import * as O from "effect/Option";
 import { loadSpecExamples } from "../support/corpus.ts";
 import { renderHtml } from "../support/htmlWriter.ts";
 import { normalizeHtml } from "../support/normalizeHtml.ts";
@@ -27,7 +29,7 @@ import { normalizeHtml } from "../support/normalizeHtml.ts";
  * empirically over the full corpus, then verified by hand — eleven entries,
  * two constructs.
  */
-const EXPECTED_GFM_DIVERGENT: ReadonlyMap<number, string> = new Map([
+const EXPECTED_GFM_DIVERGENT: HashMap.HashMap<number, string> = HashMap.make(
   // The tagfilter escapes `<script>`, `<style>` and `<textarea>` in raw
   // HTML output under gfm (six examples across HTML block types 1 and 2).
   [170, "tagfilter: <script> block"],
@@ -43,8 +45,8 @@ const EXPECTED_GFM_DIVERGENT: ReadonlyMap<number, string> = new Map([
   [606, "autolink literal: email inside an invalid <> autolink"],
   [608, "autolink literal: URL inside a spaced-out <> non-autolink"],
   [611, "autolink literal: bare URL"],
-  [612, "autolink literal: bare email address"],
-]);
+  [612, "autolink literal: bare email address"]
+);
 
 const examples = loadSpecExamples();
 
@@ -55,7 +57,7 @@ describe("dialect matrix: commonmark vs gfm over the spec corpus", () => {
   });
 
   for (const example of examples) {
-    const expectation = EXPECTED_GFM_DIVERGENT.get(example.example);
+    const expectation = O.getOrUndefined(HashMap.get(EXPECTED_GFM_DIVERGENT, example.example));
     it(`example ${example.example}${expectation === undefined ? "" : ` diverges (${expectation})`}`, () => {
       const commonmark = normalizeHtml(renderHtml(parseBlocks(example.markdown, { dialect: "commonmark" }).root));
       const gfm = normalizeHtml(renderHtml(parseBlocks(example.markdown, { dialect: "gfm" }).root, { gfm: true }));

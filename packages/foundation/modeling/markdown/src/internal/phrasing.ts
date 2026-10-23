@@ -66,7 +66,7 @@ export const parsePhrasingText: {
   (dialect: InlineDialectName): (text: string) => ReadonlyArray<PhrasingContent>;
 } = dual(2, (text: string, dialect: InlineDialectName): ReadonlyArray<PhrasingContent> => {
   const lines = preprocessLines(text);
-  const segments: RawInlineSegment[] = [];
+  const segments: RawInlineSegment.Encoded[] = [];
   let content = "";
   for (const line of lines) {
     segments.push({ textOffset: content.length, sourceOffset: line.start, length: line.text.length });

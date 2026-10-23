@@ -9,10 +9,13 @@
 // spans from the text down to the underline exactly as upstream's does.
 
 import { dual } from "effect/Function";
+import { BlockStart } from "../blockTypes.ts";
+import { unitAt } from "../patterns.ts";
 import { extractDefinitions } from "./linkReferenceDefinition.ts";
-import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 
-const reSetextHeadingLine = /^(?:=+|-+)[ \t]*$/;
+/** A setext underline, sticky at the scan position. */
+const reSetextHeadingLine = /(?:=+|-+)[ \t]*$/y;
 
 /**
  * Promotes a paragraph to a setext heading when followed by a run of `=` or `-`.
@@ -34,14 +37,15 @@ const reSetextHeadingLine = /^(?:=+|-+)[ \t]*$/;
  * @category parsing
  * @since 0.0.0
  */
-export const setextHeadingStart: BlockStart = {
-  name: "setextHeading",
-  trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
+export const setextHeadingStart = new BlockStart(
+  "setextHeading",
+  dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
     if (scanner.indented || container.type !== "paragraph") {
       return 0;
     }
 
-    const match = reSetextHeadingLine.exec(scanner.currentLine.slice(scanner.nextNonspace));
+    reSetextHeadingLine.lastIndex = scanner.nextNonspace;
+    const match = reSetextHeadingLine.exec(scanner.currentLine);
     if (match === null) {
       return 0;
     }
@@ -56,9 +60,9 @@ export const setextHeadingStart: BlockStart = {
     }
 
     const heading = scanner.replaceBlock(container, "heading");
-    heading.data.level = match[0].charAt(0) === "=" ? 1 : 2;
+    heading.data.level = unitAt(match[0], 0) === "=" ? 1 : 2;
     heading.data.headingStyle = "setext";
     scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
     return 2;
-  }),
-};
+  })
+);

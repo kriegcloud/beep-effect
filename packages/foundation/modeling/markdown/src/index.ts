@@ -27,6 +27,7 @@
  * subpath-only imports (D-43).
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export {
@@ -43,8 +44,14 @@ export {
   MarkdownStringifyError,
 } from "./Markdown.ts";
 export { MarkdownDiagnostic, MarkdownParseErrorCode } from "./MarkdownDiagnostic.ts";
-export { DocumentSection, MarkdownDocument } from "./MarkdownDocument.ts";
-export { MarkdownEdit, MarkdownRange } from "./MarkdownEdit.ts";
+export {
+  DocumentHeading,
+  DocumentLink,
+  DocumentSection,
+  MarkdownDocument,
+  SectionQueryOptions,
+} from "./MarkdownDocument.ts";
+export { MarkdownEdit, MarkdownPath, MarkdownRange, MarkdownSegment } from "./MarkdownEdit.ts";
 export {
   CodeBlockStyle,
   MarkdownFormat,
@@ -102,15 +109,8 @@ export {
   ThematicBreakChar,
 } from "./MarkdownNode.ts";
 export { MarkdownVisitor, MarkdownVisitorEvent } from "./MarkdownVisitor.ts";
-export { Mdast, MdastDecodeError } from "./Mdast.ts";
-export type {
-  DocumentHeading,
-  DocumentLink,
-  LinkBearingNode,
-  SectionHeadingMatch,
-  SectionQueryOptions,
-} from "./MarkdownDocument.ts";
-export type { MarkdownPath, MarkdownSegment } from "./MarkdownEdit.ts";
+export { Mdast, MdastDecodeError, MdastNode } from "./Mdast.ts";
+export type { LinkBearingNode, SectionHeadingMatch } from "./MarkdownDocument.ts";
 export type { MarkdownRangeLike } from "./MarkdownFormat.ts";
 export type {
   FlowContentEncoded,
@@ -123,4 +123,3 @@ export type {
   RowContentEncoded,
   TableContentEncoded,
 } from "./MarkdownNode.ts";
-export type { MdastNode } from "./Mdast.ts";

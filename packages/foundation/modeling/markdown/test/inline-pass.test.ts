@@ -5,7 +5,11 @@ import { ENTITY_MAP } from "@beep/markdown/internal/entityMap";
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
+import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { PhrasingContent } from "@beep/markdown/MarkdownNode";
 
 /** The phrasing children of a source that parses to a single paragraph. */
@@ -15,7 +19,7 @@ const inlinesOf = (source: string): ReadonlyArray<PhrasingContent> => {
 };
 
 /** The node types of a source's phrasing content, for shape assertions. */
-const shapeOf = (source: string): ReadonlyArray<string> => inlinesOf(source).map((node) => node.type);
+const shapeOf = (source: string): ReadonlyArray<string> => A.map(inlinesOf(source), (node) => node.type);
 
 /** The single phrasing child of a source, when there is exactly one. */
 const onlyInline = (source: string): PhrasingContent | undefined => {
@@ -95,7 +99,10 @@ describe("inline pass", () => {
 
     it("escapes every character in the punctuation set", () => {
       const punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-      const escaped = [...punctuation].map((char) => `\\${char}`).join("");
+      const escaped = A.join(
+        A.map(Str.split(punctuation, ""), (char) => `\\${char}`),
+        ""
+      );
       const node = onlyInline(`${escaped}\n`);
       assert.strictEqual(node?.type === "text" ? node.value : "", punctuation);
     });
@@ -153,7 +160,7 @@ describe("inline pass", () => {
       }
       assert.strictEqual(node.url, "http://foo.bar.baz");
       assert.strictEqual(node.children[0]?.type === "text" ? node.children[0].value : "", "http://foo.bar.baz");
-      assert.isFalse(Object.hasOwn(node, "title"));
+      assert.isFalse(P.hasProperty(node, "title"));
     });
 
     it("parses an email address with a mailto destination", () => {
@@ -248,7 +255,7 @@ describe("inline pass", () => {
       const children = inlinesOf(source);
       const [, code] = children;
       assert.strictEqual(code?.type, "inlineCode");
-      assert.strictEqual(source.slice(code?.position.start.offset ?? 0, code?.position.end.offset ?? 0), "`code`");
+      assert.strictEqual(Str.slice(code?.position.start.offset ?? 0, code?.position.end.offset ?? 0)(source), "`code`");
     });
 
     it("positions an inline inside a container against the original source", () => {
@@ -256,14 +263,14 @@ describe("inline pass", () => {
       // pass sees, so a naive offset would land two characters early on
       // the second line.
       const source = "> a\n> `code`\n";
-      const children = inlinesOf(source.replace(/^> /gm, ""));
+      const children = inlinesOf(Str.replace(/^> /gm, "")(source));
       assert.isAtLeast(children.length, 1);
 
       const quote = parseBlocks(source).root.children[0];
       const paragraph = quote?.type === "blockquote" ? quote.children[0] : undefined;
       const code = paragraph?.type === "paragraph" ? paragraph.children[1] : undefined;
       assert.strictEqual(code?.type, "inlineCode");
-      assert.strictEqual(source.slice(code?.position.start.offset ?? 0, code?.position.end.offset ?? 0), "`code`");
+      assert.strictEqual(Str.slice(code?.position.start.offset ?? 0, code?.position.end.offset ?? 0)(source), "`code`");
     });
 
     it("keeps every inline position inside the source and ordered", () => {
@@ -296,7 +303,7 @@ describe("inline pass", () => {
       const [heading] = parseBlocks("# a `b`\n").root.children;
       assert.strictEqual(heading?.type, "heading");
       assert.deepStrictEqual(
-        (heading?.type === "heading" ? heading.children : []).map((child) => child.type),
+        A.map(heading?.type === "heading" ? heading.children : [], (child) => child.type),
         ["text", "inlineCode"]
       );
     });
@@ -305,31 +312,20 @@ describe("inline pass", () => {
 
 describe("the delimiter stack", () => {
   /** A compact shape rendering, for asserting nesting without HTML. */
-  const treeOf = (nodes: ReadonlyArray<PhrasingContent>): string =>
-    nodes
-      .map((node) => {
-        switch (node.type) {
-          case "text":
-            return node.value;
-          case "emphasis":
-            return `<em>${treeOf(node.children)}</em>`;
-          case "strong":
-            return `<strong>${treeOf(node.children)}</strong>`;
-          case "link":
-            return `<a ${node.url}>${treeOf(node.children)}</a>`;
-          case "linkReference":
-            return `<ref ${node.identifier} ${node.referenceType}>${treeOf(node.children)}</ref>`;
-          case "image":
-            return `<img ${node.url} ${node.alt ?? ""}>`;
-          case "imageReference":
-            return `<imgref ${node.identifier} ${node.referenceType} ${node.alt ?? ""}>`;
-          case "inlineCode":
-            return `<code>${node.value}</code>`;
-          default:
-            return `<${node.type}>`;
-        }
-      })
-      .join("");
+  const treeOf = (nodes: ReadonlyArray<PhrasingContent>): string => A.join(A.map(nodes, nodeShape), "");
+  const nodeShape: (node: PhrasingContent) => string = Match.type<PhrasingContent>().pipe(
+    Match.discriminators("type")({
+      text: (node) => node.value,
+      emphasis: (node) => `<em>${treeOf(node.children)}</em>`,
+      strong: (node) => `<strong>${treeOf(node.children)}</strong>`,
+      link: (node) => `<a ${node.url}>${treeOf(node.children)}</a>`,
+      linkReference: (node) => `<ref ${node.identifier} ${node.referenceType}>${treeOf(node.children)}</ref>`,
+      image: (node) => `<img ${node.url} ${node.alt ?? ""}>`,
+      imageReference: (node) => `<imgref ${node.identifier} ${node.referenceType} ${node.alt ?? ""}>`,
+      inlineCode: (node) => `<code>${node.value}</code>`,
+    }),
+    Match.orElse((node) => `<${node.type}>`)
+  );
 
   const shape = (source: string): string => treeOf(inlinesOf(source));
 
@@ -399,7 +395,7 @@ describe("the delimiter stack", () => {
     it("parses a bare destination holding 32 nested parens, the cmark bound", () => {
       // The COMPLETE inline result: exactly one link consuming the whole
       // destination, with no trailing nodes hiding after it.
-      const url = `/${"(".repeat(32)}a${")".repeat(32)}`;
+      const url = `/${Str.repeat(32)("(")}a${Str.repeat(32)(")")}`;
       assert.strictEqual(shape(`[foo](${url})\n`), `<a ${url}>foo</a>`);
     });
 
@@ -411,13 +407,13 @@ describe("the delimiter stack", () => {
       // pathological suite's "unclosed links B" (`references.ts`,
       // MAX_LINK_DESTINATION_PARENS). The COMPLETE inline result is the
       // source line verbatim: nothing formed a link, nothing was dropped.
-      const destination = `/${"(".repeat(33)}a${")".repeat(33)}`;
+      const destination = `/${Str.repeat(33)("(")}a${Str.repeat(33)(")")}`;
       assert.strictEqual(shape(`[foo](${destination})\n`), `[foo](${destination})`);
     });
 
     it("omits an absent title rather than storing undefined", () => {
       const [node] = inlinesOf("[foo](/url)\n");
-      assert.isFalse(Object.hasOwn(node ?? {}, "title"));
+      assert.isFalse(P.hasProperty(node ?? {}, "title"));
     });
 
     it("gives an image alt text and no children", () => {
@@ -515,8 +511,14 @@ describe("the delimiter stack", () => {
       // delimiters are part of the emphasis, not something around it.
       const source = "a *b* [c](/d) e\n";
       const [, emphasis, , link] = inlinesOf(source);
-      assert.strictEqual(source.slice(emphasis?.position.start.offset ?? 0, emphasis?.position.end.offset ?? 0), "*b*");
-      assert.strictEqual(source.slice(link?.position.start.offset ?? 0, link?.position.end.offset ?? 0), "[c](/d)");
+      assert.strictEqual(
+        Str.slice(emphasis?.position.start.offset ?? 0, emphasis?.position.end.offset ?? 0)(source),
+        "*b*"
+      );
+      assert.strictEqual(
+        Str.slice(link?.position.start.offset ?? 0, link?.position.end.offset ?? 0)(source),
+        "[c](/d)"
+      );
     });
 
     it("positions inlines inside a container against the original source", () => {
@@ -525,7 +527,10 @@ describe("the delimiter stack", () => {
       const paragraph = quote?.type === "blockquote" ? quote.children[0] : undefined;
       const emphasis = paragraph?.type === "paragraph" ? paragraph.children[1] : undefined;
       assert.strictEqual(emphasis?.type, "emphasis");
-      assert.strictEqual(source.slice(emphasis?.position.start.offset ?? 0, emphasis?.position.end.offset ?? 0), "*b*");
+      assert.strictEqual(
+        Str.slice(emphasis?.position.start.offset ?? 0, emphasis?.position.end.offset ?? 0)(source),
+        "*b*"
+      );
     });
   });
 
@@ -534,7 +539,7 @@ describe("the delimiter stack", () => {
       // The pathological shape: the delimiter stack must not go quadratic
       // or pair anything here. Task 10 pins the timing; this pins the
       // result.
-      const source = `${"*a **a ".repeat(500)}\n`;
+      const source = `${Str.repeat(500)("*a **a ")}\n`;
       const children = inlinesOf(source);
       assert.isAtLeast(children.length, 1);
     });
@@ -545,7 +550,7 @@ describe("the delimiter stack", () => {
       // Delimiters pair two at a time, so a run of n on each side nests
       // n/2 deep — the cap needs twice its own value in markers.
       const markers = 2 * MAX_NESTING_DEPTH + 20;
-      const source = `${"*".repeat(markers)}a${"*".repeat(markers)}\n`;
+      const source = `${Str.repeat(markers)("*")}a${Str.repeat(markers)("*")}\n`;
       assert.throws(() => parseBlocks(source), GuardExceeded);
     });
 
@@ -553,7 +558,7 @@ describe("the delimiter stack", () => {
       // The positive control: 500 markers a side nests 250 deep and must
       // parse, or the test above would pass for the wrong reason.
       const markers = 2 * MAX_NESTING_DEPTH - 12;
-      const source = `${"*".repeat(markers)}a${"*".repeat(markers)}\n`;
+      const source = `${Str.repeat(markers)("*")}a${Str.repeat(markers)("*")}\n`;
       const [node] = inlinesOf(source);
       assert.strictEqual(node?.type, "strong");
     });

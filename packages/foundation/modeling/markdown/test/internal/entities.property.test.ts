@@ -8,6 +8,7 @@ import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const scalar = S.Int.check(S.isBetween({ minimum: 1, maximum: 0x10ffff })).check(
@@ -25,7 +26,7 @@ it.effect.prop(
       assertSome(decodeEntity(`&#X${code.toString(16)};`), value);
       const decoded = decodeEntity(`&#${code};`);
       assertSome(decoded, value);
-      assertSome(decodeEntity(`&#${decoded.value.codePointAt(0)};`), value);
+      assertSome(decodeEntity(`&#${O.getOrThrow(Str.codePointAt(decoded.value, 0))};`), value);
     }),
   runs
 );

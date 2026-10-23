@@ -5,12 +5,14 @@ import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import type { MarkdownParseOptions } from "@beep/markdown/Markdown";
 import type { PhrasingContent } from "@beep/markdown/MarkdownNode";
 
-const phrasing = (text: string, options?: MarkdownParseOptions) => {
+const phrasing = (text: string, options?: MarkdownParseOptions.Encoded) => {
   const result = Markdown.parsePhrasingResult(text, options);
   assertSuccess(result, Result.getOrThrow(result));
   return Result.isSuccess(result) ? result.success : [];
@@ -32,7 +34,7 @@ describe("Markdown.parsePhrasingResult", () => {
   it("parses a link-carrying prose fragment into phrasing content", () => {
     const nodes = phrasing("see [the docs](./docs.md)");
     assert.deepStrictEqual(
-      nodes.map((node) => node.type),
+      A.map(nodes, (node) => node.type),
       ["text", "link"]
     );
     const link = nodes[1];
@@ -78,7 +80,7 @@ describe("Markdown.parsePhrasingResult", () => {
 
   it("leaves dangling references literal — no reference context exists", () => {
     assert.deepStrictEqual(
-      phrasing("[foo] and ![bar] and [^baz]").map((node) => node.type),
+      A.map(phrasing("[foo] and ![bar] and [^baz]"), (node) => node.type),
       ["text"]
     );
   });
@@ -96,7 +98,7 @@ describe("Markdown.parsePhrasingResult", () => {
   });
 
   it("fails typed on a hardening-guard trip", () => {
-    const markers = "*".repeat((MAX_NESTING_DEPTH + 10) * 2);
+    const markers = Str.repeat((MAX_NESTING_DEPTH + 10) * 2)("*");
     const result = Markdown.parsePhrasingResult(`${markers}a${markers}`);
     assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
     if (Result.isFailure(result)) {

@@ -10,16 +10,10 @@
 // this port does it as each paragraph closes.
 
 import { dual } from "effect/Function";
+import { BlockConstruct, containsNothing, inlineHostMaterializer } from "../blockTypes.ts";
 import { trustedNode } from "../nodes.ts";
 import { extractDefinitions } from "./linkReferenceDefinition.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import type { BlockContinueResult, BlockNode, BlockScanner } from "../blockTypes.ts";
 import type { Paragraph } from "../nodes.ts";
 
 /**
@@ -43,36 +37,22 @@ import type { Paragraph } from "../nodes.ts";
  * @category parsing
  * @since 0.0.0
  */
-export const paragraphConstruct: BlockConstruct = {
-  type: "paragraph",
-  acceptsLines: true,
-  canContain: () => false,
+export const paragraphConstruct = new BlockConstruct("paragraph", true, {
+  canContain: containsNothing,
   continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => (scanner.blank ? 1 : 0)),
   finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
     extractDefinitions(block);
   }),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const inline = context.inlineSlice(block);
-      // A paragraph whose content trimmed away renders nothing; dropping it
-      // keeps `<p></p>` out of the tree. A paragraph that held only link
-      // reference definitions is the case that makes this reachable.
-      if (inline.text.length === 0) {
-        return undefined;
-      }
-
-      const node = trustedNode<Paragraph>({
-        type: "paragraph",
-        children: inline.children,
-        position: context.position(block.startOffset, block.endOffset),
-      });
-      context.registerInline(node, inline);
-      return node;
-    }
+  // A paragraph whose content trimmed away renders nothing; dropping it keeps
+  // `<p></p>` out of the tree. A paragraph that held only link reference
+  // definitions is the case that makes this reachable.
+  materialize: inlineHostMaterializer((block, inline, context) =>
+    inline.text.length === 0
+      ? undefined
+      : trustedNode<Paragraph>({
+          type: "paragraph",
+          children: inline.children,
+          position: context.position(block.startOffset, block.endOffset),
+        })
   ),
-};
+});

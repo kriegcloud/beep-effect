@@ -69,7 +69,7 @@ it.effect.prop(
   [Arbitrary.schema(fragment)],
   ([parts]) =>
     Effect.gen(function* () {
-      const source = parts.join(" ");
+      const source = A.join(parts, " ");
       const first = root(source);
       const serialized = yield* Markdown.stringify(first);
       const reparsed = yield* Markdown.parse(serialized);
@@ -85,7 +85,7 @@ it.effect.prop(
   [Arbitrary.schema(fragment)],
   ([parts]) =>
     Effect.gen(function* () {
-      const source = parts.join(" ");
+      const source = A.join(parts, " ");
       const formatted = MarkdownFormat.formatToString(source, undefined, options);
       assert.strictEqual(MarkdownFormat.formatToString(formatted, undefined, options), formatted);
       const before = yield* Markdown.parse(source);

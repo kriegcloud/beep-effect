@@ -1,7 +1,8 @@
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import { DocumentLink, MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { MdxTextExpression } from "@beep/markdown/MarkdownMdx";
 import { Break, Heading, Html, Image, ImageReference, Root, Text } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 
@@ -35,7 +36,7 @@ describe("MarkdownDocument coverage", () => {
         root: Root.make({ children: [Heading.make({ depth: 2, children: [withoutAlt] })] }),
       });
       assert.strictEqual(other.headings[0]?.text, "");
-      assert.deepStrictEqual(other.links, [{ node: withoutAlt }]);
+      assert.deepStrictEqual(other.links, [DocumentLink.make({ node: withoutAlt })]);
       yield* Effect.void;
     })
   );
@@ -44,7 +45,7 @@ describe("MarkdownDocument coverage", () => {
     Effect.gen(function* () {
       const doc = yield* MarkdownDocument.parse("# A\n\n## B\n\n## C\n\n# D\n");
       assert.deepStrictEqual(
-        doc.sections.map((section) => [section.text, section.body]),
+        A.map(doc.sections, (section) => [section.text, section.body]),
         [
           ["A", "\n\n## B\n\n## C\n\n"],
           ["B", "\n\n"],

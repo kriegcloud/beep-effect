@@ -4,6 +4,8 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import type { Root } from "@beep/markdown/MarkdownNode";
 
 const ProjectedContent = S.Struct({
   children: S.Tuple([
@@ -15,6 +17,22 @@ const ProjectedContent = S.Struct({
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({ text: S.String, code: S.String, label: S.String });
+
+type Block = Root["children"][number] | undefined;
+
+/** The first text child's value of a paragraph block. */
+const paragraphText = (block: Block): string | undefined => {
+  const first = block?.type === "paragraph" ? block.children[0] : undefined;
+  return first?.type === "text" ? first.value : undefined;
+};
+
+const codeValue = (block: Block): string | undefined => (block?.type === "code" ? block.value : undefined);
+
+const definitionUrl = (block: Block): string | undefined => (block?.type === "definition" ? block.url : undefined);
+
+/** A code value as the engine carries it: the final line terminator restored (CR content keeps its LF). */
+const carriedCodeValue = (code: string): string =>
+  code === "" ? "" : `${code}${Str.endsWith("\r")(code) ? "\r\n" : "\n"}`;
 
 describe("Mdast properties", () => {
   it.effect.prop(
@@ -50,16 +68,9 @@ describe("Mdast properties", () => {
         assert.deepStrictEqual(Mdast.toMdast(admitted), plain);
         assert.deepStrictEqual(Mdast.toMdast(yield* Mdast.fromMdast(Mdast.toMdast(admitted))), plain);
         const [paragraph, code, definition] = admitted.children;
-        if (paragraph?.type === "paragraph")
-          assert.strictEqual(
-            paragraph.children[0]?.type === "text" ? paragraph.children[0].value : undefined,
-            sample.text
-          );
-        assert.strictEqual(
-          code?.type === "code" ? code.value : undefined,
-          sample.code === "" ? "" : `${sample.code}${sample.code.endsWith("\r") ? "\r\n" : "\n"}`
-        );
-        assert.strictEqual(definition?.type === "definition" ? definition.url : undefined, "./target");
+        assert.strictEqual(paragraphText(paragraph), sample.text);
+        assert.strictEqual(codeValue(code), carriedCodeValue(sample.code));
+        assert.strictEqual(definitionUrl(definition), "./target");
       }),
     runs
   );

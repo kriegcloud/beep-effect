@@ -13,23 +13,17 @@
 // block's segment table with its absolute source offset, so the inline pass
 // can place real offsets inside the heading.
 
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { BlockConstruct, BlockStart, containsNothing, inlineHostMaterializer, neverContinues } from "../blockTypes.ts";
 import { HeadingDepth, trustedNode } from "../nodes.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  BlockStart,
-  BlockStartResult,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 import type { Heading } from "../nodes.ts";
 
-const reATXHeadingMarker = /^#{1,6}(?:[ \t]+|$)/;
+/** The opening run of hashes and its separator, sticky at the scan position. */
+const reATXHeadingMarker = /#{1,6}(?:[ \t]+|$)/y;
 const reOnlyTrailingHashes = /^[ \t]*#+[ \t]*$/;
 const reClosingHashes = /[ \t]+#+[ \t]*$/;
 
@@ -51,33 +45,20 @@ const headingDepth = (hashes: number): HeadingDepth => Result.getOrThrow(S.decod
  * @category parsing
  * @since 0.0.0
  */
-export const headingConstruct: BlockConstruct = {
-  type: "heading",
-  acceptsLines: false,
-  canContain: () => false,
+export const headingConstruct = new BlockConstruct("heading", false, {
+  canContain: containsNothing,
   // A heading can never contain more than one line, so it never continues.
-  continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const inline = context.inlineSlice(block);
-      const style = block.data.headingStyle ?? "atx";
-      const node = trustedNode<Heading>({
-        type: "heading",
-        depth: block.data.level ?? 1,
-        children: inline.children,
-        position: context.position(block.startOffset, block.endOffset),
-        headingStyle: style,
-      });
-      context.registerInline(node, inline);
-      return node;
-    }
+  continue: neverContinues,
+  materialize: inlineHostMaterializer((block, inline, context) =>
+    trustedNode<Heading>({
+      type: "heading",
+      depth: block.data.level ?? 1,
+      children: inline.children,
+      position: context.position(block.startOffset, block.endOffset),
+      headingStyle: block.data.headingStyle ?? "atx",
+    })
   ),
-};
+});
 
 /**
  * Opens an ATX heading marked by `#` through `######`, optionally closed.
@@ -93,14 +74,15 @@ export const headingConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const atxHeadingStart: BlockStart = {
-  name: "atxHeading",
-  trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
+export const atxHeadingStart = new BlockStart(
+  "atxHeading",
+  dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
     if (scanner.indented) {
       return 0;
     }
 
-    const match = reATXHeadingMarker.exec(scanner.currentLine.slice(scanner.nextNonspace));
+    reATXHeadingMarker.lastIndex = scanner.nextNonspace;
+    const match = reATXHeadingMarker.exec(scanner.currentLine);
     if (match === null) {
       return 0;
     }
@@ -110,16 +92,18 @@ export const atxHeadingStart: BlockStart = {
     scanner.closeUnmatchedBlocks();
 
     const container = scanner.addChild("heading", scanner.nextNonspace);
-    container.data.level = headingDepth(match[0].trim().length);
+    container.data.level = headingDepth(Str.trimEnd(match[0]).length);
     container.data.headingStyle = "atx";
 
     // Both replacements strip a suffix, so the surviving content is still a
     // prefix of the line remainder — which is what makes the single segment
     // below exact.
-    const content = scanner.currentLine
-      .slice(scanner.offset)
-      .replace(reOnlyTrailingHashes, "")
-      .replace(reClosingHashes, "");
+    const content = pipe(
+      scanner.currentLine,
+      Str.slice(scanner.offset),
+      Str.replace(reOnlyTrailingHashes, ""),
+      Str.replace(reClosingHashes, "")
+    );
     container.stringContent = content;
     container.segments.push({
       textOffset: 0,
@@ -129,5 +113,5 @@ export const atxHeadingStart: BlockStart = {
 
     scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
     return 2;
-  }),
-};
+  })
+);

@@ -21,7 +21,7 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
     nextNonspaceColumn: indent,
     indent,
     indented: indent >= 4,
-    blank: currentLine.trim().length === 0,
+    blank: Str.trim(currentLine).length === 0,
     get tip() {
       return currentTip;
     },
@@ -75,6 +75,7 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
 import { setextHeadingStart } from "@beep/markdown/internal/blocks/setextHeading";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { BlockType } from "@beep/markdown/internal/blockTypes";
 
 it.effect("definitions alone do not become a setext heading", () =>

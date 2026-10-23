@@ -11,8 +11,11 @@ import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
+import { lastOffsetOf, offsetOf } from "./support/offsets.ts";
 import type { PhrasingContent, Table, TableAlign } from "@beep/markdown/MarkdownNode";
 
 /** The first block of a source parsed under a dialect. */
@@ -21,8 +24,8 @@ const firstBlock = (source: string, dialect: "commonmark" | "gfm" = "gfm") =>
 
 /** The table a source parses to, or `undefined` if it produced anything else. */
 const tableOf = (source: string, dialect: "commonmark" | "gfm" = "gfm"): Table | undefined => {
-  const block = parseBlocks(source, { dialect: dialect }).root.children.find((child) => child.type === "table");
-  return block?.type === "table" ? block : undefined;
+  const block = A.findFirst(parseBlocks(source, { dialect: dialect }).root.children, (child) => child.type === "table");
+  return O.isSome(block) && block.value.type === "table" ? block.value : undefined;
 };
 
 /** The table a source must parse to; fails the test if it did not form one. */
@@ -34,8 +37,8 @@ const requireTable = (source: string, dialect: "commonmark" | "gfm" = "gfm"): Ta
 
 /** A compact rendering of a table: rows of cells, cells as their text. */
 const sketchInline = (nodes: ReadonlyArray<PhrasingContent>): string =>
-  nodes
-    .map((node) => {
+  A.join(
+    A.map(nodes, (node) => {
       switch (node.type) {
         case "text":
           return JSON.stringify(node.value);
@@ -56,15 +59,28 @@ const sketchInline = (nodes: ReadonlyArray<PhrasingContent>): string =>
         default:
           return node.type;
       }
-    })
-    .join(",");
+    }),
+    ","
+  );
 
 /** `row|row`, each row `cell/cell`, each cell its compact inline shape. */
 const grid = (table: Table): string =>
-  table.children.map((row) => row.children.map((cell) => sketchInline(cell.children)).join("/")).join("|");
+  A.join(
+    A.map(table.children, (row) =>
+      A.join(
+        A.map(row.children, (cell) => sketchInline(cell.children)),
+        "/"
+      )
+    ),
+    "|"
+  );
 
 /** The alignment array, with `null` spelled `-` so a test reads as one string. */
-const alignOf = (table: Table): string => (table.align ?? []).map((entry: TableAlign | null) => entry ?? "-").join(",");
+const alignOf = (table: Table): string =>
+  A.join(
+    A.map(table.align ?? [], (entry: TableAlign | null) => entry ?? "-"),
+    ","
+  );
 
 describe("gfm tables", () => {
   it.effect("parses a 150,000-escaped-pipe cell in Node with its original source span", () =>
@@ -225,7 +241,7 @@ describe("gfm tables", () => {
     it("starts the table at the reclaimed header line, not the paragraph", () => {
       const source = "123\n| a |\n| - |\n";
       const table = requireTable(source);
-      assert.strictEqual(table.position.start.offset, source.indexOf("| a |"));
+      assert.strictEqual(table.position.start.offset, offsetOf(source, "| a |"));
     });
 
     it("is interrupted by a block-level construct", () => {
@@ -278,10 +294,10 @@ describe("gfm tables", () => {
       const [first, second] = table.children[1]?.children ?? [];
       assert.isDefined(first);
       assert.isDefined(second);
-      assert.strictEqual(first.position.start.offset, source.indexOf("xy"));
-      assert.strictEqual(first.position.end.offset, source.indexOf("xy") + 2);
-      assert.strictEqual(second.position.start.offset, source.lastIndexOf("z"));
-      assert.strictEqual(second.position.end.offset, source.lastIndexOf("z") + 1);
+      assert.strictEqual(first.position.start.offset, offsetOf(source, "xy"));
+      assert.strictEqual(first.position.end.offset, offsetOf(source, "xy") + 2);
+      assert.strictEqual(second.position.start.offset, lastOffsetOf(source, "z"));
+      assert.strictEqual(second.position.end.offset, lastOffsetOf(source, "z") + 1);
     });
 
     it("keeps source offsets correct after an escaped pipe", () => {
@@ -292,9 +308,9 @@ describe("gfm tables", () => {
       assert.isDefined(second);
       // The cell text is `x|y` — one character shorter than the source it
       // came from, so the end offset must clear the escape, not the text.
-      assert.strictEqual(first.position.start.offset, source.indexOf("x\\|y"));
-      assert.strictEqual(first.position.end.offset, source.indexOf("x\\|y") + 4);
-      assert.strictEqual(second.position.start.offset, source.lastIndexOf("z"));
+      assert.strictEqual(first.position.start.offset, offsetOf(source, "x\\|y"));
+      assert.strictEqual(first.position.end.offset, offsetOf(source, "x\\|y") + 4);
+      assert.strictEqual(second.position.start.offset, lastOffsetOf(source, "z"));
     });
 
     it("spans the whole construct on the table and each row", () => {
@@ -303,7 +319,7 @@ describe("gfm tables", () => {
       assert.strictEqual(table.position.start.offset, 0);
       assert.strictEqual(table.position.end.offset, source.length - 1);
       assert.strictEqual(table.children[0]?.position.start.offset, 0);
-      assert.strictEqual(table.children[1]?.position.start.offset, source.indexOf("| b |"));
+      assert.strictEqual(table.children[1]?.position.start.offset, offsetOf(source, "| b |"));
     });
 
     it("carries 1-based lines on every node", () => {

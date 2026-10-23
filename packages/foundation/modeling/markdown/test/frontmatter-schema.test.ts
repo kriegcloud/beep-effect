@@ -31,6 +31,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const withFrontmatter = MarkdownParseOptions.make({ frontmatter: true });
 
@@ -215,7 +216,7 @@ describe("MarkdownDocument.hasFrontmatterBlock", () => {
 describe("frontmatter round-trip property", () => {
   // Newline-free strings only — see the file header for why. The count stays
   // in the 32-bit range every frontmatter codec represents exactly.
-  const Scalar = S.String.check(S.makeFilter((s) => !s.includes("\n") && !s.includes("\r")));
+  const Scalar = S.String.check(S.makeFilter((s) => !Str.includes("\n")(s) && !Str.includes("\r")(s)));
   const MetaArb = S.Struct({
     title: Scalar,
     count: S.Int.check(S.isBetween({ minimum: -(2 ** 31), maximum: 2 ** 31 - 1 })),
@@ -223,7 +224,7 @@ describe("frontmatter round-trip property", () => {
 
   /** Fence a stringified block, normalizing a missing trailing newline. */
   const fenced = (open: string, block: string, close: string): string =>
-    `${open}\n${block}${block.endsWith("\n") ? "" : "\n"}${close}\n\nbody\n`;
+    `${open}\n${block}${Str.endsWith("\n")(block) ? "" : "\n"}${close}\n\nbody\n`;
 
   const decodeVia = (source: string, codec: typeof YamlFrontmatter) =>
     Effect.flatMap(parseDoc(source), (document) => MarkdownFrontmatter.schema(Meta, codec)(document));

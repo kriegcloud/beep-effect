@@ -12,7 +12,9 @@
 
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 const parse = (source: string): MarkdownDocument => {
   const result = MarkdownDocument.parseResult(source);
@@ -22,26 +24,29 @@ const parse = (source: string): MarkdownDocument => {
   return result.success;
 };
 
-const changelog = [
-  "# my-package",
-  "",
-  "## 1.2.30",
-  "",
-  "- newest entry",
-  "",
-  "### Patch changes",
-  "",
-  "- a nested subsection that must NOT terminate its release",
-  "",
-  "## 1.2.3",
-  "",
-  "- older entry",
-  "",
-  "## 1.0.0",
-  "",
-  "- oldest entry",
-  "",
-].join("\n");
+const changelog = A.join(
+  [
+    "# my-package",
+    "",
+    "## 1.2.30",
+    "",
+    "- newest entry",
+    "",
+    "### Patch changes",
+    "",
+    "- a nested subsection that must NOT terminate its release",
+    "",
+    "## 1.2.3",
+    "",
+    "- older entry",
+    "",
+    "## 1.0.0",
+    "",
+    "- oldest entry",
+    "",
+  ],
+  "\n"
+);
 
 describe("DocumentSection.text", () => {
   it("carries the heading's plain-text content", () => {
@@ -50,7 +55,7 @@ describe("DocumentSection.text", () => {
     // `sections` contract, flat with `depth` carrying the hierarchy. The
     // finders narrow by depth; they do not change what a section is.
     assert.deepStrictEqual(
-      document.sections.map((section) => section.text),
+      A.map(document.sections, (section) => section.text),
       ["my-package", "1.2.30", "Patch changes", "1.2.3", "1.0.0"]
     );
   });
@@ -67,8 +72,8 @@ describe("DocumentSection.text", () => {
     // If they ever diverge, one of the derivations drifted.
     const document = parse(changelog);
     assert.deepStrictEqual(
-      document.sections.map((section) => section.text),
-      document.headings.map((entry) => entry.text)
+      A.map(document.sections, (section) => section.text),
+      A.map(document.headings, (entry) => entry.text)
     );
   });
 });
@@ -83,20 +88,20 @@ describe("DocumentSection — source and body", () => {
 
   it("`source` is the whole section, heading included", () => {
     const section = sectionNamed(changelog, "1.2.30");
-    assert.isTrue(section.source.startsWith("## 1.2.30"));
+    assert.isTrue(Str.startsWith("## 1.2.30")(section.source));
     assert.strictEqual(
       section.source,
-      changelog.slice(section.range.offset, section.range.offset + section.range.length)
+      Str.slice(section.range.offset, section.range.offset + section.range.length)(changelog)
     );
   });
 
   it("`body` excludes the heading and `bodyRange` describes it", () => {
     const section = sectionNamed(changelog, "1.2.3");
-    assert.isFalse(section.body.includes("## 1.2.3\n"));
+    assert.isFalse(Str.includes("## 1.2.3\n")(section.body));
     assert.include(section.body, "- older entry");
     assert.strictEqual(
       section.body,
-      changelog.slice(section.bodyRange.offset, section.bodyRange.offset + section.bodyRange.length)
+      Str.slice(section.bodyRange.offset, section.bodyRange.offset + section.bodyRange.length)(changelog)
     );
   });
 
@@ -114,15 +119,15 @@ describe("DocumentSection — source and body", () => {
     // The consumer writes `.trim()`, visibly. A package that publishes offsets
     // for a span and then hands back a different span is lying about it.
     const section = sectionNamed(changelog, "1.2.3");
-    assert.isTrue(section.body.startsWith("\n"));
-    assert.strictEqual(section.body.trim(), "- older entry");
+    assert.isTrue(Str.startsWith("\n")(section.body));
+    assert.strictEqual(Str.trim(section.body), "- older entry");
   });
 
   it("a heading with no body has an empty body", () => {
     const document = parse("## 2.0.0\n\n## 1.0.0\n\n- content\n");
     const first = document.sections[0];
     assert.isDefined(first);
-    assert.strictEqual(first.body.trim(), "");
+    assert.strictEqual(Str.trim(first.body), "");
   });
 
   it("the last section runs to the end of the source", () => {
@@ -130,7 +135,7 @@ describe("DocumentSection — source and body", () => {
     const last = document.sections.at(-1);
     assert.isDefined(last);
     assert.strictEqual(last.range.offset + last.range.length, changelog.length);
-    assert.strictEqual(last.body.trim(), "- oldest entry");
+    assert.strictEqual(Str.trim(last.body), "- oldest entry");
   });
 });
 
@@ -201,14 +206,14 @@ describe("MarkdownDocument.sectionByHeading", () => {
 
   it("accepts a predicate over the text and the section", () => {
     const section = parse(changelog).sectionByHeading(
-      (text, candidate) => candidate.depth === 2 && text.endsWith(".0")
+      (text, candidate) => candidate.depth === 2 && Str.endsWith(".0")(text)
     );
     assert.strictEqual(section?.text, "1.0.0");
   });
 
   it("honours the depth restriction", () => {
     const source = "# 1.0.0\n\ntop\n\n## 1.0.0\n\nnested\n";
-    assert.strictEqual(parse(source).sectionByHeading("1.0.0", { depth: 2 })?.body.trim(), "nested");
+    assert.strictEqual(Str.trim(parse(source).sectionByHeading("1.0.0", { depth: 2 })?.body ?? ""), "nested");
   });
 
   it("is undefined when nothing matches", () => {
@@ -217,7 +222,7 @@ describe("MarkdownDocument.sectionByHeading", () => {
 
   it("returns the FIRST match in document order", () => {
     const source = "## dup\n\nfirst\n\n## dup\n\nsecond\n";
-    assert.strictEqual(parse(source).sectionByHeading("dup")?.body.trim(), "first");
+    assert.strictEqual(Str.trim(parse(source).sectionByHeading("dup")?.body ?? ""), "first");
   });
 });
 
@@ -225,25 +230,28 @@ describe("section extraction — the line-scan regressions", () => {
   it("`## ` inside a FENCED CODE BLOCK is not a section", () => {
     // The headline fix. A `^## ` line scan opens a section here; a parser
     // cannot, because the line is part of a `code` node.
-    const source = [
-      "# Title",
-      "",
-      "## 1.0.0",
-      "",
-      "Example:",
-      "",
-      "```md",
-      "## not a heading",
-      "",
-      "## also not a heading",
-      "```",
-      "",
-      "- real content",
-      "",
-    ].join("\n");
+    const source = A.join(
+      [
+        "# Title",
+        "",
+        "## 1.0.0",
+        "",
+        "Example:",
+        "",
+        "```md",
+        "## not a heading",
+        "",
+        "## also not a heading",
+        "```",
+        "",
+        "- real content",
+        "",
+      ],
+      "\n"
+    );
     const document = parse(source);
     assert.deepStrictEqual(
-      document.sections.map((section) => section.text),
+      A.map(document.sections, (section) => section.text),
       ["Title", "1.0.0"]
     );
     const release = document.firstSection({ depth: 2 });
@@ -254,7 +262,7 @@ describe("section extraction — the line-scan regressions", () => {
   it("an INDENTED code block's `## ` is not a section either", () => {
     const source = "# Title\n\n## 1.0.0\n\n    ## indented, not a heading\n\n- real content\n";
     assert.deepStrictEqual(
-      parse(source).sections.map((section) => section.text),
+      A.map(parse(source).sections, (section) => section.text),
       ["Title", "1.0.0"]
     );
   });
@@ -262,16 +270,16 @@ describe("section extraction — the line-scan regressions", () => {
   it("a SETEXT H2 is a section — the line scan misses these entirely", () => {
     // `Version\n---` is an H2. `/^## /` never matches it, so a line-scanning
     // extractor reports "no H2 section" on a document that plainly has one.
-    const source = ["My Title", "========", "", "1.0.0", "-----", "", "- setext content", ""].join("\n");
+    const source = A.join(["My Title", "========", "", "1.0.0", "-----", "", "- setext content", ""], "\n");
     const document = parse(source);
     assert.deepStrictEqual(
-      document.sections.map((section) => [section.depth, section.text]),
+      A.map(document.sections, (section) => [section.depth, section.text]),
       [
         [1, "My Title"],
         [2, "1.0.0"],
       ]
     );
-    assert.strictEqual(document.firstSection({ depth: 2 })?.body.trim(), "- setext content");
+    assert.strictEqual(Str.trim(document.firstSection({ depth: 2 })?.body ?? ""), "- setext content");
   });
 
   it("a heading inside a blockquote does not open a section", () => {
@@ -279,7 +287,7 @@ describe("section extraction — the line-scan regressions", () => {
     // here because the finders must inherit it rather than re-deciding.
     const source = "# Title\n\n> ## quoted\n\n## 1.0.0\n\n- content\n";
     assert.deepStrictEqual(
-      parse(source).sections.map((section) => section.text),
+      A.map(parse(source).sections, (section) => section.text),
       ["Title", "1.0.0"]
     );
   });

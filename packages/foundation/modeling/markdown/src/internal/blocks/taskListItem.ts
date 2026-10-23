@@ -35,7 +35,8 @@
 //    never sees it and no offset needs fixing up afterwards.
 
 import { dual } from "effect/Function";
-import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
+import { BlockStart } from "../blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 
 /**
  * `_scan_tasklist`, as the generated scanner accepts it.
@@ -53,7 +54,8 @@ const reTaskListMarker = /^[ \t\v\f]*(?:[-+*]|\d+[^\n])[ \t\v\f]+\[[ xX]\][ \t\v
 const MARKER_LENGTH = 3;
 
 /** Whether `line` carries a checked marker anywhere — upstream's `strstr` pair. */
-const isChecked = (line: string): boolean => line.includes("[x]") || line.includes("[X]");
+const reCheckedBox = /\[[xX]\]/;
+const isChecked = (line: string): boolean => reCheckedBox.test(line);
 
 /**
  * The GFM task-list block start: a `[ ]`, `[x]` or `[X]` checkbox opening a
@@ -75,9 +77,9 @@ const isChecked = (line: string): boolean => line.includes("[x]") || line.includ
  * @category parsing
  * @since 0.0.0
  */
-export const taskListItemStart: BlockStart = {
-  name: "taskListItem",
-  trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
+export const taskListItemStart = new BlockStart(
+  "taskListItem",
+  dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
     // Upstream's `node_type != CMARK_NODE_ITEM` guard: the hook only ever
     // decorates the item the list start opened on this same line.
     if (container.type !== "listItem") {
@@ -98,5 +100,5 @@ export const taskListItemStart: BlockStart = {
 
     // `2`: the line's block starts are done, upstream's `break`.
     return 2;
-  }),
-};
+  })
+);

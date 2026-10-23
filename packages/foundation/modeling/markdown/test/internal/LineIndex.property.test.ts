@@ -4,6 +4,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 describe("line index properties", () => {
@@ -26,7 +27,7 @@ describe("line index properties", () => {
       Effect.sync(() => {
         const index = LineIndex.make(text);
         for (let offset = 0; offset <= text.length; offset += 1) {
-          const prefix = text.slice(0, offset).split("\n");
+          const prefix = Str.split("\n")(Str.slice(0, offset)(text));
           assert.deepStrictEqual(index.positionAt(offset), {
             line: prefix.length,
             column: (prefix[prefix.length - 1]?.length ?? 0) + 1,

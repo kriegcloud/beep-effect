@@ -91,11 +91,11 @@ const MacroRun = S.Struct({
   totalMs: S.Finite,
   slowestFileMs: S.Finite,
   peakRssBytes: S.Finite,
-  gated: S.Literal(false),
+  gated: S.tag(false),
 });
 
 const BenchReport = S.Struct({
-  schemaVersion: S.Literal(1),
+  schemaVersion: S.tag(1),
   // Bumped whenever a corpus definition changes, so a compare never pairs two
   // reports that measured different trees. Reports written before version 2
   // carry no field and are refused by --compare.
@@ -306,7 +306,7 @@ const loadWorkloads = Effect.fn("MarkdownBench.loadWorkloads")(function* () {
   const fileSystem = yield* FileSystem.FileSystem;
   const pathApi = yield* Path.Path;
   const examples = Effect.fn("MarkdownBench.examples")(function* (relativePath: string) {
-    const raw = yield* fileSystem.readFileString(pathApi.join(packageRoot, "test/fixtures", relativePath));
+    const raw = yield* fileSystem.readFileString(pathApi.join(packageRoot, "data/conformance", relativePath));
     const decoded = yield* S.decodeEffect(SpecExamples)(raw);
     return repeatJoined(
       A.join(

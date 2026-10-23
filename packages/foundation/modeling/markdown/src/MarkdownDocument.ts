@@ -1,21 +1,27 @@
-// The lossless unit: source text plus the parsed tree, the materialized
-// diagnostics and the link-reference definition index, in one Schema class.
-//
-// Cycle firewall: this module never touches raw carriers directly — it shares
-// `Markdown.ts`'s single carrier-catching helper, so the document and the
-// bare-tree entry points agree exactly on what is a typed failure and what is
-// a defect.
+/**
+ * The lossless unit: source text plus the parsed tree, the materialized
+ * diagnostics and the link-reference definition index, in one Schema class.
+ *
+ * Cycle firewall: this module never touches raw carriers directly — it shares
+ * `Markdown.ts`'s single carrier-catching helper, so the document and the
+ * bare-tree entry points agree exactly on what is a typed failure and what is
+ * a defect.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
+import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { scanFrontmatter } from "./internal/blocks/frontmatter.ts";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
 import { preprocessLines } from "./internal/preprocess.ts";
@@ -23,10 +29,19 @@ import { normalizeLabelText } from "./internal/references.ts";
 import { MarkdownDialect, parsePassResult } from "./Markdown.ts";
 import { MarkdownDiagnostic } from "./MarkdownDiagnostic.ts";
 import { MarkdownRange } from "./MarkdownEdit.ts";
-import { Definition, Heading, HeadingDepth, Image, ImageReference, Link, LinkReference, Root } from "./MarkdownNode.ts";
+import {
+  Definition,
+  FlowContent,
+  Heading,
+  HeadingDepth,
+  Image,
+  ImageReference,
+  Link,
+  LinkReference,
+  Root,
+} from "./MarkdownNode.ts";
 import type { MarkdownParseError, MarkdownParseOptions } from "./Markdown.ts";
 import type {
-  FlowContent,
   Frontmatter,
   MarkdownNode,
   MarkdownNodeOfType,
@@ -58,7 +73,9 @@ class DocumentNavigationError extends S.TaggedError<DocumentNavigationError, { r
  *
  * `text` concatenates the values of text and inline-code descendants, uses
  * image `alt` text where present, renders a hard break as a single space and
- * contributes nothing for raw HTML or footnote references.
+ * contributes nothing for raw HTML or footnote references. For the heading
+ * exactly as written — inline HTML and code-span backticks included — use
+ * {@link MarkdownDocument.headingSource}.
  *
  * **Example** (Validate a derived heading entry)
  *
@@ -72,37 +89,31 @@ class DocumentNavigationError extends S.TaggedError<DocumentNavigationError, { r
  * ```
  *
  * @public
- * @category schemas
+ * @category models
  * @since 0.0.0
  */
-export const DocumentHeading = S.Struct({
-  node: S.suspend(() => Heading).pipe(
-    $I.annoteKey("DocumentHeading.node", { description: "The original heading node in the document tree" })
-  ),
-  depth: HeadingDepth.pipe(
-    $I.annoteKey("DocumentHeading.depth", { description: "Heading level used for outline navigation" })
-  ),
-  text: S.String.pipe(
-    $I.annoteKey("DocumentHeading.text", { description: "Plain-text projection of the heading's phrasing content" })
-  ),
-}).pipe(
-  $I.annoteSchema("DocumentHeading", {
-    description: "Plain-object heading navigation entry retaining its source node, depth and derived text.",
-  })
-);
-
-/**
- * The schema-derived heading navigation entry.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type DocumentHeading = typeof DocumentHeading.Type;
+export class DocumentHeading extends S.Opaque<DocumentHeading, { readonly brand: unique symbol }>()(
+  S.Struct({
+    node: S.suspend(() => Heading).pipe(
+      $I.annoteKey("DocumentHeading.node", { description: "The heading node as it appears in the document tree" })
+    ),
+    depth: HeadingDepth.pipe(
+      $I.annoteKey("DocumentHeading.depth", { description: "Heading level used for outline navigation" })
+    ),
+    text: S.String.pipe(
+      $I.annoteKey("DocumentHeading.text", { description: "Plain-text projection of the heading's phrasing content" })
+    ),
+  }).pipe(
+    $I.annoteSchema("DocumentHeading", {
+      description: "Heading navigation entry carrying the heading node, its depth and its derived plain text.",
+    })
+  )
+) {}
 
 /**
  * A heading-delimited span from {@link MarkdownDocument.sections}: the
- * heading, its depth, the source `range` the section occupies and the
- * root-level blocks that follow the heading inside it.
+ * heading, its depth, the source `range` the section occupies, the root-level
+ * blocks that follow the heading inside it, and the section's source text.
  *
  * **Details**
  *
@@ -112,6 +123,10 @@ export type DocumentHeading = typeof DocumentHeading.Type;
  * `children` include its subsections — the list is flat, in document order,
  * with `depth` carrying the hierarchy.
  *
+ * `source` and `body` are exactly the bytes `range` and `bodyRange` describe,
+ * **untrimmed, deliberately**: the strings and the offsets can never
+ * disagree. Callers that want the tidy form write `.body.trim()`, visibly.
+ *
  * Instances come from {@link MarkdownDocument.sections} and the two finders;
  * there is no reason to construct one directly.
  *
@@ -120,226 +135,81 @@ export type DocumentHeading = typeof DocumentHeading.Type;
  * ```ts
  * import { DocumentSection, MarkdownDocument } from "@beep/markdown/MarkdownDocument";
  * import * as Effect from "effect/Effect";
+ * import * as S from "effect/Schema";
  *
  * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
  * const section = doc.firstSection();
- * console.log(section instanceof DocumentSection) // true
- * console.log(section?.body.trim()) // Body.
+ * console.log(S.is(DocumentSection)(section)) // true
+ * console.log(section?.heading.type) // heading
+ * console.log(section?.depth) // 1
+ * console.log(section?.range.offset) // 0
+ * console.log(section?.children.length) // 1
+ * console.log(section?.bodyRange.offset) // 7
+ * console.log(section?.source === doc.source) // true
+ * console.log(JSON.stringify(section?.body)) // "\n\nBody."
  * ```
  *
  * @public
  * @category models
  * @since 0.0.0
  */
-export class DocumentSection {
-  /**
-   * The heading that opens the section.
-   *
-   * **Example** (Read the opening heading)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(doc.firstSection()?.heading.type) // heading
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly heading: Heading;
-  /**
-   * The heading's depth, and the section's.
-   *
-   * **Example** (Read the section heading level)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(doc.firstSection()?.depth) // 1
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly depth: HeadingDepth;
-  /**
-   * The whole section including its heading — spliceable by `MarkdownEdit`.
-   *
-   * **Example** (Locate the whole section)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(doc.firstSection()?.range.offset) // 0
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly range: MarkdownRange;
-  /**
-   * The root-level blocks after the heading, subsections included.
-   *
-   * **Example** (Count the body blocks)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(doc.firstSection()?.children.length) // 1
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly children: ReadonlyArray<FlowContent>;
-  /**
-   * The heading's plain-text content.
-   *
-   * **Details**
-   *
-   * The same derivation as {@link DocumentHeading.text}: text and inline-code
-   * values concatenated, image `alt` where present, a hard break as one space,
-   * nothing for raw HTML or footnote references. So `## **1.2.3**` reads
-   * `1.2.3`.
-   *
-   * **Example** (Project a formatted heading as text)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("## **1.2.3**\n\nBody."));
-   * console.log(doc.firstSection()?.text) // 1.2.3
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly text: string;
-  /**
-   * The section WITHOUT its heading: from the heading's end offset to the
-   * section's end.
-   *
-   * **Details**
-   *
-   * This is the span a "give me the release notes under this version" reader
-   * wants, and the one that is fiddly to derive by hand.
-   *
-   * **Example** (Locate the body after the heading)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(doc.firstSection()?.bodyRange.offset) // 7
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly bodyRange: MarkdownRange;
-
-  /**
-   * The document source these ranges index into.
-   *
-   * **Details**
-   *
-   * The private source is observed through the section's source slices.
-   *
-   * **Example** (Read a slice of the retained document source)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title"));
-   * console.log(doc.firstSection()?.source) // # Title
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  readonly #documentSource: string;
-
-  constructor(options: {
-    readonly heading: Heading;
-    readonly depth: HeadingDepth;
-    readonly range: MarkdownRange;
-    readonly children: ReadonlyArray<FlowContent>;
-    readonly text: string;
-    readonly bodyRange: MarkdownRange;
-    readonly documentSource: string;
-  }) {
-    this.heading = options.heading;
-    this.depth = options.depth;
-    this.range = options.range;
-    this.children = options.children;
-    this.text = options.text;
-    this.bodyRange = options.bodyRange;
-    this.#documentSource = options.documentSource;
-  }
-
-  /**
-   * The section's source text, heading included.
-   *
-   * **Example** (Read the section source including its heading)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(doc.firstSection()?.source === doc.source) // true
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  get source(): string {
-    return this.#documentSource.slice(this.range.offset, this.range.offset + this.range.length);
-  }
-
-  /**
-   * The section's source text without its heading.
-   *
-   * **Details**
-   *
-   * **Untrimmed, deliberately.** It is exactly the bytes {@link
-   * DocumentSection.bodyRange} describes, so the string and the offsets can
-   * never disagree — a package that publishes a span's offsets and then hands
-   * back a different span is lying about it. Callers that want the tidy form
-   * write `.body.trim()`, visibly.
-   *
-   * **Example** (Preserve the body whitespace)
-   *
-   * ```ts
-   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-   * import * as Effect from "effect/Effect";
-   *
-   * const doc = Effect.runSync(MarkdownDocument.parse("# Title\n\nBody."));
-   * console.log(JSON.stringify(doc.firstSection()?.body)) // "\n\nBody."
-   * ```
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  get body(): string {
-    return this.#documentSource.slice(this.bodyRange.offset, this.bodyRange.offset + this.bodyRange.length);
-  }
-}
+export class DocumentSection extends S.Opaque<DocumentSection, { readonly brand: unique symbol }>()(
+  S.Struct({
+    heading: S.suspend(() => Heading).pipe(
+      $I.annoteKey("DocumentSection.heading", { description: "The root-level heading that opens the section" })
+    ),
+    depth: HeadingDepth.pipe(
+      $I.annoteKey("DocumentSection.depth", { description: "The opening heading's depth, and the section's" })
+    ),
+    range: MarkdownRange.pipe(
+      $I.annoteKey("DocumentSection.range", {
+        description: "The whole section including its heading, as a span spliceable by MarkdownEdit",
+      })
+    ),
+    children: S.Array(FlowContent).pipe(
+      $I.annoteKey("DocumentSection.children", {
+        description: "The root-level blocks after the heading inside the section, subsections included",
+      })
+    ),
+    text: S.String.pipe(
+      $I.annoteKey("DocumentSection.text", {
+        description:
+          "Plain-text projection of the heading's content, derived exactly as DocumentHeading.text, so `## **1.2.3**` reads `1.2.3`",
+      })
+    ),
+    bodyRange: MarkdownRange.pipe(
+      $I.annoteKey("DocumentSection.bodyRange", {
+        description: "The section without its heading: from the heading node's end offset to the section's end",
+      })
+    ),
+    source: S.String.pipe(
+      $I.annoteKey("DocumentSection.source", {
+        description: "The section's source text, heading included: exactly the bytes `range` describes",
+      })
+    ),
+    body: S.String.pipe(
+      $I.annoteKey("DocumentSection.body", {
+        description:
+          "The section's source text without its heading, untrimmed: exactly the bytes `bodyRange` describes",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DocumentSection", {
+      description:
+        "A heading-delimited span of a markdown document: the heading, its depth, the section's source range and root-level blocks, and its source text with and without the heading.",
+    })
+  )
+) {}
 
 /**
  * Narrowing options for {@link MarkdownDocument.firstSection} and
  * {@link MarkdownDocument.sectionByHeading}.
+ *
+ * **Details**
+ *
+ * `depth` is equality, not a maximum: `{ depth: 2 }` is "the H2 sections",
+ * which is the changelog idiom. A depth *range* is a different question and
+ * belongs in a predicate.
  *
  * **Example** (Validate an exact-depth query)
  *
@@ -347,44 +217,43 @@ export class DocumentSection {
  * import { SectionQueryOptions } from "@beep/markdown/MarkdownDocument";
  * import * as S from "effect/Schema";
  *
- * console.log(S.is(SectionQueryOptions)({ depth: 2 })) // true
+ * console.log(S.is(SectionQueryOptions)(SectionQueryOptions.make({ depth: 2 }))) // true
  * ```
  *
  * @public
- * @category schemas
+ * @category configuration
  * @since 0.0.0
  */
-export const SectionQueryOptions = S.Struct({
-  /**
-   * Restrict to sections opened by a heading of exactly this depth.
-   *
-   * **Details**
-   *
-   * Equality, not a maximum: `{ depth: 2 }` is "the H2 sections", which is the
-   * changelog idiom. A depth *range* is a different question and belongs in a
-   * predicate.
-   *
-   * @category type-level
-   * @since 0.0.0
-   */
-  depth: S.optionalKey(HeadingDepth).pipe(
-    $I.annoteKey("SectionQueryOptions.depth", {
-      description: "Exact heading depth to select; omission admits every heading depth",
+export class SectionQueryOptions extends S.Opaque<SectionQueryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    depth: S.optionalKey(HeadingDepth).pipe(
+      $I.annoteKey("SectionQueryOptions.depth", {
+        description: "Exact heading depth to select; omission admits every heading depth",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("SectionQueryOptions", {
+      description: "Optional exact-depth restriction for document section navigation.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("SectionQueryOptions", {
-    description: "Optional exact-depth restriction for document section navigation.",
-  })
-);
+  )
+) {}
 
 /**
- * The schema-derived section query configuration.
+ * Companion types for {@link SectionQueryOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type SectionQueryOptions = typeof SectionQueryOptions.Type;
+export declare namespace SectionQueryOptions {
+  /**
+   * The plain options object the section finders accept: a constructed
+   * {@link SectionQueryOptions} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SectionQueryOptions.Encoded;
+}
 
 /**
  * How {@link MarkdownDocument.sectionByHeading} decides a section matches: an
@@ -433,31 +302,25 @@ export type LinkBearingNode = Link | Image | Definition | LinkReference | ImageR
  * ```
  *
  * @public
- * @category schemas
+ * @category models
  * @since 0.0.0
  */
-export const DocumentLink = S.Struct({
-  node: S.Union([Link, Image, Definition, LinkReference, ImageReference]).pipe(
-    $I.annoteKey("DocumentLink.node", { description: "Original outbound-link or reference node in the document tree" })
-  ),
-  url: S.optionalKey(S.String).pipe(
-    $I.annoteKey("DocumentLink.url", {
-      description: "Unmodified outbound URL; absent for unresolved foreign references",
+export class DocumentLink extends S.Opaque<DocumentLink, { readonly brand: unique symbol }>()(
+  S.Struct({
+    node: S.Union([Link, Image, Definition, LinkReference, ImageReference]).pipe(
+      $I.annoteKey("DocumentLink.node", { description: "Outbound-link or reference node as it appears in the tree" })
+    ),
+    url: S.optionalKey(S.String).pipe(
+      $I.annoteKey("DocumentLink.url", {
+        description: "Unmodified outbound URL; absent for unresolved foreign references",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DocumentLink", {
+      description: "Link navigation entry with the link-bearing node and an optional resolved URL.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("DocumentLink", {
-    description: "Plain-object link navigation entry with the original node and an optional resolved URL.",
-  })
-);
-
-/**
- * The schema-derived link navigation entry.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type DocumentLink = typeof DocumentLink.Type;
+  )
+) {}
 
 // The accessor walks recurse over the tree, so they share the engine's depth
 // cap. A getter has no typed error channel, so — like `applyAll`'s overlap
@@ -551,6 +414,93 @@ const phrasingText = (nodes: ReadonlyArray<PhrasingContent>): string => {
     );
   }
   return out;
+};
+
+// One root-level heading and its index among the root's blocks: the unit the
+// section boundary pass works over, so it scans heading to heading instead of
+// re-walking every block for each section.
+interface RootHeading {
+  readonly index: number;
+  readonly node: Heading;
+}
+
+const rootHeadings = (blocks: Root["children"]): ReadonlyArray<RootHeading> =>
+  A.flatMap(
+    blocks,
+    (block, index): ReadonlyArray<RootHeading> => (block.type === "heading" ? [{ index, node: block }] : [])
+  );
+
+// The nearest later heading (an index into `headings`) recorded at any depth
+// from 1 through `depth`: the first heading of equal or shallower depth.
+const nearestBoundary: {
+  (nextByDepth: ReadonlyArray<number | undefined>, depth: HeadingDepth): number | undefined;
+  (depth: HeadingDepth): (nextByDepth: ReadonlyArray<number | undefined>) => number | undefined;
+} = dual(2, (nextByDepth: ReadonlyArray<number | undefined>, depth: HeadingDepth): number | undefined =>
+  A.reduce(A.take(A.drop(nextByDepth, 1), depth), undefined, (boundary: number | undefined, candidate) =>
+    candidate !== undefined && (boundary === undefined || candidate < boundary) ? candidate : boundary
+  )
+);
+
+// For each root heading, the index of the heading that closes its section, by
+// one reverse pass that remembers the nearest later heading at each depth.
+const sectionBoundaries = (headings: ReadonlyArray<RootHeading>): ReadonlyArray<number | undefined> => {
+  const nextByDepth = A.makeBy(7, (): number | undefined => undefined);
+  const boundaries = A.makeBy(headings.length, (): number | undefined => undefined);
+  for (let index = headings.length - 1; index >= 0; index -= 1) {
+    const depth = A.getUnsafe(headings, index).node.depth;
+    boundaries[index] = nearestBoundary(nextByDepth, depth);
+    nextByDepth[depth] = index;
+  }
+  return boundaries;
+};
+
+const isSectionChild = (child: Root["children"][number]): child is FlowContent =>
+  child.type !== "frontmatter" && child.type !== "mdxjsEsm";
+
+const makeSection = (
+  source: string,
+  blocks: Root["children"],
+  current: RootHeading,
+  boundary: { readonly offset: number; readonly index: number }
+): DocumentSection => {
+  const block = current.node;
+  const start = block.position.start.offset;
+  // The body starts where the heading NODE ends, which is what makes this
+  // correct for setext headings too: their node span covers the underline,
+  // so the body never begins mid-`---`.
+  const bodyStart = block.position.end.offset;
+  const bodyLength = Math.max(0, boundary.offset - bodyStart);
+  return DocumentSection.make({
+    heading: block,
+    depth: block.depth,
+    range: MarkdownRange.make({ offset: start, length: boundary.offset - start }),
+    children: A.filter(A.take(A.drop(blocks, current.index + 1), boundary.index - current.index - 1), isSectionChild),
+    text: phrasingText(block.children),
+    bodyRange: MarkdownRange.make({ offset: bodyStart, length: bodyLength }),
+    source: Str.slice(start, boundary.offset)(source),
+    body: Str.slice(bodyStart, bodyStart + bodyLength)(source),
+  });
+};
+
+const atDepth =
+  (depth: HeadingDepth | undefined) =>
+  (section: DocumentSection): boolean =>
+    depth === undefined || section.depth === depth;
+
+const headingMatcher = (match: SectionHeadingMatch): ((section: DocumentSection) => boolean) => {
+  if (P.isString(match)) {
+    return (section) => Str.trim(section.text) === match;
+  }
+  if (P.isRegExp(match)) {
+    return (section) => {
+      // A `/g/` or `/y/` regex carries `lastIndex` between calls, so reusing
+      // one across sections would test from the wrong offset and skip
+      // matches.
+      match.lastIndex = 0;
+      return match.test(Str.trim(section.text));
+    };
+  }
+  return (section) => match(section.text, section);
 };
 
 /**
@@ -741,11 +691,52 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
     for (const child of this.root.children) {
       walkTree(child, 1, (node) => {
         if (node.type === "heading") {
-          entries.push({ node, depth: node.depth, text: phrasingText(node.children) });
+          entries.push(DocumentHeading.make({ node, depth: node.depth, text: phrasingText(node.children) }));
         }
       });
     }
     return entries;
+  }
+
+  /**
+   * The source text of a heading's content, exactly as written: from its
+   * first child's start to its last child's end.
+   *
+   * **Details**
+   *
+   * {@link DocumentHeading.text} is a plain-text projection, so it drops
+   * inline HTML and code-span backticks; this is the lossless reading. The
+   * ATX markers, the optional closing `#` sequence and a setext underline lie
+   * outside the content span and never appear. A heading with no content
+   * reads `""`. The heading must come from this document's tree (its
+   * positions index into {@link MarkdownDocument.source}).
+   *
+   * **Example** (Read a heading as written)
+   *
+   * ```ts
+   * import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+   * import * as Effect from "effect/Effect";
+   *
+   * const doc = Effect.runSync(MarkdownDocument.parse("# Use `Effect.gen` <b>now</b> #\n"));
+   * const [heading] = doc.headings;
+   * console.log(heading?.text) // Use Effect.gen now
+   * console.log(heading === undefined ? "" : doc.headingSource(heading.node)) // Use `Effect.gen` <b>now</b>
+   * ```
+   *
+   * @param heading - A heading node from this document's tree.
+   * @returns The heading content's source slice.
+   * @category getters
+   * @since 0.0.0
+   */
+  headingSource(heading: Heading): string {
+    return A.match(heading.children, {
+      onEmpty: () => "",
+      onNonEmpty: (children) =>
+        Str.slice(
+          A.headNonEmpty(children).position.start.offset,
+          A.lastNonEmpty(children).position.end.offset
+        )(this.source),
+    });
   }
 
   /**
@@ -775,66 +766,20 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
    */
   get sections(): ReadonlyArray<DocumentSection> {
     const blocks = this.root.children;
-    const sections: Array<DocumentSection> = [];
-    const headings: Array<{ readonly index: number; readonly node: Heading }> = [];
-    for (let index = 0; index < blocks.length; index += 1) {
-      const block = blocks[index];
-      if (block !== undefined && block.type === "heading") {
-        headings.push({ index, node: block });
-      }
-    }
-    // `sections` boundaries are defined by ROOT headings only. Building that
-    // index once lets the boundary pass scan heading-to-heading instead of
-    // re-walking non-heading blocks for every section.
-    const nextByDepth: Array<number | undefined> = [
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    ];
-    const boundaryByHeading = new Array<number | undefined>(headings.length);
-    for (const [entry, index] of A.reverse(A.map(headings, (entry, index) => [entry, index] as const))) {
-      const current = entry.node;
-      let boundary: number | undefined;
-      for (let depth = 1; depth <= current.depth; depth += 1) {
-        const candidate = nextByDepth[depth];
-        if (candidate !== undefined && (boundary === undefined || candidate < boundary)) {
-          boundary = candidate;
-        }
-      }
-      boundaryByHeading[index] = boundary;
-      nextByDepth[current.depth] = index;
-    }
-    for (const [current, index] of A.map(headings, (entry, index) => [entry, index] as const)) {
-      const block = current.node;
-      const boundaryHeading = boundaryByHeading[index];
-      const boundaryNode = boundaryHeading === undefined ? undefined : A.getUnsafe(headings, boundaryHeading).node;
-      const boundary = boundaryNode === undefined ? this.source.length : boundaryNode.position.start.offset;
-      const end = boundaryHeading === undefined ? blocks.length : A.getUnsafe(headings, boundaryHeading).index;
-      const start = block.position.start.offset;
-      const bodyStart = block.position.end.offset;
-      sections.push(
-        new DocumentSection({
-          heading: block,
-          depth: block.depth,
-          range: MarkdownRange.make({ offset: start, length: boundary - start }),
-          children: A.filter(
-            blocks.slice(current.index + 1, end),
-            (child): child is FlowContent => child.type !== "frontmatter" && child.type !== "mdxjsEsm"
-          ),
-          text: phrasingText(block.children),
-          // The body starts where the heading NODE ends, which is what makes
-          // this correct for setext headings too: their node span covers the
-          // underline, so the body never begins mid-`---`.
-          bodyRange: MarkdownRange.make({ offset: bodyStart, length: Math.max(0, boundary - bodyStart) }),
-          documentSource: this.source,
-        })
+    const headings = rootHeadings(blocks);
+    const boundaries = sectionBoundaries(headings);
+    return A.map(headings, (current, index) => {
+      const boundaryHeading = O.flatMap(O.fromUndefinedOr(A.getUnsafe(boundaries, index)), (next) =>
+        A.get(headings, next)
       );
-    }
-    return sections;
+      return makeSection(this.source, blocks, current, {
+        offset: O.match(boundaryHeading, {
+          onNone: () => this.source.length,
+          onSome: (next) => next.node.position.start.offset,
+        }),
+        index: O.match(boundaryHeading, { onNone: () => blocks.length, onSome: (next) => next.index }),
+      });
+    });
   }
 
   /**
@@ -863,13 +808,8 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
    * @category queries
    * @since 0.0.0
    */
-  firstSection(options?: SectionQueryOptions): DocumentSection | undefined {
-    const depth = options?.depth;
-    return pipe(
-      this.sections,
-      A.findFirst((section) => depth === undefined || section.depth === depth),
-      O.getOrUndefined
-    );
+  firstSection(options?: SectionQueryOptions.Encoded): DocumentSection | undefined {
+    return pipe(this.sections, A.findFirst(atDepth(options?.depth)), O.getOrUndefined);
   }
 
   /**
@@ -902,22 +842,12 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
    * @category queries
    * @since 0.0.0
    */
-  sectionByHeading(match: SectionHeadingMatch, options?: SectionQueryOptions): DocumentSection | undefined {
-    const depth = options?.depth;
-    const matches: (section: DocumentSection) => boolean = P.isString(match)
-      ? (section) => section.text.trim() === match
-      : match instanceof RegExp
-        ? (section) => {
-            // A `/g/` or `/y/` regex carries `lastIndex` between calls, so
-            // reusing one across sections would test from the wrong offset
-            // and skip matches.
-            match.lastIndex = 0;
-            return match.test(section.text.trim());
-          }
-        : (section) => match(section.text, section);
+  sectionByHeading(match: SectionHeadingMatch, options?: SectionQueryOptions.Encoded): DocumentSection | undefined {
+    const depthMatches = atDepth(options?.depth);
+    const headingMatches = headingMatcher(match);
     return pipe(
       this.sections,
-      A.findFirst((section) => (depth === undefined || section.depth === depth) && matches(section)),
+      A.findFirst((section) => depthMatches(section) && headingMatches(section)),
       O.getOrUndefined
     );
   }
@@ -954,11 +884,16 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
       walkTree(child, 1, (node) => {
         Match.value(node).pipe(
           Match.discriminator("type")("link", "image", "definition", (node) => {
-            entries.push({ node, url: node.url });
+            entries.push(DocumentLink.make({ node, url: node.url }));
           }),
           Match.discriminator("type")("linkReference", "imageReference", (node) => {
             const definition = HashMap.get(this.definitions, normalizeLabelText(node.identifier));
-            entries.push(O.isNone(definition) ? { node } : { node, url: definition.value.url });
+            entries.push(
+              DocumentLink.make({
+                node,
+                ...O.getSomesStruct({ url: O.map(definition, (resolved) => resolved.url) }),
+              })
+            );
           }),
           Match.orElse(() => {})
         );
@@ -1077,11 +1012,11 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
    * @since 0.0.0
    */
   static readonly parseResult: {
-    (text: string, options?: MarkdownParseOptions): Result.Result<MarkdownDocument, MarkdownParseError>;
-    (options?: MarkdownParseOptions): (text: string) => Result.Result<MarkdownDocument, MarkdownParseError>;
+    (text: string, options?: MarkdownParseOptions.Encoded): Result.Result<MarkdownDocument, MarkdownParseError>;
+    (options?: MarkdownParseOptions.Encoded): (text: string) => Result.Result<MarkdownDocument, MarkdownParseError>;
   } = dual(
     (args) => P.isString(args[0]),
-    (text: string, options?: MarkdownParseOptions): Result.Result<MarkdownDocument, MarkdownParseError> =>
+    (text: string, options?: MarkdownParseOptions.Encoded): Result.Result<MarkdownDocument, MarkdownParseError> =>
       Result.map(parsePassResult(text, options), (pass) =>
         MarkdownDocument.make({
           source: text,
@@ -1118,11 +1053,13 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
    * @since 0.0.0
    */
   static readonly parse: {
-    (text: string, options?: MarkdownParseOptions): Effect.Effect<MarkdownDocument, MarkdownParseError, never>;
-    (options?: MarkdownParseOptions): (text: string) => Effect.Effect<MarkdownDocument, MarkdownParseError, never>;
+    (text: string, options?: MarkdownParseOptions.Encoded): Effect.Effect<MarkdownDocument, MarkdownParseError, never>;
+    (
+      options?: MarkdownParseOptions.Encoded
+    ): (text: string) => Effect.Effect<MarkdownDocument, MarkdownParseError, never>;
   } = dual(
     (args) => P.isString(args[0]),
-    Effect.fn("MarkdownDocument.parse")((text: string, options?: MarkdownParseOptions) =>
+    Effect.fn("MarkdownDocument.parse")((text: string, options?: MarkdownParseOptions.Encoded) =>
       Effect.fromResult(MarkdownDocument.parseResult(text, options))
     )
   );

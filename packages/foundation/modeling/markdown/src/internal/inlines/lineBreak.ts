@@ -12,11 +12,12 @@
 // is upstream's behavior for a single trailing space too.
 
 import { makeInlineNode } from "../inlineNode.ts";
+import { stickyOf } from "../patterns.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
-const C_NEWLINE = 0x0a;
+const C_NEWLINE = "\n";
 
-const reInitialSpace = /^ */;
+const reInitialSpace = stickyOf(/^ */);
 
 /**
  * Parses a soft or hard line break.

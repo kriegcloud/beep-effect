@@ -7,6 +7,7 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 // Positions refer to different byte strings after canonical serialization.
@@ -73,11 +74,11 @@ describe("list parser properties", () => {
         assert.ok(first !== undefined);
         if (first !== undefined) {
           assert.strictEqual(first.position.start.offset, prefix.length);
-          assert.ok(source.slice(first.position.start.offset, first.position.end.offset).length > 0);
+          assert.ok(Str.slice(first.position.start.offset, first.position.end.offset)(source).length > 0);
         }
         const formatted = MarkdownFormat.formatToString(source, undefined, options);
-        assert.ok(formatted.startsWith(prefix));
-        assert.ok(formatted.endsWith(suffix));
+        assert.ok(Str.startsWith(prefix)(formatted));
+        assert.ok(Str.endsWith(suffix)(formatted));
         assert.deepStrictEqual(
           semantic(Mdast.toMdast(yield* Markdown.parse(formatted))),
           semantic(Mdast.toMdast(parsed))

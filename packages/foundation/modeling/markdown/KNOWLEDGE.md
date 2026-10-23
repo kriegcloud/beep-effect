@@ -7,7 +7,7 @@ decisions live in README.md → Port notes, not here.
 Upstream paths map onto this package as follows: `packages/markdown/` is
 `packages/foundation/modeling/markdown/`, `packages/markdown/src/` is `src/` here,
 `packages/markdown/__test__/` is `test/` here, with `__test__/e2e/support/` at
-`test/support/`, `__test__/fixtures/` at `test/fixtures/` and `__test__/tools/` at
+`test/support/`, `__test__/fixtures/` at `data/conformance/` and `__test__/tools/` at
 `scripts/`. `@effected/markdown` is `@beep/markdown`, and `@effected/yaml`,
 `@effected/toml` and `@effected/jsonc` are `@beep/yaml`, `@beep/toml` and
 `@beep/jsonc`.

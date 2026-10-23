@@ -37,28 +37,29 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { blockDialect, MarkdownDialect } from "./blockRegistry.ts";
 import { scanFrontmatter } from "./blocks/frontmatter.ts";
 import { isHtmlBlockEnd } from "./blocks/htmlBlock.ts";
-import { makeBlockNode } from "./blockTypes.ts";
+import { BlockScanner, makeBlockNode, RawInlineSlice } from "./blockTypes.ts";
 import { GuardExceeded } from "./carriers.ts";
 import { MAX_NESTING_DEPTH } from "./limits.ts";
 import { LineIndex } from "./lineIndex.ts";
 import { trustedNode } from "./nodes.ts";
-import { columnsToNextTabStop, preprocessLines } from "./preprocess.ts";
+import { unitAt } from "./patterns.ts";
+import { columnsToNextTabStop, matchesAt, preprocessLines } from "./preprocess.ts";
 import { prepareInline } from "./rawInline.ts";
 import type { FrontmatterCapture } from "./blocks/frontmatter.ts";
 import type {
   BlockConstruct,
   BlockDialect,
   BlockNode,
-  BlockScanner,
+  BlockStartResult,
   BlockType,
   InlineHost,
   MaterializeContext,
   MaterializedBlock,
   PreparedInline,
-  RawInlineSlice,
 } from "./blockTypes.ts";
 import type { RawDiagnostic } from "./carriers.ts";
 import type { Definition, Frontmatter, MarkdownNode, Point, Position, Root } from "./nodes.ts";
@@ -77,16 +78,37 @@ class BlockParserError extends S.TaggedError<BlockParserError, { readonly brand:
   $I.annoteError<BlockParserError>("BlockParserError", { description: "A block-parser invariant was violated." })
 ) {}
 
-/** Upstream's cheap pre-filter: a line that cannot start any block. */
-const reMaybeSpecial = /^[#`~*+_=<>0-9-]/;
+/** Upstream's cheap pre-filter, sticky at the scan position: a line that cannot start any block. */
+const reMaybeSpecial = /[#`~*+_=<>0-9-]/y;
+
+const endsWithNewline = Str.endsWith("\n");
+
+/** The last child of `block`, read by index: the line loop asks once per open container per line. */
+const lastChildOf = (block: BlockNode): BlockNode | undefined => block.children[block.children.length - 1];
 
 /**
  * Carries the block-pass document and indexes to the inline pass and facade.
  *
+ * **Details**
+ *
+ * An engine pass result (D-42), not a wire record: it carries live
+ * `HashMap`/`HashSet` indexes and a tree that has not been admitted yet. The
+ * facade admits `root` exactly once (D-39), so a schema `make` here would be
+ * a second whole-tree walk on every parse.
+ *
+ * **Example** (Read the definition index of a block pass)
+ *
+ * ```ts
+ * import { parseBlocks } from "@beep/markdown/internal/blockParser"
+ *
+ * const pass = parseBlocks("[a]: /url\n")
+ * console.log(pass.definitionOrder.length, pass.root.type) // 1 root
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface BlockPassResult {
+export class BlockPassResult {
   /** Non-fatal engine diagnostics; the facade materializes them. */
   readonly carriers: ReadonlyArray<RawDiagnostic>;
   /** Winning normalized labels and definition nodes, in document order. */
@@ -122,10 +144,45 @@ export interface BlockPassResult {
   readonly refmap: HashMap.HashMap<string, Definition>;
   /** The document, with every node positioned. */
   readonly root: Root;
+
+  constructor(root: Root, rawInlines: ReadonlyArray<RawInlineSlice>, references: ReferenceIndex) {
+    this.root = root;
+    this.rawInlines = rawInlines;
+    this.carriers = [];
+    this.refmap = references.refmap;
+    this.definitionOrder = references.definitionOrder;
+    this.footnoteLabels = references.footnoteLabels;
+  }
 }
 
-class BlockParser implements BlockScanner {
-  private readonly lines: ReadonlyArray<SourceLine>;
+/**
+ * The reference targets the pre-pass collects before anything is built: the
+ * engine-internal accumulator of `collectReferences` (D-42).
+ */
+class ReferenceIndex {
+  readonly definitionNodes = MutableHashMap.empty<number, Definition>();
+  readonly definitionOrder: Array<readonly [string, Definition]> = [];
+  footnoteLabels = HashSet.empty<string>();
+  refmap = HashMap.empty<string, Definition>();
+  private readonly seen = MutableHashMap.empty<string, Definition>();
+
+  /** Index one materialized definition; the first one per label wins (CommonMark's rule). */
+  addDefinition(startOffset: number, key: string, definition: Definition): void {
+    MutableHashMap.set(this.definitionNodes, startOffset, definition);
+    if (!MutableHashMap.has(this.seen, key)) {
+      MutableHashMap.set(this.seen, key, definition);
+      this.definitionOrder.push([key, definition]);
+    }
+  }
+
+  /** Freeze the lookup map once every definition is indexed. */
+  seal(): void {
+    this.refmap = HashMap.fromIterable(this.definitionOrder);
+  }
+}
+
+class BlockParser extends BlockScanner {
+  private readonly lines: ReadonlyArray<SourceLine.Encoded>;
   private readonly lineIndex: LineIndex;
   private readonly dialect: BlockDialect;
   /**
@@ -156,7 +213,8 @@ class BlockParser implements BlockScanner {
   private lastLineLength = 0;
   private readonly frontmatterCapture: FrontmatterCapture | null;
 
-  constructor(text: string, dialect: BlockDialect, dialectName: MarkdownDialect, frontmatter = false) {
+  constructor(text: string, dialect: BlockDialect, dialectName: MarkdownDialect, frontmatter: boolean) {
+    super();
     this.lines = preprocessLines(text);
     // The capture is an offset-0 pre-scan, not a block start: it may fire
     // at most once, before any line enters the loop, so it lives outside
@@ -171,7 +229,7 @@ class BlockParser implements BlockScanner {
     // end-of-input offset on it (`line N+1, column 1`) rather than clamping
     // into the last content line. Only the root's end point can sit there.
     const starts = A.map(this.lines, (line) => line.start);
-    if (text.endsWith("\n")) {
+    if (endsWithNewline(text)) {
       starts.push(text.length);
     }
     this.lineIndex = LineIndex.fromLineStarts(text, starts);
@@ -197,35 +255,42 @@ class BlockParser implements BlockScanner {
   }
 
   private constructOf(type: BlockType): BlockConstruct {
-    return O.getOrThrowWith(HashMap.get(this.dialect.constructs, type), () =>
-      BlockParserError.make({ message: `block parser: no construct registered for block type ${type}` })
-    );
+    return this.dialect.construct(type);
   }
 
   // --- scanner ------------------------------------------------------------
+
+  /**
+   * Consume one tab at the scan position: a whole tab stop, or — when
+   * advancing by columns and fewer than a stop's worth remain — only part of
+   * one, leaving the tab itself unconsumed. Returns what was consumed from
+   * the `remaining` budget.
+   */
+  private advanceTab(remaining: number, columns: boolean): number {
+    const charsToTab = columnsToNextTabStop(this.column);
+    if (!columns) {
+      this.partiallyConsumedTab = false;
+      this.column += charsToTab;
+      this.offset += 1;
+      return 1;
+    }
+    this.partiallyConsumedTab = charsToTab > remaining;
+    const charsToAdvance = this.partiallyConsumedTab ? remaining : charsToTab;
+    this.column += charsToAdvance;
+    this.offset += this.partiallyConsumedTab ? 0 : 1;
+    return charsToAdvance;
+  }
 
   readonly advanceOffset: BlockScanner["advanceOffset"] = dual(
     (args) => P.isNumber(args[0]),
     (count: number, columns = false): void => {
       const line = this.currentLine;
       let remaining = count;
-      let char = line.charAt(this.offset);
+      let char = unitAt(line, this.offset);
 
       while (remaining > 0 && char !== "") {
         if (char === "\t") {
-          const charsToTab = columnsToNextTabStop(this.column);
-          if (columns) {
-            this.partiallyConsumedTab = charsToTab > remaining;
-            const charsToAdvance = charsToTab > remaining ? remaining : charsToTab;
-            this.column += charsToAdvance;
-            this.offset += this.partiallyConsumedTab ? 0 : 1;
-            remaining -= charsToAdvance;
-          } else {
-            this.partiallyConsumedTab = false;
-            this.column += charsToTab;
-            this.offset += 1;
-            remaining -= 1;
-          }
+          remaining -= this.advanceTab(remaining, columns);
         } else {
           this.partiallyConsumedTab = false;
           this.offset += 1;
@@ -233,7 +298,7 @@ class BlockParser implements BlockScanner {
           this.column += 1;
           remaining -= 1;
         }
-        char = line.charAt(this.offset);
+        char = unitAt(line, this.offset);
       }
     }
   );
@@ -248,19 +313,12 @@ class BlockParser implements BlockScanner {
     const line = this.currentLine;
     let index = this.offset;
     let cols = this.column;
-    let char = line.charAt(index);
+    let char = unitAt(line, index);
 
-    while (char !== "") {
-      if (char === " ") {
-        index += 1;
-        cols += 1;
-      } else if (char === "\t") {
-        index += 1;
-        cols += columnsToNextTabStop(cols);
-      } else {
-        break;
-      }
-      char = line.charAt(index);
+    while (char === " " || char === "\t") {
+      index += 1;
+      cols += char === " " ? 1 : columnsToNextTabStop(cols);
+      char = unitAt(line, index);
     }
 
     this.blank = char === "\n" || char === "\r" || char === "";
@@ -278,10 +336,10 @@ class BlockParser implements BlockScanner {
       // the tab stop. Those spaces come from no source character, so they
       // deliberately fall outside every segment.
       this.offset += 1;
-      tip.stringContent += " ".repeat(columnsToNextTabStop(this.column));
+      tip.stringContent += Str.repeat(columnsToNextTabStop(this.column))(" ");
     }
 
-    const content = this.currentLine.slice(this.offset);
+    const content = Str.slice(this.offset)(this.currentLine);
     tip.segments.push({
       textOffset: tip.stringContent.length,
       sourceOffset: this.lineStart + this.offset,
@@ -303,7 +361,7 @@ class BlockParser implements BlockScanner {
       // and materialization walks whatever this builds, so refusing here
       // is what keeps the walk inside the stack. The facade materializes
       // the typed error; the engine only ever throws the raw carrier.
-      throw new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, this.lineStart + offsetInLine);
+      throw GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, this.lineStart + offsetInLine);
     }
 
     const child = makeBlockNode(type, this.lineStart + offsetInLine, this.lineNumber, depth);
@@ -402,10 +460,12 @@ class BlockParser implements BlockScanner {
   }
 
   // --- the line loop ------------------------------------------------------
+  //
+  // `incorporateLine` is upstream's, split at its three natural seams: match
+  // the open containers, open new blocks, then add the rest of the line as
+  // text. Each phase is a method; the order and every branch are upstream's.
 
-  private incorporateLine(line: SourceLine): void {
-    let container = this.doc;
-
+  private incorporateLine(line: SourceLine.Encoded): void {
     this.oldtip = this.tip;
     this.offset = 0;
     this.column = 0;
@@ -415,71 +475,98 @@ class BlockParser implements BlockScanner {
     this.currentLine = line.text;
     this.lineStart = line.start;
 
-    // Match each open container against this line; bail at the first that
-    // fails, leaving `container` on the deepest one that matched.
-    let lastChild = container.children[container.children.length - 1];
-    while (lastChild !== undefined && lastChild.open) {
+    const matched = this.matchContainers();
+    if (matched === undefined) {
+      // A construct consumed the whole line (a closing fence).
+      return;
+    }
+
+    this.allClosed = matched === this.oldtip;
+    this.lastMatchedContainer = matched;
+
+    const opened = this.openNewBlocks(matched);
+    this.addTextToContainer(opened);
+    this.lastLineLength = this.currentLine.length;
+  }
+
+  /**
+   * Match each open container against this line; stop at the first that
+   * fails, returning the deepest one that matched — or `undefined` when a
+   * construct consumed the whole line.
+   */
+  private matchContainers(): BlockNode | undefined {
+    let container = this.doc;
+    let lastChild = lastChildOf(container);
+    while (lastChild?.open === true) {
       container = lastChild;
       this.findNextNonspace();
 
       const verdict = this.constructOf(container.type).continue(this, container);
       if (verdict === 2) {
-        // The construct consumed the whole line (a closing fence).
-        return;
+        return undefined;
       }
       if (verdict === 1) {
         // Upstream's `all_matched` flag lives only to reach this branch
         // on the next statement, so it collapses into the branch itself.
-        container = O.getOrThrow(O.fromUndefinedOr(container.parent));
-        break;
+        return O.getOrThrow(O.fromUndefinedOr(container.parent));
       }
-
-      lastChild = container.children[container.children.length - 1];
+      lastChild = lastChildOf(container);
     }
+    return container;
+  }
 
-    this.allClosed = container === this.oldtip;
-    this.lastMatchedContainer = container;
+  /**
+   * Whether no block can start at the scan position — upstream's fast path —
+   * unless the dialect has a construct the filter cannot see (GFM table rows
+   * begin on any character there is).
+   */
+  private cannotStartBlock(container: BlockNode): boolean {
+    if (this.indented) {
+      return false;
+    }
+    return (
+      !matchesAt(reMaybeSpecial, this.currentLine, this.nextNonspace) &&
+      !(this.dialect.mayStartBlock?.(this, container) ?? false)
+    );
+  }
 
+  /**
+   * Try the dialect's block starts in order at the scan position. Returns the
+   * first nonzero verdict, or `0` when none of them fired.
+   */
+  private tryBlockStarts(container: BlockNode): BlockStartResult {
+    for (const start of this.dialect.starts) {
+      const result = start.trigger(this, container);
+      if (result !== 0) {
+        return result;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * Open new blocks while the line keeps starting them, returning the
+   * container the rest of the line belongs to.
+   */
+  private openNewBlocks(matched: BlockNode): BlockNode {
+    let container = matched;
     let matchedLeaf = container.type !== "paragraph" && this.constructOf(container.type).acceptsLines;
-    const starts = this.dialect.starts;
 
     while (!matchedLeaf) {
       this.findNextNonspace();
-
-      // Upstream's fast path: no block can start here, so stop looking —
-      // unless the dialect has a construct the filter cannot see (GFM
-      // table rows begin on any character there is).
-      if (!this.indented) {
-        const rest = this.currentLine.slice(this.nextNonspace);
-        if (!reMaybeSpecial.test(rest) && !(this.dialect.mayStartBlock?.(rest, container) ?? false)) {
-          this.advanceNextNonspace();
-          break;
-        }
-      }
-
-      let index = 0;
-      while (index < starts.length) {
-        const start = starts[index];
-        const result = start === undefined ? 0 : start.trigger(this, container);
-        if (result === 1) {
-          container = this.tip;
-          break;
-        }
-        if (result === 2) {
-          container = this.tip;
-          matchedLeaf = true;
-          break;
-        }
-        index += 1;
-      }
-
-      if (index === starts.length) {
+      const result = this.cannotStartBlock(container) ? 0 : this.tryBlockStarts(container);
+      if (result === 0) {
         this.advanceNextNonspace();
         break;
       }
+      container = this.tip;
+      matchedLeaf = result === 2;
     }
+    return container;
+  }
 
-    // Whatever is left at the scan position is text; give it to a block.
+  /** Whatever is left at the scan position is text; give it to a block. */
+  private addTextToContainer(opened: BlockNode): void {
     if (!this.allClosed && !this.blank && this.tip.type === "paragraph") {
       // Lazy paragraph continuation: a line that failed to match the open
       // containers, but is non-blank and lands on an open paragraph,
@@ -487,26 +574,25 @@ class BlockParser implements BlockScanner {
       // containers are NOT closed, because the paragraph is still inside
       // them. That is why this arm skips `closeUnmatchedBlocks` entirely.
       this.addLine();
-    } else {
-      this.closeUnmatchedBlocks();
-
-      if (this.constructOf(container.type).acceptsLines) {
-        this.addLine();
-        // An HTML block of type 1 through 5 ends on the line that
-        // carries its closing pattern, which is only knowable after
-        // that line has been appended.
-        if (container.type === "html" && isHtmlBlockEnd(container, this.currentLine.slice(this.offset))) {
-          this.lastLineLength = this.currentLine.length;
-          this.finalizeBlock(container, this.lineNumber);
-        }
-      } else if (this.offset < this.currentLine.length && !this.blank) {
-        container = this.addChild("paragraph", this.offset);
-        this.advanceNextNonspace();
-        this.addLine();
-      }
+      return;
     }
 
-    this.lastLineLength = this.currentLine.length;
+    this.closeUnmatchedBlocks();
+
+    if (this.constructOf(opened.type).acceptsLines) {
+      this.addLine();
+      // An HTML block of type 1 through 5 ends on the line that carries its
+      // closing pattern, which is only knowable after that line has been
+      // appended.
+      if (opened.type === "html" && isHtmlBlockEnd(opened, Str.slice(this.offset)(this.currentLine))) {
+        this.lastLineLength = this.currentLine.length;
+        this.finalizeBlock(opened, this.lineNumber);
+      }
+    } else if (this.offset < this.currentLine.length && !this.blank) {
+      this.addChild("paragraph", this.offset);
+      this.advanceNextNonspace();
+      this.addLine();
+    }
   }
 
   // --- materialization ----------------------------------------------------
@@ -592,43 +678,33 @@ class BlockParser implements BlockScanner {
    * why `footnoteLabels` is a set of labels rather than a map to nodes; a
    * consumer wanting the node walks the tree, where it still sits.
    */
-  private collectReferences(
-    block: BlockNode,
-    context: MaterializeContext,
-    nodes: MutableHashMap.MutableHashMap<number, Definition>,
-    refmap: MutableHashMap.MutableHashMap<string, Definition>,
-    definitionOrder: Array<readonly [string, Definition]>,
-    footnoteLabels: HashSet.HashSet<string>
-  ): HashSet.HashSet<string> {
+  private collectReferences(block: BlockNode, context: MaterializeContext, index: ReferenceIndex): void {
     if (block.type === "definition") {
-      const materialized = this.constructOf(block.type).materialize(block, [], context);
-      const key = block.data.definition?.key;
-      if (materialized?.type === "definition" && key !== undefined) {
-        MutableHashMap.set(nodes, block.startOffset, materialized);
-        // First definition wins, which is CommonMark's rule and the
-        // order this walk visits in.
-        if (!MutableHashMap.has(refmap, key)) {
-          MutableHashMap.set(refmap, key, materialized);
-          definitionOrder.push([key, materialized]);
-        }
-      }
-      return footnoteLabels;
+      this.collectDefinition(block, context, index);
+      return;
     }
 
     const footnoteKey = block.data.footnote?.key;
     if (footnoteKey !== undefined) {
-      footnoteLabels = HashSet.add(footnoteLabels, footnoteKey);
+      index.footnoteLabels = HashSet.add(index.footnoteLabels, footnoteKey);
     }
 
     for (const child of block.children) {
-      footnoteLabels = this.collectReferences(child, context, nodes, refmap, definitionOrder, footnoteLabels);
+      this.collectReferences(child, context, index);
     }
-    return footnoteLabels;
+  }
+
+  private collectDefinition(block: BlockNode, context: MaterializeContext, index: ReferenceIndex): void {
+    const materialized = this.constructOf(block.type).materialize(block, [], context);
+    const key = block.data.definition?.key;
+    if (materialized?.type === "definition" && key !== undefined) {
+      index.addDefinition(block.startOffset, key, materialized);
+    }
   }
 
   private validateDepth(node: MarkdownNode, depth: number): void {
     if (depth > MAX_NESTING_DEPTH) {
-      throw new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, node.position.start.offset);
+      throw GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, node.position.start.offset);
     }
     if ("children" in node) {
       for (const child of node.children) this.validateDepth(child, depth + 1);
@@ -641,7 +717,7 @@ class BlockParser implements BlockScanner {
     // pre-advanced so every position downstream stays absolute.
     const skippedLines = this.frontmatterCapture?.lineCount ?? 0;
     this.lineNumber = skippedLines;
-    for (const line of this.lines.slice(skippedLines)) {
+    for (const line of A.drop(this.lines, skippedLines)) {
       this.incorporateLine(line);
     }
 
@@ -658,11 +734,7 @@ class BlockParser implements BlockScanner {
     this.doc.endOffset = this.sourceLength;
 
     // Keep lookup and document order separate, retaining the original nodes.
-    const definitionIndex = MutableHashMap.empty<string, Definition>();
-    const definitionOrder: Array<readonly [string, Definition]> = [];
-    let refmap = HashMap.empty<string, Definition>();
-    let footnoteLabels = HashSet.empty<string>();
-    const definitionNodes = MutableHashMap.empty<number, Definition>();
+    const references = new ReferenceIndex();
     const rawInlines: RawInlineSlice[] = [];
 
     const positionOf: MaterializeContext["position"] = dual(
@@ -671,28 +743,17 @@ class BlockParser implements BlockScanner {
     );
     const context: MaterializeContext = {
       position: positionOf,
-      inlineSlice: (block) => prepareInline(block, positionOf, refmap, this.dialectName, footnoteLabels),
+      inlineSlice: (block) =>
+        prepareInline(block, positionOf, references.refmap, this.dialectName, references.footnoteLabels),
       registerInline: dual(2, (parent: InlineHost, prepared: PreparedInline): void => {
-        rawInlines.push({
-          parent,
-          text: prepared.text,
-          startOffset: prepared.startOffset,
-          segments: prepared.segments,
-        });
+        rawInlines.push(new RawInlineSlice(parent, prepared));
       }),
     };
 
-    footnoteLabels = this.collectReferences(
-      this.doc,
-      context,
-      definitionNodes,
-      definitionIndex,
-      definitionOrder,
-      footnoteLabels
-    );
-    refmap = HashMap.fromIterable(definitionOrder);
+    this.collectReferences(this.doc, context, references);
+    references.seal();
 
-    const materialized = this.materializeBlock(this.doc, context, definitionNodes);
+    const materialized = this.materializeBlock(this.doc, context, references.definitionNodes);
     if (materialized === undefined || materialized.type !== "root") {
       throw BlockParserError.make({ message: "block parser: the document construct did not materialize a root" });
     }
@@ -700,7 +761,7 @@ class BlockParser implements BlockScanner {
     const root = this.withFrontmatter(materialized);
     this.validateDepth(root, 0);
 
-    return { root, rawInlines, carriers: [], refmap, definitionOrder, footnoteLabels };
+    return new BlockPassResult(root, rawInlines, references);
   }
 }
 
@@ -715,31 +776,43 @@ class BlockParser implements BlockScanner {
  *
  * console.log(S.is(BlockParseOptions)({ dialect: "gfm", frontmatter: true })) // true
  * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
-export const BlockParseOptions = S.Struct({
-  dialect: S.optionalKey(MarkdownDialect).pipe(
-    $I.annoteKey("BlockParseOptions.dialect", { description: "Registry dialect to apply; defaults to commonmark" })
-  ),
-  frontmatter: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("BlockParseOptions.frontmatter", {
-      description: "Whether to capture an opening frontmatter block; defaults to false",
+export class BlockParseOptions extends S.Opaque<BlockParseOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    dialect: S.optionalKey(MarkdownDialect).pipe(
+      $I.annoteKey("BlockParseOptions.dialect", { description: "Registry dialect to apply; defaults to commonmark" })
+    ),
+    frontmatter: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("BlockParseOptions.frontmatter", {
+        description: "Whether to capture an opening frontmatter block; defaults to false",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("BlockParseOptions", {
+      description: "Engine parse options that distinguish curried configuration from document text.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("BlockParseOptions", {
-    description: "Engine parse options that distinguish curried configuration from document text.",
-  })
-);
+  )
+) {}
 
 /**
- * Describes schema-derived engine block-pass options.
+ * Companion types for {@link BlockParseOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type BlockParseOptions = typeof BlockParseOptions.Type;
+export declare namespace BlockParseOptions {
+  /**
+   * The plain options object the block pass accepts: a constructed
+   * {@link BlockParseOptions} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof BlockParseOptions.Encoded;
+}
 
 // The engine's default is the BASE dialect the registries compose on top of —
 // not the public default, which is `"gfm"` and lives in the facade's
@@ -767,11 +840,11 @@ export type BlockParseOptions = typeof BlockParseOptions.Type;
  * @since 0.0.0
  */
 export const parseBlocks: {
-  (text: string, options?: BlockParseOptions): BlockPassResult;
-  (options?: BlockParseOptions): (text: string) => BlockPassResult;
+  (text: string, options?: BlockParseOptions.Encoded): BlockPassResult;
+  (options?: BlockParseOptions.Encoded): (text: string) => BlockPassResult;
 } = dual(
   (args) => P.isString(args[0]),
-  (text: string, options?: BlockParseOptions): BlockPassResult => {
+  (text: string, options?: BlockParseOptions.Encoded): BlockPassResult => {
     const dialect = options?.dialect ?? "commonmark";
     return new BlockParser(text, blockDialect(dialect), dialect, options?.frontmatter ?? false).parse();
   }

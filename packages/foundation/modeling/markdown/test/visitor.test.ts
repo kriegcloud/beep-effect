@@ -2,9 +2,8 @@
 // parsed tree, path/depth context, early termination, and the depth-guard
 // posture on decoded foreign trees.
 //
-// Sibling contract: the event union is a Data.TaggedEnum with a taggedEnum
-// constructor const (yaml/toml precedent) and the statics class exposes a
-// single visit. Deviation, recorded: yaml and toml visit TEXT (their event
+// Sibling contract: the event union is an S.TaggedUnion of three tagged
+// structs (jsonc precedent) and the statics class exposes a single visit. Deviation, recorded: yaml and toml visit TEXT (their event
 // source is the parse itself), while this visitor walks an already-parsed
 // tree — that is what lets it stay infallible at the type level. The guard
 // posture mirrors stringify: a decoded foreign tree deeper than
@@ -21,11 +20,13 @@ import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import type { MarkdownParseOptions } from "@beep/markdown/Markdown";
 
-const parse = (text: string, options?: MarkdownParseOptions) => {
+const parse = (text: string, options?: MarkdownParseOptions.Encoded) => {
   const result = Markdown.parseResult(text, options);
   assertSuccess(
     Result.map(result, () => undefined),
@@ -58,8 +59,10 @@ describe("MarkdownVisitor", () => {
     Effect.fnUntraced(function* () {
       const root = parse("hello *world*\n");
       const events = yield* collect(root);
-      const shape = events.map((event) =>
-        event._tag === "Error" ? "Error" : `${event._tag}:${event.node.type}@${event.depth}[${event.path.join(".")}]`
+      const shape = A.map(events, (event) =>
+        event._tag === "Error"
+          ? "Error"
+          : `${event._tag}:${event.node.type}@${event.depth}[${A.join(A.map(event.path, String), ".")}]`
       );
       assert.deepStrictEqual(shape, [
         "Enter:root@0[]",
@@ -89,23 +92,26 @@ describe("MarkdownVisitor", () => {
   it.effect(
     "covers gfm constructs and frontmatter in document order with balanced events",
     Effect.fnUntraced(function* () {
-      const source = [
-        "---",
-        "title: x",
-        "---",
-        "# Head",
-        "",
-        "- [x] task ~~gone~~",
-        "",
-        "| a |",
-        "| - |",
-        "| b |",
-        "",
-        "Text[^f]",
-        "",
-        "[^f]: note",
-        "",
-      ].join("\n");
+      const source = A.join(
+        [
+          "---",
+          "title: x",
+          "---",
+          "# Head",
+          "",
+          "- [x] task ~~gone~~",
+          "",
+          "| a |",
+          "| - |",
+          "| b |",
+          "",
+          "Text[^f]",
+          "",
+          "[^f]: note",
+          "",
+        ],
+        "\n"
+      );
       const root = parse(source, { dialect: "gfm", frontmatter: true });
       const events = yield* collect(root);
 
@@ -123,7 +129,10 @@ describe("MarkdownVisitor", () => {
 
       // Document order: frontmatter is the first child entered, and the gfm
       // node types all appear.
-      const entered = events.filter((event) => event._tag === "Enter").map((event) => event.node.type);
+      const entered = A.map(
+        A.filter(events, (event) => event._tag === "Enter"),
+        (event) => event.node.type
+      );
       assert.strictEqual(entered[0], "root");
       assert.strictEqual(entered[1], "frontmatter");
       for (const expected of ["heading", "listItem", "delete", "table", "tableRow", "tableCell", "footnoteReference"]) {
@@ -137,7 +146,9 @@ describe("MarkdownVisitor", () => {
     Effect.fnUntraced(function* () {
       const root = parse("> - item\n");
       const events = yield* collect(root);
-      const text = events.find((event) => event._tag === "Enter" && event.node.type === "text");
+      const text = O.getOrUndefined(
+        A.findFirst(events, (event) => MarkdownVisitorEvent.guards.Enter(event) && event.node.type === "text")
+      );
       assert.isDefined(text);
       if (text !== undefined && text._tag === "Enter") {
         // root > blockquote[0] > list[0] > listItem[0] > paragraph[0] > text[0]
@@ -177,8 +188,8 @@ describe("MarkdownVisitor", () => {
         const events = yield* MarkdownVisitor.visit(root).pipe(Stream.take(2), Stream.runCollect);
         const consumed = reads;
         assert.deepStrictEqual(events, [
-          MarkdownVisitorEvent.Enter({ node: root, path: [], depth: 0 }),
-          MarkdownVisitorEvent.Enter({ node: paragraph, path: [0], depth: 1 }),
+          { _tag: "Enter", node: root, path: [], depth: 0 },
+          { _tag: "Enter", node: paragraph, path: [0], depth: 1 },
         ]);
         // fromIterable pulls a whole chunk even when take requests only two events.
         assert.isAbove(consumed, 0);
@@ -212,7 +223,7 @@ describe("MarkdownVisitor", () => {
         undefined
       );
       const events = yield* result.pipe(Result.getOrThrow, collect);
-      assert.isFalse(events.some((event) => event._tag === "Error"));
+      assert.isFalse(A.some(events, (event) => event._tag === "Error"));
     })
   );
 
@@ -234,7 +245,7 @@ describe("MarkdownVisitor", () => {
         assert.strictEqual(last.diagnostic.code, "NestingDepthExceeded");
       }
       // The Error event is terminal — exactly one, nothing after it.
-      assert.strictEqual(events.filter((event) => event._tag === "Error").length, 1);
+      assert.strictEqual(A.filter(events, (event) => event._tag === "Error").length, 1);
 
       // Posture link: the same tree fails stringify typed, never a defect.
       assertFailure(
@@ -244,11 +255,13 @@ describe("MarkdownVisitor", () => {
     })
   );
 
-  it("constructs events via the taggedEnum constructors", () => {
+  it("constructs events via the tagged-union cases and narrows them with its guards", () => {
     const node = Text.make({ value: "x", position: syntheticPosition });
-    const event = MarkdownVisitorEvent.Enter({ node, path: [0], depth: 1 });
+    const event = MarkdownVisitorEvent.cases.Enter.make({ node, path: [0], depth: 1 });
     assert.strictEqual(event._tag, "Enter");
-    assert.isTrue(MarkdownVisitorEvent.$is("Enter")(event));
+    assert.isTrue(MarkdownVisitorEvent.guards.Enter(event));
+    assert.isFalse(MarkdownVisitorEvent.guards.Exit(event));
+    assert.isTrue(S.is(MarkdownVisitorEvent)(event));
   });
 
   it.effect(
@@ -260,7 +273,7 @@ describe("MarkdownVisitor", () => {
       });
       const root = Root.make({ children: [paragraph], position: syntheticPosition });
       const events = yield* collect(root);
-      const tags = events.map((event) => event._tag);
+      const tags = A.map(events, (event) => event._tag);
       assert.deepStrictEqual(tags, ["Enter", "Enter", "Enter", "Exit", "Exit", "Exit"]);
     })
   );
@@ -278,7 +291,7 @@ describe("MarkdownVisitor", () => {
       const root = Root.make({ children: [node], position: syntheticPosition });
       const events = yield* collect(root);
       assert.strictEqual(events.length, 2 * (1 + 10 + 1 + 1));
-      assert.isFalse(events.some((event) => event._tag === "Error"));
+      assert.isFalse(A.some(events, (event) => event._tag === "Error"));
     })
   );
 });

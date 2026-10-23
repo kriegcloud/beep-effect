@@ -6,8 +6,9 @@
 // lives in `code.ts`.
 
 import { dual } from "effect/Function";
+import { BlockStart } from "../blockTypes.ts";
 import { CODE_INDENT } from "../preprocess.ts";
-import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 
 /**
  * Opens an indented-code block at four columns of indentation.
@@ -28,9 +29,9 @@ import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../b
  * @category parsing
  * @since 0.0.0
  */
-export const indentedCodeStart: BlockStart = {
-  name: "indentedCode",
-  trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
+export const indentedCodeStart = new BlockStart(
+  "indentedCode",
+  dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
     if (!scanner.indented || scanner.tip.type === "paragraph" || scanner.blank) {
       return 0;
     }
@@ -45,5 +46,5 @@ export const indentedCodeStart: BlockStart = {
     scanner.closeUnmatchedBlocks();
     scanner.addChild("code", start);
     return 2;
-  }),
-};
+  })
+);

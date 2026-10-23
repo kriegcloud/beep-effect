@@ -10,8 +10,14 @@
 // empty document is `null`, toml's is `{}`, and JSON has no empty-document
 // value so the json codec fails typed on an empty capture.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { JsoncParseError } from "@beep/jsonc/Jsonc";
-import { FrontmatterDecodeError, FrontmatterFormatMismatchError } from "@beep/markdown/Frontmatter";
+import {
+  FrontmatterCodec,
+  FrontmatterDecodeError,
+  FrontmatterEncodeError,
+  FrontmatterFormatMismatchError,
+} from "@beep/markdown/Frontmatter";
 import { JsonFrontmatter } from "@beep/markdown/JsonFrontmatter";
 import { Markdown, MarkdownParseOptions } from "@beep/markdown/Markdown";
 import { Frontmatter, Point, Position } from "@beep/markdown/MarkdownNode";
@@ -20,9 +26,10 @@ import { YamlFrontmatter } from "@beep/markdown/YamlFrontmatter";
 import { TomlParseError } from "@beep/toml/Toml";
 import { YamlParseError } from "@beep/yaml/Yaml";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
-import type { FrontmatterCodec } from "@beep/markdown/Frontmatter";
+import * as S from "effect/Schema";
 import type { FrontmatterFormat } from "@beep/markdown/MarkdownNode";
 
 const withFrontmatter = MarkdownParseOptions.make({ frontmatter: true });
@@ -203,17 +210,87 @@ describe("frontmatter codecs", () => {
   });
 
   describe("contract shape", () => {
-    it("the three codecs carry field-identical contract shapes", () => {
+    it("the three codecs are FrontmatterCodec instances with both Effect and Result directions", () => {
       const codecs: ReadonlyArray<FrontmatterCodec> = [YamlFrontmatter, TomlFrontmatter, JsonFrontmatter];
       for (const codec of codecs) {
-        assert.deepStrictEqual(Object.keys(codec).sort(), ["decode", "encode", "format"]);
+        assert.isTrue(codec instanceof FrontmatterCodec);
         assert.isFunction(codec.decode);
         assert.isFunction(codec.encode);
+        assert.isFunction(codec.decodeResult);
+        assert.isFunction(codec.encodeResult);
       }
       assert.deepStrictEqual(
-        codecs.map((codec) => codec.format),
+        A.map(codecs, (codec) => codec.format),
         ["yaml", "toml", "json"]
       );
     });
+  });
+
+  describe("decodeResult / encodeResult", () => {
+    it("decodes each codec's capture synchronously", () => {
+      assert.deepStrictEqual(Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", "title: Hi\n"))), {
+        title: "Hi",
+      });
+      assert.deepStrictEqual(Result.getOrThrow(TomlFrontmatter.decodeResult(capture("toml", 'title = "Hi"\n'))), {
+        title: "Hi",
+      });
+      assert.deepStrictEqual(Result.getOrThrow(JsonFrontmatter.decodeResult(capture("json", '{"title":"Hi"}'))), {
+        title: "Hi",
+      });
+    });
+
+    it("fails a mismatched capture before parsing", () => {
+      const failure = YamlFrontmatter.decodeResult(capture("toml", "x: [")).pipe(Result.flip, Result.getOrThrow);
+      assert.instanceOf(failure, FrontmatterFormatMismatchError);
+      if (S.is(FrontmatterFormatMismatchError)(failure)) {
+        assert.strictEqual(failure.expected, "yaml");
+        assert.strictEqual(failure.actual, "toml");
+      }
+    });
+
+    it("wraps each engine's parse failure structurally", () => {
+      const yaml = YamlFrontmatter.decodeResult(capture("yaml", "x: [")).pipe(Result.flip, Result.getOrThrow);
+      const toml = TomlFrontmatter.decodeResult(capture("toml", "x = ")).pipe(Result.flip, Result.getOrThrow);
+      const json = JsonFrontmatter.decodeResult(capture("json", "")).pipe(Result.flip, Result.getOrThrow);
+      assert.isTrue(S.is(FrontmatterDecodeError)(yaml) && yaml.format === "yaml" && S.is(YamlParseError)(yaml.cause));
+      assert.isTrue(S.is(FrontmatterDecodeError)(toml) && toml.format === "toml" && S.is(TomlParseError)(toml.cause));
+      assert.isTrue(S.is(FrontmatterDecodeError)(json) && json.format === "json" && S.is(JsoncParseError)(json.cause));
+    });
+
+    it("encodes synchronously and fails typed on an unrepresentable value", () => {
+      assert.strictEqual(Result.getOrThrow(JsonFrontmatter.encodeResult({})), "{}");
+      assert.strictEqual(Result.getOrThrow(TomlFrontmatter.encodeResult({})), "");
+      const cyclic: Record<string, unknown> = {};
+      cyclic.self = cyclic;
+      const failure = JsonFrontmatter.encodeResult(cyclic).pipe(Result.flip, Result.getOrThrow);
+      assert.instanceOf(failure, FrontmatterEncodeError);
+      assert.strictEqual(failure.format, "json");
+    });
+
+    it.effect("agrees with the Effect direction on success and failure", () =>
+      Effect.gen(function* () {
+        for (const node of [capture("yaml", "a: 1\n"), capture("yaml", "x: ["), capture("json", "{}")]) {
+          const viaEffect = yield* Effect.result(YamlFrontmatter.decode(node));
+          assert.deepStrictEqual(viaEffect, YamlFrontmatter.decodeResult(node));
+        }
+      })
+    );
+
+    it.effect.prop(
+      "the Result and Effect directions agree on every JSON value, both ways",
+      [S.Json],
+      ([value]) =>
+        Effect.gen(function* () {
+          for (const codec of [YamlFrontmatter, TomlFrontmatter, JsonFrontmatter]) {
+            const body = codec.encodeResult(value);
+            assert.deepStrictEqual(yield* Effect.result(codec.encode(value)), body);
+            if (Result.isSuccess(body)) {
+              const node = capture(codec.format, body.success);
+              assert.deepStrictEqual(yield* Effect.result(codec.decode(node)), codec.decodeResult(node));
+            }
+          }
+        }),
+      { arbitrary: fcRuns(100) }
+    );
   });
 });

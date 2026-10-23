@@ -35,20 +35,18 @@
 //    never disagree.
 
 import { dual } from "effect/Function";
-import { flowChildren } from "../blockTypes.ts";
-import { trustedNode } from "../nodes.ts";
-import { stickyOf } from "../patterns.ts";
-import { normalizeLabelText } from "../references.ts";
-import type {
+import * as Str from "effect/String";
+import {
   BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
   BlockStart,
-  BlockStartResult,
-  MaterializeContext,
-  MaterializedBlock,
+  containerMaterializer,
+  containsFlow,
+  FootnoteData,
+  flowChildren,
 } from "../blockTypes.ts";
+import { trustedNode } from "../nodes.ts";
+import { normalizeLabelText } from "../references.ts";
+import type { BlockContinueResult, BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 import type { FootnoteDefinition } from "../nodes.ts";
 
 /**
@@ -62,9 +60,9 @@ import type { FootnoteDefinition } from "../nodes.ts";
  * label may hold no whitespace at all, which is where it parts company with a
  * link reference label. The line terminators in the class are unreachable here
  * (the block pass hands over one line at a time, terminator stripped) but stay
- * so the class reads as upstream's.
+ * so the class reads as upstream's. Sticky: it is matched at the scan position.
  */
-const reFootnoteDefinition = /\[\^([^\]\0\t\n\r ]+)\]:[ \t]*/;
+const reFootnoteDefinition = /\[\^([^\]\0\t\n\r ]+)\]:[ \t]*/y;
 
 /** Columns of indentation a continuation line must carry. */
 const CONTINUATION_INDENT = 4;
@@ -84,12 +82,10 @@ const CONTINUATION_INDENT = 4;
  * @category parsing
  * @since 0.0.0
  */
-export const footnoteDefinitionConstruct: BlockConstruct = {
-  type: "footnoteDefinition",
-  acceptsLines: false,
+export const footnoteDefinitionConstruct = new BlockConstruct("footnoteDefinition", false, {
   // `cmark_node_can_contain_type` groups FOOTNOTE_DEFINITION with DOCUMENT,
   // BLOCK_QUOTE and ITEM: any block child except a bare list item.
-  canContain: (child) => child !== "listItem",
+  canContain: containsFlow,
   // `parse_footnote_definition_block_prefix`. Four columns of indent continue
   // the definition; so does a completely empty line, which is what lets one
   // hold several paragraphs. Anything else ends it — and when what ends it is
@@ -104,27 +100,20 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
     // indent is skipped, so a line of spaces is not blank enough.
     return scanner.currentLine.length === 0 ? 0 : 1;
   }),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const footnote = block.data.footnote;
-      if (footnote === undefined) {
-        return undefined;
-      }
-      return trustedNode<FootnoteDefinition>({
-        type: "footnoteDefinition",
-        identifier: footnote.identifier,
-        label: footnote.label,
-        children: flowChildren(children),
-        position: context.position(block.startOffset, block.endOffset),
-      });
+  materialize: containerMaterializer((block, children, context) => {
+    const footnote = block.data.footnote;
+    if (footnote === undefined) {
+      return undefined;
     }
-  ),
-};
+    return trustedNode<FootnoteDefinition>({
+      type: "footnoteDefinition",
+      identifier: footnote.identifier,
+      label: footnote.label,
+      children: flowChildren(children),
+      position: context.position(block.startOffset, block.endOffset),
+    });
+  }),
+});
 
 /**
  * Opens a footnote definition at an unindented `[^label]:` marker.
@@ -148,16 +137,15 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const footnoteDefinitionStart: BlockStart = {
-  name: "footnoteDefinition",
-  trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
+export const footnoteDefinitionStart = new BlockStart(
+  "footnoteDefinition",
+  dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
     if (scanner.indented) {
       return 0;
     }
 
-    const sticky = stickyOf(reFootnoteDefinition);
-    sticky.lastIndex = scanner.nextNonspace;
-    const found = sticky.exec(scanner.currentLine);
+    reFootnoteDefinition.lastIndex = scanner.nextNonspace;
+    const found = reFootnoteDefinition.exec(scanner.currentLine);
     const rawLabel = found?.[1];
     if (found === null || rawLabel === undefined) {
       return 0;
@@ -180,7 +168,7 @@ export const footnoteDefinitionStart: BlockStart = {
     scanner.advanceOffset(found[0].length, false);
 
     const block = scanner.addChild("footnoteDefinition", start);
-    block.data.footnote = { key, identifier: key.toLowerCase(), label: rawLabel };
+    block.data.footnote = FootnoteData.make({ key, identifier: Str.toLowerCase(key), label: rawLabel });
     return 1;
-  }),
-};
+  })
+);

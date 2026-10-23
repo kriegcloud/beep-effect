@@ -2,6 +2,7 @@ import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { rawHtmlConstruct } from "@beep/markdown/internal/inlines/rawHtml";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 
 describe("raw HTML declaration missing-closer protection", () => {
   it("preserves invalid declaration prefixes with a distant closer without searching for it", () => {
@@ -20,7 +21,7 @@ describe("raw HTML declaration missing-closer protection", () => {
       }
     });
     try {
-      const source = "x " + "<!0".repeat(8000) + ">";
+      const source = `x ${Str.repeat(8000)("<!0")}>`;
       const [paragraph] = parseBlocks(source).root.children;
       assert.strictEqual(spy.mock.calls.length, 8000);
       assert.strictEqual(declarationCloserSearches, 0);
@@ -53,7 +54,7 @@ describe("raw HTML declaration missing-closer protection", () => {
       }
     });
     try {
-      parseBlocks("x " + "<!A".repeat(8000));
+      parseBlocks(`x ${Str.repeat(8000)("<!A")}`);
       assert.strictEqual(spy.mock.calls.length, 8000);
       assert.strictEqual(matches, 0);
     } finally {
@@ -62,7 +63,7 @@ describe("raw HTML declaration missing-closer protection", () => {
   });
 
   it.each([1, 8000, 16000, 32000])("preserves %i unterminated declarations as text", (count) => {
-    const source = "x " + "<!A".repeat(count);
+    const source = `x ${Str.repeat(count)("<!A")}`;
     const [paragraph] = parseBlocks(source).root.children;
     assert.strictEqual(paragraph?.type, "paragraph");
     if (paragraph?.type !== "paragraph") return;
@@ -83,7 +84,7 @@ describe("raw HTML declaration missing-closer protection", () => {
     "<![CDATA[value]]>",
     "<span>",
   ])("continues to accept closed inline HTML %s", (html) => {
-    const source = "x " + html + " y";
+    const source = `x ${html} y`;
     const [paragraph] = parseBlocks(source).root.children;
     assert.strictEqual(paragraph?.type, "paragraph");
     if (paragraph?.type !== "paragraph") return;
@@ -98,8 +99,8 @@ describe("raw HTML declaration missing-closer protection", () => {
   });
 
   it("accepts a declaration containing repeated openers once its closer exists", () => {
-    const html = "<!A" + "<!A".repeat(128) + ">";
-    const [paragraph] = parseBlocks("x " + html).root.children;
+    const html = `<!A${Str.repeat(128)("<!A")}>`;
+    const [paragraph] = parseBlocks(`x ${html}`).root.children;
     assert.strictEqual(paragraph?.type, "paragraph");
     if (paragraph?.type !== "paragraph") return;
     const node = paragraph.children[1];

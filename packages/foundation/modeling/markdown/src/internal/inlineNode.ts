@@ -63,44 +63,75 @@ export type InlineNodeType = typeof InlineNodeType.Type;
 /**
  * Per-kind fields, all optional and never explicitly `undefined`.
  *
+ * **Details**
+ *
+ * Mutable engine state (D-42): constructs fill these in after the node is
+ * linked, and only materialization reads them. The fields are declared, not
+ * initialized, so an unset field stays absent rather than `undefined`.
+ *
+ * **Example** (Record an emphasis marker)
+ *
+ * ```ts
+ * import { InlineNodeData } from "@beep/markdown/internal/inlineNode";
+ *
+ * const data = new InlineNodeData();
+ * data.markerChar = "_";
+ * console.log(data.markerChar, "url" in data) // _ false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface InlineNodeData {
-  breakStyle?: BreakStyle;
-  identifier?: string;
-  label?: string;
-  markerChar?: EmphasisChar;
-  referenceType?: ReferenceType;
-  title?: string;
-  url?: string;
+export class InlineNodeData {
+  declare breakStyle?: BreakStyle;
+  declare identifier?: string;
+  declare label?: string;
+  declare markerChar?: EmphasisChar;
+  declare referenceType?: ReferenceType;
+  declare title?: string;
+  declare url?: string;
 }
 
 /**
  * A node under construction, with its sibling and child links.
  *
+ * **Details**
+ *
+ * Mutable engine state (D-42): the doubly linked list `processEmphasis`
+ * splices in O(1). `start` and `end` are local indices into the leaf's
+ * content, resolved to source offsets at materialization; `value` is the
+ * literal content, for the kinds that carry it.
+ *
+ * **Example** (Open a detached node)
+ *
+ * ```ts
+ * import { InlineNode } from "@beep/markdown/internal/inlineNode";
+ *
+ * const node = new InlineNode("text", 0, 5, "hello");
+ * console.log(node.value, node.parent) // hello undefined
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface InlineNode {
-  readonly data: InlineNodeData;
+export class InlineNode {
+  readonly data = new InlineNodeData();
   end: number;
-  firstChild: InlineNode | undefined;
-  lastChild: InlineNode | undefined;
-  next: InlineNode | undefined;
-  parent: InlineNode | undefined;
-  prev: InlineNode | undefined;
-  /**
-   * Local indices into the leaf's content; resolved to offsets at the end.
-   * @since 0.0.0
-   */
+  firstChild: InlineNode | undefined = undefined;
+  lastChild: InlineNode | undefined = undefined;
+  next: InlineNode | undefined = undefined;
+  parent: InlineNode | undefined = undefined;
+  prev: InlineNode | undefined = undefined;
   start: number;
   readonly type: InlineNodeType;
-  /**
-   * Literal content, for the kinds that carry it.
-   * @since 0.0.0
-   */
   value: string;
+
+  constructor(type: InlineNodeType, start: number, end: number, value: string) {
+    this.type = type;
+    this.start = start;
+    this.end = end;
+    this.value = value;
+  }
 }
 
 /**
@@ -123,18 +154,7 @@ export const makeInlineNode: {
   (start: number, end: number, value?: string): (type: InlineNodeType) => InlineNode;
 } = dual(
   (args) => P.isString(args[0]),
-  (type: InlineNodeType, start: number, end: number, value = ""): InlineNode => ({
-    type,
-    value,
-    start,
-    end,
-    data: {},
-    prev: undefined,
-    next: undefined,
-    parent: undefined,
-    firstChild: undefined,
-    lastChild: undefined,
-  })
+  (type: InlineNodeType, start: number, end: number, value = ""): InlineNode => new InlineNode(type, start, end, value)
 );
 
 /**
@@ -205,6 +225,46 @@ export const insertAfter: {
     node.next.prev = sibling;
   }
   node.next = sibling;
+});
+
+/**
+ * Move `first` and every sibling after it, up to but excluding `stop`, to the
+ * end of `parent`'s children, keeping their order.
+ *
+ * **Details**
+ *
+ * The splice every pairing construct ends with: emphasis and strikethrough
+ * adopt the nodes between their two delimiters, and a link adopts everything
+ * after its opener (`stop` is `undefined`).
+ *
+ * **Example** (Wrap the nodes between two delimiters)
+ *
+ * ```ts
+ * import { appendChild, childrenOf, makeInlineNode, moveSiblings } from "@beep/markdown/internal/inlineNode";
+ *
+ * const root = makeInlineNode("text", 0, 3);
+ * const open = makeInlineNode("text", 0, 1, "*");
+ * const word = makeInlineNode("text", 1, 2, "a");
+ * const close = makeInlineNode("text", 2, 3, "*");
+ * for (const node of [open, word, close]) appendChild(root, node);
+ * const emphasis = makeInlineNode("emphasis", 1, 2);
+ * moveSiblings(emphasis, word, close);
+ * console.log(childrenOf(emphasis).length, open.next === close) // 1 true
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const moveSiblings: {
+  (parent: InlineNode, first: InlineNode | undefined, stop: InlineNode | undefined): void;
+  (first: InlineNode | undefined, stop: InlineNode | undefined): (parent: InlineNode) => void;
+} = dual(3, (parent: InlineNode, first: InlineNode | undefined, stop: InlineNode | undefined): void => {
+  let node = first;
+  while (node !== undefined && node !== stop) {
+    const following = node.next;
+    appendChild(parent, node);
+    node = following;
+  }
 });
 
 /**

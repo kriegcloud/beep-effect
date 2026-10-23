@@ -46,7 +46,7 @@
 //     the parser is the only producer in P1 and (1) and (4) bound what it
 //     produces. A hand-built tree decoded directly is the consumer's own
 //     depth to manage.
-// 13. The test HTML writer (`__test__/e2e/support/htmlWriter.ts`) — recursive
+// 13. The test HTML writer (`test/support/htmlWriter.ts`) — recursive
 //     over the tree, and deliberately left uncapped: it only ever sees trees
 //     this parser produced, which (1) and (4) already bound. It is test-only
 //     and ships in no artifact.
@@ -63,6 +63,7 @@ import { Markdown } from "@beep/markdown/Markdown";
 import { MarkdownVisitor } from "@beep/markdown/MarkdownVisitor";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
@@ -104,7 +105,7 @@ describe("recursion surfaces", () => {
     it("trips the guard rather than overflowing on deep blockquotes", () => {
       let caught: unknown;
       try {
-        parseBlocks(`${">".repeat(MAX_NESTING_DEPTH + 44)} foo\n`);
+        parseBlocks(`${Str.repeat(MAX_NESTING_DEPTH + 44)(">")} foo\n`);
       } catch (error) {
         caught = error;
       }
@@ -118,20 +119,20 @@ describe("recursion surfaces", () => {
     });
 
     it("trips the guard on deep lists", () => {
-      assert.throws(() => parseBlocks(`${"- ".repeat(MAX_NESTING_DEPTH)}foo\n`), GuardExceeded);
+      assert.throws(() => parseBlocks(`${Str.repeat(MAX_NESTING_DEPTH)("- ")}foo\n`), GuardExceeded);
     });
 
     it("parses containers nested just under the cap", () => {
       // The positive control. Without it the test above would pass even if
       // the guard fired at depth 1.
-      const { root } = parseBlocks(`${">".repeat(MAX_NESTING_DEPTH - 2)} foo\n`);
+      const { root } = parseBlocks(`${Str.repeat(MAX_NESTING_DEPTH - 2)(">")} foo\n`);
       assert.strictEqual(root.children[0]?.type, "blockquote");
     });
   });
 
   describe("inline nesting (surface 4)", () => {
     // Delimiters pair two at a time, so n markers a side nest n/2 deep.
-    const markersFor = (depth: number): string => "*".repeat(depth * 2);
+    const markersFor = (depth: number): string => Str.repeat(depth * 2)("*");
 
     it("trips the guard rather than overflowing on deep emphasis", () => {
       const markers = markersFor(MAX_NESTING_DEPTH + 10);
@@ -155,17 +156,17 @@ describe("recursion surfaces", () => {
 
     it("counts container and inline nesting against the same cap", () => {
       // Both guards use MAX_NESTING_DEPTH; neither leaks into the other.
-      const source = `${">".repeat(10)} ${"*".repeat(20)}a${"*".repeat(20)}\n`;
+      const source = `${Str.repeat(10)(">")} ${Str.repeat(20)("*")}a${Str.repeat(20)("*")}\n`;
       assert.doesNotThrow(() => parseBlocks(source));
     });
   });
 
   describe("combined materialized tree depth", () => {
     it("accepts the whole-tree boundary and rejects one deeper with a typed facade failure", () => {
-      const atLimit = `${"> ".repeat(MAX_NESTING_DEPTH - 4)}***x***\n`;
+      const atLimit = `${Str.repeat(MAX_NESTING_DEPTH - 4)("> ")}***x***\n`;
       assert.doesNotThrow(() => parseBlocks(atLimit));
       for (const quotes of [MAX_NESTING_DEPTH - 3, MAX_NESTING_DEPTH - 2]) {
-        const source = `${"> ".repeat(quotes)}***x***\n`;
+        const source = `${Str.repeat(quotes)("> ")}***x***\n`;
         let caught: unknown;
         try {
           parseBlocks(source);
@@ -193,16 +194,16 @@ describe("recursion surfaces", () => {
       "visits and stringifies parsed boundary trees without tripping either guard",
       Effect.fnUntraced(function* () {
         const sources = [
-          `${"> ".repeat(MAX_NESTING_DEPTH - 2)}x\n`,
-          `${"> ".repeat(MAX_NESTING_DEPTH - 3)}*x*\n`,
-          `${"> ".repeat(MAX_NESTING_DEPTH - 4)}***x***\n`,
-          `${"> ".repeat(200)}${"*".repeat(108)}x${"*".repeat(108)}\n`,
+          `${Str.repeat(MAX_NESTING_DEPTH - 2)("> ")}x\n`,
+          `${Str.repeat(MAX_NESTING_DEPTH - 3)("> ")}*x*\n`,
+          `${Str.repeat(MAX_NESTING_DEPTH - 4)("> ")}***x***\n`,
+          `${Str.repeat(200)("> ")}${Str.repeat(108)("*")}x${Str.repeat(108)("*")}\n`,
         ];
         for (const source of sources) {
           const root = yield* Markdown.parse(source);
           const events = yield* MarkdownVisitor.visit(root).pipe(Stream.runCollect);
-          assert.isFalse(events.some((event) => event._tag === "Error"));
-          assert.isTrue(events.some((event) => event.depth === MAX_NESTING_DEPTH));
+          assert.isFalse(A.some(events, (event) => event._tag === "Error"));
+          assert.isTrue(A.some(events, (event) => event.depth === MAX_NESTING_DEPTH));
           const serialized = yield* Markdown.stringify(root);
           assertSuccess(Markdown.stringifyResult(root), serialized);
           const reparsed = yield* Markdown.parse(serialized);
@@ -218,7 +219,7 @@ describe("recursion surfaces", () => {
       // The regression: this ran before materialization's guard and died
       // with a RangeError. Ten thousand levels is far past any cap — the
       // point is that flattening does not recurse at all.
-      const markers = "*".repeat(20000);
+      const markers = Str.repeat(20000)("*");
       let caught: unknown;
       try {
         parseBlocks(`![${markers}a${markers}](/u)\n`);
@@ -267,7 +268,7 @@ describe("the line index", () => {
     const scanned = LineIndex.make(source);
     const handed = LineIndex.fromLineStarts(
       source,
-      preprocessLines(source).map((line) => line.start)
+      A.map(preprocessLines(source), (line) => line.start)
     );
 
     for (let offset = 0; offset <= source.length; offset += 1) {
@@ -289,13 +290,19 @@ describe("prototype pollution", () => {
   const DANGEROUS = ["__proto__", "constructor", "prototype", "toString", "hasOwnProperty"] as const;
 
   it("holds dangerous reference labels as data and resolves them", () => {
-    const document = `${DANGEROUS.map((label) => `[${label}]: /url-${label}\n`).join("")}\n${DANGEROUS.map(
-      (label) => `[${label}]\n\n`
-    ).join("")}`;
+    const definitions = A.join(
+      A.map(DANGEROUS, (label) => `[${label}]: /url-${label}\n`),
+      ""
+    );
+    const references = A.join(
+      A.map(DANGEROUS, (label) => `[${label}]\n\n`),
+      ""
+    );
+    const document = `${definitions}\n${references}`;
     const { root, refmap } = parseBlocks(document);
 
     for (const label of DANGEROUS) {
-      const key = label.toUpperCase();
+      const key = Str.toUpperCase(label);
       assert.isTrue(HashMap.has(refmap, key), `the refmap lost the ${label} definition`);
       assert.strictEqual(O.getOrUndefined(HashMap.get(refmap, key))?.url, `/url-${label}`);
     }

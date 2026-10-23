@@ -7,12 +7,14 @@
 // space of padding on each side is stripped when the content is not all
 // spaces.
 
+import * as Str from "effect/String";
 import { makeInlineNode } from "../inlineNode.ts";
+import { stickyOf } from "../patterns.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
-const C_BACKTICK = 0x60;
+const C_BACKTICK = "`";
 
-const reTicksHere = /^`+/;
+const reTicksHere = stickyOf(/^`+/);
 const reNewline = /\n/gm;
 const reNonSpace = /[^ ]/;
 
@@ -24,7 +26,7 @@ const reNonSpace = /[^ ]/;
  * ```ts
  * import { codeSpanConstruct } from "@beep/markdown/internal/inlines/codeSpan"
  *
- * console.log(codeSpanConstruct.triggers.map((code) => String.fromCharCode(code)).join("")) // `
+ * console.log(codeSpanConstruct.triggers.join("")) // `
  * ```
  *
  * @category parsing
@@ -47,10 +49,11 @@ export const codeSpanConstruct: InlineConstruct = {
     // "backticks" case). The run index answers the same question directly.
     const closing = scanner.closingBacktickRun(afterOpenTicks, ticks.length);
     if (closing !== undefined) {
-      const contents = scanner.subject.slice(afterOpenTicks, closing).replace(reNewline, " ");
+      const contents = Str.replace(reNewline, " ")(Str.slice(afterOpenTicks, closing)(scanner.subject));
+      // One leading and one trailing space go when the content is not all spaces.
       const stripped =
-        contents.length > 0 && reNonSpace.test(contents) && contents.startsWith(" ") && contents.endsWith(" ")
-          ? contents.slice(1, -1)
+        Str.startsWith(" ")(contents) && Str.endsWith(" ")(contents) && reNonSpace.test(contents)
+          ? Str.slice(1, -1)(contents)
           : contents;
 
       scanner.pos = closing + ticks.length;

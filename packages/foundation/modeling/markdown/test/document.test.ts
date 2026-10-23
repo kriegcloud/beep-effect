@@ -2,9 +2,11 @@
 // diagnostics and the definition index — plus the same parseResult/parse
 // parity and guard-materialization contract the bare-tree facade holds.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
+import { MarkdownParseOptions } from "@beep/markdown/Markdown";
 import { MarkdownDiagnostic } from "@beep/markdown/MarkdownDiagnostic";
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import { MarkdownDocument, SectionQueryOptions } from "@beep/markdown/MarkdownDocument";
 import { MarkdownFormat } from "@beep/markdown/MarkdownFormat";
 import {
   Blockquote,
@@ -18,6 +20,8 @@ import {
 } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -25,13 +29,18 @@ import * as Exit from "effect/Exit";
 import { identity } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { FlowContent } from "@beep/markdown/MarkdownNode";
 
-const nestingBomb = `${">".repeat(MAX_NESTING_DEPTH + 44)} foo\n`;
+/** The offset of `needle` in `text`; every needle here is known to occur. */
+const offsetOf = (text: string, needle: string): number => O.getOrThrow(Str.indexOf(needle)(text));
 
-const source = ["# Title", "", "See [ref][a] and [b].", "", '[a]: /a "A"', "[B]: /b", ""].join("\n");
+const nestingBomb = `${Str.repeat(MAX_NESTING_DEPTH + 44)(">")} foo\n`;
+
+const source = A.join(["# Title", "", "See [ref][a] and [b].", "", '[a]: /a "A"', "[B]: /b", ""], "\n");
 
 describe("MarkdownDocument.parseResult", () => {
   it("retains the exact source it parsed", () => {
@@ -48,7 +57,7 @@ describe("MarkdownDocument.parseResult", () => {
     }
     assert(S.is(Root)(result.success.root));
     assert.deepStrictEqual(
-      result.success.root.children.map((child) => child.type),
+      A.map(result.success.root.children, (child) => child.type),
       ["heading", "paragraph", "definition", "definition"]
     );
   });
@@ -67,7 +76,7 @@ describe("MarkdownDocument.parseResult", () => {
       assert(S.is(Definition)(definition));
     }
     // Labels fold case, so `[a]` and `[B]` land under one normalized key each.
-    const urls = [...HashMap.values(definitions)].map((definition) => definition.url).sort();
+    const urls = A.map([...HashMap.values(definitions)], (definition) => definition.url).sort();
     assert.deepStrictEqual(urls, ["/a", "/b"]);
   });
 
@@ -76,7 +85,7 @@ describe("MarkdownDocument.parseResult", () => {
     if (Result.isFailure(result)) {
       assert.fail("expected the document to parse");
     }
-    const inTree = result.success.root.children.filter((child) => child.type === "definition");
+    const inTree = A.filter(result.success.root.children, (child) => child.type === "definition");
     assert.strictEqual(inTree.length, 2);
   });
 
@@ -102,7 +111,7 @@ describe("MarkdownDocument.parseResult", () => {
     const diagnostic = MarkdownDiagnostic.fromRaw(text, {
       code: "NestingDepthExceeded",
       message: "synthetic carrier",
-      offset: text.indexOf("charlie"),
+      offset: offsetOf(text, "charlie"),
       length: 7,
     });
     assert.strictEqual(diagnostic.line, 1);
@@ -216,39 +225,42 @@ describe("MarkdownDocument schema", () => {
     assert.strictEqual(decoded.source, result.success.source);
     assert.strictEqual(HashMap.size(decoded.definitions), HashMap.size(result.success.definitions));
     assert.deepStrictEqual(
-      decoded.root.children.map((child) => child.type),
-      result.success.root.children.map((child) => child.type)
+      A.map(decoded.root.children, (child) => child.type),
+      A.map(result.success.root.children, (child) => child.type)
     );
   });
 });
 
 describe("MarkdownDocument navigation accessors", () => {
-  const navSource = [
-    "---",
-    "title: Nav",
-    "---",
-    "",
-    "Intro paragraph with [inline](https://example.com/inline).",
-    "",
-    "# Alpha *one*",
-    "",
-    "Alpha body with [ref][a] and ![pic](/img.png).",
-    "",
-    "## Beta `code`",
-    "",
-    "| cell |",
-    "| ---- |",
-    "| [cell link](/cell) |",
-    "",
-    "# Gamma",
-    "",
-    "> ## Quoted heading",
-    "",
-    "Trailing www.example.com literal.",
-    "",
-    '[a]: /a "A"',
-    "",
-  ].join("\n");
+  const navSource = A.join(
+    [
+      "---",
+      "title: Nav",
+      "---",
+      "",
+      "Intro paragraph with [inline](https://example.com/inline).",
+      "",
+      "# Alpha *one*",
+      "",
+      "Alpha body with [ref][a] and ![pic](/img.png).",
+      "",
+      "## Beta `code`",
+      "",
+      "| cell |",
+      "| ---- |",
+      "| [cell link](/cell) |",
+      "",
+      "# Gamma",
+      "",
+      "> ## Quoted heading",
+      "",
+      "Trailing www.example.com literal.",
+      "",
+      '[a]: /a "A"',
+      "",
+    ],
+    "\n"
+  );
 
   const parseNav = () => {
     const result = MarkdownDocument.parseResult(navSource, { frontmatter: true });
@@ -261,7 +273,7 @@ describe("MarkdownDocument navigation accessors", () => {
   it("lists every heading in document order with depth and plain text", () => {
     const document = parseNav();
     assert.deepStrictEqual(
-      document.headings.map((entry) => [entry.depth, entry.text]),
+      A.map(document.headings, (entry) => [entry.depth, entry.text]),
       [
         [1, "Alpha one"],
         [2, "Beta code"],
@@ -278,7 +290,7 @@ describe("MarkdownDocument navigation accessors", () => {
   it("derives sections from root-level headings only", () => {
     const document = parseNav();
     assert.deepStrictEqual(
-      document.sections.map((section) => [section.depth, section.heading.children[0]?.type]),
+      A.map(document.sections, (section) => [section.depth, section.heading.children[0]?.type]),
       [
         [1, "text"],
         [2, "text"],
@@ -289,9 +301,9 @@ describe("MarkdownDocument navigation accessors", () => {
 
   it("spans each section from its heading to the next boundary heading", () => {
     const document = parseNav();
-    const alphaStart = navSource.indexOf("# Alpha");
-    const betaStart = navSource.indexOf("## Beta");
-    const gammaStart = navSource.indexOf("# Gamma");
+    const alphaStart = offsetOf(navSource, "# Alpha");
+    const betaStart = offsetOf(navSource, "## Beta");
+    const gammaStart = offsetOf(navSource, "# Gamma");
     const [alpha, beta, gamma] = document.sections;
     assert.isDefined(alpha);
     assert.isDefined(beta);
@@ -312,15 +324,15 @@ describe("MarkdownDocument navigation accessors", () => {
     assert.isDefined(gamma);
     // Alpha runs to Gamma: body paragraph, the Beta subsection heading, its table.
     assert.deepStrictEqual(
-      alpha.children.map((child) => child.type),
+      A.map(alpha.children, (child) => child.type),
       ["paragraph", "heading", "table"]
     );
     assert.deepStrictEqual(
-      beta.children.map((child) => child.type),
+      A.map(beta.children, (child) => child.type),
       ["table"]
     );
     assert.deepStrictEqual(
-      gamma.children.map((child) => child.type),
+      A.map(gamma.children, (child) => child.type),
       ["blockquote", "paragraph", "definition"]
     );
   });
@@ -331,19 +343,20 @@ describe("MarkdownDocument navigation accessors", () => {
     assert.isDefined(first);
     // The first section starts at the first heading: the frontmatter block and
     // the intro paragraph before it belong to no section.
-    assert.strictEqual(first.range.offset, navSource.indexOf("# Alpha"));
+    assert.strictEqual(first.range.offset, offsetOf(navSource, "# Alpha"));
     // section.children is typed FlowContent — frontmatter is excluded by
     // construction; assert the intro paragraph stayed out at runtime.
-    const sectioned = document.sections.flatMap((section) => section.children);
-    const intro = document.root.children.find((child) => child.type === "paragraph");
+    const sectioned = A.flatMap(document.sections, (section) => section.children);
+    const intro = O.getOrUndefined(A.findFirst(document.root.children, (child) => child.type === "paragraph"));
     assert.isDefined(intro);
-    assert.isFalse(sectioned.includes(intro));
+    // Sections carry admitted copies of the tree's blocks, so compare by value.
+    assert.isFalse(A.some(sectioned, (child) => Equal.equals(child, intro)));
   });
 
   it("collects every link-bearing node in document order with its url", () => {
     const document = parseNav();
     assert.deepStrictEqual(
-      document.links.map((entry) => [entry.node.type, entry.url]),
+      A.map(document.links, (entry) => [entry.node.type, entry.url]),
       [
         ["link", "https://example.com/inline"],
         ["linkReference", "/a"],
@@ -379,7 +392,7 @@ describe("MarkdownDocument navigation accessors", () => {
     const [entry] = document.links;
     assert.isDefined(entry);
     assert.strictEqual(entry.node.type, "linkReference");
-    assert.isFalse(Object.hasOwn(entry, "url"));
+    assert.isFalse(P.hasProperty(entry, "url"));
   });
 
   it("returns empty accessors on an empty document", () => {
@@ -393,21 +406,21 @@ describe("MarkdownDocument navigation accessors", () => {
   });
 
   it("handles skipped depths, setext headings and a trailing heading", () => {
-    const source = ["Title", "=====", "", "### Deep", "", "# Last"].join("\n");
+    const source = A.join(["Title", "=====", "", "### Deep", "", "# Last"], "\n");
     const result = MarkdownDocument.parseResult(source);
     if (Result.isFailure(result)) {
       assert.fail("expected the document to parse");
     }
     const document = result.success;
     assert.deepStrictEqual(
-      document.sections.map((section) => section.depth),
+      A.map(document.sections, (section) => section.depth),
       [1, 3, 1]
     );
     const [title, deep, last] = document.sections;
     assert.isDefined(title);
     assert.isDefined(deep);
     assert.isDefined(last);
-    const lastStart = source.indexOf("# Last");
+    const lastStart = offsetOf(source, "# Last");
     assert.strictEqual(title.range.offset + title.range.length, lastStart);
     assert.strictEqual(deep.range.offset + deep.range.length, lastStart);
     assert.strictEqual(last.range.offset + last.range.length, source.length);
@@ -436,48 +449,122 @@ describe("MarkdownDocument navigation accessors", () => {
 });
 
 describe("definition index document order", () => {
-  it("retains first-definition-wins, nested order and the winning definition nodes", () => {
-    const document = Result.getOrThrow(
-      MarkdownDocument.parseResult("[z]: /z\n\n> [a]: /a\n\n[z]: /duplicate\n\n[m]: /m\n\n[z] [a] [m]\n")
-    );
-    assert.deepStrictEqual(
-      document.definitionOrder.map(([label]) => label),
-      ["Z", "A", "M"]
-    );
-    assert.strictEqual(HashMap.size(document.definitions), 3);
-    const definitions = document.findAll("definition");
-    assert.strictEqual(definitions.length, 4);
-    for (const [label, definition] of document.definitionOrder) {
-      assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(Definition)(definition)), definition);
-      // `MarkdownDocument.make` validates and copies its fields (D-22, D-39), so
-      // the index and the tree hold equal nodes, not the same objects.
-      const indexed = HashMap.get(document.definitions, label).pipe(O.getOrThrow);
-      assert.deepStrictEqual(indexed, definition);
-      assert.isTrue(definitions.some((node) => Equal.equals(node, definition)));
-      // Equal value at the same span is the same node to `modify`, so an
-      // index entry still targets the tree node it was copied from.
-      for (const target of [indexed, definition]) {
-        const edits = Effect.runSync(MarkdownFormat.modify(document, target, "replaced"));
-        assert.deepStrictEqual(
-          edits.map(({ offset, length }) => [offset, length]),
-          [[target.position.start.offset, target.position.end.offset - target.position.start.offset]]
-        );
+  it.effect("retains first-definition-wins, nested order and the winning definition nodes", () =>
+    Effect.gen(function* () {
+      const document = Result.getOrThrow(
+        MarkdownDocument.parseResult("[z]: /z\n\n> [a]: /a\n\n[z]: /duplicate\n\n[m]: /m\n\n[z] [a] [m]\n")
+      );
+      assert.deepStrictEqual(
+        A.map(document.definitionOrder, ([label]) => label),
+        ["Z", "A", "M"]
+      );
+      assert.strictEqual(HashMap.size(document.definitions), 3);
+      const definitions = document.findAll("definition");
+      assert.strictEqual(definitions.length, 4);
+      for (const [label, definition] of document.definitionOrder) {
+        assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(Definition)(definition)), definition);
+        // `MarkdownDocument.make` validates and copies its fields (D-22, D-39), so
+        // the index and the tree hold equal nodes, not the same objects.
+        const indexed = HashMap.get(document.definitions, label).pipe(O.getOrThrow);
+        assert.deepStrictEqual(indexed, definition);
+        assert.isTrue(A.some(definitions, (node) => Equal.equals(node, definition)));
+        // Equal value at the same span is the same node to `modify`, so an
+        // index entry still targets the tree node it was copied from.
+        for (const target of [indexed, definition]) {
+          const edits = yield* MarkdownFormat.modify(document, target, "replaced");
+          assert.deepStrictEqual(
+            A.map(edits, ({ offset, length }) => [offset, length]),
+            [[target.position.start.offset, target.position.end.offset - target.position.start.offset]]
+          );
+        }
       }
-    }
-    assert.strictEqual(HashMap.get(document.definitions, "Z").pipe(O.getOrThrow).url, "/z");
+      assert.strictEqual(HashMap.get(document.definitions, "Z").pipe(O.getOrThrow).url, "/z");
+      assert.deepStrictEqual(
+        A.map(
+          A.filter(document.links, ({ node }) => node.type === "linkReference"),
+          ({ url }) => url
+        ),
+        ["/z", "/a", "/m"]
+      );
+      const encoded = Result.getOrThrow(S.encodeResult(MarkdownDocument)(document));
+      const decoded = Result.getOrThrow(S.decodeResult(MarkdownDocument)(encoded));
+      assert.deepStrictEqual(
+        A.map(decoded.definitionOrder, ([label, definition]) => [label, definition.url]),
+        [
+          ["Z", "/z"],
+          ["A", "/a"],
+          ["M", "/m"],
+        ]
+      );
+    })
+  );
+});
+
+describe("MarkdownDocument.headingSource", () => {
+  const parseDocument = (text: string): MarkdownDocument => Result.getOrThrow(MarkdownDocument.parseResult(text));
+
+  it("reads an ATX heading's content as written, without markers or the closing sequence", () => {
+    const document = parseDocument("# Use `Effect.gen` <b>now</b> ##\n\nbody\n");
+    const [heading] = document.headings;
+    assert.isDefined(heading);
+    assert.strictEqual(heading.text, "Use Effect.gen now");
+    assert.strictEqual(document.headingSource(heading.node), "Use `Effect.gen` <b>now</b>");
+  });
+
+  it("reads a multi-line setext heading's content without its underline", () => {
+    const document = parseDocument("Goal *Title*\nsecond line\n===\n");
+    const [heading] = document.headings;
+    assert.isDefined(heading);
+    assert.strictEqual(document.headingSource(heading.node), "Goal *Title*\nsecond line");
+  });
+
+  it("reads nested headings and reads an empty heading as the empty string", () => {
+    const document = parseDocument("> ## <Goal Title>\n\n#\n");
     assert.deepStrictEqual(
-      document.links.filter(({ node }) => node.type === "linkReference").map(({ url }) => url),
-      ["/z", "/a", "/m"]
-    );
-    const encoded = Result.getOrThrow(S.encodeResult(MarkdownDocument)(document));
-    const decoded = Result.getOrThrow(S.decodeResult(MarkdownDocument)(encoded));
-    assert.deepStrictEqual(
-      decoded.definitionOrder.map(([label, definition]) => [label, definition.url]),
-      [
-        ["Z", "/z"],
-        ["A", "/a"],
-        ["M", "/m"],
-      ]
+      A.map(document.headings, (entry) => document.headingSource(entry.node)),
+      ["<Goal Title>", ""]
     );
   });
+
+  it("slices the document's own source by the heading's content positions", () => {
+    const document = parseDocument("intro\n\n## [Link](/x) and \\*escapes\\*\n");
+    const heading = document.find("heading");
+    assert.isDefined(heading);
+    const content = document.headingSource(heading);
+    assert.strictEqual(content, "[Link](/x) and \\*escapes\\*");
+    assert.isTrue(Str.endsWith(content)(Str.trimEnd(document.source)));
+  });
+});
+
+describe("MarkdownDocument schema-derived properties", () => {
+  const runs = { arbitrary: fcRuns(100) };
+
+  it.effect.prop(
+    "parses under any parse options, resolves the dialect default and round-trips through its schema",
+    [Arbitrary.schema(MarkdownParseOptions)],
+    ([options]) =>
+      Effect.gen(function* () {
+        const document = yield* MarkdownDocument.parse(source, options);
+        assert.strictEqual(document.dialect, options.dialect ?? "gfm");
+        const decoded = yield* S.decodeEffect(MarkdownDocument)(yield* S.encodeEffect(MarkdownDocument)(document));
+        assert.strictEqual(decoded.source, document.source);
+        assert.deepStrictEqual(decoded.headings, document.headings);
+      }),
+    runs
+  );
+
+  it.effect.prop(
+    "narrows sections by exactly the requested depth",
+    [Arbitrary.schema(SectionQueryOptions)],
+    ([query]) =>
+      Effect.sync(() => {
+        const document = Result.getOrThrow(MarkdownDocument.parseResult("# A\n\n## B\n\n### C\n\n## D\n"));
+        const section = document.firstSection(query);
+        const expected = O.getOrUndefined(
+          A.findFirst(document.sections, (candidate) => query.depth === undefined || candidate.depth === query.depth)
+        );
+        assert.deepStrictEqual(section, expected);
+      }),
+    runs
+  );
 });

@@ -9,9 +9,15 @@ import {
 } from "@beep/markdown/internal/blocks/frontmatter";
 import { preprocessLines } from "@beep/markdown/internal/preprocess";
 import { assert, describe, it } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
+const rawValue = (source: string): string | undefined => O.getOrUndefined(scanRawFrontmatter(source))?.value;
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({
@@ -31,29 +37,35 @@ describe("frontmatter scanner property floor", () => {
         for (const newline of RawNewline.literals) {
           const prefix = `${opening}${newline}first\0${newline}second${newline}${close}`;
           const source = `${prefix}${newline}body`;
-          const raw = scanRawFrontmatter(source);
+          const raw = O.getOrThrow(scanRawFrontmatter(source));
           const processed = scanFrontmatter(preprocessLines(source), source);
-          assert.deepStrictEqual(raw, {
-            format,
-            value: `first\0${newline}second${newline}`,
-            newline,
-            bodyOffset: prefix.length + newline.length,
-          });
-          assert.deepStrictEqual(processed, {
-            format,
-            value: `first�${newline}second`,
-            lineCount: 4,
-            endOffset: prefix.length,
-          });
-          const decodedRaw = yield* S.decodeUnknownEffect(RawFrontmatterCapture)(raw);
+          assert.deepStrictEqual(
+            raw,
+            RawFrontmatterCapture.make({
+              format,
+              value: `first\0${newline}second${newline}`,
+              newline,
+              bodyOffset: prefix.length + newline.length,
+            })
+          );
+          assert.deepStrictEqual(
+            processed,
+            FrontmatterCapture.make({
+              format,
+              value: `first�${newline}second`,
+              lineCount: 4,
+              endOffset: prefix.length,
+            })
+          );
+          const decodedRaw = yield* S.decodeEffect(RawFrontmatterCapture)(raw);
           const decodedProcessed = yield* S.decodeUnknownEffect(FrontmatterCapture)(processed);
           assert.deepStrictEqual(yield* S.encodeEffect(RawFrontmatterCapture)(decodedRaw), raw);
           assert.deepStrictEqual(yield* S.encodeEffect(FrontmatterCapture)(decodedProcessed), processed);
-          assert.strictEqual(scanRawFrontmatter(`${opening}${newline}${close}`)?.value, "");
-          assert.strictEqual(scanRawFrontmatter(`${opening}${newline}${newline}${close}`)?.value, newline);
+          assert.strictEqual(rawValue(`${opening}${newline}${close}`), "");
+          assert.strictEqual(rawValue(`${opening}${newline}${newline}${close}`), newline);
         }
       }
-      assert.strictEqual(scanRawFrontmatter("ordinary body"), null);
+      assertNone(scanRawFrontmatter("ordinary body"));
       assert.strictEqual(scanFrontmatter(preprocessLines("ordinary body"), "ordinary body"), null);
       assert.isFalse(S.is(FrontmatterCapture)({ format: "xml", value: "", lineCount: 2, endOffset: 7 }));
       assert.isFalse(
@@ -80,18 +92,18 @@ describe("frontmatter scanner property floor", () => {
     ([sample]) =>
       Effect.sync(() => {
         const close = sample.opening === "+++" ? "+++" : "---";
-        const value = `value: ${sample.value.join("")}`;
+        const value = `value: ${A.join(sample.value, "")}`;
         const source = `${sample.opening}${sample.newline}${value}${sample.newline}${close}${sample.newline}body:${sample.body}`;
-        const raw = scanRawFrontmatter(source);
+        const raw = O.getOrThrow(scanRawFrontmatter(source));
         const processed = scanFrontmatter(preprocessLines(source), source);
-        assert.strictEqual(raw?.format, processed?.format);
-        assert.strictEqual(raw?.value, `${value}${sample.newline}`);
-        assert.strictEqual(processed?.value, value.replaceAll("\0", "�"));
-        assert.strictEqual(source.slice(raw?.bodyOffset), `body:${sample.body}`);
+        assert.strictEqual(raw.format, processed?.format);
+        assert.strictEqual(raw.value, `${value}${sample.newline}`);
+        assert.strictEqual(processed?.value, Str.replaceAll("\0", "�")(value));
+        assert.strictEqual(Str.slice(raw.bodyOffset)(source), `body:${sample.body}`);
         assert.deepStrictEqual(scanFrontmatter(source)(preprocessLines(source)), processed);
         const joined = FrontmatterSource.join(FrontmatterSource.split(source));
         assert.strictEqual(joined, source);
-        assert.deepStrictEqual(scanRawFrontmatter(joined), raw);
+        assert.deepStrictEqual(O.getOrThrow(scanRawFrontmatter(joined)), raw);
         assert.deepStrictEqual(scanFrontmatter(preprocessLines(joined), joined), processed);
         assert.strictEqual(FrontmatterSource.join(FrontmatterSource.split(joined)), joined);
       }),
@@ -103,7 +115,7 @@ describe("frontmatter scanner property floor", () => {
     ([source]) =>
       Effect.sync(() => {
         assert.strictEqual(
-          scanRawFrontmatter(source) === null,
+          O.isNone(scanRawFrontmatter(source)),
           scanFrontmatter(preprocessLines(source), source) === null
         );
       }),

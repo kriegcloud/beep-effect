@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({
@@ -37,7 +38,7 @@ const withoutPositions = (value: unknown): unknown => {
 const options = MarkdownParseOptions.make({ frontmatter: true });
 const formatting = MarkdownFormattingOptions.make({ frontmatter: true, headingStyle: "atx", fenceChar: "~" });
 describe("htmlBlock parser property floor", () => {
-  const sourceOf = (sample: typeof Sample.Type): string => `<!-- ${sample.letters.join("")} end -->\n`;
+  const sourceOf = (sample: typeof Sample.Type): string => `<!-- ${A.join(sample.letters, "")} end -->\n`;
   it.effect.prop(
     "parse/stringify/reparse preserves content and syntax fidelity",
     [Arbitrary.schema(Sample)],
@@ -82,7 +83,7 @@ describe("htmlBlock parser property floor", () => {
         if (html?.type !== "html") {
           assert.fail("expected HTML block");
         }
-        assert.strictEqual(html.value, source.slice(0, -1));
+        assert.strictEqual(html.value, Str.slice(0, -1)(source));
       }),
     runs
   );
@@ -91,7 +92,7 @@ describe("htmlBlock parser property floor", () => {
     [Arbitrary.schema(Sample)],
     ([sample]) =>
       Effect.gen(function* () {
-        const source = `${sourceOf(sample)}\n<!-- untouched -->\n\nTail  \t${sample.letters.join("")}\n`;
+        const source = `${sourceOf(sample)}\n<!-- untouched -->\n\nTail  \t${A.join(sample.letters, "")}\n`;
         const document = yield* MarkdownDocument.parse(source, options);
         const target = document.root.children[0];
         if (target === undefined) {
@@ -100,8 +101,8 @@ describe("htmlBlock parser property floor", () => {
         const start = target.position.start.offset;
         const end = target.position.end.offset;
         const edited = yield* MarkdownFormat.modifyToString(document, target, "replacement");
-        assert.strictEqual(edited, `${source.slice(0, start)}replacement${source.slice(end)}`);
-        assert.strictEqual(source.slice(end).includes("<!-- untouched -->"), true);
+        assert.strictEqual(edited, `${Str.slice(0, start)(source)}replacement${Str.slice(end)(source)}`);
+        assert.strictEqual(Str.includes("<!-- untouched -->")(Str.slice(end)(source)), true);
         const reparsed = yield* Markdown.parse(edited, options);
         assert.strictEqual(reparsed.children[0]?.type, "paragraph");
       }),

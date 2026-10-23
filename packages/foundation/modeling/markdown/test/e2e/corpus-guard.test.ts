@@ -19,7 +19,7 @@ const SPEC_EXAMPLE_COUNT = 652;
 // cmark-gfm's spec.txt extension sections (Tables, Strikethrough, Autolinks,
 // Disallowed Raw HTML), 22 examples — NOT the plan's estimated 24: the
 // "Task list items (extension)" section's two examples are marked disabled
-// upstream and excluded by extraction (see fixtures/gfm/VENDORED.md).
+// upstream and excluded by extraction (see data/conformance/gfm/VENDORED.md).
 const GFM_SPEC_EXTENSION_EXAMPLE_COUNT = 22;
 
 // cmark-gfm's extensions.txt corpus in full, incl. the only official
@@ -31,7 +31,7 @@ const GFM_EXTENSIONS_EXAMPLE_COUNT = 30;
 const MIN_PATHOLOGICAL_CASE_COUNT = 20;
 
 // The mdast-util-from-markdown@2.0.3 interop fixture corpus: 27 .md/.json
-// pairs with full unist positions (see fixtures/mdast/VENDORED.md).
+// pairs with full unist positions (see data/conformance/mdast/VENDORED.md).
 const MDAST_FIXTURE_PAIR_COUNT = 27;
 
 describe("conformance corpus guard", () => {

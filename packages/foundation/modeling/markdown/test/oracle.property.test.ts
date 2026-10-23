@@ -10,11 +10,14 @@
 // bug in our engine or in the writer, to be investigated and fixed — never
 // added to a skip list. There is no skip list in this file, by design.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { loadSpecExamples } from "./support/corpus.ts";
 import { renderHtml } from "./support/htmlWriter.ts";
 import { normalizeHtml } from "./support/normalizeHtml.ts";
@@ -60,7 +63,7 @@ const renderOurs = (markdown: string): string | undefined => {
  * `Paragraph` node always has children), so this rule can only ever equalize
  * the oracle's spurious ones.
  */
-const correctOracleDefect = (html: string): string => html.replaceAll("<p></p>", "");
+const correctOracleDefect = (html: string): string => Str.replaceAll("<p></p>", "")(html);
 
 /**
  * Markdown-ish source: fragments drawn from the whole CommonMark construct
@@ -129,7 +132,97 @@ const markdownish = Arbitrary.schema(
       S.String.check(S.isMaxLength(12)),
     ])
   ).check(S.isMaxLength(12))
-).pipe(Arbitrary.map((lines) => `${lines.join("\n")}\n`));
+).pipe(Arbitrary.map((lines) => `${A.join(lines, "\n")}\n`));
+
+/**
+ * Emphasis-dense inline text: delimiter runs of both characters and every
+ * length, flanking punctuation, brackets and code-span backticks, joined
+ * without separators so runs touch. One paragraph per document, so the whole
+ * budget lands on the delimiter stack (`processEmphasis`) and the bracket
+ * stack it interleaves with.
+ *
+ * No astral characters: flanking beside an astral punctuation or symbol code
+ * point is a deliberate correction of commonmark.js, which classifies UTF-16
+ * halves (`emphasis-astral.test.ts` pins it), so the oracle cannot judge it.
+ */
+const emphasisish = Arbitrary.schema(
+  S.Array(
+    S.Literals([
+      "*",
+      "**",
+      "***",
+      "_",
+      "__",
+      "___",
+      "a",
+      "foo",
+      " ",
+      "!",
+      ".",
+      "[",
+      "]",
+      "(",
+      ")",
+      "`",
+      "\\",
+      "*a*",
+      "_a_",
+      "**a**",
+      "[x](/u)",
+      "&amp;",
+      "\n",
+    ])
+  ).check(S.isMaxLength(24))
+).pipe(Arbitrary.map((fragments) => `${A.join(fragments, "")}\n`));
+
+/**
+ * Container-dense block structure: every line opens with a stack of block
+ * quote, list and indentation prefixes over a small set of leaf lines, so
+ * consecutive lines exercise container matching, lazy continuation, list
+ * item indentation and fence/HTML-block closing (`incorporateLine`).
+ */
+const blockish = Arbitrary.schema(
+  S.Array(
+    S.Tuple([
+      S.Literals([
+        "",
+        "> ",
+        ">",
+        "- ",
+        "* ",
+        "1. ",
+        "2) ",
+        "  ",
+        "   ",
+        "    ",
+        "\t",
+        "> - ",
+        "- > ",
+        "  - ",
+        "    - ",
+      ]),
+      S.Literals(["a", "b c", "", "*x*", "```", "~~~", "# h", "---", "<div>", "</div>", "[a]: /b", "<!-- c -->"]),
+    ])
+  ).check(S.isMaxLength(16))
+).pipe(
+  Arbitrary.map(
+    (lines) =>
+      `${A.join(
+        A.map(lines, ([prefix, leaf]) => prefix + leaf),
+        "\n"
+      )}\n`
+  )
+);
+
+/** One generated document compared against the oracle; a guard trip is not a disagreement. */
+const agreesWithOracle = (markdown: string): boolean => {
+  const ours = renderOurs(markdown);
+  if (ours !== undefined) {
+    const oracle = correctOracleDefect(normalizeHtml(renderOracleHtml(markdown)));
+    assert.strictEqual(ours, oracle, `disagreement on input:\n${JSON.stringify(markdown)}`);
+  }
+  return true;
+};
 
 describe("differential oracle: commonmark.js 0.31.2", () => {
   it("agrees with the reference implementation on every spec corpus input", () => {
@@ -151,7 +244,7 @@ describe("differential oracle: commonmark.js 0.31.2", () => {
       }
     }
     assert.deepStrictEqual(
-      disagreements.map((d) => d.example),
+      A.map(disagreements, (d) => d.example),
       [],
       `differential disagreement on ${disagreements.length} corpus example(s): ${JSON.stringify(disagreements.slice(0, 3), null, 2)}`
     );
@@ -177,6 +270,22 @@ describe("differential oracle: commonmark.js 0.31.2", () => {
     { arbitrary: { runs: 250, size: 12 } }
   );
 
+  // Fixed seeds and high run counts, so a refactor of the emphasis or block
+  // pass is checked against the same large input set on every run.
+  it.prop(
+    "agrees with the reference implementation on emphasis-dense inline text",
+    [emphasisish],
+    ([markdown]) => agreesWithOracle(markdown),
+    { arbitrary: { ...fcRuns(2000), seed: 0x656d70, size: 24 } }
+  );
+
+  it.prop(
+    "agrees with the reference implementation on container-dense block structure",
+    [blockish],
+    ([markdown]) => agreesWithOracle(markdown),
+    { arbitrary: { ...fcRuns(2000), seed: 0x626c6b, size: 16 } }
+  );
+
   it("oracle defect tripwire: the empty-paragraph divergence still exists and is still ours-correct", () => {
     // Found by this suite's generator, minimized to this input. If a future
     // commonmark.js stops emitting the spurious paragraph, the first
@@ -191,7 +300,7 @@ describe("differential oracle: commonmark.js 0.31.2", () => {
       assert.fail("expected the document to parse");
     }
     assert.deepStrictEqual(
-      result.success.children.map((child) => child.type),
+      A.map(result.success.children, (child) => child.type),
       ["definition", "thematicBreak"]
     );
     assert.strictEqual(renderOurs(source), "<hr>");

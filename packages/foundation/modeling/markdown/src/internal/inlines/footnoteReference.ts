@@ -34,12 +34,14 @@
 
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as Str from "effect/String";
 import { insertAfter, makeInlineNode, unlink } from "../inlineNode.ts";
+import { unitAt } from "../patterns.ts";
 import { normalizeLabelText } from "../references.ts";
 import { makeImageOpenConstruct, makeLinkCloseConstruct } from "./link.ts";
 import type { Bracket, InlineScanner } from "../inlineTypes.ts";
 
-const C_CARET = 0x5e;
+const C_CARET = "^";
 
 /**
  * Whether the bracket that just closed looks like `[^...]` with something
@@ -60,7 +62,7 @@ const looksLikeFootnote: {
 } = dual(
   3,
   (subject: string, openerIndex: number, bracketPos: number): boolean =>
-    subject.charCodeAt(openerIndex + 1) === C_CARET && bracketPos > openerIndex + 2
+    unitAt(subject, openerIndex + 1) === C_CARET && bracketPos > openerIndex + 2
 );
 
 /**
@@ -103,7 +105,7 @@ export const footnoteReferenceFallback: {
 
   // The label is the raw source between `[^` and `]`, taken verbatim — NOT
   // the text of the nodes parsed inside, which upstream throws away.
-  const rawLabel = scanner.subject.slice(opener.index + 2, bracketPos);
+  const rawLabel = Str.slice(opener.index + 2, bracketPos)(scanner.subject);
   const key = normalizeLabelText(rawLabel);
   const matched = key !== "" && HashSet.has(scanner.footnoteLabels, key);
 
@@ -119,7 +121,7 @@ export const footnoteReferenceFallback: {
     : makeInlineNode("text", start, scanner.pos, `[^${rawLabel}]`);
 
   if (matched) {
-    node.data.identifier = key.toLowerCase();
+    node.data.identifier = Str.toLowerCase(key);
     node.data.label = rawLabel;
   }
 
@@ -147,7 +149,7 @@ export const footnoteReferenceFallback: {
  * ```ts
  * import { gfmLinkCloseConstruct } from "@beep/markdown/internal/inlines/footnoteReference"
  *
- * console.log(gfmLinkCloseConstruct.triggers.map((code) => String.fromCharCode(code)).join("")) // ]
+ * console.log(gfmLinkCloseConstruct.triggers.join("")) // ]
  * ```
  *
  * @category parsing
@@ -170,7 +172,7 @@ export const gfmLinkCloseConstruct = makeLinkCloseConstruct(footnoteReferenceFal
  * ```ts
  * import { gfmImageOpenConstruct } from "@beep/markdown/internal/inlines/footnoteReference"
  *
- * console.log(gfmImageOpenConstruct.triggers.map((code) => String.fromCharCode(code)).join("")) // !
+ * console.log(gfmImageOpenConstruct.triggers.join("")) // !
  * ```
  *
  * @category parsing

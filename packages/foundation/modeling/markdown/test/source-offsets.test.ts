@@ -5,6 +5,54 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Result from "effect/Result";
 import * as Str from "effect/String";
+import type { Blockquote, Definition, FlowContent, Root } from "@beep/markdown/MarkdownNode";
+
+const blockquoteAt = (children: ReadonlyArray<Root["children"][number]>, index: number): Blockquote => {
+  const node = children[index];
+  if (node?.type !== "blockquote") return assert.fail("expected a blockquote");
+  return node;
+};
+
+const definitionAt = (children: ReadonlyArray<FlowContent>, index: number, message: string): Definition => {
+  const node = children[index];
+  if (node?.type !== "definition") return assert.fail(message);
+  return node;
+};
+
+/** Each scaled `> [keyN]: /targetN` line: identifier, url and a span inside its `> ` prefix and CRLF. */
+const assertScaledDefinitions = (children: ReadonlyArray<FlowContent>, lines: ReadonlyArray<string>): void => {
+  let offset = 0;
+  A.forEach(lines, (line, index) => {
+    const definition = definitionAt(children, index, "expected a definition");
+    assert.strictEqual(definition.identifier, `key${index}`);
+    assert.strictEqual(definition.url, `/target${index}`);
+    assert.deepStrictEqual(definition.position.start, Point.make({ offset: offset + 2, line: index + 1, column: 3 }));
+    assert.deepStrictEqual(
+      definition.position.end,
+      Point.make({ offset: offset + line.length - 2, line: index + 1, column: line.length - 1 })
+    );
+    offset += line.length;
+  });
+};
+
+/** The setext heading that survives after the definitions, and the emphasis inside it. */
+const assertSetextTail = (
+  children: ReadonlyArray<FlowContent>,
+  size: number,
+  tailOffset: number,
+  sourceLength: number
+): void => {
+  const heading = children[size + 2];
+  if (heading?.type !== "heading") assert.fail("expected the surviving setext heading");
+  assert.deepStrictEqual(heading.position.start, Point.make({ offset: tailOffset + 2, line: size + 4, column: 3 }));
+  assert.deepStrictEqual(heading.position.end, Point.make({ offset: sourceLength - 2, line: size + 5, column: 6 }));
+  const emphasis = heading.children[1];
+  if (emphasis?.type !== "emphasis") assert.fail("expected positioned emphasis");
+  assert.strictEqual(emphasis.position.start.offset, tailOffset + 7);
+  assert.strictEqual(emphasis.position.end.offset, tailOffset + 13);
+  assert.strictEqual(emphasis.children[0]?.position.start.offset, tailOffset + 8);
+  assert.strictEqual(emphasis.children[0]?.position.end.offset, tailOffset + 12);
+};
 
 describe("segmented source offsets", () => {
   it("preserves fallback, gaps, duplicate starts and exclusive ends in both call forms", () => {
@@ -87,34 +135,14 @@ describe("segmented source offsets", () => {
       const prefix = A.join(lines, "");
       const source = prefix + duplicate + multiline + tail;
       const root = Result.getOrThrow(Markdown.parseResult(source));
-      const quote = root.children[0];
-      if (quote?.type !== "blockquote") assert.fail("expected a blockquote");
+      const quote = blockquoteAt(root.children, 0);
       assert.strictEqual(quote.children.length, size + 3);
-      let offset = 0;
-      for (let index = 0; index < size; index += 1) {
-        const line = lines[index];
-        assert.ok(line !== undefined);
-        const definition = quote.children[index];
-        if (definition?.type !== "definition") assert.fail("expected a definition");
-        assert.strictEqual(definition.identifier, `key${index}`);
-        assert.strictEqual(definition.url, `/target${index}`);
-        assert.deepStrictEqual(
-          definition.position.start,
-          Point.make({ offset: offset + 2, line: index + 1, column: 3 })
-        );
-        assert.deepStrictEqual(
-          definition.position.end,
-          Point.make({ offset: offset + line.length - 2, line: index + 1, column: line.length - 1 })
-        );
-        offset += line.length;
-      }
-      const repeated = quote.children[size];
-      if (repeated?.type !== "definition") assert.fail("expected the duplicate definition");
+      assertScaledDefinitions(quote.children, lines);
+      const repeated = definitionAt(quote.children, size, "expected the duplicate definition");
       assert.strictEqual(repeated.identifier, "key0");
       assert.strictEqual(repeated.url, "/ignored");
       assert.strictEqual(repeated.position.start.offset, prefix.length + 2);
-      const titled = quote.children[size + 1];
-      if (titled?.type !== "definition") assert.fail("expected the multiline definition");
+      const titled = definitionAt(quote.children, size + 1, "expected the multiline definition");
       assert.strictEqual(titled.title, "title");
       assert.deepStrictEqual(
         titled.position.start,
@@ -124,20 +152,7 @@ describe("segmented source offsets", () => {
         titled.position.end,
         Point.make({ offset: prefix.length + duplicate.length + multiline.length - 2, line: size + 3, column: 12 })
       );
-      const heading = quote.children[size + 2];
-      if (heading?.type !== "heading") assert.fail("expected the surviving setext heading");
-      const tailOffset = prefix.length + duplicate.length + multiline.length;
-      assert.deepStrictEqual(heading.position.start, Point.make({ offset: tailOffset + 2, line: size + 4, column: 3 }));
-      assert.deepStrictEqual(
-        heading.position.end,
-        Point.make({ offset: source.length - 2, line: size + 5, column: 6 })
-      );
-      const emphasis = heading.children[1];
-      if (emphasis?.type !== "emphasis") assert.fail("expected positioned emphasis");
-      assert.strictEqual(emphasis.position.start.offset, tailOffset + 7);
-      assert.strictEqual(emphasis.position.end.offset, tailOffset + 13);
-      assert.strictEqual(emphasis.children[0]?.position.start.offset, tailOffset + 8);
-      assert.strictEqual(emphasis.children[0]?.position.end.offset, tailOffset + 12);
+      assertSetextTail(quote.children, size, prefix.length + duplicate.length + multiline.length, source.length);
     }
   });
 });

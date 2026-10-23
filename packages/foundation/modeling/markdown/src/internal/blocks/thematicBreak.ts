@@ -9,20 +9,15 @@ import * as O from "@beep/utils/Option";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { BlockConstruct, BlockStart, containsNothing, leafMaterializer, neverContinues } from "../blockTypes.ts";
 import { ThematicBreakChar, trustedNode } from "../nodes.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  BlockStart,
-  BlockStartResult,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import { unitAt } from "../patterns.ts";
+import { matchesAt } from "../preprocess.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 import type { ThematicBreak } from "../nodes.ts";
 
-const reThematicBreak = /^(?:\*[ \t]*){3,}$|^(?:_[ \t]*){3,}$|^(?:-[ \t]*){3,}$/;
+/** A thematic break of one marker character, sticky at the scan position. */
+const reThematicBreak = /(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})$/y;
 
 const decodeThematicBreakChar = S.decodeUnknownResult(ThematicBreakChar);
 
@@ -40,31 +35,20 @@ const decodeThematicBreakChar = S.decodeUnknownResult(ThematicBreakChar);
  * @category parsing
  * @since 0.0.0
  */
-export const thematicBreakConstruct: BlockConstruct = {
-  type: "thematicBreak",
-  acceptsLines: false,
-  canContain: () => false,
+export const thematicBreakConstruct = new BlockConstruct("thematicBreak", false, {
+  canContain: containsNothing,
   // A thematic break can never contain more than one line.
-  continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const marker = block.data.markerChar;
-      return trustedNode<ThematicBreak>({
-        type: "thematicBreak",
-        position: context.position(block.startOffset, block.endOffset),
-        // Conditional spread: an absent optionalKey must be genuinely
-        // absent, never an explicit `undefined` — passing one throws at
-        // construction.
-        ...O.getSomesStruct({ markerChar: O.fromUndefinedOr(marker) }),
-      });
-    }
+  continue: neverContinues,
+  materialize: leafMaterializer((block, context) =>
+    trustedNode<ThematicBreak>({
+      type: "thematicBreak",
+      position: context.position(block.startOffset, block.endOffset),
+      // Conditional spread: an absent optionalKey must be genuinely absent,
+      // never an explicit `undefined` — passing one throws at construction.
+      ...O.getSomesStruct({ markerChar: O.fromUndefinedOr(block.data.markerChar) }),
+    })
   ),
-};
+});
 
 /**
  * Recognizes a thematic-break block start made of three or more `-`, `_` or `*`.
@@ -80,19 +64,19 @@ export const thematicBreakConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const thematicBreakStart: BlockStart = {
-  name: "thematicBreak",
-  trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
-    if (scanner.indented || !reThematicBreak.test(scanner.currentLine.slice(scanner.nextNonspace))) {
+export const thematicBreakStart = new BlockStart(
+  "thematicBreak",
+  dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
+    if (scanner.indented || !matchesAt(reThematicBreak, scanner.currentLine, scanner.nextNonspace)) {
       return 0;
     }
 
     scanner.closeUnmatchedBlocks();
     const container = scanner.addChild("thematicBreak", scanner.nextNonspace);
     container.data.markerChar = Result.getOrThrow(
-      decodeThematicBreakChar(scanner.currentLine.charAt(scanner.nextNonspace))
+      decodeThematicBreakChar(unitAt(scanner.currentLine, scanner.nextNonspace))
     );
     scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
     return 2;
-  }),
-};
+  })
+);

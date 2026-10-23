@@ -11,18 +11,20 @@
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { Markdown, MarkdownParseError, MarkdownParseOptions } from "@beep/markdown/Markdown";
 import { Paragraph, Root } from "@beep/markdown/MarkdownNode";
-import { assert, describe, it } from "@effect/vitest";
+import { assert, describe, it, vi } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { identity } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { MarkdownNode } from "@beep/markdown/MarkdownNode";
 
 /** An input nesting containers past the cap: the block pass's guard trip. */
-const nestingBomb = `${">".repeat(MAX_NESTING_DEPTH + 44)} foo\n`;
+const nestingBomb = `${Str.repeat(MAX_NESTING_DEPTH + 44)(">")} foo\n`;
 
 /**
  * An input tripping the guard from the OTHER throw site — the inline pass's
@@ -30,7 +32,7 @@ const nestingBomb = `${">".repeat(MAX_NESTING_DEPTH + 44)} foo\n`;
  * Delimiters pair two at a time, so the run has to exceed twice the cap
  * before the nesting it would build does.
  */
-const emphasisBomb = `${"*".repeat(2 * MAX_NESTING_DEPTH + 20)}a${"*".repeat(2 * MAX_NESTING_DEPTH + 20)}`;
+const emphasisBomb = `${Str.repeat(2 * MAX_NESTING_DEPTH + 20)("*")}a${Str.repeat(2 * MAX_NESTING_DEPTH + 20)("*")}`;
 
 /** Walk every node of a tree, children-first-agnostic, yielding each node. */
 const walk = (node: MarkdownNode, visit: (n: MarkdownNode) => void): void => {
@@ -61,7 +63,7 @@ describe("Markdown.parseResult", () => {
     assert(S.is(Root)(root));
     assert.strictEqual(root.type, "root");
     assert.deepStrictEqual(
-      root.children.map((child) => child.type),
+      A.map(root.children, (child) => child.type),
       ["heading", "paragraph"]
     );
   });
@@ -204,7 +206,7 @@ describe("MarkdownParseOptions", () => {
     }
     const paragraph = result.success.children[0];
     assert(S.is(Paragraph)(paragraph));
-    return paragraph.children.map((child) => child.type);
+    return A.map(paragraph.children, (child) => child.type);
   };
 
   it("defaults the dialect to gfm when options are omitted", () => {
@@ -244,7 +246,7 @@ describe("Markdown.MarkdownFromString", () => {
       const root = yield* decode("para *em*\n");
       assert(S.is(Root)(root));
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["paragraph"]
       );
     })
@@ -263,6 +265,26 @@ describe("Markdown.MarkdownFromString", () => {
       const root = yield* decode("para *em*\n");
       const emitted = yield* encode(root);
       assert.strictEqual(emitted, "para *em*\n");
+    })
+  );
+
+  // D-39 single admission: the codec's decode target (`S.toType(Root)`) is the
+  // one checked admission of the parsed tree. Routing the transformation
+  // through `Markdown.parseResult` (or `Markdown.parse`, defined by it) would
+  // add its `Root.make` and walk — and copy — the tree a second time.
+  it.effect("admits a decoded tree once, through the decode target alone", () =>
+    Effect.gen(function* () {
+      const parseResult = vi.spyOn(Markdown, "parseResult");
+      const parse = vi.spyOn(Markdown, "parse");
+      try {
+        const root = yield* decode("# Title\n\n> para *em*\n");
+        assert(S.is(Root)(root));
+        assert.strictEqual(parseResult.mock.calls.length, 0);
+        assert.strictEqual(parse.mock.calls.length, 0);
+      } finally {
+        parseResult.mockRestore();
+        parse.mockRestore();
+      }
     })
   );
 });
@@ -288,11 +310,17 @@ describe("Markdown parse invariants", () => {
   ]);
   const hostileText = Arbitrary.schema(S.Array(HostilePart).check(S.isMaxLength(40))).pipe(
     Arbitrary.map((parts) =>
-      parts
-        .map((part) =>
-          typeof part === "string" ? part : part.map((codePoint) => String.fromCodePoint(codePoint)).join("")
-        )
-        .join("")
+      A.join(
+        A.map(parts, (part) =>
+          typeof part === "string"
+            ? part
+            : A.join(
+                A.map(part, (codePoint) => String.fromCodePoint(codePoint)),
+                ""
+              )
+        ),
+        ""
+      )
     )
   );
 
@@ -312,7 +340,7 @@ describe("Markdown parse invariants", () => {
   // timeout flakes on contention. The calibrated pathological suite owns
   // timing; this test only asserts totality.
   it("never throws on a large input", { timeout: 30_000 }, () => {
-    const large = "para *em* [ref][a] `code`\n\n".repeat(20_000);
+    const large = Str.repeat(20_000)("para *em* [ref][a] `code`\n\n");
     assert.isAbove(large.length, 500_000);
     const result = Markdown.parseResult(large);
     assertSuccess(result, Result.getOrThrow(result));
@@ -337,22 +365,25 @@ describe("Markdown parse invariants", () => {
   );
 
   it("keeps every node position inside the source for a realistic document", () => {
-    const source = [
-      "# Title",
-      "",
-      "Body with *em*, **strong**, `code`, <https://example.com> and [ref][a].",
-      "",
-      "> quoted",
-      "> - a",
-      "> - b",
-      "",
-      "```ts",
-      "const x = 1;",
-      "```",
-      "",
-      '[a]: /url "title"',
-      "",
-    ].join("\n");
+    const source = A.join(
+      [
+        "# Title",
+        "",
+        "Body with *em*, **strong**, `code`, <https://example.com> and [ref][a].",
+        "",
+        "> quoted",
+        "> - a",
+        "> - b",
+        "",
+        "```ts",
+        "const x = 1;",
+        "```",
+        "",
+        '[a]: /url "title"',
+        "",
+      ],
+      "\n"
+    );
     const result = Markdown.parseResult(source);
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;

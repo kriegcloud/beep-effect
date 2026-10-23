@@ -3,19 +3,22 @@ import { GuardExceeded, isGuardExceeded } from "@beep/markdown/internal/carriers
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { columnsToNextTabStop, preprocessLines, replaceNul } from "@beep/markdown/internal/preprocess";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 
 /** Slice the source back out of a node's position — the offset round trip. */
 const sliceOf = (source: string, node: { readonly position: { start: { offset: number }; end: { offset: number } } }) =>
-  source.slice(node.position.start.offset, node.position.end.offset);
+  Str.slice(node.position.start.offset, node.position.end.offset)(source);
 
 describe("preprocess", () => {
   describe("line splitting", () => {
     it("keeps each line's absolute start offset", () => {
       const lines = preprocessLines("abc\ndef\nghi");
       assert.deepStrictEqual(
-        lines.map((line) => [line.text, line.start]),
+        A.map(lines, (line) => [line.text, line.start]),
         [
           ["abc", 0],
           ["def", 4],
@@ -27,7 +30,7 @@ describe("preprocess", () => {
     it("treats CRLF as one boundary and keeps offsets in the original text", () => {
       const lines = preprocessLines("abc\r\ndef\rghi\n");
       assert.deepStrictEqual(
-        lines.map((line) => [line.text, line.start]),
+        A.map(lines, (line) => [line.text, line.start]),
         [
           ["abc", 0],
           ["def", 5],
@@ -38,14 +41,14 @@ describe("preprocess", () => {
 
     it("does not invent a final empty line for a trailing newline", () => {
       assert.deepStrictEqual(
-        preprocessLines("foo\n").map((line) => line.text),
+        A.map(preprocessLines("foo\n"), (line) => line.text),
         ["foo"]
       );
     });
 
     it("yields one empty line for empty input", () => {
       assert.deepStrictEqual(
-        preprocessLines("").map((line) => [line.text, line.start]),
+        A.map(preprocessLines(""), (line) => [line.text, line.start]),
         [["", 0]]
       );
     });
@@ -62,7 +65,7 @@ describe("preprocess", () => {
 
   describe("tab stops", () => {
     it("expands a tab to the next multiple of four columns", () => {
-      assert.deepStrictEqual([0, 1, 2, 3, 4, 5].map(columnsToNextTabStop), [4, 3, 2, 1, 4, 3]);
+      assert.deepStrictEqual(A.map([0, 1, 2, 3, 4, 5], columnsToNextTabStop), [4, 3, 2, 1, 4, 3]);
     });
   });
 });
@@ -144,10 +147,10 @@ describe("block pass", () => {
     it("leaves fence fields genuinely absent on indented code", () => {
       const [code] = parseBlocks("    x = 1\n").root.children;
       assert.strictEqual(code?.type, "code");
-      assert.isFalse(Object.hasOwn(code ?? {}, "fenceChar"));
-      assert.isFalse(Object.hasOwn(code ?? {}, "fenceLength"));
-      assert.isFalse(Object.hasOwn(code ?? {}, "lang"));
-      assert.isFalse(Object.hasOwn(code ?? {}, "meta"));
+      assert.isFalse(P.hasProperty(code ?? {}, "fenceChar"));
+      assert.isFalse(P.hasProperty(code ?? {}, "fenceLength"));
+      assert.isFalse(P.hasProperty(code ?? {}, "lang"));
+      assert.isFalse(P.hasProperty(code ?? {}, "meta"));
     });
   });
 
@@ -218,11 +221,11 @@ describe("block pass", () => {
       const { rawInlines } = parseBlocks(source);
       const slice = rawInlines[0];
       assert.isDefined(slice);
-      assert.strictEqual(slice?.startOffset, 0);
-      for (const segment of slice?.segments ?? []) {
+      assert.strictEqual(slice.startOffset, 0);
+      for (const segment of slice.segments) {
         assert.strictEqual(
-          slice?.text.slice(segment.textOffset, segment.textOffset + segment.length),
-          source.slice(segment.sourceOffset, segment.sourceOffset + segment.length)
+          Str.slice(segment.textOffset, segment.textOffset + segment.length)(slice.text),
+          Str.slice(segment.sourceOffset, segment.sourceOffset + segment.length)(source)
         );
       }
     });
@@ -254,7 +257,7 @@ describe("block pass", () => {
     it("separates paragraphs at blank lines", () => {
       const { root } = parseBlocks("one\n\ntwo\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["paragraph", "paragraph"]
       );
     });
@@ -280,7 +283,7 @@ describe("container blocks", () => {
     it("does not lazily continue into a blank line", () => {
       const { root } = parseBlocks("> foo\n\nbar\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["blockquote", "paragraph"]
       );
     });
@@ -288,7 +291,7 @@ describe("container blocks", () => {
     it("does not lazily continue a line that starts a new block", () => {
       const { root } = parseBlocks("> foo\n---\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["blockquote", "thematicBreak"]
       );
     });
@@ -314,8 +317,8 @@ describe("container blocks", () => {
       assert.strictEqual(list.bulletChar, "-");
       assert.strictEqual(list.spread, false);
       assert.strictEqual(list.children.length, 2);
-      assert.isFalse(Object.hasOwn(list, "start"));
-      assert.isFalse(Object.hasOwn(list, "delimiter"));
+      assert.isFalse(P.hasProperty(list, "start"));
+      assert.isFalse(P.hasProperty(list, "delimiter"));
     });
 
     it("records the delimiter and start of an ordered list", () => {
@@ -327,7 +330,7 @@ describe("container blocks", () => {
       assert.strictEqual(list.ordered, true);
       assert.strictEqual(list.start, 3);
       assert.strictEqual(list.delimiter, ")");
-      assert.isFalse(Object.hasOwn(list, "bulletChar"));
+      assert.isFalse(P.hasProperty(list, "bulletChar"));
     });
 
     it("marks a list loose when a blank line separates its items", () => {
@@ -338,7 +341,7 @@ describe("container blocks", () => {
     it("starts a new list when the marker character changes", () => {
       const { root } = parseBlocks("- a\n* b\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["list", "list"]
       );
     });
@@ -347,7 +350,7 @@ describe("container blocks", () => {
       const [outer] = parseBlocks("- a\n  - b\n").root.children;
       const item = outer?.type === "list" ? outer.children[0] : undefined;
       assert.deepStrictEqual(
-        (item?.children ?? []).map((child) => child.type),
+        A.map(item?.children ?? [], (child) => child.type),
         ["paragraph", "list"]
       );
     });
@@ -373,15 +376,15 @@ describe("container blocks", () => {
 
     it("leaves lang and meta absent for a bare fence", () => {
       const [code] = parseBlocks("```\nx\n```\n").root.children;
-      assert.isFalse(Object.hasOwn(code ?? {}, "lang"));
-      assert.isFalse(Object.hasOwn(code ?? {}, "meta"));
+      assert.isFalse(P.hasProperty(code ?? {}, "lang"));
+      assert.isFalse(P.hasProperty(code ?? {}, "meta"));
     });
 
     it("tells a fenced block from an indented one by its fence fields", () => {
       const [fenced] = parseBlocks("```\nx\n```\n").root.children;
       const [indented] = parseBlocks("    x\n").root.children;
-      assert.isTrue(Object.hasOwn(fenced ?? {}, "fenceChar"));
-      assert.isFalse(Object.hasOwn(indented ?? {}, "fenceChar"));
+      assert.isTrue(P.hasProperty(fenced ?? {}, "fenceChar"));
+      assert.isFalse(P.hasProperty(indented ?? {}, "fenceChar"));
     });
   });
 
@@ -405,7 +408,7 @@ describe("container blocks", () => {
     it("ends a type 6 block at a blank line and resumes with markdown", () => {
       const { root } = parseBlocks("<div>\na\n\nb\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["html", "paragraph"]
       );
     });
@@ -413,7 +416,7 @@ describe("container blocks", () => {
     it("ends a type 2 block on the line carrying its closing pattern", () => {
       const { root } = parseBlocks("<!-- a -->\nb\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["html", "paragraph"]
       );
     });
@@ -421,7 +424,7 @@ describe("container blocks", () => {
     it("does not let a type 7 block interrupt a paragraph", () => {
       const { root } = parseBlocks("a\n<custom-tag>\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["paragraph"]
       );
     });
@@ -449,7 +452,7 @@ describe("container blocks", () => {
     it("leaves a definition-only paragraph as a definition plus a break", () => {
       const { root } = parseBlocks("[foo]: /url\n---\n");
       assert.deepStrictEqual(
-        root.children.map((child) => child.type),
+        A.map(root.children, (child) => child.type),
         ["definition", "thematicBreak"]
       );
     });
@@ -480,7 +483,7 @@ describe("link reference definitions", () => {
   it("splits the definitions off the front of a paragraph, keeping the rest", () => {
     const { root } = parseBlocks("[a]: /1\n[b]: /2\nfoo\n");
     assert.deepStrictEqual(
-      root.children.map((child) => child.type),
+      A.map(root.children, (child) => child.type),
       ["definition", "definition", "paragraph"]
     );
   });
@@ -488,7 +491,7 @@ describe("link reference definitions", () => {
   it("drops a paragraph that held nothing but definitions", () => {
     const { root } = parseBlocks("[a]: /1\n");
     assert.deepStrictEqual(
-      root.children.map((child) => child.type),
+      A.map(root.children, (child) => child.type),
       ["definition"]
     );
   });
@@ -496,14 +499,14 @@ describe("link reference definitions", () => {
   it("does not let a definition interrupt a paragraph", () => {
     const { root } = parseBlocks("foo\n[a]: /1\n");
     assert.deepStrictEqual(
-      root.children.map((child) => child.type),
+      A.map(root.children, (child) => child.type),
       ["paragraph"]
     );
   });
 
   it("omits an absent title rather than storing undefined", () => {
     const [definition] = parseBlocks("[foo]: /url\n").root.children;
-    assert.isFalse(Object.hasOwn(definition ?? {}, "title"));
+    assert.isFalse(P.hasProperty(definition ?? {}, "title"));
   });
 
   describe("the refmap", () => {
@@ -548,14 +551,14 @@ describe("link reference definitions", () => {
 
 describe("hardening", () => {
   it("refuses to nest containers past the depth cap", () => {
-    const source = `${">".repeat(MAX_NESTING_DEPTH + 44)} foo\n`;
+    const source = `${Str.repeat(MAX_NESTING_DEPTH + 44)(">")} foo\n`;
     assert.throws(() => parseBlocks(source), GuardExceeded);
   });
 
   it("trips the guard with the nesting reason, never a RangeError", () => {
     let caught: unknown;
     try {
-      parseBlocks(`${">".repeat(300)} foo\n`);
+      parseBlocks(`${Str.repeat(300)(">")} foo\n`);
     } catch (error) {
       caught = error;
     }
@@ -569,14 +572,14 @@ describe("hardening", () => {
   });
 
   it("guards deeply nested lists on the same counter", () => {
-    const source = `${"- ".repeat(300)}foo\n`;
+    const source = `${Str.repeat(300)("- ")}foo\n`;
     assert.throws(() => parseBlocks(source), GuardExceeded);
   });
 
   it("parses a document nested just under the cap", () => {
     // The positive control: the guard must not fire early, or the test
     // above would pass for the wrong reason.
-    const { root } = parseBlocks(`${">".repeat(MAX_NESTING_DEPTH - 2)} foo\n`);
+    const { root } = parseBlocks(`${Str.repeat(MAX_NESTING_DEPTH - 2)(">")} foo\n`);
     assert.strictEqual(root.children[0]?.type, "blockquote");
   });
 });

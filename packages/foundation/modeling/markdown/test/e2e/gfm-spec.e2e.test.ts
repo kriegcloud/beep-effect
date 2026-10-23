@@ -13,6 +13,9 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as HashSet from "effect/HashSet";
+import * as R from "effect/Record";
 import { loadGfmExtensionsExamples, loadGfmSpecExtensionExamples } from "../support/corpus.ts";
 import { renderHtml } from "../support/htmlWriter.ts";
 import { normalizeHtml } from "../support/normalizeHtml.ts";
@@ -54,20 +57,11 @@ const EXTENSIONS_SECTIONS_GREEN: ReadonlyArray<string> = [
  * terminates. There is nothing to compare against, so it is checked for
  * termination here instead of skipped outright.
  */
-const TERMINATION_ONLY: ReadonlySet<number> = new Set([20]);
+const TERMINATION_ONLY: HashSet.HashSet<number> = HashSet.make(20);
 
-const bySection = (examples: ReadonlyArray<SpecExample>): ReadonlyMap<string, ReadonlyArray<SpecExample>> => {
-  const sections = new Map<string, SpecExample[]>();
-  for (const example of examples) {
-    const bucket = sections.get(example.section);
-    if (bucket === undefined) {
-      sections.set(example.section, [example]);
-    } else {
-      bucket.push(example);
-    }
-  }
-  return sections;
-};
+/** The examples grouped by section, sections in first-appearance order. */
+const bySection = (examples: ReadonlyArray<SpecExample>): Record<string, ReadonlyArray<SpecExample>> =>
+  A.groupBy(examples, (example) => example.section);
 
 const runCorpus = (
   title: string,
@@ -81,23 +75,23 @@ const runCorpus = (
     describe("gate", () => {
       it("allowlists only sections the corpus actually has", () => {
         for (const section of green) {
-          assert.isTrue(sections.has(section), `the allowlist names a section the corpus does not: ${section}`);
+          assert.isTrue(R.has(sections, section), `the allowlist names a section the corpus does not: ${section}`);
         }
       });
 
       it("runs the number of examples this task turns on", () => {
         // The silently-shrinking-corpus guard: a section quietly
         // dropping examples would otherwise still look green.
-        const running = green.reduce((total, section) => total + (sections.get(section)?.length ?? 0), 0);
+        const running = A.reduce(green, 0, (total, section) => total + (sections[section]?.length ?? 0));
         assert.strictEqual(running, expectedCount);
       });
     });
 
     for (const section of green) {
       describe(section, () => {
-        for (const example of sections.get(section) ?? []) {
+        for (const example of sections[section] ?? []) {
           it(`example ${example.example}`, () => {
-            if (TERMINATION_ONLY.has(example.example)) {
+            if (HashSet.has(TERMINATION_ONLY, example.example)) {
               // No expected output to compare — the assertion is
               // that rendering completes at all.
               assert.isString(renderHtml(parseBlocks(example.markdown, { dialect: "gfm" }).root, { gfm: true }));

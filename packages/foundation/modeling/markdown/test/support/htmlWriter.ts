@@ -13,9 +13,16 @@
 // commonmark.js is BSD-2-Clause, Copyright (c) 2014-2020 John MacFarlane.
 // mdurl is MIT, Copyright (c) 2015 Vitaly Puzrin, Alex Kocharin.
 
-import { dual } from "effect/Function";
+import * as BStr from "@beep/utils/Str";
+import * as A from "effect/Array";
+import { dual, pipe } from "effect/Function";
+import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import { hasProperty } from "effect/Predicate";
-import type { MdxjsEsm } from "@beep/markdown/MarkdownMdx";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
+import { flowNodes } from "./tree.ts";
 import type {
   Blockquote,
   Code,
@@ -23,7 +30,6 @@ import type {
   FlowContent,
   FootnoteDefinition,
   FootnoteReference,
-  Frontmatter,
   Heading,
   ImageReference,
   LinkReference,
@@ -36,31 +42,26 @@ import type {
   TableAlign,
   TableCell,
 } from "@beep/markdown/MarkdownNode";
+import type { DocumentChild } from "./tree.ts";
 
 // --- escaping ---------------------------------------------------------------
 
 const reXmlSpecial = /[&<>"]/g;
 
-const replaceUnsafeChar = (s: string): string => {
-  switch (s) {
-    case "&":
-      return "&amp;";
-    case "<":
-      return "&lt;";
-    case ">":
-      return "&gt;";
-    case '"':
-      return "&quot;";
-    default:
-      return s;
-  }
-};
+const XML_ESCAPES: Readonly<Record<string, string>> = Object.freeze({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+});
+
+const replaceUnsafeChar = (s: string): string => XML_ESCAPES[s] ?? s;
 
 /**
  * commonmark.js `lib/common.js` `escapeXml`: the four XML specials, nothing
  * else. Notably it does NOT escape `'`.
  */
-export const escapeXml = (s: string): string => s.replace(reXmlSpecial, replaceUnsafeChar);
+export const escapeXml = (s: string): string => BStr.replaceAllWith(s, reXmlSpecial, replaceUnsafeChar);
 
 // --- URL normalization ------------------------------------------------------
 
@@ -75,17 +76,37 @@ export const escapeXml = (s: string): string => s.replace(reXmlSpecial, replaceU
 // encoding happens.
 const ENCODE_DEFAULT_CHARS = ";/?:@&=+$,-_.!~*'()#";
 
-const encodeCache: ReadonlyArray<string> = (() => {
-  const cache: string[] = [];
-  for (let i = 0; i < 128; i += 1) {
-    const ch = String.fromCharCode(i);
-    cache.push(/^[0-9a-z]$/i.test(ch) ? ch : `%${`0${i.toString(16).toUpperCase()}`.slice(-2)}`);
-  }
-  for (const ch of ENCODE_DEFAULT_CHARS) {
-    cache[ch.charCodeAt(0)] = ch;
-  }
-  return cache;
-})();
+const ASCII_ALPHANUMERIC = /^[0-9a-z]$/i;
+
+const encodeAsciiUnit = (ch: string, code: number): string =>
+  ASCII_ALPHANUMERIC.test(ch) || Str.includes(ch)(ENCODE_DEFAULT_CHARS)
+    ? ch
+    : `%${pipe(code.toString(16), Str.toUpperCase, Str.padStart(2, "0"))}`;
+
+/** mdurl's per-character table for the 128 ASCII code units, keyed by the unit itself. */
+const ASCII_ENCODING: Readonly<Record<string, string>> = Object.freeze(
+  R.fromEntries(
+    A.makeBy(128, (code) => {
+      const ch = String.fromCharCode(code);
+      return [ch, encodeAsciiUnit(ch, code)] as const;
+    })
+  )
+);
+
+// One token per mdurl decision, tried in mdurl's order: an already-valid
+// percent escape, a well-formed surrogate pair, a lone surrogate, then any
+// other single UTF-16 code unit. No `u` flag, so `[\s\S]` is one code unit.
+const URI_TOKEN = /%[0-9a-f]{2}|[\ud800-\udbff][\udc00-\udfff]|[\ud800-\udfff]|[\s\S]/gi;
+const PERCENT_ESCAPE = /^%[0-9a-f]{2}$/i;
+const LONE_SURROGATE = /^[\ud800-\udfff]$/;
+
+const encodeUriToken = (token: string): string => {
+  // An already-valid percent escape is passed through untouched.
+  if (PERCENT_ESCAPE.test(token)) return token;
+  // A lone surrogate encodes as U+FFFD, never as an exception.
+  if (LONE_SURROGATE.test(token)) return "%EF%BF%BD";
+  return ASCII_ENCODING[token] ?? encodeURIComponent(token);
+};
 
 /**
  * commonmark.js `normalizeURI` — `mdurl.encode` with its default character
@@ -93,42 +114,15 @@ const encodeCache: ReadonlyArray<string> = (() => {
  */
 export const normalizeUri = (uri: string): string => {
   try {
-    let result = "";
-    for (let i = 0, l = uri.length; i < l; i += 1) {
-      const code = uri.charCodeAt(i);
-
-      // An already-valid percent escape is passed through untouched.
-      if (code === 0x25 && i + 2 < l && /^[0-9a-f]{2}$/i.test(uri.slice(i + 1, i + 3))) {
-        result += uri.slice(i, i + 3);
-        i += 2;
-        continue;
-      }
-      if (code < 128) {
-        result += encodeCache[code];
-        continue;
-      }
-      if (code >= 0xd800 && code <= 0xdfff) {
-        if (code <= 0xdbff && i + 1 < l) {
-          const nextCode = uri.charCodeAt(i + 1);
-          if (nextCode >= 0xdc00 && nextCode <= 0xdfff) {
-            result += encodeURIComponent(uri.slice(i, i + 2));
-            i += 1;
-            continue;
-          }
-        }
-        // A lone surrogate encodes as U+FFFD, never as an exception.
-        result += "%EF%BF%BD";
-        continue;
-      }
-      result += encodeURIComponent(uri.charAt(i));
-    }
-    return result;
+    return BStr.replaceAllWith(uri, URI_TOKEN, encodeUriToken);
   } catch {
     return uri;
   }
 };
 
 // --- reference labels -------------------------------------------------------
+
+const LABEL_WHITESPACE = /[ \t\r\n]+/g;
 
 /**
  * commonmark.js `lib/inlines.js` `normalizeReference`, minus the bracket slice
@@ -140,90 +134,33 @@ export const normalizeUri = (uri: string): string => {
  * lowercase (mdast's convention) and one normalized uppercase both resolve.
  */
 export const normalizeLabel = (label: string): string =>
-  label
-    .trim()
-    .replace(/[ \t\r\n]+/g, " ")
-    .toLowerCase()
-    .toUpperCase();
+  pipe(label, Str.trim, Str.replace(LABEL_WHITESPACE, " "), Str.toLowerCase, Str.toUpperCase);
 
 /**
- * Walks every {@link FlowContent} node in the tree, including nested
- * containers (`blockquote`, `list`, `footnoteDefinition`), calling `visit`
- * once per node in document order. Shared by {@link collectDefinitions} and
- * {@link collectFootnoteDefinitions} — both need the same "find this leaf
- * anywhere flow content can nest" traversal.
- */
-const walkFlowContainers = (
-  nodes: ReadonlyArray<Frontmatter | MdxjsEsm | FlowContent>,
-  visit: (node: FlowContent) => void
-): void => {
-  for (const node of nodes) {
-    // A frontmatter head is raw metadata, not flow content — it renders to
-    // nothing and contains nothing to collect. An MDX ESM head is likewise
-    // not flow content (and the parser never produces one).
-    if (node.type === "frontmatter" || node.type === "mdxjsEsm") {
-      continue;
-    }
-    visit(node);
-    switch (node.type) {
-      case "blockquote":
-      case "footnoteDefinition":
-        walkFlowContainers(node.children, visit);
-        break;
-      case "list":
-        for (const item of node.children) {
-          walkFlowContainers(item.children, visit);
-        }
-        break;
-      default:
-        break;
-    }
-  }
-};
-
-/**
- * Collects every {@link Definition} in the tree, keyed by normalized label.
+ * Collects every definition of one kind in the tree, keyed by normalized
+ * label.
  *
  * The parser deliberately leaves references unresolved and keeps definitions
  * in the tree, so resolution is the renderer's job. First definition wins,
- * matching CommonMark's rule that an earlier definition takes precedence.
+ * matching CommonMark's rule that an earlier definition takes precedence. A
+ * hash map, not an object: link labels are attacker-controlled, and a
+ * `__proto__` label must be a key, not a prototype write.
  */
-export const collectDefinitions = (root: Root): ReadonlyMap<string, Definition> => {
-  // A real Map, not an object: link labels are attacker-controlled, and a
-  // `__proto__` label must be a key, not a prototype write.
-  const definitions = new Map<string, Definition>();
-
-  walkFlowContainers(root.children, (node) => {
-    if (node.type === "definition") {
-      const key = normalizeLabel(node.identifier);
-      if (!definitions.has(key)) {
-        definitions.set(key, node);
-      }
-    }
-  });
-
+const collectFirstByLabel = <N extends Definition | FootnoteDefinition>(
+  root: Root,
+  isKind: (node: FlowContent) => node is N
+): MutableHashMap.MutableHashMap<string, N> => {
+  const definitions = MutableHashMap.empty<string, N>();
+  for (const node of A.filter(flowNodes(root.children), isKind)) {
+    const key = normalizeLabel(node.identifier);
+    if (!MutableHashMap.has(definitions, key)) MutableHashMap.set(definitions, key, node);
+  }
   return definitions;
 };
 
-/**
- * Collects every {@link FootnoteDefinition} in the tree, keyed by normalized
- * identifier — the same "kept at source position, resolved by the renderer"
- * treatment {@link collectDefinitions} gives link reference definitions.
- */
-export const collectFootnoteDefinitions = (root: Root): ReadonlyMap<string, FootnoteDefinition> => {
-  const definitions = new Map<string, FootnoteDefinition>();
+const isDefinition = (node: FlowContent): node is Definition => node.type === "definition";
 
-  walkFlowContainers(root.children, (node) => {
-    if (node.type === "footnoteDefinition") {
-      const key = normalizeLabel(node.identifier);
-      if (!definitions.has(key)) {
-        definitions.set(key, node);
-      }
-    }
-  });
-
-  return definitions;
-};
+const isFootnoteDefinition = (node: FlowContent): node is FootnoteDefinition => node.type === "footnoteDefinition";
 
 // --- GFM tagfilter -----------------------------------------------------------
 
@@ -250,7 +187,7 @@ const TAGFILTER_TAG_NAMES = [
 // end of the checked span. `$` is deliberately excluded from the boundary
 // class for that reason: a tag name at the very end of the string, with
 // nothing after it, is not filtered.
-const TAGFILTER_RE = new RegExp(`<(/?(?:${TAGFILTER_TAG_NAMES.join("|")}))(?=[ \\t\\n\\v\\f\\r>]|/>)`, "gi");
+const TAGFILTER_RE = new RegExp(`<(/?(?:${A.join(TAGFILTER_TAG_NAMES, "|")}))(?=[ \\t\\n\\v\\f\\r>]|/>)`, "gi");
 
 /**
  * GFM's tagfilter extension: escapes the leading `<` of the nine disallowed
@@ -261,11 +198,127 @@ const TAGFILTER_RE = new RegExp(`<(/?(?:${TAGFILTER_TAG_NAMES.join("|")}))(?=[ \
  *
  * Ported from cmark-gfm's `extensions/tagfilter.c`.
  */
-export const applyTagfilter = (value: string): string => value.replace(TAGFILTER_RE, "&lt;$1");
+export const applyTagfilter = (value: string): string => Str.replace(TAGFILTER_RE, "&lt;$1")(value);
 
 // --- the writer -------------------------------------------------------------
 
 type Attr = readonly [name: string, value: string];
+
+type WriterStep = (writer: HtmlWriter) => void;
+
+const skip: WriterStep = () => {};
+
+// Both definition kinds render to nothing at their source position. They
+// stay in the tree because this package edits markdown; a `Definition` has
+// no place in HTML at all, and a `FootnoteDefinition`'s content moves to the
+// end-of-document footnotes section instead (`renderFootnoteSection`). The
+// MDX flow nodes are constructed-only and render to nothing as well.
+const flowStep = Match.type<FlowContent>().pipe(
+  Match.discriminatorsExhaustive("type")({
+    paragraph:
+      (node): WriterStep =>
+      (writer) =>
+        writer.paragraph(node, false),
+    heading:
+      (node): WriterStep =>
+      (writer) =>
+        writer.heading(node),
+    thematicBreak: (): WriterStep => (writer) => writer.thematicBreak(),
+    blockquote:
+      (node): WriterStep =>
+      (writer) =>
+        writer.blockquote(node),
+    list:
+      (node): WriterStep =>
+      (writer) =>
+        writer.list(node),
+    code:
+      (node): WriterStep =>
+      (writer) =>
+        writer.codeBlock(node),
+    // html_block: surrounded by newlines, emitted raw.
+    html:
+      (node): WriterStep =>
+      (writer) =>
+        writer.htmlBlock(node.value),
+    table:
+      (node): WriterStep =>
+      (writer) =>
+        writer.table(node),
+    definition: () => skip,
+    footnoteDefinition: () => skip,
+    mdxFlowExpression: () => skip,
+    mdxJsxFlowElement: () => skip,
+  })
+);
+
+const phrasingStep = Match.type<PhrasingContent>().pipe(
+  Match.discriminatorsExhaustive("type")({
+    // mdast has no softbreak node: a soft line break is a raw newline inside
+    // a text value, which is exactly what commonmark.js's default
+    // `softbreak: "\n"` emits.
+    text:
+      (node): WriterStep =>
+      (writer) =>
+        writer.out(node.value),
+    break: (): WriterStep => (writer) => writer.lineBreak(),
+    inlineCode:
+      (node): WriterStep =>
+      (writer) =>
+        writer.inlineCode(node.value),
+    // html_inline: raw, no surrounding newlines.
+    html:
+      (node): WriterStep =>
+      (writer) =>
+        writer.htmlInline(node.value),
+    emphasis:
+      (node): WriterStep =>
+      (writer) =>
+        writer.wrapped("em", node.children),
+    strong:
+      (node): WriterStep =>
+      (writer) =>
+        writer.wrapped("strong", node.children),
+    delete:
+      (node): WriterStep =>
+      (writer) =>
+        writer.wrapped("del", node.children),
+    link:
+      (node): WriterStep =>
+      (writer) =>
+        writer.link(node.url, node.title, node.children),
+    image:
+      (node): WriterStep =>
+      (writer) =>
+        writer.image(node.url, node.title, node.alt ?? ""),
+    linkReference:
+      (node): WriterStep =>
+      (writer) =>
+        writer.linkReference(node),
+    imageReference:
+      (node): WriterStep =>
+      (writer) =>
+        writer.imageReference(node),
+    footnoteReference:
+      (node): WriterStep =>
+      (writer) =>
+        writer.footnoteReference(node),
+    mdxJsxTextElement: () => skip,
+    mdxTextExpression: () => skip,
+  })
+);
+
+const REFERENCE_SUFFIX: {
+  readonly [K in LinkReference["referenceType"]]: (label: string) => string;
+} = {
+  shortcut: () => "",
+  collapsed: () => "[]",
+  full: (label) => `[${label}]`,
+};
+
+// Frontmatter and MDX ESM heads are metadata, not flow content; both render to nothing.
+const isFlowContent = (child: DocumentChild): child is FlowContent =>
+  child.type !== "frontmatter" && child.type !== "mdxjsEsm";
 
 class HtmlWriter {
   private buffer = "";
@@ -273,24 +326,20 @@ class HtmlWriter {
   // tracks it, because `cr()` compares it against "\n" by identity.
   private lastOut = "\n";
   private disableTags = 0;
-  private readonly definitions: ReadonlyMap<string, Definition>;
-  private readonly footnoteDefinitions: ReadonlyMap<string, FootnoteDefinition>;
+  private readonly definitions: MutableHashMap.MutableHashMap<string, Definition>;
+  private readonly footnoteDefinitions: MutableHashMap.MutableHashMap<string, FootnoteDefinition>;
   private readonly gfm: boolean;
   // Footnote numbering state, built lazily as references are encountered
   // during the main-body render pass — see `footnoteReference` and
   // `renderFootnoteSection`.
-  private readonly footnoteIndex = new Map<string, number>();
-  private readonly footnoteRefCount = new Map<string, number>();
-  private readonly footnoteOrder: FootnoteDefinition[] = [];
+  private readonly footnoteIndex = MutableHashMap.empty<string, number>();
+  private readonly footnoteRefCount = MutableHashMap.empty<string, number>();
+  private readonly footnoteOrder: Array<FootnoteDefinition> = [];
   private nextFootnoteIndex = 1;
 
-  constructor(
-    definitions: ReadonlyMap<string, Definition>,
-    footnoteDefinitions: ReadonlyMap<string, FootnoteDefinition>,
-    gfm: boolean
-  ) {
-    this.definitions = definitions;
-    this.footnoteDefinitions = footnoteDefinitions;
+  constructor(root: Root, gfm: boolean) {
+    this.definitions = collectFirstByLabel(root, isDefinition);
+    this.footnoteDefinitions = collectFirstByLabel(root, isFootnoteDefinition);
     this.gfm = gfm;
   }
 
@@ -299,7 +348,7 @@ class HtmlWriter {
     this.lastOut = s;
   }
 
-  private out(s: string): void {
+  out(s: string): void {
     this.lit(escapeXml(s));
   }
 
@@ -324,59 +373,27 @@ class HtmlWriter {
     this.lastOut = ">";
   }
 
+  private raw(value: string): string {
+    return this.gfm ? applyTagfilter(value) : value;
+  }
+
   render(root: Root): string {
     // Frontmatter renders to nothing — gray-matter and remark both strip
     // it from output; the head node is metadata, not content.
-    this.renderFlow(root.children.filter((child): child is FlowContent => child.type !== "frontmatter"));
+    this.renderFlow(A.filter(root.children, isFlowContent));
     this.renderFootnoteSection();
     return this.buffer;
   }
 
   private renderFlow(nodes: ReadonlyArray<FlowContent>): void {
-    for (const node of nodes) {
-      switch (node.type) {
-        case "paragraph":
-          this.paragraph(node, false);
-          break;
-        case "heading":
-          this.heading(node);
-          break;
-        case "thematicBreak":
-          this.cr();
-          this.tag("hr", [], true);
-          this.cr();
-          break;
-        case "blockquote":
-          this.blockquote(node);
-          break;
-        case "list":
-          this.list(node);
-          break;
-        case "code":
-          this.codeBlock(node);
-          break;
-        case "html":
-          // html_block: surrounded by newlines, emitted raw.
-          this.cr();
-          this.lit(this.gfm ? applyTagfilter(node.value) : node.value);
-          this.cr();
-          break;
-        case "table":
-          this.table(node);
-          break;
-        case "definition":
-        case "footnoteDefinition":
-          // Both render to nothing at their source position. They stay
-          // in the tree because this package edits markdown; a
-          // `Definition` has no place in HTML at all, and a
-          // `FootnoteDefinition`'s content moves to the end-of-document
-          // footnotes section instead (`renderFootnoteSection`).
-          break;
-      }
-    }
+    for (const node of nodes) flowStep(node)(this);
   }
 
-  private paragraph(node: Paragraph, tight: boolean): void {
+  private renderPhrasing(nodes: ReadonlyArray<PhrasingContent>): void {
+    for (const node of nodes) phrasingStep(node)(this);
+  }
+
+  paragraph(node: Paragraph, tight: boolean): void {
     // commonmark.js suppresses <p> when the paragraph's grandparent is a
     // tight list. Tightness is passed down here instead of read from a
     // parent pointer, because mdast nodes carry no parent.
@@ -391,7 +408,7 @@ class HtmlWriter {
     this.cr();
   }
 
-  private heading(node: Heading): void {
+  heading(node: Heading): void {
     const tagname = `h${node.depth}`;
     this.cr();
     this.tag(tagname);
@@ -400,7 +417,19 @@ class HtmlWriter {
     this.cr();
   }
 
-  private blockquote(node: Blockquote): void {
+  thematicBreak(): void {
+    this.cr();
+    this.tag("hr", [], true);
+    this.cr();
+  }
+
+  htmlBlock(value: string): void {
+    this.cr();
+    this.lit(this.raw(value));
+    this.cr();
+  }
+
+  blockquote(node: Blockquote): void {
     this.cr();
     this.tag("blockquote");
     this.cr();
@@ -410,13 +439,11 @@ class HtmlWriter {
     this.cr();
   }
 
-  private list(node: List): void {
+  list(node: List): void {
     const tagname = node.ordered === true ? "ol" : "ul";
-    const attrs: Attr[] = [];
     // commonmark.js: `start !== null && start !== 1`.
-    if (node.start !== undefined && node.start !== 1) {
-      attrs.push(["start", String(node.start)]);
-    }
+    const attrs: ReadonlyArray<Attr> =
+      node.start !== undefined && node.start !== 1 ? [["start", String(node.start)]] : [];
     // Absent `spread` means "unknown", which mdast and this writer both
     // read as tight — the same default commonmark.js's `listTight` carries.
     const tight = node.spread !== true;
@@ -452,17 +479,11 @@ class HtmlWriter {
     this.cr();
   }
 
-  private codeBlock(node: Code): void {
-    const attrs: Attr[] = [];
+  codeBlock(node: Code): void {
     // commonmark.js takes the first whitespace-run-delimited word of the
     // info string; `lang` IS that word after the parser's split.
-    if (node.lang !== undefined && node.lang.length > 0) {
-      let cls = escapeXml(node.lang);
-      if (/^language-/.exec(cls) === null) {
-        cls = `language-${cls}`;
-      }
-      attrs.push(["class", cls]);
-    }
+    const attrs: ReadonlyArray<Attr> =
+      node.lang !== undefined && node.lang.length > 0 ? [["class", languageClass(escapeXml(node.lang))]] : [];
     this.cr();
     this.tag("pre");
     this.tag("code", attrs);
@@ -472,36 +493,28 @@ class HtmlWriter {
     this.cr();
   }
 
-  private table(node: Table): void {
+  table(node: Table): void {
     this.cr();
     this.tag("table");
     const align: ReadonlyArray<TableAlign | null> = node.align ?? [];
-    let bodyOpen = false;
-
-    node.children.forEach((row, rowIndex) => {
-      const isHeader = rowIndex === 0;
+    const [header, ...body] = node.children;
+    if (header !== undefined) {
       this.cr();
-      if (isHeader) {
-        this.lit("<thead>");
-        this.cr();
-      } else if (!bodyOpen) {
+      this.lit("<thead>");
+      this.cr();
+      this.tableRow(header, true, align);
+      this.cr();
+      this.lit("</thead>");
+    }
+    A.forEach(body, (row, rowIndex) => {
+      this.cr();
+      if (rowIndex === 0) {
         this.lit("<tbody>");
         this.cr();
-        bodyOpen = true;
       }
-      this.tag("tr");
-      row.children.forEach((cell, cellIndex) => {
-        this.tableCell(cell, isHeader, align[cellIndex] ?? null);
-      });
-      this.cr();
-      this.tag("/tr");
-      if (isHeader) {
-        this.cr();
-        this.lit("</thead>");
-      }
+      this.tableRow(row, false, align);
     });
-
-    if (bodyOpen) {
+    if (A.isReadonlyArrayNonEmpty(body)) {
       this.cr();
       this.lit("</tbody>");
     }
@@ -510,81 +523,52 @@ class HtmlWriter {
     this.cr();
   }
 
+  private tableRow(row: Table["children"][number], isHeader: boolean, align: ReadonlyArray<TableAlign | null>): void {
+    this.tag("tr");
+    A.forEach(row.children, (cell, cellIndex) => {
+      this.tableCell(cell, isHeader, align[cellIndex] ?? null);
+    });
+    this.cr();
+    this.tag("/tr");
+  }
+
   private tableCell(node: TableCell, isHeader: boolean, align: TableAlign | null): void {
-    const attrs: Attr[] = align === null ? [] : [["align", align]];
+    const attrs: ReadonlyArray<Attr> = align === null ? [] : [["align", align]];
     this.cr();
     this.tag(isHeader ? "th" : "td", attrs);
     this.renderPhrasing(node.children);
     this.tag(isHeader ? "/th" : "/td");
   }
 
-  private renderPhrasing(nodes: ReadonlyArray<PhrasingContent>): void {
-    for (const node of nodes) {
-      switch (node.type) {
-        case "text":
-          // mdast has no softbreak node: a soft line break is a raw
-          // newline inside a text value, which is exactly what
-          // commonmark.js's default `softbreak: "\n"` emits.
-          this.out(node.value);
-          break;
-        case "break":
-          this.tag("br", [], true);
-          this.cr();
-          break;
-        case "inlineCode":
-          this.tag("code");
-          this.out(node.value);
-          this.tag("/code");
-          break;
-        case "html":
-          // html_inline: raw, no surrounding newlines.
-          this.lit(this.gfm ? applyTagfilter(node.value) : node.value);
-          break;
-        case "emphasis":
-          this.tag("em");
-          this.renderPhrasing(node.children);
-          this.tag("/em");
-          break;
-        case "strong":
-          this.tag("strong");
-          this.renderPhrasing(node.children);
-          this.tag("/strong");
-          break;
-        case "delete":
-          this.tag("del");
-          this.renderPhrasing(node.children);
-          this.tag("/del");
-          break;
-        case "link":
-          this.link(node.url, node.title, node.children);
-          break;
-        case "image":
-          this.image(node.url, node.title, node.alt ?? "");
-          break;
-        case "linkReference":
-          this.linkReference(node);
-          break;
-        case "imageReference":
-          this.imageReference(node);
-          break;
-        case "footnoteReference":
-          this.footnoteReference(node);
-          break;
-      }
-    }
+  lineBreak(): void {
+    this.tag("br", [], true);
+    this.cr();
   }
 
-  private link(url: string, title: string | undefined, children: ReadonlyArray<PhrasingContent>): void {
-    const attrs: Attr[] = [["href", escapeXml(normalizeUri(url))]];
-    if (title !== undefined && title !== "") {
-      attrs.push(["title", escapeXml(title)]);
-    }
+  inlineCode(value: string): void {
+    this.tag("code");
+    this.out(value);
+    this.tag("/code");
+  }
+
+  htmlInline(value: string): void {
+    this.lit(this.raw(value));
+  }
+
+  wrapped(tagname: string, children: ReadonlyArray<PhrasingContent>): void {
+    this.tag(tagname);
+    this.renderPhrasing(children);
+    this.tag(`/${tagname}`);
+  }
+
+  link(url: string, title: string | undefined, children: ReadonlyArray<PhrasingContent>): void {
+    const attrs: ReadonlyArray<Attr> = [["href", escapeXml(normalizeUri(url))], ...titleAttr(title)];
     this.tag("a", attrs);
     this.renderPhrasing(children);
     this.tag("/a");
   }
 
-  private image(url: string, title: string | undefined, alt: string): void {
+  image(url: string, title: string | undefined, alt: string): void {
     // commonmark.js builds alt by re-rendering the image's children with
     // tags disabled. mdast Images have no children — the parser must have
     // computed `alt` the same way (plain text of the bracket content).
@@ -602,40 +586,29 @@ class HtmlWriter {
     }
   }
 
-  private linkReference(node: LinkReference): void {
-    const definition = this.definitions.get(normalizeLabel(node.identifier));
-    if (definition === undefined) {
+  linkReference(node: LinkReference): void {
+    O.match(MutableHashMap.get(this.definitions, normalizeLabel(node.identifier)), {
       // No matching definition: CommonMark leaves the source text alone,
       // so the brackets come back as literal text with the bracket
       // content still rendered as inlines.
-      this.out("[");
-      this.renderPhrasing(node.children);
-      this.out("]");
-      this.out(this.referenceSuffix(node.referenceType, node.label ?? node.identifier));
-      return;
-    }
-    this.link(definition.url, definition.title, node.children);
+      onNone: () => {
+        this.out("[");
+        this.renderPhrasing(node.children);
+        this.out("]");
+        this.out(REFERENCE_SUFFIX[node.referenceType](node.label ?? node.identifier));
+      },
+      onSome: (definition) => this.link(definition.url, definition.title, node.children),
+    });
   }
 
-  private imageReference(node: ImageReference): void {
-    const definition = this.definitions.get(normalizeLabel(node.identifier));
-    if (definition === undefined) {
-      this.out(`![${node.alt ?? ""}]`);
-      this.out(this.referenceSuffix(node.referenceType, node.label ?? node.identifier));
-      return;
-    }
-    this.image(definition.url, definition.title, node.alt ?? "");
-  }
-
-  private referenceSuffix(referenceType: "shortcut" | "collapsed" | "full", label: string): string {
-    switch (referenceType) {
-      case "shortcut":
-        return "";
-      case "collapsed":
-        return "[]";
-      case "full":
-        return `[${label}]`;
-    }
+  imageReference(node: ImageReference): void {
+    O.match(MutableHashMap.get(this.definitions, normalizeLabel(node.identifier)), {
+      onNone: () => {
+        this.out(`![${node.alt ?? ""}]`);
+        this.out(REFERENCE_SUFFIX[node.referenceType](node.label ?? node.identifier));
+      },
+      onSome: (definition) => this.image(definition.url, definition.title, node.alt ?? ""),
+    });
   }
 
   // --- footnotes ------------------------------------------------------------
@@ -653,27 +626,32 @@ class HtmlWriter {
   // is done, by which point every definition's final reference count is
   // known. cmark-gfm instead does a dedicated pass before rendering and
   // physically relocates the definition nodes; a `FootnoteDefinition`
-  // renders to nothing at its own tree position here (see `renderFlow`)
+  // renders to nothing at its own tree position here (see `flowStep`)
   // for the same reason `Definition` does.
 
-  private footnoteReference(node: FootnoteReference): void {
+  footnoteReference(node: FootnoteReference): void {
     const key = normalizeLabel(node.identifier);
-    const definition = this.footnoteDefinitions.get(key);
-    if (definition === undefined) {
+    O.match(MutableHashMap.get(this.footnoteDefinitions, key), {
       // No matching definition: cmark-gfm leaves the source text alone.
-      this.out(`[^${node.label ?? node.identifier}]`);
-      return;
-    }
+      onNone: () => this.out(`[^${node.label ?? node.identifier}]`),
+      onSome: (definition) => this.resolvedFootnoteReference(key, definition),
+    });
+  }
 
-    let index = this.footnoteIndex.get(key);
-    if (index === undefined) {
-      index = this.nextFootnoteIndex;
+  private footnoteNumber(key: string, definition: FootnoteDefinition): number {
+    return O.getOrElse(MutableHashMap.get(this.footnoteIndex, key), () => {
+      const index = this.nextFootnoteIndex;
       this.nextFootnoteIndex += 1;
-      this.footnoteIndex.set(key, index);
+      MutableHashMap.set(this.footnoteIndex, key, index);
       this.footnoteOrder.push(definition);
-    }
-    const refIx = (this.footnoteRefCount.get(key) ?? 0) + 1;
-    this.footnoteRefCount.set(key, refIx);
+      return index;
+    });
+  }
+
+  private resolvedFootnoteReference(key: string, definition: FootnoteDefinition): void {
+    const index = this.footnoteNumber(key, definition);
+    const refIx = O.getOrElse(MutableHashMap.get(this.footnoteRefCount, key), () => 0) + 1;
+    MutableHashMap.set(this.footnoteRefCount, key, refIx);
 
     const escId = escapeXml(normalizeUri(definition.identifier));
     this.lit(`<sup class="footnote-ref"><a href="#fn-${escId}" id="fnref-${escId}`);
@@ -714,20 +692,17 @@ class HtmlWriter {
     this.cr();
 
     const backrefHtml = this.buildFootnoteBackref(node, escId);
-    const lastIndex = node.children.length - 1;
-    let backrefWritten = false;
-    node.children.forEach((child, index) => {
-      if (index === lastIndex && child.type === "paragraph") {
-        this.footnoteParagraph(child, backrefHtml);
-        backrefWritten = true;
-      } else {
-        this.renderFlow([child]);
-      }
+    const last = A.last(node.children);
+    const backrefParagraph = O.filter(last, (child): child is Paragraph => child.type === "paragraph");
+    const leading = O.isSome(backrefParagraph) ? A.dropRight(node.children, 1) : node.children;
+    this.renderFlow(leading);
+    O.match(backrefParagraph, {
+      onNone: () => {
+        this.lit(backrefHtml);
+        this.cr();
+      },
+      onSome: (paragraph) => this.footnoteParagraph(paragraph, backrefHtml),
     });
-    if (!backrefWritten) {
-      this.lit(backrefHtml);
-      this.cr();
-    }
 
     this.tag("/li");
     this.cr();
@@ -745,27 +720,24 @@ class HtmlWriter {
 
   /** Ported from cmark-gfm's `S_put_footnote_backref` (src/html.c). */
   private buildFootnoteBackref(node: FootnoteDefinition, escId: string): string {
-    const index = this.footnoteIndex.get(normalizeLabel(node.identifier));
-    const useCount = this.footnoteRefCount.get(normalizeLabel(node.identifier)) ?? 0;
+    const key = normalizeLabel(node.identifier);
+    const index = O.getOrUndefined(MutableHashMap.get(this.footnoteIndex, key));
+    const useCount = O.getOrElse(MutableHashMap.get(this.footnoteRefCount, key), () => 0);
 
-    let html = `<a href="#fnref-${escId}" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="${index}" aria-label="Back to reference ${index}">↩</a>`;
-    for (let useIndex = 2; useIndex <= useCount; useIndex += 1) {
-      html += ` <a href="#fnref-${escId}-${useIndex}" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="${index}-${useIndex}" aria-label="Back to reference ${index}-${useIndex}">↩<sup class="footnote-ref">${useIndex}</sup></a>`;
-    }
-    return html;
+    const first = `<a href="#fnref-${escId}" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="${index}" aria-label="Back to reference ${index}">↩</a>`;
+    const repeat = (useIndex: number): string =>
+      ` <a href="#fnref-${escId}-${useIndex}" class="footnote-backref" data-footnote-backref data-footnote-backref-idx="${index}-${useIndex}" aria-label="Back to reference ${index}-${useIndex}">↩<sup class="footnote-ref">${useIndex}</sup></a>`;
+    return useCount < 2 ? first : first + A.join(A.map(A.range(2, useCount), repeat), "");
   }
 }
 
-/** Rendering options for {@link renderHtml}. */
-export interface RenderHtmlOptions {
-  /**
-   * Render under the `gfm` dialect: applies the tagfilter to raw `Html`
-   * node values. Defaults to `false` (plain CommonMark rendering, matching
-   * the `commonmark` dialect's conformance corpus). This is purely an
-   * output-time decision — the parse tree is identical either way.
-   */
-  readonly gfm?: boolean;
-}
+const LANGUAGE_PREFIX = /^language-/;
+
+const languageClass = (escapedLang: string): string =>
+  LANGUAGE_PREFIX.test(escapedLang) ? escapedLang : `language-${escapedLang}`;
+
+const titleAttr = (title: string | undefined): ReadonlyArray<Attr> =>
+  title !== undefined && title !== "" ? [["title", escapeXml(title)]] : [];
 
 /**
  * Renders a document to spec-conventional HTML, the form the CommonMark and
@@ -776,12 +748,16 @@ export interface RenderHtmlOptions {
  * Reference nodes are resolved here, against the {@link Definition} and
  * {@link FootnoteDefinition} nodes found anywhere in the tree, because the
  * parser emits them unresolved.
+ *
+ * `options.gfm` renders under the `gfm` dialect: it applies the tagfilter to
+ * raw `Html` node values. It defaults to `false` (plain CommonMark rendering,
+ * matching the `commonmark` dialect's conformance corpus) and is purely an
+ * output-time decision — the parse tree is identical either way.
  */
 export const renderHtml: {
-  (root: Root, options?: RenderHtmlOptions): string;
-  (options?: RenderHtmlOptions): (root: Root) => string;
+  (root: Root, options?: { readonly gfm?: boolean }): string;
+  (options?: { readonly gfm?: boolean }): (root: Root) => string;
 } = dual(
   (args) => hasProperty(args[0], "type"),
-  (root: Root, options?: RenderHtmlOptions): string =>
-    new HtmlWriter(collectDefinitions(root), collectFootnoteDefinitions(root), options?.gfm ?? false).render(root)
+  (root: Root, options?: { readonly gfm?: boolean }): string => new HtmlWriter(root, options?.gfm ?? false).render(root)
 );

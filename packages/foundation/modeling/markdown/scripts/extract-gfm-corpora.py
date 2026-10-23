@@ -11,13 +11,13 @@ root:
 
 It shells out to the vendored `spec_tests.py` (`.repos/cmark-gfm/test/`) --
 the same upstream tool `commonmark/spec_tests.py` used to generate
-`fixtures/commonmark/spec.json` -- rather than reimplementing its example-
+`data/conformance/commonmark/spec.json` -- rather than reimplementing its example-
 block scanner, so the extraction logic is exactly upstream's, not a port that
 could silently diverge from it.
 
 Two corpora are produced:
 
-- `fixtures/gfm/spec-extensions.json`: the examples embedded in
+- `data/conformance/gfm/spec-extensions.json`: the examples embedded in
   `.repos/cmark-gfm/test/spec.txt` whose section header ends in
   "(extension)" -- the GFM extension sections (Tables, Strikethrough,
   Autolinks, Disallowed Raw HTML). `--pattern '\\(extension\\)$'` selects
@@ -34,13 +34,13 @@ Two corpora are produced:
   section. See VENDORED.md for the resulting count discrepancy against the
   plan.
 
-- `fixtures/gfm/extensions.json`: every example in
+- `data/conformance/gfm/extensions.json`: every example in
   `.repos/cmark-gfm/test/extensions.txt` (the whole file is GFM-extension
   content, so no section filter is applied) -- includes the only official
   footnote corpus.
 
 Both dumps are reshaped to the exact field set the existing
-`fixtures/commonmark/spec.json` entries carry: `markdown`, `html`, `example`,
+`data/conformance/commonmark/spec.json` entries carry: `markdown`, `html`, `example`,
 `start_line`, `end_line`, `section`. Upstream's `--dump-tests` also emits a
 per-example `extensions` array (the parsed `example <flags>` marker text);
 it is dropped here since neither corpus's still-included examples carry any
@@ -57,7 +57,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[5]
 CMARK_GFM = REPO_ROOT / ".repos" / "cmark-gfm"
 SPEC_TESTS = CMARK_GFM / "test" / "spec_tests.py"
-FIXTURES_DIR = REPO_ROOT / "packages" / "foundation" / "modeling" / "markdown" / "test" / "fixtures" / "gfm"
+FIXTURES_DIR = REPO_ROOT / "packages" / "foundation" / "modeling" / "markdown" / "data" / "conformance" / "gfm"
 
 FIELDS = ("markdown", "html", "example", "start_line", "end_line", "section")
 
@@ -80,7 +80,7 @@ def dump(spec_path: Path, pattern: str | None) -> list[dict]:
 
 
 def write(path: Path, examples: list[dict]) -> None:
-    # Two-space indent to match the existing fixtures/commonmark/spec.json
+    # Two-space indent to match the existing data/conformance/commonmark/spec.json
     # byte-for-byte in style (upstream's own --dump-tests default).
     path.write_text(json.dumps(examples, indent=2) + "\n", encoding="utf-8")
 

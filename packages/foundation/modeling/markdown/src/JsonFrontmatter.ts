@@ -1,10 +1,20 @@
+/**
+ * The json frontmatter codec module over `@beep/jsonc`.
+ *
+ * **Details**
+ *
+ * Importing this module is what loads the json engine; a consumer who
+ * never touches json frontmatter never loads it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Jsonc } from "@beep/jsonc/Jsonc";
-import * as Effect from "effect/Effect";
-import { FrontmatterDecodeError, FrontmatterEncodeError, FrontmatterFormatMismatchError } from "./Frontmatter.ts";
-import type { FrontmatterCodec } from "./Frontmatter.ts";
+import { FrontmatterCodec } from "./Frontmatter.ts";
 
 /**
- * The json frontmatter codec, over `@effected/jsonc`.
+ * The json frontmatter codec, over `@beep/jsonc`.
  *
  * **Details**
  *
@@ -22,7 +32,7 @@ import type { FrontmatterCodec } from "./Frontmatter.ts";
  * value fails as a {@link FrontmatterEncodeError} carrying the
  * `JsoncStringifyError` structurally. An empty object encodes to `{}`.
  *
- * `@effected/jsonc` is an optional peer — importing this module is what
+ * `@beep/jsonc` is an optional peer — importing this module is what
  * requires it; a consumer who never touches json frontmatter never loads the
  * jsonc engine.
  *
@@ -43,14 +53,8 @@ import type { FrontmatterCodec } from "./Frontmatter.ts";
  * @category codecs
  * @since 0.0.0
  */
-export const JsonFrontmatter: FrontmatterCodec = {
-  format: "json",
-  decode: (node) =>
-    node.format !== "json"
-      ? Effect.fail(FrontmatterFormatMismatchError.make({ expected: "json", actual: node.format }))
-      : Jsonc.parse(node.value).pipe(
-          Effect.mapError((cause) => FrontmatterDecodeError.make({ format: "json", cause }))
-        ),
-  encode: (data) =>
-    Jsonc.stringify(data).pipe(Effect.mapError((cause) => FrontmatterEncodeError.make({ format: "json", cause }))),
-};
+export const JsonFrontmatter: FrontmatterCodec = FrontmatterCodec.make(
+  "json",
+  (text) => Jsonc.parseResult(text),
+  (data) => Jsonc.stringifyResult(data)
+);

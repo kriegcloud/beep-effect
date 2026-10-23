@@ -19,12 +19,13 @@
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { assert, describe, it } from "@effect/vitest";
-import type { MdxjsEsm } from "@beep/markdown/MarkdownMdx";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
+import { flowNodes } from "./support/tree.ts";
 import type {
   FlowContent,
   FootnoteDefinition,
   FootnoteReference,
-  Frontmatter,
   Paragraph,
   PhrasingContent,
   Text,
@@ -33,30 +34,12 @@ import type {
 type Dialect = "commonmark" | "gfm";
 
 /** Every node in a source's flow tree, in document order, however deeply nested. */
-const flowNodes = (source: string, dialect: Dialect = "gfm"): ReadonlyArray<FlowContent> => {
-  const found: FlowContent[] = [];
-  const walk = (nodes: ReadonlyArray<Frontmatter | MdxjsEsm | FlowContent>): void => {
-    for (const node of nodes) {
-      if (node.type === "frontmatter" || node.type === "mdxjsEsm") {
-        continue;
-      }
-      found.push(node);
-      if (node.type === "blockquote" || node.type === "footnoteDefinition") {
-        walk(node.children);
-      } else if (node.type === "list") {
-        for (const item of node.children) {
-          walk(item.children);
-        }
-      }
-    }
-  };
-  walk(parseBlocks(source, { dialect: dialect }).root.children);
-  return found;
-};
+const flowNodesOf = (source: string, dialect: Dialect = "gfm"): ReadonlyArray<FlowContent> =>
+  flowNodes(parseBlocks(source, { dialect: dialect }).root.children);
 
 /** Every footnote definition in a source, in document order. */
 const definitionsOf = (source: string, dialect: Dialect = "gfm"): ReadonlyArray<FootnoteDefinition> =>
-  flowNodes(source, dialect).filter((node): node is FootnoteDefinition => node.type === "footnoteDefinition");
+  A.filter(flowNodesOf(source, dialect), (node): node is FootnoteDefinition => node.type === "footnoteDefinition");
 
 /** The first footnote definition a source produces; fails the test if it produced none. */
 const firstDefinition = (source: string, dialect: Dialect = "gfm"): FootnoteDefinition => {
@@ -82,7 +65,7 @@ const phrasingNodes = (source: string, dialect: Dialect = "gfm"): ReadonlyArray<
       }
     }
   };
-  for (const node of flowNodes(source, dialect)) {
+  for (const node of flowNodesOf(source, dialect)) {
     if (node.type === "paragraph" || node.type === "heading") {
       walk(node.children);
     }
@@ -92,7 +75,7 @@ const phrasingNodes = (source: string, dialect: Dialect = "gfm"): ReadonlyArray<
 
 /** Every footnote reference in a source, in document order. */
 const referencesOf = (source: string, dialect: Dialect = "gfm"): ReadonlyArray<FootnoteReference> =>
-  phrasingNodes(source, dialect).filter((node): node is FootnoteReference => node.type === "footnoteReference");
+  A.filter(phrasingNodes(source, dialect), (node): node is FootnoteReference => node.type === "footnoteReference");
 
 /** The first footnote reference a source produces; fails the test if it produced none. */
 const firstReference = (source: string, dialect: Dialect = "gfm"): FootnoteReference => {
@@ -101,12 +84,14 @@ const firstReference = (source: string, dialect: Dialect = "gfm"): FootnoteRefer
   return reference;
 };
 
+const isText = (node: PhrasingContent): node is Text => node.type === "text";
+
 /** The concatenated text of every top-level paragraph in a source. */
 const paragraphText = (source: string, dialect: Dialect = "gfm"): string =>
-  phrasingNodes(source, dialect)
-    .filter((node): node is Text => node.type === "text")
-    .map((node) => node.value)
-    .join("");
+  A.join(
+    A.map(A.filter(phrasingNodes(source, dialect), isText), (node) => node.value),
+    ""
+  );
 
 /** A definition's child paragraph at `index`, asserted to be one. */
 const definitionParagraph = (definition: FootnoteDefinition, index = 0): Paragraph => {
@@ -119,10 +104,10 @@ const definitionParagraph = (definition: FootnoteDefinition, index = 0): Paragra
 
 /** A paragraph's flattened text. */
 const textOf = (paragraph: Paragraph): string =>
-  paragraph.children
-    .filter((node): node is Text => node.type === "text")
-    .map((node) => node.value)
-    .join("");
+  A.join(
+    A.map(A.filter(paragraph.children, isText), (node) => node.value),
+    ""
+  );
 
 describe("gfm footnotes", () => {
   describe("the definition block start", () => {
@@ -138,9 +123,9 @@ describe("gfm footnotes", () => {
       // nothing references. Definitions here stay where they were written,
       // on the same terms as a link reference definition, because this
       // package edits markdown and a relocated node is a lost edit.
-      const nodes = flowNodes("alpha\n\n[^a]: bravo\n\ncharlie");
+      const nodes = flowNodesOf("alpha\n\n[^a]: bravo\n\ncharlie");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["paragraph", "footnoteDefinition", "paragraph", "paragraph"]
       );
     });
@@ -225,9 +210,9 @@ describe("gfm footnotes", () => {
     it("refuses a marker indented four spaces", () => {
       // The block start is guarded by `!indented`, so four spaces make it
       // an indented code block instead.
-      const nodes = flowNodes("    [^a]: bravo");
+      const nodes = flowNodesOf("    [^a]: bravo");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["code"]
       );
     });
@@ -240,9 +225,9 @@ describe("gfm footnotes", () => {
       // The footnote branch in `open_new_blocks` carries no
       // `cont_type == PARAGRAPH && !all_matched` guard, unlike the
       // thematic break above it, so it interrupts.
-      const nodes = flowNodes("alpha\n[^a]: bravo");
+      const nodes = flowNodesOf("alpha\n[^a]: bravo");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["paragraph", "footnoteDefinition", "paragraph"]
       );
     });
@@ -250,17 +235,17 @@ describe("gfm footnotes", () => {
     it("opens inside a blockquote", () => {
       // `cmark_node_can_contain_type` lets any block container hold a
       // footnote definition.
-      const nodes = flowNodes("> [^a]: bravo");
+      const nodes = flowNodesOf("> [^a]: bravo");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["blockquote", "footnoteDefinition", "paragraph"]
       );
     });
 
     it("opens inside a list item", () => {
-      const nodes = flowNodes("- [^a]: bravo");
+      const nodes = flowNodesOf("- [^a]: bravo");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["list", "footnoteDefinition", "paragraph"]
       );
     });
@@ -289,9 +274,9 @@ describe("gfm footnotes", () => {
     });
 
     it("ends at an unindented line after a blank line", () => {
-      const nodes = flowNodes("[^a]: alpha\n\nbravo");
+      const nodes = flowNodesOf("[^a]: alpha\n\nbravo");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["footnoteDefinition", "paragraph", "paragraph"]
       );
       assert.strictEqual(firstDefinition("[^a]: alpha\n\nbravo").children.length, 1);
@@ -311,7 +296,7 @@ describe("gfm footnotes", () => {
         "[^a]:\n    > quoted\n\n        code\n\n    or, naturally, simple paragraphs.\n"
       );
       assert.deepStrictEqual(
-        definition.children.map((child) => child.type),
+        A.map(definition.children, (child) => child.type),
         ["blockquote", "code", "paragraph"]
       );
     });
@@ -319,7 +304,7 @@ describe("gfm footnotes", () => {
     it("holds a nested footnote definition", () => {
       const definition = firstDefinition("[^a]:\n    [^b]: bravo");
       assert.deepStrictEqual(
-        definition.children.map((child) => child.type),
+        A.map(definition.children, (child) => child.type),
         ["footnoteDefinition"]
       );
     });
@@ -408,7 +393,7 @@ describe("gfm footnotes", () => {
     });
 
     it("forms inside emphasis", () => {
-      const types = phrasingNodes("*alpha[^a]*\n\n[^a]: bravo").map((node) => node.type);
+      const types = A.map(phrasingNodes("*alpha[^a]*\n\n[^a]: bravo"), (node) => node.type);
       assert.include(types, "emphasis");
       assert.include(types, "footnoteReference");
     });
@@ -465,9 +450,9 @@ describe("gfm footnotes", () => {
       // Under `commonmark` the line is a link reference definition with
       // the label `^a`; under `gfm` the footnote block start claims it
       // first. Both dialects have to keep their own answer.
-      const nodes = flowNodes("[^a]: /url", "commonmark");
+      const nodes = flowNodesOf("[^a]: /url", "commonmark");
       assert.deepStrictEqual(
-        nodes.map((node) => node.type),
+        A.map(nodes, (node) => node.type),
         ["definition"]
       );
     });
@@ -479,15 +464,18 @@ describe("gfm footnotes", () => {
       // `MAX_NESTING_DEPTH` cap with every other one. cmark-gfm guards the
       // same shape with its own `depth < MAX_LIST_DEPTH` test on the block
       // start.
-      assert.throws(() => parseBlocks("[^a]: ".repeat(MAX_NESTING_DEPTH + 4), { dialect: "gfm" }));
+      assert.throws(() => parseBlocks(Str.repeat(MAX_NESTING_DEPTH + 4)("[^a]: "), { dialect: "gfm" }));
     });
 
     it("parses a definition nested just under the cap", () => {
-      assert.doesNotThrow(() => parseBlocks("[^a]: ".repeat(8), { dialect: "gfm" }));
+      assert.doesNotThrow(() => parseBlocks(Str.repeat(8)("[^a]: "), { dialect: "gfm" }));
     });
 
     it("does not blow the stack on many sibling definitions", () => {
-      const source = Array.from({ length: 5000 }, (_, index) => `[^n${String(index)}]: body`).join("\n\n");
+      const source = A.join(
+        A.makeBy(5000, (index) => `[^n${String(index)}]: body`),
+        "\n\n"
+      );
       assert.strictEqual(definitionsOf(source).length, 5000);
     });
   });

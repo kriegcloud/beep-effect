@@ -1,4 +1,4 @@
-import { makeBlockNode } from "@beep/markdown/internal/blockTypes";
+import { ListData, makeBlockNode } from "@beep/markdown/internal/blockTypes";
 import { Position } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -40,7 +40,7 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
     nextNonspaceColumn: indent,
     indent,
     indented: indent >= 4,
-    blank: currentLine.trim().length === 0,
+    blank: Str.trim(currentLine).length === 0,
     get tip() {
       return currentTip;
     },
@@ -93,28 +93,44 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { listConstruct, listItemConstruct, listItemStart } from "@beep/markdown/internal/blocks/list";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import type { BlockType, InlineHost, PreparedInline } from "@beep/markdown/internal/blockTypes";
+import * as Str from "effect/String";
+import type { BlockType, InlineHost, MaterializedBlock, PreparedInline } from "@beep/markdown/internal/blockTypes";
+import type { List, ListItem, Root } from "@beep/markdown/MarkdownNode";
+
+/** A materialized block, or a top-level block of a parsed document. */
+type AnyBlock = MaterializedBlock | Root["children"][number];
+
+/** `node` as a list, failing the test when it is anything else. */
+const asList = (node: AnyBlock | undefined): List =>
+  node !== undefined && node.type === "list" ? node : assert.fail(`expected a list, got ${node?.type}`);
+
+/** `node` as a list item, failing the test when it is anything else. */
+const asListItem = (node: AnyBlock | undefined): ListItem =>
+  node !== undefined && node.type === "listItem" ? node : assert.fail(`expected a list item, got ${node?.type}`);
+
+/** The top-level block types of a CommonMark parse. */
+const childTypes = (source: string): ReadonlyArray<string> =>
+  A.map(parseBlocks(source).root.children, (child) => child.type);
+
+/** The first top-level block of a CommonMark parse. */
+const firstChild = (source: string): AnyBlock | undefined => parseBlocks(source).root.children[0];
 
 describe("list construct coverage", () => {
   it.effect("finalizes empty list metadata and materializes defaults", () =>
     Effect.sync(() => {
       const block = makeBlockNode("list", 2, 1);
-      const fresh = listConstruct.materialize(block, [], context);
-      assert.strictEqual(fresh?.type === "list" ? fresh.spread : undefined, false);
+      assert.strictEqual(asList(listConstruct.materialize(block, [], context)).spread, false);
       listConstruct.finalize?.(scannerFor("", block), block);
       assert.strictEqual(block.data.spread, false);
-      const node = listConstruct.materialize(block, [], context);
-      if (node?.type === "list") {
-        assert.strictEqual(node.ordered, false);
-        assert.strictEqual(node.spread, false);
-        assert.strictEqual(node.start, undefined);
-      }
-      assert.strictEqual(node?.type, "list");
-      block.data.listData = { type: "ordered", tight: true, padding: 2, markerOffset: 0 };
-      const ordered = listConstruct.materialize(block, [], context);
-      assert.strictEqual(ordered?.type === "list" ? ordered.start : 999, undefined);
+      const node = asList(listConstruct.materialize(block, [], context));
+      assert.deepStrictEqual([node.ordered, node.spread, node.start], [false, false, undefined]);
+      const data = new ListData("ordered", 0);
+      data.padding = 2;
+      block.data.listData = data;
+      assert.strictEqual(asList(listConstruct.materialize(block, [], context)).start, undefined);
       assert.strictEqual(listItemConstruct.continue(scannerFor("", block), block), 1);
       const item = makeBlockNode("listItem", 5, 1);
       listItemConstruct.finalize?.(scannerFor("", item), item);
@@ -142,34 +158,19 @@ describe("list construct coverage", () => {
 
   it.effect("keeps markers, indentation and loose item boundaries", () =>
     Effect.sync(() => {
-      const sources = [
-        "-\n",
-        "-     code\n",
-        "paragraph\n1. item\n",
-        "paragraph\n-\n",
-        "-nospace\n",
-        "- a\n\n- b\n",
-        "- a\n\n  b\n",
-        "    - code\n",
-        "- a\n  next\n",
-      ];
-      const roots = sources.map((source) => parseBlocks(source).root);
-      assert.strictEqual(roots[0]?.children[0]?.type, "list");
-      assert.strictEqual(roots[1]?.children[0]?.type, "list");
-      assert.strictEqual(roots[2]?.children[1]?.type, "list");
-      assert.strictEqual(roots[3]?.children[0]?.type, "heading");
-      assert.strictEqual(roots[4]?.children[0]?.type, "paragraph");
-      const loose = roots[5]?.children[0];
-      assert.strictEqual(loose?.type === "list" ? loose.spread : undefined, true);
-      const spreadItem = roots[6]?.children[0];
-      assert.strictEqual(spreadItem?.type === "list" ? spreadItem.children[0]?.spread : undefined, true);
-      assert.strictEqual(roots[7]?.children[0]?.type, "code");
-      assert.strictEqual(roots[8]?.children[0]?.type, "list");
+      assert.deepStrictEqual(childTypes("-\n"), ["list"]);
+      assert.deepStrictEqual(childTypes("-     code\n"), ["list"]);
+      assert.deepStrictEqual(childTypes("paragraph\n1. item\n"), ["paragraph", "list"]);
+      assert.deepStrictEqual(childTypes("paragraph\n-\n"), ["heading"]);
+      assert.deepStrictEqual(childTypes("-nospace\n"), ["paragraph"]);
+      assert.deepStrictEqual(childTypes("    - code\n"), ["code"]);
+      assert.deepStrictEqual(childTypes("- a\n  next\n"), ["list"]);
+      assert.isTrue(asList(firstChild("- a\n\n- b\n")).spread);
+      assert.isTrue(asListItem(asList(firstChild("- a\n\n  b\n")).children[0]).spread);
       const paragraph = makeBlockNode("paragraph", 0, 1);
       assert.strictEqual(listItemStart.trigger(scannerFor("+", paragraph), paragraph), 0);
       const item = makeBlockNode("listItem", 0, 1);
-      const node = listItemConstruct.materialize(item, [], context);
-      assert.strictEqual(node?.type === "listItem" ? node.spread : undefined, false);
+      assert.isFalse(asListItem(listItemConstruct.materialize(item, [], context)).spread);
     })
   );
 });

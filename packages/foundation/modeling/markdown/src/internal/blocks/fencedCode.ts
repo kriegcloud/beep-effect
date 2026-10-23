@@ -8,10 +8,13 @@
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { BlockStart } from "../blockTypes.ts";
 import { FenceChar } from "../nodes.ts";
-import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
+import { unitAt } from "../patterns.ts";
+import type { BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 
-const reCodeFence = /^`{3,}(?!.*`)|^~{3,}/;
+/** An opening fence, sticky at the scan position: backticks with none in the info string, or tildes. */
+const reCodeFence = /`{3,}(?!.*`)|~{3,}/y;
 
 const decodeFenceChar = S.decodeUnknownResult(FenceChar);
 
@@ -29,19 +32,20 @@ const decodeFenceChar = S.decodeUnknownResult(FenceChar);
  * @category parsing
  * @since 0.0.0
  */
-export const fencedCodeStart: BlockStart = {
-  name: "fencedCode",
-  trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
+export const fencedCodeStart = new BlockStart(
+  "fencedCode",
+  dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
     if (scanner.indented) {
       return 0;
     }
 
-    const match = reCodeFence.exec(scanner.currentLine.slice(scanner.nextNonspace));
+    reCodeFence.lastIndex = scanner.nextNonspace;
+    const match = reCodeFence.exec(scanner.currentLine);
     if (match === null) {
       return 0;
     }
 
-    const fenceChar = Result.getOrThrow(decodeFenceChar(match[0].charAt(0)));
+    const fenceChar = Result.getOrThrow(decodeFenceChar(unitAt(match[0], 0)));
 
     scanner.closeUnmatchedBlocks();
     const container = scanner.addChild("code", scanner.nextNonspace);
@@ -52,5 +56,5 @@ export const fencedCodeStart: BlockStart = {
     scanner.advanceNextNonspace();
     scanner.advanceOffset(match[0].length, false);
     return 2;
-  }),
-};
+  })
+);

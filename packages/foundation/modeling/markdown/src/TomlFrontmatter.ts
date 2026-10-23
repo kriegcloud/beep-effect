@@ -1,10 +1,20 @@
+/**
+ * The toml frontmatter codec module over `@beep/toml`.
+ *
+ * **Details**
+ *
+ * Importing this module is what loads the toml engine; a consumer who
+ * never touches toml frontmatter never loads it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Toml } from "@beep/toml/Toml";
-import * as Effect from "effect/Effect";
-import { FrontmatterDecodeError, FrontmatterEncodeError, FrontmatterFormatMismatchError } from "./Frontmatter.ts";
-import type { FrontmatterCodec } from "./Frontmatter.ts";
+import { FrontmatterCodec } from "./Frontmatter.ts";
 
 /**
- * The toml frontmatter codec, over `@effected/toml`.
+ * The toml frontmatter codec, over `@beep/toml`.
  *
  * **Details**
  *
@@ -20,7 +30,7 @@ import type { FrontmatterCodec } from "./Frontmatter.ts";
  * of an empty capture decoding to `{}` — rendering as adjacent `+++` fences,
  * so `set`-then-decode recovers `{}` exactly.
  *
- * `@effected/toml` is an optional peer — importing this module is what
+ * `@beep/toml` is an optional peer — importing this module is what
  * requires it; a consumer who never touches toml frontmatter never loads the
  * toml engine.
  *
@@ -38,12 +48,8 @@ import type { FrontmatterCodec } from "./Frontmatter.ts";
  * @category codecs
  * @since 0.0.0
  */
-export const TomlFrontmatter: FrontmatterCodec = {
-  format: "toml",
-  decode: (node) =>
-    node.format !== "toml"
-      ? Effect.fail(FrontmatterFormatMismatchError.make({ expected: "toml", actual: node.format }))
-      : Toml.parse(node.value).pipe(Effect.mapError((cause) => FrontmatterDecodeError.make({ format: "toml", cause }))),
-  encode: (data) =>
-    Toml.stringify(data).pipe(Effect.mapError((cause) => FrontmatterEncodeError.make({ format: "toml", cause }))),
-};
+export const TomlFrontmatter: FrontmatterCodec = FrontmatterCodec.make(
+  "toml",
+  (text) => Toml.parseResult(text),
+  (data) => Toml.stringifyResult(data)
+);

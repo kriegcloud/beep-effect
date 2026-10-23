@@ -11,6 +11,7 @@ import { MarkdownFormat } from "@beep/markdown/MarkdownFormat";
 import { Heading, Paragraph, Point, Position, Root, Text } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -81,7 +82,7 @@ describe("synthesized trees flow through the render surfaces", () => {
     // Re-parses to the same shape — the canonical-stringify contract.
     const reparsed = parseDoc(out);
     assert.deepStrictEqual(
-      reparsed.root.children.map((child) => child.type),
+      A.map(reparsed.root.children, (child) => child.type),
       ["heading", "paragraph"]
     );
   });

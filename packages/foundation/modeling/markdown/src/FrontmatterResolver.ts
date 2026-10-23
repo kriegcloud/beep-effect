@@ -1,14 +1,20 @@
-// The frontmatter $schema declaration contract and the registry-backed
-// resolver. Dependency-free by design: this module imports `effect` only —
-// the version grammar below is the X[.Y[.Z]] contract in ~30 lines, and `@effected/semver` was consciously declined as a peer so
-// a consumer who never resolves declarations never loads anything for it.
-//
-// Its own module (not `Frontmatter.ts`) for the same tree-shaking reason the
-// codecs are free-standing: `Frontmatter.ts` stays the lean composition seam,
-// and the resolution machinery loads only when a consumer names it.
-//
-// Resolution is EXACT version-segment equality. Prefix resolution (`skill@2`
-// selecting the highest registered `2.y.z`) is not offered.
+/**
+ * The frontmatter `$schema` declaration contract and the registry-backed
+ * resolver.
+ *
+ * **Details**
+ *
+ * Dependency-free by design: the version grammar is the `X[.Y[.Z]]`
+ * contract implemented locally, so a consumer who never resolves
+ * declarations loads nothing extra. Its own module, not `Frontmatter.ts`, for
+ * the same tree-shaking reason the codecs are free-standing.
+ *
+ * Resolution is exact version-segment equality. Prefix resolution (`skill@2`
+ * selecting the highest registered `2.y.z`) is not offered.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import * as A from "effect/Array";
@@ -64,11 +70,8 @@ class SchemaRegistryError extends S.TaggedError<SchemaRegistryError, { readonly 
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl, { readonly brand: unique symbol }>(
-  $I`SchemaDeclarationByUrl`
-)(
-  "ByUrl",
-  {
+export class SchemaDeclarationByUrl extends S.Opaque<SchemaDeclarationByUrl, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ByUrl", {
     /**
      * The URL as written in the declaration.
      *
@@ -77,10 +80,11 @@ export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl
     url: S.String.pipe(
       $I.annoteKey("SchemaDeclarationByUrl.url", { description: "The URL as written in the declaration." })
     ),
-  },
-  $I.annote("SchemaDeclarationByUrl", {
-    description: "A `$schema` declaration referencing a schema by URL — any string containing `://`.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaDeclarationByUrl", {
+      description: "A `$schema` declaration referencing a schema by URL — any string containing `://`.",
+    })
+  )
 ) {}
 
 /**
@@ -104,11 +108,8 @@ export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPath, { readonly brand: unique symbol }>(
-  $I`SchemaDeclarationByPath`
-)(
-  "ByPath",
-  {
+export class SchemaDeclarationByPath extends S.Opaque<SchemaDeclarationByPath, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ByPath", {
     /**
      * The path as written in the declaration.
      *
@@ -117,11 +118,12 @@ export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPa
     path: S.String.pipe(
       $I.annoteKey("SchemaDeclarationByPath.path", { description: "The path as written in the declaration." })
     ),
-  },
-  $I.annote("SchemaDeclarationByPath", {
-    description:
-      "A `$schema` declaration referencing a schema by path — any string starting `./`, `../` or `/` (a bundle- or file-relative reference).",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaDeclarationByPath", {
+      description:
+        "A `$schema` declaration referencing a schema by path — any string starting `./`, `../` or `/` (a bundle- or file-relative reference).",
+    })
+  )
 ) {}
 
 /**
@@ -148,11 +150,8 @@ export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPa
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInline, { readonly brand: unique symbol }>(
-  $I`SchemaDeclarationInline`
-)(
-  "Inline",
-  {
+export class SchemaDeclarationInline extends S.Opaque<SchemaDeclarationInline, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Inline", {
     /**
      * The inline schema document, exactly as decoded from the frontmatter.
      *
@@ -163,11 +162,12 @@ export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInli
         description: "The inline schema document, exactly as decoded from the frontmatter.",
       })
     ),
-  },
-  $I.annote("SchemaDeclarationInline", {
-    description:
-      "A `$schema` declaration carrying an inline JSON-Schema-like document — the declaration value is itself a mapping.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaDeclarationInline", {
+      description:
+        "A `$schema` declaration carrying an inline JSON-Schema-like document — the declaration value is itself a mapping.",
+    })
+  )
 ) {}
 
 /**
@@ -197,11 +197,8 @@ export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInli
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationByName extends S.TaggedClass<SchemaDeclarationByName, { readonly brand: unique symbol }>(
-  $I`SchemaDeclarationByName`
-)(
-  "ByName",
-  {
+export class SchemaDeclarationByName extends S.Opaque<SchemaDeclarationByName, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ByName", {
     /**
      * The name as written, scope included.
      *
@@ -220,11 +217,12 @@ export class SchemaDeclarationByName extends S.TaggedClass<SchemaDeclarationByNa
         description: "The version as written, when the declaration carries one.",
       })
     ),
-  },
-  $I.annote("SchemaDeclarationByName", {
-    description:
-      "A `$schema` declaration referencing a registered schema by name — any other string, with the committed `name[@version]` grammar.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaDeclarationByName", {
+      description:
+        "A `$schema` declaration referencing a registered schema by name — any other string, with the committed `name[@version]` grammar.",
+    })
+  )
 ) {}
 
 /**
@@ -455,7 +453,7 @@ export class SchemaNameUnknownError extends S.TaggedError<SchemaNameUnknownError
  * ```ts
  * import { SchemaVersionUnresolvableError } from "@beep/markdown/FrontmatterResolver"
  *
- * const error = SchemaVersionUnresolvableError.make({ name: "skill", version: "2" })
+ * const error = SchemaVersionUnresolvableError.make({ schemaName: "skill", version: "2" })
  * console.log(error.message) // schema "skill" has no registration matching version "2" exactly
  * ```
  *
@@ -474,8 +472,8 @@ export class SchemaVersionUnresolvableError extends S.TaggedError<
      *
      * @since 0.0.0
      */
-    name: S.String.pipe(
-      $I.annoteKey("SchemaVersionUnresolvableError.name", {
+    schemaName: S.String.pipe(
+      $I.annoteKey("SchemaVersionUnresolvableError.schemaName", {
         description: "The registered name whose version could not be satisfied.",
       })
     ),
@@ -503,7 +501,7 @@ export class SchemaVersionUnresolvableError extends S.TaggedError<
    * ```ts
    * import { SchemaVersionUnresolvableError } from "@beep/markdown/FrontmatterResolver"
    *
-   * const error = SchemaVersionUnresolvableError.make({ name: "skill", version: "2" })
+   * const error = SchemaVersionUnresolvableError.make({ schemaName: "skill", version: "2" })
    * console.log(error.message) // schema "skill" has no registration matching version "2" exactly
    * ```
    *
@@ -512,8 +510,8 @@ export class SchemaVersionUnresolvableError extends S.TaggedError<
    */
   override get message(): string {
     return this.version === undefined
-      ? `schema "${this.name}" is registered only with versions; the declaration carries none`
-      : `schema "${this.name}" has no registration matching version "${this.version}" exactly`;
+      ? `schema "${this.schemaName}" is registered only with versions; the declaration carries none`
+      : `schema "${this.schemaName}" has no registration matching version "${this.version}" exactly`;
   }
 }
 
@@ -586,6 +584,124 @@ const canonicalSegments = (version: string): ReadonlyArray<string> =>
 const isMapping = (value: unknown): value is Record<string, unknown> =>
   P.isObjectKeyword(value) && !P.isFunction(value) && !A.isArray(value);
 
+/** A bundle- or file-relative reference: starts `./`, `../` or `/`. */
+const PATH_REFERENCE = /^(?:\.\.?)?\//;
+
+/** A URL reference: contains `://` anywhere. */
+const isUrlReference = Str.includes("://");
+
+/** The canonical registry key for a version: its numeric segments rejoined. */
+const canonicalVersion = (version: string): string => A.join(canonicalSegments(version), ".");
+
+/**
+ * Classify a name under the `name[@version]` grammar: split at the last `@`
+ * unless that `@` is the leading scope, and validate the version segment.
+ */
+const classifyName = (value: string): Result.Result<SchemaDeclaration, SchemaDeclarationInvalidError> =>
+  O.match(
+    O.filter(Str.lastIndexOf("@")(value), (separator) => separator > 0),
+    {
+      // No separator, or only the leading scope @ — the whole string is the
+      // name.
+      onNone: () => Result.succeed(SchemaDeclarationByName.make({ name: value })),
+      onSome: (separator) => {
+        const version = Str.slice(separator + 1)(value);
+        return isVersionString(version)
+          ? Result.succeed(SchemaDeclarationByName.make({ name: Str.slice(0, separator)(value), version }))
+          : Result.fail(
+              SchemaDeclarationInvalidError.make({
+                reason: `version "${version}" is outside the X[.Y[.Z]] integer grammar`,
+                value,
+              })
+            );
+      },
+    }
+  );
+
+/** Classify a string `$schema` value: URL, then path, then name. */
+const classifyString = (value: string): Result.Result<SchemaDeclaration, SchemaDeclarationInvalidError> => {
+  if (value.length === 0) {
+    return Result.fail(SchemaDeclarationInvalidError.make({ reason: "the declaration is empty", value }));
+  }
+  if (isUrlReference(value)) {
+    return Result.succeed(SchemaDeclarationByUrl.make({ url: value }));
+  }
+  return PATH_REFERENCE.test(value)
+    ? Result.succeed(SchemaDeclarationByPath.make({ path: value }))
+    : classifyName(value);
+};
+
+/** One registered name: its versionless schema and its schemas by canonical version. */
+interface RegistryEntry {
+  versionless: O.Option<S.Top>;
+  readonly versions: MutableHashMap.MutableHashMap<string, S.Top>;
+}
+
+/** Register one `name[@version]` key, throwing on a malformed or colliding key. */
+const register = (byName: MutableHashMap.MutableHashMap<string, RegistryEntry>, key: string, schema: S.Top): void => {
+  const classified = classifyString(key);
+  if (Result.isFailure(classified) || !S.is(SchemaDeclarationByName)(classified.success)) {
+    throw SchemaRegistryError.make({
+      message: `SchemaResolver.fromRegistry: registration key "${key}" is outside the name[@version] grammar`,
+    });
+  }
+  const declaration = classified.success;
+  const entry = O.getOrElse(
+    MutableHashMap.get(byName, declaration.name),
+    (): RegistryEntry => ({ versionless: O.none(), versions: MutableHashMap.empty<string, S.Top>() })
+  );
+  if (declaration.version === undefined) {
+    entry.versionless = O.some(schema);
+  } else {
+    // Classification already validated the version grammar.
+    const canonical = canonicalVersion(declaration.version);
+    if (MutableHashMap.has(entry.versions, canonical)) {
+      throw SchemaRegistryError.make({
+        message: `SchemaResolver.fromRegistry: registrations for "${declaration.name}" collide on version ${canonical}`,
+      });
+    }
+    MutableHashMap.set(entry.versions, canonical, schema);
+  }
+  MutableHashMap.set(byName, declaration.name, entry);
+};
+
+/** Resolve a named declaration's version against one registry entry, exactly. */
+const resolveVersion = (
+  declaration: SchemaDeclarationByName,
+  entry: RegistryEntry
+): Effect.Effect<S.Top, FrontmatterResolveError> => {
+  const version = declaration.version;
+  const match =
+    version === undefined
+      ? entry.versionless
+      : isVersionString(version)
+        ? MutableHashMap.get(entry.versions, canonicalVersion(version))
+        : O.none();
+  return Effect.fromOption(match).pipe(
+    Effect.mapError(() =>
+      version === undefined
+        ? SchemaVersionUnresolvableError.make({ schemaName: declaration.name })
+        : SchemaVersionUnresolvableError.make({ schemaName: declaration.name, version })
+    )
+  );
+};
+
+/** Resolve a (possibly absent) declaration against the built registry. */
+const resolveFrom =
+  (byName: MutableHashMap.MutableHashMap<string, RegistryEntry>) =>
+  (declaration: SchemaDeclaration | undefined): Effect.Effect<S.Top, FrontmatterResolveError> => {
+    if (declaration === undefined) {
+      return Effect.fail(SchemaDeclarationMissingError.make());
+    }
+    if (!S.is(SchemaDeclarationByName)(declaration)) {
+      return Effect.fail(SchemaNameUnknownError.make({ declaration }));
+    }
+    return O.match(MutableHashMap.get(byName, declaration.name), {
+      onNone: () => Effect.fail(SchemaNameUnknownError.make({ declaration })),
+      onSome: (entry) => resolveVersion(declaration, entry),
+    });
+  };
+
 /**
  * The `$schema` declaration classifier and the package's one built-in
  * resolver implementation.
@@ -633,39 +749,13 @@ export class SchemaResolver {
    */
   static classify(value: unknown): Result.Result<SchemaDeclaration, SchemaDeclarationInvalidError> {
     if (P.isString(value)) {
-      if (value.length === 0) {
-        return Result.fail(SchemaDeclarationInvalidError.make({ reason: "the declaration is empty", value }));
-      }
-      if (value.includes("://")) {
-        return Result.succeed(SchemaDeclarationByUrl.make({ url: value }));
-      }
-      if (value.startsWith("./") || value.startsWith("../") || value.startsWith("/")) {
-        return Result.succeed(SchemaDeclarationByPath.make({ path: value }));
-      }
-      const separator = value.lastIndexOf("@");
-      if (separator <= 0) {
-        // No separator, or only the leading scope @ — the whole string is
-        // the name.
-        return Result.succeed(SchemaDeclarationByName.make({ name: value }));
-      }
-      const name = value.slice(0, separator);
-      const version = value.slice(separator + 1);
-      if (!isVersionString(version)) {
-        return Result.fail(
-          SchemaDeclarationInvalidError.make({
-            reason: `version "${version}" is outside the X[.Y[.Z]] integer grammar`,
-            value,
-          })
+      return classifyString(value);
+    }
+    return isMapping(value)
+      ? Result.succeed(SchemaDeclarationInline.make({ document: value }))
+      : Result.fail(
+          SchemaDeclarationInvalidError.make({ reason: "the declaration is neither a string nor a mapping", value })
         );
-      }
-      return Result.succeed(SchemaDeclarationByName.make({ name, version }));
-    }
-    if (isMapping(value)) {
-      return Result.succeed(SchemaDeclarationInline.make({ document: value }));
-    }
-    return Result.fail(
-      SchemaDeclarationInvalidError.make({ reason: "the declaration is neither a string nor a mapping", value })
-    );
   }
 
   /**
@@ -749,69 +839,17 @@ export class SchemaResolver {
    */
   static fromRegistry(registrations: Readonly<Record<string, S.Top>>): FrontmatterSchemaResolver {
     // Hash keys keep registration names independent of object prototypes.
-    const byName = MutableHashMap.empty<
-      string,
-      { versionless?: S.Top; versions: MutableHashMap.MutableHashMap<string, S.Top> }
-    >();
+    const byName = MutableHashMap.empty<string, RegistryEntry>();
     for (const [key, schema] of R.toEntries(registrations)) {
-      const classified = SchemaResolver.classify(key);
-      if (Result.isFailure(classified) || !S.is(SchemaDeclarationByName)(classified.success)) {
-        throw SchemaRegistryError.make({
-          message: `SchemaResolver.fromRegistry: registration key "${key}" is outside the name[@version] grammar`,
-        });
-      }
-      const declaration = classified.success;
-      const entry = O.getOrUndefined(MutableHashMap.get(byName, declaration.name)) ?? {
-        versions: MutableHashMap.empty<string, S.Top>(),
-      };
-      if (declaration.version === undefined) {
-        entry.versionless = schema;
-      } else {
-        // Classification already validated the version grammar.
-        const canonical = A.join(canonicalSegments(declaration.version), ".");
-        if (MutableHashMap.has(entry.versions, canonical)) {
-          throw SchemaRegistryError.make({
-            message: `SchemaResolver.fromRegistry: registrations for "${declaration.name}" collide on version ${canonical}`,
-          });
-        }
-        MutableHashMap.set(entry.versions, canonical, schema);
-      }
-      MutableHashMap.set(byName, declaration.name, entry);
+      register(byName, key, schema);
     }
+    const resolve = resolveFrom(byName);
     return {
       resolve: dual(
         2,
         Effect.fn("resolve")(
-          (
-            declaration: SchemaDeclaration | undefined,
-            _data: unknown
-          ): Effect.Effect<S.Top, FrontmatterResolveError> => {
-            if (declaration === undefined) {
-              return Effect.fail(SchemaDeclarationMissingError.make());
-            }
-            if (!S.is(SchemaDeclarationByName)(declaration)) {
-              return Effect.fail(SchemaNameUnknownError.make({ declaration }));
-            }
-            const entry = O.getOrUndefined(MutableHashMap.get(byName, declaration.name));
-            if (entry === undefined) {
-              return Effect.fail(SchemaNameUnknownError.make({ declaration }));
-            }
-            if (declaration.version === undefined) {
-              return entry.versionless === undefined
-                ? Effect.fail(SchemaVersionUnresolvableError.make({ name: declaration.name }))
-                : Effect.succeed(entry.versionless);
-            }
-            const match = isVersionString(declaration.version)
-              ? O.getOrUndefined(
-                  MutableHashMap.get(entry.versions, A.join(canonicalSegments(declaration.version), "."))
-                )
-              : undefined;
-            return match === undefined
-              ? Effect.fail(
-                  SchemaVersionUnresolvableError.make({ name: declaration.name, version: declaration.version })
-                )
-              : Effect.succeed(match);
-          }
+          (declaration: SchemaDeclaration | undefined, _data: unknown): Effect.Effect<S.Top, FrontmatterResolveError> =>
+            resolve(declaration)
         )
       ),
     };

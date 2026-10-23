@@ -14,7 +14,7 @@ mdast tree `mdast-util-from-markdown@2.0.3` produces for its `.md` sibling,
 with full unist positions (`line`/`column`/`offset`) on every node — the
 reference emission the remark ecosystem consumes.
 
-`__test__/e2e/mdast-interop.e2e.test.ts` parses each `.md` with this
+`test/e2e/mdast-interop.e2e.test.ts` parses each `.md` with this
 package's parser, projects the tree through `Mdast.toMdast`, and asserts
 deep equality against the `.json` sibling, positions included — AST-plus-
 position interop evidence, strictly stronger than render equivalence.
@@ -26,8 +26,10 @@ generate the `.json` files.
 
 ## Attribution posture
 
-Test-only vendoring. The fixtures are consumed exclusively by `__test__/`,
-never shipped in the published package artifact. The MIT license on the
-upstream repository is satisfied by this attribution file and the upstream
-link above; refresh the copies from the pinned submodule if the
-`.repos/mdast-util-from-markdown` ref ever changes — never hand-edit them.
+Conformance data, not runtime code. The fixtures are loaded by the package's
+own `test/e2e/` suites, and each `.json` tree is importable by other workspace
+packages as an `@beep/markdown/conformance/mdast/<name>` subpath. Nothing
+under `src/` reads them. They travel with this attribution file, and the MIT
+license on the upstream repository is satisfied by this file and the upstream
+link above. Refresh the copies from the pinned submodule if the
+`.repos/mdast-util-from-markdown` ref ever changes; never hand-edit them.

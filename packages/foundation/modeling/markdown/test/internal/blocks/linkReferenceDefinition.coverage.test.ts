@@ -1,4 +1,4 @@
-import { makeBlockNode } from "@beep/markdown/internal/blockTypes";
+import { DefinitionData, makeBlockNode } from "@beep/markdown/internal/blockTypes";
 import { Position } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -40,7 +40,7 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
     nextNonspaceColumn: indent,
     indent,
     indented: indent >= 4,
-    blank: currentLine.trim().length === 0,
+    blank: Str.trim(currentLine).length === 0,
     get tip() {
       return currentTip;
     },
@@ -94,6 +94,7 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
 import { definitionConstruct, extractDefinitions } from "@beep/markdown/internal/blocks/linkReferenceDefinition";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { BlockType, InlineHost, PreparedInline } from "@beep/markdown/internal/blockTypes";
 
 describe("definition construct coverage", () => {
@@ -117,7 +118,7 @@ describe("definition construct coverage", () => {
       assert.strictEqual(definitionConstruct.canContain("paragraph"), false);
       assert.strictEqual(definitionConstruct.continue(scannerFor("", block), block), 1);
       assert.strictEqual(definitionConstruct.materialize(block, [], context), undefined);
-      block.data.definition = { key: "id", identifier: "id", label: "Id", url: "/target" };
+      block.data.definition = DefinitionData.make({ key: "id", identifier: "id", label: "Id", url: "/target" });
       const node = definitionConstruct.materialize(block, [], context);
       assert.strictEqual(node?.type, "definition");
       if (node?.type === "definition") {

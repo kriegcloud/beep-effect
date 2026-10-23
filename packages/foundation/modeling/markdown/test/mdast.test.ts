@@ -8,8 +8,11 @@ import { Frontmatter, Root } from "@beep/markdown/MarkdownNode";
 import { Mdast, MdastDecodeError } from "@beep/markdown/Mdast";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -25,7 +28,7 @@ const gfm = (text: string): Root => {
 const first = (tree: unknown): Record<string, unknown> => {
   if (!isRecord(tree)) assert.fail("expected a record");
   const children = tree.children;
-  if (!Array.isArray(children)) assert.fail("expected children");
+  if (!A.isArray(children)) assert.fail("expected children");
   const child: unknown = children[0];
   assert.isDefined(child);
   if (!isRecord(child)) assert.fail("expected a child record");
@@ -38,6 +41,29 @@ const firstTypedChild = (root: Root) => {
   return child;
 };
 
+/** A plain tree carrying `association` on every association-bearing node type. */
+const associationTree = (association: { readonly identifier: string; readonly label: string }): unknown => ({
+  type: "root",
+  children: [
+    { type: "definition", ...association, url: "/u" },
+    { type: "footnoteDefinition", ...association, children: [] },
+    {
+      type: "paragraph",
+      children: [
+        { type: "linkReference", ...association, referenceType: "full", children: [] },
+        { type: "imageReference", ...association, referenceType: "full", alt: "alt" },
+        { type: "footnoteReference", ...association },
+      ],
+    },
+  ],
+});
+
+/** `value` as an array of plain records, failing the test otherwise. */
+const recordsOf = (value: unknown, what: string): ReadonlyArray<Record<string, unknown>> => {
+  if (!A.isArray(value) || !A.every(value, isRecord)) assert.fail(`expected ${what} records`);
+  return value;
+};
+
 describe("Mdast.toMdast", () => {
   it("emits plain objects, not schema classes", () => {
     const projected = Mdast.toMdast(gfm("hello\n"));
@@ -47,7 +73,7 @@ describe("Mdast.toMdast", () => {
 
   it("strips fidelity extras and keeps positions", () => {
     const heading = first(Mdast.toMdast(gfm("# Title\n")));
-    assert.deepStrictEqual(Object.keys(heading).sort(), ["children", "depth", "position", "type"]);
+    assert.deepStrictEqual(R.keys(heading).sort(), ["children", "depth", "position", "type"]);
     assert.deepStrictEqual(heading.position, {
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 8, offset: 7 },
@@ -86,7 +112,7 @@ describe("Mdast.toMdast", () => {
   it("emits task-list state through checked", () => {
     const list = first(Mdast.toMdast(gfm("- [x] done\n- [ ] open\n")));
     const children = list.children;
-    if (!Array.isArray(children) || !children.every(isRecord)) assert.fail("expected child records");
+    if (!A.isArray(children) || !A.every(children, isRecord)) assert.fail("expected child records");
     assert.strictEqual(children[0]?.checked, true);
     assert.strictEqual(children[1]?.checked, false);
   });
@@ -258,27 +284,10 @@ describe("Mdast.fromMdast", () => {
     for (const label of ["&amp;", "a\\*", "\\&amp;", "&#10;", "&semi;", "plain"]) {
       const identifier = "source\\* &amp;";
       const association = { identifier, label };
-      const back = Mdast.fromMdastResult({
-        type: "root",
-        children: [
-          { type: "definition", ...association, url: "/u" },
-          { type: "footnoteDefinition", ...association, children: [] },
-          {
-            type: "paragraph",
-            children: [
-              { type: "linkReference", ...association, referenceType: "full", children: [] },
-              { type: "imageReference", ...association, referenceType: "full", alt: "alt" },
-              { type: "footnoteReference", ...association },
-            ],
-          },
-        ],
-      });
+      const back = Mdast.fromMdastResult(associationTree(association));
       if (Result.isFailure(back)) assert.fail("expected association admission to succeed");
-      const projected = Mdast.toMdast(back.success);
-      const children = projected.children;
-      if (!Array.isArray(children) || !children.every(isRecord)) assert.fail("expected child records");
-      const references = children[2]?.children;
-      if (!Array.isArray(references) || !references.every(isRecord)) assert.fail("expected reference records");
+      const children = recordsOf(Mdast.toMdast(back.success).children, "child");
+      const references = recordsOf(children[2]?.children, "reference");
       for (const node of [children[0], children[1], ...references]) {
         assert.strictEqual(node?.label, label);
         assert.strictEqual(node?.identifier, identifier);
@@ -347,10 +356,10 @@ describe("Mdast.fromMdast", () => {
       const list = back.success.children[0];
       assert.strictEqual(list?.type, "list");
       if (list?.type === "list") {
-        assert.isFalse(Object.hasOwn(list, "start"));
+        assert.isFalse(P.hasProperty(list, "start"));
         const item = list.children[0];
         assert.isDefined(item);
-        assert.isFalse(Object.hasOwn(item, "checked"));
+        assert.isFalse(P.hasProperty(item, "checked"));
         // Explicit false is a value, not absence.
         assert.strictEqual(list.ordered, false);
       }
@@ -430,7 +439,7 @@ describe("Mdast.fromMdast", () => {
     });
     assertSuccess(back, Result.getOrThrow(back));
     if (Result.isSuccess(back)) {
-      assert.isFalse(Object.hasOwn(firstTypedChild(back.success), "data"));
+      assert.isFalse(P.hasProperty(firstTypedChild(back.success), "data"));
     }
   });
 

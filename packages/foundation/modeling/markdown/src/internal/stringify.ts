@@ -61,10 +61,11 @@
 
 import { $MarkdownId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { replaceAllWith } from "@beep/utils/Str";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
-import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -74,7 +75,9 @@ import { ENTITY } from "./unescape.ts";
 import type {
   Code,
   Definition,
+  Emphasis,
   EmphasisChar,
+  FenceChar,
   FlowContent,
   FootnoteDefinition,
   Frontmatter,
@@ -87,7 +90,9 @@ import type {
   MdxjsEsm,
   Paragraph,
   PhrasingContent,
+  ReferenceType,
   Root,
+  Strong,
   Table,
   TableAlign,
 } from "./nodes.ts";
@@ -115,23 +120,11 @@ const HEADING_CONTEXT: InlineContext = { singleLine: true, inTable: false, inHea
 const CELL_CONTEXT: InlineContext = { singleLine: true, inTable: true, inHeading: false };
 
 /**
- * Characters escaped wherever they appear in inline text.
- */
-const ALWAYS_ESCAPE = HashSet.fromIterable<string>(["\\", "`", "*", "[", "]", "<", "~", "|"]);
-
-/**
  * A character reference at the head of the string: the engine's own grammar.
  */
 const reEntityAhead = new RegExp(`^${ENTITY}`, "i");
 
 const reAlphanumeric = /[\p{L}\p{N}]/u;
-
-/**
- * Line-start characters that could open a block construct.
- */
-const LINE_START_ESCAPE = HashSet.fromIterable<string>(["#", ">", "+", "-", "=", "~", "`"]);
-
-const SCHEME_WORDS = HashSet.fromIterable<string>(["http", "https", "ftp", "mailto", "xmpp"]);
 
 const ORDERED_MARKER = /^\d{1,9}[.)]/;
 
@@ -162,7 +155,7 @@ const guard: {
 } = dual(2, (state: StringifyState, node: { position: { start: { offset: number } } }): void => {
   state.depth += 1;
   if (state.depth > MAX_NESTING_DEPTH) {
-    throw new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, state.depth, node.position.start.offset);
+    throw GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, state.depth, node.position.start.offset);
   }
 });
 
@@ -173,17 +166,45 @@ const unguard = (state: StringifyState): void => {
 // --- inline text escaping ---------------------------------------------------
 
 /**
+ * The UTF-16 code unit at `index` as a one-character string, or `""` past
+ * either end of `value`. Every per-character read in this module goes through
+ * here: an indexed read, never an Option-returning `String` call, and never a
+ * raw `undefined` reaching a `RegExp` test (which would test "undefined").
+ */
+const charAt: {
+  (value: string, index: number): string;
+  (index: number): (value: string) => string;
+} = dual(2, (value: string, index: number): string => value[index] ?? "");
+
+/**
+ * The offset of the next line feed at or after `from`, or `-1`.
+ */
+const reLineFeed = /\n/g;
+const lineFeedFrom: {
+  (value: string, from: number): number;
+  (from: number): (value: string) => number;
+} = dual(2, (value: string, from: number): number => {
+  reLineFeed.lastIndex = from;
+  const match = reLineFeed.exec(value);
+  return match === null ? -1 : match.index;
+});
+
+/**
  * Whether `value[index]` ends a `www` run preceded by a word boundary.
  */
 const isWwwDot: {
   (value: string, index: number): boolean;
   (index: number): (value: string) => boolean;
-} = dual(2, (value: string, index: number): boolean => {
-  if (value.slice(Math.max(0, index - 3), index).toLowerCase() !== "www") return false;
-  if (index - 3 <= 0) return true;
-  const before = value[index - 4];
-  return before === undefined || !/[\p{L}\p{N}]/u.test(before);
-});
+} = dual(
+  2,
+  (value: string, index: number): boolean =>
+    Str.toLowerCase(Str.slice(Math.max(0, index - 3), index)(value)) === "www" &&
+    !reAlphanumeric.test(charAt(value, index - 4))
+);
+
+const reAsciiLetter = /[a-zA-Z]/;
+
+const reSchemeWord = /^(?:https?|ftp|mailto|xmpp)$/;
 
 /**
  * Whether the run of letters ending at `value[index]` is a scheme word.
@@ -193,20 +214,22 @@ const isSchemeColon: {
   (index: number): (value: string) => boolean;
 } = dual(2, (value: string, index: number): boolean => {
   let start = index;
-  while (start > 0 && /[a-zA-Z]/.test(value.charAt(start - 1))) start -= 1;
-  return HashSet.has(SCHEME_WORDS, value.slice(start, index).toLowerCase());
+  while (start > 0 && reAsciiLetter.test(charAt(value, start - 1))) start -= 1;
+  return reSchemeWord.test(Str.toLowerCase(Str.slice(start, index)(value)));
 });
 
 /**
- * Whether `value[index]` is a Unicode letter or number (`undefined` is not).
+ * Whether `value[index]` is a Unicode letter or number (past either end is not).
  */
 const isAlphanumericAt: {
   (value: string, index: number): boolean;
   (index: number): (value: string) => boolean;
-} = dual(2, (value: string, index: number): boolean => {
-  const char = value[index];
-  return char !== undefined && reAlphanumeric.test(char);
-});
+} = dual(2, (value: string, index: number): boolean => reAlphanumeric.test(charAt(value, index)));
+
+const reHashRun = /#*/y;
+const reInlineBlankRun = /[ \t\n]*/y;
+const reBlankToEnd = /^[ \t\n]*$/;
+const reHashThenBlankToEnd = /^#*[ \t\n]*$/;
 
 /**
  * Whether the `#` at `value[index]` heads a run that would read as an ATX
@@ -219,18 +242,326 @@ const isClosingHashRun: {
   (value: string, index: number, followingText: string, nonTextFollows: boolean): boolean;
   (index: number, followingText: string, nonTextFollows: boolean): (value: string) => boolean;
 } = dual(4, (value: string, index: number, followingText: string, nonTextFollows: boolean): boolean => {
-  const before = value[index - 1];
-  if (before !== undefined && before !== " " && before !== "\t") return false;
-  const rest = value.slice(index) + followingText;
-  let end = 0;
-  while (rest[end] === "#") end += 1;
-  return nonTextFollows || /^[ \t\n]*$/.test(rest.slice(end));
+  const before = charAt(value, index - 1);
+  if (before !== "" && before !== " " && before !== "\t") return false;
+  if (nonTextFollows) return true;
+  reHashRun.lastIndex = index;
+  reHashRun.test(value);
+  // A run reaching the value end continues into the following text.
+  if (reHashRun.lastIndex === value.length) return reHashThenBlankToEnd.test(followingText);
+  reInlineBlankRun.lastIndex = reHashRun.lastIndex;
+  reInlineBlankRun.test(value);
+  return reInlineBlankRun.lastIndex === value.length && reBlankToEnd.test(followingText);
 });
 
 /**
  * A run that a later sibling could still complete into a character reference.
  */
 const reEntityPrefix = /^&[#a-z0-9]*$/i;
+
+/**
+ * A character reference at a position: the engine's own grammar.
+ */
+const reEntityAt = new RegExp(ENTITY, "yi");
+
+/**
+ * An entity-shaped run at a position (what a character reference may begin with).
+ */
+const reEntityPrefixAt = /&[#a-zA-Z0-9]*/y;
+
+/**
+ * Whether the `&` at `value[index]` binds as a character reference, tested
+ * against the contiguous text that will actually be emitted (Text("&a") +
+ * Text("mp;") must not fuse). A run a non-text sibling could still complete
+ * (`&`, `&am`, `&#12`) is escaped, since that sibling's bytes are unknowable
+ * here. Only an entity-shaped run reaching the value end can depend on the
+ * following text, so the concatenation is built at most once per value.
+ */
+const isEntityShaped: {
+  (value: string, index: number, followingText: string, nonTextFollows: boolean): boolean;
+  (index: number, followingText: string, nonTextFollows: boolean): (value: string) => boolean;
+} = dual(4, (value: string, index: number, followingText: string, nonTextFollows: boolean): boolean => {
+  reEntityAt.lastIndex = index;
+  if (reEntityAt.test(value)) return true;
+  reEntityPrefixAt.lastIndex = index;
+  reEntityPrefixAt.test(value);
+  if (reEntityPrefixAt.lastIndex !== value.length) return false;
+  const ahead = Str.slice(index)(value) + followingText;
+  return reEntityAhead.test(ahead) || (nonTextFollows && reEntityPrefix.test(ahead));
+});
+
+/**
+ * An ordered-list marker at a position.
+ */
+const reOrderedMarkerAt = /\d{1,9}[.)]/y;
+
+/**
+ * The backslash-escaped spelling of an ordered-list marker: `1.` reads `1\.`.
+ */
+const escapeOrderedMarker = (marker: string): string => `${Str.slice(0, -1)(marker)}\\${Str.slice(-1)(marker)}`;
+
+/**
+ * The fields every per-character escape reads: the value being escaped, its
+ * container context and the contiguous text around it.
+ */
+interface EscapeInput {
+  readonly context: InlineContext;
+  readonly followingText: string;
+  readonly mdx: boolean;
+  readonly nonTextFollows: boolean;
+  readonly value: string;
+}
+
+/**
+ * The emission cursor shared by the canonical and the literal escapers
+ * (mutable engine state, D-42): the output so far, whether it sits at a line
+ * start, and the index of the character being escaped.
+ */
+class EscapeCursor implements EscapeInput {
+  out = "";
+  index = 0;
+  lineStart: boolean;
+  // The last two (never empty) pushes: together they hold the output's last
+  // two characters, so a newline's hard-break check never reads `out`, whose
+  // rope a read would flatten.
+  previousPush = "";
+  lastPush = "";
+  readonly context: InlineContext;
+  readonly followingText: string;
+  readonly mdx: boolean;
+  readonly nonTextFollows: boolean;
+  readonly value: string;
+
+  constructor(input: EscapeInput, atLineStart: boolean) {
+    this.context = input.context;
+    this.followingText = input.followingText;
+    this.mdx = input.mdx;
+    this.nonTextFollows = input.nonTextFollows;
+    this.value = input.value;
+    this.lineStart = atLineStart;
+  }
+
+  /** Append `text`, recording whether the emission now sits at a line start. */
+  push(text: string, lineStart: boolean): void {
+    this.out += text;
+    this.lineStart = lineStart;
+    this.previousPush = this.lastPush;
+    this.lastPush = text;
+  }
+
+  /**
+   * Emit the run of characters up to `end` that need no escape here, in one
+   * append, and move the cursor to its last character.
+   */
+  pushRun(end: number): void {
+    this.push(Str.slice(this.index, end)(this.value), false);
+    this.index = end - 1;
+  }
+
+  /**
+   * The offset where the next character `special` matches (a global regex)
+   * sits at or after the cursor, or the value's end.
+   */
+  nextSpecial(special: RegExp): number {
+    special.lastIndex = this.index;
+    const match = special.exec(this.value);
+    return match === null ? this.value.length : match.index;
+  }
+
+  /**
+   * Whether two spaces end the contiguous emission — the text before this
+   * value (its last two characters are `precedingTail`) followed by `out` —
+   * so a raw newline here would read as a hard break.
+   */
+  endsWithTwoSpaces(precedingTail: string): boolean {
+    const outTail = lastTwo(this.lastPush.length >= 2 ? this.lastPush : this.previousPush + this.lastPush);
+    return Str.endsWith("  ")(precedingTail + outTail);
+  }
+
+  /** Whether the newline being escaped touches another newline within this value. */
+  adjacentNewline(): boolean {
+    return charAt(this.value, this.index - 1) === "\n" || charAt(this.value, this.index + 1) === "\n";
+  }
+
+  /**
+   * Emit a newline: a space in a single-line container, the inert numeric
+   * reference where a raw newline would open a blank line, else itself.
+   */
+  newline(blankHazard: boolean): void {
+    if (this.context.singleLine) {
+      this.push(" ", false);
+    } else if (blankHazard) {
+      this.push("&#10;", false);
+    } else {
+      this.push("\n", true);
+    }
+  }
+
+  /**
+   * Leading whitespace at a line start would read as indentation (four
+   * columns make an indented code block); the numeric reference is inert.
+   * Returns whether the character was emitted.
+   */
+  leadingWhitespace(char: string): boolean {
+    const reference = LEADING_WHITESPACE_REFERENCE[char];
+    if (reference !== undefined) {
+      this.push(reference, false);
+    }
+    return reference !== undefined;
+  }
+
+  /** The ordered-list marker starting at the current index, if any. */
+  orderedMarker(): string | undefined {
+    reOrderedMarkerAt.lastIndex = this.index;
+    return reOrderedMarkerAt.exec(this.value)?.[0];
+  }
+
+  /** Emit an ordered-list marker escaped, consuming it whole. */
+  pushOrderedMarker(marker: string): void {
+    this.push(escapeOrderedMarker(marker), false);
+    this.index += marker.length - 1;
+  }
+}
+
+const LEADING_WHITESPACE_REFERENCE: Readonly<Record<string, string>> = { "\t": "&#9;", " ": "&#32;" };
+
+/**
+ * Characters escaped wherever they appear in inline text (direct property
+ * lookup per character, never a hashed collection probe).
+ */
+const ALWAYS_ESCAPE: Readonly<Record<string, true>> = {
+  "\\": true,
+  "`": true,
+  "*": true,
+  "[": true,
+  "]": true,
+  "<": true,
+  "~": true,
+  "|": true,
+};
+
+/**
+ * Line-start characters that could open a block construct.
+ */
+const LINE_START_ESCAPE: Readonly<Record<string, true>> = {
+  "#": true,
+  ">": true,
+  "+": true,
+  "-": true,
+  "=": true,
+  "~": true,
+  "`": true,
+};
+
+/**
+ * The canonical escapes that depend on where a character sits: each returns
+ * the spelling of the character at the cursor's index.
+ */
+const CONTEXTUAL_ESCAPE: Readonly<Record<string, (cursor: EscapeCursor) => string>> = {
+  // MDX makes `{` open an expression anywhere in text (the oracle's unsafe
+  // set: `{` in phrasing and at breaks); `<` is already in the always-escape
+  // set. Only trees carrying MDX nodes pay this escape, so non-MDX output is
+  // byte-identical to the canonical table.
+  "{": (cursor) => (cursor.mdx ? "\\{" : "{"),
+  // The intraword-underscore rule: between two alphanumerics an `_` can
+  // neither open nor close emphasis, so it stays raw.
+  _: (cursor) =>
+    isAlphanumericAt(cursor.value, cursor.index - 1) && isAlphanumericAt(cursor.value, cursor.index + 1) ? "_" : "\\_",
+  "&": (cursor) =>
+    isEntityShaped(cursor.value, cursor.index, cursor.followingText, cursor.nonTextFollows) ? "\\&" : "&",
+  "#": (cursor) =>
+    cursor.context.inHeading &&
+    isClosingHashRun(cursor.value, cursor.index, cursor.followingText, cursor.nonTextFollows)
+      ? "\\#"
+      : "#",
+  ".": (cursor) => (isWwwDot(cursor.value, cursor.index) ? "\\." : "."),
+  ":": (cursor) => (isSchemeColon(cursor.value, cursor.index) ? "\\:" : ":"),
+};
+
+/**
+ * The canonical spelling of one inline character away from a line start.
+ */
+const canonicalInlineChar = (cursor: EscapeCursor, char: string): string => {
+  if (ALWAYS_ESCAPE[char] === true) return `\\${char}`;
+  const contextual = CONTEXTUAL_ESCAPE[char];
+  return contextual === undefined ? char : contextual(cursor);
+};
+
+/**
+ * The canonical line-start escapes: indentation, an ordered-list marker, a
+ * block-opening character. Returns whether the character was emitted.
+ */
+const canonicalLineStart = (cursor: EscapeCursor, char: string): boolean => {
+  if (cursor.leadingWhitespace(char)) return true;
+  const marker = cursor.orderedMarker();
+  if (marker !== undefined) {
+    cursor.pushOrderedMarker(marker);
+    return true;
+  }
+  if (LINE_START_ESCAPE[char] === true) {
+    cursor.push(`\\${char}`, false);
+    return true;
+  }
+  return false;
+};
+
+/**
+ * A soft break survives as a plain newline, INCLUDING at a Text value's
+ * boundary (index 0 or the last index) — that is exactly where a line wraps
+ * beside a non-text inline (inlineCode, strong, emphasis, link), and the
+ * neighbouring inline keeps the paragraph continuous, so a literal `\n` there
+ * cannot open a block. Some cases still have no raw spelling and keep the
+ * numeric reference: a newline adjacent to another newline WITHIN this value
+ * (a literal blank line, which would end the paragraph on re-parse), and a
+ * newline that lands at an already-fresh physical line (`lineStart` true —
+ * block start, or immediately after a hard break) — emitting it there would
+ * open a second, BLANK line, which is the same "blank line ends the block"
+ * hazard as the adjacent case, just arriving from the previous sibling
+ * instead of from this value. Single-line contexts have no newline spelling
+ * at all. Trailing emitted spaces must not turn a soft newline into a hard
+ * break, including across Text siblings.
+ */
+const canonicalNewline = (cursor: EscapeCursor, precedingText: string): void => {
+  const hardBreak = cursor.endsWithTwoSpaces(lastTwo(precedingText));
+  cursor.newline(cursor.adjacentNewline() || cursor.lineStart || hardBreak);
+};
+
+/**
+ * The characters a canonical escape may change away from a line start: the
+ * line terminators, the always-escape set and the contextual escapes. Every
+ * other character is emitted as itself, so runs of them are appended whole.
+ */
+const reCanonicalSpecial = /[\r\n\\`*[\]<~|{_&#.:]/g;
+
+/** The same characters as `reCanonicalSpecial`, for a direct per-character lookup. */
+const CANONICAL_SPECIAL: Readonly<Record<string, true>> = {
+  ...ALWAYS_ESCAPE,
+  "\r": true,
+  "\n": true,
+  "{": true,
+  _: true,
+  "&": true,
+  "#": true,
+  ".": true,
+  ":": true,
+};
+
+/**
+ * Escape the character at the cursor's index canonically, or append the run
+ * of characters up to the next one that may need an escape.
+ */
+const canonicalStep = (cursor: EscapeCursor, precedingText: string): void => {
+  const char = charAt(cursor.value, cursor.index);
+  if (!cursor.lineStart && CANONICAL_SPECIAL[char] !== true) {
+    cursor.pushRun(cursor.nextSpecial(reCanonicalSpecial));
+  } else if (char === "\r") {
+    cursor.push("&#13;", false);
+  } else if (char === "\n") {
+    canonicalNewline(cursor, precedingText);
+  } else if (!cursor.lineStart || !canonicalLineStart(cursor, char)) {
+    cursor.push(canonicalInlineChar(cursor, char), false);
+  }
+};
 
 /**
  * Escape one text value into `out`, tracking line starts. Returns whether the
@@ -269,122 +600,11 @@ const escapeText: {
     nonTextFollows: boolean,
     precedingText = ""
   ): { text: string; atLineStart: boolean } => {
-    let out = "";
-    let lineStart = atLineStart;
-    for (let index = 0; index < value.length; index += 1) {
-      const char = value.charAt(index);
-      if (char === "\r") {
-        out += "&#13;";
-        lineStart = false;
-        continue;
-      }
-      if (char === "\n") {
-        // A soft break survives as a plain newline, INCLUDING at a Text
-        // value's boundary (index 0 or the last index) — that is exactly
-        // where a line wraps beside a non-text inline (inlineCode, strong,
-        // emphasis, link), and the neighbouring inline keeps the paragraph
-        // continuous, so a literal `\n` there cannot open a block. Some
-        // cases still have no raw spelling and keep the numeric reference:
-        // a newline adjacent to another newline WITHIN this value (a
-        // literal blank line, which would end the paragraph on re-parse),
-        // and a newline that lands at an already-fresh physical line
-        // (`lineStart` true — block start, or immediately after a hard
-        // break) — emitting it there would open a second, BLANK line,
-        // which is the same "blank line ends the block" hazard as the
-        // adjacent case, just arriving from the previous sibling instead
-        // of from this value. Single-line contexts have no newline
-        // spelling at all. Trailing emitted spaces must not turn a soft
-        // newline into a hard break, including across Text siblings.
-        const adjacent = value[index - 1] === "\n" || value[index + 1] === "\n";
-        const hardBreak = Str.endsWith("  ")(Str.slice(-2)(precedingText) + Str.slice(-2)(out));
-        if (context.singleLine) {
-          out += " ";
-          lineStart = false;
-        } else if (adjacent || lineStart || hardBreak) {
-          out += "&#10;";
-          lineStart = false;
-        } else {
-          out += "\n";
-          lineStart = true;
-        }
-        continue;
-      }
-      if (lineStart) {
-        // Leading whitespace at a line start would read as indentation
-        // (four columns make an indented code block); the numeric
-        // reference is inert.
-        if (char === "\t") {
-          out += "&#9;";
-          lineStart = false;
-          continue;
-        }
-        if (char === " ") {
-          out += "&#32;";
-          lineStart = false;
-          continue;
-        }
-        const lineEnd = value.indexOf("\n", index);
-        const restOfLine = value.slice(index, lineEnd === -1 ? undefined : lineEnd);
-        const ordered = ORDERED_MARKER.exec(restOfLine);
-        if (ordered !== null) {
-          const digits = ordered[0].slice(0, -1);
-          const delimiter = ordered[0].slice(-1);
-          out += `${digits}\\${delimiter}`;
-          index += ordered[0].length - 1;
-          lineStart = false;
-          continue;
-        }
-        if (HashSet.has(LINE_START_ESCAPE, char)) {
-          out += `\\${char}`;
-          lineStart = false;
-          continue;
-        }
-      }
-      lineStart = false;
-      if (HashSet.has(ALWAYS_ESCAPE, char)) {
-        out += `\\${char}`;
-        continue;
-      }
-      // MDX makes `{` open an expression anywhere in text (the oracle's
-      // unsafe set: `{` in phrasing and at breaks); `<` is already in the
-      // always-escape set. Only trees carrying MDX nodes pay this escape,
-      // so non-MDX output is byte-identical to the canonical table.
-      if (mdx && char === "{") {
-        out += "\\{";
-        continue;
-      }
-      // The intraword-underscore rule: between two alphanumerics an `_`
-      // can neither open nor close emphasis, so it stays raw.
-      if (char === "_" && !(isAlphanumericAt(value, index - 1) && isAlphanumericAt(value, index + 1))) {
-        out += "\\_";
-        continue;
-      }
-      // `&` binds only as a character reference, tested against the
-      // contiguous text that will actually be emitted (Text("&a") +
-      // Text("mp;") must not fuse). A run a non-text sibling could still
-      // complete (`&`, `&am`, `&#12`) is escaped, since that sibling's
-      // bytes are unknowable here.
-      if (char === "&") {
-        const ahead = value.slice(index) + followingText;
-        const entityShaped = reEntityAhead.test(ahead) || (nonTextFollows && reEntityPrefix.test(ahead));
-        out += entityShaped ? "\\&" : "&";
-        continue;
-      }
-      if (context.inHeading && char === "#" && isClosingHashRun(value, index, followingText, nonTextFollows)) {
-        out += "\\#";
-        continue;
-      }
-      if (char === "." && isWwwDot(value, index)) {
-        out += "\\.";
-        continue;
-      }
-      if (char === ":" && isSchemeColon(value, index)) {
-        out += "\\:";
-        continue;
-      }
-      out += char;
+    const cursor = new EscapeCursor({ value, context, mdx, followingText, nonTextFollows }, atLineStart);
+    for (; cursor.index < value.length; cursor.index += 1) {
+      canonicalStep(cursor, precedingText);
     }
-    return { text: out, atLineStart: lineStart };
+    return { text: cursor.out, atLineStart: cursor.lineStart };
   }
 );
 
@@ -403,24 +623,74 @@ const escapeText: {
 /**
  * Space or tab — the whitespace a list marker or ATX run must be followed by.
  */
-const isSpaceOrTab = (char: string | undefined): boolean => char === " " || char === "\t";
+const isSpaceOrTab = (char: string): boolean => char === " " || char === "\t";
 
 /**
- * Every character of `line` is `marker` or space/tab — a thematic-break or setext-shaped run.
+ * A thematic-break or setext-shaped run of each marker: the marker or
+ * spaces/tabs only.
  */
-const isRunOf: {
-  (line: string, marker: string): boolean;
-  (marker: string): (line: string) => boolean;
-} = dual(
-  2,
-  (line: string, marker: string): boolean =>
-    line.length > 0 && A.every([...line], (char) => char === marker || char === " " || char === "\t")
-);
+const MARKER_RUN: Readonly<Record<string, RegExp>> = {
+  "-": /^[- \t]+$/,
+  "*": /^[* \t]+$/,
+  _: /^[_ \t]+$/,
+};
+
+/**
+ * An open fence line of one fence character only, which more text could
+ * complete.
+ */
+const FENCE_ONLY: Readonly<Record<string, RegExp>> = { "`": /^`+$/, "~": /^~+$/ };
 
 /**
  * Only the characters a GFM delimiter row is made of (re2c's `spacechar` included).
  */
 const reDelimiterRowShaped = /^[-:| \t\v\f]+$/;
+
+/**
+ * The context `literalLineOpensBlock` judges a line in.
+ */
+interface LiteralLine {
+  readonly char: string;
+  readonly line: string;
+  readonly open: boolean;
+}
+
+/**
+ * Whether an ATX heading run opens the line: 1-6 `#` then space, tab or end.
+ */
+const opensAtxHeading = ({ line }: LiteralLine): boolean => {
+  let length = 1;
+  while (length < 6 && charAt(line, length) === "#") length += 1;
+  return length === line.length || isSpaceOrTab(charAt(line, length));
+};
+
+/**
+ * A fence is 3+ of either; an open line of only 1-2 could be completed.
+ */
+const opensFence = ({ char, line, open }: LiteralLine): boolean =>
+  Str.startsWith(Str.repeat(3)(char))(line) || (open && FENCE_ONLY[char]?.test(line) === true);
+
+/**
+ * A bullet marker followed by space, tab or the line end.
+ */
+const opensBullet = ({ char, line }: LiteralLine): boolean =>
+  char !== "_" && (line.length === 1 || isSpaceOrTab(charAt(line, 1)));
+
+/**
+ * A thematic break: a run of the marker with at least three of it, or an
+ * open run that more text could complete.
+ */
+const opensThematicBreak = ({ char, line, open }: LiteralLine): boolean =>
+  MARKER_RUN[char]?.test(line) === true && (open || Str.split(line, char).length - 1 >= 3);
+
+/**
+ * `---`/`+++` open frontmatter at the document head (`---json` too). A dash
+ * line may also be a setext underline or a delimiter row; the delimiter-row
+ * shape covers both.
+ */
+const opensFrontmatterOrDashLine = ({ char, line }: LiteralLine): boolean =>
+  ((char === "-" || char === "+") && Str.startsWith(Str.repeat(3)(char))(line)) ||
+  (char === "-" && reDelimiterRowShaped.test(line));
 
 /**
  * Whether a literal line starting with `line` can open a block, so its first
@@ -433,43 +703,141 @@ const reDelimiterRowShaped = /^[-:| \t\v\f]+$/;
  * it reaches the end of `line`. Every test errs toward escaping: an extra
  * backslash is inert, a missing one changes the document.
  */
-const literalLineOpensBlockDispatch = Match.type<{ char: string | undefined; line: string; open: boolean }>().pipe(
+const literalLineOpensBlockDispatch = Match.type<LiteralLine>().pipe(
   Match.when({ char: Match.is(">", "<", "[", "|", ":") }, () => true),
-  Match.when({ char: "#" }, ({ line }) => {
-    let length = 1;
-    while (length < 6 && line[length] === "#") length += 1;
-    return length === line.length || isSpaceOrTab(line[length]);
-  }),
-  // A fence is 3+ of either; an open line of only 1-2 could be completed.
-  Match.when(
-    { char: Match.is("`", "~") },
-    ({ char, line, open }) => line.startsWith(char.repeat(3)) || (open && A.every([...line], (each) => each === char))
-  ),
+  Match.when({ char: "#" }, opensAtxHeading),
+  Match.when({ char: Match.is("`", "~") }, opensFence),
   // A setext underline, kept escaped even on a paragraph's first line.
   Match.when({ char: "=" }, ({ line }) => /^=+[ \t]*$/.test(line)),
-  Match.when({ char: Match.is("+", "-", "*", "_") }, ({ char, line, open }) => {
-    const bullet = char !== "_" && (line.length === 1 || isSpaceOrTab(line[1]));
-    const breakRun = char !== "+" && isRunOf(line, char);
-    const thematic = breakRun && (open || A.filter([...line], (each) => each === char).length >= 3);
-    // `---`/`+++` open frontmatter at the document head (`---json`
-    // too). A dash line may be a setext underline or a delimiter row;
-    // the delimiter-row shape covers both.
-    const frontmatter = (char === "-" || char === "+") && line.startsWith(char.repeat(3));
-    const dashLine = char === "-" && reDelimiterRowShaped.test(line);
-    return bullet || thematic || frontmatter || dashLine;
-  }),
+  Match.when(
+    { char: Match.is("+", "-", "*", "_") },
+    (input) => opensBullet(input) || opensThematicBreak(input) || opensFrontmatterOrDashLine(input)
+  ),
   Match.orElse(() => false)
 );
 
 const literalLineOpensBlock: {
   (line: string, open: boolean): boolean;
   (open: boolean): (line: string) => boolean;
-} = dual(2, (line: string, open: boolean): boolean => literalLineOpensBlockDispatch({ char: line[0], line, open }));
+} = dual(2, (line: string, open: boolean): boolean =>
+  literalLineOpensBlockDispatch({ char: charAt(line, 0), line, open })
+);
 
 /**
  * ASCII punctuation: what a backslash escapes, so `\x` is one cell character.
  */
 const reAsciiPunctuation = /[!-/:-@[-`{-~]/;
+
+/**
+ * The text known to sit on the line starting at the cursor: the value up to
+ * its next newline, or — when no newline ends it — the value's rest plus the
+ * following text up to its first newline, `open` when even that one ends
+ * unterminated.
+ */
+const literalLineAt = (cursor: EscapeCursor): { readonly line: string; readonly open: boolean } => {
+  const lineEnd = lineFeedFrom(cursor.value, cursor.index);
+  if (lineEnd !== -1) {
+    return { line: Str.slice(cursor.index, lineEnd)(cursor.value), open: false };
+  }
+  const followingEnd = lineFeedFrom(cursor.followingText, 0);
+  const following = followingEnd === -1 ? cursor.followingText : Str.slice(0, followingEnd)(cursor.followingText);
+  return { line: Str.slice(cursor.index)(cursor.value) + following, open: followingEnd === -1 };
+};
+
+/**
+ * The literal line-start escapes: indentation, an ordered-list marker that
+ * space, tab or the line end follows, a block-opening line. Returns whether
+ * the character was emitted.
+ */
+const literalLineStart = (cursor: EscapeCursor, char: string): boolean => {
+  if (cursor.leadingWhitespace(char)) return true;
+  const { line, open } = literalLineAt(cursor);
+  // The marker is read off the whole known line, so one split across a text
+  // sibling boundary still escapes (and consumes) as a unit.
+  const marker = ORDERED_MARKER.exec(line)?.[0];
+  if (marker !== undefined) {
+    const after = charAt(line, marker.length);
+    if (after === "" || isSpaceOrTab(after)) {
+      cursor.pushOrderedMarker(marker);
+      return true;
+    }
+    return false;
+  }
+  if (literalLineOpensBlock(line, open)) {
+    cursor.push(`\\${char}`, false);
+    return true;
+  }
+  return false;
+};
+
+/**
+ * An escape pair is atomic — the cell scanner consumes it whole — so an
+ * already-escaped `\|` passes through untouched. A value-final backslash with
+ * more content after it, in any container, would pair with that content's
+ * first character: the backtick of inline code, or a table cell's `\|`,
+ * freeing the pipe.
+ */
+const literalBackslash = (cursor: EscapeCursor): string => {
+  const next = charAt(cursor.value, cursor.index + 1);
+  if (next !== "" && reAsciiPunctuation.test(next)) {
+    cursor.index += 1;
+    return `\\${next}`;
+  }
+  const followed = cursor.followingText !== "" || cursor.nonTextFollows;
+  return next === "" && followed ? "\\\\" : "\\";
+};
+
+/**
+ * The literal escapes that survive away from a line start: each returns the
+ * spelling of the character at the cursor's index.
+ */
+const LITERAL_ESCAPE: Readonly<Record<string, (cursor: EscapeCursor) => string>> = {
+  "\\": literalBackslash,
+  // Escaped here as well as by the `escapeCellPipes` post-pass: if a raw
+  // sibling ended on a lone backslash, a bare `|` would pair with it and eat
+  // it, while `\|` leaves an even run the post-pass repairs.
+  "|": (cursor) => (cursor.context.inTable ? "\\|" : "|"),
+  "{": (cursor) => (cursor.mdx ? "\\{" : "{"),
+  "<": (cursor) => (cursor.mdx ? "\\<" : "<"),
+  "#": (cursor) =>
+    cursor.context.inHeading &&
+    isClosingHashRun(cursor.value, cursor.index, cursor.followingText, cursor.nonTextFollows)
+      ? "\\#"
+      : "#",
+};
+
+/**
+ * The characters a literal escape may change away from a line start: the
+ * line feed and the `LITERAL_ESCAPE` keys.
+ */
+const reLiteralSpecial = /[\n\\|{<#]/g;
+
+/** The same characters as `reLiteralSpecial`, for a direct per-character lookup. */
+const LITERAL_SPECIAL: Readonly<Record<string, true>> = {
+  "\n": true,
+  "\\": true,
+  "|": true,
+  "{": true,
+  "<": true,
+  "#": true,
+};
+
+/**
+ * Escape the character at the cursor's index literally, or append the run of
+ * characters up to the next one that may need an escape. The newline rules
+ * are the canonical ones: they are all structural.
+ */
+const literalStep = (cursor: EscapeCursor): void => {
+  const char = charAt(cursor.value, cursor.index);
+  if (!cursor.lineStart && LITERAL_SPECIAL[char] !== true) {
+    cursor.pushRun(cursor.nextSpecial(reLiteralSpecial));
+  } else if (char === "\n") {
+    cursor.newline(cursor.adjacentNewline() || cursor.lineStart);
+  } else if (!cursor.lineStart || !literalLineStart(cursor, char)) {
+    const escape = LITERAL_ESCAPE[char];
+    cursor.push(escape === undefined ? char : escape(cursor), false);
+  }
+};
 
 const literalText: {
   (
@@ -497,90 +865,11 @@ const literalText: {
     followingText: string,
     nonTextFollows: boolean
   ): { text: string; atLineStart: boolean } => {
-    let out = "";
-    let lineStart = atLineStart;
-    for (let index = 0; index < value.length; index += 1) {
-      const char = value.charAt(index);
-      if (char === "\n") {
-        // The canonical newline rules, unchanged: they are all structural.
-        const adjacent = value[index - 1] === "\n" || value[index + 1] === "\n";
-        if (context.singleLine) {
-          out += " ";
-          lineStart = false;
-        } else if (adjacent || lineStart) {
-          out += "&#10;";
-          lineStart = false;
-        } else {
-          out += "\n";
-          lineStart = true;
-        }
-        continue;
-      }
-      if (lineStart) {
-        lineStart = false;
-        if (char === "\t") {
-          out += "&#9;";
-          continue;
-        }
-        if (char === " ") {
-          out += "&#32;";
-          continue;
-        }
-        const lineEnd = value.indexOf("\n", index);
-        let line = value.slice(index, lineEnd === -1 ? undefined : lineEnd);
-        let open = false;
-        if (lineEnd === -1) {
-          const followingEnd = followingText.indexOf("\n");
-          line += followingText.slice(0, followingEnd === -1 ? undefined : followingEnd);
-          open = followingEnd === -1;
-        }
-        const ordered = ORDERED_MARKER.exec(line);
-        if (ordered !== null) {
-          const after = line[ordered[0].length];
-          if (after === undefined || isSpaceOrTab(after)) {
-            out += `${ordered[0].slice(0, -1)}\\${ordered[0].slice(-1)}`;
-            index += ordered[0].length - 1;
-            continue;
-          }
-        } else if (literalLineOpensBlock(line, open)) {
-          out += `\\${char}`;
-          continue;
-        }
-      }
-      if (char === "\\") {
-        const next = value[index + 1];
-        if (next !== undefined && reAsciiPunctuation.test(next)) {
-          // An escape pair is atomic — the cell scanner consumes it whole
-          // — so an already-escaped `\|` passes through untouched.
-          out += `\\${next}`;
-          index += 1;
-          continue;
-        }
-        // A value-final backslash with more content after it, in any
-        // container, would pair with that content's first character: the
-        // backtick of inline code, or a table cell's `\|`, freeing the pipe.
-        const followed = followingText !== "" || nonTextFollows;
-        out += next === undefined && followed ? "\\\\" : "\\";
-        continue;
-      }
-      // Escaped here as well as by the `escapeCellPipes` post-pass: if a raw
-      // sibling ended on a lone backslash, a bare `|` would pair with it and
-      // eat it, while `\|` leaves an even run the post-pass repairs.
-      if (char === "|" && context.inTable) {
-        out += "\\|";
-        continue;
-      }
-      if (mdx && (char === "{" || char === "<")) {
-        out += `\\${char}`;
-        continue;
-      }
-      if (context.inHeading && char === "#" && isClosingHashRun(value, index, followingText, nonTextFollows)) {
-        out += "\\#";
-        continue;
-      }
-      out += char;
+    const cursor = new EscapeCursor({ value, context, mdx, followingText, nonTextFollows }, atLineStart);
+    for (; cursor.index < value.length; cursor.index += 1) {
+      literalStep(cursor);
     }
-    return { text: out, atLineStart: lineStart };
+    return { text: cursor.out, atLineStart: cursor.lineStart };
   }
 );
 
@@ -607,80 +896,88 @@ const emphasisMarker: {
  * structure. Definitions and references run through this same function, so
  * identifiers agree on both ends and resolution holds.
  */
-const escapeLabel = (label: string): string => label.replace(/(?<!\\)([[\]])/g, "\\$1");
+const escapeLabel = Str.replace(/(?<!\\)([[\]])/g, "\\$1");
 
 /**
- * Whether a destination character forces the pointy-bracket form.
+ * Whether a destination character forces the pointy-bracket form: controls
+ * and space (a bare destination allows neither — compared as strings, so an
+ * astral character's leading surrogate never qualifies), plus the
+ * bracket/backslash set whose bare spelling is ambiguous.
  */
-const forcesPointy = (char: string): boolean => {
-  const codePoint = char.codePointAt(0);
-  // Controls and space (a bare destination allows neither), plus the
-  // bracket/backslash set whose bare spelling is ambiguous.
-  return (
-    (codePoint !== undefined && codePoint <= 0x20) ||
-    char === "<" ||
-    char === ">" ||
-    char === "[" ||
-    char === "]" ||
-    char === "\\"
-  );
-};
+const reAmbiguousDestinationChar = /[<>[\]\\]/;
+const forcesPointy = (char: string): boolean => char <= " " || reAmbiguousDestinationChar.test(char);
+
+/** Encode what a quoted or bracketed span cannot hold raw: `&` and line terminators. */
+const encodeAmpersands = Str.replace(/&/g, "&amp;");
+const encodeCarriageReturns = Str.replace(/\r/g, "&#13;");
+const encodeLineFeeds = Str.replace(/\n/g, "&#10;");
+const escapePointyDestination = Str.replace(/[<>\\]/g, "\\$&");
+const escapeTitle = Str.replace(/[\\"]/g, "\\$&");
+
+const encodeReferences = (value: string): string => encodeLineFeeds(encodeCarriageReturns(encodeAmpersands(value)));
 
 /**
  * Wrap a link/image destination, pointy-bracketed when it needs it.
  */
-const destination = (url: string): string => {
-  if (url === "" || A.some([...url], forcesPointy) || !balancedParens(url)) {
-    return `<${url
-      .replace(/&/g, "&amp;")
-      .replace(/\r/g, "&#13;")
-      .replace(/\n/g, "&#10;")
-      .replace(/[<>\\]/g, (char) => `\\${char}`)}>`;
-  }
-  return url.replace(/&/g, "&amp;");
-};
+const destination = (url: string): string =>
+  url === "" || A.some([...url], forcesPointy) || !balancedParens(url)
+    ? `<${escapePointyDestination(encodeReferences(url))}>`
+    : encodeAmpersands(url);
 
+/** How each parenthesis moves the nesting count. */
+const PAREN_DELTA: Readonly<Record<string, number>> = { "(": 1, ")": -1 };
+
+/**
+ * Whether the destination's parentheses balance without dipping below zero
+ * or nesting past the engine's 32-level cap.
+ */
 const balancedParens = (url: string): boolean => {
   let open = 0;
   for (const char of url) {
-    if (char === "(") {
-      open += 1;
-      if (open > 32) return false;
-    }
-    if (char === ")") {
-      open -= 1;
-      if (open < 0) return false;
-    }
+    open += PAREN_DELTA[char] ?? 0;
+    if (open < 0 || open > 32) return false;
   }
   return open === 0;
 };
 
 const titleSuffix = (title: string | undefined): string =>
-  title === undefined
-    ? ""
-    : ` "${title
-        .replace(/&/g, "&amp;")
-        .replace(/\r/g, "&#13;")
-        .replace(/\n/g, "&#10;")
-        .replace(/[\\"]/g, (char) => `\\${char}`)}"`;
+  title === undefined ? "" : ` "${escapeTitle(encodeReferences(title))}"`;
+
+/**
+ * The longest match of a run pattern (a global regex) anywhere in `value`.
+ */
+const longestMatch: {
+  (value: string, run: RegExp): number;
+  (run: RegExp): (value: string) => number;
+} = dual(2, (value: string, run: RegExp): number => {
+  let longest = 0;
+  run.lastIndex = 0;
+  for (let match = run.exec(value); match !== null; match = run.exec(value)) {
+    longest = Math.max(longest, match[0].length);
+  }
+  return longest;
+});
 
 /**
  * Serialize an inline-code span with a fence run longer than any interior run.
  */
+/** A run of backticks, and a run of tildes: the fence characters. */
+const reBacktickRun = /`+/g;
+const reTildeRun = /~+/g;
+
 const inlineCode = (value: string): string => {
-  let longest = 0;
-  for (const run of value.match(/`+/g) ?? []) longest = Math.max(longest, run.length);
-  const fence = "`".repeat(Math.max(1, longest + 1));
+  const fence = Str.repeat(longestMatch(value, reBacktickRun) + 1)("`");
   // Padding restores what the spec's one-space stripping will remove: a
   // value touching a backtick at either end, or one that starts AND could
   // lose its real leading/trailing space. An all-space value is never
   // stripped, so it must NOT be padded.
-  const allSpace = value !== "" && value.trim() === "";
-  const needsPad =
-    !allSpace && (value.startsWith("`") || value.endsWith("`") || value.startsWith(" ") || value.endsWith(" "));
-  const padded = needsPad ? ` ${value} ` : value;
+  const allSpace = value !== "" && Str.trim(value) === "";
+  const padded = !allSpace && reCodeSpanEdge.test(value) ? ` ${value} ` : value;
   return `${fence}${padded}${fence}`;
 };
+
+/** A code span value starting or ending with a backtick or a space. */
+const reCodeSpanEdge = /^[` ]|[` ]$/;
 
 /**
  * The emphasis-family parent whose markers sit at this run's edges. An
@@ -688,10 +985,10 @@ const inlineCode = (value: string): string => {
  *
  * **Details**
  *
- *   em{strong}     uniform marker  — `***x***` re-parses em{strong}
- *   em{em}         flip            — `**x**` would read as strong
- *   strong{em}     flip            — `***x***` would swap the nesting order
- *   strong{strong} uniform         — a fused 4+ run splits back into strongs
+ * - `em{strong}`: uniform marker — `***x***` re-parses as `em{strong}`.
+ * - `em{em}`: flip — `**x**` would read as strong.
+ * - `strong{em}`: flip — `***x***` would swap the nesting order.
+ * - `strong{strong}`: uniform — a fused 4+ run splits back into strongs.
  *
  * Mid-run children only avoid an actually adjacent marker char. On top of
  * either rule, an `_` that would sit against an alphanumeric cannot flank
@@ -724,40 +1021,107 @@ const nestedMarker: {
  * adjacent marker char.
  */
 interface InlineRun {
-  adjacentMarker: EmphasisChar | undefined;
   atEdge: boolean;
   atLineStart: boolean;
   readonly children: ReadonlyArray<PhrasingContent>;
   readonly context: InlineContext;
   index: number;
   readonly junctionGuard: JunctionGuard | undefined;
-  lastChar: string | undefined;
+  // The output is `out` + `pending`: the last emitted chunk stays pending so
+  // its end can be read or rewritten without touching `out`, whose rope a
+  // read would flatten (per child, that made a long paragraph quadratic).
   out: string;
+  pending: string;
+  previous: string;
   readonly state: StringifyState;
   textRun: string;
   textRunEnd: number;
   textRunOffset: number;
 }
 
-const bangGuard = (run: InlineRun): void => {
-  if (run.out.endsWith("!") && !run.out.endsWith("\\!")) {
-    run.out = `${run.out.slice(0, -1)}\\!`;
+/** Append a (non-empty) chunk to the run's output, committing the previously pending one. */
+const emit = (run: InlineRun, text: string): void => {
+  if (text !== "") {
+    run.out += run.pending;
+    run.previous = run.pending;
+    run.pending = text;
   }
 };
+
+/** The last two characters of a string (fewer when shorter). */
+const lastTwo = Str.slice(-2);
+
+/** The run output's last two characters, read off the last two chunks alone. */
+const runTail = (run: InlineRun): string => lastTwo(run.pending.length >= 2 ? run.pending : run.previous + run.pending);
+
+const bangGuard = (run: InlineRun): void => {
+  const tail = runTail(run);
+  if (Str.endsWith("!")(tail) && !Str.endsWith("\\!")(tail)) {
+    // The pending chunk ends with the `!`, so the rewrite stays local.
+    run.pending = `${Str.slice(0, -1)(run.pending)}\\!`;
+  }
+};
+
+/**
+ * Open the contiguous text run starting at `run.index`: every adjacent text
+ * sibling's value, joined, so each value's escaping sees what follows it.
+ */
+const openTextRun = (run: InlineRun): void => {
+  const values: Array<string> = [];
+  run.textRunEnd = run.index;
+  for (let next = run.children[run.textRunEnd]; next?.type === "text"; next = run.children[run.textRunEnd]) {
+    values.push(next.value);
+    run.textRunEnd += 1;
+  }
+  run.textRun = A.join(values, "");
+  run.textRunOffset = 0;
+};
+
+/** The next sibling after the current child, skipping empty text values. */
+const nextNonEmptySibling = (run: InlineRun): PhrasingContent | undefined => {
+  let nextIndex = run.index + 1;
+  let next = run.children[nextIndex];
+  while (next?.type === "text" && next.value === "") {
+    nextIndex += 1;
+    next = run.children[nextIndex];
+  }
+  return next;
+};
+
+const reLeadingAlphanumeric = /^[\p{L}\p{N}]/u;
+
+/** Whether an `_` marker would sit against a letter or number on either side. */
+const underscoreAgainstAlphanumeric = (run: InlineRun, lastChar: string | undefined): boolean => {
+  const next = nextNonEmptySibling(run);
+  return (
+    (lastChar !== undefined && reAlphanumeric.test(lastChar)) ||
+    (next?.type === "text" && reLeadingAlphanumeric.test(next.value))
+  );
+};
+
+/**
+ * The marker an emphasis-family child emits: the nesting algebra at a run
+ * edge, otherwise its fidelity flipped away from an adjacent marker; an
+ * underscore beside a letter or number cannot preserve emphasis.
+ */
+const emphasisChildMarker = (child: Emphasis | Strong, run: InlineRun): EmphasisChar => {
+  const lastChar = lastCodePoint(runTail(run));
+  const adjacentMarker = lastChar === "*" || lastChar === "_" ? lastChar : undefined;
+  const marker =
+    run.atEdge && run.junctionGuard !== undefined
+      ? nestedMarker(child.type, child.markerChar, run.junctionGuard)
+      : emphasisMarker(child.markerChar, adjacentMarker);
+  return marker === "_" && underscoreAgainstAlphanumeric(run, lastChar) ? "*" : marker;
+};
+
+/** The bracket suffix of a reference: the label of a full reference, `[]` collapsed, nothing shortcut. */
+const referenceSuffix = (referenceType: ReferenceType, label: string, full: string): string =>
+  referenceType === "full" ? full : referenceType === "collapsed" ? `[${label}][]` : `[${label}]`;
 
 const serializeInline = Match.type<PhrasingContent>().pipe(
   Match.discriminator("type")("text", (child) => (run: InlineRun) => {
     if (run.index >= run.textRunEnd) {
-      const values: string[] = [];
-      run.textRunEnd = run.index;
-      while (run.textRunEnd < run.children.length) {
-        const following = run.children[run.textRunEnd];
-        if (following?.type !== "text") break;
-        values.push(following.value);
-        run.textRunEnd += 1;
-      }
-      run.textRun = A.join(values, "");
-      run.textRunOffset = 0;
+      openTextRun(run);
     }
     run.textRunOffset += child.value.length;
     const escaped = (child.escapeStyle === "literal" ? literalText : escapeText)(
@@ -765,69 +1129,54 @@ const serializeInline = Match.type<PhrasingContent>().pipe(
       run.context,
       run.atLineStart,
       run.state.mdx,
-      run.textRun.slice(run.textRunOffset),
+      Str.slice(run.textRunOffset)(run.textRun),
       run.textRunEnd < run.children.length,
-      run.out
+      // Only its last two characters are read, and only at a newline.
+      run.previous + run.pending
     );
-    run.out += escaped.text;
+    emit(run, escaped.text);
     run.atLineStart = escaped.atLineStart;
   }),
   Match.discriminator("type")("inlineCode", (child) => (run: InlineRun) => {
-    run.out += inlineCode(child.value);
+    emit(run, inlineCode(child.value));
     run.atLineStart = false;
   }),
   Match.discriminator("type")("html", (child) => (run: InlineRun) => {
-    run.out += child.value;
+    emit(run, child.value);
     run.atLineStart = false;
   }),
   Match.discriminator("type")("break", (child) => (run: InlineRun) => {
     if (run.context.singleLine) {
-      run.out += " ";
+      emit(run, " ");
       run.atLineStart = false;
     } else {
-      run.out += child.breakStyle === "spaces" ? "  \n" : "\\\n";
+      emit(run, child.breakStyle === "spaces" ? "  \n" : "\\\n");
       run.atLineStart = true;
     }
   }),
   Match.discriminator("type")("emphasis", "strong", (child) => (run: InlineRun) => {
     const kind = child.type;
-    let marker: EmphasisChar;
-    if (run.atEdge && run.junctionGuard !== undefined) {
-      marker = nestedMarker(kind, child.markerChar, run.junctionGuard);
-    } else {
-      marker = emphasisMarker(child.markerChar, run.adjacentMarker);
-    }
-    // Underscores cannot preserve emphasis beside a letter or number.
-    let nextIndex = run.index + 1;
-    let next = run.children[nextIndex];
-    while (next?.type === "text" && next.value === "") {
-      nextIndex += 1;
-      next = run.children[nextIndex];
-    }
-    if (
-      marker === "_" &&
-      ((run.lastChar !== undefined && reAlphanumeric.test(run.lastChar)) ||
-        (next?.type === "text" && /^[\p{L}\p{N}]/u.test(next.value)))
-    ) {
-      marker = "*";
-    }
-    const markers = kind === "strong" ? marker.repeat(2) : marker;
+    const marker = emphasisChildMarker(child, run);
+    const markers = kind === "strong" ? Str.repeat(2)(marker) : marker;
     const inner = serializeInlines(child.children, run.context, run.state, false, { parent: kind, marker });
-    run.out += `${markers}${inner}${markers}`;
+    emit(run, `${markers}${inner}${markers}`);
     run.atLineStart = false;
   }),
   Match.discriminator("type")("delete", (child) => (run: InlineRun) => {
-    run.out += `~~${serializeInlines(child.children, run.context, run.state, false)}~~`;
+    emit(run, `~~${serializeInlines(child.children, run.context, run.state, false)}~~`);
     run.atLineStart = false;
   }),
   Match.discriminator("type")("link", (child) => (run: InlineRun) => {
     bangGuard(run);
-    run.out += `[${serializeInlines(child.children, run.context, run.state, false)}](${destination(child.url)}${titleSuffix(child.title)})`;
+    emit(
+      run,
+      `[${serializeInlines(child.children, run.context, run.state, false)}](${destination(child.url)}${titleSuffix(child.title)})`
+    );
     run.atLineStart = false;
   }),
   Match.discriminator("type")("image", (child) => (run: InlineRun) => {
     const alt = escapeText(child.alt ?? "", run.context, false, run.state.mdx, "", false).text;
-    run.out += `![${alt}](${destination(child.url)}${titleSuffix(child.title)})`;
+    emit(run, `![${alt}](${destination(child.url)}${titleSuffix(child.title)})`);
     run.atLineStart = false;
   }),
   Match.discriminator("type")("linkReference", (child) => (run: InlineRun) => {
@@ -836,42 +1185,42 @@ const serializeInline = Match.type<PhrasingContent>().pipe(
     // through escapeLabel so definitions agree — see escapeLabel.
     bangGuard(run);
     const label = escapeLabel(child.label ?? child.identifier);
-    if (child.referenceType === "full") {
-      const content = serializeInlines(child.children, run.context, run.state, false);
-      run.out += `[${content}][${label}]`;
-    } else if (child.referenceType === "collapsed") {
-      run.out += `[${label}][]`;
-    } else {
-      run.out += `[${label}]`;
-    }
+    const full = (): string => `[${serializeInlines(child.children, run.context, run.state, false)}][${label}]`;
+    emit(run, referenceSuffix(child.referenceType, label, child.referenceType === "full" ? full() : ""));
     run.atLineStart = false;
   }),
   Match.discriminator("type")("imageReference", (child) => (run: InlineRun) => {
     const label = escapeLabel(child.label ?? child.identifier);
-    if (child.referenceType === "full") {
-      const alt = escapeText(child.alt ?? "", run.context, false, run.state.mdx, "", false).text;
-      run.out += `![${alt}][${label}]`;
-    } else if (child.referenceType === "collapsed") {
-      run.out += `![${label}][]`;
-    } else {
-      run.out += `![${label}]`;
-    }
+    const alt = (): string => escapeText(child.alt ?? "", run.context, false, run.state.mdx, "", false).text;
+    emit(
+      run,
+      `!${referenceSuffix(child.referenceType, label, child.referenceType === "full" ? `[${alt()}][${label}]` : "")}`
+    );
     run.atLineStart = false;
   }),
   Match.discriminator("type")("footnoteReference", (child) => (run: InlineRun) => {
-    run.out += `[^${escapeLabel(child.label ?? child.identifier)}]`;
+    emit(run, `[^${escapeLabel(child.label ?? child.identifier)}]`);
     run.atLineStart = false;
   }),
   Match.discriminator("type")("mdxJsxTextElement", (child) => (run: InlineRun) => {
-    run.out += serializeMdxJsxText(child, run.context, run.state);
+    emit(run, serializeMdxJsxText(child, run.context, run.state));
     run.atLineStart = false;
   }),
   Match.discriminator("type")("mdxTextExpression", (child) => (run: InlineRun) => {
-    run.out += mdxExpression(child.value);
+    emit(run, mdxExpression(child.value));
     run.atLineStart = false;
   }),
   Match.exhaustive
 );
+
+/** A surrogate pair: one astral code point. */
+const reSurrogatePair = /^[\uD800-\uDBFF][\uDC00-\uDFFF]$/;
+
+/** The last code point emitted so far, or `undefined` before any output. */
+const lastCodePoint = (out: string): string | undefined => {
+  const pair = Str.slice(-2)(out);
+  return out === "" ? undefined : reSurrogatePair.test(pair) ? pair : Str.slice(-1)(out);
+};
 
 const serializeInlines: {
   (
@@ -898,6 +1247,8 @@ const serializeInlines: {
   ): string => {
     const run: InlineRun = {
       out: "",
+      pending: "",
+      previous: "",
       atLineStart: startsLine,
       index: 0,
       textRunEnd: 0,
@@ -907,22 +1258,16 @@ const serializeInlines: {
       context,
       state,
       junctionGuard,
-      lastChar: undefined,
       atEdge: true,
-      adjacentMarker: undefined,
     };
     for (const child of children) {
       guard(state, child);
-      const pair = Str.slice(-2)(run.out);
-      run.lastChar =
-        run.out === "" ? undefined : /^[\uD800-\uDBFF][\uDC00-\uDFFF]$/.test(pair) ? pair : run.out[run.out.length - 1];
-      run.atEdge = run.out === "" || run.index === children.length - 1;
-      run.adjacentMarker = run.lastChar === "*" || run.lastChar === "_" ? run.lastChar : undefined;
+      run.atEdge = run.pending === "" || run.index === children.length - 1;
       serializeInline(child)(run);
       run.index += 1;
       unguard(state);
     }
-    return run.out;
+    return run.out + run.pending;
   }
 );
 // --- MDX serialization ------------------------------------------------------
@@ -992,12 +1337,12 @@ const mapMdxLines: {
   let start = 0;
   let index = 0;
   for (let match = eol.exec(value); match !== null; match = eol.exec(value)) {
-    const line = value.slice(start, match.index);
+    const line = Str.slice(start, match.index)(value);
     result.push(map(line, index, line === ""), match[0]);
     start = match.index + match[0].length;
     index += 1;
   }
-  const last = value.slice(start);
+  const last = Str.slice(start)(value);
   result.push(map(last, index, last === ""));
   return A.join(result, "");
 });
@@ -1024,7 +1369,7 @@ const serializeMdxAttribute = (attribute: MdxJsxAttributeContent): string => {
     return attribute.name;
   }
   if (P.isString(value)) {
-    return `${attribute.name}="${value.replaceAll('"', "&#x22;")}"`;
+    return `${attribute.name}="${Str.replaceAll('"', "&#x22;")(value)}"`;
   }
   return `${attribute.name}={${value.value}}`;
 };
@@ -1066,53 +1411,73 @@ const indentBlockLines: {
  * lines when one carries a line ending), children as indented block layout,
  * closing tag — the oracle's `mdxElement` flow branch.
  */
+/**
+ * The opening tag of a flow element: attributes on their own lines when one
+ * carries a line ending, the spaced self-closing slash when it has no
+ * children.
+ */
+const mdxJsxFlowOpeningTag: {
+  (node: MdxJsxFlowElement, indent: string): string;
+  (indent: string): (node: MdxJsxFlowElement) => string;
+} = dual(2, (node: MdxJsxFlowElement, indent: string): string => {
+  const attributes = A.map(node.attributes, serializeMdxAttribute);
+  const selfClosing = node.name !== null && node.children.length === 0;
+  const attributesOnOneLine = A.join(attributes, " ");
+  const attributesOnTheirOwnLine = reLineTerminator.test(attributesOnOneLine);
+  // Only the first line of each attribute is indented — attribute VALUES
+  // cannot be re-indented without changing them.
+  const attributeText = attributesOnTheirOwnLine
+    ? `\n${A.join(
+        A.map(attributes, (attribute) => `${indent}  ${attribute}`),
+        "\n"
+      )}\n${indent}`
+    : attributesOnOneLine === ""
+      ? ""
+      : ` ${attributesOnOneLine}`;
+  const slash = selfClosing ? `${attributesOnTheirOwnLine ? "" : " "}/` : "";
+  return `${indent}<${node.name ?? ""}${attributeText}${slash}>`;
+});
+
+const reLineTerminator = /[\r\n]/;
+
+/**
+ * A flow element's children in block layout, one JSX level deeper. A nested
+ * flow element indents itself (it reads the deeper jsxDepth); every other
+ * block is rendered flush and indented here, blank lines excepted — the
+ * oracle's containerFlow.
+ */
+const mdxJsxFlowChildren: {
+  (node: MdxJsxFlowElement, state: StringifyState): string;
+  (state: StringifyState): (node: MdxJsxFlowElement) => string;
+} = dual(2, (node: MdxJsxFlowElement, state: StringifyState): string => {
+  state.jsxDepth += 1;
+  const childIndent = Str.repeat(state.jsxDepth)("  ");
+  const parts = A.map(node.children, (child) => {
+    if (child.type === "mdxJsxFlowElement") {
+      guard(state, child);
+      const rendered = serializeMdxJsxFlow(child, state);
+      unguard(state);
+      return rendered;
+    }
+    return indentBlockLines(serializeBlocks([child], state), childIndent);
+  });
+  state.jsxDepth -= 1;
+  return `\n${A.join(parts, "\n\n")}\n`;
+});
+
+/**
+ * Serialize a flow (block) JSX element: opening tag (attributes on their own
+ * lines when one carries a line ending), children as indented block layout,
+ * closing tag — the oracle's `mdxElement` flow branch.
+ */
 const serializeMdxJsxFlow: {
   (node: MdxJsxFlowElement, state: StringifyState): string;
   (state: StringifyState): (node: MdxJsxFlowElement) => string;
 } = dual(2, (node: MdxJsxFlowElement, state: StringifyState): string => {
-  const currentIndent = "  ".repeat(state.jsxDepth);
-  const attributes = A.map(node.attributes, serializeMdxAttribute);
-  const selfClosing = node.name !== null && node.children.length === 0;
-  const attributesOnOneLine = A.join(attributes, " ");
-  const attributesOnTheirOwnLine = /[\r\n]/.test(attributesOnOneLine);
-  let value = `${currentIndent}<${node.name ?? ""}`;
-  if (attributesOnTheirOwnLine) {
-    // Only the first line of each attribute is indented — attribute
-    // VALUES cannot be re-indented without changing them.
-    value += `\n${pipe(
-      attributes,
-      A.map((attribute) => `${currentIndent}  ${attribute}`),
-      A.join("\n")
-    )}\n${currentIndent}`;
-  } else if (attributesOnOneLine !== "") {
-    value += ` ${attributesOnOneLine}`;
-  }
-  if (selfClosing) {
-    value += `${attributesOnTheirOwnLine ? "" : " "}/`;
-  }
-  value += ">";
-  if (node.children.length > 0) {
-    state.jsxDepth += 1;
-    const childIndent = "  ".repeat(state.jsxDepth);
-    const parts = A.map(node.children, (child) => {
-      // A nested flow element indents itself (it reads the deeper
-      // jsxDepth); every other block is rendered flush and indented
-      // here, blank lines excepted — the oracle's containerFlow.
-      if (child.type === "mdxJsxFlowElement") {
-        guard(state, child);
-        const rendered = serializeMdxJsxFlow(child, state);
-        unguard(state);
-        return rendered;
-      }
-      return indentBlockLines(serializeBlocks([child], state), childIndent);
-    });
-    state.jsxDepth -= 1;
-    value += `\n${A.join(parts, "\n\n")}\n`;
-  }
-  if (!selfClosing) {
-    value += `${currentIndent}</${node.name ?? ""}>`;
-  }
-  return value;
+  const indent = Str.repeat(state.jsxDepth)("  ");
+  const children = node.children.length > 0 ? mdxJsxFlowChildren(node, state) : "";
+  const closing = node.name !== null && node.children.length === 0 ? "" : `${indent}</${node.name ?? ""}>`;
+  return `${mdxJsxFlowOpeningTag(node, indent)}${children}${closing}`;
 });
 
 // --- block serialization ----------------------------------------------------
@@ -1125,7 +1490,7 @@ const prefixLines: {
   (prefix: string, blankPrefix: string): (content: string) => string;
 } = dual(3, (content: string, prefix: string, blankPrefix: string): string =>
   pipe(
-    content.split("\n"),
+    Str.split(content, "\n"),
     A.map((line) => (line === "" ? blankPrefix : `${prefix}${line}`)),
     A.join("\n")
   )
@@ -1138,8 +1503,8 @@ const hangingIndent: {
   (content: string, marker: string): string;
   (marker: string): (content: string) => string;
 } = dual(2, (content: string, marker: string): string => {
-  const lines = content.split("\n");
-  const indent = " ".repeat(marker.length);
+  const lines = Str.split(content, "\n");
+  const indent = Str.repeat(marker.length)(" ");
   return pipe(
     lines,
     A.map((line, index) => {
@@ -1150,17 +1515,60 @@ const hangingIndent: {
   );
 });
 
+/** A character's decimal numeric character reference. */
+const numericReference = (char: string): string => `&#${O.getOrThrow(Str.charCodeAt(char, 0))};`;
+
 /** Encode decoded info without introducing fence syntax or token boundaries. */
 const encodeCodeInfo: {
   (value: string, language: boolean, fenceChar: Code["fenceChar"]): string;
   (language: boolean, fenceChar: Code["fenceChar"]): (value: string) => string;
 } = dual(3, (value: string, language: boolean, fenceChar: Code["fenceChar"]): string => {
-  const encoded = value
-    .replace(/&/g, "&amp;")
-    .replace(/\\/g, "&#92;")
-    .replace(/`/g, "&#96;")
-    .replace(language ? /\s/g : /[\t\r\n\v\f]|^\s|\s$/g, (char) => `&#${char.charCodeAt(0)};`);
+  const encoded = pipe(
+    value,
+    Str.replace(/&/g, "&amp;"),
+    Str.replace(/\\/g, "&#92;"),
+    Str.replace(/`/g, "&#96;"),
+    replaceAllWith(language ? /\s/g : /[\t\r\n\v\f]|^\s|\s$/g, numericReference)
+  );
   return language && fenceChar === "~" ? Str.replace(/^~/, "&#126;")(encoded) : encoded;
+});
+
+/** Indent every non-blank line by four spaces; blank lines stay bare. */
+const indentCodeBlock = (lines: ReadonlyArray<string>): string =>
+  A.join(
+    A.map(lines, (line) => (line === "" ? "" : `    ${line}`)),
+    "\n"
+  );
+
+/**
+ * Whether a code block can take the indented spelling: no fence asked for (by
+ * the caller or a fidelity field), no info string, and non-empty content with
+ * no blank first or last line.
+ */
+const indentable: {
+  (node: Code, lines: ReadonlyArray<string>, forceFence: boolean): boolean;
+  (lines: ReadonlyArray<string>, forceFence: boolean): (node: Code) => boolean;
+} = dual(
+  3,
+  (node: Code, lines: ReadonlyArray<string>, forceFence: boolean): boolean =>
+    !forceFence &&
+    node.fenceChar === undefined &&
+    node.lang === undefined &&
+    node.meta === undefined &&
+    A.match(lines, {
+      onEmpty: () => false,
+      onNonEmpty: (nonEmpty) => A.headNonEmpty(nonEmpty) !== "" && A.lastNonEmpty(nonEmpty) !== "",
+    })
+);
+
+/** The info string after an opening fence: the encoded language, then the encoded meta. */
+const fenceInfo: {
+  (node: Code, char: FenceChar): string;
+  (char: FenceChar): (node: Code) => string;
+} = dual(2, (node: Code, char: FenceChar): string => {
+  if (node.lang === undefined) return "";
+  const meta = node.meta === undefined ? "" : ` ${encodeCodeInfo(node.meta, false, char)}`;
+  return `${encodeCodeInfo(node.lang, true, char)}${meta}`;
 });
 
 const serializeCode: {
@@ -1169,44 +1577,25 @@ const serializeCode: {
 } = dual(2, (node: Code, forceFence: boolean): string => {
   // The parser's code values end with the block's final line terminator;
   // it belongs to block structure, not content, on the way back out.
-  const value = node.value.endsWith("\n") ? node.value.slice(0, -1) : node.value;
-  const lines = value === "" ? [] : value.split("\n");
-  const indentedRepresentable =
-    !forceFence &&
-    node.fenceChar === undefined &&
-    node.lang === undefined &&
-    node.meta === undefined &&
-    lines.length > 0 &&
-    lines[0] !== "" &&
-    lines[lines.length - 1] !== "";
-  if (indentedRepresentable) {
-    return pipe(
-      lines,
-      A.map((line) => (line === "" ? "" : `    ${line}`)),
-      A.join("\n")
-    );
+  const value = Str.endsWith("\n")(node.value) ? Str.slice(0, -1)(node.value) : node.value;
+  const lines = value === "" ? [] : Str.split(value, "\n");
+  if (indentable(node, lines, forceFence)) {
+    return indentCodeBlock(lines);
   }
   const char = node.fenceChar ?? "`";
-  let longest = 0;
-  const runs = value.match(char === "`" ? /`+/g : /~+/g) ?? [];
-  for (const run of runs) longest = Math.max(longest, run.length);
-  const length = Math.max(3, node.fenceLength ?? 0, longest + 1);
-  const fence = char.repeat(length);
-  const info =
-    node.lang === undefined
-      ? ""
-      : `${encodeCodeInfo(node.lang, true, char)}${node.meta !== undefined ? ` ${encodeCodeInfo(node.meta, false, char)}` : ""}`;
+  const longest = longestMatch(value, char === "`" ? reBacktickRun : reTildeRun);
+  const fence = Str.repeat(Math.max(3, node.fenceLength ?? 0, longest + 1))(char);
   const body = value === "" ? "" : `${value}\n`;
-  return `${fence}${info}\n${body}${fence}`;
+  return `${fence}${fenceInfo(node, char)}\n${body}${fence}`;
 });
 
 const setextUnderline: {
   (heading: Heading, content: string): string;
   (content: string): (heading: Heading) => string;
 } = dual(2, (heading: Heading, content: string): string => {
-  const lastLine = content.slice(content.lastIndexOf("\n") + 1);
+  const lastLine = A.lastNonEmpty(Str.split(content, "\n"));
   const char = heading.depth === 1 ? "=" : "-";
-  return char.repeat(Math.max(1, lastLine.length));
+  return Str.repeat(Math.max(1, lastLine.length))(char);
 });
 
 const serializeHeading: {
@@ -1220,7 +1609,7 @@ const serializeHeading: {
   if (setext && content !== "") {
     return `${content}\n${setextUnderline(heading, content)}`;
   }
-  const hashes = "#".repeat(heading.depth);
+  const hashes = Str.repeat(heading.depth)("#");
   return content === "" ? hashes : `${hashes} ${content}`;
 });
 
@@ -1236,7 +1625,7 @@ const serializeFootnoteDefinition: {
   // so a flow element nested through a footnote definition keeps counting
   // its JSX ancestors and self-indents one step deeper. No jsxDepth reset.
   const content = serializeBlocks(node.children, state);
-  const lines = content.split("\n");
+  const lines = Str.split(content, "\n");
   const marker = `[^${escapeLabel(node.label ?? node.identifier)}]:`;
   // Indented code cannot share the marker line — its leading spaces would
   // be stripped as marker padding and the line would re-parse as a
@@ -1255,13 +1644,11 @@ const serializeFootnoteDefinition: {
   );
 });
 
+/** The delimiter-row cell for each column alignment (an unknown alignment is `---`). */
+const ALIGN_CELL: Readonly<Record<TableAlign, string>> = { left: ":--", right: "--:", center: ":-:" };
+
 const alignCell = (align: TableAlign | null | undefined): string =>
-  Match.value(align).pipe(
-    Match.when("left", (_) => ":--"),
-    Match.when("right", (_) => "--:"),
-    Match.when("center", (_) => ":-:"),
-    Match.orElse(() => "---")
-  );
+  align === null || align === undefined ? "---" : ALIGN_CELL[align];
 
 /**
  * Escape every cell pipe the GFM cell splitter would read as a column
@@ -1270,16 +1657,7 @@ const alignCell = (align: TableAlign | null | undefined): string =>
  * iff the run of backslashes directly before it has odd length, and needs a
  * `\` iff that run is even, zero included.
  */
-const escapeCellPipes = (content: string): string => {
-  let out = "";
-  let backslashes = 0;
-  for (const char of content) {
-    if (char === "|" && backslashes % 2 === 0) out += "\\";
-    backslashes = char === "\\" ? backslashes + 1 : 0;
-    out += char;
-  }
-  return out;
-};
+const escapeCellPipes = Str.replaceAll(/(?<!\\)((?:\\\\)*)\|/g, "$1\\|");
 
 const serializeTable: {
   (table: Table, state: StringifyState): string;
@@ -1324,16 +1702,18 @@ const serializeTable: {
 /**
  * The marker actually used by a list, for adjacency comparison.
  */
+/** Each list kind's canonical marker, then the one it flips to. */
+const ORDERED_DELIMITERS = [".", ")"] as const;
+const BULLET_MARKERS = ["-", "*"] as const;
+
 const effectiveListMarker: {
   (list: List, flipped: boolean): string;
   (flipped: boolean): (list: List) => string;
 } = dual(2, (list: List, flipped: boolean): string => {
-  if (list.ordered === true) {
-    const delimiter = list.delimiter ?? ".";
-    return flipped ? (delimiter === "." ? ")" : ".") : delimiter;
-  }
-  const bullet = list.bulletChar ?? "-";
-  return flipped ? (bullet === "-" ? "*" : "-") : bullet;
+  const [canonical, alternate] = list.ordered === true ? ORDERED_DELIMITERS : BULLET_MARKERS;
+  const marker = (list.ordered === true ? list.delimiter : list.bulletChar) ?? canonical;
+  if (!flipped) return marker;
+  return marker === canonical ? alternate : canonical;
 });
 
 const serializeListItem: {
@@ -1354,7 +1734,7 @@ const serializeListItem: {
   unguard(state);
   const checkbox = item.checked === undefined ? "" : item.checked ? "[x] " : "[ ] ";
   const content = `${checkbox}${inner}`;
-  if (content === "") return marker.trimEnd();
+  if (content === "") return Str.trimEnd(marker);
   return hangingIndent(content, marker);
 });
 
@@ -1443,7 +1823,7 @@ const serializeBlock = Match.type<Block>().pipe(
     run.previousListMarker = undefined;
   }),
   Match.discriminator("type")("thematicBreak", (child) => (run: BlockRun) => {
-    run.parts.push((child.markerChar ?? "*").repeat(3));
+    run.parts.push(Str.repeat(3)(child.markerChar ?? "*"));
     run.previousListMarker = undefined;
   }),
   Match.discriminator("type")("code", (child) => (run: BlockRun) => {
@@ -1513,7 +1893,7 @@ const serializeBlocks: {
   (state: StringifyState, tight?: boolean): (children: ReadonlyArray<Block>) => string;
 } = dual(
   (args) => A.isArray(args[0]),
-  (children: ReadonlyArray<Block>, state: StringifyState, tight = false): string => {
+  (children: ReadonlyArray<Block>, state: StringifyState, tight?: boolean): string => {
     const parts: string[] = [];
     const nodes: Block[] = [];
     let previous: Block | undefined;
@@ -1525,7 +1905,7 @@ const serializeBlocks: {
       nodes.push(child);
       unguard(state);
     }
-    if (!tight) return A.join(parts, "\n\n");
+    if (tight !== true) return A.join(parts, "\n\n");
     let out = "";
     previous = undefined;
     for (const [node, part] of A.zip(nodes, parts)) {

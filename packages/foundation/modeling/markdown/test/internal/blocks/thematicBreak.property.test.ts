@@ -5,6 +5,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(
@@ -15,7 +16,7 @@ it.effect.prop(
   ],
   ([marker, count]) =>
     Effect.gen(function* () {
-      const source = `${marker.repeat(count)}\n`;
+      const source = `${Str.repeat(count)(marker)}\n`;
       const parsed = yield* Markdown.parse(source);
       const [node] = parsed.children;
       assert.strictEqual(node?.type, "thematicBreak");

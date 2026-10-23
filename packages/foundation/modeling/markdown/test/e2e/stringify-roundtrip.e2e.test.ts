@@ -20,6 +20,7 @@
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { stringifyTree } from "@beep/markdown/internal/stringify";
 import { assert, describe, it } from "@effect/vitest";
+import * as Str from "effect/String";
 import { loadGfmExtensionsExamples, loadGfmSpecExtensionExamples, loadSpecExamples } from "../support/corpus.ts";
 import { renderHtml } from "../support/htmlWriter.ts";
 import { normalizeHtml } from "../support/normalizeHtml.ts";
@@ -79,10 +80,9 @@ describe("stringify cost", () => {
     // environment (coverage instrumentation, hardware) is from the clean
     // baseline. Stringify of the same tree must land well under the parse
     // cost — it allocates strings, never Schema nodes.
-    const input =
-      "# heading\n\npara *em* **st** `code` [l](/u)\n\n- a\n- b\n\n> quote\n\n| a | b |\n| - | - |\n| 1 | 2 |\n".repeat(
-        500
-      );
+    const input = Str.repeat(500)(
+      "# heading\n\npara *em* **st** `code` [l](/u)\n\n- a\n- b\n\n> quote\n\n| a | b |\n| - | - |\n| 1 | 2 |\n"
+    );
     const warm = parseBlocks(input, { dialect: "gfm" }).root;
     stringifyTree(warm);
 
@@ -131,8 +131,8 @@ describe("decoded syntax round-trip regressions", () => {
     ["info escapes and line endings", "```a&#92;b&#9;c m&#96;n&amp;amp;&#13;&#10;z\nx\n```\n"],
     ["direct image alt syntax", "![\\*x\\* \\_y\\_ \\`z\\` \\<b> &amp;amp;](u)"],
     ["full reference alt syntax", "![\\*x\\* \\_y\\_ \\`z\\` \\<b> &amp;amp;][r]\n\n[r]: u"],
-    ["32 parenthesis destination", `[x](<${"(".repeat(32)}x${")".repeat(32)}>)`],
-    ["33 parenthesis destination", `[x](<${"(".repeat(33)}x${")".repeat(33)}>)`],
+    ["32 parenthesis destination", `[x](<${Str.repeat(32)("(")}x${Str.repeat(32)(")")}>)`],
+    ["33 parenthesis destination", `[x](<${Str.repeat(33)("(")}x${Str.repeat(33)(")")}>)`],
   ] as const;
   for (const dialect of ["commonmark", "gfm"] as const) {
     for (const [name, source] of examples) {

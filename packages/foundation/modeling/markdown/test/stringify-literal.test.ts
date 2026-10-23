@@ -21,8 +21,10 @@ import {
 import { Mdast } from "@beep/markdown/Mdast";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import type { PhrasingContent } from "@beep/markdown/MarkdownNode";
 
 const ProjectedRecords = S.Array(S.Record(S.String, S.Unknown));
 const isRecords = S.is(ProjectedRecords);
@@ -42,6 +44,13 @@ const out = (root: Root): string => {
 
 const parse = (source: string): Root => Result.getOrThrow(Markdown.parseResult(source));
 
+/** The phrasing children of the root's first block, failing unless it is a paragraph. */
+const firstParagraphChildren = (root: Root, what: string): ReadonlyArray<PhrasingContent> => {
+  const block = root.children[0];
+  if (block?.type !== "paragraph") assert.fail(`expected ${what} paragraph`);
+  return block.children;
+};
+
 describe("adjacent text run boundaries", () => {
   it("keeps canonical soft newlines after spaces in adjoining mixed-style siblings", () => {
     for (const children of [
@@ -52,23 +61,19 @@ describe("adjacent text run boundaries", () => {
       const tree = paragraphOf(...children);
       // `make` copies its input (D-22), so pin the tree's own nodes: the
       // serializer must neither merge nor replace them.
-      const built = tree.children[0];
-      if (built?.type !== "paragraph") assert.fail("expected built paragraph");
-      const kids = [...built.children];
+      const kids = [...firstParagraphChildren(tree, "built")];
       const emitted = out(tree);
       assert.strictEqual(emitted, "a  &#10;b\n");
-      const paragraph = parse(emitted).children[0];
-      if (paragraph?.type !== "paragraph") assert.fail("expected paragraph");
-      assert.strictEqual(paragraph.children.length, 1);
-      const text = paragraph.children[0];
+      const reparsed = firstParagraphChildren(parse(emitted), "reparsed");
+      assert.strictEqual(reparsed.length, 1);
+      const text = reparsed[0];
       if (text?.type !== "text") assert.fail("expected soft newline in text");
       assert.strictEqual(text.value, "a  \nb");
-      for (let index = 0; index < children.length; index += 1) {
-        const original = tree.children[0];
-        if (original?.type !== "paragraph") assert.fail("expected original paragraph");
-        assert.strictEqual(original.children[index], kids[index]);
-        assert.deepStrictEqual(original.children[index], children[index]);
-      }
+      const original = firstParagraphChildren(tree, "original");
+      A.forEach(children, (child, index) => {
+        assert.strictEqual(original[index], kids[index]);
+        assert.deepStrictEqual(original[index], child);
+      });
     }
   });
 
@@ -134,8 +139,8 @@ const tableOf = (rows: ReadonlyArray<ReadonlyArray<ReadonlyArray<Text>>>): Root 
   Root.make({
     children: [
       Table.make({
-        children: rows.map((cells) =>
-          TableRow.make({ children: cells.map((children) => TableCell.make({ children: [...children] })) })
+        children: A.map(rows, (cells) =>
+          TableRow.make({ children: A.map(cells, (children) => TableCell.make({ children: [...children] })) })
         ),
       }),
     ],
@@ -150,8 +155,13 @@ const cellValues = (root: Root): ReadonlyArray<ReadonlyArray<string>> => {
   if (table?.type !== "table") {
     assert.fail(`expected a table, got ${table?.type}`);
   }
-  return table.children.map((row) =>
-    row.children.map((cell) => cell.children.map((child) => (child.type === "text" ? child.value : "")).join(""))
+  return A.map(table.children, (row) =>
+    A.map(row.children, (cell) =>
+      A.join(
+        A.map(cell.children, (child) => (child.type === "text" ? child.value : "")),
+        ""
+      )
+    )
   );
 };
 
@@ -169,9 +179,9 @@ const plainTable = (escapeStyle: EscapeStyle | undefined): unknown => ({
     {
       type: "table",
       align: [null, null, null, null, null],
-      children: [HEADER, ...ROWS].map((texts) => ({
+      children: A.map([HEADER, ...ROWS], (texts) => ({
         type: "tableRow",
-        children: texts.map((value) => ({
+        children: A.map(texts, (value) => ({
           type: "tableCell",
           children: [{ type: "text", value, ...(escapeStyle === undefined ? {} : { escapeStyle }) }],
         })),
@@ -193,13 +203,16 @@ describe("Text escapeStyle: literal", () => {
     it("emits ranges and package names verbatim in cells", () => {
       assert.strictEqual(
         out(decodePlain(plainTable("literal"))),
-        [
-          "| Dependency | Type | Action | From | To |",
-          "| --- | --- | --- | --- | --- |",
-          "| @scope/pkg | dependency | updated | ~0.2.1 | ^1.0.0 |",
-          "| some_pkg | devDependency | added | — | ^1.0.0 |",
-          "",
-        ].join("\n")
+        A.join(
+          [
+            "| Dependency | Type | Action | From | To |",
+            "| --- | --- | --- | --- | --- |",
+            "| @scope/pkg | dependency | updated | ~0.2.1 | ^1.0.0 |",
+            "| some_pkg | devDependency | added | — | ^1.0.0 |",
+            "",
+          ],
+          "\n"
+        )
       );
     });
 
@@ -208,13 +221,16 @@ describe("Text escapeStyle: literal", () => {
     });
 
     it("leaves the canonical bytes of the same table unchanged", () => {
-      const pinned = [
-        "| Dependency | Type | Action | From | To |",
-        "| --- | --- | --- | --- | --- |",
-        "| @scope/pkg | dependency | updated | \\~0.2.1 | ^1.0.0 |",
-        "| some_pkg | devDependency | added | — | ^1.0.0 |",
-        "",
-      ].join("\n");
+      const pinned = A.join(
+        [
+          "| Dependency | Type | Action | From | To |",
+          "| --- | --- | --- | --- | --- |",
+          "| @scope/pkg | dependency | updated | \\~0.2.1 | ^1.0.0 |",
+          "| some_pkg | devDependency | added | — | ^1.0.0 |",
+          "",
+        ],
+        "\n"
+      );
       assert.strictEqual(out(decodePlain(plainTable(undefined))), pinned);
       assert.strictEqual(out(decodePlain(plainTable("canonical"))), pinned);
     });
@@ -338,8 +354,14 @@ describe("Text escapeStyle: literal", () => {
         assert.strictEqual(reparsed.children.length, 1, `emitted: ${JSON.stringify(emitted)}`);
         const paragraph = reparsed.children[0];
         assert.strictEqual(paragraph?.type, "paragraph", `emitted: ${JSON.stringify(emitted)}`);
-        if (paragraph?.type === "paragraph" && paragraph.children.every((child) => child.type === "text")) {
-          assert.strictEqual(paragraph.children.map((child) => child.value).join(""), value);
+        if (paragraph?.type === "paragraph" && A.every(paragraph.children, (child) => child.type === "text")) {
+          assert.strictEqual(
+            A.join(
+              A.map(paragraph.children, (child) => child.value),
+              ""
+            ),
+            value
+          );
         }
       });
     }
@@ -387,7 +409,9 @@ describe("Text escapeStyle: literal", () => {
     it("does not round-trip a value that parses as markdown — the caller's promise", () => {
       const reparsed = parse(out(paragraphOf(literal("x *a* y"))));
       const paragraph = reparsed.children[0];
-      assert.isTrue(paragraph?.type === "paragraph" && paragraph.children.some((child) => child.type === "emphasis"));
+      assert.isTrue(
+        paragraph?.type === "paragraph" && A.some(paragraph.children, (child) => child.type === "emphasis")
+      );
     });
   });
 
@@ -399,7 +423,7 @@ describe("Text escapeStyle: literal", () => {
       assert.isTrue(paragraph?.type === "paragraph");
       if (paragraph?.type === "paragraph") {
         assert.deepStrictEqual(
-          paragraph.children.map((child) => [child.type, "value" in child ? child.value : ""]),
+          A.map(paragraph.children, (child) => [child.type, "value" in child ? child.value : ""]),
           [
             ["text", "C:\\"],
             ["inlineCode", "x"],
@@ -419,7 +443,7 @@ describe("Text escapeStyle: literal", () => {
       assert.isTrue(heading?.type === "heading");
       if (heading?.type === "heading") {
         assert.deepStrictEqual(
-          heading.children.map((child) => [child.type, "value" in child ? child.value : ""]),
+          A.map(heading.children, (child) => [child.type, "value" in child ? child.value : ""]),
           [
             ["text", "C:\\"],
             ["inlineCode", "x"],

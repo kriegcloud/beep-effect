@@ -8,6 +8,7 @@ import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const throwsIdentity = (evaluate: () => unknown, expected: Error): void => {
   let caught: unknown;
@@ -26,7 +27,7 @@ it.effect("raw diagnostics become typed failures while programmer defects retain
     const dialect = inlineDialect("commonmark");
     const text = dialect.text;
     const options = MarkdownParseOptions.make({ dialect: "commonmark" });
-    const raw = new RawMarkdownError({ code: "NestingDepthExceeded", message: "raw guard", offset: 2, length: 1 });
+    const raw = RawMarkdownError.make({ code: "NestingDepthExceeded", message: "raw guard", offset: 2, length: 1 });
     const defect = new Error("extension defect");
     try {
       Object.assign(dialect, {
@@ -85,7 +86,7 @@ it.effect("stringify preserves programmer defects rather than converting them to
 it.effect("the string codec maps parser and serializer guard errors to structured schema errors", () =>
   Effect.gen(function* () {
     const codec = Markdown.fromString();
-    const decodeError = yield* Effect.flip(S.decodeEffect(codec)("> ".repeat(300) + "text"));
+    const decodeError = yield* Effect.flip(S.decodeEffect(codec)(`${Str.repeat(300)("> ")}text`));
     assert.include(decodeError.message, "Markdown parse failed: NestingDepthExceeded");
     let node = Blockquote.make({ children: [] });
     for (let depth = 0; depth < 300; depth++) node = Blockquote.make({ children: [node] });

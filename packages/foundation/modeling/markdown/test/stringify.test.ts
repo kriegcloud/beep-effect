@@ -41,10 +41,13 @@ import {
 } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { renderHtml } from "./support/htmlWriter.ts";
+import type { PhrasingContent } from "@beep/markdown/MarkdownNode";
 
 /** A throwaway span. Stringify never reads offsets, only shapes. */
 const span = (): Position =>
@@ -85,11 +88,49 @@ const reparses = (root: Root, expectType: string): void => {
 //
 // If you change a row, you are making a breaking change — update the table, the
 // package README and this suite together, and bump accordingly.
+/**
+ * The destination-bearing nodes of a re-parsed `paragraph(link, image)` plus
+ * `definition` document, failing unless it has exactly that shape.
+ */
+const destinationNodes = (root: Root): ReadonlyArray<Link | Image | Definition> => {
+  const [first, definition] = root.children;
+  if (root.children.length !== 2 || first?.type !== "paragraph" || definition?.type !== "definition")
+    assert.fail("expected paragraph and definition");
+  const inline = A.filter(
+    first.children,
+    (child): child is Link | Image => child.type === "link" || child.type === "image"
+  );
+  if (inline.length !== first.children.length) assert.fail("expected link or image");
+  return [...inline, definition];
+};
+
+/** A one-row table holding two cells. */
+const twoCellTable = (first: PhrasingContent, second: PhrasingContent): Table =>
+  Table.make({
+    children: [
+      TableRow.make({
+        children: [
+          TableCell.make({ children: [first], position: span() }),
+          TableCell.make({ children: [second], position: span() }),
+        ],
+        position: span(),
+      }),
+    ],
+    position: span(),
+  });
+
+/** The header-row cells of the table `emitted` re-parses to, failing unless it is one. */
+const headerCells = (emitted: string): ReadonlyArray<TableCell> => {
+  const first = Result.getOrThrow(Markdown.parseResult(emitted)).children[0];
+  if (first?.type !== "table") assert.fail(`expected a table, emitted: ${JSON.stringify(emitted)}`);
+  return first.children[0]?.children ?? [];
+};
+
 describe("Markdown.stringify — the documented canonical form", () => {
   it("heading: ATX at every depth", () => {
     for (const depth of [1, 2, 3, 4, 5, 6] as const) {
       const heading = Heading.make({ depth, children: [text("T")], position: span() });
-      assert.strictEqual(out(rootOf(heading)), `${"#".repeat(depth)} T\n`);
+      assert.strictEqual(out(rootOf(heading)), `${Str.repeat(depth)("#")} T\n`);
     }
   });
 
@@ -164,6 +205,13 @@ describe("Markdown.stringify — the documented canonical form", () => {
     assert.strictEqual(reparsed.children[0]?.type, "code");
   });
 
+  it("code block: an empty bare block is fenced, since an indented block cannot be empty", () => {
+    const empty = Code.make({ value: "", position: span() });
+    assert.strictEqual(out(rootOf(empty)), "```\n```\n");
+    const reparsed = Result.getOrThrow(Markdown.parseResult(out(rootOf(empty))));
+    assert.strictEqual(reparsed.children[0]?.type, "code");
+  });
+
   it("code block: representability forces a fence where indenting would not reparse", () => {
     // The documented exception to the row above, and a REAL split in the
     // canonical form: an indented block directly after a list is absorbed as
@@ -199,8 +247,8 @@ describe("Markdown.stringify — the documented canonical form", () => {
 
   it("document: a single trailing newline", () => {
     const emitted = out(rootOf(paragraph(text("a"))));
-    assert.isTrue(emitted.endsWith("\n"));
-    assert.isFalse(emitted.endsWith("\n\n"));
+    assert.isTrue(Str.endsWith("\n")(emitted));
+    assert.isFalse(Str.endsWith("\n\n")(emitted));
   });
 
   it("a fidelity field overrides its row", () => {
@@ -399,7 +447,7 @@ describe("Markdown.stringify", () => {
       const emitted = out(rootOf(listA, listB));
       const reparsed = Result.getOrThrow(Markdown.parseResult(emitted));
       assert.deepStrictEqual(
-        reparsed.children.map((child) => child.type),
+        A.map(reparsed.children, (child) => child.type),
         ["list", "list"],
         `emitted: ${JSON.stringify(emitted)}`
       );
@@ -465,24 +513,8 @@ describe("Markdown.stringify", () => {
         for (const value of values) {
           it(`${kind} ${JSON.stringify(value)}`, () => {
             const node = make(value);
-            const table = Table.make({
-              children: [
-                TableRow.make({
-                  children: [
-                    TableCell.make({ children: [node], position: span() }),
-                    TableCell.make({ children: [text("x")], position: span() }),
-                  ],
-                  position: span(),
-                }),
-              ],
-              position: span(),
-            });
-            const emitted = out(rootOf(table));
-            const reparsed = Result.getOrThrow(Markdown.parseResult(emitted));
-            const first = reparsed.children[0];
-            assert.strictEqual(first?.type, "table", `emitted: ${JSON.stringify(emitted)}`);
-            if (first?.type !== "table") return;
-            const cells = first.children[0]?.children ?? [];
+            const emitted = out(rootOf(twoCellTable(node, text("x"))));
+            const cells = headerCells(emitted);
             assert.strictEqual(cells.length, 2, `emitted: ${JSON.stringify(emitted)}`);
             const [child] = cells[0]?.children ?? [];
             assert.strictEqual(child?.type, node.type, `emitted: ${JSON.stringify(emitted)}`);
@@ -538,7 +570,7 @@ describe("Markdown.stringify", () => {
       assert.strictEqual(firstParagraph?.type, "paragraph");
       assert.isTrue(
         firstParagraph?.type === "paragraph" &&
-          firstParagraph.children.some((child) => child.type === "footnoteReference"),
+          A.some(firstParagraph.children, (child) => child.type === "footnoteReference"),
         `emitted: ${JSON.stringify(emitted)}`
       );
     });
@@ -700,9 +732,9 @@ describe("Markdown.stringify", () => {
       assert.strictEqual(p?.type, "paragraph", `emitted: ${JSON.stringify(emitted)} became ${p?.type}`);
       if (p?.type !== "paragraph") return;
       assert.deepStrictEqual(
-        p.children.map((child) => child.type),
+        A.map(p.children, (child) => child.type),
         ["text"],
-        `emitted: ${JSON.stringify(emitted)} split into ${JSON.stringify(p.children.map((c) => c.type))}`
+        `emitted: ${JSON.stringify(emitted)} split into ${JSON.stringify(A.map(p.children, (c) => c.type))}`
       );
       const only = p.children[0];
       assert.isTrue(only?.type === "text" && only.value === expectHtmlText, `round-trip: ${JSON.stringify(emitted)}`);
@@ -741,7 +773,7 @@ describe("Markdown.stringify", () => {
       const reparsed = Result.getOrThrow(Markdown.parseResult(emitted));
       const p = reparsed.children[0];
       assert.isTrue(
-        p?.type === "paragraph" && p.children.every((child) => child.type === "text"),
+        p?.type === "paragraph" && A.every(p.children, (child) => child.type === "text"),
         `emitted: ${JSON.stringify(emitted)} must not re-parse as an autolink`
       );
     });
@@ -750,7 +782,7 @@ describe("Markdown.stringify", () => {
       const reparsed = Result.getOrThrow(Markdown.parseResult(emitted));
       const p = reparsed.children[0];
       assert.isTrue(
-        p?.type === "paragraph" && p.children.every((child) => child.type === "text"),
+        p?.type === "paragraph" && A.every(p.children, (child) => child.type === "text"),
         `emitted: ${JSON.stringify(emitted)} must not re-parse as an autolink`
       );
     });
@@ -765,7 +797,7 @@ describe("Markdown.stringify", () => {
       const reparsed = Result.getOrThrow(Markdown.parseResult(emitted));
       const p = reparsed.children[0];
       assert.isTrue(
-        p?.type === "paragraph" && p.children.some((child) => child.type === "link"),
+        p?.type === "paragraph" && A.some(p.children, (child) => child.type === "link"),
         `emitted: ${JSON.stringify(emitted)} — if this now stays text, the limitation was fixed; update this pin`
       );
     });
@@ -786,9 +818,9 @@ describe("Markdown.stringify", () => {
       assert.strictEqual(block?.type, expectType, `emitted: ${JSON.stringify(emitted)} became ${block?.type}`);
       if (block?.type !== "paragraph" && block?.type !== "heading") assert.fail("unreachable");
       assert.deepStrictEqual(
-        block.children.map((child) => child.type),
+        A.map(block.children, (child) => child.type),
         ["text"],
-        `emitted: ${JSON.stringify(emitted)} split into ${JSON.stringify(block.children.map((c) => c.type))}`
+        `emitted: ${JSON.stringify(emitted)} split into ${JSON.stringify(A.map(block.children, (c) => c.type))}`
       );
       const only = block.children[0];
       return only?.type === "text" ? only.value : "";
@@ -841,7 +873,7 @@ describe("Markdown.stringify", () => {
           ["a &#12", "3;"],
         ] as const) {
           const emitted = out(rootOf(paragraph(text(head), text(tail))));
-          assert.strictEqual(emitted, `a \\&${(head + tail).slice(3)}\n`);
+          assert.strictEqual(emitted, `a \\&${Str.slice(3)(head + tail)}\n`);
           assert.strictEqual(reparsedText(emitted, "paragraph"), head + tail);
         }
       });
@@ -881,7 +913,11 @@ describe("Markdown.stringify", () => {
       });
       it("a `#` run is judged against the contiguous text siblings", () => {
         assert.strictEqual(out(rootOf(heading(2, text("a #"), text("b")))), "## a #b\n");
-        assert.ok(out(rootOf(heading(2, text("a #"), text(" ")))).startsWith("## a \\#"));
+        assert.ok(Str.startsWith("## a \\#")(out(rootOf(heading(2, text("a #"), text(" "))))));
+      });
+      it("a `#` run followed by blanks to the value end is judged against the next text sibling", () => {
+        assert.strictEqual(out(rootOf(heading(2, text("a # "), text("b")))), "## a # b\n");
+        assert.ok(Str.startsWith("## a \\#")(out(rootOf(heading(2, text("a # "), text(" "))))));
       });
       it("a `#` outside a heading is untouched mid-line", () => paragraphCase("Issue #12 #", "Issue #12 #\n"));
     });
@@ -981,8 +1017,8 @@ describe("Markdown.stringify", () => {
         const emitted = yield* encode(root);
         const again = yield* decode(emitted);
         assert.deepStrictEqual(
-          again.children.map((child) => child.type),
-          root.children.map((child) => child.type)
+          A.map(again.children, (child) => child.type),
+          A.map(root.children, (child) => child.type)
         );
       });
     });
@@ -1025,19 +1061,12 @@ describe("decoded source spelling regressions", () => {
         Definition.make({ identifier: "r", url, title })
       );
       const parsed = Result.getOrThrow(Markdown.parseResult(out(tree)));
-      assert.strictEqual(parsed.children.length, 2);
-      const first = parsed.children[0];
-      const definition = parsed.children[1];
-      if (first?.type !== "paragraph" || definition?.type !== "definition")
-        assert.fail("expected paragraph and definition");
-      assert.strictEqual(first.children.length, 2);
-      for (const child of first.children) {
-        if (child.type !== "link" && child.type !== "image") assert.fail("expected link or image");
-        assert.strictEqual(child.url, url);
-        assert.strictEqual(child.title, title);
+      const destinations = destinationNodes(parsed);
+      assert.strictEqual(destinations.length, 3);
+      for (const node of destinations) {
+        assert.strictEqual(node.url, url);
+        assert.strictEqual(node.title, title);
       }
-      assert.strictEqual(definition.url, url);
-      assert.strictEqual(definition.title, title);
       assert.strictEqual(renderHtml(parsed), renderHtml(tree));
     }
   });
@@ -1190,7 +1219,7 @@ describe("decoded source spelling regressions", () => {
 
   for (const nesting of [32, 33]) {
     it(`round-trips a destination nested ${nesting} parentheses deep`, () => {
-      const url = `${"(".repeat(nesting)}x${")".repeat(nesting)}`;
+      const url = `${Str.repeat(nesting)("(")}x${Str.repeat(nesting)(")")}`;
       const emitted = out(rootOf(paragraph(Link.make({ url, children: [text("x")] }))));
       assert.strictEqual(emitted, nesting === 32 ? `[x](${url})\n` : `[x](<${url}>)\n`);
       const parsed = Result.getOrThrow(Markdown.parseResult(emitted));

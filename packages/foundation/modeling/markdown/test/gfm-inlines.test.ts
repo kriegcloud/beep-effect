@@ -8,6 +8,8 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 import type { PhrasingContent } from "@beep/markdown/MarkdownNode";
 
 /** The phrasing children of a source that parses to a single leaf block. */
@@ -22,8 +24,8 @@ const inlinesOf = (source: string, dialect: "commonmark" | "gfm" = "gfm"): Reado
  * carries its destination.
  */
 const sketch = (nodes: ReadonlyArray<PhrasingContent>): string =>
-  nodes
-    .map((node) => {
+  A.join(
+    A.map(nodes, (node) => {
       switch (node.type) {
         case "text":
           return JSON.stringify(node.value);
@@ -44,8 +46,9 @@ const sketch = (nodes: ReadonlyArray<PhrasingContent>): string =>
         default:
           return node.type;
       }
-    })
-    .join(",");
+    }),
+    ","
+  );
 
 /** The compact shape of a source's phrasing content under a dialect. */
 const shape = (source: string, dialect: "commonmark" | "gfm" = "gfm"): string => sketch(inlinesOf(source, dialect));
@@ -158,7 +161,7 @@ describe("gfm autolink literals", () => {
     it("fires after whitespace and after * _ ~ (", () => {
       for (const before of [" ", "*", "_", "~", "("]) {
         const rendered = shape(`x${before}www.a.com`);
-        assert.isTrue(rendered.includes("link(http://www.a.com)"), `expected a literal autolink after ${before}`);
+        assert.isTrue(Str.includes("link(http://www.a.com)")(rendered), `expected a literal autolink after ${before}`);
       }
     });
 
@@ -176,7 +179,10 @@ describe("gfm autolink literals", () => {
     it("strips the other trailing punctuation cmark-gfm names", () => {
       for (const mark of ["?", "!", ",", ":", "*", "_", "~", "'", '"']) {
         const rendered = shape(`www.a.com${mark}`);
-        assert.isTrue(rendered.startsWith('link(http://www.a.com)["www.a.com"]'), `expected ${mark} to be trimmed`);
+        assert.isTrue(
+          Str.startsWith('link(http://www.a.com)["www.a.com"]')(rendered),
+          `expected ${mark} to be trimmed`
+        );
       }
     });
 

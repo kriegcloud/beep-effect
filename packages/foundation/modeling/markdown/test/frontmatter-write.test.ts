@@ -29,9 +29,11 @@ import { MarkdownEdit } from "@beep/markdown/MarkdownEdit";
 import { TomlFrontmatter } from "@beep/markdown/TomlFrontmatter";
 import { YamlFrontmatter } from "@beep/markdown/YamlFrontmatter";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 
 const withFrontmatter = MarkdownParseOptions.make({ frontmatter: true });
@@ -98,14 +100,14 @@ describe("MarkdownFrontmatter.set", () => {
       assert.strictEqual(edits[0]?.offset, 0);
       const updated = MarkdownEdit.applyAll(source, edits);
       // Everything after the closing fence survives byte-identical.
-      assert.isTrue(updated.endsWith(source.slice(node?.position.end.offset ?? 0)));
+      assert.isTrue(Str.endsWith(Str.slice(node?.position.end.offset ?? 0)(source))(updated));
       // The re-parsed document decodes the new data with the same tree shape.
       const reparsed = yield* parseDoc(updated);
       const data = yield* MarkdownFrontmatter.schema(Meta, YamlFrontmatter)(reparsed);
       assert.deepStrictEqual(data, { title: "New", count: 2 });
       assert.deepStrictEqual(
-        reparsed.root.children.map((child) => child.type),
-        document.root.children.map((child) => child.type)
+        A.map(reparsed.root.children, (child) => child.type),
+        A.map(document.root.children, (child) => child.type)
       );
     })
   );
@@ -120,7 +122,7 @@ describe("MarkdownFrontmatter.set", () => {
       assert.strictEqual(edits[0]?.length, 0);
       const updated = MarkdownEdit.applyAll(source, edits);
       // The existing content survives byte-identical after the blank line.
-      assert.isTrue(updated.endsWith(`\n\n${source}`));
+      assert.isTrue(Str.endsWith(`\n\n${source}`)(updated));
       const reparsed = yield* parseDoc(updated);
       const data = yield* MarkdownFrontmatter.schema(Meta, TomlFrontmatter)(reparsed);
       assert.deepStrictEqual(data, { title: "Hi", count: 3 });
@@ -216,7 +218,7 @@ describe("MarkdownFrontmatter.setToString", () => {
 describe("frontmatter write round-trip property", () => {
   // Newline-free strings only — see the file header for why. The count stays
   // in the 32-bit range every frontmatter codec represents exactly.
-  const Scalar = S.String.check(S.makeFilter((s) => !s.includes("\n") && !s.includes("\r")));
+  const Scalar = S.String.check(S.makeFilter((s) => !Str.includes("\n")(s) && !Str.includes("\r")(s)));
   const MetaArb = S.Struct({
     title: Scalar,
     count: S.Int.check(S.isBetween({ minimum: -(2 ** 31), maximum: 2 ** 31 - 1 })),
@@ -230,7 +232,7 @@ describe("frontmatter write round-trip property", () => {
     const document = yield* parseDoc(bodyDoc);
     const updated = yield* MarkdownFrontmatter.setToString(Meta, codec)(document, data);
     // The pre-existing content survives byte-identical.
-    assert.isTrue(updated.endsWith(`\n\n${bodyDoc}`));
+    assert.isTrue(Str.endsWith(`\n\n${bodyDoc}`)(updated));
     const reparsed = yield* parseDoc(updated);
     return yield* MarkdownFrontmatter.schema(Meta, codec)(reparsed);
   });
@@ -273,7 +275,7 @@ describe("frontmatter write round-trip property", () => {
       Effect.gen(function* () {
         const document = yield* parseDoc(fenced);
         const updated = yield* MarkdownFrontmatter.setToString(Meta, YamlFrontmatter)(document, data);
-        assert.isTrue(updated.endsWith(`\n\n${bodyDoc}`));
+        assert.isTrue(Str.endsWith(`\n\n${bodyDoc}`)(updated));
         const reparsed = yield* parseDoc(updated);
         const result = yield* MarkdownFrontmatter.schema(Meta, YamlFrontmatter)(reparsed);
         assert.deepStrictEqual(result, data);

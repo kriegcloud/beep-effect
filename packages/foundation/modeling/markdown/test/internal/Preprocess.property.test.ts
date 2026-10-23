@@ -2,19 +2,22 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { preprocessLines, replaceNul, SourceLine } from "@beep/markdown/internal/preprocess";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const text = S.Literals(["a", "😀", "\0", "\n", "\r", "\r\n", "\t"]).pipe(
   S.Array,
   Arbitrary.schema,
-  Arbitrary.map((parts) => parts.join(""))
+  Arbitrary.map((parts) => A.join(parts, ""))
 );
 const format = (source: string): string =>
-  preprocessLines(source)
-    .map((line) => line.text)
-    .join("\n") + "\n";
+  `${A.join(
+    A.map(preprocessLines(source), (line) => line.text),
+    "\n"
+  )}\n`;
 describe("preprocessor properties", () => {
   it("validates plain source lines with finite offsets and retains normalized provenance", () => {
     const lines = preprocessLines("a\0\r\nb\rc\n");
@@ -47,11 +50,11 @@ describe("preprocessor properties", () => {
       Effect.sync(() => {
         const lines = preprocessLines(source);
         assert.deepStrictEqual(
-          preprocessLines(format(source)).map((line) => line.text),
-          lines.map((line) => line.text)
+          A.map(preprocessLines(format(source)), (line) => line.text),
+          A.map(lines, (line) => line.text)
         );
         for (const line of lines)
-          assert.strictEqual(line.text, replaceNul(source.slice(line.start, line.start + line.text.length)));
+          assert.strictEqual(line.text, replaceNul(Str.slice(line.start, line.start + line.text.length)(source)));
       }),
     runs
   );

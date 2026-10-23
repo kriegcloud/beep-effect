@@ -1,6 +1,11 @@
-// The remark-ecosystem interop boundary: projection between this package's
-// node classes and plain mdast JSON. The emission conventions are documented on
-// the exported `Mdast` class.
+/**
+ * The remark-ecosystem interop boundary: projection between this package's
+ * node classes and plain mdast JSON. The emission conventions are documented on
+ * the exported `Mdast` class.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
@@ -21,6 +26,10 @@ import type { FlowContent, Frontmatter, List, MarkdownNode, PhrasingContent } fr
 
 const $I = $MarkdownId.create("Mdast");
 
+const MdastTag = S.Struct({
+  type: S.String.pipe($I.annoteKey("MdastNode.type", { description: "The mdast node type tag" })),
+});
+
 /**
  * A plain mdast node: a `type` tag plus whatever fields that type carries.
  *
@@ -30,14 +39,34 @@ const $I = $MarkdownId.create("Mdast");
  * contract; the precise shapes live in the mdast specification, and
  * {@link Mdast.fromMdast} is the checked way back into typed nodes.
  *
+ * **Example** (Validate a plain mdast node)
+ *
+ * ```ts
+ * import { MdastNode } from "@beep/markdown/Mdast";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(MdastNode)({ type: "text", value: "hi" })) // true
+ * console.log(S.is(MdastNode)({ value: "hi" })) // false
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const MdastNode = S.StructWithRest(MdastTag, [S.Record(S.String, S.Unknown)]).pipe(
+  $I.annoteSchema("MdastNode", {
+    description: "A plain mdast node: a `type` tag plus whatever fields that type carries.",
+  })
+);
+
+/**
+ * The plain mdast node shape.
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface MdastNode {
-  readonly type: string;
-  readonly [key: string]: unknown;
-}
+export type MdastNode = typeof MdastNode.Type;
 
 /**
  * Indicates that foreign mdast input failed to decode into the package's
@@ -391,152 +420,175 @@ const normalizePosition = (value: unknown): Record<string, unknown> => {
 // visitor's 256-level traversal guard, so deeper foreign trees remain usable.
 const maxForeignTreeDepth = 512;
 
-const admitForeignTree = (input: unknown): Result.Result<unknown, MdastDecodeError> => {
-  const pending = MutableList.make<readonly [unknown, number, ReadonlyArray<object>]>();
-  MutableList.append(pending, [input, 0, []]);
-  for (let frame = MutableList.take(pending); frame !== MutableList.Empty; frame = MutableList.take(pending)) {
-    const [value, depth, ancestors] = frame;
-    if (depth > maxForeignTreeDepth) {
-      return Result.fail(
-        MdastDecodeError.make({
-          issue: new SchemaIssue.InvalidValue(
-            { message: `Foreign mdast depth exceeds the admission limit of ${maxForeignTreeDepth}.` },
-            { depth, maxDepth: maxForeignTreeDepth },
-            { reportInput: true }
-          ),
-        })
-      );
-    }
-    if (!isRecord(value) || !P.isString(value.type)) {
-      continue;
-    }
-    if (A.some(ancestors, (ancestor) => ancestor === value)) {
-      return Result.fail(
-        MdastDecodeError.make({
-          issue: new SchemaIssue.InvalidValue({
-            message: "A foreign mdast node cannot contain an ancestor as a child.",
-          }),
-        })
-      );
-    }
-    // Follow exactly the child edges normalization recurses into. Literal
-    // frontmatter and unknown kinds are shallow admissions; their foreign
-    // extension fields cannot increase the normalized tree's depth.
-    if (
-      isFrontmatterFormat(value.type) ||
-      (!R.has(admittedFields, value.type) &&
-        value.type !== "mdxJsxFlowElement" &&
-        value.type !== "mdxJsxTextElement") ||
-      !A.isArray(value.children)
-    ) {
-      continue;
-    }
+/** One pending admission step: a foreign value, its depth and its ancestor chain. */
+type AdmissionFrame = readonly [unknown, number, ReadonlyArray<object>];
+
+const depthLimitExceeded = (depth: number): MdastDecodeError =>
+  MdastDecodeError.make({
+    issue: new SchemaIssue.InvalidValue(
+      { message: `Foreign mdast depth exceeds the admission limit of ${maxForeignTreeDepth}.` },
+      { depth, maxDepth: maxForeignTreeDepth },
+      { reportInput: true }
+    ),
+  });
+
+const isJsxElementType = (type: string): boolean => type === "mdxJsxFlowElement" || type === "mdxJsxTextElement";
+
+// Follow exactly the child edges normalization recurses into. Literal
+// frontmatter and unknown kinds are shallow admissions; their foreign
+// extension fields cannot increase the normalized tree's depth.
+const followsChildren = (type: string): boolean =>
+  !isFrontmatterFormat(type) && (R.has(admittedFields, type) || isJsxElementType(type));
+
+/** Check one frame, queueing its children; `Some` carries the failure that ends admission. */
+const admitFrame = (
+  frame: AdmissionFrame,
+  pending: MutableList.MutableList<AdmissionFrame>
+): O.Option<MdastDecodeError> => {
+  const [value, depth, ancestors] = frame;
+  if (depth > maxForeignTreeDepth) {
+    return O.some(depthLimitExceeded(depth));
+  }
+  if (!isRecord(value) || !P.isString(value.type)) {
+    return O.none();
+  }
+  if (A.some(ancestors, (ancestor) => ancestor === value)) {
+    return O.some(
+      MdastDecodeError.make({
+        issue: new SchemaIssue.InvalidValue({ message: "A foreign mdast node cannot contain an ancestor as a child." }),
+      })
+    );
+  }
+  if (followsChildren(value.type) && A.isArray(value.children)) {
     const stack = A.append(ancestors, value);
     MutableList.prependAll(
       pending,
-      A.map(value.children, (child) => [child, depth + 1, stack] as const)
+      A.map(value.children, (child): AdmissionFrame => [child, depth + 1, stack])
     );
+  }
+  return O.none();
+};
+
+const admitForeignTree = (input: unknown): Result.Result<unknown, MdastDecodeError> => {
+  const pending = MutableList.make<AdmissionFrame>();
+  MutableList.append(pending, [input, 0, []]);
+  for (let frame = MutableList.take(pending); frame !== MutableList.Empty; frame = MutableList.take(pending)) {
+    const failure = admitFrame(frame, pending);
+    if (O.isSome(failure)) {
+      return Result.fail(failure.value);
+    }
   }
   return Result.succeed(input);
 };
+
+const normalizeChildren = (children: unknown): Result.Result<unknown, MdastDecodeError> =>
+  A.isArray(children) ? Result.all(A.map(children, normalizeNode)) : Result.succeed(children);
+
+// Association labels arrive decoded; shield literal escapes and entities
+// before storing the source spelling consumed once by projectLabel.
+const admitField = (field: string, raw: unknown): unknown =>
+  field === "label" && P.isString(raw) ? Str.replaceAll(/[\\&]/g, "\\$&")(raw) : raw;
+
+// The whitelisted fields of one node, dropping nulls on optional ones.
+const admittedEntries = (value: Record<string, unknown>, admitted: ReadonlyArray<string>): Record<string, unknown> => {
+  const normalized: Record<string, unknown> = {};
+  for (const field of admitted) {
+    const raw = value[field];
+    if (raw !== undefined && raw !== null) {
+      normalized[field] = admitField(field, raw);
+    }
+  }
+  return normalized;
+};
+
+// Restore the engine's carried-terminator convention on code values (the
+// inverse of toMdast's strip).
+const restoreCodeTerminator = (type: string, value: unknown): unknown =>
+  type === "code" && P.isString(value) && value !== "" ? `${value}\n` : value;
+
+const normalizeAdmitted = (
+  type: string,
+  value: Record<string, unknown>,
+  admitted: ReadonlyArray<string>
+): Result.Result<unknown, MdastDecodeError> => {
+  const fields = admittedEntries(value, admitted);
+  const withValue = R.has(fields, "value") ? { ...fields, value: restoreCodeTerminator(type, fields.value) } : fields;
+  const position = normalizePosition(value.position);
+  return A.isArray(value.children)
+    ? Result.map(normalizeChildren(value.children), (children) => ({ type, ...withValue, children, position }))
+    : Result.succeed({ type, ...withValue, position });
+};
+
+// The JSX elements need their own admission: a `null` name is meaningful
+// (a fragment) so the null-equals-absent normalization must not touch it,
+// and the attributes array carries nested attribute nodes whose positions
+// (and value-expression positions) need the same sentinel synthesis as
+// tree nodes. `data.estree` is dropped like every foreign `data` field.
+// `name`, `attributes` and `children` pass through verbatim when they do
+// not match the oracle contract (`string | null`, an array, an array) —
+// a number name, an `attributes: {}`, a string `children` all reach the
+// schema and fail the decode typed rather than being coerced and
+// silently losing input, like every other malformed recognized field.
+const normalizeJsxElement = (type: string, value: Record<string, unknown>): Result.Result<unknown, MdastDecodeError> =>
+  Result.map(normalizeChildren(value.children), (children) => ({
+    type,
+    name: value.name,
+    attributes: A.isArray(value.attributes) ? A.map(value.attributes, normalizeMdxAttribute) : value.attributes,
+    children,
+    position: normalizePosition(value.position),
+  }));
 
 // Normalize one foreign node: admit whitelisted fields (dropping nulls on
 // optional ones), synthesize sentinel positions, map frontmatter literal
 // types onto the Frontmatter capture shape, and recurse into children.
 // Unrecognized types pass through shallowly so schema decoding reports them
 // as typed failures rather than this walk throwing.
-const normalizeNode = (value: unknown): Result.Result<unknown, MdastDecodeError> =>
-  Result.gen(function* () {
-    if (!isRecord(value) || !P.isString(value.type)) {
-      return value;
-    }
-    const type = value.type;
-    if (isFrontmatterFormat(type)) {
-      return {
-        type: "frontmatter",
-        format: type,
-        value: value.value,
-        position: normalizePosition(value.position),
-      };
-    }
-    // The JSX elements need their own admission: a `null` name is meaningful
-    // (a fragment) so the null-equals-absent normalization must not touch it,
-    // and the attributes array carries nested attribute nodes whose positions
-    // (and value-expression positions) need the same sentinel synthesis as
-    // tree nodes. `data.estree` is dropped like every foreign `data` field.
-    // `name`, `attributes` and `children` pass through verbatim when they do
-    // not match the oracle contract (`string | null`, an array, an array) —
-    // a number name, an `attributes: {}`, a string `children` all reach the
-    // schema and fail the decode typed rather than being coerced and
-    // silently losing input, like every other malformed recognized field.
-    if (type === "mdxJsxFlowElement" || type === "mdxJsxTextElement") {
-      return {
-        type,
-        name: value.name,
-        attributes: A.isArray(value.attributes) ? A.map(value.attributes, normalizeMdxAttribute) : value.attributes,
-        children: A.isArray(value.children) ? yield* Result.all(A.map(value.children, normalizeNode)) : value.children,
-        position: normalizePosition(value.position),
-      };
-    }
-    const admitted = O.getOrUndefined(R.get(admittedFields, type));
-    if (admitted === undefined) {
-      return value;
-    }
-    const normalized: Record<string, unknown> = { type };
-    for (const field of admitted) {
-      const raw = value[field];
-      if (raw !== undefined && raw !== null) {
-        // Association labels arrive decoded; shield literal escapes and entities
-        // before storing the source spelling consumed once by projectLabel.
-        normalized[field] = field === "label" && P.isString(raw) ? Str.replaceAll(/[\\&]/g, "\\$&")(raw) : raw;
-      }
-    }
-    // Restore the engine's carried-terminator convention on code values (the
-    // inverse of toMdast's strip).
-    if (type === "code" && P.isString(normalized.value) && normalized.value !== "") {
-      normalized.value = `${normalized.value}\n`;
-    }
-    if (A.isArray(value.children)) {
-      normalized.children = yield* Result.all(A.map(value.children, normalizeNode));
-    }
-    normalized.position = normalizePosition(value.position);
-    return normalized;
-  });
-
-// One foreign JSX attribute node: positions synthesized like tree nodes,
-// a string/null value passed through (both spellings are the contract), a
-// value-expression object rebuilt with only its contract fields.
-const normalizeMdxAttribute = (value: unknown): unknown => {
+const normalizeNode = (value: unknown): Result.Result<unknown, MdastDecodeError> => {
   if (!isRecord(value) || !P.isString(value.type)) {
+    return Result.succeed(value);
+  }
+  const type = value.type;
+  if (isFrontmatterFormat(type)) {
+    return Result.succeed({
+      type: "frontmatter",
+      format: type,
+      value: value.value,
+      position: normalizePosition(value.position),
+    });
+  }
+  if (isJsxElementType(type)) {
+    return normalizeJsxElement(type, value);
+  }
+  return O.match(R.get(admittedFields, type), {
+    onNone: () => Result.succeed(value),
+    onSome: (admitted) => normalizeAdmitted(type, value, admitted),
+  });
+};
+
+// A value-expression attribute value rebuilt with only its contract fields;
+// a string or null value passes through (both spellings are the contract).
+const normalizeAttributeValue = (raw: unknown): unknown =>
+  isRecord(raw) && raw.type === "mdxJsxAttributeValueExpression"
+    ? { type: "mdxJsxAttributeValueExpression", value: raw.value, position: normalizePosition(raw.position) }
+    : raw;
+
+// One foreign JSX attribute node: positions synthesized like tree nodes.
+const normalizeMdxAttribute = (value: unknown): unknown => {
+  if (!isRecord(value)) {
     return value;
   }
   if (value.type === "mdxJsxExpressionAttribute") {
-    return {
-      type: "mdxJsxExpressionAttribute",
-      value: value.value,
-      position: normalizePosition(value.position),
-    };
+    return { type: "mdxJsxExpressionAttribute", value: value.value, position: normalizePosition(value.position) };
   }
-  if (value.type === "mdxJsxAttribute") {
-    const raw = value.value;
-    const normalized: Record<string, unknown> = {
-      type: "mdxJsxAttribute",
-      name: value.name,
-      position: normalizePosition(value.position),
-    };
-    if (raw !== undefined) {
-      normalized.value =
-        isRecord(raw) && raw.type === "mdxJsxAttributeValueExpression"
-          ? {
-              type: "mdxJsxAttributeValueExpression",
-              value: raw.value,
-              position: normalizePosition(raw.position),
-            }
-          : raw;
-    }
-    return normalized;
+  if (value.type !== "mdxJsxAttribute") {
+    return value;
   }
-  return value;
+  return {
+    type: "mdxJsxAttribute",
+    name: value.name,
+    position: normalizePosition(value.position),
+    ...(value.value === undefined ? {} : { value: normalizeAttributeValue(value.value) }),
+  };
 };
 
 const decodeRoot = S.decodeUnknownResult(Root);

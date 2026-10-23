@@ -7,6 +7,7 @@
 // option is not offered).
 
 import { dual } from "effect/Function";
+import { stickyOf } from "../patterns.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
 // Every character that can start some other construct, so a text run stops
@@ -21,7 +22,7 @@ import type { InlineConstruct } from "../inlineTypes.ts";
 // ones — and under `m`, `^` would then match at the NEXT line start and the
 // run in between would be skipped. The flag is dropped, and `match` requires
 // the match to sit at the cursor besides.
-const reMain = /^[^\n`[\]\\!<&*_'"]+/;
+const reMain = stickyOf(/^[^\n`[\]\\!<&*_'"]+/);
 
 // The GFM exclusion set, three characters wider. `~` is strikethrough's
 // delimiter; `w` and `:` are the autolink-literal triggers, and they are here
@@ -33,7 +34,7 @@ const reMain = /^[^\n`[\]\\!<&*_'"]+/;
 // Excluding a letter as common as `w` looks expensive and is not: a run simply
 // ends there and the next one begins, and `inlineParser`'s materialization
 // coalesces adjacent text nodes into one anyway.
-const reMainGfm = /^[^\n`[\]\\!<&*_'"~w:]+/;
+const reMainGfm = stickyOf(/^[^\n`[\]\\!<&*_'"~w:]+/);
 
 /** Consume a run of ordinary characters, stopping before any construct's. */
 const runConstruct: {

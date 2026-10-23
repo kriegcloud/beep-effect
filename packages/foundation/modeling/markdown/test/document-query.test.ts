@@ -10,11 +10,13 @@ import { MarkdownFormat } from "@beep/markdown/MarkdownFormat";
 import { Blockquote, Heading, List, Paragraph, Root, Table, Text } from "@beep/markdown/MarkdownNode";
 import { MarkdownVisitor } from "@beep/markdown/MarkdownVisitor";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import type { FlowContent } from "@beep/markdown/MarkdownNode";
 
 const parseDoc = (text: string) => {
@@ -23,23 +25,26 @@ const parseDoc = (text: string) => {
   return Result.getOrThrow(result);
 };
 
-const source = [
-  "# Title",
-  "",
-  "Intro with a [link](/a).",
-  "",
-  "> ## Quoted heading",
-  "",
-  "- item one",
-  "- item two",
-  "",
-  "| h |",
-  "| - |",
-  "| c |",
-  "",
-  "## Outro",
-  "",
-].join("\n");
+const source = A.join(
+  [
+    "# Title",
+    "",
+    "Intro with a [link](/a).",
+    "",
+    "> ## Quoted heading",
+    "",
+    "- item one",
+    "- item two",
+    "",
+    "| h |",
+    "| - |",
+    "| c |",
+    "",
+    "## Outro",
+    "",
+  ],
+  "\n"
+);
 
 describe("MarkdownDocument.find", () => {
   it("finds the first node of a type, narrowed through the type tag", () => {
@@ -95,20 +100,23 @@ describe("MarkdownDocument.findAll", () => {
     // Document order: the quoted heading sits between the two root-level
     // ones, and `findAll("heading")[1]` addresses it without child indexing.
     assert.deepStrictEqual(
-      headings.map((heading) => heading.depth),
+      A.map(headings, (heading) => heading.depth),
       [1, 2, 2]
     );
     // Same nodes, same order as the navigation getter, by identity.
     assert.deepStrictEqual(
       headings,
-      document.headings.map((entry) => entry.node)
+      A.map(document.headings, (entry) => entry.node)
     );
   });
 
   it("matches the visitor's Enter order node for node, root included", () => {
     const document = parseDoc(source);
     const events = MarkdownVisitor.visit(document.root).pipe(Stream.runCollect, Effect.runSync);
-    const entered = [...events].filter((event) => event._tag === "Enter").map((event) => event.node);
+    const entered = A.map(
+      A.filter([...events], (event) => event._tag === "Enter"),
+      (event) => event.node
+    );
     assert.deepStrictEqual(
       document.findAll(() => true),
       entered
@@ -136,8 +144,8 @@ describe("query helpers feed MarkdownFormat.modify", () => {
       assert.isDefined(outro);
       const replacement = Heading.make({ depth: 3, children: [Text.make({ value: "Fin" })] });
       const out = yield* MarkdownFormat.modifyToString(document, outro, replacement);
-      assert.isTrue(out.includes("### Fin"));
-      assert.isFalse(out.includes("## Outro"));
+      assert.isTrue(Str.includes("### Fin")(out));
+      assert.isFalse(Str.includes("## Outro")(out));
     })
   );
 });

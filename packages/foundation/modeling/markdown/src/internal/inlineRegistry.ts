@@ -28,8 +28,9 @@ import { imageOpenConstruct, linkCloseConstruct, linkOpenConstruct } from "./inl
 import { rawHtmlConstruct } from "./inlines/rawHtml.ts";
 import { strikethroughConstruct } from "./inlines/strikethrough.ts";
 import { gfmTextConstruct, textConstruct } from "./inlines/text.ts";
+import { InlineDialect } from "./inlineTypes.ts";
 import type { MarkdownDialect } from "./blockRegistry.ts";
-import type { InlineConstruct, InlineDialect } from "./inlineTypes.ts";
+import type { InlineConstruct } from "./inlineTypes.ts";
 
 const $I = $MarkdownId.create("internal/inlineRegistry");
 
@@ -57,14 +58,18 @@ class UnknownInlineDialectError extends S.TaggedError<UnknownInlineDialectError,
  */
 export type InlineDialectName = MarkdownDialect;
 
+// Built once per dialect at module load and read-only from then on (the
+// `Readonly` type is the freeze): the parser reads it once per character,
+// so the lookup is a plain property read on a one-character key — no
+// `Option` and no hashing on the hot path. A one-character key can never
+// name an `Object.prototype` member.
 const triggerTable = (
   constructs: ReadonlyArray<InlineConstruct>
-): HashMap.HashMap<number, ReadonlyArray<InlineConstruct>> => {
-  let table = HashMap.empty<number, ReadonlyArray<InlineConstruct>>();
+): Readonly<Record<string, ReadonlyArray<InlineConstruct>>> => {
+  const table: Record<string, ReadonlyArray<InlineConstruct>> = {};
   for (const construct of constructs) {
     for (const trigger of construct.triggers) {
-      const bucket = O.getOrElse(HashMap.get(table, trigger), () => []);
-      table = HashMap.set(table, trigger, A.append(bucket, construct));
+      table[trigger] = A.append(table[trigger] ?? [], construct);
     }
   }
   return table;
@@ -84,11 +89,7 @@ const COMMONMARK_CONSTRUCTS: ReadonlyArray<InlineConstruct> = [
   entityConstruct,
 ];
 
-const commonmarkDialect: InlineDialect = {
-  byTrigger: triggerTable(COMMONMARK_CONSTRUCTS),
-  text: textConstruct,
-  postprocess: [],
-};
+const commonmarkDialect = new InlineDialect(triggerTable(COMMONMARK_CONSTRUCTS), textConstruct, []);
 
 // GFM: the CommonMark set plus strikethrough and the two literal-autolink
 // matchers, with the email half as a postprocess pass (`autolinkLiteral.ts`
@@ -111,8 +112,8 @@ const commonmarkDialect: InlineDialect = {
 //
 // `inlines/footnoteReference.ts` and `makeImageOpenConstruct` carry the
 // reasoning for each.
-const gfmDialect: InlineDialect = {
-  byTrigger: triggerTable([
+const gfmDialect = new InlineDialect(
+  triggerTable([
     ...A.filter(
       COMMONMARK_CONSTRUCTS,
       (construct) => construct !== linkCloseConstruct && construct !== imageOpenConstruct
@@ -123,9 +124,9 @@ const gfmDialect: InlineDialect = {
     wwwAutolinkConstruct,
     urlAutolinkConstruct,
   ]),
-  text: gfmTextConstruct,
-  postprocess: [linkifyEmails],
-};
+  gfmTextConstruct,
+  [linkifyEmails]
+);
 
 const dialects = HashMap.fromIterable<InlineDialectName, InlineDialect>([
   ["commonmark", commonmarkDialect],

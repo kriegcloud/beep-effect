@@ -1,30 +1,39 @@
-// The non-mutating text-edit vocabulary shared by the formatter and the
-// modifier: MarkdownEdit, MarkdownRange, MarkdownPath and MarkdownSegment.
-//
-// Edits describe replacements as `offset`/`length`/`content`; applying them in
-// reverse-offset order is byte-minimal and preserves everything outside the
-// spliced spans — the offset-splice editing model chosen over a
-// lossless CST (nobody in the ecosystem ships one; positional splicing is the
-// remark maintainers' own recommendation).
-//
-// `MarkdownEdit`, `MarkdownRange`, `MarkdownPath` and `MarkdownSegment` are
-// bound by the jsonc/yaml/toml parity convention: they are structurally
-// identical to their `Jsonc*`, `Yaml*` and `Toml*` counterparts (same field
-// names, types and semantics) so consumer code can be written once over "a
-// document codec's Edit/Range/Path". All four packages share the `applyAll`
-// overlap check: rejecting overlapping edits as a thrown defect. The formatter
-// and modifier never produce overlapping edits, so the check only ever fires on
-// a hand-constructed edit array, which is a programmer error worth surfacing.
-// The `format` range-filter posture still diverges: this module and toml use
-// owning-node/expression intersection, yaml requires edits fully within range.
+/**
+ * The non-mutating text-edit vocabulary shared by the formatter and the
+ * modifier: MarkdownEdit, MarkdownRange, MarkdownPath and MarkdownSegment.
+ *
+ * Edits describe replacements as `offset`/`length`/`content`; applying them in
+ * reverse-offset order is byte-minimal and preserves everything outside the
+ * spliced spans — the offset-splice editing model chosen over a
+ * lossless CST (nobody in the ecosystem ships one; positional splicing is the
+ * remark maintainers' own recommendation).
+ *
+ * `MarkdownEdit`, `MarkdownRange`, `MarkdownPath` and `MarkdownSegment` are
+ * bound by the jsonc/yaml/toml parity convention: they are structurally
+ * identical to their `Jsonc*`, `Yaml*` and `Toml*` counterparts (same field
+ * names, types and semantics) so consumer code can be written once over "a
+ * document codec's Edit/Range/Path". All four packages share the `applyAll`
+ * overlap check: rejecting overlapping edits as a thrown defect. The formatter
+ * and modifier never produce overlapping edits, so the check only ever fires on
+ * a hand-constructed edit array, which is a programmer error worth surfacing.
+ * The `format` range-filter posture still diverges: this module and toml use
+ * owning-node/expression intersection, yaml requires edits fully within range.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $MarkdownId.create("MarkdownEdit");
+
+// Reverse offset order keeps every earlier offset valid while splicing.
+const byOffsetDescending = Order.mapInput(Order.flip(Order.Number), (edit: { readonly offset: number }) => edit.offset);
 
 class OverlappingMarkdownEditsError extends S.TaggedError<
   OverlappingMarkdownEditsError,
@@ -47,21 +56,67 @@ class OverlappingMarkdownEditsError extends S.TaggedError<
  * A single path segment: a `number` for child indices in the node tree, or a
  * `string` for named addressing (reserved, e.g. for definition identifiers).
  *
+ * **Example** (Validate path segments)
+ *
+ * ```ts
+ * import { MarkdownSegment } from "@beep/markdown/MarkdownEdit";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(MarkdownSegment)(0)) // true
+ * console.log(S.is(MarkdownSegment)("guide")) // true
+ * ```
+ *
  * @public
- * @category type-level
+ * @category schemas
  * @since 0.0.0
  */
-export type MarkdownSegment = string | number;
+export const MarkdownSegment = S.Union([S.String, S.Finite]).pipe(
+  $I.annoteSchema("MarkdownSegment", {
+    description:
+      "A single path segment: a number for a child index in the node tree, or a string for named addressing.",
+  })
+);
 
 /**
- * An ordered sequence of {@link MarkdownSegment} values describing a location
- * within a markdown document tree.
+ * The union of the two segment spellings.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export type MarkdownPath = ReadonlyArray<MarkdownSegment>;
+export type MarkdownSegment = typeof MarkdownSegment.Type;
+
+/**
+ * An ordered sequence of {@link MarkdownSegment} values describing a location
+ * within a markdown document tree.
+ *
+ * **Example** (Validate a child-index path)
+ *
+ * ```ts
+ * import { MarkdownPath } from "@beep/markdown/MarkdownEdit";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(MarkdownPath)([0, 2])) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const MarkdownPath = S.Array(MarkdownSegment).pipe(
+  $I.annoteSchema("MarkdownPath", {
+    description: "An ordered sequence of path segments describing a location within a markdown document tree.",
+  })
+);
+
+/**
+ * A location within a markdown document tree.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type MarkdownPath = typeof MarkdownPath.Type;
 
 /**
  * A range within a markdown document, expressed as a zero-based character
@@ -81,8 +136,8 @@ export type MarkdownPath = ReadonlyArray<MarkdownSegment>;
  * @category models
  * @since 0.0.0
  */
-export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: unique symbol }>($I`MarkdownRange`)(
-  {
+export class MarkdownRange extends S.Opaque<MarkdownRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     offset: S.Finite.pipe(
       $I.annoteKey("MarkdownRange.offset", {
         description: "Zero-based start of the formatting region in the source string, measured in UTF-16 code units",
@@ -93,11 +148,12 @@ export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: uniq
         description: "Extent of the formatting region in UTF-16 code units, used to select intersecting nodes",
       })
     ),
-  },
-  $I.annote("MarkdownRange", {
-    description:
-      "A range within a markdown document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `MarkdownFormat.format` to restrict formatting to a region.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkdownRange", {
+      description:
+        "A range within a markdown document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `MarkdownFormat.format` to restrict formatting to a region.",
+    })
+  )
 ) {}
 
 /**
@@ -106,8 +162,8 @@ export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: uniq
  *
  * **Details**
  *
- * Structurally identical to `@effected/jsonc`'s, `@effected/yaml`'s and
- * `@effected/toml`'s edit shapes (same field names, types and semantics) per
+ * Structurally identical to `@beep/jsonc`'s, `@beep/yaml`'s and
+ * `@beep/toml`'s edit shapes (same field names, types and semantics) per
  * the cross-package parity convention, so consumer code can be written once
  * over "a document codec's Edit/Range/Path".
  *
@@ -125,8 +181,8 @@ export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: uniq
  * @category models
  * @since 0.0.0
  */
-export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique symbol }>($I`MarkdownEdit`)(
-  {
+export class MarkdownEdit extends S.Opaque<MarkdownEdit, { readonly brand: unique symbol }>()(
+  S.Struct({
     offset: S.Finite.pipe(
       $I.annoteKey("MarkdownEdit.offset", {
         description: "Zero-based start of the span to replace in the original source, measured in UTF-16 code units",
@@ -142,11 +198,12 @@ export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique
         description: "Replacement text for the source span; an empty string deletes the span",
       })
     ),
-  },
-  $I.annote("MarkdownEdit", {
-    description:
-      'A non-mutating text edit: replace the span `[offset, offset + length)` with `content`. Set `length` to `0` to insert, `content` to `""` to delete.',
-  })
+  }).pipe(
+    $I.annoteSchema("MarkdownEdit", {
+      description:
+        'A non-mutating text edit: replace the span `[offset, offset + length)` with `content`. Set `length` to `0` to insert, `content` to `""` to delete.',
+    })
+  )
 ) {
   /**
    * Apply `edits` to `text`, producing a new string. Edits are applied in
@@ -179,24 +236,25 @@ export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique
   static readonly applyAll: {
     (text: string, edits: ReadonlyArray<MarkdownEdit>): string;
     (edits: ReadonlyArray<MarkdownEdit>): (text: string) => string;
-  } = dual(2, (text: string, edits: ReadonlyArray<MarkdownEdit>): string => {
-    const sorted = A.sort(
-      edits,
-      Order.mapInput(Order.flip(Order.Number), (edit: MarkdownEdit) => edit.offset)
-    );
-    for (let i = 0; i + 1 < sorted.length; i++) {
-      const upper = sorted[i];
-      const lower = sorted[i + 1];
-      if (lower !== undefined && upper !== undefined && lower.offset + lower.length > upper.offset) {
-        throw OverlappingMarkdownEditsError.make({
-          message: `MarkdownEdit.applyAll received overlapping edits at offsets ${lower.offset} and ${upper.offset} — overlapping edits are a programmer error`,
-        });
-      }
-    }
-    let result = text;
-    for (const edit of sorted) {
-      result = result.slice(0, edit.offset) + edit.content + result.slice(edit.offset + edit.length);
-    }
-    return result;
-  });
+  } = dual(
+    2,
+    (text: string, edits: ReadonlyArray<MarkdownEdit>): string =>
+      // Highest offset first; `limit` is the start of the edit applied just
+      // before, which every later (lower) edit must end at or before.
+      A.reduce(
+        A.sort(edits, byOffsetDescending),
+        { result: text, limit: Number.POSITIVE_INFINITY },
+        ({ result, limit }, edit) => {
+          if (edit.offset + edit.length > limit) {
+            throw OverlappingMarkdownEditsError.make({
+              message: `MarkdownEdit.applyAll received overlapping edits at offsets ${edit.offset} and ${limit} — overlapping edits are a programmer error`,
+            });
+          }
+          return {
+            result: `${Str.slice(0, edit.offset)(result)}${edit.content}${Str.slice(edit.offset + edit.length)(result)}`,
+            limit: edit.offset,
+          };
+        }
+      ).result
+  );
 }

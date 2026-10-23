@@ -1,63 +1,13 @@
-import { makeInlineNode } from "@beep/markdown/internal/inlineNode";
 import { codeSpanConstruct } from "@beep/markdown/internal/inlines/codeSpan";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
-import * as O from "effect/Option";
-import * as Str from "effect/String";
-import type { InlineNode } from "@beep/markdown/internal/inlineNode";
-import type { InlineScanner } from "@beep/markdown/internal/inlineTypes";
-
-const scannerFor = (subject: string): InlineScanner => {
-  const scanner: InlineScanner = {
-    subject,
-    pos: 0,
-    refmap: HashMap.empty(),
-    footnoteLabels: HashSet.empty(),
-    delimiters: undefined,
-    brackets: undefined,
-    peek: () => O.getOrElse(Str.charCodeAt(subject, scanner.pos), () => -1),
-    match: (pattern) => {
-      const matched = pattern.exec(subject.slice(scanner.pos));
-      if (matched === null || matched.index !== 0) return undefined;
-      const value = matched[0];
-      scanner.pos += value.length;
-      return value;
-    },
-    matchAhead: () => undefined,
-    hasAhead: () => false,
-    closingBacktickRun: dual(2, (_from: number, _length: number): number | undefined => undefined),
-    append: () => {},
-    appendText: dual(
-      3,
-      (value: string, from: number, to: number): InlineNode => makeInlineNode("text", from, to, value)
-    ),
-    lastChild: () => undefined,
-    unputText: () => false,
-    trimTrailingSpaces: () => 0,
-    removeDelimiter: () => {},
-    addBracket: dual(3, (_node: InlineNode, _index: number, _image: boolean): void => {}),
-    removeBracket: () => {},
-    deactivateLinkOpeners: () => {},
-    processEmphasis: () => {},
-  };
-  return scanner;
-};
+import { fakeScanner } from "./fakeScanner.ts";
 
 it.effect("refuses a non-backtick without advancing or emitting text", () =>
   Effect.sync(() => {
-    const scanner = scannerFor("ordinary");
-    const emitted: string[] = [];
-    Object.assign(scanner, {
-      appendText: dual(3, (value: string, from: number, to: number): InlineNode => {
-        emitted.push(value);
-        return makeInlineNode("text", from, to, value);
-      }),
-    });
+    const scanner = fakeScanner("ordinary");
     assert.strictEqual(codeSpanConstruct.parse(scanner), false);
     assert.strictEqual(scanner.pos, 0);
-    assert.deepStrictEqual(emitted, []);
+    assert.deepStrictEqual(scanner.emitted, []);
   })
 );

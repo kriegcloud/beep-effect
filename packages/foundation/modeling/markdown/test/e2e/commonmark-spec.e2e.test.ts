@@ -12,6 +12,8 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
 import { loadSpecExamples } from "../support/corpus.ts";
 import { renderHtml } from "../support/htmlWriter.ts";
 import { normalizeHtml } from "../support/normalizeHtml.ts";
@@ -47,18 +49,9 @@ const SECTIONS_GREEN: ReadonlyArray<string> = [
   "Textual content",
 ];
 
-const bySection = (examples: ReadonlyArray<SpecExample>): ReadonlyMap<string, ReadonlyArray<SpecExample>> => {
-  const sections = new Map<string, SpecExample[]>();
-  for (const example of examples) {
-    const bucket = sections.get(example.section);
-    if (bucket === undefined) {
-      sections.set(example.section, [example]);
-    } else {
-      bucket.push(example);
-    }
-  }
-  return sections;
-};
+/** The examples grouped by section, sections in first-appearance order. */
+const bySection = (examples: ReadonlyArray<SpecExample>): Record<string, ReadonlyArray<SpecExample>> =>
+  A.groupBy(examples, (example) => example.section);
 
 const examples = loadSpecExamples();
 const sections = bySection(examples);
@@ -67,23 +60,23 @@ describe("CommonMark 0.31.2 conformance", () => {
   describe("gate", () => {
     it("allowlists only sections the corpus actually has", () => {
       for (const section of SECTIONS_GREEN) {
-        assert.isTrue(sections.has(section), `SECTIONS_GREEN names a section the corpus does not: ${section}`);
+        assert.isTrue(R.has(sections, section), `SECTIONS_GREEN names a section the corpus does not: ${section}`);
       }
     });
 
     it("runs every section the corpus has", () => {
       // The empty-skip-map goal, as an assertion: a section missing from
       // the allowlist would silently stop being tested.
-      for (const section of sections.keys()) {
+      for (const section of R.keys(sections)) {
         assert.isTrue(
-          SECTIONS_GREEN.includes(section),
+          A.contains(SECTIONS_GREEN, section),
           `the corpus has a section the harness does not run: ${section}`
         );
       }
     });
   });
 
-  for (const [section, sectionExamples] of sections) {
+  for (const [section, sectionExamples] of R.toEntries(sections)) {
     describe(section, () => {
       for (const example of sectionExamples) {
         it(`example ${example.example}`, () => {

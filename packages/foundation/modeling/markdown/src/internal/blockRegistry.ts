@@ -12,7 +12,6 @@
 
 import { $MarkdownId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
@@ -38,7 +37,9 @@ import {
 } from "./blocks/table.ts";
 import { taskListItemStart } from "./blocks/taskListItem.ts";
 import { thematicBreakConstruct, thematicBreakStart } from "./blocks/thematicBreak.ts";
-import type { BlockConstruct, BlockDialect, BlockNode, BlockType } from "./blockTypes.ts";
+import { BlockDialect } from "./blockTypes.ts";
+import { matchesAt } from "./preprocess.ts";
+import type { BlockNode, BlockScanner } from "./blockTypes.ts";
 
 const $I = $MarkdownId.create("internal/blockRegistry");
 
@@ -88,35 +89,32 @@ export const MarkdownDialect = LiteralKit(["commonmark", "gfm"]).pipe(
  */
 export type MarkdownDialect = typeof MarkdownDialect.Type;
 
-const constructTable = (constructs: ReadonlyArray<BlockConstruct>): HashMap.HashMap<BlockType, BlockConstruct> =>
-  HashMap.fromIterable(
-    A.map(constructs, (construct): readonly [BlockType, BlockConstruct] => [construct.type, construct])
-  );
+/** A line the CommonMark fast path would hide from a GFM start: `[`, `|` or `:` first. */
+const reGfmExtensionStart = /[[|:]/y;
 
-const commonmarkDialect: BlockDialect = {
-  constructs: constructTable([
-    documentConstruct,
-    blockquoteConstruct,
-    listConstruct,
-    listItemConstruct,
-    paragraphConstruct,
-    headingConstruct,
-    thematicBreakConstruct,
-    codeConstruct,
-    htmlBlockConstruct,
-    definitionConstruct,
-  ]),
-  starts: [
-    blockquoteStart,
-    atxHeadingStart,
-    fencedCodeStart,
-    htmlBlockStart,
-    setextHeadingStart,
-    thematicBreakStart,
-    listItemStart,
-    indentedCodeStart,
-  ],
-};
+const commonmarkConstructs = [
+  documentConstruct,
+  blockquoteConstruct,
+  listConstruct,
+  listItemConstruct,
+  paragraphConstruct,
+  headingConstruct,
+  thematicBreakConstruct,
+  codeConstruct,
+  htmlBlockConstruct,
+  definitionConstruct,
+];
+
+const commonmarkDialect = new BlockDialect(commonmarkConstructs, [
+  blockquoteStart,
+  atxHeadingStart,
+  fencedCodeStart,
+  htmlBlockStart,
+  setextHeadingStart,
+  thematicBreakStart,
+  listItemStart,
+  indentedCodeStart,
+]);
 
 // GFM's block grammar is CommonMark's plus tables, task-list items and
 // footnote definitions.
@@ -134,24 +132,9 @@ const commonmarkDialect: BlockDialect = {
 // thematic break and the list marker. It is registered at that same core
 // position rather than with the extensions, because a `[^a]: ...` line has to
 // beat the list-item start that would otherwise claim what follows.
-const gfmDialect: BlockDialect = {
-  constructs: constructTable([
-    documentConstruct,
-    blockquoteConstruct,
-    listConstruct,
-    listItemConstruct,
-    paragraphConstruct,
-    headingConstruct,
-    thematicBreakConstruct,
-    codeConstruct,
-    htmlBlockConstruct,
-    definitionConstruct,
-    footnoteDefinitionConstruct,
-    tableConstruct,
-    tableRowConstruct,
-    tableCellConstruct,
-  ]),
-  starts: [
+const gfmDialect = new BlockDialect(
+  [...commonmarkConstructs, footnoteDefinitionConstruct, tableConstruct, tableRowConstruct, tableCellConstruct],
+  [
     blockquoteStart,
     atxHeadingStart,
     fencedCodeStart,
@@ -170,12 +153,12 @@ const gfmDialect: BlockDialect = {
   // row can begin with any character at all, and both a task-list checkbox
   // and a footnote definition begin with `[`. cmark-gfm has no such filter,
   // so this restores the lines it would hide — and only those.
-  mayStartBlock: dual(
+  dual(
     2,
-    (rest: string, container: BlockNode): boolean =>
-      container.type === "table" || rest.startsWith("[") || rest.startsWith("|") || rest.startsWith(":")
-  ),
-};
+    (scanner: BlockScanner, container: BlockNode): boolean =>
+      container.type === "table" || matchesAt(reGfmExtensionStart, scanner.currentLine, scanner.nextNonspace)
+  )
+);
 
 const dialects = HashMap.fromIterable<MarkdownDialect, BlockDialect>([
   ["commonmark", commonmarkDialect],

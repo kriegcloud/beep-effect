@@ -9,12 +9,13 @@
 
 import * as O from "effect/Option";
 import { decodeEntity } from "../entities.ts";
+import { stickyOf } from "../patterns.ts";
 import { ENTITY } from "../unescape.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
-const C_AMPERSAND = 0x26;
+const C_AMPERSAND = "&";
 
-const reEntityHere = new RegExp(`^${ENTITY}`, "i");
+const reEntityHere = stickyOf(new RegExp(`^${ENTITY}`, "i"));
 
 /**
  * Decodes a named, decimal or hexadecimal character reference.
@@ -24,7 +25,7 @@ const reEntityHere = new RegExp(`^${ENTITY}`, "i");
  * ```ts
  * import { entityConstruct } from "@beep/markdown/internal/inlines/entity"
  *
- * console.log(entityConstruct.triggers.map((code) => String.fromCharCode(code)).join("")) // &
+ * console.log(entityConstruct.triggers.join("")) // &
  * ```
  *
  * @category parsing

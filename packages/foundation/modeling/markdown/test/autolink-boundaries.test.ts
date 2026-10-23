@@ -5,6 +5,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import { childOfType } from "./support/tree.ts";
 
 describe("email autolink source boundaries", () => {
   it.each([
@@ -13,22 +14,19 @@ describe("email autolink source boundaries", () => {
     ["&#33;", "!"],
     ["&NotEqualTilde;", "≂̸"],
   ])("starts an email after the complete decoded prefix %s", (prefix, decoded) => {
-    const source = prefix + "a@b.com";
-    const [paragraph] = parseBlocks(source, { dialect: "gfm" }).root.children;
-    assert.strictEqual(paragraph?.type, "paragraph");
-    if (paragraph?.type !== "paragraph") return;
-    const [text, link] = paragraph.children;
-    assert.strictEqual(text?.type, "text");
-    assert.strictEqual(text?.type === "text" ? text.value : "", decoded);
-    assert.strictEqual(text?.position.start.offset, 0);
-    assert.strictEqual(text?.position.end.offset, prefix.length);
-    assert.strictEqual(link?.type, "link");
-    assert.strictEqual(link?.position.start.offset, prefix.length);
-    assert.strictEqual(link?.position.end.offset, source.length);
-    if (link?.type !== "link") return;
+    const source = `${prefix}a@b.com`;
+    const paragraph = childOfType(parseBlocks(source, { dialect: "gfm" }).root.children, 0, "paragraph");
+    const text = childOfType(paragraph.children, 0, "text");
+    assert.strictEqual(text.value, decoded);
+    assert.strictEqual(text.position.start.offset, 0);
+    assert.strictEqual(text.position.end.offset, prefix.length);
+    const link = childOfType(paragraph.children, 1, "link");
+    assert.strictEqual(link.position.start.offset, prefix.length);
+    assert.strictEqual(link.position.end.offset, source.length);
     assert.strictEqual(link.url, "mailto:a@b.com");
-    assert.strictEqual(link.children[0]?.position.start.offset, prefix.length);
-    assert.strictEqual(link.children[0]?.position.end.offset, source.length);
+    const label = childOfType(link.children, 0, "text");
+    assert.strictEqual(label.position.start.offset, prefix.length);
+    assert.strictEqual(label.position.end.offset, source.length);
   });
 
   it("maps an email ending in a decoded piece to that piece's source end", () => {
@@ -60,7 +58,7 @@ describe("email autolink source boundaries", () => {
       const start = O.getOrElse(Str.indexOf(address)(source), () => -1);
       assert.strictEqual(link?.position.start.offset, start);
       assert.strictEqual(link?.position.end.offset, start + address.length);
-      assert.strictEqual(link?.type === "link" ? link.url : "", "mailto:" + address);
+      assert.strictEqual(link?.type === "link" ? link.url : "", `mailto:${address}`);
       assert.strictEqual(link?.type === "link" ? link.children[0]?.position.start.offset : -1, start);
     }
     const text = A.filter(paragraph.children, (node) => node.type === "text");

@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { $MarkdownId } from "@beep/identity/packages";
 import * as Mdx from "@beep/markdown/MarkdownMdx";
 import * as Node from "@beep/markdown/MarkdownNode";
@@ -31,6 +32,11 @@ import {
   ThematicBreak,
 } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -68,7 +74,8 @@ describe("MarkdownNode", () => {
 
     it("describes MDX keys without changing their encoded shapes", () => {
       for (const schema of [Mdx.MdxJsxAttribute, Mdx.MdxJsxFlowElement, Mdx.MdxJsxTextElement]) {
-        for (const field of Object.values(schema.fields)) {
+        const fields: Readonly<Record<string, S.Top>> = schema.fields;
+        for (const field of R.values(fields)) {
           assert.isString(field.ast.context?.annotations?.description);
           assert.isNotEmpty(field.ast.context?.annotations?.description);
         }
@@ -107,11 +114,14 @@ describe("MarkdownNode", () => {
         [Node.FrontmatterFormat, "FrontmatterFormat", ["yaml", "toml", "json"]],
       ] as const) {
         assert.deepStrictEqual(schema.literals, members);
-        assert.deepStrictEqual(Object.values(schema.Enum), [...members]);
+        const enumeration: Readonly<Record<string, string | number>> = schema.Enum;
+        assert.deepStrictEqual(R.values(enumeration), [...members]);
         assert.strictEqual(schema.ast.annotations?.identifier, identity.make(name));
         assert.isFunction(schema.$match);
-        for (const guard of Object.values(schema.is)) {
-          assert.strictEqual(schema.literals.filter((value) => guard(value)).length, 1);
+        const guards: Readonly<Record<string, (input: unknown) => boolean>> = schema.is;
+        for (const guard of R.values(guards)) {
+          const literals: ReadonlyArray<string | number> = schema.literals;
+          assert.strictEqual(A.filter(literals, (value) => guard(value)).length, 1);
           assert.isFalse(guard("invalid"));
         }
       }
@@ -165,8 +175,8 @@ describe("MarkdownNode", () => {
       const indented = Code.make({ value: "x = 1", position: span(0, 5) });
       const fenced = Code.make({ value: "x = 1", position: span(0, 13), fenceChar: "`", fenceLength: 3 });
 
-      assert.isFalse(Object.hasOwn(indented, "fenceChar"));
-      assert.isFalse(Object.hasOwn(indented, "lang"));
+      assert.isFalse(P.hasProperty(indented, "fenceChar"));
+      assert.isFalse(P.hasProperty(indented, "lang"));
       assert.strictEqual(fenced.fenceChar, "`");
       assert.strictEqual(fenced.fenceLength, 3);
     });
@@ -541,19 +551,19 @@ describe("MarkdownNode", () => {
     describe("absent optionalKey fields", () => {
       it("omits checked on a non-task list item rather than storing undefined", () => {
         const item = ListItem.make({ children: [], position: span(0, 1) });
-        assert.isFalse(Object.hasOwn(item, "checked"));
+        assert.isFalse(P.hasProperty(item, "checked"));
       });
 
       it("omits align on a table with no declared alignment rather than storing undefined", () => {
         const table = Table.make({ children: [], position: span(0, 1) });
-        assert.isFalse(Object.hasOwn(table, "align"));
+        assert.isFalse(P.hasProperty(table, "align"));
       });
 
       it("omits label on a footnote definition and reference rather than storing undefined", () => {
         const definition = FootnoteDefinition.make({ identifier: "a", children: [], position: span(0, 1) });
         const reference = FootnoteReference.make({ identifier: "a", position: span(0, 1) });
-        assert.isFalse(Object.hasOwn(definition, "label"));
-        assert.isFalse(Object.hasOwn(reference, "label"));
+        assert.isFalse(P.hasProperty(definition, "label"));
+        assert.isFalse(P.hasProperty(reference, "label"));
       });
     });
 
@@ -770,4 +780,20 @@ describe("MarkdownNode", () => {
       });
     });
   });
+});
+
+describe("node schema-derived properties", () => {
+  const runs = { arbitrary: fcRuns(100) };
+
+  it.effect.prop(
+    "a generated leaf node is its own schema's member and survives an encode/decode round trip",
+    [Arbitrary.schema(S.Union([Code, Text, InlineCode, Html, Definition, FootnoteReference]))],
+    ([node]) =>
+      Effect.gen(function* () {
+        const schema = S.Union([Code, Text, InlineCode, Html, Definition, FootnoteReference]);
+        assert.isTrue(S.is(schema)(node));
+        assert.deepStrictEqual(yield* S.decodeEffect(schema)(yield* S.encodeEffect(schema)(node)), node);
+      }),
+    runs
+  );
 });

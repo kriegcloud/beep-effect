@@ -1,22 +1,30 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   BlockContinueResult,
+  BlockData,
+  BlockNode,
   BlockStartResult,
   BlockType,
+  containsFlow,
+  containsNothing,
   DefinitionData,
   FootnoteData,
   flowChildren,
+  ListData,
+  ListType,
   listItemChildren,
   makeBlockNode,
   PreparedInline,
   RawInlineSegment,
   RawInlineSlice,
+  TableData,
   tableCellChildren,
   tableRowChildren,
 } from "@beep/markdown/internal/blockTypes";
 import { Heading, ListItem, Paragraph, Root, TableCell, TableRow, Text } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { MaterializedBlock } from "@beep/markdown/internal/blockTypes";
@@ -44,7 +52,7 @@ describe("blockTypes properties", () => {
     [Arbitrary.schema(Tags)],
     ([tags]) =>
       Effect.sync(() => {
-        const children = tags.map(construct);
+        const children = A.map(tags, construct);
         const selectors: ReadonlyArray<
           readonly [(nodes: ReadonlyArray<MaterializedBlock>) => ReadonlyArray<MaterializedBlock>, string]
         > = [
@@ -57,13 +65,13 @@ describe("blockTypes properties", () => {
           const selected = select(children);
           assert.deepStrictEqual(
             selected,
-            children.filter((child) => child.type === type)
+            A.filter(children, (child) => child.type === type)
           );
           assert.deepStrictEqual(select(selected), selected);
-          for (const child of selected) assert.ok(children.includes(child));
+          for (const child of selected) assert.isTrue(A.contains(children, child));
         }
         assert.deepStrictEqual(
-          children.map((child) => child.type),
+          A.map(children, (child) => child.type),
           [...tags]
         );
       }),
@@ -81,8 +89,13 @@ describe("blockTypes properties", () => {
         assert.strictEqual(direct.endOffset, value.offset);
         assert.strictEqual(direct.startLine, value.line);
         assert.strictEqual(direct.depth, value.depth);
+        assert.isTrue(direct instanceof BlockNode);
+        assert.isTrue(direct.open);
+        assert.strictEqual(direct.parent, undefined);
         direct.children.push(makeBlockNode("heading", 0, 1));
+        direct.data.level = 2;
         assert.deepStrictEqual(curried.children, []);
+        assert.strictEqual(curried.data.level, undefined);
       }),
     runs
   );
@@ -113,7 +126,7 @@ it("source-run and block-kind schemas reject invalid domain values", () => {
 });
 
 it.effect.prop(
-  "inline payload schemas round-trip plain records for every inline host",
+  "inline engine records carry the prepared text to every inline host",
   [
     Arbitrary.schema(
       S.Struct({
@@ -125,25 +138,21 @@ it.effect.prop(
     ),
   ],
   ([source]) =>
-    Effect.gen(function* () {
+    Effect.sync(() => {
       const children = [Text.make({ value: source.text })];
-      const prepared = { ...source, children };
-      assert.isTrue(S.is(PreparedInline)(prepared));
-      const encodedPrepared = yield* S.encodeEffect(PreparedInline)(prepared);
-      const decodedPrepared = yield* S.decodeEffect(PreparedInline)(encodedPrepared);
-      assert.deepStrictEqual(decodedPrepared, prepared);
-      assert.isFalse("_tag" in decodedPrepared);
+      const prepared = new PreparedInline(source.text, source.startOffset, source.endOffset, source.segments, children);
+      assert.deepStrictEqual({ ...prepared }, { ...source, children });
       for (const parent of [
         Paragraph.make({ children }),
         Heading.make({ depth: 2, children }),
         TableCell.make({ children }),
       ]) {
-        const slice = { parent, text: source.text, startOffset: source.startOffset, segments: source.segments };
-        assert.isTrue(S.is(RawInlineSlice)(slice));
-        const encodedSlice = yield* S.encodeEffect(RawInlineSlice)(slice);
-        const decodedSlice = yield* S.decodeEffect(RawInlineSlice)(encodedSlice);
-        assert.deepStrictEqual(decodedSlice, slice);
-        assert.isFalse("_tag" in decodedSlice);
+        const slice = new RawInlineSlice(parent, prepared);
+        assert.strictEqual(slice.parent, parent);
+        assert.strictEqual(slice.text, source.text);
+        assert.strictEqual(slice.startOffset, source.startOffset);
+        assert.strictEqual(slice.segments, source.segments);
+        assert.isFalse("endOffset" in slice);
       }
     }),
   runs
@@ -177,26 +186,38 @@ it.effect.prop(
 );
 
 it("payload schemas retain required fields and verdict schemas retain numeric codes", () => {
-  const parent = Paragraph.make({ children: [] });
-  const slice = { parent, text: "", startOffset: 0, segments: [] };
-  const prepared = { text: "", startOffset: 0, endOffset: 0, segments: [], children: [] };
   const definition = { key: "ref", identifier: "ref", label: "Ref", url: "/target" };
   const footnote = { key: "note", identifier: "note", label: "Note" };
-  assert.isTrue(S.is(RawInlineSlice)(slice));
-  assert.isTrue(S.is(PreparedInline)(prepared));
   assert.isTrue(S.is(DefinitionData)(definition));
   assert.isTrue(S.is(DefinitionData)({ ...definition, title: "" }));
   assert.isTrue(S.is(FootnoteData)(footnote));
   assert.isFalse(S.is(DefinitionData)({ ...definition, title: undefined }));
   assert.isFalse(S.is(DefinitionData)({ key: "ref", identifier: "ref", label: "Ref" }));
   assert.isFalse(S.is(FootnoteData)({ key: "note", identifier: "note" }));
-  assert.isFalse(S.is(RawInlineSlice)({ ...slice, parent: Root.make({ children: [] }) }));
-  assert.isFalse(S.is(RawInlineSlice)({ parent, text: "", startOffset: 0 }));
-  assert.isFalse(S.is(PreparedInline)({ text: "", startOffset: 0, segments: [], children: [] }));
-  assert.isFalse(S.is(PreparedInline)({ ...prepared, children: [Root.make({ children: [] })] }));
+  assert.strictEqual(DefinitionData.make(definition).url, "/target");
   for (const verdict of [BlockContinueResult, BlockStartResult]) {
     assert.deepStrictEqual(verdict.literals, [0, 1, 2]);
     for (const code of [0, 1, 2]) assert.isTrue(S.is(verdict)(code));
     for (const code of [-1, 3, "0", undefined]) assert.isFalse(S.is(verdict)(code));
   }
+});
+
+it("mutable engine records start from their documented defaults", () => {
+  const list = new ListData("ordered", 2);
+  assert.deepStrictEqual(
+    [list.type, list.markerOffset, list.padding, list.tight, "start" in list, "bulletChar" in list],
+    ["ordered", 2, 0, true, false, false]
+  );
+  assert.deepStrictEqual(ListType.literals, ["bullet", "ordered"]);
+  const table = new TableData(["left", null], 2);
+  assert.deepStrictEqual([table.align, table.columns, table.rows, table.nonemptyCells], [["left", null], 2, 0, 0]);
+  // Declared, not initialized: an unset field is absent, not `undefined`.
+  const data = new BlockData();
+  assert.isFalse("lang" in data);
+  assert.isFalse("listData" in data);
+  data.lang = "ts";
+  assert.isTrue("lang" in data);
+  assert.isFalse(containsNothing("paragraph"));
+  assert.isTrue(containsFlow("paragraph"));
+  assert.isFalse(containsFlow("listItem"));
 });

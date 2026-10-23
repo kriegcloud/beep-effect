@@ -8,7 +8,7 @@
 // The fixtures exercise CommonMark shapes only (upstream's core loads no
 // GFM extensions), so every fixture parses under dialect "commonmark" with
 // frontmatter capture off — the configuration upstream generated the .json
-// files with. See fixtures/mdast/VENDORED.md.
+// files with. See data/conformance/mdast/VENDORED.md.
 //
 // KNOWN ENGINE-LINEAGE DIVERGENCES. This engine is a commonmark.js port;
 // the fixtures come from micromark. The two reference implementations agree
@@ -32,11 +32,31 @@
 import { Markdown, MarkdownParseOptions } from "@beep/markdown/Markdown";
 import { Mdast } from "@beep/markdown/Mdast";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import { loadMdastFixturePairs } from "../support/corpus.ts";
 
 const options = MarkdownParseOptions.make({ dialect: "commonmark" });
+
+// Divergences 1 and 3 combined: the line ending becomes a space and any
+// continuation-line indentation after it (which this engine's paragraph
+// accumulation strips) is swallowed with it.
+const INLINE_CODE_LINE_ENDING = /\r?\n[ \t]*/g;
+const TEXT_TRAILING_BLANKS = /[ \t]+\n/g;
+const LABEL_CONTINUATION_INDENT = /\n[ \t]+/g;
+const LABEL_INDENT = /\n[ \t]+/;
+
+/** Mask one string field of a node of the given `type`. */
+const maskString = (type: unknown, key: string, value: string): string => {
+  if (key === "label") return Str.replace(LABEL_CONTINUATION_INDENT, "\n")(value);
+  if (key !== "value") return value;
+  if (type === "inlineCode") return Str.replace(INLINE_CODE_LINE_ENDING, " ")(value);
+  return type === "text" ? Str.replace(TEXT_TRAILING_BLANKS, "\n")(value) : value;
+};
 
 /**
  * Mask the three documented divergences, on both trees: inlineCode line
@@ -45,29 +65,12 @@ const options = MarkdownParseOptions.make({ dialect: "commonmark" });
  * — every other field, every position — passes through untouched.
  */
 const normalizeForComparison = (node: unknown): unknown => {
-  if (Array.isArray(node)) {
-    return node.map(normalizeForComparison);
-  }
-  if (!P.isObject(node)) {
-    return node;
-  }
-  const record = node;
-  const out: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(record)) {
-    if (key === "value" && record.type === "inlineCode" && typeof value === "string") {
-      // Divergences 1 and 3 combined: the line ending becomes a space
-      // and any continuation-line indentation after it (which this
-      // engine's paragraph accumulation strips) is swallowed with it.
-      out[key] = value.replace(/\r?\n[ \t]*/g, " ");
-    } else if (key === "value" && record.type === "text" && typeof value === "string") {
-      out[key] = value.replace(/[ \t]+\n/g, "\n");
-    } else if (key === "label" && typeof value === "string") {
-      out[key] = value.replace(/\n[ \t]+/g, "\n");
-    } else {
-      out[key] = normalizeForComparison(value);
-    }
-  }
-  return out;
+  if (A.isArray(node)) return A.map(node, normalizeForComparison);
+  if (!P.isObject(node)) return node;
+  const type = node.type;
+  return R.map(node, (value: unknown, key: string) =>
+    P.isString(value) ? maskString(type, key, value) : normalizeForComparison(value)
+  );
 };
 
 const parseFixture = (markdown: string) => {
@@ -77,28 +80,18 @@ const parseFixture = (markdown: string) => {
   return Mdast.toMdast(parsed.success);
 };
 
-const values = (tree: unknown, type: string, field: "value" | "label"): string[] => {
-  const out: string[] = [];
-  const walk = (n: unknown): void => {
-    if (Array.isArray(n)) {
-      for (const item of n) {
-        walk(item);
-      }
-      return;
-    }
-    if (P.isObject(n)) {
-      const record = n;
-      if (record.type === type && typeof record[field] === "string") {
-        out.push(record[field]);
-      }
-      for (const value of Object.values(record)) {
-        walk(value);
-      }
-    }
-  };
-  walk(tree);
-  return out;
+/** Every string `field` of every node of `type`, in document order. */
+const values = (tree: unknown, type: string, field: "value" | "label"): ReadonlyArray<string> => {
+  if (A.isArray(tree)) return A.flatMap(tree, (item) => values(item, type, field));
+  if (!P.isObject(tree)) return [];
+  const own = tree[field];
+  const children = A.flatMap(R.values(tree), (value) => values(value, type, field));
+  return tree.type === type && P.isString(own) ? A.prepend(children, own) : children;
 };
+
+const hasLineEnding = Str.includes("\n");
+const hasTabBeforeLineEnding = Str.includes("\t\n");
+const hasIndentedContinuation = (label: string): boolean => LABEL_INDENT.test(label);
 
 describe("mdast interop corpus", () => {
   const pairs = loadMdastFixturePairs();
@@ -110,20 +103,20 @@ describe("mdast interop corpus", () => {
   }
 
   describe("divergence tripwires", () => {
-    const fixture = (name: string) => {
-      const pair = pairs.find((candidate) => candidate.name === name);
-      assert.isDefined(pair);
-      return pair;
-    };
+    const fixture = (name: string) =>
+      O.getOrThrowWith(
+        A.findFirst(pairs, (candidate) => candidate.name === name),
+        () => new Error(`no mdast fixture named ${name}`)
+      );
 
     it("pins the inlineCode line-ending divergence on code-text", () => {
       const pair = fixture("code-text");
       // micromark stores the raw line ending; this engine stores the
       // spec's space-converted form. If either side changes, the
       // normalizer's first clause is dead weight — delete it and this.
-      assert.isTrue(values(pair.tree, "inlineCode", "value").some((value) => value.includes("\n")));
+      assert.isTrue(A.some(values(pair.tree, "inlineCode", "value"), hasLineEnding));
       const ours = values(parseFixture(pair.markdown), "inlineCode", "value");
-      assert.isFalse(ours.some((value) => value.includes("\n")));
+      assert.isFalse(A.some(ours, hasLineEnding));
     });
 
     it("pins the soft-break trailing-tab divergence on hard-break-prefix", () => {
@@ -131,8 +124,8 @@ describe("mdast interop corpus", () => {
       // commonmark.js strips only spaces before a soft break; micromark
       // strips tabs too. If either side changes, the normalizer's
       // second clause is dead weight — delete it and this.
-      assert.isTrue(values(parseFixture(pair.markdown), "text", "value").some((value) => value.includes("\t\n")));
-      assert.isFalse(values(pair.tree, "text", "value").some((value) => value.includes("\t\n")));
+      assert.isTrue(A.some(values(parseFixture(pair.markdown), "text", "value"), hasTabBeforeLineEnding));
+      assert.isFalse(A.some(values(pair.tree, "text", "value"), hasTabBeforeLineEnding));
     });
 
     it("pins the multiline-label indentation divergence on character-references-everywhere", () => {
@@ -141,9 +134,9 @@ describe("mdast interop corpus", () => {
       // label; commonmark.js's paragraph accumulation strips it. If
       // either side changes, the normalizer's third clause is dead
       // weight — delete it and this.
-      assert.isTrue(values(pair.tree, "definition", "label").some((label) => /\n[ \t]+/.test(label)));
+      assert.isTrue(A.some(values(pair.tree, "definition", "label"), hasIndentedContinuation));
       const ours = values(parseFixture(pair.markdown), "definition", "label");
-      assert.isFalse(ours.some((label) => /\n[ \t]+/.test(label)));
+      assert.isFalse(A.some(ours, hasIndentedContinuation));
     });
   });
 });

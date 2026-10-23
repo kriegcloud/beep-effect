@@ -38,6 +38,7 @@ import {
 import { Mdast } from "@beep/markdown/Mdast";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -74,6 +75,47 @@ const textElement = (
 ): MdxJsxTextElement => MdxJsxTextElement.make({ name, attributes, children });
 
 const expressionAttribute = (value: string): MdxJsxExpressionAttribute => MdxJsxExpressionAttribute.make({ value });
+
+const foreignMdxTree = {
+  type: "root",
+  children: [
+    {
+      type: "mdxJsxFlowElement",
+      name: null,
+      attributes: [],
+      children: [{ type: "paragraph", children: [{ type: "text", value: "y" }] }],
+    },
+    {
+      type: "mdxFlowExpression",
+      value: "a + b",
+      data: { estree: { type: "Program", body: [], sourceType: "module" } },
+    },
+    {
+      type: "paragraph",
+      children: [
+        {
+          type: "mdxJsxTextElement",
+          name: "b",
+          attributes: [
+            { type: "mdxJsxAttribute", name: "x", value: null },
+            {
+              type: "mdxJsxAttribute",
+              name: "y",
+              value: { type: "mdxJsxAttributeValueExpression", value: "z" },
+            },
+          ],
+          children: [],
+        },
+      ],
+    },
+  ],
+};
+
+/** The JSX text element opening a paragraph block, if that is what the block holds. */
+const leadingTextElement = (block: Root["children"][number] | undefined): MdxJsxTextElement | undefined => {
+  const first = block?.type === "paragraph" ? block.children[0] : undefined;
+  return first?.type === "mdxJsxTextElement" ? first : undefined;
+};
 
 describe("mdx nodes", () => {
   describe("construction checks", () => {
@@ -394,58 +436,22 @@ describe("mdx nodes", () => {
     });
 
     it("admits foreign MDX trees, synthesizing positions and dropping estree data", () => {
-      const foreign = {
-        type: "root",
-        children: [
-          {
-            type: "mdxJsxFlowElement",
-            name: null,
-            attributes: [],
-            children: [{ type: "paragraph", children: [{ type: "text", value: "y" }] }],
-          },
-          {
-            type: "mdxFlowExpression",
-            value: "a + b",
-            data: { estree: { type: "Program", body: [], sourceType: "module" } },
-          },
-          {
-            type: "paragraph",
-            children: [
-              {
-                type: "mdxJsxTextElement",
-                name: "b",
-                attributes: [
-                  { type: "mdxJsxAttribute", name: "x", value: null },
-                  {
-                    type: "mdxJsxAttribute",
-                    name: "y",
-                    value: { type: "mdxJsxAttributeValueExpression", value: "z" },
-                  },
-                ],
-                children: [],
-              },
-            ],
-          },
-        ],
-      };
-      const result = Mdast.fromMdastResult(foreign);
+      const result = Mdast.fromMdastResult(foreignMdxTree);
       assertSuccess(
         Result.map(result, () => undefined),
         undefined
       );
-      if (Result.isSuccess(result)) {
-        const [fragment, expression, wrapper] = result.success.children;
-        assert.strictEqual(fragment?.type, "mdxJsxFlowElement");
-        assert.strictEqual(expression?.type, "mdxFlowExpression");
-        const textEl = wrapper?.type === "paragraph" ? wrapper.children[0] : undefined;
-        assert.strictEqual(textEl?.type, "mdxJsxTextElement");
-        if (textEl?.type === "mdxJsxTextElement") {
-          // The null value spelling survives admission, and sentinel
-          // positions were synthesized on the attribute carriers.
-          assert.strictEqual(textEl.attributes[0]?.type === "mdxJsxAttribute" ? textEl.attributes[0].value : "x", null);
-          assert.strictEqual(textEl.attributes[0]?.position.start.offset, 0);
-        }
-      }
+      const [fragment, expression, wrapper] = Result.getOrThrow(result).children;
+      assert.strictEqual(fragment?.type, "mdxJsxFlowElement");
+      assert.strictEqual(expression?.type, "mdxFlowExpression");
+      const textEl = leadingTextElement(wrapper);
+      assert.isDefined(textEl);
+      // The null value spelling survives admission, and sentinel positions
+      // were synthesized on the attribute carriers.
+      const [attribute] = textEl.attributes;
+      assert.strictEqual(attribute?.type, "mdxJsxAttribute");
+      assert.strictEqual(attribute?.type === "mdxJsxAttribute" ? attribute.value : "x", null);
+      assert.strictEqual(attribute?.position.start.offset, 0);
     });
 
     it("passes a malformed element name through so the decode fails typed", () => {
@@ -543,7 +549,7 @@ describe("mdx nodes", () => {
       // ESM is metadata, not prose — like frontmatter it belongs to no
       // section, which is also what keeps the FlowContent typing sound.
       assert.deepStrictEqual(
-        sections[0]?.children.map((child) => child.type),
+        A.map(sections[0]?.children ?? [], (child) => child.type),
         ["paragraph"]
       );
     });

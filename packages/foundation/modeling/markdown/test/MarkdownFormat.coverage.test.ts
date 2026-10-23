@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import type { MarkdownParseError, MarkdownParseOptions } from "@beep/markdown/Markdown";
 import type { FlowContent, Root } from "@beep/markdown/MarkdownNode";
 
@@ -29,7 +30,7 @@ describe("MarkdownFormat coverage", () => {
       const doc = yield* MarkdownDocument.parse("hello\n");
       const target = doc.find("paragraph");
       assertDefined(target);
-      const rejected = Markdown.parseResult("> ".repeat(MAX_NESTING_DEPTH + 1) + "deep\n");
+      const rejected = Markdown.parseResult(`${Str.repeat(MAX_NESTING_DEPTH + 1)("> ")}deep\n`);
       assertFailure(
         Result.mapError(rejected, (error) => error.diagnostic.code),
         "NestingDepthExceeded"

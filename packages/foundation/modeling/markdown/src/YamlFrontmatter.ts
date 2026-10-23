@@ -1,10 +1,20 @@
+/**
+ * The yaml frontmatter codec module over `@beep/yaml`.
+ *
+ * **Details**
+ *
+ * Importing this module is what loads the yaml engine; a consumer who
+ * never touches yaml frontmatter never loads it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Yaml } from "@beep/yaml/Yaml";
-import * as Effect from "effect/Effect";
-import { FrontmatterDecodeError, FrontmatterEncodeError, FrontmatterFormatMismatchError } from "./Frontmatter.ts";
-import type { FrontmatterCodec } from "./Frontmatter.ts";
+import { FrontmatterCodec } from "./Frontmatter.ts";
 
 /**
- * The yaml frontmatter codec, over `@effected/yaml`.
+ * The yaml frontmatter codec, over `@beep/yaml`.
  *
  * **Details**
  *
@@ -21,7 +31,7 @@ import type { FrontmatterCodec } from "./Frontmatter.ts";
  * deliberately not an empty body, which would round-trip as `null` — so
  * `set`-then-decode recovers `{}` exactly.
  *
- * `@effected/yaml` is an optional peer — importing this module is what
+ * `@beep/yaml` is an optional peer — importing this module is what
  * requires it; a consumer who never touches yaml frontmatter never loads the
  * yaml engine.
  *
@@ -39,12 +49,8 @@ import type { FrontmatterCodec } from "./Frontmatter.ts";
  * @category codecs
  * @since 0.0.0
  */
-export const YamlFrontmatter: FrontmatterCodec = {
-  format: "yaml",
-  decode: (node) =>
-    node.format !== "yaml"
-      ? Effect.fail(FrontmatterFormatMismatchError.make({ expected: "yaml", actual: node.format }))
-      : Yaml.parse(node.value).pipe(Effect.mapError((cause) => FrontmatterDecodeError.make({ format: "yaml", cause }))),
-  encode: (data) =>
-    Yaml.stringify(data).pipe(Effect.mapError((cause) => FrontmatterEncodeError.make({ format: "yaml", cause }))),
-};
+export const YamlFrontmatter: FrontmatterCodec = FrontmatterCodec.make(
+  "yaml",
+  (text) => Yaml.parseResult(text),
+  (data) => Yaml.stringifyResult(data)
+);

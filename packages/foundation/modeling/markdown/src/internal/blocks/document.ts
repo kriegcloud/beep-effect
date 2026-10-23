@@ -7,17 +7,8 @@
 // out. This package keeps definitions as nodes and splits them out as each paragraph closes
 // (`linkReferenceDefinition.ts`), so this construct's finalize is a no-op.
 
-import { dual } from "effect/Function";
-import { flowChildren } from "../blockTypes.ts";
+import { alwaysContinues, BlockConstruct, containerMaterializer, containsFlow, flowChildren } from "../blockTypes.ts";
 import { trustedNode } from "../nodes.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
 import type { Root } from "../nodes.ts";
 
 /**
@@ -35,22 +26,14 @@ import type { Root } from "../nodes.ts";
  * @category parsing
  * @since 0.0.0
  */
-export const documentConstruct: BlockConstruct = {
-  type: "document",
-  acceptsLines: false,
-  canContain: (child) => child !== "listItem",
-  continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 0),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined =>
-      trustedNode<Root>({
-        type: "root",
-        children: flowChildren(children),
-        position: context.position(block.startOffset, block.endOffset),
-      })
+export const documentConstruct = new BlockConstruct("document", false, {
+  canContain: containsFlow,
+  continue: alwaysContinues,
+  materialize: containerMaterializer((block, children, context) =>
+    trustedNode<Root>({
+      type: "root",
+      children: flowChildren(children),
+      position: context.position(block.startOffset, block.endOffset),
+    })
   ),
-};
+});

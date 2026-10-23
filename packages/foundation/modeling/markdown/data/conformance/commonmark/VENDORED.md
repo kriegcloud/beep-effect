@@ -14,7 +14,7 @@
 ```sh
 python3 .repos/commonmark-spec/test/spec_tests.py \
   --spec .repos/commonmark-spec/spec.txt \
-  --dump-tests > packages/markdown/__test__/fixtures/commonmark/spec.json
+  --dump-tests > packages/foundation/modeling/markdown/data/conformance/commonmark/spec.json
 ```
 
 Each entry is `{ markdown, html, example, start_line, end_line, section }` —
@@ -23,8 +23,10 @@ to the package's `SpecExample` shape.
 
 ## Attribution posture
 
-Test-only vendoring. `spec.json` is generated data consumed exclusively by
-`__test__/e2e/`, never shipped in the published package artifact. The
-CC-BY-SA 4.0 license on the spec text is satisfied by this attribution file
-and the upstream link above; regenerate `spec.json` with the command above if
-the pinned `commonmark-spec` submodule ref ever changes — never hand-edit it.
+Conformance data, not runtime code. `spec.json` is generated data that the
+package's own `test/e2e/` suites load and that other workspace packages import
+as the `@beep/markdown/conformance/commonmark/spec` subpath. Nothing under
+`src/` reads it. It travels with this attribution file, and the CC-BY-SA 4.0
+license on the spec text is satisfied by this file and the upstream link
+above. Regenerate `spec.json` with the command above if the pinned
+`commonmark-spec` submodule ref ever changes; never hand-edit it.

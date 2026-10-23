@@ -1,14 +1,14 @@
+import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { blockDialect } from "@beep/markdown/internal/blockRegistry";
-import { makeBlockNode } from "@beep/markdown/internal/blockTypes";
 import { assert, describe, it } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as O from "effect/Option";
 
-describe("blockRegistry map contract", () => {
-  it.effect("iterates constructs in insertion order and preserves identities", () =>
+const typesOf = (source: string): ReadonlyArray<string> =>
+  A.map(parseBlocks(source, { dialect: "gfm" }).root.children, (child) => child.type);
+
+describe("blockRegistry dialect contract", () => {
+  it.effect("registers each construct under its own type and keeps the start order", () =>
     Effect.sync(() => {
       const coreStarts = [
         "blockquote",
@@ -22,61 +22,45 @@ describe("blockRegistry map contract", () => {
       ];
       for (const name of ["commonmark", "gfm"] as const) {
         const dialect = blockDialect(name);
-        const table = dialect.constructs;
-        assert.isTrue(HashMap.isHashMap(table));
-        // The ordered scanner starts retain insertion order; the construct
-        // index uses HashMap traversal and preserves membership and identity.
-        const entries = A.fromIterable(table);
-        assert.strictEqual(HashMap.size(table), name === "commonmark" ? 10 : 14);
-        assert.strictEqual(entries.length, HashMap.size(table));
-        assert.deepStrictEqual(table.pipe(HashMap.entries, A.fromIterable), entries);
+        assert.strictEqual(dialect.constructs.length, name === "commonmark" ? 10 : 14);
+        for (const construct of dialect.constructs) {
+          assert.strictEqual(dialect.construct(construct.type), construct);
+        }
         assert.deepStrictEqual(
-          table.pipe(HashMap.keys, A.fromIterable),
-          A.map(entries, ([key]) => key)
-        );
-        assert.deepStrictEqual(
-          table.pipe(HashMap.values, A.fromIterable),
-          A.map(entries, ([, value]) => value)
-        );
-        const observed: Array<string> = [];
-        HashMap.forEach(table, (value, key) => {
-          assert.strictEqual(O.getOrThrow(HashMap.get(table, key)), value);
-          assert.strictEqual(HashMap.has(table, key), true);
-          assert.strictEqual(value.type, key);
-          observed.push(key);
-        });
-        assert.deepStrictEqual(
-          observed,
-          A.map(entries, ([key]) => key)
-        );
-        assert.deepStrictEqual(
-          dialect.starts.map((start) => start.name),
+          A.map(dialect.starts, (start) => start.name),
           name === "commonmark"
             ? coreStarts
             : [
-                ...coreStarts.slice(0, 6),
+                ...A.take(coreStarts, 6),
                 "footnoteDefinition",
-                ...coreStarts.slice(6),
+                ...A.drop(coreStarts, 6),
                 "taskListItem",
                 "tableHeader",
                 "tableRow",
               ]
         );
       }
-      const core = blockDialect("commonmark").constructs;
-      assert.strictEqual(HashMap.has(core, "table"), false);
-      assertNone(HashMap.get(core, "table"));
+      assert.throws(
+        () => blockDialect("commonmark").construct("table"),
+        /no construct registered for block type table/
+      );
+      assert.strictEqual(blockDialect("commonmark").mayStartBlock, undefined);
     })
   );
-  it.effect("recognizes the GFM extension fast-path prefixes", () =>
+
+  it.effect("lets the GFM starts see the lines the CommonMark fast path hides", () =>
     Effect.sync(() => {
-      const mayStart = blockDialect("gfm").mayStartBlock;
-      assert.ok(mayStart);
-      if (mayStart === undefined) return;
-      for (const prefix of ["[", "|", ":"])
-        assert.strictEqual(mayStart(`${prefix}content`, makeBlockNode("paragraph", 0, 1)), true);
-      assert.strictEqual(mayStart("plain", makeBlockNode("table", 0, 1)), true);
-      assert.strictEqual(mayStart("plain", makeBlockNode("paragraph", 0, 1)), false);
+      // `[`: a footnote definition.
+      assert.deepStrictEqual(typesOf("[^a]: note\n"), ["footnoteDefinition"]);
+      // `|`: a delimiter row that begins with a pipe.
+      assert.deepStrictEqual(typesOf("a\n| - |\n"), ["table"]);
+      // `:`: a delimiter row that begins with a colon.
+      assert.deepStrictEqual(typesOf("a\n:-:\n"), ["table"]);
+      // Any line under an open table is offered to the row start.
+      const table = parseBlocks("| a |\n| - |\nplain\n", { dialect: "gfm" }).root.children[0];
+      assert.strictEqual(table?.type === "table" ? table.children.length : 0, 2);
+      // Plain text under a paragraph stays paragraph text.
+      assert.deepStrictEqual(typesOf("a\nplain\n"), ["paragraph"]);
     })
   );
 });

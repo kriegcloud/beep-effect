@@ -1,13 +1,14 @@
-// Trigger precedence and node materialization remain stable when the inline
-// registry uses HashMap and the materializer compiles its matcher once.
+// Trigger precedence and node materialization remain stable now that the
+// inline registry keys its trigger table by character (a frozen record read
+// once per character) and the materializer compiles its matcher once.
 
 import { inlineDialect } from "@beep/markdown/internal/inlineRegistry";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
-import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 
 const cases = [
@@ -25,12 +26,14 @@ describe("inline dispatch", () => {
   it("keeps autolinks before raw HTML in each trigger bucket", () => {
     for (const dialect of ["commonmark", "gfm"] as const) {
       const registry = inlineDialect(dialect);
-      const bucket = O.getOrElse(HashMap.get(registry.byTrigger, 0x3c), () => []);
       assert.deepStrictEqual(
-        A.map(bucket, (construct) => construct.name),
+        A.map(
+          O.getOrElse(R.get(registry.byTrigger, "<"), () => []),
+          (construct) => construct.name
+        ),
         ["autolink", "rawHtml"]
       );
-      assertNone(HashMap.get(registry.byTrigger, 0x61));
+      assertNone(R.get(registry.byTrigger, "a"));
     }
   });
 

@@ -11,9 +11,11 @@
 import * as Str from "effect/String";
 import { reHtmlTag } from "../htmlTags.ts";
 import { makeInlineNode } from "../inlineNode.ts";
+import { stickyOf } from "../patterns.ts";
 import type { InlineConstruct } from "../inlineTypes.ts";
 
-const C_LESSTHAN = 0x3c;
+const C_LESSTHAN = "<";
+const reHtmlTagHere = stickyOf(reHtmlTag);
 const reDeclarationPrefix = /^<![A-Za-z]/;
 
 /** The raw-HTML forms that scan forward for a fixed closing sequence. */
@@ -40,7 +42,7 @@ const UNTERMINATED_FORMS: ReadonlyArray<readonly [opener: string, closer: string
  * ```ts
  * import { rawHtmlConstruct } from "@beep/markdown/internal/inlines/rawHtml"
  *
- * console.log(rawHtmlConstruct.triggers[0]) // 60
+ * console.log(rawHtmlConstruct.triggers[0]) // <
  * ```
  *
  * @category parsing
@@ -58,7 +60,7 @@ export const rawHtmlConstruct: InlineConstruct = {
     // 300k unclosed `<!--` is one of the vendored pathological cases. Asking
     // first is memoized and constant-time after the first miss.
     for (const [opener, closer] of UNTERMINATED_FORMS) {
-      if (scanner.subject.startsWith(opener, from) && !scanner.hasAhead(closer)) {
+      if (Str.startsWith(opener, from)(scanner.subject) && !scanner.hasAhead(closer)) {
         return false;
       }
     }
@@ -67,7 +69,7 @@ export const rawHtmlConstruct: InlineConstruct = {
       return false;
     }
 
-    const matched = scanner.match(reHtmlTag);
+    const matched = scanner.match(reHtmlTagHere);
     if (matched === undefined) {
       return false;
     }

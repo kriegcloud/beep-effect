@@ -14,6 +14,7 @@ import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { Frontmatter, Point, Position, Root } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -51,12 +52,12 @@ describe("frontmatter capture", () => {
         return;
       }
       // `---` is a thematic break; `a: 1` then `---` is a setext heading.
-      const types = result.success.children.map((child) => child.type);
+      const types = A.map(result.success.children, (child) => child.type);
       assert.deepStrictEqual(types, ["thematicBreak", "heading"]);
     });
 
     it("is off by default at the engine level too", () => {
-      const types = parseBlocks("---\na: 1\n---\n", { dialect: "gfm" }).root.children.map((child) => child.type);
+      const types = A.map(parseBlocks("---\na: 1\n---\n", { dialect: "gfm" }).root.children, (child) => child.type);
       assert.deepStrictEqual(types, ["thematicBreak", "heading"]);
     });
 
@@ -69,10 +70,10 @@ describe("frontmatter capture", () => {
     it("leaves the body identical to a document without the block", () => {
       const withBlock = parseOn("---\na: 1\n---\n# Title\n\nBody.\n");
       const bare = parseOn("# Title\n\nBody.\n");
-      const bodyTypes = withBlock.children.slice(1).map((child) => child.type);
+      const bodyTypes = A.map(withBlock.children.slice(1), (child) => child.type);
       assert.deepStrictEqual(
         bodyTypes,
-        bare.children.map((child) => child.type)
+        A.map(bare.children, (child) => child.type)
       );
     });
   });
@@ -89,7 +90,7 @@ describe("frontmatter capture", () => {
     });
 
     it("+++ must close with +++, not ---", () => {
-      const types = parseOn('+++\ntitle = "x"\n---\n').children.map((child) => child.type);
+      const types = A.map(parseOn('+++\ntitle = "x"\n---\n').children, (child) => child.type);
       assert.notStrictEqual(types[0], "frontmatter");
     });
 
@@ -102,24 +103,24 @@ describe("frontmatter capture", () => {
     it("other language hints are not recognized", () => {
       // gray-matter would honor `---yaml`; this grammar is deliberately
       // closed to three fences. `---yaml` is paragraph text.
-      const types = parseOn("---yaml\na: 1\n---\n").children.map((child) => child.type);
+      const types = A.map(parseOn("---yaml\na: 1\n---\n").children, (child) => child.type);
       assert.notStrictEqual(types[0], "frontmatter");
     });
   });
 
   describe("fence strictness", () => {
     it("requires offset 0: a leading blank line defeats the capture", () => {
-      const types = parseOn("\n---\na: 1\n---\n").children.map((child) => child.type);
+      const types = A.map(parseOn("\n---\na: 1\n---\n").children, (child) => child.type);
       assert.notStrictEqual(types[0], "frontmatter");
     });
 
     it("rejects trailing whitespace on the opening fence", () => {
-      const types = parseOn("--- \na: 1\n---\n").children.map((child) => child.type);
+      const types = A.map(parseOn("--- \na: 1\n---\n").children, (child) => child.type);
       assert.notStrictEqual(types[0], "frontmatter");
     });
 
     it("rejects a longer dash run", () => {
-      const types = parseOn("----\na: 1\n----\n").children.map((child) => child.type);
+      const types = A.map(parseOn("----\na: 1\n----\n").children, (child) => child.type);
       assert.notStrictEqual(types[0], "frontmatter");
     });
 
@@ -129,7 +130,7 @@ describe("frontmatter capture", () => {
       if (!Result.isSuccess(result)) {
         return;
       }
-      const types = result.success.root.children.map((child) => child.type);
+      const types = A.map(result.success.root.children, (child) => child.type);
       assert.notStrictEqual(types[0], "frontmatter");
       assert.strictEqual(result.success.diagnostics.length, 0);
     });

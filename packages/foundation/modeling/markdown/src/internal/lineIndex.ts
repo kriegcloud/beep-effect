@@ -56,26 +56,36 @@ export class InvalidLineTableError extends S.TaggedError<InvalidLineTableError, 
  * @category models
  * @since 0.0.0
  */
-export const LineColumn = S.Struct({
-  line: S.Finite.pipe(
-    $I.annoteKey("LineColumn.line", { description: "One-based source line containing the queried offset." })
-  ),
-  column: S.Finite.pipe(
-    $I.annoteKey("LineColumn.column", { description: "One-based UTF-16 column within the source line." })
-  ),
-}).pipe(
-  $I.annoteSchema("LineColumn", {
-    description: "A source position returned by the line index without an absolute offset field.",
-  })
-);
+export class LineColumn extends S.Opaque<LineColumn, { readonly brand: unique symbol }>()(
+  S.Struct({
+    line: S.Finite.pipe(
+      $I.annoteKey("LineColumn.line", { description: "One-based source line containing the queried offset." })
+    ),
+    column: S.Finite.pipe(
+      $I.annoteKey("LineColumn.column", { description: "One-based UTF-16 column within the source line." })
+    ),
+  }).pipe(
+    $I.annoteSchema("LineColumn", {
+      description: "A source position returned by the line index without an absolute offset field.",
+    })
+  )
+) {}
 
 /**
- * The plain source-position payload described by {@link LineColumn}.
+ * Companion types for {@link LineColumn}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type LineColumn = typeof LineColumn.Type;
+export declare namespace LineColumn {
+  /**
+   * The plain line/column pair the index returns: a constructed {@link LineColumn} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LineColumn.Encoded;
+}
 
 /**
  * A precomputed index of line-start offsets over a fixed source text,
@@ -133,10 +143,11 @@ export class LineIndex {
    */
   static make(text: string): LineIndex {
     const lineStarts: number[] = [0];
-    for (let i = 0; i < text.length; i++) {
-      if (text.charCodeAt(i) === 0x0a) {
-        lineStarts.push(i + 1);
-      }
+    // One regex walk over the newlines rather than a per-character scan; a
+    // fresh global regex per call keeps `lastIndex` private to this build.
+    const newline = /\n/g;
+    for (let match = newline.exec(text); match !== null; match = newline.exec(text)) {
+      lineStarts.push(match.index + 1);
     }
     return new LineIndex(text, lineStarts);
   }
@@ -203,7 +214,7 @@ export class LineIndex {
    * @category getters
    * @since 0.0.0
    */
-  positionAt(offset: number): LineColumn {
+  positionAt(offset: number): LineColumn.Encoded {
     const clamped = Math.min(Math.max(offset, 0), this.text.length);
 
     let low = 0;
@@ -219,6 +230,8 @@ export class LineIndex {
 
     // Both constructors provide a non-empty table; the search keeps low in bounds.
     const lineStart = A.getUnsafe(this.lineStarts, low);
+    // Plain encoded data, not `LineColumn.make`: this runs twice per node, and
+    // the parser admits its tree once at the facade (D-39).
     return { line: low + 1, column: clamped - lineStart + 1 };
   }
 }

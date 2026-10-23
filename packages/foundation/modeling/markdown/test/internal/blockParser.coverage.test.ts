@@ -1,19 +1,25 @@
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import * as BlockRegistry from "@beep/markdown/internal/blockRegistry";
 import { blockDialect } from "@beep/markdown/internal/blockRegistry";
-import { makeBlockNode } from "@beep/markdown/internal/blockTypes";
+import {
+  BlockConstruct,
+  BlockDialect,
+  BlockStart,
+  leafMaterializer,
+  makeBlockNode,
+} from "@beep/markdown/internal/blockTypes";
 import { Definition, Paragraph } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it, vi } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
-import * as HashMap from "effect/HashMap";
+import * as Str from "effect/String";
 import type {
-  BlockDialect,
+  BlockBehaviour,
   BlockNode,
   BlockScanner,
-  BlockStart,
   BlockStartResult,
-  MaterializeContext,
+  BlockType,
   MaterializedBlock,
 } from "@beep/markdown/internal/blockTypes";
 
@@ -27,24 +33,49 @@ const withDialect = (dialect: BlockDialect, run: () => void): void => {
     lookup.mockRestore();
   }
 };
+/** `base` with the construct for `type` materializing through `materialize` instead. */
+const withMaterialize = (
+  base: BlockDialect,
+  type: BlockType,
+  materialize: BlockBehaviour["materialize"]
+): BlockDialect =>
+  new BlockDialect(
+    A.map(base.constructs, (construct) =>
+      construct.type === type
+        ? new BlockConstruct(construct.type, construct.acceptsLines, {
+            canContain: construct.canContain,
+            continue: construct.continue,
+            materialize,
+            ...(construct.finalize === undefined ? {} : { finalize: construct.finalize }),
+          })
+        : construct
+    ),
+    base.starts,
+    base.mayStartBlock
+  );
+
+const materializeTo = (node: MaterializedBlock | undefined): BlockBehaviour["materialize"] =>
+  leafMaterializer(() => node);
+
 const withStart = (
   trigger: (scanner: BlockScanner, container: BlockNode) => void,
   dialect = blockDialect("commonmark")
 ): void => {
   withDialect(
-    {
-      ...dialect,
-      starts: [
-        {
-          name: "scanner-contract",
-          trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
+    new BlockDialect(
+      dialect.constructs,
+      [
+        new BlockStart(
+          "scanner-contract",
+          dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
             trigger(scanner, container);
             return 0;
-          }),
-        },
+          })
+        ),
         ...dialect.starts,
       ],
-    },
+      dialect.mayStartBlock
+    ),
     () => {
       parseBlocks("# heading\n");
     }
@@ -74,13 +105,13 @@ describe("blockParser scanner boundary", () => {
         const missing = makeBlockNode("paragraph", 0, 1);
         missing.parent = container;
         const replacement = scanner.replaceBlock(missing, "heading");
-        assert.strictEqual(container.children.includes(replacement), true);
+        assert.isTrue(A.contains(container.children, replacement));
         const sibling = scanner.insertBefore(missing, "thematicBreak");
-        assert.strictEqual(container.children.includes(sibling), true);
+        assert.isTrue(A.contains(container.children, sibling));
         const before = scanner.insertBefore(replacement, "thematicBreak");
         assert.strictEqual(container.children.indexOf(before) + 1, container.children.indexOf(replacement));
         const attachedReplacement = scanner.replaceBlock(replacement, "heading");
-        assert.strictEqual(container.children.includes(replacement), false);
+        assert.isFalse(A.contains(container.children, replacement));
         scanner.setLastLineLength(100);
         scanner.finalizeBlock(attachedReplacement, 0);
         // Restore the scan tip to the document before the core starts run.
@@ -91,45 +122,21 @@ describe("blockParser scanner boundary", () => {
   it.effect("reports missing constructs and invalid root materialization", () =>
     Effect.sync(() => {
       const dialect = blockDialect("commonmark");
-      withDialect({ ...dialect, constructs: HashMap.empty() }, () => {
+      withDialect(new BlockDialect([], dialect.starts), () => {
         assert.throws(() => parseBlocks("text"), /no construct registered/);
       });
-      for (const materialize of [
-        dual(
-          3,
-          (
-            _block: BlockNode,
-            _children: ReadonlyArray<MaterializedBlock>,
-            _context: MaterializeContext
-          ): MaterializedBlock | undefined => undefined
-        ),
-        dual(
-          3,
-          (
-            _block: BlockNode,
-            _children: ReadonlyArray<MaterializedBlock>,
-            _context: MaterializeContext
-          ): MaterializedBlock | undefined => Paragraph.make({ children: [] })
-        ),
-      ]) {
-        const constructs = HashMap.modify(dialect.constructs, "document", (construct) => ({
-          ...construct,
-          materialize,
-        }));
-        withDialect({ ...dialect, constructs }, () => {
+      for (const node of [undefined, Paragraph.make({ children: [] })]) {
+        withDialect(withMaterialize(dialect, "document", materializeTo(node)), () => {
           assert.throws(() => parseBlocks(""), /document construct did not materialize a root/);
         });
       }
       assert.strictEqual(blockDialect("commonmark"), dialect);
     })
   );
-  it.effect("skips an absent start-table entry and retains the core parse", () =>
+  it.effect("tries the dialect's own starts after an injected start declines", () =>
     Effect.sync(() => {
-      const dialect = blockDialect("commonmark");
-      const sparse = new Array<BlockStart>(1);
-      withDialect({ ...dialect, starts: [...sparse, ...dialect.starts] }, () => {
-        assert.strictEqual(parseBlocks("# title").root.children[0]?.type, "heading");
-      });
+      withStart(() => undefined);
+      assert.strictEqual(parseBlocks("# title").root.children[0]?.type, "heading");
     })
   );
 });
@@ -144,33 +151,11 @@ it.effect("omits unmaterialized extension blocks and nested roots", () =>
       assert.strictEqual(missing.open, false);
     });
     const dialect = blockDialect("commonmark");
-    const withoutHeading = HashMap.modify(dialect.constructs, "heading", (construct) => ({
-      ...construct,
-      materialize: dual(
-        3,
-        (
-          _block: BlockNode,
-          _children: ReadonlyArray<MaterializedBlock>,
-          _context: MaterializeContext
-        ): MaterializedBlock | undefined => undefined
-      ),
-    }));
-    withDialect({ ...dialect, constructs: withoutHeading }, () => {
+    withDialect(withMaterialize(dialect, "heading", materializeTo(undefined)), () => {
       assert.deepStrictEqual(parseBlocks("# dropped\n").root.children, []);
     });
     const emptyRoot = parseBlocks("").root;
-    const nestedRoot = HashMap.modify(dialect.constructs, "heading", (construct) => ({
-      ...construct,
-      materialize: dual(
-        3,
-        (
-          _block: BlockNode,
-          _children: ReadonlyArray<MaterializedBlock>,
-          _context: MaterializeContext
-        ): MaterializedBlock | undefined => emptyRoot
-      ),
-    }));
-    withDialect({ ...dialect, constructs: nestedRoot }, () => {
+    withDialect(withMaterialize(dialect, "heading", materializeTo(emptyRoot)), () => {
       assert.deepStrictEqual(parseBlocks("# nested root\n").root.children, []);
     });
   })
@@ -232,7 +217,7 @@ it.effect("parses tabs, lazy containers, HTML, references and frontmatter with a
       assert.strictEqual(parsed.root.type, "root");
       assert.strictEqual(parsed.root.position.end.offset, source.length);
       for (const [key, definition] of parsed.definitionOrder) {
-        assert.strictEqual(parsed.root.children.includes(definition), true);
+        assert.isTrue(A.contains(parsed.root.children, definition));
         assert.strictEqual(key, "ID");
         assert.strictEqual(definition.url, "./first");
       }
@@ -242,25 +227,15 @@ it.effect("parses tabs, lazy containers, HTML, references and frontmatter with a
 
 it.effect("does not index extension definitions without lookup keys", () =>
   Effect.sync(() => {
-    const dialect = blockDialect("commonmark");
-    const constructs = HashMap.modify(dialect.constructs, "definition", (construct) => ({
-      ...construct,
-      materialize: dual(
-        3,
-        (
-          _block: BlockNode,
-          _children: ReadonlyArray<MaterializedBlock>,
-          _context: MaterializeContext
-        ): MaterializedBlock | undefined => Definition.make({ identifier: "missing", url: "./target" })
-      ),
-    }));
-    withStart(
-      (scanner, container) => {
-        const block = scanner.insertBefore(container, "definition");
-        container.children.push(block);
-      },
-      { ...dialect, constructs }
+    const dialect = withMaterialize(
+      blockDialect("commonmark"),
+      "definition",
+      materializeTo(Definition.make({ identifier: "missing", url: "./target" }))
     );
+    withStart((scanner, container) => {
+      const block = scanner.insertBefore(container, "definition");
+      container.children.push(block);
+    }, dialect);
   })
 );
 
@@ -279,6 +254,6 @@ it.effect("closes an incompatible leaf before adding a sibling", () =>
 
 it.effect("refuses container nesting past the parser's guard", () =>
   Effect.sync(() => {
-    assert.throws(() => parseBlocks(`${"> ".repeat(300)}text\n`), /NestingDepthExceeded: limit/);
+    assert.throws(() => parseBlocks(`${Str.repeat(300)("> ")}text\n`), /NestingDepthExceeded: limit/);
   })
 );

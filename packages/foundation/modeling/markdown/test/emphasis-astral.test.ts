@@ -1,6 +1,9 @@
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import { childOfType } from "./support/tree.ts";
 
 describe("Unicode code-point delimiter flanking", () => {
   it.each(["😀_a_", "_a_😀", "𐄀_a_", "_a_𐄀", "😀_a_😀", "𐄀_a_𐄀"])(
@@ -14,7 +17,7 @@ describe("Unicode code-point delimiter flanking", () => {
       const [node] = emphasis;
       assert.strictEqual(node?.children[0]?.type, "text");
       assert.strictEqual(node?.children[0]?.type === "text" ? node.children[0].value : "", "a");
-      const start = source.indexOf("_");
+      const start = O.getOrThrow(Str.indexOf("_")(source));
       assert.strictEqual(node?.position.start.offset, start);
       assert.strictEqual(node?.position.end.offset, start + 3);
     }
@@ -41,19 +44,13 @@ describe("Unicode code-point delimiter flanking", () => {
   });
 
   it("uses the corrected flanking measurement for GFM strikethrough too", () => {
-    const [paragraph] = parseBlocks("a~𐄀~b 😀~a~😀", { dialect: "gfm" }).root.children;
-    assert.strictEqual(paragraph?.type, "paragraph");
-    if (paragraph?.type !== "paragraph") return;
+    const paragraph = childOfType(parseBlocks("a~𐄀~b 😀~a~😀", { dialect: "gfm" }).root.children, 0, "paragraph");
     assert.deepStrictEqual(
       A.map(paragraph.children, (node) => node.type),
       ["text", "delete", "text"]
     );
-    const [text, deletion] = paragraph.children;
-    assert.strictEqual(text?.type === "text" ? text.value : "", "a~𐄀~b 😀");
-    assert.strictEqual(deletion?.type === "delete" ? deletion.children[0]?.type : "", "text");
-    assert.strictEqual(
-      deletion?.type === "delete" && deletion.children[0]?.type === "text" ? deletion.children[0].value : "",
-      "a"
-    );
+    assert.strictEqual(childOfType(paragraph.children, 0, "text").value, "a~𐄀~b 😀");
+    const deletion = childOfType(paragraph.children, 1, "delete");
+    assert.strictEqual(childOfType(deletion.children, 0, "text").value, "a");
   });
 });

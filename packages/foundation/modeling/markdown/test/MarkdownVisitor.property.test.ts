@@ -7,9 +7,19 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
+import type { MarkdownPath } from "@beep/markdown/MarkdownEdit";
 import type { MarkdownNode } from "@beep/markdown/MarkdownNode";
 
 const runs = { arbitrary: fcRuns(100) };
+
+// The walk hands out its nodes by reference, so expected events are plain
+// values of the union type: a case `make` would validate and copy the node.
+const visitorEvent = (
+  _tag: "Enter" | "Exit",
+  node: MarkdownNode,
+  path: MarkdownPath,
+  depth: number
+): MarkdownVisitorEvent => ({ _tag, node, path, depth });
 const countNodes = (node: MarkdownNode): number => {
   const children: ReadonlyArray<MarkdownNode> = "children" in node ? node.children : [];
   return 1 + A.reduce(children, 0, (count, child) => count + countNodes(child));
@@ -24,19 +34,17 @@ describe("MarkdownVisitor traversal properties", () => {
         const stream = MarkdownVisitor.visit(root);
         const events = yield* Stream.runCollect(stream);
         assert.deepStrictEqual(yield* Stream.runCollect(stream), events);
-        const entered = A.filter(events, MarkdownVisitorEvent.$is("Enter"));
-        const exited = A.filter(events, MarkdownVisitorEvent.$is("Exit"));
+        const entered = A.filter(events, MarkdownVisitorEvent.guards.Enter);
+        const exited = A.filter(events, MarkdownVisitorEvent.guards.Exit);
         assert.strictEqual(entered.length, countNodes(root));
         assert.strictEqual(exited.length, entered.length);
-        assert.deepStrictEqual(A.filter(events, MarkdownVisitorEvent.$is("Error")), []);
+        assert.deepStrictEqual(A.filter(events, MarkdownVisitorEvent.guards.Error), []);
         for (const enter of entered) {
           assert.strictEqual(enter.depth, enter.path.length);
           const exit = A.findFirst(exited, (event) => event.node === enter.node);
-          assertSome(exit, MarkdownVisitorEvent.Exit({ node: enter.node, path: enter.path, depth: enter.depth }));
+          assertSome(exit, visitorEvent("Exit", enter.node, enter.path, enter.depth));
         }
-        assert.deepStrictEqual(yield* Stream.runCollect(Stream.take(stream, 1)), [
-          MarkdownVisitorEvent.Enter({ node: root, path: [], depth: 0 }),
-        ]);
+        assert.deepStrictEqual(yield* Stream.runCollect(Stream.take(stream, 1)), [visitorEvent("Enter", root, [], 0)]);
       }),
     runs
   );

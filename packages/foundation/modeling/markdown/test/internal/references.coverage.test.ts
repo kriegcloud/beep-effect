@@ -8,6 +8,6 @@ it.effect("escaped final punctuation advances past both source characters", () =
     const scanner = new ReferenceScanner("path\\)");
     assert.strictEqual(scanner.parseLinkDestination(), "path)");
     assert.strictEqual(scanner.pos, 6);
-    assert.strictEqual(scanner.peek(), -1);
+    assert.strictEqual(scanner.peek(), "");
   })
 );

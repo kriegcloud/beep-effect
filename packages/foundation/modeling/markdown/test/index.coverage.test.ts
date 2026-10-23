@@ -9,10 +9,13 @@ import * as YamlExports from "@beep/markdown/YamlFrontmatter";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { importClosure } from "./support/importClosure.ts";
 
 const CODEC_PACKAGES = ["@beep/yaml", "@beep/toml", "@beep/jsonc"] as const;
+
+const exportNames = (module: Readonly<Record<string, unknown>>): ReadonlyArray<string> => R.keys(module);
 
 describe("root barrel", () => {
   it.effect("exposes the owned core adapters by identity", () =>
@@ -23,12 +26,12 @@ describe("root barrel", () => {
 
   it.effect("is core-only: the typed-frontmatter codecs and the MDX vocabulary are subpath imports", () =>
     Effect.sync(() => {
-      const names = Object.keys(MarkdownExports);
+      const names = exportNames(MarkdownExports);
       // Every runtime export of the subpath-only modules, read from the
       // modules themselves so a newly added export cannot slip past the list.
       const subpathOnly = A.flatMap(
         [FrontmatterExports, FrontmatterResolverExports, JsonExports, MdxExports, TomlExports, YamlExports],
-        (module) => Object.keys(module)
+        exportNames
       );
       assert.isAtLeast(subpathOnly.length, 29);
       for (const name of subpathOnly) {

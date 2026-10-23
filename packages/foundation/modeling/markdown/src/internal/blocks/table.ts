@@ -45,21 +45,23 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { RawInlineSegment, tableCellChildren, tableRowChildren } from "../blockTypes.ts";
+import {
+  BlockConstruct,
+  BlockStart,
+  containerMaterializer,
+  containsNothing,
+  inlineHostMaterializer,
+  neverContinues,
+  RawInlineSegment,
+  TableData,
+  tableCellChildren,
+  tableRowChildren,
+} from "../blockTypes.ts";
 import { trustedNode } from "../nodes.ts";
+import { unitAt } from "../patterns.ts";
 import { sliceWithSegments } from "../segments.ts";
 import { ESCAPABLE } from "../unescape.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  BlockStart,
-  BlockStartResult,
-  MaterializeContext,
-  MaterializedBlock,
-  TableData,
-} from "../blockTypes.ts";
+import type { BlockContinueResult, BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 import type { Table, TableAlign, TableCell, TableRow } from "../nodes.ts";
 
 const $I = $MarkdownId.create("internal/blocks/table");
@@ -84,7 +86,6 @@ const isSpaceChar = (char: string): boolean => char === " " || char === "\t" || 
  *
  * For a delimiter or body row that is one source line; for a header row it is
  * a paragraph's whole accumulated content, which may be several.
-
  *
  * **Example** (Validate RowSource data)
  *
@@ -95,31 +96,41 @@ const isSpaceChar = (char: string): boolean => char === " " || char === "\t" || 
  * console.log(S.is(RowSource)({ text: "| guide |\n", segments: [] })); // true
  * ```
  *
-
  * @category schemas
  * @since 0.0.0
  */
-export const RowSource = S.Struct({
-  text: S.String.pipe(
-    $I.annoteKey("RowSource.text", { description: "Newline-terminated row text, as expected by the scanner." })
-  ),
-  segments: S.Array(RawInlineSegment).pipe(
-    $I.annoteKey("RowSource.segments", {
-      description: "Source provenance for the surviving characters of the row text.",
+export class RowSource extends S.Opaque<RowSource, { readonly brand: unique symbol }>()(
+  S.Struct({
+    text: S.String.pipe(
+      $I.annoteKey("RowSource.text", { description: "Newline-terminated row text, as expected by the scanner." })
+    ),
+    segments: S.Array(RawInlineSegment).pipe(
+      $I.annoteKey("RowSource.segments", {
+        description: "Source provenance for the surviving characters of the row text.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("RowSource", {
+      description: "Row text and its source provenance, including paragraph text reclaimed as a header.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("RowSource", {
-    description: "Row text and its source provenance, including paragraph text reclaimed as a header.",
-  })
-);
+  )
+) {}
+
 /**
- * The schema-derived RowSource value type.
+ * Companion types for {@link RowSource}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type RowSource = typeof RowSource.Type;
+export declare namespace RowSource {
+  /**
+   * The plain row-source record the scanners read: a constructed {@link RowSource} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RowSource.Encoded;
+}
 
 /** One cell's span in a {@link RowSource}, before unescaping and trimming.
  *
@@ -132,26 +143,36 @@ export type RowSource = typeof RowSource.Type;
  * console.log(S.is(RawCell)({ start: 0, contentStart: 2, end: 8 })); // true
  * ```
  *
-
  * @category schemas
  * @since 0.0.0
  */
-export const RawCell = S.Struct({
-  start: S.Finite.pipe(
-    $I.annoteKey("RawCell.start", { description: "Cell start in the row source, just past its opening pipe." })
-  ),
-  contentStart: S.Finite.pipe(
-    $I.annoteKey("RawCell.contentStart", { description: "First content offset after the cell's leading whitespace." })
-  ),
-  end: S.Finite.pipe($I.annoteKey("RawCell.end", { description: "Exclusive end of the cell in the row source." })),
-}).pipe($I.annoteSchema("RawCell", { description: "A cell's source boundaries before unescaping and trimming." }));
+export class RawCell extends S.Opaque<RawCell, { readonly brand: unique symbol }>()(
+  S.Struct({
+    start: S.Finite.pipe(
+      $I.annoteKey("RawCell.start", { description: "Cell start in the row source, just past its opening pipe." })
+    ),
+    contentStart: S.Finite.pipe(
+      $I.annoteKey("RawCell.contentStart", { description: "First content offset after the cell's leading whitespace." })
+    ),
+    end: S.Finite.pipe($I.annoteKey("RawCell.end", { description: "Exclusive end of the cell in the row source." })),
+  }).pipe($I.annoteSchema("RawCell", { description: "A cell's source boundaries before unescaping and trimming." }))
+) {}
+
 /**
- * The schema-derived RawCell value type.
+ * Companion types for {@link RawCell}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type RawCell = typeof RawCell.Type;
+export declare namespace RawCell {
+  /**
+   * The plain cell-boundary record the row scanner emits: a constructed {@link RawCell} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RawCell.Encoded;
+}
 
 /** A scanned row: its cells, and where in the source its line began.
  *
@@ -164,49 +185,64 @@ export type RawCell = typeof RawCell.Type;
  * console.log(S.is(ScannedRow)({ cells: [], paragraphOffset: 0, complete: true })); // true
  * ```
  *
-
  * @category schemas
  * @since 0.0.0
  */
-export const ScannedRow = S.Struct({
-  cells: S.Array(RawCell).pipe($I.annoteKey("ScannedRow.cells", { description: "Cell boundaries in source order." })),
-  paragraphOffset: S.Finite.pipe(
-    $I.annoteKey("ScannedRow.paragraphOffset", {
-      description: "Row start within the source; nonzero for a reclaimed paragraph header.",
-    })
-  ),
-  complete: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("ScannedRow.complete", {
-      description: "When present, whether the scan consumed the entire row source.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("ScannedRow", { description: "Scanned cell boundaries and the row's paragraph-relative start." })
-);
+export class ScannedRow extends S.Opaque<ScannedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    cells: S.Array(RawCell).pipe($I.annoteKey("ScannedRow.cells", { description: "Cell boundaries in source order." })),
+    paragraphOffset: S.Finite.pipe(
+      $I.annoteKey("ScannedRow.paragraphOffset", {
+        description: "Row start within the source; nonzero for a reclaimed paragraph header.",
+      })
+    ),
+    complete: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("ScannedRow.complete", {
+        description: "When present, whether the scan consumed the entire row source.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ScannedRow", { description: "Scanned cell boundaries and the row's paragraph-relative start." })
+  )
+) {}
+
 /**
- * The schema-derived ScannedRow value type.
+ * Companion types for {@link ScannedRow}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ScannedRow = typeof ScannedRow.Type;
+export declare namespace ScannedRow {
+  /**
+   * The plain scanned-row record: a constructed {@link ScannedRow} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ScannedRow.Encoded;
+}
 
 // --- upstream's scanners --------------------------------------------------
+//
+// Every scanner reads one character at a time through `unitAt`, an index read
+// that allocates nothing and yields `""` past the end of the text.
+
+/** Skip a run of re2c `spacechar`s starting at `from`; returns the index after it. */
+const skipSpaceChars = (text: string, from: number): number => {
+  let index = from;
+  while (isSpaceChar(unitAt(text, index))) {
+    index += 1;
+  }
+  return index;
+};
 
 /** `_scan_table_cell_end`: `[|] spacechar*`, the pipe between two cells. */
 const scanCellEnd: {
   (text: string, from: number): number;
   (from: number): (text: string) => number;
-} = dual(2, (text: string, from: number): number => {
-  if (text.charAt(from) !== "|") {
-    return 0;
-  }
-  let index = from + 1;
-  while (isSpaceChar(text.charAt(index))) {
-    index += 1;
-  }
-  return index - from;
-});
+} = dual(2, (text: string, from: number): number =>
+  unitAt(text, from) === "|" ? skipSpaceChars(text, from + 1) - from : 0
+);
 
 /**
  * `_scan_table_cell`: `(escaped_char|[^|\r\n])+`.
@@ -222,16 +258,10 @@ const scanCell: {
   (from: number): (text: string) => number;
 } = dual(2, (text: string, from: number): number => {
   let index = from;
-  while (index < text.length) {
-    const char = text.charAt(index);
-    if (char === "\\" && reEscapable.test(text.charAt(index + 1))) {
-      index += 2;
-      continue;
-    }
-    if (char === "|" || char === "\r" || char === "\n") {
-      break;
-    }
-    index += 1;
+  let char = unitAt(text, index);
+  while (char !== "" && char !== "|" && char !== "\r" && char !== "\n") {
+    index += char === "\\" && reEscapable.test(unitAt(text, index + 1)) ? 2 : 1;
+    char = unitAt(text, index);
   }
   return index - from;
 });
@@ -242,15 +272,31 @@ const scanRowEnd: {
   (from: number): (text: string) => number;
 } = dual(2, (text: string, from: number): number => {
   // scanCell and scanCellEnd already consumed all whitespace before this offset.
-  let index = from;
-  if (text.charAt(index) === "\r") {
+  const index = unitAt(text, from) === "\r" ? from + 1 : from;
+  return unitAt(text, index) === "\n" ? index + 1 - from : 0;
+});
+
+/**
+ * One delimiter marker, `spacechar* [:]? [-]+ [:]? spacechar*`, at `from`.
+ * Returns the index after it, or `-1` when no dash run is there.
+ */
+const scanDelimiterMarker = (line: string, from: number): number => {
+  let index = skipSpaceChars(line, from);
+  if (unitAt(line, index) === ":") {
     index += 1;
   }
-  if (text.charAt(index) !== "\n") {
-    return 0;
+  const dashesStart = index;
+  while (unitAt(line, index) === "-") {
+    index += 1;
   }
-  return index + 1 - from;
-});
+  if (index === dashesStart) {
+    return -1;
+  }
+  if (unitAt(line, index) === ":") {
+    index += 1;
+  }
+  return skipSpaceChars(line, index);
+};
 
 /**
  * `_scan_table_start`: `[|]? marker ([|] marker)* [|]? spacechar* newline`,
@@ -267,51 +313,82 @@ const scanDelimiterRowLine: {
   (line: string, from: number): boolean;
   (from: number): (line: string) => boolean;
 } = dual(2, (line: string, from: number): boolean => {
-  let index = from;
-  if (line.charAt(index) === "|") {
-    index += 1;
-  }
-
+  let index = unitAt(line, from) === "|" ? from + 1 : from;
   for (;;) {
-    while (isSpaceChar(line.charAt(index))) {
-      index += 1;
-    }
-    if (line.charAt(index) === ":") {
-      index += 1;
-    }
-    let dashes = 0;
-    while (line.charAt(index) === "-") {
-      index += 1;
-      dashes += 1;
-    }
-    if (dashes === 0) {
+    index = scanDelimiterMarker(line, index);
+    if (index === -1) {
       return false;
     }
-    if (line.charAt(index) === ":") {
-      index += 1;
-    }
-    while (isSpaceChar(line.charAt(index))) {
-      index += 1;
-    }
-
-    if (line.charAt(index) !== "|") {
+    if (unitAt(line, index) !== "|") {
       // No pipe left: the row ends here, and only if the line does too.
       return index >= line.length;
     }
     index += 1;
-
     // A pipe with nothing but whitespace after it is the trailing pipe.
-    let lookahead = index;
-    while (isSpaceChar(line.charAt(lookahead))) {
-      lookahead += 1;
-    }
-    if (lookahead >= line.length) {
+    if (skipSpaceChars(line, index) >= line.length) {
       return true;
     }
   }
 });
 
 // --- upstream's `row_from_string` -----------------------------------------
+
+/**
+ * Walk a cell's start back over the whitespace the previous pipe consumed, so
+ * the cell begins where its column does. Upstream's `internal_offset` is that
+ * distance; here the two positions are kept side by side instead.
+ */
+const cellStart = (text: string, offset: number, paragraphOffset: number): number => {
+  let start = offset;
+  while (start > paragraphOffset && unitAt(text, start - 1) !== "|") {
+    start -= 1;
+  }
+  return start;
+};
+
+/** The mutable state of one `row_from_string` scan (D-42). */
+class RowScan {
+  cells: RawCell.Encoded[] = [];
+  expectMoreCells = true;
+  offset: number;
+  paragraphOffset = 0;
+  readonly text: string;
+
+  constructor(text: string) {
+    this.text = text;
+    this.offset = scanCellEnd(text, 0);
+  }
+
+  /** Scan one cell and the pipe after it; returns whether a pipe followed. */
+  scanCellAndPipe(): boolean {
+    const cellMatched = scanCell(this.text, this.offset);
+    const pipeMatched = scanCellEnd(this.text, this.offset + cellMatched);
+    if (cellMatched > 0 || pipeMatched > 0) {
+      this.cells.push({
+        start: cellStart(this.text, this.offset, this.paragraphOffset),
+        contentStart: this.offset,
+        end: this.offset + cellMatched,
+      });
+    }
+    this.offset += cellMatched + pipeMatched;
+    return pipeMatched > 0;
+  }
+
+  /**
+   * At a row end: a newline that is not the end of the text means everything
+   * up to here is paragraph, and the row starts again after it.
+   */
+  endRow(): void {
+    const rowEnd = scanRowEnd(this.text, this.offset);
+    this.offset += rowEnd;
+    this.expectMoreCells = rowEnd > 0 && this.offset !== this.text.length;
+    if (this.expectMoreCells) {
+      this.paragraphOffset = this.offset;
+      this.cells = [];
+      this.offset += scanCellEnd(this.text, this.offset);
+    }
+  }
+}
 
 /**
  * Scan `source` as one table row, upstream's `row_from_string`.
@@ -322,58 +399,19 @@ const scanDelimiterRowLine: {
  * Delimiter rows already satisfy the grammar; other callers validate this
  * result through `rowFromSource`.
  */
-const scanRowSource = (source: RowSource) => {
-  const { text } = source;
-  const length = text.length;
-  let cells: RawCell[] = [];
-  let paragraphOffset = 0;
-  let expectMoreCells = true;
-
-  let offset = scanCellEnd(text, 0);
-
-  while (offset < length && expectMoreCells) {
-    const cellMatched = scanCell(text, offset);
-    const pipeMatched = scanCellEnd(text, offset + cellMatched);
-
-    if (cellMatched > 0 || pipeMatched > 0) {
-      // Walk the cell's start back over the whitespace the previous pipe
-      // consumed, so the cell begins where its column does. Upstream's
-      // `internal_offset` is that distance; here the two positions are
-      // kept side by side instead.
-      let start = offset;
-      while (start > paragraphOffset && text.charAt(start - 1) !== "|") {
-        start -= 1;
-      }
-      cells.push({ start, contentStart: offset, end: offset + cellMatched });
-    }
-
-    offset += cellMatched + pipeMatched;
-
-    if (pipeMatched > 0) {
-      expectMoreCells = true;
-      continue;
-    }
-
-    const rowEnd = scanRowEnd(text, offset);
-    offset += rowEnd;
-    if (rowEnd > 0 && offset !== length) {
-      // A newline that is not the end of the text: everything up to here
-      // is paragraph, and the row starts again after it.
-      paragraphOffset = offset;
-      cells = [];
-      offset += scanCellEnd(text, offset);
-      expectMoreCells = true;
-    } else {
-      expectMoreCells = false;
+const scanRowSource = (source: RowSource.Encoded): ScannedRow.Encoded => {
+  const scan = new RowScan(source.text);
+  while (scan.offset < scan.text.length && scan.expectMoreCells) {
+    if (!scan.scanCellAndPipe()) {
+      scan.endRow();
     }
   }
-
-  return { cells, paragraphOffset, complete: offset === length };
+  return { cells: scan.cells, paragraphOffset: scan.paragraphOffset, complete: scan.offset === scan.text.length };
 };
 
-const rowFromSource = (source: RowSource): ScannedRow | undefined => {
+const rowFromSource = (source: RowSource.Encoded): ScannedRow.Encoded | undefined => {
   const row = scanRowSource(source);
-  return row.complete && row.cells.length > 0 ? row : undefined;
+  return row.complete === true && row.cells.length > 0 ? row : undefined;
 };
 
 // --- cell content ---------------------------------------------------------
@@ -389,33 +427,45 @@ const rowFromSource = (source: RowSource): ScannedRow | undefined => {
  * console.log(S.is(CellContent)({ text: "guide", segments: [] })); // true
  * ```
  *
-
  * @category schemas
  * @since 0.0.0
  */
-export const CellContent = S.Struct({
-  text: S.String.pipe(
-    $I.annoteKey("CellContent.text", {
-      description: "Cell text after dropping backslashes that escape delimiter pipes.",
+export class CellContent extends S.Opaque<CellContent, { readonly brand: unique symbol }>()(
+  S.Struct({
+    text: S.String.pipe(
+      $I.annoteKey("CellContent.text", {
+        description: "Cell text after dropping backslashes that escape delimiter pipes.",
+      })
+    ),
+    segments: S.Array(RawInlineSegment).pipe(
+      $I.annoteKey("CellContent.segments", { description: "Source provenance rebased to the unescaped cell text." })
+    ),
+  }).pipe(
+    $I.annoteSchema("CellContent", {
+      description: "Unescaped cell text with provenance for every surviving character.",
     })
-  ),
-  segments: S.Array(RawInlineSegment).pipe(
-    $I.annoteKey("CellContent.segments", { description: "Source provenance rebased to the unescaped cell text." })
-  ),
-}).pipe(
-  $I.annoteSchema("CellContent", { description: "Unescaped cell text with provenance for every surviving character." })
-);
+  )
+) {}
+
 /**
- * The schema-derived CellContent value type.
+ * Companion types for {@link CellContent}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type CellContent = typeof CellContent.Type;
+export declare namespace CellContent {
+  /**
+   * The plain cell-content record: a constructed {@link CellContent} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CellContent.Encoded;
+}
 
 /**
- * Cut `[from, to)` out of `source`, dropping the backslash of every `\|` in
- * it — upstream's `unescape_pipes`.
+ * The indices of the backslashes `cellContent` drops in `[from, to)`: each
+ * one directly before a `|` that is itself inside the range.
  *
  * **Details**
  *
@@ -425,69 +475,92 @@ export type CellContent = typeof CellContent.Type;
  * lookahead stops at `to`, because past it lies the delimiter pipe that ended
  * the cell and unescaping into it would eat a column boundary.
  */
-const cellContent: {
-  (source: RowSource, from: number, to: number): CellContent;
-  (from: number, to: number): (source: RowSource) => CellContent;
-} = dual(3, (source: RowSource, from: number, to: number): CellContent => {
-  const { text } = source;
+const escapedPipeBackslashes = (text: string, from: number, to: number): ReadonlyArray<number> => {
   const drops: number[] = [];
   for (let index = from; index < to; index += 1) {
-    if (text.charAt(index) === "\\" && index + 1 < to && text.charAt(index + 1) === "|") {
+    if (unitAt(text, index) === "\\" && index + 1 < to && unitAt(text, index + 1) === "|") {
       drops.push(index);
       index += 1;
     }
   }
+  return drops;
+};
 
-  if (drops.length === 0) {
-    return { text: text.slice(from, to), segments: sliceWithSegments(source.segments, from, to) };
+/**
+ * Re-segments a row source's provenance around dropped characters (D-42
+ * accumulator): `keep` copies the retained interval `[cursor, end)` into the
+ * output, walking the ordered provenance runs once rather than rescanning
+ * every preceding paragraph line per interval.
+ */
+class SegmentRebuilder {
+  content = "";
+  readonly segments: RawInlineSegment.Encoded[] = [];
+  private index = 0;
+  private readonly source: RowSource.Encoded;
+
+  constructor(source: RowSource.Encoded) {
+    this.source = source;
   }
 
-  let content = "";
-  const segments: RawInlineSegment[] = [];
+  keep(cursor: number, end: number): void {
+    const runs = this.source.segments;
+    for (let segment = runs[this.index]; segment !== undefined; segment = runs[this.index]) {
+      const segmentStart = segment.textOffset;
+      const segmentEnd = segmentStart + segment.length;
+      if (segmentStart >= end) {
+        break;
+      }
+      this.copyOverlap(segment, cursor, end);
+      if (segmentEnd > end) {
+        break;
+      }
+      this.index += 1;
+    }
+    this.content += Str.slice(cursor, end)(this.source.text);
+  }
+
+  private copyOverlap(segment: RawInlineSegment.Encoded, cursor: number, end: number): void {
+    const start = Math.max(segment.textOffset, cursor);
+    const stop = Math.min(segment.textOffset + segment.length, end);
+    if (stop > start) {
+      this.segments.push({
+        textOffset: this.content.length + start - cursor,
+        sourceOffset: segment.sourceOffset + start - segment.textOffset,
+        length: stop - start,
+      });
+    }
+  }
+}
+
+/**
+ * Cut `[from, to)` out of `source`, dropping the backslash of every `\|` in
+ * it — upstream's `unescape_pipes` (see {@link escapedPipeBackslashes}).
+ */
+const cellContent: {
+  (source: RowSource.Encoded, from: number, to: number): CellContent.Encoded;
+  (from: number, to: number): (source: RowSource.Encoded) => CellContent.Encoded;
+} = dual(3, (source: RowSource.Encoded, from: number, to: number): CellContent.Encoded => {
+  const drops = escapedPipeBackslashes(source.text, from, to);
+  if (drops.length === 0) {
+    return { text: Str.slice(from, to)(source.text), segments: sliceWithSegments(source.segments, from, to) };
+  }
+
+  const rebuilder = new SegmentRebuilder(source);
   let cursor = from;
-  // Retained intervals and provenance runs are ordered. Keep our place in
-  // the provenance instead of rescanning every preceding paragraph line.
-  const iterator = source.segments[Symbol.iterator]();
-  let next = iterator.next();
   for (const drop of [...drops, to]) {
     if (drop > cursor) {
-      while (next.done !== true) {
-        const segment = next.value;
-        const segmentStart = segment.textOffset;
-        const segmentEnd = segmentStart + segment.length;
-        if (segmentEnd <= cursor) {
-          next = iterator.next();
-          continue;
-        }
-        if (segmentStart >= drop) {
-          break;
-        }
-        const start = Math.max(segmentStart, cursor);
-        const end = Math.min(segmentEnd, drop);
-        if (end > start) {
-          segments.push({
-            textOffset: content.length + start - cursor,
-            sourceOffset: segment.sourceOffset + start - segmentStart,
-            length: end - start,
-          });
-        }
-        if (segmentEnd > drop) {
-          break;
-        }
-        next = iterator.next();
-      }
-      content += text.slice(cursor, drop);
+      rebuilder.keep(cursor, drop);
     }
     cursor = drop + 1;
   }
-  return { text: content, segments };
+  return { text: rebuilder.content, segments: rebuilder.segments };
 });
 
 /** The absolute source offset of `index` in a row source. */
 const offsetAt: {
-  (source: RowSource, index: number, fallback: number): number;
-  (index: number, fallback: number): (source: RowSource) => number;
-} = dual(3, (source: RowSource, index: number, fallback: number): number => {
+  (source: RowSource.Encoded, index: number, fallback: number): number;
+  (index: number, fallback: number): (source: RowSource.Encoded) => number;
+} = dual(3, (source: RowSource.Encoded, index: number, fallback: number): number => {
   for (const segment of source.segments) {
     if (index < segment.textOffset) {
       return segment.sourceOffset;
@@ -512,13 +585,13 @@ const offsetAt: {
  * whitespace the scanner allows around a marker never reaches this decision.
  */
 const alignmentsOf: {
-  (source: RowSource, row: ScannedRow): ReadonlyArray<TableAlign | null>;
-  (row: ScannedRow): (source: RowSource) => ReadonlyArray<TableAlign | null>;
+  (source: RowSource.Encoded, row: ScannedRow.Encoded): ReadonlyArray<TableAlign | null>;
+  (row: ScannedRow.Encoded): (source: RowSource.Encoded) => ReadonlyArray<TableAlign | null>;
 } = dual(
   2,
-  (source: RowSource, row: ScannedRow): ReadonlyArray<TableAlign | null> =>
+  (source: RowSource.Encoded, row: ScannedRow.Encoded): ReadonlyArray<TableAlign | null> =>
     A.map(row.cells, (cell) => {
-      const text = source.text.slice(cell.contentStart, cell.end).trim();
+      const text = Str.trim(Str.slice(cell.contentStart, cell.end)(source.text));
       const left = Str.startsWith(":")(text);
       const right = Str.endsWith(":")(text);
       if (left && right) {
@@ -537,8 +610,8 @@ const alignmentsOf: {
 // --- building the block tree ----------------------------------------------
 
 /** The row source for the current line, from `nextNonspace` to its end. */
-const lineSource = (scanner: BlockScanner): RowSource => {
-  const text = scanner.currentLine.slice(scanner.nextNonspace);
+const lineSource = (scanner: BlockScanner): RowSource.Encoded => {
+  const text = Str.slice(scanner.nextNonspace)(scanner.currentLine);
   return {
     // The scanners want a newline terminator; the preprocessor strips it.
     // Appending it back costs one character at the end of the string and
@@ -549,7 +622,7 @@ const lineSource = (scanner: BlockScanner): RowSource => {
 };
 
 /** The row source for a paragraph's accumulated content. */
-const paragraphSource = (block: BlockNode): RowSource => ({
+const paragraphSource = (block: BlockNode): RowSource.Encoded => ({
   text: block.stringContent,
   segments: block.segments,
 });
@@ -580,15 +653,15 @@ const addRow: {
   (
     scanner: BlockScanner,
     data: TableData,
-    source: RowSource,
-    row: ScannedRow,
+    source: RowSource.Encoded,
+    row: ScannedRow.Encoded,
     rowStartOffset: number,
     rowEndOffset: number
   ): void;
   (
     data: TableData,
-    source: RowSource,
-    row: ScannedRow,
+    source: RowSource.Encoded,
+    row: ScannedRow.Encoded,
     rowStartOffset: number,
     rowEndOffset: number
   ): (scanner: BlockScanner) => void;
@@ -597,8 +670,8 @@ const addRow: {
   (
     scanner: BlockScanner,
     data: TableData,
-    source: RowSource,
-    row: ScannedRow,
+    source: RowSource.Encoded,
+    row: ScannedRow.Encoded,
     rowStartOffset: number,
     rowEndOffset: number
   ): void => {
@@ -606,7 +679,7 @@ const addRow: {
     rowBlock.startOffset = rowStartOffset;
 
     const used = Math.min(row.cells.length, data.columns);
-    for (const cell of row.cells.slice(0, used)) {
+    for (const cell of A.take(row.cells, used)) {
       const start = offsetAt(source, cell.start, rowStartOffset);
       const cellBlock = scanner.addChild("tableCell", start - scanner.lineStart);
       cellBlock.startOffset = start;
@@ -653,9 +726,9 @@ const addRow: {
  * @category parsing
  * @since 0.0.0
  */
-export const tableHeaderStart: BlockStart = {
-  name: "tableHeader",
-  trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
+export const tableHeaderStart = new BlockStart(
+  "tableHeader",
+  dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
     if (scanner.indented || container.type !== "paragraph" || container.data.tableVisited === true) {
       return 0;
     }
@@ -700,12 +773,7 @@ export const tableHeaderStart: BlockStart = {
     table.segments.length = 0;
     table.startOffset = headerStart;
     table.startLine = Math.max(scanner.lineNumber - 1, 1);
-    const data: TableData = {
-      columns: headerRow.cells.length,
-      align: alignmentsOf(delimiterSource, delimiterRow),
-      rows: 0,
-      nonemptyCells: 0,
-    };
+    const data = new TableData(alignmentsOf(delimiterSource, delimiterRow), headerRow.cells.length);
     table.data.tableData = data;
 
     // The header row belongs to the line ABOVE this one, so its position
@@ -715,8 +783,8 @@ export const tableHeaderStart: BlockStart = {
 
     scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
     return 2;
-  }),
-};
+  })
+);
 
 /**
  * The row start: each non-blank line under an open table is a row.
@@ -738,9 +806,9 @@ export const tableHeaderStart: BlockStart = {
  * @category parsing
  * @since 0.0.0
  */
-export const tableRowStart: BlockStart = {
-  name: "tableRow",
-  trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
+export const tableRowStart = new BlockStart(
+  "tableRow",
+  dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
     if (scanner.indented || scanner.blank || container.type !== "table") {
       return 0;
     }
@@ -763,8 +831,8 @@ export const tableRowStart: BlockStart = {
     addRow(scanner, data, source, row, rowStart, scanner.lineStart + scanner.currentLine.length);
     scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
     return 2;
-  }),
-};
+  })
+);
 
 // --- constructs -----------------------------------------------------------
 
@@ -783,9 +851,7 @@ export const tableRowStart: BlockStart = {
  * @category parsing
  * @since 0.0.0
  */
-export const tableConstruct: BlockConstruct = {
-  type: "table",
-  acceptsLines: false,
+export const tableConstruct = new BlockConstruct("table", false, {
   canContain: (child) => child === "tableRow",
   continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => {
     // Upstream's `matches`. A blank line yields no cells and so ends the
@@ -795,26 +861,19 @@ export const tableConstruct: BlockConstruct = {
     }
     return rowFromSource(lineSource(scanner)) === undefined ? 1 : 0;
   }),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const rows = tableRowChildren(children);
-      if (rows.length === 0) {
-        return undefined;
-      }
-      return trustedNode<Table>({
-        type: "table",
-        align: block.data.tableData?.align ?? [],
-        children: rows,
-        position: context.position(block.startOffset, block.endOffset),
-      });
+  materialize: containerMaterializer((block, children, context) => {
+    const rows = tableRowChildren(children);
+    if (rows.length === 0) {
+      return undefined;
     }
-  ),
-};
+    return trustedNode<Table>({
+      type: "table",
+      align: block.data.tableData?.align ?? [],
+      children: rows,
+      position: context.position(block.startOffset, block.endOffset),
+    });
+  }),
+});
 
 /**
  * Contains table cells and is built and closed on the line it opens.
@@ -831,25 +890,17 @@ export const tableConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const tableRowConstruct: BlockConstruct = {
-  type: "tableRow",
-  acceptsLines: false,
+export const tableRowConstruct = new BlockConstruct("tableRow", false, {
   canContain: (child) => child === "tableCell",
-  continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined =>
-      trustedNode<TableRow>({
-        type: "tableRow",
-        children: tableCellChildren(children),
-        position: context.position(block.startOffset, block.endOffset),
-      })
+  continue: neverContinues,
+  materialize: containerMaterializer((block, children, context) =>
+    trustedNode<TableRow>({
+      type: "tableRow",
+      children: tableCellChildren(children),
+      position: context.position(block.startOffset, block.endOffset),
+    })
   ),
-};
+});
 
 /**
  * Hosts inline content inside the block pass's one non-leaf inline host, a table cell.
@@ -872,26 +923,14 @@ export const tableRowConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const tableCellConstruct: BlockConstruct = {
-  type: "tableCell",
-  acceptsLines: false,
-  canContain: () => false,
-  continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const inline = context.inlineSlice(block);
-      const node = trustedNode<TableCell>({
-        type: "tableCell",
-        children: inline.children,
-        position: context.position(inline.startOffset, inline.endOffset),
-      });
-      context.registerInline(node, inline);
-      return node;
-    }
+export const tableCellConstruct = new BlockConstruct("tableCell", false, {
+  canContain: containsNothing,
+  continue: neverContinues,
+  materialize: inlineHostMaterializer((_block, inline, context) =>
+    trustedNode<TableCell>({
+      type: "tableCell",
+      children: inline.children,
+      position: context.position(inline.startOffset, inline.endOffset),
+    })
   ),
-};
+});

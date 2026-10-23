@@ -3,19 +3,17 @@ import { Markdown, MarkdownFormat, MarkdownFormattingOptions, Mdast } from "@bee
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { extractDefinitions } from "@beep/markdown/internal/blocks/linkReferenceDefinition";
 import { makeBlockNode } from "@beep/markdown/internal/blockTypes";
-import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
-import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { BlockNode } from "@beep/markdown/internal/blockTypes";
 
 const runs = { arbitrary: fcRuns(100) };
 // Positions refer to different byte strings after canonical serialization.
@@ -37,6 +35,71 @@ const words = S.Array(S.Literals(["alpha", "beta", "gamma", "delta", "é", "世�
 const styles = Arbitrary.schema(S.Literals(["one", "Two", "THREE"]));
 const sourceOf = (text: string, style: string) => `[${style}]: /target "title"\n\n[${text}][${style}]\n`;
 const options = MarkdownFormattingOptions.make({ headingStyle: "atx", bulletChar: "-" });
+
+/**
+ * A paragraph of `size` definitions and a rejected suffix, between two
+ * siblings, whose provenance runs (and their iteration) count every read.
+ * Each source line sits two characters further on than its text, so offsets
+ * prove the runs were consulted rather than assumed contiguous.
+ */
+const countedDefinitionParagraph = (size: number) => {
+  const reads = { count: 0 };
+  const parent = makeBlockNode("document", 0, 1);
+  const before = makeBlockNode("heading", 0, 1);
+  const block = makeBlockNode("paragraph", 100, 7);
+  const after = makeBlockNode("heading", 0, 1);
+  block.parent = parent;
+  parent.children.push(before, block, after);
+  const lines = A.makeBy(size, (index) => `[key${index}]: /target${index}\n`);
+  const prefix = A.join(lines, "");
+  const suffix = "[broken]\ntail\n";
+  block.stringContent = prefix + suffix;
+  let textOffset = 0;
+  A.forEach([...lines, suffix], (line, index) => {
+    const at = textOffset;
+    block.segments.push({
+      get textOffset() {
+        reads.count += 1;
+        return at;
+      },
+      get sourceOffset() {
+        reads.count += 1;
+        return 100 + at + index * 2;
+      },
+      get length() {
+        reads.count += 1;
+        return line.length;
+      },
+    });
+    textOffset += line.length;
+  });
+  const segments = block.segments;
+  segments[Symbol.iterator] = () => {
+    const iterator = segments.values();
+    const next = iterator.next.bind(iterator);
+    iterator.next = () => {
+      reads.count += 1;
+      return next();
+    };
+    return iterator;
+  };
+  return { reads, parent, before, block, after, segments, lines, prefix, suffix };
+};
+
+/** Every split-out definition sits in order before the paragraph, at its own source span. */
+const assertSplitDefinitions = (parent: BlockNode, lines: ReadonlyArray<string>): void => {
+  let offset = 0;
+  A.forEach(lines, (line, index) => {
+    const definition = parent.children[index + 1] ?? assert.fail(`expected definition ${index}`);
+    assert.strictEqual(definition.data.definition?.identifier, `key${index}`);
+    assert.strictEqual(definition.data.definition?.url, `/target${index}`);
+    assert.strictEqual(definition.startOffset, 100 + offset + index * 2);
+    assert.strictEqual(definition.endOffset, 100 + offset + index * 2 + line.length - 1);
+    assert.strictEqual(definition.startLine, 7 + index);
+    assert.strictEqual(definition.endLine, 7 + index);
+    offset += line.length;
+  });
+};
 
 describe("linkReferenceDefinition parser properties", () => {
   it("extracts from the final child without reading preceding siblings", () => {
@@ -65,113 +128,41 @@ describe("linkReferenceDefinition parser properties", () => {
     assert.strictEqual(block.startOffset, 115);
   });
 
-  it.effect("extracts a definition before 150,000 shallow paragraph lines in Node", () =>
-    Effect.scopedWith((scope) =>
-      Effect.gen(function* () {
-        const context = yield* Layer.buildWithScope(NodeServices.layer, scope);
-        const parser = new URL("../../../src/internal/blockParser.ts", import.meta.url);
-        const child = yield* Effect.provideContext(
-          ChildProcess.make(
-            "node",
-            [
-              "--experimental-strip-types",
-              "--input-type=module",
-              "-e",
-              `
-      import assert from "node:assert/strict";
-      import { parseBlocks } from "${parser.href}";
-      const size = 150_000;
-      const source = "[a]: /b\\n" + "x\\n".repeat(size);
-      const parsed = parseBlocks(source);
-      assert.equal(parsed.root.children.length, 2);
-      assert.equal(parsed.root.children[0]?.type, "definition");
-      assert.equal(parsed.root.children[0]?.url, "/b");
-      assert.equal(parsed.root.children[1]?.type, "paragraph");
-      assert.equal(parsed.rawInlines[0]?.text, "x\\n".repeat(size - 1) + "x");
-      assert.equal(parsed.rawInlines[0]?.segments.length, size);
-      assert.equal(parsed.root.children[1]?.position.start.offset, 8);
-      assert.equal(parsed.root.children[1]?.position.end.offset, source.length - 1);
-    `,
-            ],
-            { stderr: "inherit" }
-          ),
-          context
-        );
-        assert.strictEqual(yield* child.exitCode, 0);
-      })
-    )
-  );
+  // In-process (D-45): the parse is pure, so no child runtime is needed to
+  // show that a 150,000-line paragraph after a definition neither overflows
+  // the stack nor loses provenance.
+  it("extracts a definition before 150,000 shallow paragraph lines", () => {
+    const size = 150_000;
+    const source = `[a]: /b\n${Str.repeat(size)("x\n")}`;
+    const parsed = parseBlocks(source);
+    const [definition, paragraph] = parsed.root.children;
+    assert.strictEqual(parsed.root.children.length, 2);
+    assert.strictEqual(definition?.type, "definition");
+    assert.strictEqual(definition?.type === "definition" ? definition.url : undefined, "/b");
+    assert.strictEqual(paragraph?.type, "paragraph");
+    assert.strictEqual(parsed.rawInlines[0]?.text, `${Str.repeat(size - 1)("x\n")}x`);
+    assert.strictEqual(parsed.rawInlines[0]?.segments.length, size);
+    assert.strictEqual(paragraph?.position.start.offset, 8);
+    assert.strictEqual(paragraph?.position.end.offset, source.length - 1);
+  });
 
   it("bounds scaled extraction reads and preserves segment identity, order and a rejected suffix", () => {
     for (const size of [2_000, 8_000]) {
-      const parent = makeBlockNode("document", 0, 1);
-      const before = makeBlockNode("heading", 0, 1);
-      const block = makeBlockNode("paragraph", 100, 7);
-      const after = makeBlockNode("heading", 0, 1);
-      block.parent = parent;
-      parent.children.push(before, block, after);
-      const lines = A.makeBy(size, (index) => `[key${index}]: /target${index}\n`);
-      const prefix = A.join(lines, "");
-      const suffix = "[broken]\ntail\n";
-      block.stringContent = prefix + suffix;
-      let reads = 0;
-      let textOffset = 0;
-      for (const [index, line] of A.map([...lines, suffix], (line, index) => [index, line] as const)) {
-        const at = textOffset;
-        block.segments.push({
-          get textOffset() {
-            reads += 1;
-            return at;
-          },
-          get sourceOffset() {
-            reads += 1;
-            return 100 + at + index * 2;
-          },
-          get length() {
-            reads += 1;
-            return line.length;
-          },
-        });
-        textOffset += line.length;
-      }
-      const segments = block.segments;
-      segments[Symbol.iterator] = () => {
-        const iterator = segments.values();
-        const next = iterator.next.bind(iterator);
-        iterator.next = () => {
-          reads += 1;
-          return next();
-        };
-        return iterator;
-      };
+      const fixture = countedDefinitionParagraph(size);
+      const { parent, block, before, after, segments, lines, prefix, suffix } = fixture;
       extractDefinitions(block);
-      assert.isAtMost(reads, size * 70);
+      assert.isAtMost(fixture.reads.count, size * 70);
       assert.strictEqual(block.segments, segments);
       assert.strictEqual(parent.children[0], before);
       assert.strictEqual(parent.children[size + 1], block);
       assert.strictEqual(parent.children[size + 2], after);
-      let offset = 0;
-      for (let index = 0; index < size; index += 1) {
-        const line = lines[index];
-        assert.ok(line !== undefined);
-        const definition = parent.children[index + 1];
-        assert.strictEqual(definition?.data.definition?.identifier, `key${index}`);
-        assert.strictEqual(definition?.data.definition?.url, `/target${index}`);
-        assert.strictEqual(definition?.startOffset, 100 + offset + index * 2);
-        assert.strictEqual(definition?.endOffset, 100 + offset + index * 2 + line.length - 1);
-        assert.strictEqual(definition?.startLine, 7 + index);
-        assert.strictEqual(definition?.endLine, 7 + index);
-        offset += line.length;
-      }
+      assertSplitDefinitions(parent, lines);
       assert.strictEqual(block.stringContent, suffix);
       assert.strictEqual(block.startLine, 7 + size);
       assert.strictEqual(block.startOffset, 100 + prefix.length + size * 2);
-      assert.strictEqual(block.segments.length, 1);
-      assert.deepStrictEqual(block.segments[0], {
-        textOffset: 0,
-        sourceOffset: block.startOffset,
-        length: suffix.length,
-      });
+      assert.deepStrictEqual(block.segments, [
+        { textOffset: 0, sourceOffset: block.startOffset, length: suffix.length },
+      ]);
       extractDefinitions(block);
       assert.strictEqual(parent.children.length, size + 3);
       assert.strictEqual(block.stringContent, suffix);
@@ -179,7 +170,7 @@ describe("linkReferenceDefinition parser properties", () => {
   });
 
   it("retains duplicate definitions in order while the first normalized label wins", () => {
-    const parsed = parseBlocks(Str.repeat(4_000)("[key]: /first\n[KEY]: /later\n") + "tail\n");
+    const parsed = parseBlocks(`${Str.repeat(4_000)("[key]: /first\n[KEY]: /later\n")}tail\n`);
     assert.strictEqual(parsed.root.children.length, 8_001);
     for (let index = 0; index < 8_000; index += 1) {
       const definition = parsed.root.children[index];
@@ -235,11 +226,11 @@ describe("linkReferenceDefinition parser properties", () => {
         assert.ok(first !== undefined);
         if (first !== undefined) {
           assert.strictEqual(first.position.start.offset, prefix.length);
-          assert.ok(source.slice(first.position.start.offset, first.position.end.offset).length > 0);
+          assert.ok(Str.slice(first.position.start.offset, first.position.end.offset)(source).length > 0);
         }
         const formatted = MarkdownFormat.formatToString(source, undefined, options);
-        assert.ok(formatted.startsWith(prefix));
-        assert.ok(formatted.endsWith(suffix));
+        assert.ok(Str.startsWith(prefix)(formatted));
+        assert.ok(Str.endsWith(suffix)(formatted));
         assert.deepStrictEqual(
           semantic(Mdast.toMdast(yield* Markdown.parse(formatted))),
           semantic(Mdast.toMdast(parsed))
@@ -263,15 +254,15 @@ describe("linkReferenceDefinition parser properties", () => {
         assert.strictEqual(parent.children.length, 2);
         assert.strictEqual(parent.children[0]?.data.definition?.label, style);
         assert.strictEqual(parent.children[0]?.data.definition?.url, "/target");
-        assert.ok(block.stringContent.includes(text));
+        assert.ok(Str.includes(text)(block.stringContent));
         const remaining = block.stringContent;
         const offset = block.startOffset;
-        const definitions = parent.children.map((node) => node.data.definition);
+        const definitions = A.map(parent.children, (node) => node.data.definition);
         extractDefinitions(block);
         assert.strictEqual(block.stringContent, remaining);
         assert.strictEqual(block.startOffset, offset);
         assert.deepStrictEqual(
-          parent.children.map((node) => node.data.definition),
+          A.map(parent.children, (node) => node.data.definition),
           definitions
         );
       }),

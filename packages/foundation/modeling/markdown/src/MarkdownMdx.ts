@@ -66,8 +66,8 @@ export {
   MdxJsxExpressionAttribute,
   /**
    * MdxJsxFlowElement — a JSX element in flow (block) position (`<Component />` on its own lines). `name` is
-   * `null` for a fragment (`<></>`); children are flow content, per the oracle's `BlockContent |
-   * DefinitionContent` model.
+   * `null` for a fragment (`<></>`); children are flow content, per the oracle's
+   * `BlockContent | DefinitionContent` model.
    *
    * @category models
    * @since 0.0.0

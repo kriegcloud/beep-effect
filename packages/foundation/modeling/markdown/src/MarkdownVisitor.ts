@@ -1,30 +1,57 @@
-// SAX-style tree visitor: a demand-driven `Stream` of enter/exit events over
-// a parsed markdown tree, enabling early termination (`Stream.take`) without
-// materializing the full event sequence.
-//
-// Sibling contract (yaml/toml precedent): the event union is a
-// `Data.TaggedEnum` with a `taggedEnum` constructor const, and the statics
-// class exposes a single `visit`. One recorded deviation: the yaml and toml
-// visitors take TEXT and parse internally, because their event source is the
-// parse itself; this visitor walks an ALREADY-PARSED tree, which is what lets it stay infallible
-// at the type level with no parse-error channel. Consumers compose
-// `Markdown.parse` (or `Mdast.fromMdast`) with `MarkdownVisitor.visit`.
-//
-// Guard posture: a tree this package's own parser produced can never exceed
-// `MAX_NESTING_DEPTH` (the parse guard refuses deeper input), but a decoded
-// foreign tree (`Mdast.fromMdast`) can. Mirroring stringify — which fails
-// typed on the same tree — the walk surfaces the trip deliberately as a
-// terminal `Error` event carrying a `NestingDepthExceeded` diagnostic and
-// ends, never a defect and never a stream failure (the yaml visitor's
-// diagnostics-as-events precedent).
+/**
+ * SAX-style tree visitor: a demand-driven `Stream` of enter/exit events over
+ * a parsed markdown tree, enabling early termination (`Stream.take`) without
+ * materializing the full event sequence.
+ *
+ * Sibling contract (jsonc precedent): the event union is an `S.TaggedUnion`
+ * of three tagged structs, and the statics class exposes a single `visit`.
+ * The walk builds events as plain values of the union's type: a case `make`
+ * would validate (and copy) the event's whole node subtree, which costs
+ * O(n·depth) over a walk. One recorded deviation: the yaml and toml
+ * visitors take TEXT and parse internally, because their event source is the
+ * parse itself; this visitor walks an ALREADY-PARSED tree, which is what lets it stay infallible
+ * at the type level with no parse-error channel. Consumers compose
+ * `Markdown.parse` (or `Mdast.fromMdast`) with `MarkdownVisitor.visit`.
+ *
+ * Guard posture: a tree this package's own parser produced can never exceed
+ * `MAX_NESTING_DEPTH` (the parse guard refuses deeper input), but a decoded
+ * foreign tree (`Mdast.fromMdast`) can. Mirroring stringify — which fails
+ * typed on the same tree — the walk surfaces the trip deliberately as a
+ * terminal `Error` event carrying a `NestingDepthExceeded` diagnostic and
+ * ends, never a defect and never a stream failure (the yaml visitor's
+ * diagnostics-as-events precedent).
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
-import * as Data from "effect/Data";
-import * as Iterable from "effect/Iterable";
+import { $MarkdownId } from "@beep/identity/packages";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
 import { MarkdownDiagnostic } from "./MarkdownDiagnostic.ts";
-import type { MarkdownPath } from "./MarkdownEdit.ts";
-import type { MarkdownNode, Root } from "./MarkdownNode.ts";
+import { MarkdownPath } from "./MarkdownEdit.ts";
+import { MarkdownNode } from "./MarkdownNode.ts";
+import type { Root } from "./MarkdownNode.ts";
+
+const $I = $MarkdownId.create("MarkdownVisitor");
+
+const eventPath = MarkdownPath.pipe(
+  $I.annoteKey("MarkdownVisitorEvent.path", {
+    description: "Child indexes from the root to the visited node; the root's own path is empty",
+  })
+);
+
+const eventDepth = S.Finite.pipe(
+  $I.annoteKey("MarkdownVisitorEvent.depth", {
+    description: "Zero-based nesting depth of the visited node; the root is 0",
+  })
+);
+
+const eventNode = S.suspend(() => MarkdownNode).pipe(
+  $I.annoteKey("MarkdownVisitorEvent.node", { description: "The tree node the walk entered or left" })
+);
 
 /**
  * The discriminated union of markdown visitor events, in document pre-order.
@@ -35,38 +62,58 @@ import type { MarkdownNode, Root } from "./MarkdownNode.ts";
  * depth-guard diagnostic for a decoded foreign tree nested past
  * `MAX_NESTING_DEPTH` and nothing follows it.
  *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export type MarkdownVisitorEvent = Data.TaggedEnum<{
-  Enter: { readonly node: MarkdownNode; readonly path: MarkdownPath; readonly depth: number };
-  Exit: { readonly node: MarkdownNode; readonly path: MarkdownPath; readonly depth: number };
-  Error: { readonly diagnostic: MarkdownDiagnostic; readonly path: MarkdownPath; readonly depth: number };
-}>;
-
-/**
- * Constructors and matchers for the `MarkdownVisitorEvent` union (e.g.
- * `MarkdownVisitorEvent.Enter({ node, path, depth })`,
- * `MarkdownVisitorEvent.$is("Exit")`).
+ * **Details**
+ *
+ * The cases are `MarkdownVisitorEvent.cases.Enter`, `.Exit` and `.Error`;
+ * `MarkdownVisitorEvent.guards` narrows a value to one case and
+ * `MarkdownVisitorEvent.match` folds over all three. The walk hands out its
+ * nodes by reference — it builds each event as a plain value of this type
+ * rather than through a case `make`, which would validate and copy the
+ * node's whole subtree per event.
  *
  * **Example** (Match a visitor exit event)
  *
  * ```ts
  * import { MarkdownVisitorEvent } from "@beep/markdown/MarkdownVisitor"
- * import { Mdast } from "@beep/markdown/Mdast"
- * import * as Effect from "effect/Effect"
+ * import { Root } from "@beep/markdown/MarkdownNode"
  *
- * const node = Effect.runSync(Mdast.fromMdast({ type: "root", children: [] }))
- * const event = MarkdownVisitorEvent.Exit({ node, path: [], depth: 0 })
- * console.log(MarkdownVisitorEvent.$is("Exit")(event)) // true
+ * const event = MarkdownVisitorEvent.cases.Exit.make({ node: Root.make({ children: [] }), path: [], depth: 0 })
+ * console.log(MarkdownVisitorEvent.guards.Exit(event)) // true
+ * console.log(MarkdownVisitorEvent.guards.Enter(event)) // false
  * ```
  *
  * @public
- * @category constructors
+ * @category schemas
  * @since 0.0.0
  */
-export const MarkdownVisitorEvent = Data.taggedEnum<MarkdownVisitorEvent>();
+export const MarkdownVisitorEvent = S.TaggedUnion({
+  Enter: { node: eventNode, path: eventPath, depth: eventDepth },
+  Exit: { node: eventNode, path: eventPath, depth: eventDepth },
+  Error: {
+    diagnostic: MarkdownDiagnostic.pipe(
+      $I.annoteKey("MarkdownVisitorEvent.Error.diagnostic", {
+        description:
+          "The NestingDepthExceeded diagnostic for a decoded foreign tree nested past the walk's depth guard",
+      })
+    ),
+    path: eventPath,
+    depth: eventDepth,
+  },
+}).pipe(
+  $I.annoteSchema("MarkdownVisitorEvent", {
+    description:
+      "One event of a markdown tree walk in document pre-order: entering a node, leaving it, or the terminal depth-guard error.",
+  })
+);
+
+/**
+ * The union of the three visitor event shapes.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type MarkdownVisitorEvent = typeof MarkdownVisitorEvent.Type;
 
 /**
  * Walks a parsed markdown tree as a lazy `Stream` of `Enter`/`Exit` events in
@@ -83,7 +130,7 @@ export const MarkdownVisitorEvent = Data.taggedEnum<MarkdownVisitorEvent>();
  * const program = Effect.gen(function* () {
  *   const root = yield* Markdown.parse("# Hi\n\ntext\n")
  *   return yield* MarkdownVisitor.visit(root).pipe(
- *     Stream.filter(MarkdownVisitorEvent.$is("Enter")),
+ *     Stream.filter(MarkdownVisitorEvent.guards.Enter),
  *     Stream.map((event) => event.node.type),
  *     Stream.runCollect,
  *   )
@@ -122,7 +169,7 @@ export abstract class MarkdownVisitor {
    *
    * const root = Effect.runSync(Mdast.fromMdast({ type: "root", children: [] }))
    * const program = MarkdownVisitor.visit(root).pipe(
-   *   Stream.filter(MarkdownVisitorEvent.$is("Enter")),
+   *   Stream.filter(MarkdownVisitorEvent.guards.Enter),
    *   Stream.map((event) => event.node.type),
    *   Stream.runCollect,
    * )
@@ -144,50 +191,59 @@ export abstract class MarkdownVisitor {
 function walkIterable(root: Root): Iterable<MarkdownVisitorEvent> {
   return {
     [Symbol.iterator]() {
-      return walk(root)[Symbol.iterator]();
+      return walkNode(root, [], 0);
     },
   };
 }
 
-function* walk(root: Root): Generator<MarkdownVisitorEvent> {
-  yield* walkNode(root, [], 0);
+const childrenOf = (node: MarkdownNode): ReadonlyArray<MarkdownNode> => ("children" in node ? node.children : []);
+
+/**
+ * The terminal depth-guard event. The diagnostic's zero-based line/character
+ * derive from the node's own 1-based position (there is no source text in a
+ * tree walk); foreign sentinel positions collapse to 0,0.
+ */
+const depthExceeded = (node: MarkdownNode, path: MarkdownPath, depth: number): MarkdownVisitorEvent => ({
+  _tag: "Error",
+  diagnostic: MarkdownDiagnostic.make({
+    code: "NestingDepthExceeded",
+    message: `NestingDepthExceeded: limit ${MAX_NESTING_DEPTH}, actual ${depth}`,
+    offset: node.position.start.offset,
+    length: Math.max(0, node.position.end.offset - node.position.start.offset),
+    line: Math.max(0, node.position.start.line - 1),
+    character: Math.max(0, node.position.start.column - 1),
+  }),
+  path,
+  depth,
+});
+
+/** Walk `node`'s subtree; returns `true` when the terminal `Error` event ended the whole walk. */
+function* walkNode(node: MarkdownNode, path: MarkdownPath, depth: number): Generator<MarkdownVisitorEvent, boolean> {
+  if (depth > MAX_NESTING_DEPTH) {
+    yield depthExceeded(node, path, depth);
+    return true;
+  }
+  yield { _tag: "Enter", node, path, depth };
+  if (yield* walkChildren(node, path, depth)) {
+    // Terminal: abort the whole walk, mirroring stringify's whole-operation
+    // typed failure.
+    return true;
+  }
+  yield { _tag: "Exit", node, path, depth };
+  return false;
 }
 
-function* walkNode(node: MarkdownNode, path: MarkdownPath, depth: number): Generator<MarkdownVisitorEvent> {
-  if (depth > MAX_NESTING_DEPTH) {
-    // Zero-based diagnostic line/character derived from the node's own
-    // 1-based position (there is no source text in a tree walk); foreign
-    // sentinel positions collapse to 0,0.
-    yield MarkdownVisitorEvent.Error({
-      diagnostic: MarkdownDiagnostic.make({
-        code: "NestingDepthExceeded",
-        message: `NestingDepthExceeded: limit ${MAX_NESTING_DEPTH}, actual ${depth}`,
-        offset: node.position.start.offset,
-        length: Math.max(0, node.position.end.offset - node.position.start.offset),
-        line: Math.max(0, node.position.start.line - 1),
-        character: Math.max(0, node.position.start.column - 1),
-      }),
-      path,
-      depth,
-    });
-  } else {
-    yield MarkdownVisitorEvent.Enter({ node, path, depth });
-
-    if ("children" in node) {
-      const children: ReadonlyArray<MarkdownNode> = node.children;
-      for (const [child, index] of Iterable.map(children, (child, index) => [child, index] as const)) {
-        const events = walkNode(child, [...path, index], depth + 1);
-        for (const event of events) {
-          yield event;
-          if (event._tag === "Error") {
-            // Terminal: abort the whole walk, mirroring stringify's
-            // whole-operation typed failure.
-            return;
-          }
-        }
-      }
+/** Walk each child in order, stopping at the first that ends the walk. */
+function* walkChildren(
+  node: MarkdownNode,
+  path: MarkdownPath,
+  depth: number
+): Generator<MarkdownVisitorEvent, boolean> {
+  const children = childrenOf(node);
+  for (let index = 0; index < children.length; index += 1) {
+    if (yield* walkNode(A.getUnsafe(children, index), A.append(path, index), depth + 1)) {
+      return true;
     }
-
-    yield MarkdownVisitorEvent.Exit({ node, path, depth });
   }
+  return false;
 }

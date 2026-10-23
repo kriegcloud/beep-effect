@@ -23,11 +23,11 @@ it.effect("declaration failures explain missing, invalid, unknown and unsatisfie
     );
     assert.strictEqual(SchemaNameUnknownError.make({}).message, "the $schema declaration names no registered schema");
     assert.strictEqual(
-      SchemaVersionUnresolvableError.make({ name: "skill" }).message,
+      SchemaVersionUnresolvableError.make({ schemaName: "skill" }).message,
       'schema "skill" is registered only with versions; the declaration carries none'
     );
     assert.strictEqual(
-      SchemaVersionUnresolvableError.make({ name: "skill", version: "2" }).message,
+      SchemaVersionUnresolvableError.make({ schemaName: "skill", version: "2" }).message,
       'schema "skill" has no registration matching version "2" exactly'
     );
     assertFailure(

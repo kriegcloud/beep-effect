@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -56,7 +57,7 @@ const Sample = S.Struct({
 const sampleSource = (sample: typeof Sample.Type): string => {
   const words = `text ${A.join(sample.words, " ")}`;
   const title = sample.heading === "atx" ? `# ${words}` : `${words}\n======`;
-  return `${title}\n\n${sample.emphasis}emphasis${sample.emphasis}\n\n${sample.bullet} ${words}\n${sample.bullet} second\n\n[link](./path "title")\n\n${sample.fence.repeat(3)}js\ncode\n${sample.fence.repeat(3)}\n`;
+  return `${title}\n\n${sample.emphasis}emphasis${sample.emphasis}\n\n${sample.bullet} ${words}\n${sample.bullet} second\n\n[link](./path "title")\n\n${Str.repeat(3)(sample.fence)}js\ncode\n${Str.repeat(3)(sample.fence)}\n`;
 };
 
 describe("MarkdownDocument parser laws", () => {
@@ -71,8 +72,8 @@ describe("MarkdownDocument parser laws", () => {
         const second = yield* Subject.MarkdownDocument.parse(rendered);
         assert.deepStrictEqual(semantic(Mdast.toMdast(second.root)), semantic(Mdast.toMdast(first.root)));
         assert.deepStrictEqual(
-          second.headings.map((entry) => [entry.text, entry.depth, entry.node.headingStyle]),
-          first.headings.map((entry) => [entry.text, entry.depth, entry.node.headingStyle])
+          A.map(second.headings, (entry) => [entry.text, entry.depth, entry.node.headingStyle]),
+          A.map(first.headings, (entry) => [entry.text, entry.depth, entry.node.headingStyle])
         );
         assert.strictEqual(second.find("list")?.bulletChar, sample.bullet);
         assert.strictEqual(second.find("emphasis")?.markerChar, sample.emphasis);

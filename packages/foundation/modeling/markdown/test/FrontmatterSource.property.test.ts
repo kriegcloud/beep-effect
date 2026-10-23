@@ -7,13 +7,15 @@ import {
 } from "@beep/markdown/FrontmatterSource";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
-    name + ": decoding an encoding succeeds and preserves the value",
+    `${name}: decoding an encoding succeeds and preserves the value`,
     [Arbitrary.schema(schema)],
     ([value]) =>
       Effect.gen(function* () {
@@ -45,14 +47,14 @@ it.effect.prop(
     Effect.sync(() => {
       const opening = sample.format === "yaml" ? "---" : sample.format === "toml" ? "+++" : "---json";
       const closing = sample.format === "toml" ? "+++" : "---";
-      const value = `field: ${sample.content.join("")}${sample.newline}`;
+      const value = `field: ${A.join(sample.content, "")}${sample.newline}`;
       const body = `body:${sample.body}`;
       const source = `${opening}${sample.newline}${value}${closing}${sample.newline}${body}`;
       const split = FrontmatterSource.split(source);
       assert.strictEqual(split.frontmatter?.format, sample.format);
       assert.strictEqual(split.frontmatter?.value, value);
       assert.strictEqual(split.body, body);
-      assert.strictEqual(split.body, source.slice(split.bodyOffset));
+      assert.strictEqual(split.body, Str.slice(split.bodyOffset)(source));
       assert.strictEqual(FrontmatterSource.join(split), source);
       assert.deepStrictEqual(FrontmatterSource.split(FrontmatterSource.join(split)), split);
     }),

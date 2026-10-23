@@ -17,7 +17,7 @@
 Two JSON fixtures, both extracted with upstream's own `test/spec_tests.py`
 (never hand-transcribed), reshaped to the same `{ markdown, html, example,
 start_line, end_line, section }` shape as
-`fixtures/commonmark/spec.json`:
+`data/conformance/commonmark/spec.json`:
 
 - `spec-extensions.json` — the examples embedded in
   `.repos/cmark-gfm/test/spec.txt` whose section header is marked
@@ -33,13 +33,13 @@ start_line, end_line, section }` shape as
 
 ## Extraction method
 
-`packages/markdown/__test__/tools/extract-gfm-corpora.py` (python3, no
+`packages/foundation/modeling/markdown/scripts/extract-gfm-corpora.py` (python3, no
 dependencies beyond the standard library and the vendored `spec_tests.py` it
 shells out to). Invoked from the repository root:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python3 \
-  packages/markdown/__test__/tools/extract-gfm-corpora.py
+  packages/foundation/modeling/markdown/scripts/extract-gfm-corpora.py
 ```
 
 The script runs upstream's own `.repos/cmark-gfm/test/spec_tests.py
@@ -78,9 +78,12 @@ exercise unchanged. `extensions.json`'s total of 30 matches the plan exactly.
 
 ## Attribution posture
 
-Test-only vendoring. Both JSON files are generated data consumed exclusively
-by `__test__/e2e/`, never shipped in the published package artifact. The
-CC-BY-SA 4.0 license on `spec.txt`'s prose and the cmark-gfm repository
-license covering `extensions.txt` are satisfied by this attribution file and
-the upstream link above; regenerate both fixtures with the command above if
-the pinned `cmark-gfm` submodule ref ever changes — never hand-edit them.
+Conformance data, not runtime code. Both JSON files are generated data that
+the package's own `test/e2e/` suites load and that other workspace packages
+import as the `@beep/markdown/conformance/gfm/spec-extensions` and
+`@beep/markdown/conformance/gfm/extensions` subpaths. Nothing under `src/`
+reads them. They travel with this attribution file; the CC-BY-SA 4.0 license
+on `spec.txt`'s prose and the cmark-gfm repository license covering
+`extensions.txt` are satisfied by this file and the upstream link above.
+Regenerate both fixtures with the command above if the pinned `cmark-gfm`
+submodule ref ever changes; never hand-edit them.

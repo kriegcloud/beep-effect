@@ -1,15 +1,22 @@
-// The structured diagnostic concept: MarkdownDiagnostic and the
-// error-code literal union.
-//
-// Cycle firewall: the internal engine emits raw `{ code, message, offset,
-// length }` records (src/internal/carriers.ts); this module materializes
-// them into MarkdownDiagnostic, deriving `line`/`character` from `offset`
-// against the source text. The dependency edge runs public modules ->
-// engine only (toml src/TomlDiagnostic.ts precedent).
+/**
+ * The structured diagnostic concept: MarkdownDiagnostic and the
+ * error-code literal union.
+ *
+ * Cycle firewall: the internal engine emits raw `RawDiagnostic` records
+ * (`code`, `message`, `offset`, `length`; src/internal/carriers.ts); this
+ * module materializes them into MarkdownDiagnostic, deriving
+ * `line`/`character` from `offset` against the source text. The dependency
+ * edge runs from the public modules to the engine only (toml
+ * src/TomlDiagnostic.ts precedent).
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { MarkdownParseErrorCodeRaw } from "./internal/carriers.ts";
 import type { RawDiagnostic } from "./internal/carriers.ts";
 
@@ -61,9 +68,9 @@ export type MarkdownParseErrorCode = typeof MarkdownParseErrorCode.Type;
  * **Details**
  *
  * The five-field positional core (`code`/`offset`/`length`/`line`/`character`)
- * is structurally identical to `@effected/toml`'s `TomlDiagnostic` (and, by
- * the same cross-package contract, `@effected/jsonc`'s parse-error detail
- * shape and `@effected/yaml`'s `YamlDiagnostic`); `message` is this
+ * is structurally identical to `@beep/toml`'s `TomlDiagnostic` (and, by
+ * the same cross-package contract, `@beep/jsonc`'s parse-error detail
+ * shape and `@beep/yaml`'s `YamlDiagnostic`); `message` is this
  * package's additive extra. `line`/`character` here are zero-based to match
  * that contract — a different numbering from the one-based `line`/`column`
  * unist `Point`s carried on `MarkdownNode` positions, which is a deliberate,
@@ -90,10 +97,8 @@ export type MarkdownParseErrorCode = typeof MarkdownParseErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly brand: unique symbol }>(
-  $I`MarkdownDiagnostic`
-)(
-  {
+export class MarkdownDiagnostic extends S.Opaque<MarkdownDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: MarkdownParseErrorCode.pipe(
       $I.annoteKey("MarkdownDiagnostic.code", {
         description: "Fatal condition identifier, currently `NestingDepthExceeded` for a nesting guard violation",
@@ -124,11 +129,12 @@ export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly b
         description: "Zero-based UTF-16 position within the source line at the reported offset",
       })
     ),
-  },
-  $I.annote("MarkdownDiagnostic", {
-    description:
-      "One structured diagnostic: its (MarkdownParseErrorCode:type), a human-readable `message`, and its exact position (`offset`/`length`, plus zero-based `line`/`character`).",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkdownDiagnostic", {
+      description:
+        "One structured diagnostic: its (MarkdownParseErrorCode:type), a human-readable `message`, and its exact position (`offset`/`length`, plus zero-based `line`/`character`).",
+    })
+  )
 ) {
   /**
    * Materialize an engine record, deriving zero-based `line`/`character`
@@ -160,9 +166,9 @@ export class MarkdownDiagnostic extends S.Class<MarkdownDiagnostic, { readonly b
    * @since 0.0.0
    */
   static readonly fromRaw: {
-    (source: string, raw: RawDiagnostic): MarkdownDiagnostic;
-    (raw: RawDiagnostic): (source: string) => MarkdownDiagnostic;
-  } = dual(2, (source: string, raw: RawDiagnostic): MarkdownDiagnostic => {
+    (source: string, raw: RawDiagnostic.Encoded): MarkdownDiagnostic;
+    (raw: RawDiagnostic.Encoded): (source: string) => MarkdownDiagnostic;
+  } = dual(2, (source: string, raw: RawDiagnostic.Encoded): MarkdownDiagnostic => {
     const { line, character } = lineChar(source, raw.offset);
     return MarkdownDiagnostic.make({
       code: raw.code,
@@ -186,23 +192,17 @@ const lineChar: {
   (text: string, offset: number): { line: number; character: number };
   (offset: number): (text: string) => { line: number; character: number };
 } = dual(2, (text: string, offset: number): { line: number; character: number } => {
+  const limit = Math.min(offset, text.length);
+  // Both code units of a CRLF must precede the offset before the line
+  // advances, so a CR whose LF sits at the offset is left uncounted.
+  const straddlesCrlf = limit > 0 && Str.slice(limit - 1, limit + 1)(text) === "\r\n";
+  const prefix = Str.slice(0, straddlesCrlf ? limit - 1 : limit)(text);
+  const lineBreak = /\r\n|\r|\n/g;
   let line = 0;
   let lineStart = 0;
-  const limit = Math.min(offset, text.length);
-  for (let i = 0; i < limit; i++) {
-    const ch = text.charCodeAt(i);
-    if (ch === 0x0a) {
-      line++;
-      lineStart = i + 1;
-    } else if (ch === 0x0d) {
-      if (i + 1 < text.length && text.charCodeAt(i + 1) === 0x0a) {
-        // Both code units must precede the offset before advancing the line.
-        if (i + 1 >= limit) break;
-        i++;
-      }
-      line++;
-      lineStart = i + 1;
-    }
+  for (let match = lineBreak.exec(prefix); match !== null; match = lineBreak.exec(prefix)) {
+    line += 1;
+    lineStart = match.index + match[0].length;
   }
   return { line, character: offset - lineStart };
 });

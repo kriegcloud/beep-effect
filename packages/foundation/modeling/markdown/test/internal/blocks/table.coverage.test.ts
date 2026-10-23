@@ -40,7 +40,7 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
     nextNonspaceColumn: indent,
     indent,
     indented: indent >= 4,
-    blank: currentLine.trim().length === 0,
+    blank: Str.trim(currentLine).length === 0,
     get tip() {
       return currentTip;
     },
@@ -99,8 +99,10 @@ import {
   tableRowConstruct,
   tableRowStart,
 } from "@beep/markdown/internal/blocks/table";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { BlockType, InlineHost, PreparedInline } from "@beep/markdown/internal/blockTypes";
 
 describe("table construct coverage", () => {
@@ -177,7 +179,7 @@ describe("table construct coverage", () => {
     Effect.sync(() => {
       const root = parseBlocks("before\\|text\n| a | b |\n| - | - |\nshort\n", { dialect: "gfm" }).root;
       assert.deepStrictEqual(
-        root.children.map((node) => node.type),
+        A.map(root.children, (node) => node.type),
         ["paragraph", "table"]
       );
       const table = root.children[1];

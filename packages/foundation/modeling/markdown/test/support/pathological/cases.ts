@@ -16,12 +16,15 @@
 // per-case TIMEOUT is widened to the house-standard 8000ms per case (see the
 // plan's Task 2 step 2).
 
+import * as A from "effect/Array";
+import * as Str from "effect/String";
+
 /**
  * A single pathological/adversarial-input case: an input string engineered to
  * expose quadratic or worse behavior in a naive parser, paired with a regex
  * the correctly-linear output must match within `timeoutMs`.
  */
-export interface PathologicalCase {
+interface PathologicalCase {
   /**
    * The dialect the case parses under. Absent means the commonmark
    * substrate; upstream's GFM-extension cases carry `"gfm"`.
@@ -48,10 +51,17 @@ const hashCollisions = (): { readonly document: string; readonly badKey: string 
   const MASK32 = 0xffffffffn;
   const COUNT = 50000;
 
-  const badHash = (ref: string): boolean => {
+  // The code points of the key `x<i>`: `x`, then one ASCII digit each.
+  const keyCodePoints = (i: number): ReadonlyArray<number> =>
+    A.prepend(
+      A.map(Str.split(String(i), ""), (digit) => 0x30 + Number(digit)),
+      0x78
+    );
+
+  const badHash = (codePoints: ReadonlyArray<number>): boolean => {
     let h = 0n;
-    for (const c of ref) {
-      const code = BigInt(c.codePointAt(0) ?? 0);
+    for (const codePoint of codePoints) {
+      const code = BigInt(codePoint);
       const a = (h << 6n) & MASK32;
       const b = (h << 16n) & MASK32;
       h = code + a + b - h;
@@ -63,9 +73,8 @@ const hashCollisions = (): { readonly document: string; readonly badKey: string 
   const collisions: Array<string> = [];
   let i = 0;
   while (collisions.length < COUNT) {
-    const key = `x${i}`;
-    if (badHash(key)) {
-      collisions.push(key);
+    if (badHash(keyCodePoints(i))) {
+      collisions.push(`x${i}`);
     }
     i++;
   }
@@ -75,7 +84,10 @@ const hashCollisions = (): { readonly document: string; readonly badKey: string 
     throw new Error("hashCollisions: no collisions found (unreachable for COUNT=50000)");
   }
 
-  const document = rest.map((key) => `[${key}]: /url\n\n[${badKey}]\n\n`).join("");
+  const document = A.join(
+    A.map(rest, (key) => `[${key}]: /url\n\n[${badKey}]\n\n`),
+    ""
+  );
   return { document, badKey };
 };
 
@@ -91,61 +103,61 @@ const { document: hashCollisionsDocument, badKey: hashCollisionsBadKey } = hashC
 export const PATHOLOGICAL_CASES: ReadonlyArray<PathologicalCase> = [
   {
     name: "nested strong emph",
-    input: `${"*a **a ".repeat(65000)}b${" a** a*".repeat(65000)}`,
+    input: `${Str.repeat(65000)("*a **a ")}b${Str.repeat(65000)(" a** a*")}`,
     expectedPattern: /(<em>a <strong>a ){65000}b( a<\/strong> a<\/em>){65000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "many emph closers with no openers",
-    input: "a_ ".repeat(65000),
+    input: Str.repeat(65000)("a_ "),
     expectedPattern: /(a[_] ){64999}a_/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "many emph openers with no closers",
-    input: "_a ".repeat(65000),
+    input: Str.repeat(65000)("_a "),
     expectedPattern: /(_a ){64999}_a/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "many link closers with no openers",
-    input: "a]".repeat(65000),
+    input: Str.repeat(65000)("a]"),
     expectedPattern: /(a\]){65000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "many link openers with no closers",
-    input: "[a".repeat(65000),
+    input: Str.repeat(65000)("[a"),
     expectedPattern: /(\[a){65000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "mismatched openers and closers",
-    input: "*a_ ".repeat(50000),
+    input: Str.repeat(50000)("*a_ "),
     expectedPattern: /([*]a[_] ){49999}[*]a_/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "openers and closers multiple of 3",
-    input: `a**b${"c* ".repeat(50000)}`,
+    input: `a**b${Str.repeat(50000)("c* ")}`,
     expectedPattern: /a[*][*]b(c[*] ){49999}c[*]/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "link openers and emph closers",
-    input: "[ a_".repeat(50000),
+    input: Str.repeat(50000)("[ a_"),
     expectedPattern: /(\[ a_){50000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "pattern [ (]( repeated",
-    input: "[ (](".repeat(80000),
+    input: Str.repeat(80000)("[ (]("),
     expectedPattern: /(\[ \(\]\(){80000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "pattern ![[]() repeated",
-    input: "![[]()".repeat(160000),
+    input: Str.repeat(160000)("![[]()"),
     expectedPattern: /(!\[<a href=""><\/a>){160000}/,
     timeoutMs: TIMEOUT_MS,
   },
@@ -157,19 +169,22 @@ export const PATHOLOGICAL_CASES: ReadonlyArray<PathologicalCase> = [
   },
   {
     name: "nested brackets",
-    input: `${"[".repeat(50000)}a${"]".repeat(50000)}`,
+    input: `${Str.repeat(50000)("[")}a${Str.repeat(50000)("]")}`,
     expectedPattern: /\[{50000}a\]{50000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "nested block quotes",
-    input: `${"> ".repeat(50000)}a`,
+    input: `${Str.repeat(50000)("> ")}a`,
     expectedPattern: /(<blockquote>\n){50000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "deeply nested lists",
-    input: Array.from({ length: 1000 }, (_, x) => `${"  ".repeat(x)}* a\n`).join(""),
+    input: A.join(
+      A.makeBy(1000, (x) => `${Str.repeat(x)("  ")}* a\n`),
+      ""
+    ),
     expectedPattern: /<ul>\n(<li>a\n<ul>\n){999}<li>a<\/li>\n<\/ul>\n(<\/li>\n<\/ul>\n){999}/,
     timeoutMs: TIMEOUT_MS,
   },
@@ -181,25 +196,28 @@ export const PATHOLOGICAL_CASES: ReadonlyArray<PathologicalCase> = [
   },
   {
     name: "backticks",
-    input: Array.from({ length: 4999 }, (_, x) => `e${"`".repeat(x + 1)}`).join(""),
+    input: A.join(
+      A.makeBy(4999, (x) => `e${Str.repeat(x + 1)("`")}`),
+      ""
+    ),
     expectedPattern: /^<p>[e`]*<\/p>\n$/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "unclosed links A",
-    input: "[a](<b".repeat(30000),
+    input: Str.repeat(30000)("[a](<b"),
     expectedPattern: /(\[a\]\(&lt;b){30000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "unclosed links B",
-    input: "[a](b".repeat(30000),
+    input: Str.repeat(30000)("[a](b"),
     expectedPattern: /(\[a\]\(b){30000}/,
     timeoutMs: TIMEOUT_MS,
   },
   {
     name: "unclosed <!--",
-    input: `</${"<!--".repeat(300000)}`,
+    input: `</${Str.repeat(300000)("<!--")}`,
     expectedPattern: /&lt;\/(&lt;!--){300000}/,
     timeoutMs: TIMEOUT_MS,
   },
@@ -214,7 +232,7 @@ export const PATHOLOGICAL_CASES: ReadonlyArray<PathologicalCase> = [
     // followed by a one-dash delimiter line ending in a vertical tab. A
     // naive table scanner re-walks the accumulated paragraph on every line.
     name: "tables",
-    input: "aaa\rbbb\n-\u000b\n".repeat(30000),
+    input: Str.repeat(30000)("aaa\rbbb\n-\u000b\n"),
     expectedPattern: new RegExp(
       "^<p>aaa</p>\\n<table>\\n<thead>\\n<tr>\\n<th>bbb</th>\\n</tr>\\n</thead>\\n<tbody>\\n" +
         "(<tr>\\n<td>aaa</td>\\n</tr>\\n<tr>\\n<td>bbb</td>\\n</tr>\\n<tr>\\n<td>-\\u000b</td>\\n</tr>\\n){29999}" +

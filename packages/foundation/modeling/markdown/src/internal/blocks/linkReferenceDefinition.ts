@@ -21,22 +21,96 @@
 
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
-import { makeBlockNode } from "../blockTypes.ts";
+import * as Str from "effect/String";
+import {
+  BlockConstruct,
+  containsNothing,
+  DefinitionData,
+  leafMaterializer,
+  makeBlockNode,
+  neverContinues,
+} from "../blockTypes.ts";
 import { trustedNode } from "../nodes.ts";
+import { unitAt } from "../patterns.ts";
 import { parseReference } from "../references.ts";
 import { sliceWithSegments, sourceOffsetAt } from "../segments.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import type { BlockNode } from "../blockTypes.ts";
 import type { Definition } from "../nodes.ts";
+import type { ParsedReference } from "../references.ts";
 
-const C_OPEN_BRACKET = 0x5b;
+const reTrailingSpace = /[ \t\r\n]+$/;
+const splitLines = Str.split("\n");
+
+/** The number of line endings inside `text`. */
+const newlinesIn = (text: string): number => splitLines(text).length - 1;
+
+/**
+ * The index the first split-out definition goes in at: `block`'s own
+ * position among its parent's children.
+ *
+ * **Details**
+ *
+ * Streaming finalization visits the last child, so that case is checked
+ * first; it avoids rescanning every preceding sibling for each
+ * definition-bearing paragraph, while an older child still finds its
+ * first-match position.
+ */
+const insertionIndexOf = (parent: BlockNode, block: BlockNode): number => {
+  const lastIndex = parent.children.length - 1;
+  return parent.children[lastIndex] === block
+    ? lastIndex
+    : O.getOrElse(
+        A.findFirstIndex(parent.children, (child) => child === block),
+        () => parent.children.length
+      );
+};
+
+/**
+ * The closed `definition` block for `reference`, found `consumedLength`
+ * characters into `block`'s content.
+ */
+const definitionBlock = (block: BlockNode, parent: BlockNode, consumedLength: number, reference: ParsedReference) => {
+  const consumed = Str.slice(consumedLength, consumedLength + reference.length)(block.stringContent);
+  const startOffset = sourceOffsetAt(block.segments, consumedLength, block.startOffset);
+  // The node ends at the definition's last content character. The parse
+  // consumes trailing whitespace and the line ending to validate the
+  // definition, but that consumption is not part of the node's span —
+  // mdast-util ends definitions at content end, pinned by the interop
+  // corpus.
+  const contentLength = Str.replace(reTrailingSpace, "")(consumed).length;
+
+  const node = makeBlockNode("definition", startOffset, block.startLine, block.depth);
+  node.parent = parent;
+  node.open = false;
+  node.endOffset = sourceOffsetAt(block.segments, consumedLength + contentLength, startOffset);
+  node.endLine = block.startLine + newlinesIn(Str.slice(0, contentLength)(consumed));
+  node.data.definition = DefinitionData.make({
+    key: reference.key,
+    identifier: reference.identifier,
+    label: reference.label,
+    url: reference.url,
+    ...O.getSomesStruct({ title: O.fromUndefinedOr(reference.title) }),
+  });
+  return { node, linesConsumed: newlinesIn(consumed) };
+};
+
+/**
+ * Rebase `block` onto what is left of its content once `consumedLength`
+ * characters of definitions have been split off.
+ */
+const rebaseRemainder = (block: BlockNode, consumedLength: number, endOffset: number): void => {
+  // Keep original coordinates throughout extraction, then rebase the suffix
+  // once. Retain the segment array without expanding it into call arguments.
+  const remaining = sliceWithSegments(block.segments, consumedLength, block.stringContent.length);
+  block.stringContent = Str.slice(consumedLength)(block.stringContent);
+  block.segments.length = 0;
+  for (const segment of remaining) block.segments.push(segment);
+  block.startOffset = remaining[0]?.sourceOffset ?? endOffset;
+};
+
+/** The next definition at `consumedLength` in `text`, when one starts there. */
+const referenceAt = (text: string, consumedLength: number): O.Option<ParsedReference> =>
+  unitAt(text, consumedLength) === "[" ? parseReference(Str.slice(consumedLength)(text)) : O.none();
 
 /**
  * Splits every leading link reference definition out of `block`, inserting one
@@ -81,65 +155,21 @@ export const extractDefinitions = (block: BlockNode): void => {
   let consumedLength = 0;
   let insertionIndex = 0;
   let endOffset = block.startOffset;
-  while (text.charCodeAt(consumedLength) === C_OPEN_BRACKET) {
-    const reference = parseReference(text.slice(consumedLength));
-    if (reference === undefined) {
-      break;
-    }
-
-    const consumed = text.slice(consumedLength, consumedLength + reference.length);
-    const startOffset = sourceOffsetAt(block.segments, consumedLength, block.startOffset);
-    const linesConsumed = (consumed.match(/\n/g) ?? []).length;
-    // The node ends at the definition's last content character. The parse
-    // consumes trailing whitespace and the line ending to validate the
-    // definition, but that consumption is not part of the node's span —
-    // mdast-util ends definitions at content end, pinned by the interop
-    // corpus.
-    const contentLength = consumed.replace(/[ \t\r\n]+$/, "").length;
-    endOffset = sourceOffsetAt(block.segments, consumedLength + contentLength, startOffset);
-    const contentLines = (consumed.slice(0, contentLength).match(/\n/g) ?? []).length;
-
-    const node = makeBlockNode("definition", startOffset, block.startLine, block.depth);
-    node.parent = parent;
-    node.open = false;
-    node.endOffset = endOffset;
-    node.endLine = block.startLine + contentLines;
-    node.data.definition = {
-      key: reference.key,
-      identifier: reference.identifier,
-      label: reference.label,
-      url: reference.url,
-      ...O.getSomesStruct({ title: O.fromUndefinedOr(reference.title) }),
-    };
-
+  for (let reference = referenceAt(text, 0); O.isSome(reference); reference = referenceAt(text, consumedLength)) {
+    const { node, linesConsumed } = definitionBlock(block, parent, consumedLength, reference.value);
+    endOffset = node.endOffset;
     if (consumedLength === 0) {
-      // Streaming finalization visits the last child. Avoid rescanning all
-      // preceding siblings for every definition-bearing paragraph, while
-      // retaining first-match insertion for callers extracting an older child.
-      const lastIndex = parent.children.length - 1;
-      insertionIndex =
-        parent.children[lastIndex] === block
-          ? lastIndex
-          : O.getOrElse(
-              A.findFirstIndex(parent.children, (child) => child === block),
-              () => parent.children.length
-            );
+      insertionIndex = insertionIndexOf(parent, block);
     }
     parent.children.splice(insertionIndex, 0, node);
     insertionIndex += 1;
 
-    consumedLength += reference.length;
+    consumedLength += reference.value.length;
     block.startLine += linesConsumed;
   }
-  if (consumedLength === 0) return;
-
-  // Keep original coordinates throughout extraction, then rebase the suffix
-  // once. Retain the segment array without expanding it into call arguments.
-  const remaining = sliceWithSegments(block.segments, consumedLength, text.length);
-  block.stringContent = text.slice(consumedLength);
-  block.segments.length = 0;
-  for (const segment of remaining) block.segments.push(segment);
-  block.startOffset = remaining[0]?.sourceOffset ?? endOffset;
+  if (consumedLength > 0) {
+    rebaseRemainder(block, consumedLength, endOffset);
+  }
 };
 
 /**
@@ -162,30 +192,21 @@ export const extractDefinitions = (block: BlockNode): void => {
  * @category parsing
  * @since 0.0.0
  */
-export const definitionConstruct: BlockConstruct = {
-  type: "definition",
-  acceptsLines: false,
-  canContain: () => false,
-  continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined => {
-      const definition = block.data.definition;
-      if (definition === undefined) {
-        return undefined;
-      }
-      return trustedNode<Definition>({
-        type: "definition",
-        identifier: definition.identifier,
-        label: definition.label,
-        url: definition.url,
-        position: context.position(block.startOffset, block.endOffset),
-        ...O.getSomesStruct({ title: O.fromUndefinedOr(definition.title) }),
-      });
+export const definitionConstruct = new BlockConstruct("definition", false, {
+  canContain: containsNothing,
+  continue: neverContinues,
+  materialize: leafMaterializer((block, context) => {
+    const definition = block.data.definition;
+    if (definition === undefined) {
+      return undefined;
     }
-  ),
-};
+    return trustedNode<Definition>({
+      type: "definition",
+      identifier: definition.identifier,
+      label: definition.label,
+      url: definition.url,
+      position: context.position(block.startOffset, block.endOffset),
+      ...O.getSomesStruct({ title: O.fromUndefinedOr(definition.title) }),
+    });
+  }),
+});

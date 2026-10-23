@@ -1,143 +1,23 @@
-import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { makeInlineNode } from "@beep/markdown/internal/inlineNode";
 import { DelimiterRun, scanDelims } from "@beep/markdown/internal/inlines/emphasis";
-import { Markdown } from "@beep/markdown/Markdown";
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-import { MarkdownEdit } from "@beep/markdown/MarkdownEdit";
-import { MarkdownFormat, MarkdownFormattingOptions } from "@beep/markdown/MarkdownFormat";
-import { assert, describe, it } from "@effect/vitest";
+import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { InlineNode } from "@beep/markdown/internal/inlineNode";
-import type { InlineScanner } from "@beep/markdown/internal/inlineTypes";
+import { fakeScanner } from "./fakeScanner.ts";
+import { describeConstructFloor, floorRuns } from "./propertyFloor.ts";
 
-const scannerFor = (subject: string): InlineScanner => {
-  const scanner: InlineScanner = {
-    subject,
-    pos: 0,
-    refmap: HashMap.empty(),
-    footnoteLabels: HashSet.empty(),
-    delimiters: undefined,
-    brackets: undefined,
-    peek: () => O.getOrElse(Str.charCodeAt(subject, scanner.pos), () => -1),
-    match: (pattern) => {
-      const matched = pattern.exec(subject.slice(scanner.pos));
-      if (matched === null || matched.index !== 0) return undefined;
-      const value = matched[0];
-      scanner.pos += value.length;
-      return value;
-    },
-    matchAhead: () => undefined,
-    hasAhead: () => false,
-    closingBacktickRun: dual(2, (_from: number, _length: number): number | undefined => undefined),
-    append: () => {},
-    appendText: dual(
-      3,
-      (value: string, from: number, to: number): InlineNode => makeInlineNode("text", from, to, value)
-    ),
-    lastChild: () => undefined,
-    unputText: () => false,
-    trimTrailingSpaces: () => 0,
-    removeDelimiter: () => {},
-    addBracket: dual(3, (_node: InlineNode, _index: number, _image: boolean): void => {}),
-    removeBracket: () => {},
-    deactivateLinkOpeners: () => {},
-    processEmphasis: () => {},
-  };
-  return scanner;
-};
-
-const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({
   marker: S.Literals(["*", "_", "**", "__", "***"]),
   content: S.Array(S.Literals(["a", "b", "é", "😀"])),
 });
 const sources = Arbitrary.schema(Sample).pipe(
-  Arbitrary.map((sample) => `prefix ${sample.marker}x${sample.content.join("")}y${sample.marker} suffix`)
+  Arbitrary.map((sample) => `prefix ${sample.marker}x${A.join(sample.content, "")}y${sample.marker} suffix`)
 );
-// Positions and concrete marker spelling change when the canonical renderer emits new source.
-const meaning = (root: unknown) =>
-  JSON.stringify(root, (key, value: unknown) =>
-    [
-      "position",
-      "headingStyle",
-      "markerChar",
-      "fenceChar",
-      "fenceLength",
-      "bulletChar",
-      "delimiter",
-      "breakStyle",
-    ].includes(key)
-      ? undefined
-      : value
-  );
-
-describe("emphasis parser property floor", () => {
-  it.effect.prop(
-    "parse(stringify(parse(x))) preserves inline meaning",
-    [sources],
-    ([source]) =>
-      Effect.gen(function* () {
-        const parsed = yield* Markdown.parse(source);
-        const canonical = yield* Markdown.stringify(parsed);
-        const reparsed = yield* Markdown.parse(canonical);
-        assert.deepStrictEqual(meaning(reparsed), meaning(parsed));
-      }),
-    runs
-  );
-
-  it.effect.prop(
-    "canonical inline formatting is idempotent",
-    [sources],
-    ([source]) =>
-      Effect.gen(function* () {
-        const once = yield* Markdown.stringify(yield* Markdown.parse(source));
-        const twice = yield* Markdown.stringify(yield* Markdown.parse(once));
-        assert.strictEqual(twice, once);
-      }),
-    runs
-  );
-
-  it.effect.prop(
-    "marker normalization is idempotent and preserves inline meaning",
-    [sources],
-    ([source]) =>
-      Effect.gen(function* () {
-        const options = MarkdownFormattingOptions.make({ emphasisChar: "_" });
-        const once = MarkdownFormat.formatToString(source, undefined, options);
-        assert.strictEqual(MarkdownFormat.formatToString(once, undefined, options), once);
-        assert.deepStrictEqual(meaning(yield* Markdown.parse(once)), meaning(yield* Markdown.parse(source)));
-      }),
-    runs
-  );
-
-  it.effect.prop(
-    "README surgical-edit guarantee preserves surrounding bytes",
-    [sources, Arbitrary.schema(S.String)],
-    ([inline, replacement]) =>
-      Effect.gen(function* () {
-        const source = `<!-- keep  spacing -->\n\n# Target\n\n${inline}\n\n<!-- keep tail -->\n`;
-        const doc = yield* MarkdownDocument.parse(source);
-        const target = doc.find("text");
-        if (target === undefined) return assert.fail("expected heading text");
-        const edits = yield* MarkdownFormat.modify(doc, target, replacement);
-        const edit = edits[0];
-        if (edit === undefined) return assert.fail("expected replacement edit");
-        const changed = MarkdownEdit.applyAll(source, edits);
-        assert.strictEqual(changed.slice(0, edit.offset), source.slice(0, edit.offset));
-        assert.strictEqual(changed.slice(edit.offset + edit.content.length), source.slice(edit.offset + edit.length));
-        yield* Markdown.parse(changed);
-      }),
-    runs
-  );
-});
+describeConstructFloor({ name: "emphasis", sources });
 
 it.effect.prop(
   "DelimiterRun decode(encode(x)) equals x and never fails",
@@ -149,7 +29,7 @@ it.effect.prop(
       assertTrue(S.toEquivalence(DelimiterRun)(decoded, value));
       assert.deepStrictEqual(yield* S.encodeEffect(DelimiterRun)(decoded), encoded);
     }),
-  runs
+  floorRuns
 );
 
 it.effect.prop(
@@ -166,20 +46,22 @@ it.effect.prop(
   ],
   ([sample]) =>
     Effect.sync(() => {
-      const subject = `${sample.before}${sample.marker.repeat(sample.count)}${sample.after}`;
-      const scanner = scannerFor(subject);
+      const subject = `${sample.before}${Str.repeat(sample.count)(sample.marker)}${sample.after}`;
+      const scanner = fakeScanner(subject);
       scanner.pos = sample.before.length;
-      const once = scanDelims(scanner, sample.marker.charCodeAt(0));
-      assert.deepStrictEqual(scanDelims(sample.marker.charCodeAt(0))(scanner), once);
+      const once = scanDelims(scanner, sample.marker);
+      assert.deepStrictEqual(scanDelims(sample.marker)(scanner), once);
       assert.strictEqual(scanner.pos, sample.before.length);
       assert.deepStrictEqual(
         once,
-        O.some({
-          numdelims: sample.count,
-          canOpen: true,
-          canClose: (sample.before === "!" || sample.before === "😀") && sample.after === "😀",
-        })
+        O.some(
+          DelimiterRun.make({
+            numdelims: sample.count,
+            canOpen: true,
+            canClose: (sample.before === "!" || sample.before === "😀") && sample.after === "😀",
+          })
+        )
       );
     }),
-  runs
+  floorRuns
 );

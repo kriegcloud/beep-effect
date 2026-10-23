@@ -7,7 +7,6 @@
 
 import { $MarkdownId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import * as Data from "effect/Data";
 import * as S from "effect/Schema";
 
 const $I = $MarkdownId.create("internal/carriers");
@@ -74,38 +73,48 @@ export type MarkdownParseErrorCodeRaw = typeof MarkdownParseErrorCodeRaw.Type;
  * import { RawDiagnostic } from "@beep/markdown/internal/carriers"
  *
  * const diagnostic = RawDiagnostic.make({ code: "NestingDepthExceeded", message: "too deep", offset: 7, length: 2 })
- * diagnostic.offset // => 7
+ * console.log(diagnostic.offset) // 7
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const RawDiagnostic = S.Struct({
-  code: MarkdownParseErrorCodeRaw.pipe(
-    $I.annoteKey("RawDiagnostic.code", { description: "Parse condition reported by the engine." })
-  ),
-  message: S.String.pipe(
-    $I.annoteKey("RawDiagnostic.message", { description: "Human-readable explanation of the parse condition." })
-  ),
-  offset: S.Finite.pipe(
-    $I.annoteKey("RawDiagnostic.offset", { description: "Zero-based UTF-16 source offset of the parse condition." })
-  ),
-  length: S.Finite.pipe(
-    $I.annoteKey("RawDiagnostic.length", { description: "Extent of the source span in UTF-16 code units." })
-  ),
-}).pipe(
-  $I.annoteSchema("RawDiagnostic", {
-    description: "An engine diagnostic record before public source coordinates are materialized.",
-  })
-);
+export class RawDiagnostic extends S.Opaque<RawDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
+    code: MarkdownParseErrorCodeRaw.pipe(
+      $I.annoteKey("RawDiagnostic.code", { description: "Parse condition reported by the engine." })
+    ),
+    message: S.String.pipe(
+      $I.annoteKey("RawDiagnostic.message", { description: "Human-readable explanation of the parse condition." })
+    ),
+    offset: S.Finite.pipe(
+      $I.annoteKey("RawDiagnostic.offset", { description: "Zero-based UTF-16 source offset of the parse condition." })
+    ),
+    length: S.Finite.pipe(
+      $I.annoteKey("RawDiagnostic.length", { description: "Extent of the source span in UTF-16 code units." })
+    ),
+  }).pipe(
+    $I.annoteSchema("RawDiagnostic", {
+      description: "An engine diagnostic record before public source coordinates are materialized.",
+    })
+  )
+) {}
 
 /**
- * The schema-derived engine diagnostic payload, retaining its plain-record representation.
+ * Companion types for {@link RawDiagnostic}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type RawDiagnostic = typeof RawDiagnostic.Type;
+export declare namespace RawDiagnostic {
+  /**
+   * The plain diagnostic record: a constructed {@link RawDiagnostic} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RawDiagnostic.Encoded;
+}
 
 /**
  * The engine's carrier for a recoverable-turned-fatal parse condition.
@@ -115,7 +124,7 @@ export type RawDiagnostic = typeof RawDiagnostic.Type;
  * ```ts
  * import { RawMarkdownError } from "@beep/markdown/internal/carriers"
  *
- * const error = new RawMarkdownError({
+ * const error = RawMarkdownError.make({
  *   code: "NestingDepthExceeded",
  *   message: "Markdown nesting exceeds the limit",
  *   offset: 12,
@@ -128,10 +137,15 @@ export type RawDiagnostic = typeof RawDiagnostic.Type;
  * @category errors
  * @since 0.0.0
  */
-export class RawMarkdownError extends Data.TaggedError("RawMarkdownError")<{
-  readonly diagnostic: RawDiagnostic;
-  readonly message: string;
-}> {
+export class RawMarkdownError extends S.TaggedError<RawMarkdownError, { readonly brand: unique symbol }>(
+  $I`RawMarkdownError`
+)(
+  "RawMarkdownError",
+  RawDiagnostic.fields,
+  $I.annoteError<RawMarkdownError>("RawMarkdownError", {
+    description: "The engine's diagnostic throw carrier, caught by the public facade.",
+  })
+) {
   /**
    * Preserves the standard error name on the raw parse-condition carrier.
    *
@@ -140,7 +154,7 @@ export class RawMarkdownError extends Data.TaggedError("RawMarkdownError")<{
    * ```ts
    * import { RawMarkdownError } from "@beep/markdown/internal/carriers"
    *
-   * const error = new RawMarkdownError({
+   * const error = RawMarkdownError.make({
    *   code: "NestingDepthExceeded",
    *   message: "Nesting limit exceeded",
    *   offset: 0,
@@ -149,24 +163,48 @@ export class RawMarkdownError extends Data.TaggedError("RawMarkdownError")<{
    * console.log(error.name) // Error
    * ```
    *
-   * @category constants
+   * @category getters
    * @since 0.0.0
    */
   override readonly name = "Error";
-  constructor(diagnostic: RawDiagnostic) {
-    super({ diagnostic, message: diagnostic.message });
-  }
+
+  /**
+   * Exposes the carried code, message and source span as a raw diagnostic record.
+   *
+   * **Example** (Read the carried diagnostic offset)
+   *
+   * ```ts
+   * import { RawMarkdownError } from "@beep/markdown/internal/carriers"
+   *
+   * const error = RawMarkdownError.make({
+   *   code: "NestingDepthExceeded",
+   *   message: "Nesting limit exceeded",
+   *   offset: 3,
+   *   length: 1
+   * })
+   * console.log(error.diagnostic.offset) // 3
+   * ```
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  readonly diagnostic: RawDiagnostic = RawDiagnostic.make({
+    code: this.code,
+    message: this.message,
+    offset: this.offset,
+    length: this.length,
+  });
 }
 
 /**
- * Narrows `unknown` to {@link RawMarkdownError}; never a bare `instanceof` at a call site.
+ * Recognizes the raw parse-condition carrier; never a bare `instanceof` at a call site.
  *
  * **Example** (Recognize a raw parse error)
  *
  * ```ts
  * import { RawMarkdownError, isRawMarkdownError } from "@beep/markdown/internal/carriers"
  *
- * const error: unknown = new RawMarkdownError({
+ * const error: unknown = RawMarkdownError.make({
  *   code: "NestingDepthExceeded",
  *   message: "Nesting limit exceeded",
  *   offset: 0,
@@ -179,7 +217,7 @@ export class RawMarkdownError extends Data.TaggedError("RawMarkdownError")<{
  * @category predicates
  * @since 0.0.0
  */
-export const isRawMarkdownError = (u: unknown): u is RawMarkdownError => u instanceof RawMarkdownError;
+export const isRawMarkdownError = S.is(RawMarkdownError);
 
 /**
  * The reasons a guard can trip; mirrors {@link MarkdownParseErrorCodeRaw}'s guard members.
@@ -189,13 +227,18 @@ export const isRawMarkdownError = (u: unknown): u is RawMarkdownError => u insta
  */
 export type GuardReason = MarkdownParseErrorCodeRaw;
 
+/** The guard-trip message: the reason, the configured limit and the observed depth. */
+const guardMessage = (reason: GuardReason, limit: number, actual: number): string =>
+  `${reason}: limit ${limit}, actual ${actual}`;
+
 /**
  * Signals that the engine exceeded a hardening cap.
  *
  * **Details**
  *
  * The engine throws this raw guard-trip signal when a hardening cap
- * (`MAX_NESTING_DEPTH`) is exceeded.
+ * (`MAX_NESTING_DEPTH`) is exceeded. Build it with {@link GuardExceeded.new},
+ * which derives the message from the reason, limit and observed depth.
  *
  * **Gotchas**
  *
@@ -208,7 +251,7 @@ export type GuardReason = MarkdownParseErrorCodeRaw;
  * ```ts
  * import { GuardExceeded } from "@beep/markdown/internal/carriers"
  *
- * const error = new GuardExceeded("NestingDepthExceeded", 128, 129, 12)
+ * const error = GuardExceeded.new("NestingDepthExceeded", 128, 129, 12)
  * console.log(error.message) // NestingDepthExceeded: limit 128, actual 129
  * console.log(error.offset) // 12
  * ```
@@ -216,13 +259,44 @@ export type GuardReason = MarkdownParseErrorCodeRaw;
  * @category errors
  * @since 0.0.0
  */
-export class GuardExceeded extends Data.TaggedError("GuardExceeded")<{
-  readonly reason: GuardReason;
-  readonly limit: number;
-  readonly actual: number;
-  readonly offset: number;
-  readonly message: string;
-}> {
+export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand: unique symbol }>($I`GuardExceeded`)(
+  "GuardExceeded",
+  {
+    reason: MarkdownParseErrorCodeRaw.pipe(
+      $I.annoteKey("GuardExceeded.reason", { description: "The engine guard that exceeded its limit." })
+    ),
+    offset: RawDiagnostic.fields.offset.pipe(
+      $I.annoteKey("GuardExceeded.offset", { description: "Source offset where the guard tripped." })
+    ),
+    limit: S.Finite.pipe($I.annoteKey("GuardExceeded.limit", { description: "The configured nesting limit." })),
+    actual: S.Finite.pipe($I.annoteKey("GuardExceeded.actual", { description: "The observed nesting depth." })),
+    message: RawDiagnostic.fields.message.pipe(
+      $I.annoteKey("GuardExceeded.message", { description: "The reason, configured limit and observed depth." })
+    ),
+  },
+  $I.annoteError<GuardExceeded>("GuardExceeded", {
+    description: "A raw nesting guard trip materialized into a diagnostic by the facade.",
+  })
+) {
+  /**
+   * Builds a guard-trip signal whose message names the reason, limit and observed depth.
+   *
+   * **Example** (Retain the offending offset)
+   *
+   * ```ts
+   * import { GuardExceeded } from "@beep/markdown/internal/carriers"
+   *
+   * const error = GuardExceeded.new("NestingDepthExceeded", 256, 257, 12)
+   * console.log(error.offset) // 12
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static new(reason: GuardReason, limit: number, actual: number, offset: number): GuardExceeded {
+    return GuardExceeded.make({ reason, offset, limit, actual, message: guardMessage(reason, limit, actual) });
+  }
+
   /**
    * Preserves the standard error name on the raw guard-trip signal.
    *
@@ -231,28 +305,25 @@ export class GuardExceeded extends Data.TaggedError("GuardExceeded")<{
    * ```ts
    * import { GuardExceeded } from "@beep/markdown/internal/carriers"
    *
-   * const error = new GuardExceeded("NestingDepthExceeded", 128, 129, 12)
+   * const error = GuardExceeded.new("NestingDepthExceeded", 128, 129, 12)
    * console.log(error.name) // Error
    * ```
    *
-   * @category constants
+   * @category getters
    * @since 0.0.0
    */
   override readonly name = "Error";
-  constructor(reason: GuardReason, limit: number, actual: number, offset: number) {
-    super({ reason, limit, actual, offset, message: `${reason}: limit ${limit}, actual ${actual}` });
-  }
 }
 
 /**
- * Narrows `unknown` to {@link GuardExceeded}; never a bare `instanceof` at a call site.
+ * Recognizes a guard-trip signal; never a bare `instanceof` at a call site.
  *
  * **Example** (Recognize a guard signal)
  *
  * ```ts
  * import { GuardExceeded, isGuardExceeded } from "@beep/markdown/internal/carriers"
  *
- * const error: unknown = new GuardExceeded("NestingDepthExceeded", 128, 129, 12)
+ * const error: unknown = GuardExceeded.new("NestingDepthExceeded", 128, 129, 12)
  * console.log(isGuardExceeded(error)) // true
  * console.log(isGuardExceeded("NestingDepthExceeded")) // false
  * ```
@@ -260,4 +331,4 @@ export class GuardExceeded extends Data.TaggedError("GuardExceeded")<{
  * @category predicates
  * @since 0.0.0
  */
-export const isGuardExceeded = (u: unknown): u is GuardExceeded => u instanceof GuardExceeded;
+export const isGuardExceeded = S.is(GuardExceeded);

@@ -10,36 +10,48 @@
 // The tag grammar lives in `htmlTags.ts`, shared with the inline pass, which
 // matches the full `HTMLTAG` union this file's type 7 is a subset of.
 
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import { BlockConstruct, BlockStart, containsNothing, leafMaterializer } from "../blockTypes.ts";
 import { CLOSETAG, OPENTAG } from "../htmlTags.ts";
 import { trustedNode } from "../nodes.ts";
-import { peekCode } from "../preprocess.ts";
-import type {
-  BlockConstruct,
-  BlockContinueResult,
-  BlockNode,
-  BlockScanner,
-  BlockStart,
-  BlockStartResult,
-  MaterializeContext,
-  MaterializedBlock,
-} from "../blockTypes.ts";
+import { unitAt } from "../patterns.ts";
+import type { BlockContinueResult, BlockNode, BlockScanner, BlockStartResult } from "../blockTypes.ts";
 import type { Html } from "../nodes.ts";
 
-const C_LESSTHAN = 0x3c;
-
-// Index 0 is a placeholder so the array is indexed by the spec's 1-based
-// block type, exactly as upstream's is.
+// The open conditions of block types 1 through 6, in the spec's order: the
+// entry at index `i` opens type `i + 1`. Type 7 is separate because it alone
+// may not interrupt a paragraph.
 const reHtmlBlockOpen: ReadonlyArray<RegExp> = [
-  /./,
   /^<(?:script|pre|textarea|style)(?:\s|>|$)/i,
   /^<!--/,
   /^<[?]/,
   /^<![A-Za-z]/,
   /^<!\[CDATA\[/,
   /^<[/]?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[123456]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|section|search|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)(?:\s|[/]?[>]|$)/i,
-  new RegExp(`^(?:${OPENTAG}|${CLOSETAG})\\s*$`, "i"),
 ];
+
+const reHtmlBlockOpen7 = new RegExp(`^(?:${OPENTAG}|${CLOSETAG})\\s*$`, "i");
+
+const reTrailingNewline = /\n$/;
+
+/**
+ * Type 7 may not interrupt a paragraph, nor be opened by a line that is about
+ * to become a lazy continuation of one.
+ */
+const mayOpenType7 = (scanner: BlockScanner, container: BlockNode): boolean =>
+  container.type !== "paragraph" && !(!scanner.allClosed && !scanner.blank && scanner.tip.type === "paragraph");
+
+/** The first block type whose open condition `rest` meets, or `0` for none. */
+const openingType = (rest: string, scanner: BlockScanner, container: BlockNode): number => {
+  const found = A.findFirstIndex(reHtmlBlockOpen, (pattern) => pattern.test(rest));
+  if (O.isSome(found)) {
+    return found.value + 1;
+  }
+  return reHtmlBlockOpen7.test(rest) && mayOpenType7(scanner, container) ? 7 : 0;
+};
 
 const reHtmlBlockClose: ReadonlyArray<RegExp> = [/./, /<\/(?:script|pre|textarea|style)>/i, /-->/, /\?>/, />/, /\]\]>/];
 
@@ -97,32 +109,24 @@ export const isHtmlBlockEnd: {
  * @category parsing
  * @since 0.0.0
  */
-export const htmlBlockConstruct: BlockConstruct = {
-  type: "html",
-  acceptsLines: true,
-  canContain: () => false,
+export const htmlBlockConstruct = new BlockConstruct("html", true, {
+  canContain: containsNothing,
   continue: dual(2, (scanner: BlockScanner, block: BlockNode): BlockContinueResult => {
     const type = block.data.htmlBlockType;
     // Types 6 and 7 have no closing pattern: a blank line ends them.
     return scanner.blank && (type === 6 || type === 7) ? 1 : 0;
   }),
   finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
-    block.stringContent = block.stringContent.replace(/\n$/, "");
+    block.stringContent = Str.replace(reTrailingNewline, "")(block.stringContent);
   }),
-  materialize: dual(
-    3,
-    (
-      block: BlockNode,
-      _children: ReadonlyArray<MaterializedBlock>,
-      context: MaterializeContext
-    ): MaterializedBlock | undefined =>
-      trustedNode<Html>({
-        type: "html",
-        value: block.stringContent,
-        position: context.position(block.startOffset, block.endOffset),
-      })
+  materialize: leafMaterializer((block, context) =>
+    trustedNode<Html>({
+      type: "html",
+      value: block.stringContent,
+      position: context.position(block.startOffset, block.endOffset),
+    })
   ),
-};
+});
 
 /**
  * Opens an HTML block using one of seven open conditions after an unindented `<`.
@@ -144,33 +148,23 @@ export const htmlBlockConstruct: BlockConstruct = {
  * @category parsing
  * @since 0.0.0
  */
-export const htmlBlockStart: BlockStart = {
-  name: "htmlBlock",
-  trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
-    if (scanner.indented || peekCode(scanner.currentLine, scanner.nextNonspace) !== C_LESSTHAN) {
+export const htmlBlockStart = new BlockStart(
+  "htmlBlock",
+  dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
+    if (scanner.indented || unitAt(scanner.currentLine, scanner.nextNonspace) !== "<") {
       return 0;
     }
 
-    const rest = scanner.currentLine.slice(scanner.nextNonspace);
-    for (const [index, pattern] of reHtmlBlockOpen.slice(1).entries()) {
-      const blockType = index + 1;
-      const opens = pattern.test(rest);
-      // Type 7 may not interrupt a paragraph, nor be opened by a line
-      // that is about to become a lazy continuation of one.
-      const mayOpen =
-        blockType < 7 ||
-        (container.type !== "paragraph" && !(!scanner.allClosed && !scanner.blank && scanner.tip.type === "paragraph"));
-
-      if (opens && mayOpen) {
-        scanner.closeUnmatchedBlocks();
-        // The scan position is deliberately not advanced: leading
-        // spaces are part of the HTML block's content.
-        const block = scanner.addChild("html", scanner.offset);
-        block.data.htmlBlockType = blockType;
-        return 2;
-      }
+    const blockType = openingType(Str.slice(scanner.nextNonspace)(scanner.currentLine), scanner, container);
+    if (blockType === 0) {
+      return 0;
     }
 
-    return 0;
-  }),
-};
+    scanner.closeUnmatchedBlocks();
+    // The scan position is deliberately not advanced: leading spaces are
+    // part of the HTML block's content.
+    const block = scanner.addChild("html", scanner.offset);
+    block.data.htmlBlockType = blockType;
+    return 2;
+  })
+);

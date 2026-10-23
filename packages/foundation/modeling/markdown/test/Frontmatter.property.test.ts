@@ -12,11 +12,12 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
-    name + ": decoding an encoding succeeds and preserves the value",
+    `${name}: decoding an encoding succeeds and preserves the value`,
     [Arbitrary.schema(schema)],
     ([value]) =>
       Effect.gen(function* () {
@@ -51,7 +52,7 @@ it.effect.prop(
       const document = yield* MarkdownDocument.parse(body);
       const write = MarkdownFrontmatter.setToString(Meta, JsonFrontmatter);
       const source = yield* write(document, value);
-      assert.isTrue(source.endsWith(body));
+      assert.isTrue(Str.endsWith(body)(source));
       const captured = yield* MarkdownDocument.parse(source, MarkdownParseOptions.make({ frontmatter: true }));
       const decoded = yield* MarkdownFrontmatter.schema(Meta, JsonFrontmatter)(captured);
       assert.isTrue(S.toEquivalence(Meta)(decoded, value));

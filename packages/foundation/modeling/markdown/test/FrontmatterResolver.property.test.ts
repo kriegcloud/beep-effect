@@ -13,13 +13,15 @@ import {
 } from "@beep/markdown/FrontmatterResolver";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
-    name + ": decoding an encoding succeeds and preserves the value",
+    `${name}: decoding an encoding succeeds and preserves the value`,
     [Arbitrary.schema(schema)],
     ([value]) =>
       Effect.gen(function* () {
@@ -58,7 +60,10 @@ it.effect.prop(
   ([sample]) =>
     Effect.sync(() => {
       const name = sample.scoped ? `@scope/${sample.name}` : sample.name;
-      const version = sample.segments.map((segment) => `00${segment}`).join(".");
+      const version = A.join(
+        A.map(sample.segments, (segment) => `00${segment}`),
+        "."
+      );
       const source = sample.versioned ? `${name}@${version}` : name;
       const expected = sample.versioned
         ? SchemaDeclarationByName.make({ name, version })
@@ -77,7 +82,7 @@ it.effect.prop(
   ([suffix, document]) =>
     Effect.sync(() => {
       for (const source of [`https://example.test/${suffix}`, `./${suffix}`, `../${suffix}`, `/${suffix}`]) {
-        const expected = source.includes("://")
+        const expected = Str.includes("://")(source)
           ? SchemaDeclarationByUrl.make({ url: source })
           : SchemaDeclarationByPath.make({ path: source });
         assertSuccess(SchemaResolver.classify(source), expected);

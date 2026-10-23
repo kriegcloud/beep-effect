@@ -1,8 +1,7 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -11,12 +10,11 @@ import { stringifyTree } from "@beep/markdown/internal/stringify";
 import { Paragraph, Point, Position, Root } from "@beep/markdown/MarkdownNode";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import { codePointWord } from "./inlines/propertyFloor.ts";
 import type { BlockNode } from "@beep/markdown/internal/blockTypes";
 import type { Definition } from "@beep/markdown/MarkdownNode";
 
-const prose = Arbitrary.schema(S.String).pipe(
-  Arbitrary.map((value) => `word${Array.from(value, (char) => char.codePointAt(0)?.toString(16)).join("")}`)
-);
+const prose = codePointWord("word");
 const position: {
   (start: number, end: number): Position;
   (end: number): (start: number) => Position;
@@ -70,8 +68,8 @@ describe("raw inline properties", () => {
         const second = prepareInline(position, HashMap.empty<string, Definition>())(block(emitted));
         assert.strictEqual(second.text, first.text);
         assert.deepStrictEqual(
-          second.children.map((node) => (node.type === "text" ? node.value : node.type)),
-          first.children.map((node) => (node.type === "text" ? node.value : node.type))
+          A.map(second.children, (node) => (node.type === "text" ? node.value : node.type)),
+          A.map(first.children, (node) => (node.type === "text" ? node.value : node.type))
         );
         assert.strictEqual(emit(second.children), emitted);
       }),

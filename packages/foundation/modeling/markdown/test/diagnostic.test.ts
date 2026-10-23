@@ -99,14 +99,14 @@ describe("MarkdownDiagnostic", () => {
   });
 
   it("RawMarkdownError carries its diagnostic and is recognized by its predicate", () => {
-    const e = new RawMarkdownError({ code: "NestingDepthExceeded", message: "m", offset: 0, length: 1 });
+    const e = RawMarkdownError.make({ code: "NestingDepthExceeded", message: "m", offset: 0, length: 1 });
     assert.strictEqual(e.diagnostic.code, "NestingDepthExceeded");
     assert.isTrue(isRawMarkdownError(e));
     assert.isFalse(isRawMarkdownError(new Error("m")));
   });
 
   it("GuardExceeded carries its guard-trip fields and is recognized by its predicate", () => {
-    const e = new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, 300, 42);
+    const e = GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, 300, 42);
     assert.strictEqual(e.reason, "NestingDepthExceeded");
     assert.strictEqual(e.limit, MAX_NESTING_DEPTH);
     assert.strictEqual(e.actual, 300);
@@ -116,8 +116,8 @@ describe("MarkdownDiagnostic", () => {
   });
 
   it("distinguishes RawMarkdownError from GuardExceeded via predicates", () => {
-    const raw = new RawMarkdownError({ code: "NestingDepthExceeded", message: "m", offset: 0, length: 1 });
-    const guard = new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, 300, 42);
+    const raw = RawMarkdownError.make({ code: "NestingDepthExceeded", message: "m", offset: 0, length: 1 });
+    const guard = GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, 300, 42);
     assert.isFalse(isRawMarkdownError(guard));
     assert.isFalse(isGuardExceeded(raw));
   });

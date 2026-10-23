@@ -1,15 +1,20 @@
-// The `Markdown` facade: the pure `parseResult` primitive, the `Effect`
-// `parse` defined in terms of it, the parse options and the
-// `MarkdownFromString` schema codec.
-//
-// Cycle firewall: the internal engine throws raw carriers (`GuardExceeded`
-// from a hardening cap, `RawMarkdownError` for a fatal engine condition);
-// this module materializes `MarkdownDiagnostic` instances (deriving
-// `line`/`character` from `offset`) and constructs the tagged
-// `MarkdownParseError`. Anything else that escapes the engine is a
-// programmer error and is rethrown untouched — a defect, never a typed
-// failure. The dependency edge runs facade -> engine only, so
-// `noImportCycles` stays satisfied.
+/**
+ * The `Markdown` facade: the pure `parseResult` primitive, the `Effect`
+ * `parse` defined in terms of it, the parse options and the
+ * `MarkdownFromString` schema codec.
+ *
+ * Cycle firewall: the internal engine throws raw carriers (`GuardExceeded`
+ * from a hardening cap, `RawMarkdownError` for a fatal engine condition);
+ * this module materializes `MarkdownDiagnostic` instances (deriving
+ * `line`/`character` from `offset`) and constructs the tagged
+ * `MarkdownParseError`. Anything else that escapes the engine is a
+ * programmer error and is rethrown untouched — a defect, never a typed
+ * failure. The dependency edge runs from the facade to the engine only, so
+ * `noImportCycles` stays satisfied.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MarkdownId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
@@ -99,10 +104,8 @@ export type MarkdownDialect = typeof MarkdownDialect.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class MarkdownParseOptions extends S.Class<MarkdownParseOptions, { readonly brand: unique symbol }>(
-  $I`MarkdownParseOptions`
-)(
-  {
+export class MarkdownParseOptions extends S.Opaque<MarkdownParseOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dialect: S.optionalKey(MarkdownDialect).pipe(
       $I.annoteKey("MarkdownParseOptions.dialect", {
         description: "Markdown grammar to apply: `gfm` by default, or `commonmark` without GitHub extensions",
@@ -114,12 +117,30 @@ export class MarkdownParseOptions extends S.Class<MarkdownParseOptions, { readon
           "Whether to capture an opening YAML, TOML or JSON frontmatter block as a raw node; disabled by default",
       })
     ),
-  },
-  $I.annote("MarkdownParseOptions", {
-    description:
-      'Options controlling parse behavior: `dialect` (omitted, `"gfm"`) and `frontmatter` (omitted, `false` — capture is opt-in).',
-  })
+  }).pipe(
+    $I.annoteSchema("MarkdownParseOptions", {
+      description:
+        'Options controlling parse behavior: `dialect` (omitted, `"gfm"`) and `frontmatter` (omitted, `false` — capture is opt-in).',
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link MarkdownParseOptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace MarkdownParseOptions {
+  /**
+   * The plain options object every parse entry point accepts: a constructed
+   * {@link MarkdownParseOptions} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof MarkdownParseOptions.Encoded;
+}
 
 /**
  * Parse failure: the {@link MarkdownDiagnostic} describing why the document
@@ -282,7 +303,7 @@ const PhrasingChildren = S.Array(PhrasingContent);
  * base dialect the registries compose on top of. The facade always passes
  * this resolved value explicitly, so the two defaults never interact.
  */
-const dialectOf = (options?: MarkdownParseOptions): MarkdownDialect => options?.dialect ?? "gfm";
+const dialectOf = (options?: MarkdownParseOptions.Encoded): MarkdownDialect => options?.dialect ?? "gfm";
 
 /**
  * Whether an options object opts into frontmatter capture. The default —
@@ -290,7 +311,7 @@ const dialectOf = (options?: MarkdownParseOptions): MarkdownDialect => options?.
  * a `---` at offset 0 parses, so the spec-conformant reading is the default
  * and frontmatter is the consumer's explicit choice.
  */
-const frontmatterOf = (options?: MarkdownParseOptions): boolean => options?.frontmatter ?? false;
+const frontmatterOf = (options?: MarkdownParseOptions.Encoded): boolean => options?.frontmatter ?? false;
 
 /**
  * Run the block pass, converting the engine's raw carriers into a typed
@@ -327,11 +348,11 @@ const frontmatterOf = (options?: MarkdownParseOptions): boolean => options?.fron
  * @since 0.0.0
  */
 export const parsePassResult: {
-  (text: string, options?: MarkdownParseOptions): Result.Result<BlockPassResult, MarkdownParseError>;
-  (options?: MarkdownParseOptions): (text: string) => Result.Result<BlockPassResult, MarkdownParseError>;
+  (text: string, options?: MarkdownParseOptions.Encoded): Result.Result<BlockPassResult, MarkdownParseError>;
+  (options?: MarkdownParseOptions.Encoded): (text: string) => Result.Result<BlockPassResult, MarkdownParseError>;
 } = dual(
   (args) => P.isString(args[0]),
-  (text: string, options?: MarkdownParseOptions): Result.Result<BlockPassResult, MarkdownParseError> =>
+  (text: string, options?: MarkdownParseOptions.Encoded): Result.Result<BlockPassResult, MarkdownParseError> =>
     Result.try({
       try: () => parseBlocks(text, { dialect: dialectOf(options), frontmatter: frontmatterOf(options) }),
       catch: (caught) => {
@@ -413,11 +434,11 @@ export class Markdown {
    * @since 0.0.0
    */
   static readonly parseResult: {
-    (text: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError>;
-    (options?: MarkdownParseOptions): (text: string) => Result.Result<Root, MarkdownParseError>;
+    (text: string, options?: MarkdownParseOptions.Encoded): Result.Result<Root, MarkdownParseError>;
+    (options?: MarkdownParseOptions.Encoded): (text: string) => Result.Result<Root, MarkdownParseError>;
   } = dual(
     (args) => P.isString(args[0]),
-    (text: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError> =>
+    (text: string, options?: MarkdownParseOptions.Encoded): Result.Result<Root, MarkdownParseError> =>
       // The single checked admission (D-39): one linear `Root.make` over the
       // plain tree the parser built, instead of a `make` per node.
       Result.map(parsePassResult(text, options), (pass) => Root.make(pass.root))
@@ -447,11 +468,11 @@ export class Markdown {
    * @since 0.0.0
    */
   static readonly parse: {
-    (text: string, options?: MarkdownParseOptions): Effect.Effect<Root, MarkdownParseError, never>;
-    (options?: MarkdownParseOptions): (text: string) => Effect.Effect<Root, MarkdownParseError, never>;
+    (text: string, options?: MarkdownParseOptions.Encoded): Effect.Effect<Root, MarkdownParseError, never>;
+    (options?: MarkdownParseOptions.Encoded): (text: string) => Effect.Effect<Root, MarkdownParseError, never>;
   } = dual(
     (args) => P.isString(args[0]),
-    Effect.fn("Markdown.parse")((text: string, options?: MarkdownParseOptions) =>
+    Effect.fn("Markdown.parse")((text: string, options?: MarkdownParseOptions.Encoded) =>
       Effect.fromResult(Markdown.parseResult(text, options))
     )
   );
@@ -509,13 +530,19 @@ export class Markdown {
    * @since 0.0.0
    */
   static readonly parsePhrasingResult: {
-    (text: string, options?: MarkdownParseOptions): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError>;
     (
-      options?: MarkdownParseOptions
+      text: string,
+      options?: MarkdownParseOptions.Encoded
+    ): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError>;
+    (
+      options?: MarkdownParseOptions.Encoded
     ): (text: string) => Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError>;
   } = dual(
     (args) => P.isString(args[0]),
-    (text: string, options?: MarkdownParseOptions): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError> =>
+    (
+      text: string,
+      options?: MarkdownParseOptions.Encoded
+    ): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError> =>
       Result.try({
         // One checked admission for the whole phrasing run (D-39).
         try: () => PhrasingChildren.make(parsePhrasingText(text, dialectOf(options))),
@@ -562,14 +589,14 @@ export class Markdown {
   static readonly parsePhrasing: {
     (
       text: string,
-      options?: MarkdownParseOptions
+      options?: MarkdownParseOptions.Encoded
     ): Effect.Effect<ReadonlyArray<PhrasingContent>, MarkdownParseError, never>;
     (
-      options?: MarkdownParseOptions
+      options?: MarkdownParseOptions.Encoded
     ): (text: string) => Effect.Effect<ReadonlyArray<PhrasingContent>, MarkdownParseError, never>;
   } = dual(
     (args) => P.isString(args[0]),
-    Effect.fn("Markdown.parsePhrasing")((text: string, options?: MarkdownParseOptions) =>
+    Effect.fn("Markdown.parsePhrasing")((text: string, options?: MarkdownParseOptions.Encoded) =>
       Effect.fromResult(Markdown.parsePhrasingResult(text, options))
     )
   );
@@ -774,7 +801,7 @@ export class Markdown {
    * @category codecs
    * @since 0.0.0
    */
-  static fromString(options?: MarkdownParseOptions): S.Codec<Root, string> {
+  static fromString(options?: MarkdownParseOptions.Encoded): S.Codec<Root, string> {
     return S.String.pipe(
       S.decodeTo(
         S.toType(Root),

@@ -9,8 +9,13 @@
 // the construct modules and the construct modules can import these types
 // without closing an import cycle (`noImportCycles` is error-level).
 //
-// The mutable `BlockNode` is upstream's `Node` during the block pass only. It
-// never leaves the engine: `blockParser.ts` materializes the immutable,
+// The mutable engine state — `BlockNode`, its `BlockData` bag, the shared
+// `ListData` and `TableData` records, the `BlockScanner` surface and the
+// construct/start/dialect tables — are concrete internal classes (D-42); the
+// immutable records that cross module boundaries are branded `S.Opaque`
+// schemas the engine builds as plain encoded values and never `make`s per
+// node (D-39). The mutable `BlockNode` is upstream's `Node` during the block
+// pass only. It never leaves the engine: `blockParser.ts` materializes the immutable,
 // mdast-shaped `MarkdownNode` classes from it once the tree is closed. Two
 // fields have no upstream counterpart, both serving the offset delta —
 // `startOffset`/`endOffset`, and the `segments` that map accumulated string
@@ -22,19 +27,21 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Heading, Paragraph, PhrasingContent, TableCell } from "./nodes.ts";
-import type * as HashMap from "effect/HashMap";
 import type {
   BulletChar,
   FenceChar,
   FlowContent,
+  Heading,
   HeadingDepth,
   HeadingStyle,
   ListDelimiter,
   ListItem,
+  Paragraph,
+  PhrasingContent,
   Position,
   Root,
   TableAlign,
+  TableCell,
   TableRow,
   ThematicBreakChar,
 } from "./nodes.ts";
@@ -105,37 +112,49 @@ export type BlockType = typeof BlockType.Type;
  * import { RawInlineSegment } from "@beep/markdown/internal/blockTypes"
  * import * as S from "effect/Schema"
  *
- * S.is(RawInlineSegment)({ textOffset: 0, sourceOffset: 12, length: 4 }) // => true
+ * console.log(S.is(RawInlineSegment)({ textOffset: 0, sourceOffset: 12, length: 4 })) // true
  * ```
  *
- * @category schemas
+ * @category models
  * @since 0.0.0
  */
-export const RawInlineSegment = S.Struct({
-  textOffset: S.Finite.pipe(
-    $I.annoteKey("RawInlineSegment.textOffset", {
-      description: "Index into the accumulated block content where this run starts.",
+export class RawInlineSegment extends S.Opaque<RawInlineSegment, { readonly brand: unique symbol }>()(
+  S.Struct({
+    textOffset: S.Finite.pipe(
+      $I.annoteKey("RawInlineSegment.textOffset", {
+        description: "Index into the accumulated block content where this run starts.",
+      })
+    ),
+    sourceOffset: S.Finite.pipe(
+      $I.annoteKey("RawInlineSegment.sourceOffset", {
+        description: "Absolute source offset of the run's first character.",
+      })
+    ),
+    length: S.Finite.pipe(
+      $I.annoteKey("RawInlineSegment.length", { description: "Length of the verbatim source run in characters." })
+    ),
+  }).pipe(
+    $I.annoteSchema("RawInlineSegment", {
+      description: "A contiguous source run copied into a leaf block's inline text.",
     })
-  ),
-  sourceOffset: S.Finite.pipe(
-    $I.annoteKey("RawInlineSegment.sourceOffset", {
-      description: "Absolute source offset of the run's first character.",
-    })
-  ),
-  length: S.Finite.pipe(
-    $I.annoteKey("RawInlineSegment.length", { description: "Length of the verbatim source run in characters." })
-  ),
-}).pipe(
-  $I.annoteSchema("RawInlineSegment", {
-    description: "A contiguous source run copied into a leaf block's inline text.",
-  })
-);
+  )
+) {}
 
-/** The source-run payload derived from its executable schema.
+/**
+ * Companion types for {@link RawInlineSegment}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type RawInlineSegment = typeof RawInlineSegment.Type;
+export declare namespace RawInlineSegment {
+  /**
+   * The plain segment record the engine builds per copied run: a constructed {@link RawInlineSegment} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RawInlineSegment.Encoded;
+}
 
 /**
  * A node that owns parsed phrasing content — the parent side of a
@@ -161,159 +180,90 @@ export type InlineHost = Paragraph | Heading | TableCell;
  * the trimmed content; `startOffset` is where `text` begins in the source,
  * and `segments` maps the rest of it (see {@link RawInlineSegment}).
  *
- * **Example** (Validate RawInlineSlice)
+ * An engine record (D-42), not a schema: `parent` is a node of the tree the
+ * facade has not admitted yet, and a schema `make` here would re-walk it —
+ * the per-node cost D-39 removes by admitting the finished tree once.
+ *
+ * **Example** (Read a reported inline slice)
  *
  * ```ts
- * import { RawInlineSlice } from "@beep/markdown/internal/blockTypes"
- * import { Paragraph } from "@beep/markdown/MarkdownNode"
- * import * as S from "effect/Schema"
+ * import { parseBlocks } from "@beep/markdown/internal/blockParser"
  *
- * S.is(RawInlineSlice)({ parent: Paragraph.make({ children: [] }), text: "hello", startOffset: 0, segments: [] }) // => true
+ * const [slice] = parseBlocks("hello\n").rawInlines
+ * console.log(slice?.parent.type, slice?.text) // paragraph hello
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const RawInlineSlice = S.Struct({
-  parent: S.Union([Paragraph, Heading, TableCell]).pipe(
-    $I.annoteKey("RawInlineSlice.parent", {
-      description: "The materialized node that will own the parsed inline children.",
-    })
-  ),
-  text: S.String.pipe(
-    $I.annoteKey("RawInlineSlice.text", { description: "Trimmed inline text prepared by the block pass." })
-  ),
-  startOffset: S.Finite.pipe(
-    $I.annoteKey("RawInlineSlice.startOffset", { description: "Absolute source offset where the inline text begins." })
-  ),
-  segments: S.Array(RawInlineSegment).pipe(
-    $I.annoteKey("RawInlineSlice.segments", {
-      description: "Source runs mapping the inline text back to the document.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("RawInlineSlice", { description: "A leaf block's raw inline text and its materialized parent." })
-);
+export class RawInlineSlice {
+  /** The materialized node that will own the parsed inline children. */
+  readonly parent: InlineHost;
+  /** Source runs mapping the inline text back to the document. */
+  readonly segments: ReadonlyArray<RawInlineSegment.Encoded>;
+  /** Absolute source offset where the inline text begins. */
+  readonly startOffset: number;
+  /** Trimmed inline text prepared by the block pass. */
+  readonly text: string;
 
-/** The immutable RawInlineSlice payload derived from its schema.
- * @category type-level
- * @since 0.0.0
- */
-export type RawInlineSlice = typeof RawInlineSlice.Type;
+  constructor(parent: InlineHost, prepared: PreparedInline) {
+    this.parent = parent;
+    this.text = prepared.text;
+    this.startOffset = prepared.startOffset;
+    this.segments = prepared.segments;
+  }
+}
 
 /**
- *  A leaf's inline text prepared for materialization, before it has a parent.
+ * A leaf's inline text prepared for materialization, before it has a parent.
  *
- * **Example** (Validate PreparedInline)
+ * **Details**
+ *
+ * An engine record (D-42), not a schema: `children` are inline nodes the
+ * facade has not admitted yet (see {@link RawInlineSlice}). Any object with
+ * these fields is one, so the inline seam builds it as a literal.
+ *
+ * **Example** (Prepare an empty inline run)
  *
  * ```ts
- * import { PreparedInline } from "@beep/markdown/internal/blockTypes"
- * import * as S from "effect/Schema"
+ * import type { PreparedInline } from "@beep/markdown/internal/blockTypes"
  *
- * S.is(PreparedInline)({ text: "hello", startOffset: 0, endOffset: 5, segments: [], children: [] }) // => true
+ * const prepared: PreparedInline = { text: "", startOffset: 0, endOffset: 0, segments: [], children: [] }
+ * console.log(prepared.text.length) // 0
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const PreparedInline = S.Struct({
-  text: S.String.pipe(
-    $I.annoteKey("PreparedInline.text", { description: "Inline text prepared for materialization." })
-  ),
-  startOffset: S.Finite.pipe(
-    $I.annoteKey("PreparedInline.startOffset", { description: "Absolute source offset where the inline text begins." })
-  ),
-  endOffset: S.Finite.pipe(
-    $I.annoteKey("PreparedInline.endOffset", { description: "Absolute source offset where the inline text ends." })
-  ),
-  segments: S.Array(RawInlineSegment).pipe(
-    $I.annoteKey("PreparedInline.segments", {
-      description: "Source runs mapping the inline text back to the document.",
-    })
-  ),
-  children: S.Array(PhrasingContent).pipe(
-    $I.annoteKey("PreparedInline.children", { description: "The temporary passthrough children (see `rawInline.ts`)." })
-  ),
-}).pipe(
-  $I.annoteSchema("PreparedInline", {
-    description: "A leaf's inline text prepared for materialization before it has a parent.",
-  })
-);
+export class PreparedInline {
+  /** The temporary passthrough children (see `rawInline.ts`). */
+  readonly children: ReadonlyArray<PhrasingContent>;
+  /** Absolute source offset where the inline text ends. */
+  readonly endOffset: number;
+  /** Source runs mapping the inline text back to the document. */
+  readonly segments: ReadonlyArray<RawInlineSegment.Encoded>;
+  /** Absolute source offset where the inline text begins. */
+  readonly startOffset: number;
+  /** Inline text prepared for materialization. */
+  readonly text: string;
 
-/** The immutable PreparedInline payload derived from its schema.
- * @category type-level
- * @since 0.0.0
- */
-export type PreparedInline = typeof PreparedInline.Type;
-
-/**
- * Construct-specific state carried on a {@link BlockNode} during the pass —
- * upstream's `_level`, `_isFenced`, `_listData` and friends, gathered into one
- * bag. Every field is optional and none is ever assigned `undefined`
- * explicitly (`exactOptionalPropertyTypes` is on).
- *
- * @category models
- * @since 0.0.0
- */
-export interface BlockData {
-  /**
-   * A GFM task-list item's checkbox state, set by the task-list block start
-   * and absent on every item that carried no marker (and under every dialect
-   * that has no such start).
-   */
-  checked?: boolean;
-  /** A split-out link reference definition (see {@link BlockType}). */
-  definition?: DefinitionData;
-  fenceChar?: FenceChar;
-  fenceLength?: number;
-  fenceOffset?: number;
-  /** A GFM footnote definition's label, set by the footnote block start. */
-  footnote?: FootnoteData;
-  /** Which spelling produced a heading. */
-  headingStyle?: HeadingStyle;
-  /** HTML block kind, 1 through 7. */
-  htmlBlockType?: number;
-  /** Fenced code: set by the fenced-code start, absent for indented code. */
-  isFenced?: boolean;
-  /** Fenced code info string, split at finalize. */
-  lang?: string;
-  /** Heading depth, set by the ATX and setext starts. */
-  level?: HeadingDepth;
-  /** List and list-item bookkeeping. */
-  listData?: ListData;
-  /** Which character drew a thematic break. */
-  markerChar?: ThematicBreakChar;
-  meta?: string;
-  /** mdast's `spread`, computed for a list and each of its items at finalize. */
-  spread?: boolean;
-  /** GFM table bookkeeping, set by the table block starts. */
-  tableData?: TableData;
-  /**
-   * Set on a paragraph whose delimiter row failed to match its header —
-   * cmark-gfm's `CMARK_NODE__TABLE_VISITED`, which stops a paragraph being
-   * rescanned for a table once for every line it goes on to absorb.
-   */
-  tableVisited?: boolean;
+  constructor(
+    text: string,
+    startOffset: number,
+    endOffset: number,
+    segments: ReadonlyArray<RawInlineSegment.Encoded>,
+    children: ReadonlyArray<PhrasingContent>
+  ) {
+    this.text = text;
+    this.startOffset = startOffset;
+    this.endOffset = endOffset;
+    this.segments = segments;
+    this.children = children;
+  }
 }
 
 /**
- *  A GFM table's parsed shape, carried on the table block.
- *
- * @category models
- * @since 0.0.0
- */
-export interface TableData {
-  /** One entry per column, `null` where the delimiter row declared none. */
-  readonly align: ReadonlyArray<TableAlign | null>;
-  /** The header's column count; every row is truncated or padded to it. */
-  readonly columns: number;
-  nonemptyCells: number;
-  /** Rows added so far, and cells among them that came from real source. */
-  rows: number;
-}
-
-/**
- *  A parsed link reference definition, awaiting materialization.
+ * A parsed link reference definition, awaiting materialization.
  *
  * **Example** (Validate DefinitionData)
  *
@@ -321,35 +271,35 @@ export interface TableData {
  * import { DefinitionData } from "@beep/markdown/internal/blockTypes"
  * import * as S from "effect/Schema"
  *
- * S.is(DefinitionData)({ key: "ref", identifier: "ref", label: "Ref", url: "/target" }) // => true
+ * console.log(S.is(DefinitionData)({ key: "ref", identifier: "ref", label: "Ref", url: "/target" })) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const DefinitionData = S.Struct({
-  key: S.String.pipe($I.annoteKey("DefinitionData.key", { description: "The case-folded lookup key." })),
-  identifier: S.String.pipe(
-    $I.annoteKey("DefinitionData.identifier", { description: "mdast's identifier: the normalized label, lowercased." })
-  ),
-  label: S.String.pipe($I.annoteKey("DefinitionData.label", { description: "mdast's label: the raw label text." })),
-  url: S.String.pipe(
-    $I.annoteKey("DefinitionData.url", {
-      description: "The decoded destination, never percent-encoded (see `references.ts`).",
-    })
-  ),
-  title: S.optionalKey(S.String).pipe(
-    $I.annoteKey("DefinitionData.title", { description: "The definition's title, absent when no title was provided." })
-  ),
-}).pipe(
-  $I.annoteSchema("DefinitionData", { description: "A parsed link reference definition awaiting materialization." })
-);
-
-/** The immutable DefinitionData payload derived from its schema.
- * @category type-level
- * @since 0.0.0
- */
-export type DefinitionData = typeof DefinitionData.Type;
+export class DefinitionData extends S.Opaque<DefinitionData, { readonly brand: unique symbol }>()(
+  S.Struct({
+    key: S.String.pipe($I.annoteKey("DefinitionData.key", { description: "The case-folded lookup key." })),
+    identifier: S.String.pipe(
+      $I.annoteKey("DefinitionData.identifier", {
+        description: "mdast's identifier: the normalized label, lowercased.",
+      })
+    ),
+    label: S.String.pipe($I.annoteKey("DefinitionData.label", { description: "mdast's label: the raw label text." })),
+    url: S.String.pipe(
+      $I.annoteKey("DefinitionData.url", {
+        description: "The decoded destination, never percent-encoded (see `references.ts`).",
+      })
+    ),
+    title: S.optionalKey(S.String).pipe(
+      $I.annoteKey("DefinitionData.title", {
+        description: "The definition's title, absent when no title was provided.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DefinitionData", { description: "A parsed link reference definition awaiting materialization." })
+  )
+) {}
 
 /**
  * A GFM footnote definition's label, carried on the block.
@@ -365,50 +315,216 @@ export type DefinitionData = typeof DefinitionData.Type;
  * import { FootnoteData } from "@beep/markdown/internal/blockTypes"
  * import * as S from "effect/Schema"
  *
- * S.is(FootnoteData)({ key: "note", identifier: "note", label: "Note" }) // => true
+ * console.log(S.is(FootnoteData)({ key: "note", identifier: "note", label: "Note" })) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const FootnoteData = S.Struct({
-  key: DefinitionData.fields.key,
-  identifier: DefinitionData.fields.identifier,
-  label: DefinitionData.fields.label.pipe(
-    $I.annoteKey("FootnoteData.label", { description: "mdast's label: the raw label text, as written." })
-  ),
-}).pipe($I.annoteSchema("FootnoteData", { description: "A GFM footnote definition's label carried on the block." }));
+export class FootnoteData extends S.Opaque<FootnoteData, { readonly brand: unique symbol }>()(
+  S.Struct({
+    key: DefinitionData.fields.key,
+    identifier: DefinitionData.fields.identifier,
+    label: S.String.pipe(
+      $I.annoteKey("FootnoteData.label", { description: "mdast's label: the raw label text, as written." })
+    ),
+  }).pipe($I.annoteSchema("FootnoteData", { description: "A GFM footnote definition's label carried on the block." }))
+) {}
 
-/** The immutable FootnoteData payload derived from its schema.
+/**
+ * The two list kinds a list marker opens.
+ *
+ * **Example** (Validate a list kind)
+ *
+ * ```ts
+ * import { ListType } from "@beep/markdown/internal/blockTypes"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ListType)("ordered")) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ListType = LiteralKit(["bullet", "ordered"]).pipe(
+  $I.annoteSchema("ListType", { description: "The list kinds a bullet or ordered list marker opens." })
+);
+
+/**
+ * The list kind domain derived from its schema.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type FootnoteData = typeof FootnoteData.Type;
+export type ListType = typeof ListType.Type;
 
 /**
- *  A list marker's parsed shape, upstream's `_listData`.
+ * A list marker's parsed shape, upstream's `_listData`.
+ *
+ * **Details**
+ *
+ * Mutable engine state (D-42): one record is shared by a list and the item
+ * whose marker opened it, and the list's finalize writes `tight` back onto it.
+ *
+ * **Example** (Open an ordered list's marker record)
+ *
+ * ```ts
+ * import { ListData } from "@beep/markdown/internal/blockTypes"
+ *
+ * const data = new ListData("ordered", 0)
+ * data.start = 3
+ * console.log(data.type, data.tight, data.start) // ordered true 3
+ * ```
  *
  * @category models
  * @since 0.0.0
  */
-export interface ListData {
-  bulletChar?: BulletChar;
-  delimiter?: ListDelimiter;
+export class ListData {
+  declare bulletChar?: BulletChar;
+  declare delimiter?: ListDelimiter;
+  /** Columns of indentation before the marker. */
   markerOffset: number;
+  /** Marker width plus the spaces that follow it. */
   padding: number;
-  start?: number;
+  declare start?: number;
+  /** Upstream's `tight`, written by the list's finalize. */
   tight: boolean;
-  type: "bullet" | "ordered";
+  readonly type: ListType;
+
+  constructor(type: ListType, markerOffset: number) {
+    this.type = type;
+    this.markerOffset = markerOffset;
+    this.padding = 0;
+    this.tight = true;
+  }
+}
+
+/**
+ * A GFM table's parsed shape, carried on the table block.
+ *
+ * **Details**
+ *
+ * Mutable engine state (D-42): the row construct counts rows and the cells
+ * among them that came from real source as the table grows.
+ *
+ * **Example** (Open a two-column table record)
+ *
+ * ```ts
+ * import { TableData } from "@beep/markdown/internal/blockTypes"
+ *
+ * const data = new TableData(["left", null], 2)
+ * console.log(data.columns, data.rows, data.nonemptyCells) // 2 0 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TableData {
+  /** One entry per column, `null` where the delimiter row declared none (mdast's wire shape). */
+  readonly align: ReadonlyArray<TableAlign | null>;
+  /** The header's column count; every row is truncated or padded to it. */
+  readonly columns: number;
+  /** Cells added so far that came from real source. */
+  nonemptyCells: number;
+  /** Rows added so far. */
+  rows: number;
+
+  constructor(align: ReadonlyArray<TableAlign | null>, columns: number) {
+    this.align = align;
+    this.columns = columns;
+    this.nonemptyCells = 0;
+    this.rows = 0;
+  }
+}
+
+/**
+ * Construct-specific state carried on a {@link BlockNode} during the pass —
+ * upstream's `_level`, `_isFenced`, `_listData` and friends, gathered into one
+ * bag.
+ *
+ * **Details**
+ *
+ * Mutable engine state (D-42). Every field is optional and declared rather
+ * than initialized, so an unset field is absent rather than `undefined`
+ * (`exactOptionalPropertyTypes` is on).
+ *
+ * **Example** (Record a heading's depth)
+ *
+ * ```ts
+ * import { BlockData } from "@beep/markdown/internal/blockTypes"
+ *
+ * const data = new BlockData()
+ * data.level = 2
+ * console.log(data.level, "lang" in data) // 2 false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BlockData {
+  /**
+   * A GFM task-list item's checkbox state, set by the task-list block start
+   * and absent on every item that carried no marker (and under every dialect
+   * that has no such start).
+   */
+  declare checked?: boolean;
+  /** A split-out link reference definition (see {@link BlockType}). */
+  declare definition?: DefinitionData;
+  declare fenceChar?: FenceChar;
+  declare fenceLength?: number;
+  declare fenceOffset?: number;
+  /** A GFM footnote definition's label, set by the footnote block start. */
+  declare footnote?: FootnoteData;
+  /** Which spelling produced a heading. */
+  declare headingStyle?: HeadingStyle;
+  /** HTML block kind, 1 through 7. */
+  declare htmlBlockType?: number;
+  /** Fenced code: set by the fenced-code start, absent for indented code. */
+  declare isFenced?: boolean;
+  /** Fenced code info string, split at finalize. */
+  declare lang?: string;
+  /** Heading depth, set by the ATX and setext starts. */
+  declare level?: HeadingDepth;
+  /** List and list-item bookkeeping. */
+  declare listData?: ListData;
+  /** Which character drew a thematic break. */
+  declare markerChar?: ThematicBreakChar;
+  declare meta?: string;
+  /** mdast's `spread`, computed for a list and each of its items at finalize. */
+  declare spread?: boolean;
+  /** GFM table bookkeeping, set by the table block starts. */
+  declare tableData?: TableData;
+  /**
+   * Set on a paragraph whose delimiter row failed to match its header —
+   * cmark-gfm's `CMARK_NODE__TABLE_VISITED`, which stops a paragraph being
+   * rescanned for a table once for every line it goes on to absorb.
+   */
+  declare tableVisited?: boolean;
 }
 
 /**
  * A block under construction. Mutable by design — the block pass appends
  * lines and children to it across the line loop — and engine-private.
  *
+ * **Details**
+ *
+ * Mutable engine state (D-42). A new block is open, has no parent or
+ * children, and starts with empty content, segments and construct data. Its
+ * end position initially equals its start position.
+ *
+ * **Example** (Open a paragraph block)
+ *
+ * ```ts
+ * import { BlockNode } from "@beep/markdown/internal/blockTypes"
+ *
+ * const block = new BlockNode("paragraph", 12, 3, 1)
+ * console.log(block.open, block.endOffset, block.depth) // true 12 1
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface BlockNode {
+export class BlockNode {
   readonly children: BlockNode[];
   readonly data: BlockData;
   /**
@@ -422,12 +538,27 @@ export interface BlockNode {
   open: boolean;
   parent: BlockNode | undefined;
   /** Source provenance of `stringContent` (see {@link RawInlineSegment}). */
-  readonly segments: RawInlineSegment[];
+  readonly segments: RawInlineSegment.Encoded[];
   startLine: number;
   startOffset: number;
   /** Accumulated line content, for constructs whose `acceptsLines` is true. */
   stringContent: string;
   readonly type: BlockType;
+
+  constructor(type: BlockType, startOffset: number, startLine: number, depth: number) {
+    this.type = type;
+    this.depth = depth;
+    this.parent = undefined;
+    this.children = [];
+    this.open = true;
+    this.stringContent = "";
+    this.segments = [];
+    this.startOffset = startOffset;
+    this.endOffset = startOffset;
+    this.startLine = startLine;
+    this.endLine = startLine;
+    this.data = new BlockData();
+  }
 }
 
 /**
@@ -445,7 +576,7 @@ export interface BlockNode {
  * import { BlockContinueResult } from "@beep/markdown/internal/blockTypes"
  * import * as S from "effect/Schema"
  *
- * S.is(BlockContinueResult)(0) // => true
+ * console.log(S.is(BlockContinueResult)(0)) // true
  * ```
  *
  * @category schemas
@@ -476,7 +607,7 @@ export type BlockContinueResult = typeof BlockContinueResult.Type;
  * import { BlockStartResult } from "@beep/markdown/internal/blockTypes"
  * import * as S from "effect/Schema"
  *
- * S.is(BlockStartResult)(2) // => true
+ * console.log(S.is(BlockStartResult)(2)) // true
  * ```
  *
  * @category schemas
@@ -494,39 +625,44 @@ export type BlockStartResult = typeof BlockStartResult.Type;
 
 /**
  * The parser surface a construct may drive: upstream's scanner state and the
- * handful of parser methods its `blockStarts` functions call, as an
- * interface so constructs never import the parser (and cannot cycle).
+ * handful of parser methods its `blockStarts` functions call.
+ *
+ * **Details**
+ *
+ * Mutable engine state (D-42): an abstract class the block parser extends,
+ * so constructs program against it and never import the parser (which would
+ * close an import cycle).
  *
  * @category models
  * @since 0.0.0
  */
-export interface BlockScanner {
+export abstract class BlockScanner {
   /** Open a block of `type` as a child of the tip, starting at `offsetInLine`. */
-  readonly addChild: {
+  abstract readonly addChild: {
     (type: BlockType, offsetInLine: number): BlockNode;
     (offsetInLine: number): (type: BlockType) => BlockNode;
   };
   /** Append the rest of the current line to the tip's content. */
-  addLine(): void;
+  abstract addLine(): void;
   /** Jump the scan position to `nextNonspace`. */
-  advanceNextNonspace(): void;
+  abstract advanceNextNonspace(): void;
   /** Advance `count` characters, or `count` columns when `columns` is true. */
-  readonly advanceOffset: {
+  abstract readonly advanceOffset: {
     (count: number, columns?: boolean): void;
     (columns?: boolean): (count: number) => void;
   };
   /** Whether every open block matched this line. */
-  readonly allClosed: boolean;
+  abstract readonly allClosed: boolean;
   /** Whether the rest of the line is blank. */
-  readonly blank: boolean;
+  abstract readonly blank: boolean;
   /** Finalize every open block that failed to match this line. */
-  closeUnmatchedBlocks(): void;
+  abstract closeUnmatchedBlocks(): void;
   /** Tab-expanded column of the scan position. */
-  readonly column: number;
+  abstract readonly column: number;
   /** The current line, terminator stripped. */
-  readonly currentLine: string;
+  abstract readonly currentLine: string;
   /** Close `block`, ending it at the end of `lineNumber`. */
-  readonly finalizeBlock: {
+  abstract readonly finalizeBlock: {
     (block: BlockNode, lineNumber: number): void;
     (lineNumber: number): (block: BlockNode) => void;
   };
@@ -542,11 +678,11 @@ export interface BlockScanner {
    * consumes characters and then STOPS the start scan has to re-establish it
    * itself, because the loop it exited will not.
    */
-  findNextNonspace(): void;
+  abstract findNextNonspace(): void;
   /** Columns of indentation between the scan position and `nextNonspace`. */
-  readonly indent: number;
+  abstract readonly indent: number;
   /** Whether `indent` reaches the code-indent threshold. */
-  readonly indented: boolean;
+  abstract readonly indented: boolean;
   /**
    * Open a closed block of `type` as `block`'s immediately preceding sibling,
    * without disturbing the tip.
@@ -557,26 +693,26 @@ export interface BlockScanner {
    * a paragraph becomes a table, the lines above the header row have to go
    * back into the tree as the paragraph they were.
    */
-  readonly insertBefore: {
+  abstract readonly insertBefore: {
     (block: BlockNode, type: BlockType): BlockNode;
     (type: BlockType): (block: BlockNode) => BlockNode;
   };
   /** 1-based number of the current line. */
-  readonly lineNumber: number;
+  abstract readonly lineNumber: number;
   /** Absolute source offset of `currentLine[0]`. */
-  readonly lineStart: number;
+  abstract readonly lineStart: number;
   /** Character index of the next non-whitespace character. */
-  readonly nextNonspace: number;
+  abstract readonly nextNonspace: number;
   /** Tab-expanded column of that character. */
-  readonly nextNonspaceColumn: number;
+  abstract readonly nextNonspaceColumn: number;
   /** Character index into `currentLine` of the scan position. */
-  readonly offset: number;
+  abstract readonly offset: number;
   /**
    * Swap `block` for a fresh block of `type` carrying its position, content
    * and segments, and make it the tip. Upstream's
    * `insertAfter` + `unlink` pair in the setext-heading start.
    */
-  readonly replaceBlock: {
+  abstract readonly replaceBlock: {
     (block: BlockNode, type: BlockType): BlockNode;
     (type: BlockType): (block: BlockNode) => BlockNode;
   };
@@ -585,19 +721,19 @@ export interface BlockScanner {
    * having — upstream's `parser.lastLineLength` write in the closing-fence
    * path, where the block ends mid-line rather than at its end.
    */
-  setLastLineLength(length: number): void;
+  abstract setLastLineLength(length: number): void;
   /**
    * Rewind the scan position, upstream's direct `parser.offset`/
    * `parser.column` assignment in `parseListMarker`. Deliberately does NOT
    * clear the partially-consumed-tab flag: upstream's assignment does not
    * either, and the caller re-establishes it on the next `advanceOffset`.
    */
-  readonly setScanPosition: {
+  abstract readonly setScanPosition: {
     (offset: number, column: number): void;
     (column: number): (offset: number) => void;
   };
   /** The deepest open block. */
-  readonly tip: BlockNode;
+  abstract readonly tip: BlockNode;
 }
 
 /**
@@ -631,16 +767,14 @@ export interface MaterializeContext {
 }
 
 /**
- * One block construct: upstream's entry in the `blocks` table, plus the
- * `materialize` step this port adds (upstream renders its own node type, so
- * it has no equivalent).
+ * The behaviour of one block construct: upstream's entry in the `blocks`
+ * table, plus the `materialize` step this port adds (upstream renders its own
+ * node type, so it has no equivalent).
  *
  * @category models
  * @since 0.0.0
  */
-export interface BlockConstruct {
-  /** Whether the construct absorbs line content (upstream's `acceptsLines`). */
-  readonly acceptsLines: boolean;
+export interface BlockBehaviour {
   /** Whether a block of `child` may be opened inside this one. */
   canContain(child: BlockType): boolean;
   /** Whether this block continues on the scanner's current line. */
@@ -668,7 +802,208 @@ export interface BlockConstruct {
       context: MaterializeContext
     ): (block: BlockNode) => MaterializedBlock | undefined;
   };
+}
+
+/**
+ * Lift a leaf construct's build step into a {@link BlockBehaviour} `materialize`.
+ *
+ * **Details**
+ *
+ * A leaf never has materialized children, so the build step sees only the
+ * block and the context; the children argument is accepted and ignored.
+ *
+ * **Example** (Materialize a leaf without reading its children)
+ *
+ * ```ts
+ * import { leafMaterializer } from "@beep/markdown/internal/blockTypes"
+ *
+ * const materialize = leafMaterializer(() => undefined)
+ * console.log(typeof materialize) // function
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const leafMaterializer = (
+  build: (block: BlockNode, context: MaterializeContext) => MaterializedBlock | undefined
+): BlockBehaviour["materialize"] =>
+  dual(
+    3,
+    (
+      block: BlockNode,
+      _children: ReadonlyArray<MaterializedBlock>,
+      context: MaterializeContext
+    ): MaterializedBlock | undefined => build(block, context)
+  );
+
+/**
+ * Lift an inline host's build step into a {@link BlockBehaviour} `materialize`.
+ *
+ * **Details**
+ *
+ * Prepares the block's inline text, builds the host node from it, and
+ * registers the node as the owner of that text — the seam every inline host
+ * (paragraph, heading, table cell) goes through. A build step that returns
+ * `undefined` drops the block and registers nothing.
+ *
+ * **Example** (Materialize an inline host)
+ *
+ * ```ts
+ * import { inlineHostMaterializer } from "@beep/markdown/internal/blockTypes"
+ *
+ * const materialize = inlineHostMaterializer(() => undefined)
+ * console.log(typeof materialize) // function
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const inlineHostMaterializer = (
+  build: (block: BlockNode, inline: PreparedInline, context: MaterializeContext) => InlineHost | undefined
+): BlockBehaviour["materialize"] =>
+  leafMaterializer((block, context) => {
+    const inline = context.inlineSlice(block);
+    const node = build(block, inline, context);
+    if (node !== undefined) {
+      context.registerInline(node, inline);
+    }
+    return node;
+  });
+
+/**
+ * Lift a container construct's build step into a {@link BlockBehaviour} `materialize`.
+ *
+ * **Example** (Count a container's materialized children)
+ *
+ * ```ts
+ * import { containerMaterializer } from "@beep/markdown/internal/blockTypes"
+ *
+ * const materialize = containerMaterializer((_block, children) => children[0])
+ * console.log(typeof materialize) // function
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const containerMaterializer = (
+  build: (
+    block: BlockNode,
+    children: ReadonlyArray<MaterializedBlock>,
+    context: MaterializeContext
+  ) => MaterializedBlock | undefined
+): BlockBehaviour["materialize"] => dual(3, build);
+
+/**
+ * The `continue` of a construct that never spans a second line (a heading, a
+ * thematic break, a split-out definition): every line closes it.
+ *
+ * **Example** (Close a single-line block on the next line)
+ *
+ * ```ts
+ * import { neverContinues } from "@beep/markdown/internal/blockTypes"
+ * import { headingConstruct } from "@beep/markdown/internal/blocks/atxHeading"
+ *
+ * console.log(headingConstruct.continue === neverContinues) // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const neverContinues: BlockBehaviour["continue"] = dual(
+  2,
+  (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1
+);
+
+/**
+ * The `continue` of a container that every line continues (the document and
+ * a list, whose items do the matching): no line closes it.
+ *
+ * **Example** (Keep a list open)
+ *
+ * ```ts
+ * import { alwaysContinues } from "@beep/markdown/internal/blockTypes"
+ * import { listConstruct } from "@beep/markdown/internal/blocks/list"
+ *
+ * console.log(listConstruct.continue === alwaysContinues) // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const alwaysContinues: BlockBehaviour["continue"] = dual(
+  2,
+  (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 0
+);
+
+/**
+ * The `canContain` of a construct that holds no child blocks.
+ *
+ * **Example** (Refuse every child)
+ *
+ * ```ts
+ * import { containsNothing } from "@beep/markdown/internal/blockTypes"
+ *
+ * console.log(containsNothing("paragraph")) // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const containsNothing = (_child: BlockType): boolean => false;
+
+/**
+ * The `canContain` of a flow container (the document, a blockquote, a list
+ * item, a footnote definition): any block but a bare list item.
+ *
+ * **Example** (Admit flow content but not a bare item)
+ *
+ * ```ts
+ * import { containsFlow } from "@beep/markdown/internal/blockTypes"
+ *
+ * console.log(containsFlow("paragraph"), containsFlow("listItem")) // true false
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const containsFlow = (child: BlockType): boolean => child !== "listItem";
+
+/**
+ * One block construct: the block type it builds, whether it absorbs line
+ * content (upstream's `acceptsLines`), and its {@link BlockBehaviour}.
+ *
+ * **Details**
+ *
+ * An engine table entry (D-42), built once per construct module.
+ *
+ * **Example** (Inspect a construct's line absorption)
+ *
+ * ```ts
+ * import { paragraphConstruct } from "@beep/markdown/internal/blocks/paragraph"
+ *
+ * console.log(paragraphConstruct.type, paragraphConstruct.acceptsLines) // paragraph true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BlockConstruct {
+  /** Whether the construct absorbs line content (upstream's `acceptsLines`). */
+  readonly acceptsLines: boolean;
+  readonly canContain: (child: BlockType) => boolean;
+  readonly continue: BlockBehaviour["continue"];
+  readonly finalize: BlockBehaviour["finalize"];
+  readonly materialize: BlockBehaviour["materialize"];
   readonly type: BlockType;
+
+  constructor(type: BlockType, acceptsLines: boolean, behaviour: BlockBehaviour) {
+    this.type = type;
+    this.acceptsLines = acceptsLines;
+    this.canContain = behaviour.canContain;
+    this.continue = behaviour.continue;
+    this.finalize = behaviour.finalize;
+    this.materialize = behaviour.materialize;
+  }
 }
 
 /**
@@ -784,44 +1119,147 @@ export const tableCellChildren = (children: ReadonlyArray<MaterializedBlock>): R
   A.filter(children, (child): child is TableCell => child.type === "tableCell");
 
 /**
- *  One entry of a dialect's ordered block-start table.
+ * A block start's trigger: try to open a block at the scanner's position.
  *
  * @category models
  * @since 0.0.0
  */
-export interface BlockStart {
-  /** Diagnostic name; the table's order is what the algorithm depends on. */
-  readonly name: string;
-  readonly trigger: {
-    (scanner: BlockScanner, container: BlockNode): BlockStartResult;
-    (container: BlockNode): (scanner: BlockScanner) => BlockStartResult;
-  };
+export interface BlockStartTrigger {
+  (scanner: BlockScanner, container: BlockNode): BlockStartResult;
+  (container: BlockNode): (scanner: BlockScanner) => BlockStartResult;
 }
 
 /**
- *  A dialect: a construct table plus an ordered block-start table, nothing more.
+ * One entry of a dialect's ordered block-start table.
+ *
+ * **Example** (Inspect a block start's diagnostic name)
+ *
+ * ```ts
+ * import { atxHeadingStart } from "@beep/markdown/internal/blocks/atxHeading"
+ *
+ * console.log(atxHeadingStart.name) // atxHeading
+ * ```
  *
  * @category models
  * @since 0.0.0
  */
-export interface BlockDialect {
-  readonly constructs: HashMap.HashMap<BlockType, BlockConstruct>;
-  /**
-   * An escape hatch from the line loop's fast path.
-   *
-   * **Details**
-   *
-   * commonmark.js skips the whole block-start table when the line cannot
-   * begin any CommonMark construct (`reMaybeSpecial`). cmark-gfm has no such
-   * filter, so a dialect whose constructs start on other characters — a GFM
-   * table row starts on anything at all — says so here, and the loop tries
-   * its starts anyway. Absent means the CommonMark filter is the whole truth.
-   */
-  readonly mayStartBlock?: {
-    (rest: string, container: BlockNode): boolean;
-    (container: BlockNode): (rest: string) => boolean;
-  };
+export class BlockStart {
+  /** Diagnostic name; the table's order is what the algorithm depends on. */
+  readonly name: string;
+  readonly trigger: BlockStartTrigger;
+
+  constructor(name: string, trigger: BlockStartTrigger) {
+    this.name = name;
+    this.trigger = trigger;
+  }
+}
+
+/**
+ * The line loop's fast-path escape hatch (see {@link BlockDialect}): whether a
+ * dialect construct may start at the scanner's `nextNonspace` even though the
+ * CommonMark pre-filter says no block can.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface MayStartBlock {
+  (scanner: BlockScanner, container: BlockNode): boolean;
+  (container: BlockNode): (scanner: BlockScanner) => boolean;
+}
+
+class MissingBlockConstructError extends S.TaggedError<MissingBlockConstructError, { readonly brand: unique symbol }>(
+  $I`MissingBlockConstructError`
+)(
+  "MissingBlockConstructError",
+  {
+    message: S.String.pipe(
+      $I.annoteKey("MissingBlockConstructError.message", {
+        description: "Names the block type the dialect has no construct for.",
+      })
+    ),
+  },
+  $I.annoteError<MissingBlockConstructError>("MissingBlockConstructError", {
+    description: "A block of a type the dialect registers no construct for was reached.",
+  })
+) {}
+
+/**
+ * A dialect: a construct table plus an ordered block-start table, nothing more.
+ *
+ * **Details**
+ *
+ * The construct table is keyed by block type with direct property lookup:
+ * the line loop consults it for every open container on every line, so it
+ * allocates nothing per lookup.
+ *
+ * `mayStartBlock` is an escape hatch from the line loop's fast path.
+ * commonmark.js skips the whole block-start table when the line cannot begin
+ * any CommonMark construct (`reMaybeSpecial`). cmark-gfm has no such filter,
+ * so a dialect whose constructs start on other characters — a GFM table row
+ * starts on anything at all — says so here, and the loop tries its starts
+ * anyway. Absent means the CommonMark filter is the whole truth.
+ *
+ * **Example** (Look up a dialect's paragraph construct)
+ *
+ * ```ts
+ * import { blockDialect } from "@beep/markdown/internal/blockRegistry"
+ *
+ * console.log(blockDialect("commonmark").construct("paragraph").acceptsLines) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BlockDialect {
+  readonly constructs: ReadonlyArray<BlockConstruct>;
+  readonly mayStartBlock: MayStartBlock | undefined;
   readonly starts: ReadonlyArray<BlockStart>;
+  private readonly table: Partial<Record<BlockType, BlockConstruct>>;
+
+  constructor(
+    constructs: ReadonlyArray<BlockConstruct>,
+    starts: ReadonlyArray<BlockStart>,
+    mayStartBlock?: MayStartBlock
+  ) {
+    const table: Partial<Record<BlockType, BlockConstruct>> = {};
+    for (const construct of constructs) {
+      table[construct.type] = construct;
+    }
+    this.constructs = constructs;
+    this.starts = starts;
+    this.mayStartBlock = mayStartBlock;
+    this.table = table;
+  }
+
+  /**
+   * The construct registered for `type`.
+   *
+   * **Gotchas**
+   *
+   * A type the dialect does not register is a wiring defect, so the lookup
+   * throws rather than returning an `Option` the line loop would allocate on
+   * every call.
+   *
+   * **Example** (Look up the document construct)
+   *
+   * ```ts
+   * import { blockDialect } from "@beep/markdown/internal/blockRegistry"
+   *
+   * console.log(blockDialect("gfm").construct("document").type) // document
+   * ```
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  construct(type: BlockType): BlockConstruct {
+    const construct = this.table[type];
+    if (construct === undefined) {
+      throw MissingBlockConstructError.make({
+        message: `block parser: no construct registered for block type ${type}`,
+      });
+    }
+    return construct;
+  }
 }
 
 /**
@@ -852,18 +1290,6 @@ export const makeBlockNode: {
   (startOffset: number, startLine: number, depth?: number): (type: BlockType) => BlockNode;
 } = dual(
   (args) => P.isString(args[0]),
-  (type: BlockType, startOffset: number, startLine: number, depth = 0): BlockNode => ({
-    type,
-    depth,
-    parent: undefined,
-    children: [],
-    open: true,
-    stringContent: "",
-    segments: [],
-    startOffset,
-    endOffset: startOffset,
-    startLine,
-    endLine: startLine,
-    data: {},
-  })
+  (type: BlockType, startOffset: number, startLine: number, depth = 0): BlockNode =>
+    new BlockNode(type, startOffset, startLine, depth)
 );
