@@ -42,6 +42,7 @@ export type {
   ConfigLoadError,
   ConfigReadError,
   ConfigReadOptions,
+  ConfigReadSchema,
   ConfigSaveError,
   ConfigUpdateError,
   ConfigWriteError,

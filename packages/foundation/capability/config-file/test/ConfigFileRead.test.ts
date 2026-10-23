@@ -27,6 +27,10 @@ const JsonValue = S.fromJsonString(S.Unknown);
 
 class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 
+// docgen's `ConfigurationSchema` is an `S.Opaque`: the read must accept it and
+// type the result as the opaque type (W3-e adopter shift).
+class OpaqueApp extends S.Opaque<OpaqueApp, { readonly brand: unique symbol }>()(S.Struct({ port: S.Finite })) {}
+
 const platform = (files: Record<string, string>): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
   Layer.mergeAll(MemoryFileSystem.layerWith(files), Path.layer);
 
@@ -41,6 +45,20 @@ describe("ConfigFile.read", () => {
       })
     );
   });
+
+  it.layer(platform({ "/app/opaque.jsonc": `{ "port": 7, /* trailing comma */ }` }), { timeout: "30 seconds" })(
+    (it) => {
+      it.effect("decodes through an S.Opaque schema and types the value as the opaque type", () =>
+        Effect.gen(function* () {
+          const value: OpaqueApp = yield* ConfigFile.read("/app/opaque.jsonc", {
+            schema: OpaqueApp,
+            codec: JsoncCodec,
+          });
+          assert.deepStrictEqual(value, OpaqueApp.make({ port: 7 }));
+        })
+      );
+    }
+  );
 
   it.layer(platform({ "/etc/app.json": `{"port":1}` }), { timeout: "30 seconds" })((it) => {
     it.effect("needs no service class, no layer and no tag", () =>

@@ -1268,6 +1268,57 @@ const testLayer: {
 );
 
 /**
+ * A schema {@link ConfigFile.read} can decode through: any schema with type
+ * `A`, encoded side `I` and no decoding services.
+ *
+ * **Details**
+ *
+ * `S.Opaque` schemas are not assignable to `S.Codec<Self, I>` (their
+ * `Rebuild` member rebuilds the branded struct, not the opaque type), so a
+ * read typed on `S.Codec` would refuse them. This structural bound accepts
+ * plain codecs, `S.Class` and `S.Opaque` schemas alike, and reads `A` and `I`
+ * from the schema's own `Type` and `Encoded`.
+ *
+ * **Example** (Read through an opaque schema)
+ *
+ * ```ts
+ * import { ConfigFile } from "@beep/config-file/ConfigFile";
+ * import type { ConfigReadSchema } from "@beep/config-file/ConfigFile";
+ * import { JsonCodec } from "@beep/config-file/JsonCodec";
+ * import * as Effect from "effect/Effect";
+ * import * as S from "effect/Schema";
+ *
+ * class Port extends S.Opaque<Port, { readonly brand: unique symbol }>()(S.Struct({ port: S.Finite })) {}
+ * const schema: ConfigReadSchema<Port, typeof Port.Encoded> = Port;
+ * console.log(Effect.isEffect(ConfigFile.read("./port.json", { schema, codec: JsonCodec }))) // true
+ * ```
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export interface ConfigReadSchema<A, I> extends S.Top {
+  /**
+   * Decoding needs no services: a config read provides none.
+   *
+   * @since 0.0.0
+   */
+  readonly DecodingServices: never;
+  /**
+   * The encoded type the codec's document is read as.
+   *
+   * @since 0.0.0
+   */
+  readonly Encoded: I;
+  /**
+   * The decoded type.
+   *
+   * @since 0.0.0
+   */
+  readonly Type: A;
+}
+
+/**
  * Options for {@link ConfigFile.read}.
  *
  * @public
@@ -1301,11 +1352,11 @@ export interface ConfigReadOptions<A, I> {
    */
   readonly parseOptions?: SchemaAST.ParseOptions;
   /**
-   * The schema the document is decoded through.
+   * The schema the document is decoded through; see {@link ConfigReadSchema}.
    *
    * @since 0.0.0
    */
-  readonly schema: S.Codec<A, I>;
+  readonly schema: ConfigReadSchema<A, I>;
 }
 
 // Implementation of ConfigFile.read; the public contract lives on the static.
