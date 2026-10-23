@@ -1,5 +1,6 @@
 /**
- * Calendar date schema shared by this package's dated values.
+ * Calendar date value object: a day that exists in its month, encoded as an
+ * ISO date string.
  *
  * **Details**
  *
@@ -7,9 +8,9 @@
  * its ISO date string, the way docket-intake writes calendar dates. Its
  * decoder rejects a day the month does not have, but `LocalDate` itself only
  * range-checks the day, so a constructed or generated `LocalDate` can name
- * February 31. This composition adds that check on the decoded side too.
+ * February 31. This composition adds that check on the decoded side too, so
+ * every value it accepts encodes and decodes back to itself.
  *
- * @internal
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -19,7 +20,7 @@ import { daysInMonth, LocalDateFromString } from "@beep/schema/LocalDate";
 import * as S from "effect/Schema";
 import type { LocalDate } from "@beep/schema/LocalDate";
 
-const $I = $LawPracticeDomainId.create("internal/CalendarDate");
+const $I = $LawPracticeDomainId.create("values/CalendarDate/CalendarDate.model");
 
 /**
  * A day that exists in its month, encoded as an ISO date string (`YYYY-MM-DD`).
@@ -27,19 +28,19 @@ const $I = $LawPracticeDomainId.create("internal/CalendarDate");
  * **Details**
  *
  * The decoded value is a `LocalDate`. Decoding and construction both reject a
- * day past the end of its month, such as `2026-02-30`.
+ * day past the end of its month, such as `2026-02-30`, so values generated
+ * from this schema round-trip through its encoding.
  *
  * **Example** (Decode a calendar date)
  *
  * ```ts
+ * import { CalendarDate } from "@beep/law-practice-domain/values"
  * import * as S from "effect/Schema"
- * import { CalendarDate } from "./CalendarDate.ts"
  *
  * console.log(S.decodeUnknownExit(CalendarDate)("2026-11-02")._tag) // "Success"
  * console.log(S.decodeUnknownExit(CalendarDate)("2026-02-30")._tag) // "Failure"
  * ```
  *
- * @internal
  * @category schemas
  * @since 0.0.0
  */
@@ -61,7 +62,6 @@ export const CalendarDate = LocalDateFromString.check(
 /**
  * Decoded type of {@link CalendarDate}: a `LocalDate`.
  *
- * @internal
  * @category models
  * @since 0.0.0
  */

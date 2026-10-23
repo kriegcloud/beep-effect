@@ -1519,7 +1519,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     );
     const stampedRecords = A.map(records, ({ record, sessionIdentityHash, hookPathHash }) => {
       const sanitized = record.privacy.sanitized;
-      const kind = AiMetricsTranscriptSource.$match(sanitized.sourceKind, {
+      const kind = AiMetricsTranscriptSource.match(sanitized.sourceKind, {
         claude: () => O.some(HookPulseAgentKind.Enum["claude-code"]),
         codex: () => O.some(HookPulseAgentKind.Enum["codex-cli"]),
         openclaw: O.none<HookPulseAgentKind>,

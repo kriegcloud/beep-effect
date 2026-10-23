@@ -53,9 +53,13 @@ const WindowSessions = S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1));
  * @category models
  * @since 0.0.0
  */
-export const HarnessLedgerAdmission = LiteralKit(
-  LedgerDisposition.pick(["accepted", "rejected", "deferred", "waived", "tombstoned"]).literals
-).pipe(
+export const HarnessLedgerAdmission = LedgerDisposition.pick([
+  "accepted",
+  "rejected",
+  "deferred",
+  "waived",
+  "tombstoned",
+]).pipe(
   $I.annoteSchema("HarnessLedgerAdmission", {
     description: "Human admission outcome recorded by a disposition row.",
   })
@@ -83,7 +87,7 @@ export type HarnessLedgerAdmission = typeof HarnessLedgerAdmission.Type;
  * @category models
  * @since 0.0.0
  */
-export const PrunableSurfaceKind = LiteralKit(ContextSurfaceKind.pick(["skill", "hook", "mcp-server"]).literals).pipe(
+export const PrunableSurfaceKind = ContextSurfaceKind.pick(["skill", "hook", "mcp-server"]).pipe(
   $I.annoteSchema("PrunableSurfaceKind", {
     description: "Pruning surface kinds; hook rows remain decodable, but enumeration waits for execution telemetry.",
   })
@@ -113,7 +117,7 @@ export type PrunableSurfaceKind = typeof PrunableSurfaceKind.Type;
  * @category utilities
  * @since 0.0.0
  */
-export const prunableSurfaceMechanism: (kind: PrunableSurfaceKind) => MechanismClass = PrunableSurfaceKind.$match({
+export const prunableSurfaceMechanism: (kind: PrunableSurfaceKind) => MechanismClass = PrunableSurfaceKind.match({
   skill: () => MechanismClass.Enum.skill,
   hook: () => MechanismClass.Enum.control_flow,
   "mcp-server": () => MechanismClass.Enum.client_tool,
@@ -178,7 +182,7 @@ const PruneTelemetryClient = LiteralKit([...HookPulseAgentKind.literals, "junie"
 
 const EditSpecPrefix = LiteralKit(["commit", "diff"]);
 const decodeEditSpecPrefix = S.decodeUnknownEffect(EditSpecPrefix);
-const editKindForPrefix = EditSpecPrefix.$match({
+const editKindForPrefix = EditSpecPrefix.match({
   commit: () => HarnessEditRefKind.Enum.commit,
   diff: () => HarnessEditRefKind.Enum["diff-digest"],
 });

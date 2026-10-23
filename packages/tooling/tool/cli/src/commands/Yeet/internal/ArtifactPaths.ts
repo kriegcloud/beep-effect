@@ -48,7 +48,7 @@ const isRepositoryOriginProtocol = S.is(RepositoryOriginProtocol);
 const parseRepositoryUrl = O.liftThrowable((value: string) => new URL(value));
 
 const defaultPortForProtocol = (protocol: RepositoryOriginProtocol): string =>
-  RepositoryOriginProtocol.$match(protocol, {
+  RepositoryOriginProtocol.match(protocol, {
     "https:": () => "443",
     "ssh:": () => "22",
     "git:": () => "9418",

@@ -166,7 +166,7 @@ export class AppHostTarget extends S.Opaque<AppHostTarget, { readonly brand: uni
  * @since 0.0.0
  */
 export const portlessUrlForApp = (target: AppHostTarget): string =>
-  AppNamespace.$match(target.namespace, {
+  AppNamespace.match(target.namespace, {
     apps: () => `http://${target.name}.beep.localhost:${PORTLESS_PORT}`,
     labs: () => `http://${target.name}.labs.beep.localhost:${PORTLESS_PORT}`,
   });

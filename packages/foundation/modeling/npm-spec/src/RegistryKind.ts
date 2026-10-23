@@ -233,7 +233,7 @@ export const registryHost = (registry: string): string =>
  * @since 0.0.0
  */
 export const registryShortLabel = (registry: string): string =>
-  RegistryKind.$match(classifyRegistry(registry), {
+  RegistryKind.match(classifyRegistry(registry), {
     npm: () => "npm",
     "github-packages": () => "github",
     jsr: () => "jsr",
@@ -273,7 +273,7 @@ export const registryShortLabel = (registry: string): string =>
  */
 export const registryDisplayName = (registry: string | null | undefined): string => {
   if (registry === null || registry === undefined || registry === "") return "npm";
-  return RegistryKind.$match(classifyRegistry(registry), {
+  return RegistryKind.match(classifyRegistry(registry), {
     npm: () => "npm",
     "github-packages": () => "GitHub Packages",
     jsr: () => "JSR",

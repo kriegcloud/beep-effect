@@ -185,7 +185,7 @@ const validateProtocolReadFailure = Effect.fn("Cache.validateProtocolReadFailure
   upload: CacheProtocolObservation["exchanges"][number]
 ) {
   const reads = A.filter(events, (event) => event.scenario.id === failure.case && event.operation === "get");
-  const status = CacheProtocolReadFailure.fields.case.$match({
+  const status = CacheProtocolReadFailure.fields.case.match({
     unavailable: () => 503,
     throttled: () => 429,
     "truncated-body": () => 200,
@@ -195,7 +195,7 @@ const validateProtocolReadFailure = Effect.fn("Cache.validateProtocolReadFailure
     reads.length === 0 ||
     !A.every(reads, (event) => {
       const emptyBody = () => event.bytes === 0 && !event.tagPresent && O.isNone(event.digest);
-      const bytesMatch = CacheProtocolReadFailure.fields.case.$match({
+      const bytesMatch = CacheProtocolReadFailure.fields.case.match({
         unavailable: emptyBody,
         throttled: emptyBody,
         "truncated-body": () =>

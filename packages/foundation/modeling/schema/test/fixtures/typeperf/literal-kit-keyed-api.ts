@@ -1,4 +1,4 @@
-// Measures the marginal type-level cost of LiteralKit's keyed value API (Enum, is, $match) over six string literals.
+// Measures the marginal type-level cost of LiteralKit's keyed value API (Enum, is, match) over six string literals.
 // Follows the effect/typeperf/suites/schema fixture rules: one behavior, the suite warmup, exported views.
 import { LiteralKit } from "@beep/schema/LiteralKit";
 
@@ -8,7 +8,7 @@ const kit = LiteralKit(["draft", "review", "approved", "published", "archived", 
 
 export const approved = kit.Enum.approved;
 export const isDraft = kit.is.draft;
-export const rank = kit.$match(kit.Enum.review, {
+export const rank = kit.match(kit.Enum.review, {
   draft: () => 0,
   review: () => 1,
   approved: () => 2,

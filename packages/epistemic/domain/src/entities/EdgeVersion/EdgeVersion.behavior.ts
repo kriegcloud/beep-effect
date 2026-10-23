@@ -192,7 +192,7 @@ export const flattenEdgeTarget = (endpoint: EdgeEndpoint): EdgeVersionTargetColu
  * @since 0.0.0
  */
 export const unflattenEdgeSource = (columns: EdgeVersionSourceColumns): O.Option<EdgeEndpoint> =>
-  EdgeEndpointKind.$match(columns.sourceKind, {
+  EdgeEndpointKind.match(columns.sourceKind, {
     claim: () => O.map(columns.sourceClaimId, (claimId) => EdgeEndpoint.cases.claim.make({ claimId })),
     evidence: () => O.map(columns.sourceEvidenceId, (evidenceId) => EdgeEndpoint.cases.evidence.make({ evidenceId })),
     entity: () => O.map(columns.sourceEntityRef, (entityRef) => EdgeEndpoint.cases.entity.make({ entityRef })),
@@ -218,7 +218,7 @@ export const unflattenEdgeSource = (columns: EdgeVersionSourceColumns): O.Option
  * @since 0.0.0
  */
 export const unflattenEdgeTarget = (columns: EdgeVersionTargetColumns): O.Option<EdgeEndpoint> =>
-  EdgeEndpointKind.$match(columns.targetKind, {
+  EdgeEndpointKind.match(columns.targetKind, {
     claim: () => O.map(columns.targetClaimId, (claimId) => EdgeEndpoint.cases.claim.make({ claimId })),
     evidence: () => O.map(columns.targetEvidenceId, (evidenceId) => EdgeEndpoint.cases.evidence.make({ evidenceId })),
     entity: () => O.map(columns.targetEntityRef, (entityRef) => EdgeEndpoint.cases.entity.make({ entityRef })),

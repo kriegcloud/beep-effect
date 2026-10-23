@@ -223,6 +223,9 @@ export class DuckDbClientConfigData extends S.Opaque<DuckDbClientConfigData, { r
     prepareCacheSize: S.optional(S.Int).annotateKey({
       description: "Prepared statements cached per connection. Defaults to 200; 0 or less disables the cache.",
     }),
+    readerConnections: S.optional(S.Natural).annotateKey({
+      description: "Read-only connections for streams outside transactions. Defaults to 0 (one writer only).",
+    }),
     readOnly: S.optional(S.Boolean).annotateKey({
       description:
         "When true, open with access_mode=READ_ONLY through the shared instance cache; refused while this process holds the same file read-write.",

@@ -189,7 +189,7 @@ export class PipelineProcessOptions extends S.Opaque<PipelineProcessOptions, { r
   )
 ) {}
 
-const stageTransform: (stage: PipelineStage) => (value: string) => string = PipelineStage.$match({
+const stageTransform: (stage: PipelineStage) => (value: string) => string = PipelineStage.match({
   lowercase: () => Str.toLowerCase,
   normalizeWhitespace: () => flow(Str.replace(/\s+/g, " "), Str.trim),
   removePunctuation: () => Str.replace(/[^\w\s]/g, ""),

@@ -175,7 +175,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, Path.layer), { timeout: "30 seco
           const qualification = aiMetricsSessionStampQualificationFor(join, completeness);
           const expectedCompleteness = hookComplete && gapComplete ? "complete" : "partial";
           const unresolved = completeness === "complete" ? "unqualified" : "unknown";
-          const expectedQualification = AiMetricsSessionStampJoin.$match(join, {
+          const expectedQualification = AiMetricsSessionStampJoin.match(join, {
             retained: () => "qualified",
             contradicted: () => "unqualified",
             unsupported: () => "unsupported",

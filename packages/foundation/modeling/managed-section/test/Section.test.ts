@@ -13,7 +13,7 @@ describe("SectionId", () => {
   });
 
   it("requires a comment style, so a shell marker can never land in a TypeScript file by omission", () => {
-    // @ts-expect-error commentStyle is required — no silent "#" default.
+    // @ts-expect-error -- commentStyle is required — no silent "#" default. Owner: @beep/managed-section. Exit: remove if the API is meant to accept this.
     assert.throws(() => SectionId.make({ key: "example-tool" }));
   });
 

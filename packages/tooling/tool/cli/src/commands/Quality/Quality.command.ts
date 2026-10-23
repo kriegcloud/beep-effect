@@ -397,7 +397,6 @@ const EffectDiagnosticsExemptRule = LiteralKit([
   "globalTimers",
   "newPromise",
   "nodeBuiltinImport",
-  "processEnv",
 ]);
 
 /**
@@ -475,7 +474,7 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
 ] = [
   EffectDiagnosticsDirectiveExemption.make({
     path: "vitest.setup.ts",
-    rules: ["nodeBuiltinImport", "asyncFunction", "newPromise", "processEnv", "globalTimers", "globalRandom"],
+    rules: ["nodeBuiltinImport", "asyncFunction", "newPromise", "globalTimers", "globalRandom"],
     reason:
       "Root Bun-compat shim for Node-based vitest runs: it implements Bun.spawn/file/serve over node builtins before any Effect runtime exists.",
   }),
@@ -1482,7 +1481,7 @@ export const runGithubChecks = Effect.fn("QualityScriptCommands.runGithubChecks"
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
   const failurePolicy = options.failurePolicy ?? GithubCheckFailurePolicy.Enum["fail-fast"];
 
-  yield* GithubCheckMode.$match(mode, {
+  yield* GithubCheckMode.match(mode, {
     "cheap-gates": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runCheapGates(repoRoot))),
     quality: () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runQuality(repoRoot, failurePolicy))),
     "review-fix": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runReviewFix(repoRoot, options))),

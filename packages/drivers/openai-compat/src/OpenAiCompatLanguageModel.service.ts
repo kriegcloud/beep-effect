@@ -72,7 +72,7 @@ const OptionalNullableUnitInterval = UnitInterval.pipe(
 );
 const decodeFinishReasonOption = S.decodeUnknownOption(OpenAiCompatFinishReason);
 const knownFinishReasonToResponse = (reason: OpenAiCompatFinishReason): Response.FinishReason =>
-  OpenAiCompatFinishReason.$match(reason, {
+  OpenAiCompatFinishReason.match(reason, {
     content_filter: () => "content-filter" as const,
     function_call: () => "tool-calls" as const,
     length: () => "length" as const,

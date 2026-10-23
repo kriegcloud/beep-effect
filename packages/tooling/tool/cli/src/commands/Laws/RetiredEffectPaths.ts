@@ -102,7 +102,7 @@ const mappingFits =
   (rule: RetiredEffectPathRule, text: string) =>
   (row: RetiredEffectPathMapping): boolean =>
     row.rule === rule &&
-    RetiredEffectPathMatchKind.$match(row.kind, {
+    RetiredEffectPathMatchKind.match(row.kind, {
       exact: () => row.retired === text,
       prefix: () => F.pipe(text, Str.startsWith(row.retired)),
     });

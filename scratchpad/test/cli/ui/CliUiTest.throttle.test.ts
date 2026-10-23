@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file asyncFunction:skip-file
+// @effect-diagnostics asyncFunction:skip-file -- asyncFunction because Vitest's vi.mock factory is async by contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Ink throttles its production path to 30 fps by default, a trailing timer of about 33 ms: a frame rendered just after
 // another is written a throttle period later, which can land after the harness's settle has already read the screen.
 // The harness raises Ink's maxFps so that cannot happen; this pins the option it mounts with, on both production paths.

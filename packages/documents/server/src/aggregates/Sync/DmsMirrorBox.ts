@@ -594,7 +594,7 @@ export const makeDmsMirrorBox = Effect.fn($I`makeDmsMirrorBox`)(function* () {
     remoteId: RemoteItemId,
     requestBody: { readonly name?: string; readonly parent?: { readonly id: string } }
   ): Effect.Effect<RemoteItemFields, DmsMirrorUnavailable> =>
-    SyncItemKind.$match(itemKind, {
+    SyncItemKind.match(itemKind, {
       file: () =>
         box.files
           .updateFileById(

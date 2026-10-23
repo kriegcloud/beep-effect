@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file processEnv:skip-file processEnvInEffect:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file processEnv:skip-file processEnvInEffect:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; processEnv because it hands the replayed hook subprocess a marker path through the real environment; processEnvInEffect because it hands the replayed hook subprocess a marker path through the real environment. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `WorkspaceSnapshots.at(ref)` through the REAL composites, over a real git
 // repository: two commits that declare two different versions of one config
 // dependency, with the older version installed under `.pnpm-config` and the

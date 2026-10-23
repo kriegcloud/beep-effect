@@ -60,7 +60,7 @@ const strictUtf8 = (bytes: Uint8Array): Effect.Effect<string, "invalid-utf8"> =>
     catch: (): "invalid-utf8" => "invalid-utf8",
   });
 
-const parserDetail = DegradedKind.$match({
+const parserDetail = DegradedKind.match({
   "invalid-utf8": () => "The source bytes are not valid UTF-8.",
   truncated: () => "The HTML source ended inside a tag, attribute, or comment.",
   "empty-text-layer": () => "The PDF contains no extractable text layer.",
@@ -186,7 +186,7 @@ const parsePdfRetry = Effect.fn("ParserRetry.parsePdf")(function* (document: Sou
 const makeParser = (pdf: (document: SourceDocument, bytes: Uint8Array) => Effect.Effect<ParseOutcomeValue>) =>
   Parser.of({
     parse: Effect.fn("Parser.parse")((document, bytes) =>
-      MediaType.$match(document.mediaType, {
+      MediaType.match(document.mediaType, {
         "application/pdf": () => pdf(document, bytes),
         "text/html": () => parseHtml(document, bytes),
         "text/markdown": () => parseMarkdown(document, bytes),

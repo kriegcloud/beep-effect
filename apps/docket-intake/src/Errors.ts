@@ -54,7 +54,7 @@ export type DocketIntakeFailureKind = typeof DocketIntakeFailureKind.Type;
  * @category utilities
  * @since 0.0.0
  */
-export const docketIntakeExitCode: (kind: DocketIntakeFailureKind) => number = DocketIntakeFailureKind.$match({
+export const docketIntakeExitCode: (kind: DocketIntakeFailureKind) => number = DocketIntakeFailureKind.match({
   failed: () => 1,
   refused: () => 2,
   throttled: () => 3,

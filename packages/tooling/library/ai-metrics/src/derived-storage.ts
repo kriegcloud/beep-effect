@@ -1016,7 +1016,7 @@ export const aiMetricsSessionStampQualificationFor: {
     join: AiMetricsSessionStampJoin,
     completeness: AiMetricsSessionStampCompleteness
   ): AiMetricsSessionStampQualification =>
-    AiMetricsSessionStampJoin.$match(join, {
+    AiMetricsSessionStampJoin.match(join, {
       retained: () => AiMetricsSessionStampQualification.Enum.qualified,
       contradicted: () => AiMetricsSessionStampQualification.Enum.unqualified,
       unsupported: () => AiMetricsSessionStampQualification.Enum.unsupported,
@@ -1401,7 +1401,7 @@ const countCreatedArchiveObjects = (records: ReadonlyArray<AiMetricsDerivedTrans
   A.filter(records, (record) => record.archiveObject.created).length;
 
 const parquetExportDirFor = (pathApi: Path.Path, input: AiMetricsDerivedStorageWriteInput): O.Option<string> =>
-  AiMetricsParquetExportMode.$match(input.parquetExportMode, {
+  AiMetricsParquetExportMode.match(input.parquetExportMode, {
     latest: () => O.some(pathApi.join(input.storage.parquetDir, "latest")),
     none: O.none,
     snapshot: () => O.some(pathApi.join(input.storage.parquetDir, input.ingestRunId)),

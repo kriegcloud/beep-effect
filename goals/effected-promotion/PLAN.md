@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 (`@beep/markdown`, D-38..D-46) in review, with 2d-2, 2d-A and 2d-3 queued behind it.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46), with 2d-2, 2d-A and 2d-3 queued behind it; wave 3 started with 3-Y (the `@beep/yaml` plain-scalar continuation fix, W3-d) in progress, and 3-1..3-5 and 3-A1..3-A9 queued per `research/wave-3-plan-2026-10-23.md`.
 
 ## Phases
 
@@ -16,6 +16,10 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 
 ## Waves
 
+The binding plan for wave 3 is `research/wave-3-plan-2026-10-23.md`: its "PR sequence" table sets
+the sub-wave order, dependencies and parallel lanes, and its decisions are recorded as W3-a onward
+(numbered after merging main).
+
 | Wave | Packages | Notes |
 | --- | --- | --- |
 | 1a (merged, #1956) | `@beep/spdx`, `@beep/schema-org`, `@beep/github-references`, `@beep/github-commands`, `@beep/commands`, `@beep/jsonl`, `@beep/jsonc`, `@beep/semver` | Low-finding packages first (D-19, D-20, D-21); every gate at zero findings, no inventory growth. |
@@ -25,12 +29,26 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 | 2b-2 (merged, #1994) | `@beep/github` | Replaces `@effected/github` in repo-cli (one atomic swap, D-34); closes the `@effected/github` Exception Ledger row. Merges after 2b-1 (shared identity, catalog, `bun.lock` and `PROMOTED`-map files). |
 | 2b-3 (merged, #2002) | `@beep/runtime-env` | Lands with the `@beep/chalk` and `@beep/colors` delegation (D-14 as amended by D-33, colour precedence; D-36 conformance shifts). repo-cli EnvConfig is not adopted: its exact `CI === "true"` differs from `RuntimeEnv.ci` (Exception Ledger "Duplicate CI detection", removal with cli-kit in wave 4). Last in 2b: the only PR with intended CI-visible behaviour changes (plain `@beep/colors` output in Actions logs, D-33 option (a)). |
 | 2c (merged, #2016) | glob adoption (no new package) | D-37. Needs 2b-1. Retires `@beep/utils/Glob`, `@beep/schema/Glob` and `FsUtils.walkFiles`/`globFiles` onto `@beep/glob` + `@beep/walker`, and repo-cli `Lint/internal/WorkspaceWalk.ts`; records the Bun `node:fs` glob census. Closes the "Duplicate directory traversal" ledger row and narrows "Duplicate glob matching" to repo-cli `internal/GlobPattern.ts` and the `EffectImports` tinyglobby scan (glob reuse phase). |
-| 2d-1 (in review) | `@beep/markdown` | D-38..D-45. Scaffold, rename-only move with the benchmark baseline (D-40), branded `S.Opaque` nodes admitted once per entry point (D-39), conformance lanes to zero findings with string-clean hot loops (D-41, D-42), the core-only codec-free root barrel and M3 MDX leaf (D-43), and the bridge prerequisites `MarkdownNodeKind`, `FrontmatterCodec.decodeResult`, `./conformance/*` and `MarkdownDocument.headingSource` (D-44). Lab importers (github-actions `GitHubMarkdown`, cli tests, reachability and layering maps) retargeted to `@beep/markdown` leaves; the five canon exceptions are cleared (D-45). |
+| 2d-1 (merged, #2102) | `@beep/markdown` | D-38..D-45. Scaffold, rename-only move with the benchmark baseline (D-40), branded `S.Opaque` nodes admitted once per entry point (D-39), conformance lanes to zero findings with string-clean hot loops (D-41, D-42), the core-only codec-free root barrel and M3 MDX leaf (D-43), and the bridge prerequisites `MarkdownNodeKind`, `FrontmatterCodec.decodeResult`, `./conformance/*` and `MarkdownDocument.headingSource` (D-44). Lab importers (github-actions `GitHubMarkdown`, cli tests, reachability and layering maps) retargeted to `@beep/markdown` leaves; the five canon exceptions are cleared (D-45). |
 | 2d-2 (queued) | `@beep/md` `Md.syntax`/`Md.parse` | D-02 bridge; contract decided there (D-44). After 2d-1, in parallel with 2d-A. Single `Document.make` per bridge call, import-boundary and export-set test, bridge-corpus ledger, writer differential (measure only), `cache-baseline-request-w2d2` with the turbo coupling measured. |
 | 2d-A (queued) | adoption (no new package) | D-46. After 2d-1, in parallel with 2d-2: repo-cli `extractFrontmatter`, the `ChangesetGraph` fence, skill-contract `SkillProjection`, `Goals/Inventory`. Closes the "Duplicate frontmatter splitting and README heading parsing" ledger row. |
 | 2d-3 (queued, evidence-gated) | `@beep/md` `Md.render` writer fixes | `&` and `$` escaping, only if the 2d-2 ledger and writer differential show the need; its own changeset. `math` stays off by default in `Md.parse` until it lands. |
 | 2d-later | adoption, one PR each | D-46 deferred sites, tracked in `history/reuse-ledger.md`. |
-| 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
+| 3-1 (queued) | `@beep/github-reporting` | W3-b. Lab adopters only (github-actions `index.ts`, `package.json`, `Exports.test.ts`, `reachability.test.ts`, the layering PROMOTED map). Fixes the GitHubMarkdown and ManagedDocument rows of "Inherited failures". From main; parallel with 3-2, 3-Y, 3-3, 3-4, 3-5. |
+| 3-2 (queued) | `@beep/repo-tsconfig` + the `get-tsconfig` drop | W3-c. Adopters: repo-cli `EffectDiagnostics.ts` (2 sites), `test-tsgo-turbo-inputs.test.ts`, `TestTypecheckCoverage.ts`; the root catalog; the runbook line; plus the realpath fix. From main; serializes with 3-3 on the repo-cli manifest. |
+| 3-Y (in progress, this PR) | `@beep/yaml` continuation fix | W3-d. No adopters. From main; parallel with all. Repro tests, an oracle property, yaml-test-suite at zero failures, the lockfiles suite re-run. |
+| 3-3 (queued) | `@beep/config-file` | W3-e. Adopters: docgen `Configuration.ts` `readJsoncFile`, repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli. Cut after 3-Y merges; serializes with 3-2 on the repo-cli manifest. |
+| 3-4 (queued) | `@beep/package-json` | W3-f. Lab adopters only (sbom re-export dropped, workspaces, both PROMOTED maps). From main; 3-5 takes main first on `WorkspacePackage.ts`. |
+| 3-5 (queued) | `@beep/lockfiles` | W3-g. Lab adopters only (workspaces, both PROMOTED maps). From main; 3-4 takes main first on `WorkspacePackage.ts`. |
+| 3-A1 (queued) | lockfiles adoption + `ResolvedPackage.installName` | repo-cli `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half). After 3-5. |
+| 3-A2 (queued) | package-json field growth | `DevEngine.onFail` gains `download`. After 3-4. |
+| 3-A3 (queued) | repo-utils re-base | repo-utils `schemas/PackageJson.ts`, Workspaces/Dependencies/DependencyIndex/UniqueDeps to `HashMap`, `DocgenConfig.ts`, `WorkspaceDeps.ts`. After 3-A2. |
+| 3-A4 (queued) | package.json readers | repo-cli readers, `RootCatalog.ts` (package.json half), docgen `Version.ts` and `Configuration.ts`. After 3-A2, 3-A1, 3-3 and 2d-A. |
+| 3-A5 (queued) | CheckCensus onto `TsconfigLoader.compilerOptions` | repo-cli `Quality/CheckCensus.ts`. After 3-2. |
+| 3-A6 (queued) | `TsconfigValidator` + docgen `readTSConfig` | Deletes repo-utils `schemas/TSConfig.ts`; the `@beep/tsconfig` closed-view export. After 3-2, 3-3, 3-A3, 3-A4. |
+| 3-A7 (queued) | `TsconfigSync.schemas` onto `@beep/tsconfig` | repo-cli `TsconfigSync.schemas.ts`, with byte parity of tsconfig-sync output. After 3-2. |
+| 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
+| 3-A9 (queued, optional) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`. After 3-4. |
 | 4 | `@beep/sbom`, `@beep/xdg`, `@beep/cli-kit`, `@beep/repo-workspaces` | `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 | `@beep/github-actions` | Leaf driver. |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05: each with its first consumer (mcpb-kit tarball, a release attestation step, the Accounts TUI, an MCP server ProcessGuard). |

@@ -543,14 +543,14 @@ export const dryRunDocketUndo: {
 );
 
 // The `undo-` line an action records; an item already undone, or kept for a later run, records none.
-const eventLineKind = DocketUndoEventAction.$match({
+const eventLineKind = DocketUndoEventAction.match({
   delete: () => O.some(DocketJournalKind.Enum["undo-event-deleted"]),
   gone: () => O.some(DocketJournalKind.Enum["undo-event-gone"]),
   keep: () => O.some(DocketJournalKind.Enum["undo-event-kept"]),
   undone: O.none<DocketJournalKind>,
 });
 
-const messageLineKind = DocketUndoMessageAction.$match({
+const messageLineKind = DocketUndoMessageAction.match({
   gone: () => O.some(DocketJournalKind.Enum["undo-message-gone"]),
   keep: O.none<DocketJournalKind>,
   undone: O.none<DocketJournalKind>,

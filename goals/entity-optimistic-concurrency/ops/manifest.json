@@ -4,21 +4,27 @@
     "id": "entity-optimistic-concurrency",
     "packetId": "goal-packet/v1:f5ad6f1f2a0ec67a68c0bb81d99dd03523701097239109deda4973a79dc9e38b",
     "title": "Entity Optimistic Concurrency",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-20",
-    "updated": "2026-10-20",
+    "updated": "2026-10-23",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/entity-optimistic-concurrency",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Make every entity-repository write compare-and-increment rowVersion so concurrent writers fail typed instead of losing updates",
   "executionCapable": true,
   "reflectionRequired": true,
   "completionGate": {
+    "pullRequests": [
+      {
+        "number": 1941,
+        "role": "final"
+      }
+    ],
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "statement": "PR #1941 merged as 2a42813ca1 under S43 (merge on review, reds included). Its two post-merge reds on main were fixed by #1967 and #2040. Merge-time completion evidence stays unsatisfied; the operator ruled the closeout on 2026-10-23 (README Latest Evidence).",
     "grandfathered": false,
     "acceptanceEvidence": [
       {
@@ -68,12 +74,12 @@
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "in-progress"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
@@ -87,9 +93,5 @@
     "Required source files are missing or materially contradictory.",
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
-  ],
-  "proposedCloseout": {
-    "status": "completed-retained",
-    "finalPullRequest": 1941
-  }
+  ]
 }

@@ -117,7 +117,7 @@ describe("MarkdownNode", () => {
         const enumeration: Readonly<Record<string, string | number>> = schema.Enum;
         assert.deepStrictEqual(R.values(enumeration), [...members]);
         assert.strictEqual(schema.ast.annotations?.identifier, identity.make(name));
-        assert.isFunction(schema.$match);
+        assert.isFunction(schema.match);
         const guards: Readonly<Record<string, (input: unknown) => boolean>> = schema.is;
         for (const guard of R.values(guards)) {
           const literals: ReadonlyArray<string | number> = schema.literals;
@@ -126,7 +126,7 @@ describe("MarkdownNode", () => {
         }
       }
       assert.strictEqual(
-        Node.ReferenceType.$match("full", {
+        Node.ReferenceType.match("full", {
           shortcut: () => "inferred",
           collapsed: () => "inferred",
           full: () => "explicit",

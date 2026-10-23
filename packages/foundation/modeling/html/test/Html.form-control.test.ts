@@ -130,9 +130,9 @@ describe("HTML form-control semantic states", () => {
   it("rejects impossible discriminants and correlated button bases", () => {
     const validInput: InputState = InputState.cases.email.make({});
     const validButton: ButtonState = ButtonState.cases.submit.make({ basis: "auto" });
-    // @ts-expect-error -- unsupported is not one of the standard input states.
+    // @ts-expect-error -- unsupported is not one of the standard input states. Owner: @beep/html. Exit: remove if the API is meant to accept this.
     const invalidInput: InputState = { state: "unsupported" };
-    // @ts-expect-error -- command presence is correlated with the nonSubmit case.
+    // @ts-expect-error -- command presence is correlated with the nonSubmit case. Owner: @beep/html. Exit: remove if the API is meant to accept this.
     const invalidButton: ButtonState = { state: "submit", basis: "auto-command" };
 
     expect(validInput.state).toBe("email");

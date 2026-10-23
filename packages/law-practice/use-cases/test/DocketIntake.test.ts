@@ -2343,3 +2343,231 @@ describe("@beep/law-practice-use-cases DocketIntake docket sheet cross-check", (
     );
   });
 });
+
+// A needs-review message that says which email it is: every value is synthetic.
+const NAMED_SUBJECT = "Office action response";
+const NAMED_SENDER = "examiner@example.com";
+const namedMessage = DocketMessage.make({
+  bodyText: BODY,
+  conversationId: O.some("AAQkADsynthetic-thread"),
+  messageId: "m-named",
+  receivedAt: "2030-01-09T10:00:00Z",
+  receivedDate: RECEIVED,
+  sender: O.some(NAMED_SENDER),
+  subject: O.some(NAMED_SUBJECT),
+  webLink: O.some("https://outlook.fixture.invalid/mail/m-named"),
+});
+
+// A ledger row written before needs-review outcomes kept the email, its dates and its matter.
+const OLD_STATE = `{"ledger":{"m-old":{"attempts":1,"outcome":{"_tag":"DocketNeedsReview","entry":{"eventId":"event-old"},"flags":["dates-differ"],"messageId":"m-old","reason":"no-usable-date"},"processedOn":"2030-01-09","receivedAt":"2030-01-09T10:00:00Z"}}}`;
+
+const decodeStateJson = S.decodeUnknownEffect(S.fromJsonString(DocketIntakeState));
+const encodeStateJson = S.encodeEffect(S.fromJsonString(DocketIntakeState));
+
+describe("@beep/law-practice-use-cases DocketIntake needs-review identity", () => {
+  it.effect(
+    "still decodes a ledger row written before the identity keys, with none of them",
+    Effect.fnUntraced(function* () {
+      const state = yield* decodeStateJson(OLD_STATE);
+      const outcome = yield* Effect.fromOption(
+        O.flatMap(R.get(state.ledger, "m-old"), (record) =>
+          O.liftPredicate(record.outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        )
+      );
+
+      expect(outcome.candidateDates).toStrictEqual([]);
+      for (const absent of [
+        outcome.conversationId,
+        outcome.docket,
+        outcome.matter,
+        outcome.messageLink,
+        outcome.sender,
+        outcome.subject,
+        outcome.title,
+      ]) {
+        assertNone(absent);
+      }
+      assertNone(outcome.receivedDate);
+      expect(yield* decodeStateJson(yield* encodeStateJson(state))).toStrictEqual(state);
+    })
+  );
+
+  it.layer(
+    testLayer(
+      {
+        // As in the low-confidence case above: the first reader ends on 9 April, the second on 8 April.
+        critique: (input) => Effect.succeed(titled(input, "Fixture response due") ? [materialTitleFinding] : []),
+        matter: Effect.succeed(
+          MatterUnique.make({
+            client: O.some("0000"),
+            dockets: ["0000.00001US01", "0000.00001EP02"],
+            familyKey: "0000.00001",
+            matchedDockets: ["0000.00001US01"],
+            verified: true,
+          })
+        ),
+        messages: [namedMessage],
+        revise: () =>
+          Effect.succeed(
+            ParalegalRevision.make({
+              entry: datedEntry({
+                citedText: O.some("Also noted on January 9, 2030\nA response is due within three months"),
+                mailDate: O.some(addDays(mailDate, 1)),
+                title: "Due Date: fixture response",
+              }),
+            })
+          ),
+      },
+      { review: DocketReviewConfig.make({ maxRounds: 2 }) }
+    ),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "keeps the email, the candidate dates and the matter on a flagged item, and none of it in the digest",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+
+        const report = yield* intake.pollOnce(TODAY);
+        const record = yield* Effect.fromOption(yield* ledgerRecord("m-named"));
+        const outcome = yield* Effect.fromOption(
+          O.liftPredicate(record.outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        );
+        const digest = yield* intake.writeDigest(TODAY);
+
+        expect(report.needsReview).toBe(1);
+        expect(outcome.reason).toBe("flagged-low-confidence");
+        assertSome(outcome.subject, NAMED_SUBJECT);
+        assertSome(outcome.sender, NAMED_SENDER);
+        assertSome(outcome.messageLink, "https://outlook.fixture.invalid/mail/m-named");
+        assertSome(outcome.conversationId, "AAQkADsynthetic-thread");
+        assertSome(
+          O.map(outcome.receivedDate, (date) => date.toISOString()),
+          "2030-01-09"
+        );
+        expect(A.map(outcome.candidateDates, ({ date, source }) => [date.toISOString(), source])).toStrictEqual([
+          ["2030-04-09", "extractor"],
+          ["2030-04-08", "reviewer"],
+        ]);
+        assertSome(outcome.matter, "family 0000.00001 · client 0000 · dockets 0000.00001US01, 0000.00001EP02");
+        assertSome(outcome.docket, "0000.00001US01");
+        assertSome(outcome.title, "Due Date: fixture response");
+        for (const content of [NAMED_SUBJECT, NAMED_SENDER, "0000.00001"]) {
+          assertTrue(!Str.includes(content)(digest.bodyText));
+        }
+      })
+    );
+  });
+
+  it.layer(
+    testLayer(
+      {
+        enter: () => Effect.succeed(ParalegalNotDocketItem.make({ rationale: "Fixture newsletter." })),
+        messages: [namedMessage],
+      },
+      lenient
+    ),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "keeps the email on an escalated disagreement, with no dates and no matter",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+
+        const outcome = yield* intake.processMessage(namedMessage, TODAY);
+
+        expect(reasonOf(outcome)).toBe("agents-disagree");
+        const needsReview = yield* Effect.fromOption(
+          O.liftPredicate(outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        );
+        assertSome(needsReview.subject, NAMED_SUBJECT);
+        expect(needsReview.candidateDates).toStrictEqual([]);
+        assertNone(needsReview.matter);
+        assertNone(needsReview.docket);
+      })
+    );
+  });
+
+  it.layer(
+    testLayer({
+      matter: Effect.succeed(
+        MatterUnique.make({
+          client: O.some("0000"),
+          dockets: ["0000.00001US01", "0000.00001EP02"],
+          familyKey: "0000.00001",
+          matchedDockets: ["0000.00001US01"],
+          verified: true,
+        })
+      ),
+      messages: [namedMessage],
+      sheet: true,
+      tracked: sheetRows(tracked(RECEIVED, "due-date")),
+    }),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "keeps the email, both readers' dates, the sheet's date, the matter and the title on an entered item now past due",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+
+        // Both readers agree on 8 April; the docket sheet's earlier 9 January moves the item past due.
+        const outcome = yield* intake.processMessage(namedMessage, TODAY);
+        const needsReview = yield* Effect.fromOption(
+          O.liftPredicate(outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        );
+
+        expect(needsReview.reason).toBe("due-date-past");
+        assertSome(needsReview.subject, NAMED_SUBJECT);
+        assertSome(needsReview.sender, NAMED_SENDER);
+        assertSome(needsReview.messageLink, "https://outlook.fixture.invalid/mail/m-named");
+        assertSome(
+          O.map(needsReview.receivedDate, (date) => date.toISOString()),
+          "2030-01-09"
+        );
+        expect(A.map(needsReview.candidateDates, ({ date, source }) => [date.toISOString(), source])).toStrictEqual([
+          ["2030-04-08", "extractor"],
+          ["2030-04-08", "reviewer"],
+          ["2030-01-09", "tracked"],
+        ]);
+        assertSome(needsReview.matter, "family 0000.00001 · client 0000 · dockets 0000.00001US01, 0000.00001EP02");
+        assertSome(needsReview.docket, "0000.00001US01");
+        assertSome(needsReview.title, "Fixture response due");
+      })
+    );
+  });
+
+  it.layer(
+    testLayer(
+      {
+        messages: [namedMessage],
+        review: () => Effect.fail(DocketIntakeError.make({ cause: "timeout", stage: "review" })),
+      },
+      { maxAttempts: 1 }
+    ),
+    { timeout: "5 seconds" }
+  )((it) => {
+    it.effect(
+      "keeps the email on a message that could not be processed, with no dates and no matter",
+      Effect.fnUntraced(function* () {
+        const intake = yield* DocketIntake;
+
+        const report = yield* intake.pollOnce(TODAY);
+        const record = yield* Effect.fromOption(yield* ledgerRecord("m-named"));
+        const outcome = yield* Effect.fromOption(
+          O.liftPredicate(record.outcome, DocketIntakeOutcome.guards.DocketNeedsReview)
+        );
+
+        expect(report.needsReview).toBe(1);
+        expect(outcome.reason).toBe("processing-failed");
+        assertSome(outcome.subject, NAMED_SUBJECT);
+        assertSome(outcome.messageLink, "https://outlook.fixture.invalid/mail/m-named");
+        assertSome(
+          O.map(outcome.receivedDate, (date) => date.toISOString()),
+          "2030-01-09"
+        );
+        expect(outcome.candidateDates).toStrictEqual([]);
+        assertNone(outcome.matter);
+        assertNone(outcome.docket);
+      })
+    );
+  });
+});

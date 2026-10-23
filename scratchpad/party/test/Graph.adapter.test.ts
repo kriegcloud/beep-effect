@@ -1,4 +1,3 @@
-// @effect-diagnostics schemaSync:skip-file
 /**
  * effect/Graph projections and the mail-index adapter.
  */
@@ -66,6 +65,7 @@ describe("effect/Graph projections", () => {
 });
 
 describe("mail-index adapter", () => {
+  // @effect-diagnostics-next-line schemaSync:off -- plain Vitest cases decode encoded test records synchronously. Owner: @beep/scratchpad. Exit: the party-slice port moves these cases to it.effect.
   const decode = S.decodeUnknownSync(MailMessageIndexRecord);
   const dn = (cn: string) => `/O=ACME/OU=EXCHANGE ADMINISTRATIVE GROUP (FYDIBOHF23SPDLT)/CN=RECIPIENTS/CN=${cn}`;
   const base = {

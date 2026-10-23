@@ -264,7 +264,7 @@ const RecoveryBudgetCoherenceCheck = S.makeFilter(
     const attemptsWithinBudget = Num.isLessThanOrEqualTo(failure.consumed.attempts, failure.budget.maxAttempts);
     const operationsWithinBudget = Num.isLessThanOrEqualTo(failure.consumed.operations, failure.budget.maxOperations);
     const elapsedWithinBudget = Duration.isLessThanOrEqualTo(failure.consumed.elapsed, failure.budget.totalTimeout);
-    const terminalReasonMatchesBudget = FailureTerminalReason.$match(failure.terminalReason, {
+    const terminalReasonMatchesBudget = FailureTerminalReason.match(failure.terminalReason, {
       "attempt-budget-exhausted": () =>
         Num.isGreaterThanOrEqualTo(failure.consumed.attempts, failure.budget.maxAttempts),
       cancelled: () => true,

@@ -158,7 +158,7 @@ const decodeFolderMap = S.decodeUnknownEffect(MatterFolderMapJson);
 
 // The destination names a column of the map; no folder name or path exists in code.
 const folderOf: (destination: FilingDestination) => (folders: MatterFolders) => DocumentFolderId =
-  FilingDestination.$match({
+  FilingDestination.match({
     "uspto-incoming": () => (folders: MatterFolders) => folders.usptoIncomingFolderId,
     "from-client": () => (folders: MatterFolders) => folders.fromClientFolderId,
   });

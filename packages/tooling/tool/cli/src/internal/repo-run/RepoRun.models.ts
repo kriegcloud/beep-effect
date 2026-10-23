@@ -428,8 +428,22 @@ export class RepoStepRunResult extends S.Opaque<RepoStepRunResult, { readonly br
   )
 ) {}
 
-const phaseOrderValue = (phase: RepoPlanPhase): number =>
-  RepoPlanPhase.$match(phase, {
+/**
+ * Execution rank of a plan phase: `prepare` runs first, `monitor` last.
+ *
+ * **Example** (Rank two phases)
+ *
+ * ```ts
+ * import { phaseOrderValue } from "@beep/repo-cli/test/RepoRun"
+ *
+ * console.log(phaseOrderValue("commit") < phaseOrderValue("publish")) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const phaseOrderValue = (phase: RepoPlanPhase): number =>
+  RepoPlanPhase.match(phase, {
     prepare: () => 0,
     feedback: () => 1,
     commit: () => 2,

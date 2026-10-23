@@ -442,7 +442,7 @@ describe("DockEngine", () => {
               )
             );
             const split = yield* requireRootSplit(opened.state);
-            const expected = DockSide.$match({
+            const expected = DockSide.match({
               left: () => ({ axis: "horizontal", groupId: groupTwo, ratio: 2_500 }),
               right: () => ({ axis: "horizontal", groupId: groupOne, ratio: 7_500 }),
               top: () => ({ axis: "vertical", groupId: groupTwo, ratio: 2_500 }),

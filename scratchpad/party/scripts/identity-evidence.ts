@@ -1,4 +1,3 @@
-// @effect-diagnostics globalConsole:skip-file strictEffectProvide:skip-file preferSchemaOverJson:skip-file
 /**
  * Identity evidence run: mail pairings → claims, drift intervals, contact-card
  * assertions, and name-collision resolution with a review queue.
@@ -71,6 +70,7 @@ import {
   sealCase,
 } from "../adapters/ReviewLoop.ts";
 import { renderReviewPage } from "./ReviewPage.ts";
+import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils";
 
 const countBy = <A>(as: ReadonlyArray<A>, key: (a: A) => string) => R.map(A.groupBy(as, key), A.length);
 
@@ -324,7 +324,7 @@ const program = Effect.fn("identity-evidence")(function* (args: {
       ),
     },
   };
-  yield* fs.writeFileString(`${args.outDir}/identity-evidence.json`, `${JSON.stringify(summary, null, 2)}\n`);
+  yield* fs.writeFileString(`${args.outDir}/identity-evidence.json`, `${yield* jsonStringifyPretty(summary)}\n`);
   yield* Effect.log(`identity evidence written to ${args.outDir}`);
 });
 
@@ -337,6 +337,7 @@ if (
   filterArg === undefined ||
   A.isReadonlyArrayEmpty(inputs)
 ) {
+  // @effect-diagnostics-next-line globalConsole:off -- the usage error is written before the Effect runtime starts. Owner: @beep/scratchpad. Exit: the party-slice CLI parses arguments with effect/cli.
   console.error("usage: identity-evidence.ts <out-dir> <graph-contacts.jsonl> <practice-contacts.jsonl> <practice-links.jsonl> <filter|-> <mail-index.jsonl>...");
   process.exit(2);
 }
@@ -348,4 +349,5 @@ program({
   practiceLinks,
   filter: filterArg === "-" ? O.none() : O.some(new RegExp(filterArg, "i")),
   inputs,
+  // @effect-diagnostics-next-line strictEffectProvide:off -- this is the script's entry point, where the platform layer is provided once. Owner: @beep/scratchpad. Exit: never while this file is a bun entry script.
 }).pipe(Effect.provide(Layer.mergeAll(BunServices.layer, BunCrypto.layer)), BunRuntime.runMain);
