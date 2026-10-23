@@ -149,6 +149,7 @@ import {
 } from "@beep/repo-cli/test/Quality";
 import {
   hasRemoteTurboCacheArgs,
+  isCiSync,
   localOnlyTurboCacheArgs,
   readTurboCacheEnvironmentSync,
   resolveTurboCachePlan,
@@ -380,6 +381,21 @@ const withEnvVarEffect = <Out, E, R>(
       })
   );
 
+// A local run clears every signal the one CI rule reads (`RuntimeEnv.ci`): a
+// hosted runner sets GITHUB_ACTIONS beside CI, so clearing CI alone still
+// classifies the process as CI there.
+const withoutCi = <Out>(use: () => Out): Out =>
+  withEnvVar("CI", undefined, () =>
+    withEnvVar("GITHUB_ACTIONS", undefined, () => withEnvVar("CONTINUOUS_INTEGRATION", undefined, use))
+  );
+
+const withoutCiEffect = <Out, E, R>(use: Effect.Effect<Out, E, R>): Effect.Effect<Out, E, R> =>
+  withEnvVarEffect(
+    "CI",
+    undefined,
+    withEnvVarEffect("GITHUB_ACTIONS", undefined, withEnvVarEffect("CONTINUOUS_INTEGRATION", undefined, use))
+  );
+
 const isTurboConcurrencyArg = (arg: string): boolean =>
   arg === "--concurrency" || Str.startsWith("--concurrency=")(arg);
 
@@ -413,7 +429,7 @@ const policyTurboScmBase = (step: QualityTaskStep): string | undefined => step.e
 // Deriving it keeps them green on a checkout configured for remote reads
 // instead of pinning the local-only fallback into every expectation.
 const expectedTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironmentSync(), { args, ci: Bun.env.CI === "true" }));
+  turboCachePlanArgs(resolveTurboCachePlan(readTurboCacheEnvironmentSync(), { args, ci: isCiSync() }));
 const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
   "run",
@@ -426,7 +442,7 @@ const expectedRootTurboArgs = (task: string, args: ReadonlyArray<string>): Reado
     task,
     A.some(args, isTurboConcurrencyArg)
       ? args
-      : Bun.env.CI === "true"
+      : isCiSync()
         ? ["--concurrency=4", ...args]
         : ["--concurrency=3", ...args]
   );
@@ -987,7 +1003,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     });
 
     it("builds package-only audit steps by default and keeps turbo filters", () =>
-      withEnvVar("CI", undefined, () => {
+      withoutCi(() => {
         const steps = rootQualityStepsForTesting(
           "/repo",
           getInvocation(["audit", "--filter=@beep/schema", "--summarize"])
@@ -1023,7 +1039,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     );
 
     it("keeps package audit cacheable by default for local runs", () =>
-      withEnvVar("CI", undefined, () => {
+      withoutCi(() => {
         const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema"]));
 
         expect(steps).toHaveLength(1);
@@ -1452,7 +1468,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     });
 
     it("pins direct CI Turbo lanes to a requested local-only cache", () =>
-      withEnvVar("CI", undefined, () =>
+      withoutCi(() =>
         withEnvVar("TURBO_CACHE", "local:rw", () => {
           const options = CiLaneRunOptions.make({
             affected: true,
@@ -4263,9 +4279,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             `${root}/standards/lint-policy.sweeps.jsonc`,
             '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
-          yield* withEnvVarEffect(
-            "CI",
-            "false",
+          yield* withoutCiEffect(
             withEnvVarEffect(
               "TURBO_CACHE",
               "local:rw",
@@ -8368,7 +8382,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             flakeQuarantine: "ts2589-no-location",
           });
 
-          yield* withEnvVarEffect("CI", "false", runQualityTaskStreamingStepGroupForTesting("test:stream", [step]));
+          yield* withoutCiEffect(runQualityTaskStreamingStepGroupForTesting("test:stream", [step]));
 
           const artifactText = yield* fs.readFileString(
             path.join(process.cwd(), FLAKE_QUARANTINE_ARTIFACT_RELATIVE_PATH)
@@ -8429,10 +8443,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             flakeQuarantine: "ts2589-no-location",
           });
 
-          const exit = yield* withEnvVarEffect(
-            "CI",
-            "false",
-            Effect.exit(runQualityTaskStreamingStepGroupForTesting("test:stream", [step]))
+          const exit = yield* runQualityTaskStreamingStepGroupForTesting("test:stream", [step]).pipe(
+            Effect.exit,
+            withoutCiEffect
           );
 
           assertTrue(exit._tag === "Failure");
@@ -8757,7 +8770,13 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         }
       `;
         const child = Bun.spawnSync(["bun", "--eval", script], {
-          env: { ...Bun.env, CI: "false", REGEN_GOLDENS: mode },
+          env: {
+            ...Bun.env,
+            CI: "false",
+            GITHUB_ACTIONS: "false",
+            CONTINUOUS_INTEGRATION: "false",
+            REGEN_GOLDENS: mode,
+          },
           stdout: "pipe",
           stderr: "pipe",
         });
@@ -8773,7 +8792,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const build = rootQualityStepsForTesting("/repo", getInvocation(["build"]));
       expect(argsOf(build[0])).not.toContain(LABS_EXCLUDE_FILTER);
 
-      const audit = withEnvVar("CI", undefined, () =>
+      const audit = withoutCi(() =>
         rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema"]))
       );
       expect(argsOf(audit[0])).not.toContain(LABS_EXCLUDE_FILTER);
