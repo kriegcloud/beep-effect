@@ -23,6 +23,8 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { parse as parseJsonc } from "jsonc-parser";
+import { ts } from "ts-morph";
 import { parseDocument } from "yaml";
 import { runCapturedStreams } from "../../internal/process/index.ts";
 import {
@@ -31,6 +33,7 @@ import {
   fallowAuditCacheRemoveArgs,
   resolveFallowAuditCacheSettings,
 } from "../../internal/repo-run/index.ts";
+import { SchemaParityCodemodReport } from "../Lint/internal/SchemaParityCodemod.schemas.ts";
 import { fallowCiContractDiagnostics } from "./internal/FallowCiContract.ts";
 import {
   FallowAttributionKinds,
@@ -55,6 +58,7 @@ import {
 import { QualityScriptCommandError } from "./Quality.errors.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import type { ParseError } from "jsonc-parser";
 import type { FallowFeature, FindingAttributionKind } from "./internal/FallowEnvelope.schema.ts";
 
 const $I = $RepoCliId.create("commands/Quality/FallowQuality");
@@ -629,7 +633,180 @@ const introducedTestOnlyDuplicationCount = (document: unknown): number =>
     O.getOrElse(() => 0)
   );
 
-const normalizeAuditFindings = (document: unknown): ReadonlyArray<FallowFinding> => {
+const CodemodCloneGroups = S.Struct({
+  clone_groups: S.Array(
+    S.Struct({
+      introduced: S.Boolean,
+      instances: S.Array(S.Struct({ file: S.String, start_line: S.Int, end_line: S.Int })),
+    })
+  ),
+}).pipe(
+  $I.annoteSchema("CodemodCloneGroups", {
+    description: "Clone instances and introduced attribution used to verify codemod inheritance.",
+  })
+);
+
+const CodemodDiffHunk = S.Struct({
+  file: S.String,
+  oldStart: S.Int,
+  newStart: S.Int,
+  oldCount: S.Int,
+  newCount: S.Int,
+  removed: S.Array(S.String),
+  added: S.Array(S.String),
+}).pipe(
+  $I.annoteSchema("CodemodDiffHunk", {
+    description: "Zero-context diff hunk with the original and current line ranges.",
+  })
+);
+
+type CodemodDiffHunk = typeof CodemodDiffHunk.Type;
+
+const codemodDiffHeader = (file: string, line: string): O.Option<CodemodDiffHunk> =>
+  pipe(
+    O.fromNullishOr(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/.exec(line)),
+    O.map((match) => ({
+      file,
+      oldStart: Number(match[1]),
+      newStart: Number(match[3]),
+      oldCount: Number(match[2] ?? "1"),
+      newCount: Number(match[4] ?? "1"),
+      removed: [],
+      added: [],
+    }))
+  );
+
+const appendCodemodDiffLine = (hunk: CodemodDiffHunk, line: string): CodemodDiffHunk => {
+  if (Str.startsWith("-")(line)) {
+    return { ...hunk, removed: A.append(hunk.removed, Str.slice(1)(line)) };
+  }
+  if (Str.startsWith("+")(line)) {
+    return { ...hunk, added: A.append(hunk.added, Str.slice(1)(line)) };
+  }
+  return hunk;
+};
+
+const codemodDiffHunks = (diff: string): ReadonlyArray<CodemodDiffHunk> => {
+  let file = "";
+  let hunks = A.empty<CodemodDiffHunk>();
+  let current = O.none<CodemodDiffHunk>();
+  for (const line of Str.split(diff, "\n")) {
+    if (Str.startsWith("diff --git ")(line)) {
+      hunks = A.appendAll(hunks, O.toArray(current));
+      current = O.none();
+      file = "";
+    } else if (Str.startsWith("+++ b/")(line)) {
+      file = Str.slice(6)(line);
+    } else if (Str.startsWith("@@ ")(line)) {
+      hunks = A.appendAll(hunks, O.toArray(current));
+      current = codemodDiffHeader(file, line);
+    } else {
+      current = O.map(current, (hunk) => appendCodemodDiffLine(hunk, line));
+    }
+  }
+  return A.appendAll(hunks, O.toArray(current));
+};
+
+const isIdentifierRenameSite = (site: (typeof SchemaParityCodemodReport.Type.sites)[number]): boolean =>
+  /^[A-Za-z_$][\w$]*$/.test(site.before) && /^[A-Za-z_$][\w$]*$/.test(site.after) && site.before !== site.after;
+
+const renameCodemodLine = (line: string, sites: typeof SchemaParityCodemodReport.Type.sites): string => {
+  const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, line);
+  let offset = 0;
+  let rewritten = "";
+  let token = scanner.scan();
+  while (token !== ts.SyntaxKind.EndOfFileToken) {
+    const start = scanner.getTokenPos();
+    const end = scanner.getTextPos();
+    const site = A.findFirst(sites, (site) => site.column === start + 1 && site.before === scanner.getTokenText());
+    rewritten += Str.slice(offset, start)(line);
+    rewritten += token === ts.SyntaxKind.Identifier && O.isSome(site) ? site.value.after : Str.slice(start, end)(line);
+    offset = end;
+    token = scanner.scan();
+  }
+  return rewritten + Str.slice(offset)(line);
+};
+
+const hunkIsRegisteredRenames = (hunk: CodemodDiffHunk, sites: typeof SchemaParityCodemodReport.Type.sites): boolean =>
+  hunk.file !== "" &&
+  hunk.oldCount === hunk.newCount &&
+  hunk.oldCount > 0 &&
+  hunk.removed.length === hunk.oldCount &&
+  hunk.added.length === hunk.newCount &&
+  A.every(hunk.removed, (line, index) => {
+    const rewritten = renameCodemodLine(
+      line,
+      A.filter(
+        sites,
+        (site) => site.filePath === hunk.file && site.line === hunk.oldStart + index && isIdentifierRenameSite(site)
+      )
+    );
+    return rewritten !== line && O.contains(rewritten)(A.get(hunk.added, index));
+  });
+
+/**
+ * Counts source clone groups whose overlapping changes are registered identifier
+ * renames, retaining unknown or mixed changes as introduced findings.
+ *
+ * **Example** (Missing evidence never demotes a clone)
+ *
+ * ```ts
+ * import { inheritedCodemodDuplicationCountForTesting } from "@beep/repo-cli/test/Quality"
+ * console.log(inheritedCodemodDuplicationCountForTesting({}, "", [])) // 0
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const inheritedCodemodDuplicationCountForTesting: {
+  (document: unknown, diff: string, reports: ReadonlyArray<unknown>): number;
+  (diff: string, reports: ReadonlyArray<unknown>): (document: unknown) => number;
+} = dual(3, (document: unknown, diff: string, reports: ReadonlyArray<unknown>): number => {
+  const groups = pipe(
+    unknownRecordProperty(document, "duplication"),
+    O.flatMap(S.decodeUnknownOption(CodemodCloneGroups))
+  );
+  const sites = A.flatMap(reports, (report) =>
+    pipe(
+      S.decodeUnknownOption(SchemaParityCodemodReport)(report),
+      O.filter((report) => report.mode === "write" && A.isReadonlyArrayEmpty(report.quarantines)),
+      O.map((report) =>
+        A.filter(
+          report.sites,
+          (site) => A.contains(report.rules, site.ruleId) && A.contains(report.filesChanged, site.filePath)
+        )
+      ),
+      O.getOrElse(() => A.empty<(typeof SchemaParityCodemodReport.Type.sites)[number]>())
+    )
+  );
+  const hunks = codemodDiffHunks(diff);
+  return pipe(
+    groups,
+    O.map((groups) =>
+      A.length(
+        A.filter(groups.clone_groups, (group) => {
+          if (!group.introduced || !cloneGroupTouchesSource(group)) return false;
+          const overlapping = A.filter(hunks, (hunk) =>
+            A.some(
+              group.instances,
+              (instance) =>
+                normalizePath(instance.file) === hunk.file &&
+                hunk.newStart <= instance.end_line &&
+                hunk.newStart + Math.max(hunk.newCount, 1) - 1 >= instance.start_line
+            )
+          );
+          return (
+            A.isReadonlyArrayNonEmpty(overlapping) &&
+            A.every(overlapping, (hunk) => hunkIsRegisteredRenames(hunk, sites))
+          );
+        })
+      )
+    ),
+    O.getOrElse(() => 0)
+  );
+});
+
+const normalizeAuditFindings = (document: unknown, codemodInherited = 0): ReadonlyArray<FallowFinding> => {
   const attribution = pipe(unknownRecordProperty(document, "attribution"), O.getOrUndefined);
   if (attribution === undefined) {
     return A.empty();
@@ -645,7 +822,8 @@ const normalizeAuditFindings = (document: unknown): ReadonlyArray<FallowFinding>
   // groups are advisory (folded into the inherited-adjacent duplication bucket).
   const duplicationIntroduced = countOf("duplication_introduced");
   const duplicationTestOnly = Math.min(duplicationIntroduced, introducedTestOnlyDuplicationCount(document));
-  const duplicationSourceIntroduced = duplicationIntroduced - duplicationTestOnly;
+  const duplicationRenameOnly = Math.min(duplicationIntroduced - duplicationTestOnly, codemodInherited);
+  const duplicationSourceIntroduced = duplicationIntroduced - duplicationTestOnly - duplicationRenameOnly;
 
   const candidates = [
     ["dead-code", "introduced", countOf("dead_code_introduced")],
@@ -653,7 +831,11 @@ const normalizeAuditFindings = (document: unknown): ReadonlyArray<FallowFinding>
     ["complexity", "introduced", countOf("complexity_introduced")],
     ["complexity", "inherited-adjacent", countOf("complexity_inherited")],
     ["duplication", "introduced", duplicationSourceIntroduced],
-    ["duplication", "inherited-adjacent", countOf("duplication_inherited") + duplicationTestOnly],
+    [
+      "duplication",
+      "inherited-adjacent",
+      countOf("duplication_inherited") + duplicationTestOnly + duplicationRenameOnly,
+    ],
   ] as const;
 
   return pipe(
@@ -1150,9 +1332,11 @@ const makeOkEnvelope = (
   toolVersion: string,
   dirtyWorktree: boolean,
   exitStatus: number,
-  decoded: unknown
+  decoded: unknown,
+  codemodInherited = 0
 ): FallowReportOk => {
-  const findings = normalizeFindings(feature, decoded);
+  const findings =
+    feature === "audit" ? normalizeAuditFindings(decoded, codemodInherited) : normalizeFindings(feature, decoded);
 
   return FallowReportOk.make({
     ...baseEnvelope(feature, options, paths, generatedAt, toolVersion, dirtyWorktree, findings),
@@ -1286,9 +1470,18 @@ const resolveBaseRef = Effect.fn("FallowQuality.resolveBaseRef")(function* (
  */
 export const collectAuditDiffInputForTesting = Effect.fn("FallowQuality.collectAuditDiffInput")(function* (
   repoRoot: string,
-  base: string
+  base: string,
+  context = 3
 ): Effect.fn.Return<ProcessResult, QualityScriptCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
-  const trackedDiff = yield* collectProcessOutput(repoRoot, "git", ["diff", "--binary", base, "--", "."]);
+  const trackedDiff = yield* collectProcessOutput(repoRoot, "git", [
+    "diff",
+    "--binary",
+    "--no-renames",
+    `--unified=${context}`,
+    base,
+    "--",
+    ".",
+  ]);
   if (trackedDiff.exitCode !== 0) {
     return trackedDiff;
   }
@@ -1305,7 +1498,15 @@ export const collectAuditDiffInputForTesting = Effect.fn("FallowQuality.collectA
 
   const paths = pipe(Str.split("\0")(untrackedFiles.stdout), A.filter(Str.isNonEmpty));
   const untrackedDiffs = yield* Effect.forEach(paths, (filePath) =>
-    collectProcessOutput(repoRoot, "git", ["diff", "--binary", "--no-index", "--", "/dev/null", filePath])
+    collectProcessOutput(repoRoot, "git", [
+      "diff",
+      "--binary",
+      `--unified=${context}`,
+      "--no-index",
+      "--",
+      "/dev/null",
+      filePath,
+    ])
   );
   const failedDiff = A.findFirst(untrackedDiffs, (result) => result.exitCode !== 0 && result.exitCode !== 1);
   if (O.isSome(failedDiff)) {
@@ -1376,6 +1577,43 @@ const shouldFailInvocation = (envelope: FallowReportEnvelope, options: FallowCom
   return options.advisory ? false : envelope.exitStatus !== 0;
 };
 
+const collectCodemodInheritance = Effect.fn("FallowQuality.collectCodemodInheritance")(function* (
+  repoRoot: string,
+  base: string,
+  document: unknown
+) {
+  const groups = pipe(
+    unknownRecordProperty(document, "duplication"),
+    O.flatMap(S.decodeUnknownOption(CodemodCloneGroups))
+  );
+  if (
+    !O.exists(groups, (groups) =>
+      A.some(groups.clone_groups, (group) => group.introduced && cloneGroupTouchesSource(group))
+    )
+  )
+    return 0;
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const files = yield* collectProcessOutput(repoRoot, "git", [
+    "ls-files",
+    "--",
+    "goals/*/research/codemod-write.jsonc",
+  ]);
+  const diff = yield* collectAuditDiffInputForTesting(repoRoot, base, 0);
+  if (files.exitCode !== 0 || diff.exitCode !== 0) return 0;
+  const reports = yield* Effect.forEach(A.filter(Str.split(files.stdout, "\n"), Str.isNonEmpty), (file) =>
+    fs.readFileString(path.join(repoRoot, file)).pipe(
+      Effect.map((text) => {
+        const errors: Array<ParseError> = [];
+        const report: unknown = parseJsonc(text, errors);
+        return A.isReadonlyArrayEmpty(errors) ? report : undefined;
+      }),
+      Effect.orElseSucceed(() => undefined)
+    )
+  );
+  return inheritedCodemodDuplicationCountForTesting(document, diff.stdout, reports);
+});
+
 const envelopeFromProcessResult = Effect.fn("FallowQuality.envelopeFromProcessResult")(function* (
   feature: FallowFeature,
   options: FallowCommandOptions,
@@ -1383,11 +1621,16 @@ const envelopeFromProcessResult = Effect.fn("FallowQuality.envelopeFromProcessRe
   generatedAt: string,
   toolVersion: string,
   dirty: boolean,
-  result: ProcessResult
-): Effect.fn.Return<FallowReportEnvelope, never, never> {
+  result: ProcessResult,
+  repoRoot: string
+) {
   const jsonText = pipe(extractJsonDocumentText(result.stdout), O.getOrUndefined);
   const decoded = P.isUndefined(jsonText) ? O.none() : yield* decodeJsonText(jsonText).pipe(Effect.option);
 
+  const codemodInherited =
+    feature === "audit" && O.isSome(decoded)
+      ? yield* collectCodemodInheritance(repoRoot, options.base, decoded.value).pipe(Effect.orElseSucceed(() => 0))
+      : 0;
   return pipe(
     decoded,
     O.match({
@@ -1407,7 +1650,17 @@ const envelopeFromProcessResult = Effect.fn("FallowQuality.envelopeFromProcessRe
         ),
       onSome: (document) =>
         hasFallowReportShape(feature, document)
-          ? makeOkEnvelope(feature, options, paths, generatedAt, toolVersion, dirty, result.exitCode, document)
+          ? makeOkEnvelope(
+              feature,
+              options,
+              paths,
+              generatedAt,
+              toolVersion,
+              dirty,
+              result.exitCode,
+              document,
+              codemodInherited
+            )
           : makeFailureEnvelope(
               feature,
               options,
@@ -1494,7 +1747,16 @@ const runFallowFeature = Effect.fn("FallowQuality.runFallowFeature")(function* (
     feature === "audit"
       ? yield* collectAuditDiffFallbackOutput(repoRoot, options, initialResult, fallowEnv)
       : initialResult;
-  const envelope = yield* envelopeFromProcessResult(feature, options, paths, generatedAt, toolVersion, isDirty, result);
+  const envelope = yield* envelopeFromProcessResult(
+    feature,
+    options,
+    paths,
+    generatedAt,
+    toolVersion,
+    isDirty,
+    result,
+    repoRoot
+  );
 
   yield* writeEnvelope(paths, result.output, envelope);
   if (feature === "audit" && options.discardBaseCache && !shouldFailInvocation(envelope, options)) {
@@ -1995,7 +2257,8 @@ const runSyntheticProcessProbe = Effect.fn("FallowQuality.runSyntheticProcessPro
     generatedAt,
     "fallow contract-probe",
     isDirty,
-    result
+    result,
+    repoRoot
   );
 
   yield* fs

@@ -9,10 +9,11 @@
  *
  * @since 0.0.0
  */
+
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import * as O from "@beep/utils/Option";
-import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Runtime from "effect/Runtime";
@@ -325,10 +326,7 @@ export class YeetAdmissionLease extends S.Opaque<YeetAdmissionLease, { readonly 
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     nonce: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
-    hotPaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    hotPaths: ArrayKeyDefaultEmpty(S.String),
     runScope: S.optionalKey(RunScopeRecord),
   }).pipe(
     $I.annoteSchema("YeetAdmissionLease", {
