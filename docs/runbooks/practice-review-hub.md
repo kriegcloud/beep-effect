@@ -332,7 +332,10 @@ attorney's PC, in a review folder, with this request typed in:
    the Sent Items check in that procedure: this second email is intentional.
    The first click asks once whether Outlook or the browser may open Claude
    Code: allow it. The first time Claude Code opens in the folder, it asks
-   whether to trust the folder: trust it.
+   whether to trust the folder: trust it. Before pressing Enter, check that
+   the request reads exactly "Walk me through my waiting review questions."
+   If it reads anything else, close Claude Code without pressing Enter: a
+   forged email could open the same trusted folder with a different request.
 
    If clicking the link does nothing, Claude Code has not registered its
    link handler on the PC yet. It registers the handler
@@ -343,8 +346,10 @@ attorney's PC, in a review folder, with this request typed in:
    check that `disableDeepLinkRegistration` is not set in the user's
    `settings.json` or in managed settings, because it blocks the handler.
 
-The link types the request into Claude Code but does not send it. The
-attorney reads it and presses Enter to start, as the email says. If the link
+The link types the request into Claude Code but does not send it. As the
+email says, the attorney checks that the request reads exactly as above and
+then presses Enter; anything else means close Claude Code without pressing
+Enter. If the link
 does not open, for example because the mail client blocks links that are not
 web addresses or the handler is not registered yet (step 3), the email's last
 sentence names the folder to open Claude Code in and the request to type.

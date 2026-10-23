@@ -142,7 +142,7 @@ describe("@beep/practice-review-hub daily notice", () => {
             [
               "<p>1 question is waiting for you in Claude. Open the review queue to answer.</p>",
               '<p><a href="claude-cli://open?cwd=C%3A%5CUsers%5Cattorney%5CReview&amp;q=Walk%20me%20through%20my%20waiting%20review%20questions.">Answer them in Claude Code</a></p>',
-              "<p>The link opens Claude Code with the request typed in. Press Enter to start.</p>",
+              "<p>The link opens Claude Code with the request typed in. Check that it reads exactly: Walk me through my waiting review questions. Then press Enter. If it reads anything else, close Claude Code without pressing Enter.</p>",
               "<p>If the link does not open, open Claude Code in C:\\Users\\attorney\\Review and type: Walk me through my waiting review questions.</p>",
             ],
             "\n"

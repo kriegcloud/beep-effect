@@ -242,26 +242,43 @@ export class NoticeMailboxConfig extends S.Opaque<NoticeMailboxConfig, { readonl
 ) {}
 
 // The link Claude Code opens: the folder, with \ separators, as the working directory and the request as the
-// typed-in prompt. Both are percent-encoded; the caller escapes the whole URL for the HTML attribute.
+// typed-in prompt. Both are percent-encoded; htmlLink escapes the whole URL for the attribute.
 const windowsFolder = Str.replaceAll("/", "\\");
 const claudeCodeHref = (link: NoticeClaudeLink): string =>
-  `claude-cli://open?cwd=${encodeURIComponent(windowsFolder(link.folder))}&q=${encodeURIComponent(link.prompt)}`;
+  A.join(
+    ["claude-cli://open?cwd=", encodeURIComponent(windowsFolder(link.folder)), "&q=", encodeURIComponent(link.prompt)],
+    ""
+  );
 
-// The HTML notice: the count sentence first, so an inbox preview still shows only the count, then the link and
-// what to do when it does not open. Every value is escaped.
-const noticeHtml = (message: NoticeMessage, link: NoticeClaudeLink): string => {
-  const folder = escapeHtml(windowsFolder(link.folder));
-  const prompt = escapeHtml(link.prompt);
-  return A.join(
+// The HTML notice is put together from fixed tags and escaped text only: htmlText escapes text, htmlLink escapes
+// its URL and label, and htmlParagraph only joins pieces those two produced, so no value is formatted into markup.
+const htmlParagraph = (pieces: ReadonlyArray<string>): string => A.join(["<p>", ...pieces, "</p>"], "");
+const htmlText = escapeHtml;
+const htmlLink = (href: string, label: string): string =>
+  A.join(['<a href="', escapeHtml(href), '">', escapeHtml(label), "</a>"], "");
+
+// The HTML notice: the count sentence first, so an inbox preview still shows only the count, then the link, the
+// check to make before pressing Enter (a forged notice could type in a different request), and what to do when the
+// link does not open.
+const noticeHtml = (message: NoticeMessage, link: NoticeClaudeLink): string =>
+  A.join(
     [
-      `<p>${escapeHtml(message.body)}</p>`,
-      `<p><a href="${escapeHtml(claudeCodeHref(link))}">Answer them in Claude Code</a></p>`,
-      "<p>The link opens Claude Code with the request typed in. Press Enter to start.</p>",
-      `<p>If the link does not open, open Claude Code in ${folder} and type: ${prompt}</p>`,
+      htmlParagraph([htmlText(message.body)]),
+      htmlParagraph([htmlLink(claudeCodeHref(link), "Answer them in Claude Code")]),
+      htmlParagraph([
+        htmlText("The link opens Claude Code with the request typed in. Check that it reads exactly: "),
+        htmlText(link.prompt),
+        htmlText(" Then press Enter. If it reads anything else, close Claude Code without pressing Enter."),
+      ]),
+      htmlParagraph([
+        htmlText("If the link does not open, open Claude Code in "),
+        htmlText(windowsFolder(link.folder)),
+        htmlText(" and type: "),
+        htmlText(link.prompt),
+      ]),
     ],
     "\n"
   );
-};
 
 // Subdirectory of the data directory that holds one claim file per notice day.
 const NOTICE_CLAIMS_DIRECTORY = "notice-sent";

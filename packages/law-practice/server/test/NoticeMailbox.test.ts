@@ -71,7 +71,7 @@ const LINK_HTML = A.join(
   [
     "<p>2 questions are waiting in Claude.</p>",
     '<p><a href="claude-cli://open?cwd=C%3A%5CUsers%5Cattorney%5CReview%20%26%20Notes&amp;q=Walk%20me%20through%20the%20examiner&#39;s%20%3Cb%3Eoffice%20action%3C%2Fb%3E%20%26%20dates.">Answer them in Claude Code</a></p>',
-    "<p>The link opens Claude Code with the request typed in. Press Enter to start.</p>",
+    "<p>The link opens Claude Code with the request typed in. Check that it reads exactly: Walk me through the examiner&#39;s &lt;b&gt;office action&lt;/b&gt; &amp; dates. Then press Enter. If it reads anything else, close Claude Code without pressing Enter.</p>",
     "<p>If the link does not open, open Claude Code in C:\\Users\\attorney\\Review &amp; Notes and type: Walk me through the examiner&#39;s &lt;b&gt;office action&lt;/b&gt; &amp; dates.</p>",
   ],
   "\n"
