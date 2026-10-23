@@ -1104,6 +1104,9 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
         // The original catalog deliberately has no schema s.
         yield* sql.unsafe("USE reader_a; SET search_path = 's'");
         assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT v FROM t`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql`CREATE SCHEMA memory.s`;
+        yield* sql`CREATE TABLE memory.s.t AS SELECT 1 AS v`;
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT v FROM t`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
         yield* sql`USE memory`;
         yield* sql.unsafe("USE reader_a; SELECT * FROM missing").pipe(Effect.flip);
         assert.deepStrictEqual(
@@ -1186,6 +1189,48 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
           })
         );
         assert.deepStrictEqual(A.fromIterable(yield* Fiber.join(fiber)), [{ v: 1 }]);
+      })
+    );
+
+    it.effect(
+      "recovers the reader snapshot after an aborted session-changing writer transaction",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`BEGIN`;
+        yield* sql.unsafe("SET TimeZone='Asia/Tokyo'; SELECT CAST('bad' AS INTEGER)").pipe(Effect.flip);
+        yield* sql`SELECT 1`.stream.pipe(Stream.runCollect, Effect.flip);
+        yield* sql`ROLLBACK`;
+        const query = sql`SELECT current_setting('TimeZone') AS zone`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`SET TimeZone='UTC'`;
+      })
+    );
+
+    it.effect(
+      "refreshes session settings after a reserved writer stream, including failure",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* Effect.scoped(
+          Effect.gen(function* () {
+            const writer = yield* sql.reserve;
+            yield* writer.executeStream("SET TimeZone='Asia/Tokyo'; SELECT 1", [], undefined).pipe(Stream.runDrain);
+          })
+        );
+        const query = sql`SELECT current_setting('TimeZone') AS zone`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ zone: "Asia/Tokyo" }]);
+        yield* Effect.scoped(
+          Effect.gen(function* () {
+            const writer = yield* sql.reserve;
+            yield* writer
+              .executeStream("SET TimeZone='Pacific/Kiritimati'; SELECT * FROM missing", [], undefined)
+              .pipe(Stream.runDrain, Effect.flip);
+          })
+        );
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [
+          { zone: "Pacific/Kiritimati" },
+        ]);
+        assert.deepStrictEqual(A.fromIterable(yield* sql.unsafe("").stream.pipe(Stream.runCollect)), []);
+        yield* sql`SET TimeZone='UTC'`;
       })
     );
 

@@ -113,12 +113,13 @@ The client value carries these on top of `SqlClient`:
 | Extra | SQL | Inside `withTransaction` |
 | --- | --- | --- |
 | `copyTableToParquet({ tableName, filePath })` | `COPY "t" TO 'file' (FORMAT parquet)` | refused: file writes are not rolled back |
-| Reader pool (configuration, no extra method) | streams use read-only leases | writer stays serialized |
 | `checkpoint()` / `checkpoint({ force: true })` | `CHECKPOINT` / `FORCE CHECKPOINT` | refused: database-level operation |
 | `loadExtension(name)` | `LOAD 'name'` | runs on the transaction connection, not rolled back |
 | `installExtension(name)` | `INSTALL 'name'` | runs on the transaction connection |
 | `attach(path, alias, { readOnly })` | `ATTACH 'path' AS "alias" [(READ_ONLY)]` | runs on the transaction connection; DuckDB rolls the attach back with the transaction |
 | `detach(alias)` | `DETACH "alias"` | runs on the transaction connection |
+
+Extras always use the writer, including when reader connections are enabled.
 
 There is no `backup` extra and no Appender yet: `exportDatabase` is #2082 and
 Appender bulk loads are #2081 (backlog: #2088).

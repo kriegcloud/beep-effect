@@ -3,8 +3,8 @@
  *
  * **Details**
  *
- * One serialized writer connection per client, with optional read-only readers. The client reports the
- * `"sqlite"` dialect and uses a DuckDB compiler that supports `updateValues`.
+ * One serialized writer connection per client, with optional read-only readers.
+ * The client reports the `"sqlite"` dialect and uses a DuckDB compiler that supports `updateValues`.
  * DuckDB has no savepoints: a nested `withTransaction` that rolls back refuses
  * the outer `COMMIT` and the whole transaction rolls back. `COMMIT` is safe:
  * when DuckDB already aborted the transaction after a failed statement, the
@@ -283,9 +283,10 @@ const makeFromNative = Effect.fnUntraced(function* (
   skipDefaultTimeZone: boolean,
   instance?: DuckDBInstance
 ) {
+  const readerConnections = options.readerConnections ?? 0;
   const connection = yield* makeConnection({
     native,
-    trackSession: (options.readerConnections ?? 0) > 0,
+    trackSession: readerConnections > 0,
     prepareCacheSize: options.prepareCacheSize ?? DEFAULT_PREPARE_CACHE_SIZE,
     prepareCacheTTL: options.prepareCacheTTL ?? Duration.minutes(10),
   });
@@ -306,10 +307,10 @@ const makeFromNative = Effect.fnUntraced(function* (
     semaphore: yield* Semaphore.make(1),
   });
   let streamAcquirer = acquirers.acquirer;
-  if (instance !== undefined && (options.readerConnections ?? 0) > 0) {
+  if (instance !== undefined && readerConnections > 0) {
     yield* connection.sessionSnapshot;
     const readerPool = yield* Pool.make({
-      size: options.readerConnections ?? 0,
+      size: readerConnections,
       acquire: Effect.gen(function* () {
         const readerNative = yield* acquireConnection(instance);
         const reader = yield* makeConnection({
@@ -326,6 +327,7 @@ const makeFromNative = Effect.fnUntraced(function* (
           synchronize: Effect.fnUntraced(function* () {
             const snapshot = yield* connection.sessionSnapshot;
             if (O.isSome(applied) && connection.sameSessionSnapshot(applied.value, snapshot)) return;
+            applied = O.none();
             yield* reader.runDriverStatement(`USE ${quotedIdentifier(snapshot.database)}`, "executeStream");
             yield* reader.runDriverStatement(`SET search_path = ${quotedString(snapshot.searchPath)}`, "executeStream");
             yield* reader.runDriverStatement(`SET TimeZone = ${quotedString(snapshot.timeZone)}`, "executeStream");

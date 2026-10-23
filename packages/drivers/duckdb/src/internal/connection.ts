@@ -68,12 +68,14 @@ import type {
 import type * as SqlConnection from "effect/sql/SqlConnection";
 
 const $I = $DuckdbId.create("internal/connection");
-const SessionSnapshot = S.Struct({
-  database: S.String,
-  searchPath: S.String,
-  timeZone: S.String,
-  calendar: S.String,
-}).pipe($I.annoteSchema("SessionSnapshot", { description: "Resolved writer session settings mirrored to readers." }));
+class SessionSnapshot extends S.Opaque<SessionSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
+    database: S.String,
+    searchPath: S.String,
+    timeZone: S.String,
+    calendar: S.String,
+  }).pipe($I.annoteSchema("SessionSnapshot", { description: "Resolved writer session settings mirrored to readers." }))
+) {}
 const decodeSessionSnapshot = S.decodeUnknownEffect(SessionSnapshot);
 const SESSION_QUERY =
   "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar";
@@ -110,8 +112,8 @@ type DuckDbConnection = SqlConnection.Connection & {
   readonly gate: NativeGate;
   readonly isTransaction: () => boolean;
   readonly commit: Effect.Effect<void, SqlError>;
-  readonly sessionSnapshot: Effect.Effect<typeof SessionSnapshot.Type, SqlError>;
-  readonly sameSessionSnapshot: ReturnType<typeof S.toEquivalence<typeof SessionSnapshot.Type>>;
+  readonly sessionSnapshot: Effect.Effect<SessionSnapshot, SqlError>;
+  readonly sameSessionSnapshot: ReturnType<typeof S.toEquivalence<SessionSnapshot>>;
   readonly runDriverStatement: (sql: string, operation: string) => Effect.Effect<void, SqlError>;
 };
 
@@ -211,7 +213,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
   const { native } = options;
   const gate = new NativeGate(native);
   const state = MutableRef.make<TransactionPhase>(TransactionPhase.Idle());
-  const snapshot = MutableRef.make<O.Option<Exit.Exit<typeof SessionSnapshot.Type, SqlError>>>(O.none());
+  const snapshot = MutableRef.make<O.Option<Exit.Exit<SessionSnapshot, SqlError>>>(O.none());
   const refreshSession = gate
     .runUnlocked("execute", () => native.runAndReadAll(SESSION_QUERY).then((result) => result.getRowObjects()))
     .pipe(
