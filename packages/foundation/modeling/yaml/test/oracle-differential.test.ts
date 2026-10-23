@@ -13,6 +13,8 @@
 // - Oracle: `yaml@2.9.0` (`YAML.parse` defaults; `parseAllDocuments` for the
 //   multi-document case)
 // - Authored: 2026-08-12, offline, in a scratch script outside the test run
+// - Plain-scalar continuation group: authored 2026-10-23 against `yaml@2.9.1`
+//   the same way (effected-promotion wave 3, W3-d)
 // - Case matrix extended from the savvy-web-systems dogfood sweep of the same
 //   date (51 cases, double-oracle: yaml@2.9.0 + js-yaml@4.3.1, a case counted
 //   only where both agreed)
@@ -291,6 +293,69 @@ const realWorldCases: ReadonlyArray<OracleCase> = [
   },
 ];
 
+// YAML 1.2 s-ns-plain-next-line admits any ns-plain-char at the start of a
+// continuation line, so a quote or another indicator there is scalar text.
+// The engine used to lex such a line as a new quoted scalar, block scalar or
+// flow collection, which split the value into stray keys or swallowed the
+// following siblings, with no diagnostic.
+const plainContinuationCases: ReadonlyArray<OracleCase> = [
+  { name: "double-quote-led continuation", input: 'a: x\n  "y"\n', expected: { a: 'x "y"' } },
+  { name: "single-quote-led continuation", input: "a: x\n  'y'\n", expected: { a: "x 'y'" } },
+  {
+    name: "quote-led continuation with flow indicators, then a sibling",
+    input: 'a: x,\n  "y"];\nb: 1\n',
+    expected: { a: 'x, "y"];', b: 1 },
+  },
+  { name: "sequence entry continuation", input: '- x\n  "y"\n', expected: ['x "y"'] },
+  { name: "compact mapping continuation", input: '- a: x\n    "b"\n', expected: [{ a: 'x "b"' }] },
+  { name: "unclosed quote spanning two continuation lines", input: 'a: x\n  "y\n  z"\n', expected: { a: 'x "y z"' } },
+  { name: "blank line before the continuation", input: 'a: x\n\n  "y"\n', expected: { a: 'x\n"y"' } },
+  { name: "document-root continuation", input: 'x\n"y"\n', expected: 'x "y"' },
+  { name: "explicit key continuation", input: '? x\n  "y"\n: z\n', expected: { 'x "y"': "z" } },
+  { name: "block-scalar indicator continuation", input: "a: x\n  | y\nb: 1\n", expected: { a: "x | y", b: 1 } },
+  { name: "bare block-scalar indicator continuation", input: "a: x\n  |\nb: 1\n", expected: { a: "x |", b: 1 } },
+  { name: "flow-opening continuation keeps the sibling", input: "a: x\n  [y\nb: 1\n", expected: { a: "x [y", b: 1 } },
+  { name: "explicit-key indicator continuation", input: "a: x\n  ? y\nb: 1\n", expected: { a: "x ? y", b: 1 } },
+  { name: "flow sequence continuation", input: "[x\n 'y', z]\n", expected: ["x 'y'", "z"] },
+  { name: "flow mapping continuation", input: '{a: x\n "b"}\n', expected: { a: 'x "b"' } },
+  { name: "CRLF continuation", input: 'a: x\r\n  "y"\r\nb: 1\r\n', expected: { a: 'x "y"', b: 1 } },
+  {
+    name: "tab separation after the indentation",
+    input: 'a: x\n  \t"y"\nb: 1\n',
+    expected: { a: 'x "y"', b: 1 },
+  },
+  { name: "tab separation after a one-space indentation", input: "a: x\n \t'y'\n", expected: { a: "x 'y'" } },
+  {
+    name: "tab separation before a block-scalar indicator",
+    input: "a: x\n  \t|y\nb: 1\n",
+    expected: { a: "x |y", b: 1 },
+  },
+  { name: "tab separation in a compact mapping", input: '- a: x\n   \t"b"\n', expected: [{ a: 'x "b"' }] },
+  { name: "tab separation in a flow sequence", input: '[x\n \t"y"]\n', expected: ['x "y"'] },
+  { name: "tab-led document-root continuation", input: 'x\n\t"y"\n', expected: 'x "y"' },
+  {
+    name: "flow mapping key spanning a quote-led line",
+    input: '{x\n "y"\n : 1}\n',
+    expected: { 'x "y"': 1 },
+  },
+  {
+    name: "flow mapping key spanning a quote-led line with trailing text",
+    input: '{x\n "y" z\n : 1}\n',
+    expected: { 'x "y" z': 1 },
+  },
+  { name: "quoted key at the mapping indent (control)", input: 'a: x\n"y": 1\n', expected: { a: "x", y: 1 } },
+  {
+    name: "quoted key in a compact mapping (control)",
+    input: '- a: x\n  "b": 1\n',
+    expected: [{ a: "x", b: 1 }],
+  },
+  {
+    name: "quoted key in a nested mapping (control)",
+    input: 'a:\n  b: x\n  "c": 1\n',
+    expected: { a: { b: "x", c: 1 } },
+  },
+];
+
 const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["controls", controlCases],
   ["dedent after a trailing comment", dedentCases],
@@ -299,6 +364,7 @@ const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["flow and block-scalar boundaries", flowAndBlockScalarCases],
   ["empty values before a sibling key", emptyValueCases],
   ["real-world shapes", realWorldCases],
+  ["plain-scalar continuation lines", plainContinuationCases],
 ];
 
 describe("oracle-differential (yaml@2.9.0 semantic expectations)", () => {
