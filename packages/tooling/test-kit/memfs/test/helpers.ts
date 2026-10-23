@@ -12,13 +12,13 @@ import type * as FileSystem from "effect/FileSystem";
 
 // The optional errno metadata shared by host errors, injected errors and defects.
 export const ErrnoFields = S.Struct({
-  code: S.optional(S.String),
-  errno: S.optional(S.Finite),
-  syscall: S.optional(S.String),
-  path: S.optional(S.String),
-  name: S.optional(S.String),
-  message: S.optional(S.String),
-  _tag: S.optional(S.Unknown),
+  code: S.optionalKey(S.String),
+  errno: S.optionalKey(S.Finite),
+  syscall: S.optionalKey(S.String),
+  path: S.optionalKey(S.String),
+  name: S.optionalKey(S.String),
+  message: S.optionalKey(S.String),
+  _tag: S.optionalKey(S.Unknown),
 });
 
 /** Runs `f`, which must throw, and returns what it threw. */

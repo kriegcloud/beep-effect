@@ -83,7 +83,7 @@ class CatalogUsageLockfile extends S.Opaque<CatalogUsageLockfile, { readonly bra
   S.Struct({
     packages: S.Record(S.String, S.Array(S.Unknown)).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>()))
     ),
   })
 ) {}

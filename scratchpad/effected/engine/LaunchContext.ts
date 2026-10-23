@@ -28,7 +28,7 @@ const $I = $ScratchpadId.create("effected/engine/LaunchContext");
  * @since 0.0.0
  */
 export const ProjectDirInput = S.Struct({
-	argv: S.Array(S.String).pipe(S.optional, $I.annoteKey("ProjectDirInput.argv", {
+	argv: S.Array(S.String).pipe(S.optionalKey, $I.annoteKey("ProjectDirInput.argv", {
 		description:
 			"Positional candidates, checked in order. Pass positional arguments only — the parsed positionals of your command, never raw process.argv.slice(2): every non-empty value counts as a candidate, so a --flag would become the project directory.",
 	})),

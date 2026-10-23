@@ -857,7 +857,7 @@ export const WorkspaceCatalogsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optional(S.String).pipe($I.annoteKey("WorkspaceCatalogsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceCatalogsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
 }).pipe($I.annoteSchema("WorkspaceCatalogsOptions", { description: "Plain-object catalog assembly options with lazy root resolution." }));
 
 /** The plain-object options described by {@link WorkspaceCatalogsOptions}.

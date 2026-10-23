@@ -404,9 +404,9 @@ const CommitResponse = S.Struct({
   html_url: S.String,
   commit: S.Struct({
     message: S.String,
-    author: S.Struct({ name: S.String.pipe(S.NullOr, S.optional) }).pipe(S.NullOr, S.optional),
+    author: S.Struct({ name: S.String.pipe(S.NullOr, S.optionalKey) }).pipe(S.NullOr, S.optionalKey),
   }),
-  author: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optional),
+  author: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optionalKey),
   parents: S.Array(S.Struct({ sha: S.String })),
 }).pipe($I.annoteSchema("CommitResponse", { description: "The selected fields used to summarize a commit response." }));
 
@@ -463,7 +463,7 @@ export class RawFile extends S.Opaque<RawFile, { readonly brand: unique symbol }
       $I.annoteKey("RawFile.filename", { description: "Repository-relative path, after any rename." })
     ),
     /** The path before a rename or copy. */
-    previous_filename: S.optional(S.String).pipe(
+    previous_filename: S.optionalKey(S.String).pipe(
       $I.annoteKey("RawFile.previous_filename", { description: "The path before a rename or copy." })
     ),
     /** GitHub's change status, validated against {@link FileStatus} by the projection. */
@@ -494,7 +494,7 @@ const ComparisonResponse = S.Struct({
   ahead_by: S.Finite,
   behind_by: S.Finite,
   commits: S.Array(CommitResponse),
-  files: S.Array(RawFile).pipe(S.NullOr, S.optional),
+  files: S.Array(RawFile).pipe(S.NullOr, S.optionalKey),
 }).pipe(
   $I.annoteSchema("ComparisonResponse", {
     description: "The selected comparison fields, including nested commits and diff entries.",
