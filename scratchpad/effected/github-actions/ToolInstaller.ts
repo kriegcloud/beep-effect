@@ -632,7 +632,7 @@ const make = Effect.gen(function* () {
 
 		extractTar: dual((args) => P.isString(args[0]), Effect.fn("ToolInstaller.extractTar")(function* (archive: string, options?: ExtractOptions) {
 			const destination = yield* destinationFor(options);
-			yield* extractWith(tarExtractCommand({ archive, destination, flags: options?.flags }), archive);
+			yield* extractWith(tarExtractCommand({ archive, destination, ...(options?.flags === undefined ? {} : { flags: options.flags }) }), archive);
 			return destination;
 		})),
 
