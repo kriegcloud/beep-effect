@@ -1884,9 +1884,41 @@ describe("practice KG projections", () => {
           const reader = yield* ConcurrentClaimsReader;
           const options = yield* ConcurrentClaimsOptions;
 
+          // No catalogued document has the `20001US05-patent` stem: the lookup takes its not-found path.
           const summary = yield* runPracticeKgClaimsBatch(options).pipe(Effect.provideService(DuckDb, reader));
 
           expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
+        }),
+        { timeout: 120_000 }
+      );
+
+      it.effect(
+        "resolves a catalogued source document through a DuckDb connection the caller already holds",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+          const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
+          // The docket fixture is catalogued as `Response OA - 20001US01.txt`.
+          const matched = PracticeKgClaimsOptions.make({
+            bundleOut: options.bundleOut,
+            inputs: options.inputs,
+            patentDocuments: [
+              PracticeKgPatentDocumentInput.make({
+                docket: "20001US01",
+                document,
+                sourceFile: "Response OA - 20001US01.txt",
+              }),
+            ],
+          });
+
+          const summary = yield* runPracticeKgClaimsBatch(matched).pipe(Effect.provideService(DuckDb, reader));
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const rows = yield* decodeCandidateClaimRows(
+            yield* sql.unsafe(PracticeKgQueries.candidateClaims, [null, `${fixtureClients.alpha}.20001`, null])
+          );
+
+          expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
+          expect(A.map(rows, (row) => row.sourceDocumentDigest)).toContain(fixtureDigests.docket);
         }),
         { timeout: 120_000 }
       );
