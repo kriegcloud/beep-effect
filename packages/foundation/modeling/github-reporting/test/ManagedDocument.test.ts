@@ -1,5 +1,6 @@
 import { ManagedDocument, ManagedDocumentError, ManagedDocumentSource } from "@beep/github-reporting/ManagedDocument";
 import { assert, describe, it } from "@effect/vitest";
+import { assertFalse } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -32,7 +33,6 @@ describe("ManagedDocument", () => {
   it("the source schema preserves plain objects, arbitrary identity strings and optional text", () => {
     for (const input of [
       { namespace: NS, key: KEY },
-      { namespace: NS, key: KEY, text: undefined },
       { namespace: NS, key: KEY, text: "" },
       { namespace: NS, key: KEY, text: "human\r\ntext" },
       { namespace: "", key: "invalid.name" },
@@ -44,6 +44,7 @@ describe("ManagedDocument", () => {
     }
     assert.isFalse(S.is(ManagedDocumentSource)({ namespace: NS }));
     assert.isFalse(S.is(ManagedDocumentSource)({ namespace: NS, key: KEY, text: null }));
+    assertFalse(S.is(ManagedDocumentSource)({ namespace: NS, key: KEY, text: undefined }));
     assert.isFalse(S.is(ManagedDocumentSource)({ namespace: 1, key: KEY }));
   });
 

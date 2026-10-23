@@ -225,7 +225,7 @@ const SpikeContainer = S.OptionFromNullishOr(S.instanceOf(HTMLDivElement)).pipe(
 );
 
 const InitialSpikeSizeLabel = SpikeSizeLabel.pipe(
-  S.withDecodingDefault(Effect.succeed(SpikeSizeLabel.Enum["1k"])),
+  S.withDecodingDefaultKey(Effect.succeed(SpikeSizeLabel.Enum["1k"])),
   $I.annoteSchema("InitialSpikeSizeLabel", {
     description: "Vite-provided spike size label with the 1k schema default.",
   })

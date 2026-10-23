@@ -71,43 +71,25 @@ it.effect("ingestion skips a foreign U+FEFF-led record and keeps physical offset
   })
 );
 
-// D15 reverted: an explicitly undefined optional key behaves as an omitted one.
-it.effect("explicitly undefined configuration keys behave as omitted ones", () =>
-  Effect.gen(function* () {
-    const fs = yield* memory();
-    const watched = yield* Deferred.make<string>();
-    const journal = yield* open(
-      {
-        ...fs,
-        watch: (target) =>
-          Stream.concat(Stream.fromEffect(Deferred.succeed(watched, target)).pipe(Stream.drain), Stream.never),
-      },
-      { path, directory: undefined, capacity: undefined, shutdownPublishTimeout: undefined }
-    );
-    assert.strictEqual(yield* Deferred.await(watched), "/journal");
-    yield* journal.create;
-    const appended = yield* journal.append("noted", { round: 1, label: "a" });
-    assert.deepStrictEqual(yield* Stream.runCollect(journal.query()), [appended]);
+// D15 kept (EF-40): optional configuration keys are exact; an explicitly
+// undefined key is rejected instead of read as an omission.
+it.effect("explicitly undefined configuration keys are rejected", () =>
+  Effect.sync(() => {
+    for (const key of ["directory", "capacity", "shutdownPublishTimeout"]) {
+      const decoded = S.decodeExit(JournalConfig)({ path, [key]: undefined });
+      decoded.pipe(Exit.isFailure, assertTrue);
+    }
   })
 );
-it.effect("explicitly undefined slice keys select what omitted keys select", () =>
-  Effect.gen(function* () {
-    const fs = yield* memory();
-    yield* fs.writeFileString(path, line(1) + line(2));
-    const journal = yield* open({ ...fs, watch: () => Stream.never });
-    const unset = { events: undefined, scopes: undefined, from: undefined, to: undefined, cursor: undefined };
-    assert.deepStrictEqual(yield* Stream.runCollect(journal.query(unset)), yield* Stream.runCollect(journal.query()));
-    // An undefined cursor is no cursor: subscriptions start live, without replay.
-    const changes = yield* journal
-      .changes(unset)
-      .pipe(Stream.take(1), Stream.runCollect, Effect.forkChild({ startImmediately: true }));
-    const projection = yield* journal
-      .projection(0, (count) => count + 1, unset)
-      .pipe(Stream.take(2), Stream.runCollect, Effect.forkChild({ startImmediately: true }));
-    for (let turn = 0; turn < 8; turn++) yield* Effect.yieldNow;
-    const live = yield* journal.append("noted", { round: 3, label: "live" });
-    assert.deepStrictEqual(yield* Fiber.join(changes), [live]);
-    assert.deepStrictEqual(yield* Fiber.join(projection), [0, 1]);
+// The shutdownPublishTimeout object form mirrors effect's Duration.DurationObject,
+// whose members admit undefined, so any Duration.Input still decodes (EF-40 exception).
+it.effect("a Duration.Input object with an undefined component still decodes", () =>
+  Effect.sync(() => {
+    const decoded = S.decodeExit(JournalConfig)({
+      path,
+      shutdownPublishTimeout: { seconds: 1, minutes: undefined },
+    });
+    decoded.pipe(Exit.isSuccess, assertTrue);
   })
 );
 

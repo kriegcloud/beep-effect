@@ -160,7 +160,7 @@ describe("ScriptedSpawner.make", () => {
 
 it("ScriptResult retains optional fields, platform errors and the upstream numeric domain", () => {
   assert.isTrue(S.is(ScriptResult)({}));
-  assert.isTrue(S.is(ScriptResult)({ stdout: undefined, stderr: undefined, exit: undefined, hang: undefined }));
+  assert.isFalse(S.is(ScriptResult)({ stdout: undefined, stderr: undefined, exit: undefined, hang: undefined }));
   assert.isFalse(S.is(ScriptResult)({ stdout: "ok", exit: 1.5, hang: true }));
   assert.isFalse(S.is(ScriptResult)({ exit: Number.POSITIVE_INFINITY }));
   assert.isTrue(S.is(ScriptResult)({ stdout: "ok", exit: 42, hang: true }));
