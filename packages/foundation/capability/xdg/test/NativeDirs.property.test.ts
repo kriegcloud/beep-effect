@@ -13,13 +13,14 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
     `${name}: decode(encode(x)) equals x and decoding never fails`,
     [Arbitrary.schema(schema)],
-    ([value]) => Effect.gen(function* () {
-      const encoded = yield* S.encodeEffect(schema)(value);
-      const decoded = yield* S.decodeEffect(schema)(encoded);
-      assertTrue(equivalent(decoded, value));
-      assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
-    }),
-    runs,
+    ([value]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(schema)(value);
+        const decoded = yield* S.decodeEffect(schema)(encoded);
+        assertTrue(equivalent(decoded, value));
+        assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
+      }),
+    runs
   );
 };
 

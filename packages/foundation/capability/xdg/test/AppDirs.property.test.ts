@@ -4,7 +4,14 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { AppDirKind, AppDirOverrides, AppDirsOptions, AppDirsNamespaceError, AppDirsError, ResolvedAppDirs } from "../../effected/xdg/AppDirs.ts";
+import {
+  AppDirKind,
+  AppDirOverrides,
+  AppDirsError,
+  AppDirsNamespaceError,
+  AppDirsOptions,
+  ResolvedAppDirs,
+} from "../../effected/xdg/AppDirs.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -13,13 +20,14 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
     `${name}: decode(encode(x)) equals x and decoding never fails`,
     [Arbitrary.schema(schema)],
-    ([value]) => Effect.gen(function* () {
-      const encoded = yield* S.encodeEffect(schema)(value);
-      const decoded = yield* S.decodeEffect(schema)(encoded);
-      assertTrue(equivalent(decoded, value));
-      assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
-    }),
-    runs,
+    ([value]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(schema)(value);
+        const decoded = yield* S.decodeEffect(schema)(encoded);
+        assertTrue(equivalent(decoded, value));
+        assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
+      }),
+    runs
   );
 };
 

@@ -3,13 +3,9 @@
   "groups": [
     {
       "id": "g1",
-      "files": [
-        "scratchpad/effected/xdg/Xdg.ts"
-      ],
+      "files": ["scratchpad/effected/xdg/Xdg.ts"],
       "tests": [],
-      "findings": [
-        "fable-2-2"
-      ]
+      "findings": ["fable-2-2"]
     }
   ],
   "findings": {
