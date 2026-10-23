@@ -2506,6 +2506,7 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/github": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",

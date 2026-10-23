@@ -8,11 +8,9 @@
 // examples carry real import statements, and prose such as `@beep/*` would
 // otherwise open a block comment and silently hide the imports after it.
 
+import * as ImportGraph from "@beep/test-utils/ImportGraph";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 
@@ -61,45 +59,7 @@ const textOf = (module: string): string =>
     () => new Error(`no source module ${module}`)
   );
 
-/** Remove line comments, then block comments (the order is load-bearing). */
-export const stripComments: (source: string) => string = (source) =>
-  pipe(source, Str.replace(/(^|\n)\s*\/\/.*/g, "$1"), Str.replace(/\/\*[\s\S]*?\*\//g, ""));
-
-// One pattern for every runtime edge form: `import … from "x"`,
-// `export … from "x"`, side-effect `import "x"` and dynamic `import("x")`.
-// Group 1 is the clause of a `from` edge, group 2 its specifier, group 3 a
-// bare-or-dynamic specifier.
-const EDGE = /(?:^|\n)\s*(?:import|export)\b([^;]*?)\bfrom\s*["']([^"']+)["']|\bimport\s*\(?\s*["']([^"']+)["']/g;
-
-/** The runtime specifiers one module's text names. */
-export const runtimeEdges = (source: string): ReadonlyArray<string> =>
-  A.flatMap(A.fromIterable(Str.matchAll(EDGE)(stripComments(source))), (match) => {
-    const fromSpecifier = match[2];
-    if (fromSpecifier !== undefined) {
-      return /^\s*type\b/.test(match[1] ?? "") ? [] : [fromSpecifier];
-    }
-    return match[3] === undefined ? [] : [match[3]];
-  });
-
-/** Resolve `./x.ts` or `../x.ts` against the importing module's directory. */
-const resolveFrom = (module: string, specifier: string): string =>
-  A.join(
-    A.reduce(Str.split(specifier, "/"), A.dropRight(Str.split(module, "/"), 1), (segments, part) =>
-      part === ".." ? A.dropRight(segments, 1) : part === "." ? segments : A.append(segments, part)
-    ),
-    "/"
-  );
-
-const isRelative = Str.startsWith(".");
-
-/** One walk step: a module's relative edges resolved, and its bare edges. */
-const stepFrom = (module: string): readonly [modules: ReadonlyArray<string>, packages: ReadonlyArray<string>] => {
-  const edges = runtimeEdges(textOf(module));
-  return [
-    A.map(A.filter(edges, isRelative), (specifier) => resolveFrom(module, specifier)),
-    A.filter(edges, P.not(isRelative)),
-  ];
-};
+export { runtimeEdges, stripComments } from "@beep/test-utils/ImportGraph";
 
 /**
  * The `@beep/managed-section` module a bare specifier names, if any: the root
@@ -112,44 +72,8 @@ const managedSectionModule = (specifier: string): ReadonlyArray<string> =>
       ? [`${MANAGED_SECTION_ROOT}${Str.slice("@beep/managed-section/".length)(specifier)}.ts`]
       : [];
 
-/** A closure-walk step: as {@link stepFrom}, plus the managed-section modules a bare edge enters. */
-const closureStepFrom = (
-  module: string
-): readonly [modules: ReadonlyArray<string>, packages: ReadonlyArray<string>] => {
-  const [modules, packages] = stepFrom(module);
-  return [A.appendAll(modules, A.flatMap(packages, managedSectionModule)), packages];
-};
+/** Bare packages reached through relative source imports. */
+export const reachablePackages = ImportGraph.make({ textOf }).reachablePackages;
 
-const walkWith =
-  (step: typeof stepFrom) =>
-  (entry: string): ReadonlyArray<string> => {
-    const walk = (
-      frontier: ReadonlyArray<string>,
-      visited: HashSet.HashSet<string>,
-      packages: HashSet.HashSet<string>
-    ): HashSet.HashSet<string> => {
-      const fresh = A.dedupe(A.filter(frontier, (module) => !HashSet.has(visited, module)));
-      if (!A.isReadonlyArrayNonEmpty(fresh)) return packages;
-      const steps = A.map(fresh, step);
-      return walk(
-        A.flatMap(steps, ([modules]) => modules),
-        HashSet.union(visited, HashSet.fromIterable(fresh)),
-        HashSet.union(packages, HashSet.fromIterable(A.flatMap(steps, ([, bare]) => bare)))
-      );
-    };
-    return A.sort(A.fromIterable(walk([entry], HashSet.empty(), HashSet.empty())), Str.Order);
-  };
-
-/**
- * The bare (package) specifiers reachable from one `src` module at runtime.
- * Relative edges are followed; bare edges are collected and not entered.
- */
-export const reachablePackages: (entry: string) => ReadonlyArray<string> = walkWith(stepFrom);
-
-/**
- * As {@link reachablePackages}, but a `@beep/managed-section` edge is also
- * entered, so the result holds what that package's modules reach in turn. The
- * entry may be a `src` module or a managed-section module id (for example
- * `"@beep/managed-section/src/index.ts"`).
- */
-export const reachableClosure: (entry: string) => ReadonlyArray<string> = walkWith(closureStepFrom);
+/** Bare packages reached through relative imports and managed-section entries. */
+export const reachableClosure = ImportGraph.make({ textOf, enterPackage: managedSectionModule }).reachablePackages;

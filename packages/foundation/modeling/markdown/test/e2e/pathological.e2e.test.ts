@@ -41,7 +41,12 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { isGuardExceeded } from "@beep/markdown/internal/carriers";
+import { ReferenceScanner } from "@beep/markdown/internal/references";
 import { assert, describe, it } from "@effect/vitest";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as MutableRef from "effect/MutableRef";
 import * as Str from "effect/String";
 import { renderHtml } from "../support/htmlWriter.ts";
 import { PATHOLOGICAL_CASES } from "../support/pathological/cases.ts";
@@ -70,8 +75,8 @@ const GUARD_REFUSED: ReadonlySet<string> = new Set([
 // clean against 8.7s. The factor is path-dependent — materialization-heavy
 // parses (most of this suite's cost) inflate ~3x while tight engine loops
 // inflate ~9x (and the pre-cap destination scan measured 18x) — which is
-// what the calibration exists to absorb, and why the linearity guard at the
-// bottom is ratio-based instead of budgeted.
+// what the calibration exists to absorb, and why the linearity guard below
+// counts scanner work independently of these termination budgets.
 //
 // Asserting raw milliseconds would therefore mean "this suite passes only
 // without coverage", which is a trap: it would go red in CI for a reason that
@@ -107,6 +112,53 @@ const speedFactor = ((): number => {
   const elapsed = performance.now() - started;
   return Math.min(Math.max(elapsed / CALIBRATION_BASELINE_MS, 1), 40);
 })();
+
+/** Scoped wrapper of the scanner's own step; restored even when a test fails. */
+class DestinationWork extends Context.Service<
+  DestinationWork,
+  { readonly workOf: (parse: () => unknown) => Effect.Effect<number> }
+>()("@beep/markdown/test/e2e/pathological/DestinationWork") {
+  static readonly layer = Layer.effect(
+    DestinationWork,
+    Effect.acquireRelease(
+      Effect.sync(() => {
+        const tally = MutableRef.make(0);
+        const step = ReferenceScanner.prototype.skipDestinationRun;
+        ReferenceScanner.prototype.skipDestinationRun = function () {
+          const start = this.pos;
+          const char = step.call(this);
+          MutableRef.update(tally, (work) => work + this.pos - start + 1);
+          return char;
+        };
+        return {
+          step,
+          service: DestinationWork.of({
+            workOf: Effect.fn("DestinationWork.workOf")((parse: () => unknown) =>
+              Effect.sync(() => {
+                MutableRef.set(tally, 0);
+                parse();
+                return MutableRef.get(tally);
+              })
+            ),
+          }),
+        };
+      }),
+      ({ step }) =>
+        Effect.sync(() => {
+          ReferenceScanner.prototype.skipDestinationRun = step;
+        })
+    ).pipe(Effect.map(({ service }) => service))
+  );
+}
+
+/** Reproduce the removed uncapped scan: each failed destination walks its whole tail. */
+const uncappedDestinations = (reps: number): void => {
+  const scanner = new ReferenceScanner(Str.repeat(reps)("[a](b"));
+  for (let attempt = 0; attempt < reps; attempt += 1) {
+    scanner.pos = attempt * 5 + 4;
+    while (scanner.skipDestinationRun() !== "") scanner.pos += 1;
+  }
+};
 
 describe("pathological inputs", () => {
   it("carries the whole vendored suite", () => {
@@ -159,51 +211,31 @@ describe("pathological inputs", () => {
     );
   }
 
-  // The linearity guard for the destination-scan cap (defect 5 above).
-  //
-  // RATIO-BASED, deliberately: both measurements run under the same
-  // instrumentation, so coverage and slow hardware cancel out where an
-  // absolute budget would not. Without `MAX_LINK_DESTINATION_PARENS` every
-  // failed inline-link attempt in this input re-scans to the end of the
-  // subject, and quadrupling the input costs ~16x (measured
-  // 303ms/1278ms/4842ms at 7.5k/15k/30k reps); linear costs ~4x (measured
-  // 9ms/32ms). The threshold of 8 sits between the two with margin on both
-  // sides. Watched red against the uncapped scan.
-  it(
-    "unclosed links B scales linearly",
-    () => {
-      const timeAt = (reps: number): number => {
-        const input = Str.repeat(reps)("[a](b");
-        // Two passes, keep the faster: damps JIT and GC noise without
-        // hiding an algorithmic blowup.
-        let best = Number.POSITIVE_INFINITY;
-        for (let pass = 0; pass < 2; pass += 1) {
-          const started = performance.now();
-          parseBlocks(input);
-          best = Math.min(best, performance.now() - started);
-        }
-        return best;
-      };
+  it.layer(DestinationWork.layer)((it) => {
+    it.effect("unclosed links B scales linearly", () =>
+      Effect.gen(function* () {
+        const { workOf } = yield* DestinationWork;
+        const workAt = (reps: number) => workOf(() => parseBlocks(Str.repeat(reps)("[a](b")));
+        // The final 33 attempts have shorter tails; each additional repetition
+        // after that costs exactly 33 scans of four ordinary units plus a stop.
+        const small = yield* workAt(7500);
+        const medium = yield* workAt(15000);
+        const large = yield* workAt(30000);
+        assert.isAbove(small, 0, "the real parser must enter the metered seam");
+        assert.strictEqual(medium - small, 7500 * 33 * 5);
+        assert.strictEqual(large - medium, 15000 * 33 * 5);
+      })
+    );
 
-      // Warm the path so the small measurement is not first-call cost.
-      timeAt(1000);
-      const small = timeAt(7500);
-      const large = timeAt(30000);
-      // Floor the denominator: a sub-millisecond small run would make the
-      // ratio noise, and 1ms is far above the quadratic's small-run cost
-      // anyway.
-      const ratio = large / Math.max(small, 1);
-      assert.isBelow(
-        ratio,
-        8,
-        `4x the input cost ${ratio.toFixed(1)}x the time (${small.toFixed(1)}ms -> ${large.toFixed(1)}ms); ` +
-          "linear is ~4x, the pre-cap quadratic was ~16x"
-      );
-    },
-    // The same wall-clock ceiling the vendored cases get (their shared
-    // TIMEOUT_MS is 8000): generous against instrumented linear cost —
-    // two orders of magnitude of headroom — while anything worse than
-    // the measured quadratic fails HERE instead of grinding the runner.
-    8000 * 40 + 5000
-  );
+    it.effect("the same counter detects uncapped quadratic destination scans", () =>
+      Effect.gen(function* () {
+        const { workOf } = yield* DestinationWork;
+        const small = yield* workOf(() => uncappedDestinations(40));
+        const medium = yield* workOf(() => uncappedDestinations(80));
+        const large = yield* workOf(() => uncappedDestinations(160));
+        assert.isAbove(small, 0);
+        assert.isAbove(large - medium, 2 * (medium - small));
+      })
+    );
+  });
 });
