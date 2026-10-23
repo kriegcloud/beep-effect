@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { GitObjectId } from "@beep/schema/Conformance";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../../internal/schema/JsonCodec.ts";
 import { WorktreeRemovalReceipt } from "../../Worktree/Worktree.schemas.ts";
@@ -192,10 +193,14 @@ export class YeetRetireSweepReport extends S.Opaque<YeetRetireSweepReport, { rea
     receipt: WorktreeRemovalReceipt,
     activePackets: S.Array(S.String),
     sweep: SweepReport,
+    stoppedJobs: S.Array(StoppedLaneJob).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
   }).pipe(
     $I.annoteSchema("YeetRetireSweepReport", {
       description:
-        "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report.",
+        "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, the owning clone's sweep report, and the lane's detached jobs stopped before the fence.",
     })
   )
 ) {}

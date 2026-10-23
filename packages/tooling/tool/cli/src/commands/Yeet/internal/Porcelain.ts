@@ -66,6 +66,7 @@ import {
   retireInvokingWorktree,
   retireVerdict,
   stopLaneJobs,
+  withStoppedLaneJobs,
 } from "./Retire.ts";
 import { SweepPlanJson, SweepReportJson } from "./Sweep.schemas.ts";
 import { executeSweep, observeSweepGitState, overrideSweepBranch, planSweep, renderSweepReport } from "./Sweep.ts";
@@ -295,6 +296,7 @@ const printRetireReport = Effect.fn("Yeet.printRetireReport")(function* (
           receipt,
           activePackets,
           sweep,
+          stoppedJobs,
         })
       )
     : A.join(
@@ -345,7 +347,7 @@ const retireThenSweep = Effect.fn("Yeet.retireThenSweep")(function* (
   const stoppedJobs = YeetRetireVerdict.guards.refused(retireVerdict(retire, state))
     ? A.empty<StoppedLaneJob>()
     : yield* stopLaneJobs(retire);
-  const receipt = yield* retireInvokingWorktree(retire, state);
+  const receipt = yield* retireInvokingWorktree(retire, state).pipe(Effect.mapError(withStoppedLaneJobs(stoppedJobs)));
   // The lane is gone; the sweep closes the lane's ledger row, not the clone's,
   // on the strength of the gate the retirement just passed.
   const sweep = yield* executeSweep(cloneContext, { ledgerCheckout: retire.worktreePath });

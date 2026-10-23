@@ -352,8 +352,9 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
     );
 });
 
-const isLiveLaneJob = (record: ProofJobRecord): boolean =>
-  !isSettledProofJob(record) && !isTerminalProofJobPhase(record.phase);
+// Unsettled is live: a `finished` job's loop has ended, but its unit stays
+// loaded until the ExecStopPost finalizer has written the record by path.
+const isLiveLaneJob = (record: ProofJobRecord): boolean => !isSettledProofJob(record);
 
 /**
  * Stop the retiring lane's own live detached jobs before the fence.
@@ -364,7 +365,10 @@ const isLiveLaneJob = (record: ProofJobRecord): boolean =>
  * its working directory and appends its log under the lane's
  * `.beep/yeet/jobs/`. Once the gate has opened, its work is moot; left
  * running, it holds the fence and, by reopening its log by path, recreates the
- * lane after the fence renames it away (#2130). `systemctl --user stop`
+ * lane after the fence renames it away (#2130). Every job not yet settled
+ * counts, a `finished` one included: its unit stays loaded until its
+ * finalizer has written the record, so its unit is stopped without a cancel
+ * stamp that would overwrite the recorded outcome. `systemctl --user stop`
  * returns once the unit and its finalizer have stopped, so their last writes
  * land in the lane before its residue is captured. A listing that cannot be
  * read stops nothing; a stop systemd refuses is reported as `stop-failed`,
@@ -387,7 +391,11 @@ export const stopLaneJobs = Effect.fn("Yeet.stopLaneJobs")(function* (plan: Yeet
   const launcher = yield* ProofJobLauncher.make(plan.worktreePath);
   const records = yield* launcher.list.pipe(Effect.orElseSucceed(() => A.empty<ProofJobRecord>()));
   return yield* Effect.forEach(A.filter(records, isLiveLaneJob), (record) =>
-    launcher.cancel(record.jobId).pipe(Effect.map((outcome) => StoppedLaneJob.make({ jobId: record.jobId, outcome })))
+    // A cancel stamp would overwrite a finished job's outcome, so its unit is
+    // only stopped; anything still running is cancelled.
+    (isTerminalProofJobPhase(record.phase) ? launcher.stopUnit(record.jobId) : launcher.cancel(record.jobId)).pipe(
+      Effect.map((outcome) => StoppedLaneJob.make({ jobId: record.jobId, outcome }))
+    )
   );
 });
 
@@ -412,6 +420,49 @@ export const renderStoppedLaneJobs = (stopped: ReadonlyArray<StoppedLaneJob>): s
     A.map(stopped, ({ jobId, outcome }) => `  lane job ${jobId}: ${outcome}`),
     "\n"
   );
+
+/**
+ * Name the lane jobs a refused retirement had already stopped in its failure message.
+ *
+ * **Details**
+ *
+ * {@link stopLaneJobs} runs before the fence, so a retirement the fence then
+ * refuses leaves the lane in place with its monitor already stopped; the
+ * message says which jobs, so the operator can resubmit one if the lane is
+ * kept. Without stopped jobs the error is returned unchanged.
+ *
+ * **Example** (Leave an error without stopped jobs unchanged)
+ *
+ * ```ts
+ * import { withStoppedLaneJobs } from "@beep/repo-cli/test/Yeet"
+ * import { YeetCommandError } from "@beep/repo-cli/commands/Yeet"
+ *
+ * const error = YeetCommandError.make({ message: "refused" })
+ * console.log(withStoppedLaneJobs(error, []).message) // refused
+ * ```
+ *
+ * @param error - The retirement failure; the data-last form takes it alone.
+ * @param stopped - The jobs {@link stopLaneJobs} asked to stop.
+ * @returns The failure, naming each stopped job and its outcome.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const withStoppedLaneJobs: {
+  (stopped: ReadonlyArray<StoppedLaneJob>): (error: YeetCommandError) => YeetCommandError;
+  (error: YeetCommandError, stopped: ReadonlyArray<StoppedLaneJob>): YeetCommandError;
+} = dual(
+  2,
+  (error: YeetCommandError, stopped: ReadonlyArray<StoppedLaneJob>): YeetCommandError =>
+    A.isReadonlyArrayNonEmpty(stopped)
+      ? YeetCommandError.make({
+          message: `${error.message} Lane jobs stopped before the refusal: ${A.join(
+            A.map(stopped, ({ jobId, outcome }) => `${jobId} (${outcome})`),
+            ", "
+          )}.`,
+          cause: error,
+        })
+      : error
+);
 
 // Only the lifecycle and the packet's own account of why it stays open
 // matter here; the full manifest is the goals doctor's business, and a

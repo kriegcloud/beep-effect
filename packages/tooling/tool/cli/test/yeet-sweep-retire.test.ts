@@ -23,7 +23,10 @@ import {
   retirementFailureMessage,
   retireVerdict,
   runYeetSweep,
+  StoppedLaneJob,
   SweepGitState,
+  withStoppedLaneJobs,
+  YeetCommandError,
   YeetRetirePlan,
   YeetRetireSweepPlanJson,
   YeetRetireSweepReportJson,
@@ -33,7 +36,7 @@ import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
+import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -742,10 +745,28 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
           const report = yield* YeetRetireSweepReportJson.decode(runOutput);
           expect(report.verdict._tag).toBe("pr-less-on-main");
           expect(report.receipt.branchDeleted).toBe(true);
+          // The lane had no detached jobs; the field is still written, and a
+          // report written before it existed decodes to the same empty list.
+          assertTrue(Str.includes('"stoppedJobs":[]')(runOutput));
+          const legacy = yield* YeetRetireSweepReportJson.decode(Str.replace(',"stoppedJobs":[]', "")(runOutput));
+          expect(legacy.stoppedJobs).toEqual([]);
         }),
       { remoteBranch: false }
     )
   );
+
+  it("names the lane jobs a refused retirement had already stopped", () => {
+    const error = YeetCommandError.make({ message: "yeet sweep --retire could not retire /lane: refused." });
+    const stopped = [
+      StoppedLaneJob.make({ jobId: "0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60", outcome: "stop-requested" }),
+      StoppedLaneJob.make({ jobId: "1e6d0b4f-7e4c-4d2f-8b9a-3c8e2d5f6b71", outcome: "unit-absent" }),
+    ];
+
+    expect(withStoppedLaneJobs(error, stopped).message).toBe(
+      "yeet sweep --retire could not retire /lane: refused. Lane jobs stopped before the refusal: 0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60 (stop-requested), 1e6d0b4f-7e4c-4d2f-8b9a-3c8e2d5f6b71 (unit-absent)."
+    );
+    expect(withStoppedLaneJobs(error, [])).toBe(error);
+  });
 
   it.effect("reports a git failure while planning a retirement outside any repository", () =>
     Effect.scoped(

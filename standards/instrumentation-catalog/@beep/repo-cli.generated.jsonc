@@ -2370,6 +2370,8 @@
     {"name":"ProofJob.reportCommand","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ProofJob.requireRecord","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ProofJob.save","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"ProofJob.stopUnit","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"ProofJob.stopUnitByName","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ProofJob.submit","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ProofJob.wait","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ProofJob.withReadyMonitorSubmitLock","owner":"@beep/repo-cli","family":"tooling","conforms":true},
