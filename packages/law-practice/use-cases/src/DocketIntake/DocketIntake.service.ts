@@ -478,13 +478,13 @@ const sourceLine = (message: DocketMessage): string =>
 
 // Mail found in Junk Email or Deleted Items is docketed like any other, and every entry written
 // for it says where it was found.
-const folderFlags: (folder: DocketSourceFolder) => ReadonlyArray<DocketEntryFlag> = DocketSourceFolder.$match({
+const folderFlags: (folder: DocketSourceFolder) => ReadonlyArray<DocketEntryFlag> = DocketSourceFolder.match({
   deleted: (): ReadonlyArray<DocketEntryFlag> => ["deleted-folder"],
   junk: (): ReadonlyArray<DocketEntryFlag> => ["junk-folder"],
   mailbox: (): ReadonlyArray<DocketEntryFlag> => [],
 });
 
-const folderLines: (folder: DocketSourceFolder) => ReadonlyArray<string> = DocketSourceFolder.$match({
+const folderLines: (folder: DocketSourceFolder) => ReadonlyArray<string> = DocketSourceFolder.match({
   deleted: () => ["Found in the Deleted Items folder."],
   junk: () => ["Found in the Junk Email folder."],
   mailbox: A.empty<string>,
@@ -624,7 +624,7 @@ const FLAGGED_INTRO =
   "A message looks like a docket item but the automatic review did not accept it. Nothing here is confirmed: please read the message and enter it yourself.";
 
 // What the attorney sees first: the subject prefix and the opening line say why the entry exists.
-const reasonText: (reason: DocketNeedsReviewReason) => ReasonText = DocketNeedsReviewReason.$match({
+const reasonText: (reason: DocketNeedsReviewReason) => ReasonText = DocketNeedsReviewReason.match({
   "agents-disagree": () => UNDATED,
   "due-date-past": () => ({
     intro: "The resolved due date has passed. Please review the message.",
@@ -653,7 +653,7 @@ const placeNeedsReview = (
   sourceDate: LocalDate,
   reason: DocketNeedsReviewReason
 ): ((placement: NeedsReviewPlacement) => NeedsReviewPlaced) =>
-  NeedsReviewPlacement.$match({
+  NeedsReviewPlacement.match({
     fallback: (): NeedsReviewPlaced => ({
       date: sourceDate,
       identity: messageIdentity(message),

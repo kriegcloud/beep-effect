@@ -429,7 +429,7 @@ export class RepoStepRunResult extends S.Opaque<RepoStepRunResult, { readonly br
 ) {}
 
 const phaseOrderValue = (phase: RepoPlanPhase): number =>
-  RepoPlanPhase.$match(phase, {
+  RepoPlanPhase.match(phase, {
     prepare: () => 0,
     feedback: () => 1,
     commit: () => 2,

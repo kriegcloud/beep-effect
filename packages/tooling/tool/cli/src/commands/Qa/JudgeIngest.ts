@@ -138,7 +138,7 @@ export const parseJudgeOutput = Effect.fn("QaJudgeIngest.parseJudgeOutput")(func
       Effect.fail(
         QaCommandError.make({
           cause: audit.detail.issue,
-          message: JudgeOutputDecodeFailure.$match(audit.detail.failure, {
+          message: JudgeOutputDecodeFailure.match(audit.detail.failure, {
             "inventory-schema-rejected": () =>
               "qa judge-ingest rejected the judge inventory. Check schemaVersion, finding ids (R<round>-<nn>), lens values, and that requiredCount equals the P0+P1 count.",
             "malformed-json": () => "qa judge-ingest could not parse the judge's final JSON block.",

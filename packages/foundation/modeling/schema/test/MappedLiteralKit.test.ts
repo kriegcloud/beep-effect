@@ -3,6 +3,7 @@ import { LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit";
 import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { deepStrictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -118,13 +119,13 @@ describe("MappedLiteralKit", () => {
   });
 
   it("retains LiteralKit helper behavior on directional kits", () => {
-    const fromMatch = SqlState.$match("SUCCESSFUL_COMPLETION", {
+    const fromMatch = SqlState.match("SUCCESSFUL_COMPLETION", {
       SUCCESSFUL_COMPLETION: () => "ok" as const,
       WARNING: () => "warn" as const,
     });
     expect(fromMatch).toBe("ok");
 
-    const toMatch = SqlState.To.$match("00000", {
+    const toMatch = SqlState.To.match("00000", {
       "00000": () => "ok-code" as const,
       "01000": () => "warn-code" as const,
     });
@@ -187,7 +188,7 @@ describe("MappedLiteralKit statics across derivations", () => {
         expect(derived.Pairs).toBe(SqlState.Pairs);
         expect(derived.Enum).toBe(SqlState.Enum);
         expect(derived.is).toBe(SqlState.is);
-        expect(derived.$match).toBe(SqlState.$match);
+        expect(derived.match).toBe(SqlState.match);
       }
       expect(yield* decodeCheckedSqlStateEffect("SUCCESSFUL_COMPLETION")).toBe("00000");
       expect(isPipedSqlState("01000")).toBe(false);
@@ -200,9 +201,39 @@ describe("MappedLiteralKit statics across derivations", () => {
       expect(derived).not.toBe(SqlState.To);
       expect(derived.Enum).toBe(SqlState.To.Enum);
       expect(derived.is).toBe(SqlState.To.is);
-      expect(derived.$match).toBe(SqlState.To.$match);
+      expect(derived.match).toBe(SqlState.To.match);
     }
     expect(CheckedSqlStateName.Enum["00000"]).toBe("SUCCESSFUL_COMPLETION");
     expect(isCheckedSqlStateName("WARNING")).toBe(false);
+  });
+});
+
+describe("MappedLiteralKit subsets and matchOrElse", () => {
+  const Code = MappedLiteralKit([
+    ["OK", 200],
+    ["CREATED", 201],
+    ["NOT_FOUND", 404],
+  ] as const);
+
+  it("pick keeps the pairs whose from-side literal was picked", () => {
+    const Success = Code.pick(["OK", "CREATED"]);
+    deepStrictEqual(Success.Pairs, [
+      ["OK", 200],
+      ["CREATED", 201],
+    ]);
+    expect(Success.Enum.OK).toBe(200);
+    expect(Effect.runSync(S.decodeEffect(Success)("CREATED"))).toBe(201);
+    expect(S.is(Success.To)(404)).toBe(false);
+  });
+
+  it("omit drops the pairs whose from-side literal was dropped", () => {
+    const Failures = Code.omit(["OK", "CREATED"]);
+    deepStrictEqual(Failures.Pairs, [["NOT_FOUND", 404]]);
+    expect(Failures.To.Enum.number404).toBe("NOT_FOUND");
+  });
+
+  it("matchOrElse on a direction routes the remainder to the fallback", () => {
+    expect(Code.matchOrElse("NOT_FOUND", { OK: () => "ok" }, (rest) => `other:${rest}`)).toBe("other:NOT_FOUND");
+    expect(Code.To.matchOrElse(200, { number200: () => "ok" }, () => "other")).toBe("ok");
   });
 });

@@ -306,7 +306,7 @@ const livenessSkipReason = (verdict: FleetLivenessVerdict): O.Option<WorktreeRea
   );
 
 const classSkipReason = (reapClass: WorktreeReapClass): O.Option<WorktreeReapSkipReason> =>
-  WorktreeReapClass.$match(reapClass, {
+  WorktreeReapClass.match(reapClass, {
     "merged-pr": O.none<WorktreeReapSkipReason>,
     "open-pr": () => O.some<WorktreeReapSkipReason>("open-pr"),
     "no-pr": () => O.some<WorktreeReapSkipReason>("no-pr"),

@@ -449,7 +449,7 @@ const proofLockDisposition = (
     ? ProofLockDisposition.Enum["refuse-legacy"]
     : O.isNone(state)
       ? ProofLockDisposition.Enum["refuse-unreadable"]
-      : ProcessIdentityStatus.$match(ownerStatus, {
+      : ProcessIdentityStatus.match(ownerStatus, {
           alive: () => ProofLockDisposition.Enum["refuse-active"],
           dead: () => ProofLockDisposition.Enum["replace-stale"],
           unknown: () => ProofLockDisposition.Enum["refuse-unverifiable"],
@@ -917,7 +917,7 @@ const contendForFullProofLockCore = Effect.fn("Yeet.contendForFullProofLockCore"
 ): Effect.fn.Return<FullProofLockContention, YeetCommandError, Crypto.Crypto | FileSystem.FileSystem> {
   const observed = yield* observeProofLockState(lockPath);
   const disposition = proofLockDisposition(observed.state, observed.ownerStatus, O.isSome(observed.legacyState));
-  return yield* ProofLockDisposition.$match(disposition, {
+  return yield* ProofLockDisposition.match(disposition, {
     "refuse-active": () => Effect.succeed(noFullProofLockLease(observed)),
     "refuse-legacy": () => refuseLegacyProofLockContention(lockPath, O.getOrThrow(observed.legacyState)),
     "refuse-unreadable": () => Effect.succeed(noFullProofLockLease(observed)),
@@ -1268,7 +1268,7 @@ const retireObservedProofLock = Effect.fn("Yeet.retireObservedProofLock")(functi
             )
           : Effect.fail(activeProofLockRefusal(lockPath, observed.state)),
       onSome: (owner) =>
-        ProcessIdentityStatus.$match(observed.ownerStatus, {
+        ProcessIdentityStatus.match(observed.ownerStatus, {
           alive: () => Effect.succeed(O.none<boolean>()),
           dead: () => replaceStaleProofLockWithRetirement(lockPath, retirementText, owner, observed),
           unknown: () => Effect.fail(unverifiableProofLockRefusal(lockPath, owner)),

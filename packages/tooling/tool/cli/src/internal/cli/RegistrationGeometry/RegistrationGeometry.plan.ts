@@ -222,7 +222,7 @@ const forwardOperation = RegistrationSurface.match({
     RegistrationOperation.make({
       surfaceId: surface.id,
       operation: "write",
-      detail: DeletionNotePolicy.$match(surface.deletionNotePolicy, {
+      detail: DeletionNotePolicy.match(surface.deletionNotePolicy, {
         "emit-empty-note": () => `preserve pending policy for ${surface.packageName}`,
         "private-exempt": () =>
           `preserve pending policy for ${surface.packageName}; private packages are changeset-exempt`,
@@ -293,7 +293,7 @@ const inverseOperation = RegistrationSurface.match({
     RegistrationOperation.make({
       surfaceId: surface.id,
       operation: "remove",
-      detail: DeletionNotePolicy.$match(surface.deletionNotePolicy, {
+      detail: DeletionNotePolicy.match(surface.deletionNotePolicy, {
         "emit-empty-note": () =>
           `delete dedicated pending files, strip multi-package key ${surface.packageName}, and emit an empty deletion changeset`,
         "private-exempt": () =>

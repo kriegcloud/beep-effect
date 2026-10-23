@@ -346,7 +346,7 @@ export const githubJobHasFailedStep = (job: GithubJobRecord): boolean =>
  * @since 0.0.0
  */
 export const githubJobShapeEvidence = (shapeClass: GithubJobShapeClass): string =>
-  GithubJobShapeClass.$match(shapeClass, {
+  GithubJobShapeClass.match(shapeClass, {
     "setup-5xx": () => "GitHub could not resolve action download info; no repo command ran",
     "runner-loss": () => "the job failed while no step ever concluded; the runner stopped reporting",
     "install-failure": () =>

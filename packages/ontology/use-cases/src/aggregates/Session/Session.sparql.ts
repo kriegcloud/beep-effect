@@ -412,7 +412,7 @@ const validateProfile = (
   query: string
 ): Effect.Effect<void, OntologySparqlError> => {
   const body = pipe(queryWithoutPrefixLines(query), Str.toUpperCase);
-  const ok = OntologySparqlPanelProfile.$match(profile, {
+  const ok = OntologySparqlPanelProfile.match(profile, {
     select: () => Str.startsWith(body, "SELECT"),
     construct: () => Str.startsWith(body, "CONSTRUCT"),
     ask: () => Str.startsWith(body, "ASK"),

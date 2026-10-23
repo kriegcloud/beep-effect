@@ -1904,7 +1904,7 @@ export const redSchedulingDecision = (
   O.match(estimate, {
     onNone: stopAfterRed,
     onSome: (value) =>
-      GatePrecisionClass.$match(value.precision, {
+      GatePrecisionClass.match(value.precision, {
         precise: stopAfterRed,
         imprecise: continueAfterImpreciseRed,
       }),

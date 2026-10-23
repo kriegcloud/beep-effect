@@ -702,7 +702,7 @@ export const renderJudgePrompt: {
 const byPath: Order.Order<JudgeEvidenceFile> = Order.mapInput(Order.String, (file: JudgeEvidenceFile) => file.path);
 
 const keepPriority = (kind: JudgeEvidenceKind, green: boolean): number =>
-  JudgeEvidenceKind.$match(kind, {
+  JudgeEvidenceKind.match(kind, {
     frame: () => 2,
     screenshot: () => (green ? 3 : 1),
     sheet: () => 0,

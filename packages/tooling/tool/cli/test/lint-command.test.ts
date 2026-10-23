@@ -581,14 +581,14 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           expectReportedExit(exit);
           expect(errorLines).toContain("[schema-first] untracked live findings:");
           expect(errorLines).toContain(
-            '- packages/example/src/Example.ts :: render.switch(event._tag) [schema-policy-advisory] Schema-modeled discriminator switch "event._tag" should use schema-derived .match/.guards or LiteralKit.$match when semantics match.'
+            '- packages/example/src/Example.ts :: render.switch(event._tag) [schema-policy-advisory] Schema-modeled discriminator switch "event._tag" should use schema-derived .match/.guards or LiteralKit.match when semantics match.'
           );
           const structuredIssueLine =
             '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-static-api",' +
             '"severity":"warning","file":"packages/example/src/Example.ts","line":4,' +
             '"symbol":"render.switch(event._tag)",' +
-            '"message":"Schema-modeled discriminator switch \\"event._tag\\" should use schema-derived .match/.guards or LiteralKit.$match when semantics match.",' +
-            '"remediation":"Prefer schema-derived .match/.guards/.cases, or LiteralKit\'s $match, is, Enum, or toTaggedUnion, or run bun run beep lint schema-first --write with a justification when behavior intentionally differs."}';
+            '"message":"Schema-modeled discriminator switch \\"event._tag\\" should use schema-derived .match/.guards or LiteralKit.match when semantics match.",' +
+            '"remediation":"Prefer schema-derived .match/.guards/.cases, or LiteralKit\'s match, is, Enum, or toTaggedUnion, or run bun run beep lint schema-first --write with a justification when behavior intentionally differs."}';
           expect(errorLines).toContain(structuredIssueLine);
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))

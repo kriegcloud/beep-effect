@@ -198,9 +198,7 @@ export const turboCachePullRequestPosture = {
  * @category models
  * @since 0.0.0
  */
-export const TurboCacheSecretEnvName = LiteralKit(
-  TurboCacheEnvName.pick(["TURBO_API", "TURBO_TOKEN", "TURBO_TEAM"]).literals
-).pipe(
+export const TurboCacheSecretEnvName = TurboCacheEnvName.pick(["TURBO_API", "TURBO_TOKEN", "TURBO_TEAM"]).pipe(
   $I.annoteSchema("TurboCacheSecretEnvName", {
     description: "Turbo credential environment variables whose references a secret session may resolve.",
   })

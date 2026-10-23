@@ -22,7 +22,7 @@ const StrictRootChildType = LiteralKit([
   "youtube",
 ]);
 const StrictInlineChildType = LiteralKit(["text", "tab", "linebreak", "link"]);
-const StrictLeafInlineChildType = LiteralKit(StrictInlineChildType.pick(["text", "tab", "linebreak"]).literals);
+const StrictLeafInlineChildType = StrictInlineChildType.pick(["text", "tab", "linebreak"]);
 const StrictListItemChildType = LiteralKit(["text", "tab", "linebreak", "link", "list"]);
 
 const isStrictRootChildType = S.is(StrictRootChildType);

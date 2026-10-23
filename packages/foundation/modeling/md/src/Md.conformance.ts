@@ -375,7 +375,7 @@ export type BeepMarkdownDocument = typeof BeepMarkdownDocument.Type;
 export type StrictMarkdownDocument = CommonMarkDocument | GfmDocument | BeepMarkdownDocument;
 
 const makeStrictMarkdownDocument = (document: Document, profile: MarkdownConformanceProfile): StrictMarkdownDocument =>
-  MarkdownConformanceProfile.$match(profile, {
+  MarkdownConformanceProfile.match(profile, {
     [MarkdownProfileIds.CommonMark]: () => CommonMarkDocument.make(document),
     [MarkdownProfileIds.Gfm]: () => GfmDocument.make(document),
     [MarkdownProfileIds.Beep]: () => BeepMarkdownDocument.make(document),
@@ -420,13 +420,13 @@ export const refineStrictMarkdownDocument: {
   }
 );
 
-const sharedProfileFor = MarkdownConformanceProfile.$match({
+const sharedProfileFor = MarkdownConformanceProfile.match({
   [MarkdownProfileIds.CommonMark]: () => CommonMarkSpecificationProfile,
   [MarkdownProfileIds.Gfm]: () => GfmSpecificationProfile,
   [MarkdownProfileIds.Beep]: () => BeepMarkdownSpecificationProfile,
 });
 
-const checkedInvariantIdsFor = MarkdownConformanceProfile.$match({
+const checkedInvariantIdsFor = MarkdownConformanceProfile.match({
   [MarkdownProfileIds.CommonMark]: () => CommonMarkCheckedInvariantIds,
   [MarkdownProfileIds.Gfm]: () => GfmCheckedInvariantIds,
   [MarkdownProfileIds.Beep]: () => BeepCheckedInvariantIds,

@@ -591,7 +591,7 @@ const planThunk = (access: PropertyAccessExpression): ReadonlyArray<SiteDecision
   );
 
 const planKitFacet = (access: PropertyAccessExpression, facet: LiteralKitRetiredFacet): ReadonlyArray<SiteDecision> =>
-  LiteralKitRetiredFacet.$match(facet, {
+  LiteralKitRetiredFacet.match(facet, {
     Options: () => [planOptions(access)],
     pickOptions: () => [planPickOptions(access)],
     omitOptions: () => [planOmitOptions(access)],

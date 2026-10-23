@@ -581,7 +581,7 @@ export const isGateInputRelevant: {
   (scope: GateInputScope, repoRelativePath: string): boolean;
   (repoRelativePath: string): (scope: GateInputScope) => boolean;
 } = dual(2, (scope: GateInputScope, repoRelativePath: string): boolean =>
-  GateInputScope.$match(scope, {
+  GateInputScope.match(scope, {
     "repo-code": () => isRepoCodeInput(repoRelativePath),
     "goals-packets": () => isGoalsPacketInput(repoRelativePath),
   })

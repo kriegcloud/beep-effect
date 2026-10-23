@@ -6,12 +6,14 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { A } from "@beep/utils";
+import { A, R } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { LiteralKit, matchLiteral } from "../LiteralKit/index.ts";
+import { LiteralKitEmptyComplementError, matchLiteral } from "../LiteralKit/index.ts";
+import { deriveKeys, literalKitBuilders, makeMatch, makeMatchOrElse } from "../LiteralKit/internal/builders.ts";
 import type * as SchemaAST from "effect/SchemaAST";
 import type { LiteralKit as LiteralKitSchema, LiteralToKey } from "../LiteralKit/index.ts";
 
@@ -42,8 +44,32 @@ type ReverseEnumMap<M extends MappedPairs> = {
 type DirectionalHelpers<From extends Literals, Enum extends Record<string, LiteralValue>> = {
   readonly is: LiteralKitSchema<From>["is"];
   readonly Enum: Enum;
-  readonly $match: LiteralKitSchema<From>["$match"];
+  readonly match: LiteralKitSchema<From>["match"];
+  readonly matchOrElse: LiteralKitSchema<From>["matchOrElse"];
 };
+
+type NonEmptyOf<U> = readonly [U, ...Array<U>];
+
+type FromLiteral<M extends MappedPairs> = FromLiterals<M>[number];
+
+/**
+ * The pairs of `M` whose from-side literal is one of `F`.
+ */
+type PairsFrom<M extends MappedPairs, F extends LiteralValue> = Extract<M[number], readonly [F, LiteralValue]>;
+
+/**
+ * The pairs of `M` whose from-side literal is none of `F`.
+ */
+type PairsExcept<M extends MappedPairs, F extends LiteralValue> = Exclude<M[number], readonly [F, LiteralValue]>;
+
+/**
+ * Collapses the `omit` argument to `never` when it would drop every pair.
+ */
+type NonEmptyPairComplement<M extends MappedPairs, Dropped extends ReadonlyArray<FromLiteral<M>>> = [
+  PairsExcept<M, Dropped[number]>,
+] extends [never]
+  ? never
+  : unknown;
 
 type TransformedLiteralsSchema<
   From extends Literals,
@@ -52,7 +78,7 @@ type TransformedLiteralsSchema<
 
 /**
  * One direction of a {@link MappedLiteralKit}: the transformed literal union
- * plus keyed helpers (`is`, `Enum`, `$match`) over its encoded literals.
+ * plus keyed helpers (`is`, `Enum`, `match`, `matchOrElse`) over its encoded literals.
  *
  * **Details**
  *
@@ -125,22 +151,14 @@ type SeenState = {
 };
 
 const makeForwardEnum = <M extends MappedPairs>(mappings: M): ForwardEnumMap<M> =>
-  A.reduce({} as ForwardEnumMap<M>, (acc, entry: M[number]) => {
-    const [fromLiteral, toLiteral] = entry;
-    return {
-      ...acc,
-      [matchLiteral(fromLiteral)]: toLiteral,
-    };
-  })(mappings);
+  R.fromEntries(
+    A.map(mappings, ([fromLiteral, toLiteral]: MappedPair) => [matchLiteral(fromLiteral), toLiteral] as const)
+  ) as ForwardEnumMap<M>;
 
 const makeReverseEnum = <M extends MappedPairs>(mappings: M): ReverseEnumMap<M> =>
-  A.reduce({} as ReverseEnumMap<M>, (acc, entry: M[number]) => {
-    const [fromLiteral, toLiteral] = entry;
-    return {
-      ...acc,
-      [matchLiteral(toLiteral)]: fromLiteral,
-    };
-  })(mappings);
+  R.fromEntries(
+    A.map(mappings, ([fromLiteral, toLiteral]: MappedPair) => [matchLiteral(toLiteral), fromLiteral] as const)
+  ) as ReverseEnumMap<M>;
 
 const validateMappings = <M extends MappedPairs>(mappings: M): void =>
   void pipe(
@@ -195,30 +213,6 @@ const splitMappings = <M extends MappedPairs>(
   ) as ToLiterals<M>,
 });
 
-/**
- * Attach the directional statics and keep them attached across every
- * derivation: upstream's `annotate`, `annotateKey` and `check` all return
- * `this.rebuild(ast)`, so the instance-level `rebuild` re-attaches them.
- */
-const attachHelperDescriptors = <T extends S.Top>(
-  schema: T,
-  makeDescriptors: (schema: T) => PropertyDescriptorMap
-): T => {
-  const upstreamRebuild: (ast: SchemaAST.AST) => S.Top = schema.rebuild;
-
-  return Object.defineProperties(schema, {
-    ...makeDescriptors(schema),
-    rebuild: {
-      value(this: S.Top, ast: SchemaAST.AST): S.Top {
-        return attachHelperDescriptors(upstreamRebuild.call(this, ast) as T, makeDescriptors);
-      },
-      enumerable: false,
-      writable: false,
-      configurable: true,
-    },
-  });
-};
-
 const makeDirectionalKit = <
   From extends Literals,
   To extends { readonly [I in keyof From]: LiteralValue },
@@ -229,19 +223,16 @@ const makeDirectionalKit = <
   Enum: Enum
 ): DirectionalKit<From, To, Enum> => {
   const base = S.Literals(from).transform(to);
-  const literalKit = LiteralKit(from);
-  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
-    value,
-    enumerable: true,
-    writable: false,
-    configurable: false,
-  });
+  const keys = deriveKeys(from);
+  literalKitBuilders.assertUniqueHelperKeys(from, keys);
+  const helpers = {
+    is: literalKitBuilders.guards(from, keys) as LiteralKitSchema<From>["is"],
+    Enum,
+    match: makeMatch(from) as LiteralKitSchema<From>["match"],
+    matchOrElse: makeMatchOrElse(from) as LiteralKitSchema<From>["matchOrElse"],
+  } satisfies DirectionalHelpers<From, Enum>;
 
-  return attachHelperDescriptors(base, () => ({
-    is: readonlyProperty(literalKit.is),
-    Enum: readonlyProperty(Enum),
-    $match: readonlyProperty(literalKit.$match),
-  })) as DirectionalKit<From, To, Enum>;
+  return literalKitBuilders.attachStatics(base, () => helpers) as DirectionalKit<From, To, Enum>;
 };
 
 /**
@@ -251,7 +242,9 @@ const makeDirectionalKit = <
  *
  * - `decode` maps `From` literals to `To` literals.
  * - `encode` maps `To` literals back to `From` literals.
- * - Top-level helpers (`Enum`, `is`, `$match`) are aliases of `From`.
+ * - Top-level helpers (`Enum`, `is`, `match`, `matchOrElse`) are aliases of `From`.
+ * - `pick([...from])` and `omit([...from])` select pairs by their from-side
+ *   literal and return a mapped kit over the kept pairs.
  * - Both sides must be unique by literal value.
  * - The helpers survive `annotate`, `annotateKey`, and `check` on the kit and
  *   on its `From` / `To` directions.
@@ -293,6 +286,12 @@ type MappedLiteralKitBase<M extends MappedPairs> = ForwardDirectionalKit<M> & {
   readonly From: ForwardDirectionalKit<M>;
   readonly To: ReverseDirectionalKit<M>;
   readonly Pairs: M;
+  readonly pick: <const Picked extends A.NonEmptyReadonlyArray<FromLiteral<M>>>(
+    from: Picked
+  ) => MappedLiteralKit<NonEmptyOf<PairsFrom<M, Picked[number]>>>;
+  readonly omit: <const Dropped extends A.NonEmptyReadonlyArray<FromLiteral<M>>>(
+    from: Dropped & NonEmptyPairComplement<M, Dropped>
+  ) => MappedLiteralKit<NonEmptyOf<PairsExcept<M, Dropped[number]>>>;
 };
 
 /**
@@ -357,19 +356,34 @@ export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): Mapp
   const From = makeDirectionalKit(from, to, forwardEnum);
   const To = makeDirectionalKit(to, from, reverseEnum);
 
-  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
-    value,
-    enumerable: true,
-    writable: false,
-    configurable: false,
-  });
+  const pairsWhere = (keep: (fromLiteral: LiteralValue) => boolean): ReadonlyArray<MappedPair> =>
+    A.filter(mappings, ([fromLiteral]: MappedPair) => keep(fromLiteral));
+  const pick = (picked: Literals): MappedLiteralKit<MappedPairs> => {
+    const pickedSet = HashSet.fromIterable<LiteralValue>(picked);
+    const kept = pairsWhere((fromLiteral) => HashSet.has(pickedSet, fromLiteral));
+    if (!A.isReadonlyArrayNonEmpty(kept)) {
+      throw LiteralKitEmptyComplementError.make({ literals: from, dropped: from });
+    }
+    return MappedLiteralKit(kept);
+  };
+  const omit = (dropped: Literals): MappedLiteralKit<MappedPairs> => {
+    const droppedSet = HashSet.fromIterable<LiteralValue>(dropped);
+    const kept = pairsWhere((fromLiteral) => !HashSet.has(droppedSet, fromLiteral));
+    if (!A.isReadonlyArrayNonEmpty(kept)) {
+      throw LiteralKitEmptyComplementError.make({ literals: from, dropped });
+    }
+    return MappedLiteralKit(kept);
+  };
 
-  return attachHelperDescriptors(From, (schema) => ({
-    is: readonlyProperty(From.is),
-    Enum: readonlyProperty(From.Enum),
-    $match: readonlyProperty(From.$match),
-    From: readonlyProperty(schema),
-    To: readonlyProperty(To),
-    Pairs: readonlyProperty(mappings),
+  return literalKitBuilders.attachStatics(From, (schema) => ({
+    is: From.is,
+    Enum: From.Enum,
+    match: From.match,
+    matchOrElse: From.matchOrElse,
+    From: schema,
+    To,
+    Pairs: mappings,
+    pick: pick as unknown as MappedLiteralKit<M>["pick"],
+    omit: omit as unknown as MappedLiteralKit<M>["omit"],
   })) as MappedLiteralKit<M>;
 }

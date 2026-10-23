@@ -11,7 +11,7 @@ import { LegalActContent, LegalActPolarity } from "../LegalActContent/index.ts";
 
 const $I = $LawPracticeDomainId.create("values/HohfeldPosition/HohfeldPosition.model");
 
-const correlativeKind = HohfeldPositionKind.$match({
+const correlativeKind = HohfeldPositionKind.match({
   claim: (): HohfeldPositionKind => "duty",
   duty: (): HohfeldPositionKind => "claim",
   privilege: (): HohfeldPositionKind => "noRight",
@@ -22,7 +22,7 @@ const correlativeKind = HohfeldPositionKind.$match({
   disability: (): HohfeldPositionKind => "immunity",
 });
 
-const oppositeKind = HohfeldPositionKind.$match({
+const oppositeKind = HohfeldPositionKind.match({
   claim: (): HohfeldPositionKind => "noRight",
   noRight: (): HohfeldPositionKind => "claim",
   privilege: (): HohfeldPositionKind => "duty",
@@ -33,7 +33,7 @@ const oppositeKind = HohfeldPositionKind.$match({
   liability: (): HohfeldPositionKind => "immunity",
 });
 
-const negatedPolarity = LegalActPolarity.$match({
+const negatedPolarity = LegalActPolarity.match({
   act: (): LegalActPolarity => "omission",
   omission: (): LegalActPolarity => "act",
 });

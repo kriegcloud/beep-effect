@@ -676,3 +676,78 @@ one the repo's `dual(SchemaUtils.isCodecDataFirst, <bound decoder>)`
 convention, so there is nothing upstream to converge on. Rejected: retire it
 with the statics (no target to migrate 123 uses to); inline the predicate at
 each call site (duplicates one function 42 times).
+
+## 2026-10-22 — LiteralKit subset algebra: `pick` and `omit` return kits, `$match` becomes `match`
+
+**Question:** The 2026-09-15 entry retired `pickOptions` / `omitOptions` on the
+grounds that upstream `pick` covers them and that `omit` is "an explicit pick
+of the complement". A census on 2026-10-22 against `main` `39868bbebd` found
+24 sites that re-wrap `LiteralKit(X.pick([...]).literals)` to get the keyed
+API back, and one site (`CitingApplicationIdentity.model.ts`) that spells
+out a 238-literal complement of `OfficeCode` to exclude `US` and `XX`. A
+three-model review panel (GPT-6 Astra, Grok 4.7, Muse Wonder) and an `/adhd`
+pass also found a type defect in `MatchReturn` (unary handlers collapse the
+aggregate return to `never`), a `Match` pipeline rebuilt per `matchLiteral`
+call, and quadratic spread-in-reduce record builders. Should the subset
+facets come back, and in what shape?
+
+**Answer:** Interviewed 2026-10-22 with `/grill-with-docs`; built in
+`goals/literal-kit-subset-algebra`:
+
+- `pick` is overridden on the kit and returns `LiteralKit<P>`. Its argument
+  must be non-empty.
+- `omit` is new and returns
+  `LiteralKit<readonly [Exclude<L[number], D[number]>, ...Array<...>]>`. Its
+  argument must be non-empty. An empty complement is a compile error, and at
+  runtime it throws `LiteralKitEmptyComplementError`.
+- `$match` is renamed to `match`. It stays exhaustive and keeps both
+  overloads. `matchOrElse` is added, with both overloads, and its `orElse`
+  receives the unhandled remainder, mirroring `Schema.TaggedUnion.matchOrElse`.
+  A dispatch miss throws `LiteralKitUnhandledCaseError` instead of calling
+  `undefined`.
+- `thunk` stays retired: `Match.whenOr(...Kit.literals, Kit.match(cases))`
+  composes today, and `Function.constant` covers the value form.
+- The names `is` and `Enum` stay. `guards` and `values` were considered and
+  rejected for churn with no gain in meaning.
+- `toTaggedUnion` stays on the kit. Measured on a 240-member kit, it costs 48
+  instantiations when untouched and 3,159 when its type is read.
+- No Match combinator is added (`whenLiterals`, `whenTags`). The `whenOr`
+  composition above suffices.
+- `transform` on an omit-derived kit is positional over a rest tuple. This
+  gets a JSDoc Gotcha, not a brand.
+- Implementation fixes ride the same lane:
+  - the `MatchReturn` fix;
+  - `matchLiteral` through one module-level compiled matcher;
+  - keys derived once per construction and shared by every builder;
+  - O(n) record builders;
+  - own-property dispatch;
+  - MappedLiteralKit directional kits built from the shared builders, with
+    no throwaway `LiteralKit(from)`, and gaining `pick`, `omit`, `match` and
+    `matchOrElse`.
+- A schema-parity codemod rule `literal-kit-match-rename` performs the
+  migration: 309 `$match` reads and 24 re-wraps in 208 files, with zero
+  residue. `CitingApplicationIdentity` moves to `OfficeCode.omit(["US", "XX"])`
+  by hand.
+
+**Rationale:** The 2026-09-15 coverage argument held for the call but not for
+what consumers did with the result. Upstream `pick` returns a bare `Literals`,
+so every consumer that needed `Enum`, `is` or `match` on the subset re-wrapped
+it, and the facet was uncovered after the derivation consumers actually
+perform. `omit` as an enumerated pick changes meaning: a computed complement
+stays correct when the parent kit grows, while a hand-written list silently
+goes stale. The rename aligns the kit with upstream's `TaggedUnion.match` /
+`matchOrElse` vocabulary while upstream has no `match` on `Literals` to
+collide with. Rejected:
+
+- `pickLiterals` / `omitLiterals`: a second name for the same operation beside
+  upstream `pick`.
+- Keeping `$match` and adding `$matchExhaustive`: it inverts the default.
+- A Match combinator: `whenOr` already composes.
+- Restoring `thunk`: no context-free typing gain over `Function.constant` once
+  `withReturnType` is available.
+
+Partly supersedes the 2026-09-15 entry: its `pickOptions` / `omitOptions`
+retirement and its "omit is an explicit pick of the complement" clause. Its
+other rulings stand. Upstream follow-ups: an Effect issue and PR for
+`Schema.Literals.omit`, and one for `Match.literals` /
+`Match.literalsExhaustive`. The local `omit` is deleted if upstream merges.

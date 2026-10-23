@@ -425,7 +425,7 @@ export const SequenceBreakDeliveryOutcome = S.Union([
  */
 export type SequenceBreakDeliveryOutcome = typeof SequenceBreakDeliveryOutcome.Type;
 
-const waitReasonForTarget = SequenceBreakTarget.$match({
+const waitReasonForTarget = SequenceBreakTarget.match({
   "human-input": F.constant(HookPulseWaitReason.Enum["tool-permission"]),
   "plan-approval": F.constant(HookPulseWaitReason.Enum["plan-approval"]),
   "tool-permission": F.constant(HookPulseWaitReason.Enum["tool-permission"]),

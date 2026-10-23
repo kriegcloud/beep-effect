@@ -669,7 +669,7 @@ export const ontologyInspectorFormStateAtom = Atom.make((get) => {
   const predicateValid = O.isSome(decodeOntologyInspectorIri(predicate));
   const showSubjectError = Str.isNonEmpty(Str.trim(subject)) && !subjectValid;
   const showPredicateError = Str.isNonEmpty(Str.trim(predicate)) && !predicateValid;
-  const objectValid = OntologyInspectorObjectKind.$match(objectKind, {
+  const objectValid = OntologyInspectorObjectKind.match(objectKind, {
     iri: () => O.isSome(decodeOntologyInspectorIri(object)),
     literal: () => Str.isNonEmpty(Str.trim(object)),
   });
@@ -710,7 +710,7 @@ export const ontologyInspectorFormStateAtom = Atom.make((get) => {
 export const setOntologyInspectorInputAtoms = Atom.family((field: OntologyInspectorInputField) =>
   ontologyBrowserRuntime.fn<string>()(
     Effect.fnUntraced(function* (value, ctx) {
-      OntologyInspectorInputField.$match(field, {
+      OntologyInspectorInputField.match(field, {
         object: () => ctx.set(objectInputAtom, value),
         predicate: () => ctx.set(predicateInputAtom, value),
         subject: () => ctx.set(subjectInputAtom, value),
@@ -3256,7 +3256,7 @@ export const applyOntologyGraphGestureAtom = OntologyClient.runtime.fn<ApplyOnto
 export const applyOntologyInspectorActionAtom = OntologyClient.runtime.fn<OntologyInspectorAction>()(
   Effect.fn("applyOntologyInspectorAction")(function* (action, ctx) {
     const form = ctx(ontologyInspectorFormStateAtom);
-    const permitted = OntologyInspectorAction.$match(action, {
+    const permitted = OntologyInspectorAction.match(action, {
       addTriple: () => form.canApplyTriple,
       connect: () => form.canApplyGraphGesture,
       delete: () => form.canApplyGraphGesture,
@@ -3282,13 +3282,13 @@ export const applyOntologyInspectorActionAtom = OntologyClient.runtime.fn<Ontolo
       });
     });
 
-    yield* OntologyInspectorAction.$match(action, {
+    yield* OntologyInspectorAction.match(action, {
       addTriple: () =>
         O.match(
           O.all({
             subject: O.map(subjectIri, makeNamedNode),
             predicate: O.map(predicateIri, makeNamedNode),
-            object: OntologyInspectorObjectKind.$match(form.objectKind, {
+            object: OntologyInspectorObjectKind.match(form.objectKind, {
               iri: () => O.map(objectIri, makeNamedNode),
               literal: () =>
                 pipe(

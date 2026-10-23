@@ -217,7 +217,7 @@ export const extractCacheSignedPilotLog = Effect.fn("CachePilot.extractSignedLog
  * @category validation
  * @since 0.0.0
  */
-export const cacheSignedCaptureDiagnostic = CacheSignedPilotCaptureControl.fields.case.$match({
+export const cacheSignedCaptureDiagnostic = CacheSignedPilotCaptureControl.fields.case.match({
   "credential-output": () => "Signed pilot capture contains synthetic credential material.",
   "terminal-control": () => "Pilot process streams are truncated, oversized or contain ambiguous terminal text.",
   "oversized-log": () => "Selected pilot task log exceeded its 64 KiB bound.",

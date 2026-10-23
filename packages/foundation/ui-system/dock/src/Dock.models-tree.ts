@@ -839,7 +839,7 @@ export class SplitNode extends S.Opaque<SplitNode, { readonly brand: unique symb
   static readonly fromNodes: Dual3<DockNode.Type, DockNode.Type, SplitPosition, SplitNode> = dual(
     3,
     (reference: DockNode.Type, inserted: DockNode.Type, placement: SplitPosition): SplitNode =>
-      DockSide.$match(placement.side, {
+      DockSide.match(placement.side, {
         left: () =>
           SplitNode.make({
             splitId: placement.splitId,

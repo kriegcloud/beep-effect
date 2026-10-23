@@ -1015,6 +1015,14 @@ export const CHECK_CENSUS_DEFAULT_TARGETS: CheckCensusTargets = CheckCensusTarge
       "@beep/schema#typeperf/literal-kit-keyed-api",
       "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.literal-kit-keyed-api.json",
     ],
+    [
+      "@beep/schema#typeperf/literal-kit-large-untagged",
+      "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.literal-kit-large-untagged.json",
+    ],
+    [
+      "@beep/schema#typeperf/literal-kit-large-untagged-touched",
+      "packages/foundation/modeling/schema/test/fixtures/typeperf/tsconfig.literal-kit-large-untagged-touched.json",
+    ],
   ]),
 });
 

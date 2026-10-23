@@ -10,13 +10,31 @@ import type { A } from "@beep/utils";
 import type * as SchemaAST from "effect/SchemaAST";
 import type { LiteralKit as LiteralKitSchema } from "../LiteralKit/index.ts";
 
-type LiteralKitStatics<L extends A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>> = Pick<
+/**
+ * The keyed helpers {@link withLiteralKitStatics} copies from a kit.
+ *
+ * **Details**
+ *
+ * This is a named interface rather than a `Pick` alias so that declaration
+ * emit writes `LiteralKitStatics<readonly [...]>` instead of expanding every
+ * `match` and `matchOrElse` overload at each decorated schema.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export interface LiteralKitStatics<L extends A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>>
+  extends LiteralKitStaticsRecord<L> {}
+
+// `withStatics` takes a record type, and an interface has no implicit index
+// signature, so the implementation builds the alias and the signature names
+// the interface.
+type LiteralKitStaticsRecord<L extends A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>> = Pick<
   LiteralKitSchema<L>,
-  "is" | "Enum" | "$match" | "toTaggedUnion"
+  "is" | "Enum" | "match" | "matchOrElse" | "toTaggedUnion"
 >;
 
 /**
- * Copies a kit's keyed helpers (`is`, `Enum`, `$match`, `toTaggedUnion`) onto
+ * Copies a kit's keyed helpers (`is`, `Enum`, `match`, `matchOrElse`, `toTaggedUnion`) onto
  * a schema derived from it.
  *
  * **Details**
@@ -46,10 +64,11 @@ export const withLiteralKitStatics = <const L extends A.NonEmptyReadonlyArray<Sc
   literalKit: LiteralKitSchema<L>
 ): (<S extends object>(schema: S) => S & LiteralKitStatics<L>) =>
   withStatics(
-    (): LiteralKitStatics<L> => ({
+    (): LiteralKitStaticsRecord<L> => ({
       is: literalKit.is,
       Enum: literalKit.Enum,
-      $match: literalKit.$match,
+      match: literalKit.match,
+      matchOrElse: literalKit.matchOrElse,
       toTaggedUnion: literalKit.toTaggedUnion,
     })
   );

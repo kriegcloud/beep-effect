@@ -558,7 +558,7 @@ const attributionKindSetDiagnostics = (
 // on introduced findings under the new-only gate; health blocks on findings
 // that remain after comparison with its committed regression baseline.
 const promotedBlockingFinding = (feature: FallowFeature, attribution: typeof FindingAttributionKind.Type): boolean =>
-  FallowFeatureFamily.$match(feature, {
+  FallowFeatureFamily.match(feature, {
     audit: () => sameAttributionKind(attribution, "introduced"),
     boundaries: () => false,
     "dead-code": () => true,
@@ -768,7 +768,7 @@ const normalizeFlagsFindings = (document: unknown): ReadonlyArray<FallowFinding>
   );
 
 const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyArray<FallowFinding> =>
-  FallowFeatureFamily.$match(feature, {
+  FallowFeatureFamily.match(feature, {
     audit: () => normalizeAuditFindings(document),
     boundaries: () => normalizeSummaryFindings(feature, document),
     "dead-code": () => normalizeSummaryFindings(feature, document),
@@ -780,7 +780,7 @@ const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyA
 
 // fallow-ignore-next-line code-duplication -- raw-count dispatch mirrors normalization for each fallow output shape
 const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
-  FallowFeatureFamily.$match(feature, {
+  FallowFeatureFamily.match(feature, {
     audit: () => A.length(normalizeAuditFindings(document)),
     boundaries: () => rawSummaryIssueCount(document),
     "dead-code": () => rawSummaryIssueCount(document),
@@ -901,7 +901,7 @@ const FALLOW_DEAD_CODE_REGRESSION_BASELINE_PATH = "standards/fallow.dead-code.re
 const fallowArgs = (feature: FallowFeature, base: string, quiet: boolean): ReadonlyArray<string> => {
   const quietArgs = quiet ? ["--quiet"] : [];
 
-  return FallowFeatureFamily.$match(feature, {
+  return FallowFeatureFamily.match(feature, {
     audit: () => [
       "run",
       "fallow",
@@ -1109,7 +1109,7 @@ export const fallowAuditNeedsDiffFallbackForTesting = FallowAuditDiffFallbackPre
 });
 
 const hasFallowReportShape = (feature: FallowFeature, document: unknown): boolean =>
-  FallowFeatureFamily.$match(feature, {
+  FallowFeatureFamily.match(feature, {
     audit: () => O.isSome(decodeFallowAuditRawReportOption(document)),
     boundaries: () => O.isSome(decodeFallowDeadCodeRawReportOption(document)),
     "dead-code": () => O.isSome(decodeFallowDeadCodeRawReportOption(document)),
@@ -1180,7 +1180,7 @@ const makeFailureEnvelope = (
   message: string
 ): FallowReportToolFailed | FallowReportInvalidJson | FallowReportInvalidReport | FallowReportBaseResolutionFailed => {
   const base = baseEnvelope(feature, options, paths, generatedAt, toolVersion, dirtyWorktree, A.empty());
-  return FallowFailureEnvelopeStatus.$match(status, {
+  return FallowFailureEnvelopeStatus.match(status, {
     "base-resolution-failed": () =>
       FallowReportBaseResolutionFailed.make({
         ...base,

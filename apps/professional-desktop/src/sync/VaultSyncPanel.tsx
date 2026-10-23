@@ -160,7 +160,7 @@ const DisconnectedNote = ({
     // path is the only honest guess that does not claim the token is unset.
     onNone: () => probeNote(probeFailedCopy),
     onSome: (value) =>
-      DmsMirrorDisconnectReason.$match(value, {
+      DmsMirrorDisconnectReason.match(value, {
         "credentials-missing": () => (
           <p
             className="mt-2 rounded-sm border border-warning/40 bg-warning/10 p-2 text-xs text-warning-text dark:border-warning/50"

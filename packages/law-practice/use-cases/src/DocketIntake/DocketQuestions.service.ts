@@ -58,7 +58,7 @@ const longDate = (date: LocalDate): string =>
   );
 
 const questionText = (reason: DocketNeedsReview["reason"]): string =>
-  DocketNeedsReviewReason.$match(reason, {
+  DocketNeedsReviewReason.match(reason, {
     "no-usable-date": () => "Docket intake found no date it could use in a message. What is the deadline?",
     "due-date-past": () =>
       "The due date docket intake found for a message has already passed. What should the calendar show?",
@@ -77,7 +77,7 @@ const handleMyself = (label: string) => QuestionOption.make({ optionId: "handle-
 
 // The answers that write nothing; every question offers at least one.
 const nonWritingOptions = (reason: DocketNeedsReview["reason"]): ReadonlyArray<QuestionOption> =>
-  DocketNeedsReviewReason.$match(reason, {
+  DocketNeedsReviewReason.match(reason, {
     "no-usable-date": () => [handleMyself("I'll find the date and enter it"), notADeadline],
     "due-date-past": () => [
       handleMyself("I'll handle the missed date"),
@@ -91,7 +91,7 @@ const nonWritingOptions = (reason: DocketNeedsReview["reason"]): ReadonlyArray<Q
   });
 
 const flagFact = (flag: DocketEntryFlag): string =>
-  DocketEntryFlag.$match(flag, {
+  DocketEntryFlag.match(flag, {
     "dates-differ": () => "The date the message states and the date computed from it differ.",
     "matter-ambiguous": () => "The message matches more than one matter.",
     "matter-suggested": () => "The matter was suggested, not matched exactly.",
@@ -108,7 +108,7 @@ const flagFact = (flag: DocketEntryFlag): string =>
   });
 
 const sourcePhrase = (source: DocketCandidateDate["source"]): string =>
-  DocketCandidateDateSource.$match(source, {
+  DocketCandidateDateSource.match(source, {
     stated: () => "the date the message states",
     computed: () => "computed from the mailing date",
     extractor: () => "the first reader's date",
@@ -117,7 +117,7 @@ const sourcePhrase = (source: DocketCandidateDate["source"]): string =>
   });
 
 const candidateFact = ({ date, source }: DocketCandidateDate): string =>
-  DocketCandidateDateSource.$match(source, {
+  DocketCandidateDateSource.match(source, {
     stated: () => `The message states ${longDate(date)}.`,
     computed: () => `Computed from the mailing date: ${longDate(date)}.`,
     extractor: () => `The first reader found ${longDate(date)}.`,

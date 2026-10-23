@@ -102,13 +102,13 @@ describe("MarkdownNode", () => {
 				assert.deepStrictEqual(schema.literals, members);
 				assert.deepStrictEqual(Object.values(schema.Enum), [...members]);
 				assert.strictEqual(schema.ast.annotations?.identifier, identity.make(name));
-				assert.isFunction(schema.$match);
+				assert.isFunction(schema.match);
 				for (const guard of Object.values(schema.is)) {
 					assert.strictEqual(schema.literals.filter((value) => guard(value)).length, 1);
 					assert.isFalse(guard("invalid"));
 				}
 			}
-			assert.strictEqual(Node.ReferenceType.$match("full", {
+			assert.strictEqual(Node.ReferenceType.match("full", {
 				shortcut: () => "inferred",
 				collapsed: () => "inferred",
 				full: () => "explicit",

@@ -585,7 +585,7 @@ const explorationBacklinkFindings = Effect.fn("Goals.explorationBacklinkFindings
     return A.empty<GoalDoctorFinding>();
   }
   const state = yield* reader.explorationPath(exploration.value);
-  return GoalExplorationPathState.$match(state, {
+  return GoalExplorationPathState.match(state, {
     present: A.empty<GoalDoctorFinding>,
     escapes: () =>
       A.of(

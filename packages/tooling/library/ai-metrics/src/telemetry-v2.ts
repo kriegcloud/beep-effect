@@ -226,7 +226,7 @@ export const EvidenceTier = LiteralKit(["observed", "derived", "reconstructed", 
  */
 export type EvidenceTier = typeof EvidenceTier.Type;
 
-const evidenceTierRank = EvidenceTier.$match({
+const evidenceTierRank = EvidenceTier.match({
   observed: () => 0,
   derived: () => 1,
   reconstructed: () => 2,
@@ -355,7 +355,7 @@ export const OipTaint = LiteralKit(["clear", "tainted", "unknown"]).pipe(
  */
 export type OipTaint = typeof OipTaint.Type;
 
-const oipTaintRank = OipTaint.$match({
+const oipTaintRank = OipTaint.match({
   clear: () => 0,
   unknown: () => 1,
   tainted: () => 2,

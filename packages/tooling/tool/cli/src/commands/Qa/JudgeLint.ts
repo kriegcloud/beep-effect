@@ -77,7 +77,7 @@ export const runQaJudgeLint = Effect.fn("QaJudgeLint.run")(function* (
       Effect.fail(
         QaCommandError.make({
           cause: audit.detail.issue,
-          message: JudgeOutputDecodeFailure.$match(audit.detail.failure, {
+          message: JudgeOutputDecodeFailure.match(audit.detail.failure, {
             "inventory-schema-rejected": () =>
               `qa judge-lint rejected ${inventoryPath} against the qa-inventory/v1 schema.`,
             "malformed-json": () => `qa judge-lint could not parse ${inventoryPath} as JSON.`,
