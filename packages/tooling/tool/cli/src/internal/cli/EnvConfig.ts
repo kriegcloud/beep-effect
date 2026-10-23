@@ -169,6 +169,7 @@ export const isCi: Effect.Effect<boolean> = Effect.serviceOption(CurrentRuntimeE
   Effect.flatMap(O.match({ onSome: Effect.succeed, onNone: () => ambientRuntimeEnv })),
   Effect.map(runsInCi)
 );
+
 /**
  * Check synchronously whether a process environment is a CI environment.
  *
