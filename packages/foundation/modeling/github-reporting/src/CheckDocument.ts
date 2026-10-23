@@ -654,155 +654,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
    * @since 0.0.0
    */
   static layer<E>(options: CheckDocumentOptions<E>): Layer.Layer<CheckDocument> {
-    return Layer.effect(
-      CheckDocument,
-      Effect.gen(function* () {
-        const quietMillis = Duration.toMillis(options.debounce?.quiet ?? "500 millis");
-        const maxWaitMillis = Num.max(Duration.toMillis(options.debounce?.maxWait ?? "3 seconds"), quietMillis);
-        // Plain registry state: the snapshot schema is admitted once per read
-        // (`checks`, and each reconcile pass), never once per report.
-        const checksRef = yield* Ref.make<RegistryState>({ checks: HashMap.empty(), order: [] });
-        const snapshot = Effect.map(Ref.get(checksRef), CheckDocumentSnapshot.make);
-        const writtenRef = yield* Ref.make(options.initial ?? "");
-        const versionRef = yield* Ref.make(0);
-        const signal = yield* Latch.make(false);
-        const gate = yield* Semaphore.make(1);
-        const passTimeout = options.sinkTimeout ?? "30 seconds";
-        // Normalized once: the bare-function sink is exactly `{ write }`.
-        const sink = P.isFunction(options.sink) ? { write: options.sink } : options.sink;
-        const stamp = options.stamp;
-        const stampMeta = stamp === undefined ? undefined : { at: stamp.at, runId: stamp.runId };
-        const staleLoggedRef = yield* Ref.make(false);
-
-        const reconcile = Effect.fn("CheckDocument.reconcile")(function* () {
-          const checks = yield* snapshot;
-          // With a readable sink each pass reconciles against the LIVE
-          // document — what another run wrote, not this process's shadow.
-          // `undefined` is "nothing there yet": a fresh document. The same
-          // timeout bounds the read as the write, and for the same reason:
-          // this pass holds the single permit.
-          const current = yield* O.match(O.fromUndefinedOr(sink.read), {
-            onNone: () => Ref.get(writtenRef),
-            onSome: (read) =>
-              read.pipe(
-                Effect.timeout(passTimeout),
-                Effect.mapError((cause) => CheckDocumentError.make({ kind: "read", cause })),
-                Effect.map((text) => text ?? "")
-              ),
-          });
-          const document = yield* ManagedDocument.parse({
-            namespace: options.namespace,
-            key: options.key,
-            text: current,
-          }).pipe(Effect.mapError((cause) => CheckDocumentError.make({ kind: "render", cause })));
-          if (stamp !== undefined) {
-            // The drop rule: regions already stamped by a more recent run
-            // win; a strictly older pass must not clobber them. Regions
-            // carrying no stamp are ignored — they are not evidence of a
-            // newer run.
-            const existing = maxStampOf(document.regions);
-            if (existing !== undefined && !CheckDocumentStamp.isAtLeastAsRecent(stamp, existing)) {
-              yield* Effect.annotateCurrentSpan("outcome", "stale");
-              // Once stale, every later pass of this run is stale too — the
-              // stamp is a per-run constant. INFO on the transition only;
-              // repeats (the debounced pass plus an explicit flush is the
-              // common pair) log at debug so a chatty run does not repeat
-              // the same drop per report.
-              const alreadyLogged = yield* Ref.getAndSet(staleLoggedRef, true);
-              const message = "CheckDocument pass dropped: the document carries a more recent run's regions";
-              const fields = {
-                incomingAt: stamp.at,
-                incomingRunId: stamp.runId,
-                existingAt: existing.at,
-                existingRunId: existing.runId,
-              };
-              yield* Bool.match(alreadyLogged, {
-                onTrue: () => Effect.logDebug(message, fields),
-                onFalse: () => Effect.logInfo(message, fields),
-              });
-              return "stale" as const;
-            }
-            yield* Ref.set(staleLoggedRef, false);
-          }
-          const entries = options.render(checks);
-          const next = yield* document
-            .withRegions(
-              stampMeta === undefined ? entries : A.map(entries, ([key, content]) => [key, content, stampMeta] as const)
-            )
-            .pipe(Effect.mapError((cause) => CheckDocumentError.make({ kind: "render", cause })));
-          if (next.text === current) {
-            return "unchanged" as const;
-          }
-          // The timeout is load-bearing, not defensive: this pass holds the
-          // single permit, and the finalizer's last flush waits on it — an
-          // unbounded hung sink would stall reconciling AND scope teardown.
-          yield* sink.write(next.text).pipe(
-            Effect.timeout(passTimeout),
-            Effect.mapError((cause) => CheckDocumentError.make({ kind: "sink", cause }))
-          );
-          yield* Ref.set(writtenRef, next.text);
-          return "written" as const;
-        });
-
-        // One pass at a time: the debounce fiber and a manual `flush` must
-        // not interleave their read-render-compare-write sequences.
-        const flush = gate.withPermits(1)(reconcile());
-
-        // Trailing debounce with a max-wait. The latch wakes the fiber on
-        // the first report of a burst; the poll loop then waits for a quiet
-        // window (no version movement for `quiet`) or the staleness bound,
-        // whichever comes first — so the write always carries the burst's
-        // FINAL state, never its first.
-        const daemon = Effect.gen(function* () {
-          while (true) {
-            yield* signal.await;
-            yield* signal.close;
-            const start = yield* Clock.currentTimeMillis;
-            let settled = false;
-            while (!settled) {
-              const before = yield* Ref.get(versionRef);
-              const pollingAt = yield* Clock.currentTimeMillis;
-              const remaining = Num.max(0, maxWaitMillis - (pollingAt - start));
-              yield* Effect.sleep(Num.min(quietMillis, remaining));
-              const after = yield* Ref.get(versionRef);
-              const now = yield* Clock.currentTimeMillis;
-              settled = after === before || now - start >= maxWaitMillis;
-            }
-            yield* flush.pipe(
-              Effect.catch((failure) =>
-                Effect.logWarning("CheckDocument reconcile failed; retrying on the next report", {
-                  kind: failure.kind,
-                })
-              )
-            );
-          }
-        });
-
-        // Registered BEFORE the fork so it runs AFTER the fork's own
-        // interruption finalizer: the daemon is already dead when the last
-        // flush runs, so the two cannot race for the sink.
-        yield* Effect.addFinalizer(() =>
-          flush.pipe(
-            Effect.catch((failure) => Effect.logWarning("CheckDocument final flush failed", { kind: failure.kind }))
-          )
-        );
-        yield* Effect.forkScoped(daemon);
-
-        const report: CheckDocumentShape["report"] = dual(
-          2,
-          Effect.fn("CheckDocument.report")(function* (check: string, entry: CheckReport) {
-            yield* Ref.update(checksRef, (current) => ({
-              checks: HashMap.set(current.checks, check, entry),
-              order: HashMap.has(current.checks, check) ? current.order : A.append(current.order, check),
-            }));
-            yield* Ref.update(versionRef, (count) => count + 1);
-            yield* signal.open;
-          })
-        );
-
-        return { report, checks: snapshot, flush } satisfies CheckDocumentShape;
-      })
-    );
+    return Layer.effect(CheckDocument, makeCheckDocument(options));
   }
 
   /**
@@ -850,3 +702,225 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
 }
 
 const dies = unstubbed("CheckDocument.makeTest");
+
+/** The sink with its bare-function form normalized to `{ write }`. */
+type NormalizedSink<E> = Exclude<CheckDocumentSink<E>, (rendered: string) => Effect.Effect<unknown, E>>;
+
+/** The per-layer state one reconcile pass reads and writes. */
+type ReconcileContext<E> = {
+  readonly checksRef: Ref.Ref<RegistryState>;
+  readonly options: CheckDocumentOptions<E>;
+  readonly passTimeout: Duration.Input;
+  readonly sink: NormalizedSink<E>;
+  readonly staleLoggedRef: Ref.Ref<boolean>;
+  readonly stampMeta: Readonly<Record<string, string>> | undefined;
+  readonly writtenRef: Ref.Ref<string>;
+};
+
+/**
+ * The text a pass reconciles against.
+ *
+ * With a readable sink each pass reconciles against the LIVE document — what
+ * another run wrote, not this process's shadow. `undefined` is "nothing there
+ * yet": a fresh document. The same timeout bounds the read as the write, and
+ * for the same reason: the pass holds the single permit.
+ */
+const readCurrent = <E>(context: ReconcileContext<E>): Effect.Effect<string, CheckDocumentError> =>
+  O.match(O.fromUndefinedOr(context.sink.read), {
+    onNone: () => Ref.get(context.writtenRef),
+    onSome: (read) =>
+      read.pipe(
+        Effect.timeout(context.passTimeout),
+        Effect.mapError((cause) => CheckDocumentError.make({ kind: "read", cause })),
+        Effect.map((text) => text ?? "")
+      ),
+  });
+
+/**
+ * Drop a strictly older pass, logging the drop.
+ *
+ * Once stale, every later pass of this run is stale too — the stamp is a
+ * per-run constant. INFO on the transition only; repeats (the debounced pass
+ * plus an explicit flush is the common pair) log at debug so a chatty run does
+ * not repeat the same drop per report.
+ */
+const dropStale = Effect.fnUntraced(function* (
+  staleLoggedRef: Ref.Ref<boolean>,
+  incoming: { readonly at: string; readonly runId: string },
+  existing: { readonly at: string; readonly runId: string }
+) {
+  yield* Effect.annotateCurrentSpan("outcome", "stale");
+  const alreadyLogged = yield* Ref.getAndSet(staleLoggedRef, true);
+  const message = "CheckDocument pass dropped: the document carries a more recent run's regions";
+  const fields = {
+    incomingAt: incoming.at,
+    incomingRunId: incoming.runId,
+    existingAt: existing.at,
+    existingRunId: existing.runId,
+  };
+  yield* Bool.match(alreadyLogged, {
+    onTrue: () => Effect.logDebug(message, fields),
+    onFalse: () => Effect.logInfo(message, fields),
+  });
+  return "stale" as const;
+});
+
+/**
+ * Whether this pass is older than the regions already on the document.
+ *
+ * The drop rule: regions already stamped by a more recent run win; a strictly
+ * older pass must not clobber them. Regions carrying no stamp are ignored —
+ * they are not evidence of a newer run.
+ */
+const isStalePass = Effect.fnUntraced(function* <E>(context: ReconcileContext<E>, document: ManagedDocument) {
+  const stamp = context.options.stamp;
+  if (stamp === undefined) {
+    return false;
+  }
+  const existing = maxStampOf(document.regions);
+  if (existing !== undefined && !CheckDocumentStamp.isAtLeastAsRecent(stamp, existing)) {
+    yield* dropStale(context.staleLoggedRef, stamp, existing);
+    return true;
+  }
+  yield* Ref.set(context.staleLoggedRef, false);
+  return false;
+});
+
+/**
+ * Write a changed render through the sink.
+ *
+ * The timeout is load-bearing, not defensive: the pass holds the single
+ * permit, and the finalizer's last flush waits on it — an unbounded hung sink
+ * would stall reconciling AND scope teardown.
+ */
+const writeRendered = Effect.fnUntraced(function* <E>(context: ReconcileContext<E>, text: string) {
+  yield* context.sink.write(text).pipe(
+    Effect.timeout(context.passTimeout),
+    Effect.mapError((cause) => CheckDocumentError.make({ kind: "sink", cause }))
+  );
+  yield* Ref.set(context.writtenRef, text);
+});
+
+/** One read-render-compare-write pass over the document. */
+const reconcileOnce = Effect.fn("CheckDocument.reconcile")(function* <E>(context: ReconcileContext<E>) {
+  // Plain registry state: the snapshot schema is admitted once per pass.
+  const checks = CheckDocumentSnapshot.make(yield* Ref.get(context.checksRef));
+  const current = yield* readCurrent(context);
+  const document = yield* ManagedDocument.parse({
+    namespace: context.options.namespace,
+    key: context.options.key,
+    text: current,
+  }).pipe(Effect.mapError((cause) => CheckDocumentError.make({ kind: "render", cause })));
+  if (yield* isStalePass(context, document)) {
+    return "stale" as const;
+  }
+  const entries = context.options.render(checks);
+  const stampMeta = context.stampMeta;
+  const next = yield* document
+    .withRegions(
+      stampMeta === undefined ? entries : A.map(entries, ([key, content]) => [key, content, stampMeta] as const)
+    )
+    .pipe(Effect.mapError((cause) => CheckDocumentError.make({ kind: "render", cause })));
+  if (next.text === current) {
+    return "unchanged" as const;
+  }
+  yield* writeRendered(context, next.text);
+  return "written" as const;
+});
+
+/**
+ * Wait out one burst: a quiet window (no version movement for `quiet`) or the
+ * staleness bound, whichever comes first.
+ */
+const awaitSettled = Effect.fnUntraced(function* (
+  versionRef: Ref.Ref<number>,
+  quietMillis: number,
+  maxWaitMillis: number
+) {
+  const start = yield* Clock.currentTimeMillis;
+  let settled = false;
+  while (!settled) {
+    const before = yield* Ref.get(versionRef);
+    const pollingAt = yield* Clock.currentTimeMillis;
+    const remaining = Num.max(0, maxWaitMillis - (pollingAt - start));
+    yield* Effect.sleep(Num.min(quietMillis, remaining));
+    const after = yield* Ref.get(versionRef);
+    const now = yield* Clock.currentTimeMillis;
+    settled = after === before || now - start >= maxWaitMillis;
+  }
+});
+
+/**
+ * Trailing debounce with a max-wait. The latch wakes the fiber on the first
+ * report of a burst; {@link awaitSettled} then holds until the burst settles —
+ * so the write always carries the burst's FINAL state, never its first.
+ */
+const debounceLoop = Effect.fnUntraced(function* (
+  signal: Latch.Latch,
+  versionRef: Ref.Ref<number>,
+  debounce: { readonly quietMillis: number; readonly maxWaitMillis: number },
+  flush: Effect.Effect<CheckFlushOutcome, CheckDocumentError>
+) {
+  while (true) {
+    yield* signal.await;
+    yield* signal.close;
+    yield* awaitSettled(versionRef, debounce.quietMillis, debounce.maxWaitMillis);
+    yield* flush.pipe(
+      Effect.catch((failure) =>
+        Effect.logWarning("CheckDocument reconcile failed; retrying on the next report", {
+          kind: failure.kind,
+        })
+      )
+    );
+  }
+});
+
+/** Build the reconciler service over one document. */
+const makeCheckDocument = Effect.fnUntraced(function* <E>(options: CheckDocumentOptions<E>) {
+  const quietMillis = Duration.toMillis(options.debounce?.quiet ?? "500 millis");
+  const maxWaitMillis = Num.max(Duration.toMillis(options.debounce?.maxWait ?? "3 seconds"), quietMillis);
+  // Plain registry state: the snapshot schema is admitted once per read
+  // (`checks`, and each reconcile pass), never once per report.
+  const checksRef = yield* Ref.make<RegistryState>({ checks: HashMap.empty(), order: [] });
+  const versionRef = yield* Ref.make(0);
+  const signal = yield* Latch.make(false);
+  const gate = yield* Semaphore.make(1);
+  const stamp = options.stamp;
+  const context: ReconcileContext<E> = {
+    checksRef,
+    options,
+    passTimeout: options.sinkTimeout ?? "30 seconds",
+    // Normalized once: the bare-function sink is exactly `{ write }`.
+    sink: P.isFunction(options.sink) ? { write: options.sink } : options.sink,
+    staleLoggedRef: yield* Ref.make(false),
+    stampMeta: stamp === undefined ? undefined : { at: stamp.at, runId: stamp.runId },
+    writtenRef: yield* Ref.make(options.initial ?? ""),
+  };
+
+  // One pass at a time: the debounce fiber and a manual `flush` must not
+  // interleave their read-render-compare-write sequences.
+  const flush = gate.withPermits(1)(reconcileOnce(context));
+
+  // Registered BEFORE the fork so it runs AFTER the fork's own interruption
+  // finalizer: the daemon is already dead when the last flush runs, so the
+  // two cannot race for the sink.
+  yield* Effect.addFinalizer(() =>
+    flush.pipe(Effect.catch((failure) => Effect.logWarning("CheckDocument final flush failed", { kind: failure.kind })))
+  );
+  yield* Effect.forkScoped(debounceLoop(signal, versionRef, { quietMillis, maxWaitMillis }, flush));
+
+  const report: CheckDocumentShape["report"] = dual(
+    2,
+    Effect.fn("CheckDocument.report")(function* (check: string, entry: CheckReport) {
+      yield* Ref.update(checksRef, (current) => ({
+        checks: HashMap.set(current.checks, check, entry),
+        order: HashMap.has(current.checks, check) ? current.order : A.append(current.order, check),
+      }));
+      yield* Ref.update(versionRef, (count) => count + 1);
+      yield* signal.open;
+    })
+  );
+
+  const checks = Effect.map(Ref.get(checksRef), CheckDocumentSnapshot.make);
+  return CheckDocument.of({ report, checks, flush });
+});
