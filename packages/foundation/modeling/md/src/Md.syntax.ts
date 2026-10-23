@@ -157,7 +157,7 @@ export type MdLossSeverity = typeof MdLossSeverity.Type;
 const lossy = (): MdLossSeverity => MdLossSeverity.Enum.lossy;
 const unsupported = (): MdLossSeverity => MdLossSeverity.Enum.unsupported;
 
-const severityOf = MdLossReason.$match({
+const severityOf = MdLossReason.match({
   htmlEscapedAsText: lossy,
   htmlInlinedBlock: lossy,
   htmlDropped: unsupported,
@@ -1214,7 +1214,7 @@ const htmlInline =
       recordLoss(state, "htmlDropped", node, O.none(), "comment");
       return [];
     }
-    return MdHtmlPolicy.$match(state.options.html, {
+    return MdHtmlPolicy.match(state.options.html, {
       escapeAsText: (): ReadonlyArray<Model.Inline> => {
         recordLoss(state, "htmlEscapedAsText", node, landed(path), node.value);
         return [leaf(state, node.position, MdSourceOrigin.Enum.parsed, textNode(node.value))];
@@ -1590,7 +1590,7 @@ const htmlFlow =
         })),
       ];
     };
-    return MdHtmlPolicy.$match(state.options.html, {
+    return MdHtmlPolicy.match(state.options.html, {
       escapeAsText: () => wrapped("htmlEscapedAsText", textNode(node.value)),
       rawHtml: () => wrapped("htmlInlinedBlock", { _tag: "rawHtml", value: node.value }),
       drop: (): ReadonlyArray<Model.Block> => {
@@ -1760,7 +1760,7 @@ const flowStep: (node: Kit.FlowContent) => FlowStep = Match.type<Kit.FlowContent
 // Frontmatter and the document
 // ---------------------------------------------------------------------------
 
-const codecFor: (format: Kit.FrontmatterFormat) => FrontmatterCodec = Kit.FrontmatterFormat.$match({
+const codecFor: (format: Kit.FrontmatterFormat) => FrontmatterCodec = Kit.FrontmatterFormat.match({
   yaml: (): FrontmatterCodec => YamlFrontmatter,
   toml: (): FrontmatterCodec => TomlFrontmatter,
   json: (): FrontmatterCodec => JsonFrontmatter,
