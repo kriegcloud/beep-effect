@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ConfigIssueRenderer } from "../../effected/cli/ConfigIssueRenderer.ts";
-import { ConfigValidationError } from "../../effected/config-file/index.ts";
+import { ConfigValidationError } from "@beep/config-file";
 
 const runs = { arbitrary: fcRuns(100) };
 const target = S.Struct({ port: S.Finite });

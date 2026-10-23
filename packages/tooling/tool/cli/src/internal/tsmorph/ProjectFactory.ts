@@ -19,7 +19,7 @@ type RepoTsMorphProjectInput = {
  * **Example** (Load project from source globs)
  *
  * ```ts
- * import { createRepoTsMorphProject } from "@beep/repo-cli/internal/tsmorph/ProjectFactory"
+ * import { createRepoTsMorphProject } from "@beep/repo-cli/test/SharedInternals"
  *
  * const project = createRepoTsMorphProject({
  *   tsConfigFilePath: "tsconfig.json",
@@ -58,7 +58,7 @@ export const createRepoTsMorphProject = (input: RepoTsMorphProjectInput): Projec
  * **Example** (Build in-memory fixture project)
  *
  * ```ts
- * import { createInMemoryTsMorphProject } from "@beep/repo-cli/internal/tsmorph/ProjectFactory"
+ * import { createInMemoryTsMorphProject } from "@beep/repo-cli/test/SharedInternals"
  *
  * const project = createInMemoryTsMorphProject()
  * project.createSourceFile("fixture.ts", "export const value = 1")

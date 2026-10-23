@@ -11,7 +11,48 @@
  */
 
 import { Jsonc } from "@beep/jsonc/Jsonc";
-import { FrontmatterCodec } from "./Frontmatter.ts";
+import * as A from "effect/Array";
+import { flow } from "effect/Function";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
+import * as Result from "effect/Result";
+import { FrontmatterCodec, FrontmatterKeyError } from "./Frontmatter.ts";
+import type { JsoncParseError } from "@beep/jsonc/Jsonc";
+import type { JsoncNode } from "@beep/jsonc/JsoncNode";
+
+const childrenOf = (node: JsoncNode): ReadonlyArray<JsoncNode> => node.children ?? A.empty();
+
+// The first key, in document order, that repeats a sibling key of its own
+// object. Keys compare by decoded value, so `"b"` and `"\u0062"` collide;
+// recursion is bounded by the engine's nesting depth cap.
+const firstDuplicateKey = (node: JsoncNode): O.Option<JsoncNode> =>
+  node.type === "object" ? firstDuplicateInObject(childrenOf(node)) : A.findFirst(childrenOf(node), firstDuplicateKey);
+
+const firstDuplicateInObject = (properties: ReadonlyArray<JsoncNode>): O.Option<JsoncNode> => {
+  const seen = MutableHashSet.empty<unknown>();
+  // A property's children are its key node, then its value node.
+  return A.findFirst(properties, (property) =>
+    O.flatMap(A.head(childrenOf(property)), (key) => {
+      if (MutableHashSet.has(seen, key.value)) return O.some(key);
+      MutableHashSet.add(seen, key.value);
+      return A.findFirst(A.drop(childrenOf(property), 1), firstDuplicateKey);
+    })
+  );
+};
+
+const duplicateKeyError = (key: JsoncNode): FrontmatterKeyError =>
+  FrontmatterKeyError.make({ reason: "DuplicateKey", offset: key.offset, length: key.length });
+
+// Runs after a successful value parse, so the tree parse cannot fail on its
+// own; its failure channel is kept rather than asserted away.
+const rejectDuplicateKeys = (text: string): Result.Result<void, JsoncParseError | FrontmatterKeyError> =>
+  Result.flatMap(
+    Jsonc.parseTreeResult(text),
+    flow(
+      O.flatMap(firstDuplicateKey),
+      O.match({ onNone: () => Result.void, onSome: flow(duplicateKeyError, Result.fail) })
+    )
+  );
 
 /**
  * The json frontmatter codec, over `@beep/jsonc`.
@@ -26,6 +67,13 @@ import { FrontmatterCodec } from "./Frontmatter.ts";
  * fail — deliberate leniency, matching the kit's one JSON-family engine. An
  * empty capture fails typed: unlike yaml and toml, JSON has no
  * empty-document value.
+ *
+ * A duplicate key in any object fails typed, as it does for the yaml and
+ * toml codecs, rather than resolving last-wins: the
+ * {@link FrontmatterDecodeError} carries a {@link FrontmatterKeyError} with
+ * reason `"DuplicateKey"` locating the repeated key. Keys compare by decoded
+ * value, so `"b"` and `"\u0062"` collide. `Jsonc.parse` itself still
+ * resolves duplicates last-wins for its other consumers.
  *
  * Encodes with `Jsonc.stringify` — plain 2-space JSON emission, never
  * comments; a circular reference, a `bigint` or a top-level unrepresentable
@@ -55,6 +103,6 @@ import { FrontmatterCodec } from "./Frontmatter.ts";
  */
 export const JsonFrontmatter: FrontmatterCodec = FrontmatterCodec.make(
   "json",
-  (text) => Jsonc.parseResult(text),
+  (text) => Result.flatMap(Jsonc.parseResult(text), (data) => Result.map(rejectDuplicateKeys(text), () => data)),
   (data) => Jsonc.stringifyResult(data)
 );

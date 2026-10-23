@@ -130,7 +130,7 @@ export class TemplateRenderRequest extends S.Opaque<TemplateRenderRequest, { rea
     templates: S.Array(TemplateSpec),
     context: S.Record(S.String, S.Unknown).pipe(
       S.withConstructorDefault(Effect.succeed(thunkEmptyRecord<string, unknown>())),
-      S.withDecodingDefault(Effect.succeed(thunkEmptyRecord<string, unknown>()))
+      S.withDecodingDefaultKey(Effect.succeed(thunkEmptyRecord<string, unknown>()))
     ),
   }).pipe(
     $I.annoteSchema("TemplateRenderRequest", {

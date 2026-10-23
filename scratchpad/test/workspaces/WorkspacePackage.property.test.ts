@@ -4,7 +4,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { MemoryFileSystem } from "@beep/memfs";
-import { Package } from "../../effected/package-json/Package.ts";
+import { Package } from "@beep/package-json/Package";
 import * as S from "effect/Schema";
 import { PublishConfig, WorkspaceManifestError, WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
 

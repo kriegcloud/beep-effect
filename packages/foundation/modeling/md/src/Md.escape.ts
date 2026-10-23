@@ -34,6 +34,7 @@ const percentEncodedOctetPattern = /%25([0-9a-f]{2})/gi;
 const invalidSurrogatePattern = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 const lineSeparatorPattern = /\r\n?|\n/;
 const lineBreakPattern = /[\r\n]/;
+const allSpacesPattern = /^ +$/;
 const backtickRunPattern = /`+/g;
 const maxUnicodeCodePoint = 0x10ffff;
 const maxUrlDecodePasses = 4;
@@ -749,8 +750,12 @@ export const renderInlineCode = (text: string): string => {
   }
 
   const backticks = pipe("`", Str.repeat(maxBackticks(text) + 1));
+  // A parser strips one space from each side only when the content is not
+  // all spaces, so an all-space payload is written bare.
   const needsPadding =
-    Str.startsWith("`")(text) || Str.endsWith("`")(text) || Str.startsWith(" ")(text) || Str.endsWith(" ")(text);
+    Str.startsWith("`")(text) ||
+    Str.endsWith("`")(text) ||
+    (!allSpacesPattern.test(text) && (Str.startsWith(" ")(text) || Str.endsWith(" ")(text)));
   const padding = needsPadding ? " " : "";
 
   return `${backticks}${padding}${text}${padding}${backticks}`;

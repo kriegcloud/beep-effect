@@ -56,7 +56,7 @@ export class Organization extends S.Opaque<Organization, { readonly brand: uniqu
      *
      * @since 0.0.0
      */
-    legalName: S.optional(S.String).pipe(
+    legalName: S.optionalKey(S.String).pipe(
       $I.annoteKey("Organization.legalName", {
         description: "The organization's registered legal name. Single-valued.",
       })
@@ -66,7 +66,7 @@ export class Organization extends S.Opaque<Organization, { readonly brand: uniqu
      *
      * @since 0.0.0
      */
-    logo: S.optional(S.String).pipe(
+    logo: S.optionalKey(S.String).pipe(
       $I.annoteKey("Organization.logo", { description: "A URL for the organization's logo. Single-valued." })
     ),
   }).pipe(

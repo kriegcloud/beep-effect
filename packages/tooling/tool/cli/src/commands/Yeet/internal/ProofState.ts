@@ -77,7 +77,7 @@ const proofLockOwnerFields = {
   checkoutRoot: S.String,
   command: S.String,
   pid: S.Finite,
-  procStart: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+  procStart: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
   proofTier: YeetProofTier,
   startedAt: S.String,
 };

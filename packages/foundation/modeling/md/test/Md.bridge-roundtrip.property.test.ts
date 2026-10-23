@@ -55,13 +55,28 @@ describe("@beep/md/Md.syntax round trip", () => {
     Effect.gen(function* () {
       const documents = yield* Arbitrary.sampleEffect(BridgeDocumentArbitrary, { count: 200, seed: 2_022 });
       const tags = HashSet.fromIterable(A.flatMap(documents, tagsOf));
-      for (const excluded of ["rawMarkdown", "embed", "mathBlock", "inlineMath"]) {
+      for (const excluded of ["rawMarkdown", "embed"]) {
         expect(HashSet.has(tags, excluded)).toBe(false);
       }
-      for (const covered of ["admonition", "youtube", "taskList", "table", "footnoteDefinition", "br", "rawHtml"]) {
+      for (const covered of [
+        "admonition",
+        "youtube",
+        "taskList",
+        "table",
+        "footnoteDefinition",
+        "br",
+        "rawHtml",
+        "mathBlock",
+        "inlineMath",
+      ]) {
         expect(HashSet.has(tags, covered)).toBe(true);
       }
-      expect(A.filter(A.flatMap(documents, valuesOf), (value) => /[$&\r\0]/.test(value))).toStrictEqual([]);
+      const values = A.flatMap(documents, valuesOf);
+      expect(A.filter(values, (value) => /[\r\0]/.test(value))).toStrictEqual([]);
+      // The writer-escape words reach the property: `$` that would open math
+      // and `&` that would open a character reference.
+      expect(A.some(values, (value) => /\$[a-z]/.test(value))).toBe(true);
+      expect(A.some(values, (value) => /&#?[a-z0-9]+;/.test(value))).toBe(true);
     })
   );
 });

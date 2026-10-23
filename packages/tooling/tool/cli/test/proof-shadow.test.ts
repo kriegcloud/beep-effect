@@ -215,7 +215,7 @@ describe("proof shadow mode", () => {
     expect(A.map(selected, (entry) => entry.observed)).toStrictEqual(["passed", "failed"]);
   });
 
-  it.live("records nothing and touches no ledger when the attempt has no shadowable lanes", () =>
+  it.effect("records nothing and touches no ledger when the attempt has no shadowable lanes", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -226,7 +226,7 @@ describe("proof shadow mode", () => {
     ).pipe(provideScopedLayer(PlatformLayer))
   );
 
-  it.live("shadows a first attempt as misses and records one fact per lane", () =>
+  it.effect("shadows a first attempt as misses and records one fact per lane", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const summary = yield* recordProofShadowForAttempt(
@@ -264,7 +264,7 @@ describe("proof shadow mode", () => {
     ).pipe(provideScopedLayer(PlatformLayer))
   );
 
-  it.live("reports a would-reuse hit on the next attempt and a disagreement when that lane fails", () =>
+  it.effect("reports a would-reuse hit on the next attempt and a disagreement when that lane fails", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [
@@ -329,7 +329,7 @@ describe("proof shadow mode", () => {
     ).pipe(provideScopedLayer(PlatformLayer))
   );
 
-  it.live("keeps a lane with undeclared inputs from ever becoming a hit", () =>
+  it.effect("keeps a lane with undeclared inputs from ever becoming a hit", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const undeclared = [lane("quality:labs", "passed", O.none())];
@@ -356,7 +356,7 @@ describe("proof shadow mode", () => {
 
   // C5 must-fail fixture (ruling 4): a lockfile change starts a new epoch, and a
   // passed fact from the old epoch never satisfies the same lane again.
-  it.live("must fail: an epoch change refuses the passed fact it would otherwise reuse", () =>
+  it.effect("must fail: an epoch change refuses the passed fact it would otherwise reuse", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -391,7 +391,7 @@ describe("proof shadow mode", () => {
 
   // C5 must-fail fixture (rulings 1, 2, 63): a merged-preview fact recorded under the
   // PR posture never satisfies the same lane in pre-push under the local profile.
-  it.live("must fail: a fact from another env profile never satisfies the pre-push lookup", () =>
+  it.effect("must fail: a fact from another env profile never satisfies the pre-push lookup", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [lane("quality:coverage", "passed", O.some("digest-a"), 600_000)];
@@ -425,7 +425,7 @@ describe("proof shadow mode", () => {
   // C5 must-fail fixture (ruling 70): a lane whose package scope intersects the attempt's
   // changed packages is refused before any fact is read, even though its digest, epoch,
   // command and profile all still match the fact recorded a moment earlier.
-  it.live("must fail: a changed package in a lane's scope refuses the digest that would have matched", () =>
+  it.effect("must fail: a changed package in a lane's scope refuses the digest that would have matched", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [lane("quality:check", "passed", O.some("d1"), 300_000, ["@beep/x"])];
@@ -467,7 +467,7 @@ describe("proof shadow mode", () => {
 
   // C5 fixture (ruling 70): a root-task-only lane records no package scope, so its digest
   // decides alone — a repo-wide lane is not refused just because some package changed.
-  it.live("keeps a root-task-only lane decided by its digest while packages change around it", () =>
+  it.effect("keeps a root-task-only lane decided by its digest while packages change around it", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [lane("cheap-gates:lint-policy", "passed", O.some("d-root"), 5_000)];
@@ -485,7 +485,7 @@ describe("proof shadow mode", () => {
 
   // C5 fixture (ruling 70): the ledger refuses an undeclared lane before the tripwire runs,
   // so a scoped-but-undeclared lane is named `undeclared-inputs`, never the tripwire.
-  it.live("names an undeclared lane's own refusal rather than the tripwire", () =>
+  it.effect("names an undeclared lane's own refusal rather than the tripwire", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [lane("quality:labs", "passed", O.none(), 1_000, ["@beep/x"])];
@@ -509,7 +509,7 @@ describe("proof shadow mode", () => {
   // Review round 1, kriegcloud P2: a failed lane resolves no Turbo digest, so it
   // carries no package scope either. That costs the tripwire nothing, because the
   // ledger refuses an undeclared key before the tripwire is ever consulted.
-  it.live("refuses a failed scoped lane as undeclared-inputs rather than the tripwire", () =>
+  it.effect("refuses a failed scoped lane as undeclared-inputs rather than the tripwire", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [lane("quality:check", "failed", O.none(), 1_000, ["@beep/x"])];
@@ -532,7 +532,7 @@ describe("proof shadow mode", () => {
   // C5 fixture (ruling 69): an unreadable changed set fails the tripwire closed — every
   // scoped lane is refused, and only a lane with no scope at all is still decided by
   // its digest.
-  it.live("fails the tripwire closed when the changed package set is unavailable", () =>
+  it.effect("fails the tripwire closed when the changed package set is unavailable", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [
@@ -655,7 +655,7 @@ describe("proof shadow mode", () => {
     })
   );
 
-  it.live("never lets merged-preview rows satisfy the pre-push bar", () =>
+  it.effect("never lets merged-preview rows satisfy the pre-push bar", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         const lanes = [lane("quality:coverage", "passed", O.some("digest-a"))];
@@ -717,7 +717,7 @@ describe("proof shadow mode", () => {
     ).pipe(provideScopedLayer(PlatformLayer))
   );
 
-  it.live("prints the report as text or JSON from the checkout the locator names", () =>
+  it.effect("prints the report as text or JSON from the checkout the locator names", () =>
     inTempCheckout((root) =>
       Effect.gen(function* () {
         yield* recordProofShadowForAttempt(

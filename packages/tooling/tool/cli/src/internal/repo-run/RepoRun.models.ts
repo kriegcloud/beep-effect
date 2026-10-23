@@ -23,7 +23,7 @@ const $I = $RepoCliId.create("internal/repo-run/RepoRun.models");
  * **Example** (Check repo plan phase membership)
  *
  * ```ts
- * import { RepoPlanPhase } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoPlanPhase } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(RepoPlanPhase.is.feedback("feedback"))
  * ```
@@ -59,7 +59,7 @@ export type RepoPlanPhase = typeof RepoPlanPhase.Type;
  * **Example** (Check repo plan step mutability membership)
  *
  * ```ts
- * import { RepoPlanStepMutability } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoPlanStepMutability } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(RepoPlanStepMutability.is.readonly("readonly"))
  * ```
@@ -87,7 +87,7 @@ export type RepoPlanStepMutability = typeof RepoPlanStepMutability.Type;
  * **Example** (Check repo plan step scope membership)
  *
  * ```ts
- * import { RepoPlanStepScope } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoPlanStepScope } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(RepoPlanStepScope.is.package("package"))
  * ```
@@ -115,7 +115,7 @@ export type RepoPlanStepScope = typeof RepoPlanStepScope.Type;
  * **Example** (Check repo plan step resume membership)
  *
  * ```ts
- * import { RepoPlanStepResume } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoPlanStepResume } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(RepoPlanStepResume.is.never("never"))
  * ```
@@ -143,7 +143,7 @@ export type RepoPlanStepResume = typeof RepoPlanStepResume.Type;
  * **Example** (Check repo graph health status membership)
  *
  * ```ts
- * import { RepoGraphHealthStatus } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoGraphHealthStatus } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(RepoGraphHealthStatus.is.warning("warning"))
  * ```
@@ -171,7 +171,7 @@ export type RepoGraphHealthStatus = typeof RepoGraphHealthStatus.Type;
  * **Example** (Construct a turbo plan task)
  *
  * ```ts
- * import { TurboPlanTask } from "@beep/repo-cli/internal/repo-run"
+ * import { TurboPlanTask } from "@beep/repo-cli/test/RepoRun"
  *
  * const task = TurboPlanTask.make({ taskId: "@beep/schema#lint" })
  * console.log(task.taskId)
@@ -203,7 +203,7 @@ export class TurboPlanTask extends S.Opaque<TurboPlanTask, { readonly brand: uni
  * **Example** (Construct a turbo workspace package)
  *
  * ```ts
- * import { TurboWorkspacePackage } from "@beep/repo-cli/internal/repo-run"
+ * import { TurboWorkspacePackage } from "@beep/repo-cli/test/RepoRun"
  *
  * const pkg = TurboWorkspacePackage.make({ name: "@beep/repo-cli", path: "packages/tooling/tool/cli" })
  * console.log(pkg.name)
@@ -229,7 +229,7 @@ export class TurboWorkspacePackage extends S.Opaque<TurboWorkspacePackage, { rea
  * **Example** (Construct a turbo plan snapshot)
  *
  * ```ts
- * import { TurboPlanSnapshot } from "@beep/repo-cli/internal/repo-run"
+ * import { TurboPlanSnapshot } from "@beep/repo-cli/test/RepoRun"
  *
  * const snapshot = TurboPlanSnapshot.make({ tasks: [], graphHealthStatus: "ok", graphHealthWarnings: [] })
  * console.log(snapshot.graphHealthStatus)
@@ -258,7 +258,7 @@ export class TurboPlanSnapshot extends S.Opaque<TurboPlanSnapshot, { readonly br
  * **Example** (Construct a repo run context)
  *
  * ```ts
- * import { RepoRunContext } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoRunContext } from "@beep/repo-cli/test/RepoRun"
  *
  * const context = RepoRunContext.make({
  *   base: "origin/main",
@@ -299,7 +299,7 @@ export class RepoRunContext extends S.Opaque<RepoRunContext, { readonly brand: u
  * **Example** (Render a preflight wave)
  *
  * ```ts
- * import { RepoPlanWave } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoPlanWave } from "@beep/repo-cli/test/RepoRun"
  *
  * const wave = RepoPlanWave.make({ id: "preflight", laneIds: ["quality:changeset-status"] })
  * console.log(wave.laneIds.length)
@@ -325,7 +325,7 @@ export class RepoPlanWave extends S.Opaque<RepoPlanWave, { readonly brand: uniqu
  * **Example** (Construct a repo plan step)
  *
  * ```ts
- * import { RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoPlanStep } from "@beep/repo-cli/test/RepoRun"
  *
  * const step = RepoPlanStep.make({
  *   args: ["run", "build"],
@@ -374,7 +374,7 @@ export class RepoPlanStep extends S.Opaque<RepoPlanStep, { readonly brand: uniqu
  * **Example** (Construct a repo run plan)
  *
  * ```ts
- * import { RepoRunPlan } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoRunPlan } from "@beep/repo-cli/test/RepoRun"
  *
  * const plan = RepoRunPlan.make({ context: {} as never, steps: [] })
  * console.log(plan.steps.length)
@@ -400,7 +400,7 @@ export class RepoRunPlan extends S.Opaque<RepoRunPlan, { readonly brand: unique 
  * **Example** (Construct a repo step run result)
  *
  * ```ts
- * import { RepoStepRunResult } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoStepRunResult } from "@beep/repo-cli/test/RepoRun"
  *
  * const result = RepoStepRunResult.make({ commandText: "bun run build", exitCode: 0, stepId: "feedback:build" })
  * console.log(result.exitCode)
@@ -488,7 +488,7 @@ const quoteCommandArg = (arg: string): string => {
  * **Example** (Render a step's command text)
  *
  * ```ts
- * import { commandTextForStep, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ * import { commandTextForStep, RepoPlanStep } from "@beep/repo-cli/test/RepoRun"
  *
  * const step = RepoPlanStep.make({
  *   args: ["run", "build"],
@@ -518,7 +518,7 @@ export const commandTextForStep = (step: RepoPlanStep): string =>
  * **Example** (Test a step for conservative resume)
  *
  * ```ts
- * import { isConservativeResumeCandidate, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ * import { isConservativeResumeCandidate, RepoPlanStep } from "@beep/repo-cli/test/RepoRun"
  *
  * const step = RepoPlanStep.make({
  *   args: ["run", "check"],

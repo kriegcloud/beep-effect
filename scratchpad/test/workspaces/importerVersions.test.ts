@@ -12,7 +12,7 @@
 
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { Lockfile } from "../../effected/lockfiles/index.ts";
+import { Lockfile } from "@beep/lockfiles";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";

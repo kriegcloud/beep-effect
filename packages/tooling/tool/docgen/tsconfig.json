@@ -12,6 +12,9 @@
       "path": "../../../foundation/capability/chalk/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/config-file/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {

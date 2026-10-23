@@ -17,7 +17,7 @@ import type { Node, SourceFile } from "ts-morph";
  * **Example** (Read a variable's leading JSDoc)
  *
  * ```ts
- * import { createInMemoryTsMorphProject, leadingJsDocText } from "@beep/repo-cli/internal/tsmorph"
+ * import { createInMemoryTsMorphProject, leadingJsDocText } from "@beep/repo-cli/test/SharedInternals"
  *
  * const project = createInMemoryTsMorphProject()
  * const source = project.createSourceFile("fixture.ts", "/** A value. *\/\nexport const value = 1")
@@ -42,7 +42,7 @@ export const leadingJsDocText = (node: Node): string =>
  * **Example** (Read the file overview block)
  *
  * ```ts
- * import { createInMemoryTsMorphProject, topFileoverview } from "@beep/repo-cli/internal/tsmorph"
+ * import { createInMemoryTsMorphProject, topFileoverview } from "@beep/repo-cli/test/SharedInternals"
  * import * as O from "effect/Option"
  *
  * const project = createInMemoryTsMorphProject()

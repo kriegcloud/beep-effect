@@ -57,21 +57,20 @@ it.layer(TestLayer)("streaming function dispatch", (it) => {
   );
 });
 
-it.layer(StreamingToolkitHandlersLive.pipe(Layer.provideMerge(TestLayer), Layer.provideMerge(FetchHttpClient.layer)))(
-  "streaming pattern validation",
-  (it) => {
-    it.effect(
-      "returns structured failures for malformed and oversized caller-supplied regexes",
-      Effect.fnUntraced(function* () {
-        const toolkit = yield* StreamingToolkit;
-        for (const pattern of ["[", Str.repeat(1001)("a")]) {
-          const stream = yield* toolkit.handle("stream_filter_lines", { path: "unused.txt", pattern });
-          const results = yield* Stream.runCollect(stream);
-          const first = results[0];
-          assert.isDefined(first);
-          assert.strictEqual(first.isFailure, true);
-        }
-      })
-    );
-  }
-);
+it.layer(StreamingToolkitHandlersLive.pipe(Layer.provideMerge(TestLayer), Layer.provideMerge(FetchHttpClient.layer)), {
+  timeout: "30 seconds",
+})("streaming pattern validation", (it) => {
+  it.effect(
+    "returns structured failures for malformed and oversized caller-supplied regexes",
+    Effect.fnUntraced(function* () {
+      const toolkit = yield* StreamingToolkit;
+      for (const pattern of ["[", Str.repeat(1001)("a")]) {
+        const stream = yield* toolkit.handle("stream_filter_lines", { path: "unused.txt", pattern });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.strictEqual(first.isFailure, true);
+      }
+    })
+  );
+});

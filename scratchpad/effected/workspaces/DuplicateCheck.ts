@@ -17,8 +17,8 @@
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { ResolvedPackage } from "../lockfiles/index.ts";
-import { Lockfile } from "../lockfiles/index.ts";
+import type { ResolvedPackage } from "@beep/lockfiles";
+import { Lockfile } from "@beep/lockfiles";
 import * as S from "effect/Schema";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -216,7 +216,7 @@ export class DuplicatedPackage extends S.Class<DuplicatedPackage, { readonly bra
  * **Example** (Report duplicate kit versions and their dependents)
  *
  * ```ts
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import { DuplicateCheck } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
  * import * as Effect from "effect/Effect";
  *
@@ -348,7 +348,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
 	 *
 	 * ```ts
 	 * import { DuplicateCheck } from "@beep/scratchpad/effected/workspaces/DuplicateCheck";
-	 * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+	 * import { Lockfile } from "@beep/lockfiles/Lockfile";
 	 * const lockfile = Lockfile.make({
 	 *   format: "pnpm", lockfileVersion: "9.0", packages: [], workspaceDependencies: [],
 	 * });

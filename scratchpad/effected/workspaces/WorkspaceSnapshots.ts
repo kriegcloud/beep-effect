@@ -17,7 +17,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@beep/git";
 import { Git } from "@beep/git";
 import { GlobSet } from "@beep/glob";
-import { Lockfile as LockfileModel, filenameFor } from "../lockfiles/index.ts";
+import { Lockfile as LockfileModel, filenameFor } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { Yaml } from "@beep/yaml";
 import * as Context from "effect/Context";
@@ -134,7 +134,7 @@ export const WorkspaceSnapshotsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optional(S.String).pipe($I.annoteKey("WorkspaceSnapshotsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceSnapshotsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
 	/**
 	 * Catalogs every snapshot this service produces carries as its
 	 * `seededCatalogs` — consulted only where the snapshot's own catalogs cannot

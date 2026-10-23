@@ -299,7 +299,7 @@ const make = Effect.fnUntraced(function* () {
  * config-dependency workflow, whose output is the input the install then
  * consumes.
  *
- * Pair it with `resolveEntryPoint` from `@effected/package-json` to find
+ * Pair it with `resolveEntryPoint` from `@beep/package-json` to find
  * the package's entry file inside the extracted directory. Loading that file is
  * deliberately **not** part of this surface: a dynamic `import()` of a computed
  * path is compiled into a context module by bundlers, and a kit-level loader

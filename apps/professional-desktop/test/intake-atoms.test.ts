@@ -3,6 +3,8 @@ import { WorkspaceVaultActionError } from "@beep/workspace-use-cases/public";
 import { afterEach, describe, expect, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Clock from "effect/Clock";
+import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -224,7 +226,8 @@ describe("document intake surface", { concurrent: false }, () => {
 });
 
 describe("intake file input", { concurrent: false }, () => {
-  // The registry's idle timers are real, so this case waits in live time.
+  // AtomRegistry arms its idle sweep with a native setTimeout against Date.now, which TestClock
+  // cannot advance, so this case waits in live time for the observed eviction.
   it.live(
     "keeps the hidden file input available after the registry idle TTL",
     Effect.fnUntraced(function* () {
@@ -232,9 +235,6 @@ describe("intake file input", { concurrent: false }, () => {
         Effect.sync(() => AtomRegistry.make({ defaultIdleTTL: 10, timeoutResolution: 1 })),
         (created) => Effect.sync(() => created.dispose())
       );
-      const idleWitness = Atom.make(0);
-      registry.set(idleWitness, 1);
-      expect(registry.get(idleWitness)).toBe(1);
       const input = document.createElement("input");
       input.type = "file";
       const click = vi.spyOn(input, "click").mockImplementation(() => undefined);
@@ -246,7 +246,27 @@ describe("intake file input", { concurrent: false }, () => {
       yield* AtomRegistry.getResult(registry, setInput);
       releaseSetInput();
 
-      yield* Effect.sleep(Duration.millis(50));
+      // The witness is armed after the release, so its eviction proves the native idle sweep has
+      // also passed every node the release left idle. The registry's removal hook signals the
+      // eviction itself; nothing polls or touches the witness while it is idle.
+      const idleWitness = Atom.make(0);
+      const witnessEvicted = yield* Deferred.make<void>();
+      registry.onNodeRemoved = (node) => {
+        if (node.atom === idleWitness) Deferred.doneUnsafe(witnessEvicted, Effect.void);
+      };
+      const armedAt = yield* Clock.currentTimeMillis;
+      registry.set(idleWitness, 1);
+      expect(registry.get(idleWitness)).toBe(1);
+      expect(registry.getNodes().has(idleWitness)).toBe(true);
+      yield* Deferred.await(witnessEvicted).pipe(
+        Effect.timeoutOrElse({
+          duration: Duration.seconds(3),
+          orElse: () => Effect.die("the idle witness was never evicted"),
+        })
+      );
+      // Present until the 10 ms TTL, evicted after it: neither early nor never.
+      expect((yield* Clock.currentTimeMillis) - armedAt).toBeGreaterThanOrEqual(10);
+      expect(registry.getNodes().has(idleWitness)).toBe(false);
       expect(registry.get(idleWitness)).toBe(0);
       assertSome(registry.get(intakeFileInputAtoms(workspaceId)), input);
 

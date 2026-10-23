@@ -63,10 +63,10 @@ export class RequoteScalarInput extends S.Opaque<RequoteScalarInput, { readonly 
     style: ScalarStyle.pipe(
       $I.annoteKey("RequoteScalarInput.style", { description: "Presentation style of the source scalar." })
     ),
-    tag: S.optional(S.String).pipe(
+    tag: S.optionalKey(S.String).pipe(
       $I.annoteKey("RequoteScalarInput.tag", { description: "Optional tag preventing quote conversion when present." })
     ),
-    anchor: S.optional(S.String).pipe(
+    anchor: S.optionalKey(S.String).pipe(
       $I.annoteKey("RequoteScalarInput.anchor", {
         description: "Optional anchor preventing quote conversion when present.",
       })

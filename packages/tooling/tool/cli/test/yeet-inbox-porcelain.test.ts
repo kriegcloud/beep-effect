@@ -40,12 +40,14 @@ import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const AT = "2026-08-17T00:00:00Z";
@@ -306,8 +308,10 @@ describe("parseYeetAckResolution", () => {
     })
   );
 
-  it.live("refuses malformed, expired, and partially attributed waivers", () =>
+  it.effect("refuses malformed, expired, and partially attributed waivers", () =>
     Effect.gen(function* () {
+      // Pin "now" after the expired waiver's 2000-01-01 stamp instead of reading the live clock.
+      yield* DateTime.makeUnsafe(AT).pipe(DateTime.toEpochMillis, TestClock.setTime);
       const invalidTimestamp = yield* Effect.flip(
         parseYeetAckResolution({
           ...noResolutionFlags,

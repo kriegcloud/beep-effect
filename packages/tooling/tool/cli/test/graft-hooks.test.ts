@@ -16,7 +16,7 @@ const helpers = NodeURL.fileURLToPath(new URL("../../../../../.claude/helpers/",
 const WiringStamp = S.Struct({
   version: S.String,
   hosts: S.Array(S.String),
-  opts: S.optional(S.Struct({ global: S.Boolean, mcp: S.Boolean, hooks: S.Boolean, statusline: S.Boolean })),
+  opts: S.optionalKey(S.Struct({ global: S.Boolean, mcp: S.Boolean, hooks: S.Boolean, statusline: S.Boolean })),
   at: S.String,
 });
 const decodeWiringStamp = S.decodeUnknownEffect(S.fromJsonString(WiringStamp));

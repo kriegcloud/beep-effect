@@ -1,8 +1,7 @@
-import type { ConfigValidationError } from "../config-file/index.ts";
 import { formatIssue } from "./internal/format.ts";
 
 /**
- * Turns a `@effected/config-file` `ConfigValidationError` into one line per rejected value.
+ * Turns a `@beep/config-file` `ConfigValidationError` into one line per rejected value.
  *
  * **Details**
  *
@@ -14,16 +13,15 @@ import { formatIssue } from "./internal/format.ts";
  * value is the diagnostic: printing only the message tells a user their config
  * is invalid without saying which value is wrong or how it is shaped.
  *
- * `@effected/config-file` is an optional peer, and this module only
- * `import type`s it, so the import is erased at build time. A consumer without
- * the package installed can import this module without the resolver being asked
- * for it.
+ * The parameter is structural (`{ readonly issue: unknown }`), so this module
+ * imports nothing from `@beep/config-file`: a consumer without the package
+ * installed can import it, and any error carrying an `issue` tree renders.
  *
  * **Example** (Log diagnostics for rejected configuration values)
  *
  * ```ts
  * import { ConfigIssueRenderer } from "@beep/scratchpad/effected/cli/ConfigIssueRenderer";
- * import { ConfigValidationError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
  * import * as Effect from "effect/Effect";
@@ -55,9 +53,8 @@ export abstract class ConfigIssueRenderer {
 	 *
 	 * Takes the **error**, not its `issue`, because that is what a `catchTag`
 	 * hands you and because `issue` is typed `Schema.Defect`, which every call
-	 * site would otherwise have to reach into. Inside
-	 * `Effect.catchTag("ConfigValidationError", …)` the error is already this
-	 * type.
+	 * site would otherwise have to reach into. The type is structural, so the
+	 * error from `Effect.catchTag("ConfigValidationError", …)` fits as is.
 	 *
 	 * It cannot throw on a malformed value: the issue tree is validated by
 	 * a guard before it is read, so a renderer on an error path never becomes the
@@ -67,7 +64,7 @@ export abstract class ConfigIssueRenderer {
 	 *
 	 * ```ts
 	 * import { ConfigIssueRenderer } from "@beep/scratchpad/effected/cli/ConfigIssueRenderer";
-	 * import { ConfigValidationError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+	 * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
 	 * import * as O from "effect/Option";
 	 *
 	 * const error = ConfigValidationError.make({ path: O.none(), issue: new Error("Invalid port") });
@@ -77,6 +74,6 @@ export abstract class ConfigIssueRenderer {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly render = (error: ConfigValidationError): ReadonlyArray<string> =>
+	static readonly render = (error: { readonly issue: unknown }): ReadonlyArray<string> =>
 		formatIssue(error?.issue);
 }

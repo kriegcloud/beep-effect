@@ -20,6 +20,7 @@ import { assert, describe, it, layer } from "@effect/vitest";
 import { assertInstanceOf, assertTrue, strictEqual } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -585,6 +586,21 @@ export const b = Status.$match({ draft: () => 1, live: () => 2 });
 export const a = other.$match();
 `;
     assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
+  it("renames aliases and decorated receivers while rejecting locally replaced kit records", () => {
+    const text = `${kitTyped}type Direction = MatchKit;
+declare const Mapped: Direction;
+declare const Decorated: MatchKit & { readonly annotations: object };
+declare const Replaced: Omit<MatchKit, "Enum"> & { readonly Enum: {} };
+export const a = Mapped.$match();
+export const b = Decorated.$match();
+export const c = Replaced.$match();
+`;
+    assert.strictEqual(
+      plannedText(plan(text)),
+      pipe(text, Str.replace("Mapped.$match", "Mapped.match"), Str.replace("Decorated.$match", "Decorated.match"))
+    );
   });
 
   it("unwraps LiteralKit(X.pick([...]).literals) to X.pick([...])", () => {

@@ -801,7 +801,7 @@ export class Workspaces {
 	 *
 	 * **Details**
 	 *
-	 * Provide this alongside `@effected/package-json`'s `Package.resolve` and
+	 * Provide this alongside `@beep/package-json`'s `Package.resolve` and
 	 * a manifest's `catalog:` and `workspace:` specifiers resolve against the
 	 * actual workspace instead of the no-op layers' `Option.none()`.
 	 *

@@ -503,13 +503,13 @@ const project: {
   })
 );
 
-const CommentBody = S.Struct({ body: S.String.pipe(S.NullOr, S.optional) }).pipe(
+const CommentBody = S.Struct({ body: S.String.pipe(S.NullOr, S.optionalKey) }).pipe(
   $I.annoteSchema("CommentBody", { description: "The nullable REST comment body inspected for a marker." })
 );
 
 const RawComment = S.Struct({
   id: S.Union([S.Finite, S.BigInt]),
-  body: S.String.pipe(S.NullOr, S.optional),
+  body: S.String.pipe(S.NullOr, S.optionalKey),
   html_url: S.String,
 }).pipe(
   $I.annoteSchema("RawComment", { description: "The REST comment fields consumed by a selected or created comment." })

@@ -38,10 +38,14 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // Wave 2b promoted `walker` whole as `@beep/walker` and `env` whole as `@beep/runtime-env`;
 // wave 2d promoted `markdown` whole as `@beep/markdown`. Wave 3-1 split `github-actions`:
 // its reporting suite is `@beep/github-reporting` and the drivers stay a lab
-// directory, so the package folds into the `github-actions` lab module.
+// directory, so the package folds into the `github-actions` lab module. Wave 3-2 promoted
+// the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
+// beside `@beep/tsconfig`. Wave 3-3 promoted `config-file` whole as `@beep/config-file`,
+// and wave 4-X promoted `xdg` whole as `@beep/xdg`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
+	"@beep/config-file": "config-file",
 	"@beep/git": "git",
 	"@beep/github": "github",
 	"@beep/github-commands": "github-commands",
@@ -50,10 +54,13 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/glob": "glob",
 	"@beep/jsonc": "jsonc",
 	"@beep/jsonl": "jsonl",
+	"@beep/lockfiles": "lockfiles",
 	"@beep/managed-section": "templates",
 	"@beep/markdown": "markdown",
 	"@beep/memfs": "memfs",
 	"@beep/npm-spec": "npm",
+	"@beep/package-json": "package-json",
+	"@beep/repo-tsconfig": "tsconfig-json",
 	"@beep/runtime-env": "env",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
@@ -61,6 +68,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/toml": "toml",
 	"@beep/tsconfig": "tsconfig-json",
 	"@beep/walker": "walker",
+	"@beep/xdg": "xdg",
 	"@beep/yaml": "yaml",
 };
 // Each package's directory, resolved the way the lab's own imports resolve it.

@@ -3,10 +3,10 @@ import { SaveDockSnapshot } from "@beep/dock/Dock.protocol";
 import { validateWorkspace } from "@beep/dock/Dock.reducer";
 import { it } from "@beep/test-runner";
 import { afterEach, describe, expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import { cleanup, fireEvent, render, waitFor, within } from "@testing-library/react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 import * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import { App } from "@/App";
 import {
@@ -58,15 +58,13 @@ describe("Desktop dock shell", { concurrent: false }, () => {
     const panel = A.findFirst(DESKTOP_PANELS, ({ key }) => key === "contradiction-triage");
 
     expect(DESKTOP_PANELS).toHaveLength(14);
-    expect(panel).toEqual(
-      O.some({
-        cluster: "shell",
-        description: "Review contradictory beliefs against their verified source text.",
-        key: "contradiction-triage",
-        label: "Beliefs",
-        title: "Contradiction Triage",
-      })
-    );
+    assertSome(panel, {
+      cluster: "shell",
+      description: "Review contradictory beliefs against their verified source text.",
+      key: "contradiction-triage",
+      label: "Beliefs",
+      title: "Contradiction Triage",
+    });
   });
 
   it.effect(

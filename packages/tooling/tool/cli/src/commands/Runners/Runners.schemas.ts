@@ -84,15 +84,15 @@ export type BakeMode = typeof BakeMode.Type;
 
 const defaultBaseAmiParameter = S.NonEmptyString.pipe(
   S.withConstructorDefault(Effect.succeed(DEFAULT_RUNNER_BASE_AMI_PARAMETER)),
-  S.withDecodingDefault(Effect.succeed(DEFAULT_RUNNER_BASE_AMI_PARAMETER))
+  S.withDecodingDefaultKey(Effect.succeed(DEFAULT_RUNNER_BASE_AMI_PARAMETER))
 );
 const defaultInstanceType = S.NonEmptyString.pipe(
   S.withConstructorDefault(Effect.succeed("r7a.2xlarge")),
-  S.withDecodingDefault(Effect.succeed("r7a.2xlarge"))
+  S.withDecodingDefaultKey(Effect.succeed("r7a.2xlarge"))
 );
 const defaultTags = S.Record(S.String, S.String).pipe(
   S.withConstructorDefault(Effect.succeed({})),
-  S.withDecodingDefault(Effect.succeed({}))
+  S.withDecodingDefaultKey(Effect.succeed({}))
 );
 
 /**

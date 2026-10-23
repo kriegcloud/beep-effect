@@ -4,7 +4,7 @@
 // It also owns file → owning-package resolution (longest-prefix), which is a
 // lookup over discovery output rather than a concern of its own.
 //
-// It is also where `@effected/npm`'s `WorkspaceResolver` contract is
+// It is also where `@beep/npm-spec`'s `WorkspaceResolver` contract is
 // implemented: `versionOf` is a lookup over the discovered package list.
 
 import { dual } from "effect/Function";
@@ -307,7 +307,7 @@ export const WorkspaceDiscoveryOptions = S.Struct({
   *
   * @defaultValue no ceiling — the ascent runs to the filesystem root.
   */
-	stopAt: S.optional(S.String).pipe($I.annoteKey("WorkspaceDiscoveryOptions.stopAt", { description: "Inclusive ceiling for layer-bound root discovery." })),
+	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceDiscoveryOptions.stopAt", { description: "Inclusive ceiling for layer-bound root discovery." })),
 	/** Descent cap for segment-crossing patterns. Defaults to 32. */
 	maxDepth: S.optionalKey(DiscoveryDepth).pipe($I.annoteKey("WorkspaceDiscoveryOptions.maxDepth", { description: "Optional pattern descent cap, defaulted on use." })),
 }).pipe($I.annoteSchema("WorkspaceDiscoveryOptions", { description: "Root resolution and pattern descent options, with defaults resolved lazily." }));
@@ -1024,8 +1024,8 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 		Layer.succeed(WorkspaceDiscovery, WorkspaceDiscovery.makeTest(overrides));
 
 	/**
-	 * The real implementation of `@effected/npm`'s `WorkspaceResolver` contract
-	 * — the one `@effected/package-json` declares but cannot fill.
+	 * The real implementation of `@beep/npm-spec`'s `WorkspaceResolver` contract
+	 * — the one `@beep/npm-spec` declares and `@beep/package-json`'s `Package.resolve` consumes.
 	 *
 	 * **Details**
 	 *

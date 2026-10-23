@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Lockfile, LockfileImporter, ResolvedPackage } from "../../effected/lockfiles/index.ts";
+import { Lockfile, LockfileImporter, ResolvedPackage } from "@beep/lockfiles";
 import { DuplicateCheck } from "../../effected/workspaces/DuplicateCheck.ts";
 
 const workspace = (version: string, relativePath: string, resolved: Record<string, string> = {}) => ResolvedPackage.make({

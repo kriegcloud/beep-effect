@@ -2,7 +2,7 @@
 // The tier guardrail, asserted rather than trusted to review.
 //
 // `@effected/npm` became boundary tier when NpmRegistry and PackagePublish
-// landed, but `@effected/lockfiles` (PURE) and `@effected/package-json` depend
+// landed, but `@effected/lockfiles` (PURE) and `@beep/package-json` depend
 // on it for vocabulary only — `IntegrityHash`, `DependencySpecifier`, the
 // section literals. Those consumers must be able to import the vocabulary
 // without linking an HTTP client or a subprocess runner.

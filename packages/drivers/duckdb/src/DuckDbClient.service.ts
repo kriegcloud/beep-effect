@@ -309,31 +309,30 @@ const makeAcquirers = Effect.fnUntraced(function* (
         prepareCacheTTL: Duration.zero,
         readOnlyReader: true,
       });
-      // A reader never executes session-changing user text, so only a new
-      // writer snapshot can invalidate its applied settings.
-      let applied: O.Option<Effect.Success<typeof connection.sessionSnapshot>> = O.none();
+      // Normalize on every lease: committed schema changes can alter the
+      // effective path even when the writer session settings stay the same.
       return {
         reader,
         synchronize: Effect.fnUntraced(function* () {
-          const snapshot = yield* connection.sessionSnapshot;
-          if (O.isSome(applied) && connection.sameSessionSnapshot(applied.value, snapshot)) return;
-          applied = O.none();
+          const snapshot = yield* connection.sessionSnapshot.pipe(Effect.flatMap(reader.normalizeSessionSnapshot));
           yield* reader.runDriverStatement(`USE ${quotedIdentifier(snapshot.database)}`, "executeStream");
           yield* reader.runDriverStatement(`SET search_path = ${quotedString(snapshot.searchPath)}`, "executeStream");
           yield* reader.runDriverStatement(`SET TimeZone = ${quotedString(snapshot.timeZone)}`, "executeStream");
           yield* reader.runDriverStatement(`SET Calendar = ${quotedString(snapshot.calendar)}`, "executeStream");
-          applied = O.some(snapshot);
         }),
       };
     }),
   });
   const streamAcquirer = Effect.gen(function* () {
     const lease = yield* Pool.get(readerPool);
-    yield* lease.synchronize();
+    // Clear a previous lease's path before BEGIN: a detached catalog can
+    // prevent even transaction control from binding on DuckDB 1.5.6.
+    yield* lease.reader.runDriverStatement("RESET search_path", "executeStream");
     yield* Effect.acquireRelease(
       lease.reader.runDriverStatement("BEGIN TRANSACTION READ ONLY", "beginTransaction"),
       () => lease.reader.runDriverStatement("ROLLBACK", "rollbackTransaction").pipe(Effect.orDie)
     );
+    yield* lease.synchronize();
     return lease.reader;
   });
   return { ...acquirers, streamAcquirer };

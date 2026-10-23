@@ -30,7 +30,7 @@ import * as Regex from "effect/RegExp";
  * **Example** (Reject a prefix-sharing sibling)
  *
  * ```ts
- * import { mentionsToken } from "@beep/repo-cli/internal/WholeToken"
+ * import { mentionsToken } from "@beep/repo-cli/test/SharedInternals"
  *
  * const mentionsSchema = mentionsToken("@beep/schema")
  * console.log(mentionsSchema('"@beep/schema": patch')) // true
@@ -54,7 +54,7 @@ export const mentionsToken = (needle: string): ((text: string) => boolean) => {
  * **Example** (Match a package by name or path)
  *
  * ```ts
- * import { mentionsAnyToken } from "@beep/repo-cli/internal/WholeToken"
+ * import { mentionsAnyToken } from "@beep/repo-cli/test/SharedInternals"
  *
  * const mentionsTarget = mentionsAnyToken(["@beep/x", "packages/x"])
  * console.log(mentionsTarget("see packages/x/src")) // true

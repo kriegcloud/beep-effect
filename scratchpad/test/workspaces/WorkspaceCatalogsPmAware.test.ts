@@ -1,7 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess, assertSome } from "@effect/vitest/utils";
 import * as Exit from "effect/Exit";
-import { Lockfile } from "../../effected/lockfiles/index.ts";
+import { Lockfile } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

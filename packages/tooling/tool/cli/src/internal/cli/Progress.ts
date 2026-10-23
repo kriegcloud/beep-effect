@@ -27,7 +27,7 @@ import { dual } from "effect/Function";
  * **Example** (Clear line string length)
  *
  * ```ts
- * import { clearLine } from "@beep/repo-cli/internal/cli/Progress"
+ * import { clearLine } from "@beep/repo-cli/test/Cli"
  *
  * console.log(clearLine.length)
  * ```
@@ -43,7 +43,7 @@ export const clearLine = "\r\x1b[2K";
  * **Example** (Disabled progress opt-in)
  *
  * ```ts
- * import { isProgressEnabled } from "@beep/repo-cli/internal/cli/Progress"
+ * import { isProgressEnabled } from "@beep/repo-cli/test/Cli"
  *
  * console.log(isProgressEnabled(false))
  * ```
@@ -62,7 +62,7 @@ export const isProgressEnabled = (enabled = true): boolean => enabled && process
  * **Example** (Fraction from completed count)
  *
  * ```ts
- * import { progressFraction } from "@beep/repo-cli/internal/cli/Progress"
+ * import { progressFraction } from "@beep/repo-cli/test/Cli"
  *
  * console.log(progressFraction(1, 4))
  * console.log(progressFraction(4)(1))
@@ -89,7 +89,7 @@ export const progressFraction: {
  * **Example** (Percent from completed count)
  *
  * ```ts
- * import { progressPercent } from "@beep/repo-cli/internal/cli/Progress"
+ * import { progressPercent } from "@beep/repo-cli/test/Cli"
  *
  * console.log(progressPercent(1, 4))
  * console.log(progressPercent(4)(1))
@@ -136,7 +136,7 @@ export interface ProgressBarOptions {
  * **Example** (Half-filled bar segments)
  *
  * ```ts
- * import { renderProgressBar } from "@beep/repo-cli/internal/cli/Progress"
+ * import { renderProgressBar } from "@beep/repo-cli/test/Cli"
  *
  * console.log(renderProgressBar({ fraction: 0.5, width: 4 }))
  * ```

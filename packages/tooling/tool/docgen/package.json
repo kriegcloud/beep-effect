@@ -71,6 +71,7 @@
   "dependencies": {
     "@babel/code-frame": "catalog:",
     "@beep/chalk": "workspace:^",
+    "@beep/config-file": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/md": "workspace:^",
     "@beep/repo-utils": "workspace:^",
@@ -80,7 +81,6 @@
     "@effect/platform-bun": "catalog:",
     "doctrine": "catalog:",
     "effect": "catalog:",
-    "jsonc-parser": "catalog:",
     "ts-morph": "catalog:"
   },
   "devDependencies": {

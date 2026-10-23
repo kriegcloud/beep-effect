@@ -41,7 +41,7 @@
 		"types:check": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@effected/package-json": "workspace:^",
+		"@beep/package-json": "workspace:^",
 		"@beep/spdx": "workspace:^",
 		"@sigstore/bundle": "^5.0.0",
 		"@sigstore/sign": "^5.0.0",

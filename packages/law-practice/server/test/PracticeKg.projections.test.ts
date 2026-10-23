@@ -1125,28 +1125,36 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.effect(
-      "serves the ten graph and document tools from the synthetic fixture bundle and degrades oversized results",
-      Effect.fnUntraced(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const corpusRoot = yield* makeFixtureCorpus();
-        const bundleOut = path.join(corpusRoot, "bundle-host");
-        yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
-        const manifest = yield* fs
-          .readFileString(path.join(bundleOut, "bundle.manifest.json"))
-          .pipe(Effect.flatMap(decodeManifestJson));
-        const bundleContext = PracticeKgBundleContext.make({ bundleDir: bundleOut, corpusRoot, manifest });
-        const resources = Layer.mergeAll(
-          Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") }),
-          DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: path.join(bundleOut, "practice.duckdb") })),
-          Layer.succeed(PracticeKgBundle, PracticeKgBundle.of(bundleContext))
-        );
-        const host = Layer.mergeAll(McpServer.McpServer.layer, PracticeKgToolkitLayer, PracticeKgMatterLookupLive).pipe(
-          Layer.provideMerge(resources)
-        );
-
-        yield* Effect.gen(function* () {
+    it.layer(
+      Layer.unwrap(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const corpusRoot = yield* makeFixtureCorpus();
+          const bundleOut = path.join(corpusRoot, "bundle-host");
+          yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
+          const manifest = yield* fs
+            .readFileString(path.join(bundleOut, "bundle.manifest.json"))
+            .pipe(Effect.flatMap(decodeManifestJson));
+          const bundleContext = PracticeKgBundleContext.make({ bundleDir: bundleOut, corpusRoot, manifest });
+          const resources = Layer.mergeAll(
+            Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") }),
+            DuckDb.makeNodeLayer(
+              DuckDbConnectionOptions.make({ databasePath: path.join(bundleOut, "practice.duckdb") })
+            ),
+            Layer.succeed(PracticeKgBundle, PracticeKgBundle.of(bundleContext))
+          );
+          return Layer.mergeAll(McpServer.McpServer.layer, PracticeKgToolkitLayer, PracticeKgMatterLookupLive).pipe(
+            Layer.provideMerge(resources)
+          );
+        })
+      ),
+      { timeout: "2 minutes" }
+    )((it) => {
+      it.effect(
+        "serves the ten graph and document tools from the synthetic fixture bundle and degrades oversized results",
+        Effect.fnUntraced(function* () {
+          const { manifest } = yield* PracticeKgBundle;
           const liveCalls = [
             ["kg_clients", {}],
             ["kg_docket_family", { family: "20001" }],
@@ -1319,24 +1327,31 @@ describe("practice KG projections", () => {
           const failure = yield* callToolText("kg_clients", {}).pipe(Effect.flatMap(decodeToolErrorJson));
           expect(failure.tool).toBe("kg_clients");
           expect(failure.reason).toBe("store-query-failed");
-        }).pipe(provideScopedLayer(host));
-      }),
-      { timeout: 120_000 }
-    );
+        }),
+        { timeout: 120_000 }
+      );
+    });
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.effect(
-      "keeps the hand-written bundle DDL equal to the Drizzle read-model declarations",
-      Effect.fnUntraced(function* () {
-        const path = yield* Path.Path;
-        const corpusRoot = yield* makeFixtureCorpus();
-        const bundleOut = path.join(corpusRoot, "bundle-ddl");
-        yield* runBuild(
-          PracticeKgOptions.make({ ...graphOptions(corpusRoot, bundleOut), skipEmails: true }),
-          bundleOut
-        );
-        yield* Effect.gen(function* () {
+    it.layer(
+      Layer.unwrap(
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const corpusRoot = yield* makeFixtureCorpus();
+          const bundleOut = path.join(corpusRoot, "bundle-ddl");
+          yield* runBuild(
+            PracticeKgOptions.make({ ...graphOptions(corpusRoot, bundleOut), skipEmails: true }),
+            bundleOut
+          );
+          return Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") });
+        })
+      ),
+      { timeout: "2 minutes" }
+    )((it) => {
+      it.effect(
+        "keeps the hand-written bundle DDL equal to the Drizzle read-model declarations",
+        Effect.fnUntraced(function* () {
           const sql = (yield* SqlClient.SqlClient).withoutTransforms();
           yield* Effect.forEach(
             [
@@ -1355,10 +1370,10 @@ describe("practice KG projections", () => {
                 expect(A.map(columnRows, (row) => row.columnName)).toStrictEqual(declared);
               })
           );
-        }).pipe(provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })));
-      }),
-      { timeout: 120_000 }
-    );
+        }),
+        { timeout: 120_000 }
+      );
+    });
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
@@ -1809,13 +1824,15 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.layer(
+    // Tests run concurrently (`sequence.concurrent`), so each block below gets its own bundle,
+    // claims store and read-only reader: claims one block writes never reach another block's counts.
+    const claimsReaderLayer = (bundleName: string) =>
       Layer.unwrap(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const corpusRoot = yield* makeFixtureCorpus();
-          const bundleOut = path.join(corpusRoot, "bundle-concurrent-claims-readers");
+          const bundleOut = path.join(corpusRoot, bundleName);
           yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
           const inputs = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-concurrent-claims-" });
           const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
@@ -1857,9 +1874,9 @@ describe("practice KG projections", () => {
             Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
           );
         })
-      ),
-      { timeout: "120 seconds" }
-    )((it) => {
+      );
+
+    it.layer(claimsReaderLayer("bundle-concurrent-claims-readers"), { timeout: "120 seconds" })((it) => {
       it.effect(
         "resolves standalone claims while an independent cached read-only connection remains open",
         Effect.fnUntraced(function* () {
@@ -1877,7 +1894,9 @@ describe("practice KG projections", () => {
         }),
         { timeout: 120_000 }
       );
+    });
 
+    it.layer(claimsReaderLayer("bundle-shared-claims-reader"), { timeout: "120 seconds" })((it) => {
       it.effect(
         "resolves claims through a DuckDb connection the caller already holds",
         Effect.fnUntraced(function* () {

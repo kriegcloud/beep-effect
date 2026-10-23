@@ -14,7 +14,7 @@ import { dual } from "effect/Function";
 // lockfiles are committed, so `at(ref)` and `worktree()` answer identically —
 // no hook replay, no network, no executing a historical ref's code.
 
-import type { Lockfile } from "../../lockfiles/index.ts";
+import type { Lockfile } from "@beep/lockfiles";
 import * as R from "effect/Record";
 import * as O from "effect/Option";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -90,9 +90,9 @@ const isConcreteVersion = (version: string): boolean =>
  *
  * ```ts
  * import { importerVersionsOf } from "@beep/scratchpad/effected/workspaces/internal/importerVersions";
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
- * import { LockfileImporter } from "@beep/scratchpad/effected/lockfiles/LockfileImporter";
- * import { ImporterDependency } from "@beep/scratchpad/effected/lockfiles/ImporterDependency";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
+ * import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
+ * import { ImporterDependency } from "@beep/lockfiles/ImporterDependency";
  * import * as S from "effect/Schema";
  *
  * const dependency = S.decodeUnknownSync(ImporterDependency)({

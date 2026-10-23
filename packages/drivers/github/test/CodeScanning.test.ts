@@ -3,9 +3,11 @@ import { CodeScanning, CodeScanningSetup } from "@beep/github/CodeScanning";
 import { GitHubClient, RecordedCall } from "@beep/github/GitHubClient";
 import { Repo, RepoRef } from "@beep/github/Repo";
 import { assert, describe, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -150,15 +152,13 @@ describe("CodeScanning", () => {
 });
 
 describe("CodeScanningSetup", () => {
-  it.effect("preserves omitted keys and explicit undefined keys", () =>
+  it.effect("preserves omitted keys and rejects explicit undefined keys", () =>
     Effect.gen(function* () {
       const omitted = yield* S.decodeEffect(CodeScanningSetup)({});
       assert.deepStrictEqual<CodeScanningSetup.Encoded>(omitted, {});
       assert.deepStrictEqual(yield* S.encodeEffect(CodeScanningSetup)(omitted), {});
-      const explicit = { runner_label: undefined };
-      const value = yield* S.decodeEffect(CodeScanningSetup)(explicit);
-      assert.deepStrictEqual<CodeScanningSetup.Encoded>(value, explicit);
-      assert.deepStrictEqual(yield* S.encodeEffect(CodeScanningSetup)(value), explicit);
+      const explicit = yield* Effect.exit(S.decodeUnknownEffect(CodeScanningSetup)({ runner_label: undefined }));
+      explicit.pipe(Exit.isFailure, assertTrue);
     })
   );
 

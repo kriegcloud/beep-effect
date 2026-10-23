@@ -82,25 +82,46 @@ const isDigit = (char: string | undefined): boolean => char !== undefined && cha
 // reader counts all of the scan's work, including any search for a closer.
 type CharAt = (index: number) => string | undefined;
 
-const isClosingDollar = (charAt: CharAt, index: number): boolean =>
-  charAt(index) === "$" && !isSpace(charAt(index - 1)) && !isDigit(charAt(index + 1));
+// `escaped[k]` holds when the character at `k` follows an unescaped
+// backslash. One left-to-right pass builds it, so a backslash-escaped `$`
+// (`\$`) is never a delimiter, while `\\$` (an escaped backslash) still is.
+const escapedCharacters = (charAt: CharAt, length: number): ReadonlyArray<boolean> => {
+  const escaped = A.makeBy(length + 1, () => false);
+  for (let index = 0; index < length; index++) {
+    escaped[index + 1] = charAt(index) === "\\" && escaped[index] !== true;
+  }
+  return escaped;
+};
+
+// A delimiter `$`: a dollar no backslash escapes.
+const isDollarAt = (charAt: CharAt, escaped: ReadonlyArray<boolean>, index: number): boolean =>
+  charAt(index) === "$" && escaped[index] !== true;
+
+const isClosingDollar = (charAt: CharAt, escaped: ReadonlyArray<boolean>, index: number): boolean =>
+  isDollarAt(charAt, escaped, index) && !isSpace(charAt(index - 1)) && !isDigit(charAt(index + 1));
 
 // `closers[k]` is the first valid closing `$` at or after `k`, or -1. One
 // right-to-left pass builds it, so an opener finds its closer in O(1) and a
 // run of openers that never close ("$a $a $a …") stays linear instead of
 // re-scanning to the end of the text once per opener.
-const closingDollars = (charAt: CharAt, length: number): ReadonlyArray<number> => {
+const closingDollars = (charAt: CharAt, escaped: ReadonlyArray<boolean>, length: number): ReadonlyArray<number> => {
   const closers = A.makeBy(length + 2, () => -1);
   for (let index = length - 1; index >= 0; index--) {
-    closers[index] = isClosingDollar(charAt, index) ? index : (closers[index + 1] ?? -1);
+    closers[index] = isClosingDollar(charAt, escaped, index) ? index : (closers[index + 1] ?? -1);
   }
   return closers;
 };
 
-const isDoubleDollar = (charAt: CharAt, index: number): boolean => charAt(index) === "$" && charAt(index + 1) === "$";
+const isDoubleDollar = (charAt: CharAt, escaped: ReadonlyArray<boolean>, index: number): boolean =>
+  isDollarAt(charAt, escaped, index) && charAt(index + 1) === "$";
 
-const mathCloseAt = (charAt: CharAt, closers: ReadonlyArray<number>, index: number): O.Option<number> =>
-  charAt(index) === "$" && !isDoubleDollar(charAt, index) && !isSpace(charAt(index + 1))
+const mathCloseAt = (
+  charAt: CharAt,
+  escaped: ReadonlyArray<boolean>,
+  closers: ReadonlyArray<number>,
+  index: number
+): O.Option<number> =>
+  isDollarAt(charAt, escaped, index) && !isDoubleDollar(charAt, escaped, index) && !isSpace(charAt(index + 1))
     ? O.filter(O.fromUndefinedOr(closers[index + 2]), N.isGreaterThanOrEqualTo(0))
     : O.none();
 
@@ -131,7 +152,7 @@ const pushText = (segments: Array<MathSegment>, from: number, to: number): void 
  * scanInlineMathMetered("a $b$ c", () => {
  *   steps += 1
  * })
- * console.log(steps) // 22
+ * console.log(steps) // 29
  * ```
  *
  * @internal
@@ -146,14 +167,15 @@ export const scanInlineMathMetered: {
     step();
     return text[at];
   };
-  const closers = closingDollars(charAt, Str.length(text));
+  const escaped = escapedCharacters(charAt, Str.length(text));
+  const closers = closingDollars(charAt, escaped, Str.length(text));
   const segments: Array<MathSegment> = [];
   let textStart = 0;
   let index = 0;
   while (index < Str.length(text)) {
-    const close = mathCloseAt(charAt, closers, index);
+    const close = mathCloseAt(charAt, escaped, closers, index);
     if (O.isNone(close)) {
-      index += isDoubleDollar(charAt, index) ? 2 : 1;
+      index += isDoubleDollar(charAt, escaped, index) ? 2 : 1;
       continue;
     }
     pushText(segments, textStart, index);
@@ -169,15 +191,29 @@ export const scanInlineMathMetered: {
  * Split a text run into text and inline-math segments using pandoc's
  * `tex_math_dollars` rules: the opening `$` has a non-space character to its
  * right, the closing `$` has a non-space character to its left and is not
- * followed by a digit, and `$$` is never an inline opener. Each opener takes
- * the first closer after it, found in a precomputed table, so the scan is
- * linear in the text length.
+ * followed by a digit, and `$$` is never an inline opener. A `$` behind an
+ * unescaped backslash is not a delimiter, so the scan can read a raw source
+ * slice. Each opener takes the first closer after it, found in a precomputed
+ * table, so the scan is linear in the text length.
  *
  * @internal
  * @category parsing
  * @since 0.0.0
  */
 export const scanInlineMath = (text: string): ReadonlyArray<MathSegment> => scanInlineMathMetered(text, constVoid);
+
+const escapablePunctuation = /\\([!-/:-@[-`{-~])/g;
+
+/**
+ * Remove CommonMark backslash escapes (a backslash before ASCII punctuation),
+ * the only decoding the inline-math recognizer undoes when a raw slice and
+ * its decoded text differ.
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const unescapeBackslashes: (raw: string) => string = Str.replace(escapablePunctuation, "$1");
 
 /**
  * The body of a `$$ … $$` display-math paragraph, read from its raw slice.

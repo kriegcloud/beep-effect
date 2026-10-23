@@ -87,6 +87,55 @@ describe("test-typecheck coverage", () => {
 
   it.layer(PlatformLayer, { timeout: "5 seconds" })((it) => {
     it.effect(
+      "follows a package-resolved base's include and lets a project whose extends fails prove nothing",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "test-typecheck-coverage-" });
+        // The base selects only `src`, through `${configDir}`; the hand-rolled walk skipped
+        // package bases, which fell back to tsc's include-everything default and counted `test/`.
+        const base = path.join(root, "node_modules", "@fixture", "base");
+        yield* fs.makeDirectory(base, { recursive: true });
+        yield* fs.writeFileString(path.join(base, "package.json"), `${encodeJson({ name: "@fixture/base" })}\n`);
+        yield* fs.writeFileString(
+          path.join(base, "tsconfig.json"),
+          `${encodeJson({ include: [`\${configDir}/src`] })}\n`
+        );
+        const fixture = yield* writeFixturePackage(root, "based", blindScripts, ["src", "test"]);
+        const config = path.join(fixture.packageDir, "tsconfig.check.json");
+        yield* fs.writeFileString(config, `${encodeJson({ extends: "@fixture/base/tsconfig.json" })}\n`);
+        const based = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [fixture.testFile]);
+        expect(based.uncoveredSources).toEqual([fixture.testFile]);
+
+        // tsc fails such a project (error TS6053), so it typechecks nothing: it is skipped, not read alone.
+        yield* fs.writeFileString(config, `${encodeJson({ extends: "./missing.json", include: ["test"] })}\n`);
+        const broken = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [fixture.testFile]);
+        expect(broken.uncoveredSources).toEqual([fixture.testFile]);
+
+        // A malformed base and an extends cycle fail tsc the same way (TS5083 / TS18000), so the
+        // project's own `include` proves nothing either; the old walk dropped only the bad base.
+        const malformed = path.join(fixture.packageDir, "tsconfig.malformed.json");
+        yield* fs.writeFileString(malformed, '{ "compilerOptions": { ,\n');
+        yield* fs.writeFileString(
+          config,
+          `${encodeJson({ extends: "./tsconfig.malformed.json", include: ["test"] })}\n`
+        );
+        const unparsable = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [
+          fixture.testFile,
+        ]);
+        expect(unparsable.uncoveredSources).toEqual([fixture.testFile]);
+
+        const loop = path.join(fixture.packageDir, "tsconfig.loop.json");
+        yield* fs.writeFileString(loop, `${encodeJson({ extends: "./tsconfig.check.json" })}\n`);
+        yield* fs.writeFileString(config, `${encodeJson({ extends: "./tsconfig.loop.json", include: ["test"] })}\n`);
+        const cyclic = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [fixture.testFile]);
+        expect(cyclic.uncoveredSources).toEqual([fixture.testFile]);
+      })
+    );
+  });
+
+  it.layer(PlatformLayer, { timeout: "5 seconds" })((it) => {
+    it.effect(
       "expands workspace files with the shared prune set, dot entries and followed symlinks",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;

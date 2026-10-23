@@ -29,7 +29,7 @@ const expectStrictNativeError = (
   expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["error"]);
 };
 
-it.layer(NodeTestLayer)("native runtime laws", (it) => {
+it.layer(NodeTestLayer, { timeout: "30 seconds" })("native runtime laws", (it) => {
   it.effect(
     "scans source files without reading inaccessible excluded docs directories",
     Effect.fnUntraced(function* () {

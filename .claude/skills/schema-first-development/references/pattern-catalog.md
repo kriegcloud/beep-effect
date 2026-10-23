@@ -72,7 +72,6 @@ Preferred tools:
 - `S.decodeTo(...)`
 - `SchemaTransformation.transform(...)`
 - `S.withConstructorDefault(...)`
-- `S.withDecodingDefault(...)`
 - `S.withDecodingDefaultKey(...)`
 
 This pattern is preferred over manual parsing branches and fallback object
@@ -84,8 +83,7 @@ Use the schema helpers that match the boundary shape.
 
 - `OptionFromNullOr`: input may be `null`
 - `OptionFromNullishOr`: input may be `null` or `undefined`
-- `OptionFromOptionalKey`: object key may be absent
-- `OptionFromOptional`: optional standalone field
+- `OptionFromOptionalKey`: object key may be absent (never `OptionFromOptional`, EF-40)
 
 Do not decode to `string | undefined` and convert later unless the boundary
 truly requires it.

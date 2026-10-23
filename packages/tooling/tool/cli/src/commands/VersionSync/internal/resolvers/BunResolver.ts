@@ -55,7 +55,7 @@ class BunPackageJsonDocument extends S.Opaque<BunPackageJsonDocument, { readonly
   S.Struct({
     packageManager: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
   }).pipe(
     $I.annoteSchema("BunPackageJsonDocument", {
@@ -333,11 +333,11 @@ export class BunVersionState extends S.Opaque<BunVersionState, { readonly brand:
   S.Struct({
     bunVersionFile: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     packageManagerField: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     vercelInstallVersion: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     vercelBuildVersion: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),

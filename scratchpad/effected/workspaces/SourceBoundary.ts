@@ -108,7 +108,7 @@ export const ReferenceOptions = S.Struct({
 	 * token to named files, forbid it with a `{ forbidTokens }` rule as well (see
 	 * {@link BoundaryRule}).
 	 */
-	ignoreTokens: S.String.pipe(S.Array, S.optional, $I.annoteKey("ReferenceOptions.ignoreTokens", { description: "Exact process-reference tokens to exempt, in addition to the build-time version token." })),
+	ignoreTokens: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("ReferenceOptions.ignoreTokens", { description: "Exact process-reference tokens to exempt, in addition to the build-time version token." })),
 }).pipe($I.annoteSchema("ReferenceOptions", { description: "Optional exact-token exemptions for the process rule, resolved only when checking references." }));
 /**
  * Configuration accepted by {@link ReferenceOptions}.
@@ -300,7 +300,7 @@ export const ScanOptions = S.Struct({
 	/** The rules every non-allowed file must keep. */
 	rules: S.Array(BoundaryRule).pipe($I.annoteKey("ScanOptions.rules", { description: "The rules every non-allowed file must keep, in evaluation order." })),
 	/** Globs, relative to `root` with `/` separators, naming files exempt from every rule. */
-	allow: S.String.pipe(S.Array, S.optional, $I.annoteKey("ScanOptions.allow", { description: "Root-relative globs exempting files from every rule; omitted means no exemptions." })),
+	allow: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("ScanOptions.allow", { description: "Root-relative globs exempting files from every rule; omitted means no exemptions." })),
 	/**
 	 * Globs per rule, matched like `allow`, naming files exempt from that one
 	 * rule. A matching file is still checked against every other rule, and
@@ -311,12 +311,12 @@ export const ScanOptions = S.Struct({
 	 * A file `allow` matches is exempt from every rule, so nothing in it is
 	 * waived.
 	 */
-	allowRules: S.Record(OffenceRule, S.String.pipe(S.Array, S.optional)).pipe(S.optional, $I.annoteKey("ScanOptions.allowRules", { description: "Optional per-rule root-relative waiver globs; absent and explicitly undefined entries waive nothing." })),
+	allowRules: S.Record(OffenceRule, S.String.pipe(S.Array, S.optionalKey)).pipe(S.optionalKey, $I.annoteKey("ScanOptions.allowRules", { description: "Optional per-rule root-relative waiver globs; absent and explicitly undefined entries waive nothing." })),
 	/**
 	 * File extensions to scan. Defaults to `.ts`, `.mts`, `.cts`, `.js`,
 	 * `.mjs` and `.cjs`; declaration files are always skipped.
 	 */
-	extensions: S.String.pipe(S.Array, S.optional, $I.annoteKey("ScanOptions.extensions", { description: "Source extensions to scan; omitted uses the scanner defaults and declaration files are always skipped." })),
+	extensions: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("ScanOptions.extensions", { description: "Source extensions to scan; omitted uses the scanner defaults and declaration files are always skipped." })),
 }).pipe($I.annoteSchema("ScanOptions", { description: "Plain-object source selection, rules and waivers whose defaults are resolved lazily by the scan." }));
 /**
  * Configuration accepted by {@link ScanOptions}.

@@ -423,11 +423,7 @@ describe("Ontology file-store security boundary", () => {
         ];
 
         for (const configuration of configurations) {
-          const exit = yield* ontologyFileStoreLayerForConfiguration(configuration).pipe(
-            Layer.build,
-            Effect.scoped,
-            Effect.exit
-          );
+          const exit = yield* ontologyFileStoreLayerForConfiguration(configuration).pipe(Layer.build, Effect.exit);
           pipe(exit, Exit.isFailure, assertTrue);
           if (Exit.isFailure(exit)) {
             pipe(Cause.hasFails(exit.cause), assertTrue);

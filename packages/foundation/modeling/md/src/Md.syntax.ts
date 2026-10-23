@@ -53,12 +53,14 @@ import {
   scanInlineMath,
   sourceSlice,
   subPosition,
+  unescapeBackslashes,
   youtubeVideoId,
 } from "./internal/syntax/recognizers.ts";
 import { CodeFenceLanguage, Document } from "./Md.model.ts";
 import { DocumentSafetyPathSegment, DocumentSafetyViolation, refineSafeDocument } from "./Md.safe.ts";
 import type { FrontmatterCodec } from "@beep/markdown/Frontmatter";
 import type { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import type { MathSegment } from "./internal/syntax/recognizers.ts";
 import type * as Model from "./Md.model.ts";
 import type { SafeDocument } from "./Md.safe.ts";
 
@@ -815,9 +817,10 @@ export const MdSyntaxOptionFields = {
       description: "Whether `> [!NOTE]` blockquotes become admonitions; on by default.",
     })
   ),
-  math: SchemaUtils.BoolKeyDefaultFalse.pipe(
+  math: SchemaUtils.BoolKeyDefaultTrue.pipe(
     $I.annoteKey("MdSyntaxOptions.math", {
-      description: "Whether `$…$`, `$$…$$` and ```math become math nodes; off until the writer escapes `$`.",
+      description:
+        "Whether `$…$`, `$$…$$` and ```math become math nodes; on by default, and `Md.render` escapes every `$` that could open math.",
     })
   ),
   youtube: SchemaUtils.BoolKeyDefaultFalse.pipe(
@@ -1191,27 +1194,31 @@ const softBreak = (state: BridgeState, value: string): string =>
 
 const textNode = (value: string): Model.Text => ({ _tag: "text", value });
 
+// Segments come from the raw slice, so a backslash-escaped `$` never
+// delimits; a math piece keeps its raw TeX, and a text piece drops its
+// backslash escapes to read as the decoded text it came from.
 const recognizeInlineMath = (
   state: BridgeState,
-  value: string,
+  raw: string,
+  segments: ReadonlyArray<MathSegment>,
   position: Kit.Position
-): O.Option<ReadonlyArray<Model.Inline>> => {
-  const segments = scanInlineMath(value);
-  if (!A.some(segments, (segment) => segment.math)) {
-    return O.none();
-  }
-  return O.some(
-    A.map(segments, (segment): Model.Inline => {
-      const piece = Str.slice(segment.from, segment.to)(value);
-      const span = segment.math
-        ? subPosition(position, value, segment.from - 1, segment.to + 1)
-        : subPosition(position, value, segment.from, segment.to);
-      return segment.math
-        ? leaf(state, span, MdSourceOrigin.Enum.recognized, { _tag: "inlineMath", value: piece })
-        : leaf(state, span, MdSourceOrigin.Enum.recognized, textNode(softBreak(state, piece)));
-    })
-  );
-};
+): ReadonlyArray<Model.Inline> =>
+  A.map(segments, (segment): Model.Inline => {
+    const piece = Str.slice(segment.from, segment.to)(raw);
+    return segment.math
+      ? leaf(state, subPosition(position, raw, segment.from - 1, segment.to + 1), MdSourceOrigin.Enum.recognized, {
+          _tag: "inlineMath",
+          value: piece,
+        })
+      : leaf(
+          state,
+          subPosition(position, raw, segment.from, segment.to),
+          MdSourceOrigin.Enum.recognized,
+          textNode(softBreak(state, unescapeBackslashes(piece)))
+        );
+  });
+
+const hasMath = (segments: ReadonlyArray<MathSegment>): boolean => A.some(segments, (segment) => segment.math);
 
 const runPosition = (run: A.NonEmptyReadonlyArray<Kit.Text>): Kit.Position =>
   run.length > 1
@@ -1228,10 +1235,17 @@ const inlineMathRun = (
   if (!state.options.math || !Str.includes("$")(value)) {
     return O.none();
   }
-  if (slice(state, position) === value) {
-    return recognizeInlineMath(state, value, position);
+  const raw = slice(state, position);
+  const segments = scanInlineMath(raw);
+  if (!hasMath(segments)) {
+    return O.none();
   }
-  recordLoss(state, "recognizerSkipped", first, landed(path), "inline math spans escapes, entities or line prefixes");
+  // Backslash escapes are the only decoding undone here: a run whose raw
+  // slice also holds entities or container line prefixes keeps its text.
+  if (unescapeBackslashes(raw) === value) {
+    return O.some(recognizeInlineMath(state, raw, segments, position));
+  }
+  recordLoss(state, "recognizerSkipped", first, landed(path), "inline math spans entities or line prefixes");
   return O.none();
 };
 
@@ -1254,6 +1268,9 @@ const mapTextRun = (
   ]);
 };
 
+const escapedInlineHtml = (state: BridgeState, kid: Kit.PhrasingContent): boolean =>
+  kid.type === "html" && headHtmlKept(state, kid.value) && !(state.options.breakTag && isBreakTag(kid.value));
+
 const mapPhrasingChildren = (
   state: BridgeState,
   kids: ReadonlyArray<Kit.PhrasingContent>,
@@ -1262,10 +1279,39 @@ const mapPhrasingChildren = (
 ): Array<Model.Inline> => {
   const out: Array<Model.Inline> = [];
   let run: Array<Kit.Text> = [];
+  let mergeableText = false;
+  const nextPath = (merging: boolean): SlotPath => new SlotPath(parent, offset + out.length - (merging ? 1 : 0));
+  const append = (inline: Model.Inline, mergeable: boolean): void => {
+    const previous = A.last(out);
+    if (mergeable && mergeableText && inline._tag === "text" && O.isSome(previous) && previous.value._tag === "text") {
+      const currentSlot = state.slots.pop();
+      const previousSlot = state.slots.pop();
+      if (currentSlot !== undefined && previousSlot !== undefined) {
+        state.slots.push(
+          new SourceSlot(
+            Kit.Position.make({ start: previousSlot.position.start, end: currentSlot.position.end }),
+            MdSourceOrigin.Enum.merged
+          )
+        );
+      }
+      out[out.length - 1] = textNode(previous.value.value + inline.value);
+    } else {
+      out.push(inline);
+    }
+    mergeableText = mergeable && inline._tag === "text";
+  };
   const flush = (): void => {
     if (A.isArrayNonEmpty(run)) {
-      for (const inline of mapTextRun(state, run, new SlotPath(parent, offset + out.length))) {
-        out.push(inline);
+      const start = state.slots.length;
+      const inlines = mapTextRun(state, run, nextPath(mergeableText));
+      const slots = A.drop(state.slots, start);
+      rollback(state, start);
+      for (const [index, inline] of A.zip(A.range(0, inlines.length - 1), inlines)) {
+        const slot = slots[index];
+        if (slot !== undefined) {
+          state.slots.push(slot);
+        }
+        append(inline, true);
       }
       run = [];
     }
@@ -1276,8 +1322,10 @@ const mapPhrasingChildren = (
       continue;
     }
     flush();
-    for (const inline of phrasingStep(kid)(state, new SlotPath(parent, offset + out.length))) {
-      out.push(inline);
+    const mergesHtml = mergeableText && escapedInlineHtml(state, kid);
+    const path = nextPath(mergesHtml);
+    for (const inline of phrasingStep(kid)(state, path)) {
+      append(inline, escapedInlineHtml(state, kid));
     }
   }
   flush();

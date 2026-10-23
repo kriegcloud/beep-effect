@@ -6,7 +6,7 @@ Effect service contracts for resolving pnpm `catalog:` and `workspace:` dependen
 
 ## Why @effected/npm
 
-`catalog:` and `workspace:` are specifiers whose meaning lives somewhere other than the manifest they appear in. A package.json document library can parse `"effect": "catalog:"` perfectly well and still have no way to say what it resolves to, because the answer is in a workspace file it has no business reading. The usual escape hatches are both bad: take a dependency on a workspace crawler and drag a filesystem into a pure document library, or accept a resolver as an untyped callback and lose the failure channel. Neither is a contract. This package is the contract — shape only, so `@effected/package-json` can express `Package.resolve` against services in `R` and let the application decide where resolution actually comes from.
+`catalog:` and `workspace:` are specifiers whose meaning lives somewhere other than the manifest they appear in. A package.json document library can parse `"effect": "catalog:"` perfectly well and still have no way to say what it resolves to, because the answer is in a workspace file it has no business reading. The usual escape hatches are both bad: take a dependency on a workspace crawler and drag a filesystem into a pure document library, or accept a resolver as an untyped callback and lose the failure channel. Neither is a contract. This package is the contract — shape only, so `@beep/package-json` can express `Package.resolve` against services in `R` and let the application decide where resolution actually comes from.
 
 The one design decision worth stating up front: **an unmatched specifier is `Option.none()`, not an error**. A package that is absent from a catalog, or a name that is not a workspace member, is an ordinary answer and the resolver succeeds with `None`. The error channel is reserved for the resolution *mechanism* failing — an unreadable catalog file, a malformed workspace manifest — and `DependencyResolutionError` carries that cause structurally on a `Schema.Defect` field rather than folding it into a string. Blurring those two is how "no such package" ends up indistinguishable from "your disk is on fire".
 
@@ -86,7 +86,7 @@ Note what the implementation does *not* do: an unknown package name returns `Opt
 
 ## Manifest-level resolution
 
-`Manifest` is a tolerant manifest model over the contracts: the four dependency fields are typed as string→string records, and every other top-level field rides through a `rest` catch-all that flattens back on encode, so the wire shape never carries a literal `rest` key. It is deliberately not `@effected/package-json`'s strict `Package` — a mid-build manifest is an arbitrary user record, and resolution has no business validating fields it never reads.
+`Manifest` is a tolerant manifest model over the contracts: the four dependency fields are typed as string→string records, and every other top-level field rides through a `rest` catch-all that flattens back on encode, so the wire shape never carries a literal `rest` key. It is deliberately not `@beep/package-json`'s strict `Package` — a mid-build manifest is an arbitrary user record, and resolution has no business validating fields it never reads.
 
 ```ts
 import { Default } from "@beep/npm-spec/index";
@@ -207,7 +207,7 @@ console.log(Effect.isEffect(read)) // true
 
 Verification happens before extraction and before anything reads the contents, so a poisoned intermediary — a CDN edge, a proxy, a mirror — never reaches `tar`. `TarballError` carries a `reason` that keeps the outcomes apart: `notFound` (no recorded tarball, or a 404), `http` (any other transport or non-2xx failure), `integrityMismatch` (with `expected` and `actual`) and `extractFailed`. The `notFound` split is load-bearing — a consumer that cannot tell "this version legitimately does not exist" from "something went wrong fetching a version that does" has to treat both alike, and that failure is silent.
 
-Extraction shells out to `tar` through core's `ChildProcessSpawner` rather than taking a tarball-reader dependency, which is a tier decision: a non-core runtime dependency here would make this package *integrated*, and that propagates to the pure packages that depend on it for vocabulary. `tar` is on every CI runner image; a consumer off a runner needs both a spawner and the binary. Pair it with `resolveEntryPoint` from `@effected/package-json` to find the entry file inside the extracted directory — loading that file is deliberately not part of this surface, since a dynamic `import()` of a computed path becomes a bundler context module with no seam to fix it.
+Extraction shells out to `tar` through core's `ChildProcessSpawner` rather than taking a tarball-reader dependency, which is a tier decision: a non-core runtime dependency here would make this package *integrated*, and that propagates to the pure packages that depend on it for vocabulary. `tar` is on every CI runner image; a consumer off a runner needs both a spawner and the binary. Pair it with `resolveEntryPoint` from `@beep/package-json` to find the entry file inside the extracted directory — loading that file is deliberately not part of this surface, since a dynamic `import()` of a computed path becomes a bundler context module with no seam to fix it.
 
 ## Integrity hashes
 
@@ -229,7 +229,7 @@ console.log(pin === "sha512." + "0".repeat(128)) // true
 
 ## Who consumes this
 
-`@effected/package-json` is the reason the package exists. `Package.resolve` walks all four dependency maps, expands every `catalog:` and `workspace:` specifier through these two services, and leaves untouched any specifier the resolvers answered `None` for. `@effected/lockfiles` came second, which is why the specifier and integrity vocabulary lives here rather than in package-json. `@effected/workspaces` sits on the other side of the seam and provides the implementations that read a real pnpm workspace — its `Workspaces.resolveManifest` runs `Manifest.resolve()` for you over a freshly discovered workspace. Nothing in this package points outward at any of them.
+`@beep/package-json` is the reason the package exists. `Package.resolve` walks all four dependency maps, expands every `catalog:` and `workspace:` specifier through these two services, and leaves untouched any specifier the resolvers answered `None` for. `@effected/lockfiles` came second, which is why the specifier and integrity vocabulary lives here rather than in package-json. `@effected/workspaces` sits on the other side of the seam and provides the implementations that read a real pnpm workspace — its `Workspaces.resolveManifest` runs `Manifest.resolve()` for you over a freshly discovered workspace. Nothing in this package points outward at any of them.
 
 ## Features
 

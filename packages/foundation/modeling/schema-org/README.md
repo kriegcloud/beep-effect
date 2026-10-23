@@ -90,7 +90,7 @@ Legality is resolved through the full `rdfs:subClassOf` ancestor closure, so inh
 
 ## Features
 
-- `SoftwareSourceCode`, `TechArticle`, `APIReference`, `Person`, `Organization`, `CreativeWork` — the six node classes. Every node requires `@id` and nothing else; every other field is optional and may be passed as `undefined`, which is dropped at serialization.
+- `SoftwareSourceCode`, `TechArticle`, `APIReference`, `Person`, `Organization`, `CreativeWork` — the six node classes. Every node requires `@id` and nothing else; every other field is an exact optional key (EF-40): omit it rather than passing `undefined`.
 - `ThingFields`, `CreativeWorkFields`, `TechArticleFields` — the shared field records the node classes are assembled from, exported for a consumer building a node type this package does not model.
 - `NodeRef` — a reference to another node by `@id`, with `to` (unchecked, validated at build time), the sync `toCheckedResult` and its `Effect` twin `toChecked`, and the `isValidId` predicate. A node-valued property holds a `NodeRef`, never an embedded node.
 - `JsonLdDocument` — the graph: `buildResult` / `build` to assemble and check identity, `nodeIds` and `danglingReferences` to inspect, `toScriptBody()` to serialize for a page and `toJsonLd()` for a framework that serializes JSON-LD itself.

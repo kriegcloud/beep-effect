@@ -465,15 +465,15 @@ export class SchemaFirstInventoryDocument extends S.Opaque<
     generatedOn: S.String,
     scope: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS))),
-      S.withDecodingDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS)))
+      S.withDecodingDefaultKey(Effect.succeed(A.fromIterable(INCLUDED_GLOBS)))
     ),
     entries: S.Array(SchemaFirstInventoryEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry.Encoded>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<SchemaFirstInventoryEntry.Encoded>()))
     ),
     backlog: S.Array(SchemaFirstBacklogRow).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstBacklogRow>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<typeof SchemaFirstBacklogRow.Encoded>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<typeof SchemaFirstBacklogRow.Encoded>()))
     ),
   }).pipe(
     $I.annoteSchema("SchemaFirstInventoryDocument", {
@@ -509,15 +509,15 @@ export class SchemaFirstLintOptions extends S.Opaque<SchemaFirstLintOptions, { r
   S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     reportScannedFiles: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     admitParityBacklog: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
   }).pipe(
     $I.annoteSchema("SchemaFirstLintOptions", {
@@ -750,15 +750,15 @@ export class SchemaCrispeningPolicyDocument extends S.Opaque<
     schemaVersion: S.tag("schema-crispening-policy/v1"),
     cards: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     families: S.Record(S.String, SchemaCrispeningFamilyPolicy).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>()))
     ),
     ownerOverrides: S.Record(S.String, SchemaCrispeningFamilyPolicy).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>()))
     ),
   }).pipe(
     $I.annoteSchema("SchemaCrispeningPolicyDocument", {

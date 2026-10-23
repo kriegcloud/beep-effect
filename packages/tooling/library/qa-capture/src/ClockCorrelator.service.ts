@@ -302,7 +302,7 @@ export class CorrelateClockRequest extends S.Opaque<CorrelateClockRequest, { rea
     ),
     recordStartEpochMs: S.Option(EpochMilliseconds).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<number>())),
-      S.withDecodingDefault(Effect.succeed(O.none<number>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<number>())),
       $I.annoteKey("CorrelateClockRequest.recordStartEpochMs", {
         description: "OBS RecordStateChanged STARTED receipt time, when Lane B recorded.",
       })

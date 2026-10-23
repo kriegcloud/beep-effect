@@ -5,6 +5,7 @@ import {
   effectDiagnosticsProjects,
   testTsgoPrograms,
 } from "@beep/repo-cli/test/Quality";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
 import { FsUtilsLive, readPackageJsonFile } from "@beep/repo-utils";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { resolveWorkspacePackages } from "@beep/repo-utils/Workspaces";
@@ -27,7 +28,6 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { parseTsconfig } from "get-tsconfig";
 
 const encodeUnknownJsonEffect = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 
@@ -320,7 +320,7 @@ const expectedInvocationProjects = Effect.fn("test.expectedInvocationProjects")(
     if (HashSet.has(expected, next)) continue;
     expected = HashSet.add(expected, next);
     if (!build) continue;
-    const config = yield* Effect.try(() => parseTsconfig(next));
+    const config = yield* TsconfigLoader.resolve(next);
     pending = A.appendAll(
       pending,
       A.map(config.references ?? [], (ref) => {

@@ -233,7 +233,12 @@ const generatedComposers = $I.compose(
   "runtime-env",
   "epistemics",
   "markdown",
-  "github-reporting"
+  "github-reporting",
+  "repo-tsconfig",
+  "package-json",
+  "config-file",
+  "lockfiles",
+  "xdg"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3388,3 +3393,88 @@ export const $MarkdownId: Identity.IdentityComposer<"@beep/markdown"> = composer
  * @since 0.0.0
  */
 export const $GithubReportingId: Identity.IdentityComposer<"@beep/github-reporting"> = composers.$GithubReportingId;
+
+/**
+ * Identity composer for `@beep/repo-tsconfig`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $RepoTsconfigId } from "@beep/identity/packages"
+ *
+ * const id = $RepoTsconfigId.make("RepoTsconfig")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $RepoTsconfigId: Identity.IdentityComposer<"@beep/repo-tsconfig"> = composers.$RepoTsconfigId;
+
+/**
+ * Identity composer for `@beep/package-json`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $PackageJsonId } from "@beep/identity/packages"
+ *
+ * const id = $PackageJsonId.make("PackageJson")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $PackageJsonId: Identity.IdentityComposer<"@beep/package-json"> = composers.$PackageJsonId;
+
+/**
+ * Identity composer for `@beep/config-file`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $ConfigFileId } from "@beep/identity/packages"
+ *
+ * const id = $ConfigFileId.make("ConfigFile")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = composers.$ConfigFileId;
+
+/**
+ * Identity composer for `@beep/lockfiles`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $LockfilesId } from "@beep/identity/packages"
+ *
+ * const id = $LockfilesId.make("Lockfiles")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
+
+/**
+ * Identity composer for `@beep/xdg`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $XdgId } from "@beep/identity/packages"
+ *
+ * const id = $XdgId.make("Xdg")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $XdgId: Identity.IdentityComposer<"@beep/xdg"> = composers.$XdgId;
