@@ -26,6 +26,15 @@ the `@beep/github-reporting#test` cache. On `main` those directories took 2 and 
 2026-10-23. This is accepted: the edge exists for one test (the `CheckRunConclusion` wire-set pin against
 `@beep/github/CheckRun`), and dropping it is the W3-b reversal (inline the seven conclusion literals).
 
+`#build` and `#check` do gain driver work. turbo counts devDependencies for `^build`, and the package's
+`tsconfig.json` and `tsconfig.check.json` reference `../../../drivers/github/tsconfig.json`. Measured with
+`bunx turbo run build --filter=@beep/github-reporting --dry=json` (16 tasks) and `... run check ...` (17 tasks): both
+schedule `@beep/github#build` and `@beep/semver#build` upstream of `@beep/github-reporting#build`. This is the first
+modeling build graph that includes a driver build. The cost is one driver build (and its `semver` dependency) on a
+cold cache, and a `#build`/`#check` cache miss on edits under those two directories. Reversal trigger: if a
+`@beep/github` edit ever has to rebuild this package in a hot loop, or the driver's build grows a dependency on
+anything heavier than `semver`, take the W3-b reversal and drop the devDependency.
+
 Other inputs that changed without a reported drift, and are not subjects:
 
 - `@beep/identity`'s `src/packages.ts` gains the `$GithubReportingId` composer that `create-package` registers. This
