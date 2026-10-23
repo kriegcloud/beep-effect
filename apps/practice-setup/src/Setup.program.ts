@@ -178,6 +178,7 @@ const installGateway = Effect.gen(function* () {
       [
         "",
         `Claude will now show the Beep Practice Gateway. Click ${action} and confirm.`,
+        "If Claude asks you to sign in first, do that; the Practice Gateway appears right after.",
         "Claude will warn that this extension can access your computer and is not verified by Anthropic. That is expected for this firm tool.",
         `If Claude does not show it, open Claude's Settings, choose Extensions, and drag this file onto that page: ${file}`,
       ],
@@ -196,11 +197,27 @@ const installGateway = Effect.gen(function* () {
   yield* lawyer.tell(
     "This window carries on by itself once Claude has it. If it does not, press Enter once Claude lists it as enabled."
   );
-  return (yield* watchForGateway(
-    probe,
-    `Claude does not list the Beep Practice Gateway${wanted} yet. Click ${action} in Claude, or ${dragInstruction}`
-  ))
-    ? StepDone.make({ step, detail: "Claude lists the gateway at the bundled version." })
+  const notYet = `Claude does not list the Beep Practice Gateway${wanted} yet. Click ${action} in Claude, or ${dragInstruction}`;
+  if (yield* watchForGateway(probe, notYet)) {
+    return StepDone.make({ step, detail: "Claude lists the gateway at the bundled version." });
+  }
+  // Claude's saved sign-in can expire while its sign-in marker stays on disk, so
+  // the lawyer may still be signing in when the first watch ends (proof run 5).
+  // Hand the file over once more and watch again before giving up.
+  yield* lawyer.tell(
+    A.join(
+      [
+        "",
+        "Claude has not taken the Practice Gateway yet.",
+        "If Claude is asking you to sign in, sign in now. Setup is handing Claude the Practice Gateway again.",
+        `When Claude shows it, click ${action} and confirm.`,
+      ],
+      "\n"
+    )
+  );
+  yield* host.openInClaude(file);
+  return (yield* watchForGateway(probe, notYet))
+    ? StepDone.make({ step, detail: "Claude lists the gateway at the bundled version after a second hand-off." })
     : StepFailed.make({
         step,
         detail: `Claude still does not list the Beep Practice Gateway${wanted}. Open Claude's Settings, choose Extensions, drag this file onto that page, then run this setup again: ${file}`,
@@ -227,6 +244,7 @@ const handOff = Effect.gen(function* () {
         "Claude is opening a new chat with your first message.",
         "Use the Chat tab at the top of Claude (not Code or Cowork).",
         paste,
+        'Claude will ask permission to use each Practice Gateway tool. Choosing "Always allow" is fine: the gateway still asks in its own window before it changes anything on this computer.',
         "Claude will take you through the rest.",
       ],
       "\n"

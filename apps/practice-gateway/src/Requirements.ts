@@ -8,6 +8,7 @@
 
 import { $PracticeGatewayId } from "@beep/identity/packages";
 import {
+  AdminRights,
   AutomaticRemediation,
   CapabilityChoice,
   HumanRemediation,
@@ -117,6 +118,35 @@ export class RequirementTemplate extends S.Opaque<RequirementTemplate, { readonl
 const human = (step: HumanRemediation["step"], instruction: string) => HumanRemediation.make({ step, instruction });
 
 /**
+ * The BitLocker instruction for the firm's IT limits.
+ *
+ * **Details**
+ *
+ * A lawyer who can approve Windows administrator prompts turns BitLocker on
+ * themselves. When the firm blocks those prompts, the instruction names the
+ * IT administrator. When the interview could not tell, it offers both.
+ *
+ * **Example** (Instruction for a lawyer with admin rights)
+ *
+ * ```ts
+ * import { bitLockerInstruction } from "@beep/practice-gateway/Requirements"
+ *
+ * console.log(bitLockerInstruction("available").startsWith("Turn on BitLocker")) // true
+ * ```
+ *
+ * @param adminRights - Whether the lawyer can approve Windows administrator prompts.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const bitLockerInstruction = AdminRights.$match({
+  available: () =>
+    "Turn on BitLocker for drive C: open Settings, search for BitLocker (on some computers it is called Device encryption), turn it on, and approve the Windows prompt.",
+  blocked: () => "Ask your IT administrator to turn on BitLocker for drive C:.",
+  unknown: () =>
+    "Turn on BitLocker for drive C: open Settings, search for BitLocker (on some computers it is called Device encryption) and turn it on. If Windows does not let you, ask your IT administrator.",
+});
+
+/**
  * The slice 1 requirement catalog, keyed by id.
  *
  * **Details**
@@ -224,7 +254,7 @@ export const RequirementCatalog: { readonly [Id in GatewayRequirementId]: Requir
     id: "bitlocker-on",
     provider: "windows",
     dependsOn: [],
-    remediation: human("admin-prompt", "Ask your IT administrator to turn on BitLocker for drive C:."),
+    remediation: human("admin-prompt", bitLockerInstruction("unknown")),
     explain: "BitLocker encrypts this computer's drive so client documents stay protected if it is lost.",
   }),
 };
@@ -348,6 +378,14 @@ export const baseRequirements: ReadonlyArray<SetupRequirement> = [
   workstation("bitlocker-on"),
 ];
 
+const bitLockerFor = (adminRights: AdminRights): SetupRequirement => {
+  const requirement = workstation("bitlocker-on");
+  return SetupRequirement.make({
+    ...requirement,
+    remediation: human("admin-prompt", bitLockerInstruction(adminRights)),
+  });
+};
+
 /**
  * The slice 1 requirements a practice profile selects.
  *
@@ -391,7 +429,7 @@ export const requirementsFor = (profile: PracticeProfile): ReadonlyArray<SetupRe
       workstation("claude-desktop-installed"),
       workstation("claude-signed-in"),
       ...providerRequirements,
-      workstation("bitlocker-on"),
+      bitLockerFor(profile.itLimits.adminRights),
     ],
     (left, right) => left.id === right.id
   );
