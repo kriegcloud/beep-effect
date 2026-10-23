@@ -593,6 +593,53 @@ describe("proof job launcher", () => {
       })
     )
   );
+  it.effect("stops a retiring lane's live jobs and leaves its settled ones", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const monitor = yield* launcher.submit(monitorSubmission(root));
+        const settled = yield* launcher.submit(submission(root));
+        yield* launcher.finalize(
+          settled.jobId,
+          Job.ProofJobSystemdResult.make({ serviceResult: "success", finalizedAt: stamp })
+        );
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        const stopped = yield* Job.stopLaneJobs(plan);
+
+        expect(stopped).toStrictEqual([Job.StoppedLaneJob.make({ jobId: monitor.jobId, outcome: "stop-requested" })]);
+        const argv = yield* fs.readFileString(`${root}/systemctl.argv`);
+        expect(argv).toContain(`--user\nstop\n${monitor.unit.unitName}`);
+        expect(argv).not.toContain(settled.unit.unitName);
+        expect(Job.renderStoppedLaneJobs(stopped)).toBe(`  lane job ${monitor.jobId}: stop-requested`);
+        expect(Job.renderStoppedLaneJobs([])).toBe("");
+      })
+    )
+  );
+  it.effect("stops nothing when a retiring lane's job listing cannot be read", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        // A file where the jobs directory belongs: the listing fails.
+        yield* fs.makeDirectory(`${root}/.beep/yeet`, { recursive: true });
+        yield* fs.writeFileString(`${root}/.beep/yeet/jobs`, "not a directory");
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        expect(yield* Job.stopLaneJobs(plan)).toStrictEqual([]);
+      })
+    )
+  );
   it.effect("rolls the cancel stamp back when the stop fails and the unit is still loaded", () =>
     fixture(
       Effect.fnUntraced(function* (root) {

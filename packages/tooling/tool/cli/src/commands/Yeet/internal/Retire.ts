@@ -35,8 +35,11 @@ import { describeInotifyWatcher, invokerExemption } from "../../Worktree/Worktre
 import { WorktreeRemovalRequest } from "../../Worktree/Worktree.schemas.ts";
 import { WorktreeRemovalService } from "../../Worktree/Worktree.service.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
-import { YeetRetirePlan, YeetRetireVerdict } from "./Retire.schemas.ts";
+import { isSettledProofJob, isTerminalProofJobPhase } from "./ProofJob.ts";
+import { ProofJobLauncher } from "./ProofJobLauncher.ts";
+import { StoppedLaneJob, YeetRetirePlan, YeetRetireVerdict } from "./Retire.schemas.ts";
 import type { WorktreeRemovalReceipt } from "../../Worktree/Worktree.schemas.ts";
+import type { ProofJobRecord } from "./ProofJob.ts";
 import type { SweepGitState } from "./Sweep.ts";
 
 const decodeWorktreeName = S.decodeUnknownEffect(WorktreeRemovalRequest.fields.name);
@@ -348,6 +351,67 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
       )
     );
 });
+
+const isLiveLaneJob = (record: ProofJobRecord): boolean =>
+  !isSettledProofJob(record) && !isTerminalProofJobPhase(record.phase);
+
+/**
+ * Stop the retiring lane's own live detached jobs before the fence.
+ *
+ * **Details**
+ *
+ * A detached yeet job (a readiness monitor or a proof) runs with the lane as
+ * its working directory and appends its log under the lane's
+ * `.beep/yeet/jobs/`. Once the gate has opened, its work is moot; left
+ * running, it holds the fence and, by reopening its log by path, recreates the
+ * lane after the fence renames it away (#2130). `systemctl --user stop`
+ * returns once the unit and its finalizer have stopped, so their last writes
+ * land in the lane before its residue is captured. A listing that cannot be
+ * read stops nothing; a stop systemd refuses is reported as `stop-failed`,
+ * and the fence still refuses a job left holding the lane.
+ *
+ * **Example** (Build the stop effect)
+ *
+ * ```ts
+ * import { stopLaneJobs } from "@beep/repo-cli/test/Yeet"
+ * import * as Effect from "effect/Effect";
+ * console.log(Effect.isEffect(Effect.succeed(stopLaneJobs))) // true
+ * ```
+ *
+ * @param plan - The retirement plan naming the lane.
+ * @returns Each job it asked to stop, with the outcome of the request.
+ * @category commands
+ * @since 0.0.0
+ */
+export const stopLaneJobs = Effect.fn("Yeet.stopLaneJobs")(function* (plan: YeetRetirePlan) {
+  const launcher = yield* ProofJobLauncher.make(plan.worktreePath);
+  const records = yield* launcher.list.pipe(Effect.orElseSucceed(() => A.empty<ProofJobRecord>()));
+  return yield* Effect.forEach(A.filter(records, isLiveLaneJob), (record) =>
+    launcher.cancel(record.jobId).pipe(Effect.map((outcome) => StoppedLaneJob.make({ jobId: record.jobId, outcome })))
+  );
+});
+
+/**
+ * Render the detached jobs a retirement stopped.
+ *
+ * **Example** (Render no stopped jobs)
+ *
+ * ```ts
+ * import { renderStoppedLaneJobs } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(renderStoppedLaneJobs([])) // ""
+ * ```
+ *
+ * @param stopped - The jobs {@link stopLaneJobs} asked to stop.
+ * @returns One line per job, or the empty string.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderStoppedLaneJobs = (stopped: ReadonlyArray<StoppedLaneJob>): string =>
+  A.join(
+    A.map(stopped, ({ jobId, outcome }) => `  lane job ${jobId}: ${outcome}`),
+    "\n"
+  );
 
 // Only the lifecycle and the packet's own account of why it stays open
 // matter here; the full manifest is the goals doctor's business, and a
