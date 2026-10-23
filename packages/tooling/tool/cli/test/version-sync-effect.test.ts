@@ -522,10 +522,13 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
 
     // The target `buildBunReport` writes: the package.json pin when `.bun-version` wins, else `.bun-version`.
     const selectedLocal = (bunVersionFile: string, packageManagerField: string): string =>
-      O.match(A.head(localTarget(bunVersionFile, packageManagerField)), {
-        onNone: () => bunVersionFile,
-        onSome: ([file, expected]) => (file === "package.json" ? Str.replace(/^bun@/, "")(expected) : expected),
-      });
+      O.match(
+        A.head(buildBunReport(BunVersionState.make({ bunVersionFile, packageManagerField, latest: O.none() })).items),
+        {
+          onNone: () => bunVersionFile,
+          onSome: (item) => (item.file === "package.json" ? Str.replace(/^bun@/, "")(item.expected) : item.expected),
+        }
+      );
 
     it.prop(
       "picks the SemVer.gte winner of two strict local Bun pins",
@@ -584,7 +587,7 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
 
     it.prop(
       "selects the first tag holding the maximum stable version under SemVer.compare",
-      { versions: Arbitrary.schema(S.Array(S.Tuple([SemVer, S.Boolean]))) },
+      { versions: Arbitrary.schema(S.Tuple([SemVer, S.Boolean]).pipe(S.Array)) },
       ({ versions }) => {
         const tags = A.map(versions, ([version, prefixed]) => `${prefixed ? "v" : ""}${coreText(version)}`);
         const cores = A.map(versions, ([version]) => SemVer.of(version.major, version.minor, version.patch));
