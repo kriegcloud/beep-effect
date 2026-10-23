@@ -202,6 +202,12 @@ describe("runner-loss rerun decision", () => {
     expect(summary).toContain("| Heavy / Check | `12` | unknown | failed | 0 | left red: not runner loss |");
   });
 
+  it("escapes a pipe in a job name so the summary table keeps its columns", () => {
+    const summary = report(decideRunnerLossRerun(input({ failedJobs: [red(15, "Test (node | bun)")] })));
+    expect(summary).toContain("| Test (node \\| bun) | `15` | unknown | failed | 0 | left red: not runner loss |");
+    expect(summary).not.toContain("| Test (node | bun) |");
+  });
+
   it("re-runs only one lost job and leaves the real failure red and named", () => {
     const decision = decideRunnerLossRerun(
       input({ failedJobs: [lost(11, "Heavy / Lint Policy"), red(12, "Check"), lost(13, "Heavy / Docgen")] })
