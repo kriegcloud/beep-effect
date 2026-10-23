@@ -799,6 +799,14 @@ const replayInProcess: {
 );
 
 /**
+ * The positional argument the subprocess replay passes before its three
+ * payloads.
+ *
+ * @internal
+ */
+const REPLAY_ARGV_MARKER = "beep-replay";
+
+/**
  * The subprocess replay program {@link ConfigDependencyHooks.layerSubprocess}
  * hands to `node --input-type=module -e`.
  *
@@ -809,8 +817,9 @@ const replayInProcess: {
  * (`Cannot find module 'file:///…'`), so the computed import has to run in a
  * child process whose program text carries **no interpolated runtime value** —
  * the seed, the rules seed and the resolved `[name, fileUrl]` pairs all
- * arrive via argv (`<seed> <rules> <entries>`, read as `process.argv.slice(1)`
- * under `-e`), never spliced into the script.
+ * arrive via argv (`beep-replay <seed> <rules> <entries>`, read as the last
+ * three `process.argv` entries, which is where node and Bun's `node` shim both
+ * put them under `-e`), never spliced into the script.
  *
  * The PARENT resolves each config dependency to the pnpmfile of its declared
  * version (`internal/configDependencyResolution.ts`) and hands the child only
@@ -828,7 +837,7 @@ const replayInProcess: {
  * noise on stdout.
  */
 const REPLAY_SCRIPT = `
-const [seedJson, rulesJson, entriesJson] = process.argv.slice(1);
+const [seedJson, rulesJson, entriesJson] = process.argv.slice(-3);
 const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 const finiteNumberOr = (value, fallback) => (typeof value === "number" && Number.isFinite(value) ? value : fallback);
 const stringArrayOr = (value, fallback) =>
@@ -1315,6 +1324,11 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
               "--input-type=module",
               "-e",
               REPLAY_SCRIPT,
+              // A positional placeholder before the payloads: Bun's `node` shim
+              // (`bunx --bun`) consumes the first argument after `-e` as a script
+              // name, and node passes it through. The script reads the last three
+              // entries, so both runtimes hand it the same payloads.
+              REPLAY_ARGV_MARKER,
               Result.getOrThrow(S.encodeResult(JsonValue)(seed)),
               // The rules seed rides the same argv channel as the catalog seed —
               // never spliced into the program text, which must stay a static

@@ -141,11 +141,12 @@ describe("ConfigDependencyHooks.layerSubprocess — the argv contract", () => {
           // as argv.
           assert.isFalse(Str.includes(ROOT)(script));
           assert.isFalse(Str.includes("dep-a")(script));
-          assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[3] ?? "")), SEED);
+          assert.strictEqual(spawn.args[3], "beep-replay");
+          assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[4] ?? "")), SEED);
           // The rules seed rides the same argv channel, in its own slot ahead of
           // the pairs — never spliced into the program text either.
           assert.deepStrictEqual(
-            Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[4] ?? "")),
+            Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[5] ?? "")),
             PeerDependencyRules.make({
               allowedVersions: {},
               ignoreMissing: [],
@@ -155,11 +156,11 @@ describe("ConfigDependencyHooks.layerSubprocess — the argv contract", () => {
           // The PARENT resolved each declared version to a pnpmfile and converted
           // it to a `file:` URL; the child receives `[name, fileUrl]` pairs as ONE
           // JSON argument and performs no lookup or path conversion of its own.
-          assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[5] ?? "")), [
+          assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[6] ?? "")), [
             ["dep-a", pnpmfileUrlOf("dep-a")],
             ["@scope/dep-b", pnpmfileUrlOf("@scope/dep-b")],
           ]);
-          assert.strictEqual(spawn.args.length, 6);
+          assert.strictEqual(spawn.args.length, 7);
         })
       );
     });
@@ -199,7 +200,7 @@ describe("ConfigDependencyHooks.layerSubprocess — the argv contract", () => {
           // Seeded, not merged by us: the workspace file's rules go INTO the
           // threaded config so the hooks merge onto them, exactly as pnpm seeds
           // its own config.
-          assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[4] ?? "")), rules);
+          assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(JsonValue)(spawn.args[5] ?? "")), rules);
           assert.isFalse(Str.includes("1.2.3")(spawn.args[2] ?? ""));
         })
       );

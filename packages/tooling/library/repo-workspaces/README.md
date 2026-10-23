@@ -326,7 +326,7 @@ bun run test:integration
 bun run check
 ```
 
-The unit suites run on `@beep/memfs` volumes and scripted processes, and read their lockfile and oracle captures from `test/fixtures/` through `import.meta.glob`, so none of them touches the disk. `test/integration/` is excluded from `bun run test`: those suites drive real git, pnpm and node processes over temporary trees on the host platform (the one `nodeHost` layer in `test/integration/utils/nodeFixture.ts`), and need all three on `PATH`. The subprocess-replay suites pass under Node; under `bunx --bun` the child replay fails, as it did in the lab.
+The unit suites run on `@beep/memfs` volumes and scripted processes, and read their lockfile and oracle captures from `test/fixtures/` through `import.meta.glob`, so none of them touches the disk. `test/integration/` is excluded from `bun run test`: those suites drive real git, pnpm and node processes over temporary trees on the host platform (the one `nodeHost` layer in `test/integration/utils/nodeFixture.ts`), and need all three on `PATH`. Both scripts run under `bunx --bun`, and the suites pass under Node too.
 
 ## Provenance
 
@@ -359,6 +359,7 @@ Promotion (wave 4-W-a):
 - **option-returns** — `internal/patterns` `stringsOf` and `internal/catalogs` `catalogNameOf` return `Option` instead of `undefined` and `null`.
 - **complexity** — every function over the cognitive ceiling is split into named helpers (the `PeerCheck` walk and link scan, `DuplicateCheck`, both enumerators, the detector ladder, `ReleaseTag`, the catalog readers, the snapshots and `DependencyGraph`), and the duplicated readers fold into the shared helpers under Added exports. The detector ladder probes `yarn.lock` in both tiers, so a lockfile written while detection runs is still recognized.
 - **effect-string** — string, array and record operations go through `effect/String`, `effect/Array` and `effect/Record` in source and tests, and the tests use `HashSet` and `MutableHashMap`.
+- **runtime-portability** — `ConfigDependencyHooks.layerSubprocess` passes a `beep-replay` placeholder before its three argv payloads, and the replay script reads the last three `process.argv` entries. Bun's `node` shim under `bunx --bun` consumes the first argument after `-e`, so the lab's child lost its seed there and every subprocess replay failed under Bun; node passes the placeholder through. `ConfigDependencyHooksSubprocess.test.ts` pins the seven-argument contract.
 - **test-environment** — the unit suites run on `@beep/memfs` (the fake pnpm in `test/support/fakeProcess.ts` writes into the same volume), load captures through `import.meta.glob`, and take node's `win32` and `posix` paths from `test/support/hostPath.ts`; the real-disk `readDirectoryWithTypes` case lives in `test/integration/node-sync.int.test.ts`. Layers reach tests through `it.layer` with a timeout, `Layer.build` or `Effect.provideService`, never `Effect.provide`, so no file carries an `@effect-diagnostics` skip directive. Five schema-heavy files gain a schema-derived round-trip property.
 
 Carried from the port:
