@@ -170,7 +170,7 @@ type NumberPoint = NonNullable<InputMetric["sum"]>["dataPoints"][number];
 type HistogramPoint = NonNullable<InputMetric["histogram"]>["dataPoints"][number];
 
 const windowNanos = Duration.toNanosUnsafe(StrictExportWindow);
-const nanosPerMilli = 1_000_000n;
+const nanosPerMilli = BigInt(1_000_000);
 const nonceBytes = 16;
 const traceIdWidth = 32;
 const spanIdWidth = 16;

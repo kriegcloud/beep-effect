@@ -408,7 +408,10 @@ describe("GitHubApp.clientLayer", () => {
         blocked = true;
         const signal = init.signal;
         Deferred.doneUnsafe(started, Effect.succeed(signal));
-        return Effect.runPromise(Effect.never, { signal });
+        return new Promise<Response>((_, reject) => {
+          if (signal.aborted) reject(signal.reason);
+          else signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+        });
       }
       return script.fetch(input, init);
     }
@@ -462,7 +465,10 @@ describe("GitHubApp.clientLayer", () => {
         blocked = true;
         const signal = init.signal;
         Deferred.doneUnsafe(started, Effect.succeed(signal));
-        return Effect.runPromise(Effect.never, { signal });
+        return new Promise<Response>((_, reject) => {
+          if (signal.aborted) reject(signal.reason);
+          else signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+        });
       }
       return script.fetch(input, init);
     }

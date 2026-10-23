@@ -213,6 +213,9 @@ const changesetsParseFrontmatterPattern = /\s*---[\s\S]*?\r?\n\s*---(?=\s*(?:\n|
 /**
  * The 1-based line of the closing fence `@changesets/parse` would read, when
  * it reads one: the line holding the `---` that ends the match.
+ *
+ * @param content - The raw changeset file contents.
+ * @returns The closing fence line, or `None` when no frontmatter matches.
  */
 const changesetsParseClosingFenceLine = (content: string): O.Option<number> =>
   pipe(

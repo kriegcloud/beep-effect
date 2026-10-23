@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { APIReference } from "@beep/schema-org/APIReference";
 import { CreativeWork, CreativeWorkFields } from "@beep/schema-org/CreativeWork";
 import { JsonLdDocument } from "@beep/schema-org/JsonLdDocument";
@@ -9,7 +10,9 @@ import { TechArticle, TechArticleFields } from "@beep/schema-org/TechArticle";
 import { ThingFields } from "@beep/schema-org/Thing";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -232,4 +235,14 @@ describe("NodeRef", () => {
       );
     }
   });
+
+  it.effect.prop(
+    "isValidId agrees with the NodeId schema on arbitrary strings",
+    [Arbitrary.schema(S.String)],
+    ([id]) =>
+      Effect.sync(() => {
+        assert.strictEqual(NodeRef.isValidId(id), Result.isSuccess(S.decodeResult(NodeId)(id)));
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

@@ -2,6 +2,7 @@ import * as AcpClient from "@beep/acp/client";
 import * as AcpJson from "@beep/acp/json";
 import { AcpClientTerminalLimits, AcpClientTerminals, layer, make, register } from "@beep/acp/terminals";
 import { fcRuns } from "@beep/test-utils";
+import { currentHostPlatform, HostProcessPlatform } from "@beep/utils/HostProcess";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
@@ -39,9 +40,10 @@ const decodeErrorResponse = S.decodeEffect(
 
 // The spawner reads the filesystem only to check that an explicit cwd is accessible; every
 // command here runs in the test's own working directory.
-const SpawnerLayer = NodeChildProcessSpawner.layer.pipe(
-  Layer.provide(Layer.mergeAll(FileSystem.layerNoop({ access: () => Effect.void }), NodePath.layer))
-);
+const SpawnerLayer = Layer.merge(
+  NodeChildProcessSpawner.layer,
+  Layer.succeed(HostProcessPlatform, currentHostPlatform)
+).pipe(Layer.provide(Layer.mergeAll(FileSystem.layerNoop({ access: () => Effect.void }), NodePath.layer)));
 
 it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => {
   it.effect(
@@ -206,7 +208,7 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
 
       yield* terminals.kill({ sessionId: "session", terminalId });
       const exit = yield* terminals.waitForExit({ sessionId: "session", terminalId });
-      if (process.platform === "win32") assert.isNull(exit.signal);
+      if ((yield* HostProcessPlatform) === "win32") assert.isNull(exit.signal);
       else assert.strictEqual(exit.signal, "SIGTERM");
 
       yield* terminals.release({ sessionId: "session", terminalId });
@@ -395,7 +397,7 @@ it.layer(SpawnerLayer, { excludeTestServices: true, timeout: "30 seconds" })(
 
         yield* terminals.kill({ sessionId: "session", terminalId }).pipe(Effect.timeout("5 seconds"));
         const exit = yield* terminals.waitForExit({ sessionId: "session", terminalId });
-        if (process.platform !== "win32") assert.strictEqual(exit.signal, "SIGKILL");
+        if ((yield* HostProcessPlatform) !== "win32") assert.strictEqual(exit.signal, "SIGKILL");
       })
     );
 
