@@ -168,6 +168,12 @@
         ]
       },
       {
+        "name": "@beep/config-file",
+        "patterns": [
+          "packages/foundation/capability/config-file/src/**"
+        ]
+      },
+      {
         "name": "@beep/cosmos",
         "patterns": [
           "packages/drivers/cosmos/src/**"
@@ -1684,6 +1690,33 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/config-file",
+        "allow": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
         ]
       },
       {
@@ -4201,6 +4234,7 @@
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
+          "@beep/config-file",
           "@beep/duckdb",
           "@beep/exiftool",
           "@beep/fc-runs",
@@ -4249,6 +4283,7 @@
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
+          "@beep/config-file",
           "@beep/duckdb",
           "@beep/exiftool",
           "@beep/fc-runs",
@@ -4318,6 +4353,7 @@
         "from": "@beep/repo-docgen",
         "allow": [
           "@beep/chalk",
+          "@beep/config-file",
           "@beep/identity",
           "@beep/md",
           "@beep/repo-docgen",
@@ -4329,6 +4365,7 @@
         ],
         "allowTypeOnly": [
           "@beep/chalk",
+          "@beep/config-file",
           "@beep/identity",
           "@beep/md",
           "@beep/repo-docgen",
@@ -4478,6 +4515,7 @@
         "from": "@beep/scratchpad",
         "allow": [
           "@beep/commands",
+          "@beep/config-file",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4532,6 +4570,7 @@
         ],
         "allowTypeOnly": [
           "@beep/commands",
+          "@beep/config-file",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
