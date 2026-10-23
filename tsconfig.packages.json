@@ -385,6 +385,9 @@
       "path": "packages/foundation/modeling/rdf"
     },
     {
+      "path": "packages/foundation/modeling/sbom"
+    },
+    {
       "path": "packages/foundation/modeling/schema"
     },
     {

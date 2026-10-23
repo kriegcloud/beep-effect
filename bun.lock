@@ -2830,6 +2830,18 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/sbom": {
+      "name": "@beep/sbom",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/schema": {
       "name": "@beep/schema",
       "version": "0.1.2",
@@ -4773,6 +4785,8 @@
     "@beep/runtime-env": ["@beep/runtime-env@workspace:packages/foundation/capability/runtime-env"],
 
     "@beep/sanity": ["@beep/sanity@workspace:packages/drivers/sanity"],
+
+    "@beep/sbom": ["@beep/sbom@workspace:packages/foundation/modeling/sbom"],
 
     "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 

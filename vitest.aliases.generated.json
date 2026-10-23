@@ -2162,5 +2162,7 @@
   "@beep/package-json/*": ["./packages/foundation/modeling/package-json/src/*"],
   "@beep/package-json/internal/*": [
     "./packages/foundation/modeling/package-json/src/internal/*"
-  ]
+  ],
+  "@beep/sbom": ["./packages/foundation/modeling/sbom/src/index.ts"],
+  "@beep/sbom/*": ["./packages/foundation/modeling/sbom/src/*"]
 }

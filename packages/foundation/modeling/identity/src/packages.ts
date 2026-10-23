@@ -235,7 +235,8 @@ const generatedComposers = $I.compose(
   "markdown",
   "github-reporting",
   "repo-tsconfig",
-  "package-json"
+  "package-json",
+  "sbom"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3424,3 +3425,20 @@ export const $RepoTsconfigId: Identity.IdentityComposer<"@beep/repo-tsconfig"> =
  * @since 0.0.0
  */
 export const $PackageJsonId: Identity.IdentityComposer<"@beep/package-json"> = composers.$PackageJsonId;
+
+/**
+ * Identity composer for `@beep/sbom`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $SbomId } from "@beep/identity/packages"
+ *
+ * const id = $SbomId.make("Sbom")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $SbomId: Identity.IdentityComposer<"@beep/sbom"> = composers.$SbomId;

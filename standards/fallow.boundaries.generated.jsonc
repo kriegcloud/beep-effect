@@ -864,6 +864,12 @@
         ]
       },
       {
+        "name": "@beep/sbom",
+        "patterns": [
+          "packages/foundation/modeling/sbom/src/**"
+        ]
+      },
+      {
         "name": "@beep/schema",
         "patterns": [
           "packages/foundation/modeling/schema/src/**"
@@ -4434,6 +4440,15 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/sbom",
+        "allow": [
+          "@beep/sbom"
+        ],
+        "allowTypeOnly": [
+          "@beep/sbom"
         ]
       },
       {
