@@ -6,6 +6,9 @@ import * as Str from "effect/String";
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 const ANSI = /\u001B\][^\u0007\u001B]*(?:\u0007|\u001B\\)|\u001B\[[0-?]*[ -/]*[@-~]/g;
+// RGI_Emoji is a property of strings, which only the `v` flag reads. The pattern is built at run time because a
+// `/…/v` literal fails to compile below an ES2024 target, and every package that reaches this module through its
+// source (a dependent's docgen examples included) would need that target.
 const EMOJI = /^\p{RGI_Emoji}$/v;
 
 const WIDE2 =

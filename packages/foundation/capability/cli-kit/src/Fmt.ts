@@ -160,21 +160,6 @@ const takeGraphemes = (plain: string, budget: number): string => {
   return out;
 };
 
-/**
- * Small, pure formatting primitives for terminal output.
- *
- * **Example** (Format a test count)
- *
- * ```ts
- * import { Fmt } from "@beep/cli-kit/Fmt"
- *
- * console.log(Fmt.plural(2, "test")) // 2 tests
- * ```
- *
- * @public
- * @category formatting
- * @since 0.0.0
- */
 // The single-line strict pass, in this order: OSC (ESC ] to BEL or ST), CSI (ESC [ parameters, intermediates and a
 // final byte), any other ESC and the one byte after it, then every remaining C0 control (line breaks and tab
 // included), DEL and C1 control.
@@ -214,6 +199,21 @@ export const stripControls = (input: string): string =>
     Str.replace(ANY_CONTROL, "")
   );
 
+/**
+ * Small, pure formatting primitives for terminal output.
+ *
+ * **Example** (Format a test count)
+ *
+ * ```ts
+ * import { Fmt } from "@beep/cli-kit/Fmt"
+ *
+ * console.log(Fmt.plural(2, "test")) // 2 tests
+ * ```
+ *
+ * @public
+ * @category formatting
+ * @since 0.0.0
+ */
 export abstract class Fmt {
   /**
    * Text made safe to lay out and print, exactly as the renderers make it: complete ANSI and OSC sequences removed,
