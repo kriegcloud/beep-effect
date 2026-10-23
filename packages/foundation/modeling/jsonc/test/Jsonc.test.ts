@@ -10,12 +10,12 @@ import {
   JsoncStringifyErrorCode,
   JsoncStringifyOptions,
 } from "@beep/jsonc";
+import { accumulation } from "@beep/jsonc/internal/accumulation";
 import { ParseFlags, parseTree as parseTreeRaw, parseValue as parseValueRaw } from "@beep/jsonc/internal/parser";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitFailure, assertFailure, assertNone, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
-import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -26,7 +26,6 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as TestClock from "effect/testing/TestClock";
 
 const deeplyNested = `${Str.repeat(20000)("[")}1${Str.repeat(20000)("]")}`;
 
@@ -37,28 +36,6 @@ const failureOf = <E>(self: Effect.Effect<unknown, E>) => self.pipe(Effect.asVoi
 const failure = <E>(result: Result.Result<unknown, E>): E => result.pipe(Result.flip, Result.getOrThrow);
 
 const codes = (error: JsoncParseError): ReadonlyArray<string> => A.map(error.errors, (e) => e.code);
-
-// The best of three wall-clock runs of `run(input)` in nanoseconds, after one
-// warm-up call; taking the minimum filters out collection pauses and load.
-const bestNanos = Effect.fnUntraced(function* (run: (input: string) => unknown, input: string) {
-  run(input);
-  let best = Number.POSITIVE_INFINITY;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const start = yield* Clock.currentTimeNanos;
-    run(input);
-    best = Math.min(best, Number((yield* Clock.currentTimeNanos) - start));
-  }
-  return best;
-});
-
-// Growing the input 16-fold must grow the time less than 48-fold. Linear
-// accumulation measures 5 to 20 here; the copy-per-append accumulators this
-// guards against measured 80 to 220.
-const scalesLinearly = Effect.fnUntraced(function* (run: (input: string) => unknown, make: (size: number) => string) {
-  const small = yield* bestNanos(run, make(2_000));
-  const large = yield* bestNanos(run, make(32_000));
-  assert.isBelow(large, small * 48);
-});
 
 const flatArray = (size: number): string => `[${Str.repeat(size)("0,")}0]`;
 
@@ -481,8 +458,61 @@ describe("Jsonc", () => {
       ["Jsonc.stripComments accumulates pieces", Jsonc.stripComments, (size) => `[${Str.repeat(size)("/**/0,")}0]`],
     ];
     for (const [name, run, make] of cases) {
-      // The measurement needs real elapsed time, which the TestClock would freeze.
-      it.effect(`${name} in linear time`, () => TestClock.withLive(scalesLinearly(run, make)));
+      it.effect(`${name} with exactly linear work and rejects prefix copying`, () =>
+        Effect.gen(function* () {
+          let work = 0;
+          const append = accumulation.append;
+          let implementation = append;
+          const metered = <T>(items: Array<T>, item: T): void => {
+            implementation(
+              new Proxy(items, {
+                get(target, key, receiver) {
+                  if (P.isString(key) && Str.isNonEmpty(key) && Number.isInteger(Number(key))) work++;
+                  return Reflect.get(target, key, receiver);
+                },
+                set(target, key, value, receiver) {
+                  if (P.isString(key) && Str.isNonEmpty(key) && Number.isInteger(Number(key))) work++;
+                  return Reflect.set(target, key, value, receiver);
+                },
+              }),
+              item
+            );
+          };
+          yield* Effect.acquireRelease(
+            Effect.sync(() => {
+              accumulation.append = metered;
+            }),
+            () =>
+              Effect.sync(() => {
+                accumulation.append = append;
+              })
+          );
+          const workAt = (size: number): number => {
+            work = 0;
+            run(make(size));
+            return work;
+          };
+          const small = workAt(2_000);
+          const medium = workAt(4_000);
+          const large = workAt(8_000);
+          assert.isAbove(small, 0, "the operation must enter the metered seam");
+          assert.isAbove(medium, small);
+          assert.strictEqual(large - medium, 2 * (medium - small));
+
+          // Reproduce copy-per-append through the same indexed operations that
+          // the meter observes. Each case must reject this quadratic control.
+          implementation = <T>(items: Array<T>, item: T): void => {
+            const copied = A.append(items, item);
+            items.length = 0;
+            for (const previous of copied) append(items, previous);
+          };
+          const badSmall = workAt(32);
+          const badMedium = workAt(64);
+          const badLarge = workAt(128);
+          assert.isAbove(badSmall, 0);
+          assert.isAbove(badLarge - badMedium, 2 * (badMedium - badSmall));
+        })
+      );
     }
   });
 
