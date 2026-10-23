@@ -580,7 +580,7 @@ function parseBlockValueEnd(
   if (token.kind === "block-seq-start" || token.kind === "block-seq-entry") {
     return parseBlockSequence(state, findFirstSeqEntryColumn(state));
   }
-  return token.kind === "scalar" && hasImplicitMapAhead(state, parentIndent)
+  return token.kind === "scalar" && hasImplicitMapAhead(state)
     ? parseImplicitBlockMapping(state, parentIndent)
     : undefined;
 }
@@ -670,34 +670,33 @@ const parseBlockSequenceInner: {
  * Whether a block-flow token settles {@link hasImplicitMapAhead}; `undefined`
  * keeps scanning. A block scalar ends the line like a newline does: its token
  * swallows the line breaks of its body, so a ":" after it sits on a later line.
+ * Every token the scan meets before either sits on the entry's own line, so
+ * none can be a sibling entry.
  */
-function implicitMapVerdict(t: YamlToken.Data, seqIndent: number, text: string): boolean | undefined {
+function implicitMapVerdict(t: YamlToken.Data, text: string): boolean | undefined {
   if (t.kind === "newline" || isBlockScalarAt(t, text)) return false;
-  if (t.kind === "block-seq-entry" && t.column <= seqIndent) return false;
   return t.kind === "block-map-value" ? true : undefined;
 }
 
 /**
  * Look ahead (without consuming) to see if a block-map-value token exists
- * before the next newline / sequence entry at this indent.
- * Document boundaries are line-start tokens, so their preceding newline stops the scan.
+ * before the end of the current line.
+ * Document boundaries and sibling sequence entries are line-start tokens, so
+ * their preceding newline stops the scan.
  * Flow depth is tracked so a ":" inside `{ }` or `[ ]` is not mistaken for a
  * block mapping value indicator.
  */
-const hasImplicitMapAhead: {
-  (state: ParserState, seqIndent: number): boolean;
-  (seqIndent: number): (state: ParserState) => boolean;
-} = dual(2, (state: ParserState, seqIndent: number): boolean => {
+function hasImplicitMapAhead(state: ParserState): boolean {
   let flowDepth = 0;
   for (let i = state.pos; i < state.tokens.length; i++) {
     const t = A.getUnsafe(state.tokens, i);
     const delta = flowDepthDeltas[t.kind] ?? 0;
     flowDepth += delta;
-    const verdict = delta === 0 && flowDepth <= 0 ? implicitMapVerdict(t, seqIndent, state.text) : undefined;
+    const verdict = delta === 0 && flowDepth <= 0 ? implicitMapVerdict(t, state.text) : undefined;
     if (verdict !== undefined) return verdict;
   }
   return false;
-});
+}
 
 /**
  * Whether `token` ends a sequence entry's content: a document boundary, an
@@ -723,7 +722,7 @@ function seqEntryContentStops(state: ParserState, token: YamlToken.Data, seqInde
 function entryIsImplicitMap(state: ParserState, seqIndent: number): boolean {
   const nextToken = findNextNonTrivia(state);
   const nestedSeqFirst = nextToken?.kind === "block-seq-entry" && nextToken.column > seqIndent;
-  return !nestedSeqFirst && hasImplicitMapAhead(state, seqIndent);
+  return !nestedSeqFirst && hasImplicitMapAhead(state);
 }
 
 /**
