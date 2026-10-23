@@ -448,20 +448,45 @@ describe("@beep/md/Md.syntax phrasing mapping", () => {
     ]);
   });
 
+  it("merges escaped HTML with surrounding text while keeping HTML newlines", () => {
+    const source = 'before <span\nclass="x">after</span> end';
+    expect(encoded(source).children).toEqual([{ _tag: "p", children: [{ _tag: "text", value: source }] }]);
+    const result = bridge(source);
+    expect(A.map(result.losses, (loss) => loss.mdPath)).toEqual([
+      O.some(["children", 0, "children", 0]),
+      O.some(["children", 0, "children", 0]),
+    ]);
+  });
+
+  it("keeps math recognition and source ranges at merged HTML boundaries", () => {
+    const source = "$a$ before <b>after $b$ end";
+    const result = bridge(source);
+    expect(Result.getOrThrow(Document.encodeResult(result.document)).children).toEqual([
+      {
+        _tag: "p",
+        children: [
+          { _tag: "inlineMath", value: "a" },
+          { _tag: "text", value: " before <b>after " },
+          { _tag: "inlineMath", value: "b" },
+          { _tag: "text", value: " end" },
+        ],
+      },
+    ]);
+    for (const [index, expected] of A.zip([0, 1, 2, 3], ["$a$", " before <b>after ", "$b$", " end"])) {
+      const position = positionAt(result.sourceMap, result.document, ["children", 0, "children", index]);
+      assertSome(
+        O.map(position, (span) => Str.slice(span.start.offset, span.end.offset)(source)),
+        expected
+      );
+    }
+  });
+
   it("maps inline HTML under each policy and recognizes break tags", () => {
     const escaped = bridge("a <b>x</b> c<br/>d");
     expect(Result.getOrThrow(Document.encodeResult(escaped.document)).children).toEqual([
       {
         _tag: "p",
-        children: [
-          { _tag: "text", value: "a " },
-          { _tag: "text", value: "<b>" },
-          { _tag: "text", value: "x" },
-          { _tag: "text", value: "</b>" },
-          { _tag: "text", value: " c" },
-          { _tag: "br" },
-          { _tag: "text", value: "d" },
-        ],
+        children: [{ _tag: "text", value: "a <b>x</b> c" }, { _tag: "br" }, { _tag: "text", value: "d" }],
       },
     ]);
     expect(reasons(escaped)).toEqual(["htmlEscapedAsText", "htmlEscapedAsText"]);
