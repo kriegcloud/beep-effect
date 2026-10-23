@@ -407,19 +407,16 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
       // ancestor is exhausted before the walk ascends. A parent's first
       // candidate must never beat a child's second, which is exactly what
       // registering one resolver per filename would do.
-      const candidates: Array<typeof ConfigMatch.Encoded> = [];
-      for (const dir of dirs) {
-        for (const sub of subpaths) {
-          for (const filename of filenames) {
-            candidates.push({
-              path: path.join(dir, sub, filename),
-              dir,
-              filename,
-              ...(options.subpaths !== undefined && { subpath: sub }),
-            });
-          }
-        }
-      }
+      const candidates = A.flatMap(dirs, (dir) =>
+        A.flatMap(subpaths, (sub) =>
+          A.map(filenames, (filename): typeof ConfigMatch.Encoded => ({
+            path: path.join(dir, sub, filename),
+            dir,
+            filename,
+            ...(options.subpaths !== undefined && { subpath: sub }),
+          }))
+        )
+      );
       const paths = A.map(candidates, (candidate) => candidate.path);
       const { found, probed } = yield* firstExisting(paths);
       // `firstMatch` returns the path; recover the descriptor that produced it.

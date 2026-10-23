@@ -121,24 +121,42 @@ function mergeRecords(
   // and reassign `result`'s prototype to attacker-controlled data — defeating
   // the prototype we just installed. `Object.assign` and `result[k] = v`
   // both do this; `defineProperty` does not.
-  for (const key of Reflect.ownKeys(target)) {
-    if (key === "__proto__" || !Object.prototype.propertyIsEnumerable.call(target, key)) continue;
+  for (const key of copyableKeys(target)) {
     define(result, key, target[key]);
   }
-  for (const key of Reflect.ownKeys(source)) {
-    if (key === "__proto__" || !Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-    const sourceValue = source[key];
-    if (!R.has(result, key)) {
-      define(result, key, sourceValue);
-    } else {
-      const targetValue = result[key];
-      if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
-        define(result, key, mergeRecords(targetValue, sourceValue, active));
-      }
-    }
+  for (const key of copyableKeys(source)) {
+    mergeSourceKey(result, key, source[key], active);
   }
   return result;
 }
+
+/** Own enumerable string and symbol keys, minus the string `__proto__`: the keys a merge copies. */
+const copyableKeys = (record: Record<PropertyKey, unknown>): ReadonlyArray<string | symbol> =>
+  A.filter(
+    Reflect.ownKeys(record),
+    (key) => key !== "__proto__" && Object.prototype.propertyIsEnumerable.call(record, key)
+  );
+
+/**
+ * Fold one lower-priority key into `result`: absent keys are copied, and a key
+ * both sides hold as plain records merges recursively. Any other value already
+ * on `result` wins whole.
+ */
+const mergeSourceKey = (
+  result: Record<PropertyKey, unknown>,
+  key: string | symbol,
+  sourceValue: unknown,
+  active: ReadonlyArray<readonly [object, object, Record<PropertyKey, unknown>]>
+): void => {
+  if (!R.has(result, key)) {
+    define(result, key, sourceValue);
+    return;
+  }
+  const targetValue = result[key];
+  if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
+    define(result, key, mergeRecords(targetValue, sourceValue, active));
+  }
+};
 
 /** Create an own data property, never invoking a setter inherited from the prototype chain. */
 const define: {
