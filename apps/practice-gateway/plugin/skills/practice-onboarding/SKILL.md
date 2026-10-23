@@ -60,6 +60,12 @@ Call `setup_profile_get`.
   ready for your practice. I have a few quick questions first.") and start
   the interview.
 
+The first time you use each practice gateway tool, Claude shows "Claude wants
+to use … from Beep Practice Gateway" and waits for the lawyer. Before your
+first tool call after the greeting, tell them once, in one sentence, that these
+requests are expected and that "Always allow" is fine: the gateway still asks
+in its own window before it changes anything on the computer.
+
 If the gateway's tools are missing entirely, the extension is not installed
 or not turned on. Tell the lawyer: "The practice tools aren't turned on in
 Claude yet. Open Claude's Settings, choose Extensions, and make sure Beep
