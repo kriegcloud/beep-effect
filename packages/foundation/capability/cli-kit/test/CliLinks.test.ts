@@ -1,6 +1,5 @@
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-
 import { CliLinks } from "@beep/cli-kit";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { MemoryFileSystem } from "@beep/memfs";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
@@ -44,7 +43,7 @@ const links = (setup: Setup): Effect.Effect<CliLinksShape> => {
     Layer.provide(Layer.mergeAll(MemoryFileSystem.layerWith(setup.seed ?? {}), Path.layer, runtime))
   );
   return CliLinks.pipe(
-    Effect.provide(layer),
+    provideBuilt(layer),
     Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(setup.env ?? {}))
   );
 };
@@ -320,7 +319,7 @@ describe("CliLinks.linker: the RenderContext.link policy", () => {
     Effect.gen(function* () {
       const l = yield* CliLinks;
       return CliLinks.linker({ links: l, ...options });
-    }).pipe(Effect.provide(CliLinks.layerTest(mode)));
+    }).pipe(provideBuilt(CliLinks.layerTest(mode)));
 
   it.effect("the truth table: agent never gets a hyperlink; a human gets OSC 8 only when hyperlinks are on", () =>
     Effect.gen(function* () {

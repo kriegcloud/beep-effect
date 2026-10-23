@@ -4,7 +4,6 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as Context from "effect/Context";
 import * as CliError from "effect/cli/CliError";
 import * as CliOutput from "effect/cli/CliOutput";

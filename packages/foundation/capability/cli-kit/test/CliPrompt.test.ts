@@ -1,9 +1,9 @@
 import { CliInteractive, CliPrompt, CliRuntime } from "@beep/cli-kit";
 import { CliPromptTarget } from "@beep/cli-kit/CliPrompt";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { TestTerminal } from "@beep/cli-kit/testing";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -90,8 +90,8 @@ const run = Effect.fn("run")(function* (
     // The gate reads CliInteractive when it is built; CliEnv installs it for a real program.
     platform: Layer.mergeAll(platformServices, CliPrompt.gateTerminal.pipe(Layer.provide(options.terminal.layer))),
   }).pipe(
-    options.gate === true ? Effect.provide(CliPrompt.gateWizard) : (self) => self,
-    Effect.provide(interactive),
+    options.gate === true ? provideBuilt(CliPrompt.gateWizard) : (self) => self,
+    provideBuilt(interactive),
     Effect.exit,
     Effect.provideService(Console.Console, double)
   );
@@ -271,8 +271,8 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   describe("CliPrompt.gateTerminal", () => {
     const gated = (interactive: boolean, terminal: TestTerminalHandle) =>
       Terminal.Terminal.pipe(
-        Effect.provide(CliPrompt.gateTerminal.pipe(Layer.provide(terminal.layer))),
-        Effect.provide(CliInteractive.layerTest(interactive))
+        provideBuilt(CliPrompt.gateTerminal.pipe(Layer.provide(terminal.layer))),
+        provideBuilt(CliInteractive.layerTest(interactive))
       );
 
     it.effect("non-interactive: a quiet terminal that never touches the real one, but keeps its size", () =>

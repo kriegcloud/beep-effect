@@ -11,6 +11,7 @@ import {
   Render,
   SchemaIssueRenderer,
 } from "@beep/cli-kit";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
@@ -20,7 +21,6 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
@@ -79,7 +79,7 @@ const renderContexts = A.flatMap(["human", "agent", "ci"], (audience) =>
       hyperlinks,
       context: Effect.runSync(
         Render.context("stderr").pipe(
-          Effect.provide(
+          provideBuilt(
             layers(
               audience === "human" ? "human" : audience === "agent" ? "agent" : "ci",
               {},

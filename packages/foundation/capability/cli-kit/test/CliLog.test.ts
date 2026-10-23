@@ -1,4 +1,5 @@
 import { CliLog, CliLogger, CliRuntime } from "@beep/cli-kit";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
@@ -8,7 +9,6 @@ import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
@@ -89,7 +89,7 @@ const diagnostics = (setup: Setup = {}) =>
 const capture = Effect.fn("capture")(function* (program: Effect.Effect<void>, setup: Setup = {}) {
   const { double, out, err } = capturing();
   yield* program.pipe(
-    Effect.provide(diagnostics(setup)),
+    provideBuilt(diagnostics(setup)),
     Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(setup.env ?? {})),
     Effect.provideService(Console.Console, double)
   );
@@ -549,7 +549,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       );
     const written = Effect.fn("written")(function* (layer: Layer.Layer<never>) {
       const { double, err } = capturing();
-      yield* hostile.pipe(Effect.provide(layer), Effect.provideService(Console.Console, double));
+      yield* hostile.pipe(provideBuilt(layer), Effect.provideService(Console.Console, double));
       return err;
     });
 
@@ -585,7 +585,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     const written = Effect.fn("written")(function* (layer: Layer.Layer<never>, inFiber?: RuntimeEnv) {
       const { double, err } = capturing();
       const program = inFiber === undefined ? hostile : Effect.provideService(hostile, CurrentRuntimeEnv, inFiber);
-      yield* program.pipe(Effect.provide(layer), Effect.provideService(Console.Console, double));
+      yield* program.pipe(provideBuilt(layer), Effect.provideService(Console.Console, double));
       return err;
     });
 

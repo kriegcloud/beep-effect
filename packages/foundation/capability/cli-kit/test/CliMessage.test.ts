@@ -1,6 +1,5 @@
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-
 import { CliMessage, CliTheme, Status, Token } from "@beep/cli-kit";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { Audience, CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -38,15 +37,15 @@ const run = Effect.fn("run")(function* (
 ) {
   const { console: double, out, err } = capturing();
   yield* program.pipe(
-    Effect.provide(
+    provideBuilt(
       CliTheme.layerTest({
         color: options.color ?? "none",
         ...(options.stderrColor === undefined ? {} : { stderrColor: options.stderrColor }),
         glyphs: options.glyphs ?? "unicode",
       })
     ),
-    Effect.provide(Audience.layerTest(options.audience ?? "human")),
-    Effect.provide(
+    provideBuilt(Audience.layerTest(options.audience ?? "human")),
+    provideBuilt(
       options.ci === undefined
         ? Layer.empty
         : CurrentRuntimeEnv.layerTest({ ci: options.ci === "none" ? O.none() : O.some(options.ci) })

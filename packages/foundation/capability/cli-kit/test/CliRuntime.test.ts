@@ -1,8 +1,7 @@
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-
 import { CliLogger } from "@beep/cli-kit/CliLogger";
 import { CliRuntime } from "@beep/cli-kit/CliRuntime";
 import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { assert, describe, expectTypeOf, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -42,7 +41,7 @@ const run = <A, E>(
     const exit = yield* program.pipe(
       CliRuntime.reportFailures(options),
       Effect.exit,
-      Effect.provide(CliLogger.layer()),
+      provideBuilt(CliLogger.layer()),
       Effect.provideService(Console.Console, double)
     );
     return { out, err, exit };

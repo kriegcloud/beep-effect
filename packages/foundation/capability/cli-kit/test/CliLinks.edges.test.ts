@@ -1,6 +1,5 @@
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-
 import { CliLinks, Doc, Render } from "@beep/cli-kit";
+import { provideBuilt } from "@beep/cli-kit/internal/provideBuilt";
 import { MemoryFileSystem } from "@beep/memfs";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
@@ -52,13 +51,13 @@ const links = (
     )
   );
   return CliLinks.pipe(
-    Effect.provide(layer),
-    Effect.provide(warnings(sink)),
+    provideBuilt(layer),
+    provideBuilt(warnings(sink)),
     Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env))
   );
 };
 
-const fixed = (mode: "vscode" | "file" | "off") => CliLinks.pipe(Effect.provide(CliLinks.layerTest(mode)));
+const fixed = (mode: "vscode" | "file" | "off") => CliLinks.pipe(provideBuilt(CliLinks.layerTest(mode)));
 
 describe("a UNC path has no link target, never a link to a file that does not exist", () => {
   const UNC = ["\\\\server\\share\\a.ts", "//server/share/a.ts", "\\\\?\\C:\\x.ts", "//host/x"];

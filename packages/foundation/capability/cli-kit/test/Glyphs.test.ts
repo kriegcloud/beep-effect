@@ -1,5 +1,3 @@
-// @effect-diagnostics processEnv:skip-file -- processEnv because it sets and restores TERM to prove Glyphs never reads the process. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-
 import { Glyphs } from "@beep/cli-kit";
 import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
@@ -99,14 +97,6 @@ describe("Glyphs.select", () => {
     assert.strictEqual(Glyphs.select({ ascii: "auto" }), Glyphs.unicode, "no term is not dumb");
   });
 
-  it("never reads the process: TERM=dumb in process.env changes nothing", () => {
-    const before = process.env.TERM;
-    process.env.TERM = "dumb";
-    try {
-      assert.strictEqual(Glyphs.select({ ascii: "auto" }), Glyphs.unicode);
-    } finally {
-      if (before === undefined) delete process.env.TERM;
-      else process.env.TERM = before;
-    }
-  });
+  // That select never reads the process (TERM in process.env changes nothing) is held for every source module by
+  // boundary.test.ts, which finds no `process.` read anywhere under src.
 });
