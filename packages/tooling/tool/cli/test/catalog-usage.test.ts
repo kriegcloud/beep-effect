@@ -306,6 +306,37 @@ describe("catalog usage", () => {
         }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
       );
 
+      it.effect("counts an aliased or nested bun.lock install under both its install name and real name", () =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
+          yield* writeFixtureRepo(
+            tmpDir,
+            {
+              catalog: { effect: "4.0.4", "template-only": "^1.0.0" },
+              catalogs: { tools: { "named-dep": "^1.0.0" } },
+              overrides: {
+                "string-width-cjs": "4.2.3",
+                "string-width": "4.2.3",
+                "@scope/inner": "1.0.0",
+                "@scope/real": "1.0.0",
+                "nowhere@^1.0.0": "1.0.0",
+              },
+            },
+            {
+              ...fixtureLockfile,
+              "string-width-cjs": ["string-width@4.2.3", "", {}],
+              "effect/@scope/inner": ["@scope/real@1.0.0", "", {}],
+            }
+          );
+
+          const error = yield* runCatalogUsageCheck(tmpDir).pipe(Effect.flip);
+
+          expect(error).toBeInstanceOf(CatalogUsageError);
+          expect(error.message).toBe("1 root catalog entr(ies) or override(s) have no consumer.");
+        }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+      );
+
       it.effect("reports zero unused root catalog entries and overrides in this repository", () =>
         Effect.gen(function* () {
           const path = yield* Path.Path;

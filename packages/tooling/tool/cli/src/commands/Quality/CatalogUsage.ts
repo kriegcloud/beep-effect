@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
@@ -79,19 +80,9 @@ const catalogProtocol = "catalog:";
 const nulSeparator = "\u0000";
 const templateCatalogReferencePattern = /["']?((?:@[\w.-]+\/)?[\w.-]+)["']?\s*:\s*["']catalog:([\w.-]*)["']/g;
 
-class CatalogUsageLockfile extends S.Opaque<CatalogUsageLockfile, { readonly brand: unique symbol }>()(
-  S.Struct({
-    packages: S.Record(S.String, S.Array(S.Unknown)).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>()))
-    ),
-  })
-) {}
-
 const decodeRootManifest = decodeJsoncTextAs(CatalogUsageRootManifest);
 const decodeManifestDocument = decodeJsoncTextAs(CatalogUsageManifestDependencies);
 const isJsonRecord = S.is(S.Record(S.String, S.Json));
-const decodeLockfile = decodeJsoncTextAs(CatalogUsageLockfile);
 
 const catalogKey = (catalog: string, packageName: string): string => `${catalog}${nulSeparator}${packageName}`;
 
@@ -109,16 +100,6 @@ const packageNameFromSpecifier = (specifier: string): string =>
     O.filter((index) => index > 0),
     O.match({ onNone: () => specifier, onSome: (index) => Str.slice(0, index)(specifier) })
   );
-
-const installedNameFromLockKey = (key: string): string => {
-  const segments = Str.split("/")(key);
-  const last = A.lastNonEmpty(segments);
-  return pipe(
-    A.get(segments, A.length(segments) - 2),
-    O.filter(Str.startsWith("@")),
-    O.match({ onNone: () => last, onSome: (scope) => `${scope}/${last}` })
-  );
-};
 
 const manifestDependencyEntries = (manifest: CatalogUsageManifest): ReadonlyArray<readonly [string, string]> =>
   A.flatMap(
@@ -276,17 +257,11 @@ const readManifest = Effect.fn("CatalogUsage.readManifest")(function* (repoRoot:
 
 const readLockfilePackages = Effect.fn("CatalogUsage.readLockfilePackages")(function* (repoRoot: string) {
   const lockfile = yield* readText(repoRoot, "bun.lock").pipe(
-    Effect.flatMap(decodeLockfile),
+    Effect.flatMap(Lockfile.parse({ format: "bun" })),
     CatalogUsageError.mapError("Failed to parse bun.lock.", "bun.lock")
   );
-  return pipe(
-    R.toEntries(lockfile.packages),
-    A.flatMap(([key, entry]) => [
-      installedNameFromLockKey(key),
-      ...A.fromOption(O.map(O.filter(A.head(entry), P.isString), packageNameFromSpecifier)),
-    ]),
-    A.dedupe
-  );
+  // An aliased install answers to both its alias and its real package name.
+  return A.dedupe(A.flatMap(lockfile.packages, (pkg) => [pkg.installName, pkg.name]));
 });
 
 const collectTemplateFiles = Effect.fn("CatalogUsage.collectTemplateFiles")(function* (repoRoot: string) {

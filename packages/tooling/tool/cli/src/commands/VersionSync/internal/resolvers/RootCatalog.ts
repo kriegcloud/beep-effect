@@ -12,14 +12,14 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { A, Str, thunkEmptyStr } from "@beep/utils";
+import { Str, thunkEmptyStr } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
@@ -132,27 +132,16 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
   );
 });
 
-class BunLockDocument extends S.Opaque<BunLockDocument, { readonly brand: unique symbol }>()(
-  S.Struct({
-    packages: S.Record(S.String, S.Array(S.Unknown)).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>()))
-    ),
-  }).pipe(
-    $I.annoteSchema("BunLockDocument", {
-      description: "Subset of bun.lock: the resolved package map whose entries start with `<name>@<version>`.",
-    })
-  )
-) {}
-
 /**
  * Read the version `bun.lock` resolved for a dependency.
  *
  * **Details**
  *
- * Each `packages` entry in `bun.lock` is a tuple whose first element is the
- * resolved `<name>@<version>` specifier. A missing lockfile or a missing entry
- * yields `None` so the caller can fall back to the catalog.
+ * The answer is the registry package `@beep/lockfiles` resolves from the
+ * workspace root (`Lockfile#rootPackage`) whose real name is the dependency.
+ * A missing lockfile, a missing or malformed entry, a workspace package and an
+ * npm alias of another package all yield `None`, so the caller can fall back
+ * to the catalog.
  *
  * **Example** (Read the resolved turbo version)
  *
@@ -186,18 +175,13 @@ export const readLockfileResolvedVersion = Effect.fn("readLockfileResolvedVersio
     .readFileString(lockPath)
     .pipe(VersionSyncError.mapError("Failed to read bun.lock", "bun.lock"));
 
-  const lock = yield* decodeJsoncTextAs(BunLockDocument)(lockContent).pipe(
+  const lockfile = yield* Lockfile.parse(lockContent, { format: "bun" }).pipe(
     VersionSyncError.mapError("Failed to parse bun.lock", "bun.lock")
   );
 
-  const resolvedPrefix = `${dependencyName}@`;
-
-  return O.flatMap(
-    O.flatMap(R.get(lock.packages, dependencyName), A.head),
-    (specifier): O.Option<string> =>
-      P.isString(specifier) && Str.startsWith(resolvedPrefix)(specifier)
-        ? O.some(Str.slice(resolvedPrefix.length)(specifier))
-        : O.none()
+  return lockfile.rootPackage(dependencyName).pipe(
+    O.filter((pkg) => !pkg.isWorkspace && pkg.name === dependencyName),
+    O.map((pkg) => pkg.version)
   );
 });
 

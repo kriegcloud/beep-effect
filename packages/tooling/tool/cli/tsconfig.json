@@ -90,6 +90,9 @@
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {
+      "path": "../../../foundation/modeling/lockfiles/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/markdown/tsconfig.json"
     },
     {

@@ -950,6 +950,34 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
     );
 
     it.effect(
+      "reads only the root registry install: workspaces, aliases and nested installs yield None",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+        yield* fs.writeFileString(
+          path.join(tmpDir, "bun.lock"),
+          yield* encodeJson({
+            lockfileVersion: 1,
+            workspaces: { "": { name: "fixture" }, "packages/turbo": { name: "turbo", version: "9.9.9" } },
+            packages: {
+              turbo: ["turbo@workspace:packages/turbo"],
+              "@biomejs/biome": ["@biomejs/cli@2.4.4", "", {}],
+              "other/effect": ["effect@4.0.4", "", {}],
+              "string-width": ["string-width@5.1.2", "", {}],
+            },
+          })
+        );
+
+        assertNone(yield* readLockfileResolvedVersion(tmpDir, "turbo"));
+        assertNone(yield* readLockfileResolvedVersion(tmpDir, "@biomejs/biome"));
+        assertNone(yield* readLockfileResolvedVersion(tmpDir, "effect"));
+        assertSome(yield* readLockfileResolvedVersion(tmpDir, "string-width"), "5.1.2");
+      })
+    );
+
+    it.effect(
       "fails with a typed error when bun.lock is not JSONC",
       Effect.fn(function* () {
         const fs = yield* FileSystem.FileSystem;
