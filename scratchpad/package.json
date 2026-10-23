@@ -54,6 +54,7 @@
     "@beep/npm-spec": "workspace:^",
     "@beep/ontology": "workspace:^",
     "@beep/oxigraph": "workspace:^",
+    "@beep/package-json": "workspace:^",
     "@beep/postgres": "workspace:^",
     "@beep/pretext": "workspace:^",
     "@beep/provenance": "workspace:^",
