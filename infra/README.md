@@ -1,33 +1,44 @@
 # Infrastructure path configuration
 
-The committed stack files use absolute placeholders for machine-specific paths.
-Pulumi does not expand `$HOME` or `~` in YAML values. Before deploying, replace
-the placeholders with paths valid on the machine that consumes them.
+Committed stack files never carry a machine-specific absolute path. Pulumi does
+not expand `$HOME` or `~` in YAML values, so the programs resolve those paths
+themselves when they start. Following this guide needs no `pulumi config set`
+and leaves no edits in tracked files.
 
-For AI Metrics, `aiMetrics:remoteConfigRoot` is an absolute directory on the
-remote target, not on the Pulumi workstation. The source default is
-`/srv/ai-metrics`; set the existing deployment's directory explicitly to retain
-its data and service location. From `infra`, for example:
+## CI runner artifacts
+
+The ZIP inputs in `ci-runners/Pulumi.production.yaml` are paths relative to an
+artifacts root on the Pulumi workstation, for example
+`turbo-cache/2.12.0/turbo-cache.zip`. The version directories stay in the
+stack file so an artifact upgrade remains a reviewed config change.
+
+The root is `BEEP_INFRA_ARTIFACTS_ROOT` when it is set, otherwise
+`$HOME/beep-infra-artifacts`. It must be absolute. The Turbo cache build
+(`lambda/turbo-cache/build.sh`) writes into the same root. To use another
+directory for one run, from `infra/ci-runners`:
 
 ```sh
-pulumi config set aiMetrics:remoteConfigRoot /absolute/remote/path/to/ai-metrics \
-  --stack beep-ai-metrics-dankserver
+BEEP_INFRA_ARTIFACTS_ROOT=/absolute/path/to/artifacts pulumi preview --stack production
 ```
+
+An absolute value in a stack key still overrides the root for that key. Set
+one only in an uncommitted stack, never in the committed `production` file.
+
+## AI Metrics remote root
+
+`aiMetrics:remoteConfigRoot` is a directory on the remote target, not on the
+Pulumi workstation. When the stack leaves it unset, the program uses
+`BEEP_AI_METRICS_REMOTE_CONFIG_ROOT` when that is set, otherwise
+`/home/<aiMetrics:sshUser>/ai-metrics`, which is where the existing
+`beep-ai-metrics-dankserver` deployment keeps its compose file and service.
+To deploy elsewhere for one run, from `infra`:
+
+```sh
+BEEP_AI_METRICS_REMOTE_CONFIG_ROOT=/absolute/remote/path/to/ai-metrics \
+  pulumi preview --stack beep-ai-metrics-dankserver
+```
+
+## OpenClaw
 
 OpenClaw requires the target user's absolute home through its identity config;
 it never derives that home from the workstation running Pulumi.
-
-For CI runners, the ZIP files are absolute local filesystem inputs on the
-Pulumi workstation. From `infra/ci-runners`, set all five artifact paths after
-building the artifacts:
-
-```sh
-pulumi config set ciFleetController:runnerBinariesSyncerLambdaZip "$HOME/beep-infra-artifacts/gha-runner/v7.10.1/runner-binaries-syncer.zip" --stack production
-pulumi config set ciFleetController:runnersLambdaZip "$HOME/beep-infra-artifacts/gha-runner/v7.10.1/runners.zip" --stack production
-pulumi config set ciFleetController:terminationWatcherLambdaZip "$HOME/beep-infra-artifacts/gha-runner/v7.10.1/termination-watcher.zip" --stack production
-pulumi config set ciFleetController:webhookLambdaZip "$HOME/beep-infra-artifacts/gha-runner/v7.10.1/webhook.zip" --stack production
-pulumi config set ciTurboCache:lambdaZipPath "$HOME/beep-infra-artifacts/turbo-cache/2.12.0/turbo-cache.zip" --stack production
-```
-
-The shell expands the quoted `$HOME` before Pulumi stores the resulting absolute
-value. Keep workstation-specific overrides local; do not commit them.
