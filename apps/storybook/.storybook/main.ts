@@ -9,7 +9,7 @@ import { mergeConfig } from "vite";
 import type { StorybookConfig } from "@storybook/react-vite";
 import type { Plugin, ServerOptions } from "vite";
 
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const require = NodeModule.createRequire(import.meta.url);
 const epistemicStories = NodeURL.fileURLToPath(
   new URL("./stories/**/*.stories.@(ts|tsx)", NodeURL.pathToFileURL(require.resolve("@beep/epistemic-ui/package.json")))

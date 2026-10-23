@@ -11,6 +11,8 @@
  * @since 0.0.0
  */
 
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { YamlCodec } from "@beep/config-file/YamlCodec";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -23,13 +25,13 @@ import * as Path from "effect/Path";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { parseDocument, stringify as stringifyYaml } from "yaml";
+import { stringify as stringifyYaml } from "yaml";
+import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
 import { ModelsManifestError } from "./Models.errors.ts";
 import { ModelsManifest } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.manifest.service");
 
-const decodeManifest = S.decodeUnknownEffect(ModelsManifest);
 const encodeManifest = S.encodeUnknownEffect(ModelsManifest);
 
 // ── Manifest store ──────────────────────────────────────────────────────────
@@ -113,24 +115,35 @@ const makeManifestStore = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const load: ModelsManifestStoreShape["load"] = Effect.fnUntraced(function* (file: string) {
-    const text = yield* fs
-      .readFileString(file)
-      .pipe(ModelsManifestError.mapError(`Failed to read the models manifest at ${file}`, file));
-    const parsed = yield* Effect.try({
-      try: () => parseDocument(text).toJS() as unknown,
-      catch: (cause) =>
-        ModelsManifestError.make({
-          message: `Failed to parse YAML in ${file}.`,
-          path: file,
-          cause,
-        }),
-    });
-
-    return yield* decodeManifest(parsed).pipe(
-      ModelsManifestError.mapError(`Failed to decode the models manifest at ${file}`, file)
+  // The manifest is read through `ConfigFile.read` and `YamlCodec` (wave 3,
+  // W3-e); the writers below keep the npm `yaml` stringifier and the atomic
+  // rename. The three failure messages are the ones the store always raised.
+  const load: ModelsManifestStoreShape["load"] = (file: string) =>
+    ConfigFile.read(file, { schema: ModelsManifest, codec: YamlCodec }).pipe(
+      Effect.provideService(FileSystem.FileSystem, fs),
+      Effect.catchTags({
+        ConfigFileReadError: (error) =>
+          Effect.fail(
+            ModelsManifestError.make({
+              message: messageWithCause(`Failed to read the models manifest at ${file}`, error.cause),
+              path: file,
+              cause: error.cause,
+            })
+          ),
+        ConfigCodecError: (error) =>
+          Effect.fail(
+            ModelsManifestError.make({ message: `Failed to parse YAML in ${file}.`, path: file, cause: error.cause })
+          ),
+        ConfigValidationError: (error) =>
+          // A schema-only read always carries a `SchemaIssue`; anything else
+          // breaks the `ConfigFile.read` contract, so it is a defect.
+          Effect.fromOption(error.schemaIssue).pipe(
+            Effect.orDie,
+            Effect.flatMap((issue) => Effect.fail(new S.SchemaError(issue))),
+            ModelsManifestError.mapError(`Failed to decode the models manifest at ${file}`, file)
+          ),
+      })
     );
-  });
 
   const init: ModelsManifestStoreShape["init"] = Effect.fnUntraced(function* (file: string, manifest: ModelsManifest) {
     const exists = yield* fs

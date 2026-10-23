@@ -27,6 +27,7 @@
   "dependencies": {
     "@azure/storage-blob": "^12.33.0",
     "@beep/commands": "workspace:^",
+    "@beep/config-file": "workspace:^",
     "@beep/dock": "workspace:^",
     "@beep/dock-react": "workspace:^",
     "@beep/drizzle": "workspace:^",
@@ -43,6 +44,7 @@
     "@beep/identity": "workspace:^",
     "@beep/jsonc": "workspace:^",
     "@beep/law-practice-use-cases": "workspace:^",
+    "@beep/lockfiles": "workspace:^",
     "@beep/m365": "workspace:^",
     "@beep/managed-section": "workspace:^",
     "@beep/markdown": "workspace:^",

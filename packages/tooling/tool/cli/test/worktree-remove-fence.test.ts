@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
   invokerExemption,
@@ -255,7 +256,9 @@ const walkingWatcherTable = Effect.fn("WorktreeRemoveFenceTest.walkingWatcherTab
 // without advancing it.
 const quickSettle = (attempts: number) => WorktreeFenceSettlePolicy.make({ interval: Duration.zero, attempts });
 
-const WORKTREE_REMOVE_FENCE_INVOKER = new URL("./support/WorktreeRemoveFenceInvoker.ts", import.meta.url).pathname;
+const WORKTREE_REMOVE_FENCE_INVOKER = NodeURL.fileURLToPath(
+  new URL("./support/WorktreeRemoveFenceInvoker.ts", import.meta.url)
+);
 
 const RemoveInvokerOutcome = S.Struct({ ok: S.Boolean, message: S.String });
 const decodeRemoveInvokerOutcome = S.decodeUnknownEffect(S.fromJsonString(RemoveInvokerOutcome));

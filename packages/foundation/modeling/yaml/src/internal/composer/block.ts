@@ -377,6 +377,12 @@ export class SemanticKey extends S.Opaque<
 /**
  * A mapping value separator carrying the source offset of its colon.
  *
+ * **Details**
+ *
+ * `closed` marks a flow separator followed directly by the `,` entry
+ * separator (`{a: , b}`): the value is empty, so the next entry's key cannot
+ * become it.
+ *
  * **Example** (Mark a value separator)
  *
  * ```ts
@@ -403,6 +409,13 @@ export class SemanticValueSep extends S.Opaque<
     offset: S.Finite.pipe(
       S.mutableKey,
       $I.annoteKey("SemanticItem.ValueSep.offset", { description: "Source offset of the structural colon." })
+    ),
+    closed: S.Boolean.pipe(
+      S.optionalKey,
+      S.mutableKey,
+      $I.annoteKey("SemanticItem.ValueSep.closed", {
+        description: "Whether a flow entry separator directly follows the colon, so the value is empty.",
+      })
     ),
   }).pipe(
     $I.annoteSchema("SemanticItem.ValueSep", {
@@ -1617,11 +1630,13 @@ const pushValuelessPair = (
  * null key at its `:` indicator so diagnostics that point at the key (e.g.
  * DuplicateKey) carry a real position instead of 0:0.
  */
-const buildNullKeyPair = (build: PairBuild, valueSepOffset: number): void => {
+const buildNullKeyPair = (build: PairBuild, separator: SemanticValueSep): void => {
+  const valueSepOffset = separator.offset;
   build.index++;
   const pendingFields = takePairPendingFields(build, valueSepOffset);
   noteContentColumn(build, valueSepOffset);
-  const valueNode = consumeValueNodeForNullKey(build.items, build.index, build.text, valueSepOffset);
+  const valueNode =
+    separator.closed === true ? null : consumeValueNodeForNullKey(build.items, build.index, build.text, valueSepOffset);
   const nullKey = nullScalarAt(valueSepOffset);
   if (valueNode === null) {
     pushValuelessPair(build, nullKey, pendingFields, undefined, valueSepOffset);
@@ -1673,10 +1688,12 @@ const completeKeyedPair = (
   keyNode: YamlNode | undefined,
   leading: CommentFields,
   keyTrailing: string | undefined,
-  sepOffset: number
+  separator: SemanticValueSep
 ): void => {
+  const sepOffset = separator.offset;
   const key = keyNode ?? nullScalarAt(0);
-  const valueResult = consumeValueNode(build.items, build.index, build.text, sepOffset);
+  const valueResult =
+    separator.closed === true ? null : consumeValueNode(build.items, build.index, build.text, sepOffset);
   if (valueResult === null) {
     pushValuelessPair(build, key, leading, keyTrailing, sepOffset);
     return;
@@ -1715,7 +1732,7 @@ const buildKeyedPair = (build: PairBuild, item: SemanticKey | SemanticNode): voi
   const separator = build.items[build.index];
   if (separator?.kind === "value-sep") {
     build.index++; // skip value-sep
-    completeKeyedPair(build, keyNode, pendingFields, pairTrailing, separator.offset);
+    completeKeyedPair(build, keyNode, pendingFields, pairTrailing, separator);
     return;
   }
   // Key with no value
@@ -1741,7 +1758,7 @@ const stepPairBuild = (build: PairBuild, item: SemanticItem): void => {
     return;
   }
   if (item.kind === "value-sep") {
-    buildNullKeyPair(build, item.offset);
+    buildNullKeyPair(build, item);
     return;
   }
   buildKeyedPair(build, item);

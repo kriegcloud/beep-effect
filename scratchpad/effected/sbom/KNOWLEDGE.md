@@ -59,7 +59,7 @@ every pure module is reachable **without** it.
 
 **Never introduce a namespace object** — a `Sbom = { generate, sign }`
 convenience would make every SBOM consumer reachable to Fulcio's HTTP stack,
-silently. This is the [config-file codec rule](../config-file/CLAUDE.md) with
+silently. This is the [config-file codec rule](../../../packages/foundation/capability/config-file/KNOWLEDGE.md#the-codecs-free-standing-exports-never-a-namespace-object) with
 sharper teeth.
 
 ## Source modules

@@ -50,6 +50,8 @@ retiring 192 rows and adding no row or allowlist entry
 Issue #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).
+Wave 2 retired every open EV009 and EV014 row and left 26 EV015 rows for #1855
+([record](./history/receipts/vitest-canon-wave-2.md)); wave 3 takes law-practice-server.
 Issue #1876 is complete: the RDF failure assertions and the Pacer logout teardown
 witness are ported, with a per-hunk disposition of the preserved exports
 ([record](./history/receipts/rdf-pacer-ports.md)).

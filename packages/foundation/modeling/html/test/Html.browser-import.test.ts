@@ -1,8 +1,9 @@
+import * as NodeURL from "node:url";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 
-const packageRoot = new URL("..", import.meta.url).pathname;
+const packageRoot = NodeURL.fileURLToPath(new URL("..", import.meta.url));
 
 describe("@beep/html browser import boundary", () => {
   it.effect("loads production conformance when SharedArrayBuffer is absent", () =>
