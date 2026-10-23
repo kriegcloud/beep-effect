@@ -24456,15 +24456,15 @@
     },
     "@beep/package-json": {
       "path": "packages/foundation/modeling/package-json",
-      "lines": 98.53,
-      "statements": 98.68,
-      "branches": 98.54,
-      "functions": 98.1,
+      "lines": 100,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
       "uncovered": {
-        "lines": 10,
-        "statements": 10,
-        "branches": 6,
-        "functions": 5
+        "lines": 0,
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
       },
       "files": {
         "packages/foundation/modeling/package-json/src/Dependency.ts": {
@@ -24552,15 +24552,15 @@
           }
         },
         "packages/foundation/modeling/package-json/src/PackageJsonFile.ts": {
-          "lines": 79.59,
-          "statements": 80.39,
-          "branches": 40,
-          "functions": 76.19,
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
           "uncovered": {
-            "lines": 10,
-            "statements": 10,
-            "branches": 6,
-            "functions": 5
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/foundation/modeling/package-json/src/PackageJsonFormat.ts": {
