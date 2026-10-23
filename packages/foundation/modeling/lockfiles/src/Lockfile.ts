@@ -1,3 +1,10 @@
+/**
+ * The unified lockfile model the four formats normalize into, its pure
+ * `Lockfile.parse` entry point, and the typed parse and framing failures.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";

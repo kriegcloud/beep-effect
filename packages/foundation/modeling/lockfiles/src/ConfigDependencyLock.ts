@@ -1,3 +1,10 @@
+/**
+ * One config dependency a `pnpm-lock.yaml` records, with the integrity its
+ * env preamble records for it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

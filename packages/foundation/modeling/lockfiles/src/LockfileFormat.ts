@@ -1,3 +1,10 @@
+/**
+ * The four lockfile formats this package parses and the mapping between a
+ * format and its lockfile filenames.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "effect/Option";

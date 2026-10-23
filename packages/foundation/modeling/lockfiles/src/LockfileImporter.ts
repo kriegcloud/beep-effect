@@ -1,3 +1,10 @@
+/**
+ * One workspace importer's declared dependencies, keyed by its
+ * root-relative path.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";

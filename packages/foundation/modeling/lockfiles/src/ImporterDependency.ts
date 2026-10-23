@@ -1,3 +1,10 @@
+/**
+ * One declared dependency of a workspace importer: its classified specifier,
+ * its dependency section and, for pnpm, the resolved version and peer suffix.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";

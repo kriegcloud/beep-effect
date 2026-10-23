@@ -1,3 +1,10 @@
+/**
+ * Pure integrity checking of a parsed lockfile against the workspace
+ * manifests it should describe.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
 import { Range, SemVer } from "@beep/semver";

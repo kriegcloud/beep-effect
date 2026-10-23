@@ -1,3 +1,10 @@
+/**
+ * A directed dependency edge between two workspace packages, as the
+ * lockfile records it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
 import * as S from "effect/Schema";

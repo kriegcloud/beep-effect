@@ -1,3 +1,10 @@
+/**
+ * The package manager a `pnpm-lock.yaml` pins, with the integrity its env
+ * preamble records for it and its native packages.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

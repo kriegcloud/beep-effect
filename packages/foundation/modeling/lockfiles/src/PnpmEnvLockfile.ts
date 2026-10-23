@@ -1,3 +1,10 @@
+/**
+ * Readers for the env preamble pnpm writes ahead of a `pnpm-lock.yaml`: the
+ * pinned package manager and the recorded config dependencies.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import * as Effect from "effect/Effect";
 import { readPnpmConfigDependencies, readPnpmPackageManager } from "./internal/pnpmEnv.ts";
 import { materializeFailure } from "./Lockfile.ts";

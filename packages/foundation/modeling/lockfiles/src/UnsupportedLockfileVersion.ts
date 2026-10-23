@@ -1,3 +1,10 @@
+/**
+ * The typed cause a lockfile below its format's supported version fails
+ * with.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 // The structured cause a version-gate failure carries, plus the predicate that
 // narrows to it.
 //

@@ -1,3 +1,11 @@
+/**
+ * The bun-specific residue a `bun.lock` records beside its packages: the
+ * default and named catalogs, the dependency overrides and the trusted
+ * dependencies, attached to `Lockfile.extension`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

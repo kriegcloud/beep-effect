@@ -1,3 +1,10 @@
+/**
+ * The pnpm-specific residue a `pnpm-lock.yaml` header records: catalogs,
+ * overrides and settings, attached to `Lockfile.extension`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

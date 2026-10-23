@@ -1,3 +1,10 @@
+/**
+ * A package instance resolved from a lockfile, with its declared peers and
+ * its verified outgoing edges.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $LockfilesId } from "@beep/identity/packages";
 import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Effect from "effect/Effect";

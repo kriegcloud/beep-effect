@@ -36,6 +36,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { BunExtension } from "./BunExtension.ts";
