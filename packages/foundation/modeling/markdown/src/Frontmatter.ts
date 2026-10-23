@@ -228,8 +228,11 @@ export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError
  *
  * **Details**
  *
- * `"DuplicateKey"` — one object names the same key twice (the json codec;
- * the yaml and toml engines reject duplicates themselves).
+ * `"DuplicateKey"` — one object names the same key twice in the JSON source,
+ * or distinct YAML keys collide after projection to JSON strings: `1` and
+ * `"1"`, `true` and `"true"`, a null key and `""`, or an alias key and its
+ * anchor's key. The YAML and TOML engines reject source-level duplicates
+ * themselves.
  * `"ComplexKey"` — a yaml mapping key is a collection, or an alias to one;
  * a JSON object key is a string.
  * `"SetCollection"` — a yaml `!!set`, which has no JSON counterpart.
