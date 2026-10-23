@@ -4,6 +4,22 @@ Reuse sites from `research/promotion-map-2026-10-20.md` ("Reuse sites") and
 the wave plans, with their adoption status. `#n` is the map's site id. A site
 leaves the open list in the PR that migrates it, or carries its reason here.
 
+## `@beep/cli-kit` (wave 4, 4-C, SPEC W4-d)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| repo-cli `Yeet/internal/MonitorComments.ts` `stripTerminalControlSequences` (author, path, url, state and the excerpt of every `[yeet]` comment line) | #196 | adopted in 4-C | `Fmt.stripControls`. Byte parity with the private copy: `ops/cli-kit-sanitize-differential.ts`, 0 differences (`research/cli-kit-sanitize-differential-w4.json`). `Fmt.sanitize` stays as it was: it keeps line breaks for documents, which on these single-line fields would let a comment start a new `[yeet]` line. |
+| `@beep/repo-ai-metrics` `src/agent-effectiveness.ts` `stripTerminalControlSequences` (worker-eval policy codes in doctor messages) | #197 | adopted in 4-C | `Fmt.stripControls`; the same differential covers this copy (the two were byte-identical regex chains). |
+| repo-cli `Accounts/Accounts.view.ts` `fit` / `fitRight` and the board's width arithmetic | #205 | adopted in 4-C | `Fmt.truncate` and `Fmt.width`, so labels are cut and padded by display width; the `columnsFor` label width, `joinFitted` and the frame padding count the same way. ASCII boards are unchanged (the existing board tests); a CJK and an emoji label are pinned in `accounts-usage.test.ts`, which fails on the old view. The Chalk palette stays. |
+| repo-cli `bin-main.ts` `renderCliFailure` and `internal/cli/FailureRendering.ts` | #199, #200 | 4-C-A | `CliRuntime.main`, keeping the `Stdout.ts` EPIPE latching (W4 plan correction 8, L1). |
+| repo-cli `Skills/SkillsReview.service.ts` raw `Prompt.run` | #209 | 4-C-A | `CliPrompt.gateTerminal` with `CliInteractive` (L2). |
+| repo-cli test `Terminal.make` stubs (`session-continuity.test.ts`, `accounts-usage.test.ts`) | #210 | 4-C-A, partial | The one `accounts-usage.test.ts` stub (about line 937) moves to `TestTerminal`; the session-continuity stubs assert that input is never read, which `TestTerminal` would turn into queued input, so they stay with that reason. |
+| docgen `Core.ts` chalk inside log messages | #202 | excluded | L3: dropping chalk changes docgen's output and needs a changeset for a cosmetic swap. |
+| repo-cli `Accounts/Accounts.tui.ts` alternate-screen TUI | #206 | excluded | Needs the deferred `./ui` half (W4-m) and its Bun proof; the trigger consumer named in PLAN "Deferred". |
+| repo-cli `Files/Files.progress.ts` progress runner | #208 | excluded | Repaints through `CliUi.live` only once repo-cli adopts Ink and React (the deferred `./ui` half). |
+| repo-cli `Knowledge/Knowledge.service.ts` probe-diagnostic escape patterns | #198 | excluded | A third copy with different semantics: it also strips `\p{Cf}` and reports the disallowed controls it found, which `Fmt.stripControls` does not. Revisit with an option on `Fmt` if a second caller needs it. |
+| lab `cli` `./ui` half (`ui/**`, `ui.ts`, `ui-testing*.ts`) | - | retargeted in 4-C | Imports the root through `@beep/cli-kit` leaves; deleted at C, pinned by sha (W4-m). |
+
 ## `@beep/config-file` (wave 3, sub-wave 3-3, SPEC W3-e)
 
 | Site | Map id | Status | Notes |

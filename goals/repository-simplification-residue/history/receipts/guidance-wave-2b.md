@@ -487,3 +487,21 @@ Effected promotion wave 3, sub-wave 3-3, graduated the config-file module into
 unchanged to `packages/foundation/capability/config-file/test/ConfigFileKeyTyping.test.ts`
 at the same lines, and their owner is now `@beep/config-file`. The directive count does
 not change.
+
+## Cli graduation note (effected-promotion 4-C)
+
+Effected promotion wave 4, 4-C, graduated the root and `./testing` half of the cli
+module into `@beep/cli-kit` (`packages/foundation/capability/cli-kit`). Of the
+directives listed above under `scratchpad/test/cli/`, the root-half ones are gone
+rather than moved: the 16 `strictEffectProvide` skip-file headers (seven with
+`multipleEffectProvide`) are replaced by `internal/provideBuilt`, which builds each
+run's layer in that run's scope; the `processEnv` header goes with its TERM test,
+which `boundary.test.ts` supersedes; and the three `nodeBuiltinImport` headers go
+with `boundary.test.ts` (now a raw-glob walk), `entrypoints.test.ts` (folded into
+it) and `erasableSyntax.test.ts` (deleted; `erasableSyntaxOnly` enforces it). The
+four `@ts-expect-error` directives moved to the package tests (`Doc.test.ts` twice,
+`Status.test.ts`, `Token.test.ts`) with their owner now `@beep/cli-kit`; the invalid
+status name in them reads `"unknown-status"` instead of `"timeot"`, which the typos
+hook rejects. The `./ui` directives (`helpers/live.ts`, `helpers/renderContext.ts`
+in its lab copy, and the `ui/**` rows) stay in the lab with that half until C. The
+directive count for packages does not grow.
