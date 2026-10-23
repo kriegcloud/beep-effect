@@ -59,7 +59,7 @@ describe("TomlCodec", () => {
   it.effect("never dies on hostile deeply-nested input — trips the parser's nesting-depth cap", () =>
     Effect.gen(function* () {
       // The parser caps array/inline-table nesting depth at 256
-      // (packages/toml/src/internal/limits.ts MAX_NESTING_DEPTH).
+      // (packages/foundation/modeling/toml/src/internal/limits.ts MAX_NESTING_DEPTH).
       // 1000 levels of array nesting comfortably exceeds that cap while
       // remaining syntactically valid TOML, so this exercises the depth
       // guard rather than a plain syntax error.

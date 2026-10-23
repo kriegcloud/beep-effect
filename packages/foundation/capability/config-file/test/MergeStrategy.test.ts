@@ -1,9 +1,11 @@
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -374,15 +376,16 @@ describe("MergeStrategy.layeredMerge — value identity", () => {
     })
   );
 
-  it.effect("a nested Map is atomic", () =>
+  it.effect("a nested HashMap is atomic", () =>
     Effect.gen(function* () {
-      const strategy = MergeStrategy.layeredMerge<{ m: Map<string, number> }>();
+      const strategy = MergeStrategy.layeredMerge<{ m: HashMap.HashMap<string, number> }>();
       const value = yield* strategy.resolve([
-        src("/a", "walk", { m: new Map([["k", 1]]) }),
-        src("/etc", "system", { m: new Map([["k", 2]]) }),
+        src("/a", "walk", { m: HashMap.make(["k", 1]) }),
+        src("/etc", "system", { m: HashMap.make(["k", 2], ["extra", 3]) }),
       ]);
-      assert.instanceOf(value.m, Map);
-      assert.strictEqual(value.m.get("k"), 1);
+      assert.isTrue(HashMap.isHashMap(value.m));
+      assertSome(HashMap.get(value.m, "k"), 1);
+      assertNone(HashMap.get(value.m, "extra"));
     })
   );
 });

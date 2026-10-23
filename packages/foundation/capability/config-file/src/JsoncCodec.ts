@@ -10,7 +10,7 @@ import { ConfigCodecError } from "./ConfigCodec.ts";
 import type { ConfigCodec } from "./ConfigCodec.ts";
 
 /**
- * A `ConfigCodec` backed by `@effected/jsonc`: JSON with comments and
+ * A `ConfigCodec` backed by `@beep/jsonc`: JSON with comments and
  * trailing commas.
  *
  * **Details**

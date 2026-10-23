@@ -43,7 +43,7 @@ describe("YamlCodec", () => {
   it.effect("never dies on hostile deeply-nested input — trips the composer's nesting-depth cap", () =>
     Effect.gen(function* () {
       // The composer caps collection-nesting depth at 256
-      // (packages/yaml/src/internal/composer/state.ts MAX_NESTING_DEPTH).
+      // (packages/foundation/modeling/yaml/src/internal/composer/state.ts MAX_NESTING_DEPTH).
       // 1000 levels of flow-sequence nesting comfortably exceeds that cap
       // while remaining syntactically valid YAML, so this exercises the
       // depth guard rather than a plain syntax error.
@@ -69,13 +69,13 @@ describe("YamlCodec", () => {
   it.effect("an alias bomb fails as a typed ConfigCodecError, never a defect — trips the alias-expansion budget", () =>
     Effect.gen(function* () {
       // Six tiers of ten aliases each. The composer's raw alias-token count
-      // (packages/yaml/src/internal/composer/anchors.ts) stays at 60 — well
+      // (packages/foundation/modeling/yaml/src/internal/composer/anchors.ts) stays at 60 — well
       // under the default maxAliasCount of 100 — so this does not trip that
       // guard. Instead, resolving the aliases multiplies the materialized
       // node count roughly tenfold per tier (~10^6 nodes for the final
       // "bomb" key alone), which blows past the alias-expansion budget of
       // (maxAliasCount + 1) * 10_000 = 1_010_000 output nodes
-      // (packages/yaml/src/YamlNode.ts, ALIAS_EXPANSION_FACTOR) — the
+      // (packages/foundation/modeling/yaml/src/YamlNode.ts, ALIAS_EXPANSION_FACTOR) — the
       // "billion laughs" guard — before any heap exhaustion occurs.
       const tiers = [
         "a0: &a0 [x, x]",
