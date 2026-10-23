@@ -4,6 +4,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import { vi } from "vitest";
 
 const unavailable = () => {
@@ -47,18 +48,25 @@ describe("SqlTest dependency failures", () => {
         }
         vi.doMock(dependency, unavailable);
         const harness = yield* Effect.promise(() => import("@beep/test-utils/SqlTest"));
-        const effect =
-          dependency === "testcontainers" || dependency === "pg"
-            ? harness.makePgliteTestcontainerResource({ password: "fixture" }).pipe(Effect.asVoid)
-            : Layer.build(
-                dependency === "@effect/sql-pg"
-                  ? harness.PgExternalTestDriver.makeLayer({ connectionUri: "postgres://localhost/fixture" })
-                  : dependency === "@effect/sql-pglite/PgliteClient"
-                    ? harness.PgliteInProcessTestDriver.makeLayer(undefined)
-                    : dependency === "@effect/sql-sqlite-node/SqliteClient"
-                      ? harness.NodeSqliteTestDriver.makeLayer(undefined)
-                      : harness.BunSqliteTestDriver.makeLayer(undefined)
-              ).pipe(Effect.asVoid);
+        const containerResource = () =>
+          harness.makePgliteTestcontainerResource({ password: "fixture" }).pipe(Effect.asVoid);
+        const effect = Match.value(dependency).pipe(
+          Match.when("testcontainers", containerResource),
+          Match.when("pg", containerResource),
+          Match.when("@effect/sql-pg", () =>
+            harness.PgExternalTestDriver.makeLayer({ connectionUri: "postgres://localhost/fixture" }).pipe(
+              Layer.build,
+              Effect.asVoid
+            )
+          ),
+          Match.when("@effect/sql-pglite/PgliteClient", () =>
+            harness.PgliteInProcessTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.asVoid)
+          ),
+          Match.when("@effect/sql-sqlite-node/SqliteClient", () =>
+            harness.NodeSqliteTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.asVoid)
+          ),
+          Match.orElse(() => harness.BunSqliteTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.asVoid))
+        );
         const exit = yield* effect.pipe(Effect.scoped, Effect.exit);
         expect(Exit.isFailure(exit)).toBe(true);
         if (Exit.isFailure(exit)) {
