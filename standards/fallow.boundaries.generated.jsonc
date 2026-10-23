@@ -486,6 +486,12 @@
         ]
       },
       {
+        "name": "@beep/lockfiles",
+        "patterns": [
+          "packages/foundation/modeling/lockfiles/src/**"
+        ]
+      },
+      {
         "name": "@beep/m365",
         "patterns": [
           "packages/drivers/m365/src/**"
@@ -2881,6 +2887,15 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/lockfiles",
+        "allow": [
+          "@beep/lockfiles"
+        ],
+        "allowTypeOnly": [
+          "@beep/lockfiles"
         ]
       },
       {

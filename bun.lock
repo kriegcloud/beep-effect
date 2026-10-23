@@ -2605,6 +2605,18 @@
         "lexical": "catalog:",
       },
     },
+    "packages/foundation/modeling/lockfiles": {
+      "name": "@beep/lockfiles",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/managed-section": {
       "name": "@beep/managed-section",
       "version": "0.0.0",
@@ -4580,6 +4592,8 @@
     "@beep/libpff": ["@beep/libpff@workspace:packages/drivers/libpff"],
 
     "@beep/lint-rules": ["@beep/lint-rules@workspace:packages/tooling/policy-pack/lint-rules"],
+
+    "@beep/lockfiles": ["@beep/lockfiles@workspace:packages/foundation/modeling/lockfiles"],
 
     "@beep/m365": ["@beep/m365@workspace:packages/drivers/m365"],
 

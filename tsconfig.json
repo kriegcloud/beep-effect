@@ -2315,7 +2315,11 @@
       "@beep/markdown/*": ["./packages/foundation/modeling/markdown/src/*"],
       "@beep/markdown/internal/*": [
         "./packages/foundation/modeling/markdown/src/internal/*"
-      ]
+      ],
+      "@beep/lockfiles": [
+        "./packages/foundation/modeling/lockfiles/src/index.ts"
+      ],
+      "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"]
     }
   }
 }
