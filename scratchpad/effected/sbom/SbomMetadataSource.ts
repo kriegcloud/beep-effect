@@ -1,7 +1,7 @@
 // Manifest → CycloneDX derivation.
 //
 // Author parsing and repository-URL normalization are not done here: they are
-// `@effected/package-json`'s `Person.FromValue` and `Repository.browseUrl`,
+// `@beep/package-json`'s `Person.FromValue` and `Repository.browseUrl`,
 // which serve consumers with no SBOM interest at all. What lives here is the
 // part that is genuinely CycloneDX vocabulary: which manifest field becomes
 // which external-reference type, how a supplier and publisher resolve, and
@@ -21,7 +21,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { Package, Person } from "../package-json/index.ts";
+import type { Package, Person } from "@beep/package-json";
 import { Component, ComponentType, Contact, ExternalReference, SbomMetadata, Supplier } from "./SbomDocument.ts";
 
 const $I = $ScratchpadId.create("effected/sbom/SbomMetadataSource");
@@ -326,7 +326,8 @@ const merge: {
  * **Example** (Generate an SBOM from package metadata and an explicit supplier)
  *
  * ```ts
- * import { Package, Sbom } from "@beep/scratchpad/effected/sbom/index";
+ * import { Package } from "@beep/package-json/Package";
+ * import { Sbom } from "@beep/scratchpad/effected/sbom/index";
  * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
  * import { Supplier } from "@beep/scratchpad/effected/sbom/SbomDocument";
  * import * as Effect from "effect/Effect";
@@ -406,7 +407,7 @@ export class SbomMetadataSource {
 	 *
 	 * ```ts
 	 * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
-	 * import { Package } from "@beep/scratchpad/effected/sbom/index";
+	 * import { Package } from "@beep/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const pkg = Effect.runSync(Package.decode({ name: "@acme/app", version: "1.0.0", license: "MIT", homepage: "https://example.com/docs" }));
@@ -436,7 +437,7 @@ export class SbomMetadataSource {
 	 *
 	 * ```ts
 	 * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
-	 * import { Package } from "@beep/scratchpad/effected/sbom/index";
+	 * import { Package } from "@beep/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const pkg = Effect.runSync(Package.decode({ name: "@acme/app", version: "1.0.0", license: "MIT", homepage: "https://example.com/docs" }));
@@ -463,15 +464,14 @@ export class SbomMetadataSource {
 	 * vocabulary into supplier vocabulary, and only where the caller left a
 	 * hole.
 	 *
-	 * `pkg` is a `@effected/package-json` `Package`, re-exported from
-	 * this package's entry point so a caller can name the parameter type
-	 * without adding `@effected/package-json` as an undeclared dependency.
+	 * `pkg` is a `@beep/package-json` `Package`; callers import the type from
+	 * `@beep/package-json` directly (this entry point no longer re-exports it).
 	 *
 	 * **Example** (Keep assembly time explicit)
 	 *
 	 * ```ts
 	 * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
-	 * import { Package } from "@beep/scratchpad/effected/sbom/index";
+	 * import { Package } from "@beep/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const pkg = Effect.runSync(Package.decode({ name: "@acme/app", version: "1.0.0", license: "MIT", homepage: "https://example.com/docs" }));

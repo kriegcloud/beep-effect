@@ -27,6 +27,7 @@
   "dependencies": {
     "@azure/storage-blob": "^12.33.0",
     "@beep/commands": "workspace:^",
+    "@beep/config-file": "workspace:^",
     "@beep/dock": "workspace:^",
     "@beep/dock-react": "workspace:^",
     "@beep/drizzle": "workspace:^",
@@ -54,6 +55,7 @@
     "@beep/npm-spec": "workspace:^",
     "@beep/ontology": "workspace:^",
     "@beep/oxigraph": "workspace:^",
+    "@beep/package-json": "workspace:^",
     "@beep/postgres": "workspace:^",
     "@beep/pretext": "workspace:^",
     "@beep/provenance": "workspace:^",
