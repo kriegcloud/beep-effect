@@ -3557,6 +3557,7 @@
       "name": "@beep/repo-ai-metrics",
       "version": "0.0.3",
       "dependencies": {
+        "@beep/cli-kit": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",

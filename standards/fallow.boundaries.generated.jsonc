@@ -4234,6 +4234,7 @@
       {
         "from": "@beep/repo-ai-metrics",
         "allow": [
+          "@beep/cli-kit",
           "@beep/duckdb",
           "@beep/fc-runs",
           "@beep/file-processing",
@@ -4248,6 +4249,7 @@
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/cli-kit",
           "@beep/duckdb",
           "@beep/fc-runs",
           "@beep/file-processing",
