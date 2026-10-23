@@ -2,10 +2,10 @@
 // package-manager constraint) and the `DevEnginesSchema` struct grouping the
 // `packageManager` / `runtime` / `os` / `cpu` / `libc` constraint slots.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/package-json/DevEngines");
+const $I = $PackageJsonId.create("DevEngines");
 
 /**
  * A single `devEngines` constraint with a name and optional `version` / `onFail`.
@@ -13,7 +13,7 @@ const $I = $ScratchpadId.create("effected/package-json/DevEngines");
  * **Example** (Construct a runtime constraint)
  *
  * ```ts
- * import { DevEngine } from "@beep/scratchpad/effected/package-json/DevEngines";
+ * import { DevEngine } from "@beep/package-json/DevEngines";
  *
  * const engine = DevEngine.make({ name: "node", version: ">=24", onFail: "error" });
  * console.log(engine.onFail) // "error"
@@ -31,7 +31,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
      * **Example** (Read the required engine name)
      *
      * ```ts
-     * import { DevEngine } from "@beep/scratchpad/effected/package-json/DevEngines";
+     * import { DevEngine } from "@beep/package-json/DevEngines";
      *
      * const engine = DevEngine.make({ name: "node" });
      * console.log(engine.name) // "node"
@@ -47,7 +47,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
      * **Example** (Read an engine version constraint)
      *
      * ```ts
-     * import { DevEngine } from "@beep/scratchpad/effected/package-json/DevEngines";
+     * import { DevEngine } from "@beep/package-json/DevEngines";
      *
      * const engine = DevEngine.make({ name: "node", version: ">=24" });
      * console.log(engine.version) // ">=24"
@@ -65,7 +65,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
      * **Example** (Read the failure policy)
      *
      * ```ts
-     * import { DevEngine } from "@beep/scratchpad/effected/package-json/DevEngines";
+     * import { DevEngine } from "@beep/package-json/DevEngines";
      *
      * const engine = DevEngine.make({ name: "node", onFail: "warn" });
      * console.log(engine.onFail) // "warn"
@@ -89,7 +89,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
  * **Example** (Decode single and multiple engine constraints)
  *
  * ```ts
- * import { DevEngineOrArray } from "@beep/scratchpad/effected/package-json/DevEngines";
+ * import { DevEngineOrArray } from "@beep/package-json/DevEngines";
  * import * as S from "effect/Schema";
  *
  * const decode = S.decodeUnknownSync(DevEngineOrArray);
@@ -116,7 +116,7 @@ export const DevEngineOrArray: S.Union<[typeof DevEngine, S.$Array<typeof DevEng
  * **Example** (Decode development engine slots)
  *
  * ```ts
- * import { DevEnginesSchema } from "@beep/scratchpad/effected/package-json/DevEngines";
+ * import { DevEnginesSchema } from "@beep/package-json/DevEngines";
  * import * as S from "effect/Schema";
  *
  * const engines = S.decodeUnknownSync(DevEnginesSchema)({ runtime: { name: "node", version: ">=24" } });

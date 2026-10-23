@@ -20,7 +20,7 @@
 // What this module does NOT share with the pin is the name grammar; the
 // `PackageManager` class remarks carry that decision and its evidence.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
@@ -32,7 +32,7 @@ import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageManager");
+const $I = $PackageJsonId.create("PackageManager");
 
 // The name half of the grammar, deliberately looser than
 // `PackageManagerPin`'s four literals — see the class remarks for why.
@@ -87,7 +87,7 @@ const invalid: {
  * **Example** (Decode a package manager pin with integrity)
  *
  * ```ts
- * import { PackageManager } from "@beep/scratchpad/effected/package-json/PackageManager";
+ * import { PackageManager } from "@beep/package-json/PackageManager";
  * import * as S from "effect/Schema";
  *
  * const pm = S.decodeUnknownSync(PackageManager.FromString)("pnpm@10.33.0+sha512.abc");
@@ -159,7 +159,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
    * **Example** (Round-trip a package manager string)
    *
    * ```ts
-   * import { PackageManager } from "@beep/scratchpad/effected/package-json/PackageManager";
+   * import { PackageManager } from "@beep/package-json/PackageManager";
    * import * as S from "effect/Schema";
    *
    * const pm = S.decodeUnknownSync(PackageManager.FromString)("pnpm@10.33.0");
@@ -233,7 +233,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
    * **Example** (Detect a pin without an integrity hash)
    *
    * ```ts
-   * import { PackageManager } from "@beep/scratchpad/effected/package-json/PackageManager";
+   * import { PackageManager } from "@beep/package-json/PackageManager";
    * import * as S from "effect/Schema";
    *
    * const pm = S.decodeUnknownSync(PackageManager.FromString)("pnpm@10.33.0");

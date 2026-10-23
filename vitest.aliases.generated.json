@@ -2140,5 +2140,8 @@
   "@beep/package-json": [
     "./packages/foundation/modeling/package-json/src/index.ts"
   ],
-  "@beep/package-json/*": ["./packages/foundation/modeling/package-json/src/*"]
+  "@beep/package-json/*": ["./packages/foundation/modeling/package-json/src/*"],
+  "@beep/package-json/internal/*": [
+    "./packages/foundation/modeling/package-json/src/internal/*"
+  ]
 }

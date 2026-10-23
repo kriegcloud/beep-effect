@@ -21,8 +21,8 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>, sample: S.Codec<T
   );
 };
 
+import { InvalidSpdxLicenseError, licenseExpressionOf, SpdxLicense } from "@beep/package-json/License";
 import * as O from "effect/Option";
-import { InvalidSpdxLicenseError, licenseExpressionOf, SpdxLicense } from "../../effected/package-json/License.ts";
 
 const LicenseSample = SpdxLicense.check(
   S.isPattern(/^(MIT|ISC|Apache-2\.0)( (AND|OR) (MIT|ISC|Apache-2\.0))?$|^UNLICENSED$|^SEE LICENSE IN [a-zA-Z.]{1,16}$/)

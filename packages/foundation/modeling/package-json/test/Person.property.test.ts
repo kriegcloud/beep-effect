@@ -23,7 +23,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { Person } from "../../effected/package-json/Person.ts";
+import { Person } from "@beep/package-json/Person";
 
 const ObjectWire = S.Struct({
   name: S.String,

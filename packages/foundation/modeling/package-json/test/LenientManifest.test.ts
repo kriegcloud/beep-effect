@@ -9,13 +9,13 @@
 //   - leniency is per-field, not per-syntax — invalid JSON text and a
 //     non-object document stay typed errors.
 
+import { LenientManifest } from "@beep/package-json/LenientManifest";
+import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
-import { LenientManifest } from "../../effected/package-json/LenientManifest.ts";
-import { PackageManifest } from "../../effected/package-json/PackageManifest.ts";
 
 const unwrap = <A, E>(result: Result.Result<A, E>): A => {
   assertTrue(Result.isSuccess(result), "expected the lenient decode to succeed");

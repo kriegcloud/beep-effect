@@ -23,10 +23,7 @@ const roundTrips = <T, E>(name: string, codec: S.Codec<T, E>, schema: S.Codec<T,
   );
 };
 
-import {
-  InvalidPackageManagerRangeError,
-  PackageManagerRange,
-} from "../../effected/package-json/PackageManagerRange.ts";
+import { InvalidPackageManagerRangeError, PackageManagerRange } from "@beep/package-json/PackageManagerRange";
 
 const Wire = S.Struct({
   name: S.Literals(["pnpm", "npm", "yarn", "custom"]),

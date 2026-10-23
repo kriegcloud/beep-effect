@@ -20,7 +20,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { UnresolvedEntryPointError } from "../../effected/package-json/EntryPoint.ts";
+import { UnresolvedEntryPointError } from "@beep/package-json/EntryPoint";
 
 describe("EntryPoint property floor", () => {
   roundTrips("UnresolvedEntryPointError", UnresolvedEntryPointError);

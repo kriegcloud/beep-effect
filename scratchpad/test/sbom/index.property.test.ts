@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { SbomDocument, Package, Person, Repository } from "../../effected/sbom/index.ts";
-import * as Manifest from "../../effected/package-json/index.ts";
+import * as Manifest from "@beep/package-json";
 
 const runs = { arbitrary: fcRuns(100) };
 

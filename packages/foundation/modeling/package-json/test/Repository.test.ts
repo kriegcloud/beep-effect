@@ -12,6 +12,7 @@
 // formatter must not rewrite one legal encoding into another, so a shorthand
 // string round-trips as that exact string.
 
+import { Bugs, Person, Repository } from "@beep/package-json";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -19,7 +20,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { Bugs, Person, Repository } from "../../effected/package-json/index.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 

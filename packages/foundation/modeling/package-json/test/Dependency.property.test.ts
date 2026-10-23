@@ -20,7 +20,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { Dependency } from "../../effected/package-json/Dependency.ts";
+import { Dependency } from "@beep/package-json/Dependency";
 
 describe("Dependency property floor", () => {
   roundTrips("Dependency", Dependency);

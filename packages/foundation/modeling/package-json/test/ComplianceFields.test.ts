@@ -15,10 +15,10 @@
 // this file's coverage stays CycloneDX/NTIA-shaped and `funding` is simply
 // out of ITS scope rather than out of the model.
 
+import { Package } from "@beep/package-json";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Package } from "../../effected/package-json/index.ts";
 
 const base = { name: "@scope/pkg", version: "1.0.0" };
 

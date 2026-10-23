@@ -11,7 +11,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { PackageManager } from "../package-json/index.ts";
+import { PackageManager } from "@beep/package-json";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

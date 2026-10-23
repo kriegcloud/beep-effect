@@ -8,12 +8,12 @@
 //   nonsemver version ("1.0")        PackageManifest REJECT — lenient about
 //                                    ABSENCE, strict about shape when present.
 
+import { Package } from "@beep/package-json/Package";
+import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import { Package } from "../../effected/package-json/Package.ts";
-import { PackageManifest } from "../../effected/package-json/PackageManifest.ts";
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 

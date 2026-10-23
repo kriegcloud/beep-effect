@@ -17,6 +17,7 @@
 //           re-encodes as that exact string.
 
 import { readFileSync } from "node:fs";
+import { Funding, LenientManifest, Package, PackageManifest } from "@beep/package-json";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -25,7 +26,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { Funding, LenientManifest, Package, PackageManifest } from "../../effected/package-json/index.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 const JsonObject = S.fromJsonString(S.Record(S.String, S.Unknown));
@@ -335,7 +335,7 @@ describe("Funding — `url` is required", () => {
 
 describe("funding — the manifest tiers", () => {
   const fixture: unknown = JSON.parse(
-    readFileSync(new URL("./fixtures/package-json.input.json", import.meta.url), "utf8")
+    readFileSync(new URL("./fixtures/package-json.input.json.txt", import.meta.url), "utf8")
   );
   assertTrue(P.isObject(fixture));
 

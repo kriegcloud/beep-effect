@@ -1,6 +1,6 @@
+import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { PackageManifest } from "../../effected/package-json/PackageManifest.ts";
 
 describe("manifest fallback and serialization failures", () => {
   it.effect("absence defaults private to false; false stays false", () =>

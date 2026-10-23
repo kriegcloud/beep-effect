@@ -1,10 +1,10 @@
-import { assert, describe, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
 import {
   PackageJsonFormat,
   PackageJsonModifyError,
   PackageJsonSyntaxError,
-} from "../../effected/package-json/PackageJsonFormat.ts";
+} from "@beep/package-json/PackageJsonFormat";
+import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 
 describe("formatter diagnostic coverage", () => {
   it.effect("reports both syntax reasons and modification paths", () =>

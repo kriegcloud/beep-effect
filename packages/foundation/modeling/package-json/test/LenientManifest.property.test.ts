@@ -22,7 +22,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { LenientFieldIssue, LenientManifest } from "../../effected/package-json/LenientManifest.ts";
+import { LenientFieldIssue, LenientManifest } from "@beep/package-json/LenientManifest";
 
 describe("LenientManifest property floor", () => {
   roundTrips("LenientFieldIssue", LenientFieldIssue);

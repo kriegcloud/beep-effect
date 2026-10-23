@@ -5,18 +5,15 @@
 // `PackageManager` — whose continued rejection of ranges is pinned here as a
 // control.
 
+import { DevEngine } from "@beep/package-json/DevEngines";
+import { PackageManager } from "@beep/package-json/PackageManager";
+import { InvalidPackageManagerRangeError, PackageManagerRange } from "@beep/package-json/PackageManagerRange";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { DevEngine } from "../../effected/package-json/DevEngines.ts";
-import { PackageManager } from "../../effected/package-json/PackageManager.ts";
-import {
-  InvalidPackageManagerRangeError,
-  PackageManagerRange,
-} from "../../effected/package-json/PackageManagerRange.ts";
 
 const DevEngineEntry = S.Struct({ name: S.String, version: S.optionalKey(S.String) });
 
@@ -26,7 +23,7 @@ const decodeStrict = S.decodeUnknownEffect(PackageManager.FromString);
 
 describe("PackageManagerRange.FromString", () => {
   it("annotates the reusable range check without broadening component validation", () => {
-    const $I = $ScratchpadId.create("effected/package-json/PackageManagerRange");
+    const $I = $PackageJsonId.create("PackageManagerRange");
     const range = PackageManagerRange.fields.range;
     assert.deepStrictEqual(
       range.ast.checks?.[0]?.annotations,
@@ -307,4 +304,4 @@ describe("PackageManagerRange operator, baseVersion and withVersion", () => {
   );
 });
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";

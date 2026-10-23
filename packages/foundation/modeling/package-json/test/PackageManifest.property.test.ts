@@ -24,8 +24,8 @@ const roundTrips = <T, E>(name: string, codec: S.Codec<T, E>, schema: S.Codec<T,
   );
 };
 
-import { PackageManifest } from "../../effected/package-json/PackageManifest.ts";
-import { UnscopedPackageName } from "../../effected/package-json/PackageName.ts";
+import { PackageManifest } from "@beep/package-json/PackageManifest";
+import { UnscopedPackageName } from "@beep/package-json/PackageName";
 
 const Wire = S.Struct({
   name: S.optionalKey(UnscopedPackageName),

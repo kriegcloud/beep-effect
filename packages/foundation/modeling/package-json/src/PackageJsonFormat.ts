@@ -16,7 +16,7 @@
 // `author` shorthand above all) survive untouched because they are never
 // looked at.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { JsoncEdit, JsoncModifier } from "@beep/jsonc";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -28,7 +28,7 @@ import * as Str from "effect/String";
 import { detectIndent, renderJson, resolveIndent, sortKeys } from "./internal/format.ts";
 import type { JsoncPath, JsoncStringifyError } from "@beep/jsonc";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageJsonFormat");
+const $I = $PackageJsonId.create("PackageJsonFormat");
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -47,7 +47,7 @@ const Json = S.fromJsonString(S.Unknown);
  * **Example** (Inspect PackageJsonSyntaxError details)
  *
  * ```ts
- * import { PackageJsonSyntaxError } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+ * import { PackageJsonSyntaxError } from "@beep/package-json/PackageJsonFormat";
  *
  * const error = PackageJsonSyntaxError.make({ reason: "not-an-object" });
  * console.log(error.message) // package.json text is not a JSON object
@@ -92,7 +92,7 @@ export class PackageJsonSyntaxError extends S.TaggedError<PackageJsonSyntaxError
    * **Example** (Inspect PackageJsonSyntaxError details)
    *
    * ```ts
-   * import { PackageJsonSyntaxError } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+   * import { PackageJsonSyntaxError } from "@beep/package-json/PackageJsonFormat";
    *
    * const error = PackageJsonSyntaxError.make({ reason: "not-an-object" });
    * console.log(error.message) // package.json text is not a JSON object
@@ -171,7 +171,7 @@ const isJsonObject: (value: unknown) => value is Record<string, unknown> = P.isO
  * **Example** (Inspect PackageJsonModifyError details)
  *
  * ```ts
- * import { PackageJsonModifyError } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+ * import { PackageJsonModifyError } from "@beep/package-json/PackageJsonFormat";
  *
  * const error = PackageJsonModifyError.make({ path: ["scripts", "build"], cause: new Error("expected object") });
  * console.log(error.message) // Failed to modify package.json at path [scripts, build]
@@ -216,7 +216,7 @@ export class PackageJsonModifyError extends S.TaggedError<PackageJsonModifyError
    * **Example** (Inspect PackageJsonModifyError details)
    *
    * ```ts
-   * import { PackageJsonModifyError } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+   * import { PackageJsonModifyError } from "@beep/package-json/PackageJsonFormat";
    *
    * const error = PackageJsonModifyError.make({ path: ["scripts", "build"], cause: new Error("expected object") });
    * console.log(error.message) // Failed to modify package.json at path [scripts, build]
@@ -254,7 +254,7 @@ export class PackageJsonModifyError extends S.TaggedError<PackageJsonModifyError
  * **Example** (Sort a manifest without decoding fields)
  *
  * ```ts
- * import { PackageJsonFormat } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+ * import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
  *
  * const sorted = PackageJsonFormat.sortValue({ version: "1.0.0", name: "p" });
  * console.log(JSON.stringify(sorted)) // {"name":"p","version":"1.0.0"}
@@ -293,7 +293,7 @@ export class PackageJsonFormat {
    * **Example** (Sort package object keys canonically)
    *
    * ```ts
-   * import { PackageJsonFormat } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+   * import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
    *
    * const sorted = PackageJsonFormat.sortValue({ version: "1.0.0", name: "p" });
    * console.log(JSON.stringify(sorted)) // {"name":"p","version":"1.0.0"}
@@ -331,7 +331,7 @@ export class PackageJsonFormat {
    * **Example** (Format package text and lift the result into Effect)
    *
    * ```ts
-   * import { PackageJsonFormat } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+   * import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
    * import * as Effect from "effect/Effect";
    * import * as Result from "effect/Result";
    *
@@ -401,7 +401,7 @@ export class PackageJsonFormat {
    * **Example** (Compute an edit for one package field)
    *
    * ```ts
-   * import { PackageJsonFormat } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+   * import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
    * import * as Effect from "effect/Effect";
    *
    * const edits = Effect.runSync(PackageJsonFormat.modify('{"private":true}', ["private"], false));
@@ -464,7 +464,7 @@ export class PackageJsonFormat {
    * **Example** (Update the package manager pin while preserving surrounding text)
    *
    * ```ts
-   * import { PackageJsonFormat } from "@beep/scratchpad/effected/package-json/PackageJsonFormat";
+   * import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
    * import * as Effect from "effect/Effect";
    *
    * const source = '{\n  "private": true,\n  "packageManager": "pnpm@11.2.0"\n}\n';

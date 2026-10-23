@@ -1,8 +1,8 @@
+import { resolveEntryPoint, UnresolvedEntryPointError } from "@beep/package-json/EntryPoint";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
 import * as Result from "effect/Result";
-import { resolveEntryPoint, UnresolvedEntryPointError } from "../../effected/package-json/EntryPoint.ts";
 
 const resolve = (manifest: { exports?: unknown; main?: unknown }, conditions?: ReadonlyArray<string>) =>
   resolveEntryPoint(manifest, conditions === undefined ? undefined : { conditions });

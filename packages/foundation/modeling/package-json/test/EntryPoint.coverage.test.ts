@@ -1,7 +1,7 @@
+import { resolveEntryPoint, UnresolvedEntryPointError } from "@beep/package-json/EntryPoint";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import { resolveEntryPoint, UnresolvedEntryPointError } from "../../effected/package-json/EntryPoint.ts";
 
 it.effect("reports all entry point failures and searches past unmatched nested conditions", () =>
   Effect.sync(() => {

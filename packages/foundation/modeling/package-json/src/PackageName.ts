@@ -4,13 +4,13 @@
 // `PackageName.isScoped`), and the `InvalidPackageNameError` the concept
 // raises.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as Brand from "effect/Brand";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageName");
+const $I = $PackageJsonId.create("PackageName");
 
 /**
  * Indicates that a string could not be used as a valid npm package name.
@@ -23,7 +23,7 @@ const $I = $ScratchpadId.create("effected/package-json/PackageName");
  * **Example** (Report an invalid package name)
  *
  * ```ts
- * import { InvalidPackageNameError } from "@beep/scratchpad/effected/package-json/PackageName";
+ * import { InvalidPackageNameError } from "@beep/package-json/PackageName";
  *
  * const error = InvalidPackageNameError.make({ input: "Bad Name" });
  * console.log(error.message) // Invalid package name "Bad Name": does not satisfy npm naming rules
@@ -58,7 +58,7 @@ export class InvalidPackageNameError extends S.TaggedError<InvalidPackageNameErr
    * **Example** (Read the invalid-name report)
    *
    * ```ts
-   * import { InvalidPackageNameError } from "@beep/scratchpad/effected/package-json/PackageName";
+   * import { InvalidPackageNameError } from "@beep/package-json/PackageName";
    *
    * console.log(InvalidPackageNameError.make({ input: "Bad Name" }).message) // Invalid package name "Bad Name": does not satisfy npm naming rules
    * ```
@@ -86,7 +86,7 @@ const MAX_LENGTH = 214;
  * **Example** (Decode a scoped package name)
  *
  * ```ts
- * import { ScopedPackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+ * import { ScopedPackageName } from "@beep/package-json/PackageName";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(ScopedPackageName)("@effected/semver")) // @effected/semver
@@ -117,7 +117,7 @@ export type ScopedPackageName = string & Brand.Brand<"ScopedPackageName">;
  * **Example** (Decode an unscoped package name)
  *
  * ```ts
- * import { UnscopedPackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+ * import { UnscopedPackageName } from "@beep/package-json/PackageName";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(UnscopedPackageName)("semver")) // semver
@@ -194,7 +194,7 @@ const PackageNameBase: Omit<S.Opaque<PackageName, typeof PackageNameUnion, {}>, 
  * **Example** (Validate and inspect a scoped package name)
  *
  * ```ts
- * import { PackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+ * import { PackageName } from "@beep/package-json/PackageName";
  * import * as O from "effect/Option";
  *
  * console.log(PackageName.isValid("@effected/semver")) // true
@@ -213,7 +213,7 @@ export const PackageName = class extends PackageNameBase {
    * **Example** (Check a raw package name)
    *
    * ```ts
-   * import { PackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+   * import { PackageName } from "@beep/package-json/PackageName";
    * console.log(PackageName.isValid("@effected/semver")) // true
    * console.log(PackageName.isValid("Bad Name")) // false
    * ```
@@ -228,7 +228,7 @@ export const PackageName = class extends PackageNameBase {
    * **Example** (Inspect a scope or its absence)
    *
    * ```ts
-   * import { PackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+   * import { PackageName } from "@beep/package-json/PackageName";
    * import * as O from "effect/Option";
    *
    * console.log(O.getOrElse(PackageName.scope("@scope/x"), () => "no scope")) // scope
@@ -245,7 +245,7 @@ export const PackageName = class extends PackageNameBase {
    * **Example** (Extract the unscoped portion)
    *
    * ```ts
-   * import { PackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+   * import { PackageName } from "@beep/package-json/PackageName";
    * console.log(PackageName.unscoped("@scope/x")) // x
    * console.log(PackageName.unscoped("x")) // x
    * ```
@@ -260,7 +260,7 @@ export const PackageName = class extends PackageNameBase {
    * **Example** (Classify scoped and unscoped names)
    *
    * ```ts
-   * import { PackageName } from "@beep/scratchpad/effected/package-json/PackageName";
+   * import { PackageName } from "@beep/package-json/PackageName";
    * console.log(PackageName.isScoped("@scope/x")) // true
    * console.log(PackageName.isScoped("x")) // false
    * ```

@@ -1,7 +1,7 @@
+import { PackageValidationError } from "@beep/package-json/PackageValidator";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { PackageValidationError } from "../../effected/package-json/PackageValidator.ts";
 
 describe("validator pathless diagnostic", () => {
   it.effect("renders a rule without an invented field path", () =>

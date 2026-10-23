@@ -20,7 +20,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { DevEngine, DevEngineOrArray, DevEnginesSchema } from "../../effected/package-json/DevEngines.ts";
+import { DevEngine, DevEngineOrArray, DevEnginesSchema } from "@beep/package-json/DevEngines";
 
 describe("DevEngines property floor", () => {
   roundTrips("DevEngine", DevEngine);

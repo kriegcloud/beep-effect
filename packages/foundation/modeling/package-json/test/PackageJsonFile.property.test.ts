@@ -25,7 +25,7 @@ import {
   PackageJsonParseError,
   PackageJsonReadError,
   PackageJsonWriteError,
-} from "../../effected/package-json/PackageJsonFile.ts";
+} from "@beep/package-json/PackageJsonFile";
 
 describe("PackageJsonFile property floor", () => {
   roundTrips("PackageJsonReadError", PackageJsonReadError);
@@ -35,11 +35,11 @@ describe("PackageJsonFile property floor", () => {
 });
 
 import { MemoryFileSystem } from "@beep/memfs";
+import { Package } from "@beep/package-json/Package";
+import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { Package } from "../../effected/package-json/Package.ts";
-import { PackageJsonFile } from "../../effected/package-json/PackageJsonFile.ts";
 
 const FileSample = S.Struct({
   name: S.tag("property-package"),

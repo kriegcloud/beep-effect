@@ -24,7 +24,7 @@ const RawJson = S.Record(S.String, S.Unknown);
  * **Example** (Flatten custom class metadata)
  *
  * ```ts
- * import { makeWire } from "@beep/scratchpad/effected/package-json/internal/wire";
+ * import { makeWire } from "@beep/package-json/internal/wire";
  * import * as S from "effect/Schema";
  *
  * class Manifest extends S.Class<Manifest>("Manifest")({

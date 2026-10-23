@@ -21,8 +21,6 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>, sample: S.Codec<T
   );
 };
 
-import * as Result from "effect/Result";
-import * as Getter from "effect/SchemaGetter";
 import {
   BinField,
   DependencyMapField,
@@ -33,7 +31,9 @@ import {
   PublishConfigField,
   RepositoryField,
   StringMapField,
-} from "../../effected/package-json/Package.ts";
+} from "@beep/package-json/Package";
+import * as Result from "effect/Result";
+import * as Getter from "effect/SchemaGetter";
 
 const WireSample = S.Struct({
   name: S.String.check(S.isPattern(/^[a-z][a-z0-9-]{0,12}$/)),

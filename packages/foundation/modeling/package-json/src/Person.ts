@@ -12,7 +12,7 @@
 // object form land in `rest` and flatten back on encode, instead of being
 // silently dropped.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual, identity } from "effect/Function";
@@ -25,7 +25,7 @@ import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/package-json/Person");
+const $I = $PackageJsonId.create("Person");
 
 const parsePersonString = (input: string): Person => {
   const emailMatch = Str.match(/<([^>]+)>/)(input);
@@ -139,7 +139,7 @@ const encodePersonObject = (person: Person): { readonly [k: string]: unknown } =
  *
  * **Example** (Round-trip an author shorthand)
  * ```ts
- * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+ * import { Person } from "@beep/package-json/Person";
  * import * as S from "effect/Schema";
  *
  * const ann = S.decodeUnknownSync(Person.FromValue)("Ann <ann@example.com> (https://example.com)");
@@ -178,7 +178,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Keep person provenance out of enumerable data)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    * import * as S from "effect/Schema";
    *
    * const value = S.decodeUnknownSync(Person.FromValue)("Ann");
@@ -196,7 +196,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Inspect instance wire provenance)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    * import * as S from "effect/Schema";
    *
    * const person = S.decodeUnknownSync(Person.FromString)("Ann <ann@example.com>");
@@ -216,7 +216,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Remember the author spelling)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    *
    * const person = Person.make({ name: "Ann" });
    * Person.rememberWire(person, "Ann");
@@ -241,7 +241,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Flatten unknown person keys)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    * import * as S from "effect/Schema";
    *
    * const person = S.decodeUnknownSync(Person.schema)({ name: "Ann", team: "docs" });
@@ -282,7 +282,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Preserve shorthand spacing)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    * import * as S from "effect/Schema";
    *
    * const person = S.decodeUnknownSync(Person.FromString)("Ann  <ann@example.com>");
@@ -325,7 +325,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Retain an object author field)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    * import * as S from "effect/Schema";
    *
    * const person = S.decodeUnknownSync(Person.FromValue)({ name: "Ann", team: "docs" });
@@ -377,7 +377,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
    * **Example** (Distinguish shorthand from a constructed person)
    *
    * ```ts
-   * import { Person } from "@beep/scratchpad/effected/package-json/Person";
+   * import { Person } from "@beep/package-json/Person";
    * import * as S from "effect/Schema";
    * import * as O from "effect/Option";
    *

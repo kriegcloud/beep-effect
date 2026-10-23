@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { makeWire } from "@beep/package-json/internal/wire";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { makeWire } from "../../../effected/package-json/internal/wire.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

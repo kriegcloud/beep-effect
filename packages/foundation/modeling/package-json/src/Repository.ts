@@ -13,7 +13,7 @@
 // rewriting the field. A caller that wants a browsable link asks for one; a
 // caller that wants the bytes it read keeps them.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, identity } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -26,7 +26,7 @@ import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/package-json/Repository");
+const $I = $PackageJsonId.create("Repository");
 
 /** The shorthand hosts npm resolves without a scheme. */
 const SHORTHAND_HOSTS = HashMap.fromIterable([
@@ -210,7 +210,7 @@ const isFaithfulBugs: {
  * **Example** (Derive a browse URL from repository shorthand)
  *
  * ```ts
- * import { Repository } from "@beep/scratchpad/effected/package-json/Repository";
+ * import { Repository } from "@beep/package-json/Repository";
  * import * as S from "effect/Schema";
  * import * as O from "effect/Option";
  *
@@ -260,7 +260,7 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
    * **Example** (Keep repository provenance out of enumerable data)
    *
    * ```ts
-   * import { Repository } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Repository } from "@beep/package-json/Repository";
    * import * as S from "effect/Schema";
    *
    * const value = S.decodeUnknownSync(Repository.FromValue)("effected/kit");
@@ -279,7 +279,7 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
    * **Example** (Browse a shorthand repository)
    *
    * ```ts
-   * import { Repository } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Repository } from "@beep/package-json/Repository";
    * import * as O from "effect/Option";
    *
    * const repository = Repository.make({ url: "effected/kit" });
@@ -299,7 +299,7 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
    * **Example** (Derive an HTTPS clone URL)
    *
    * ```ts
-   * import { Repository } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Repository } from "@beep/package-json/Repository";
    * import * as O from "effect/Option";
    *
    * const repository = Repository.make({ url: "effected/kit" });
@@ -352,7 +352,7 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
    * **Example** (Browse a package directory within a monorepo)
    *
    * ```ts
-   * import { Repository } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Repository } from "@beep/package-json/Repository";
    * import * as S from "effect/Schema";
    * import * as O from "effect/Option";
    *
@@ -398,7 +398,7 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
    * **Example** (Round-trip a repository shorthand)
    *
    * ```ts
-   * import { Repository } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Repository } from "@beep/package-json/Repository";
    * import * as S from "effect/Schema";
    *
    * const repository = S.decodeUnknownSync(Repository.FromValue)("effected/kit");
@@ -460,7 +460,7 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
  * **Example** (Accept an email-only issue contact)
  *
  * ```ts
- * import { Bugs } from "@beep/scratchpad/effected/package-json/Repository";
+ * import { Bugs } from "@beep/package-json/Repository";
  * import * as S from "effect/Schema";
  *
  * const contact = S.decodeUnknownSync(Bugs.FromValue)({ email: "bugs@example.com" });
@@ -495,7 +495,7 @@ export class Bugs extends S.Class<Bugs, { readonly brand: unique symbol }>($I`Bu
    * **Example** (Keep bugs provenance out of enumerable data)
    *
    * ```ts
-   * import { Bugs } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Bugs } from "@beep/package-json/Repository";
    * import * as S from "effect/Schema";
    *
    * const value = S.decodeUnknownSync(Bugs.FromValue)("https://example.com/issues");
@@ -513,7 +513,7 @@ export class Bugs extends S.Class<Bugs, { readonly brand: unique symbol }>($I`Bu
    * **Example** (Round-trip an issue tracker URL)
    *
    * ```ts
-   * import { Bugs } from "@beep/scratchpad/effected/package-json/Repository";
+   * import { Bugs } from "@beep/package-json/Repository";
    * import * as S from "effect/Schema";
    *
    * const contact = S.decodeUnknownSync(Bugs.FromValue)("https://example.com/issues");

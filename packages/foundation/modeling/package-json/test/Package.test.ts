@@ -1,11 +1,11 @@
+import { Dependency } from "@beep/package-json/Dependency";
+import { Package, PackageDecodeError } from "@beep/package-json/Package";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { Dependency } from "../../effected/package-json/Dependency.ts";
-import { Package, PackageDecodeError } from "../../effected/package-json/Package.ts";
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 

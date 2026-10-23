@@ -23,7 +23,7 @@
 // shape onto this model through the same component validation `parseResult`
 // uses, so the two fields cannot drift apart.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { Range, SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
@@ -37,7 +37,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import type { DevEngine } from "./DevEngines.ts";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageManagerRange");
+const $I = $PackageJsonId.create("PackageManagerRange");
 
 /**
  * The encoded shape of a `devEngines.packageManager` entry: what a raw
@@ -106,7 +106,7 @@ const SemVerRangeString: S.String = S.String.pipe(
  * **Example** (Identify the invalid component)
  *
  * ```ts
- * import { InvalidPackageManagerRangeError } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+ * import { InvalidPackageManagerRangeError } from "@beep/package-json/PackageManagerRange";
  *
  * const error = InvalidPackageManagerRangeError.make({ input: "pnpm", reason: "format" });
  * console.log(error.reason) // format
@@ -157,7 +157,7 @@ export class InvalidPackageManagerRangeError extends S.TaggedError<
    * **Example** (Read the format failure message)
    *
    * ```ts
-   * import { InvalidPackageManagerRangeError } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { InvalidPackageManagerRangeError } from "@beep/package-json/PackageManagerRange";
    *
    * const error = InvalidPackageManagerRangeError.make({ input: "pnpm", reason: "format" });
    * console.log(error.message) // Invalid packageManager format: "pnpm": expected <name>@<range>[+<integrity>]
@@ -247,7 +247,7 @@ const fromParts: {
  * **Example** (Decode a package manager semver range)
  *
  * ```ts
- * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+ * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -314,7 +314,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Round-trip a range string)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema";
    *
@@ -356,7 +356,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Inspect a missing separator failure)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Result from "effect/Result";
    *
    * const parsed = PackageManagerRange.parseResult("pnpm");
@@ -384,7 +384,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Parse a caret range)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.parse("pnpm@^12.6.0"));
@@ -423,7 +423,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Reject an entry without a version)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Result from "effect/Result";
    *
    * const parsed = PackageManagerRange.fromDevEngineResult({ name: "pnpm" });
@@ -452,7 +452,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Read a development engine range)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.fromDevEngine({ name: "pnpm", version: "^12.6.0" }));
@@ -478,7 +478,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Drop integrity from the field spelling)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.parse("pnpm@^12.6.0+sha512.abcdef"));
@@ -500,7 +500,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Retain the integrity spelling)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.parse("pnpm@12.6.0+sha512.abcdef"));
@@ -527,7 +527,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Distinguish an exact version from a range)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.parse("pnpm@^12.6.0"));
@@ -551,7 +551,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Read the caret operator)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -574,7 +574,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Read the comparator anchor)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -604,7 +604,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Reject re-anchoring a comparator set)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    * import * as Result from "effect/Result";
    *
@@ -642,7 +642,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Re-anchor a caret range)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.parse("pnpm@^12.6.0"));
@@ -667,7 +667,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * **Example** (Check for an integrity hash)
    *
    * ```ts
-   * import { PackageManagerRange } from "@beep/scratchpad/effected/package-json/PackageManagerRange";
+   * import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
    * import * as Effect from "effect/Effect";
    *
    * const pm = Effect.runSync(PackageManagerRange.parse("pnpm@12.6.0+sha512.abcdef"));

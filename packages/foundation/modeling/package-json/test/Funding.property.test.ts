@@ -25,9 +25,9 @@ const roundTrips = <T, E>(
   );
 };
 
+import { Funding } from "@beep/package-json/Funding";
 import * as A from "effect/Array";
 import * as Getter from "effect/SchemaGetter";
-import { Funding } from "../../effected/package-json/Funding.ts";
 
 const FieldsSample = S.Struct({
   url: S.String,

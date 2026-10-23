@@ -3540,10 +3540,24 @@
       {
         "from": "@beep/package-json",
         "allow": [
-          "@beep/package-json"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/semver",
+          "@beep/spdx"
         ],
         "allowTypeOnly": [
-          "@beep/package-json"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/semver",
+          "@beep/spdx"
         ]
       },
       {
@@ -4423,6 +4437,7 @@
           "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
+          "@beep/package-json",
           "@beep/pglite",
           "@beep/postgres",
           "@beep/pretext",
@@ -4474,6 +4489,7 @@
           "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
+          "@beep/package-json",
           "@beep/pglite",
           "@beep/postgres",
           "@beep/pretext",

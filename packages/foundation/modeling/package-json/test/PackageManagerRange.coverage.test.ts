@@ -1,7 +1,7 @@
+import { PackageManagerRange } from "@beep/package-json/PackageManagerRange";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import { PackageManagerRange } from "../../effected/package-json/PackageManagerRange.ts";
 
 describe("whitespace package-manager ranges", () => {
   it.effect("a newline-only wildcard range has no single comparator", () =>

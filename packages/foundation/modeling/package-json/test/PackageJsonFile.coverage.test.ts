@@ -1,17 +1,17 @@
 import { MemoryFileSystem } from "@beep/memfs";
-import { assert, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
-import { Package } from "../../effected/package-json/Package.ts";
+import { Package } from "@beep/package-json/Package";
 import {
   PackageJsonFile,
   PackageJsonNotFoundError,
   PackageJsonParseError,
   PackageJsonReadError,
   PackageJsonWriteError,
-} from "../../effected/package-json/PackageJsonFile.ts";
+} from "@beep/package-json/PackageJsonFile";
+import { assert, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 
 it.effect("file errors report their operation and target", () =>
   Effect.sync(() => {

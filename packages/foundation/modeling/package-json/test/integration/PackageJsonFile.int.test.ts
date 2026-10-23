@@ -1,4 +1,6 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { Package } from "@beep/package-json/Package";
+import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -7,8 +9,6 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { Package } from "../../../effected/package-json/Package.ts";
-import { PackageJsonFile } from "../../../effected/package-json/PackageJsonFile.ts";
 import boilerplate from "./fixtures/boilerplate/package.fixture.json" with { type: "json" };
 import full from "./fixtures/full/package.fixture.json" with { type: "json" };
 import minimal from "./fixtures/minimal/package.fixture.json" with { type: "json" };

@@ -19,7 +19,7 @@ Reading and writing files needs a `FileSystem` and a `Path` implementation, prov
 Decode a manifest, edit it, read the computed properties back:
 
 ```ts
-import { Package } from "@beep/scratchpad/effected/package-json/Package";
+import { Package } from "@beep/package-json/Package";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
@@ -41,7 +41,7 @@ Editing returns a new `Package`. The mutation statics are dual, so `Package.addD
 Unknown keys round-trip. `toJsonString` encodes through the wire codec, flattens `rest` back to the top level, and applies the canonical key order:
 
 ```ts
-import { Package } from "@beep/scratchpad/effected/package-json/Package";
+import { Package } from "@beep/package-json/Package";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
@@ -79,7 +79,7 @@ Alongside `Package` the leaf concepts are usable on their own. `PackageName` cla
 `PackageJsonFile` is the only IO in the package: one service, two methods, over core `FileSystem` and `Path`.
 
 ```ts
-import { PackageJsonFile } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import * as Effect from "effect/Effect";
@@ -105,8 +105,8 @@ console.log(Effect.isEffect(program)) // true
 `PackageValidator` runs a rule set over a decoded `Package` and aggregates *every* failure into one `PackageValidationError`, rather than stopping at the first.
 
 ```ts
-import { Package } from "@beep/scratchpad/effected/package-json/Package";
-import { PackageValidator } from "@beep/scratchpad/effected/package-json/PackageValidator";
+import { Package } from "@beep/package-json/Package";
+import { PackageValidator } from "@beep/package-json/PackageValidator";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
@@ -133,7 +133,7 @@ Specifiers the resolvers answer `None` for are left exactly as they were.
 ```ts
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
-import { Package } from "@beep/scratchpad/effected/package-json/Package";
+import { Package } from "@beep/package-json/Package";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
@@ -168,7 +168,7 @@ The `workspace:` range modifier is honored: `workspace:*` takes the bare version
 `Package.decode` and `PackageManifest` are strict: a malformed field fails the whole document. That is the right behavior for a manifest you are about to write or publish, and the wrong one for a manifest you are only sniffing — a fetched tarball, a `node_modules` walk, a registry response — where the document is someone else's data and one bad field should not sink the read. `LenientManifest` is that discovery tier: every `Package` field decodes to its plain permissive JSON shape (`name` and `version` accept any string, not the branded npm grammar; `license` accepts any string, no SPDX check; the dependency maps are plain records, not `HashMap`s). A field present but not even that shape degrades to absence instead of failing the document, its raw value is preserved verbatim in `rest` (a malformed known field is treated exactly like an unknown one), and the degradation is reported on `issues`:
 
 ```ts
-import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+import { LenientManifest } from "@beep/package-json/LenientManifest";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
@@ -194,7 +194,7 @@ An empty `issues` array is not a validity guarantee — the permissive shapes ch
 `resolveEntryPoint` answers one question about a manifest — which file is the package's `"."` entry — and it is pure, IO-free and `Result`-returning, so it works against a plain object with no package on disk:
 
 ```ts
-import { resolveEntryPoint } from "@beep/scratchpad/effected/package-json/EntryPoint";
+import { resolveEntryPoint } from "@beep/package-json/EntryPoint";
 import * as Result from "effect/Result";
 
 console.log(Result.getOrThrow(resolveEntryPoint({ exports: { import: "./esm.js", require: "./cjs.js" } }))) // "./esm.js"

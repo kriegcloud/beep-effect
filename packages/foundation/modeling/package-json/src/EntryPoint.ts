@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, identity } from "effect/Function";
 import * as Match from "effect/Match";
@@ -8,7 +8,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/package-json/EntryPoint");
+const $I = $PackageJsonId.create("EntryPoint");
 
 const ConditionsJson = S.fromJsonString(S.Unknown);
 
@@ -50,7 +50,7 @@ export interface ResolveEntryPointOptions {
  * **Example** (Inspect a condition mismatch)
  *
  * ```ts
- * import { UnresolvedEntryPointError } from "@beep/scratchpad/effected/package-json/EntryPoint";
+ * import { UnresolvedEntryPointError } from "@beep/package-json/EntryPoint";
  *
  * const error = UnresolvedEntryPointError.make({ reason: "noConditionMatched", conditions: ["import"] });
  * console.log(error.reason) // noConditionMatched
@@ -99,7 +99,7 @@ export class UnresolvedEntryPointError extends S.TaggedError<
    * **Example** (Read an unsupported-form diagnostic)
    *
    * ```ts
-   * import { UnresolvedEntryPointError } from "@beep/scratchpad/effected/package-json/EntryPoint";
+   * import { UnresolvedEntryPointError } from "@beep/package-json/EntryPoint";
    *
    * const error = UnresolvedEntryPointError.make({ reason: "unsupportedExportsForm" });
    * console.log(error.message) // The manifest's "exports" uses a form this resolver does not implement
@@ -234,7 +234,7 @@ const resolveConditions: {
  * **Example** (Resolve conditions without falling through to main)
  *
  * ```ts
- * import { resolveEntryPoint } from "@beep/scratchpad/effected/package-json/EntryPoint";
+ * import { resolveEntryPoint } from "@beep/package-json/EntryPoint";
  * import * as Result from "effect/Result";
  *
  * console.log(Result.getOrThrow(resolveEntryPoint({ exports: { import: "./esm.js", require: "./cjs.js" } }))) // ./esm.js

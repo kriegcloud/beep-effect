@@ -22,13 +22,13 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import * as O from "effect/Option";
 import {
   InvalidPackageNameError,
   PackageName,
   ScopedPackageName,
   UnscopedPackageName,
-} from "../../effected/package-json/PackageName.ts";
+} from "@beep/package-json/PackageName";
+import * as O from "effect/Option";
 
 describe("package name property floor", () => {
   roundTrips("InvalidPackageNameError", InvalidPackageNameError);

@@ -4,7 +4,7 @@
 // `@effected/npm`'s `DependencySpecifier`; `kind` types against `@effected/npm`'s
 // `DependencyKind`, the kit-wide dependency-section vocabulary.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { DependencyKind } from "@beep/npm-spec/DependencySection";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import * as O from "effect/Option";
@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 import type { DependencyProtocol } from "@beep/npm-spec/DependencySpecifier";
 import type { Range } from "@beep/semver";
 
-const $I = $ScratchpadId.create("effected/package-json/Dependency");
+const $I = $PackageJsonId.create("Dependency");
 
 /**
  * A resolved dependency entry pairing a package name with its version
@@ -22,7 +22,7 @@ const $I = $ScratchpadId.create("effected/package-json/Dependency");
  * **Example** (Inspect a production dependency)
  *
  * ```ts
- * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+ * import { Dependency } from "@beep/package-json/Dependency";
  *
  * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "prod" });
  * console.log(dependency.isRange) // true
@@ -40,7 +40,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
      * **Example** (Read the package name)
      *
      * ```ts
-     * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+     * import { Dependency } from "@beep/package-json/Dependency";
      *
      * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "prod" });
      * console.log(dependency.name) // "effect"
@@ -56,7 +56,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
      * **Example** (Read the original specifier)
      *
      * ```ts
-     * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+     * import { Dependency } from "@beep/package-json/Dependency";
      *
      * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "prod" });
      * console.log(dependency.specifier) // "^4.0.0"
@@ -72,7 +72,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
      * **Example** (Read the dependency section)
      *
      * ```ts
-     * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+     * import { Dependency } from "@beep/package-json/Dependency";
      *
      * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "dev" });
      * console.log(dependency.kind) // "dev"
@@ -90,7 +90,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
      * **Example** (Inspect an optional peer)
      *
      * ```ts
-     * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+     * import { Dependency } from "@beep/package-json/Dependency";
      *
      * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "peer", isOptional: true });
      * console.log(dependency.isOptional) // true
@@ -116,7 +116,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Classify a range and an empty specifier)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    * import * as O from "effect/Option";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "prod" });
@@ -136,7 +136,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Distinguish ranges from workspace references)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    * import * as O from "effect/Option";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "prod" });
@@ -156,7 +156,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a local file dependency)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "file:../effect", kind: "prod" });
    * console.log(dependency.isLocal) // true
@@ -174,7 +174,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a linked dependency)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "link:../effect", kind: "prod" });
    * console.log(dependency.isLink) // true
@@ -192,7 +192,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a portal dependency)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "portal:../effect", kind: "prod" });
    * console.log(dependency.isPortal) // true
@@ -210,7 +210,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a catalog reference)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "catalog:", kind: "prod" });
    * console.log(dependency.isCatalog) // true
@@ -228,7 +228,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a workspace reference)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "workspace:^", kind: "prod" });
    * console.log(dependency.isWorkspace) // true
@@ -246,7 +246,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect an unresolved workspace reference)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "workspace:^", kind: "prod" });
    * console.log(dependency.isUnresolved) // true
@@ -264,7 +264,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a Git dependency)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "git+https://github.com/Effect-TS/effect.git", kind: "prod" });
    * console.log(dependency.isGit) // true
@@ -282,7 +282,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a semantic version range)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "^4.0.0", kind: "prod" });
    * console.log(dependency.isRange) // true
@@ -300,7 +300,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
    * **Example** (Detect a distribution tag)
    *
    * ```ts
-   * import { Dependency } from "@beep/scratchpad/effected/package-json/Dependency";
+   * import { Dependency } from "@beep/package-json/Dependency";
    *
    * const dependency = Dependency.make({ name: "effect", specifier: "latest", kind: "prod" });
    * console.log(dependency.isTag) // true
@@ -331,7 +331,7 @@ export type UnresolvedDependency = Dependency & { readonly isUnresolved: true };
  * **Example** (Recognize an unresolved dependency)
  *
  * ```ts
- * import { Dependency, isUnresolvedDependency } from "@beep/scratchpad/effected/package-json/Dependency";
+ * import { Dependency, isUnresolvedDependency } from "@beep/package-json/Dependency";
  *
  * const dependency = Dependency.make({ name: "effect", specifier: "catalog:", kind: "prod" });
  * console.log(isUnresolvedDependency(dependency)) // true

@@ -3,7 +3,7 @@
 // `PackageValidationError`. Ships `PackageValidator.layer` (the default rule
 // set) and the genuinely-parameterized `PackageValidator.layerRules` factory.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { Package } from "./Package.ts";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageValidator");
+const $I = $PackageJsonId.create("PackageValidator");
 
 /**
  * A single validation-rule failure.
@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/package-json/PackageValidator");
  * **Example** (Constructing a rule failure)
  *
  * ```ts
- * import { RuleFailure } from "@beep/scratchpad/effected/package-json/PackageValidator";
+ * import { RuleFailure } from "@beep/package-json/PackageValidator";
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
  *
@@ -93,7 +93,7 @@ export interface ValidationRule {
  * **Example** (Render an aggregated validation failure)
  *
  * ```ts
- * import { PackageValidationError } from "@beep/scratchpad/effected/package-json/PackageValidator";
+ * import { PackageValidationError } from "@beep/package-json/PackageValidator";
  * import * as O from "effect/Option";
  *
  * const error = PackageValidationError.make({
@@ -136,7 +136,7 @@ export class PackageValidationError extends S.TaggedError<PackageValidationError
    * **Example** (Read a validation report)
    *
    * ```ts
-   * import { PackageValidationError } from "@beep/scratchpad/effected/package-json/PackageValidator";
+   * import { PackageValidationError } from "@beep/package-json/PackageValidator";
    * import * as O from "effect/Option";
    *
    * const error = PackageValidationError.make({
@@ -207,8 +207,8 @@ const anyDependencyMatches: {
  * **Example** (Reject an unresolved dependency)
  *
  * ```ts
- * import { noUnresolvedDepsRule } from "@beep/scratchpad/effected/package-json/PackageValidator";
- * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+ * import { noUnresolvedDepsRule } from "@beep/package-json/PackageValidator";
+ * import { Package } from "@beep/package-json/Package";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -242,8 +242,8 @@ export const noUnresolvedDepsRule: ValidationRule = {
  * **Example** (Reject a local dependency)
  *
  * ```ts
- * import { noLocalDepsRule } from "@beep/scratchpad/effected/package-json/PackageValidator";
- * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+ * import { noLocalDepsRule } from "@beep/package-json/PackageValidator";
+ * import { Package } from "@beep/package-json/Package";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -278,7 +278,7 @@ export const noLocalDepsRule: ValidationRule = {
  * **Example** (Inspect the default rule order)
  *
  * ```ts
- * import { defaultRules } from "@beep/scratchpad/effected/package-json/PackageValidator";
+ * import { defaultRules } from "@beep/package-json/PackageValidator";
  * import * as A from "effect/Array";
  *
  * console.log(A.join(A.map(defaultRules, (rule) => rule.name), ", ")) // has-license, has-description, has-repository, not-private
@@ -326,8 +326,8 @@ const runRules: {
  * **Example** (Reject a package missing default validation requirements)
  *
  * ```ts
- * import { Package } from "@beep/scratchpad/effected/package-json/Package";
- * import { PackageValidator } from "@beep/scratchpad/effected/package-json/PackageValidator";
+ * import { Package } from "@beep/package-json/Package";
+ * import { PackageValidator } from "@beep/package-json/PackageValidator";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -352,8 +352,8 @@ export class PackageValidator extends Context.Service<
    * **Example** (Provide the default validator)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
-   * import { PackageValidator } from "@beep/scratchpad/effected/package-json/PackageValidator";
+   * import { Package } from "@beep/package-json/Package";
+   * import { PackageValidator } from "@beep/package-json/PackageValidator";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -377,8 +377,8 @@ export class PackageValidator extends Context.Service<
    * **Example** (Replace the default rules with an empty rule set)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
-   * import { PackageValidator } from "@beep/scratchpad/effected/package-json/PackageValidator";
+   * import { Package } from "@beep/package-json/Package";
+   * import { PackageValidator } from "@beep/package-json/PackageValidator";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {

@@ -21,7 +21,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { Package, Person } from "../package-json/index.ts";
+import type { Package, Person } from "@beep/package-json";
 import { Component, ComponentType, Contact, ExternalReference, SbomMetadata, Supplier } from "./SbomDocument.ts";
 
 const $I = $ScratchpadId.create("effected/sbom/SbomMetadataSource");

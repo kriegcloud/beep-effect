@@ -2,13 +2,13 @@ import { Default as NpmDefault } from "@beep/npm-spec";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import { Package } from "@beep/package-json/Package";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { Package } from "../../effected/package-json/Package.ts";
 
 const workspaceOf = (versions: Record<string, string>): Layer.Layer<WorkspaceResolver> =>
   Layer.succeed(WorkspaceResolver, {

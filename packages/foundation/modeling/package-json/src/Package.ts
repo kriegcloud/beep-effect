@@ -5,7 +5,7 @@
 // `Package.toJsonString` serializer, and `Package.resolve` over the
 // `@effected/npm` resolver contracts.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
@@ -31,7 +31,7 @@ import { Person } from "./Person.ts";
 import { Bugs, Repository } from "./Repository.ts";
 import type { InvalidVersionError } from "@beep/semver";
 
-const $I = $ScratchpadId.create("effected/package-json/Package");
+const $I = $PackageJsonId.create("Package");
 
 // ── Field codecs ────────────────────────────────────────────────────────────
 // Exported @public as reusable field schemas: they compose the `Package` model
@@ -51,7 +51,7 @@ const toHashMap = SchemaTransformation.transform({
  * **Example** (Decode a dependency map)
  *
  * ```ts
- * import { DependencyMapField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { DependencyMapField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  * import * as HashMap from "effect/HashMap";
  *
@@ -86,7 +86,7 @@ export type DependencyMapField = typeof DependencyMapField.Type;
  * **Example** (Decode engine constraints)
  *
  * ```ts
- * import { StringMapField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { StringMapField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  * import * as HashMap from "effect/HashMap";
  *
@@ -119,7 +119,7 @@ export type StringMapField = typeof StringMapField.Type;
  * **Example** (Decode a single executable path)
  *
  * ```ts
- * import { BinField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { BinField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(BinField)("./cli.js")); // ./cli.js
@@ -150,7 +150,7 @@ export type BinField = typeof BinField.Type;
  * **Example** (Decode a root entry point)
  *
  * ```ts
- * import { ExportsField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { ExportsField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(ExportsField)("./index.js")); // ./index.js
@@ -183,7 +183,7 @@ export type ExportsField = typeof ExportsField.Type;
  * **Example** (Keep a publication setting)
  *
  * ```ts
- * import { PublishConfigField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { PublishConfigField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(PublishConfigField)({ access: "public" }).access); // public
@@ -214,7 +214,7 @@ export type PublishConfigField = typeof PublishConfigField.Type;
  * **Example** (Decode optional peer metadata)
  *
  * ```ts
- * import { PeerDependenciesMetaField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { PeerDependenciesMetaField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(PeerDependenciesMetaField)({ effect: { optional: true } }).effect?.optional); // true
@@ -244,7 +244,7 @@ export type PeerDependenciesMetaField = typeof PeerDependenciesMetaField.Type;
  * **Example** (Decode a repository shorthand)
  *
  * ```ts
- * import { RepositoryField } from "@beep/scratchpad/effected/package-json/Package";
+ * import { RepositoryField } from "@beep/package-json/Package";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(RepositoryField)("github:owner/repo")); // github:owner/repo
@@ -286,7 +286,7 @@ export type RepositoryField = typeof RepositoryField.Type;
  * **Example** (Inspect a decode failure)
  *
  * ```ts
- * import { PackageDecodeError } from "@beep/scratchpad/effected/package-json/Package";
+ * import { PackageDecodeError } from "@beep/package-json/Package";
  *
  * const error = PackageDecodeError.make({ cause: new Error("Invalid input") });
  * console.log(error.message); // Failed to decode package.json
@@ -318,7 +318,7 @@ export class PackageDecodeError extends S.TaggedError<PackageDecodeError, { read
    * **Example** (Read the decode error summary)
    *
    * ```ts
-   * import { PackageDecodeError } from "@beep/scratchpad/effected/package-json/Package";
+   * import { PackageDecodeError } from "@beep/package-json/Package";
    *
    * const error = PackageDecodeError.make({ cause: new Error("Invalid input") });
    * console.log(error.message); // Failed to decode package.json
@@ -394,7 +394,7 @@ export type PackagePatch = Partial<{
  * **Example** (Update a package version and serialize the result)
  *
  * ```ts
- * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+ * import { Package } from "@beep/package-json/Package";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -574,7 +574,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Pipe a package through a dependency update)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -604,7 +604,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Round-trip an unknown manifest field)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as S from "effect/Schema";
    *
    * const pkg = S.decodeUnknownSync(Package.schema)({ name: "my-pkg", version: "1.0.0", custom: true });
@@ -623,7 +623,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Decode an extended manifest)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as S from "effect/Schema";
    *
    * class ExtendedPackage extends Package.extend<ExtendedPackage>("ExtendedPackage")({ custom: S.String }) {}
@@ -658,7 +658,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Decode a manifest name)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -682,7 +682,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Inspect isPrivate)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -702,7 +702,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Inspect isScoped)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -722,7 +722,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Inspect isESM)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -742,7 +742,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Inspect hasDependency)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -767,7 +767,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Read prod dependency entries)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -788,7 +788,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Read dev dependency entries)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -809,7 +809,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Read peer dependency entries)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -833,7 +833,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Read optional dependency entries)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -858,7 +858,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Copy a package with a description)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -879,7 +879,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Apply setVersion in curried form)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -907,7 +907,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Apply setName in curried form)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -937,7 +937,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Apply setLicense in curried form)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));
@@ -967,7 +967,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Add a dependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -992,7 +992,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Remove a dependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1018,7 +1018,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Add a devDependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1043,7 +1043,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Remove a devDependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1069,7 +1069,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Add a peerDependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1094,7 +1094,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Remove a peerDependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1120,7 +1120,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Add a optionalDependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1145,7 +1145,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Remove a optionalDependencies entry)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1171,7 +1171,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Update the test script)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1196,7 +1196,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Remove the test script)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    *
@@ -1240,7 +1240,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    *
    * ```ts
    * import { Default } from "@beep/npm-spec";
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    * import * as HashMap from "effect/HashMap";
    * import * as O from "effect/Option";
@@ -1304,7 +1304,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * **Example** (Serialize a package name)
    *
    * ```ts
-   * import { Package } from "@beep/scratchpad/effected/package-json/Package";
+   * import { Package } from "@beep/package-json/Package";
    * import * as Effect from "effect/Effect";
    *
    * const pkg = Effect.runSync(Package.decode({ name: "my-pkg", version: "1.0.0" }));

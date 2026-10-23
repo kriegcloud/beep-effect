@@ -1,15 +1,10 @@
+import { InvalidSpdxLicenseError, isValidSpdx, licenseExpressionOf, SpdxLicense } from "@beep/package-json/License";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {
-  InvalidSpdxLicenseError,
-  isValidSpdx,
-  licenseExpressionOf,
-  SpdxLicense,
-} from "../../effected/package-json/License.ts";
-import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 
 describe("isValidSpdx", () => {
   it("accepts identifiers, expressions and npm special cases", () => {
@@ -27,7 +22,7 @@ describe("isValidSpdx", () => {
 
 describe("SpdxLicense schema", () => {
   it("preserves schema identity and the reusable SPDX check annotations", () => {
-    const $I = $ScratchpadId.create("effected/package-json/License");
+    const $I = $PackageJsonId.create("License");
     assert.include(S.resolveAnnotations(SpdxLicense), $I.annote("SpdxLicense"));
     const group = SpdxLicense.ast.checks?.[0];
     assertTrue(group?._tag === "FilterGroup");
@@ -135,4 +130,4 @@ describe("licenseExpressionOf — the brand/grammar seam", () => {
   });
 });
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";

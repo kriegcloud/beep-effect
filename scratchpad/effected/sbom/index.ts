@@ -21,7 +21,7 @@
  * @since 0.0.0
  */
 
-export { Package, Person, Repository } from "../package-json/index.ts";
+export { Package, Person, Repository } from "@beep/package-json";
 export { IdentityToken, IdentityTokenError, type IdentityTokenShape } from "./IdentityToken.ts";
 export {
 	CYCLONEDX_BOM_PREDICATE,

@@ -1,8 +1,8 @@
+import { Bugs, Repository } from "@beep/package-json/Repository";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Bugs, Repository } from "../../effected/package-json/Repository.ts";
 
 describe("repository permissive shapes", () => {
   it.effect("an empty authority and an authority-less path have no browsable directory", () =>

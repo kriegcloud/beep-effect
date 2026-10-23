@@ -1,12 +1,12 @@
-import { assert, describe, layer } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import { Package } from "../../effected/package-json/Package.ts";
+import { Package } from "@beep/package-json/Package";
 import {
   noLocalDepsRule,
   noUnresolvedDepsRule,
   PackageValidationError,
   PackageValidator,
-} from "../../effected/package-json/PackageValidator.ts";
+} from "@beep/package-json/PackageValidator";
+import { assert, describe, layer } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 
 describe("PackageValidator", () => {
   layer(PackageValidator.layer, { timeout: "30 seconds" })((it) => {

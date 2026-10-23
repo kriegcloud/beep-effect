@@ -1,18 +1,18 @@
-import { $ScratchpadId } from "@beep/identity/packages";
-import { assert, describe, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as S from "effect/Schema";
+import { $PackageJsonId } from "@beep/identity/packages";
 import {
   DependencyMapField,
   PeerDependenciesMetaField,
   PublishConfigField,
   StringMapField,
-} from "../../effected/package-json/Package.ts";
+} from "@beep/package-json/Package";
+import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
+import * as S from "effect/Schema";
 
 describe("Package field schemas", () => {
   it("carry their owning schema identity metadata", () => {
-    const $I = $ScratchpadId.create("effected/package-json/Package");
+    const $I = $PackageJsonId.create("Package");
     for (const [name, schema] of [
       ["DependencyMapField", DependencyMapField],
       ["StringMapField", StringMapField],

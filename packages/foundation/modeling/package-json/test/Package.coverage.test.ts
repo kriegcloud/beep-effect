@@ -1,11 +1,11 @@
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import { Package, PackageDecodeError } from "@beep/package-json/Package";
 import { assert, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
-import { Package, PackageDecodeError } from "../../effected/package-json/Package.ts";
 
 it.effect("dependency getters and removals preserve the original package", () =>
   Effect.gen(function* () {
@@ -28,7 +28,7 @@ it.effect("dependency getters and removals preserve the original package", () =>
 );
 
 import * as O from "effect/Option";
-import type { Dependency } from "../../effected/package-json/Dependency.ts";
+import type { Dependency } from "@beep/package-json/Dependency";
 
 const EffectOptionMap = O.map((dependency: Dependency) => dependency.kind);
 const EffectOptionalMap = O.map((dependency: Dependency) => dependency.isOptional);

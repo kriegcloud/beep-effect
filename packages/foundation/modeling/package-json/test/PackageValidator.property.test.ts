@@ -22,7 +22,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { PackageValidationError, RuleFailure } from "../../effected/package-json/PackageValidator.ts";
+import { PackageValidationError, RuleFailure } from "@beep/package-json/PackageValidator";
 
 describe("validator schema property floor", () => {
   roundTrips("RuleFailure", RuleFailure);

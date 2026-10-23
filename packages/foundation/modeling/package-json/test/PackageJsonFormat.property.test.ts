@@ -27,7 +27,7 @@ import {
   PackageJsonFormat,
   PackageJsonModifyError,
   PackageJsonSyntaxError,
-} from "../../effected/package-json/PackageJsonFormat.ts";
+} from "@beep/package-json/PackageJsonFormat";
 
 const ObjectJson = S.Record(S.String, S.Json);
 const Json = S.fromJsonString(S.Unknown);

@@ -24,7 +24,7 @@
 // tiers normalize to `PackageDecodeError` at their decode boundary — rather
 // than as a degradation, which is `LenientManifest`'s job alone.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -36,7 +36,7 @@ import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import type * as SchemaIssue from "effect/SchemaIssue";
 
-const $I = $ScratchpadId.create("effected/package-json/Funding");
+const $I = $PackageJsonId.create("Funding");
 
 /** The wire value a single funding entry was decoded from. */
 type EntryWire = string | { readonly [k: string]: unknown };
@@ -135,7 +135,7 @@ const FieldValue = S.Union([EntryValue, S.Array(EntryValue)]);
  * **Example** (Decode a funding URL into an entry array)
  *
  * ```ts
- * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+ * import { Funding } from "@beep/package-json/Funding";
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -179,7 +179,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Read wire provenance through its accessor)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    * import * as S from "effect/Schema";
    *
    * const entry = S.decodeUnknownSync(Funding.FromValue)("https://example.com/sponsor");
@@ -196,7 +196,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Inspect bare-field provenance through its accessor)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    * import * as S from "effect/Schema";
    * import * as A from "effect/Array";
    *
@@ -215,7 +215,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Read the remembered wire spelling)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    * import * as S from "effect/Schema";
    *
    * const entry = S.decodeUnknownSync(Funding.FromValue)("https://example.com/sponsor");
@@ -235,7 +235,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Remember an entry URL spelling)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    *
    * const entry = Funding.make({ url: "https://example.com/sponsor" });
    * Funding.rememberWire(entry, entry.url);
@@ -258,7 +258,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Inspect a hand-built entry arity)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    *
    * const entry = Funding.make({ url: "https://example.com/sponsor" });
    * console.log(Funding.isBareField(entry)) // false
@@ -277,7 +277,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Mark an entry as the entire bare field)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    *
    * const entry = Funding.make({ url: "https://example.com/sponsor" });
    * Funding.rememberBareField(entry);
@@ -304,7 +304,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Round-trip a single URL spelling)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    * import * as S from "effect/Schema";
    *
    * const entry = S.decodeUnknownSync(Funding.FromValue)("https://example.com/sponsor");
@@ -345,7 +345,7 @@ export class Funding extends S.Class<Funding, { readonly brand: unique symbol }>
    * **Example** (Normalize a bare field and preserve its wire arity)
    *
    * ```ts
-   * import { Funding } from "@beep/scratchpad/effected/package-json/Funding";
+   * import { Funding } from "@beep/package-json/Funding";
    * import * as S from "effect/Schema";
    *
    * const entries = S.decodeUnknownSync(Funding.FromField)("https://example.com/sponsor");

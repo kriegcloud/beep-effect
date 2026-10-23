@@ -8,13 +8,13 @@
 // below.
 
 import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
+import { PackageManager } from "@beep/package-json/PackageManager";
 import { SemVer } from "@beep/semver";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { PackageManager } from "../../effected/package-json/PackageManager.ts";
 
 const decode = S.decodeUnknownEffect(PackageManager.FromString);
 const encode = S.encodeUnknownEffect(PackageManager.FromString);

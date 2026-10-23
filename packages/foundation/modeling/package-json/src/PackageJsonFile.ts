@@ -4,7 +4,7 @@
 // (`@effect/platform-node`) at the edge. Resolution is not fused into `write`
 // (compose `Package.resolve` explicitly).
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -20,7 +20,7 @@ import type { JsoncPath, JsoncStringifyError } from "@beep/jsonc";
 import type { PackageDecodeError, PackageFormatOptions } from "./Package.ts";
 import type { PackageJsonModifyError } from "./PackageJsonFormat.ts";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageJsonFile");
+const $I = $PackageJsonId.create("PackageJsonFile");
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -33,7 +33,7 @@ const Json = S.fromJsonString(S.Unknown);
  * **Example** (Inspect PackageJsonReadError details)
  *
  * ```ts
- * import { PackageJsonReadError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+ * import { PackageJsonReadError } from "@beep/package-json/PackageJsonFile";
  *
  * const error = PackageJsonReadError.make({ path: "package.json", cause: new Error("permission denied") });
  * console.log(error.message) // Failed to read package.json from "package.json"
@@ -74,7 +74,7 @@ export class PackageJsonReadError extends S.TaggedError<PackageJsonReadError, { 
    * **Example** (Inspect PackageJsonReadError details)
    *
    * ```ts
-   * import { PackageJsonReadError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+   * import { PackageJsonReadError } from "@beep/package-json/PackageJsonFile";
    *
    * const error = PackageJsonReadError.make({ path: "package.json", cause: new Error("permission denied") });
    * console.log(error.message) // Failed to read package.json from "package.json"
@@ -95,7 +95,7 @@ export class PackageJsonReadError extends S.TaggedError<PackageJsonReadError, { 
  * **Example** (Inspect PackageJsonNotFoundError details)
  *
  * ```ts
- * import { PackageJsonNotFoundError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+ * import { PackageJsonNotFoundError } from "@beep/package-json/PackageJsonFile";
  *
  * const error = PackageJsonNotFoundError.make({ path: "package.json" });
  * console.log(error.message) // package.json not found at "package.json"
@@ -131,7 +131,7 @@ export class PackageJsonNotFoundError extends S.TaggedError<
    * **Example** (Inspect PackageJsonNotFoundError details)
    *
    * ```ts
-   * import { PackageJsonNotFoundError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+   * import { PackageJsonNotFoundError } from "@beep/package-json/PackageJsonFile";
    *
    * const error = PackageJsonNotFoundError.make({ path: "package.json" });
    * console.log(error.message) // package.json not found at "package.json"
@@ -151,7 +151,7 @@ export class PackageJsonNotFoundError extends S.TaggedError<
  * **Example** (Inspect PackageJsonParseError details)
  *
  * ```ts
- * import { PackageJsonParseError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+ * import { PackageJsonParseError } from "@beep/package-json/PackageJsonFile";
  *
  * const error = PackageJsonParseError.make({ path: "package.json", cause: new Error("invalid JSON") });
  * console.log(error.message) // Failed to parse package.json at "package.json"
@@ -193,7 +193,7 @@ export class PackageJsonParseError extends S.TaggedError<PackageJsonParseError, 
    * **Example** (Inspect PackageJsonParseError details)
    *
    * ```ts
-   * import { PackageJsonParseError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+   * import { PackageJsonParseError } from "@beep/package-json/PackageJsonFile";
    *
    * const error = PackageJsonParseError.make({ path: "package.json", cause: new Error("invalid JSON") });
    * console.log(error.message) // Failed to parse package.json at "package.json"
@@ -215,7 +215,7 @@ export class PackageJsonParseError extends S.TaggedError<PackageJsonParseError, 
  * **Example** (Inspect PackageJsonWriteError details)
  *
  * ```ts
- * import { PackageJsonWriteError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+ * import { PackageJsonWriteError } from "@beep/package-json/PackageJsonFile";
  *
  * const error = PackageJsonWriteError.make({ path: "package.json", cause: new Error("read-only filesystem") });
  * console.log(error.message) // Failed to write package.json to "package.json"
@@ -260,7 +260,7 @@ export class PackageJsonWriteError extends S.TaggedError<PackageJsonWriteError, 
    * **Example** (Inspect PackageJsonWriteError details)
    *
    * ```ts
-   * import { PackageJsonWriteError } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+   * import { PackageJsonWriteError } from "@beep/package-json/PackageJsonFile";
    *
    * const error = PackageJsonWriteError.make({ path: "package.json", cause: new Error("read-only filesystem") });
    * console.log(error.message) // Failed to write package.json to "package.json"
@@ -411,7 +411,7 @@ const isPathFirst = (args: IArguments): boolean => P.isString(args[0]);
  * **Example** (Read a package file with Node filesystem services)
  *
  * ```ts
- * import { PackageJsonFile } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+ * import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
  * import { NodeFileSystem, NodePath } from "@effect/platform-node";
  * import * as Effect from "effect/Effect";
  *
@@ -434,7 +434,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
    * **Example** (Construct the filesystem-backed service effect)
    *
    * ```ts
-   * import { PackageJsonFile } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+   * import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
    * import * as Effect from "effect/Effect";
    *
    * console.log(Effect.isEffect(PackageJsonFile.make)) // true
@@ -569,7 +569,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
    * **Example** (Provide the package file service layer)
    *
    * ```ts
-   * import { PackageJsonFile } from "@beep/scratchpad/effected/package-json/PackageJsonFile";
+   * import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {

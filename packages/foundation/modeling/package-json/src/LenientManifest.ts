@@ -14,7 +14,7 @@
 //   @effected/npm Manifest — shape-blind outside the four dependency fields.
 //   PackageJsonFormat — decode-free text path.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
@@ -28,7 +28,7 @@ import * as S from "effect/Schema";
 import { ExportsField, PackageDecodeError, PublishConfigField } from "./Package.ts";
 import { PackageJsonSyntaxError } from "./PackageJsonFormat.ts";
 
-const $I = $ScratchpadId.create("effected/package-json/LenientManifest");
+const $I = $PackageJsonId.create("LenientManifest");
 
 // ── Issue reporting ─────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ const $I = $ScratchpadId.create("effected/package-json/LenientManifest");
  * **Example** (Constructing a field issue)
  *
  * ```ts
- * import { LenientFieldIssue } from "@beep/scratchpad/effected/package-json/LenientManifest";
+ * import { LenientFieldIssue } from "@beep/package-json/LenientManifest";
  * import * as S from "effect/Schema";
  *
  * const issue: LenientFieldIssue = { field: "name", expected: "a string", value: 42 };
@@ -221,7 +221,7 @@ const decodeJson = S.decodeUnknownResult(S.fromJsonString(S.Unknown));
  * **Example** (Recover malformed manifest fields with diagnostic issues)
  *
  * ```ts
- * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+ * import { LenientManifest } from "@beep/package-json/LenientManifest";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -425,7 +425,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
    * **Example** (Recover a malformed license synchronously)
    *
    * ```ts
-   * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+   * import { LenientManifest } from "@beep/package-json/LenientManifest";
    * import * as Result from "effect/Result";
    *
    * const manifest = Result.getOrThrow(LenientManifest.decodeResult({ license: 42 }));
@@ -455,7 +455,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
    * **Example** (Decode a discovery manifest with an effect)
    *
    * ```ts
-   * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+   * import { LenientManifest } from "@beep/package-json/LenientManifest";
    * import * as Effect from "effect/Effect";
    *
    * const manifest = Effect.runSync(LenientManifest.decode({ name: "JSONStream" }));
@@ -479,7 +479,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
    * **Example** (Distinguish invalid JSON from field degradation)
    *
    * ```ts
-   * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+   * import { LenientManifest } from "@beep/package-json/LenientManifest";
    * import * as Result from "effect/Result";
    *
    * console.log(Result.isFailure(LenientManifest.parseResult("{"))) // true
@@ -514,7 +514,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
    * **Example** (Parse a discovery manifest with an effect)
    *
    * ```ts
-   * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+   * import { LenientManifest } from "@beep/package-json/LenientManifest";
    * import * as Effect from "effect/Effect";
    *
    * const manifest = Effect.runSync(LenientManifest.parse('{"name":"JSONStream"}'));
@@ -538,7 +538,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
    * **Example** (Read the default privacy flag)
    *
    * ```ts
-   * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+   * import { LenientManifest } from "@beep/package-json/LenientManifest";
    * import * as Result from "effect/Result";
    *
    * const manifest = Result.getOrThrow(LenientManifest.decodeResult({}));
@@ -558,7 +558,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
    * **Example** (Recognize the exact module type)
    *
    * ```ts
-   * import { LenientManifest } from "@beep/scratchpad/effected/package-json/LenientManifest";
+   * import { LenientManifest } from "@beep/package-json/LenientManifest";
    * import * as Result from "effect/Result";
    *
    * const manifest = Result.getOrThrow(LenientManifest.decodeResult({ type: "module" }));

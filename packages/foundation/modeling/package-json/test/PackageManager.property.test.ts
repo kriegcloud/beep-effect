@@ -23,7 +23,7 @@ const roundTrips = <T, E>(name: string, codec: S.Codec<T, E>, schema: S.Codec<T,
   );
 };
 
-import { PackageManager } from "../../effected/package-json/PackageManager.ts";
+import { PackageManager } from "@beep/package-json/PackageManager";
 
 const Wire = S.Struct({
   name: S.Literals(["pnpm", "npm", "yarn", "custom"]),

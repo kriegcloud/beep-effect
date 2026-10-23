@@ -15,7 +15,7 @@
 // collapses that slash to `%2F` and is not a canonical purl.
 
 import { assert, describe, it } from "@effect/vitest";
-import { Package } from "../../effected/package-json/index.ts";
+import { Package } from "@beep/package-json";
 import * as Effect from "effect/Effect";
 import { Contact, SbomMetadata, SbomMetadataSource, Supplier } from "../../effected/sbom/index.ts";
 

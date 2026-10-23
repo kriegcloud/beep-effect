@@ -20,7 +20,7 @@
 //                        for mid-build resolution.
 //   PackageJsonFormat  — decode-free text path: anything syntactically JSON.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";
@@ -33,7 +33,7 @@ import { PackageManagerRange } from "./PackageManagerRange.ts";
 import { PackageName } from "./PackageName.ts";
 import type { PackageFormatOptions } from "./Package.ts";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageManifest");
+const $I = $PackageJsonId.create("PackageManifest");
 
 /**
  * A package.json document as it exists on disk, publishable or not: every
@@ -69,7 +69,7 @@ const $I = $ScratchpadId.create("effected/package-json/PackageManifest");
  * **Example** (Decode a private workspace root with a package manager range)
  *
  * ```ts
- * import { PackageManifest } from "@beep/scratchpad/effected/package-json/PackageManifest";
+ * import { PackageManifest } from "@beep/package-json/PackageManifest";
  * import * as Effect from "effect/Effect";
  *
  * const root = Effect.runSync(PackageManifest.decode({ private: true, packageManager: "pnpm@^11.20.0" }));
@@ -113,7 +113,7 @@ export class PackageManifest extends S.Class<PackageManifest, { readonly brand: 
    * **Example** (Preserve unknown manifest keys)
    *
    * ```ts
-   * import { PackageManifest } from "@beep/scratchpad/effected/package-json/PackageManifest";
+   * import { PackageManifest } from "@beep/package-json/PackageManifest";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema";
    *
@@ -134,7 +134,7 @@ export class PackageManifest extends S.Class<PackageManifest, { readonly brand: 
    * **Example** (Decode a manifest without publishable identifiers)
    *
    * ```ts
-   * import { PackageManifest } from "@beep/scratchpad/effected/package-json/PackageManifest";
+   * import { PackageManifest } from "@beep/package-json/PackageManifest";
    * import * as Effect from "effect/Effect";
    *
    * const root = Effect.runSync(PackageManifest.decode({ private: true }));
@@ -159,7 +159,7 @@ export class PackageManifest extends S.Class<PackageManifest, { readonly brand: 
    * **Example** (Default an absent private flag)
    *
    * ```ts
-   * import { PackageManifest } from "@beep/scratchpad/effected/package-json/PackageManifest";
+   * import { PackageManifest } from "@beep/package-json/PackageManifest";
    * import * as Effect from "effect/Effect";
    *
    * const root = Effect.runSync(PackageManifest.decode({}));
@@ -183,7 +183,7 @@ export class PackageManifest extends S.Class<PackageManifest, { readonly brand: 
    * **Example** (Serialize a private workspace root)
    *
    * ```ts
-   * import { PackageManifest } from "@beep/scratchpad/effected/package-json/PackageManifest";
+   * import { PackageManifest } from "@beep/package-json/PackageManifest";
    * import * as Effect from "effect/Effect";
    *
    * const root = Effect.runSync(PackageManifest.decode({ private: true }));

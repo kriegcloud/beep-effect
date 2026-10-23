@@ -1,16 +1,16 @@
-import { $ScratchpadId } from "@beep/identity/packages";
-import { assert, describe, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import { $PackageJsonId } from "@beep/identity/packages";
 import {
   InvalidPackageNameError,
   PackageName,
   ScopedPackageName,
   UnscopedPackageName,
-} from "../../effected/package-json/PackageName.ts";
+} from "@beep/package-json/PackageName";
+import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/package-json/PackageName");
+const $I = $PackageJsonId.create("PackageName");
 
 describe("PackageName.isValid", () => {
   it("accepts simple, scoped, and punctuated names", () => {
@@ -124,8 +124,8 @@ describe("PackageName JSON Schema export", () => {
     assert.propertyVal(union.definitions[scopedId], "pattern", scoped);
     assert.propertyVal(union.definitions[unscopedId], "pattern", unscoped);
     assert.deepPropertyVal(union.definitions[unionId], "anyOf", [
-      { $ref: "#/$defs/@beep~1scratchpad~1effected~1package-json~1PackageName~1ScopedPackageName" },
-      { $ref: "#/$defs/@beep~1scratchpad~1effected~1package-json~1PackageName~1UnscopedPackageName" },
+      { $ref: "#/$defs/@beep~1package-json~1PackageName~1ScopedPackageName" },
+      { $ref: "#/$defs/@beep~1package-json~1PackageName~1UnscopedPackageName" },
     ]);
   });
 });

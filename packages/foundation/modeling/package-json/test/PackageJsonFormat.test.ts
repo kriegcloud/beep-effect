@@ -3,18 +3,15 @@
 // `PackageJsonFormat.formatToString` (bytes→bytes). The cases named "call-site
 // shape" mirror the `sort-package-json` call sites a consumer is replacing.
 
+import { Package } from "@beep/package-json/Package";
+import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Package } from "../../effected/package-json/Package.ts";
-import { PackageJsonFormat } from "../../effected/package-json/PackageJsonFormat.ts";
-import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type {
-  PackageFormatTextOptions,
-  PackageJsonSyntaxError,
-} from "../../effected/package-json/PackageJsonFormat.ts";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
+import type { PackageFormatTextOptions, PackageJsonSyntaxError } from "@beep/package-json/PackageJsonFormat";
 
 const Json = S.fromJsonString(S.Unknown);
 

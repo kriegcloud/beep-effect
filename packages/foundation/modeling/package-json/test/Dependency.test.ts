@@ -1,7 +1,7 @@
+import { Dependency, isUnresolvedDependency } from "@beep/package-json/Dependency";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as O from "effect/Option";
-import { Dependency, isUnresolvedDependency } from "../../effected/package-json/Dependency.ts";
 
 describe("Dependency protocol getters", () => {
   it("classifies a range specifier", () => {

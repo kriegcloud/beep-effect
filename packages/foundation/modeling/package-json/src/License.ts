@@ -2,7 +2,7 @@
 // SPDX expressions plus the `UNLICENSED` and `SEE LICENSE IN` special cases)
 // and the `InvalidSpdxLicenseError` the concept raises.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $PackageJsonId } from "@beep/identity/packages";
 import { isValidExpression, SpdxExpression as SpdxExpressionOps } from "@beep/spdx";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -11,7 +11,7 @@ import type { SpdxExpression } from "@beep/spdx";
 import type * as Brand from "effect/Brand";
 import type * as O from "effect/Option";
 
-const $I = $ScratchpadId.create("effected/package-json/License");
+const $I = $PackageJsonId.create("License");
 
 /**
  * Indicates that a string is not a valid SPDX license identifier or expression.
@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/package-json/License");
  * **Example** (Inspect an invalid license error)
  *
  * ```ts
- * import { InvalidSpdxLicenseError } from "@beep/scratchpad/effected/package-json/License";
+ * import { InvalidSpdxLicenseError } from "@beep/package-json/License";
  *
  * const error = new InvalidSpdxLicenseError({ input: "not-a-license" });
  * console.log(error.input); // not-a-license
@@ -45,7 +45,7 @@ export class InvalidSpdxLicenseError extends S.TaggedError<InvalidSpdxLicenseErr
      * **Example** (Recover the rejected input)
      *
      * ```ts
-     * import { InvalidSpdxLicenseError } from "@beep/scratchpad/effected/package-json/License";
+     * import { InvalidSpdxLicenseError } from "@beep/package-json/License";
      *
      * console.log(new InvalidSpdxLicenseError({ input: "unknown" }).input); // unknown
      * ```
@@ -66,7 +66,7 @@ export class InvalidSpdxLicenseError extends S.TaggedError<InvalidSpdxLicenseErr
    * **Example** (Read the license validation message)
    *
    * ```ts
-   * import { InvalidSpdxLicenseError } from "@beep/scratchpad/effected/package-json/License";
+   * import { InvalidSpdxLicenseError } from "@beep/package-json/License";
    *
    * const error = new InvalidSpdxLicenseError({ input: "unknown" });
    * console.log(error.message); // Invalid SPDX license "unknown": not a recognized identifier or expression
@@ -86,7 +86,7 @@ export class InvalidSpdxLicenseError extends S.TaggedError<InvalidSpdxLicenseErr
  * **Example** (Validate expressions and npm license placeholders)
  *
  * ```ts
- * import { isValidSpdx } from "@beep/scratchpad/effected/package-json/License";
+ * import { isValidSpdx } from "@beep/package-json/License";
  *
  * console.log(isValidSpdx("MIT OR Apache-2.0")); // true
  * console.log(isValidSpdx("UNLICENSED")); // true
@@ -123,7 +123,7 @@ export const isValidSpdx = (value: string): boolean => {
  * **Example** (Decode manifest license strings)
  *
  * ```ts
- * import { SpdxLicense } from "@beep/scratchpad/effected/package-json/License";
+ * import { SpdxLicense } from "@beep/package-json/License";
  * import * as S from "effect/Schema";
  *
  * const decode = S.decodeUnknownSync(SpdxLicense);
@@ -186,7 +186,7 @@ export type SpdxLicense = string & Brand.Brand<"SpdxLicense">;
  * **Example** (Distinguish SPDX expressions from npm license placeholders)
  *
  * ```ts
- * import { SpdxLicense, licenseExpressionOf } from "@beep/scratchpad/effected/package-json/License";
+ * import { SpdxLicense, licenseExpressionOf } from "@beep/package-json/License";
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
  *

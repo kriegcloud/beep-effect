@@ -1,3 +1,4 @@
+import { Person } from "@beep/package-json/Person";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -5,7 +6,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { Person } from "../../effected/package-json/Person.ts";
 
 describe("Person — own __proto__ extension fidelity", () => {
   it.effect("both object codecs preserve an own data key through a modeled-field edit", () =>

@@ -1,7 +1,7 @@
+import { Funding } from "@beep/package-json/Funding";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Funding } from "../../effected/package-json/Funding.ts";
 
 it.effect("FromValue preserves spelling and rebuilds remembered objects when url or type changes", () =>
   Effect.gen(function* () {

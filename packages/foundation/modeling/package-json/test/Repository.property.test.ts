@@ -23,7 +23,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { Bugs, Repository } from "../../effected/package-json/Repository.ts";
+import { Bugs, Repository } from "@beep/package-json/Repository";
 
 const RepositoryWire = S.Union([
   S.String,

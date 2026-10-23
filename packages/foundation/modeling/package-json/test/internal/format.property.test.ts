@@ -13,7 +13,7 @@ import {
   resolveIndent,
   sortKeys,
   stripEmptyDependencyMaps,
-} from "../../../effected/package-json/internal/format.ts";
+} from "@beep/package-json/internal/format";
 
 const ObjectJson = S.Record(S.String, S.Json);
 describe("internal format property floor", () => {

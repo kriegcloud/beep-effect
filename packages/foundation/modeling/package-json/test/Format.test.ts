@@ -5,13 +5,13 @@
 // from this repository (see fixtures/README.md for provenance).
 
 import { readFileSync } from "node:fs";
+import { renderJson, resolveFormatOptions, resolveIndent } from "@beep/package-json/internal/format";
+import { Package } from "@beep/package-json/Package";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
-import { renderJson, resolveFormatOptions, resolveIndent } from "../../effected/package-json/internal/format.ts";
-import { Package } from "../../effected/package-json/Package.ts";
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 const StringRecord = S.Record(S.String, S.String);
@@ -266,7 +266,7 @@ describe("people-field wire form survives the strict format path", () => {
 describe("byte parity with sort-package-json@4.0.0 on real manifests", () => {
   const fixtures = ["root", "package-json", "semver", "toml", "workspaces"] as const;
 
-  const read = (name: string): string => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
+  const read = (name: string): string => readFileSync(new URL(`./fixtures/${name}.txt`, import.meta.url), "utf8");
 
   for (const name of fixtures) {
     it.effect(`${name}.input.json round-trips byte-identically with indent: "preserve"`, () =>

@@ -185,7 +185,7 @@ const isPlainObject: (value: unknown) => value is Record<string, unknown> = P.is
  * **Example** (Order known and unknown package keys)
  *
  * ```ts
- * import { sortKeys } from "@beep/scratchpad/effected/package-json/internal/format";
+ * import { sortKeys } from "@beep/package-json/internal/format";
  *
  * console.log(Object.keys(sortKeys({ z: 1, version: "1.0.0", name: "p", _a: 2 })).join(",")); // name,version,z,_a
  * ```
@@ -236,7 +236,7 @@ const STRIP_EMPTY_KEYS: ReadonlyArray<string> = [
  * **Example** (Remove empty defaulted maps)
  *
  * ```ts
- * import { stripEmptyDependencyMaps } from "@beep/scratchpad/effected/package-json/internal/format";
+ * import { stripEmptyDependencyMaps } from "@beep/package-json/internal/format";
  *
  * console.log(JSON.stringify(stripEmptyDependencyMaps({ name: "p", scripts: {}, dependencies: {} }))); // {"name":"p"}
  * ```
@@ -265,7 +265,7 @@ const DEFAULT_INDENT = 2;
  * **Example** (Inspect a four-space indent)
  *
  * ```ts
- * import { detectIndent } from "@beep/scratchpad/effected/package-json/internal/format";
+ * import { detectIndent } from "@beep/package-json/internal/format";
  *
  * console.log(detectIndent('{\n    "name": "p"\n}')?.length); // 4
  * ```
@@ -293,7 +293,7 @@ export const detectIndent = (source: string): string | undefined => {
  * **Example** (Preserve indent or use the default)
  *
  * ```ts
- * import { resolveIndent } from "@beep/scratchpad/effected/package-json/internal/format";
+ * import { resolveIndent } from "@beep/package-json/internal/format";
  *
  * console.log(String(resolveIndent("preserve", '{\n    "name": "p"\n}')).length); // 4
  * console.log(resolveIndent("preserve", undefined)); // 2
@@ -322,7 +322,7 @@ export const resolveIndent: {
  * **Example** (Resolve default formatting options)
  *
  * ```ts
- * import { resolveFormatOptions } from "@beep/scratchpad/effected/package-json/internal/format";
+ * import { resolveFormatOptions } from "@beep/package-json/internal/format";
  *
  * console.log(JSON.stringify(resolveFormatOptions())); // {"indent":2,"sort":true,"stripEmpty":true,"newline":true}
  * ```
@@ -356,7 +356,7 @@ export const resolveFormatOptions = (options?: {
  * **Example** (Render sorted compact package text)
  *
  * ```ts
- * import { renderJson, resolveFormatOptions } from "@beep/scratchpad/effected/package-json/internal/format";
+ * import { renderJson, resolveFormatOptions } from "@beep/package-json/internal/format";
  *
  * const text = renderJson({ version: "1.0.0", name: "p", scripts: {} }, resolveFormatOptions({ indent: 0, newline: false }));
  * console.log(text); // {"name":"p","version":"1.0.0"}
