@@ -5,6 +5,7 @@ import * as Exit from "effect/Exit";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import {
+  CryptoPhase,
   decrypt,
   encrypt,
   fromBase64,
@@ -64,7 +65,7 @@ export class ConfigEncryptionError extends S.TaggedError<ConfigEncryptionError, 
      *
      * @since 0.0.0
      */
-    phase: S.Literals(["key-derivation", "encrypt", "decrypt", "encoding"]).pipe(
+    phase: CryptoPhase.pipe(
       $I.annoteKey("ConfigEncryptionError.phase", { description: "Which cryptographic stage failed." })
     ),
     /**

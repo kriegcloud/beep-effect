@@ -29,28 +29,22 @@ const $I = $ConfigFileId.create("ConfigEvent");
  * @category schemas
  * @since 0.0.0
  */
-export const ConfigSourceRef = S.Struct({
-  /** The filesystem path the value was read from. */
-  path: S.String.pipe(
-    $I.annoteKey("ConfigSourceRef.path", { description: "The filesystem path the value was read from." })
-  ),
-  /** The name of the resolver that found it. */
-  resolver: S.String.pipe(
-    $I.annoteKey("ConfigSourceRef.resolver", { description: "The name of the resolver that found it." })
-  ),
-}).pipe(
-  $I.annoteSchema("ConfigSourceRef", {
-    description: "A reference to one configuration source that contributed to a load.",
-  })
-);
-
-/**
- * Decoded value produced by {@link ConfigSourceRef}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type ConfigSourceRef = typeof ConfigSourceRef.Type;
+export class ConfigSourceRef extends S.Opaque<ConfigSourceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The filesystem path the value was read from. */
+    path: S.String.pipe(
+      $I.annoteKey("ConfigSourceRef.path", { description: "The filesystem path the value was read from." })
+    ),
+    /** The name of the resolver that found it. */
+    resolver: S.String.pipe(
+      $I.annoteKey("ConfigSourceRef.resolver", { description: "The name of the resolver that found it." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ConfigSourceRef", {
+      description: "A reference to one configuration source that contributed to a load.",
+    })
+  )
+) {}
 
 /**
  * Every event published during config discovery, parsing, validation and
@@ -146,31 +140,16 @@ export type ConfigEventPayload = typeof ConfigEventPayload.Type;
  * @category models
  * @since 0.0.0
  */
-export class ConfigEvent extends S.Class<ConfigEvent, { readonly brand: unique symbol }>($I`ConfigEvent`)(
-  {
+export class ConfigEvent extends S.Opaque<ConfigEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** When the event occurred. */
     timestamp: S.DateTimeUtc.pipe($I.annoteKey("ConfigEvent.timestamp", { description: "When the event occurred." })),
     /** What happened. */
     event: ConfigEventPayload.pipe($I.annoteKey("ConfigEvent.event", { description: "What happened." })),
-  },
-  $I.annote("ConfigEvent", { description: "A published event: the payload plus the instant it occurred." })
+  }).pipe(
+    $I.annoteSchema("ConfigEvent", { description: "A published event: the payload plus the instant it occurred." })
+  )
 ) {}
-
-/**
- * The service shape {@link ConfigEvents} provides.
- *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export interface ConfigEventsShape {
-  /**
-   * The hub every {@link ConfigEvent} is published to.
-   *
-   * @since 0.0.0
-   */
-  readonly events: PubSub.PubSub<ConfigEvent>;
-}
 
 /**
  * The opt-in event hook: a PubSub of {@link ConfigEvent} that consumers
@@ -212,7 +191,17 @@ export interface ConfigEventsShape {
  * @category services
  * @since 0.0.0
  */
-export class ConfigEvents extends Context.Service<ConfigEvents, ConfigEventsShape>()($I`ConfigEvents`) {
+export class ConfigEvents extends Context.Service<
+  ConfigEvents,
+  {
+    /**
+     * The hub every {@link ConfigEvent} is published to.
+     *
+     * @since 0.0.0
+     */
+    readonly events: PubSub.PubSub<ConfigEvent>;
+  }
+>()($I`ConfigEvents`) {
   /**
    * An unbounded PubSub of config events.
    *
@@ -247,3 +236,13 @@ export class ConfigEvents extends Context.Service<ConfigEvents, ConfigEventsShap
     })
   );
 }
+
+/**
+ * The service shape {@link ConfigEvents} provides: the hub every
+ * {@link ConfigEvent} is published to.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ConfigEventsShape = (typeof ConfigEvents)["Service"];

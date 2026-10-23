@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import * as Str from "effect/String";
 import { ConfigCodecError } from "./ConfigCodec.ts";
-import { ConfigEvent } from "./ConfigEvent.ts";
+import { ConfigEvent, ConfigSourceRef } from "./ConfigEvent.ts";
 import { ConfigMatch, ConfigProbe, ConfigResolver } from "./ConfigResolver.ts";
 import type * as SchemaAST from "effect/SchemaAST";
 import type { ConfigCodec } from "./ConfigCodec.ts";
@@ -423,25 +423,35 @@ export type ConfigEncodeError = ConfigCodecError | ConfigValidationError;
  * @category configuration
  * @since 0.0.0
  */
-export interface ConfigEncodeOptions {
-  /**
-   * Text emitted **verbatim** in front of the serialized document, separated
-   * from it by exactly one newline. If `header` already ends in `"\n"`, no
-   * further newline is added.
-   *
-   * **Gotchas**
-   *
-   * The caller owns the header's validity in the target format: `#` comment
-   * lines for TOML and YAML, `//` for JSONC. JSON has no comment syntax, so a
-   * header on a JSON codec yields an unparseable file by construction — the
-   * service does not check. The motivating case is a schema directive such as
-   * `#:schema https://example.com/config.schema.json` at the top of a TOML
-   * file, which editors read for completion and validation.
-   *
-   * @since 0.0.0
-   */
-  readonly header?: string;
-}
+export class ConfigEncodeOptions extends S.Opaque<ConfigEncodeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Text emitted **verbatim** in front of the serialized document, separated
+     * from it by exactly one newline. If `header` already ends in `"\n"`, no
+     * further newline is added.
+     *
+     * **Gotchas**
+     *
+     * The caller owns the header's validity in the target format: `#` comment
+     * lines for TOML and YAML, `//` for JSONC. JSON has no comment syntax, so a
+     * header on a JSON codec yields an unparseable file by construction — the
+     * service does not check. The motivating case is a schema directive such as
+     * `#:schema https://example.com/config.schema.json` at the top of a TOML
+     * file, which editors read for completion and validation.
+     *
+     * @since 0.0.0
+     */
+    header: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ConfigEncodeOptions.header", {
+        description: "Text emitted verbatim in front of the serialized document, separated by exactly one newline.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ConfigEncodeOptions", {
+      description: "Options shared by ConfigFileShape.encode and ConfigFileShape.write.",
+    })
+  )
+) {}
 
 /**
  * The failure modes of {@link ConfigFileShape.save}.
@@ -500,7 +510,7 @@ export interface ConfigFileShape<A> {
    *
    * @since 0.0.0
    */
-  readonly encode: (value: A, options?: ConfigEncodeOptions) => Effect.Effect<string, ConfigEncodeError>;
+  readonly encode: (value: A, options?: typeof ConfigEncodeOptions.Encoded) => Effect.Effect<string, ConfigEncodeError>;
   /**
    * Discover, decode and merge the highest-priority config source.
    *
@@ -565,8 +575,8 @@ export interface ConfigFileShape<A> {
    * @since 0.0.0
    */
   readonly write: {
-    (value: A, path: string, options?: ConfigEncodeOptions): Effect.Effect<void, ConfigWriteError>;
-    (path: string, options?: ConfigEncodeOptions): (value: A) => Effect.Effect<void, ConfigWriteError>;
+    (value: A, path: string, options?: typeof ConfigEncodeOptions.Encoded): Effect.Effect<void, ConfigWriteError>;
+    (path: string, options?: typeof ConfigEncodeOptions.Encoded): (value: A) => Effect.Effect<void, ConfigWriteError>;
   };
 }
 
@@ -779,10 +789,8 @@ const makeImpl: {
     /**
      * The public, path-and-resolver view of the sources that fed a load.
      */
-    const sourceRefs = (
-      sources: ReadonlyArray<ConfigSource<A>>
-    ): ReadonlyArray<{ readonly path: string; readonly resolver: string }> =>
-      A.map(sources, (s) => ({ path: s.path, resolver: s.resolver }));
+    const sourceRefs = (sources: ReadonlyArray<ConfigSource<A>>): ReadonlyArray<ConfigSourceRef> =>
+      A.map(sources, (s) => ConfigSourceRef.make({ path: s.path, resolver: s.resolver }));
 
     const decode: {
       (parsed: unknown, at: O.Option<string>): Effect.Effect<A, ConfigValidationError>;
@@ -930,15 +938,19 @@ const makeImpl: {
       (
         value: A,
         target: O.Option<string>,
-        encodeOptions?: ConfigEncodeOptions
+        encodeOptions?: typeof ConfigEncodeOptions.Encoded
       ): Effect.Effect<string, ConfigEncodeError>;
       (
         target: O.Option<string>,
-        encodeOptions?: ConfigEncodeOptions
+        encodeOptions?: typeof ConfigEncodeOptions.Encoded
       ): (value: A) => Effect.Effect<string, ConfigEncodeError>;
     } = dual(
       (args) => O.isOption(args[1]),
-      Effect.fnUntraced(function* (value: A, target: O.Option<string>, encodeOptions?: ConfigEncodeOptions) {
+      Effect.fnUntraced(function* (
+        value: A,
+        target: O.Option<string>,
+        encodeOptions?: typeof ConfigEncodeOptions.Encoded
+      ) {
         const encoded = yield* S.encodeEffect(options.schema)(value).pipe(
           // Same normalization as `decode`: carry the structured issue, never stringify.
           Effect.catchTag("SchemaError", (error) =>
@@ -966,11 +978,18 @@ const makeImpl: {
      * failed writes must not see a dry run's codec failure.
      */
     const encodeAndWrite: {
-      (value: A, target: string, encodeOptions?: ConfigEncodeOptions): Effect.Effect<void, ConfigWriteError>;
-      (target: string, encodeOptions?: ConfigEncodeOptions): (value: A) => Effect.Effect<void, ConfigWriteError>;
+      (
+        value: A,
+        target: string,
+        encodeOptions?: typeof ConfigEncodeOptions.Encoded
+      ): Effect.Effect<void, ConfigWriteError>;
+      (
+        target: string,
+        encodeOptions?: typeof ConfigEncodeOptions.Encoded
+      ): (value: A) => Effect.Effect<void, ConfigWriteError>;
     } = dual(
       (args) => P.isString(args[1]),
-      Effect.fnUntraced(function* (value: A, target: string, encodeOptions?: ConfigEncodeOptions) {
+      Effect.fnUntraced(function* (value: A, target: string, encodeOptions?: typeof ConfigEncodeOptions.Encoded) {
         const serialized = yield* encodeTo(value, O.some(target), encodeOptions).pipe(
           Effect.tapError((error) =>
             error._tag === "ConfigCodecError"
@@ -985,7 +1004,10 @@ const makeImpl: {
     );
 
     // No event: nothing was written.
-    const encode = Effect.fn("ConfigFile.encode")(function* (value: A, encodeOptions?: ConfigEncodeOptions) {
+    const encode = Effect.fn("ConfigFile.encode")(function* (
+      value: A,
+      encodeOptions?: typeof ConfigEncodeOptions.Encoded
+    ) {
       return yield* encodeTo(value, O.none(), encodeOptions);
     });
 
@@ -1015,7 +1037,11 @@ const makeImpl: {
 
     const write: ConfigFileShape<A>["write"] = dual(
       (args) => P.isString(args[1]),
-      Effect.fn("ConfigFile.write")(function* (value: A, target: string, encodeOptions?: ConfigEncodeOptions) {
+      Effect.fn("ConfigFile.write")(function* (
+        value: A,
+        target: string,
+        encodeOptions?: typeof ConfigEncodeOptions.Encoded
+      ) {
         // No `makeDirectory` here, deliberately: `write` trusts the caller's path.
         yield* encodeAndWrite(value, target, encodeOptions);
         yield* emit({ _tag: "Written", path: target });

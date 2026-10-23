@@ -1,5 +1,7 @@
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
@@ -417,5 +419,24 @@ describe("MergeStrategy.layeredMerge — prototype pollution via the higher-prio
       const empty: Record<string, unknown> = {};
       assert.isUndefined(empty.polluted);
     })
+  );
+});
+
+describe("MergeStrategy schema properties", () => {
+  const Section = S.Struct({ name: S.String, retries: S.Finite });
+  const Document = S.Struct({ host: S.String, port: S.Finite, section: Section });
+
+  it.effect.prop(
+    "layeredMerge over two complete decoded documents equals the higher-priority one; firstMatch picks it",
+    [Arbitrary.schema(Document), Arbitrary.schema(Document)],
+    ([higher, lower]) =>
+      Effect.gen(function* () {
+        const sources = [src("/a", "walk", higher), src("/etc", "system", lower)] as const;
+        const merged = yield* MergeStrategy.layeredMerge<typeof Document.Type>().resolve(sources);
+        assert.isTrue(S.toEquivalence(Document)(merged, higher));
+        assert.deepStrictEqual(yield* S.decodeEffect(Document)(merged), merged);
+        assert.strictEqual(yield* MergeStrategy.firstMatch<typeof Document.Type>().resolve(sources), higher);
+      }),
+    { arbitrary: fcRuns(100) }
   );
 });

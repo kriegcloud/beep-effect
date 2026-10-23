@@ -1,9 +1,11 @@
 import { $ConfigFileId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $ConfigFileId.create("internal/crypto");
@@ -29,10 +31,21 @@ export const IV_LENGTH = 12;
  * Where a cryptographic step failed.
  *
  * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CryptoPhase = LiteralKit(["key-derivation", "encrypt", "decrypt", "encoding"]).pipe(
+  $I.annoteSchema("CryptoPhase", { description: "Where a cryptographic step failed." })
+);
+
+/**
+ * Decoded value produced by {@link (CryptoPhase:variable)}.
+ *
+ * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type CryptoPhase = "key-derivation" | "encrypt" | "decrypt" | "encoding";
+export type CryptoPhase = typeof CryptoPhase.Type;
 
 /**
  * The internal failure shape. `EncryptedCodec.ts` maps this to `ConfigEncryptionError`.
@@ -41,15 +54,26 @@ export type CryptoPhase = "key-derivation" | "encrypt" | "decrypt" | "encoding";
  * @category errors
  * @since 0.0.0
  */
-export interface CryptoFailure {
-  readonly cause: unknown;
-  readonly phase: CryptoPhase;
-}
+export class CryptoFailure extends S.Opaque<CryptoFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The host failure, preserved structurally. */
+    cause: S.Defect().pipe(
+      $I.annoteKey("CryptoFailure.cause", { description: "The host failure, preserved structurally." })
+    ),
+    /** The cryptographic step that failed. */
+    phase: CryptoPhase.pipe(
+      $I.annoteKey("CryptoFailure.phase", { description: "The cryptographic step that failed." })
+    ),
+  }).pipe(
+    $I.annoteSchema("CryptoFailure", { description: "A cryptographic step's failure, before it is made public." })
+  )
+) {}
 
 /** Tag a caught host failure with the phase that produced it, preserving it by identity. */
 const fail =
   (phase: CryptoPhase) =>
-  (cause: unknown): CryptoFailure => ({ phase, cause });
+  (cause: unknown): CryptoFailure =>
+    CryptoFailure.make({ phase, cause });
 
 /**
  * Copy a `Uint8Array` into a fresh `Uint8Array` backed by a plain `ArrayBuffer`,

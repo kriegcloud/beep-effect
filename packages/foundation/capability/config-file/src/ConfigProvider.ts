@@ -1,9 +1,13 @@
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as S from "effect/Schema";
 import type * as Layer from "effect/Layer";
 import type { ConfigFileShape, ConfigLoadError } from "./ConfigFile.ts";
+
+const $I = $ConfigFileId.create("ConfigProvider");
 
 /**
  * Expose a loaded, merged, schema-validated document as a `ConfigProvider`,
@@ -80,20 +84,29 @@ export const asConfigProvider = <A>(
  * @category type-level
  * @since 0.0.0
  */
-export interface LayerConfigProviderOptions {
-  /**
-   * Make the config file the primary source, consulted before the ambient
-   * provider rather than after it.
-   *
-   * **Details**
-   *
-   * Defaults to `false`, which is the precedence almost every application
-   * wants: an environment variable overrides the file it was deployed with.
-   *
-   * @since 0.0.0
-   */
-  readonly asPrimary?: boolean;
-}
+export class LayerConfigProviderOptions extends S.Opaque<
+  LayerConfigProviderOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    /**
+     * Make the config file the primary source, consulted before the ambient
+     * provider rather than after it.
+     *
+     * **Details**
+     *
+     * Defaults to `false`, which is the precedence almost every application
+     * wants: an environment variable overrides the file it was deployed with.
+     *
+     * @since 0.0.0
+     */
+    asPrimary: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("LayerConfigProviderOptions.asPrimary", {
+        description: "Make the config file the primary source, consulted before the ambient provider.",
+      })
+    ),
+  }).pipe($I.annoteSchema("LayerConfigProviderOptions", { description: "Options for layerConfigProvider." }))
+) {}
 
 /**
  * Install a loaded config document as a fallback beneath the **ambient**
@@ -137,17 +150,17 @@ export interface LayerConfigProviderOptions {
  */
 export const layerConfigProvider: {
   (
-    options?: LayerConfigProviderOptions
+    options?: typeof LayerConfigProviderOptions.Encoded
   ): <Self, A>(tag: Context.Key<Self, ConfigFileShape<A>>) => Layer.Layer<never, ConfigLoadError, Self>;
   <Self, A>(
     tag: Context.Key<Self, ConfigFileShape<A>>,
-    options?: LayerConfigProviderOptions
+    options?: typeof LayerConfigProviderOptions.Encoded
   ): Layer.Layer<never, ConfigLoadError, Self>;
 } = dual(
   (args) => Context.isKey(args[0]),
   <Self, A>(
     tag: Context.Key<Self, ConfigFileShape<A>>,
-    options?: LayerConfigProviderOptions
+    options?: typeof LayerConfigProviderOptions.Encoded
   ): Layer.Layer<never, ConfigLoadError, Self> => {
     // A `Context.Key` *is* an `Effect<Shape, never, Identifier>`, so the service
     // lookup needs no `asEffect`, and `Self` flows straight into the layer's `R`.

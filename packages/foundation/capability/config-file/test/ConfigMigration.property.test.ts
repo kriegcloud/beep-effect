@@ -1,8 +1,12 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -75,5 +79,18 @@ it.effect("upgrading preserves JSON-normalized negative zero in nested payloads"
     const formatted = yield* migrating.stringify(parsed);
     assert.deepStrictEqual(yield* migrating.parse(formatted), parsed);
     assert.strictEqual(yield* migrating.stringify(yield* migrating.parse(formatted)), formatted);
+  })
+);
+
+it.effect("the failing step is carried on `migration`, so `name` and `String(error)` keep the error type", () =>
+  Effect.gen(function* () {
+    // Conformance shift (W3-e, D-24 precedent): the lab payload field `name`
+    // shadowed `Error.name`, so logs printed the step name instead of the type.
+    const error = ConfigMigrationError.make({ version: 2, migration: "add-b", phase: "apply", cause: "failure" });
+    assert.strictEqual(error.migration, "add-b");
+    assert.notStrictEqual(error.name, "add-b");
+    assert.isFalse(Str.startsWith("add-b")(String(error)));
+    const encoded = yield* S.encodeEffect(ConfigMigrationError)(error);
+    assert.deepStrictEqual(A.sort(R.keys(encoded), Order.String), ["_tag", "cause", "migration", "phase", "version"]);
   })
 );
