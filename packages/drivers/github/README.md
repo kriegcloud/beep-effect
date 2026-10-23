@@ -331,7 +331,7 @@ Promotion changes, beyond the lab port recorded below:
 
 - The compatibility re-export of six `@beep/github-references` names (`CLOSING_KEYWORDS`, `ClosingKeyword`, `IssueReference`, `harvestIssueReferences`, `BareLineReference`, `parseBareLineReference`) is dropped, along with its test; import them from `@beep/github-references`. The test-only `readHeaderString` alias is dropped too; its property test imports `headerString` from `@beep/github/internal/headers`.
 - The sealed-box nonce is `blake2b(input, { dkLen: 24 })` from `@noble/hashes` (already in the workspace catalog) instead of `blakejs`, which removes the dependency and its Bun/Node CommonJS interop workaround. The blakejs interop tests are replaced by BLAKE2b-192 known-answer tests. `tweetnacl` stays.
-- `CodeScanningSetup`'s `state`, `query_suite`, `threat_model`, `runner_type` and `runner_label` are `S.optional` again, restoring the explicit-`undefined` semantics the suite asserts (the #1928 `S.optionalKey` sweep had broken them).
+- `CodeScanningSetup`'s `state`, `query_suite`, `threat_model`, `runner_type` and `runner_label` are exact optional keys (`S.optionalKey`, EF-40): omit a key instead of passing `undefined` (`CodeScanning.test.ts` pins the rejection; `goals/exact-optional-keys`).
 
 ## Port notes
 

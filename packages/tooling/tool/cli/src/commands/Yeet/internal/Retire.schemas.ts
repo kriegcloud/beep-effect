@@ -7,9 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { GitObjectId } from "@beep/schema/Conformance";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../../internal/schema/JsonCodec.ts";
 import { WorktreeRemovalReceipt } from "../../Worktree/Worktree.schemas.ts";
+import { ProofJobCancelOutcome } from "./ProofJob.ts";
 import { SweepPlan, SweepReport } from "./Sweep.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Retire.schemas");
@@ -50,6 +52,32 @@ export class YeetRetirePlan extends S.Opaque<YeetRetirePlan, { readonly brand: u
   }).pipe(
     $I.annoteSchema("YeetRetirePlan", {
       description: "The linked worktree a sweep retires, the clone that owns it, and the merged branch it carried.",
+    })
+  )
+) {}
+
+/**
+ * A detached job a retirement asked to stop before fencing its lane, and how the stop went.
+ *
+ * **Example** (Record a stopped monitor)
+ *
+ * ```ts
+ * import { StoppedLaneJob } from "@beep/repo-cli/test/Yeet"
+ *
+ * const stopped = StoppedLaneJob.make({ jobId: "0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60", outcome: "stop-requested" })
+ * console.log(stopped.outcome) // stop-requested
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StoppedLaneJob extends S.Opaque<StoppedLaneJob, { readonly brand: unique symbol }>()(
+  S.Struct({
+    jobId: S.NonEmptyString,
+    outcome: ProofJobCancelOutcome,
+  }).pipe(
+    $I.annoteSchema("StoppedLaneJob", {
+      description: "A detached job the retirement asked to stop before fencing its lane, with the stop's outcome.",
     })
   )
 ) {}
@@ -165,10 +193,14 @@ export class YeetRetireSweepReport extends S.Opaque<YeetRetireSweepReport, { rea
     receipt: WorktreeRemovalReceipt,
     activePackets: S.Array(S.String),
     sweep: SweepReport,
+    stoppedJobs: S.Array(StoppedLaneJob).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
   }).pipe(
     $I.annoteSchema("YeetRetireSweepReport", {
       description:
-        "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report.",
+        "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, the owning clone's sweep report, and the lane's detached jobs stopped before the fence.",
     })
   )
 ) {}

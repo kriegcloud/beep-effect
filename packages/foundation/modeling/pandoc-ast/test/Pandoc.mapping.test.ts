@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import * as Md from "@beep/md/Md.model";
 import { decodePandocJson, decodePandocJsonString } from "@beep/pandoc-ast/Pandoc.codec";
 import { documentToPandoc, PandocMappingError, pandocToDocument } from "@beep/pandoc-ast/Pandoc.mapping";
@@ -35,7 +36,7 @@ const PandocDocumentArbitrary = Arbitrary.schema(Pandoc.PandocDocument);
 const fixture = Effect.fn("PandocMappingTest.fixture")((name: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    return yield* fs.readFileString(new URL(`./fixtures/${name}`, import.meta.url).pathname);
+    return yield* fs.readFileString(NodeURL.fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)));
   })
 );
 const text = (value: string): Md.Text => Md.Text.make({ value });

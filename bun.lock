@@ -2274,6 +2274,30 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/capability/config-file": {
+      "name": "@beep/config-file",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/toml": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@beep/walker": "workspace:^",
+        "@beep/yaml": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "jsonc-parser": "catalog:",
+        "smol-toml": "^1.9.1",
+        "yaml": "catalog:",
+      },
+    },
     "packages/foundation/capability/file-processing": {
       "name": "@beep/file-processing",
       "version": "0.0.0",
@@ -2506,6 +2530,7 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/github": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -2626,6 +2651,26 @@
         "lexical": "catalog:",
       },
     },
+    "packages/foundation/modeling/lockfiles": {
+      "name": "@beep/lockfiles",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/npm-spec": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@beep/yaml": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/managed-section": {
       "name": "@beep/managed-section",
       "version": "0.0.0",
@@ -2659,6 +2704,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
@@ -2755,6 +2801,7 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/memfs": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "@types/validate-npm-package-name": "catalog:",
@@ -3801,6 +3848,7 @@
         "@beep/ai-sync": "workspace:^",
         "@beep/chalk": "workspace:^",
         "@beep/colors": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/exiftool": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
@@ -3888,6 +3936,7 @@
       "dependencies": {
         "@babel/code-frame": "catalog:",
         "@beep/chalk": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/repo-utils": "workspace:^",
@@ -3897,7 +3946,6 @@
         "@effect/platform-bun": "catalog:",
         "doctrine": "catalog:",
         "effect": "catalog:",
-        "jsonc-parser": "catalog:",
         "ts-morph": "catalog:",
       },
       "devDependencies": {
@@ -4002,6 +4050,7 @@
       "dependencies": {
         "@azure/storage-blob": "^12.33.0",
         "@beep/commands": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/dock": "workspace:^",
         "@beep/dock-react": "workspace:^",
         "@beep/drizzle": "workspace:^",
@@ -4018,6 +4067,7 @@
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
         "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/lockfiles": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/managed-section": "workspace:^",
         "@beep/markdown": "workspace:^",
@@ -4114,6 +4164,7 @@
     "@modelcontextprotocol/server": "2.3.1",
     "@opentelemetry/exporter-trace-otlp-proto": "catalog:",
     "basic-ftp": "6.2.1",
+    "body-parser": "2.4.0",
     "detailed-xml-validator": "2.1.0",
     "http-cache-semantics": "4.3.0",
     "katex": "^0.18.2",
@@ -4122,6 +4173,7 @@
     "postcss-selector-parser": "^7.1.6",
     "protobufjs": "^7.6.6",
     "sharp": "catalog:",
+    "zod": "4.6.6",
   },
   "catalog": {
     "@arizeai/phoenix-client": "7.16.1",
@@ -4543,6 +4595,8 @@
 
     "@beep/commands": ["@beep/commands@workspace:packages/drivers/commands"],
 
+    "@beep/config-file": ["@beep/config-file@workspace:packages/foundation/capability/config-file"],
+
     "@beep/cosmos": ["@beep/cosmos@workspace:packages/drivers/cosmos"],
 
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
@@ -4650,6 +4704,8 @@
     "@beep/libpff": ["@beep/libpff@workspace:packages/drivers/libpff"],
 
     "@beep/lint-rules": ["@beep/lint-rules@workspace:packages/tooling/policy-pack/lint-rules"],
+
+    "@beep/lockfiles": ["@beep/lockfiles@workspace:packages/foundation/modeling/lockfiles"],
 
     "@beep/m365": ["@beep/m365@workspace:packages/drivers/m365"],
 
@@ -6991,7 +7047,7 @@
 
     "bl": ["bl@4.1.0", "", { "dependencies": { "buffer": "^5.5.0", "inherits": "^2.0.4", "readable-stream": "^3.4.0" } }, "sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w=="],
 
-    "body-parser": ["body-parser@2.3.0", "", { "dependencies": { "bytes": "^3.1.2", "content-type": "^2.0.0", "debug": "^4.4.3", "http-errors": "^2.0.1", "iconv-lite": "^0.7.2", "on-finished": "^2.4.1", "qs": "^6.15.2", "raw-body": "^3.0.2", "type-is": "^2.1.0" } }, "sha512-2cGmJupaNgg+QUwVLAucDuWuoMZ6EX9iHDRswZ5lsNYEmwPaRknMPCLZz07yTzVq/83p4o/wzbDZbBrTvGGTIw=="],
+    "body-parser": ["body-parser@2.4.0", "", { "dependencies": { "bytes": "^3.1.2", "content-type": "^2.1.0", "debug": "^4.4.3", "http-errors": "^2.0.1", "iconv-lite": "^0.7.3", "on-finished": "^2.4.1", "qs": "^6.16.1", "raw-body": "^3.0.2", "type-is": "^2.1.0" } }, "sha512-Ifk1KcLrxaGt1occQagQNFNNOqRt1LFuehEnHHzB8Z6cRgIxRU1TBaiIsUiCdA+gy5PL7Y1IX31DNKkRmxtXjQ=="],
 
     "box-node-sdk": ["box-node-sdk@10.18.0", "", { "dependencies": { "@types/node-fetch": "2.6.13", "buffer": "^6.0.3", "form-data": "^4.0.4", "hash-wasm": "^4.12.0", "jose": "^5.2.2", "node-fetch": "^2.7.0", "proxy-agent": "^6.5.0", "tslib": "^2.6.2", "uuid": "^11.1.1" } }, "sha512-0KwOeVKcLrbNE3QUnK1XzP52YRH1UB3KVDR3JQHahbfnddkS/D6wVlVgHBX6E5+gRYhenIwOLtoGHWFaEOET7w=="],
 
@@ -9157,7 +9213,7 @@
 
     "zip-stream": ["zip-stream@6.0.1", "", { "dependencies": { "archiver-utils": "^5.0.0", "compress-commons": "^6.0.2", "readable-stream": "^4.0.0" } }, "sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA=="],
 
-    "zod": ["zod@4.6.5", "", {}, "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q=="],
+    "zod": ["zod@4.6.6", "", {}, "sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA=="],
 
     "zod-to-json-schema": ["zod-to-json-schema@3.25.2", "", { "peerDependencies": { "zod": "^3.25.28 || ^4" } }, "sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA=="],
 
@@ -9560,6 +9616,8 @@
     "body-parser/content-type": ["content-type@2.1.0", "", {}, "sha512-mj7UPXE0jaqaOsukNZRUEfEi2AcL7C/vwmwcHV0O97eO1E1pxBZuyjlZrx5seTaNBg1U6+o35wpa35Qfcc+7ag=="],
 
     "body-parser/iconv-lite": ["iconv-lite@0.7.3", "", { "dependencies": { "safer-buffer": ">= 2.1.2 < 3.0.0" } }, "sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ=="],
+
+    "body-parser/qs": ["qs@6.16.1", "", { "dependencies": { "es-define-property": "^1.0.1", "side-channel": "^1.1.1" } }, "sha512-5Px6J7rfHBAGUhNQ3es4YzcOdBBw0SDcVtThJml4RdnKw4tKs2epA0kPZ+K8X+WiHktT93RHVcQ/3ym5aTCgtg=="],
 
     "braces/fill-range": ["fill-range@7.1.1", "", { "dependencies": { "to-regex-range": "^5.0.1" } }, "sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg=="],
 

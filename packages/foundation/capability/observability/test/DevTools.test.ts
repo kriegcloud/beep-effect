@@ -78,8 +78,7 @@ describe("DevTools", () => {
             ]),
             context
           )
-        ),
-        Effect.scoped
+        )
       );
 
       // `withSpan` attributes land after creation; the start snapshot keeps its own copy.

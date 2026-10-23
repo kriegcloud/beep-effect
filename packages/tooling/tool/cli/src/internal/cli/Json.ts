@@ -62,7 +62,7 @@ const writeCommandJsonStdout = (text: string): Effect.Effect<void> =>
  * **Example** (Read the shared indent width)
  *
  * ```ts
- * import { DEFAULT_JSON_FORMATTING_OPTIONS } from "@beep/repo-cli/internal/cli/Json"
+ * import { DEFAULT_JSON_FORMATTING_OPTIONS } from "@beep/repo-cli/test/Cli"
  *
  * console.log(DEFAULT_JSON_FORMATTING_OPTIONS.tabSize) // 2
  * ```
@@ -85,7 +85,7 @@ export const DEFAULT_JSON_FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * **Example** (Guard a payload before pretty-rendering it)
  *
  * ```ts
- * import { DEFAULT_JSON_PRETTY_MAX_LENGTH } from "@beep/repo-cli/internal/cli/Json"
+ * import { DEFAULT_JSON_PRETTY_MAX_LENGTH } from "@beep/repo-cli/test/Cli"
  *
  * const encoded = `{"ok":true}`
  *
@@ -110,7 +110,7 @@ export const DEFAULT_JSON_PRETTY_MAX_LENGTH = 500_000;
  * **Example** (Capture command JSON without writing to stdout)
  *
  * ```ts
- * import { CommandJsonOutput, printCommandJson } from "@beep/repo-cli/internal/cli/Json"
+ * import { CommandJsonOutput, printCommandJson } from "@beep/repo-cli/test/Cli"
  * import * as Effect from "effect/Effect";
  * const chunks: Array<string> = []
  * const program = printCommandJson({ ok: true }).pipe(
@@ -141,7 +141,7 @@ export const CommandJsonOutput: Context.Reference<(text: string) => Effect.Effec
  * **Example** (Wrap an encode failure)
  *
  * ```ts
- * import { CliJsonError } from "@beep/repo-cli/internal/cli/Json"
+ * import { CliJsonError } from "@beep/repo-cli/test/Cli"
  *
  * const error = CliJsonError.make({ cause: "boom", message: "Failed to encode JSON" })
  *
@@ -173,7 +173,7 @@ export class CliJsonError extends S.TaggedError<CliJsonError, { readonly brand: 
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { CliJsonError, encodeCommandJson } from "@beep/repo-cli/internal/cli/Json"
+ * import { CliJsonError, encodeCommandJson } from "@beep/repo-cli/test/Cli"
  *
  * const encoded = Effect.runSync(
  *   encodeCommandJson({ ok: true }).pipe(
@@ -214,7 +214,7 @@ type RenderPrettyCommandJsonOptions = {
  * **Example** (Pretty-render an encoded payload)
  *
  * ```ts
- * import { renderPrettyCommandJson } from "@beep/repo-cli/internal/cli/Json"
+ * import { renderPrettyCommandJson } from "@beep/repo-cli/test/Cli"
  *
  * const pretty = renderPrettyCommandJson(`{"ok":true}`)
  *
@@ -224,7 +224,7 @@ type RenderPrettyCommandJsonOptions = {
  * **Example** (Leave an oversized payload single-line)
  *
  * ```ts
- * import { renderPrettyCommandJson } from "@beep/repo-cli/internal/cli/Json"
+ * import { renderPrettyCommandJson } from "@beep/repo-cli/test/Cli"
  *
  * const encoded = `{"ok":true}`
  * const capped = renderPrettyCommandJson(encoded, { maxLength: 1 })
@@ -273,7 +273,7 @@ export const renderPrettyCommandJson: {
  * **Example** (Render a canonical lock-file body)
  *
  * ```ts
- * import { formatJsonValue } from "@beep/repo-cli/internal/cli/Json"
+ * import { formatJsonValue } from "@beep/repo-cli/test/Cli"
  *
  * const text = formatJsonValue({ ok: true })
  *
@@ -299,7 +299,7 @@ export const formatJsonValue = (value: unknown): string =>
  * **Example** (Print a machine-readable command result)
  *
  * ```ts
- * import { printCommandJson } from "@beep/repo-cli/internal/cli/Json"
+ * import { printCommandJson } from "@beep/repo-cli/test/Cli"
  *
  * const program = printCommandJson({ ok: true })
  *

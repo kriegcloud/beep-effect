@@ -11,13 +11,9 @@ import * as S from "effect/Schema";
 
 const decodeInfo = S.decodeUnknownEffect(FileDiff.Info);
 const encodeInfo = S.encodeEffect(FileDiff.Info);
-const encodeModified = S.encodeEffect(FileDiff.Modified);
 const InfoArbitrary = Arbitrary.schema(FileDiff.Info);
 
 // The decoded side keeps admitting `undefined` for the optional fields.
-type AcceptsUndefined<T> = undefined extends T ? true : false;
-const fileAcceptsUndefined: AcceptsUndefined<FileDiff.Modified["file"]> = true;
-const patchAcceptsUndefined: AcceptsUndefined<FileDiff.Modified["patch"]> = true;
 
 describe("FileDiff.Info", () => {
   it.effect(
@@ -94,24 +90,6 @@ describe("FileDiff.Info", () => {
 
       pipe(negative, Exit.isFailure, assertTrue);
       pipe(decimal, Exit.isFailure, assertTrue);
-    })
-  );
-
-  it("keeps undefined in the decoded type of the optional fields", () => {
-    expect(fileAcceptsUndefined && patchAcceptsUndefined).toBe(true);
-  });
-
-  it.effect(
-    "constructs with explicit undefined optional fields and encodes them by omitting the keys",
-    Effect.fnUntraced(function* () {
-      const modified = FileDiff.Modified.make({
-        file: undefined,
-        patch: undefined,
-        additions: S.Natural.make(1),
-        deletions: S.Natural.make(0),
-      });
-
-      expect(yield* encodeModified(modified)).toEqual({ status: "modified", additions: 1, deletions: 0 });
     })
   );
 

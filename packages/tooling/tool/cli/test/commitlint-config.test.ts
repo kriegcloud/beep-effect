@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { findRepoRoot } from "@beep/repo-utils";
 import isIgnored from "@commitlint/is-ignored";
 import { NodeServices } from "@effect/platform-node";
@@ -20,7 +21,7 @@ type CommitlintConfigModule = {
 
 const TestLayer = NodeServices.layer;
 
-const fixtureRoot = new URL("./fixtures/commitlint", import.meta.url).pathname;
+const fixtureRoot = NodeURL.fileURLToPath(new URL("./fixtures/commitlint", import.meta.url));
 
 const readFixtureText = Effect.fn("CommitlintConfigTest.readFixtureText")(function* (relativePath: string) {
   const fs = yield* FileSystem.FileSystem;

@@ -51,35 +51,35 @@ const $I = $GithubId.create("CodeScanning");
 export class CodeScanningSetup extends S.Opaque<CodeScanningSetup, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Whether default setup is `configured` or `not-configured`. */
-    state: S.optional(S.Literals(["configured", "not-configured"])).pipe(
+    state: S.optionalKey(S.Literals(["configured", "not-configured"])).pipe(
       $I.annoteKey("CodeScanningSetup.state", { description: "Whether default setup is configured or not-configured." })
     ),
     /** The CodeQL languages to analyse. */
     languages: S.String.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("CodeScanningSetup.languages", { description: "The CodeQL languages to analyse." })
     ),
     /** `default` or `extended`. */
-    query_suite: S.optional(S.String).pipe(
+    query_suite: S.optionalKey(S.String).pipe(
       $I.annoteKey("CodeScanningSetup.query_suite", {
         description: "The query suite; accepts GitHub's evolving string vocabulary.",
       })
     ),
     /** `remote` or `remote_and_local`. */
-    threat_model: S.optional(S.String).pipe(
+    threat_model: S.optionalKey(S.String).pipe(
       $I.annoteKey("CodeScanningSetup.threat_model", {
         description: "The threat model; accepts GitHub's evolving string vocabulary.",
       })
     ),
     /** `standard` or `labeled`. */
-    runner_type: S.optional(S.String).pipe(
+    runner_type: S.optionalKey(S.String).pipe(
       $I.annoteKey("CodeScanningSetup.runner_type", {
         description: "The runner type; accepts GitHub's evolving string vocabulary.",
       })
     ),
     /** The runner label, when `runner_type` is `labeled`. */
-    runner_label: S.optional(S.String).pipe(
+    runner_label: S.optionalKey(S.String).pipe(
       $I.annoteKey("CodeScanningSetup.runner_label", { description: "The runner label, when runner_type is labeled." })
     ),
   }).pipe(

@@ -11,7 +11,92 @@
  */
 
 import { Yaml } from "@beep/yaml/Yaml";
-import { FrontmatterCodec } from "./Frontmatter.ts";
+import { YamlDocument } from "@beep/yaml/YamlDocument";
+import * as A from "effect/Array";
+import { flow } from "effect/Function";
+import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import { FrontmatterCodec, FrontmatterKeyError } from "./Frontmatter.ts";
+import type { YamlMap, YamlNode, YamlPair, YamlSeq } from "@beep/yaml/YamlNode";
+import type { FrontmatterKeyIssue } from "./Frontmatter.ts";
+
+// The two spellings of the core `!!set` tag the AST keeps verbatim.
+const isSetTag = S.is(S.Literals(["!!set", "!<tag:yaml.org,2002:set>"]));
+
+const decodeDocument = S.decodeResult(YamlDocument.schema());
+
+/** Anchors registered so far, in document order: an alias sees the latest. */
+type Anchors = MutableHashMap.MutableHashMap<string, YamlNode>;
+
+const keyError = (reason: FrontmatterKeyIssue, node: YamlNode): FrontmatterKeyError =>
+  FrontmatterKeyError.make({ reason, offset: node.offset, length: node.length });
+
+const isCollection = (node: YamlNode): node is YamlMap | YamlSeq => node._tag === "YamlMap" || node._tag === "YamlSeq";
+
+const register = (anchors: Anchors, node: YamlNode): void => {
+  if (node._tag !== "YamlAlias" && node.anchor !== undefined) MutableHashMap.set(anchors, node.anchor, node);
+};
+
+// A key with no JSON-string reading: a collection, or an alias to one.
+const isComplexKey = (anchors: Anchors, key: YamlNode): boolean =>
+  key._tag === "YamlAlias" ? O.exists(MutableHashMap.get(anchors, key.name), isCollection) : isCollection(key);
+
+// The string a scalar (or scalar alias) key becomes on the decoded object,
+// computed the way the engine's projection computes it: `1`, `0x1`, `1.0`
+// and `"1"` all become `"1"`, and a null key becomes `""`.
+const projectedKey = (anchors: Anchors, key: YamlNode): string => String(key.toValue(anchors) ?? "");
+
+const pairIssue = (
+  anchors: Anchors,
+  seen: MutableHashSet.MutableHashSet<string>,
+  pair: YamlPair
+): O.Option<FrontmatterKeyError> => {
+  if (isComplexKey(anchors, pair.key)) return O.some(keyError("ComplexKey", pair.key));
+  // The engine's DuplicateKey check compares typed values, so keys of
+  // different types that project to one string would otherwise merge.
+  const key = projectedKey(anchors, pair.key);
+  if (MutableHashSet.has(seen, key)) return O.some(keyError("DuplicateKey", pair.key));
+  MutableHashSet.add(seen, key);
+  register(anchors, pair.key);
+  return O.flatMap(O.fromNullOr(pair.value), (value) => firstKeyIssue(anchors, value));
+};
+
+const mapIssue = (anchors: Anchors, map: YamlMap): O.Option<FrontmatterKeyError> => {
+  const seen = MutableHashSet.empty<string>();
+  return A.findFirst(map.items, (pair) => pairIssue(anchors, seen, pair));
+};
+
+const collectionIssue = (anchors: Anchors, node: YamlMap | YamlSeq): O.Option<FrontmatterKeyError> =>
+  node.tag !== undefined && isSetTag(node.tag)
+    ? O.some(keyError("SetCollection", node))
+    : node._tag === "YamlMap"
+      ? mapIssue(anchors, node)
+      : A.findFirst(node.items, (item) => firstKeyIssue(anchors, item));
+
+// The first key or collection, in document order, with no faithful
+// JSON-object reading. Recursion is bounded by the engine's nesting cap.
+const firstKeyIssue = (anchors: Anchors, node: YamlNode): O.Option<FrontmatterKeyError> => {
+  register(anchors, node);
+  return Match.value(node).pipe(
+    Match.tags({ YamlMap: (map) => collectionIssue(anchors, map), YamlSeq: (seq) => collectionIssue(anchors, seq) }),
+    Match.orElse(() => O.none())
+  );
+};
+
+// Runs after a successful value parse, so the document parse cannot fail on
+// its own; its failure channel is kept rather than asserted away.
+const rejectNonJsonKeys = (text: string): Result.Result<void, S.SchemaError | FrontmatterKeyError> =>
+  Result.flatMap(
+    decodeDocument(text),
+    flow(
+      (document) => O.flatMap(O.fromNullOr(document.contents), (root) => firstKeyIssue(MutableHashMap.empty(), root)),
+      O.match({ onNone: () => Result.void, onSome: Result.fail })
+    )
+  );
 
 /**
  * The yaml frontmatter codec, over `@beep/yaml`.
@@ -24,6 +109,20 @@ import { FrontmatterCodec } from "./Frontmatter.ts";
  * as a {@link FrontmatterDecodeError} carrying the `YamlParseError`
  * structurally, never a defect. An empty capture decodes to `null`, yaml's
  * empty-document value.
+ *
+ * A frontmatter value is a JSON-compatible object, so yaml that has no
+ * faithful JSON reading fails typed instead of being rewritten: a
+ * collection mapping key (`? [a, b]`), an alias key whose anchor is a
+ * collection, and a `!!set` collection each surface as a
+ * {@link FrontmatterDecodeError} carrying a {@link FrontmatterKeyError}
+ * (`"ComplexKey"` or `"SetCollection"`) at the offending node. Two keys of
+ * one mapping that project to the same string key — `1` and `"1"`, `true`
+ * and `"true"`, a null key and `""`, or an alias key and the key its anchor
+ * names — fail as `"DuplicateKey"` at the second key, where the engine's own
+ * typed duplicate check would let them merge last-wins. Scalar keys,
+ * scalar alias keys and `<<` keys still decode; a `!!set` spelled through a
+ * custom `%TAG` handle is not recognized. `Yaml.parse` itself keeps its
+ * projection for its other consumers.
  *
  * Encodes with `Yaml.stringify`; an unserializable value fails as a
  * {@link FrontmatterEncodeError} carrying the `YamlStringifyError`
@@ -51,6 +150,6 @@ import { FrontmatterCodec } from "./Frontmatter.ts";
  */
 export const YamlFrontmatter: FrontmatterCodec = FrontmatterCodec.make(
   "yaml",
-  (text) => Yaml.parseResult(text),
+  (text) => Result.flatMap(Yaml.parseResult(text), (data) => Result.map(rejectNonJsonKeys(text), () => data)),
   (data) => Yaml.stringifyResult(data)
 );

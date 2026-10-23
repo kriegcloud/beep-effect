@@ -191,6 +191,7 @@
     "@beep/ai-sync": "workspace:^",
     "@beep/chalk": "workspace:^",
     "@beep/colors": "workspace:^",
+    "@beep/config-file": "workspace:^",
     "@beep/duckdb": "workspace:^",
     "@beep/exiftool": "workspace:^",
     "@beep/ffmpeg": "workspace:^",

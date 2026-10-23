@@ -428,7 +428,7 @@ a case newly falling into that branch fails the suite; they are the
 hardening posture working, not failures. The bare link-destination scan is
 capped at a fixed open-paren count — an inherited-not-introduced defect,
 since upstream commonmark.js carries the identical uncapped loop, fixed here
-via cmark's own cap and pinned by unit tests plus a growth-ratio guard immune
+via cmark's own cap and pinned by unit tests plus a deterministic work-count guard immune
 to instrumentation and hardware variance. The reference map is keyed through
 a real `Map`, since link labels are attacker-controlled. Malformed input
 yields a typed error or a diagnostic, never a defect, and defect passthrough

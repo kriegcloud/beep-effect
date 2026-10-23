@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { doctestFenceInfo, doctestSourceMarker, isDoctestSourcePath } from "@beep/repo-cli/test/Docgen";
 import { StepExec } from "@beep/repo-cli/test/PackageScripts";
 import { FsUtils, FsUtilsLive, findRepoRoot, readPackageJsonFile, resolveWorkspacePackages } from "@beep/repo-utils";
@@ -19,7 +20,7 @@ import "vitest/config";
 import { resolveConfig } from "vitest/node";
 
 const providePlatform = provideScopedLayer(FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer)));
-const fixture = new URL("./fixtures/doctest-lane/package/", import.meta.url).pathname;
+const fixture = NodeURL.fileURLToPath(new URL("./fixtures/doctest-lane/package/", import.meta.url));
 
 // These configs override test.include (coverage.include is a different selector).
 const includeOverrides = [

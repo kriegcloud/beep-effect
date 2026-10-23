@@ -21,7 +21,7 @@ const $I = $RepoCliId.create("internal/cli/ExitCodeError");
  * **Example** (Make CliReportedExit instance)
  *
  * ```ts
- * import { CliReportedExit } from "@beep/repo-cli/internal/cli/ExitCodeError"
+ * import { CliReportedExit } from "@beep/repo-cli/test/Cli"
  *
  * const error = CliReportedExit.make({ message: "check failed", exitCode: 1 })
  * console.log(error.message)
@@ -55,7 +55,7 @@ export class CliReportedExit extends S.TaggedError<CliReportedExit, { readonly b
  * **Example** (Create reported exit Effect)
  *
  * ```ts
- * import { failWithReportedExit } from "@beep/repo-cli/internal/cli/ExitCodeError"
+ * import { failWithReportedExit } from "@beep/repo-cli/test/Cli"
  * import * as Effect from "effect/Effect";
  * console.log(Effect.isEffect(failWithReportedExit("check failed")))
  * ```

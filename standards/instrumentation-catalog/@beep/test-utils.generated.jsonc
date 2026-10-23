@@ -10,6 +10,8 @@
     {"name":"ConformanceLedger.testEvidenceIssues","owner":"@beep/test-utils","family":"tooling","conforms":true},
     {"name":"ConformanceLedger.validateAnnotationAgainstArtifacts","owner":"@beep/test-utils","family":"tooling","conforms":true},
     {"name":"ConformanceLedger.validateArtifacts","owner":"@beep/test-utils","family":"tooling","conforms":true},
+    {"name":"ImportGraph.closure","owner":"@beep/test-utils","family":"tooling","conforms":true},
+    {"name":"ImportGraph.moduleImportsOf","owner":"@beep/test-utils","family":"tooling","conforms":true},
     {"name":"SqlTest.BunSqliteTestDriver.build","owner":"@beep/test-utils","family":"tooling","conforms":true},
     {"name":"SqlTest.NodeSqliteTestDriver.build","owner":"@beep/test-utils","family":"tooling","conforms":true},
     {"name":"SqlTest.NodeSqliteTestDriver.loadSqliteClient","owner":"@beep/test-utils","family":"tooling","conforms":true},

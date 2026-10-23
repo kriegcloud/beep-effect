@@ -557,7 +557,7 @@ export class ExtractFrameAtRequest extends S.Opaque<ExtractFrameAtRequest, { rea
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("ExtractFrameAtRequest.overwrite", {
         description: "Whether an existing frame output may be overwritten.",
       })
@@ -664,14 +664,14 @@ export class ExtractFramesAtRequest extends S.Opaque<ExtractFramesAtRequest, { r
   S.Struct({
     manifestPath: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
-      S.withDecodingDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<string>())),
       $I.annoteKey("ExtractFramesAtRequest.manifestPath", {
         description: "Optional manifest path; defaults inside the output directory when absent.",
       })
     ),
     maxWidth: S.Option(VideoDimension).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<VideoDimension>())),
-      S.withDecodingDefault(Effect.succeed(O.none<VideoDimension>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<VideoDimension>())),
       $I.annoteKey("ExtractFramesAtRequest.maxWidth", {
         description: "Optional maximum frame width in pixels; wider sources are scaled down, narrower ones untouched.",
       })
@@ -683,14 +683,14 @@ export class ExtractFramesAtRequest extends S.Opaque<ExtractFramesAtRequest, { r
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("ExtractFramesAtRequest.overwrite", {
         description: "Whether existing frame and manifest outputs may be overwritten.",
       })
     ),
     prefix: S.Option(SafeFramePrefix).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<SafeFramePrefix>())),
-      S.withDecodingDefault(Effect.succeed(O.none<SafeFramePrefix>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<SafeFramePrefix>())),
       $I.annoteKey("ExtractFramesAtRequest.prefix", {
         description: "Optional safe filename prefix for generated PNG frames.",
       })
@@ -951,7 +951,7 @@ export class ExtractClipRequest extends S.Opaque<ExtractClipRequest, { readonly 
     ),
     durationSeconds: S.Option(PositiveSeconds).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<PositiveSeconds>())),
-      S.withDecodingDefault(Effect.succeed(O.none<PositiveSeconds>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<PositiveSeconds>())),
       $I.annoteKey("ExtractClipRequest.durationSeconds", {
         description:
           "Optional clip duration in seconds passed as output-side -t; absent, the clip runs to the end of the source.",
@@ -964,7 +964,7 @@ export class ExtractClipRequest extends S.Opaque<ExtractClipRequest, { readonly 
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("ExtractClipRequest.overwrite", {
         description: "Whether an existing clip output may be overwritten.",
       })
@@ -1014,7 +1014,7 @@ export class ExtractClipResult extends S.Opaque<ExtractClipResult, { readonly br
   S.Struct({
     durationSeconds: S.Option(PositiveSeconds).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<PositiveSeconds>())),
-      S.withDecodingDefault(Effect.succeed(O.none<PositiveSeconds>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<PositiveSeconds>())),
       $I.annoteKey("ExtractClipResult.durationSeconds", {
         description: "Requested clip duration in seconds, when the request carried one.",
       })
@@ -1098,7 +1098,7 @@ export class RenderGifRequest extends S.Opaque<RenderGifRequest, { readonly bran
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("RenderGifRequest.overwrite", {
         description: "Whether an existing GIF output may be overwritten.",
       })
@@ -1221,7 +1221,7 @@ export class RenderContactSheetRequest extends S.Opaque<RenderContactSheetReques
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("RenderContactSheetRequest.overwrite", {
         description: "Whether an existing sheet output may be overwritten.",
       })
@@ -1369,7 +1369,7 @@ export class WriteContainerMetadataRequest extends S.Opaque<
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("WriteContainerMetadataRequest.overwrite", {
         description: "Whether an existing remux output may be overwritten.",
       })

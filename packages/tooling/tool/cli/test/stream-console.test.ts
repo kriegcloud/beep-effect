@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   drainProcessStreams,
   noteProcessStreamWriteFailure,
@@ -8,7 +9,6 @@ import {
   writeBestEffortLine,
 } from "@beep/repo-cli/test/Cli";
 import { StepExec } from "@beep/repo-cli/test/PackageScripts";
-import { provideScopedLayer } from "@beep/test-utils";
 import { P } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { beforeEach, describe, expect, it } from "@effect/vitest";
@@ -828,32 +828,34 @@ describe("stream console", () => {
     expect(captured.maxDepth).toBe(1);
   });
 
-  it.effect(
-    "delivers a large block through a pipe before a forced exit under Bun",
-    Effect.fnUntraced(function* () {
-      const modulePath = new URL("../src/internal/cli/Stdout.ts", import.meta.url).pathname;
-      const script = A.join(
-        [
-          "const { streamConsole, drainProcessStreams } = await import(process.argv[1]);",
-          'streamConsole.log("x".repeat(4 * 1024 * 1024) + "FOOTER");',
-          "drainProcessStreams(() => process.exit(0));",
-        ],
-        "\n"
-      );
-      const child = yield* StepExec.runCaptured({
-        command: "bun",
-        args: ["--eval", script, modulePath],
-        cwd: new URL("..", import.meta.url).pathname,
-        source: "stdout",
-        bound: StepExec.OutputBound.make({ maxChars: 5 * 1024 * 1024, truncatedNotice: "\n[test] truncated" }),
-        timeout: "60 seconds",
-        extendEnv: true,
-      });
-      expect(child.exitCode).toBe(0);
-      expect(child.truncated).toBe(false);
-      expect(Str.length(child.output)).toBe(4 * 1024 * 1024 + Str.length("FOOTER\n"));
-      expect(Str.endsWith("FOOTER\n")(child.output)).toBe(true);
-    }, provideScopedLayer(NodeServices.layer)),
-    { timeout: 90_000 }
+  it.layer(NodeServices.layer)((it) =>
+    it.effect(
+      "delivers a large block through a pipe before a forced exit under Bun",
+      Effect.fnUntraced(function* () {
+        const modulePath = NodeURL.fileURLToPath(new URL("../src/internal/cli/Stdout.ts", import.meta.url));
+        const script = A.join(
+          [
+            "const { streamConsole, drainProcessStreams } = await import(process.argv[1]);",
+            'streamConsole.log("x".repeat(4 * 1024 * 1024) + "FOOTER");',
+            "drainProcessStreams(() => process.exit(0));",
+          ],
+          "\n"
+        );
+        const child = yield* StepExec.runCaptured({
+          command: "bun",
+          args: ["--eval", script, modulePath],
+          cwd: NodeURL.fileURLToPath(new URL("..", import.meta.url)),
+          source: "stdout",
+          bound: StepExec.OutputBound.make({ maxChars: 5 * 1024 * 1024, truncatedNotice: "\n[test] truncated" }),
+          timeout: "60 seconds",
+          extendEnv: true,
+        });
+        expect(child.exitCode).toBe(0);
+        expect(child.truncated).toBe(false);
+        expect(Str.length(child.output)).toBe(4 * 1024 * 1024 + Str.length("FOOTER\n"));
+        expect(Str.endsWith("FOOTER\n")(child.output)).toBe(true);
+      }),
+      { timeout: 90_000 }
+    )
   );
 });

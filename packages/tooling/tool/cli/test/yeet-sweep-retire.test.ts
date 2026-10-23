@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
   WorktreeInotifyWatcher,
@@ -23,7 +24,10 @@ import {
   retirementFailureMessage,
   retireVerdict,
   runYeetSweep,
+  StoppedLaneJob,
   SweepGitState,
+  withStoppedLaneJobs,
+  YeetCommandError,
   YeetRetirePlan,
   YeetRetireSweepPlanJson,
   YeetRetireSweepReportJson,
@@ -33,7 +37,7 @@ import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
+import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -331,6 +335,22 @@ const wakingPanelTable = (holder: number) => {
   };
 };
 
+// The live process table, except that once the fence has renamed the lane away it
+// writes into the lane's original path first, as a detached job appending its log
+// under `.beep/` does (#2130).
+const lateWriterTable = (lane: string) => ({
+  ...procProcessTable,
+  pids: Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const fenced = !(yield* fs.exists(lane).pipe(Effect.orElseSucceed(() => true)));
+    if (fenced) {
+      yield* fs.makeDirectory(`${lane}/.beep/yeet/jobs`, { recursive: true }).pipe(Effect.ignore);
+      yield* fs.writeFileString(`${lane}/.beep/yeet/jobs/late.log`, "late\n").pipe(Effect.ignore);
+    }
+    return yield* procProcessTable.pids;
+  }),
+});
+
 const spawnSleepIn = (cwd: string) =>
   ChildProcess.make("sleep", ["60"], { cwd, stdin: "ignore", stdout: "ignore", stderr: "ignore" });
 
@@ -370,7 +390,7 @@ const retireMergedLane = (repoRoot: string, lane: string) =>
     })
   );
 
-const RETIRE_FENCE_INVOKER = new URL("./support/RetireFenceInvoker.ts", import.meta.url).pathname;
+const RETIRE_FENCE_INVOKER = NodeURL.fileURLToPath(new URL("./support/RetireFenceInvoker.ts", import.meta.url));
 
 const RetireInvokerOutcome = S.Struct({ ok: S.Boolean, message: S.String });
 const decodeRetireInvokerOutcome = S.decodeUnknownEffect(S.fromJsonString(RetireInvokerOutcome));
@@ -726,10 +746,28 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
           const report = yield* YeetRetireSweepReportJson.decode(runOutput);
           expect(report.verdict._tag).toBe("pr-less-on-main");
           expect(report.receipt.branchDeleted).toBe(true);
+          // The lane had no detached jobs; the field is still written, and a
+          // report written before it existed decodes to the same empty list.
+          assertTrue(Str.includes('"stoppedJobs":[]')(runOutput));
+          const legacy = yield* YeetRetireSweepReportJson.decode(Str.replace(',"stoppedJobs":[]', "")(runOutput));
+          expect(legacy.stoppedJobs).toEqual([]);
         }),
       { remoteBranch: false }
     )
   );
+
+  it("names the lane jobs a refused retirement had already stopped", () => {
+    const error = YeetCommandError.make({ message: "yeet sweep --retire could not retire /lane: refused." });
+    const stopped = [
+      StoppedLaneJob.make({ jobId: "0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60", outcome: "stop-requested" }),
+      StoppedLaneJob.make({ jobId: "1e6d0b4f-7e4c-4d2f-8b9a-3c8e2d5f6b71", outcome: "unit-absent" }),
+    ];
+
+    expect(withStoppedLaneJobs(error, stopped).message).toBe(
+      "yeet sweep --retire could not retire /lane: refused. Lane jobs stopped before the refusal: 0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60 (stop-requested), 1e6d0b4f-7e4c-4d2f-8b9a-3c8e2d5f6b71 (unit-absent)."
+    );
+    expect(withStoppedLaneJobs(error, [])).toBe(error);
+  });
 
   it.effect("reports a git failure while planning a retirement outside any repository", () =>
     Effect.scoped(
@@ -965,6 +1003,38 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         ).toContain(
           `note: the idle Claude Desktop Terminal panel shell (pid ${holder.pid}) stood in the lane and was left running; the lane was removed under it, so run \`cd ~\` in that Terminal tab before using it`
         );
+        expect(yield* fs.exists(lane)).toBe(false);
+        expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toBe("");
+      })
+    )
+  );
+
+  it.effect("restores a refused lane whose path a late writer recreated, so a rerun retires it", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const holder = yield* spawnSleepIn(lane);
+        const error = yield* Effect.flip(withCwd(lane, retireMergedLane(repoRoot, lane))).pipe(
+          Effect.provideService(ProcessTable, lateWriterTable(lane))
+        );
+        yield* holder.kill();
+        yield* Effect.ignore(holder.exitCode);
+
+        expect(error.message).toContain("still hold it");
+        expect(error.message).toContain(`preserved at ${lane}.late-writes-`);
+        const siblings = yield* fs.readDirectory(path.dirname(lane));
+        expect(A.filter(siblings, Str.startsWith(`${path.basename(lane)}.retiring-`))).toEqual([]);
+        const lateWrites = yield* Effect.fromOption(
+          A.head(A.filter(siblings, Str.startsWith(`${path.basename(lane)}.late-writes-`)))
+        );
+        expect(yield* fs.readFileString(path.join(path.dirname(lane), lateWrites, ".beep/yeet/jobs/late.log"))).toBe(
+          "late\n"
+        );
+        expect(yield* runGitText(lane, ["rev-parse", "--abbrev-ref", "HEAD"])).toBe("claude/lane");
+
+        // The checkout and its branch are whole again, so a rerun finishes the retirement.
+        yield* withCwd(lane, retireMergedLane(repoRoot, lane));
         expect(yield* fs.exists(lane)).toBe(false);
         expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toBe("");
       })

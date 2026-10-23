@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { ExtractFramesManifest, FFmpegError } from "@beep/ffmpeg";
 import { imageCommand } from "@beep/repo-cli";
 import { ImageCommandError } from "@beep/repo-cli/commands/Image";
@@ -26,7 +27,7 @@ import type { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
 const testLayer = NodeServices.layer;
 const runImageCommand = Command.runWith(imageCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(ExtractFramesManifest));
-const CLI_ENTRYPOINT = new URL("../src/bin.ts", import.meta.url).pathname;
+const CLI_ENTRYPOINT = NodeURL.fileURLToPath(new URL("../src/bin.ts", import.meta.url));
 
 const firstFailure = <E>(cause: Cause.Cause<E>): O.Option<E> => Cause.findErrorOption(cause);
 

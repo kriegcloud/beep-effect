@@ -1,5 +1,5 @@
 {
-  "previous": "598ce417a1c18fee71607ae6295dc5488d39e39c36f7f8b60d0218fa377fea1e",
+  "previous": "3074db4cc7bb25079f639c6549a3396792e946258d6787ee9e6f51e588c06112",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 4, refactor/repo-cli-one-ci-rule)",
     "reason": "Record the dependency-only drift of @beep/repo-cli, which gains a direct @beep/runtime-env edge for the one CI rule (W4-e); the package was already upstream through @beep/chalk and @beep/colors, so no closure grows; no qualification is granted.",

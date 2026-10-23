@@ -32,7 +32,7 @@ const RunModeKit = LiteralKit(["check", "write", "dry-run"]);
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { RunMode } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { RunMode } from "@beep/repo-cli/test/Cli"
  *
  * console.log(S.decodeUnknownSync(RunMode)("dry-run"))
  * ```
@@ -52,7 +52,7 @@ export const RunMode = RunModeKit.pipe(
  * **Example** (Includes write option)
  *
  * ```ts
- * import { RunModeOptions } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { RunModeOptions } from "@beep/repo-cli/test/Cli"
  *
  * console.log(RunModeOptions.includes("write")) // true
  * ```
@@ -68,7 +68,7 @@ export const RunModeOptions = RunModeKit.literals;
  * **Example** (Match write mode handlers)
  *
  * ```ts
- * import { RunModeMatch } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { RunModeMatch } from "@beep/repo-cli/test/Cli"
  *
  * console.log(RunModeMatch("write", { check: () => 0, write: () => 1, "dry-run": () => 2 }))
  * ```
@@ -84,7 +84,7 @@ export const RunModeMatch = RunModeKit.match;
  * **Example** (Lookup dry-run enum value)
  *
  * ```ts
- * import { RunModeEnum } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { RunModeEnum } from "@beep/repo-cli/test/Cli"
  *
  * console.log(RunModeEnum["dry-run"])
  * ```
@@ -100,7 +100,7 @@ export const RunModeEnum = RunModeKit.Enum;
  * **Example** (Test write mode guard)
  *
  * ```ts
- * import { RunModeIs } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { RunModeIs } from "@beep/repo-cli/test/Cli"
  *
  * console.log(RunModeIs.write("write"))
  * ```
@@ -131,7 +131,7 @@ export type RunMode = typeof RunMode.Type;
  * **Example** (Resolve first enabled mode)
  *
  * ```ts
- * import { resolveRunMode } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { resolveRunMode } from "@beep/repo-cli/test/Cli"
  *
  * // first enabled candidate wins; here `write` is set, so it beats the fallback
  * console.log(resolveRunMode([[false, "dry-run"], [true, "write"]], "check"))
@@ -171,7 +171,7 @@ export const resolveRunMode: {
  * **Example** (Detect both flags set)
  *
  * ```ts
- * import { runModeFlagsConflict } from "@beep/repo-cli/internal/cli/RunMode"
+ * import { runModeFlagsConflict } from "@beep/repo-cli/test/Cli"
  *
  * console.log(runModeFlagsConflict(true, true))
  * console.log(runModeFlagsConflict(false)(true))
