@@ -44,16 +44,16 @@ export class ExtractFramesOptions extends S.Opaque<ExtractFramesOptions, { reado
     fps: PositiveFrameRate,
     manifest: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
-      S.withDecodingDefault(Effect.succeed(O.none<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(O.none<string>()))
     ),
     outDir: S.String,
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     prefix: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
-      S.withDecodingDefault(Effect.succeed(O.none<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(O.none<string>()))
     ),
     video: S.String,
   }).pipe(
@@ -90,11 +90,11 @@ export class ExtractFramesDirOptions extends S.Opaque<ExtractFramesDirOptions, {
     fps: PositiveFrameRate,
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     prefix: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
-      S.withDecodingDefault(Effect.succeed(O.none<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(O.none<string>()))
     ),
   }).pipe(
     $I.annoteSchema("ExtractFramesDirOptions", {

@@ -95,28 +95,24 @@ const usptoLayer = (body: unknown, status: number, urls: Array<string>) =>
 describe("recorded contacts", () => {
   it.effect("reads a CSV/vCard path pair, folds v4 lines and deduplicates the same contact", () =>
     Effect.gen(function* () {
-      const cards = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const source = yield* withService(
-            ContactCardSource,
-            ContactCardSourceFile.pipe(
-              Layer.provide(
-                Layer.succeed(
-                  ContactFilesLocation,
-                  ContactFilesConfig.make({ csvPath: "/synthetic/cards.csv", vcardPath: "/synthetic/cards.vcf" })
-                )
-              ),
-              Layer.provide(
-                fakeFs([
-                  ["/synthetic/cards.csv", csv],
-                  ["/synthetic/cards.vcf", vcf],
-                ])
-              )
+      const source = yield* withService(
+        ContactCardSource,
+        ContactCardSourceFile.pipe(
+          Layer.provide(
+            Layer.succeed(
+              ContactFilesLocation,
+              ContactFilesConfig.make({ csvPath: "/synthetic/cards.csv", vcardPath: "/synthetic/cards.vcf" })
             )
-          );
-          return yield* Stream.runCollect(source.cards);
-        })
+          ),
+          Layer.provide(
+            fakeFs([
+              ["/synthetic/cards.csv", csv],
+              ["/synthetic/cards.vcf", vcf],
+            ])
+          )
+        )
       );
+      const cards = yield* Stream.runCollect(source.cards);
       const contacts = normaliseContacts(cards);
       expect(contacts).toHaveLength(1);
       expect(contacts[0]?.sources).toEqual(["outlook-csv", "vcard"]);
@@ -169,12 +165,8 @@ describe("recorded public responses", () => {
   it.effect("maps application and patent metadata with numeric-only public queries", () =>
     Effect.gen(function* () {
       const urls: Array<string> = [];
-      const facts = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const s = yield* withService(UsptoRecordLookup, usptoLayer(record, 200, urls));
-          return [yield* s.byApplication("18900001"), yield* s.byPatent("99000001")];
-        })
-      );
+      const s = yield* withService(UsptoRecordLookup, usptoLayer(record, 200, urls));
+      const facts = [yield* s.byApplication("18900001"), yield* s.byPatent("99000001")];
       expect(facts[0]).toEqual(facts[1]);
       assertSome(O.getOrThrow(facts[0]!).docketNumber, "90001.10001US01");
       expect(urls[0]).toContain("18900001");
@@ -184,35 +176,24 @@ describe("recorded public responses", () => {
   it.effect("treats not-found as None and rejects content-bearing queries before any request", () =>
     Effect.gen(function* () {
       const urls: Array<string> = [];
-      const [found] = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const s = yield* withService(UsptoRecordLookup, usptoLayer({}, 404, urls));
-          return [yield* s.byApplication("18900001"), yield* Effect.flip(s.byPatent('99000001" OR client'))] as const;
-        })
-      );
+      const s = yield* withService(UsptoRecordLookup, usptoLayer({}, 404, urls));
+      const found = yield* s.byApplication("18900001");
+      yield* Effect.flip(s.byPatent('99000001" OR client'));
       assertNone(found);
       expect(urls).toHaveLength(1);
     })
   );
   it.effect("retains throttle failures and rejects conflicting patent records", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const s = yield* withService(UsptoRecordLookup, usptoLayer({}, 429, []));
-          return yield* Effect.flip(s.byApplication("18900001"));
-        })
-      );
+      const throttled = yield* withService(UsptoRecordLookup, usptoLayer({}, 429, []));
+      const error = yield* Effect.flip(throttled.byApplication("18900001"));
       expect(error.reason).toBe("unavailable");
       const ambiguous = {
         count: 2,
         patentFileWrapperDataBag: [...record.patentFileWrapperDataBag, ...record.patentFileWrapperDataBag],
       };
-      const conflict = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const s = yield* withService(UsptoRecordLookup, usptoLayer(ambiguous, 200, []));
-          return yield* Effect.flip(s.byPatent("99000001"));
-        })
-      );
+      const conflicting = yield* withService(UsptoRecordLookup, usptoLayer(ambiguous, 200, []));
+      const conflict = yield* Effect.flip(conflicting.byPatent("99000001"));
       expect(conflict.reason).toBe("conflicting-records");
     })
   );
@@ -222,15 +203,11 @@ describe("recorded public responses", () => {
         entities: [{ roles: ["registrant"], vcardArray: ["vcard", [["org", {}, "text", "Acme Widgets LLC"]]] }],
       };
       const urls: Array<string> = [];
-      const name = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const source = yield* withService(
-            DomainRegistrantLookup,
-            DomainRegistrantLookupLive.pipe(Layer.provide(response(rdap, 200, urls)))
-          );
-          return yield* source.registrant("acme.example");
-        })
+      const source = yield* withService(
+        DomainRegistrantLookup,
+        DomainRegistrantLookupLive.pipe(Layer.provide(response(rdap, 200, urls)))
       );
+      const name = yield* source.registrant("acme.example");
       assertSome(name, "Acme Widgets LLC");
       expect(urls).toEqual(["https://rdap.org/domain/acme.example"]);
       assertNone(yield* registrantFromRdap({ ...rdap, redacted: [{}] }));
@@ -284,16 +261,13 @@ describe("recorded public responses", () => {
   );
   it.effect("rejects malformed domains before any request and maps 404 and other statuses", () =>
     Effect.gen(function* () {
-      const probe = (status: number, domain: string, urls: Array<string>) =>
-        Effect.scoped(
-          Effect.gen(function* () {
-            const source = yield* withService(
-              DomainRegistrantLookup,
-              DomainRegistrantLookupLive.pipe(Layer.provide(response({}, status, urls)))
-            );
-            return yield* source.registrant(domain);
-          })
+      const probe = Effect.fn("probe")(function* (status: number, domain: string, urls: Array<string>) {
+        const source = yield* withService(
+          DomainRegistrantLookup,
+          DomainRegistrantLookupLive.pipe(Layer.provide(response({}, status, urls)))
         );
+        return yield* source.registrant(domain);
+      });
       const untouched: Array<string> = [];
       expect((yield* Effect.flip(probe(200, "not a domain", untouched))).reason).toBe("invalid-input");
       expect(untouched).toHaveLength(0);
@@ -329,12 +303,9 @@ describe("extraction batch pairing", () => {
     Effect.gen(function* () {
       const lines = `${yield* encodeJson({ id: "doc-1", extraction })}\n${yield* encodeJson({ id: "doc-2", extraction })}`;
       const layer = batches(lines, yield* encodeJson({ id: "doc-1", verdict }));
-      const [first, second] = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const s = yield* withService(DocumentExtractionSource, layer);
-          return [yield* s.extraction("doc-1"), yield* s.extraction("doc-2")] as const;
-        })
-      );
+      const s = yield* withService(DocumentExtractionSource, layer);
+      const first = yield* s.extraction("doc-1");
+      const second = yield* s.extraction("doc-2");
       first.pipe(O.isSome, assertTrue);
       assertNone(second);
     })
@@ -360,7 +331,7 @@ describe("extraction batch pairing", () => {
           "",
         ],
       ]) {
-        const error = yield* batches(extract!, critic!).pipe(Layer.build, Effect.flip, Effect.scoped);
+        const error = yield* batches(extract!, critic!).pipe(Layer.build, Effect.flip);
         expect(["invalid-input", "conflicting-records"]).toContain(error.reason);
         expect(String(error)).not.toContain("bad-private-line");
       }

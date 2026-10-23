@@ -63,6 +63,8 @@ Wave 4 repaired the EV015 single-test-block, EV006 browser-project and EV002 rep
 (`history/receipts/vitest-canon-wave-1.md`).
 Wave 2 retired every open EV009 and EV014 row and left 26 EV015 rows for #1855
 (`history/receipts/vitest-canon-wave-2.md`); wave 3 is law-practice-server and leaf packages.
+Wave 3 retired 27 law-practice-server and leaf-package rows and handed 23 to #1855
+(`history/receipts/vitest-canon-wave-3.md`); wave 4 is the repo-cli assertion and harness families.
 #1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the
 RDF failure assertions and the Pacer logout witness are ported, and every export
 hunk has a disposition.

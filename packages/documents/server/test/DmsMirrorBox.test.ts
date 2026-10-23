@@ -118,6 +118,13 @@ type FakeItem = {
 
 const nameConflictRejection = { responseInfo: { code: "item_name_in_use", statusCode: 409 } };
 
+const overrideClient = (client: FakeBoxClient, overrides: FakeBoxOverrides): FakeBoxClient => ({
+  events: { ...client.events, ...overrides.events },
+  files: { ...client.files, ...overrides.files },
+  folders: { ...client.folders, ...overrides.folders },
+  uploads: { ...client.uploads, ...overrides.uploads },
+});
+
 const makeFakeBox = (overrides: FakeBoxOverrides = {}) => {
   const items = new Map<string, FakeItem>();
   const eventLog: Array<Record<string, unknown>> = [];
@@ -272,12 +279,7 @@ const makeFakeBox = (overrides: FakeBoxOverrides = {}) => {
     },
   };
 
-  const client: FakeBoxClient = {
-    events: { ...base.events, ...overrides.events },
-    files: { ...base.files, ...overrides.files },
-    folders: { ...base.folders, ...overrides.folders },
-    uploads: { ...base.uploads, ...overrides.uploads },
-  };
+  const client = overrideClient(base, overrides);
 
   return { client, counts, eventLog, items, receivedEventQueries, seedEvents, seedFile, seedFolder };
 };
@@ -295,6 +297,10 @@ const mirrorLayer = (fake: FakeBoxHarness, config: BoxMirrorConfigValue = defaul
   DmsMirrorBoxLayer.pipe(
     Layer.provide(Layer.merge(Box.makeLayerFromClient(fake.client), BoxMirrorConfig.layerConfig(config)))
   );
+
+// Mirror adapter over the fixture fake whose client answers with `overrides`.
+const mirrorLayerWith = (overrides: FakeBoxOverrides) => (fake: FakeBoxHarness) =>
+  mirrorLayer({ ...fake, client: overrideClient(fake.client, overrides) });
 
 const availabilityLayer = (fake: FakeBoxHarness, config: BoxMirrorConfigValue = defaultConfig) =>
   DmsMirrorAvailabilityBoxLayer.pipe(
@@ -562,30 +568,31 @@ describe("@beep/documents-server DmsMirrorBox", () => {
     );
   });
 
-  it.effect(
-    "recovers an upload name conflict by versioning the existing file",
-    Effect.fnUntraced(function* () {
-      const fake = makeFakeBox({
-        uploads: { uploadFile: () => Promise.reject(nameConflictRejection) },
-      });
-      const rootId = fake.seedFolder("0", BOX_MIRROR_DEFAULT_ROOT_NAME);
-      const existingFileId = fake.seedFile(rootId, "complaint.pdf", "complaint-v1");
+  it.layer(
+    Layer.fresh(withFakeBox(mirrorLayerWith({ uploads: { uploadFile: () => Promise.reject(nameConflictRejection) } }))),
+    { timeout: "10 seconds" }
+  )((it) => {
+    it.effect(
+      "recovers an upload name conflict by versioning the existing file",
+      Effect.fnUntraced(function* () {
+        const fake = yield* FakeBoxFixture;
+        const rootId = fake.seedFolder("0", BOX_MIRROR_DEFAULT_ROOT_NAME);
+        const existingFileId = fake.seedFile(rootId, "complaint.pdf", "complaint-v1");
 
-      const versioned = yield* Effect.gen(function* () {
         const mirror = yield* DmsMirror;
-        return yield* mirror.uploadFile(
+        const versioned = yield* mirror.uploadFile(
           UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v2"), name: "complaint.pdf" })
         );
-      }).pipe(provideScopedLayer(mirrorLayer(fake)));
 
-      expect(versioned.remoteId).toBe(existingFileId);
-      expect(versioned.itemKind).toBe("file");
-      expect(versioned.name).toBe("complaint.pdf");
-      expect(fake.items.get(existingFileId)?.content).toBe("complaint-v2");
-      expect(fake.items.get(existingFileId)?.version).toBe(2);
-      expect(fake.counts.uploadFileVersion).toBe(1);
-    })
-  );
+        expect(versioned.remoteId).toBe(existingFileId);
+        expect(versioned.itemKind).toBe("file");
+        expect(versioned.name).toBe("complaint.pdf");
+        expect(fake.items.get(existingFileId)?.content).toBe("complaint-v2");
+        expect(fake.items.get(existingFileId)?.version).toBe(2);
+        expect(fake.counts.uploadFileVersion).toBe(1);
+      })
+    );
+  });
 
   it.layer(Layer.fresh(withFakeBox(mirrorLayer)), { timeout: "10 seconds" })((it) => {
     it.effect(
@@ -794,82 +801,111 @@ describe("@beep/documents-server DmsMirrorBox", () => {
     );
   });
 
-  it.effect(
-    "translates transient Box failures as retryable",
-    Effect.fnUntraced(function* () {
-      const rateLimited = makeFakeBox({
-        uploads: { uploadFile: () => Promise.reject({ responseInfo: { statusCode: 429 } }) },
-      });
-
-      const uploadError = yield* Effect.gen(function* () {
+  it.layer(
+    Layer.fresh(
+      withFakeBox(
+        mirrorLayerWith({
+          uploads: { uploadFile: () => Promise.reject({ responseInfo: { statusCode: 429 } }) },
+        })
+      )
+    ),
+    { timeout: "10 seconds" }
+  )((it) => {
+    it.effect(
+      "translates a rate-limited Box upload as retryable",
+      Effect.fnUntraced(function* () {
         const mirror = yield* DmsMirror;
-        return yield* mirror.uploadFile(
-          UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v1"), name: "complaint.pdf" })
+        const uploadError = yield* Effect.flip(
+          mirror.uploadFile(
+            UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v1"), name: "complaint.pdf" })
+          )
         );
-      }).pipe(provideScopedLayer(mirrorLayer(rateLimited)), Effect.flip);
 
-      expect(uploadError._tag).toBe("DmsMirrorUnavailable");
-      expect(uploadError.provider).toBe("box");
-      pipe(uploadError.retryable, assertTrue);
-      expect(uploadError.reason).toContain("uploads.uploadFile");
+        expect(uploadError._tag).toBe("DmsMirrorUnavailable");
+        expect(uploadError.provider).toBe("box");
+        pipe(uploadError.retryable, assertTrue);
+        expect(uploadError.reason).toContain("uploads.uploadFile");
+      })
+    );
+  });
 
-      const unavailable = makeFakeBox({
-        files: { updateFileById: () => Promise.reject({ responseInfo: { statusCode: 503 } }) },
-      });
-
-      const renameError = yield* Effect.gen(function* () {
+  it.layer(
+    Layer.fresh(
+      withFakeBox(
+        mirrorLayerWith({
+          files: { updateFileById: () => Promise.reject({ responseInfo: { statusCode: 503 } }) },
+        })
+      )
+    ),
+    { timeout: "10 seconds" }
+  )((it) => {
+    it.effect(
+      "translates an unavailable Box rename as retryable",
+      Effect.fnUntraced(function* () {
         const mirror = yield* DmsMirror;
-        return yield* mirror.renameItem(
-          RenameItemInput.make({
-            itemKind: "file",
-            newName: "amended.pdf",
-            remoteId: staleRemoteFileId,
-          })
+        const renameError = yield* Effect.flip(
+          mirror.renameItem(
+            RenameItemInput.make({
+              itemKind: "file",
+              newName: "amended.pdf",
+              remoteId: staleRemoteFileId,
+            })
+          )
         );
-      }).pipe(provideScopedLayer(mirrorLayer(unavailable)), Effect.flip);
 
-      pipe(renameError.retryable, assertTrue);
-      expect(renameError.reason).toContain("status 503");
-    })
-  );
+        pipe(renameError.retryable, assertTrue);
+        expect(renameError.reason).toContain("status 503");
+      })
+    );
+  });
 
-  it.effect(
-    "translates permanent Box failures as non-retryable",
-    Effect.fnUntraced(function* () {
-      const rejected = makeFakeBox({
-        uploads: {
-          uploadFile: () => Promise.reject({ responseInfo: { code: "bad_request", statusCode: 400 } }),
-        },
-      });
-
-      const uploadError = yield* Effect.gen(function* () {
+  it.layer(
+    Layer.fresh(
+      withFakeBox(
+        mirrorLayerWith({
+          uploads: {
+            uploadFile: () => Promise.reject({ responseInfo: { code: "bad_request", statusCode: 400 } }),
+          },
+        })
+      )
+    ),
+    { timeout: "10 seconds" }
+  )((it) => {
+    it.effect(
+      "translates a rejected Box upload as non-retryable",
+      Effect.fnUntraced(function* () {
         const mirror = yield* DmsMirror;
-        return yield* mirror.uploadFile(
-          UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v1"), name: "complaint.pdf" })
+        const uploadError = yield* Effect.flip(
+          mirror.uploadFile(
+            UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v1"), name: "complaint.pdf" })
+          )
         );
-      }).pipe(provideScopedLayer(mirrorLayer(rejected)), Effect.flip);
 
-      expect(uploadError._tag).toBe("DmsMirrorUnavailable");
-      pipe(uploadError.retryable, assertFalse);
-      expect(uploadError.reason).toContain("status 400");
-      expect(uploadError.reason).toContain("bad_request");
-      // Mirror verbs carry the same probe-facing classification the
-      // availability layer reads: an unclassifiable 400 stays the fallback.
-      assertSome<string>(uploadError.disconnectReason, "probe-failed");
+        expect(uploadError._tag).toBe("DmsMirrorUnavailable");
+        pipe(uploadError.retryable, assertFalse);
+        expect(uploadError.reason).toContain("status 400");
+        expect(uploadError.reason).toContain("bad_request");
+        // Mirror verbs carry the same probe-facing classification the
+        // availability layer reads: an unclassifiable 400 stays the fallback.
+        assertSome<string>(uploadError.disconnectReason, "probe-failed");
+      })
+    );
+  });
 
-      const thrown = makeFakeBox({
-        events: { getEvents: () => Promise.reject("boom") },
-      });
-
-      const pollError = yield* Effect.gen(function* () {
+  it.layer(Layer.fresh(withFakeBox(mirrorLayerWith({ events: { getEvents: () => Promise.reject("boom") } }))), {
+    timeout: "10 seconds",
+  })((it) => {
+    it.effect(
+      "translates a thrown Box event poll as non-retryable",
+      Effect.fnUntraced(function* () {
         const mirror = yield* DmsMirror;
-        return yield* mirror.pollEvents(PollEventsInput.make({}));
-      }).pipe(provideScopedLayer(mirrorLayer(thrown)), Effect.flip);
+        const pollError = yield* Effect.flip(mirror.pollEvents(PollEventsInput.make({})));
 
-      expect(pollError._tag).toBe("DmsMirrorUnavailable");
-      pipe(pollError.retryable, assertFalse);
-    })
-  );
+        expect(pollError._tag).toBe("DmsMirrorUnavailable");
+        pipe(pollError.retryable, assertFalse);
+      })
+    );
+  });
 
   it.layer(Layer.fresh(withFakeBox(availabilityLayer)), { timeout: "10 seconds" })((it) => {
     it.effect(

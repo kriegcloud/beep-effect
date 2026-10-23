@@ -138,7 +138,7 @@ export class RateLimitSnapshot extends S.Class<RateLimitSnapshot, { readonly bra
 export class RetryableFailure extends S.Opaque<RetryableFailure, { readonly brand: unique symbol }>()(
   S.Struct({
     /** A server-advised delay in milliseconds, when GitHub sent one. */
-    retryAfterMillis: S.optional(S.Finite).pipe(
+    retryAfterMillis: S.optionalKey(S.Finite).pipe(
       $I.annoteKey("RetryableFailure.retryAfterMillis", {
         description: "A server-advised delay in milliseconds, when GitHub sent one.",
       })

@@ -251,27 +251,6 @@
       "reason": "This layer depends on test-local manifests, fixture directories, and explicit proposer/cache variants. Separate scoped invocations preserve rerun and mixed-proposer behavior; the zero-duration never-completing case retains its exact production timeout subject."
     },
     {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:642:provideScopedLayer@29#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 642,
-      "endLine": 642,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:ac126d99f050d45bbef51b8e874c5f81ac94ab3838803a53da1651b95c941c3c",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(makeGoldTestLayer(manifest, fixtures))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV002:apps/labs/semantica/test/GoldSource.test.ts:129:provideScopedLayer@10#1",
       "lens": "resource",
       "ruleId": "EV002",
@@ -910,208 +889,13 @@
       "reason": "See goals/effect-vitest-canon/research/desktop-http-layer-proof.md. In \"carries a publication from a real tool handler through the governed egress fetch\", this server lifetime consumes test-local state or returns a distinct execution window before later ledger assertions. The provided value is the Context returned by Layer.build(makeHttpServerLayer(...)), not an effectful Layer passed to Effect.provide. Outer platform/database resources stay in public it.layer. All original cases and fourteen-fixture isolation/cleanup probes pass under Node and Bun, in-process and over real loopback sockets."
     },
     {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:453:provideScopedLayer@14#1",
+      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:1000:provideScopedLayer@14#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/documents-server",
       "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 453,
-      "endLine": 453,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:9df9783210f7c88da8e587a9855c204ef307c3c6e099423fb0ed1a25978a0ce8",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(availabilityLayer(fake))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The pagination callback captures the body-owned markers array and root identity. The scoped adapter preserves exact two-page order and zero writes."
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:491:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 491,
-      "endLine": 491,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:d153297aa23c8f850bb1a37c1a79f8bf7b666e909fd21d2d4cc088163289a659",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(availabilityLayer(fake))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The callback captures rootVisible plus lookup/create counters to simulate a competing creator; a fresh scoped adapter observes that same invocation state."
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:579:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 579,
-      "endLine": 579,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:1b658feea32e906eddced4dc1d141f3143583f08891273ec2489405b4ffde6d2",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(mirrorLayer(fake))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:809:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 809,
-      "endLine": 809,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:c578de64740bcc5af036772dfa805fba675f8e19784b4d02dee3187809507570",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(mirrorLayer(rateLimited))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:829:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 829,
-      "endLine": 829,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:3bfc3b62475380c966891b09afa29e1337cf55ace9c34796a6f725e4538794ca",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(mirrorLayer(unavailable))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The transient case uses a separate unavailable rename client after the upload client, preserving independent caches and exact status classification."
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:850:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 850,
-      "endLine": 850,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:c0942957f64dedbff68e9927d115cb5dbfba3187f0293b079e6b56cd8747c69b",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(mirrorLayer(rejected))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:867:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 867,
-      "endLine": 867,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:f7840acc6a02bdbe99120d735528f5b03294a7428b2af08ed70462425416a12c",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(mirrorLayer(thrown))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The throwing event client is distinct from the rejected-upload client in the same case, with its own scoped cache and failure payload."
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:898:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 898,
-      "endLine": 898,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:c2c5525e8a601eed015768ed848158c6742eb1035d1f209243b2f06577b04219",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(availabilityLayer(failing))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The failing folders callback is constructed in this body and its native adapter yields an exact disconnected probe without a live provider."
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:917:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 917,
-      "endLine": 923,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:ee5248bf0ecc53097f39013ab0f5605cc1340ca1d395552c8996fd5ab51dbf0c",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer( availabilityLayer( makeFakeBox({ folders: { getFolderItems: () => Promise.reject({ responseInfo: { statusCode } }) }, }) ) )",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each status probe builds a distinct fake and scoped adapter for 401, 403, 404, 429, 503 and 400; cache reuse across statuses would invalidate classification."
-    },
-    {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:964:provideScopedLayer@14#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 964,
-      "endLine": 964,
+      "line": 1000,
+      "endLine": 1000,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:6a58d2f1a9ba535793ed1e62132cb75697d6faee375e1451e43d4cd2e5145d3d",
       "class": "unresolved-layer-provide",
@@ -1127,13 +911,13 @@
       "reason": "A body-owned malformed remote-root response exercises the real schema decoding path in an isolated scoped adapter."
     },
     {
-      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:993:provideScopedLayer@14#1",
+      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:1029:provideScopedLayer@14#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/documents-server",
       "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 993,
-      "endLine": 993,
+      "line": 1029,
+      "endLine": 1029,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:c412ff022399f0f4e6f73fb7ca2d4a3bf46751c6fa0985b3a8fa302875ec3278",
       "class": "unresolved-layer-provide",
@@ -1147,6 +931,94 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The callback owns a mutable invocation counter; all three probe/refresh operations share one cache within this scoped program, preserving identity and refresh-count assertions."
+    },
+    {
+      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:459:provideScopedLayer@14#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/documents-server",
+      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
+      "line": 459,
+      "endLine": 459,
+      "symbol": "provideScopedLayer",
+      "occurrence": "v2:9df9783210f7c88da8e587a9855c204ef307c3c6e099423fb0ed1a25978a0ce8",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideScopedLayer(availabilityLayer(fake))",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "The pagination callback captures the body-owned markers array and root identity. The scoped adapter preserves exact two-page order and zero writes."
+    },
+    {
+      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:497:provideScopedLayer@14#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/documents-server",
+      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
+      "line": 497,
+      "endLine": 497,
+      "symbol": "provideScopedLayer",
+      "occurrence": "v2:d153297aa23c8f850bb1a37c1a79f8bf7b666e909fd21d2d4cc088163289a659",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideScopedLayer(availabilityLayer(fake))",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "The callback captures rootVisible plus lookup/create counters to simulate a competing creator; a fresh scoped adapter observes that same invocation state."
+    },
+    {
+      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:934:provideScopedLayer@14#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/documents-server",
+      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
+      "line": 934,
+      "endLine": 934,
+      "symbol": "provideScopedLayer",
+      "occurrence": "v2:c2c5525e8a601eed015768ed848158c6742eb1035d1f209243b2f06577b04219",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideScopedLayer(availabilityLayer(failing))",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "The failing folders callback is constructed in this body and its native adapter yields an exact disconnected probe without a live provider."
+    },
+    {
+      "id": "EV002:packages/documents/server/test/DmsMirrorBox.test.ts:953:provideScopedLayer@10#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/documents-server",
+      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
+      "line": 953,
+      "endLine": 959,
+      "symbol": "provideScopedLayer",
+      "occurrence": "v2:ee5248bf0ecc53097f39013ab0f5605cc1340ca1d395552c8996fd5ab51dbf0c",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideScopedLayer( availabilityLayer( makeFakeBox({ folders: { getFolderItems: () => Promise.reject({ responseInfo: { statusCode } }) }, }) ) )",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "Each status probe builds a distinct fake and scoped adapter for 401, 403, 404, 429, 503 and 400; cache reuse across statuses would invalidate classification."
     },
     {
       "id": "EV002:packages/drivers/box-provisioning/test/BoxProvisioningApplier.test.ts:179:provideScopedLayer@12#1",
@@ -1633,56 +1505,13 @@
       "reason": "Owner: @beep/law-practice-server. The body builds the bundle into firstOut, closes the build, and then reopens firstOut's kg.pglite to dump its rows; PGlite locks its data directory, so one it.layer connection cannot be open while the build writes it. Exit: retire when the build exposes its store as a provided service the test can read in place, or when EV002 recognises a provision over a store the earlier body subject wrote and closed (#1855 wave 4 register)."
     },
     {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1322:provideScopedLayer@16#1",
+      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1776:provideScopedLayer@16#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/law-practice-server",
       "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 1322,
-      "endLine": 1322,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:7ae24f46b2daa1acce4b9b2ec86fb4efccf4debb93bb6123f8125feb59aeba87",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(host)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1358:provideScopedLayer@16#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 1358,
-      "endLine": 1358,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:5aba59e05df06312eaecaa6b7ba61aca7df38500b455c7770d5653646118abed",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(bundleOut, \"kg.pglite\") }))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This inner read-back connection is opened only after the body constructs its native bundle, then closed before the next connection or host. Keeping the body-derived data directory and shorter scope preserves real on-disk persistence and DDL/provenance assertions; the outer platform fixture already uses public it.layer."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1761:provideScopedLayer@16#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 1761,
-      "endLine": 1761,
+      "line": 1776,
+      "endLine": 1776,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:e246edbc3d044db8f8107010a23467e0fa1f9f09a387be7d954e692a678909b6",
       "class": "unresolved-layer-provide",
@@ -1698,13 +1527,13 @@
       "reason": "Owner: @beep/law-practice-server. The body runs two bundle builds into bundleOut, reads practice.duckdb through the same-file withDuckDb wrapper, and only then provides the MCP host over both stores in bundleOut; each earlier step closes its connection before the host reopens the files (PGlite and DuckDB lock them). it.layer would build the host before the bundle exists. Exit: retire when the builds move into a nested it.layer(Layer.unwrap(...)) without losing the base-run assertions, or when EV002 also counts same-file wrapper provisions as earlier lifecycles (#1855 wave 4 register)."
     },
     {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2329:provideScopedLayer@28#1",
+      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2344:provideScopedLayer@28#1",
       "lens": "detector",
       "ruleId": "EV002",
       "package": "@beep/law-practice-server",
       "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2329,
-      "endLine": 2329,
+      "line": 2344,
+      "endLine": 2344,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:4f8fedf4796dc2cab3e9bcadd1d5905235544ba020d962468eb6e4efc2f1e689",
       "class": "per-test-layer-provide",
@@ -1720,13 +1549,13 @@
       "reason": "A separate empty-input bundle is constructed within the case. Its body-derived PGlite directory and fixture model must be opened for the zero-claims failure and closed independently of the earlier populated bundle. Retain this scoped invocation inside the public outer fixture."
     },
     {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2453:provideScopedLayer@12#1",
+      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2468:provideScopedLayer@12#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/law-practice-server",
       "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2453,
-      "endLine": 2453,
+      "line": 2468,
+      "endLine": 2468,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:841798a4fc3b5088d955a7afd686ca3de17bb80ce4cb20aeff486bad9233a6b2",
       "class": "unresolved-layer-provide",
@@ -5866,13 +5695,13 @@
       "reason": "The permission bracket is intentionally shorter than the surrounding test: the unreadable-directory assertion must observe failed access before chmod restoration, while the interruption regression holds mode 0 until cancellation. A shared acquireUseRelease helper makes both paths use the same restoration finalizer; moving it to it.layer or the whole test scope changes the observed lifetime. Node and Bun pass all 10 integration tests; a dropped-restoration mutation fails the mode-before-cleanup assertion (0 instead of 448) and restores the source afterward. See research/pr1323-readiness-and-interruption-proof.md."
     },
     {
-      "id": "EV003:packages/documents/server/test/DmsMirrorBox.test.ts:289:withFakeBox@20#1",
+      "id": "EV003:packages/documents/server/test/DmsMirrorBox.test.ts:291:withFakeBox@20#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/documents-server",
       "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 289,
-      "endLine": 290,
+      "line": 291,
+      "endLine": 292,
       "symbol": "withFakeBox",
       "occurrence": "v2:c6863aaba5d90a50c6dab7f43e6b2a2d0e21be7f320c9c8eb59a87eb7ac9fb69",
       "class": "resource-wrapper",
@@ -7144,27 +6973,6 @@
       "reason": "Intentional shorter handshake-failure scope: close the fake socket reader and acquired protocol resources before inspecting the rejected handshake error. Deferring release until whole-test teardown changes the failure observation boundary."
     },
     {
-      "id": "EV004:packages/drivers/obs/test/integration/Obs.live.test.ts:83:scoped@10#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/obs",
-      "file": "packages/drivers/obs/test/integration/Obs.live.test.ts",
-      "line": 83,
-      "endLine": 83,
-      "symbol": "scoped",
-      "occurrence": "v2:27400e0dabece7fe9782c1c4a3cc11901261eae7e1ff1931095a3e76e9abb2f5",
-      "class": "inner-helper-scope-lifetime-review",
-      "evidence": "Effect.scoped",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV004:packages/drivers/openclaw/test/integration/OpenclawTimeout.acceptance.test.ts:67:scoped@28#1",
       "lens": "resource",
       "ruleId": "EV004",
@@ -7363,48 +7171,6 @@
       "reason": "These shorter scopes close two actual PostgreSQL repository stacks before opening fresh stacks for persisted reads. Distinct backend connections and close-before-reopen ownership are the test subject; flattening into the outer test scope would change it."
     },
     {
-      "id": "EV004:packages/foundation/capability/mcp-kit/test/SanitizedToolkit.test.ts:573:scoped@8#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/mcp-kit",
-      "file": "packages/foundation/capability/mcp-kit/test/SanitizedToolkit.test.ts",
-      "line": 573,
-      "endLine": 573,
-      "symbol": "scoped",
-      "occurrence": "v2:31b1a8831f43e82eb907b8d0ce15abc94c611dbc6fd597c75f1c147e4c73a65f",
-      "class": "inner-helper-scope-lifetime-review",
-      "evidence": "Effect.scoped",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/foundation/capability/observability/test/DevTools.test.ts:82:scoped@8#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/observability",
-      "file": "packages/foundation/capability/observability/test/DevTools.test.ts",
-      "line": 82,
-      "endLine": 82,
-      "symbol": "scoped",
-      "occurrence": "v2:9e6761df6c0e487a885208420e5cfca06943ec18476101b1ff6a780f0ca8dc70",
-      "class": "inner-helper-scope-lifetime-review",
-      "evidence": "Effect.scoped",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV004:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:53:scoped@4#1",
       "lens": "resource",
       "ruleId": "EV004",
@@ -7425,237 +7191,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Owner: @beep/observability. runWithLayer scopes the layer so closing it flushes the OTLP exporters before the caller asserts on the captured requests; the helper comment says so. Without the shorter scope the exports arrive only at test teardown, after the assertions. Exit: retire when EV004 recognises a helper scope whose close the caller's later assertions observe (#1855 wave 4 register)."
-    },
-    {
-      "id": "EV004:packages/foundation/ui-system/dock-react/test/DockviewReact.test.tsx:205:scoped@13#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/dock-react",
-      "file": "packages/foundation/ui-system/dock-react/test/DockviewReact.test.tsx",
-      "line": 205,
-      "endLine": 213,
-      "symbol": "scoped",
-      "occurrence": "v2:1d4ad1a6b8314ccbf8f6c044c3a6dd504148329794c21f8b0aab9fbeb70bb4e0",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const graph = yield* makeGraph(makeWorkspace([missing])); const view = render(<DockviewReact graph={graph} components={{}} />); sizeRoot(); expect((yield* Effe",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/foundation/ui-system/dock-react/test/Gestures.test.tsx:161:scoped@13#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/dock-react",
-      "file": "packages/foundation/ui-system/dock-react/test/Gestures.test.tsx",
-      "line": 161,
-      "endLine": 180,
-      "symbol": "scoped",
-      "occurrence": "v2:86d105249af9064cf66fa63507f7dcfa25429fff233ddf5d0a563f241b4d8b1d",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const left = yield* mount(true); pointer(tab(panel1.id), \"pointerDown\", 100, 16); pointer(tab(panel1.id), \"pointerUp\", 410, 200); yield* left.graph.awaitIdle;",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:172:scoped@27#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 172,
-      "endLine": 177,
-      "symbol": "scoped",
-      "occurrence": "v2:5cae42212096de30b41b2645c6b01b0ce23d477604bc6dec90bdafb4e103eb87",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const s = yield* withService(UsptoRecordLookup, usptoLayer(record, 200, urls)); return [yield* s.byApplication(\"18900001\"), yield* s.byPatent(\"99000001\")]; })",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:187:scoped@29#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 187,
-      "endLine": 192,
-      "symbol": "scoped",
-      "occurrence": "v2:78ad7046902347639e15c403144444f80db674cacda2e78fd7bb69be2459709d",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const s = yield* withService(UsptoRecordLookup, usptoLayer({}, 404, urls)); return [yield* s.byApplication(\"18900001\"), yield* Effect.flip(s.byPatent('99000001",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:199:scoped@27#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 199,
-      "endLine": 204,
-      "symbol": "scoped",
-      "occurrence": "v2:37a8f57d4ec288cc843a4d3d750b2dce936d93c94ab1383e6569ff526fc658b5",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const s = yield* withService(UsptoRecordLookup, usptoLayer({}, 429, [])); return yield* Effect.flip(s.byApplication(\"18900001\")); }) )",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:210:scoped@30#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 210,
-      "endLine": 215,
-      "symbol": "scoped",
-      "occurrence": "v2:9fc6ad2cd58190de02112298f771786717ead1d3f307f8b901172cbaaadee336",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const s = yield* withService(UsptoRecordLookup, usptoLayer(ambiguous, 200, [])); return yield* Effect.flip(s.byPatent(\"99000001\")); }) )",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:225:scoped@26#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 225,
-      "endLine": 233,
-      "symbol": "scoped",
-      "occurrence": "v2:94910ed9c07906a7f402c86024844bfd1c72f68add052052ec02957f4ab681e9",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const source = yield* withService( DomainRegistrantLookup, DomainRegistrantLookupLive.pipe(Layer.provide(response(rdap, 200, urls))) ); return yield* source.re",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:288:scoped@8#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 288,
-      "endLine": 296,
-      "symbol": "scoped",
-      "occurrence": "v2:47bf32b2eac5a4422e3ae5626217442b513ec3cbf9961c83420ad1c9d2a424a4",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const source = yield* withService( DomainRegistrantLookup, DomainRegistrantLookupLive.pipe(Layer.provide(response({}, status, urls))) ); return yield* source.r",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:332:scoped@37#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 332,
-      "endLine": 337,
-      "symbol": "scoped",
-      "occurrence": "v2:bcf761bb0d41577e7fecd9456de7b20ac974b7a73aed8ca94fee985525dcc73c",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const s = yield* withService(DocumentExtractionSource, layer); return [yield* s.extraction(\"doc-1\"), yield* s.extraction(\"doc-2\")] as const; }) )",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:363:scoped@87#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 363,
-      "endLine": 363,
-      "symbol": "scoped",
-      "occurrence": "v2:f8b92c0bbf73bb7c15568380f128421e3c54a1ec24d94b1661eea51ec3f90a85",
-      "class": "inner-helper-scope-lifetime-review",
-      "evidence": "Effect.scoped",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts:98:scoped@27#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/DocumentIdentification/Identification.adapters.test.ts",
-      "line": 98,
-      "endLine": 119,
-      "symbol": "scoped",
-      "occurrence": "v2:8b21c751d0d0c7e864f774cab994549002c0ed317a6e4bd01fbfecb68fc8991e",
-      "class": "shorter-scope-lifetime-review",
-      "evidence": "Effect.scoped( Effect.gen(function* () { const source = yield* withService( ContactCardSource, ContactCardSourceFile.pipe( Layer.provide( Layer.succeed( ContactFilesLocation, ContactFilesConfig.make({",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV004:packages/ontology/client/test/Session.atoms.test.ts:207:scoped@10#1",
@@ -7744,27 +7279,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Deliberate inner scope closes registry and mounts before acquireUseRelease restores the Worker global. Forced defect and interruption controls prove termination before restoration; removing this shorter scope changes lifetime."
-    },
-    {
-      "id": "EV004:packages/ontology/server/test/SessionServer.test.ts:428:scoped@12#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/ontology-server",
-      "file": "packages/ontology/server/test/SessionServer.test.ts",
-      "line": 428,
-      "endLine": 428,
-      "symbol": "scoped",
-      "occurrence": "v2:8671797b1aae582e7874e6e3c7be900aea6f57a2205a3f4e4d9fb1e31f2e19fb",
-      "class": "inner-helper-scope-lifetime-review",
-      "evidence": "Effect.scoped",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV004:packages/tooling/library/qa-capture/test/Collector.test.ts:183:scoped@15#1",
@@ -10325,48 +9839,6 @@
       "reason": "This assertion compares two independently derived Option values, retaining exact original operands and Option structure. It is not a Boolean or tag-only check. The extractor case additionally asserts relation and both endpoints are present before the preserved equality."
     },
     {
-      "id": "EV006:apps/professional-desktop/test/dock-shell.test.tsx:61:expect@4#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/professional-desktop",
-      "file": "apps/professional-desktop/test/dock-shell.test.tsx",
-      "line": 61,
-      "endLine": 69,
-      "symbol": "expect",
-      "occurrence": "v2:d8959c82ab7bcff1a568689486c8edd9df01cb40865aa72cfa50e74201bca893",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(panel).toEqual( O.some({ cluster: \"shell\", description: \"Review contradictory beliefs against their verified source text.\", key: \"contradiction-triage\", label: \"Beliefs\", title: \"Contradiction",
-      "replacement": {
-        "primitive": "utils.assertSome",
-        "sketch": "Review structural equality against the supplied Option.some constructor. Reuse only the existing expected operand; preserve matcher semantics. Exit.fail(error) does not supply the Cause required by assertExitFailure. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV006:apps/professional-desktop/test/tauri-youtube-security.test.ts:98:expect@4#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/professional-desktop",
-      "file": "apps/professional-desktop/test/tauri-youtube-security.test.ts",
-      "line": 98,
-      "endLine": 103,
-      "symbol": "expect",
-      "occurrence": "v2:59d09c1becdc1f3af3bc1b679e251cc359a6962f5f9c10f1342e0905f459427b",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(opener).toEqual( O.some({ identifier: \"opener:allow-open-url\", allow: [{ url: youtubeWatchCapability }], }) )",
-      "replacement": {
-        "primitive": "utils.assertSome",
-        "sketch": "Review structural equality against the supplied Option.some constructor. Reuse only the existing expected operand; preserve matcher semantics. Exit.fail(error) does not supply the Cause required by assertExitFailure. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV006:packages/_internal/db-admin/test/integration/DocumentsSyncMigration.pglite.test.ts:141:expect@10#1",
       "lens": "resource",
       "ruleId": "EV006",
@@ -10629,48 +10101,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Retain the complete original metadata-family assertion and dynamic module/member diagnostic. Public assertion helpers lack the message parameter; dropping it would weaken failure localization."
-    },
-    {
-      "id": "EV006:packages/foundation/capability/technical-drawing/test/FigureSet.test.ts:1066:expect@8#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/technical-drawing",
-      "file": "packages/foundation/capability/technical-drawing/test/FigureSet.test.ts",
-      "line": 1066,
-      "endLine": 1071,
-      "symbol": "expect",
-      "occurrence": "v2:6e7ad30086532979405335c1179285ceab187cb9360ea9c905a2e55a72541c91",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect( A.map(labelTextFindings({ page: 1, pages: 8, text: \"11/8\\nFIG. 10\\n\", options }), (f) => [f.code, f.page]) ).toEqual([ [\"label-missing\", O.some(1)], [\"label-missing\", O.some(1)], ])",
-      "replacement": {
-        "primitive": "utils.deepStrictEqual",
-        "sketch": "Review the complete compound/ambiguous assertion, preserving matcher polarity and operands. Do not replace a Boolean branch check with invented payload/error/Cause expectations. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV006:packages/foundation/capability/technical-drawing/test/FigureSet.test.ts:2079:expect@8#1",
-      "lens": "detector",
-      "ruleId": "EV006",
-      "package": "@beep/technical-drawing",
-      "file": "packages/foundation/capability/technical-drawing/test/FigureSet.test.ts",
-      "line": 2079,
-      "endLine": 2079,
-      "symbol": "expect",
-      "occurrence": "v2:08f98db9d58005f004d8dd8bd14cd972dabcbd173a66d895f41a28b7828ea6c5",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(O.isNone(unbound.manifest.approver)).toBe(true)",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Assert the original Option is None; preserve the existing predicate polarity. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
     },
     {
       "id": "EV006:packages/foundation/modeling/lexical/test/Lexical.model.test.ts:301:expect@4#1",

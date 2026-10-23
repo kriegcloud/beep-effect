@@ -440,35 +440,35 @@ export type ArchitectureOperationCheckStatus = typeof ArchitectureOperationCheck
 
 const OperationId = S.String.pipe(
   S.withConstructorDefault(Effect.succeed("legacy-operation")),
-  S.withDecodingDefault(Effect.succeed("legacy-operation"))
+  S.withDecodingDefaultKey(Effect.succeed("legacy-operation"))
 );
 const WriteIfMissing = ArchitectureOperationWriteMode.pipe(
   S.withConstructorDefault(Effect.succeed("write-if-missing" as const)),
-  S.withDecodingDefault(Effect.succeed("write-if-missing" as const))
+  S.withDecodingDefaultKey(Effect.succeed("write-if-missing" as const))
 );
 const EnsurePresent = ArchitectureOperationWriteMode.pipe(
   S.withConstructorDefault(Effect.succeed("ensure-present" as const)),
-  S.withDecodingDefault(Effect.succeed("ensure-present" as const))
+  S.withDecodingDefaultKey(Effect.succeed("ensure-present" as const))
 );
 const RemoveIfPresent = ArchitectureOperationWriteMode.pipe(
   S.withConstructorDefault(Effect.succeed("remove-if-present" as const)),
-  S.withDecodingDefault(Effect.succeed("remove-if-present" as const))
+  S.withDecodingDefaultKey(Effect.succeed("remove-if-present" as const))
 );
 const SkipIdenticalFailDifferent = ArchitectureOperationConflictPolicy.pipe(
   S.withConstructorDefault(Effect.succeed("skip-identical-fail-different" as const)),
-  S.withDecodingDefault(Effect.succeed("skip-identical-fail-different" as const))
+  S.withDecodingDefaultKey(Effect.succeed("skip-identical-fail-different" as const))
 );
 const RequirePresent = ArchitectureOperationConflictPolicy.pipe(
   S.withConstructorDefault(Effect.succeed("require-present" as const)),
-  S.withDecodingDefault(Effect.succeed("require-present" as const))
+  S.withDecodingDefaultKey(Effect.succeed("require-present" as const))
 );
 const RemoveExisting = ArchitectureOperationConflictPolicy.pipe(
   S.withConstructorDefault(Effect.succeed("remove-existing" as const)),
-  S.withDecodingDefault(Effect.succeed("remove-existing" as const))
+  S.withDecodingDefaultKey(Effect.succeed("remove-existing" as const))
 );
 const OperationSource = ArchitectureOperationSource.pipe(
   S.withConstructorDefault(Effect.succeed("legacy-plan" as const)),
-  S.withDecodingDefault(Effect.succeed("legacy-plan" as const))
+  S.withDecodingDefaultKey(Effect.succeed("legacy-plan" as const))
 );
 
 /**

@@ -732,7 +732,7 @@ export class ExtractFramesRequest extends S.Opaque<ExtractFramesRequest, { reado
     ),
     manifestPath: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
-      S.withDecodingDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<string>())),
       $I.annoteKey("ExtractFramesRequest.manifestPath", {
         description: "Optional manifest path; defaults inside the output directory when absent.",
       })
@@ -744,14 +744,14 @@ export class ExtractFramesRequest extends S.Opaque<ExtractFramesRequest, { reado
     ),
     overwrite: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false)),
       $I.annoteKey("ExtractFramesRequest.overwrite", {
         description: "Whether existing frame and manifest outputs may be overwritten.",
       })
     ),
     prefix: S.Option(SafeFramePrefix).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<SafeFramePrefix>())),
-      S.withDecodingDefault(Effect.succeed(O.none<SafeFramePrefix>())),
+      S.withDecodingDefaultKey(Effect.succeed(O.none<SafeFramePrefix>())),
       $I.annoteKey("ExtractFramesRequest.prefix", {
         description: "Optional safe filename prefix for generated PNG frames.",
       })

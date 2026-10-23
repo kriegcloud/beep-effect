@@ -46,11 +46,11 @@ export class RendererObservabilityConfig extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    buildCommit: S.OptionFromOptional(S.NonEmptyString),
+    buildCommit: S.OptionFromOptionalKey(S.NonEmptyString),
     deploymentEnvironment: S.NonEmptyString,
     launchId: S.NonEmptyString,
     logLevel: S.Literals(LogLevel.values),
-    otlpUrl: S.OptionFromOptional(S.NonEmptyString),
+    otlpUrl: S.OptionFromOptionalKey(S.NonEmptyString),
     qaSessionId: S.NonEmptyString,
   }).pipe(
     $I.annoteSchema("RendererObservabilityConfig", {

@@ -77,7 +77,7 @@ export class DevEnginePackageManagerEntry extends S.Opaque<
     name: S.String.pipe(
       $I.annoteKey("DevEnginePackageManagerEntry.name", { description: "The package-manager name (e.g. `pnpm`)." })
     ),
-    version: S.optional(S.String).pipe(
+    version: S.optionalKey(S.String).pipe(
       $I.annoteKey("DevEnginePackageManagerEntry.version", {
         description: "The `<range>[+<integrity>]` version constraint; an entry without one names no range.",
       })
