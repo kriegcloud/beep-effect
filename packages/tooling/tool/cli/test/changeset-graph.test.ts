@@ -6,12 +6,15 @@ import {
   makeChangesetGraphSummary,
   runChangesetGraphCheck,
 } from "@beep/repo-cli/test/Quality";
+import { parseChangesetFile } from "@changesets/parse";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -125,6 +128,134 @@ Record a private workspace change.
       expect(references).toEqual([]);
     })
   );
+
+  it.effect("reads CRLF-fenced changeset frontmatter", () =>
+    Effect.gen(function* () {
+      const references = yield* changesetPackageReferencesFromText(
+        ".changeset/crlf.md",
+        '---\r\n"@beep/schema": patch\r\n---\r\n\r\nPatch schema.\r\n'
+      );
+
+      expect(references).toEqual([
+        ChangesetGraphPackageReference.make({ file: ".changeset/crlf.md", packageName: "@beep/schema" }),
+      ]);
+    })
+  );
+
+  it.effect("reads no references from a source @changesets/parse also rejects", () =>
+    Effect.gen(function* () {
+      const unclosed = yield* changesetPackageReferencesFromText(
+        ".changeset/unclosed.md",
+        '---\n"@beep/schema": patch\n\nNo closing fence.\n'
+      );
+      const inexactClose = yield* changesetPackageReferencesFromText(
+        ".changeset/inexact.md",
+        '---\n"@beep/schema": patch\n----\n\nFour dashes do not close the fence.\n'
+      );
+
+      expect(unclosed).toEqual([]);
+      expect(inexactClose).toEqual([]);
+    })
+  );
+
+  it.effect("reads a closing fence with trailing whitespace, as @changesets/parse does", () =>
+    Effect.gen(function* () {
+      const file = ".changeset/padded.md";
+      const trailingSpace = yield* changesetPackageReferencesFromText(file, '---\n"@beep/x": patch\n--- \n\nBody\n');
+      const trailingTab = yield* changesetPackageReferencesFromText(file, '---\t\n"@beep/x": patch\n---\t\n\nBody\n');
+
+      expect(trailingSpace).toEqual([ChangesetGraphPackageReference.make({ file, packageName: "@beep/x" })]);
+      expect(trailingTab).toEqual([ChangesetGraphPackageReference.make({ file, packageName: "@beep/x" })]);
+    })
+  );
+
+  it.effect("fails loudly when @changesets/parse reads frontmatter the shared grammar does not", () =>
+    Effect.gen(function* () {
+      const indentedClose = yield* changesetPackageReferencesFromText(
+        ".changeset/indented.md",
+        '---\n"@beep/x": patch\n  ---\n\nBody\n'
+      ).pipe(Effect.flip);
+      const leadingBlankLine = yield* changesetPackageReferencesFromText(
+        ".changeset/leading.md",
+        '\n---\n"@beep/x": patch\n---\n\nBody\n'
+      ).pipe(Effect.flip);
+      const jsonFence = yield* changesetPackageReferencesFromText(
+        ".changeset/json.md",
+        '---json\n{"@beep/schema": "patch"}\n---\n\nJSON fence.\n'
+      ).pipe(Effect.flip);
+
+      expect(indentedClose).toBeInstanceOf(ChangesetGraphError);
+      expect(indentedClose.file).toBe(".changeset/indented.md");
+      expect(indentedClose.message).toContain("closes on line 3 for @changesets/parse");
+      expect(leadingBlankLine.file).toBe(".changeset/leading.md");
+      expect(leadingBlankLine.message).toContain("closes on line 4 for @changesets/parse");
+      expect(jsonFence.file).toBe(".changeset/json.md");
+      expect(jsonFence.message).toContain("closes on line 3 for @changesets/parse");
+    })
+  );
+
+  describe("parity with @changesets/parse", () => {
+    // Each fixture's agreed outcome. "same": both read these package names.
+    // "loud": @changesets/parse reads frontmatter the shared grammar does not,
+    // so the guard fails instead of reading an empty changeset. "rejected":
+    // @changesets/parse throws on the file and the guard reads nothing.
+    const fixtures: ReadonlyArray<
+      readonly [name: string, content: string, outcome: "same" | "loud" | "rejected", packages: ReadonlyArray<string>]
+    > = [
+      [
+        "two packages",
+        '---\n"@beep/schema": patch\n"@beep/utils": minor\n---\n\nBody\n',
+        "same",
+        ["@beep/schema", "@beep/utils"],
+      ],
+      ["crlf", '---\r\n"@beep/schema": patch\r\n---\r\n\r\nBody\r\n', "same", ["@beep/schema"]],
+      ["empty block", "---\n---\n\nNo packages.\n", "same", []],
+      ["close with trailing space", '---\n"@beep/x": patch\n--- \n\nBody\n', "same", ["@beep/x"]],
+      ["close with trailing tab", '---\n"@beep/x": patch\n---\t\n\nBody\n', "same", ["@beep/x"]],
+      ["open with trailing space", '--- \n"@beep/x": patch\n---\n\nBody\n', "same", ["@beep/x"]],
+      ["both padded", '---\t \n"@beep/x": major\n--- \t\n\nBody\n', "same", ["@beep/x"]],
+      ["both padded under crlf", '--- \r\n"@beep/x": patch\r\n---\t\r\n\r\nBody\r\n', "same", ["@beep/x"]],
+      ["padded close at end of file", '---\n"@beep/x": patch\n--- ', "same", ["@beep/x"]],
+      ["indented close", '---\n"@beep/x": patch\n  ---\n\nBody\n', "loud", []],
+      ["leading blank line", '\n---\n"@beep/x": patch\n---\n\nBody\n', "loud", []],
+      ["json fence", '---json\n{"@beep/schema": "patch"}\n---\n\nBody\n', "loud", []],
+      ["unclosed", '---\n"@beep/schema": patch\n\nBody\n', "rejected", []],
+      ["four-dash close", '---\n"@beep/schema": patch\n----\n\nBody\n', "rejected", []],
+      ["text after the close", '---\n"@beep/schema": patch\n---x\n\nBody\n', "rejected", []],
+      ["toml fence", '+++\n"@beep/schema" = "patch"\n+++\n', "rejected", []],
+    ];
+
+    it.effect("agrees with @changesets/parse on every fixture or fails loudly", () =>
+      Effect.forEach(
+        fixtures,
+        Effect.fnUntraced(function* ([name, content, outcome, packages]) {
+          const file = `.changeset/${name}.md`;
+          if (outcome === "rejected") {
+            expect(() => parseChangesetFile(content), name).toThrow();
+            expect(yield* changesetPackageReferencesFromText(file, content), name).toEqual([]);
+            return;
+          }
+          if (outcome === "loud") {
+            const error = yield* Effect.flip(changesetPackageReferencesFromText(file, content));
+            expect(error.file, name).toBe(file);
+            expect(error.message, name).toContain("for @changesets/parse");
+            return;
+          }
+          const releaseNames = A.sort(
+            A.map(parseChangesetFile(content).releases, (release) => release.name),
+            Order.String
+          );
+          const guardNames = A.map(
+            yield* changesetPackageReferencesFromText(file, content),
+            (reference) => reference.packageName
+          );
+          expect(releaseNames, name).toEqual(packages);
+          expect(guardNames, name).toEqual(releaseNames);
+        }),
+        { discard: true }
+      )
+    );
+  });
 
   it.effect(
     "rejects frontmatter whose bump value is outside the major | minor | patch domain",

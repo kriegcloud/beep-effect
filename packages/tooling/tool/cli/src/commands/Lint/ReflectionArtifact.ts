@@ -15,6 +15,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
+import { FrontmatterFormat } from "@beep/markdown/MarkdownNode";
 import { LiteralKit } from "@beep/schema";
 import { A, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
@@ -31,7 +33,6 @@ import { parse } from "jsonc-parser";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import { makePolicyFindingLogger } from "../../internal/cli/PolicyFindingLogger.ts";
-import { extractFrontmatter } from "../../internal/schema/Frontmatter.ts";
 import { decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
 import { GoalProposedCloseout, GoalStatus } from "../Goals/Goals.schemas.ts";
 
@@ -166,8 +167,15 @@ const { log: logPolicyFinding } = makePolicyFindingLogger({
 
 const decodeFrontmatter = decodeYamlTextWith(S.decodeUnknownEffect(ReflectionFrontmatter));
 
+const yamlFrontmatterText = (raw: string): O.Option<string> =>
+  pipe(
+    O.fromUndefinedOr(FrontmatterSource.split(raw).frontmatter),
+    O.filter((block) => FrontmatterFormat.is.yaml(block.format)),
+    O.map((block) => Str.trim(block.value))
+  );
+
 const frontmatterIsValid = (raw: string): Effect.Effect<boolean> =>
-  O.match(extractFrontmatter(raw), {
+  O.match(yamlFrontmatterText(raw), {
     onNone: () => Effect.succeed(false),
     onSome: (yamlText) =>
       decodeFrontmatter(yamlText).pipe(

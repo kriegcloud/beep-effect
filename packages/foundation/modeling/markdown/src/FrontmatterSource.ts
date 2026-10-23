@@ -8,9 +8,10 @@
  * serves the consumer whose body the CommonMark engine cannot or should not
  * parse (an MDX page, a template) and whose contract is byte-exact boundaries.
  * It runs the same closed fence grammar as the parser's offset-0 pre-scan
- * (`---` yaml, `+++` toml, `---json` json; fence lines exactly the fence; an
- * unclosed fence is not frontmatter) and never parses the frontmatter value
- * or the body. Decoding is the codec modules' business.
+ * (`---` yaml, `+++` toml, `---json` json; a fence line may carry trailing
+ * spaces and tabs but no indentation; an unclosed fence is not frontmatter)
+ * and never parses the frontmatter value or the body. Decoding is the codec
+ * modules' business.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -225,10 +226,12 @@ export abstract class FrontmatterSource {
    *
    * The grammar is the parser's own offset-0 pre-scan, over raw bytes:
    * the fence set is closed (`---` yaml, `+++` toml, `---json` json), a
-   * fence line is exactly the fence with no surrounding whitespace, and a
-   * leading BOM means offset 0 is not a fence — strip one before calling
-   * if the source may carry it. Unlike the parse path there is no capture
-   * toggle here, so absence is one fact: the source has no closed block.
+   * fence line is the fence plus optional trailing spaces and tabs on both
+   * the opening and the closing line (micromark-extension-frontmatter's
+   * rule) but never indented, and a leading BOM means offset 0 is not a
+   * fence — strip one before calling if the source may carry it. Unlike the
+   * parse path there is no capture toggle here, so absence is one fact: the
+   * source has no closed block.
    * (`MarkdownDocument`'s two-reason absence exists because parsing can be
    * asked not to look; this surface always looks.)
    *
@@ -282,12 +285,14 @@ export abstract class FrontmatterSource {
    * closing fence, `newline`, then the body verbatim.
    *
    * **Round-trip contract:** `join(split(source)) === source`, byte for
-   * byte, for every source whose closing fence line ends with a line
-   * terminator matching the opening fence's. The two edges where join
-   * normalizes instead: a closing fence at end-of-document gains a final
-   * `newline` (the block's one unterminated spelling), and fence lines
-   * with MISMATCHED terminators (say `---\r\n … ---\n`) re-emit both with
-   * the opening one. Value and body bytes survive verbatim in every case.
+   * byte, for every source whose fence lines are written canonically and
+   * whose closing fence line ends with a line terminator matching the
+   * opening fence's. The three edges where join normalizes instead: a
+   * closing fence at end-of-document gains a final `newline` (the block's
+   * one unterminated spelling), fence lines with MISMATCHED terminators
+   * (say `---\r\n … ---\n`) re-emit both with the opening one, and trailing
+   * spaces or tabs on a fence line are dropped, because join always writes
+   * the canonical fence. Value and body bytes survive verbatim in every case.
    *
    * **Example** (Join a hand-built block and body)
    *

@@ -175,6 +175,27 @@ describe("@beep/skill-contract SkillProjection", () => {
     })
   );
 
+  it.effect("splits frontmatter by the @beep/markdown fence grammar", () =>
+    Effect.sync(() => {
+      const reasons = (markdown: string) =>
+        Result.match(decodeSkillFrontmatter(markdown), {
+          onFailure: (denied) => denied.reasons,
+          onSuccess: () => [],
+        });
+      const rendered = renderFixture();
+      const frontmatter = Str.slice(Str.length("---json\n"))(rendered);
+
+      // A closed non-JSON block is not the projection frontmatter.
+      expect(reasons("---\nprojection: skill-contract/skill-md/v1\n---\n")).toEqual(["frontmatter-missing"]);
+      // The closing fence line is exactly `---`: a `----` line is value text, so the block never closes.
+      expect(reasons(`---json\n{}\n----\n`)).toEqual(["frontmatter-missing"]);
+      // An empty closed block exists and fails JSON decode.
+      expect(reasons("---json\n---\n")).toEqual(["frontmatter-decode-failed"]);
+      // CRLF fence lines close the block as LF ones do.
+      expect(reasons(`---json\r\n${Str.replaceAll("\n", "\r\n")(frontmatter)}`)).toEqual([]);
+    })
+  );
+
   it.effect("refuses allowed verdicts that lack both passed checks and denied verdicts without a failure", () =>
     Effect.gen(function* () {
       const passedRender = { check: "rerender-byte-equality", detail: "ok", outcome: "passed" };

@@ -470,6 +470,11 @@ describe("skills command", () => {
         );
         yield* writeProjectFile(
           root,
+          ".claude/skills/json-fenced/SKILL.md",
+          '---json\n{"name":"json-fenced","description":"JSON-fenced test skill."}\n---\n\n# JSON\n'
+        );
+        yield* writeProjectFile(
+          root,
           ".claude/skills/long-one/SKILL.md",
           `---\nname: long-one\ndescription: Long test skill.\n---\n${Str.repeat(600)("line\n")}`
         );
@@ -480,8 +485,11 @@ describe("skills command", () => {
 
         expect(error._tag).toBe("SkillFrontmatterError");
         assert(error._tag === "SkillFrontmatterError");
-        expect(A.map(error.issues, (issue) => issue.skill)).toEqual(["local-only", "misnamed"]);
-        expect(logs).toContain("skills:update: frontmatter issues (2)");
+        expect(A.map(error.issues, (issue) => issue.skill)).toEqual(["json-fenced", "local-only", "misnamed"]);
+        expect(logs).toContain("skills:update: frontmatter issues (3)");
+        expect(logs).toContain(
+          "- json-fenced: SKILL.md frontmatter is json; the Agent Skills format requires a YAML block."
+        );
         expect(A.some(logs, (line) => Str.startsWith("- local-only:")(line) && Str.includes("version")(line))).toBe(
           true
         );
