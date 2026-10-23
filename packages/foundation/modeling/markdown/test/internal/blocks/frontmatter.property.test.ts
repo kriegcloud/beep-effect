@@ -26,6 +26,13 @@ const Sample = S.Struct({
   value: S.Array(S.Literals(["a", "b", "é", "中", " ", "\0"])).check(S.isMaxLength(30)),
   body: S.String.check(S.isMaxLength(50)),
 });
+const PaddedSample = S.Struct({
+  newline: RawNewline,
+  opening: S.Literals(["---", "+++", "---json"]),
+  openPad: S.Array(S.Literals([" ", "\t"])).check(S.isMaxLength(4)),
+  closePad: S.Array(S.Literals([" ", "\t"])).check(S.isMaxLength(4)),
+  value: S.Array(S.Literals(["a", "b", "é", " ", "\t"])).check(S.isMaxLength(20)),
+});
 describe("frontmatter scanner property floor", () => {
   it.effect("capture models retain formats, raw newlines and exact source boundaries", () =>
     Effect.gen(function* () {
@@ -106,6 +113,30 @@ describe("frontmatter scanner property floor", () => {
         assert.deepStrictEqual(O.getOrThrow(scanRawFrontmatter(joined)), raw);
         assert.deepStrictEqual(scanFrontmatter(preprocessLines(joined), joined), processed);
         assert.strictEqual(FrontmatterSource.join(FrontmatterSource.split(joined)), joined);
+      }),
+    runs
+  );
+  it.effect.prop(
+    "padded fences capture identically in both scanners and join back to canonical fences",
+    [Arbitrary.schema(PaddedSample)],
+    ([sample]) =>
+      Effect.sync(() => {
+        const close = sample.opening === "+++" ? "+++" : "---";
+        const value = `value: ${A.join(sample.value, "")}`;
+        const openPad = A.join(sample.openPad, "");
+        const closePad = A.join(sample.closePad, "");
+        const source = `${sample.opening}${openPad}${sample.newline}${value}${sample.newline}${close}${closePad}${sample.newline}body`;
+        const raw = O.getOrThrow(scanRawFrontmatter(source));
+        const processed = scanFrontmatter(preprocessLines(source), source);
+        assert.strictEqual(raw.format, processed?.format);
+        assert.strictEqual(raw.value, `${value}${sample.newline}`);
+        assert.strictEqual(processed?.lineCount, 3);
+        assert.strictEqual(processed?.endOffset, source.length - sample.newline.length - "body".length);
+        assert.strictEqual(Str.slice(raw.bodyOffset)(source), "body");
+        assert.strictEqual(
+          FrontmatterSource.join(FrontmatterSource.split(source)),
+          `${sample.opening}${sample.newline}${value}${sample.newline}${close}${sample.newline}body`
+        );
       }),
     runs
   );

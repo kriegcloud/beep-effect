@@ -4147,6 +4147,7 @@
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
+          "@beep/markdown",
           "@beep/mcp-kit",
           "@beep/md",
           "@beep/memfs",
@@ -4192,6 +4193,7 @@
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
+          "@beep/markdown",
           "@beep/mcp-kit",
           "@beep/md",
           "@beep/memfs",
@@ -4647,6 +4649,7 @@
         "from": "@beep/skill-contract",
         "allow": [
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/skill-contract",
@@ -4655,6 +4658,7 @@
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/skill-contract",
