@@ -1092,6 +1092,12 @@
         ]
       },
       {
+        "name": "@beep/xdg",
+        "patterns": [
+          "packages/foundation/capability/xdg/src/**"
+        ]
+      },
+      {
         "name": "@beep/xstate",
         "patterns": [
           "packages/drivers/xstate/src/**"
@@ -5266,6 +5272,15 @@
           "@beep/test-utils",
           "@beep/workspace-domain",
           "@beep/workspace-use-cases"
+        ]
+      },
+      {
+        "from": "@beep/xdg",
+        "allow": [
+          "@beep/xdg"
+        ],
+        "allowTypeOnly": [
+          "@beep/xdg"
         ]
       },
       {

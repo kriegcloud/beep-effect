@@ -2469,6 +2469,18 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/capability/xdg": {
+      "name": "@beep/xdg",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/epistemics": {
       "name": "@beep/epistemics",
       "version": "0.0.0",
@@ -4875,6 +4887,8 @@
     "@beep/workspace-tables": ["@beep/workspace-tables@workspace:packages/workspace/tables"],
 
     "@beep/workspace-use-cases": ["@beep/workspace-use-cases@workspace:packages/workspace/use-cases"],
+
+    "@beep/xdg": ["@beep/xdg@workspace:packages/foundation/capability/xdg"],
 
     "@beep/xstate": ["@beep/xstate@workspace:packages/drivers/xstate"],
 
