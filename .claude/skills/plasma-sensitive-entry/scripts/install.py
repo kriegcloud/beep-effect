@@ -29,7 +29,7 @@ def install(home, source):
                 raise RuntimeError("Existing global skill link belongs to another source.")
         elif target.exists():
             raise RuntimeError("Existing global skill directory must be reconciled by its owner.")
-    if (START in original) != (END in original):
+    if original.count(START) != original.count(END) or original.count(START) > 1 or (START in original and original.index(END) < original.index(START)):
         raise RuntimeError("Incomplete default-rule markers require reconciliation.")
     if START in original:
         before, remainder = original.split(START, 1)

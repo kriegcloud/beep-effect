@@ -12,12 +12,22 @@ import time
 def main():
     # Prevent the common mistake of running this script in a tool terminal.
     # This is a misuse guard, not a security boundary against local processes.
+    hint = os.environ.get("SSH_ASKPASS_PROMPT")
+    if hint == "none":
+        return 0  # Notification only: never collect text or signal SSH.
+    if hint == "confirm":
+        return 2  # Empty successful output would approve an SSH permission request.
+    if hint not in (None, ""):
+        return 2
     ssh_pid = os.getppid()
     if Path(f"/proc/{ssh_pid}/comm").read_text().strip() != "ssh":
         return 2
     title = os.environ.get("PLASMA_AUTH_TITLE", "")
     label = os.environ.get("PLASMA_AUTH_LABEL", "")
-    if not title or not label or any(len(value) > 500 or any(ord(char) < 32 for char in value) for value in (title, label)):
+    expected = os.environ.get("PLASMA_AUTH_SSH_PROMPT", "")
+    if not expected or len(sys.argv) != 2 or sys.argv[1] != expected:
+        return 2
+    if not title or not label or any(len(value) > 500 or any(ord(char) < 32 for char in value) for value in (title, label, expected)):
         return 2
     reader, writer = os.pipe()
     child = None

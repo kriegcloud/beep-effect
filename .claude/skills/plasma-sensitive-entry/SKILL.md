@@ -70,7 +70,7 @@ chat. A dialog collects the value; the agent receives only sanitized status.
 
 ## Verification
 
-Run `python3 -m unittest discover -s <skill>/scripts -p 'test_*.py'`.
+Run `PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s <skill>/scripts -p 'test_*.py'`.
 Tests use synthetic input and fake dialogs; they never request real credentials.
 A live masked-dialog acceptance check must be explicitly described as such and
 use disposable synthetic input. Automated tests alone do not prove GUI delivery.

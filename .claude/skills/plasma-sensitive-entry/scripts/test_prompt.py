@@ -185,11 +185,45 @@ class AskpassTests(unittest.TestCase):
         from unittest.mock import Mock
         import signal
         adapter = self.load_adapter()
-        env = {"PLASMA_AUTH_TITLE": "Synthetic host: connect", "PLASMA_AUTH_LABEL": "Synthetic OTP to SSH"}
+        env = {"PLASMA_AUTH_TITLE": "Synthetic host: connect", "PLASMA_AUTH_LABEL": "Synthetic OTP to SSH", "PLASMA_AUTH_SSH_PROMPT": "Verification code:"}
         for status in (1, 3):
             child = Mock()
             child.wait.return_value = status
             child.poll.return_value = status
-            with patch.object(adapter.Path, "read_text", return_value="ssh\n"), patch.object(adapter.os, "getppid", return_value=424242), patch.dict(os.environ, env, clear=True), patch.object(adapter.subprocess, "Popen", return_value=child), patch.object(adapter.os, "kill") as kill:
+            with patch.object(adapter.Path, "read_text", return_value="ssh\n"), patch.object(adapter.os, "getppid", return_value=424242), patch.object(adapter.sys, "argv", ["ssh-askpass.py", "Verification code:"]), patch.dict(os.environ, env, clear=True), patch.object(adapter.subprocess, "Popen", return_value=child), patch.object(adapter.os, "kill") as kill:
                 self.assertEqual(adapter.main(), 1)
                 kill.assert_called_once_with(424242, signal.SIGTERM)
+
+class CallbackClassificationTests(unittest.TestCase):
+    def test_notifications_and_confirmations_never_collect_or_signal(self):
+        adapter = AskpassTests().load_adapter()
+        for hint, expected in (("none", 0), ("confirm", 2)):
+            with patch.dict(os.environ, {"SSH_ASKPASS_PROMPT": hint}, clear=True), patch.object(adapter.subprocess, "Popen") as launch, patch.object(adapter.os, "kill") as kill:
+                self.assertEqual(adapter.main(), expected)
+                launch.assert_not_called()
+                kill.assert_not_called()
+
+    def test_unknown_and_fido_pin_text_callbacks_are_refused(self):
+        adapter = AskpassTests().load_adapter()
+        env = {"PLASMA_AUTH_TITLE": "Synthetic host: connect", "PLASMA_AUTH_LABEL": "Synthetic OTP to SSH", "PLASMA_AUTH_SSH_PROMPT": "Verification code:"}
+        for challenge in ("Enter PIN for authenticator:", "Enter passphrase for key:", "Password:"):
+            with patch.dict(os.environ, env, clear=True), patch.object(adapter.Path, "read_text", return_value="ssh\n"), patch.object(adapter.sys, "argv", ["ssh-askpass.py", challenge]), patch.object(adapter.subprocess, "Popen") as launch, patch.object(adapter.os, "kill") as kill:
+                self.assertEqual(adapter.main(), 2)
+                launch.assert_not_called()
+                kill.assert_not_called()
+
+class InstallMarkerTests(unittest.TestCase):
+    def test_reversed_markers_refuse_without_changing_existing_instructions(self):
+        from pathlib import Path
+        import tempfile
+        import install
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            instructions = home / ".codex/AGENTS.md"
+            instructions.parent.mkdir()
+            original = install.END + "\nExisting instructions.\n" + install.START + "\n"
+            instructions.write_text(original)
+            with self.assertRaises(RuntimeError):
+                install.install(home, home / "source")
+            self.assertEqual(instructions.read_text(), original)
+            self.assertFalse((home / ".agents/skills/plasma-sensitive-entry").exists())

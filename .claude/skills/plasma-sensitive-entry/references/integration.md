@@ -58,8 +58,14 @@ wrapper's exact identity, host-key, FIDO and notification settings. Name the
 host/action in the agent's announcement before the SSH call. The trusted
 caller must also set command-scoped `PLASMA_AUTH_TITLE` (host and action) and
 `PLASMA_AUTH_LABEL` (exact field, such as authenticator OTP, and destination).
-These contain nonsecret metadata only. The adapter refuses missing context;
-never copy a remote prompt into these variables. For example, label an OTP
+The caller must also set `PLASMA_AUTH_SSH_PROMPT` to the exact expected text
+challenge, established from the approved wrapper/service configuration. These
+contain nonsecret metadata only. The adapter refuses missing context or any
+callback whose literal prompt differs; an arbitrary "Password:" is never
+assumed to mean OTP. Unknown prompts, including a FIDO PIN or key passphrase,
+fail closed without a dialog or a signal to SSH.
+Never copy untrusted remote prompt text into these variables merely to make a
+mismatch pass. For example, label an OTP
 as "Enter the authenticator code for the approved host's SSH sign-in" and a
 remote sudo password separately as an account password. The SSH adapter does
 not collect remote sudo passwords. Do not use this
@@ -68,9 +74,18 @@ for local sudo or to bypass a missing remote-wrapper authorization.
 The adapter accepts only a direct `ssh` parent (Linux `/proc` misuse guard),
 reads at most 4096 bytes from the helper's private pipe, and sends stdout only
 to SSH's internally captured askpass channel after the helper exits 0. Its
-stdout must never be independently captured by an agent tool. It deliberately
-ignores SSH's prompt argument, which can contain untrusted remote text. Adapter
-cancellation closes descriptors and terminates/reaps its owned helper; the
+stdout must never be independently captured by an agent tool. It compares
+SSH's prompt argument only with the trusted exact expected
+challenge and never displays that untrusted argument. `SSH_ASKPASS_PROMPT=none`
+is notification-only (exit 0), and `confirm` is a permission request (exit 2,
+never silently approve). Both return without a text dialog or signalling SSH.
+Keep the canonical FIDO wrapper's notifier/confirmation dispatcher in charge
+of those callbacks; never replace it with this text adapter. Do not combine
+this adapter with FIDO keys requiring PIN entry. An approved wrapper must own
+any FIDO notification/PIN dispatch separately before routing only its known
+text challenge here. OpenSSH's callback semantics are defined in its
+[readpass.c implementation](https://github.com/openssh/openssh-portable/blob/master/readpass.c).
+Adapter cancellation closes descriptors and terminates/reaps its owned helper; the
 helper kills/reaps its owned dialog. Monitor the same owned SSH process until
 connection success or failure; SSH authentication failure must discard the
 value, and any retry must respect the three-attempt limit and cancellation.
