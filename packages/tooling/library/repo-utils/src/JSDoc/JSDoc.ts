@@ -9,8 +9,6 @@ import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import { JSDocTagDefinition } from "./models/index.ts";
 
-/* cspell:ignore defaultvalue doctest noalias nocompile nocollapse nosideeffects noinline inlines */
-
 const $I = $RepoUtilsId.create("JSDoc/JSDocTagDb");
 
 type JSDocTagMember<Tag extends string> = Omit<JSDocTagDefinition.JSDocTagDefinition, "brand"> & {

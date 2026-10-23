@@ -75,7 +75,7 @@ interface CommandStdinShape {
  */
 export const CommandStdinSource: Context.Reference<CommandStdinShape> = Context.Reference($I`CommandStdinSource`, {
   defaultValue:
-    /* istanbul ignore next -- the production stdin bridge: tests always provide a stub, because a real stdin.text() read blocks until the worker's held-open pipe reaches EOF */ (): CommandStdinShape => ({
+    /* istanbul ignore next -- the production stdin bridge: tests always provide a stub, because a real stdin.text() read blocks until the worker's held-open pipe reaches EOF. Owner: @beep/repo-cli. Exit: an integration test runs the CLI with a closed stdin pipe. */ (): CommandStdinShape => ({
       interactive: () => process.stdin.isTTY === true,
       text: () => Bun.stdin.text(),
     }),

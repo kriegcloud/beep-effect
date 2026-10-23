@@ -4,7 +4,6 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// cspell:words Navigations
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as P from "effect/Predicate";

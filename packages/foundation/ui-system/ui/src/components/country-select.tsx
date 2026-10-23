@@ -523,7 +523,7 @@ export type CountryFlagProps = React.ComponentPropsWithoutRef<"span"> & {
  * @since 0.0.0
  */
 export const CountryFlag: React.FC<CountryFlagProps> = ({ code, className, ...props }) => {
-  // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Country options are data-driven from ISO codes.
+  // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Country options are data-driven from ISO codes. Owner: @beep/ui. Exit: the flag lookup becomes a static record keyed by ISO code.
   const Flag = FlagIcons[code];
   return <Flag aria-hidden className={cn("h-3 w-5 shrink-0 rounded-xs object-cover", className)} {...props} />;
 };

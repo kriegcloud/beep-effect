@@ -47,7 +47,7 @@ type TypeId = typeof TypeId;
  * @category models
  * @since 0.0.0
  */
-// biome-ignore lint/suspicious/noExplicitAny: Effect uses Field<any> at invariant variant-field existential boundaries.
+// biome-ignore lint/suspicious/noExplicitAny: Effect uses Field<any> at invariant variant-field existential boundaries. Owner: @beep/effect-drizzle. Exit: effect/Schema exports a variant-field existential type.
 export type AnySchema = Top | VariantSchema.Field<any>;
 
 /**

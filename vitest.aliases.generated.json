@@ -2137,6 +2137,15 @@
   "@beep/markdown/internal/*": [
     "./packages/foundation/modeling/markdown/src/internal/*"
   ],
+  "@beep/github-reporting": [
+    "./packages/foundation/modeling/github-reporting/src/index.ts"
+  ],
+  "@beep/github-reporting/*": [
+    "./packages/foundation/modeling/github-reporting/src/*"
+  ],
+  "@beep/github-reporting/internal/*": [
+    "./packages/foundation/modeling/github-reporting/src/internal/*"
+  ],
   "@beep/repo-tsconfig": [
     "./packages/tooling/library/repo-tsconfig/src/index.ts"
   ],

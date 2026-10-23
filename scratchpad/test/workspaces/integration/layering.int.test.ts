@@ -36,8 +36,11 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // `@beep/npm-spec` and `@beep/tsconfig`, and their IO halves stay lab
 // directories, so each package and its lab half fold into the one lab module.
 // Wave 2b promoted `walker` whole as `@beep/walker` and `env` whole as `@beep/runtime-env`;
-// wave 2d promoted `markdown` whole as `@beep/markdown`. Wave 3 promoted the `tsconfig-json`
-// IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json` beside `@beep/tsconfig`.
+// wave 2d promoted `markdown` whole as `@beep/markdown`. Wave 3-1 split `github-actions`:
+// its reporting suite is `@beep/github-reporting` and the drivers stay a lab
+// directory, so the package folds into the `github-actions` lab module. Wave 3-2 promoted
+// the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
+// beside `@beep/tsconfig`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
@@ -45,6 +48,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/github": "github",
 	"@beep/github-commands": "github-commands",
 	"@beep/github-references": "github-references",
+	"@beep/github-reporting": "github-actions",
 	"@beep/glob": "glob",
 	"@beep/jsonc": "jsonc",
 	"@beep/jsonl": "jsonl",

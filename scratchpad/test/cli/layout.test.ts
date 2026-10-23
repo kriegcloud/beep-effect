@@ -158,7 +158,6 @@ describe("flatten under hostile input: nothing can reassemble into a live sequen
 		}
 		return out;
 	};
-	// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 	const CONTROL = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/;
 
 	const problems = (ctx: RenderContext, inlines: ReadonlyArray<Inline>): ReadonlyArray<string> => {

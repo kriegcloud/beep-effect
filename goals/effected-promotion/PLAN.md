@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); 2d-2 in review, with 2d-3 queued behind it; wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-m): 3-Y merged (#2116, W3-d), 3-2 (`@beep/repo-tsconfig`, W3-c, W3-k..W3-m) in review in this PR, 3-1, 3-3, 3-4 and 3-5 in parallel lanes, 3-A1..3-A9 queued.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); 2d-2 in review, with 2d-3 queued behind it; wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-j): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, `@beep/github-reporting`, W3-b), 3-2 (`@beep/repo-tsconfig`, W3-c, W3-k..W3-m) in review in this PR, 3-3..3-5 in parallel lanes, 3-A1..3-A9 queued.
 
 ## Phases
 
@@ -34,7 +34,7 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 2d-A (merged, #2114) | adoption (no new package) | D-46, D-47. After 2d-1, in parallel with 2d-2: repo-cli `extractFrontmatter` (file deleted), the `ChangesetGraph` fence, skill-contract `SkillProjection` (import-closure pins keep the block parser out), `Goals/Inventory` through `MarkdownDocument` and `headingSource`. Parity over the committed corpus with every intended shift pinned (D-47). Closes the "Duplicate frontmatter splitting and README heading parsing" ledger row. |
 | 2d-3 (queued, evidence-gated) | `@beep/md` `Md.render` writer fixes | `&` and `$` escaping, only if the 2d-2 ledger and writer differential show the need; its own changeset. `math` stays off by default in `Md.parse` until it lands. |
 | 2d-later | adoption, one PR each | D-46 deferred sites, tracked in `history/reuse-ledger.md`. |
-| 3-1 (queued) | `@beep/github-reporting` | W3-b. Lab adopters only (github-actions `index.ts`, `package.json`, `Exports.test.ts`, `reachability.test.ts`, the layering PROMOTED map). Fixes the GitHubMarkdown and ManagedDocument rows of "Inherited failures". From main; parallel with 3-2, 3-Y, 3-3, 3-4, 3-5. |
+| 3-1 (merged, #2122) | `@beep/github-reporting` | W3-b, W3-h, W3-i. The `github-actions` reporting suite (`CheckState`, `ManagedDocument`, `CheckDocument` on the root; `GitHubMarkdown` subpath-only) with branded `S.Opaque` records admitted once per read, managed-section leaf imports, the #1928 optionals restored, `markerLine`, the micromark GFM differential (in package and `ops/github-reporting-gfm-differential.ts`) and the growth guard. Lab retargets only: github-actions `index.ts`, `package.json`, `Exports.test.ts`, `reachability.test.ts`, both PROMOTED maps, README/KNOWLEDGE prose. |
 | 3-2 (in review, this PR) | `@beep/repo-tsconfig` | W3-c, W3-h, W3-k..W3-m. The lab `tsconfig-json` folder is fully promoted and gone. Realpathed package targets, `.json` siblings of `.ts`/`.js` export targets, and the three-way differential (`ops/repo-tsconfig-differential.ts`; corpus A 0 adopter-field diffs on 663 configs, corpus B loader == tsc on 666). Adopters: EffectDiagnostics (2 sites, the check-program test) and TestTypecheckCoverage; get-tsconfig leaves repo-cli and the root catalog. The `TsconfigValidator` and docgen move is 3-A6. |
 | 3-Y (merged, #2116) | `@beep/yaml` continuation fix | W3-d. No adopters. From main; parallel with all. Repro tests, an oracle property, yaml-test-suite at zero failures, the lockfiles suite re-run. |
 | 3-3 (queued) | `@beep/config-file` | W3-e. Adopters: docgen `Configuration.ts` `readJsoncFile`, repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli. Cut after 3-Y merges; serializes with 3-2 on the repo-cli manifest. |
@@ -84,7 +84,7 @@ promotion restores the upstream optional semantics its tests assert, as
 | --- | --- | --- |
 | `github` | `CodeScanning.test.ts` explicit-undefined keys | fixed in 2b-2: `CodeScanningSetup`'s five optional keys are `S.optional` again; the Bun `blakejs` interop failure in `crypto.test.ts` went with the dependency (D-34) |
 | `engine` | `ProcessGuard.test.ts` explicit-undefined `onRejection` | deferred |
-| `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubMarkdown, GitHubToken, twirp, ManagedDocument, PackageManagerInstaller, sigv4, ToolInstaller option schemas | 5 |
+| `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubToken, twirp, PackageManagerInstaller, sigv4, ToolInstaller option schemas (GitHubMarkdown and ManagedDocument fixed in 3-1, W3-b) | 5 |
 | `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | 4 |
 
 ## Execution Notes

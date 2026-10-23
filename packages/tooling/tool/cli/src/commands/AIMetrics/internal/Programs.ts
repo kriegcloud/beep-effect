@@ -139,7 +139,6 @@ const decodeRating = S.decodeUnknownEffect(AiMetricsRating);
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const encodeInstallSpecJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsInstallSpec));
 const defaultP7MirrorRemoteRoot = "/srv/data/ai-metrics/p7-derived-mirror";
-// cspell:words yubi
 const defaultP7MirrorSshHost = "dankserver-yubi";
 const p7MirrorConfirmToken = "p7-derived-mirror";
 const p7MirrorSchemaVersion = "beep.ai_metrics.mirror_bundle.v1";

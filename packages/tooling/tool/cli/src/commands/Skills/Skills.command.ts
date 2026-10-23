@@ -78,8 +78,6 @@ import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
 
-// cspell:ignore mattpocock Gebert
-
 const $I = $RepoCliId.create("commands/Skills/Skills.command");
 
 const CLAUDE_SKILLS_DIR = ".claude/skills";
