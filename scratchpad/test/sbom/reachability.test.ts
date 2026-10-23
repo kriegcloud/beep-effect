@@ -128,8 +128,8 @@ describe("bundle reachability", () => {
 			"export class ReadError {",
 			'  message = `Failed to read package.json from "${this.path}"`;',
 			"}",
-			'import type { Package } from "@effected/package-json";',
-			'export type { Person } from "@effected/package-json";',
+			'import type { Package } from "@beep/package-json";',
+			'export type { Person } from "@beep/package-json";',
 		].join("\n");
 		assert.deepStrictEqual([...(yield* runtimeSpecifiers(fixture))], ["effect", "@beep/spdx"]);
 	}, Effect.scoped, Effect.provide(nativeLayer)));
@@ -161,15 +161,13 @@ describe("bundle reachability", () => {
 		// D9: upstream's bare @effected/spdx edge was a relative sibling edge in the
 		// lab until wave 1 of the effected promotion moved SPDX into the @beep/spdx
 		// package, so it is a bare package edge again, as upstream had it. Check
-		// that kit package explicitly, alongside the complete external closure;
-		// package-json is still a lab sibling, reached only through its file.
+		// that kit package explicitly, alongside the complete external closure.
+		// Wave 3-4 promoted package-json to @beep/package-json; SbomMetadataSource
+		// imports it as a TYPE only, so no runtime edge to it may appear.
 		for (const entry of ["Sbom.ts", "SbomMetadataSource.ts"]) {
-			const { files, bare } = yield* reachableImports(entry);
+			const { bare } = yield* reachableImports(entry);
 			assert.isTrue(bare.has("@beep/spdx"), `${entry} derives from the SPDX kit package`);
-			assert.isFalse(
-				files.has(resolve(SRC, "..", "package-json", "index.ts")),
-				`${entry} must not drag package-json's runtime IO in`,
-			);
+			assert.isFalse(bare.has("@beep/package-json"), `${entry} must not drag package-json's runtime IO in`);
 		}
 		assert.deepStrictEqual([...(yield* reachableBareImports("Sbom.ts"))].sort(), [
 			"@beep/identity/packages", "@beep/schema/LiteralKit", "@beep/spdx", "effect/Array", "effect/Effect",
@@ -222,11 +220,9 @@ describe("bundle reachability", () => {
 		// A package you import but do not declare is how a peer closure rots.
 		//
 		// Checked at the package boundary (`own`), as upstream checked its bare
-		// edges: the lab sibling `index.ts` re-exports from counts as
-		// `@effected/package-json`, and that sibling's own edges (now including the
-		// promoted `@beep/jsonc` and `@beep/semver`) are not this manifest's to
-		// declare. Promoted kit modules this package imports itself, such as
+		// edges. Promoted kit modules this package imports itself, such as
 		// `@beep/spdx`, are bare package edges and must be declared like any other.
+		// `@beep/package-json` is reached as a type only, so it never appears here.
 		const manifest: unknown = JSON.parse(readFileSync(resolve(SRC, "package.json"), "utf8"));
 		assertTrue(S.is(Manifest)(manifest));
 		const declared = new Set([

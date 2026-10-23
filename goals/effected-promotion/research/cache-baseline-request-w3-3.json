@@ -1,5 +1,5 @@
 {
-  "previous": "63d1bd06826aa8ab779db201b100a6e24fccddeb78b4e769ce8fab965c248415",
+  "previous": "598ce417a1c18fee71607ae6295dc5488d39e39c36f7f8b60d0218fa377fea1e",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-3, feat/effected-promotion-w3-3)",
     "reason": "Record the new wave-3-3 workspace @beep/config-file scaffolded by create-package with the generated task set, the dependency-only drift of its two named importers (W3-e), and the input-only growth of the root policy-fingerprint task; no qualification is granted.",

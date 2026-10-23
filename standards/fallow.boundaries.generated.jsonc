@@ -678,6 +678,12 @@
         ]
       },
       {
+        "name": "@beep/package-json",
+        "patterns": [
+          "packages/foundation/modeling/package-json/src/**"
+        ]
+      },
+      {
         "name": "@beep/palantiri",
         "patterns": [
           "packages/tooling/library/palantiri/src/**"
@@ -831,6 +837,12 @@
         "name": "@beep/repo-docgen",
         "patterns": [
           "packages/tooling/tool/docgen/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-tsconfig",
+        "patterns": [
+          "packages/tooling/library/repo-tsconfig/src/**"
         ]
       },
       {
@@ -3070,6 +3082,7 @@
         "allow": [
           "@beep/html",
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/test-runner",
@@ -3079,6 +3092,7 @@
         "allowTypeOnly": [
           "@beep/html",
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/test-runner",
@@ -3591,6 +3605,29 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/package-json",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/semver",
+          "@beep/spdx"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/semver",
+          "@beep/spdx"
         ]
       },
       {
@@ -4224,6 +4261,7 @@
           "@beep/repo-cli",
           "@beep/repo-configs",
           "@beep/repo-docgen",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
           "@beep/schema",
@@ -4271,6 +4309,7 @@
           "@beep/repo-cli",
           "@beep/repo-configs",
           "@beep/repo-docgen",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
           "@beep/schema",
@@ -4331,6 +4370,29 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-tsconfig",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/repo-tsconfig",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/repo-tsconfig",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/walker"
         ]
       },
       {
@@ -4478,12 +4540,14 @@
           "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
+          "@beep/package-json",
           "@beep/pglite",
           "@beep/postgres",
           "@beep/pretext",
           "@beep/provenance",
           "@beep/rdf",
           "@beep/repo-cli",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runtime-env",
           "@beep/schema",
@@ -4531,12 +4595,14 @@
           "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
+          "@beep/package-json",
           "@beep/pglite",
           "@beep/postgres",
           "@beep/pretext",
           "@beep/provenance",
           "@beep/rdf",
           "@beep/repo-cli",
+          "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runtime-env",
           "@beep/schema",

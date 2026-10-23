@@ -12,9 +12,11 @@ Schema-first Markdown document modeling and rendering for Beep.
 
 `@beep/md` is a schema-first Markdown AST builder and renderer. The public DSL
 constructs typed Markdown document nodes, while render adapters convert the AST
-to Markdown, HTML fragments, or future resourceful targets. It is not a
-Markdown string parser and does not depend on `marked`; `marked` is reference
-material for capability, fixture, and security comparison only.
+to Markdown, HTML fragments, or future resourceful targets. The package root
+is not a Markdown string parser and does not depend on `marked`; `marked` is
+reference material for capability, fixture, and security comparison only.
+Text parsing is a subpath-only bridge (`Md.syntax`, `Md.parse`) over
+`@beep/markdown`; `index.ts` and `Md.ts` never import it.
 
 ## Core Modules
 
@@ -28,6 +30,8 @@ material for capability, fixture, and security comparison only.
 | `Md.escape.ts` | Markdown/HTML escaping, URL policy sanitation, code-language sanitation, and render primitives |
 | `Md.html.ts` | `SafeDocument` conformance, policy, and opaque `SafeHtml` serialization boundary |
 | `Md.safe.ts` | Branded user-content refinements and path-located trust-boundary issues |
+| `Md.syntax.ts` | Subpath only: folds a `@beep/markdown` `MarkdownDocument` into an `Md.Document`, with losses as data and a pre-order source map |
+| `Md.parse.ts` | Subpath only: parses text (frontmatter capture on) through `Md.syntax`; `Result` primary, `Effect` twins, safe variants |
 
 ## Usage Patterns
 
@@ -74,11 +78,14 @@ is applied inside the recursive render fold.
 | General vs safe document schemas | Persistence remains lossless; editor/RPC user input uses a same-wire branded refinement with structured issues. |
 | Typed safe-HTML projection | Avoids an HTML parser/string sanitizer in foundation code while retaining conformance, policy, and provenance proofs. |
 | Schema-owned URL policy | A tagged canonical policy prevents nested rendering from silently reverting to built-in defaults. |
-| No parser dependency | Keeps `@beep/md` as repo-owned foundation modeling substrate; external parser engines remain reference or driver concerns. |
+| No third-party parser dependency | Keeps `@beep/md` as repo-owned foundation modeling substrate; the only parser is the repo-owned `@beep/markdown`, reached through the syntax bridge. |
+| Subpath-only syntax bridge | Builders and renderers never load the parser or frontmatter codecs; `test/Md.import-boundary.test.ts` guards the root export set. |
+| Single admission in the bridge | The fold builds the document as plain data and admits it once via `MdFromSyntax.make`; per-node construction would be quadratic in depth. |
+| Source map valid for one document | `positionAt` returns `None` once the document shape no longer matches the map, instead of a wrong span. |
 
 ## Dependencies
 
-**Internal**: `@beep/html`, `@beep/identity`, `@beep/schema`, `@beep/utils`
+**Internal**: `@beep/html`, `@beep/identity`, `@beep/markdown` (reached only from the `Md.syntax` and `Md.parse` subpaths), `@beep/schema`, `@beep/utils`
 **External**: `effect`
 
 ## Related

@@ -55,6 +55,7 @@ Every seeded constructor — `makeWith`, `layerWith`, `makeHandle`, `makeSync` �
 | `faults` | Faults injected into the built `FileSystem` — see [Fault injection](#fault-injection). The seed is written beneath the faults, never through them. |
 
 ```ts
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 const Workspace = MemoryFileSystem.layerWith({ "a.json": "{}", "": MemoryFileSystem.directory() }, { root: "/ws" });
 // "/ws/a.json" exists; "/ws" is a directory
 ```
@@ -98,20 +99,26 @@ Absence is reported as `undefined` rather than an empty value, and the distincti
 A layer re-seeds per provide, so an assertion that runs *after* the program under test would read a different volume than the one it wrote to. A handle pins the identity: it is every view over ONE volume.
 
 ```ts
-const handle = yield* MemoryFileSystem.makeHandle({ "/a.txt": "a" });
-yield* handle.fileSystem.writeFileString("/b.txt", "b");
-handle.volume.paths();
-// ["/a.txt", "/b.txt"]
-handle.sync.readFile("/b.txt");
-// "b"
-handle.write("/c/d.txt", "d"); // creates /c
-yield* handle.fileSystem.readFileString("/c/d.txt");
-// "d"
+import * as Effect from "effect/Effect";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
+
+const program = Effect.gen(function* () {
+  const handle = yield* MemoryFileSystem.makeHandle({ "/a.txt": "a" });
+  yield* handle.fileSystem.writeFileString("/b.txt", "b");
+  handle.volume.paths();
+  // ["/a.txt", "/b.txt"]
+  handle.sync.readFile("/b.txt");
+  // "b"
+  handle.write("/c/d.txt", "d"); // creates /c
+  yield* handle.fileSystem.readFileString("/c/d.txt");
+  // "d"
+});
 ```
 
 `handle.layer` provides `FileSystem`, `MemoryFileSystem.Volume` and `Path` over that one volume and is stable across provides — two programs provided with it see one volume. `handle.sync` and `handle.promises` are the two read-only ports below, and `write`, `mkdir`, `remove` and `symlink` are synchronous setup mutators that throw node-shaped errors (`code`, `syscall`, and the path *you* passed). A relative mutator path joins `handle.root` — the normalized `options.root`, or `undefined` — or `/` without one; for `symlink` only the link's own path joins, and the target text is stored verbatim:
 
 ```ts
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 const vol = MemoryFileSystem.makeSync({ "a.ts": "x" }, { root: "/r/" });
 vol.root;
 // "/r"
@@ -126,6 +133,7 @@ With `options.faults`, `handle.fileSystem` and `handle.layer` are faulted while 
 `MemoryFileSystem.makeSync(seed, options)` builds the same handle **synchronously**, for Promise-style suites that construct their volume at `describe` scope and never touch `Effect`:
 
 ```ts
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 const vol = MemoryFileSystem.makeSync({ "package.json": "{}" }, { root: "/ws-1/repo" });
 vol.volume.text("/ws-1/repo/package.json");
 // "{}"
@@ -140,6 +148,8 @@ A contradictory seed throws synchronously with node's error shape, carrying the 
 Some code takes an injected sync filesystem port instead of requiring `FileSystem` — a config-time hook that cannot await is the usual reason. `MemoryFileSystem.syncFileSystem(volume)` (also `handle.sync`) adapts the inspection view to the `node:fs` sync subset those ports ask for: `exists`, `readFile`, `readDirectory`, `isDirectory`, `stat` and `lstat`. A pure function over a volume: no service, no layer, no `Effect`.
 
 ```ts
+import * as Effect from "effect/Effect";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 const program = Effect.gen(function* () {
   const { volume } = yield* MemoryFileSystem.makeHandle({
     "/repo/package.json": `{ "name": "root" }`,
@@ -165,6 +175,9 @@ The shape is structural, so upstream `@effected/workspaces`' `SyncFileSystem` �
 A port takes faults too. A handler receives the real arguments and may throw an errno built with `MemoryFileSystem.errno`, return a replacement, or return `undefined` to delegate:
 
 ```ts
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
+const { volume } = MemoryFileSystem.makeSync({ "/r/file.txt": "file", "/r/dir/inner.txt": "x" });
+
 const sync = MemoryFileSystem.syncFileSystem(volume, {
   faults: {
     readFile: (path) => {
@@ -186,13 +199,20 @@ This is deliberately not a general escape hatch from the `FileSystem` service. C
 `MemoryFileSystem.promisesFileSystem(volume)` (also `handle.promises`) is the async twin — the read-only `node:fs/promises` subset an injected async walker needs: `readdir` (with `withFileTypes`), `stat`, `lstat` and `readFile`, with the sync port's resolution, link-following and errors surfaced as rejections.
 
 ```ts
-const fsp = MemoryFileSystem.promisesFileSystem(volume);
-const dirents = yield* Effect.promise(() => fsp.readdir("/r", { withFileTypes: true }));
-const link = dirents.find((d) => d.name === "to-dir");
-link?.isSymbolicLink();
-// true — dirents are literal, as node's are
-link?.isDirectory();
-// false
+import * as Effect from "effect/Effect";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
+
+const program = Effect.gen(function* () {
+  const { volume } = MemoryFileSystem.makeSync({ "/r/dir": MemoryFileSystem.directory(), "/r/to-dir": MemoryFileSystem.symlink("dir") });
+
+  const fsp = MemoryFileSystem.promisesFileSystem(volume);
+  const dirents = yield* Effect.promise(() => fsp.readdir("/r", { withFileTypes: true }));
+  const link = dirents.find((d) => d.name === "to-dir");
+  link?.isSymbolicLink();
+  // true — dirents are literal, as node's are
+  link?.isDirectory();
+  // false
+});
 ```
 
 `readFile` has node's overloads: without an encoding it resolves the raw bytes (`Uint8Array`), and with `"utf8"`, `"utf-8"` or `{ encoding: "utf8" }` a string. A fault handler that throws synchronously makes the call **reject**, as a real `fs/promises` call does; it never throws at the call site.
@@ -236,12 +256,17 @@ const program = Effect.gen(function* () {
 Anywhere a fault map is accepted, a factory `(base) => faults` is too. It receives the unfaulted filesystem, so a handler can rewrite its arguments and delegate without re-entering its own fault:
 
 ```ts
-const fs = yield* MemoryFileSystem.makeWith(
-  { "/real.txt": "real" },
-  { faults: (base) => ({ readFile: (path) => (path === "/alias.txt" ? base.readFile("/real.txt") : undefined) }) },
-);
-yield* fs.readFileString("/alias.txt");
-// "real"
+import * as Effect from "effect/Effect";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
+
+const program = Effect.gen(function* () {
+  const fs = yield* MemoryFileSystem.makeWith(
+    { "/real.txt": "real" },
+    { faults: (base) => ({ readFile: (path) => (path === "/alias.txt" ? base.readFile("/real.txt") : undefined) }) },
+  );
+  yield* fs.readFileString("/alias.txt");
+  // "real"
+});
 ```
 
 A fault key naming no member — a typo like `readFileSting` — is a wiring bug: it throws a `RangeError` naming the key at construction (a layer build dies), rather than being ignored while the test passes without its fault ever firing.
@@ -253,15 +278,20 @@ A fault key naming no member — a typo like `readFileSting` — is a wiring bug
 `caseSensitive: false` models a case-insensitive, case-preserving volume such as default APFS. The semantics are measured on a real APFS volume, not assumed: a differential suite runs the same cases against the host.
 
 ```ts
-const { volume } = yield* MemoryFileSystem.makeHandle({ "/Repo/Docs.json": "{}" }, { caseSensitive: false });
-volume.text("/repo/docs.JSON");
-// "{}" — any spelling finds the stored entry
-volume.readDirectory("/repo");
-// ["Docs.json"] — listings keep the stored spelling
-volume.paths();
-// ["/Repo/Docs.json"]
-MemoryFileSystem.syncFileSystem(volume).readFile("/repo/docs.json");
-// "{}"
+import * as Effect from "effect/Effect";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
+
+const program = Effect.gen(function* () {
+  const { volume } = yield* MemoryFileSystem.makeHandle({ "/Repo/Docs.json": "{}" }, { caseSensitive: false });
+  volume.text("/repo/docs.JSON");
+  // "{}" — any spelling finds the stored entry
+  volume.readDirectory("/repo");
+  // ["Docs.json"] — listings keep the stored spelling
+  volume.paths();
+  // ["/Repo/Docs.json"]
+  MemoryFileSystem.syncFileSystem(volume).readFile("/repo/docs.json");
+  // "{}"
+});
 ```
 
 - Lookups fold in every operation, through symlinked directories too, and a create under a differently-cased name overwrites the stored entry (an exclusive create or `makeDirectory` is `AlreadyExists`).

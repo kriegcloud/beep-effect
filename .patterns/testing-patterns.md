@@ -1,83 +1,84 @@
-# Upstream Effect testing reference
+# Testing patterns for Effect code
 
 ## Scope and authority
 
-This file is retained as an upstream Effect library reference. It was copied
-and later adapted from library-internal guidance; it does not define Beep's
-package topology or override repository laws. For work in this repository,
-follow [the architecture standard](../standards/ARCHITECTURE.md),
-[Effect-first development](../standards/effect-first-development.md), and the
-applicable package's `AGENTS.md`.
+This is the repository's pattern reference for testing Effect code with
+`@effect/vitest`. It is subordinate to
+[the testing standard](../standards/architecture/08-testing.md), which owns how
+a slice's tests are layered, which runner to use (`bun run test` or
+`bunx --bun vitest run`, never `bun test`), and the doctest and docgen example
+lanes. [Effect-first development](../standards/effect-first-development.md) and
+the applicable package's `AGENTS.md` still govern the code under test.
 
-The examples below include partial snippets and deliberately incorrect examples.
-They have not all been compiled as written. A displayed API or directory tree
-must be checked against the current Effect reference before reuse; the earlier
-guidance scan is not a current API or compilation guarantee. The local reference
-is provisioned with `bun run beep refs provision`; its own `AGENTS.md` governs
-work inside that checkout. Upstream commands and relative paths apply there.
+Every TypeScript example below is compiled by `bun run beep laws markdown-fences --check`.
+Each example is self-contained: it declares the small module it tests inline.
+In a real package test, import that module through its `@beep/*` alias, never
+through a relative path into another workspace's `src/`.
 
-Disposition recorded 2026-10-20 for #1856: keep as a labeled upstream reference.
-The local Effect checkout was inspected at
-`1b740862e3d25ec5d4b6f86b9fe792b6dabbf84c` for its source/test layout and
-validation instructions. This is provenance for that inspection, not a claim
-that every example below was revalidated at that revision.
+Disposition recorded 2026-10-23 for #1856 wave 3: rewritten for this
+repository. The earlier text was an adapted copy of upstream Effect library
+guidance; its `../src/*.js` imports and library-internal module names are gone.
 
-## 🎯 OVERVIEW
+## Testing framework selection
 
-Comprehensive testing strategies for the Effect library using @effect/vitest, with emphasis on proper Effect patterns, TestClock usage, and type-safe testing approaches.
+### Use `@effect/vitest` for Effect-based code
 
-## 🚨 CRITICAL TESTING REQUIREMENTS
+`it.effect` runs an Effect with the test services (`TestClock`, `TestConsole`)
+and a scope, so the test body is an Effect, not a promise.
 
-### Testing Framework Selection
+```ts
+import { assert, it } from "@effect/vitest"
+import * as Effect from "effect/Effect"
 
-#### ✅ Use @effect/vitest for Effect-based modules
+const double = Effect.fn("double")(function* (n: number) {
+  return n * 2
+})
 
-```typescript
-import { assert, describe, it } from "@effect/vitest"
-import * as Effect from "effect/Effect";
-// MANDATORY: Use it.effect for Effect-based tests
-it.effect("should work with Effects", 
-  Effect.fnUntraced(function*() {
-    const result = yield* someEffect
-    assert.strictEqual(result, expectedValue)
-  }))
+it.effect("doubles inside an Effect", () =>
+  Effect.gen(function* () {
+    const result = yield* double(21)
+    assert.strictEqual(result, 42)
+  })
+)
 ```
 
-#### ✅ Use regular vitest for pure TypeScript functions
+### Use plain `it` for pure functions
 
-```typescript
-import { describe, expect, it } from "vitest"
+```ts
+import { expect, it } from "@effect/vitest"
+import * as Str from "effect/String"
 
-// For pure functions that don't return Effects
-it("should work with pure functions", () => {
-  const result = pureFunction(input)
-  expect(result).toBe(expectedValue)
+const initials = (name: string): string => Str.toUpperCase(Str.slice(0, 1)(name))
+
+it("takes the first letter", () => {
+  expect(initials("ada")).toBe("A")
 })
 ```
 
-### ❌ FORBIDDEN PATTERNS
+### Never run an Effect synchronously inside a test
 
-#### Never use Effect.runSync in tests
+`Effect.runSync` inside a plain `it` skips the test services and fails on any
+asynchronous step. Write the test with `it.effect` instead.
 
-```typescript
-// ❌ WRONG - Don't use Effect.runSync with regular it
-import { describe, expect, it } from "vitest"
+```ts
+import { assert, it } from "@effect/vitest"
+import * as Effect from "effect/Effect"
 
+const answer = Effect.succeed(42)
+
+// Wrong: the runner bypasses TestClock and the test scope.
 it("wrong pattern", () => {
-  const result = Effect.runSync(Effect.gen(function*() {
-    return yield* someEffect
-  }))
-  expect(result).toBe(value) // Plain-value assertion is legal; the runner above is the problem
+  const result = Effect.runSync(answer)
+  assert.strictEqual(result, 42)
 })
 
-// ✅ CORRECT - Use it.effect instead
-import { assert, describe, it } from "@effect/vitest"
-
-it.effect("correct pattern", 
-  Effect.fnUntraced(function*() {
-    const result = yield* someEffect
-    assert.strictEqual(result, value) // expect(result).toBe(value) is also legal for plain values
-  }))
+// Right: the body is an Effect.
+it.effect("correct pattern", () =>
+  Effect.gen(function* () {
+    const result = yield* answer
+    assert.strictEqual(result, 42) // expect(result).toBe(42) is also legal for plain values
+  })
+)
 ```
 
 ### Choose assertions by value, not by tester
@@ -87,408 +88,408 @@ Result, and Exit values, use the public `@effect/vitest/utils` helpers instead
 of tag predicates or equality checks on the container. Keep both the expected
 variant and its payload in the assertion; see the complete examples below.
 
-```typescript
+```ts
 import { expect, it } from "@effect/vitest"
 import { assertSome } from "@effect/vitest/utils"
-import * as Effect from "effect/Effect";
+import * as Effect from "effect/Effect"
 import * as O from "effect/Option"
 
-it.effect("asserts an Option payload and a plain value", Effect.fnUntraced(function*() {
-  const result = yield* Effect.succeed(O.some(42))
-  assertSome(result, 42)
-  expect(result.value + 1).toBe(43)
-}))
+it.effect("asserts an Option payload and a plain value", () =>
+  Effect.gen(function* () {
+    const result = yield* Effect.succeed(O.some(42))
+    assertSome(result, 42)
+    expect(result.value + 1).toBe(43)
+  })
+)
 ```
 
-## 🕐 TIME-DEPENDENT TESTING WITH TESTCLOCK
+## Time-dependent testing with TestClock
 
-### ⚠️ CRITICAL: Always use TestClock for time-dependent operations
+Any code that sleeps, times out, retries on a schedule or races a timer must
+advance `TestClock` instead of waiting on real time. Fork the timed work, move
+the clock, then join.
 
-Any code that involves timing must use TestClock to avoid flaky tests:
-
-```typescript
+```ts
 import { assert, describe, it } from "@effect/vitest"
 import { assertExitFailure } from "@effect/vitest/utils"
-import * as Effect from "effect/Effect";
 import * as Cause from "effect/Cause"
+import * as Effect from "effect/Effect"
 import * as Fiber from "effect/Fiber"
 import * as TestClock from "effect/testing/TestClock"
 
 describe("time-dependent operations", () => {
-  it.effect("should handle delays with TestClock", 
-    Effect.fnUntraced(function*() {
-      // Start operation that takes 5 seconds
-      const fiber = yield* Effect.forkChild(
-        Effect.gen(function*() {
-          yield* Effect.sleep("5 seconds")
-          return "completed"
-        })
-      )
+  it.effect("completes a delay once the clock moves", () =>
+    Effect.gen(function* () {
+      const fiber = yield* Effect.forkChild(Effect.as(Effect.sleep("5 seconds"), "completed"))
 
-      // Use TestClock.adjust with string duration (preferred pattern)
       yield* TestClock.adjust("5 seconds")
 
       const result = yield* Fiber.join(fiber)
       assert.strictEqual(result, "completed")
-    }))
+    })
+  )
 
-  it.effect("should test timeout behavior", 
-    Effect.fnUntraced(function*() {
-      const timeoutEffect = Effect.timeout(
-        Effect.sleep("10 seconds"),
-        "5 seconds"
-      )
+  it.effect("fails with a TimeoutError once the deadline passes", () =>
+    Effect.gen(function* () {
+      const fiber = yield* Effect.forkChild(Effect.timeout(Effect.sleep("10 seconds"), "5 seconds"))
 
-      const fiber = yield* Effect.forkChild(timeoutEffect)
-
-      // Advance time to trigger timeout
       yield* TestClock.adjust("5 seconds")
 
       const result = yield* Effect.exit(Fiber.join(fiber))
       assertExitFailure(result, Cause.fail(new Cause.TimeoutError()))
-    }))
+    })
+  )
 
-  it.effect("should set absolute time with setTime", 
-    Effect.fnUntraced(function*() {
-      // Set clock to specific timestamp
+  it.effect("sets absolute time with setTime", () =>
+    Effect.gen(function* () {
       yield* TestClock.setTime(1000)
 
       const fiber = yield* Effect.forkChild(
-        Effect.gen(function*() {
-          yield* Effect.sleep("2 seconds")
-          return yield* Effect.clockWith((clock) => clock.currentTimeMillis)
-        })
+        Effect.andThen(
+          Effect.sleep("2 seconds"),
+          Effect.clockWith((clock) => clock.currentTimeMillis)
+        )
       )
 
       yield* TestClock.adjust("2 seconds")
       const result = yield* Fiber.join(fiber)
       assert.strictEqual(result, 3000) // 1000 + 2000ms
-    }))
+    })
+  )
 })
 ```
 
-### Operations requiring TestClock
+### Operations that need TestClock
 
 - `Effect.sleep()` and `Effect.delay()`
-- `Effect.timeout()` and `Effect.race()` with timeouts
-- Scheduled operations and retry logic
+- `Effect.timeout()` and races against a timer
+- Scheduled operations and retry policies
 - Queue operations with time-based completion
-- Any concurrent operations dependent on timing
+- Any concurrent operation whose order depends on timing
 
-## 🧪 COMPREHENSIVE TESTING PATTERNS
+## Testing patterns
 
-### Basic Effect Testing Pattern
+### Basic Effect test
 
-```typescript
+```ts
 import { assert, describe, it } from "@effect/vitest"
-import * as Effect from "effect/Effect";
-import * as MyModule from "../src/MyModule.js"
+import * as Effect from "effect/Effect"
+import * as S from "effect/Schema"
 
-describe("MyModule", () => {
+class Counter extends S.Class<Counter>("Counter")({ value: S.Int }) {}
+
+const Counters = {
+  create: Effect.fn("Counters.create")(function* (initialValue = 0) {
+    return Counter.make({ value: initialValue })
+  }),
+  map: Effect.fn("Counters.map")(function* (counter: Counter, f: (value: number) => number) {
+    return Counter.make({ value: f(counter.value) })
+  }),
+}
+
+describe("Counters", () => {
   describe("constructors", () => {
-    it.effect("create should initialize with default values", 
-      Effect.fnUntraced(function*() {
-        const instance = yield* MyModule.create()
+    it.effect("create starts at zero", () =>
+      Effect.gen(function* () {
+        const counter = yield* Counters.create()
+        assert.strictEqual(counter.value, 0)
+      })
+    )
 
-        assert.isTrue(MyModule.isInstance(instance))
-        assert.strictEqual(MyModule.getValue(instance), 0)
-      }))
-
-    it.effect("create should accept custom configuration", 
-      Effect.fnUntraced(function*() {
-        const config = { initialValue: 42 }
-        const instance = yield* MyModule.create(config)
-
-        assert.strictEqual(MyModule.getValue(instance), 42)
-      }))
+    it.effect("create accepts an initial value", () =>
+      Effect.gen(function* () {
+        const counter = yield* Counters.create(42)
+        assert.strictEqual(counter.value, 42)
+      })
+    )
   })
 
   describe("combinators", () => {
-    it.effect("map should transform values",
-      Effect.fnUntraced(function*() {
-        const instance = yield* MyModule.create({ initialValue: 10 })
-        const transformed = yield* MyModule.map(instance, (x) => x * 2)
-
-        assert.strictEqual(MyModule.getValue(transformed), 20)
-      }))
+    it.effect("map transforms the value", () =>
+      Effect.gen(function* () {
+        const counter = yield* Counters.create(10)
+        const doubled = yield* Counters.map(counter, (value) => value * 2)
+        assert.strictEqual(doubled.value, 20)
+      })
+    )
   })
 })
 ```
 
-### Error Handling Testing Pattern
+### Error handling test
 
-```typescript
+Inspect a typed failure with `Effect.exit` and compare the whole `Cause`.
+Replace a dependency with a failing test implementation through its service
+tag.
+
+```ts
 import { assert, describe, it } from "@effect/vitest"
 import { assertExitFailure } from "@effect/vitest/utils"
-import * as Effect from "effect/Effect";
 import * as Cause from "effect/Cause"
+import * as Context from "effect/Context"
+import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 import * as Layer from "effect/Layer"
 import * as O from "effect/Option"
-import * as MyModule from "../src/MyModule.js"
+import * as S from "effect/Schema"
+
+class ValidationError extends S.TaggedError<ValidationError>()("ValidationError", { message: S.String }) {}
+class NetworkError extends S.TaggedError<NetworkError>()("NetworkError", { message: S.String }) {}
+
+class Network extends Context.Service<
+  Network,
+  { readonly fetch: (url: string) => Effect.Effect<string, NetworkError> }
+>()("Network") {}
+
+const create = Effect.fn("create")(function* (initialValue: number) {
+  if (initialValue < 0) {
+    return yield* new ValidationError({ message: "initial value must not be negative" })
+  }
+  return initialValue
+})
+
+const fetchBody = Effect.fn("fetchBody")(function* (url: string) {
+  const network = yield* Network
+  return yield* network.fetch(url)
+})
 
 describe("error handling", () => {
-  it.effect("should fail with validation error for negative values", 
-    Effect.fnUntraced(function*() {
-      const result = yield* Effect.exit(
-        MyModule.create({ initialValue: -1 })
-      )
+  it.effect("fails with a validation error for negative values", () =>
+    Effect.gen(function* () {
+      const result = yield* Effect.exit(create(-1))
 
       // Extract the error, not its Cause; success or a defect-only cause throws.
       const error = O.getOrThrow(Exit.findErrorOption(result))
       assertExitFailure(result, Cause.fail(error))
-      assert.isTrue(MyModule.isValidationError(error))
-    }))
+      assert.isTrue(S.is(ValidationError)(error))
+    })
+  )
 
-  it.effect("should handle network errors gracefully", 
-    Effect.fnUntraced(function*() {
-      const expectedError = new MyModule.NetworkError({
-        message: "Connection timeout"
-      })
-      const mockNetworkFailure = Effect.fail(expectedError)
+  it.effect("surfaces a network failure from a test service", () =>
+    Effect.gen(function* () {
+      const expectedError = new NetworkError({ message: "Connection timeout" })
+      const failingNetwork = Layer.succeed(Network, Network.of({ fetch: () => Effect.fail(expectedError) }))
 
-      const result = yield* Effect.exit(
-        MyModule.fetchWithRetry("https://api.example.com")
-          .pipe(Effect.provide(Layer.succeed(NetworkService, {
-            fetch: () => mockNetworkFailure
-          })))
-      )
+      const result = yield* Effect.exit(fetchBody("https://api.example.com").pipe(Effect.provide(failingNetwork)))
 
       assertExitFailure(result, Cause.fail(expectedError))
-    }))
+    })
+  )
 })
 ```
 
-### Resource Management Testing Pattern
+### Resource management test
 
-```typescript
+Record acquisition and release in a `Ref` and assert the release ran on both
+success and failure.
+
+```ts
 import { assert, describe, it } from "@effect/vitest"
 import { assertExitFailure } from "@effect/vitest/utils"
-import * as Effect from "effect/Effect";
 import * as Cause from "effect/Cause"
+import * as Effect from "effect/Effect"
 import * as Ref from "effect/Ref"
-import * as ResourceModule from "../src/ResourceModule.js"
+
+const withResource = <R, A, E>(
+  acquire: Effect.Effect<R>,
+  use: (resource: R) => Effect.Effect<A, E>,
+  release: Effect.Effect<void>
+): Effect.Effect<A, E> => Effect.acquireUseRelease(acquire, use, () => release)
 
 describe("resource management", () => {
-  it.effect("should properly acquire and release resources", 
-    Effect.fnUntraced(function*() {
+  it.effect("acquires and releases around a successful use", () =>
+    Effect.gen(function* () {
       const acquired = yield* Ref.make(false)
       const released = yield* Ref.make(false)
 
-      const mockResource = {
-        acquire: Effect.sync(() => Ref.set(acquired, true)),
-        use: (resource: unknown) => Effect.succeed("used"),
-        release: Effect.sync(() => Ref.set(released, true))
-      }
-
-      const result = yield* ResourceModule.withResource(
-        mockResource.acquire,
-        mockResource.use,
-        mockResource.release
+      const result = yield* withResource(
+        Ref.set(acquired, true),
+        () => Effect.succeed("used"),
+        Ref.set(released, true)
       )
 
       assert.strictEqual(result, "used")
       assert.isTrue(yield* Ref.get(acquired))
       assert.isTrue(yield* Ref.get(released))
-    }))
+    })
+  )
 
-  it.effect("should release resources even on failure", 
-    Effect.fnUntraced(function*() {
+  it.effect("releases even when the use fails", () =>
+    Effect.gen(function* () {
       const released = yield* Ref.make(false)
 
       const result = yield* Effect.exit(
-        ResourceModule.withResource(
-          Effect.succeed("resource"),
-          () => Effect.fail("operation failed"),
-          () => Ref.set(released, true)
-        )
+        withResource(Effect.succeed("resource"), () => Effect.fail("operation failed"), Ref.set(released, true))
       )
 
       assertExitFailure(result, Cause.fail("operation failed"))
       assert.isTrue(yield* Ref.get(released))
-    }))
+    })
+  )
 })
 ```
 
-### Concurrent Operations Testing Pattern
+### Concurrent operations test
 
-```typescript
+```ts
 import { assert, describe, it } from "@effect/vitest"
-import * as Effect from "effect/Effect";
+import * as A from "effect/Array"
 import * as Duration from "effect/Duration"
+import * as Effect from "effect/Effect"
 import * as Fiber from "effect/Fiber"
 import * as Ref from "effect/Ref"
 import * as TestClock from "effect/testing/TestClock"
-import * as ConcurrentModule from "../src/ConcurrentModule.js"
+
+const operation = Effect.fn("operation")(function* (id: string) {
+  return id
+})
 
 describe("concurrent operations", () => {
-  it.effect("should handle multiple concurrent operations", 
-    Effect.fnUntraced(function*() {
-      const operations = [
-        ConcurrentModule.operation("A"),
-        ConcurrentModule.operation("B"),
-        ConcurrentModule.operation("C")
-      ]
-
-      const results = yield* Effect.all(operations, { concurrency: "unbounded" })
+  it.effect("runs several operations concurrently", () =>
+    Effect.gen(function* () {
+      const results = yield* Effect.all([operation("A"), operation("B"), operation("C")], {
+        concurrency: "unbounded",
+      })
 
       assert.strictEqual(results.length, 3)
       assert.includeMembers(results, ["A", "B", "C"])
-    }))
+    })
+  )
 
-  it.effect("should respect concurrency limits", 
-    Effect.fnUntraced(function*() {
-      const startTimes = yield* Ref.make<string[]>([])
+  it.effect("respects a concurrency limit", () =>
+    Effect.gen(function* () {
+      const started = yield* Ref.make<ReadonlyArray<string>>([])
 
-      const timedOperation = (id: string) =>
-        Effect.gen(function*() {
-          yield* Ref.update(startTimes, (arr) => [...arr, id])
-          yield* Effect.sleep(Duration.seconds(1))
-          return id
-        })
+      const timedOperation = Effect.fnUntraced(function* (id: string) {
+        yield* Ref.update(started, A.append(id))
+        yield* Effect.sleep(Duration.seconds(1))
+        return id
+      })
 
-      const operations = ["A", "B", "C", "D"].map(timedOperation)
-
-      const fiber = yield* Effect.forkChild(
-        Effect.all(operations, { concurrency: 2 })
-      )
+      const fiber = yield* Effect.forkChild(Effect.all(A.map(["A", "B", "C", "D"], timedOperation), { concurrency: 2 }))
 
       // Each wave takes one second; inspect after 500ms, then drive the remaining 1500ms.
       yield* TestClock.adjust(Duration.millis(500))
-      const midResults = yield* Ref.get(startTimes)
-      assert.strictEqual(midResults.length, 2) // Only 2 should start
+      assert.strictEqual((yield* Ref.get(started)).length, 2) // Only 2 have started
 
       yield* TestClock.adjust(Duration.millis(1500))
       const finalResults = yield* Fiber.join(fiber)
       assert.strictEqual(finalResults.length, 4)
-    }))
+    })
+  )
 })
 ```
 
-### Layer and Service Testing Pattern
+### Layer and service test
 
-Use `Context.Service` for defining services in the Effect codebase:
+Define the dependency as a `Context.Service`, then provide a test layer for
+each scenario. `Layer.succeed` with `Service.of(...)` covers one-off mocks; a
+static layer on the service keeps the production implementation next to its
+contract.
 
-```typescript
+```ts
 import { assert, describe, it } from "@effect/vitest"
 import { assertExitFailure } from "@effect/vitest/utils"
-import * as Effect from "effect/Effect";
 import * as Cause from "effect/Cause"
 import * as Context from "effect/Context"
+import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as ServiceModule from "../src/ServiceModule.js"
 
-// Define services using Context.Service pattern
-class DatabaseService extends Context.Service<DatabaseService, {
-  readonly query: (sql: string) => Effect.Effect<unknown[]>
-}>()("DatabaseService") {
-  // Live implementation for production
-  static Live = Layer.succeed(DatabaseService)({
-    query: (sql) => Effect.succeed([])
-  })
+type Row = { readonly id: number; readonly name: string }
+
+class Database extends Context.Service<
+  Database,
+  { readonly query: (sql: string) => Effect.Effect<ReadonlyArray<Row>, string> }
+>()("Database") {
+  static readonly layerEmpty = Layer.succeed(Database, Database.of({ query: () => Effect.succeed([]) }))
 }
 
-// Test service with mock implementation
-class TestDatabaseService extends Context.Service<TestDatabaseService, {
-  readonly query: (sql: string) => Effect.Effect<unknown[]>
-}>()("TestDatabaseService") {
-  static Mock = (mockData: unknown[]) =>
-    Layer.succeed(TestDatabaseService)({
-      query: (_sql) => Effect.succeed(mockData)
-    })
+const mockDatabase = (rows: ReadonlyArray<Row>) =>
+  Layer.succeed(Database, Database.of({ query: () => Effect.succeed(rows) }))
 
-  static Failing = (error: string) =>
-    Layer.succeed(TestDatabaseService)({
-      query: () => Effect.fail(error)
-    })
-}
+const failingDatabase = (error: string) => Layer.succeed(Database, Database.of({ query: () => Effect.fail(error) }))
+
+const findUser = Effect.fn("findUser")(function* (id: string) {
+  const database = yield* Database
+  const rows = yield* database.query(`select * from users where id = '${id}'`)
+  return rows[0]
+})
 
 describe("service integration", () => {
-  it.effect("should work with mock services", 
-    Effect.fnUntraced(function*() {
-      const mockData = [{ id: 1, name: "test" }]
+  it.effect("reads through a mock service", () =>
+    Effect.gen(function* () {
+      const rows = [{ id: 1, name: "test" }]
+      const result = yield* findUser("1").pipe(Effect.provide(mockDatabase(rows)))
+      assert.deepStrictEqual(result, rows[0])
+    })
+  )
 
-      const result = yield* ServiceModule.findUser("1")
-        .pipe(Effect.provide(TestDatabaseService.Mock(mockData)))
-
-      assert.deepStrictEqual(result, mockData[0])
-    }))
-
-  it.effect("should handle service failures", 
-    Effect.fnUntraced(function*() {
+  it.effect("surfaces a service failure", () =>
+    Effect.gen(function* () {
       const result = yield* Effect.exit(
-        ServiceModule.findUser("1")
-          .pipe(Effect.provide(TestDatabaseService.Failing("Database connection failed")))
+        findUser("1").pipe(Effect.provide(failingDatabase("Database connection failed")))
       )
-
       assertExitFailure(result, Cause.fail("Database connection failed"))
-    }))
+    })
+  )
 
-  it.effect("should use direct Layer.succeed for simple mocks", 
-    Effect.fnUntraced(function*() {
-      // For simple one-off mocks, use Layer.succeed directly
-      const result = yield* ServiceModule.getValue()
-        .pipe(
-          Effect.provide(
-            Layer.succeed(DatabaseService)({
-              query: () => Effect.succeed([{ value: 42 }])
-            })
-          )
-        )
-
-      assert.strictEqual(result, 42)
-    }))
+  it.effect("uses the empty layer", () =>
+    Effect.gen(function* () {
+      const result = yield* findUser("1").pipe(Effect.provide(Database.layerEmpty))
+      assert.isUndefined(result)
+    })
+  )
 })
 ```
 
-## 🎯 ASSERTION PATTERNS
+## Assertion patterns
 
-### Plain-value Assertions
+### Plain-value assertions
 
 These `assert` methods remain legal, as do equivalent `expect` matchers, for
 plain values in either plain `it` or `it.effect`. Use the specialized helpers
 in the next section for Option, Result, and Exit containers.
 
-```typescript
-// Equality assertions
-assert.strictEqual(actual, expected) // Reference/primitive equality
-assert.notStrictEqual(actual, expected) // Reference/primitive inequality
-assert.deepStrictEqual(actualObject, expectedObject) // Deep structural equality
-assert.deepEqual(actual, expected) // Vitest/Chai structural equality; not Effect's Equal.equals
+```ts
+import { assert, it } from "@effect/vitest"
 
-// Boolean assertions
-assert.isTrue(condition)
-assert.isFalse(condition)
-assert.ok(condition, "optional message") // Boolean with custom message
+it("plain-value assertions", () => {
+  const actual = { id: 1, tags: ["a", "b"] }
 
-// Null/undefined assertions
-assert.isNull(value)
-assert.isNotNull(value)
-assert.isUndefined(value)
-assert.isDefined(value)
+  // Equality
+  assert.strictEqual(actual.id, 1) // Reference/primitive equality
+  assert.notStrictEqual(actual.id, 2) // Reference/primitive inequality
+  assert.deepStrictEqual(actual, { id: 1, tags: ["a", "b"] }) // Deep structural equality
+  assert.deepEqual(actual, { id: 1, tags: ["a", "b"] }) // Vitest/Chai structural equality; not Effect's Equal.equals
 
-// Numeric comparisons
-assert.isAtLeast(actual, expected) // actual >= expected
-assert.isAtMost(actual, expected) // actual <= expected
+  // Booleans
+  assert.isTrue(actual.id > 0)
+  assert.isFalse(actual.id < 0)
+  assert.ok(actual.tags.length > 0, "optional message") // Boolean with custom message
 
-// String/regex assertions
-assert.match(string, regex) // String matches regex pattern
+  // Null and undefined
+  assert.isNull(null)
+  assert.isNotNull(actual)
+  assert.isUndefined(undefined)
+  assert.isDefined(actual)
 
-// Array assertions
-assert.includeMembers(actualArray, expectedItems)
+  // Numeric comparisons
+  assert.isAtLeast(actual.tags.length, 2) // actual >= expected
+  assert.isAtMost(actual.tags.length, 2) // actual <= expected
 
-// For custom error types
-assert.isTrue(MyModule.isCustomError(error))
-
+  // Strings and arrays
+  assert.match("user-1", /^user-\d+$/)
+  assert.includeMembers(actual.tags, ["a"])
+})
 ```
 
 ### Specialized Option, Result, and Exit Assertions
 
-Import helpers from `@effect/vitest/utils`. At rc.113, `assertSome`,
-`assertSuccess`, `assertFailure`, `assertExitSuccess`, and `assertExitFailure`
-require an expected payload (or Cause for Exit failure), check it with deep
-strict equality, and narrow the container. `assertNone` needs only the Option.
-They fail on the wrong variant or payload; no conditional assertion branch is
+Import helpers from `@effect/vitest/utils`. `assertSome`, `assertSuccess`,
+`assertFailure`, `assertExitSuccess`, and `assertExitFailure` require an
+expected payload (or Cause for Exit failure), check it with deep strict
+equality, and narrow the container. `assertNone` needs only the Option. They
+fail on the wrong variant or payload; no conditional assertion branch is
 needed. `assertExitFailure(exit, Cause.fail(error))` checks a typed error;
 `Cause.die(defect)` checks a defect. A bare error is not a Cause.
 
@@ -496,11 +497,18 @@ Use `Effect.exit` to inspect an Effect's outcome. The Result examples below
 exercise Result values directly; there is no need to wrap a pure Result in an
 Effect or convert an Effect to Result just to assert its outcome.
 
-```typescript
+```ts
 import { describe, expect, it } from "@effect/vitest"
-import { assertExitFailure, assertExitSuccess, assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils"
-import * as Effect from "effect/Effect";
+import {
+  assertExitFailure,
+  assertExitSuccess,
+  assertFailure,
+  assertNone,
+  assertSome,
+  assertSuccess,
+} from "@effect/vitest/utils"
 import * as Cause from "effect/Cause"
+import * as Effect from "effect/Effect"
 import * as O from "effect/Option"
 import * as Result from "effect/Result"
 
@@ -516,30 +524,32 @@ describe("specialized assertions", () => {
     assertNone(result)
   })
 
-  it.effect("should assert Exit success", 
-    Effect.fnUntraced(function*() {
+  it.effect("asserts Exit success", () =>
+    Effect.gen(function* () {
       const result = yield* Effect.exit(Effect.succeed(42))
 
-      // Type-safe assertion that narrows Exit type
+      // Type-safe assertion that narrows the Exit
       assertExitSuccess(result, 42)
       expect(result.value + 1).toBe(43)
-    }))
+    })
+  )
 
-  it.effect("should assert Exit failure", 
-    Effect.fnUntraced(function*() {
+  it.effect("asserts Exit failure", () =>
+    Effect.gen(function* () {
       const result = yield* Effect.exit(Effect.fail("error"))
 
       // Asserts failure and validates the complete Cause
       assertExitFailure(result, Cause.fail("error"))
-    }))
+    })
+  )
 
-  it("should assert Result success", () => {
+  it("asserts Result success", () => {
     const result: Result.Result<string, string> = Result.succeed("value")
     assertSuccess(result, "value")
     expect(result.success.length).toBe(5)
   })
 
-  it("should assert Result failure", () => {
+  it("asserts Result failure", () => {
     const result: Result.Result<string, string> = Result.fail("error")
     assertFailure(result, "error")
     expect(result.failure.length).toBe(5)
@@ -547,37 +557,44 @@ describe("specialized assertions", () => {
 })
 ```
 
-### Testing Complex Data Structures
+### Testing structured data
 
-```typescript
-it.effect("should handle complex data transformations", 
-  Effect.fnUntraced(function*() {
-    const input = {
-      users: [
-        { id: "1", name: "Alice", age: 30 },
-        { id: "2", name: "Bob", age: 25 }
-      ]
-    }
+```ts
+import { assert, it } from "@effect/vitest"
+import { assertSome } from "@effect/vitest/utils"
+import * as A from "effect/Array"
+import * as Effect from "effect/Effect"
 
-    const result = yield* MyModule.processUsers(input)
+type User = { readonly id: string; readonly name: string; readonly age: number }
 
-    // Test structure
-    assert.isTrue(Array.isArray(result.processedUsers))
+const processUsers = Effect.fn("processUsers")(function* (users: ReadonlyArray<User>) {
+  return { processedUsers: A.map(users, (user) => ({ ...user, processed: true })) }
+})
+
+it.effect("transforms every user", () =>
+  Effect.gen(function* () {
+    const result = yield* processUsers([
+      { id: "1", name: "Alice", age: 30 },
+      { id: "2", name: "Bob", age: 25 },
+    ])
+
     assert.strictEqual(result.processedUsers.length, 2)
 
-    // Test individual items
-    const alice = result.processedUsers.find((u) => u.id === "1")
-    assert.isDefined(alice)
-    assert.strictEqual(alice?.name, "Alice")
-    assert.strictEqual(alice?.processed, true)
-  }))
+    const alice = A.findFirst(result.processedUsers, (user) => user.id === "1")
+    assertSome(alice, { id: "1", name: "Alice", age: 30, processed: true })
+  })
+)
 ```
 
-## 🔧 TEST ORGANIZATION PATTERNS
+## Test organization
 
-### Group Related Tests
+### Group related tests
 
-```typescript
+Group by the role of the API under test, from constructors to integration.
+
+```ts
+import { describe } from "@effect/vitest"
+
 describe("ModuleName", () => {
   describe("constructors", () => {
     // Tests for creation functions
@@ -601,30 +618,17 @@ describe("ModuleName", () => {
 })
 ```
 
-### Progressive Test Complexity
+### Progressive test complexity
 
-```typescript
+```ts
+import { describe, it } from "@effect/vitest"
+import * as Effect from "effect/Effect"
+
 describe("feature progression", () => {
-  it.effect("basic functionality", Effect.fnUntraced(function* () {
-     /* simple test */
-  }))
-  
-    it.effect("with configuration", Effect.fnUntraced(function* () {
-     /* configuration test */
-  }))
-  
-    it.effect("with error handling", Effect.fnUntraced(function* () {
-      /* error test */
-  }))
-  
-  it.effect("with concurrency", Effect.fnUntraced(function* () {
-     /* concurrent test */
-  }))
-  
-  it.effect("full integration", Effect.fnUntraced(function* () {
-     /* comprehensive test */
-  }))
+  it.effect("basic functionality", () => Effect.void)
+  it.effect("with configuration", () => Effect.void)
+  it.effect("with error handling", () => Effect.void)
+  it.effect("with concurrency", () => Effect.void)
+  it.effect("full integration", () => Effect.void)
 })
 ```
-
-This comprehensive testing approach ensures reliable, maintainable test suites that properly validate Effect-based code while avoiding common pitfalls and anti-patterns.

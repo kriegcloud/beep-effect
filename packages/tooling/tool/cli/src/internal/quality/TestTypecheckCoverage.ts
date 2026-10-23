@@ -25,8 +25,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { TsconfigLoader } from "@beep/repo-tsconfig/TsconfigLoader";
 import { normalizePath } from "@beep/schema";
-import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, O, pipe, R, Str, thunkFalse } from "@beep/utils";
 import { compileAndExpand } from "@beep/walker/Expand";
 import * as Effect from "effect/Effect";
@@ -53,35 +53,6 @@ const typescriptProgramPattern = /^\s*(?:(?:env\s+)?(?:[^\s=]+=[^\s]+\s+)*)(?:bu
 const commandSeparatorPattern = /&&|\|\||;|\|/u;
 const defaultProjectFileName = "tsconfig.json";
 const checkScriptName = "check";
-
-class TsconfigReference extends S.Opaque<TsconfigReference, { readonly brand: unique symbol }>()(
-  S.Struct({
-    path: S.String,
-  }).pipe(
-    $I.annoteSchema("TsconfigReference", {
-      description: "One TypeScript project reference entry.",
-    })
-  )
-) {}
-
-const TsconfigExtends = S.Union([S.String, S.String.pipe(S.Array)]);
-const TsconfigIncludes = S.String.pipe(S.Array);
-const TsconfigReferences = TsconfigReference.pipe(S.Array);
-
-class TsconfigDocument extends S.Opaque<TsconfigDocument, { readonly brand: unique symbol }>()(
-  S.Struct({
-    extends: S.optionalKey(TsconfigExtends),
-    include: S.optionalKey(TsconfigIncludes),
-    exclude: S.optionalKey(TsconfigIncludes),
-    references: S.optionalKey(TsconfigReferences),
-  }).pipe(
-    $I.annoteSchema("TsconfigDocument", {
-      description: "Minimal tsconfig shape used to decide which files a project's include and exclude globs select.",
-    })
-  )
-) {}
-
-const decodeTsconfigDocument = decodeJsoncTextAs(TsconfigDocument);
 
 /**
  * What one package's `check` script proves about a set of its test sources.
@@ -456,76 +427,28 @@ const referencedProjectConfigs = (command: string): ReadonlyArray<string> =>
     A.dedupe
   );
 
-const readTsconfigDocument = Effect.fn("TestTypecheckCoverage.readTsconfigDocument")(function* (
+// One config's resolved `extends` chain, as the loader returns it.
+type ResolvedTsconfig = Effect.Success<ReturnType<typeof TsconfigLoader.resolve>>;
+
+// Resolve one config's whole `extends` chain. Tolerant by design: an unreadable, malformed or cyclic config,
+// or one whose `extends` does not resolve, yields `None` and is skipped, so the gate never fails on it.
+// `Effect.option` absorbs only the loader's typed failures; a defect still surfaces.
+const resolveTsconfig = (
   configPath: string
-): Effect.fn.Return<O.Option<TsconfigDocument>, never, FileSystem.FileSystem> {
-  const fs = yield* FileSystem.FileSystem;
+): Effect.Effect<O.Option<ResolvedTsconfig>, never, FileSystem.FileSystem | Path.Path> =>
+  TsconfigLoader.resolve(configPath).pipe(Effect.option);
 
-  return yield* pipe(
-    readOptionalText(fs, configPath),
-    Effect.flatMap(
-      O.match({
-        onNone: () => Effect.succeed(O.none<TsconfigDocument>()),
-        onSome: (text) => decodeTsconfigDocument(text).pipe(Effect.option),
-      })
-    )
+// A resolved `include` or `exclude` as absolute globs. The loader re-roots inherited entries against the
+// top config's directory and substitutes `${configDir}`, so one resolve against that directory is exact.
+const absoluteGlobs = (
+  path: Path.Path,
+  configDirectory: string,
+  entries: ReadonlyArray<string> | undefined
+): O.Option<ReadonlyArray<string>> =>
+  O.map(
+    O.fromUndefinedOr(entries),
+    A.map((glob) => normalizePath(path.resolve(configDirectory, glob)))
   );
-});
-
-// Resolve a config's `include` or `exclude` globs to absolute paths, walking
-// the `extends` chain until one is declared (tsconfig inherits both fields).
-const inheritedGlobs = Effect.fn("TestTypecheckCoverage.inheritedGlobs")(function* (
-  configPath: string,
-  field: "include" | "exclude",
-  visited: MutableHashSet.MutableHashSet<string>
-): Effect.fn.Return<O.Option<ReadonlyArray<string>>, never, FileSystem.FileSystem | Path.Path> {
-  const path = yield* Path.Path;
-  const resolved = normalizePath(path.resolve(configPath));
-
-  if (MutableHashSet.has(visited, resolved)) {
-    return O.none();
-  }
-  MutableHashSet.add(visited, resolved);
-
-  const document = yield* readTsconfigDocument(resolved);
-
-  if (O.isNone(document)) {
-    return O.none();
-  }
-
-  const own = document.value[field];
-
-  if (own !== undefined) {
-    return O.some(
-      pipe(
-        own,
-        A.map((glob) => normalizePath(path.resolve(path.dirname(resolved), glob)))
-      )
-    );
-  }
-
-  const parents = pipe(
-    O.fromUndefinedOr(document.value.extends),
-    O.map((value) => (Str.isString(value) ? A.of(value) : value)),
-    O.getOrElse(A.empty<string>)
-  );
-
-  for (const parent of parents) {
-    // Package-manager-resolved bases (`@tsconfig/...`) never carry globs that
-    // select a package's test sources, so only relative bases are walked.
-    if (!Str.startsWith(".")(parent)) {
-      continue;
-    }
-
-    const inherited = yield* inheritedGlobs(path.resolve(path.dirname(resolved), parent), field, visited);
-
-    if (O.isSome(inherited)) {
-      return inherited;
-    }
-  }
-
-  return O.none();
-});
 
 // Narrow a set of test sources to those one resolved project does NOT select.
 //
@@ -535,13 +458,14 @@ const inheritedGlobs = Effect.fn("TestTypecheckCoverage.inheritedGlobs")(functio
 // (node_modules, outDir, ...) are not consulted: none of them can name a file
 // under a package's `test/` tree, so they cannot change this answer.
 const rejectSourcesSelectedByConfig = Effect.fn("TestTypecheckCoverage.rejectSourcesSelectedByConfig")(function* (
+  config: ResolvedTsconfig,
   resolvedConfig: string,
   sources: ReadonlyArray<string>
 ): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
   const path = yield* Path.Path;
-  const includes = yield* inheritedGlobs(resolvedConfig, "include", MutableHashSet.empty<string>());
-  const excludes = yield* inheritedGlobs(resolvedConfig, "exclude", MutableHashSet.empty<string>());
   const configDirectory = normalizePath(path.dirname(resolvedConfig));
+  const includes = absoluteGlobs(path, configDirectory, config.include);
+  const excludes = absoluteGlobs(path, configDirectory, config.exclude);
   const includeMatchers = yield* O.match(includes, {
     onNone: () => Effect.succeed(A.of((filePath: string) => Str.startsWith(`${configDirectory}/`)(filePath))),
     onSome: makeGlobMatchers,
@@ -562,14 +486,14 @@ const rejectSourcesSelectedByConfig = Effect.fn("TestTypecheckCoverage.rejectSou
 // builds those, so they can carry the test include. References to sibling
 // packages point at another package's sources and never can.
 const packageLocalReferenceConfigs = Effect.fn("TestTypecheckCoverage.packageLocalReferenceConfigs")(function* (
-  document: TsconfigDocument,
+  config: ResolvedTsconfig,
   resolvedConfig: string,
   packageDir: string
 ): Effect.fn.Return<ReadonlyArray<string>, never, Path.Path> {
   const path = yield* Path.Path;
 
   return pipe(
-    document.references ?? A.empty<TsconfigReference>(),
+    config.references ?? A.empty(),
     A.map((reference) => normalizePath(path.resolve(path.dirname(resolvedConfig), reference.path))),
     A.filter((referenced) => Str.startsWith(`${packageDir}/`)(referenced)),
     A.map((referenced) => (Str.endsWith(".json")(referenced) ? referenced : path.join(referenced, "tsconfig.json")))
@@ -631,15 +555,15 @@ export const uncoveredTestSources = Effect.fn("TestTypecheckCoverage.uncoveredTe
     }
     MutableHashSet.add(visited, resolved);
 
-    const document = yield* readTsconfigDocument(resolved);
+    const config = yield* resolveTsconfig(resolved);
 
-    if (O.isNone(document)) {
+    if (O.isNone(config)) {
       return remaining;
     }
 
-    let next = yield* rejectSourcesSelectedByConfig(resolved, remaining);
+    let next = yield* rejectSourcesSelectedByConfig(config.value, resolved, remaining);
 
-    for (const reference of yield* packageLocalReferenceConfigs(document.value, resolved, packageDir)) {
+    for (const reference of yield* packageLocalReferenceConfigs(config.value, resolved, packageDir)) {
       next = yield* visit(reference, next);
     }
 

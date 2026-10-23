@@ -20442,15 +20442,15 @@
     },
     "@beep/md": {
       "path": "packages/foundation/modeling/md",
-      "lines": 96.93,
-      "statements": 96.9,
-      "branches": 91.66,
-      "functions": 95.19,
+      "lines": 98.46,
+      "statements": 98.42,
+      "branches": 92.53,
+      "functions": 97.2,
       "uncovered": {
-        "lines": 33,
-        "statements": 37,
-        "branches": 21,
-        "functions": 32
+        "lines": 26,
+        "statements": 29,
+        "branches": 40,
+        "functions": 25
       },
       "files": {
         "packages/foundation/modeling/md/src/Md.behavior.ts": {
@@ -20513,33 +20513,57 @@
             "functions": 0
           }
         },
-        "packages/foundation/modeling/md/src/Md.render.ts": {
-          "lines": 94.32,
-          "statements": 94.29,
-          "branches": 89.47,
-          "functions": 92.27,
+        "packages/foundation/modeling/md/src/Md.parse.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
           "uncovered": {
-            "lines": 23,
-            "statements": 24,
-            "branches": 6,
-            "functions": 20
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/md/src/Md.render.ts": {
+          "lines": 97.53,
+          "statements": 97.62,
+          "branches": 98.24,
+          "functions": 96.13,
+          "uncovered": {
+            "lines": 10,
+            "statements": 10,
+            "branches": 1,
+            "functions": 10
           }
         },
         "packages/foundation/modeling/md/src/Md.safe.ts": {
-          "lines": 99.03,
-          "statements": 97.29,
-          "branches": 95,
-          "functions": 96.05,
+          "lines": 99.24,
+          "statements": 98.59,
+          "branches": 97.05,
+          "functions": 97.5,
           "uncovered": {
             "lines": 1,
-            "statements": 3,
+            "statements": 2,
             "branches": 1,
+            "functions": 2
+          }
+        },
+        "packages/foundation/modeling/md/src/Md.syntax.ts": {
+          "lines": 99.31,
+          "statements": 99.13,
+          "branches": 93.43,
+          "functions": 98.32,
+          "uncovered": {
+            "lines": 3,
+            "statements": 4,
+            "branches": 13,
             "functions": 3
           }
         },
         "packages/foundation/modeling/md/src/Md.ts": {
-          "lines": 92.8,
-          "statements": 93.46,
+          "lines": 92.91,
+          "statements": 93.54,
           "branches": 84.05,
           "functions": 88.88,
           "uncovered": {
@@ -20606,6 +20630,30 @@
             "lines": 0,
             "statements": 0,
             "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/md/src/internal/syntax/json.ts": {
+          "lines": 94.33,
+          "statements": 94.64,
+          "branches": 75.75,
+          "functions": 94.11,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 8,
+            "functions": 1
+          }
+        },
+        "packages/foundation/modeling/md/src/internal/syntax/recognizers.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 91.89,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 3,
             "functions": 0
           }
         }
@@ -24723,6 +24771,249 @@
           }
         },
         "packages/drivers/pacer/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/package-json": {
+      "path": "packages/foundation/modeling/package-json",
+      "lines": 100,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "uncovered": {
+        "lines": 0,
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
+      },
+      "files": {
+        "packages/foundation/modeling/package-json/src/Dependency.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/DevEngines.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/EntryPoint.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/Funding.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/LenientManifest.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/License.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/Package.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageJsonFile.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageJsonFormat.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageManager.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageManagerRange.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageManifest.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageName.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/PackageValidator.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/Person.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/Repository.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/internal/format.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/package-json/src/internal/wire.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -39522,6 +39813,81 @@
             "statements": 2,
             "branches": 0,
             "functions": 2
+          }
+        }
+      }
+    },
+    "@beep/repo-tsconfig": {
+      "path": "packages/tooling/library/repo-tsconfig",
+      "lines": 100,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "uncovered": {
+        "lines": 0,
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
+      },
+      "files": {
+        "packages/tooling/library/repo-tsconfig/src/TsconfigDiscovery.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-tsconfig/src/TsconfigLoader.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-tsconfig/src/TsconfigLoaderSync.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-tsconfig/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-tsconfig/src/internal/extendsTarget.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         }
       }

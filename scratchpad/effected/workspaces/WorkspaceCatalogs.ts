@@ -1,7 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 // pnpm catalogs: the `CatalogSet` value, the service that assembles it for a
-// workspace, and the real implementation of `@effected/npm`'s `CatalogResolver`
+// workspace, and the real implementation of `@beep/npm-spec`'s `CatalogResolver`
 // contract.
 //
 // Assembly precedence follows pnpm: lockfile-recorded catalogs first, then the
@@ -389,7 +389,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
 	 *
 	 * **Details**
 	 *
-	 * The shape `@effected/npm`'s `CatalogResolver` contract asks for.
+	 * The shape `@beep/npm-spec`'s `CatalogResolver` contract asks for.
 	 *
 	 * **Example** (Look up a named catalog range)
 	 *
@@ -443,7 +443,7 @@ const catalogBlocksOf = (
  * The inline release-age gate contribution of a parsed `pnpm-workspace.yaml`
  * document — pnpm's top-level `minimumReleaseAge` (minutes) and
  * `minimumReleaseAgeExclude` (name patterns) keys, mapped onto
- * `@effected/npm`'s `PartialReleaseAgeGate` field names
+ * `@beep/npm-spec`'s `PartialReleaseAgeGate` field names
  * (`ageMinutes` / `exclude`).
  *
  * **Details**
@@ -1372,8 +1372,8 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 		Layer.succeed(WorkspaceCatalogs, WorkspaceCatalogs.makeTest(overrides));
 
 	/**
-	 * The real implementation of `@effected/npm`'s `CatalogResolver` contract —
-	 * the one `@effected/package-json` declares but cannot fill.
+	 * The real implementation of `@beep/npm-spec`'s `CatalogResolver` contract —
+	 * the one `@beep/npm-spec` declares and `@beep/package-json`'s `Package.resolve` consumes.
 	 *
 	 * **Details**
 	 *
