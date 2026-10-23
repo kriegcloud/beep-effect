@@ -14,6 +14,7 @@ test or probe that proves it. Everything else migrated to the exact form.
 | `Lexical.model.ts` `TableNode.colWidths` | `TableNode.exportJSON()` writes `colWidths: this.getColWidths()` | `LexicalTable.dev.mjs:4602` | `OptionFromLexicalUndefinedOr` |
 | `Lexical.model.ts` `TableNode.frozenColumnCount`, `frozenRowCount`, `rowStriping` | `TableNode.exportJSON()` writes `x ? x : undefined` | `LexicalTable.dev.mjs:4603-4605` | `OptionFromLexicalUndefinedOr` |
 | `api-transport/src/Transport.ts` `ApiTransportDurationObject` (8 keys) | Mirrors effect's `Duration.DurationObject`, declared `weeks?: number \| undefined` etc.; a value typed against `Duration.Input` may hold `undefined` | `node_modules/effect/dist/Duration.d.ts:141`; `Transport.test.ts` "preserves every legacy transport option input accepted by Effect Duration" (`window: { seconds: undefined }`) | `S.optionalKey(S.UndefinedOr(X))` |
+| `jsonl/src/Journal.ts` `DurationObject` (8 keys) | Same `Duration.DurationObject` mirror as api-transport; `shutdownPublishTimeout` promises any `Duration.Input` | `JournalDeviations.test.ts` "a Duration.Input object with an undefined component still decodes"; review thread on #2145 | `S.optionalKey(S.UndefinedOr(X))` |
 
 `OptionFromLexicalUndefinedOr(X)` is
 `X.pipe(S.UndefinedOr, S.optionalKey, S.decodeTo(X.pipe(S.toType, S.Option), SchemaTransformation.optionFromOptional()))`,

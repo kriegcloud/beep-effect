@@ -559,7 +559,7 @@ export class ConformanceOptions extends S.Opaque<ConformanceOptions, { readonly 
  */
 export declare namespace ConformanceOptions {
   /**
-   * Plain-object policy input, including omitted and explicitly undefined fields.
+   * Plain-object policy input; omit a field rather than passing `undefined` (EF-40).
    *
    * @category type-level
    * @since 0.0.0

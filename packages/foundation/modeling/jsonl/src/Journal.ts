@@ -357,16 +357,22 @@ const DurationNumber = S.declare(P.isNumber).pipe(
   })
 );
 
-/** The object member of `Duration.Input`; every component is optional and additive. */
+/**
+ * The object member of `Duration.Input`; every component is optional and additive.
+ *
+ * Mirrors effect's `Duration.DurationObject`, whose members are declared
+ * `weeks?: number | undefined`: a value typed against `Duration.Input` may hold
+ * an explicit undefined, so these keys keep it (EF-40 exception).
+ */
 const DurationObject = S.Struct({
-  weeks: S.optionalKey(DurationNumber),
-  days: S.optionalKey(DurationNumber),
-  hours: S.optionalKey(DurationNumber),
-  minutes: S.optionalKey(DurationNumber),
-  seconds: S.optionalKey(DurationNumber),
-  milliseconds: S.optionalKey(DurationNumber),
-  microseconds: S.optionalKey(DurationNumber),
-  nanoseconds: S.optionalKey(DurationNumber),
+  weeks: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  days: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  hours: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  minutes: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  seconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  milliseconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  microseconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  nanoseconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
 }).pipe(
   $I.annoteSchema("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
 );
@@ -419,8 +425,8 @@ const Capacity = S.Int.check(S.isGreaterThan(0)).pipe(
  *
  * **Details**
  *
- * Optional keys follow upstream omission semantics: an explicitly `undefined`
- * key behaves exactly like an omitted one. `shutdownPublishTimeout` accepts any
+ * Optional keys are exact (EF-40, kept deviation 24): omit a key rather than
+ * passing `undefined`. `shutdownPublishTimeout` accepts any
  * `Duration.Input` (a `Duration`, milliseconds or a string such as
  * `"100 millis"`); the layer decodes it into a `Duration`, and an input
  * Effect cannot convert fails construction with `InvalidJournalConfig`.

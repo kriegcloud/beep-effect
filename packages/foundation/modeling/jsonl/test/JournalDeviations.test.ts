@@ -81,6 +81,17 @@ it.effect("explicitly undefined configuration keys are rejected", () =>
     }
   })
 );
+// The shutdownPublishTimeout object form mirrors effect's Duration.DurationObject,
+// whose members admit undefined, so any Duration.Input still decodes (EF-40 exception).
+it.effect("a Duration.Input object with an undefined component still decodes", () =>
+  Effect.sync(() => {
+    const decoded = S.decodeUnknownExit(JournalConfig)({
+      path,
+      shutdownPublishTimeout: { seconds: 1, minutes: undefined },
+    });
+    assertTrue(Exit.isSuccess(decoded));
+  })
+);
 
 // D16 reverted: shutdownPublishTimeout accepts Duration.Input and decodes it.
 for (const [label, timeout] of [

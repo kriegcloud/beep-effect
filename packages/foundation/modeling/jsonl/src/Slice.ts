@@ -23,8 +23,8 @@ const $I = $JsonlId.create("Slice");
 
 // Selection options are plain boundary inputs. Their schemas retain literal tags
 // while preserving ordinary object-literal calls to query, changes and projection.
-// Every key is optional with upstream omission semantics: an explicitly
-// undefined key selects exactly what an omitted one does.
+// Every key is an exact optional key (EF-40, kept deviation 24): omit a key
+// rather than passing undefined.
 const fields = <T extends string>(event: S.Codec<T>) => ({
   events: event.pipe(S.Array, S.optionalKey),
   scopes: S.String.pipe(S.Array, S.optionalKey),
