@@ -159,6 +159,50 @@ describe("frontmatter codecs", () => {
       });
     });
 
+    // #2143 review: keys of different yaml types that project to the same
+    // string key would merge last-wins; the engine's own DuplicateKey check
+    // compares typed values, so the codec compares the projections.
+    it("rejects keys that differ in type but project to the same string", () => {
+      for (const [text, offset, length] of [
+        ['1: a\n"1": b\n', 5, 3],
+        ['true: a\n"true": b\n', 8, 6],
+        ['~: a\n"": b\n', 5, 2],
+        ['1.0: a\n"1": b\n', 7, 3],
+        ['0x10: a\n"16": b\n', 8, 4],
+        ['outer:\n  1: a\n  "1": b\n', 16, 3],
+      ] as const) {
+        const cause = keyFailure(YamlFrontmatter, text);
+        assert.strictEqual(cause.reason, "DuplicateKey");
+        assert.strictEqual(cause.offset, offset);
+        assert.strictEqual(cause.length, length);
+      }
+    });
+
+    it("rejects an alias key that projects onto an earlier key", () => {
+      const cause = keyFailure(YamlFrontmatter, "x: &k a\na: 1\n*k : 2\n");
+      assert.strictEqual(cause.reason, "DuplicateKey");
+      assert.strictEqual(cause.offset, 13);
+      assert.strictEqual(cause.length, 2);
+    });
+
+    it("still decodes keys whose projections differ, and the same key in sibling mappings", () => {
+      assert.deepStrictEqual(Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", 'null: a\n"null": b\n'))), {
+        "": "a",
+        null: "b",
+      });
+      assert.deepStrictEqual(Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", '1.0: a\n"1.0": b\n'))), {
+        1: "a",
+        "1.0": "b",
+      });
+      assert.deepStrictEqual(
+        Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", "x:\n  1: a\ny:\n  1: b\n"))),
+        {
+          x: { 1: "a" },
+          y: { 1: "b" },
+        }
+      );
+    });
+
     it("keeps the engine's parse failure ahead of the key check", () => {
       const failure = YamlFrontmatter.decodeResult(capture("yaml", "? [a]\n: 1\nb: [\n")).pipe(
         Result.flip,
@@ -300,6 +344,12 @@ describe("frontmatter codecs", () => {
       assert.deepStrictEqual(Result.getOrThrow(Yaml.parseResult("tags: !!set\n  ? a\n")), { tags: { a: null } });
       assert.strictEqual(keyFailure(YamlFrontmatter, "? [a, b]\n: c\n").reason, "ComplexKey");
       assert.strictEqual(keyFailure(YamlFrontmatter, "tags: !!set\n  ? a\n").reason, "SetCollection");
+    });
+
+    it("Yaml.parseResult still merges keys that project to the same string; the codec rejects them", () => {
+      assert.deepStrictEqual(Result.getOrThrow(Yaml.parseResult('1: a\n"1": b\n')), { 1: "b" });
+      assert.deepStrictEqual(Result.getOrThrow(Yaml.parseResult("x: &k a\na: 1\n*k : 2\n")), { x: "a", a: 2 });
+      assert.strictEqual(keyFailure(YamlFrontmatter, '1: a\n"1": b\n').reason, "DuplicateKey");
     });
 
     it("Jsonc.parseResult still resolves duplicates last-wins; the codec rejects them", () => {

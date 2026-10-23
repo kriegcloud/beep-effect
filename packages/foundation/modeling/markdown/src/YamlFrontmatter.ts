@@ -16,6 +16,7 @@ import * as A from "effect/Array";
 import { flow } from "effect/Function";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -44,17 +45,36 @@ const register = (anchors: Anchors, node: YamlNode): void => {
 const isComplexKey = (anchors: Anchors, key: YamlNode): boolean =>
   key._tag === "YamlAlias" ? O.exists(MutableHashMap.get(anchors, key.name), isCollection) : isCollection(key);
 
-const pairIssue = (anchors: Anchors, pair: YamlPair): O.Option<FrontmatterKeyError> => {
+// The string a scalar (or scalar alias) key becomes on the decoded object,
+// computed the way the engine's projection computes it: `1`, `0x1`, `1.0`
+// and `"1"` all become `"1"`, and a null key becomes `""`.
+const projectedKey = (anchors: Anchors, key: YamlNode): string => String(key.toValue(anchors) ?? "");
+
+const pairIssue = (
+  anchors: Anchors,
+  seen: MutableHashSet.MutableHashSet<string>,
+  pair: YamlPair
+): O.Option<FrontmatterKeyError> => {
   if (isComplexKey(anchors, pair.key)) return O.some(keyError("ComplexKey", pair.key));
+  // The engine's DuplicateKey check compares typed values, so keys of
+  // different types that project to one string would otherwise merge.
+  const key = projectedKey(anchors, pair.key);
+  if (MutableHashSet.has(seen, key)) return O.some(keyError("DuplicateKey", pair.key));
+  MutableHashSet.add(seen, key);
   register(anchors, pair.key);
   return O.flatMap(O.fromNullOr(pair.value), (value) => firstKeyIssue(anchors, value));
+};
+
+const mapIssue = (anchors: Anchors, map: YamlMap): O.Option<FrontmatterKeyError> => {
+  const seen = MutableHashSet.empty<string>();
+  return A.findFirst(map.items, (pair) => pairIssue(anchors, seen, pair));
 };
 
 const collectionIssue = (anchors: Anchors, node: YamlMap | YamlSeq): O.Option<FrontmatterKeyError> =>
   node.tag !== undefined && isSetTag(node.tag)
     ? O.some(keyError("SetCollection", node))
     : node._tag === "YamlMap"
-      ? A.findFirst(node.items, (pair) => pairIssue(anchors, pair))
+      ? mapIssue(anchors, node)
       : A.findFirst(node.items, (item) => firstKeyIssue(anchors, item));
 
 // The first key or collection, in document order, with no faithful
@@ -95,7 +115,11 @@ const rejectNonJsonKeys = (text: string): Result.Result<void, S.SchemaError | Fr
  * collection mapping key (`? [a, b]`), an alias key whose anchor is a
  * collection, and a `!!set` collection each surface as a
  * {@link FrontmatterDecodeError} carrying a {@link FrontmatterKeyError}
- * (`"ComplexKey"` or `"SetCollection"`) at the offending node. Scalar keys,
+ * (`"ComplexKey"` or `"SetCollection"`) at the offending node. Two keys of
+ * one mapping that project to the same string key — `1` and `"1"`, `true`
+ * and `"true"`, a null key and `""`, or an alias key and the key its anchor
+ * names — fail as `"DuplicateKey"` at the second key, where the engine's own
+ * typed duplicate check would let them merge last-wins. Scalar keys,
  * scalar alias keys and `<<` keys still decode; a `!!set` spelled through a
  * custom `%TAG` handle is not recognized. `Yaml.parse` itself keeps its
  * projection for its other consumers.
