@@ -98,7 +98,7 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 Every confirmed and partial site of the map that had no row above (the earlier `2d-later` rows now carry their plan PR or exclusion too), so each one is migrated, queued under a
 PR id of the wave-4 plan's PR sequence (`research/wave-4-plan-2026-10-23.md`), or excluded with a reason. Each
 PR flips its own rows. Rows whose status the plan does not name were assigned from the map's prerequisite column.
-202 rows: 24 migrated, 97 queued on a plan PR,
+200 rows: 25 migrated, 94 queued on a plan PR,
 33 handed to the W4-l follow-up goal, 4 deferred with their module (W4-m) and 44 excluded.
 A row naming two PRs is split between them; #143 also appears above for its package.json half.
 
@@ -135,9 +135,7 @@ A row naming two PRs is split between them; #143 also appears above for its pack
 
 | Site | Map id | Verdict | Status | Notes |
 | --- | --- | --- | --- | --- |
-| docgen Configuration.ts | #11 | confirmed | adopted: 3-3 (#2134) | docgen `readJsoncFile` onto `ConfigFile.read`. |
-| repo-cli Models/Models.manifest.service.ts | #165 | confirmed | adopted: 3-3 (#2134) | `Models.manifest` `load` onto `ConfigFile.read` with the YAML codec; stringify is R4's. |
-| docgen Configuration.ts | #166 | partial | adopted: 3-3 (#2134) | docgen `readJsoncFile` onto `ConfigFile.read`. |
+| docgen Configuration.ts | #11 | confirmed | migrated (3-3, W3-e) | docgen `readJsoncFile` onto `ConfigFile.read`. |
 | repo-cli Quality/CatalogUsage.ts | #129 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
 | repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #155 | partial | queued: 3-A1 | `RootCatalog` bun.lock half onto `Lockfile.parse`; no `CatalogSet` for one catalog. |
 | repo-cli Quality/CatalogUsage.ts | #156 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
