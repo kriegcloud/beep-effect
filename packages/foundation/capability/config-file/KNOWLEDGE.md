@@ -1,8 +1,19 @@
 # config-file — upstream knowledge bundle (verbatim)
 
-Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
+Provenance: `$HOME/YeeBois/references/effect/effected` @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
-decisions live in README.md → Port notes, not here.
+decisions live in README.md → Port notes and Provenance, not here.
+
+Upstream paths and commands below describe the upstream checkout, not this package.
+In this repo `@effected/config-file` is `@beep/config-file` at
+`packages/foundation/capability/config-file`: upstream `packages/config-file/src/<Module>.ts`
+maps to `src/<Module>.ts`, and upstream `__test__/` maps to `test/`, with the
+integration suites in `test/integration` running on `@beep/memfs`. Other names:
+`@effected/jsonc`, `@effected/yaml`, `@effected/toml` and `@effected/walker` are
+`@beep/jsonc`, `@beep/yaml`, `@beep/toml` and `@beep/walker`, all regular
+`dependencies` here rather than peers. The upstream `pnpm vitest` / `pnpm build`
+commands map to `bun run test` / `bun run build` in the package, or
+`bun run beep quality package-verify @beep/config-file` from the repository root.
 
 ---
 <!-- packages/config-file/CLAUDE.md -->

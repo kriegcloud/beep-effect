@@ -1,12 +1,14 @@
-# config-file (lab port of @effected/config-file)
+# @beep/config-file
 
 Composable config file loading for Effect. Declare a resolver chain — an explicit path, an upward walk from the cwd, the workspace or git root, `/etc` — decode every discovered file through an Effect `Schema`, and combine the results with a merge strategy. JSON, JSONC, YAML and TOML all decode with no extra install. Codecs, resolvers and merge strategies are pluggable seams, and failures arrive as tagged errors carrying structured payloads rather than prose, so "no config anywhere" is routable separately from "the config I found is broken".
 
-## Why @effected/config-file
+## Why this package
 
 Config loading is where a well-typed application usually gives up: a library finds a file, parses it, validates it, and reports every one of those distinct failures as the same opaque error with a `reason` string. This package refuses that. Discovery, reading, parsing, validation and persistence each fail with their own tagged error, and each carries its cause structurally — a `ConfigValidationError` hands you the schema issue tree, not `String(ParseError)`. Resolver requirements flow into the layer's type rather than being cast away, the merge step reports every source that contributed rather than only the first, and a loaded document can be handed to `Config` accessors as a v4 `ConfigProvider` layered beneath the environment.
 
-## Quick start
+## Usage
+
+### Quick start
 
 Declare a schema, mint a service class for it with `ConfigFile.Service`, and build its live layer with `ConfigFile.layer`. The platform layers are provided once, at the edge:
 
@@ -75,7 +77,7 @@ export const SettingsLive = ConfigFile.layer(SettingsConfig, {
 console.log(Layer.isLayer(SettingsLive)) // true
 ```
 
-## Reading one known path
+### Reading one known path
 
 Not every caller has a config file — some just have one path a caller already vouched for, such as a CLI's `--config` flag. `ConfigFile.read` is the one-shot escape from the service, the layer and the resolver chain: read, decode and validate a single path, with the schema and codec named per call rather than bound to a service class:
 
@@ -98,7 +100,7 @@ Effect.runPromise(program.pipe(Effect.provide(NodeFileSystem.layer))).then((conf
 
 It is deliberately read-only and discovery-free — no resolver chain, no `save`/`update`. Reach for `ConfigFile.layer` the moment either is wanted.
 
-## Rejecting keys the schema does not know
+### Rejecting keys the schema does not know
 
 Effect's decoder ignores unknown keys by default, which for a config loader means a typo'd section is dropped in silence. The user gets no error, the setting they wrote has no effect, and nothing in the run says why. `parseOptions` threads decode options into every decode the loader performs, on `ConfigFile.layer` and `ConfigFile.read` alike:
 
@@ -129,7 +131,7 @@ The `validate` option cannot stand in for this: it runs on the decoded value, by
 
 A schema that deliberately admits a pass-through section keeps working under `"error"` — but know why, because the shape suggests the opposite: a `Schema.StructWithRest` rest **switches excess checking off for that struct entirely**, not merely for the keys the rest covers. Structs without a rest stay strict independently, so strictness is decided per level rather than per key. Omitting `parseOptions` changes nothing, which makes turning this on a per-loader decision rather than a migration.
 
-## Errors
+### Errors
 
 Every failure is a tagged error you route on with `Effect.catchTag`. The tags exist so that recovery can differ:
 
@@ -168,16 +170,16 @@ const program = Effect.gen(function* () {
 console.log(Effect.isEffect(program)) // true
 ```
 
-## Codecs
+### Codecs
 
 Four codecs ship in the package, each a free-standing named export:
 
 | Codec | Format | Engine |
 | ----- | ------ | ------ |
 | `JsonCodec` | JSON | the host `JSON` global, no parser at all |
-| `JsoncCodec` | JSONC | `@effected/jsonc` |
-| `YamlCodec` | YAML | `@effected/yaml` |
-| `TomlCodec` | TOML | `@effected/toml` |
+| `JsoncCodec` | JSONC | `@beep/jsonc` |
+| `YamlCodec` | YAML | `@beep/yaml` |
+| `TomlCodec` | TOML | `@beep/toml` |
 
 One install covers every format, and you still pay only for the parser you name. The codecs are free-standing exports rather than properties of a namespace object, so importing `TomlCodec` never references the YAML or JSONC bindings, their parsing engines are unreachable from your entrypoint and a bundler drops them. A JSON-only application ships no parser at all.
 
@@ -222,43 +224,85 @@ console.log(Effect.isEffect(secret.parse("encrypted-config"))) // true
 - `ConfigEvents` — an opt-in `PubSub` of `ConfigEvent`, honestly zero-cost when omitted: no `events` option means no context lookup at all. Failure events carry the structured typed error, never a `reason` string.
 - `asConfigProvider` / `layerConfigProvider` — expose a loaded, validated document as a v4 `ConfigProvider`, layered beneath the ambient one so an environment variable overrides the file it was deployed with.
 
-## License
+## Named importers
 
-[MIT](LICENSE)
+The capability gate for `foundation/capability` requires at least two importing packages:
+
+- `@beep/repo-docgen`: `Configuration.ts` reads `package.json` and `docgen.json` through `ConfigFile.read` with `JsoncCodec` (it dropped `jsonc-parser`).
+- `@beep/repo-cli`: `ModelsManifestStore.load` reads the operator models manifest through `ConfigFile.read` with `YamlCodec`; the manifest writers keep the npm `yaml` stringifier and the atomic rename.
+
+The scratchpad `xdg` module imports it too, until xdg is promoted in wave 4.
+
+## Development
+
+```bash
+# from the repository root
+bun run beep quality package-verify @beep/config-file
+
+# from packages/foundation/capability/config-file
+bun run check
+bun run lint
+bun run test
+bun run test:integration
+bun run docgen
+```
+
+Tests live in `test/` and import package source through `@beep/config-file/<Module>` aliases; `test/helpers.ts` builds the `@beep/memfs` platforms, and the integration suite in `test/integration` runs on memfs too. `test/conformance/codec-corpus.test.ts` compares the four codecs' parse results with `jsonc-parser`, `yaml` and `smol-toml` over frozen copies of repo config files in `test/fixtures/codec-corpus` (loaded through `test/support/codec-corpus.ts`); `goals/effected-promotion/ops/config-file-codec-differential.ts` runs the same comparison over every tracked file. `KNOWLEDGE.md` carries the upstream design notes verbatim.
 
 ## Port notes
 
-### Attribution
-
-- Upstream package: `@effected/config-file` 0.14.2
-- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
-- License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- Vendored-engine notices: none found in source headers.
-
 ### Added exports
 
-None.
+- `ConfigReadSchema<A, I>`: the schema bound of `ConfigFile.read`, so an `S.Opaque` schema can be read (it is not assignable to `S.Codec<Self, I>`).
+- `ConfigMatch`, `ConfigProbe`, `ConfigSourceRef` and `ConfigEvent` are exported from the root barrel as schema values, not only as types.
 
 ### Deviations
 
 One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
 
-- **native-runtime** — The lab uses Effect Record, Array, Order and DateTime helpers instead of native runtime operations, including a recorded change to migration ordering around NaN. (scratchpad/test/config-file/ConfigMigration.test.ts:43; scratchpad/test/config-file/MergeStrategy.test.ts:132,171,209)
-- **tagged-errors** — The lab uses schema-tagged version-access and short-ciphertext causes instead of native Error causes while preserving their messages and failure phases. (scratchpad/test/config-file/ConfigMigration.test.ts:111,295; scratchpad/test/config-file/EncryptedCodec.test.ts:72,83)
-- **schema-first** — The lab uses schema JSON boundaries and schema-derived error guards, changing native JSON causes and rejecting top-level undefined serialization. (scratchpad/test/config-file/JsonCodec.test.ts:28,40; scratchpad/test/config-file/JsoncCodec.test.ts:59; scratchpad/test/config-file/ConfigCodecPath.test.ts:53; scratchpad/test/config-file/EncryptedCodec.test.ts:133; scratchpad/test/config-file/ConfigMigration.test.ts:123)
-- **numeric-domains** — The lab gives numeric test fixtures and examples finite domains instead of Schema.Number while retaining the upstream numeric domain for migration errors. (scratchpad/test/config-file/ConfigFile.test.ts:18; scratchpad/test/config-file/ConfigFileEncode.test.ts:35; scratchpad/test/config-file/ConfigProvider.test.ts:18; scratchpad/test/config-file/MergeStrategy.test.ts:152,184)
-- **type-safety** — The lab replaces unsafe casts with typed unions, nonempty-array and value guards, routing intentional wrong-input tests through the sanctioned helper. (scratchpad/test/config-file/ConfigFileEncode.test.ts:103; scratchpad/test/config-file/ConfigEvent.test.ts:310; scratchpad/test/config-file/ConfigMigration.test.ts:194; scratchpad/test/config-file/MergeStrategy.test.ts:158,182)
-- **tsgo-diagnostics** — The lab adds pipeable overloads, schema .make construction, deterministic test keys and a diagnostic-compatible migration version schema to the upstream API shapes. (module suite scratchpad/test/config-file/**)
-- **effect-first** — The lab wraps reusable generators with Effect.fn or Effect.fnUntraced and uses direct Effect helpers instead of the upstream callback shapes. (module suite scratchpad/test/config-file/**)
-- **effect-imports** — The lab source and tests use dedicated effect/* imports and canonical aliases instead of the upstream root barrel imports. (module suite scratchpad/test/config-file/**)
-- **identity-annotations** — The lab uses composed @beep/identity schema and service identities plus annotations instead of upstream short identities and bare fields. (module suite scratchpad/test/config-file/**)
-- **upstream-bug** — The lab preserves valid own constructor/prototype fields that upstream deepMerge deletes, maintaining schema validity and source priority. (scratchpad/test/config-file/MergeStrategy.test.ts:48,71)
-- **upstream-bug** — The lab checks ownership before reading merge fields, preventing inherited accessor calls that can make the upstream merge throw. (scratchpad/test/config-file/MergeStrategy.test.ts:95)
-- **upstream-bug** — Lab merges only compatible plain records and retains atomic class identity and private state, whereas upstream manufactures class instances without private-field brands (scratchpad/test/config-file/MergeStrategy.test.ts:95,254,272; scratchpad/test/config-file/MergeStrategy.property.test.ts:50; scratchpad/test/config-file/internal/deepMerge.property.test.ts:27,120).
-- **upstream-bug** — Lab preserves enumerable symbol fields and schema validity during merging, whereas upstream drops those fields through string-only enumeration (scratchpad/test/config-file/MergeStrategy.test.ts:145,187; scratchpad/test/config-file/internal/deepMerge.property.test.ts:52,100).
-- **upstream-bug** — The lab rejects schema-invalid merged configurations before success events, whereas upstream returns them successfully. (scratchpad/test/config-file/ConfigFile.test.ts:231,256,279)
-- **upstream-bug** — The lab terminates compatible cyclic record merges by reusing active-pair results, whereas upstream exhausts the stack. (scratchpad/test/config-file/internal/deepMerge.property.test.ts:27,48; scratchpad/test/config-file/MergeStrategy.test.ts:29; scratchpad/test/config-file/ConfigFile.test.ts:313)
+- **native-runtime** — The lab uses Effect Record, Array, Order and DateTime helpers instead of native runtime operations, including a recorded change to migration ordering around NaN. (test/ConfigMigration.test.ts:43; test/MergeStrategy.test.ts:132,171,209)
+- **tagged-errors** — The lab uses schema-tagged version-access and short-ciphertext causes instead of native Error causes while preserving their messages and failure phases. (test/ConfigMigration.test.ts:111,295; test/EncryptedCodec.test.ts:72,83)
+- **schema-first** — The lab uses schema JSON boundaries and schema-derived error guards, changing native JSON causes and rejecting top-level undefined serialization. (test/JsonCodec.test.ts:28,40; test/JsoncCodec.test.ts:59; test/ConfigCodecPath.test.ts:53; test/EncryptedCodec.test.ts:133; test/ConfigMigration.test.ts:123)
+- **numeric-domains** — The lab gives numeric test fixtures and examples finite domains instead of Schema.Number while retaining the upstream numeric domain for migration errors. (test/ConfigFile.test.ts:18; test/ConfigFileEncode.test.ts:35; test/ConfigProvider.test.ts:18; test/MergeStrategy.test.ts:152,184)
+- **type-safety** — The lab replaces unsafe casts with typed unions, nonempty-array and value guards, routing intentional wrong-input tests through the sanctioned helper. (test/ConfigFileEncode.test.ts:103; test/ConfigEvent.test.ts:310; test/ConfigMigration.test.ts:194; test/MergeStrategy.test.ts:158,182)
+- **tsgo-diagnostics** — The lab adds pipeable overloads, schema .make construction, deterministic test keys and a diagnostic-compatible migration version schema to the upstream API shapes. (module suite test/**)
+- **effect-first** — The lab wraps reusable generators with Effect.fn or Effect.fnUntraced and uses direct Effect helpers instead of the upstream callback shapes. (module suite test/**)
+- **effect-imports** — The lab source and tests use dedicated effect/* imports and canonical aliases instead of the upstream root barrel imports. (module suite test/**)
+- **identity-annotations** — The lab uses composed @beep/identity schema and service identities plus annotations instead of upstream short identities and bare fields. (module suite test/**)
+- **upstream-bug** — The lab preserves valid own constructor/prototype fields that upstream deepMerge deletes, maintaining schema validity and source priority. (test/MergeStrategy.test.ts:48,71)
+- **upstream-bug** — The lab checks ownership before reading merge fields, preventing inherited accessor calls that can make the upstream merge throw. (test/MergeStrategy.test.ts:95)
+- **upstream-bug** — Lab merges only compatible plain records and retains atomic class identity and private state, whereas upstream manufactures class instances without private-field brands (test/MergeStrategy.test.ts:95,254,272; test/MergeStrategy.property.test.ts:50; test/internal/deepMerge.property.test.ts:27,120).
+- **upstream-bug** — Lab preserves enumerable symbol fields and schema validity during merging, whereas upstream drops those fields through string-only enumeration (test/MergeStrategy.test.ts:145,187; test/internal/deepMerge.property.test.ts:52,100).
+- **upstream-bug** — The lab rejects schema-invalid merged configurations before success events, whereas upstream returns them successfully. (test/ConfigFile.test.ts:231,256,279)
+- **upstream-bug** — The lab terminates compatible cyclic record merges by reusing active-pair results, whereas upstream exhausts the stack. (test/internal/deepMerge.property.test.ts:27,48; test/MergeStrategy.test.ts:29; test/ConfigFile.test.ts:313)
+
+### Promotion shifts (wave 3-3)
+
+Each is pinned by a test (`goals/effected-promotion` SPEC W3-e and W3-h (3-3)):
+
+- `ConfigMigrationError`'s `name` payload field is now `migration`, so it no longer shadows `Error.name`.
+- `ConfigResolver.systemEtc` reads the `HostProcessPlatform` reference from `@beep/utils` instead of `globalThis.process.platform`; provide the reference to pin a platform in tests.
+- `ConfigMatch`, `ConfigProbe`, `ConfigSourceRef`, `ConfigEvent`, `ConfigEncodeOptions` and `LayerConfigProviderOptions` are branded `S.Opaque` schemas. Construct values with `X.make`; option parameters accept `typeof X.Encoded`, so object literals still work. `ConfigEvent` values are no longer class instances, so `instanceof` no longer applies. A hand-written resolver builds its match with `ConfigMatch.make`.
+- `ConfigEventsShape` is the `ConfigEvents` service type.
+- `EncryptedCodec` derives its key once per passphrase key through the internal `PassphraseKeyDerivation` reference; the codec's requirements stay `never`.
+- The codec spans are named `EncryptedCodec.parse`, `EncryptedCodec.stringify` and `ConfigMigration.parse`.
+- `EncryptedCodec` keeps `globalThis.crypto.subtle` for PBKDF2 and AES-GCM, which `effect/Crypto` does not provide. It is used as an algorithm primitive inside the codec and not re-exposed.
 
 ### Dependency backlog
 
 None.
+
+## Provenance
+
+Ported from upstream `@effected/config-file` (MIT, C. Spencer Beggs) through the effected port, then promoted from the scratchpad into this workspace package by `goals/effected-promotion` (wave 3, sub-wave 3-3). The package [LICENSE](LICENSE) carries both the beep-effect and the upstream copyright notices. Schema identities moved from `@beep/scratchpad/effected/config-file/*` to `@beep/config-file/*`.
+
+### Attribution
+
+- Upstream package: `@effected/config-file` 0.14.2
+- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (`$HOME/YeeBois/references/effect/effected`)
+- License: [LICENSE](./LICENSE) (upstream MIT notice alongside the beep-effect notice)
+- Vendored-engine notices: none found in source headers.
+
+## License
+
+[MIT](LICENSE)
