@@ -45,6 +45,46 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
       "\n"
     ),
   },
+  "prefer-exact-optional-key": {
+    invalidCount: 16,
+    messageIncludes: "exact optional keys",
+    invalid: A.join(
+      [
+        "import { optional } from 'effect/Schema';",
+        "import { a, optional as o } from 'effect/Schema';",
+        "import type { OptionFromOptional } from 'effect/Schema';",
+        "export const Call = S.Struct({ a: S.optional(S.String) });",
+        "export const Piped = S.Struct({ b: X.pipe(S.optional) });",
+        "const fields = { c: S.optional(S.Number) };",
+        "export const Hoisted = S.Struct(fields);",
+        "export const Aliased = Schema.Struct({ d: Schema.optional(Schema.String) });",
+        "export const Siblings = S.Struct({ e: S.withDecodingDefault(() => 'x')(S.String), f: S.OptionFromOptional(S.Number) });",
+        "export const Mapped = S.Struct({ g: S.String }).mapFields(Struct.map(S.optional));",
+        "const opt = S.optional;",
+        "export type Typed = S.optional<typeof S.String>;",
+        "export type Queried = typeof S.optional;",
+        "export const Tuple = S.Tuple([S.String, S.optional(S.Number)]);",
+        "export const Computed = S['optional'];",
+        "export { withDecodingDefault } from 'effect/Schema';",
+      ],
+      "\n"
+    ),
+    valid: A.join(
+      [
+        "import { optionalKey as k } from 'effect/Schema';",
+        "import { optional as other } from 'effect/Other';",
+        "export { optionalKey } from 'effect/Schema';",
+        "export const Exact = S.Struct({ a: S.optionalKey(S.String), b: S.optionalKey(S.UndefinedOr(S.Number)) });",
+        "export const Keyed = S.Struct({ c: S.withDecodingDefaultKey(() => 'x')(S.String), d: S.OptionFromOptionalKey(S.String) });",
+        "export const Flagged = Flag.optional(1);",
+        "export const Local = { optional: 1 }.optional;",
+        "export type Exactly = S.optionalKey<typeof S.String>;",
+        "// S.optional(S.String) in a comment",
+        "export const InString = 'S.optional(S.String)';",
+      ],
+      "\n"
+    ),
+  },
   "prefer-identity-annote-pipe": {
     invalidCount: 11,
     messageIncludes: "identity annotations go through",

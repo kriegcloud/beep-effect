@@ -124,6 +124,14 @@ describe("rule registry", () => {
             "Disallow hand-built `{ identifier: $I`Name` }` annotation objects; use `$I.annote(...)` or `X.pipe($I.annoteSchema(...))`.",
           scope: null,
         },
+        "prefer-exact-optional-key": {
+          name: "prefer-exact-optional-key",
+          severity: "error",
+          replaces: null,
+          summary:
+            "Schema fields use exact optional keys (EF-40): `S.optionalKey`, `S.withDecodingDefaultKey` and `S.OptionFromOptionalKey`, never `S.optional`, `S.withDecodingDefault` or `S.OptionFromOptional`.",
+          scope: null,
+        },
       });
     })
   );

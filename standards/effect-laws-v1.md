@@ -21,7 +21,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 10. No native `Array.prototype.sort`; use `A.sort` with explicit `Order`.
 11. No native `switch` statements; use `Match`, `Match.tagsExhaustive` for `_tag` unions, and schema `.match` for tagged-union schemas.
 12. Use `Bool.match` for boolean branching in domain/runtime orchestration code.
-13. Prefer schema defaults and transformations (`S.withDecodingDefault*`, `S.decodeTo`, `SchemaTransformation`) over ad-hoc parsing/fallback logic.
+13. Prefer schema defaults and transformations (`S.withDecodingDefaultKey`, `S.decodeTo`, `SchemaTransformation`) over ad-hoc parsing/fallback logic.
 14. HTTP boundaries must be expressed with Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
 15. JSDoc is required for exported APIs in `packages/*/src` and `packages/tooling/*/*/src`; examples must pass docgen.
 16. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.

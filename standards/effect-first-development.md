@@ -477,7 +477,7 @@ const program = Effect.sleep(pollInterval).pipe(Effect.timeout(timeout))
   - `S.OptionFromNullOr`
   - `S.OptionFromNullishOr`
   - `S.OptionFromOptionalKey`
-  - `S.OptionFromOptional`
+- Never `S.OptionFromOptional`; it admits a present key holding `undefined` (EF-40).
 - Reference: [Schema Option helpers](../.repos/effect/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](../.repos/effect/packages/effect/SCHEMA.md:636).
 
 Example:
@@ -492,8 +492,7 @@ export class AccountInput extends S.Opaque<AccountInput, { readonly brand: uniqu
   S.Struct({
     nickname: S.OptionFromNullishOr(S.String),
     bio: S.OptionFromNullOr(S.String),
-    phone: S.OptionFromOptionalKey(S.String),
-    timezone: S.OptionFromOptional(S.String)
+    phone: S.OptionFromOptionalKey(S.String)
   }).pipe($I.annoteSchema("AccountInput", {
     description: "Account input whose absent fields decode to Option."
   }))
@@ -911,7 +910,7 @@ const input = CreateOrderInput.make({ orderId: "o-1", customerId: "c-1" })
 
 - Put defaults in schema definitions, not in handler/service fallback object literals.
 - Use `S.withConstructorDefault` for constructor-time defaults.
-- Use `S.withDecodingDefault` / `S.withDecodingDefaultKey` for decode-time defaults.
+- Use `S.withDecodingDefaultKey` for decode-time defaults (never `S.withDecodingDefault`, EF-40).
 
 Example:
 
@@ -925,11 +924,11 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 export class VersionSyncOptions extends S.Opaque<VersionSyncOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     shouldCheck: S.Boolean.pipe(
-      S.withDecodingDefault(() => true),
+      S.withDecodingDefaultKey(() => true),
       S.withConstructorDefault(() => O.some(true))
     ),
     categories: S.Array(S.String).pipe(
-      S.withDecodingDefault(() => []),
+      S.withDecodingDefaultKey(() => []),
       S.withConstructorDefault(() => O.some([]))
     )
   }).pipe($I.annoteSchema("VersionSyncOptions", {
@@ -1142,6 +1141,40 @@ const UnknownToString = S.Unknown.pipe(
     })
   )
 )
+```
+
+### EF-40: Optional fields use exact keys
+
+- Optional schema fields use `S.optionalKey`, `S.withDecodingDefaultKey` and
+  `S.OptionFromOptionalKey`. Never `S.optional`, `S.withDecodingDefault` or
+  `S.OptionFromOptional`, wherever the field object lives (inline, a hoisted
+  constant, `.pipe(S.optional)`, `Struct.map(S.optional)`, a type position, a
+  named import or re-export).
+- Why: `S.optional(X)` is `S.optionalKey(S.UndefinedOr(X))`. Under
+  `exactOptionalPropertyTypes` it puts `| undefined` back into the field type,
+  admits a third state (key present, value `undefined`) that domain code must
+  then handle, and its JSON Schema advertises a `null` the decoder rejects. The
+  other two are built on it.
+- A field whose decoder really receives `undefined` from third-party code (a
+  library's `exportJSON()`, an SDK response) is spelled explicitly as
+  `S.optionalKey(S.UndefinedOr(X))`, with the producer recorded where the
+  field is declared. Construction sites that hold a possibly-undefined value
+  use `O.getSomesStruct({ k: O.fromUndefinedOr(v) })` (EF-2).
+- Enforced by the Biome GritQL rule `prefer-exact-optional-key`
+  (`@beep/lint-rules`); migrate mechanically with
+  `bun run beep lint schema-parity-codemod --rule exact-optional-keys --write`.
+
+Example:
+
+```ts
+import * as S from "effect/Schema"
+
+export const Draft = S.Struct({
+  title: S.String,
+  subtitle: S.optionalKey(S.String),
+  revision: S.Int.pipe(S.withDecodingDefaultKey(() => 1)),
+  tags: S.OptionFromOptionalKey(S.Array(S.String))
+})
 ```
 
 ## Copy-Paste Templates
@@ -1454,7 +1487,7 @@ Use this before submitting code:
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
 31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.
 32. Finite variants, lifecycle states, status/result cases, and case-specific payloads are modeled as discriminated unions; literal-string discriminants and named internal literal domains use `LiteralKit` when `.Enum`, `.is`, `$match`, or `.toTaggedUnion` are needed; anonymous inline unions never referenced by name use `S.Literals`.
-33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefault*`, not ad-hoc fallback objects in handlers/services.
+33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefaultKey`, not ad-hoc fallback objects in handlers/services.
 34. Named or reused domain constraints are modeled as schemas first; built-in schema constructors/checks are preferred before `S.makeFilter`.
 35. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.
 36. Reusable schema checks and filter groups carry `identifier`, `title`, and `description`.
@@ -1467,3 +1500,4 @@ Use this before submitting code:
 43. Runtime sorting uses `A.sort` with explicit `Order`, not native `Array.prototype.sort`.
 44. Boolean branching prefers `Bool.match` over ad-hoc `if/else` when branching on booleans.
 45. HTTP request/response composition uses Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
+46. Optional schema fields use exact keys: `S.optionalKey` / `S.withDecodingDefaultKey` / `S.OptionFromOptionalKey`, never `S.optional` / `S.withDecodingDefault` / `S.OptionFromOptional` (EF-40).

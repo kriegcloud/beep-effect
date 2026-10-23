@@ -113,7 +113,6 @@ export class ProfileInput extends S.Opaque<ProfileInput, { readonly brand: uniqu
   S.Struct({
     nickname: S.OptionFromNullishOr(S.String),
     email: S.OptionFromOptionalKey(S.String),
-    backupEmail: S.OptionFromOptional(S.String),
     avatarUrl: S.OptionFromNullOr(S.String)
   }).pipe($I.annoteSchema("ProfileInput", {
     description: "Profile input whose absent fields decode to Option."

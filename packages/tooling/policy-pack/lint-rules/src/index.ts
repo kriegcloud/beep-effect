@@ -32,7 +32,8 @@ const $I = $LintRulesId;
  *   "no-empty-named-blocks",
  *   "prefer-array-flat-map",
  *   "prefer-identity-annote-pipe",
- *   "no-hand-built-identity-annotation"
+ *   "no-hand-built-identity-annotation",
+ *   "prefer-exact-optional-key"
  * ])
  * ```
  *
@@ -46,6 +47,7 @@ export const RULE_NAMES = [
   "prefer-array-flat-map",
   "prefer-identity-annote-pipe",
   "no-hand-built-identity-annotation",
+  "prefer-exact-optional-key",
 ] as const;
 
 /**
@@ -166,6 +168,7 @@ export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly 
     "prefer-array-flat-map": RuleMetadataSchema,
     "prefer-identity-annote-pipe": RuleMetadataSchema,
     "no-hand-built-identity-annotation": RuleMetadataSchema,
+    "prefer-exact-optional-key": RuleMetadataSchema,
   }).pipe(
     $I.annoteSchema("RuleRegistrySchema", {
       description: "Schema for the finite rule registry keyed by rule slug.",
@@ -232,6 +235,14 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
     replaces: O.none(),
     summary:
       "Disallow hand-built `{ identifier: $I`Name` }` annotation objects; use `$I.annote(...)` or `X.pipe($I.annoteSchema(...))`.",
+    scope: O.none(),
+  }),
+  "prefer-exact-optional-key": RuleMetadataSchema.make({
+    name: "prefer-exact-optional-key",
+    severity: "error",
+    replaces: O.none(),
+    summary:
+      "Schema fields use exact optional keys (EF-40): `S.optionalKey`, `S.withDecodingDefaultKey` and `S.OptionFromOptionalKey`, never `S.optional`, `S.withDecodingDefault` or `S.OptionFromOptional`.",
     scope: O.none(),
   }),
 });
