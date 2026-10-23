@@ -628,7 +628,7 @@ export class YeetVerdict extends S.Opaque<YeetVerdict, { readonly brand: unique 
     createdAt: S.String,
     failurePolicy: GithubCheckFailurePolicy.pipe(
       S.withConstructorDefault(Effect.succeed(GithubCheckFailurePolicy.Enum["fail-fast"])),
-      S.withDecodingDefault(Effect.succeed(GithubCheckFailurePolicy.Enum["fail-fast"]))
+      S.withDecodingDefaultKey(Effect.succeed(GithubCheckFailurePolicy.Enum["fail-fast"]))
     ),
     head: S.String,
     lanes: S.Array(YeetVerdictLane),

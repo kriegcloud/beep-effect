@@ -92,7 +92,7 @@ class WorkflowJob extends S.Opaque<WorkflowJob, { readonly brand: unique symbol 
   S.Struct({
     steps: S.Array(WorkflowStep).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<WorkflowStep>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<WorkflowStep>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<WorkflowStep>()))
     ),
   }).pipe(
     $I.annoteSchema("WorkflowJob", {
@@ -105,7 +105,7 @@ class WorkflowDocument extends S.Opaque<WorkflowDocument, { readonly brand: uniq
   S.Struct({
     jobs: S.Record(S.String, WorkflowJob).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, WorkflowJob>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, WorkflowJob>()))
+      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, WorkflowJob>()))
     ),
   }).pipe(
     $I.annoteSchema("WorkflowDocument", {

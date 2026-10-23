@@ -47,23 +47,23 @@ export class APIReference extends S.Opaque<APIReference, { readonly brand: uniqu
       $I.annoteKey("APIReference.@type", { description: "The JSON-LD type discriminator, populated automatically." })
     ),
     /** The version of the assembly the reference documents. Single-valued. */
-    assemblyVersion: S.optional(S.String).pipe(
+    assemblyVersion: S.optionalKey(S.String).pipe(
       $I.annoteKey("APIReference.assemblyVersion", {
         description: "The version of the assembly the reference documents. Single-valued.",
       })
     ),
     /** The programming model the API follows. Single-valued. */
-    programmingModel: S.optional(S.String).pipe(
+    programmingModel: S.optionalKey(S.String).pipe(
       $I.annoteKey("APIReference.programmingModel", {
         description: "The programming model the API follows. Single-valued.",
       })
     ),
     /** The platform the API targets. Single-valued. */
-    targetPlatform: S.optional(S.String).pipe(
+    targetPlatform: S.optionalKey(S.String).pipe(
       $I.annoteKey("APIReference.targetPlatform", { description: "The platform the API targets. Single-valued." })
     ),
     /** The library file that exposes the API. Single-valued. */
-    executableLibraryName: S.optional(S.String).pipe(
+    executableLibraryName: S.optionalKey(S.String).pipe(
       $I.annoteKey("APIReference.executableLibraryName", {
         description: "The library file that exposes the API. Single-valued.",
       })

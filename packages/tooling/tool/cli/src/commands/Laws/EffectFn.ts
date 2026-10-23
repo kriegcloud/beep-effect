@@ -57,11 +57,11 @@ export class EffectFnRulesOptions extends S.Opaque<EffectFnRulesOptions, { reado
   S.Struct({
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     excludePaths: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
   }).pipe(
@@ -140,11 +140,11 @@ export class EffectFnRulesSummary extends S.Opaque<EffectFnRulesSummary, { reado
     strictFailure: S.Boolean,
     affectedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     diagnostics: S.Array(EffectFnDiagnostic).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectFnDiagnostic>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<EffectFnDiagnostic>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectFnDiagnostic>()))
     ),
   }).pipe(
     $I.annoteSchema("EffectFnRulesSummary", {

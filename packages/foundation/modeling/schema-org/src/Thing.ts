@@ -22,9 +22,9 @@ import * as S from "effect/Schema";
  * heritage chain, and leaves every class's emitted declaration listing its own
  * fields.
  *
- * Every field except `@id` uses `Schema.optionalKey`: omit absent metadata
- * instead of passing an explicit `undefined`. A present field must satisfy
- * its schema.
+ * Every field is an exact optional key (`Schema.optionalKey`, EF-40): absence
+ * is spelled by omitting the key, so a caller holding possibly-absent upstream
+ * metadata builds the node with `O.getSomesStruct({...})`.
  *
  * **Example** (Construct shared node metadata)
  *
@@ -33,9 +33,9 @@ import * as S from "effect/Schema";
  * import * as S from "effect/Schema";
  *
  * const Thing = S.Struct(ThingFields);
- * const node = Thing.make({ "@id": "_:pkg" });
- * node["@id"] // => "_:pkg"
- * node.name // => undefined
+ * const node = S.decodeUnknownSync(Thing)({ "@id": "_:pkg" });
+ * console.log(node["@id"]) // _:pkg
+ * console.log(node.name) // undefined
  * ```
  *
  * @public

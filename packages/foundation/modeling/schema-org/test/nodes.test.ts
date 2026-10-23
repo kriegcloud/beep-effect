@@ -9,10 +9,11 @@ import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { TechArticle, TechArticleFields } from "@beep/schema-org/TechArticle";
 import { ThingFields } from "@beep/schema-org/Thing";
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -35,47 +36,21 @@ describe("node classes", () => {
     }
   });
 
-  it("accepts omitted Thing and TechArticle metadata", () => {
-    const node = TechArticle.make({ "@id": ID });
-
-    assert.notProperty(node, "headline");
-    assert.notProperty(node, "description");
-    assert.notProperty(node, "additional");
-  });
-
-  it.each([
-    "name",
-    "url",
-    "description",
-    "identifier",
-    "sameAs",
-    "additional",
-    "headline",
-    "articleSection",
-    "proficiencyLevel",
-    "dependencies",
-  ])("rejects explicit undefined for optionalKey metadata: %s", (key) => {
-    const decoded = S.decodeResult(TechArticle)({ "@id": ID, "@type": "TechArticle", [key]: undefined });
-
-    assertFailure(
-      Result.mapError(decoded, () => undefined),
-      undefined
-    );
-  });
-
-  it("accepts explicit undefined for CreativeWork fields modeled with Schema.optional", () => {
-    const node = TechArticle.make({
-      "@id": ID,
-      datePublished: undefined,
-      author: undefined,
-      mainEntity: undefined,
-    });
-
-    assert.strictEqual(node["@id"], ID);
-    assert.isUndefined(node.datePublished);
-    assert.isUndefined(node.author);
-    assert.isUndefined(node.mainEntity);
-  });
+  // Optional fields are exact keys (EF-40): absence is spelled by omitting the
+  // key, so a present key holding undefined never decodes.
+  it.effect.prop(
+    "rejects an explicit undefined for any optional field",
+    [Arbitrary.schema(TechArticle)],
+    ([node]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(TechArticle)(node);
+        for (const key of ["headline", "description", "datePublished", "author", "mainEntity", "additional"]) {
+          const explicit = yield* S.decodeEffect(TechArticle)({ ...encoded, [key]: undefined }).pipe(Effect.exit);
+          explicit.pipe(Exit.isFailure, assertTrue);
+        }
+      }),
+    { arbitrary: fcRuns(25) }
+  );
 
   it("requires @id and nothing else", () => {
     assert.strictEqual(Person.make({ "@id": ID })["@id"], ID);

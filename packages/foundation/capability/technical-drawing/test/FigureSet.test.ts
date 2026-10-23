@@ -54,7 +54,7 @@ import {
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, vi } from "@effect/vitest";
-import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertInstanceOf, assertNone, assertSome, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -1063,12 +1063,13 @@ describe("@beep/technical-drawing", () => {
         });
         expect(labelTextFindings({ page: 1, pages: 8, text: "1/8\n\nFIG. 1\n\f", options })).toEqual([]);
         // FIG. 10 does not carry FIG. 1; 11/8 does not carry 1/8
-        expect(
-          A.map(labelTextFindings({ page: 1, pages: 8, text: "11/8\nFIG. 10\n", options }), (f) => [f.code, f.page])
-        ).toEqual([
-          ["label-missing", O.some(1)],
-          ["label-missing", O.some(1)],
-        ]);
+        deepStrictEqual(
+          A.map(labelTextFindings({ page: 1, pages: 8, text: "11/8\nFIG. 10\n", options }), (f) => [f.code, f.page]),
+          [
+            ["label-missing", O.some(1)],
+            ["label-missing", O.some(1)],
+          ]
+        );
         expect(
           labelTextFindings({
             page: 2,
@@ -2076,7 +2077,7 @@ describe("@beep/technical-drawing approver binding and empty documents", () => {
         const decoded = yield* S.decodeEffect(RenderManifestJson)(bound.written);
         expect(O.getOrUndefined(decoded.approver)).toBe("attorney@example.com");
         const unbound = yield* render("unbound", spec(figures));
-        expect(O.isNone(unbound.manifest.approver)).toBe(true);
+        assertNone(unbound.manifest.approver);
         expect(unbound.written).not.toContain("approver");
       })
     );

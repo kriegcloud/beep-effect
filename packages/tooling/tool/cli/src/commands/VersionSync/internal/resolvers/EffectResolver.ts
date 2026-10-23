@@ -56,11 +56,11 @@ export class EffectCatalogState extends S.Opaque<EffectCatalogState, { readonly 
   S.Struct({
     canonicalSpecifier: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     packages: S.Array(EffectCatalogPackage).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectCatalogPackage>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<EffectCatalogPackage>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectCatalogPackage>()))
     ),
   }).pipe(
     $I.annoteSchema("EffectCatalogState", {

@@ -93,11 +93,11 @@ class ReflectionFrontmatter extends S.Opaque<ReflectionFrontmatter, { readonly b
     confidence: ReflectionConfidence,
     findings: S.Array(ReflectionFinding).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<ReflectionFinding>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<ReflectionFinding.Encoded>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<ReflectionFinding.Encoded>()))
     ),
     todos: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("ReflectionFrontmatter", {
