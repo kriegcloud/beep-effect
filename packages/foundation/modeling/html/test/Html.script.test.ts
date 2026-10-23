@@ -244,9 +244,9 @@ describe("HTML script semantic states", () => {
   it("enforces script MIME correlations at compile and decode boundaries", () => {
     const mimeType = Result.getOrThrow(decodeScriptDataBlockMimeTypeResult("application/json"));
     const validState: ScriptState = ScriptState.cases.dataBlock.make({ mimeType });
-    // @ts-expect-error -- data-block MIME types are schema-refined rather than arbitrary strings.
+    // @ts-expect-error -- data-block MIME types are schema-refined rather than arbitrary strings. Owner: @beep/html. Exit: remove if the API is meant to accept this.
     const invalidMimeType: ScriptDataBlockMimeType = "application/json";
-    // @ts-expect-error -- unsupported is not an author-conforming script state.
+    // @ts-expect-error -- unsupported is not an author-conforming script state. Owner: @beep/html. Exit: remove if the API is meant to accept this.
     const invalidState: ScriptState = { state: "unsupported" };
 
     expect(validState.state).toBe("dataBlock");

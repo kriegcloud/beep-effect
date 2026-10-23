@@ -1,4 +1,4 @@
-// @effect-diagnostics globalTimers:skip-file
+// @effect-diagnostics globalTimers:skip-file -- globalTimers because the Ink components under test schedule their state changes on real timers. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as Clock from "effect/Clock";
 import { assert, describe, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";

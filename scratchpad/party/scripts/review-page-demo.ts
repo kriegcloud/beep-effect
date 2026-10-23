@@ -1,4 +1,3 @@
-// @effect-diagnostics globalConsole:skip-file strictEffectProvide:skip-file
 /**
  * Render the review page from fully synthetic cases, for UI checks that must
  * never see client data.
@@ -72,7 +71,9 @@ const demo = Effect.fn("review-page-demo")(function* (out: string) {
 
 const [out] = A.drop(process.argv, 2);
 if (out === undefined) {
+  // @effect-diagnostics-next-line globalConsole:off -- the usage error is written before the Effect runtime starts. Owner: @beep/scratchpad. Exit: the party-slice CLI parses arguments with effect/cli.
   console.error("usage: review-page-demo.ts <out.html>");
   process.exit(2);
 }
+// @effect-diagnostics-next-line strictEffectProvide:off -- this is the script's entry point, where the platform layer is provided once. Owner: @beep/scratchpad. Exit: never while this file is a bun entry script.
 demo(out).pipe(Effect.provide(Layer.mergeAll(BunServices.layer, BunCrypto.layer)), BunRuntime.runMain);

@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file processEnv:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file processEnv:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load; processEnv because it sets and restores GITHUB_SERVER_URL to prove the ambient value is ignored. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // SLSA Provenance v1 — typed, total, and byte-compatible with @actions/attest.
 //
 // The compatibility claim is the reason this file reads a fixture rather than

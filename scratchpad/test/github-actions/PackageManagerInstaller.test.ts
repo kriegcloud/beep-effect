@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file nodeBuiltinImport:skip-file asyncFunction:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file asyncFunction:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; asyncFunction because the fetch doubles must be async functions shaped like globalThis.fetch. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";

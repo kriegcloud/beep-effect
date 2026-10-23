@@ -112,7 +112,7 @@ describe("IdentityRegistry", () => {
   it("rejects unbound composers at compile time", () => {
     const rejectUnboundComposer = () => {
       const unbound = makeIdentity("identity").$IdentityId.create("Unbound");
-      // @ts-expect-error Registry entries require a composer with IRI and CURIE bindings.
+      // @ts-expect-error -- Registry entries require a composer with IRI and CURIE bindings. Owner: @beep/identity. Exit: remove if the API is meant to accept this.
       IdentityEntry.fromComposer(unbound, {});
     };
 

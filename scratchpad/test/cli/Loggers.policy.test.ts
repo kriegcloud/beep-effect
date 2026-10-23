@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";

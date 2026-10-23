@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Parent-side plumbing of `ConfigDependencyHooks.layerSubprocess`, over the
 // public `ScriptedSpawner` double from `@effected/commands`.
 //

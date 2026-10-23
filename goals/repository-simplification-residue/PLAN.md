@@ -46,7 +46,8 @@ complete (`history/receipts/hold-register.md`), ahead of the 2026-10-30 deadline
 guidance surface (`history/receipts/guidance-classification.md`). Wave 2 reviews
 the 660 inline directives individually; wave 3 adds a compile check for the 324
 Markdown TypeScript fences and decides the three upstream-copied `.patterns` files.
-Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 (`history/receipts/guidance-wave-2a.md`); wave 2b takes the other directive kinds.
+Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 (`history/receipts/guidance-wave-2a.md`); wave 2b takes the TypeScript suppressions.
+Wave 2b reviewed every `@ts-expect-error` (2 fixed, 140 kept) and every `@effect-diagnostics` rule entry (13 stale removed, 3 fixed, 8 narrowed to next-line, 117 kept), each kept one with an inline owner and exit (`history/receipts/guidance-wave-2b.md`); wave 2c takes the remaining directive kinds.
 #1855 `residue-detectors` is in progress: wave 1 closed F-S31-EV010, which #1899 had
 already fixed on main, and extended the EV010 proof to same-file helpers, resolving 16
 more rows (`history/receipts/detectors-wave-1.md`). Wave 2 is FP-1..FP-7.

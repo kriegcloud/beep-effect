@@ -397,7 +397,6 @@ const EffectDiagnosticsExemptRule = LiteralKit([
   "globalTimers",
   "newPromise",
   "nodeBuiltinImport",
-  "processEnv",
 ]);
 
 /**
@@ -475,7 +474,7 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
 ] = [
   EffectDiagnosticsDirectiveExemption.make({
     path: "vitest.setup.ts",
-    rules: ["nodeBuiltinImport", "asyncFunction", "newPromise", "processEnv", "globalTimers", "globalRandom"],
+    rules: ["nodeBuiltinImport", "asyncFunction", "newPromise", "globalTimers", "globalRandom"],
     reason:
       "Root Bun-compat shim for Node-based vitest runs: it implements Bun.spawn/file/serve over node builtins before any Effect runtime exists.",
   }),

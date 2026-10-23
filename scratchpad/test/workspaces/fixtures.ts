@@ -1,5 +1,4 @@
-// These test fixtures are internal helpers and preserve their direct-call contract.
-// @effect-diagnostics missingPipeableSignature:skip-file
+// @effect-diagnostics missingPipeableSignature:skip-file -- missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { dual } from "effect/Function";
 // In-memory filesystem fixtures.
 //

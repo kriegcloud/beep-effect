@@ -109,7 +109,7 @@ export const sqliteUserRepository = sqliteKit.Repository(SqliteUser, {
 });
 export const _sqliteNativeRepositoryVersionedModel = () => ({
   repository: makeNativeRepository(
-    // @ts-expect-error invariant: native repositories reject models with an optimistic version field
+    // @ts-expect-error -- invariant: native repositories reject models with an optimistic version field. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     SqliteUser,
     { spanPrefix: "SqliteUserNative", idColumn: "id" }
   ),
@@ -132,7 +132,7 @@ const { pg } = pgSymmetryKit;
 
 export const _pgSpecInSqlite = () => {
   class PgSpecInSqlite extends SqliteModel<PgSpecInSqlite>("PgSpecInSqlite")({
-    // @ts-expect-error invariant: PostgreSQL descriptors cannot enter SQLite models
+    // @ts-expect-error -- invariant: PostgreSQL descriptors cannot enter SQLite models. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     value: String.pipe(pg.text()),
   }) {}
   return PgSpecInSqlite;
@@ -140,7 +140,7 @@ export const _pgSpecInSqlite = () => {
 
 export const _sqliteSpecInPg = () => {
   class SqliteSpecInPg extends pgSymmetryKit.Model<SqliteSpecInPg>("SqliteSpecInPg")({
-    // @ts-expect-error invariant: SQLite descriptors cannot enter PostgreSQL models
+    // @ts-expect-error -- invariant: SQLite descriptors cannot enter PostgreSQL models. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     value: String.pipe(sqlite.text()),
   }) {}
   return SqliteSpecInPg;
@@ -149,19 +149,19 @@ export const _sqliteSpecInPg = () => {
 export const _sqliteBadVariantVersion = () =>
   VariantField({ select: Int, update: Int }).pipe(
     sqlite.integer(),
-    // @ts-expect-error invariant: optimistic versions cannot override explicit variant membership
+    // @ts-expect-error -- invariant: optimistic versions cannot override explicit variant membership. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     sqlite.version()
   );
 
 export const _sqliteDateJsonMode = () =>
   DateSchema.pipe(
-    // @ts-expect-error invariant: SQLite JSON mode accepts only arrays and string-keyed records
+    // @ts-expect-error -- invariant: SQLite JSON mode accepts only arrays and string-keyed records. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     sqlite.text({ mode: "json" })
   );
 
 export const _sqliteBytesJsonMode = () =>
   Uint8ArraySchema.pipe(
-    // @ts-expect-error invariant: SQLite JSON mode rejects declaration-backed byte arrays
+    // @ts-expect-error -- invariant: SQLite JSON mode rejects declaration-backed byte arrays. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     sqlite.blob({ mode: "json" })
   );
 
@@ -169,7 +169,7 @@ export const _sqliteDateJsonModelMirror = _sqliteDateJsonMode;
 
 export const _sqliteBareDeclaration = () => {
   class SqliteBareDeclaration extends SqliteModel<SqliteBareDeclaration>("SqliteBareDeclaration")({
-    // @ts-expect-error invariant: declaration-backed objects do not derive SQLite JSON storage
+    // @ts-expect-error -- invariant: declaration-backed objects do not derive SQLite JSON storage. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     value: instanceOf(RegExp),
   }) {}
   return SqliteBareDeclaration;
@@ -178,7 +178,7 @@ export const _sqliteBareDeclaration = () => {
 export const _nullableSqliteVersion = () =>
   NullOr(Int).pipe(
     sqlite.integer(),
-    // @ts-expect-error invariant: optimistic versions cannot be nullable
+    // @ts-expect-error -- invariant: optimistic versions cannot be nullable. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     sqlite.version()
   );
 
@@ -195,7 +195,7 @@ class SqliteNonUniqueSource extends SqliteModel<SqliteNonUniqueSource>("SqliteNo
   targetId: Int.pipe(sqlite.integer(), sqlite.references(SqliteNonUniqueTargetId)),
 }) {}
 export const _sqliteNonUniqueForeignKey = () =>
-  // @ts-expect-error invariant: foreign keys must target an inline primary-key or unique column
+  // @ts-expect-error -- invariant: foreign keys must target an inline primary-key or unique column. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   sqliteKit.schema({
     sqlite_non_unique_target: SqliteNonUniqueTarget,
     sqlite_non_unique_source: SqliteNonUniqueSource,
@@ -235,7 +235,7 @@ export const sqliteExactKeyResolutionSchema = sqliteKit.schema({
   sqlite_resolution_source: SqliteResolutionSource,
 });
 export const sqliteUniquePhysicalResolutionSchema =
-  // @ts-expect-error boundary: physical-name fallback is runtime-only until model statics preserve literals
+  // @ts-expect-error -- boundary: physical-name fallback is runtime-only until model statics preserve literals. Owner: @beep/effect-drizzle. Exit: model statics preserve physical column-name literals, so the type layer resolves the fallback.
   sqliteKit.schema({
     physical_target: SqliteResolutionTarget,
     sqlite_resolution_source: SqliteResolutionSource,
@@ -305,7 +305,7 @@ class SqliteBareReal extends SqliteModel<SqliteBareReal>("SqliteBareReal")({
 export const sqliteBareRealRejectsNaN = !is(SqliteBareReal.insert)({ value: Number.NaN });
 export const sqliteBoundedBigintNumeric = BigInt.pipe(sqlite.numeric({ mode: "bigint" }));
 export const _sqliteNumericStringMode = () =>
-  // @ts-expect-error invariant: NUMERIC string mode is representation-lossy; use text()
+  // @ts-expect-error -- invariant: NUMERIC string mode is representation-lossy; use text(). Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   SqliteWaveEString.pipe(sqlite.numeric({ mode: "string" }));
 
 export const _sqliteInvalidFiniteDefault = () => {
@@ -363,7 +363,7 @@ export const _sqliteDuplicateCompositeRuntime = () => {
   class DuplicateComposite extends SqliteModel<DuplicateComposite>("SqliteDuplicateComposite")(
     { one: Int, two: Int },
     (columns) => [
-      // @ts-expect-error invariant: runtime mirror survives type suppression
+      // @ts-expect-error -- invariant: runtime mirror survives type suppression. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       SqliteTable.compositeUnique("sqlite_duplicate_composite", [columns.one, columns.one]),
     ]
   ) {}
@@ -373,7 +373,7 @@ export const _sqliteNullableCompositePrimaryRuntime = () => {
   class NullableCompositePrimary extends SqliteModel<NullableCompositePrimary>("SqliteNullableCompositePrimary")(
     { one: NullOr(Int), two: Int },
     (columns) => [
-      // @ts-expect-error invariant: runtime mirror survives type suppression
+      // @ts-expect-error -- invariant: runtime mirror survives type suppression. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       SqliteTable.compositePrimaryKey("sqlite_nullable_composite_pk", [columns.one, columns.two]),
     ]
   ) {}
@@ -398,28 +398,28 @@ export const _sqliteDuplicateExtrasNames = () => {
 };
 export const _sqliteSetNullNonNullable = () => {
   class SetNullSource extends SqliteModel<SetNullSource>("SqliteSetNullSource")({
-    // @ts-expect-error invariant: runtime model construction mirrors SET NULL validation
+    // @ts-expect-error -- invariant: runtime model construction mirrors SET NULL validation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     targetId: SharedOrganizationId.pipe(
       sqlite.integer(),
-      // @ts-expect-error invariant: SET NULL requires nullable encoded source
+      // @ts-expect-error -- invariant: SET NULL requires nullable encoded source. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       sqlite.references(SharedOrganizationId, { onDelete: "set null" })
     ),
   }) {}
-  // @ts-expect-error invariant: runtime schema assembly mirrors SET NULL validation
+  // @ts-expect-error -- invariant: runtime schema assembly mirrors SET NULL validation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   return sqliteKit.schema({ shared_organization: SqliteOrganization, set_null_source: SetNullSource });
 };
 export const _sqliteSetDefaultWithoutDefault = () => {
   class SetDefaultSource extends SqliteModel<SetDefaultSource>("SqliteSetDefaultSource")({
-    // @ts-expect-error invariant: runtime model construction mirrors SET DEFAULT validation
+    // @ts-expect-error -- invariant: runtime model construction mirrors SET DEFAULT validation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     targetId: SharedOrganizationId.pipe(
       sqlite.integer(),
-      // @ts-expect-error invariant: SET DEFAULT requires a declared database default
+      // @ts-expect-error -- invariant: SET DEFAULT requires a declared database default. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       sqlite.references(SharedOrganizationId, { onDelete: "set default" })
     ),
   }) {}
   return sqliteKit.schema({
     shared_organization: SqliteOrganization,
-    // @ts-expect-error invariant: runtime schema assembly mirrors SET DEFAULT validation
+    // @ts-expect-error -- invariant: runtime schema assembly mirrors SET DEFAULT validation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     set_default_source: SetDefaultSource,
   });
 };
@@ -438,7 +438,7 @@ export const _sqliteTooManyColumns = () => {
   const fields: Record<string, typeof SqliteWaveEString> = fromEntries(
     globalThis.Array.from({ length: 2_001 }, (_, index) => [`field_${index}`, SqliteWaveEString])
   );
-  // @ts-expect-error invariant: dynamic widened keys defer to the runtime model validator
+  // @ts-expect-error -- invariant: dynamic widened keys defer to the runtime model validator. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   class TooManyColumns extends SqliteModel<TooManyColumns>("SqliteTooManyColumns")(fields) {}
   return TooManyColumns;
 };
