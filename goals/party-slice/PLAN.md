@@ -14,6 +14,15 @@ Status: `pending`
 | P3 Yeet: PR to mergeable | pending | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
 | P4 Close | pending | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 
+## P1 Settlement Checklist (#2045)
+
+- [ ] Implement the SPEC's exact module-specifier boundary test in law-practice server,
+  including suffix-package and same-line forbidden-import fixtures.
+- [ ] Implement the shared PartyKey v1 canonicalizer and pinned bytes/digest fixtures;
+  prove mail-header/contact-card equality and the normalization/fallback cases.
+- [ ] Implement active-veto-first resolution replay and deterministic contradiction review cases;
+  pass every scenario in the SPEC's DistinctParty acceptance table.
+
 ## Closeout Checklist
 
 Before marking the packet closed:

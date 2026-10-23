@@ -92,19 +92,111 @@ Higher sources outrank lower sources when they conflict.
   law-practice contact port is implemented in law-practice.
 - [ ] Law-practice's `Party` aggregate is renamed `LegalPartyReference` (no table, so no migration). No
   second aggregate named `Party` exists outside `@beep/party-domain`.
-- [ ] All four boundary checks in the Verification Matrix return no matches. `@beep/law-practice-server` is the
-  only law-practice package that imports from party, and it imports `@beep/party-use-cases` and nothing else.
+- [ ] All four boundary scans in the Verification Matrix return no matches, and the server boundary
+  test passes. `@beep/law-practice-server` is the only law-practice package that imports from party, and it imports `@beep/party-use-cases` and nothing else.
   The contact-source port's input and output types reach it through the use-cases public surface.
 - [ ] Parties carry an integer `PartyId` plus deterministic `PartyKey`s, and resolution follows the identity
   rules in the Decision Log. Tests cover:
   - the surviving-id choice, and replay producing the same view;
   - an absorbed `PartyId` and its keys resolving to the survivor inside party (a `LegalPartyReference` keeps
     its id; cross-slice resolution is out of scope);
-  - `DistinctParty` vetoing a merge;
+  - the PartyKey v1 fixtures and cross-adapter equality cases below;
+  - `DistinctParty` vetoing a merge, including a later veto and equal-time conflicts;
   - a retraction recomputing components: a simple merge splits again, a cycle stays merged through its other
     edges, and a retraction that re-enables a vetoed merge yields the new component.
 - [ ] `bun run beep quality package-verify` passes for the three party packages.
 - [ ] No unrelated refactors or formatting churn.
+
+## P1 contract tests (settled for #2045)
+
+These are P1 deliverables, not tests implemented by this docs-only settlement.
+
+### Exact law-practice server boundary
+
+Add a small boundary test under `packages/law-practice/server/test/` that parses module specifiers
+in server source (imports, exports, dynamic imports and `require` with literal arguments).
+For any party specifier, allow exactly `@beep/party-use-cases` or that name followed by `/` and a
+nonempty subpath. Reject every other party package. Fixtures must accept the bare package and
+`@beep/party-use-cases/ContactSource`, and reject `@beep/party-use-cases-extra`,
+`@beep/party-domain`, and a forbidden import on the same line as an allowed import.
+Exercise single and double quotes and multiline declarations; comments do not grant an exception.
+The token scan below is a quick diagnostic; the parser test is the authoritative import check.
+
+### PartyKey v1 bytes and adapter equality
+
+`PartyKey` is `pk:v1:` followed by the 64 lowercase hexadecimal digits of SHA-256 over the UTF-8
+canonical JSON bytes of one basis object. Both adapters call the same domain canonicalizer.
+The basis is exactly `{ "kind": "identifier", "scheme": <kind>, "authority": <namespace>,
+"value": <identifier> }`. It identifies an ingestion anchor, not proof that its users are one person.
+`KeyAssignment`, accepted identity claims and valid time still determine party resolution; shared
+or reassigned addresses never automatically authorize `SameParty`.
+
+- All strings are Unicode NFC. Trim leading/trailing Unicode White_Space from parsed values;
+  preserve internal whitespace and case unless a scheme rule below says otherwise. Do not hash
+  display names, adapter names, card ids, observation ids, paths, timestamps, source order or claim
+  status into an identifier basis. Preserve those on evidence assertions.
+- Email: parse the mailbox from a header or card before canonicalizing; discard the display-name
+  wrapper. `scheme` is `email`, `authority` is the empty string. Preserve local-part case, dots,
+  plus tags and internal characters; never apply provider-specific alias rules. Convert the domain
+  with UTS #46 nontransitional processing and STD3 rules to its ASCII A-label form, then lowercase
+  ASCII letters. Reject invalid domains and unparseable mailboxes as data-quality issues; never
+  strip internal whitespace to repair an invalid address. Thus `Dana@EXAMPLE.test` and
+  `Dana@example.test` agree, while `dana@example.test` stays distinct in v1.
+- Other supported identifiers: `scheme` is the domain's identifier-kind token; `authority` is the
+  explicit issuer/tenant namespace (empty only for a globally scoped kind). Preserve case and
+  internal whitespace of value and authority after NFC and trimming; no inferred domain or phone
+  rewriting. Schema validation rejects missing required authority and malformed values.
+- Emit one key per identifier rather than hashing the list of identifiers on a card. A record with
+  no usable identifier uses a separate basis `{ "kind": "source-record", "authority": <stable
+  source namespace>, "value": <stable native record id> }`, with NFC/trim and case preserved.
+  Missing stable namespace/id is a data-quality issue, not a display-name fallback. Such keys have
+  no cross-source equality guarantee; grouping different identifiers needs evidence and review.
+- Serialize objects with keys sorted lexicographically by Unicode code point, no insignificant
+  whitespace or BOM, JSON string escaping for quote, backslash and control characters only, and
+  other Unicode characters emitted directly. Use `\b`, `\t`, `\n`, `\f`, `\r` for their named
+  controls, `\"` and `\\` for quote and backslash, and lowercase `\u00xx` for remaining U+0000–001F
+  controls. Reject unpaired surrogates. There are only string fields: no absent fields, nulls,
+  numbers or arrays. For email the byte string is exactly
+  `{"authority":"","kind":"identifier","scheme":"email","value":"Dana@example.test"}`.
+  Hash those bytes without a trailing newline. Decode accepts only `pk:v1:[0-9a-f]{64}` for v1;
+  future canonicalization changes require a new version and explicit key-assignment migration.
+
+P1 tests must pin the canonical byte string and independently calculated digest, then prove that a
+synthetic mail header `Dana Example <Dana@EXAMPLE.test>` and a contact card containing
+` Dana@example.test ` yield the same key despite differing metadata. Include decomposed/composed
+Unicode local parts, Unicode/A-label equivalent domains, reordered input object fields, changed
+metadata, and distinct local-part case/plus tags. Invalid email, missing authority, and identifier-free
+records exercise the issue/fallback paths. Replay and adapter input ordering must not change keys.
+
+### DistinctParty scope, order and contradictions
+
+For each valid-time/knowledge-time query, select the effective accepted versions first (including
+retractions and supersessions). Collect all active `DistinctParty` pairs as cannot-link constraints,
+then replay active `SameParty` candidates in ascending `(recordedAt, ClaimVersion id)` order.
+Compare timestamps numerically and ids lexicographically by Unicode code point, independent of
+locale or input iteration order. A merge is blocked if any veto crosses its two current components.
+All vetoes apply before all merges, even if the veto was recorded later; at equal knowledge time
+`DistinctParty` therefore wins regardless of ids. Within each kind the same timestamp/id ordering
+makes diagnostics deterministic. The survivor remains the smallest integer `PartyId`.
+
+A later active veto recomputes the entire view and can split an existing component. Historical
+queries before that veto still reproduce the old merge. Do not remove one arbitrary edge from a
+persisted component or mutate claims/keys/references. A blocked `SameParty` produces a
+`conflicting-review` case containing the blocked claim-version id, veto claim-version ids, endpoint
+ids and query scope, in deterministic order. Keep both assertions for review; neither is silently
+retracted. Recompute cases with the view so resolved contradictions do not stay active.
+
+P1 synthetic acceptance tests (assert components, survivors, key redirects and review cases):
+
+| Scenario | Expected view |
+| --- | --- |
+| Simple retraction: `SameParty(1,2)` then retract it | `{1}`, `{2}`; each original key resolves to its own id |
+| Cycle: `(1,2)`, `(2,3)`, `(1,3)` accepted; retract `(1,2)` | `{1,2,3}` still resolves to 1 through the other two edges |
+| Re-enabled merge: active veto `(1,3)`, ordered merges `(1,2)` then `(2,3)` | Initially `{1,2}`, `{3}` with `(2,3)` in review; retract `(1,2)` and obtain `{1}`, `{2,3}` with survivor 2 and no blocked-merge case |
+| Late veto: merge `(1,2)` at t1, veto `(1,2)` at t2 | At t1 `{1,2}`; at t2 `{1}`, `{2}` and a contradiction case; retract veto at t3 and merge again |
+| Equal time: conflicting merge/veto `(1,2)` share `recordedAt` | Separate components and the same review case for both id orderings and shuffled input |
+| Equal-time competing merges: veto `(1,3)`, merges `(1,2)` and `(2,3)` | Lexicographically earlier merge id wins; later merge is blocked; shuffled input yields identical output |
+| Veto re-enabled: supersede/retract a veto's retraction so veto is active again | Recomputed components split again, contradiction case returns, and earlier knowledge snapshots remain unchanged |
 
 ## Verification Matrix
 
@@ -116,7 +208,7 @@ Higher sources outrank lower sources when they conflict.
 | Party packages | `bun run beep quality package-verify @beep/party-domain` (and use-cases, server) | Passes |
 | Hosted-only gates | `beep lint schema-catalog`, root `lint:oxlint`, `beep docgen check`, the JSDoc ratchet over a regenerated inventory, `audit:github repo-sanity` | Pass locally before publish |
 | Boundary: law-practice | `rg -n '@beep/law-practice' packages/party` | No matches |
-| Boundary: law-practice server | `rg -n '@beep/party-' packages/law-practice/server \| rg -v '@beep/party-use-cases'` | No matches |
+| Boundary: law-practice server | `rg --no-filename -o '@beep/party-[A-Za-z0-9_./-]+' packages/law-practice/server/src \| rg -v '^@beep/party-use-cases(/[A-Za-z0-9_./-]+)?$'`; P1 parser boundary test above | No matches |
 | Boundary: law-practice tiers | `rg -n '@beep/party-' packages/law-practice/domain packages/law-practice/use-cases packages/law-practice/tables` | No matches |
 | Boundary: epistemic product | `rg -n '@beep/epistemic-' packages/party` (does not match `@beep/epistemics`) | No matches |
 
@@ -137,9 +229,12 @@ them and record each in the Decision Log.
 | 2026-10-22 | First goal creates `domain`, `use-cases`, `server` only | smallest legal slice (doc 13); tables wait for a persistence shape the adapters have exercised | add packages in a later goal |
 | 2026-10-22 | `PartyId` moves to a neutral `identity/Party` kit in a separate prerequisite PR, with no re-export | keeps the slice PR reviewable and lands the shared-kernel change alone; nothing persists the old derived names | restore it to `identity/LawPractice` |
 | 2026-10-22 | Party claims persist in a party-owned bitemporal ledger bound from `makeClaimEnvelope` | avoids depending on epistemic product code; any cross-slice projection is a later workflow | write party claims as epistemic edge versions |
-| 2026-10-22 | `PartyId` stays the integer surrogate from the neutral kit (#2025). Party identity evidence uses a separate deterministic `PartyKey` (`pk:` + SHA-256 of the evidence basis) in `@beep/party-domain`, mapped to a `PartyId` by `KeyAssignment` claims. `SameParty` redirects the absorbed party's keys to the surviving id; the memory ledger allocates ids from a counter. Operator ruling 2026-10-22 | every product entity uses the integer surrogate and `LegalPartyReference` keys by it. A stable surrogate survives merges and splits, while keys stay deterministic for ingestion; minting the id from evidence would force a winner-take-all rewrite on every merge | make the kit carry the deterministic string as the id |
-| 2026-10-22 | Identity rules. `KeyAssignment` maps a `PartyKey` to a `PartyId`; `SameParty` and `DistinctParty` relate `PartyId`s. Resolution is a read-time view over the accepted claim versions at a bitemporal scope, and no claim or reference is rewritten. In each merged component the smallest `PartyId` (earliest allocated) survives. Merges apply in `ClaimVersion` order (knowledge `recordedAt`, then id), so a replay gives the same view, and a `DistinctParty` between two components vetoes their merge. An absorbed `PartyId` and the absorbed party's keys resolve to the survivor through the view, inside party. A `LegalPartyReference` keeps the `PartyId` it was written with. Resolving it to the survivor is a cross-slice read that this goal does not provide, because no tier may both hold the reference and query party's view. That read would come from a later `shared/use-cases` resolution query or a party merge event (doc 10). Retracting or superseding a `SameParty` recomputes the merged components from the remaining accepted claims, and each id resolves to the survivor of its recomputed component. That can differ from the pre-merge split: with `SameParty(1,2)`, `SameParty(2,3)` and `SameParty(1,3)`, retracting `(1,2)` still leaves 2 merged with 1 through 3. With `DistinctParty(1,3)`, retracting `(1,2)` re-enables a previously vetoed `SameParty(2,3)` | keeps resolution replayable and reversible (the scratchpad's `resolveParties` picked the smallest id and merged in claim order), keeps law-practice references stable without rewrites, and lets a mistaken merge be undone by a retraction | persist merges as rewrites of `KeyAssignment` and reference rows |
+| 2026-10-22 | `PartyId` stays the integer surrogate from the neutral kit (#2025). Party identity evidence uses a separate deterministic `PartyKey` (`pk:v1:` + lowercase hex SHA-256 of the canonical basis defined in P1 contract tests) in `@beep/party-domain`, mapped to a `PartyId` by `KeyAssignment` claims. `SameParty` redirects the absorbed party's keys to the surviving id; the memory ledger allocates ids from a counter. Operator ruling 2026-10-22 | every product entity uses the integer surrogate and `LegalPartyReference` keys by it. A stable surrogate survives merges and splits, while keys stay deterministic for ingestion; minting the id from evidence would force a winner-take-all rewrite on every merge | make the kit carry the deterministic string as the id |
+| 2026-10-22 | Identity rules. `KeyAssignment` maps a `PartyKey` to a `PartyId`; `SameParty` and `DistinctParty` relate `PartyId`s. Resolution is a read-time view over the accepted claim versions at a bitemporal scope, and no claim or reference is rewritten. In each merged component the smallest `PartyId` (earliest allocated) survives. All effective accepted `DistinctParty` constraints are collected before replaying merges in `ClaimVersion` order (knowledge `recordedAt`, then id), as detailed in P1 contract tests; a later veto can split the recomputed view and every blocked merge becomes a review case. An absorbed `PartyId` and the absorbed party's keys resolve to the survivor through the view, inside party. A `LegalPartyReference` keeps the `PartyId` it was written with. Resolving it to the survivor is a cross-slice read that this goal does not provide, because no tier may both hold the reference and query party's view. That read would come from a later `shared/use-cases` resolution query or a party merge event (doc 10). Retracting or superseding a `SameParty` recomputes the merged components from the remaining accepted claims, and each id resolves to the survivor of its recomputed component. That can differ from the pre-merge split: with `SameParty(1,2)`, `SameParty(2,3)` and `SameParty(1,3)`, retracting `(1,2)` still leaves 2 merged with 1 through 3. With `DistinctParty(1,3)`, retracting `(1,2)` re-enables a previously vetoed `SameParty(2,3)` | keeps resolution replayable and reversible (the scratchpad's `resolveParties` picked the smallest id and merged in claim order), keeps law-practice references stable without rewrites, and lets a mistaken merge be undone by a retraction | persist merges as rewrites of `KeyAssignment` and reference rows |
 | 2026-10-22 | Law-practice's `Party` aggregate is renamed `LegalPartyReference` in this goal | party owns party identity and `SameParty` resolution. The law-practice record is already a role-player reference that never resolves identity (its own Gotchas), so two aggregates named `Party` over one `PartyId` would leave ownership unclear. Applies the 2026-10-21 decision ("other slices refer to parties by id and attach their own role vocabularies") | keep the name and add an ownership note instead |
+| 2026-10-22 | #2045: exact server boundary uses parsed module specifiers; the diagnostic scan filters extracted tokens with an anchored package/subpath rule | whole-line filtering hides suffix packages and mixed allowed/forbidden imports | replace the parser test and scan together with an equivalent architecture gate |
+| 2026-10-22 | #2045: PartyKey v1 uses the canonical basis and bytes in P1 Contract Tests; local-part case is preserved, domain spelling is canonicalized, provenance is excluded | adapters need identical keys without turning name equality or email aliases into identity evidence | introduce `pk:v2:` and explicit KeyAssignment migration; retain v1 decoding and historical assignments |
+| 2026-10-22 | #2045: every active veto constrains a fresh merge replay, including later/equal-time vetoes; blocked merges surface as `conflicting-review` | cannot-link constraints must hold throughout the queried view; deterministic replay preserves history and retraction behavior | version the resolution policy and replay fixtures; keep old policy available for pinned historical views |
 | 2026-10-22 | Generic adapters live in party server; law-practice sources feed party through a use-case port | party never learns law-practice vocabulary, and ingestion stays domain-agnostic | move the adapters back into law-practice |
 
 ## Exception Ledger
