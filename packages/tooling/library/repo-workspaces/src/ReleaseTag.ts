@@ -374,34 +374,59 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
   } = dual(
     (args) => P.isString(args[0]),
     (version: string, options?: TrackingTagOptions.Encoded): ReadonlyArray<TrackingTag> => {
-      const core = versionCore(version);
-      if (core === undefined) return [];
-      if (!S.is(TrackingTag.fields.major)(core.major) || !S.is(TrackingTag.fields.minor)(core.minor)) return [];
-      if (core.prerelease && options?.includePrerelease !== true) return [];
-
       const packageName = options?.packageName;
       if (packageName !== undefined && !S.is(TrackingTag.fields.packageName)(packageName)) return [];
-      const prefix = packageName === undefined ? "" : `${packageName}@`;
-      const named: {
-        (suffix: string, fields: { readonly major: number; readonly minor?: number }): TrackingTag;
-        (fields: { readonly major: number; readonly minor?: number }): (suffix: string) => TrackingTag;
-      } = dual(
-        2,
-        (suffix: string, fields: { readonly major: number; readonly minor?: number }): TrackingTag =>
-          TrackingTag.make({
-            value: `${prefix}v${suffix}`,
-            ...(packageName !== undefined && { packageName }),
-            major: fields.major,
-            ...(fields.minor !== undefined && { minor: fields.minor }),
-          })
-      );
-
-      const major = named(`${core.major}`, { major: core.major });
-      if (options?.precision === "major") return [major];
-      return [major, named(`${core.major}.${core.minor}`, { major: core.major, minor: core.minor })];
+      return O.match(aliasableCore(version, options?.includePrerelease === true), {
+        onNone: () => [],
+        onSome: (core) => {
+          const major = trackingTagOf(tagPrefix(packageName), `${core.major}`, { major: core.major });
+          if (options?.precision === "major") return [major];
+          return [
+            major,
+            trackingTagOf(tagPrefix(packageName), `${core.major}.${core.minor}`, {
+              major: core.major,
+              minor: core.minor,
+            }),
+          ];
+        },
+      });
     }
   );
 }
+
+/**
+ * The package prefix a tag carries: `""` for a single-style tag.
+ */
+const tagPrefix = (packageName: string | undefined): { readonly packageName?: string; readonly text: string } =>
+  packageName === undefined ? { text: "" } : { packageName, text: `${packageName}@` };
+
+/**
+ * A tracking alias `<prefix>v<suffix>` with its fields.
+ */
+const trackingTagOf = (
+  prefix: { readonly packageName?: string; readonly text: string },
+  suffix: string,
+  fields: { readonly major: number; readonly minor?: number }
+): TrackingTag =>
+  TrackingTag.make({
+    value: `${prefix.text}v${suffix}`,
+    ...(prefix.packageName === undefined ? {} : { packageName: prefix.packageName }),
+    ...fields,
+  });
+
+/**
+ * The `X.Y.Z` core a version derives aliases from: none for a version that is
+ * not `X.Y.Z`, whose segments no alias can carry, or that is a prerelease the
+ * caller did not opt into.
+ */
+const aliasableCore = (version: string, includePrerelease: boolean): O.Option<VersionCore> =>
+  O.filter(
+    O.fromUndefinedOr(versionCore(version)),
+    (core) =>
+      S.is(TrackingTag.fields.major)(core.major) &&
+      S.is(TrackingTag.fields.minor)(core.minor) &&
+      (includePrerelease || !core.prerelease)
+  );
 
 /**
  * A tag string split into an optional package prefix and the version part.
@@ -456,16 +481,15 @@ export const classifyTag = (tag: string): TagClassification => {
   if (split === undefined) return UNRECOGNIZED;
 
   const { packageName, rest } = split;
-  const withoutV = Str.startsWith("v")(rest) ? Str.slice(1)(rest) : rest;
   const hasV = Str.startsWith("v")(rest);
+  const withoutV = hasV ? Str.slice(1)(rest) : rest;
 
   // Three segments (plus optional prerelease/build) is a version.
-  const core = versionCore(withoutV);
-  if (core !== undefined) {
+  if (versionCore(withoutV) !== undefined) {
     return ReleaseTagClassification.make({
       tag: ReleaseTag.make({
         value: tag,
-        ...(packageName !== undefined && { packageName }),
+        ...(packageName === undefined ? {} : { packageName }),
         version: withoutV,
         style: packageName === undefined ? "single" : "scoped",
       }),
@@ -474,24 +498,27 @@ export const classifyTag = (tag: string): TagClassification => {
 
   // One or two numeric segments behind a `v` is a tracking alias.
   if (!hasV) return UNRECOGNIZED;
-  const segments = Str.split(withoutV, ".");
-  if (segments.length > 2 || !A.every(segments, (segment) => NUMERIC_IDENTIFIER.test(segment))) {
-    return UNRECOGNIZED;
-  }
-
-  const major = Number(segments[0]);
-  const minor = segments.length === 2 ? Number(segments[1]) : undefined;
-  if (!S.is(TrackingTag.fields.major)(major) || (minor !== undefined && !S.is(TrackingTag.fields.minor)(minor))) {
-    return UNRECOGNIZED;
-  }
-  return TrackingTagClassification.make({
-    tag: TrackingTag.make({
-      value: tag,
-      ...(packageName !== undefined && { packageName }),
-      major,
-      ...(minor !== undefined && { minor }),
-    }),
+  return O.match(aliasFields(withoutV), {
+    onNone: () => UNRECOGNIZED,
+    onSome: (fields) =>
+      TrackingTagClassification.make({
+        tag: TrackingTag.make({ value: tag, ...(packageName === undefined ? {} : { packageName }), ...fields }),
+      }),
   });
+};
+
+/**
+ * The fields of a `v`-less alias body: one or two numeric segments within the
+ * alias bounds.
+ */
+const aliasFields = (alias: string): O.Option<{ readonly major: number; readonly minor?: number }> => {
+  const segments = Str.split(alias, ".");
+  if (segments.length > 2 || !A.every(segments, (segment) => NUMERIC_IDENTIFIER.test(segment))) return O.none();
+  const major = Number(segments[0]);
+  if (!S.is(TrackingTag.fields.major)(major)) return O.none();
+  if (segments.length === 1) return O.some({ major });
+  const minor = Number(segments[1]);
+  return S.is(TrackingTag.fields.minor)(minor) ? O.some({ major, minor }) : O.none();
 };
 
 /**

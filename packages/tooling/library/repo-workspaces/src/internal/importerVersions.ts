@@ -114,21 +114,28 @@ const isConcreteVersion = (version: string): boolean =>
  */
 export const importerVersionsOf = (lockfile: Lockfile): VersionIndex => {
   const index = MutableHashMap.empty<string, Record<string, string>>();
-  for (const importer of lockfile.importers) {
-    const versions = MutableHashMap.empty<string, string>();
-    for (const dependency of importer.dependencies) {
-      const recorded = dependency.version;
-      if (recorded === undefined) continue;
-      const version = stripPeerSuffix(recorded);
-      if (!isConcreteVersion(version)) continue;
-      // First field wins only when a later one disagrees; pnpm records the same
-      // resolved version across every field that declares the dependency, so a
-      // conflict here is a malformed lockfile rather than a real ambiguity.
-      if (!MutableHashMap.has(versions, dependency.name)) MutableHashMap.set(versions, dependency.name, version);
-    }
-    MutableHashMap.set(index, importer.path, R.fromEntries(versions));
-  }
+  for (const importer of lockfile.importers) MutableHashMap.set(index, importer.path, versionsOfImporter(importer));
   return R.fromEntries(index);
+};
+
+/**
+ * One importer's concrete resolved versions, by dependency name.
+ *
+ * **Details**
+ *
+ * First field wins only when a later one disagrees; pnpm records the same
+ * resolved version across every field that declares the dependency, so a
+ * conflict here is a malformed lockfile rather than a real ambiguity.
+ */
+const versionsOfImporter = (importer: Lockfile["importers"][number]): Record<string, string> => {
+  const versions = MutableHashMap.empty<string, string>();
+  for (const dependency of importer.dependencies) {
+    const version = O.filter(O.map(O.fromUndefinedOr(dependency.version), stripPeerSuffix), isConcreteVersion);
+    if (O.isSome(version) && !MutableHashMap.has(versions, dependency.name)) {
+      MutableHashMap.set(versions, dependency.name, version.value);
+    }
+  }
+  return R.fromEntries(versions);
 };
 
 /**

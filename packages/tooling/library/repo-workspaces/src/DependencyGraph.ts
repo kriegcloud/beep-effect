@@ -216,28 +216,16 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
   #index(): Edges {
     if (this.#edges !== undefined) return this.#edges;
     const names = MutableHashSet.fromIterable(A.map(this.packages, (pkg) => pkg.name));
-    let forward = HashMap.empty<string, HashSet.HashSet<string>>();
-    let reverse = HashMap.empty<string, HashSet.HashSet<string>>();
-    for (const name of names) {
-      forward = HashMap.set(forward, name, HashSet.empty<string>());
-      reverse = HashMap.set(reverse, name, HashSet.empty<string>());
-    }
+    // Every package sharing a name contributes its workspace dependencies to that name.
+    const declared = MutableHashMap.empty<string, ReadonlyArray<string>>();
     for (const pkg of this.packages) {
-      for (const dependency of R.keys(pkg.allDependencies)) {
-        if (!MutableHashSet.has(names, dependency) || dependency === pkg.name) continue;
-        forward = HashMap.set(
-          forward,
-          pkg.name,
-          HashSet.add(O.getOrElse(HashMap.get(forward, pkg.name), HashSet.empty<string>), dependency)
-        );
-        reverse = HashMap.set(
-          reverse,
-          dependency,
-          HashSet.add(O.getOrElse(HashMap.get(reverse, dependency), HashSet.empty<string>), pkg.name)
-        );
-      }
+      const internal = A.filter(
+        R.keys(pkg.allDependencies),
+        (dependency) => MutableHashSet.has(names, dependency) && dependency !== pkg.name
+      );
+      MutableHashMap.set(declared, pkg.name, [...dependenciesIn(declared, pkg.name), ...internal]);
     }
-    this.#edges = { order: A.fromIterable(names), forward, reverse };
+    this.#edges = edgesOver(A.fromIterable(names), (name) => dependenciesIn(declared, name));
     return this.#edges;
   }
 
@@ -328,40 +316,13 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * @since 0.0.0
    */
   get hasCycle(): boolean {
-    const { forward } = this.#index();
+    const { forward, order } = this.#index();
     const visited = MutableHashSet.empty<string>();
     const onStack = MutableHashSet.empty<string>();
-
-    for (const start of this.#index().order) {
-      if (MutableHashSet.has(visited, start)) continue;
-      // Each frame is a node plus the iterator position into its dependencies.
-      const stack: Array<{ readonly node: string; readonly deps: Array<string>; cursor: number }> = [
-        { node: start, deps: [...O.getOrElse(HashMap.get(forward, start), HashSet.empty<string>)], cursor: 0 },
-      ];
-      MutableHashSet.add(visited, start);
-      MutableHashSet.add(onStack, start);
-
-      while (stack.length > 0) {
-        const frame = O.getOrThrow(A.last(stack));
-        if (frame.cursor >= frame.deps.length) {
-          MutableHashSet.remove(onStack, frame.node);
-          stack.pop();
-          continue;
-        }
-        const next = O.getOrThrow(A.get(frame.deps, frame.cursor));
-        frame.cursor += 1;
-        if (MutableHashSet.has(onStack, next)) return true;
-        if (MutableHashSet.has(visited, next)) continue;
-        MutableHashSet.add(visited, next);
-        MutableHashSet.add(onStack, next);
-        stack.push({
-          node: next,
-          deps: [...O.getOrElse(HashMap.get(forward, next), HashSet.empty<string>)],
-          cursor: 0,
-        });
-      }
-    }
-    return false;
+    return A.some(
+      order,
+      (start) => !MutableHashSet.has(visited, start) && reachesCycle(forward, start, { visited, onStack })
+    );
   }
 
   /**
@@ -587,45 +548,14 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
     ): Effect.Effect<ReadonlyArray<string>, CyclicDependencyError | PackageNotFoundError> =>
       Effect.suspend((): Effect.Effect<ReadonlyArray<string>, CyclicDependencyError | PackageNotFoundError> => {
         const { forward } = this.#index();
-        for (const name of names) {
-          if (!HashMap.has(forward, name)) {
-            return Effect.fail(PackageNotFoundError.make({ packageName: name, available: this.names }));
-          }
+        const missing = A.findFirst(names, (name) => !HashMap.has(forward, name));
+        if (O.isSome(missing)) {
+          return Effect.fail(PackageNotFoundError.make({ packageName: missing.value, available: this.names }));
         }
-
-        const needed = MutableHashSet.empty<string>();
-        const queue = [...names];
-        for (const current of queue) {
-          if (MutableHashSet.has(needed, current)) continue;
-          MutableHashSet.add(needed, current);
-          for (const dependency of O.getOrElse(HashMap.get(forward, current), HashSet.empty<string>)) {
-            if (!MutableHashSet.has(needed, dependency)) queue.push(dependency);
-          }
-        }
-
-        let subForward = HashMap.empty<string, HashSet.HashSet<string>>();
-        let subReverse = HashMap.empty<string, HashSet.HashSet<string>>();
-        const order = A.fromIterable(needed);
-        for (const node of order) subReverse = HashMap.set(subReverse, node, HashSet.empty<string>());
-        for (const node of order) {
-          const deps = forward.pipe(
-            HashMap.get(node),
-            O.getOrElse(HashSet.empty<string>),
-            A.fromIterable,
-            A.filter((dep) => MutableHashSet.has(needed, dep)),
-            HashSet.fromIterable
-          );
-          subForward = HashMap.set(subForward, node, deps);
-          for (const dep of deps) {
-            subReverse = HashMap.set(
-              subReverse,
-              dep,
-              HashSet.add(O.getOrElse(HashMap.get(subReverse, dep), HashSet.empty<string>), node)
-            );
-          }
-        }
-
-        const subEdges: Edges = { order, forward: subForward, reverse: subReverse };
+        const needed = closureOf(forward, names);
+        const subEdges = edgesOver(A.fromIterable(needed), (node) =>
+          A.filter(dependenciesOf(forward, node), (dependency) => MutableHashSet.has(needed, dependency))
+        );
         const result = kahn(subEdges);
         return result.stalled.length > 0
           ? Effect.fail(CyclicDependencyError.make({ cycle: cycleMembers(subEdges) }))
@@ -717,6 +647,106 @@ const cycleMembers = (edges: Edges): ReadonlyArray<string> => {
   return A.sort(A.fromIterable(members), Str.Order);
 };
 
+/** The dependencies recorded for `name` so far; none when it has no entry. */
+const dependenciesIn = (
+  declared: MutableHashMap.MutableHashMap<string, ReadonlyArray<string>>,
+  name: string
+): ReadonlyArray<string> => O.getOrElse(MutableHashMap.get(declared, name), (): ReadonlyArray<string> => []);
+
+/** A node's direct dependencies in the forward index; none for an unknown node. */
+const dependenciesOf = (forward: Edges["forward"], node: string): Array<string> => [
+  ...O.getOrElse(HashMap.get(forward, node), HashSet.empty<string>),
+];
+
+/**
+ * The forward and reverse indexes over `order`, from each node's dependencies,
+ * every one of which is itself in `order`.
+ */
+const edgesOver = (order: ReadonlyArray<string>, dependenciesOfNode: (node: string) => Iterable<string>): Edges => {
+  let forward = HashMap.empty<string, HashSet.HashSet<string>>();
+  let reverse = HashMap.fromIterable(A.map(order, (node) => [node, HashSet.empty<string>()] as const));
+  for (const node of order) {
+    const deps = HashSet.fromIterable(dependenciesOfNode(node));
+    forward = HashMap.set(forward, node, deps);
+    for (const dep of deps) reverse = HashMap.modify(reverse, dep, HashSet.add(node));
+  }
+  return { order, forward, reverse };
+};
+
+/** Every node `roots` reach through the forward index, the roots included. */
+const closureOf = (forward: Edges["forward"], roots: ReadonlyArray<string>): MutableHashSet.MutableHashSet<string> => {
+  const needed = MutableHashSet.empty<string>();
+  const queue = [...roots];
+  for (const current of queue) {
+    if (MutableHashSet.has(needed, current)) continue;
+    MutableHashSet.add(needed, current);
+    queue.push(...A.filter(dependenciesOf(forward, current), (dependency) => !MutableHashSet.has(needed, dependency)));
+  }
+  return needed;
+};
+
+/**
+ * Whether a depth-first walk from `start` meets a node still on its stack.
+ *
+ * **Details**
+ *
+ * Each frame is a node plus the iterator position into its dependencies. The
+ * `visited` and `onStack` sets are shared across starts, so a node finished by
+ * an earlier start is never walked again.
+ */
+const reachesCycle = (
+  forward: Edges["forward"],
+  start: string,
+  marks: {
+    readonly visited: MutableHashSet.MutableHashSet<string>;
+    readonly onStack: MutableHashSet.MutableHashSet<string>;
+  }
+): boolean => {
+  const { visited, onStack } = marks;
+  const stack: Array<{ readonly node: string; readonly deps: Array<string>; cursor: number }> = [
+    { node: start, deps: dependenciesOf(forward, start), cursor: 0 },
+  ];
+  MutableHashSet.add(visited, start);
+  MutableHashSet.add(onStack, start);
+  while (stack.length > 0) {
+    const frame = O.getOrThrow(A.last(stack));
+    if (frame.cursor >= frame.deps.length) {
+      MutableHashSet.remove(onStack, frame.node);
+      stack.pop();
+      continue;
+    }
+    const next = O.getOrThrow(A.get(frame.deps, frame.cursor));
+    frame.cursor += 1;
+    if (MutableHashSet.has(onStack, next)) return true;
+    if (MutableHashSet.has(visited, next)) continue;
+    MutableHashSet.add(visited, next);
+    MutableHashSet.add(onStack, next);
+    stack.push({ node: next, deps: dependenciesOf(forward, next), cursor: 0 });
+  }
+  return false;
+};
+
+/**
+ * Retire one completed level, returning the next: every dependent whose last
+ * outstanding dependency the level held, sorted.
+ */
+const completeLevel = (
+  edges: Edges,
+  remaining: MutableHashMap.MutableHashMap<string, number>,
+  level: ReadonlyArray<string>
+): Array<string> => {
+  const next: Array<string> = [];
+  for (const done of level) {
+    MutableHashMap.remove(remaining, done);
+    for (const dependent of O.getOrElse(HashMap.get(edges.reverse, done), HashSet.empty<string>)) {
+      const decremented = O.getOrThrow(MutableHashMap.get(remaining, dependent)) - 1;
+      MutableHashMap.set(remaining, dependent, decremented);
+      if (decremented === 0) next.push(dependent);
+    }
+  }
+  return A.sort(next, Str.Order);
+};
+
 /**
  * Kahn's algorithm. `forward[A] = {B}` reads "A depends on B", so level 0 is
  * the set with an out-degree of zero and each completed level decrements its
@@ -744,17 +774,7 @@ const kahn = (
 
   while (current.length > 0) {
     levels.push(current);
-    const next: Array<string> = [];
-    for (const done of current) {
-      MutableHashMap.remove(remaining, done);
-      for (const dependent of O.getOrElse(HashMap.get(edges.reverse, done), HashSet.empty<string>)) {
-        const count = O.getOrThrow(MutableHashMap.get(remaining, dependent));
-        const decremented = count - 1;
-        MutableHashMap.set(remaining, dependent, decremented);
-        if (decremented === 0) next.push(dependent);
-      }
-    }
-    current = A.sort(next, Str.Order);
+    current = completeLevel(edges, remaining, current);
   }
 
   return { levels, stalled: remaining.pipe(MutableHashMap.keys, A.fromIterable, A.sort(Str.Order)) };

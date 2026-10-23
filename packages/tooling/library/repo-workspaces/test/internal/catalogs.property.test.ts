@@ -1,6 +1,7 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { catalogNameOf, normalize, rangeOf } from "@beep/repo-workspaces/internal/catalogs";
 import { assert, it } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -24,10 +25,10 @@ it.effect.prop(
   ([name, version]) =>
     Effect.sync(() => {
       const spec = `catalog:${name}`;
-      const parsed = catalogNameOf(spec);
-      assert.strictEqual(parsed, name.trim() === "" ? "default" : name.trim());
-      assert.strictEqual(catalogNameOf(`catalog:${parsed}`), parsed);
-      const catalogs = { [parsed ?? "default"]: { pkg: version } };
+      const parsed = name.trim() === "" ? "default" : name.trim();
+      assertSome(catalogNameOf(spec), parsed);
+      assertSome(catalogNameOf(`catalog:${parsed}`), parsed);
+      const catalogs = { [parsed]: { pkg: version } };
       const result = rangeOf(catalogs, "pkg", spec);
       if (version.startsWith("catalog:") || version.startsWith("file:") || version.startsWith("link:"))
         assert.isObject(result);

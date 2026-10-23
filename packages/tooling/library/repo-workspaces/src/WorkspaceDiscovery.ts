@@ -25,10 +25,12 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { enumerate } from "./internal/enumerate.ts";
 import { findLayerRoot } from "./internal/layerRoot.ts";
+import { dependencyBlocksOf, manifestVersionOf } from "./internal/manifestFields.ts";
 import { readPatterns } from "./internal/patterns.ts";
 import { WorkspacePackage } from "./WorkspacePackage.ts";
 import { WorkspaceRoot } from "./WorkspaceRoot.ts";
@@ -62,6 +64,36 @@ const byName = Order.make<WorkspacePackage>((a, b) => {
 });
 
 const JsonValue = S.fromJsonString(S.Unknown);
+
+/**
+ * Each package's `value`, keyed by name.
+ *
+ * **Details**
+ *
+ * First-write-wins, matching the `all.find` the indexes built on it replaced:
+ * discovery does not reject duplicate names, and a plain
+ * `new Map(all.map(...))` would keep the last.
+ */
+const firstByName = <V>(
+  all: ReadonlyArray<WorkspacePackage>,
+  value: (pkg: WorkspacePackage) => V
+): MutableHashMap.MutableHashMap<string, V> => {
+  const index = MutableHashMap.empty<string, V>();
+  for (const pkg of all) {
+    if (!MutableHashMap.has(index, pkg.name)) MutableHashMap.set(index, pkg.name, value(pkg));
+  }
+  return index;
+};
+
+/** The distinct packages owning `filePaths`, sorted by name; a path no package owns contributes nothing. */
+const ownersOf = (
+  filePaths: ReadonlyArray<string>,
+  ownerOf: (filePath: string) => O.Option<WorkspacePackage>
+): ReadonlyArray<WorkspacePackage> => {
+  const seen = MutableHashMap.empty<string, WorkspacePackage>();
+  for (const owner of A.getSomes(A.map(filePaths, ownerOf))) MutableHashMap.set(seen, owner.name, owner);
+  return A.sort(MutableHashMap.values(seen), byName);
+};
 
 class WorkspaceDiscoveryCause extends S.TaggedError<WorkspaceDiscoveryCause, { readonly brand: unique symbol }>(
   $I`WorkspaceDiscoveryCause`
@@ -646,28 +678,13 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
             cause: undefined,
           });
         }
-        // `version` is optional, and optional means ABSENT — not "any present
-        // value counts". A present non-string is the manifest's shape being
-        // wrong, and so is `""`: pnpm never wrote that shape, and admitting
-        // it resolves `workspace:^` to a bare `"^"` and makes `versionOf`
-        // answer `some("")`, which every consumer downstream reads as a real
-        // version. Both are `invalidShape`, with the sentence the sync facade
-        // attaches to the same skip.
-        const version = raw.version;
-        if (version !== undefined && !P.isString(version)) {
+        const version = manifestVersionOf(raw.version);
+        if (Result.isFailure(version)) {
           return yield* WorkspaceDiscoveryError.make({
             root,
             path: packageJsonPath,
             kind: "invalidShape",
-            cause: WorkspaceDiscoveryCause.make({ message: `version must be a string, got ${typeof version}` }),
-          });
-        }
-        if (version === "") {
-          return yield* WorkspaceDiscoveryError.make({
-            root,
-            path: packageJsonPath,
-            kind: "invalidShape",
-            cause: WorkspaceDiscoveryCause.make({ message: "version must be a non-empty string" }),
+            cause: WorkspaceDiscoveryCause.make({ message: version.failure }),
           });
         }
         // The tolerant projection: decoded through the schema, so a malformed
@@ -679,7 +696,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         // is the ordinary shape), a non-empty string verbatim.
         return yield* S.decodeEffect(WorkspacePackage)({
           name,
-          ...O.getSomesStruct({ version: O.fromUndefinedOr(version) }),
+          ...O.getSomesStruct({ version: O.fromUndefinedOr(version.success) }),
           path: directory,
           packageJsonPath,
           relativePath,
@@ -689,14 +706,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
           // The as-read record rides along so consumers reach fields outside
           // the discovery slice without a second file read.
           manifestRecord: raw,
-          ...(P.isBoolean(raw.private) ? { private: raw.private } : {}),
-          ...(isStringRecord(raw.dependencies) ? { dependencies: raw.dependencies } : {}),
-          ...(isStringRecord(raw.devDependencies) ? { devDependencies: raw.devDependencies } : {}),
-          ...(isStringRecord(raw.peerDependencies) ? { peerDependencies: raw.peerDependencies } : {}),
-          ...(isStringRecord(raw.optionalDependencies) ? { optionalDependencies: raw.optionalDependencies } : {}),
-          ...(raw.publishConfig !== undefined && raw.publishConfig !== null
-            ? { publishConfig: raw.publishConfig }
-            : {}),
+          ...tolerantFieldsOf(raw),
         }).pipe(
           Effect.catchTag(
             "SchemaError",
@@ -899,12 +909,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
     ): MutableHashMap.MutableHashMap<string, WorkspacePackage> => {
       const cached = indexOwner.packageIndex;
       if (cached !== undefined && cached.snapshot === all) return cached.entries;
-      // First-write-wins, matching the `all.find` this index replaced: discovery does not
-      // reject duplicate names, and a plain `new Map(all.map(...))` would keep the last.
-      const index = MutableHashMap.empty<string, WorkspacePackage>();
-      for (const pkg of all) {
-        if (!MutableHashMap.has(index, pkg.name)) MutableHashMap.set(index, pkg.name, pkg);
-      }
+      const index = firstByName(all, (pkg) => pkg);
       indexOwner.packageIndex = { snapshot: all, entries: index };
       return index;
     };
@@ -953,14 +958,8 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
       }),
 
       resolveFiles: Effect.fn("WorkspaceDiscovery.resolveFiles")(function* (filePaths: ReadonlyArray<string>) {
-        const all = yield* packages;
-        const index = owners(all);
-        const seen = MutableHashMap.empty<string, WorkspacePackage>();
-        for (const filePath of filePaths) {
-          const owner = ownerOf(filePath, index);
-          if (O.isSome(owner)) MutableHashMap.set(seen, owner.value.name, owner.value);
-        }
-        return A.sort(MutableHashMap.values(seen), byName);
+        const index = owners(yield* packages);
+        return ownersOf(filePaths, (filePath) => ownerOf(filePath, index));
       }),
 
       refreshIn: Effect.fn("WorkspaceDiscovery.refreshIn")(function* (directory: string) {
@@ -1117,14 +1116,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         ),
       resolveFile: (filePath: string) => Effect.map(listPackages, (all) => ownerOf(filePath, all)),
       resolveFiles: (filePaths: ReadonlyArray<string>) =>
-        Effect.map(listPackages, (all) => {
-          const seen = MutableHashMap.empty<string, WorkspacePackage>();
-          for (const filePath of filePaths) {
-            const owner = ownerOf(filePath, all);
-            if (O.isSome(owner)) MutableHashMap.set(seen, owner.value.name, owner.value);
-          }
-          return A.sort(MutableHashMap.values(seen), byName);
-        }),
+        Effect.map(listPackages, (all) => ownersOf(filePaths, (filePath) => ownerOf(filePath, all))),
       // Both per-root methods DIE unstubbed rather than deriving from
       // `listPackages`. Deriving would model a world in which every root holds
       // the same members — which is exactly the confusion these methods exist to
@@ -1236,11 +1228,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
       ): MutableHashMap.MutableHashMap<string, string | undefined> => {
         const cached = resolverOwner.versionIndex;
         if (cached !== undefined && cached.snapshot === all) return cached.entries;
-        // First-write-wins, matching the `all.find` this index replaced.
-        const index = MutableHashMap.empty<string, string | undefined>();
-        for (const pkg of all) {
-          if (!MutableHashMap.has(index, pkg.name)) MutableHashMap.set(index, pkg.name, pkg.version);
-        }
+        const index = firstByName(all, (pkg): string | undefined => pkg.version);
         resolverOwner.versionIndex = { snapshot: all, entries: index };
         return index;
       };
@@ -1268,4 +1256,13 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
   );
 }
 
-const isStringRecord = S.is(WorkspacePackage.fields.dependencies);
+/**
+ * The manifest fields discovery carries only when they have the expected
+ * shape: `private` as a boolean, each dependency block as a name-to-range
+ * record, and `publishConfig` when present at all.
+ */
+const tolerantFieldsOf = (raw: { readonly [key: string]: unknown }) => ({
+  ...(P.isBoolean(raw.private) ? { private: raw.private } : {}),
+  ...dependencyBlocksOf(raw),
+  ...(P.isNotNullish(raw.publishConfig) ? { publishConfig: raw.publishConfig } : {}),
+});

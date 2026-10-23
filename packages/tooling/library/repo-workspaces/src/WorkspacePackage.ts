@@ -19,13 +19,12 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { DependencyMap, mergedDependencies } from "./internal/manifestFields.ts";
 import type * as PlatformError from "effect/PlatformError";
 
 const $I = $RepoWorkspacesId.create("WorkspacePackage");
 
 const JsonValue = S.fromJsonString(S.Unknown);
-
-const EMPTY: Readonly<Record<string, string>> = R.fromEntries([]);
 
 // The readonly empty default for `manifestRecord`, shared like the dependency-map
 // default: construction sites and serialized values without the field decode to
@@ -107,11 +106,6 @@ export declare namespace PublishConfig {
    */
   export type Encoded = typeof PublishConfig.Encoded;
 }
-
-const DependencyMap = S.Record(S.String, S.String).pipe(
-  S.withDecodingDefaultKey(Effect.succeed(EMPTY)),
-  S.withConstructorDefault(Effect.succeed(EMPTY))
-);
 
 const ChangedDependencyVersion = S.Struct({
   from: S.String.pipe(
@@ -545,12 +539,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * @since 0.0.0
    */
   get allDependencies(): Record<string, string> {
-    return R.fromEntries([
-      ...R.toEntries(this.optionalDependencies),
-      ...R.toEntries(this.peerDependencies),
-      ...R.toEntries(this.devDependencies),
-      ...R.toEntries(this.dependencies),
-    ]);
+    return mergedDependencies(this);
   }
 
   /**
@@ -793,24 +782,19 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
   dependencyDiff(other: WorkspacePackage): DependencyDiff {
     const mine = this.allDependencies;
     const theirs = other.allDependencies;
-    const added: Array<readonly [string, string]> = [];
-    const removed: Array<readonly [string, string]> = [];
-    const changed: Array<readonly [string, { readonly from: string; readonly to: string }]> = [];
-
-    for (const [name, version] of R.toEntries(mine)) {
-      if (!R.has(theirs, name)) added.push([name, version]);
-      else {
-        const previous = O.getOrUndefined(R.get(theirs, name));
-        if (previous !== undefined && previous !== version) changed.push([name, { from: previous, to: version }]);
-      }
-    }
-    for (const [name, version] of R.toEntries(theirs)) {
-      if (!R.has(mine, name)) removed.push([name, version]);
-    }
     return DependencyDiff.make({
-      added: R.fromEntries(added),
-      removed: R.fromEntries(removed),
-      changed: R.fromEntries(changed),
+      added: R.filter(mine, (_, name) => !R.has(theirs, name)),
+      removed: R.filter(theirs, (_, name) => !R.has(mine, name)),
+      changed: R.fromEntries(
+        A.getSomes(
+          A.map(R.toEntries(mine), ([name, version]) =>
+            O.map(
+              O.filter(R.get(theirs, name), (previous) => previous !== version),
+              (previous) => [name, { from: previous, to: version }] as const
+            )
+          )
+        )
+      ),
     });
   }
 

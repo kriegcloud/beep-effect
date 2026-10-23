@@ -25,19 +25,10 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { unanimousVersionOf } from "./internal/importerVersions.ts";
+import { DependencyMap, mergedDependencies } from "./internal/manifestFields.ts";
 import { CatalogSet, ImporterVersions } from "./WorkspaceCatalogs.ts";
 
 const $I = $RepoWorkspacesId.create("WorkspaceStateSnapshot");
-
-// A readonly empty record shared as the default for every absent
-// dependency record — the `WorkspacePackage` precedent, so an omitted record
-// round-trips as `{}` rather than `undefined`.
-const EMPTY: Readonly<Record<string, string>> = R.fromEntries([]);
-
-const DependencyMap = S.Record(S.String, S.String).pipe(
-  S.withDecodingDefaultKey(Effect.succeed(EMPTY)),
-  S.withConstructorDefault(Effect.succeed(EMPTY))
-);
 
 /**
  * A snapshot's `version` field: absent when the manifest declared none, and
@@ -169,14 +160,26 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
    * @since 0.0.0
    */
   get allDependencies(): Record<string, string> {
-    return R.fromEntries([
-      ...R.toEntries(this.optionalDependencies),
-      ...R.toEntries(this.peerDependencies),
-      ...R.toEntries(this.devDependencies),
-      ...R.toEntries(this.dependencies),
-    ]);
+    return mergedDependencies(this);
   }
 }
+
+/**
+ * The name-to-version index over the versioned packages, a later duplicate
+ * name overwriting an earlier one, and the names in first-seen order.
+ */
+const versionIndexOf = (
+  packages: ReadonlyArray<PackageStateSnapshot>
+): { readonly index: HashMap.HashMap<string, string>; readonly names: ReadonlyArray<string> } => {
+  let index = HashMap.empty<string, string>();
+  const names: Array<string> = [];
+  for (const pkg of packages) {
+    if (pkg.version === undefined) continue;
+    if (!HashMap.has(index, pkg.name)) names.push(pkg.name);
+    index = HashMap.set(index, pkg.name, pkg.version);
+  }
+  return { index, names };
+};
 
 /**
  * The state of a whole workspace at one moment — its packages and its assembled
@@ -416,13 +419,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    */
   #versions(): HashMap.HashMap<string, string> {
     if (this.#versionIndex === undefined) {
-      let index = HashMap.empty<string, string>();
-      const names: Array<string> = [];
-      for (const pkg of this.packages) {
-        if (pkg.version === undefined) continue;
-        if (!HashMap.has(index, pkg.name)) names.push(pkg.name);
-        index = HashMap.set(index, pkg.name, pkg.version);
-      }
+      const { index, names } = versionIndexOf(this.packages);
       this.#versionNames = names;
       this.#versionIndex = index;
     }

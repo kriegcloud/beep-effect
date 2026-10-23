@@ -387,6 +387,51 @@ export interface ConfigDependencyHooksShape {
   };
 }
 
+/**
+ * One `inject` call that has config dependencies to replay.
+ *
+ * @internal
+ */
+interface ReplayRequest {
+  readonly configDependencies: Readonly<Record<string, string>>;
+  readonly context: HookReplayContext.Encoded | undefined;
+  readonly root: string;
+  readonly rules: PeerDependencyRules.Encoded | undefined;
+  readonly seed: Readonly<Record<string, Readonly<Record<string, string>>>>;
+}
+
+/**
+ * The `inject` of a replaying layer.
+ *
+ * **Details**
+ *
+ * An empty `configDependencies` returns the seed untouched, rules included,
+ * without resolving or replaying anything; any other call runs `replay` over
+ * the services the layer captured.
+ *
+ * @internal
+ */
+const replayingInject = <Services>(
+  services: Context.Context<Services>,
+  replay: (request: ReplayRequest) => Effect.Effect<HookInjection, CatalogAssemblyError, Services>
+): ConfigDependencyHooksShape["inject"] =>
+  dual(
+    (args) => P.isString(args[0]),
+    Effect.fn("ConfigDependencyHooks.inject")(
+      (
+        root: string,
+        configDependencies: Readonly<Record<string, string>>,
+        seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
+        rules?: PeerDependencyRules.Encoded,
+        context?: HookReplayContext.Encoded
+      ): Effect.Effect<HookInjection, CatalogAssemblyError, Services> =>
+        R.keys(configDependencies).length === 0
+          ? Effect.succeed(untouched(seed, rules))
+          : replay({ root, configDependencies, seed, rules, context }),
+      Effect.provide(services)
+    )
+  );
+
 /** Turn the seed record into the pnpm hook config, with the default catalog split out under `catalog`. */
 const seedToConfig: {
   (
@@ -502,8 +547,18 @@ const isStringRecord = S.is(PeerDependencyRules.fields.allowedVersions);
 const peerRulesOr: {
   (value: unknown, fallback: PeerDependencyRules | undefined): PeerDependencyRules | undefined;
   (fallback: PeerDependencyRules | undefined): (value: unknown) => PeerDependencyRules | undefined;
-} = dual(2, (value: unknown, fallback: PeerDependencyRules | undefined): PeerDependencyRules | undefined => {
-  if (!isPlainObject(value)) return fallback;
+} = dual(2, (value: unknown, fallback: PeerDependencyRules | undefined): PeerDependencyRules | undefined =>
+  isPlainObject(value) ? threadedPeerRules(value, fallback) : fallback
+);
+
+/**
+ * A rules block's axes threaded over `fallback`; `fallback` itself when no
+ * axis is usable.
+ */
+const threadedPeerRules = (
+  value: { readonly [key: string]: unknown },
+  fallback: PeerDependencyRules | undefined
+): PeerDependencyRules | undefined => {
   // Every entry must be a string, not merely the block an object: the public
   // contract is name→RANGE, and a non-string value reaches range parsing as a
   // rule nobody can evaluate. The same all-entries rule `stringArrayOr`
@@ -513,12 +568,20 @@ const peerRulesOr: {
   const ignoreMissing = stringArrayOr(value.ignoreMissing, fallback?.ignoreMissing);
   const allowAny = stringArrayOr(value.allowAny, fallback?.allowAny);
   if (allowed === undefined && ignoreMissing === undefined && allowAny === undefined) return fallback;
-  return PeerDependencyRules.make({
+  return rulesWithEmptyAxes(allowed, ignoreMissing, allowAny);
+};
+
+/** Rules from the threaded axes, an unset axis empty. */
+const rulesWithEmptyAxes = (
+  allowed: Readonly<Record<string, string>> | undefined,
+  ignoreMissing: ReadonlyArray<string> | undefined,
+  allowAny: ReadonlyArray<string> | undefined
+): PeerDependencyRules =>
+  PeerDependencyRules.make({
     allowedVersions: allowed ?? R.fromEntries([]),
     ignoreMissing: ignoreMissing ?? [],
     allowAny: allowAny ?? [],
   });
-});
 
 /** Project the threaded config's rules into the slice, defaulting every axis to empty. */
 const peerRulesOf = (config: HookConfig): PeerDependencyRules => config.peerDependencyRules ?? NO_PEER_RULES;
@@ -998,19 +1061,12 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
       Effect.gen(function* () {
         const services = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
         return {
-          inject: dual(
-            (args) => P.isString(args[0]),
-            Effect.fn("ConfigDependencyHooks.inject")(function* (
-              root: string,
-              configDependencies: Readonly<Record<string, string>>,
-              seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-              rules: PeerDependencyRules.Encoded | undefined,
-              context: HookReplayContext.Encoded | undefined
-            ) {
-              if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
-              const pnpmfiles = yield* resolvePnpmfiles(root, configDependencies, context);
-              return yield* replayInProcess(pnpmfiles, seed, rules);
-            }, Effect.provide(services))
+          inject: replayingInject(
+            services,
+            Effect.fnUntraced(function* (request: ReplayRequest) {
+              const pnpmfiles = yield* resolvePnpmfiles(request.root, request.configDependencies, request.context);
+              return yield* replayInProcess(pnpmfiles, request.seed, request.rules);
+            })
           ),
         };
       })
@@ -1065,23 +1121,14 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
     Layer.effect(
       ConfigDependencyHooks,
       Effect.gen(function* () {
-        const path = yield* Path.Path;
+        const services = yield* Effect.context<Path.Path>();
         return {
-          inject: dual(
-            (args) => P.isString(args[0]),
-            Effect.fn("ConfigDependencyHooks.inject")(
-              function* (
-                _root: string,
-                configDependencies: Readonly<Record<string, string>>,
-                seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-                rules: PeerDependencyRules.Encoded | undefined
-              ) {
-                if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
-                const pnpmfiles = yield* lookupPnpmfiles(entries, configDependencies);
-                return yield* replayInProcess(pnpmfiles, seed, rules);
-              },
-              Effect.provideService(Path.Path, path)
-            )
+          inject: replayingInject(
+            services,
+            Effect.fnUntraced(function* (request: ReplayRequest) {
+              const pnpmfiles = yield* lookupPnpmfiles(entries, request.configDependencies);
+              return yield* replayInProcess(pnpmfiles, request.seed, request.rules);
+            })
           ),
         };
       })
@@ -1191,17 +1238,9 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
       const services = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
       const fetch = makeFetchConfigDependency(spawner);
       return {
-        inject: dual(
-          (args) => P.isString(args[0]),
-          Effect.fn("ConfigDependencyHooks.inject")(function* (
-            root: string,
-            configDependencies: Readonly<Record<string, string>>,
-            seed: Readonly<Record<string, Readonly<Record<string, string>>>>,
-            rules: PeerDependencyRules.Encoded | undefined,
-            context: HookReplayContext.Encoded | undefined
-          ) {
-            if (R.keys(configDependencies).length === 0) return untouched(seed, rules);
-
+        inject: replayingInject(
+          services,
+          Effect.fnUntraced(function* ({ root, configDependencies, seed, rules, context }: ReplayRequest) {
             // Resolve in the parent: the `..` refusal and the declared-version
             // ladder run here, so no subprocess ever sees a traversal name or
             // performs a lookup of its own. Nothing to replay → nothing to spawn.
@@ -1260,7 +1299,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
             // in the parent exactly as layerLive does, reading the slice tolerantly
             // against the seed (a hook's returned data is never fatal).
             return injectionOf(configOf(payload.config, seedToConfig(seed, rules)), pnpmfiles);
-          }, Effect.provide(services))
+          })
         ),
       };
     })

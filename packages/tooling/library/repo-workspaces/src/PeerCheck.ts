@@ -33,7 +33,7 @@ import { indexInstances, rootInstances } from "./internal/roots.ts";
 import { CatalogSet } from "./WorkspaceCatalogs.ts";
 import { WorkspacePackage } from "./WorkspacePackage.ts";
 import type { PeerNameMatcher } from "./internal/peerPatterns.ts";
-import type { ImporterRoots } from "./internal/roots.ts";
+import type { ImporterRoots, InstanceIndex } from "./internal/roots.ts";
 
 const $I = $RepoWorkspacesId.create("PeerCheck");
 
@@ -471,20 +471,27 @@ const linkTargetPath: {
 } = dual(2, (importerPath: string, target: string): string => {
   const absolute = Str.startsWith("/")(target);
   const segments = absolute || importerPath === "." ? [] : Str.split(importerPath, "/");
-  const resolved: Array<string> = [];
-  for (const segment of [...segments, ...Str.split(target, "/")]) {
-    if (segment === "" || segment === ".") continue;
-    if (segment === "..") {
-      const last = resolved[resolved.length - 1];
-      if (last === undefined || last === "..") resolved.push(segment);
-      else resolved.pop();
-      continue;
-    }
-    resolved.push(segment);
-  }
-  const path = A.join(resolved, "/");
-  return absolute ? `/${path}` : path === "" ? "." : path;
+  const path = A.join(A.reduce([...segments, ...Str.split(target, "/")], [], resolveSegment), "/");
+  if (absolute) return `/${path}`;
+  return path === "" ? "." : path;
 });
+
+/**
+ * Append one POSIX path segment to the segments resolved so far.
+ *
+ * **Details**
+ *
+ * Empty and `.` segments vanish; `..` pops the last segment unless there is
+ * none, or it is itself a `..` that climbs above the start.
+ *
+ * @internal
+ */
+const resolveSegment = (resolved: ReadonlyArray<string>, segment: string): ReadonlyArray<string> => {
+  if (segment === "" || segment === ".") return resolved;
+  if (segment !== "..") return A.append(resolved, segment);
+  const last = A.last(resolved);
+  return O.isNone(last) || last.value === ".." ? A.append(resolved, segment) : A.dropRight(resolved, 1);
+};
 
 /**
  * One `link:`-resolved importer dependency, classified before the walk.
@@ -663,20 +670,21 @@ const providerContext: {
     byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
     links: ReadonlyArray<LinkEdge>
   ): MutableHashMap.MutableHashMap<string, ResolvedPackage> => {
-    const context = MutableHashMap.empty<string, ResolvedPackage>();
-    if (roots._tag === "dependencies") {
-      for (const instance of roots.instances) MutableHashMap.set(context, instance.name, instance);
-      // A workspace row is named by its DIRECTORY, so a linked provider is
-      // keyed by the name the importer depends on it under, which is the
-      // name a peer asks for.
-      for (const link of links) if (link.row !== undefined) MutableHashMap.set(context, link.name, link.row);
-      return context;
-    }
-    for (const [name, instanceId] of R.toEntries(roots.instance.resolved)) {
-      const provider = O.getOrUndefined(MutableHashMap.get(byId, instanceId));
-      if (provider !== undefined) MutableHashMap.set(context, name, provider);
-    }
-    return context;
+    // A workspace row is named by its DIRECTORY, so a linked provider is
+    // keyed by the name the importer depends on it under, which is the name a
+    // peer asks for.
+    const entries =
+      roots._tag === "dependencies"
+        ? [
+            ...A.map(roots.instances, (instance) => [instance.name, instance] as const),
+            ...A.flatMap(links, (link) => (link.row === undefined ? [] : [[link.name, link.row] as const])),
+          ]
+        : A.getSomes(
+            A.map(R.toEntries(roots.instance.resolved), ([name, instanceId]) =>
+              O.map(MutableHashMap.get(byId, instanceId), (provider) => [name, provider] as const)
+            )
+          );
+    return MutableHashMap.fromIterable(entries);
   }
 );
 
@@ -976,21 +984,28 @@ const judgeJoined: {
     const resolvedRange = resolvePeerRange(catalogs, peer, declared);
     const wanted = resolvedRange ?? declared;
     const provider = O.getOrUndefined(MutableHashMap.get(context, peer));
-    if (provider === undefined) {
-      if (optional) return SATISFIED;
-      return { _tag: "unsatisfied", found: null, version: null, wanted };
-    }
+    if (provider === undefined)
+      return optional ? SATISFIED : { _tag: "unsatisfied", found: null, version: null, wanted };
     // A workspace row carries the placeholder version `0.0.0`, so accepting it
     // on name alone is the same decline {@link judge} makes: an edge exists and
     // a provider exists, and nothing indicates dissatisfaction.
     if (provider.isWorkspace) return SATISFIED;
-    const reasons: Array<UnverifiedReason> = [];
-    if (resolvedRange === undefined) reasons.push("peerRangeUnresolved");
-    if (isProtocolSpecifier(provider.version)) reasons.push("peerVersionUnresolved");
+    const reasons = unjudgedReasons(resolvedRange, provider.version);
     if (resolvedRange === undefined || reasons.length > 0) return { _tag: "unjudged", reasons };
     return withWanted(compare(resolvedRange, provider.version), wanted);
   }
 );
+
+/**
+ * Why a joined peer with a non-workspace provider cannot be compared: its
+ * range, its provider's version, or both are protocol specifiers.
+ *
+ * @internal
+ */
+const unjudgedReasons = (resolvedRange: string | undefined, version: string): ReadonlyArray<UnverifiedReason> => [
+  ...(resolvedRange === undefined ? (["peerRangeUnresolved"] as const) : []),
+  ...(isProtocolSpecifier(version) ? (["peerVersionUnresolved"] as const) : []),
+];
 
 /**
  * The effective suppression policy, with both list axes compiled to predicates.
@@ -1226,15 +1241,6 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
       // the option says nothing was looked up. Collapsing the two would tell a
       // gate that an unchecked workspace is clean.
       const keySupplied = options !== undefined && "peerDependencyRules" in options;
-      const rules = options?.peerDependencyRules;
-      // All three axes are applied, so supplied rules yield a verified report.
-      // Each list axis compiles to a name predicate ONCE here rather than per
-      // row; both are `() => false` when the axis is empty.
-      const policy: Policy = {
-        allowed: rules?.allowedVersions ?? {},
-        ignoreMissing: peerNameMatcher(rules?.ignoreMissing ?? []),
-        allowAny: peerNameMatcher(rules?.allowAny ?? []),
-      };
       const unverified: Array<UnverifiedReason> = keySupplied ? [] : ["peerRulesNotApplied"];
 
       if (!supportsPeerResolution(lockfile.format)) {
@@ -1242,133 +1248,384 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
       }
 
       const index = indexInstances(lockfile);
-      const { byId } = index;
-
-      // The caller's manifests, keyed the way a `link:` target is spelled: a
-      // workspace-relative POSIX directory. Empty when the key is omitted,
-      // which is what keeps every `link:` edge on the fail-closed branch.
-      const manifests = MutableHashMap.empty<string, WorkspacePackage>();
-      // The same manifests keyed by every directory a `link:` to them can
-      // name: the package directory, and its publish directory when pnpm
-      // links into it (see {@link linkTargetsOf}).
-      const byLinkTarget = MutableHashMap.empty<string, WorkspacePackage>();
-      for (const pkg of options?.workspacePackages ?? []) {
-        const relativePath = linkTargetPath(".", pkg.relativePath);
-        if (!MutableHashMap.has(manifests, relativePath)) MutableHashMap.set(manifests, relativePath, pkg);
-        for (const target of linkTargetsOf(relativePath, pkg)) {
-          if (!MutableHashMap.has(byLinkTarget, target)) MutableHashMap.set(byLinkTarget, target, pkg);
-        }
-      }
-
-      // The `link:` importer edges, classified ONCE, before the walk: a target
-      // the caller supplied is joinable (its manifest's peers can be judged
-      // for real), and a target they did not supply keeps the report
-      // fail-closed. Both halves need the same normalized path resolution —
-      // a `link:` version is spelled relative to the importer that recorded
-      // it — so they are computed in one pass rather than twice.
-      const joinable = MutableHashSet.empty<string>();
-      const linksByImporter = MutableHashMap.empty<string, ReadonlyArray<LinkEdge>>();
-      let unjoinedLink = false;
-      for (const importer of lockfile.importers) {
-        const edges: Array<LinkEdge> = [];
-        for (const dep of importer.dependencies) {
-          const version = dep.version;
-          if (version === undefined || !Str.startsWith(LINK_PREFIX)(version)) continue;
-          const target = linkTargetPath(importer.path, Str.slice(LINK_PREFIX.length)(version));
-          // The row the edge lands on, when the target is an importer at
-          // all: `link:` can also point outside the workspace globs, in
-          // which case there is nothing to walk, its peers are never
-          // judged, and the post-walk check below keeps the marker.
-          // A publish-directory target (`packages/a/dist`) stands for the
-          // package directory's row, which is what the lockfile model
-          // resolves the same edge to.
-          const pkg = O.getOrUndefined(MutableHashMap.get(byLinkTarget, target));
-          const row = O.getOrUndefined(
-            MutableHashMap.get(
-              index.workspaceByPath,
-              pkg === undefined ? target : linkTargetPath(".", pkg.relativePath)
-            )
-          );
-          const covered = pkg !== undefined;
-          if (!covered) unjoinedLink = true;
-          if (covered && row !== undefined) MutableHashSet.add(joinable, row.instanceId);
-          edges.push({ name: dep.name, row, covered });
-        }
-        if (edges.length > 0) MutableHashMap.set(linksByImporter, importer.path, edges);
-      }
-
-      const rows: Array<UnsatisfiedPeer> = [];
-      const unresolved: Array<string> = [];
-      const unjudged = MutableHashSet.empty<UnverifiedReason>();
-      const seen = MutableHashSet.empty<string>();
-
-      for (const importer of lockfile.importers) {
-        const links = O.getOrUndefined(MutableHashMap.get(linksByImporter, importer.path)) ?? [];
-        const roots = withLinkRoots(rootInstances(lockfile, importer.path, index), links, importer.dependencies);
-        if (roots === undefined) {
-          unresolved.push(importer.path);
-          // Nothing was walked, so no covered edge here was judged.
-          if (links.length > 0) unjoinedLink = true;
-          continue;
-        }
-        // A joinable parent's peers are judged against the IMPORTER's own
-        // dependency set, which is where pnpm resolves them from; see
-        // {@link providerContext}.
-        const join: Join = {
-          manifests,
-          joinable,
-          context: providerContext(roots, byId, links),
-          catalogs: options?.catalogs,
-        };
-        const judged = MutableHashSet.empty<string>();
-        collect(importer.path, walksFrom(roots, join), byId, rows, seen, policy, join, judged, unjudged);
-        // A covered edge clears the marker ONLY when the walk actually read
-        // the target's manifest peers for THIS importer. Covering the path
-        // is not judging it: a target with no lockfile row, or one the walk
-        // never reached, is still invisible, and the report says so.
-        for (const edge of links) {
-          if (edge.covered && (edge.row === undefined || !MutableHashSet.has(judged, edge.row.instanceId)))
-            unjoinedLink = true;
-        }
-      }
-
-      // An edge the lockfile records but the model could not name means some
-      // peer may be satisfied by something invisible here — so the report is
-      // incomplete, and says so rather than presenting its rows as the answer.
-      //
-      // A `link:`-resolved importer dependency is the same gap from the other
-      // side: pnpm records no peer declarations for workspace
-      // projects, so a parent reached through `link:` joins at best to a row
-      // whose peers are empty BY DESIGN, and at worst — the root importer —
-      // to nothing at all, while `pnpm peers check` reads the linked manifest
-      // on disk and reports those peers. Where the caller supplied that
-      // manifest AND the walk read it for the importer that recorded the edge,
-      // those peers were judged for real and this marker is not owed; where it
-      // did not — the key omitted, a target outside the supplied set, or a
-      // covered target the walk could not reach — the peers are still
-      // invisible, and the report says so rather than presenting its rows as
-      // the answer. `version` is
-      // populated by pnpm only, so npm and bun never reach the branch and the
-      // scan stays format-free.
-      if (unjoinedLink || A.some(lockfile.packages, (pkg) => pkg.unresolvedEdges.length > 0)) {
-        unverified.push("unresolvedEdge");
-      }
-      // A peer whose range or provider version could not be named was never
-      // compared: neither satisfied nor unsatisfied, so the report cannot
-      // present its silence as clean. Pushed in a fixed order so the array
-      // does not depend on which importer the walk met first.
-      if (MutableHashSet.has(unjudged, "peerRangeUnresolved")) unverified.push("peerRangeUnresolved");
-      if (MutableHashSet.has(unjudged, "peerVersionUnresolved")) unverified.push("peerVersionUnresolved");
+      const manifests = manifestIndexOf(options?.workspacePackages ?? []);
+      const scope: RunScope = {
+        lockfile,
+        index,
+        policy: policyOf(options?.peerDependencyRules),
+        manifests: manifests.byPath,
+        links: scanLinks(lockfile, { byLinkTarget: manifests.byLinkTarget, workspaceByPath: index.workspaceByPath }),
+        catalogs: options?.catalogs,
+        findings: {
+          rows: [],
+          unresolved: [],
+          unjudged: MutableHashSet.empty<UnverifiedReason>(),
+          seen: MutableHashSet.empty<string>(),
+        },
+      };
+      // Every importer is walked: the flags are collected before they are
+      // combined, so no importer's walk is skipped by an earlier one's answer.
+      const walkedUnjoined = A.some(
+        A.map(lockfile.importers, (importer) => walkImporter(scope, importer)),
+        P.isTruthy
+      );
 
       return PeerCheck.make({
         supported: true,
-        unsatisfied: rows,
-        unresolvedImporters: unresolved,
-        unverified,
+        unsatisfied: scope.findings.rows,
+        unresolvedImporters: scope.findings.unresolved,
+        unverified: [...unverified, ...trailingReasons(scope, scope.links.unjoined || walkedUnjoined)],
       });
     }
   );
 }
+
+/**
+ * Where every importer's walk records what it found.
+ *
+ * @internal
+ */
+interface Findings {
+  /**
+   * The unsatisfied rows, in walk order.
+   */
+  readonly rows: Array<UnsatisfiedPeer>;
+  /**
+   * The (importer, peer, instance) keys already reported.
+   */
+  readonly seen: MutableHashSet.MutableHashSet<string>;
+  /**
+   * The reasons some peer could not be judged.
+   */
+  readonly unjudged: MutableHashSet.MutableHashSet<UnverifiedReason>;
+  /**
+   * The importers whose roots could not be joined.
+   */
+  readonly unresolved: Array<string>;
+}
+
+/**
+ * What one importer's walk shares with the run.
+ *
+ * @internal
+ */
+interface WalkScope {
+  /**
+   * Every instance, by id.
+   */
+  readonly byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>;
+  /**
+   * The run's accumulators.
+   */
+  readonly findings: Findings;
+  /**
+   * The importer the walk reports on.
+   */
+  readonly importerPath: string;
+  /**
+   * The supplied manifests and the importer's provider context.
+   */
+  readonly join: Join;
+  /**
+   * The joinable rows whose manifest peers this walk read.
+   */
+  readonly judged: MutableHashSet.MutableHashSet<string>;
+  /**
+   * The effective suppression policy.
+   */
+  readonly policy: Policy;
+}
+
+/**
+ * The supplied manifests, keyed the way a `link:` target is spelled: a
+ * workspace-relative POSIX directory.
+ *
+ * @internal
+ */
+interface ManifestIndex {
+  /**
+   * The manifests by every directory a `link:` to them can name: the package
+   * directory, and its publish directory when pnpm links into it (see
+   * {@link linkTargetsOf}).
+   */
+  readonly byLinkTarget: MutableHashMap.MutableHashMap<string, WorkspacePackage>;
+  /**
+   * The manifests by package directory. Empty when the key is omitted, which
+   * is what keeps every `link:` edge on the fail-closed branch.
+   */
+  readonly byPath: MutableHashMap.MutableHashMap<string, WorkspacePackage>;
+}
+
+/**
+ * Sets `key` unless it is already present: the first manifest to claim a
+ * directory keeps it.
+ *
+ * @internal
+ */
+const setFirst = <V>(map: MutableHashMap.MutableHashMap<string, V>, key: string, value: V): void => {
+  if (!MutableHashMap.has(map, key)) MutableHashMap.set(map, key, value);
+};
+
+/**
+ * Index the caller's manifests; see {@link ManifestIndex}.
+ *
+ * @internal
+ */
+const manifestIndexOf = (packages: ReadonlyArray<WorkspacePackage>): ManifestIndex => {
+  const byPath = MutableHashMap.empty<string, WorkspacePackage>();
+  const byLinkTarget = MutableHashMap.empty<string, WorkspacePackage>();
+  for (const pkg of packages) {
+    const relativePath = linkTargetPath(".", pkg.relativePath);
+    setFirst(byPath, relativePath, pkg);
+    for (const target of linkTargetsOf(relativePath, pkg)) setFirst(byLinkTarget, target, pkg);
+  }
+  return { byPath, byLinkTarget };
+};
+
+/**
+ * The effective rules as a {@link Policy}.
+ *
+ * **Details**
+ *
+ * All three axes are applied, so supplied rules yield a verified report. Each
+ * list axis compiles to a name predicate ONCE here rather than per row; both
+ * are `() => false` when the axis is empty.
+ *
+ * @internal
+ */
+const policyOf = (rules: PeerDependencyRules.Encoded | undefined): Policy => ({
+  allowed: rules?.allowedVersions ?? {},
+  ignoreMissing: peerNameMatcher(rules?.ignoreMissing ?? []),
+  allowAny: peerNameMatcher(rules?.allowAny ?? []),
+});
+
+/**
+ * What a `link:` edge's target is looked up in.
+ *
+ * @internal
+ */
+interface LinkLookup {
+  /**
+   * The supplied manifests by link target.
+   */
+  readonly byLinkTarget: MutableHashMap.MutableHashMap<string, WorkspacePackage>;
+  /**
+   * The lockfile's workspace rows by directory.
+   */
+  readonly workspaceByPath: MutableHashMap.MutableHashMap<string, ResolvedPackage>;
+}
+
+/**
+ * The `link:` importer edges, classified ONCE, before the walk.
+ *
+ * @internal
+ */
+interface LinkScan {
+  /**
+   * Each importer's edges, for the importers that have any.
+   */
+  readonly byImporter: MutableHashMap.MutableHashMap<string, ReadonlyArray<LinkEdge>>;
+  /**
+   * Instance ids of the rows a COVERED edge lands on; see {@link Join.joinable}.
+   */
+  readonly joinable: MutableHashSet.MutableHashSet<string>;
+  /**
+   * Whether some edge names a target the caller did not supply.
+   */
+  readonly unjoined: boolean;
+}
+
+/**
+ * The target a dependency's `link:` version names, when it is one.
+ *
+ * @internal
+ */
+const linkVersionOf = (version: string | undefined): O.Option<string> =>
+  O.map(O.filter(O.fromUndefinedOr(version), Str.startsWith(LINK_PREFIX)), Str.slice(LINK_PREFIX.length));
+
+/**
+ * One `link:` edge, resolved against the importer that recorded it.
+ *
+ * **Details**
+ *
+ * The row the edge lands on, when the target is an importer at all: `link:`
+ * can also point outside the workspace globs, in which case there is nothing
+ * to walk, its peers are never judged, and the run keeps the marker. A
+ * publish-directory target (`packages/a/dist`) stands for the package
+ * directory's row, which is what the lockfile model resolves the same edge to.
+ *
+ * @internal
+ */
+const linkEdgeAt = (lookup: LinkLookup, importerPath: string, name: string, version: string): LinkEdge => {
+  const target = linkTargetPath(importerPath, version);
+  const pkg = O.getOrUndefined(MutableHashMap.get(lookup.byLinkTarget, target));
+  const rowPath = pkg === undefined ? target : linkTargetPath(".", pkg.relativePath);
+  return {
+    name,
+    row: O.getOrUndefined(MutableHashMap.get(lookup.workspaceByPath, rowPath)),
+    covered: pkg !== undefined,
+  };
+};
+
+/**
+ * Classify every importer's `link:` edges; see {@link LinkScan}.
+ *
+ * **Details**
+ *
+ * A target the caller supplied is joinable (its manifest's peers can be judged
+ * for real), and a target they did not supply keeps the report fail-closed.
+ * Both halves need the same normalized path resolution — a `link:` version is
+ * spelled relative to the importer that recorded it — so they are computed in
+ * one pass rather than twice.
+ *
+ * @internal
+ */
+const scanLinks = (lockfile: Lockfile, lookup: LinkLookup): LinkScan => {
+  const perImporter = A.map(lockfile.importers, (importer): readonly [string, ReadonlyArray<LinkEdge>] => [
+    importer.path,
+    A.getSomes(
+      A.map(importer.dependencies, (dep) =>
+        O.map(linkVersionOf(dep.version), (target) => linkEdgeAt(lookup, importer.path, dep.name, target))
+      )
+    ),
+  ]);
+  const edges = A.flatMap(perImporter, ([, importerEdges]) => importerEdges);
+  return {
+    byImporter: MutableHashMap.fromIterable(A.filter(perImporter, ([, importerEdges]) => importerEdges.length > 0)),
+    joinable: MutableHashSet.fromIterable(
+      A.flatMap(edges, (edge) => (edge.covered && edge.row !== undefined ? [edge.row.instanceId] : []))
+    ),
+    unjoined: A.some(edges, (edge) => !edge.covered),
+  };
+};
+
+/**
+ * Everything the run hands each importer's walk.
+ *
+ * @internal
+ */
+interface RunScope {
+  /**
+   * The caller's catalogs.
+   */
+  readonly catalogs: CatalogSet | undefined;
+  /**
+   * The run's accumulators.
+   */
+  readonly findings: Findings;
+  /**
+   * The lockfile's instances, indexed.
+   */
+  readonly index: InstanceIndex;
+  /**
+   * The classified `link:` edges.
+   */
+  readonly links: LinkScan;
+  /**
+   * The lockfile being checked.
+   */
+  readonly lockfile: Lockfile;
+  /**
+   * The supplied manifests by package directory.
+   */
+  readonly manifests: MutableHashMap.MutableHashMap<string, WorkspacePackage>;
+  /**
+   * The effective suppression policy.
+   */
+  readonly policy: Policy;
+}
+
+/**
+ * Walk one importer, returning whether a `link:` edge it recorded stayed
+ * unjudged.
+ *
+ * **Details**
+ *
+ * A joinable parent's peers are judged against the IMPORTER's own dependency
+ * set, which is where pnpm resolves them from; see {@link providerContext}. A
+ * covered edge clears the marker ONLY when the walk actually read the target's
+ * manifest peers for THIS importer. Covering the path is not judging it: a
+ * target with no lockfile row, or one the walk never reached, is still
+ * invisible, and the report says so.
+ *
+ * @internal
+ */
+const walkImporter = (scope: RunScope, importer: Lockfile["importers"][number]): boolean => {
+  const links = O.getOrElse(
+    MutableHashMap.get(scope.links.byImporter, importer.path),
+    (): ReadonlyArray<LinkEdge> => []
+  );
+  const roots = withLinkRoots(rootInstances(scope.lockfile, importer.path, scope.index), links, importer.dependencies);
+  if (roots === undefined) {
+    scope.findings.unresolved.push(importer.path);
+    // Nothing was walked, so no edge here was judged.
+    return links.length > 0;
+  }
+  const join: Join = {
+    manifests: scope.manifests,
+    joinable: scope.links.joinable,
+    context: providerContext(roots, scope.index.byId, links),
+    catalogs: scope.catalogs,
+  };
+  const judged = MutableHashSet.empty<string>();
+  collect(
+    {
+      importerPath: importer.path,
+      byId: scope.index.byId,
+      policy: scope.policy,
+      join,
+      judged,
+      findings: scope.findings,
+    },
+    walksFrom(roots, join)
+  );
+  return A.some(
+    links,
+    (edge) => edge.covered && (edge.row === undefined || !MutableHashSet.has(judged, edge.row.instanceId))
+  );
+};
+
+/**
+ * @internal
+ */
+const UNJUDGED_ORDER: ReadonlyArray<UnverifiedReason> = ["peerRangeUnresolved", "peerVersionUnresolved"];
+
+/**
+ * The markers the walk owes the report, in a fixed order.
+ *
+ * **Details**
+ *
+ * An edge the lockfile records but the model could not name means some peer
+ * may be satisfied by something invisible here — so the report is incomplete,
+ * and says so rather than presenting its rows as the answer.
+ *
+ * A `link:`-resolved importer dependency is the same gap from the other side:
+ * pnpm records no peer declarations for workspace projects, so a parent
+ * reached through `link:` joins at best to a row whose peers are empty BY
+ * DESIGN, and at worst — the root importer — to nothing at all, while
+ * `pnpm peers check` reads the linked manifest on disk and reports those
+ * peers. Where the caller supplied that manifest AND the walk read it for the
+ * importer that recorded the edge, those peers were judged for real and this
+ * marker is not owed; where it did not — the key omitted, a target outside the
+ * supplied set, or a covered target the walk could not reach — the peers are
+ * still invisible, and the report says so rather than presenting its rows as
+ * the answer. `version` is populated by pnpm only, so npm and bun never reach
+ * the branch and the scan stays format-free.
+ *
+ * A peer whose range or provider version could not be named was never
+ * compared: neither satisfied nor unsatisfied, so the report cannot present
+ * its silence as clean. The order is fixed so the array does not depend on
+ * which importer the walk met first.
+ *
+ * @internal
+ */
+const trailingReasons = (scope: RunScope, unjoinedLink: boolean): ReadonlyArray<UnverifiedReason> => {
+  const unresolvedEdge = unjoinedLink || A.some(scope.lockfile.packages, (pkg) => pkg.unresolvedEdges.length > 0);
+  return [
+    ...(unresolvedEdge ? (["unresolvedEdge"] as const) : []),
+    ...A.filter(UNJUDGED_ORDER, (reason) => MutableHashSet.has(scope.findings.unjudged, reason)),
+  ];
+};
 
 /**
  * An importer's roots as walk nodes with their `parents` chain started.
@@ -1405,128 +1662,176 @@ const walksFrom: {
  * @internal
  */
 const collect: {
-  (
-    importerPath: string,
-    roots: ReadonlyArray<Walk>,
-    byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
-    rows: Array<UnsatisfiedPeer>,
-    seen: MutableHashSet.MutableHashSet<string>,
-    policy: Policy,
-    join: Join,
-    judged: MutableHashSet.MutableHashSet<string>,
-    unjudged: MutableHashSet.MutableHashSet<UnverifiedReason>
-  ): void;
-  (
-    roots: ReadonlyArray<Walk>,
-    byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
-    rows: Array<UnsatisfiedPeer>,
-    seen: MutableHashSet.MutableHashSet<string>,
-    policy: Policy,
-    join: Join,
-    judged: MutableHashSet.MutableHashSet<string>,
-    unjudged: MutableHashSet.MutableHashSet<UnverifiedReason>
-  ): (importerPath: string) => void;
-} = dual(
-  9,
-  (
-    importerPath: string,
-    roots: ReadonlyArray<Walk>,
-    byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
-    rows: Array<UnsatisfiedPeer>,
-    seen: MutableHashSet.MutableHashSet<string>,
-    policy: Policy,
-    join: Join,
-    judged: MutableHashSet.MutableHashSet<string>,
-    unjudged: MutableHashSet.MutableHashSet<UnverifiedReason>
-  ): void => {
-    const visited = MutableHashSet.empty<string>();
-    const queue: Array<Walk> = [...roots];
+  (scope: WalkScope, roots: ReadonlyArray<Walk>): void;
+  (roots: ReadonlyArray<Walk>): (scope: WalkScope) => void;
+} = dual(2, (scope: WalkScope, roots: ReadonlyArray<Walk>): void => {
+  const visited = MutableHashSet.empty<string>();
+  const queue: Array<Walk> = [...roots];
 
-    while (A.isArrayNonEmpty(queue)) {
-      const current = queue[0];
-      queue.shift();
-      if (MutableHashSet.has(visited, current.instance.instanceId)) continue;
-      MutableHashSet.add(visited, current.instance.instanceId);
-
-      // A parent the walk reached through a covered `link:` edge contributes
-      // its MANIFEST's peers, which is the whole point of supplying the
-      // manifests: the lockfile records none for a workspace project. The
-      // importer's own node (an empty chain) is never joined — pnpm reports a
-      // linked package's unsatisfied peers through a consumer, not on itself.
-      const linked = current.path.length === 0 ? undefined : joinedManifest(join, current.instance);
-      const declared = linked?.peerDependencies ?? current.instance.peerDependencies;
-      const optionalNames = linked === undefined ? undefined : optionalPeers(linked);
-      const declaring = linked?.name ?? current.instance.name;
-      // Recorded so the caller can tell a covered edge that was JUDGED from
-      // one that was merely covered; see {@link PeerCheck.run}.
-      if (linked !== undefined) MutableHashSet.add(judged, current.instance.instanceId);
-
-      for (const [peer, wanted] of R.toEntries(declared)) {
-        if (peer === "") continue;
-        const optional =
-          optionalNames === undefined
-            ? current.instance.peerDependenciesMeta[peer]?.optional === true
-            : MutableHashSet.has(optionalNames, peer);
-        const verdict: JoinedVerdict =
-          linked === undefined
-            ? withWanted(judge(current.instance, peer, wanted, optional, byId), wanted)
-            : judgeJoined(join.context, join.catalogs, peer, wanted, optional);
-        if (verdict._tag === "unjudged") for (const reason of verdict.reasons) MutableHashSet.add(unjudged, reason);
-        if (verdict._tag !== "unsatisfied") continue;
-        // pnpm computes the same violation and then SUPPRESSES it when a rule
-        // permits the version that resolved. Replicating that is the whole
-        // point: without it we report findings pnpm calls clean.
-        if (suppressedByRule(policy, declaring, peer, verdict.version)) continue;
-        // One row per (importer, peer, declaring INSTANCE) — which is what pnpm
-        // reports. Measured on `peers/diamond`, where one importer reaches
-        // `use-sync-external-store@1.2.2` through both react-redux and zustand:
-        // `pnpm peers check --json` emits that package's unsatisfied `react`
-        // once, carrying the chain it reached first, and says nothing about the
-        // other. So a second chain is not a second fact, and the walk below
-        // judges each instance once per importer for the same reason.
-        //
-        // The set is a guard rather than a live filter under the current walk —
-        // the per-importer `visited` set already admits each instance once, and
-        // deleting the guard changes no test. It earns its place by holding the
-        // invariant at the point the row is emitted: swap the walk for a
-        // per-chain one and this is what still collapses the diamond, which is
-        // mutation-checked in both directions.
-        const key = `${importerPath}\u0000${peer}\u0000${current.instance.instanceId}`;
-        if (MutableHashSet.has(seen, key)) continue;
-        MutableHashSet.add(seen, key);
-        rows.push(
-          UnsatisfiedPeer.make({
-            importer: importerPath,
-            dependency: peer,
-            wanted: verdict.wanted,
-            found: verdict.found,
-            optional,
-            parents: current.path,
-          })
-        );
-      }
-
-      // Attribution STOPS at a workspace package the walk reached from the
-      // importer. Its dependencies — linked workspace packages and registry
-      // packages alike — are that package's own importer's business, and are
-      // judged by that importer's walk. Measured against pnpm 12.6.0: with `b`
-      // linking `a` and `a` linking `c`, `c`'s unmet peer is reported on `a`
-      // only, whoever provides it (`linkchain-*/`), and a registry dependency
-      // of a linked package reports its peers on that package's importer, never
-      // on the consumer (`linkchain-registry/`). Walking on would judge a
-      // deeper package's peers against the wrong importer's dependencies.
-      if (current.path.length > 0 && current.instance.isWorkspace) continue;
-      for (const targetId of R.values(current.instance.resolved)) {
-        const next = O.getOrUndefined(MutableHashMap.get(byId, targetId));
-        if (next === undefined || MutableHashSet.has(visited, targetId)) continue;
-        queue.push({
-          instance: next,
-          path: [...current.path, parentLabel(join, next)],
-        });
-      }
+  while (A.isArrayNonEmpty(queue)) {
+    const current = queue[0];
+    queue.shift();
+    if (MutableHashSet.has(visited, current.instance.instanceId)) continue;
+    MutableHashSet.add(visited, current.instance.instanceId);
+    const declaration = declarationOf(scope, current);
+    for (const [peer, wanted] of R.toEntries(declaration.declared)) {
+      judgePeer(scope, current, declaration, peer, wanted);
     }
+    queue.push(...nextWalks(scope, current, visited));
   }
-);
+});
+
+/**
+ * The peers one walk node declares, and how each is judged.
+ *
+ * **Details**
+ *
+ * A parent the walk reached through a covered `link:` edge contributes its
+ * MANIFEST's peers, which is the whole point of supplying the manifests: the
+ * lockfile records none for a workspace project. The importer's own node (an
+ * empty chain) is never joined — pnpm reports a linked package's unsatisfied
+ * peers through a consumer, not on itself.
+ *
+ * @internal
+ */
+interface Declaration {
+  /**
+   * The declared peers, name to range.
+   */
+  readonly declared: Readonly<Record<string, string>>;
+  /**
+   * The declaring package's name, which a rule key's parent is matched against.
+   */
+  readonly declaring: string;
+  /**
+   * Whether the declaration marks a peer optional.
+   */
+  readonly isOptional: (peer: string) => boolean;
+  /**
+   * The verdict for one declared peer.
+   */
+  readonly verdictOf: (peer: string, wanted: string, optional: boolean) => JoinedVerdict;
+}
+
+/**
+ * The {@link Declaration} for `current`, from its joined manifest when it has
+ * one and from its lockfile row otherwise.
+ *
+ * **Details**
+ *
+ * A joined node is recorded on the scope's `judged` set, so the run can tell a
+ * covered edge that was JUDGED from one that was merely covered; see
+ * {@link PeerCheck.run}.
+ *
+ * @internal
+ */
+const declarationOf: {
+  (scope: WalkScope, current: Walk): Declaration;
+  (current: Walk): (scope: WalkScope) => Declaration;
+} = dual(2, (scope: WalkScope, current: Walk): Declaration => {
+  const instance = current.instance;
+  const linked = current.path.length === 0 ? undefined : joinedManifest(scope.join, instance);
+  if (linked === undefined) {
+    return {
+      declared: instance.peerDependencies,
+      declaring: instance.name,
+      isOptional: (peer) => instance.peerDependenciesMeta[peer]?.optional === true,
+      verdictOf: (peer, wanted, optional) => withWanted(judge(instance, peer, wanted, optional, scope.byId), wanted),
+    };
+  }
+  MutableHashSet.add(scope.judged, instance.instanceId);
+  const optionalNames = optionalPeers(linked);
+  return {
+    declared: linked.peerDependencies,
+    declaring: linked.name,
+    isOptional: (peer) => MutableHashSet.has(optionalNames, peer),
+    verdictOf: (peer, wanted, optional) => judgeJoined(scope.join.context, scope.join.catalogs, peer, wanted, optional),
+  };
+});
+
+/**
+ * Judge one declared peer and record what it found on the scope.
+ *
+ * **Details**
+ *
+ * pnpm computes the same violation and then SUPPRESSES it when a rule permits
+ * the version that resolved. Replicating that is the whole point: without it
+ * we report findings pnpm calls clean.
+ *
+ * One row per (importer, peer, declaring INSTANCE) — which is what pnpm
+ * reports. Measured on `peers/diamond`, where one importer reaches
+ * `use-sync-external-store@1.2.2` through both react-redux and zustand:
+ * `pnpm peers check --json` emits that package's unsatisfied `react` once,
+ * carrying the chain it reached first, and says nothing about the other. So a
+ * second chain is not a second fact, and the walk judges each instance once
+ * per importer for the same reason.
+ *
+ * The `seen` set is a guard rather than a live filter under the current walk
+ * — the per-importer `visited` set already admits each instance once, and
+ * deleting the guard changes no test. It earns its place by holding the
+ * invariant at the point the row is emitted: swap the walk for a per-chain one
+ * and this is what still collapses the diamond, which is mutation-checked in
+ * both directions.
+ *
+ * @internal
+ */
+const judgePeer = (scope: WalkScope, current: Walk, declaration: Declaration, peer: string, wanted: string): void => {
+  if (peer === "") return;
+  const { findings } = scope;
+  const optional = declaration.isOptional(peer);
+  const verdict = declaration.verdictOf(peer, wanted, optional);
+  if (verdict._tag === "unjudged")
+    A.forEach(verdict.reasons, (reason) => MutableHashSet.add(findings.unjudged, reason));
+  if (verdict._tag !== "unsatisfied") return;
+  if (suppressedByRule(scope.policy, declaration.declaring, peer, verdict.version)) return;
+  const key = `${scope.importerPath}\u0000${peer}\u0000${current.instance.instanceId}`;
+  if (MutableHashSet.has(findings.seen, key)) return;
+  MutableHashSet.add(findings.seen, key);
+  findings.rows.push(
+    UnsatisfiedPeer.make({
+      importer: scope.importerPath,
+      dependency: peer,
+      wanted: verdict.wanted,
+      found: verdict.found,
+      optional,
+      parents: current.path,
+    })
+  );
+};
+
+/**
+ * The unvisited nodes `current` leads to, each with its chain extended.
+ *
+ * **Details**
+ *
+ * Attribution STOPS at a workspace package the walk reached from the importer.
+ * Its dependencies — linked workspace packages and registry packages alike —
+ * are that package's own importer's business, and are judged by that
+ * importer's walk. Measured against pnpm 12.6.0: with `b` linking `a` and `a`
+ * linking `c`, `c`'s unmet peer is reported on `a` only, whoever provides it
+ * (the `linkchain-*` probes), and a registry dependency of a linked package reports its
+ * peers on that package's importer, never on the consumer
+ * (`linkchain-registry/`). Walking on would judge a deeper package's peers
+ * against the wrong importer's dependencies.
+ *
+ * @internal
+ */
+const nextWalks = (
+  scope: WalkScope,
+  current: Walk,
+  visited: MutableHashSet.MutableHashSet<string>
+): ReadonlyArray<Walk> => {
+  if (current.path.length > 0 && current.instance.isWorkspace) return [];
+  const unvisited = A.filter(R.values(current.instance.resolved), (targetId) => !MutableHashSet.has(visited, targetId));
+  return A.getSomes(
+    A.map(unvisited, (targetId) =>
+      O.map(MutableHashMap.get(scope.byId, targetId), (next) => ({
+        instance: next,
+        path: [...current.path, parentLabel(scope.join, next)],
+      }))
+    )
+  );
+};
 
 /**
  * The parent name a `peerDependencyRules.allowedVersions` key names, with the

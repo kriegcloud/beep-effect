@@ -28,12 +28,25 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { MAX_ENUMERATION_DEPTH } from "./internal/limits.ts";
+import { manifestVersionOf } from "./internal/manifestFields.ts";
 import { manifestPatternsOf, pnpmPatternsOf } from "./internal/patterns.ts";
-import { badMaxDepthMessage, isPruned, isValidMaxDepth, joinRelative, Traversal } from "./internal/traverse.ts";
+import {
+  badMaxDepthMessage,
+  excludedBy,
+  isPruned,
+  isValidMaxDepth,
+  joinRelative,
+  Traversal,
+} from "./internal/traverse.ts";
 import { WorkspaceDiscoveryError } from "./WorkspaceDiscovery.ts";
 import { PublishConfig, WorkspacePackage } from "./WorkspacePackage.ts";
+import type { GlobPattern } from "@beep/glob";
+import type { TraversalFrame } from "./internal/traverse.ts";
 
 const isDependencyMap = S.is(WorkspacePackage.fields.dependencies);
+
+/** A manifest dependency block, or the empty block when it is not a name-to-range record. */
+const dependencyMapOf = (value: unknown): Readonly<Record<string, string>> => (isDependencyMap(value) ? value : {});
 
 const $I = $RepoWorkspacesId.create("WorkspacesSync");
 
@@ -709,19 +722,38 @@ export const findWorkspaceRootSync: {
   // Bounded twice over: `dirname` is a fixpoint at the filesystem root, and the
   // depth cap guards a pathological path implementation that never reaches one.
   for (let depth = 0; depth < MAX_ENUMERATION_DEPTH * 8; depth++) {
-    if (fileSystem.exists(path.join(current, "pnpm-workspace.yaml"))) return current;
-    const manifest = readJson(fileSystem, path.join(current, "package.json"));
-    if (manifest?.workspaces !== undefined && manifest.workspaces !== null) return current;
-    // Inclusive: the ceiling itself was just probed. A ceiling naming no
-    // ancestor never matches and the ascent runs to the filesystem root —
-    // walker's rule, which the Effect surface inherits.
-    if (ceiling !== undefined && current === ceiling) return null;
-    const parent = path.dirname(current);
-    if (parent === current) return null;
+    if (declaresWorkspace(fileSystem, path, current)) return current;
+    const parent = ascentFrom(path, current, ceiling);
+    if (parent === undefined) return null;
     current = parent;
   }
   return null;
 });
+
+/**
+ * Whether `directory` declares a workspace: a `pnpm-workspace.yaml`, or a
+ * `package.json` with a `workspaces` field.
+ */
+const declaresWorkspace = (fileSystem: SyncFileSystem, path: SyncPath, directory: string): boolean => {
+  if (fileSystem.exists(path.join(directory, "pnpm-workspace.yaml"))) return true;
+  const manifest = readJson(fileSystem, path.join(directory, "package.json"));
+  return manifest?.workspaces !== undefined && manifest.workspaces !== null;
+};
+
+/**
+ * The next directory the ascent probes, or `undefined` where it stops.
+ *
+ * **Details**
+ *
+ * Inclusive: the ceiling itself was just probed. A ceiling naming no ancestor
+ * never matches and the ascent runs to the filesystem root — walker's rule,
+ * which the Effect surface inherits.
+ */
+const ascentFrom = (path: SyncPath, current: string, ceiling: string | undefined): string | undefined => {
+  if (current === ceiling) return undefined;
+  const parent = path.dirname(current);
+  return parent === current ? undefined : parent;
+};
 
 /**
  * The workspace `packages:` patterns for `root`, matching `internal/patterns.ts`'s precedence.
@@ -783,40 +815,21 @@ const readPackageSync: {
     if (!P.isString(name) || name.length === 0) {
       return { root, path: packageJsonPath, kind: "missingName", cause: undefined };
     }
-    // Absent stays absent — pnpm accepts a version-less private package, and the
-    // Effect enumerator carries the same shape. Optional means ABSENT, though,
-    // not "any present value counts": a present non-string is the manifest's
-    // shape being wrong, and so is `""`, which pnpm never wrote and which would
-    // resolve `workspace:^` to a bare `"^"`. The Effect surface fails both as
-    // `invalidShape` with these exact sentences; here they are the same kind and
-    // the same sentence, reported rather than raised.
-    const version = raw.version;
-    if (version !== undefined && !P.isString(version)) {
+    const version = manifestVersionOf(raw.version);
+    if (Result.isFailure(version)) {
       return {
         root,
         path: packageJsonPath,
         kind: "invalidShape",
-        cause: WorkspaceSyncManifestError.make({ message: `version must be a string, got ${typeof version}` }),
+        cause: WorkspaceSyncManifestError.make({ message: version.failure }),
       };
     }
-    if (version === "") {
-      return {
-        root,
-        path: packageJsonPath,
-        kind: "invalidShape",
-        cause: WorkspaceSyncManifestError.make({ message: "version must be a non-empty string" }),
-      };
-    }
-
-    const stringRecord = (value: unknown): Record<string, string> | undefined =>
-      isDependencyMap(value) ? value : undefined;
-
     const publishConfig = raw.publishConfig;
     const config = Effect.runSyncExit(S.decodeUnknownEffect(PublishConfig)(publishConfig));
 
     return WorkspacePackage.make({
       name,
-      ...O.getSomesStruct({ version: O.fromUndefinedOr(version) }),
+      ...O.getSomesStruct({ version: O.fromUndefinedOr(version.success) }),
       path: directory,
       packageJsonPath,
       relativePath,
@@ -824,10 +837,10 @@ const readPackageSync: {
       // points must not disagree about what a discovered package knows.
       workspaceRoot: root,
       private: raw.private === true,
-      dependencies: stringRecord(raw.dependencies) ?? {},
-      devDependencies: stringRecord(raw.devDependencies) ?? {},
-      peerDependencies: stringRecord(raw.peerDependencies) ?? {},
-      optionalDependencies: stringRecord(raw.optionalDependencies) ?? {},
+      dependencies: dependencyMapOf(raw.dependencies),
+      devDependencies: dependencyMapOf(raw.devDependencies),
+      peerDependencies: dependencyMapOf(raw.peerDependencies),
+      optionalDependencies: dependencyMapOf(raw.optionalDependencies),
       // The as-read record rides along, exactly as the Effect enumerator's
       // projection does — one read, tolerant access to the rest of the manifest.
       manifestRecord: raw,
@@ -986,7 +999,6 @@ export const getWorkspacePackagesSync: {
   (options: GetWorkspacePackagesSyncOptions): (root: string) => ReadonlyArray<WorkspacePackage>;
   (root: string, options: GetWorkspacePackagesSyncOptions): ReadonlyArray<WorkspacePackage>;
 } = dual(2, (root: string, options: GetWorkspacePackagesSyncOptions): ReadonlyArray<WorkspacePackage> => {
-  const { fileSystem, path } = options;
   const maxDepth = options.maxDepth ?? MAX_ENUMERATION_DEPTH;
   // A bad bound is a PROGRAMMER error, not a data condition. This function is
   // total over *data*, not over caller mistakes — so it throws here, mirroring
@@ -995,86 +1007,118 @@ export const getWorkspacePackagesSync: {
     throw WorkspaceEnumerationDepthError.make({ message: `getWorkspacePackagesSync: ${badMaxDepthMessage(maxDepth)}` });
   }
 
-  const patterns = readPatternsSync(options, root);
-
   // The same GlobSet the async enumerator compiles. An uncompilable set yields
   // no members rather than throwing — see the totality note above.
-  const compiled = Effect.runSyncExit(GlobSet.compile(patterns));
+  const compiled = Effect.runSyncExit(GlobSet.compile(readPatternsSync(options, root)));
   if (Exit.isFailure(compiled)) return [];
   const globs = compiled.value;
-  const excludes = globs.excludes;
-  const isExcluded =
-    excludes.length === 0
-      ? (_: string): boolean => false
-      : (relative: string): boolean => A.some(excludes, (exclude) => exclude.matches(relative));
+  const scope: SyncScope = {
+    options,
+    root,
+    maxDepth,
+    included: MutableHashMap.empty<string, string>(),
+    isExcluded: excludedBy(globs.excludes),
+  };
+  for (const literal of globs.literals) includeLiteralSync(scope, literal);
+  for (const wildcard of globs.wildcards) enumerateWildcardSync(scope, wildcard);
 
-  const included = MutableHashMap.empty<string, string>();
+  const sorted = A.sort(
+    scope.included,
+    Order.mapInput(Str.Order, ([relativePath]: [string, string]) => relativePath)
+  );
+  const members = admitted(
+    options,
+    A.map(
+      A.filter(sorted, ([relativePath, absolute]) => relativePath !== "." && absolute !== root),
+      ([relativePath, absolute]) => readPackageSync(options, root, absolute, relativePath)
+    )
+  );
+  return [...admitted(options, [readPackageSync(options, root, root, ".")]), ...members];
+});
 
-  for (const literal of globs.literals) {
-    if (isExcluded(literal)) continue;
-    const absolute = path.join(root, literal);
-    if (isPackage(options, absolute)) MutableHashMap.set(included, literal, absolute);
-  }
+/**
+ * What one sync enumeration shares across its literal and wildcard passes.
+ */
+interface SyncScope {
+  readonly included: MutableHashMap.MutableHashMap<string, string>;
+  readonly isExcluded: (relative: string) => boolean;
+  readonly maxDepth: number;
+  readonly options: WorkspacesSyncOptions;
+  readonly root: string;
+}
 
-  for (const wildcard of globs.wildcards) {
-    const base = Str.replace(/\/$/, "")(wildcard.enumerationPrefix);
-    const absoluteBase = path.join(root, base);
-    if (!isDirectory(fileSystem, absoluteBase)) continue;
-
-    // THE shared traversal — the same state machine `internal/enumerate.ts`
-    // drives. The ONLY difference between the two entry points is what happens
-    // to a `TraversalStop`: the Effect path fails typed, this one truncates,
-    // because a Vitest config has nowhere to put an error. Depth, budget,
-    // prune and dequeue are not re-decided here.
-    const traversal = new Traversal(base, absoluteBase, maxDepth);
-
-    let stopped = false;
-    for (let current = traversal.next(); current !== undefined && !stopped; current = traversal.next()) {
-      if (traversal.charge() !== undefined) break;
-
-      const entries = readResolvedEntries(options, current.absolute);
-      if (entries === undefined) continue;
-
-      for (const entry of entries) {
-        if (isPruned(entry.name)) continue;
-        const relative = joinRelative(current.relative, entry.name);
-        const absolute = path.join(current.absolute, entry.name);
-        if (!entry.directory) continue;
-
-        // Depth BEFORE acceptance, exactly as the Effect enumerator does it.
-        // Gating only the descent is what made this function return a package
-        // one level beyond the cap that the Effect API rejected on the same
-        // tree — the drift that motivated the shared traversal.
-        if (wildcard.crossesSegments && !traversal.admits(current)) {
-          stopped = true;
-          break;
-        }
-
-        if (wildcard.matches(relative) && !isExcluded(relative) && isPackage(options, absolute)) {
-          MutableHashMap.set(included, relative, absolute);
-        }
-        if (!wildcard.crossesSegments) continue;
-
-        traversal.push(current, relative, absolute);
-      }
-    }
-  }
-
+/**
+ * The packages among `reads`, reporting every skip to `onSkip` in order.
+ */
+const admitted = (
+  options: GetWorkspacePackagesSyncOptions,
+  reads: ReadonlyArray<WorkspacePackage | WorkspaceDiscoverySkip>
+): ReadonlyArray<WorkspacePackage> => {
   const members: Array<WorkspacePackage> = [];
-  const admit = (read: WorkspacePackage | WorkspaceDiscoverySkip): void => {
+  for (const read of reads) {
     if (S.is(WorkspacePackage)(read)) members.push(read);
     else options.onSkip?.(read);
-  };
-  for (const [relativePath, absolute] of A.sort(
-    included,
-    Order.mapInput(Str.Order, ([relativePath]: [string, string]) => relativePath)
-  )) {
-    if (relativePath === "." || absolute === root) continue;
-    admit(readPackageSync(options, root, absolute, relativePath));
   }
-
-  const rootPackage = readPackageSync(options, root, root, ".");
-  if (S.is(WorkspacePackage)(rootPackage)) return [rootPackage, ...members];
-  options.onSkip?.(rootPackage);
   return members;
-});
+};
+
+/**
+ * A literal include: an exact lookup, no directory read at all.
+ */
+const includeLiteralSync = (scope: SyncScope, literal: string): void => {
+  if (scope.isExcluded(literal)) return;
+  const absolute = scope.options.path.join(scope.root, literal);
+  if (isPackage(scope.options, absolute)) MutableHashMap.set(scope.included, literal, absolute);
+};
+
+/**
+ * One wildcard include, walked with THE shared traversal — the same state
+ * machine `internal/enumerate.ts` drives.
+ *
+ * **Details**
+ *
+ * The ONLY difference between the two entry points is what happens to a
+ * `TraversalStop`: the Effect path fails typed, this one truncates, because a
+ * Vitest config has nowhere to put an error. Depth, budget, prune and dequeue
+ * are not re-decided here.
+ */
+const enumerateWildcardSync = (scope: SyncScope, wildcard: GlobPattern): void => {
+  const base = Str.replace(/\/$/, "")(wildcard.enumerationPrefix);
+  const absoluteBase = scope.options.path.join(scope.root, base);
+  if (!isDirectory(scope.options.fileSystem, absoluteBase)) return;
+  const traversal = new Traversal(base, absoluteBase, scope.maxDepth);
+  for (let current = traversal.next(); current !== undefined; current = traversal.next()) {
+    if (traversal.charge() !== undefined) return;
+    const frame = current;
+    const entries = readResolvedEntries(scope.options, frame.absolute) ?? [];
+    if (!A.every(entries, (entry) => visitEntrySync(scope, wildcard, traversal, frame, entry))) return;
+  }
+};
+
+/**
+ * One listed entry, returning `false` when the depth cap stops the walk.
+ *
+ * **Details**
+ *
+ * Depth BEFORE acceptance, exactly as the Effect enumerator does it. Gating
+ * only the descent is what made this function return a package one level
+ * beyond the cap that the Effect API rejected on the same tree — the drift
+ * that motivated the shared traversal.
+ */
+const visitEntrySync = (
+  scope: SyncScope,
+  wildcard: GlobPattern,
+  traversal: Traversal,
+  frame: TraversalFrame,
+  entry: ResolvedEntry
+): boolean => {
+  if (isPruned(entry.name) || !entry.directory) return true;
+  if (wildcard.crossesSegments && !traversal.admits(frame)) return false;
+  const relative = joinRelative(frame.relative, entry.name);
+  const absolute = scope.options.path.join(frame.absolute, entry.name);
+  if (wildcard.matches(relative) && !scope.isExcluded(relative) && isPackage(scope.options, absolute)) {
+    MutableHashMap.set(scope.included, relative, absolute);
+  }
+  if (wildcard.crossesSegments) traversal.push(frame, relative, absolute);
+  return true;
+};

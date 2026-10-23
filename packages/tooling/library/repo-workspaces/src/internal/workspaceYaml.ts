@@ -4,6 +4,7 @@
 // map and the inline `peerDependencyRules` seed. One implementation, so the
 // two sides of a diff cannot disagree about what a ref declared.
 
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import { NoPeerDependencyRules, PeerDependencyRules } from "../ConfigDependencyHooks.ts";
@@ -37,6 +38,16 @@ export const configDependenciesOf = (document: unknown): Record<string, string> 
     if (P.isString(spec)) R.assignProperty(out, name, spec);
   }
   return out;
+};
+
+/** The string-valued entries of an `allowedVersions` block, in order; none for a non-object. */
+const stringEntriesOf = (value: unknown): Record<string, string> => {
+  const entries: Record<string, string> = {};
+  if (!P.isObject(value)) return entries;
+  for (const [key, range] of R.toEntries(value)) {
+    if (P.isString(range)) R.assignProperty(entries, key, range);
+  }
+  return entries;
 };
 
 /**
@@ -74,15 +85,9 @@ export const configDependenciesOf = (document: unknown): Record<string, string> 
 export const inlinePeerDependencyRules = (document: unknown): PeerDependencyRules => {
   if (!P.isObject(document) || !P.isObject(document.peerDependencyRules)) return NoPeerDependencyRules;
   const block = document.peerDependencyRules;
-  const allowedVersions: Record<string, string> = {};
-  if (P.isObject(block.allowedVersions)) {
-    for (const [key, value] of R.toEntries(block.allowedVersions)) {
-      if (P.isString(value)) R.assignProperty(allowedVersions, key, value);
-    }
-  }
   return PeerDependencyRules.make({
-    allowedVersions,
-    ignoreMissing: stringsOf(block.ignoreMissing) ?? [],
-    allowAny: stringsOf(block.allowAny) ?? [],
+    allowedVersions: stringEntriesOf(block.allowedVersions),
+    ignoreMissing: O.getOrElse(stringsOf(block.ignoreMissing), () => []),
+    allowAny: O.getOrElse(stringsOf(block.allowAny), () => []),
   });
 };

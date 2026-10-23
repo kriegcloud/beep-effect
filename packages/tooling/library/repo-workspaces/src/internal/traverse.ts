@@ -1,4 +1,5 @@
 import { $RepoWorkspacesId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
@@ -19,6 +20,7 @@ import * as S from "effect/Schema";
 // of drift unrepresentable rather than merely fixed.
 
 import { MAX_ENUMERATION_ENTRIES, PRUNED_DIRECTORIES } from "./limits.ts";
+import type { GlobSet } from "@beep/glob";
 
 const $I = $RepoWorkspacesId.create("internal/traverse");
 
@@ -215,6 +217,36 @@ export type TraversalStop = typeof TraversalStop.Type;
  * @since 0.0.0
  */
 export const isPruned = (entry: string): boolean => HashSet.has(PRUNED_DIRECTORIES, entry);
+
+/**
+ * Builds the predicate a compiled set's excludes make: whether any of them
+ * rejects a workspace-relative path.
+ *
+ * **Details**
+ *
+ * Both enumeration entry points share it, so an empty exclude list is the
+ * constant `false` in each rather than a per-path scan of nothing.
+ *
+ * **Example** (Reject the paths an exclude names)
+ *
+ * ```ts
+ * import { GlobSet } from "@beep/glob/GlobSet";
+ * import { excludedBy } from "@beep/repo-workspaces/internal/traverse";
+ * import * as Effect from "effect/Effect";
+ *
+ * const globs = Effect.runSync(GlobSet.compile(["packages/*", "!packages/legacy"]));
+ * const isExcluded = excludedBy(globs.excludes);
+ * console.log(isExcluded("packages/legacy")); // true
+ * console.log(isExcluded("packages/core")); // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const excludedBy = (excludes: GlobSet["excludes"]): ((relative: string) => boolean) =>
+  A.isReadonlyArrayNonEmpty(excludes)
+    ? (relative) => A.some(excludes, (exclude) => exclude.matches(relative))
+    : () => false;
 
 /**
  * Joins root-relative POSIX segments; `""` is the root itself.

@@ -27,6 +27,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { indexInstances, rootInstances } from "./internal/roots.ts";
 import type { ResolvedPackage } from "@beep/lockfiles";
+import type { InstanceIndex } from "./internal/roots.ts";
 
 const $I = $RepoWorkspacesId.create("DuplicateCheck");
 
@@ -460,113 +461,182 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
     (lockfile: Lockfile, options?: DuplicateCheckOptions): DuplicateCheck => {
       const names = options?.names ?? (() => true);
       const index = indexInstances(lockfile);
-      const { byId } = index;
-
-      // Roots taken directly by importer entries (no workspace row), recorded
-      // in importer order so provenance visits each relationship only once.
-      // A workspace row's edges are attributed below, when the walk leaves it.
-      const importerRoots: Array<readonly [instanceId: string, importerPath: string]> = [];
-      const unresolved: Array<string> = [];
-      const queue: Array<ResolvedPackage> = [];
-
-      for (const importer of lockfile.importers) {
-        const roots = rootInstances(lockfile, importer.path, index);
-        if (roots === undefined) {
-          unresolved.push(importer.path);
-          continue;
-        }
-        if (roots._tag === "own") {
-          queue.push(roots.instance);
-          continue;
-        }
-        for (const instance of roots.instances) {
-          importerRoots.push([instance.instanceId, importer.path]);
-          queue.push(instance);
-        }
-      }
-
-      // One global walk: reachability is a property of the graph, not of any
-      // single importer, and every reached edge is a dependent to record.
-      const reached = MutableHashSet.empty<string>();
-      for (const current of queue) {
-        if (MutableHashSet.has(reached, current.instanceId)) continue;
-        MutableHashSet.add(reached, current.instanceId);
-        for (const targetId of R.values(current.resolved)) {
-          const next = MutableHashMap.get(byId, targetId);
-          if (O.isSome(next) && !MutableHashSet.has(reached, targetId)) queue.push(next.value);
-        }
-      }
-
-      // Dependents, in lockfile order: importer roots first, then every reached
-      // package's edges in the order the lockfile lists the packages. Built from
-      // the lockfile rather than from the walk so the order never depends on
-      // which importer happened to reach an instance first.
-      const dependents = MutableHashMap.empty<string, Array<Dependent>>();
-      const seen = MutableHashSet.empty<string>();
-      const record: {
-        (targetId: string, dependent: Dependent): void;
-        (dependent: Dependent): (targetId: string) => void;
-      } = dual(2, (targetId: string, dependent: Dependent): void => {
-        const key = Result.getOrThrow(encodeRelationshipKey([targetId, dependent]));
-        if (MutableHashSet.has(seen, key)) return;
-        MutableHashSet.add(seen, key);
-        const list = O.getOrElse(MutableHashMap.get(dependents, targetId), (): Array<Dependent> => []);
-        list.push(dependent);
-        MutableHashMap.set(dependents, targetId, list);
-      });
-      for (const [instanceId, path] of importerRoots) {
-        record(instanceId, { _tag: "importer", path });
-      }
-      for (const pkg of lockfile.packages) {
-        if (!MutableHashSet.has(reached, pkg.instanceId)) continue;
-        const from = dependentOf(pkg);
-        for (const targetId of R.values(pkg.resolved)) {
-          if (MutableHashMap.has(byId, targetId)) record(targetId, from);
-        }
-      }
-
-      // Group reached instances by name, then by version, keeping lockfile
-      // order on both axes.
-      const byName = MutableHashMap.empty<string, MutableHashMap.MutableHashMap<string, Array<ResolvedPackage>>>();
-      for (const pkg of lockfile.packages) {
-        if (!MutableHashSet.has(reached, pkg.instanceId)) continue;
-        const versions = O.getOrElse(MutableHashMap.get(byName, pkg.name), () =>
-          MutableHashMap.empty<string, Array<ResolvedPackage>>()
-        );
-        const instances = O.getOrElse(MutableHashMap.get(versions, pkg.version), (): Array<ResolvedPackage> => []);
-        instances.push(pkg);
-        MutableHashMap.set(versions, pkg.version, instances);
-        MutableHashMap.set(byName, pkg.name, versions);
-      }
-
-      const duplicates: Array<DuplicatedPackage> = [];
-      for (const [name, versions] of byName) {
-        // Two or more DISTINCT VERSIONS is the rule. Instance count is not:
-        // peer-suffix variants of one version are the same code.
-        if (MutableHashMap.size(versions) < 2) continue;
-        if (!names(name)) continue;
-        duplicates.push(
-          DuplicatedPackage.make({
-            name,
-            versions: A.map([...versions], ([version, instances]) =>
-              DuplicatedVersion.make({
-                version,
-                instances: A.map(instances, (instance) =>
-                  DuplicateInstance.make({
-                    instanceId: instance.instanceId,
-                    dependents: O.getOrElse(MutableHashMap.get(dependents, instance.instanceId), () => []),
-                  })
-                ),
-              })
-            ),
-          })
-        );
-      }
-
-      return DuplicateCheck.make({ duplicates, unresolvedImporters: unresolved });
+      const seeds = seedRoots(lockfile, index);
+      const reached = reachFrom(seeds.queue, index.byId);
+      const dependents = dependentsOf(lockfile, index.byId, reached, seeds.importerRoots);
+      const duplicates = A.getSomes(
+        A.map([...versionsByName(lockfile, reached)], ([name, versions]) =>
+          duplicateOf(name, versions, dependents, names)
+        )
+      );
+      return DuplicateCheck.make({ duplicates, unresolvedImporters: seeds.unresolved });
     }
   );
 }
+
+/**
+ * Where the walk starts, and which importers could not be joined.
+ *
+ * @internal
+ */
+interface Seeds {
+  /**
+   * Roots taken directly by importer entries (no workspace row), recorded in
+   * importer order so provenance visits each relationship only once. A
+   * workspace row's edges are attributed when the walk leaves it.
+   */
+  readonly importerRoots: ReadonlyArray<readonly [instanceId: string, importerPath: string]>;
+  /**
+   * The walk's starting instances.
+   */
+  readonly queue: ReadonlyArray<ResolvedPackage>;
+  /**
+   * The importers whose roots could not be joined.
+   */
+  readonly unresolved: ReadonlyArray<string>;
+}
+
+/**
+ * Every importer's roots; see {@link Seeds}.
+ *
+ * @internal
+ */
+const seedRoots = (lockfile: Lockfile, index: InstanceIndex): Seeds => {
+  const importerRoots: Array<readonly [instanceId: string, importerPath: string]> = [];
+  const unresolved: Array<string> = [];
+  const queue: Array<ResolvedPackage> = [];
+  for (const importer of lockfile.importers) {
+    const roots = rootInstances(lockfile, importer.path, index);
+    if (roots === undefined) unresolved.push(importer.path);
+    else if (roots._tag === "own") queue.push(roots.instance);
+    else {
+      importerRoots.push(...A.map(roots.instances, (instance) => [instance.instanceId, importer.path] as const));
+      queue.push(...roots.instances);
+    }
+  }
+  return { importerRoots, queue, unresolved };
+};
+
+/**
+ * Every instance reachable from `roots`.
+ *
+ * **Details**
+ *
+ * One global walk: reachability is a property of the graph, not of any single
+ * importer, and every reached edge is a dependent to record.
+ *
+ * @internal
+ */
+const reachFrom = (
+  roots: ReadonlyArray<ResolvedPackage>,
+  byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>
+): MutableHashSet.MutableHashSet<string> => {
+  const reached = MutableHashSet.empty<string>();
+  const queue = [...roots];
+  for (const current of queue) {
+    if (MutableHashSet.has(reached, current.instanceId)) continue;
+    MutableHashSet.add(reached, current.instanceId);
+    const unreached = A.filter(R.values(current.resolved), (targetId) => !MutableHashSet.has(reached, targetId));
+    queue.push(...A.getSomes(A.map(unreached, (targetId) => MutableHashMap.get(byId, targetId))));
+  }
+  return reached;
+};
+
+/**
+ * Every reached instance's dependents, in lockfile order.
+ *
+ * **Details**
+ *
+ * Importer roots first, then every reached package's edges in the order the
+ * lockfile lists the packages. Built from the lockfile rather than from the
+ * walk so the order never depends on which importer happened to reach an
+ * instance first.
+ *
+ * @internal
+ */
+const dependentsOf = (
+  lockfile: Lockfile,
+  byId: MutableHashMap.MutableHashMap<string, ResolvedPackage>,
+  reached: MutableHashSet.MutableHashSet<string>,
+  importerRoots: Seeds["importerRoots"]
+): MutableHashMap.MutableHashMap<string, Array<Dependent>> => {
+  const dependents = MutableHashMap.empty<string, Array<Dependent>>();
+  const seen = MutableHashSet.empty<string>();
+  const record = (targetId: string, dependent: Dependent): void => {
+    const key = Result.getOrThrow(encodeRelationshipKey([targetId, dependent]));
+    if (MutableHashSet.has(seen, key)) return;
+    MutableHashSet.add(seen, key);
+    const list = O.getOrElse(MutableHashMap.get(dependents, targetId), (): Array<Dependent> => []);
+    list.push(dependent);
+    MutableHashMap.set(dependents, targetId, list);
+  };
+  for (const [instanceId, path] of importerRoots) record(instanceId, { _tag: "importer", path });
+  for (const pkg of A.filter(lockfile.packages, (row) => MutableHashSet.has(reached, row.instanceId))) {
+    const from = dependentOf(pkg);
+    for (const targetId of A.filter(R.values(pkg.resolved), (id) => MutableHashMap.has(byId, id))) {
+      record(targetId, from);
+    }
+  }
+  return dependents;
+};
+
+/**
+ * Reached instances grouped by name, then by version, keeping lockfile order
+ * on both axes.
+ *
+ * @internal
+ */
+const versionsByName = (
+  lockfile: Lockfile,
+  reached: MutableHashSet.MutableHashSet<string>
+): MutableHashMap.MutableHashMap<string, MutableHashMap.MutableHashMap<string, Array<ResolvedPackage>>> => {
+  const byName = MutableHashMap.empty<string, MutableHashMap.MutableHashMap<string, Array<ResolvedPackage>>>();
+  for (const pkg of A.filter(lockfile.packages, (row) => MutableHashSet.has(reached, row.instanceId))) {
+    const versions = O.getOrElse(MutableHashMap.get(byName, pkg.name), () =>
+      MutableHashMap.empty<string, Array<ResolvedPackage>>()
+    );
+    const instances = O.getOrElse(MutableHashMap.get(versions, pkg.version), (): Array<ResolvedPackage> => []);
+    instances.push(pkg);
+    MutableHashMap.set(versions, pkg.version, instances);
+    MutableHashMap.set(byName, pkg.name, versions);
+  }
+  return byName;
+};
+
+/**
+ * The duplicate one name's versions make, when they make one.
+ *
+ * **Details**
+ *
+ * Two or more DISTINCT VERSIONS is the rule. Instance count is not:
+ * peer-suffix variants of one version are the same code.
+ *
+ * @internal
+ */
+const duplicateOf = (
+  name: string,
+  versions: MutableHashMap.MutableHashMap<string, Array<ResolvedPackage>>,
+  dependents: MutableHashMap.MutableHashMap<string, Array<Dependent>>,
+  names: (name: string) => boolean
+): O.Option<DuplicatedPackage> => {
+  if (MutableHashMap.size(versions) < 2 || !names(name)) return O.none();
+  return O.some(
+    DuplicatedPackage.make({
+      name,
+      versions: A.map([...versions], ([version, instances]) =>
+        DuplicatedVersion.make({
+          version,
+          instances: A.map(instances, (instance) =>
+            DuplicateInstance.make({
+              instanceId: instance.instanceId,
+              dependents: O.getOrElse(MutableHashMap.get(dependents, instance.instanceId), () => []),
+            })
+          ),
+        })
+      ),
+    })
+  );
+};
 
 /**
  * The dependent an edge leaving `from` is attributed to.

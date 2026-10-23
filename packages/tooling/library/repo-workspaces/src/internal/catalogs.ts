@@ -1,4 +1,5 @@
 import { $RepoWorkspacesId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -127,13 +128,15 @@ export const merge = (...sources: ReadonlyArray<Catalogs | undefined>): Catalogs
  * ```ts
  * import { catalogNameOf } from "@beep/repo-workspaces/internal/catalogs";
  *
- * console.log(catalogNameOf("catalog:tools")) // tools
- * console.log(catalogNameOf("workspace:*")) // null
+ * import * as O from "effect/Option";
+ *
+ * console.log(O.getOrUndefined(catalogNameOf("catalog:tools"))) // tools
+ * console.log(O.isNone(catalogNameOf("workspace:*"))) // true
  * ```
  * @category parsing
  * @since 0.0.0
  */
-export const catalogNameOf = (specifier: string): string | null => parseCatalogProtocol(specifier);
+export const catalogNameOf = (specifier: string): O.Option<string> => O.fromNullishOr(parseCatalogProtocol(specifier));
 
 /**
  * Normalize the arbitrary shape of a catalog map into `CatalogEntries`, dropping anything unusable.
@@ -152,27 +155,34 @@ export const catalogNameOf = (specifier: string): string | null => parseCatalogP
  */
 export const normalize = (raw: unknown): CatalogEntries => {
   if (!P.isObjectOrArray(raw)) return {};
-  const entries: Array<readonly [string, Record<string, string>]> = [];
-  for (const [catalogName, catalog] of P.isObject(raw)
-    ? R.toEntries(raw)
-    : R.toEntries<keyof typeof raw & string, unknown>(raw)) {
-    if (!P.isObjectOrArray(catalog)) continue;
-    const clean: Array<readonly [string, string]> = [];
-    for (const [dependency, value] of P.isObject(catalog)
-      ? R.toEntries(catalog)
-      : R.toEntries<keyof typeof catalog & string, unknown>(catalog)) {
-      if (P.isString(value)) {
-        clean.push([dependency, value]);
-      } else if (P.isObjectKeyword(value) && !P.isFunction(value) && "specifier" in value) {
-        // Lockfile entries carry the declared range in `specifier`.
-        const specifier = value.specifier;
-        if (P.isString(specifier)) clean.push([dependency, specifier]);
-      }
-    }
-    entries.push([catalogName, R.fromEntries(clean)]);
-  }
-  return R.fromEntries(entries);
+  return R.fromEntries(
+    A.flatMap(ownEntries(raw), ([catalogName, catalog]) =>
+      P.isObjectOrArray(catalog) ? [[catalogName, usableEntries(catalog)] as const] : []
+    )
+  );
 };
+
+/** An object's or array's own enumerable entries, keyed by property name. */
+const ownEntries = (value: object): ReadonlyArray<readonly [string, unknown]> => R.toEntries({ ...value });
+
+/** The range a catalog entry declares: the string itself, or a lockfile entry's `specifier`. */
+const rangeOfEntry = (value: unknown): O.Option<string> => {
+  if (P.isString(value)) return O.some(value);
+  // Lockfile entries carry the declared range in `specifier`.
+  const specifier =
+    P.isObjectKeyword(value) && !P.isFunction(value) && "specifier" in value ? value.specifier : undefined;
+  return P.isString(specifier) ? O.some(specifier) : O.none();
+};
+
+/** One catalog's usable `dependency → range` entries, in order. */
+const usableEntries = (catalog: object): Record<string, string> =>
+  R.fromEntries(
+    A.getSomes(
+      A.map(ownEntries(catalog), ([dependency, value]) =>
+        O.map(rangeOfEntry(value), (range) => [dependency, range] as const)
+      )
+    )
+  );
 
 /**
  * Resolve one `catalog:` specifier against an assembled catalog set.
@@ -202,8 +212,8 @@ export const rangeOf: {
   3,
   (catalogs: Catalogs, dependency: string, specifier: string): string | undefined | CatalogMisconfiguration => {
     const catalogName = catalogNameOf(specifier);
-    if (catalogName !== null) {
-      const catalog = O.flatMap(R.get<string, Catalogs[string]>(catalogs, catalogName), O.fromUndefinedOr);
+    if (O.isSome(catalogName)) {
+      const catalog = O.flatMap(R.get<string, Catalogs[string]>(catalogs, catalogName.value), O.fromUndefinedOr);
       if (O.isNone(catalog) || !R.has<string, string | undefined>(catalog.value, dependency)) return undefined;
     }
     const result = resolveFromCatalog(catalogs, { alias: dependency, bareSpecifier: specifier });

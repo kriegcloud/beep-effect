@@ -216,12 +216,11 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
     S.decodeTo(
       S.instanceOf(ConfigDependencySpec),
       SchemaTransformation.transformEffect({
-        decode: (input: string) => {
-          const parsed = ConfigDependencySpec.parseResult(input);
-          return Result.isSuccess(parsed)
-            ? Effect.succeed(parsed.success)
-            : Effect.fail(new SchemaIssue.InvalidValue({ message: parsed.failure.message }, input));
-        },
+        decode: (input: string) =>
+          Result.match(ConfigDependencySpec.parseResult(input), {
+            onFailure: (failure) => Effect.fail(new SchemaIssue.InvalidValue({ message: failure.message }, input)),
+            onSuccess: Effect.succeed,
+          }),
         encode: (spec: ConfigDependencySpec) => Effect.succeed(spec.toString()),
       })
     ),

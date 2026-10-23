@@ -438,6 +438,10 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 /** Whether every value in an object is a string — a usable `dependency → range` catalog. */
 const isStringRecord = S.is(CatalogRecord);
 
+/** Whether a `catalog` block and a non-null `catalogs.default` both declare the default catalog. */
+const declaresDefaultTwice = (catalog: unknown, catalogs: unknown): boolean =>
+  P.isNotNullish(catalog) && P.isObjectKeyword(catalogs) && "default" in catalogs && catalogs.default !== null;
+
 /** The `catalog` / `catalogs` blocks of a parsed pnpm-workspace document. */
 const catalogBlocksOf = (
   document: unknown
@@ -449,14 +453,7 @@ const catalogBlocksOf = (
   const catalog = "catalog" in document ? document.catalog : undefined;
   const catalogs = "catalogs" in document ? document.catalogs : undefined;
   // Preserve pnpm's duplicate-default refusal before dropping unusable entries.
-  if (
-    catalog !== undefined &&
-    catalog !== null &&
-    P.isObjectKeyword(catalogs) &&
-    "default" in catalogs &&
-    catalogs.default !== null
-  )
-    return {};
+  if (declaresDefaultTwice(catalog, catalogs)) return {};
   return {
     catalogs: normalize({
       default: catalog,
@@ -552,58 +549,57 @@ const validatedCatalogBlocks: {
   ): Effect.Effect<
     { readonly catalog?: Record<string, string>; readonly catalogs?: Record<string, Record<string, string>> },
     CatalogAssemblyError
-  > => {
-    let validCatalog: Record<string, string> | undefined;
-    if (catalog !== undefined && catalog !== null) {
-      if (!isStringRecord(catalog)) {
-        return Effect.fail(
-          malformed("catalog", labels.catalog, `"${labels.catalog}" must map dependency names to version strings`)
-        );
-      }
-      validCatalog = catalog;
-    }
-
-    let validCatalogs: Record<string, Record<string, string>> | undefined;
-    if (catalogs !== undefined && catalogs !== null) {
-      if (!isObject(catalogs)) {
-        return Effect.fail(
-          malformed("catalog", labels.catalogs, `"${labels.catalogs}" must map catalog names to catalogs`)
-        );
-      }
-      const catalogEntries: Array<readonly [string, Record<string, string>]> = [];
-      for (const [name, entries] of R.toEntries(catalogs)) {
-        if (!isStringRecord(entries)) {
-          return Effect.fail(
-            malformed(
-              "catalog",
-              `${labels.catalogs}.${name}`,
-              `"${labels.catalogs}.${name}" must map dependency names to version strings`
+  > =>
+    Effect.flatMap(
+      Effect.all([validCatalogOf(catalog, labels.catalog), validCatalogsOf(catalogs, labels.catalogs)]),
+      ([validCatalog, validCatalogs]) =>
+        // The default catalog declared twice — pnpm rejects the equivalent
+        // duplication. Structural presence: an explicit `catalog: {}` still counts.
+        O.isSome(validCatalog) && O.isSome(validCatalogs) && "default" in validCatalogs.value
+          ? Effect.fail(
+              malformed(
+                "catalog",
+                "default",
+                `The default catalog is declared twice: as "${labels.catalog}" and as "${labels.catalogs}.default"`
+              )
             )
-          );
-        }
-        catalogEntries.push([name, entries]);
-      }
-      validCatalogs = R.fromEntries(catalogEntries);
-    }
-
-    // The default catalog declared twice — pnpm rejects the equivalent
-    // duplication. Structural presence: an explicit `catalog: {}` still counts.
-    if (validCatalog !== undefined && validCatalogs !== undefined && "default" in validCatalogs) {
-      return Effect.fail(
-        malformed(
-          "catalog",
-          "default",
-          `The default catalog is declared twice: as "${labels.catalog}" and as "${labels.catalogs}.default"`
-        )
-      );
-    }
-
-    return Effect.succeed({
-      ...O.getSomesStruct({ catalog: O.fromUndefinedOr(validCatalog) }),
-      ...O.getSomesStruct({ catalogs: O.fromUndefinedOr(validCatalogs) }),
-    });
-  }
+          : Effect.succeed({
+              ...O.getSomesStruct({ catalog: validCatalog }),
+              ...O.getSomesStruct({ catalogs: validCatalogs }),
+            })
+    )
 );
+
+/** A present `catalog` block, which must map dependency names to version strings. */
+const validCatalogOf = (
+  catalog: unknown,
+  label: string
+): Effect.Effect<O.Option<Record<string, string>>, CatalogAssemblyError> => {
+  if (P.isNullish(catalog)) return Effect.succeedNone;
+  if (isStringRecord(catalog)) return Effect.succeedSome(catalog);
+  return Effect.fail(malformed("catalog", label, `"${label}" must map dependency names to version strings`));
+};
+
+/** A present `catalogs` block, which must map catalog names to catalogs. */
+const validCatalogsOf = (
+  catalogs: unknown,
+  label: string
+): Effect.Effect<O.Option<Record<string, Record<string, string>>>, CatalogAssemblyError> => {
+  if (P.isNullish(catalogs)) return Effect.succeedNone;
+  if (!isObject(catalogs)) {
+    return Effect.fail(malformed("catalog", label, `"${label}" must map catalog names to catalogs`));
+  }
+  return Effect.map(
+    Effect.forEach(R.toEntries(catalogs), ([name, entries]) =>
+      isStringRecord(entries)
+        ? Effect.succeed([name, entries] as const)
+        : Effect.fail(
+            malformed("catalog", `${label}.${name}`, `"${label}.${name}" must map dependency names to version strings`)
+          )
+    ),
+    (pairs) => O.some(R.fromEntries(pairs))
+  );
+};
 
 /**
  * The `catalog` / `catalogs` blocks of a root `package.json` `workspaces` field,

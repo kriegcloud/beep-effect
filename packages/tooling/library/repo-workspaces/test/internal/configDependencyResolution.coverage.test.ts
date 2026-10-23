@@ -7,6 +7,7 @@ import {
 } from "@beep/repo-workspaces/internal/configDependencyResolution";
 import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -162,6 +163,27 @@ it.layer(counted({ [`${ROOT}/node_modules/.pnpm-config/stale`]: MemoryFileSystem
   );
 });
 
+/** One platform and store-root value: only a non-empty root is searched. */
+const storeRootsCase = Effect.fnUntraced(function* (platform: string, value: string | undefined) {
+  const environment = ConfigProvider.fromUnknown(
+    {
+      HOME: "/no-home",
+      USERPROFILE: "/no-home",
+      ...(value === undefined ? {} : { PNPM_HOME: value, XDG_DATA_HOME: value, LOCALAPPDATA: value }),
+    },
+    { preserveEmptyStrings: true }
+  );
+  const failure = yield* Effect.flip(resolvePnpmfiles(ROOT, { config: "1.0.0" })).pipe(
+    Effect.provideService(ConfigProvider.ConfigProvider, environment),
+    Effect.provideService(HostProcessPlatform, platform)
+  );
+  assert.strictEqual(failure.reason, "notInstalled");
+  assert.include(
+    failure.cause instanceof Error ? failure.cause.message : "",
+    value === ROOT ? `searched ${ROOT}/store/v11, ${ROOT}/pnpm/store/v10` : "no pnpm store directory could be located"
+  );
+});
+
 it.layer(
   counted({
     [`${ROOT}/store/v11`]: MemoryFileSystem.directory(),
@@ -170,31 +192,10 @@ it.layer(
   { timeout: "30 seconds" }
 )((it) => {
   it.effect("environment store roots are expanded and empty values are ignored on both platforms", () =>
-    Effect.gen(function* () {
-      for (const platform of ["linux", "win32"]) {
-        for (const value of [undefined, "", ROOT]) {
-          const environment = ConfigProvider.fromUnknown(
-            {
-              HOME: "/no-home",
-              USERPROFILE: "/no-home",
-              ...(value === undefined ? {} : { PNPM_HOME: value, XDG_DATA_HOME: value, LOCALAPPDATA: value }),
-            },
-            { preserveEmptyStrings: true }
-          );
-          const failure = yield* Effect.flip(resolvePnpmfiles(ROOT, { config: "1.0.0" })).pipe(
-            Effect.provideService(ConfigProvider.ConfigProvider, environment),
-            Effect.provideService(HostProcessPlatform, platform)
-          );
-          assert.strictEqual(failure.reason, "notInstalled");
-          const message = failure.cause instanceof Error ? failure.cause.message : "";
-          assert.include(
-            message,
-            value === ROOT
-              ? `searched ${ROOT}/store/v11, ${ROOT}/pnpm/store/v10`
-              : "no pnpm store directory could be located"
-          );
-        }
-      }
-    })
+    Effect.forEach(
+      A.cartesian(["linux", "win32"] as const, [undefined, "", ROOT] as const),
+      ([platform, value]) => storeRootsCase(platform, value),
+      { discard: true }
+    )
   );
 });

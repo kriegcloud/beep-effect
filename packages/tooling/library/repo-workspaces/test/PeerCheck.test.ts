@@ -19,7 +19,9 @@ import { PeerCheck } from "@beep/repo-workspaces/PeerCheck";
 import { CatalogSet } from "@beep/repo-workspaces/WorkspaceCatalogs";
 import { PublishConfig, WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { PeerCheckOptions, UnsatisfiedPeer } from "@beep/repo-workspaces/PeerCheck";
@@ -33,27 +35,30 @@ const parse = (dir: string) => Lockfile.parse(fixture(`peers/${dir}/pnpm-lock.ya
  * `probe-a` at `packages/a`, declaring the `react: ^18.0.0` peer nothing in
  * that workspace satisfies.
  *
- * @remarks
+ * **Details**
+ *
  * The join reads only `relativePath`, `name`, `version`, `peerDependencies`
  * and (for optional flags) `manifestRecord`; the rest is what discovery always
  * carries, spelled minimally here because the model requires it.
  */
-const probeA = (overrides?: {
-  readonly name?: string;
-  readonly version?: string;
-  readonly relativePath?: string;
-  readonly peerDependencies?: Record<string, string>;
-  readonly publishConfig?: PublishConfig;
-}): WorkspacePackage =>
+const probeA = (
+  overrides: {
+    readonly name?: string;
+    readonly version?: string;
+    readonly relativePath?: string;
+    readonly peerDependencies?: Record<string, string>;
+    readonly publishConfig?: PublishConfig;
+  } = {}
+): WorkspacePackage =>
   WorkspacePackage.make({
-    name: overrides?.name ?? "probe-a",
-    version: overrides?.version ?? "1.0.0",
+    name: "probe-a",
+    version: "1.0.0",
     path: "C:/ws/packages/a",
     packageJsonPath: "C:/ws/packages/a/package.json",
-    relativePath: overrides?.relativePath ?? "packages/a",
+    relativePath: "packages/a",
     workspaceRoot: "C:/ws",
-    peerDependencies: overrides?.peerDependencies ?? { react: "^18.0.0" },
-    ...(overrides?.publishConfig === undefined ? {} : { publishConfig: overrides.publishConfig }),
+    peerDependencies: { react: "^18.0.0" },
+    ...overrides,
   });
 
 /** One normalized row, comparable across both sides of the oracle. */
@@ -98,31 +103,32 @@ const Oracle = S.fromJsonString(
   )
 );
 
+/** One oracle entry as a {@link Row}. */
+const oracleRow =
+  (importer: string, dependency: string) =>
+  (entry: typeof OracleEntry.Type): Row => ({
+    importer,
+    dependency,
+    wanted: entry.wantedRange,
+    // `missing` entries carry no foundVersion — the same distinction our
+    // `found: null` makes, which is why no extra discriminant is needed on
+    // either side.
+    found: entry.foundVersion ?? null,
+    optional: entry.optional,
+    parents: A.map(entry.parents, (p) => `${p.name}@${p.version}`),
+  });
+
 const theirs = (dir: string, file = "peers-check.json"): ReadonlyArray<Row> => {
   const oracle = Result.getOrThrow(S.decodeResult(Oracle)(fixture(`peers/${dir}/${file}`)));
-  const rows: Array<Row> = [];
-  for (const [importer, report] of Object.entries(oracle)) {
-    // A clean importer still emits its key with empty objects, so emptiness
-    // here is a verdict, not an absence.
-    for (const section of [report.bad, report.missing]) {
-      for (const [dependency, entries] of Object.entries(section ?? {})) {
-        for (const entry of entries) {
-          rows.push({
-            importer,
-            dependency,
-            wanted: entry.wantedRange,
-            // `missing` entries carry no foundVersion — the same distinction
-            // our `found: null` makes, which is why no extra discriminant is
-            // needed on either side.
-            found: entry.foundVersion ?? null,
-            optional: entry.optional,
-            parents: entry.parents.map((p) => `${p.name}@${p.version}`),
-          });
-        }
-      }
-    }
-  }
-  return order(rows);
+  // A clean importer still emits its key with empty objects, so emptiness
+  // here is a verdict, not an absence.
+  return order(
+    A.flatMap(R.toEntries(oracle), ([importer, report]) =>
+      A.flatMap([report.bad ?? {}, report.missing ?? {}], (section) =>
+        A.flatMap(R.toEntries(section), ([dependency, entries]) => A.map(entries, oracleRow(importer, dependency)))
+      )
+    )
+  );
 };
 
 describe("PeerCheck.run", () => {

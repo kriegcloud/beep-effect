@@ -9,6 +9,7 @@ import {
 } from "@beep/repo-workspaces/internal/patterns";
 import { Yaml } from "@beep/yaml";
 import { assert, it } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -45,8 +46,8 @@ it.effect.prop(
   ([entries]) =>
     Effect.gen(function* () {
       const expected = A.filter(entries, P.isString);
-      assert.deepStrictEqual(stringsOf(entries), expected);
-      assert.deepStrictEqual(stringsOf(expected), expected);
+      assertSome(stringsOf(entries), expected);
+      assertSome(stringsOf(expected), expected);
       const pnpm = pnpmPatternsOf({ packages: entries });
       const manifest = manifestPatternsOf({ workspaces: { packages: entries } });
       assert.deepStrictEqual(pnpm, expected);

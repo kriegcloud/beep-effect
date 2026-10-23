@@ -10,6 +10,7 @@ import { Yaml } from "@beep/yaml";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -96,22 +97,26 @@ export const PatternReadFailure = PatternReadFailureKind.mapMembers(([read, inva
 export type PatternReadFailure = typeof PatternReadFailure.Type;
 
 /**
- * The string entries of `value` when it is an array, else `undefined`.
+ * The string entries of `value` when it is an array, else none.
  *
  * **Example** (Filter a mixed pattern array)
  *
  * ```ts
  * import { stringsOf } from "@beep/repo-workspaces/internal/patterns";
+ * import * as O from "effect/Option";
  *
- * console.log(stringsOf(["packages/*", 42])?.join(",")); // packages/*
- * console.log(stringsOf({ packages: [] })); // undefined
+ * console.log(O.getOrElse(stringsOf(["packages/*", 42]), () => []).join(",")); // packages/*
+ * console.log(O.isNone(stringsOf({ packages: [] }))); // true
  * ```
  *
  * @category filtering
  * @since 0.0.0
  */
-export const stringsOf = (value: unknown): ReadonlyArray<string> | undefined =>
-  A.isArray(value) ? A.filter(value, (entry): entry is string => P.isString(entry)) : undefined;
+export const stringsOf = (value: unknown): O.Option<ReadonlyArray<string>> =>
+  A.isArray(value) ? O.some(A.filter(value, P.isString)) : O.none();
+
+/** {@link stringsOf}, with a non-array read as no strings. */
+const stringsOrEmpty = (value: unknown): ReadonlyArray<string> => O.getOrElse(stringsOf(value), () => []);
 
 /**
  * Extracts the `packages:` list of a `pnpm-workspace.yaml` document.
@@ -134,7 +139,7 @@ export const stringsOf = (value: unknown): ReadonlyArray<string> | undefined =>
  */
 export const pnpmPatternsOf = (document: unknown): ReadonlyArray<string> => {
   if (!P.isObjectOrArray(document)) return [];
-  return stringsOf("packages" in document ? document.packages : undefined) ?? [];
+  return stringsOrEmpty("packages" in document ? document.packages : undefined);
 };
 
 /**
@@ -155,12 +160,11 @@ export const pnpmPatternsOf = (document: unknown): ReadonlyArray<string> => {
 export const manifestPatternsOf = (manifest: unknown): ReadonlyArray<string> => {
   if (!P.isObjectOrArray(manifest)) return [];
   const workspaces = "workspaces" in manifest ? manifest.workspaces : undefined;
-  const direct = stringsOf(workspaces);
-  if (direct !== undefined) return direct;
-  if (P.isObjectKeyword(workspaces) && !P.isFunction(workspaces) && "packages" in workspaces) {
-    return stringsOf(workspaces.packages) ?? [];
-  }
-  return [];
+  return O.getOrElse(stringsOf(workspaces), () =>
+    P.isObjectKeyword(workspaces) && !P.isFunction(workspaces) && "packages" in workspaces
+      ? stringsOrEmpty(workspaces.packages)
+      : []
+  );
 };
 
 /**

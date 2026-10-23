@@ -3,6 +3,7 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -20,8 +21,9 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { MAX_ENUMERATION_DEPTH } from "./limits.ts";
-import { badMaxDepthMessage, isPruned, isValidMaxDepth, joinRelative, Traversal } from "./traverse.ts";
+import { badMaxDepthMessage, excludedBy, isPruned, isValidMaxDepth, joinRelative, Traversal } from "./traverse.ts";
 import type { GlobPattern, GlobSet } from "@beep/glob";
+import type { TraversalFrame } from "./traverse.ts";
 
 const $I = $RepoWorkspacesId.create("internal/enumerate");
 
@@ -217,6 +219,156 @@ export declare namespace EnumerateOptions {
 const baseOf = (pattern: GlobPattern): string => Str.replace(/\/$/, "")(pattern.enumerationPrefix);
 
 /**
+ * What one enumeration shares across its literal and wildcard passes.
+ *
+ * @internal
+ */
+interface EnumerationScope {
+  readonly fs: FileSystem.FileSystem;
+  readonly included: MutableHashMap.MutableHashMap<string, string>;
+  readonly isExcluded: (relative: string) => boolean;
+  readonly maxDepth: number;
+  readonly path: Path.Path;
+  readonly root: string;
+}
+
+/** Whether `absolute` holds a `package.json`; an unreadable probe is `false`. */
+const isPackageAt = (scope: EnumerationScope, absolute: string): Effect.Effect<boolean> =>
+  scope.fs.exists(scope.path.join(absolute, "package.json")).pipe(Effect.orElseSucceed(() => false));
+
+/** Whether `absolute` is a directory; an unreadable probe is `false`. */
+const isDirectoryAt = (scope: EnumerationScope, absolute: string): Effect.Effect<boolean> =>
+  scope.fs.stat(absolute).pipe(
+    Effect.map((info) => info.type === "Directory"),
+    Effect.orElseSucceed(() => false)
+  );
+
+/** A shared-traversal stop, materialized as this module's failure record. */
+const failureOf = (
+  stop: { readonly kind: EnumerationFailureKind; readonly detail: string },
+  pattern: string
+): EnumerationFailure => ({ kind: stop.kind, pattern, detail: stop.detail });
+
+/** A literal include that names a package directory, as an `included` entry. */
+const literalHit = (scope: EnumerationScope, literal: string): Effect.Effect<O.Option<readonly [string, string]>> => {
+  if (scope.isExcluded(literal)) return Effect.succeedNone;
+  const absolute = scope.path.join(scope.root, literal);
+  return Effect.map(isPackageAt(scope, absolute), (hit) => (hit ? O.some([literal, absolute] as const) : O.none()));
+};
+
+/**
+ * Literals: an exact lookup, no directory read at all.
+ *
+ * **Details**
+ *
+ * `Effect.forEach` defaults to concurrency 1, so the explicit bound is what
+ * lets independent `package.json` existence probes overlap.
+ */
+const includeLiterals = Effect.fnUntraced(function* (scope: EnumerationScope, literals: ReadonlyArray<string>) {
+  const hits = yield* Effect.forEach(literals, (literal) => literalHit(scope, literal), { concurrency: 10 });
+  for (const [relative, absolute] of A.getSomes(hits)) MutableHashMap.set(scope.included, relative, absolute);
+});
+
+/**
+ * One frame's directory listing.
+ *
+ * **Details**
+ *
+ * A directory that vanished between the parent's listing and this read is a
+ * benign race — treat it as empty. Anything else (permission denied, an IO
+ * error) means a subtree we were asked to enumerate is unreadable, and
+ * answering with "no packages there" would be a WRONG ANSWER dressed as an
+ * empty one.
+ *
+ * This is deliberately NOT `@effected/walker`'s per-probe absorption. Walker
+ * absorbs because one unreadable ANCESTOR must not hide a valid root above it
+ * — the walk continues upward and can still succeed. This is DOWNWARD
+ * enumeration: a swallowed subtree is silently missing membership, which is
+ * the same silent-degradation shape as the trailing-`/**` bug this module
+ * exists to fix.
+ */
+const readFrame = (
+  scope: EnumerationScope,
+  wildcard: GlobPattern,
+  frame: TraversalFrame
+): Effect.Effect<ReadonlyArray<string>, EnumerationFailure> =>
+  scope.fs.readDirectory(frame.absolute).pipe(
+    Effect.catch((error) =>
+      error.reason._tag === "NotFound"
+        ? Effect.succeed<ReadonlyArray<string>>([])
+        : Effect.fail<EnumerationFailure>({
+            kind: "unreadableDirectory",
+            pattern: wildcard.source,
+            detail: frame.relative === "" ? scope.root : frame.relative,
+          })
+    )
+  );
+
+/**
+ * One listed entry: include it when it is a selected package, and descend
+ * into it when the pattern crosses segments.
+ *
+ * **Details**
+ *
+ * Depth is checked BEFORE acceptance, not merely before descent. The cap
+ * bounds what the traversal ENUMERATES; a directory past it is out of scope
+ * entirely. Gating only the descent is what let the sync copy return a package
+ * one level beyond the cap that this path rejected. Only a segment-crossing
+ * pattern earns a descent: `packages/*` reads one level, correctly for that
+ * pattern.
+ */
+const visitEntry = Effect.fnUntraced(function* (
+  scope: EnumerationScope,
+  wildcard: GlobPattern,
+  traversal: Traversal,
+  frame: TraversalFrame,
+  entry: string
+) {
+  if (isPruned(entry)) return;
+  const relative = joinRelative(frame.relative, entry);
+  const absolute = scope.path.join(frame.absolute, entry);
+  if (!(yield* isDirectoryAt(scope, absolute))) return;
+  if (wildcard.crossesSegments && !traversal.admits(frame)) {
+    return yield* Effect.fail(failureOf(traversal.depthStop(), wildcard.source));
+  }
+  if (wildcard.matches(relative) && !scope.isExcluded(relative) && (yield* isPackageAt(scope, absolute))) {
+    MutableHashMap.set(scope.included, relative, absolute);
+  }
+  if (wildcard.crossesSegments) traversal.push(frame, relative, absolute);
+});
+
+/**
+ * One wildcard include, walked with THE shared traversal — the same state
+ * machine `WorkspacesSync` drives.
+ *
+ * **Details**
+ *
+ * A missing enumeration base fails: that is what catches a typo in
+ * `packages:` instead of silently discovering nothing.
+ */
+const enumerateWildcard = Effect.fnUntraced(function* (scope: EnumerationScope, wildcard: GlobPattern) {
+  const base = baseOf(wildcard);
+  const absoluteBase = scope.path.join(scope.root, base);
+  if (!(yield* isDirectoryAt(scope, absoluteBase))) {
+    return yield* Effect.fail<EnumerationFailure>({
+      kind: "missingBaseDir",
+      pattern: wildcard.source,
+      detail: base === "" ? scope.root : base,
+    });
+  }
+  const traversal = new Traversal(base, absoluteBase, scope.maxDepth);
+  for (let current = traversal.next(); current !== undefined; current = traversal.next()) {
+    const spent = traversal.charge();
+    if (spent !== undefined) return yield* Effect.fail(failureOf(spent, wildcard.source));
+    const frame = current;
+    const entries = yield* readFrame(scope, wildcard, frame);
+    yield* Effect.forEach(entries, (entry) => visitEntry(scope, wildcard, traversal, frame, entry), {
+      discard: true,
+    });
+  }
+});
+
+/**
  * Enumerates the workspace directories a compiled `packages:` set selects.
  *
  * **Details**
@@ -264,9 +416,6 @@ export const enumerate: {
     globs: GlobSet,
     options?: EnumerateOptions.Encoded
   ): Effect.fn.Return<ReadonlyArray<EnumeratedDirectory>, EnumerationFailure, FileSystem.FileSystem | Path.Path> {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-
     const maxDepth = options?.maxDepth ?? MAX_ENUMERATION_DEPTH;
     // A bad bound is a PROGRAMMER error, not a data condition — a defect, not a
     // typed failure. The predicate is shared with the sync hatch so the two
@@ -274,137 +423,20 @@ export const enumerate: {
     if (!isValidMaxDepth(maxDepth)) {
       return yield* Effect.die(EnumerationOptionsError.make({ message: `enumerate: ${badMaxDepthMessage(maxDepth)}` }));
     }
-
-    const isPackage = (absolute: string): Effect.Effect<boolean> =>
-      fs.exists(path.join(absolute, "package.json")).pipe(Effect.orElseSucceed(() => false));
-
-    const isDirectory = (absolute: string): Effect.Effect<boolean> =>
-      fs.stat(absolute).pipe(
-        Effect.map((info) => info.type === "Directory"),
-        Effect.orElseSucceed(() => false)
-      );
-
-    const excludes = globs.excludes;
-    const isExcluded =
-      excludes.length === 0
-        ? (_: string): boolean => false
-        : (relative: string): boolean => A.some(excludes, (exclude) => exclude.matches(relative));
-
-    const included = MutableHashMap.empty<string, string>();
-
-    /** A shared-traversal stop, materialized as this module's failure record. */
-    const failureOf: {
-      (stop: { readonly kind: EnumerationFailureKind; readonly detail: string }, pattern: string): EnumerationFailure;
-      (
-        pattern: string
-      ): (stop: { readonly kind: EnumerationFailureKind; readonly detail: string }) => EnumerationFailure;
-    } = dual(
-      2,
-      (
-        stop: { readonly kind: EnumerationFailureKind; readonly detail: string },
-        pattern: string
-      ): EnumerationFailure => ({ kind: stop.kind, pattern, detail: stop.detail })
-    );
-
-    // Literals: an exact lookup, no directory read at all.
-    //
-    // `Effect.forEach` defaults to concurrency 1, so the explicit bound is what
-    // lets independent `package.json` existence probes overlap.
-    const literalHits = yield* Effect.forEach(
-      globs.literals,
-      Effect.fnUntraced(function* (literal) {
-        if (isExcluded(literal)) return undefined;
-        const absolute = path.join(root, literal);
-        return (yield* isPackage(absolute)) ? ([literal, absolute] as const) : undefined;
-      }),
-      { concurrency: 10 }
-    );
-    for (const hit of literalHits) {
-      if (hit === undefined) continue;
-      MutableHashMap.set(included, hit[0], hit[1]);
-    }
-
-    for (const wildcard of globs.wildcards) {
-      const base = baseOf(wildcard);
-      const absoluteBase = path.join(root, base);
-
-      const exists = yield* isDirectory(absoluteBase);
-      if (!exists) {
-        // Failing here is what catches a typo in `packages:` instead of
-        // silently discovering nothing.
-        return yield* Effect.fail<EnumerationFailure>({
-          kind: "missingBaseDir",
-          pattern: wildcard.source,
-          detail: base === "" ? root : base,
-        });
-      }
-
-      // THE shared traversal — the same state machine `WorkspacesSync` drives.
-      const traversal = new Traversal(base, absoluteBase, maxDepth);
-
-      for (let current = traversal.next(); current !== undefined; current = traversal.next()) {
-        const spent = traversal.charge();
-        if (spent !== undefined) return yield* Effect.fail(failureOf(spent, wildcard.source));
-
-        // A directory that vanished between the parent's listing and this read
-        // is a benign race — treat it as empty. Anything else (permission
-        // denied, an IO error) means a subtree we were asked to enumerate is
-        // unreadable, and answering with "no packages there" would be a WRONG
-        // ANSWER dressed as an empty one.
-        //
-        // This is deliberately NOT `@effected/walker`'s per-probe absorption.
-        // Walker absorbs because one unreadable ANCESTOR must not hide a valid
-        // root above it — the walk continues upward and can still succeed. This
-        // is DOWNWARD enumeration: a swallowed subtree is silently missing
-        // membership, which is the same silent-degradation shape as the
-        // trailing-`/**` bug this module exists to fix.
-        const frame = current;
-        const entries = yield* fs.readDirectory(frame.absolute).pipe(
-          Effect.catch((error) =>
-            error.reason._tag === "NotFound"
-              ? Effect.succeed<ReadonlyArray<string>>([])
-              : Effect.fail<EnumerationFailure>({
-                  kind: "unreadableDirectory",
-                  pattern: wildcard.source,
-                  detail: frame.relative === "" ? root : frame.relative,
-                })
-          )
-        );
-
-        for (const entry of entries) {
-          if (isPruned(entry)) continue;
-
-          const relative = joinRelative(frame.relative, entry);
-          const absolute = path.join(frame.absolute, entry);
-          if (!(yield* isDirectory(absolute))) continue;
-
-          // Depth is checked BEFORE acceptance, not merely before descent. The
-          // cap bounds what the traversal ENUMERATES; a directory past it is out
-          // of scope entirely. Gating only the descent is what let the sync copy
-          // return a package one level beyond the cap that this path rejected.
-          if (wildcard.crossesSegments && !traversal.admits(frame)) {
-            return yield* Effect.fail(failureOf(traversal.depthStop(), wildcard.source));
-          }
-
-          if (wildcard.matches(relative) && !isExcluded(relative) && (yield* isPackage(absolute))) {
-            MutableHashMap.set(included, relative, absolute);
-          }
-
-          // Only a segment-crossing pattern earns a descent. `packages/*`
-          // reads one level, correctly for that pattern.
-          if (!wildcard.crossesSegments) continue;
-
-          traversal.push(frame, relative, absolute);
-        }
-      }
-    }
-
-    const results: Array<EnumeratedDirectory> = [];
-    for (const [relativePath, absolute] of included) {
-      results.push(EnumeratedDirectory.make({ relativePath, path: absolute }));
-    }
+    const scope: EnumerationScope = {
+      fs: yield* FileSystem.FileSystem,
+      path: yield* Path.Path,
+      root,
+      maxDepth,
+      included: MutableHashMap.empty<string, string>(),
+      isExcluded: excludedBy(globs.excludes),
+    };
+    yield* includeLiterals(scope, globs.literals);
+    yield* Effect.forEach(globs.wildcards, (wildcard) => enumerateWildcard(scope, wildcard), { discard: true });
     return A.sort(
-      results,
+      A.map([...scope.included], ([relativePath, absolute]) =>
+        EnumeratedDirectory.make({ relativePath, path: absolute })
+      ),
       Order.mapInput(Str.Order, (entry: EnumeratedDirectory) => entry.relativePath)
     );
   })

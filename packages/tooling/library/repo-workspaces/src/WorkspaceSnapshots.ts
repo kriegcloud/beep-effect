@@ -36,6 +36,7 @@ import * as Str from "effect/String";
 import { ConfigDependencyHooks } from "./ConfigDependencyHooks.ts";
 import { importerVersionsOf } from "./internal/importerVersions.ts";
 import { findLayerRoot } from "./internal/layerRoot.ts";
+import { dependencyBlocksOf } from "./internal/manifestFields.ts";
 import { manifestPatternsOf, pnpmPatternsOf } from "./internal/patterns.ts";
 import { CatalogSet, ImporterVersions, injectFromDocument, WorkspaceCatalogs } from "./WorkspaceCatalogs.ts";
 import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
@@ -50,9 +51,6 @@ const $I = $RepoWorkspacesId.create("WorkspaceSnapshots");
 const JsonValue = S.fromJsonString(S.Unknown);
 const JsonObject = S.Record(S.String, S.Unknown).pipe(
   $I.annoteSchema("JsonObject", { description: "A non-array JSON object read from a manifest." })
-);
-const DependencyRecord = S.Record(S.String, S.String).pipe(
-  $I.annoteSchema("DependencyRecord", { description: "Manifest dependency names mapped to specifiers." })
 );
 
 /**
@@ -257,9 +255,6 @@ const hookVersionsOf = (replays: Readonly<Record<string, HookReplay>>): Record<s
 /** Whether `value` is a non-null, non-array object. */
 const isObject = S.is(JsonObject);
 
-/** Whether every value in a record is a string — a usable dependency map. */
-const isStringRecord = S.is(DependencyRecord);
-
 /** Parse a manifest tolerantly, retaining the empty-object fallback. */
 const parseJsonObject = (text: string): Record<string, unknown> =>
   Result.match(S.decodeResult(JsonValue)(text), {
@@ -289,13 +284,42 @@ const snapshotOf: {
       name,
       ...(P.isString(version) && version !== "" ? { version } : {}),
       relativePath,
-      ...(isStringRecord(parsed.dependencies) ? { dependencies: parsed.dependencies } : {}),
-      ...(isStringRecord(parsed.devDependencies) ? { devDependencies: parsed.devDependencies } : {}),
-      ...(isStringRecord(parsed.peerDependencies) ? { peerDependencies: parsed.peerDependencies } : {}),
-      ...(isStringRecord(parsed.optionalDependencies) ? { optionalDependencies: parsed.optionalDependencies } : {}),
+      ...dependencyBlocksOf(parsed),
     })
   );
 });
+
+/** What a ref declares: its globs, its catalog sources and its hook replays. */
+interface RefDeclarations {
+  readonly hookReplays: Readonly<Record<string, HookReplay>>;
+  readonly injected: CatalogSet;
+  readonly inline: CatalogSet;
+  readonly patterns: ReadonlyArray<string>;
+  readonly recorded: LockfileRecord;
+}
+
+/** The workspace-relative directory a member `package.json` path names. */
+const manifestDirOf = (path: string): O.Option<string> =>
+  Str.endsWith("/package.json")(path) ? O.some(Str.slice(0, path.length - "/package.json".length)(path)) : O.none();
+
+/**
+ * The member directories a tree listing holds — every blob `package.json`
+ * below the root whose directory the globs match, sorted — and whether the
+ * root has a manifest of its own.
+ */
+const memberDirsOf = (
+  entries: ReadonlyArray<{ readonly path: string; readonly type: string }>,
+  globs: GlobSet
+): { readonly hasRootManifest: boolean; readonly memberDirs: ReadonlyArray<string> } => {
+  const blobs = A.filter(entries, (entry) => entry.type === "blob");
+  return {
+    hasRootManifest: A.some(blobs, (entry) => entry.path === "package.json"),
+    memberDirs: A.sort(
+      A.filter(A.getSomes(A.map(blobs, (entry) => manifestDirOf(entry.path))), (dir) => globs.matches(dir)),
+      Order.String
+    ),
+  };
+};
 
 /**
  * bun's inline catalogs from the root manifest's top-level and
@@ -491,6 +515,82 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
         })
     );
 
+    /** The pnpm side: `pnpm-workspace.yaml` declares the globs, catalogs and config dependencies. */
+    const pnpmDeclarations = Effect.fnUntraced(function* (
+      root: string,
+      ref: string,
+      text: string,
+      rootManifest: Record<string, unknown>
+    ) {
+      const document = yield* Yaml.parse(text).pipe(
+        Effect.mapError((cause) =>
+          CatalogAssemblyError.make({ source: "manifest", path: "pnpm-workspace.yaml", cause })
+        )
+      );
+      const pnpmPatterns = pnpmPatternsOf(document);
+      const inline = yield* CatalogSet.fromWorkspaceYaml(text);
+      // Replay the ref's config-dependency hooks at the versions the ref's
+      // OWN `configDependencies` declare, seeded by the ref's inline
+      // catalogs — mirroring the live assembler. A replaying layer resolves
+      // each declared version through `.pnpm-config` or the pnpm store, so
+      // a config dependency bumped between two refs yields two different
+      // injected sets; `layerNoop` returns the seed and executes nothing.
+      // The ref's OWN lockfile is read once and serves twice: as the
+      // record below, and as the integrity source a fetched config
+      // dependency is verified against — the base side of a diff is
+      // checked against the base side's pins, never the working tree's.
+      const lockfile = yield* lockfileText(root, ref, "pnpm");
+      const replayed = yield* injectFromDocument(hooks, root, document, inline, {
+        ...O.getSomesStruct({ lockfile }),
+        ref,
+      });
+      const recorded = yield* lockfileRecord(lockfile, "pnpm");
+      return {
+        // A `pnpm-workspace.yaml` with no `packages:` falls back to the root
+        // manifest's `workspaces` field, matching live `readPatterns`.
+        patterns: pnpmPatterns.length > 0 ? pnpmPatterns : manifestPatternsOf(rootManifest),
+        inline,
+        injected: replayed.injected,
+        hookReplays: replayed.injection.replays,
+        recorded,
+      } satisfies RefDeclarations;
+    });
+
+    /**
+     * The bun and npm side: no `pnpm-workspace.yaml`.
+     *
+     * **Details**
+     *
+     * The workspace globs come from the root `package.json` `workspaces`
+     * field. WITHOUT this, a bun or npm workspace collapses to the root
+     * package alone at a ref, and a consumer diffing two snapshots sees every
+     * declared dependency as newly added.
+     *
+     * Inline catalogs come from the root manifest UNCONDITIONALLY: a bun
+     * workspace declaring `workspaces.catalog`/`.catalogs` with no committed
+     * `bun.lock` at the ref still has catalogs, and gating them on the
+     * lockfile would make `at(ref)` and `worktree()` (which reads inline via
+     * `fromManifestWorkspaces` regardless of any lockfile) disagree.
+     * `bunInlineCatalogs` is tolerant: an array-form `workspaces` contributes
+     * only top-level catalogs. The lockfile half degrades the absent
+     * `bun.lock` to empty on `Option.none`. Config dependencies are a pnpm
+     * feature; there are none on this path.
+     */
+    const bunDeclarations = Effect.fnUntraced(function* (
+      root: string,
+      ref: string,
+      rootManifest: Record<string, unknown>
+    ) {
+      const recorded = yield* lockfileRecord(yield* lockfileText(root, ref, "bun"), "bun");
+      return {
+        patterns: manifestPatternsOf(rootManifest),
+        inline: bunInlineCatalogs(rootManifest),
+        injected: CatalogSet.empty(),
+        hookReplays: {},
+        recorded,
+      } satisfies RefDeclarations;
+    });
+
     const computeAt: {
       (root: string, ref: string): Effect.Effect<WorkspaceStateSnapshot, WorkspaceSnapshotAtFailure>;
       (ref: string): (root: string) => Effect.Effect<WorkspaceStateSnapshot, WorkspaceSnapshotAtFailure>;
@@ -516,62 +616,11 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
           onSome: parseJsonObject,
         });
 
-        let patterns: ReadonlyArray<string>;
-        let inline: CatalogSet;
-        let injected: CatalogSet;
-        let recorded: LockfileRecord;
         // The replay record: what the hooks layer resolved on the pnpm path,
         // empty on the bun one (config dependencies are a pnpm feature).
-        let hookReplays: Readonly<Record<string, HookReplay>> = {};
-
-        if (O.isSome(pnpmWorkspaceText)) {
-          const document = yield* Yaml.parse(pnpmWorkspaceText.value).pipe(
-            Effect.mapError((cause) =>
-              CatalogAssemblyError.make({ source: "manifest", path: "pnpm-workspace.yaml", cause })
-            )
-          );
-          const pnpmPatterns = pnpmPatternsOf(document);
-          // A `pnpm-workspace.yaml` with no `packages:` falls back to
-          // the root manifest's `workspaces` field, matching live `readPatterns`.
-          patterns = pnpmPatterns.length > 0 ? pnpmPatterns : manifestPatternsOf(rootManifest);
-          inline = yield* CatalogSet.fromWorkspaceYaml(pnpmWorkspaceText.value);
-          // Replay the ref's config-dependency hooks at the versions the ref's
-          // OWN `configDependencies` declare, seeded by the ref's inline
-          // catalogs — mirroring the live assembler. A replaying layer resolves
-          // each declared version through `.pnpm-config` or the pnpm store, so
-          // a config dependency bumped between two refs yields two different
-          // injected sets; `layerNoop` returns the seed and executes nothing.
-          // The ref's OWN lockfile is read once and serves twice: as the
-          // record below, and as the integrity source a fetched config
-          // dependency is verified against — the base side of a diff is
-          // checked against the base side's pins, never the working tree's.
-          const lockfile = yield* lockfileText(root, ref, "pnpm");
-          const replayed = yield* injectFromDocument(hooks, root, document, inline, {
-            ...O.getSomesStruct({ lockfile }),
-            ref,
-          });
-          injected = replayed.injected;
-          hookReplays = replayed.injection.replays;
-          recorded = yield* lockfileRecord(lockfile, "pnpm");
-        } else {
-          // With no `pnpm-workspace.yaml`, the workspace globs come
-          // from the root `package.json` `workspaces` field. WITHOUT this, a
-          // bun or npm workspace collapses to the root package alone at a ref,
-          // and a consumer diffing two snapshots sees every declared dependency
-          // as newly added.
-          patterns = manifestPatternsOf(rootManifest);
-          // Inline catalogs come from the root manifest UNCONDITIONALLY: a bun
-          // workspace declaring `workspaces.catalog`/`.catalogs` with no committed
-          // `bun.lock` at the ref still has catalogs, and gating them on the
-          // lockfile would make `at(ref)` and `worktree()` (which reads inline
-          // via `fromManifestWorkspaces` regardless of any lockfile) disagree. `bunInlineCatalogs` is
-          // tolerant: an array-form `workspaces` contributes only top-level catalogs. The
-          // lockfile half degrades the absent `bun.lock` to empty on `Option.none`.
-          inline = bunInlineCatalogs(rootManifest);
-          // Config dependencies are a pnpm feature; there are none on this path.
-          injected = CatalogSet.empty();
-          recorded = yield* lockfileRecord(yield* lockfileText(root, ref, "bun"), "bun");
-        }
+        const { patterns, inline, injected, recorded, hookReplays } = O.isSome(pnpmWorkspaceText)
+          ? yield* pnpmDeclarations(root, ref, pnpmWorkspaceText.value, rootManifest)
+          : yield* bunDeclarations(root, ref, rootManifest);
 
         // Precedence follows the live assembler: lockfile record first, then
         // the inline declaration, then the hook-injected set (which already
@@ -587,20 +636,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
         // Package directories come from the tree listing at the ref, matched
         // against the compiled glob set — no directory descent, because
         // `ls-tree -r` already enumerates every path (globstar included).
-        const entries = yield* git.lsTree(root, ref);
-        const collected: Array<string> = [];
-        let hasRootManifest = false;
-        for (const entry of entries) {
-          if (entry.type !== "blob") continue;
-          if (entry.path === "package.json") {
-            hasRootManifest = true;
-            continue;
-          }
-          if (!Str.endsWith("/package.json")(entry.path)) continue;
-          const dir = Str.slice(0, entry.path.length - "/package.json".length)(entry.path);
-          if (globs.matches(dir)) collected.push(dir);
-        }
-        const memberDirs = A.sort(collected, Order.String);
+        const { hasRootManifest, memberDirs } = memberDirsOf(yield* git.lsTree(root, ref), globs);
 
         const members = yield* Effect.forEach(
           memberDirs,
@@ -609,11 +645,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
         );
 
         const rootPackage = hasRootManifest ? snapshotOf(rootManifestText, ".") : O.none<PackageStateSnapshot>();
-        const packages: Array<PackageStateSnapshot> = [];
-        if (O.isSome(rootPackage)) packages.push(rootPackage.value);
-        for (const member of members) {
-          if (O.isSome(member)) packages.push(member.value);
-        }
+        const packages = A.getSomes([rootPackage, ...members]);
 
         return seeded(
           WorkspaceStateSnapshot.make({

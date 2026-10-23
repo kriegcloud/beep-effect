@@ -1,6 +1,7 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import { manifestPatternsOf, pnpmPatternsOf, readPatterns, stringsOf } from "@beep/repo-workspaces/internal/patterns";
 import { assert, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
@@ -8,8 +9,8 @@ import * as PlatformError from "effect/PlatformError";
 
 it.effect("extracts only string patterns from both manifest shapes and rejects malformed shapes", () =>
   Effect.sync(() => {
-    assert.deepStrictEqual(stringsOf(["packages/*", 1, null]), ["packages/*"]);
-    assert.isUndefined(stringsOf({}));
+    assertSome(stringsOf(["packages/*", 1, null]), ["packages/*"]);
+    assertNone(stringsOf({}));
     for (const value of [null, 1, {}, { packages: null }]) assert.deepStrictEqual(pnpmPatternsOf(value), []);
     assert.deepStrictEqual(pnpmPatternsOf({ packages: ["apps/*", false] }), ["apps/*"]);
     for (const value of [

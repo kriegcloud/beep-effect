@@ -234,6 +234,12 @@ const ManagerHint = S.Struct({
 
 type ManagerHint = typeof ManagerHint.Type;
 
+/** What the manifest declares about its manager: the `devEngines` and `packageManager` hints. */
+interface Hints {
+  readonly corepack: O.Option<ManagerHint>;
+  readonly devEngines: O.Option<ManagerHint>;
+}
+
 /**
  * Whether `value` is a non-null, non-array object — corepack's own shape test.
  *
@@ -597,10 +603,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
      * `devEngines` first — it is authoritative for the name, and corepack errors
      * when the top-level field contradicts it.
      */
-    const declaredName = (hints: {
-      readonly devEngines: O.Option<ManagerHint>;
-      readonly corepack: O.Option<ManagerHint>;
-    }): O.Option<string> =>
+    const declaredName = (hints: Hints): O.Option<string> =>
       O.map(
         O.orElse(hints.devEngines, () => hints.corepack),
         (hint) => hint.name
@@ -608,20 +611,9 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 
     /** Whether the manifest declares `name` as its manager. */
     const namesManager: {
-      (
-        hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
-        name: PackageManagerName
-      ): boolean;
-      (
-        name: PackageManagerName
-      ): (hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> }) => boolean;
-    } = dual(
-      2,
-      (
-        hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
-        name: PackageManagerName
-      ): boolean => O.contains(declaredName(hints), name)
-    );
+      (hints: Hints, name: PackageManagerName): boolean;
+      (name: PackageManagerName): (hints: Hints) => boolean;
+    } = dual(2, (hints: Hints, name: PackageManagerName): boolean => O.contains(declaredName(hints), name));
 
     /**
      * The version to report for the manager that was detected — none unless a
@@ -634,82 +626,78 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
      * when it does not.
      */
     const versionFor: {
-      (
-        hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
-        name: PackageManagerName
-      ): O.Option<string>;
-      (
-        name: PackageManagerName
-      ): (hints: {
-        readonly devEngines: O.Option<ManagerHint>;
-        readonly corepack: O.Option<ManagerHint>;
-      }) => O.Option<string>;
-    } = dual(
-      2,
-      (
-        hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
-        name: PackageManagerName
-      ): O.Option<string> => {
-        if (!namesManager(hints, name)) return O.none();
-        const fromCorepack = O.flatMap(hints.corepack, (hint) =>
-          hint.name === name ? hint.version : O.none<string>()
-        );
-        return O.orElse(fromCorepack, () => O.flatMap(hints.devEngines, (hint) => hint.version));
-      }
-    );
+      (hints: Hints, name: PackageManagerName): O.Option<string>;
+      (name: PackageManagerName): (hints: Hints) => O.Option<string>;
+    } = dual(2, (hints: Hints, name: PackageManagerName): O.Option<string> => {
+      if (!namesManager(hints, name)) return O.none();
+      const fromCorepack = O.flatMap(hints.corepack, (hint) => (hint.name === name ? hint.version : O.none<string>()));
+      return O.orElse(fromCorepack, () => O.flatMap(hints.devEngines, (hint) => hint.version));
+    });
+
+    /** A detection of `name`, with the version a field naming it carries. */
+    const detected = (hints: Hints, name: PackageManagerName, evidence: PackageManagerEvidence) =>
+      DetectedPackageManager.make({
+        name,
+        version: versionFor(hints, name),
+        runtime: name === "bun" ? "bun" : "node",
+        evidence,
+      });
+
+    /**
+     * A marker-file rung: `marker` at the root decides `name`. A lockfile a
+     * stray copy of which is common (yarn, bun) also needs the manifest to name
+     * its manager, and that cheaper check runs first.
+     */
+    const markerRung = (
+      root: string,
+      hints: Hints,
+      marker: PackageManagerEvidence,
+      name: PackageManagerName,
+      needsDeclaration: boolean
+    ): Effect.Effect<O.Option<DetectedPackageManager>> =>
+      needsDeclaration && !namesManager(hints, name)
+        ? Effect.succeedNone
+        : Effect.map(has(root, marker), (present) => (present ? O.some(detected(hints, name, marker)) : O.none()));
+
+    /** The npm workspace rung: a root manifest with a `workspaces` field. */
+    const workspacesRung = (
+      manifest: O.Option<Record<string, unknown>>,
+      hints: Hints
+    ): O.Option<DetectedPackageManager> =>
+      O.map(
+        O.filter(manifest, (fields) => P.isNotNullish(fields.workspaces)),
+        () => detected(hints, "npm", "package.json#workspaces")
+      );
+
+    /**
+     * The declaration rung: no lockfile at all, but the manifest names a
+     * known manager. The evidence is the field that supplied the name —
+     * `declaredName` believes devEngines first, so the evidence mirrors that
+     * precedence.
+     */
+    const declarationRung = (hints: Hints): O.Option<DetectedPackageManager> =>
+      O.map(O.filter(declaredName(hints), S.is(PackageManagerName)), (name) =>
+        detected(
+          hints,
+          name,
+          O.isSome(hints.devEngines) ? "package.json#devEngines.packageManager" : "package.json#packageManager"
+        )
+      );
 
     const detect = Effect.fn("PackageManagerDetector.detect")(function* (root: string) {
       const manifest = yield* manifestOf(root);
-      const hints = {
+      const hints: Hints = {
         devEngines: O.flatMap(manifest, devEnginesHint),
         corepack: O.flatMap(manifest, corepackHint),
       };
 
-      if (yield* has(root, "pnpm-workspace.yaml")) {
-        return DetectedPackageManager.make({
-          name: "pnpm",
-          version: versionFor(hints, "pnpm"),
-          runtime: "node",
-          evidence: "pnpm-workspace.yaml",
-        });
-      }
-
-      // Which bun lockfile is present, probed in priority order — the marker
-      // itself is the evidence a success reports, so the OR is not collapsed
-      // into a bare boolean.
-      const bunLock: O.Option<"bun.lock" | "bun.lockb"> = (yield* has(root, "bun.lock"))
-        ? O.some("bun.lock")
-        : (yield* has(root, "bun.lockb"))
-          ? O.some("bun.lockb")
-          : O.none();
-      if (O.isSome(bunLock) && namesManager(hints, "bun")) {
-        return DetectedPackageManager.make({
-          name: "bun",
-          version: versionFor(hints, "bun"),
-          runtime: "bun",
-          evidence: bunLock.value,
-        });
-      }
-
-      if ((yield* has(root, "yarn.lock")) && namesManager(hints, "yarn")) {
-        return DetectedPackageManager.make({
-          name: "yarn",
-          version: versionFor(hints, "yarn"),
-          runtime: "node",
-          evidence: "yarn.lock",
-        });
-      }
-
-      const workspaces = O.map(manifest, (fields) => fields.workspaces);
-      if (O.isSome(workspaces) && workspaces.value !== undefined && workspaces.value !== null) {
-        return DetectedPackageManager.make({
-          name: "npm",
-          version: versionFor(hints, "npm"),
-          runtime: "node",
-          evidence: "package.json#workspaces",
-        });
-      }
-
+      // The rungs in priority order; the first that decides a name wins.
+      //
+      // ── the workspace tier ─────────────────────────────────────────────
+      //
+      // Which bun lockfile is present is probed in priority order — the
+      // marker itself is the evidence a success reports.
+      //
       // ── the standalone tier ────────────────────────────────────────────
       //
       // Every workspace marker has missed, so this is not a workspace. Most
@@ -725,54 +713,29 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
       // lockfile is written by exactly one manager and stands alone, while a
       // yarn or bun lockfile still needs the manifest to name its manager,
       // because a stray yarn.lock is as common here as in a workspace.
-      if (yield* has(root, "pnpm-lock.yaml")) {
-        return DetectedPackageManager.make({
-          name: "pnpm",
-          version: versionFor(hints, "pnpm"),
-          runtime: "node",
-          evidence: "pnpm-lock.yaml",
-        });
-      }
-
-      if ((yield* has(root, "yarn.lock")) && namesManager(hints, "yarn")) {
-        return DetectedPackageManager.make({
-          name: "yarn",
-          version: versionFor(hints, "yarn"),
-          runtime: "node",
-          evidence: "yarn.lock",
-        });
-      }
-
-      if (yield* has(root, "package-lock.json")) {
-        return DetectedPackageManager.make({
-          name: "npm",
-          version: versionFor(hints, "npm"),
-          runtime: "node",
-          evidence: "package-lock.json",
-        });
-      }
-
+      //
       // ── the declaration tier ───────────────────────────────────────────
       //
       // No lockfile at all. A fresh clone before its first install has none to
       // read, but its manifest still says plainly which manager is meant to
       // run — weaker evidence than a lockfile, which is why it is consulted
       // last, but evidence nonetheless.
-      const declared = declaredName(hints);
-      if (O.isSome(declared)) {
-        const name = declared.value;
-        if (S.is(PackageManagerName)(name)) {
-          return DetectedPackageManager.make({
-            name,
-            version: versionFor(hints, name),
-            runtime: name === "bun" ? "bun" : "node",
-            // The field that supplied the name — `declaredName` believes
-            // devEngines first, so the evidence mirrors that precedence.
-            evidence: O.isSome(hints.devEngines)
-              ? "package.json#devEngines.packageManager"
-              : "package.json#packageManager",
-          });
-        }
+      const rungs: ReadonlyArray<Effect.Effect<O.Option<DetectedPackageManager>>> = [
+        markerRung(root, hints, "pnpm-workspace.yaml", "pnpm", false),
+        markerRung(root, hints, "bun.lock", "bun", true),
+        markerRung(root, hints, "bun.lockb", "bun", true),
+        markerRung(root, hints, "yarn.lock", "yarn", true),
+        Effect.sync(() => workspacesRung(manifest, hints)),
+        markerRung(root, hints, "pnpm-lock.yaml", "pnpm", false),
+        // Probed again, not skipped: a lockfile written while detection runs
+        // is recognized by the standalone tier's own probe.
+        markerRung(root, hints, "yarn.lock", "yarn", true),
+        markerRung(root, hints, "package-lock.json", "npm", false),
+        Effect.sync(() => declarationRung(hints)),
+      ];
+      for (const rung of rungs) {
+        const decided = yield* rung;
+        if (O.isSome(decided)) return decided.value;
       }
 
       // Nothing matched, and the package REFUSES TO GUESS: a default is policy,

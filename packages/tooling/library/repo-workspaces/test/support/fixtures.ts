@@ -49,7 +49,7 @@ export interface FileSystemOptions {
  * A `FileSystem` over a virtual tree, implementing exactly the four operations
  * this package uses: `exists`, `readFileString`, `readDirectory`, `stat`.
  */
-export const fileSystem = (tree: Tree, options: FileSystemOptions = {}): Layer.Layer<FileSystem.FileSystem> => {
+const fileSystem = (tree: Tree, options: FileSystemOptions = {}): Layer.Layer<FileSystem.FileSystem> => {
   const unreadable = options.unreadable ?? new Set<string>();
   const unreadableFiles = options.unreadableFiles ?? new Set<string>();
   const unreadableExists = options.unreadableExists ?? new Set<string>();

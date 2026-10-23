@@ -157,33 +157,37 @@ export const rootInstances: {
   const importer = lockfile.importer(importerPath);
   if (importer._tag === "None") return undefined;
 
-  const instances: Array<ResolvedPackage> = [];
-  let resolvable = false;
-  for (const dep of importer.value.dependencies) {
-    if (dep.version === undefined) continue;
-
-    // Compose the identity the importer entry describes, then VERIFY it
-    // against the real id set — the same compose-then-verify rule the
-    // lockfile's own edge resolution follows. A composed string matching
-    // nothing is discarded and the dependency is skipped; there is no
-    // name-and-version fallback, because guessing between two peer variants
-    // of one name@version would attribute one variant's facts to an importer
-    // that resolved the other, and a fabricated finding is worse than a
-    // missing one.
-    //
-    // This is not parsing an instanceId: nothing is split, indexed or
-    // pattern-matched. `peerSuffix` is a field the lockfile hands us
-    // precisely because a version alone cannot name a peer-resolved
-    // instance, and dropping it is what made the root importer of a
-    // workspace with two peer variants silently unanswerable.
-    const composed = MutableHashMap.get(index.byId, `${dep.name}@${dep.version}${dep.peerSuffix ?? ""}`);
-    if (O.isNone(composed)) continue;
-    resolvable = true;
-    instances.push(composed.value);
-  }
+  const instances = A.getSomes(A.map(importer.value.dependencies, (dep) => composedInstance(index, dep)));
 
   // An importer with no dependencies at all is legitimately clean, not
   // unresolvable; one whose every dependency failed to join is not.
-  if (!resolvable && importer.value.dependencies.length > 0) return undefined;
+  if (instances.length === 0 && importer.value.dependencies.length > 0) return undefined;
   return { _tag: "dependencies", instances };
 });
+
+/**
+ * The instance an importer dependency entry names, when it names one.
+ *
+ * **Details**
+ *
+ * Compose the identity the importer entry describes, then VERIFY it against
+ * the real id set — the same compose-then-verify rule the lockfile's own edge
+ * resolution follows. A composed string matching nothing is discarded and the
+ * dependency is skipped; there is no name-and-version fallback, because
+ * guessing between two peer variants of one name@version would attribute one
+ * variant's facts to an importer that resolved the other, and a fabricated
+ * finding is worse than a missing one.
+ *
+ * This is not parsing an instanceId: nothing is split, indexed or
+ * pattern-matched. `peerSuffix` is a field the lockfile hands us precisely
+ * because a version alone cannot name a peer-resolved instance, and dropping
+ * it is what made the root importer of a workspace with two peer variants
+ * silently unanswerable. An entry with no version names nothing.
+ */
+const composedInstance = (
+  index: InstanceIndex,
+  dep: { readonly name: string; readonly version?: string | undefined; readonly peerSuffix?: string | undefined }
+): O.Option<ResolvedPackage> =>
+  dep.version === undefined
+    ? O.none()
+    : MutableHashMap.get(index.byId, `${dep.name}@${dep.version}${dep.peerSuffix ?? ""}`);
