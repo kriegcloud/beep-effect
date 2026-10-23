@@ -459,7 +459,7 @@ export class WorkspaceDiscoveryOptions extends S.Opaque<WorkspaceDiscoveryOption
      *
      * @defaultValue no ceiling — the ascent runs to the filesystem root.
      */
-    stopAt: S.optional(S.String).pipe(
+    stopAt: S.optionalKey(S.String).pipe(
       $I.annoteKey("WorkspaceDiscoveryOptions.stopAt", {
         description: "Inclusive ceiling for layer-bound root discovery.",
       })
@@ -753,13 +753,8 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
      * @param root - The resolved workspace root.
      * @returns The root's discovery state.
      */
-    const discoverAt = (
-      root: string
-    ): Effect.Effect<
-      { readonly info: WorkspaceInfo; readonly packages: ReadonlyArray<WorkspacePackage> },
-      WorkspaceDiscoveryFailure
-    > =>
-      Effect.gen(function* () {
+    const discoverAt = Effect.fnUntraced(
+      function* (root: string) {
         const patterns = yield* readPatterns(root).pipe(
           Effect.mapError((failure) =>
             WorkspaceDiscoveryError.make({
@@ -807,7 +802,10 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
         );
 
         return { info: WorkspaceInfo.make({ root, patterns }), packages };
-      }).pipe(Effect.provideService(FileSystem.FileSystem, fs), Effect.provideService(Path.Path, path));
+      },
+      Effect.provideService(FileSystem.FileSystem, fs),
+      Effect.provideService(Path.Path, path)
+    );
 
     const discover: Effect.Effect<
       { readonly info: WorkspaceInfo; readonly packages: ReadonlyArray<WorkspacePackage> },

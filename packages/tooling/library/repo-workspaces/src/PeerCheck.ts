@@ -459,7 +459,11 @@ const Walk = S.Struct({
     $I.annoteKey("Walk.path", { description: "The ordered parent chain from the importer to this instance." })
   ),
 }).pipe($I.annoteSchema("Walk", { description: "One plain traversal node and its ordered peer-attribution chain." }));
-type Walk = typeof Walk.Type;
+// The walk carries plain `PeerParent` inputs: `PeerCheck.make` admits every
+// row and its parent chain once, instead of each level re-validating it.
+type Walk = (typeof Walk)["~type.make.in"];
+type PeerParentInput = (typeof PeerParent)["~type.make.in"];
+type UnsatisfiedPeerInput = (typeof UnsatisfiedPeer)["~type.make.in"];
 
 /**
  * The workspace-relative directory a `link:` version names, resolved against
@@ -767,14 +771,14 @@ const optionalPeers = (manifest: WorkspacePackage): MutableHashSet.MutableHashSe
  * @internal
  */
 const parentLabel: {
-  (join: Join, instance: ResolvedPackage): PeerParent;
-  (instance: ResolvedPackage): (join: Join) => PeerParent;
-} = dual(2, (join: Join, instance: ResolvedPackage): PeerParent => {
+  (join: Join, instance: ResolvedPackage): PeerParentInput;
+  (instance: ResolvedPackage): (join: Join) => PeerParentInput;
+} = dual(2, (join: Join, instance: ResolvedPackage): PeerParentInput => {
   const manifest = joinedManifest(join, instance);
-  return PeerParent.make({
+  return {
     name: manifest?.name ?? instance.name,
     version: manifest?.version ?? instance.version,
-  });
+  };
 });
 
 /**
@@ -1310,7 +1314,7 @@ interface Findings {
   /**
    * The unsatisfied rows, in walk order.
    */
-  readonly rows: Array<UnsatisfiedPeer>;
+  readonly rows: Array<UnsatisfiedPeerInput>;
   /**
    * The (importer, peer, instance) keys already reported.
    */
@@ -1836,16 +1840,14 @@ const judgePeer = (scope: WalkScope, current: Walk, declaration: Declaration, pe
   const key = `${scope.importerPath}\u0000${peer}\u0000${current.instance.instanceId}`;
   if (MutableHashSet.has(findings.seen, key)) return;
   MutableHashSet.add(findings.seen, key);
-  findings.rows.push(
-    UnsatisfiedPeer.make({
-      importer: scope.importerPath,
-      dependency: peer,
-      wanted: verdict.wanted,
-      found: verdict.found,
-      optional,
-      parents: current.path,
-    })
-  );
+  findings.rows.push({
+    importer: scope.importerPath,
+    dependency: peer,
+    wanted: verdict.wanted,
+    found: verdict.found,
+    optional,
+    parents: current.path,
+  });
 };
 
 /**

@@ -212,9 +212,9 @@ export class LockfileReaderOptions extends S.Opaque<LockfileReaderOptions, { rea
      *
      * @defaultValue no ceiling — the ascent runs to the filesystem root.
      */
-    stopAt: S.optional(S.String).pipe(
+    stopAt: S.optionalKey(S.String).pipe(
       $I.annoteKey("LockfileReaderOptions.stopAt", {
-        description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling.",
+        description: "An inclusive ceiling for the workspace-root ascent; absent means no ceiling.",
       })
     ),
   }).pipe(

@@ -11,7 +11,7 @@ import { Manifest, UnresolvedDependencyError } from "@beep/npm-spec/Manifest";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import { CatalogSet, PublishabilityDetector, PublishTarget, WorkspacePackage, Workspaces } from "@beep/repo-workspaces";
 import { assert, describe, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertFalse, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -277,11 +277,11 @@ describe("composite workspace option schemas", () => {
     WorkspacesGitOptions,
     S.Struct({ ...WorkspacesGitOptions.fields, maxDepth: depth })
   );
-  it.effect("omitted options stay omitted and explicit undefined stopAt stays present", () =>
+  it.effect("omitted options stay omitted and an explicit undefined stopAt is rejected", () =>
     Effect.gen(function* () {
       assert.deepStrictEqual(yield* S.decodeEffect(WorkspacesOptions)({}), {});
       assert.deepStrictEqual(yield* S.decodeEffect(WorkspacesGitOptions)({}), {});
-      assert.deepStrictEqual(yield* S.decodeEffect(WorkspacesGitOptions)({ stopAt: undefined }), { stopAt: undefined });
+      assertFalse(S.is(WorkspacesGitOptions)({ stopAt: undefined }));
       for (const maxDepth of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
         const options = { maxDepth };
         assert.deepStrictEqual(

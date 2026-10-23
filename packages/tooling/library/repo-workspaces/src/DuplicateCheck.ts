@@ -636,6 +636,10 @@ const versionsByName = (
  * @param versions - The name's reached instances, by version.
  * @param dependents - Each instance's dependents.
  * @param names - The caller's name filter.
+ * The duplicate is a plain constructor input, not an admitted record:
+ * `DuplicateCheck.make` validates the whole tree once, so no instance is
+ * re-validated and copied at each nesting level.
+ *
  * @returns The duplicate, or none.
  * @internal
  */
@@ -644,25 +648,23 @@ const duplicateOf = (
   versions: MutableHashMap.MutableHashMap<string, Array<ResolvedPackage>>,
   dependents: MutableHashMap.MutableHashMap<string, Array<Dependent>>,
   names: (name: string) => boolean
-): O.Option<DuplicatedPackage> => {
+): O.Option<DuplicatedPackageInput> => {
   if (MutableHashMap.size(versions) < 2 || !names(name)) return O.none();
-  return O.some(
-    DuplicatedPackage.make({
-      name,
-      versions: A.map([...versions], ([version, instances]) =>
-        DuplicatedVersion.make({
-          version,
-          instances: A.map(instances, (instance) =>
-            DuplicateInstance.make({
-              instanceId: instance.instanceId,
-              dependents: O.getOrElse(MutableHashMap.get(dependents, instance.instanceId), () => []),
-            })
-          ),
-        })
-      ),
-    })
-  );
+  return O.some({
+    name,
+    versions: A.map([...versions], ([version, instances]) => ({
+      version,
+      instances: A.map(instances, (instance) => ({
+        instanceId: instance.instanceId,
+        dependents: O.getOrElse(MutableHashMap.get(dependents, instance.instanceId), () => []),
+      })),
+    })),
+  });
 };
+
+// The plain constructor input of a `DuplicatedPackage`, admitted once by
+// `DuplicateCheck.make`.
+type DuplicatedPackageInput = (typeof DuplicatedPackage)["~type.make.in"];
 
 /**
  * The dependent an edge leaving `from` is attributed to.

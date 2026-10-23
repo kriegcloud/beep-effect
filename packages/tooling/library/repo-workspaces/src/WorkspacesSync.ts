@@ -638,9 +638,9 @@ const isPackage: {
  */
 export class SyncRootCeiling extends S.Opaque<SyncRootCeiling, { readonly brand: unique symbol }>()(
   S.Struct({
-    stopAt: S.optional(S.String).pipe(
+    stopAt: S.optionalKey(S.String).pipe(
       $I.annoteKey("SyncRootCeiling.stopAt", {
-        description: "An inclusive ceiling for the synchronous root ascent; absent or undefined means no ceiling.",
+        description: "An inclusive ceiling for the synchronous root ascent; absent means no ceiling.",
       })
     ),
   }).pipe($I.annoteSchema("SyncRootCeiling", { description: "The synchronous workspace-root ascent ceiling." }))

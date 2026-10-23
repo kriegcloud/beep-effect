@@ -974,9 +974,9 @@ export class WorkspaceCatalogsOptions extends S.Opaque<WorkspaceCatalogsOptions,
      *
      * @since 0.0.0
      */
-    stopAt: S.optional(S.String).pipe(
+    stopAt: S.optionalKey(S.String).pipe(
       $I.annoteKey("WorkspaceCatalogsOptions.stopAt", {
-        description: "Inclusive ceiling; absent or undefined leaves ascent unbounded.",
+        description: "Inclusive ceiling; absent leaves ascent unbounded.",
       })
     ),
   }).pipe(

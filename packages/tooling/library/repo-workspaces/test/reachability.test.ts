@@ -7,7 +7,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import { directImportersOf, reaches, runtimeImports } from "./support/sourceGraph.ts";
+import { directImportersOf, reaches, runtimeImports, specifiersOf } from "./support/sourceGraph.ts";
 
 /** The pure values and the discovery surface, which never load either driver. */
 const DRIVER_FREE = [
@@ -49,6 +49,21 @@ const DRIVER_LOADING = [
 const loadsADriver = (module: string): boolean => reaches(module, "@beep/git") || reaches(module, "@beep/commands");
 
 describe("driver edges stay operational adapters", () => {
+  it("the walker follows static, side-effect and literal dynamic imports, and skips type-only and comment imports", () => {
+    const text = A.join("\n")([
+      'import * as A from "effect/Array";',
+      "import 'side-effect';",
+      'export { x } from "./re-export.ts";',
+      'import type { T } from "type-only";',
+      'export type { U } from "type-only-export";',
+      ' * import { Example } from "jsdoc-example";',
+      '// const lazy = await import("commented-out");',
+      'const driver = () => import("@beep/git");',
+      "const computed = (url: string) => import(url);",
+    ]);
+    assert.deepStrictEqual(specifiersOf(text), ["effect/Array", "side-effect", "./re-export.ts", "@beep/git"]);
+  });
+
   it("the walker reads every source module", () => {
     assert.isAtLeast(R.keys(runtimeImports).length, 30);
     for (const module of DRIVER_FREE) assert.include(R.keys(runtimeImports), module);

@@ -1,8 +1,10 @@
 // The package's runtime import graph, read from the source text Vite's raw
 // glob import inlines at transform time, so the confinement suite needs no
-// filesystem. Only top-of-line `import … from` and `export … from` statements
-// are edges: JSDoc example imports start with ` * ` and never match, and
-// `import type` / `export type` statements are erased at runtime.
+// filesystem. Edges are top-of-line `import … from` / `export … from`
+// statements, side-effect `import "x"` statements and literal dynamic
+// `import("x")` calls. Comment lines are dropped first, so JSDoc example
+// imports never count, and `import type` / `export type` statements are erased
+// at runtime. A dynamic import of a computed URL has no literal to follow.
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -15,14 +17,24 @@ const SRC = "../../src/";
 
 const sources = import.meta.glob<string>("../../src/**/*.ts", { query: "?raw", import: "default", eager: true });
 
-const STATEMENT = /^(?:import|export)\s+(?!type\b)[^;]*?\bfrom\s*"([^"]+)"/gm;
+const STATEMENT = /^(?:(?:import|export)\s+(?!type\b)[^;"']*?\bfrom\s*|import\s*)["']([^"']+)["']/gm;
+const DYNAMIC = /(?<![\w$.])import\(\s*["']([^"']+)["']\s*\)/g;
+const COMMENT_LINE = /^\s*(?:\*|\/\/|\/\*).*$/gm;
+
+/** The specifiers a module's source text imports at runtime, in source order per form. */
+export const specifiersOf = (text: string): ReadonlyArray<string> => {
+  const code = Str.replace(COMMENT_LINE, "")(text);
+  return A.getSomes(
+    A.map(
+      A.appendAll(A.fromIterable(Str.matchAll(STATEMENT)(code)), A.fromIterable(Str.matchAll(DYNAMIC)(code))),
+      (match) => O.fromUndefinedOr(match[1])
+    )
+  );
+};
 
 /** Every `src` module, by its `src`-relative path, with the specifiers it imports at runtime. */
 export const runtimeImports: Readonly<Record<string, ReadonlyArray<string>>> = R.fromEntries(
-  A.map(R.toEntries(sources), ([key, text]) => [
-    Str.slice(SRC.length)(key),
-    A.getSomes(A.map(A.fromIterable(Str.matchAll(STATEMENT)(text)), (match) => O.fromUndefinedOr(match[1]))),
-  ])
+  A.map(R.toEntries(sources), ([key, text]) => [Str.slice(SRC.length)(key), specifiersOf(text)])
 );
 
 /** Whether `specifier` names `pkg` or one of its subpaths. */

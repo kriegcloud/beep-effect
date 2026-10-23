@@ -22,6 +22,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChangeDetector } from "./ChangeDetector.ts";
 import { ConfigDependencyHooks } from "./ConfigDependencyHooks.ts";
+import { ambientCwd } from "./internal/layerRoot.ts";
 import { LockfileReader, LockfileReaderOptions } from "./LockfileReader.ts";
 import { PackageManagerDetector } from "./PackageManagerName.ts";
 import { WorkspaceCatalogs, WorkspaceCatalogsOptions } from "./WorkspaceCatalogs.ts";
@@ -374,7 +375,7 @@ const localExecLayer = (options?: {
         // to happen per call, not at layer construction, so a `process.chdir`
         // between provide and first use is honoured. The house `{ cwd }`
         // convention, applied here too.
-        const cwd = options?.cwd ?? globalThis.process?.cwd?.() ?? "/";
+        const cwd = options?.cwd === undefined ? yield* ambientCwd : options.cwd;
         const stopAt = options?.stopAt;
 
         // A ceiling that finds no root is the ordinary None case, like any

@@ -10,6 +10,7 @@ import * as S from "effect/Schema";
 // enclosing workspace while the lockfile and catalog reads adopt it.
 
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import type { WorkspaceRootNotFoundError, WorkspaceRootShape } from "../WorkspaceRoot.ts";
 
 const $I = $RepoWorkspacesId.create("internal/layerRoot");
@@ -36,9 +37,9 @@ export class LayerRootOptions extends S.Opaque<LayerRootOptions, { readonly bran
         description: "The starting directory, with ambient cwd read only on use when omitted.",
       })
     ),
-    stopAt: S.optional(S.String).pipe(
+    stopAt: S.optionalKey(S.String).pipe(
       $I.annoteKey("LayerRootOptions.stopAt", {
-        description: "The inclusive root-search boundary, accepting absence or explicit undefined.",
+        description: "The inclusive root-search boundary; absent means no ceiling.",
       })
     ),
   }).pipe(
@@ -64,12 +65,63 @@ export declare namespace LayerRootOptions {
 }
 
 /**
+ * Reads a host's current directory, or `None` when the host exposes none.
+ *
+ * **Details**
+ *
+ * The seam {@link ambientCwd} reads `globalThis.process` through, so a host
+ * without a `cwd` is testable without removing the test runner's own process.
+ *
+ * **Example** (Read a host directory)
+ *
+ * ```ts
+ * import { cwdOf } from "@beep/repo-workspaces/internal/layerRoot";
+ *
+ * console.log(cwdOf({ cwd: () => "/repo" })); // Some("/repo")
+ * console.log(cwdOf(undefined)); // None
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const cwdOf = (host: { readonly cwd?: (() => string) | undefined } | undefined): O.Option<string> =>
+  O.fromUndefinedOr(host?.cwd?.());
+
+/**
+ * Reads the ambient current directory at use, dying when the runtime has none.
+ *
+ * **Gotchas**
+ *
+ * Upstream reads `process.cwd()` directly, so a runtime without `process`
+ * throws. This keeps that failure as a defect instead of starting the root
+ * ascent at `/`, where it could climb to, or match, an unrelated workspace.
+ *
+ * **Example** (Read the ambient directory)
+ *
+ * ```ts
+ * import { ambientCwd } from "@beep/repo-workspaces/internal/layerRoot";
+ * import * as Effect from "effect/Effect";
+ *
+ * console.log(Effect.runSync(ambientCwd).length > 0); // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const ambientCwd: Effect.Effect<string> = Effect.suspend(() =>
+  O.match(cwdOf(globalThis.process), {
+    onNone: () => Effect.die("repo-workspaces: no ambient current directory; pass an explicit cwd"),
+    onSome: Effect.succeed,
+  })
+);
+
+/**
  * Resolves the workspace root a layer's options name.
  *
  * **Details**
  *
- * Uses `Effect.suspend` so the ambient `process.cwd()` is read at first use,
- * not at layer construction.
+ * Reads the ambient directory through {@link ambientCwd} at first use, not at
+ * layer construction.
  *
  * **Example** (Resolve an explicit starting directory)
  *
@@ -97,15 +149,9 @@ export const findLayerRoot: {
   ): Effect.Effect<string, WorkspaceRootNotFoundError>;
 } = dual(
   2,
-  (
-    roots: WorkspaceRootShape,
-    options: LayerRootOptions.Encoded | undefined
-  ): Effect.Effect<string, WorkspaceRootNotFoundError> =>
-    Effect.suspend(() => {
-      const stopAt = options?.stopAt;
-      return roots.find(
-        options?.cwd ?? globalThis.process?.cwd?.() ?? "/",
-        stopAt === undefined ? undefined : { stopAt }
-      );
-    })
+  Effect.fnUntraced(function* (roots: WorkspaceRootShape, options: LayerRootOptions.Encoded | undefined) {
+    const stopAt = options?.stopAt;
+    const cwd = options?.cwd === undefined ? yield* ambientCwd : options.cwd;
+    return yield* roots.find(cwd, stopAt === undefined ? undefined : { stopAt });
+  })
 );

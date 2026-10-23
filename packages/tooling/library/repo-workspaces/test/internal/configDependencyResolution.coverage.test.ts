@@ -199,3 +199,24 @@ it.layer(
     )
   );
 });
+
+/** One home-variable environment: only a set `HOME` or `USERPROFILE` names the home-based store roots. */
+const homeStoreCase = Effect.fnUntraced(function* (environment: Readonly<Record<string, string>>, expected: string) {
+  const failure = yield* Effect.flip(resolvePnpmfiles(ROOT, { config: "1.0.0" })).pipe(
+    Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(environment)),
+    Effect.provideService(HostProcessPlatform, "linux")
+  );
+  assert.strictEqual(failure.reason, "notInstalled");
+  assert.include(failure.cause instanceof Error ? failure.cause.message : "", expected);
+});
+
+it.layer(counted({ "/home/u/.local/share/pnpm/store/v10": MemoryFileSystem.directory() }).layer, {
+  timeout: "30 seconds",
+})((it) => {
+  it.effect("with HOME and USERPROFILE both unset the home-based store roots are absent (no passwd fallback)", () =>
+    Effect.gen(function* () {
+      yield* homeStoreCase({}, "no pnpm store directory could be located");
+      yield* homeStoreCase({ HOME: "/home/u" }, "searched /home/u/.local/share/pnpm/store/v10");
+    })
+  );
+});

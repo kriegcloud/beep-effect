@@ -7,6 +7,7 @@ import { WorkspaceRoot } from "@beep/repo-workspaces/WorkspaceRoot";
 import { WorkspaceSnapshots, WorkspaceSnapshotsOptions } from "@beep/repo-workspaces/WorkspaceSnapshots";
 import { PackageStateSnapshot } from "@beep/repo-workspaces/WorkspaceStateSnapshot";
 import { assert, it } from "@effect/vitest";
+import { assertFalse } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -84,12 +85,9 @@ it.effect.prop(
   runs
 );
 
-it.effect("snapshot options keep absent keys distinct from explicit undefined", () =>
+it.effect("snapshot options accept an absent stopAt and reject an explicit undefined", () =>
   Effect.gen(function* () {
     assert.deepStrictEqual(yield* S.decodeEffect(WorkspaceSnapshotsOptions)({}), WorkspaceSnapshotsOptions.make({}));
-    assert.deepStrictEqual(
-      yield* S.decodeEffect(WorkspaceSnapshotsOptions)({ stopAt: undefined }),
-      WorkspaceSnapshotsOptions.make({ stopAt: undefined })
-    );
+    assertFalse(S.is(WorkspaceSnapshotsOptions)({ stopAt: undefined }));
   })
 );

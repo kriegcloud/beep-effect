@@ -499,20 +499,17 @@ describe("SourceBoundary review regressions", () => {
 
 
 describe("SourceBoundary round-2 scanner contracts", () => {
-	it.effect("keeps option payloads plain, optional and free of eager defaults", () =>
+	// W4-j: EF-40 (#2145) made these keys exact, so an explicit undefined is rejected.
+	it.effect("keeps option payloads plain, exact-optional and free of eager defaults", () =>
 		Effect.gen(function* () {
 			const options: ScanOptions = { root: "/repo/src", rules: ["process"] };
 			assert.deepStrictEqual(yield* S.decodeEffect(ScanOptions)(options), options);
 			assert.deepStrictEqual(yield* S.decodeEffect(ReferenceOptions)({}), {});
-			const explicit: ScanOptions = {
-				...options,
-				ignoreTokens: undefined,
-				allow: undefined,
-				extensions: undefined,
-				allowRules: { process: undefined, forbidImports: ["allowed.ts"] },
-			};
-			assert.deepStrictEqual(yield* S.decodeEffect(ScanOptions)(explicit), explicit);
-			assert.isTrue(S.is(ScanOptions)({ ...options, allowRules: undefined }));
+			const present: ScanOptions = { ...options, allow: [], extensions: [".ts"], allowRules: { forbidImports: ["allowed.ts"] } };
+			assert.deepStrictEqual(yield* S.decodeEffect(ScanOptions)(present), present);
+			for (const key of ["ignoreTokens", "allow", "extensions", "allowRules"] as const)
+				assert.isFalse(S.is(ScanOptions)({ ...options, [key]: undefined }), key);
+			assert.isFalse(S.is(ScanOptions)({ ...options, allowRules: { process: undefined } }));
 		}));
 
 	it("flags escaped process reads and spares longer cooked identifiers", () => {

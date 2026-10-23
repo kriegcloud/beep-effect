@@ -1,5 +1,6 @@
-import { findLayerRoot } from "@beep/repo-workspaces/internal/layerRoot";
+import { cwdOf, findLayerRoot } from "@beep/repo-workspaces/internal/layerRoot";
 import { assert, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -31,3 +32,9 @@ it.effect("defers root lookup and forwards ambient cwd, explicit cwd and the opt
     ]);
   })
 );
+
+it("reads a host directory and reports a host without one as None, never a / fallback", () => {
+  assertSome(cwdOf({ cwd: () => "/repo" }), "/repo");
+  assertNone(cwdOf({}));
+  assertNone(cwdOf(undefined));
+});

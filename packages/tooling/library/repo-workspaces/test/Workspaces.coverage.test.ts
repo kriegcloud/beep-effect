@@ -3,7 +3,8 @@ import { PackageManagerDetector } from "@beep/repo-workspaces/PackageManagerName
 import { WorkspaceRoot, WorkspaceRootNotFoundError } from "@beep/repo-workspaces/WorkspaceRoot";
 import { Workspaces } from "@beep/repo-workspaces/Workspaces";
 import { assert, it, vi } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertExitFailure, assertNone } from "@effect/vitest/utils";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
@@ -27,20 +28,21 @@ it.layer(
   ),
   { timeout: "30 seconds" }
 )((it) => {
-  it.effect("ambient cwd and absent process use the documented fallback", () =>
+  it.effect("ambient cwd is read per call and a runtime without one dies instead of searching from /", () =>
     Effect.gen(function* () {
       const exec = yield* LocalExec;
       const process = globalThis.process;
       const cwd = process.cwd();
       assertNone(yield* exec.context);
+      const noAmbientCwd = Cause.die("repo-workspaces: no ambient current directory; pass an explicit cwd");
       // The ambient process boundary has no injected service seam.
       yield* Effect.gen(function* () {
         vi.stubGlobal("process", {});
-        assertNone(yield* exec.context);
+        assertExitFailure(yield* Effect.exit(exec.context), noAmbientCwd);
         vi.stubGlobal("process", undefined);
-        assertNone(yield* exec.context);
+        assertExitFailure(yield* Effect.exit(exec.context), noAmbientCwd);
       }).pipe(Effect.ensuring(Effect.sync(() => vi.stubGlobal("process", process))));
-      assert.deepStrictEqual(calls, [cwd, "/", "/"]);
+      assert.deepStrictEqual(calls, [cwd]);
     })
   );
 });

@@ -28,15 +28,15 @@ const TESTING_MODULES = new Set([
 ]);
 
 /**
- * The modules that legitimately read `process`: the ambient cwd default and
- * the Node sync binding. Wave 4-W-a moved the config-dependency ladder onto
- * Effect's FileSystem, Path and Config, so only these three remain: the four
- * root-resolving services share `internal/layerRoot.ts`'s one guarded
- * ambient-cwd read, `Workspaces.ts` keeps its own for `LocalExec`, and
- * `node-sync.ts` resolves `node:fs` lazily on first use.
+ * The modules that legitimately read `process`: the ambient cwd read and the
+ * Node sync binding. Wave 4-W-a moved the config-dependency ladder onto
+ * Effect's FileSystem, Path and Config, so only these two remain: the four
+ * root-resolving services and `Workspaces.ts`'s `LocalExec` share
+ * `internal/layerRoot.ts`'s one `ambientCwd` read, and `node-sync.ts`
+ * resolves `node:fs` lazily on first use.
  */
-const PROCESS_READERS: ReadonlyArray<string> = ["Workspaces.ts", "internal/layerRoot.ts", "node-sync.ts"];
-const PROCESS_READ_COUNT = 3;
+const PROCESS_READERS: ReadonlyArray<string> = ["internal/layerRoot.ts", "node-sync.ts"];
+const PROCESS_READ_COUNT = 2;
 
 describe("@effected/workspaces, scanned by SourceBoundary", () => {
 	layer(Platform, { timeout: "30 seconds" })((it) => {

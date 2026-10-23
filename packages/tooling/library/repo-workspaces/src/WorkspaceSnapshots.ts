@@ -146,9 +146,9 @@ export class WorkspaceSnapshotsOptions extends S.Opaque<WorkspaceSnapshotsOption
      *
      * @since 0.0.0
      */
-    stopAt: S.optional(S.String).pipe(
+    stopAt: S.optionalKey(S.String).pipe(
       $I.annoteKey("WorkspaceSnapshotsOptions.stopAt", {
-        description: "Inclusive ceiling; absent or undefined leaves ascent unbounded.",
+        description: "Inclusive ceiling; absent leaves ascent unbounded.",
       })
     ),
     /**
