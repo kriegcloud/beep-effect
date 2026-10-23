@@ -17,6 +17,7 @@ import { GraphMessage } from "@beep/m365";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -202,7 +203,8 @@ describe("@beep/law-practice-server NoticeMailbox", () => {
         const made = NoticeMailboxConfig.make(plain);
         const decoded = yield* S.decodeEffect(NoticeMailboxConfig)(plain);
 
-        expect([O.isNone(made.claudeLink), O.isNone(decoded.claudeLink)]).toStrictEqual([true, true]);
+        assertNone(made.claudeLink);
+        assertNone(decoded.claudeLink);
         expect({ ...(yield* S.encodeEffect(NoticeMailboxConfig)(decoded)) }).toStrictEqual(plain);
       })
     );

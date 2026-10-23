@@ -42,28 +42,10 @@ import type * as Path from "effect/Path";
  */
 export const NOTICE_ENV_PREFIX = "PRACTICE_REVIEW_NOTICE";
 
-/**
- * The request the notice's Claude Code link types in the review folder. The
- * attorney presses Enter to send it.
- *
- * **Details**
- *
- * The hub's MCP server is registered at user scope on the attorney's PC, so
- * Claude Code reaches the review queue from the review folder; that folder's
- * `CLAUDE.md` holds the rules for the walk-through.
- *
- * **Example** (Read the request)
- *
- * ```ts
- * import { REVIEW_QUESTIONS_PROMPT } from "@/Notice"
- *
- * console.log(REVIEW_QUESTIONS_PROMPT) // "Walk me through my waiting review questions."
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const REVIEW_QUESTIONS_PROMPT = "Walk me through my waiting review questions.";
+// The request the notice's Claude Code link types in the review folder; the attorney presses Enter to send it.
+// The hub's MCP server is registered at user scope on the attorney's PC, so Claude Code reaches the review
+// queue from the review folder, whose `CLAUDE.md` holds the rules for the walk-through.
+const REVIEW_QUESTIONS_PROMPT = "Walk me through my waiting review questions.";
 
 /**
  * Send today's notice if one is due: count the questions the digest selects
@@ -129,8 +111,9 @@ export const noticeOutcomeLine = flow(sendDailyNotice, Effect.flatMap(encodeOutc
  * `notice-sent/<YYYY-MM-DD>` beside them before the notice is sent, so two
  * runs on the same day send at most one notice. With a `claudeFolder`, the
  * email adds an "Answer them in Claude Code" link that opens Claude Code there
- * with {@link REVIEW_QUESTIONS_PROMPT} typed in; the notice's outcome stays
- * count-only either way. The caller provides the `M365` connection.
+ * with "Walk me through my waiting review questions." typed in; the notice's
+ * outcome stays count-only either way. The caller provides the `M365`
+ * connection.
  *
  * **Example** (Make the notice layer)
  *

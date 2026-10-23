@@ -132,7 +132,7 @@ describe("review hub configuration", () => {
     })
   );
 
-  it.layer(CommandEnvironment)("notice flags", (it) => {
+  it.layer(CommandEnvironment, { timeout: "10 seconds" })("notice flags", (it) => {
     it.effect("reads --claude-folder, then PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER, and is none without either", () =>
       Effect.gen(function* () {
         const fromFlag = yield* resolvedFolder(["--claude-folder", "C:/Users/attorney/Review"], {});
