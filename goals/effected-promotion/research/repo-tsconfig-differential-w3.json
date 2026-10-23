@@ -1,6 +1,7 @@
 {
   "tool": "goals/effected-promotion/ops/repo-tsconfig-differential.ts",
-  "commit": "3488f4b594a89ac075c8a78e9155d1b5d59a3508",
+  "commit": "0d2a8ee3ea809560a789939b33dddc83f34b7086",
+  "dirty": false,
   "tsc": "Version 7.0.2+effect-tsgo.0.55.0",
   "mode": "three-way (loader, get-tsconfig, tsc)",
   "fields": {
@@ -24,7 +25,7 @@
   },
   "corpusA": {
     "configs": 663,
-    "wallMs": 3122,
+    "wallMs": 3478,
     "loaderOk": 663,
     "tscOk": 663,
     "getTsconfigOk": 663,
@@ -46,7 +47,7 @@
   "corpusB": {
     "packages": 222,
     "specifiers": 666,
-    "wallMs": 13041,
+    "wallMs": 12202,
     "verdict": "tsc success = `--showConfig` stdout parses as a JSON object, its stderr has no `error TS`, and `--listFilesOnly` reports none of the extends-resolution codes TS6053, TS5083, TS18000",
     "tscLiteralVerdictSucceeds": 666,
     "tscAnyErrorSucceeds": 9,
