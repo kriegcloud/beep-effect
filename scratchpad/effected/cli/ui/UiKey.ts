@@ -86,7 +86,6 @@ export type UiKey = UiKeyPayload;
 
 const named = (name: KeyName): UiKey => Named.make({ name });
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: an input holding a control character is not typed text
 const CONTROL = /[\u0000-\u001f\u007f]/;
 
 /**

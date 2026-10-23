@@ -25,7 +25,7 @@ import type * as React from "react";
  */
 function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
-    // biome-ignore lint/a11y/noLabelWithoutControl: generic component
+    // biome-ignore lint/a11y/noLabelWithoutControl: generic component; callers pass the control or htmlFor. Owner: @beep/ui. Exit: Biome resolves label controls passed through props.
     <label
       data-slot="label"
       className={cn(

@@ -2861,7 +2861,7 @@ const policyLintTurboStep = (
   base?: string
 ): QualityTaskStep => {
   const concurrency = pipe(
-    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Same declared boundary as the hosted Check lane.
+    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Same declared boundary as the hosted Check lane: BEEP_QUALITY_CHECK_CONCURRENCY is in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
     decodePolicyLintConcurrencyOption(Bun.env.BEEP_QUALITY_CHECK_CONCURRENCY),
     O.getOrElse(() => "4")
   );

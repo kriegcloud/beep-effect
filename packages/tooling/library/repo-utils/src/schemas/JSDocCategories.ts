@@ -16,7 +16,6 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
 
-// cspell:ignore dtos
 const $I = $RepoUtilsId.create("schemas/JSDocCategories");
 
 /**

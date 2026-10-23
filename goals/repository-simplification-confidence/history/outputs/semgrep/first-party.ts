@@ -1,4 +1,4 @@
-// biome-ignore-all lint: Semgrep rule fixture for .semgrep/first-party.yml; each line is a deliberate positive or negative case.
+// biome-ignore-all lint: Semgrep rule fixture for .semgrep/first-party.yml; each line is a deliberate positive or negative case. Owner: goals/repository-simplification-confidence. Exit: the fixture moves out of Biome's includes.
 // Paired positive (`ruleid:`) and negative (`ok:`) cases for the three first-party
 // Semgrep rules. Run from the repository root:
 //   docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep semgrep --test --config .semgrep/first-party.yml goals/repository-simplification-confidence/history/outputs/semgrep/first-party.ts

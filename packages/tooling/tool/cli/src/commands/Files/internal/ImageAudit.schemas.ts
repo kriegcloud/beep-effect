@@ -13,8 +13,6 @@ import { FileSha256Hash, PositiveMediaDimension } from "./Media.schemas.ts";
 import type * as Effect from "effect/Effect";
 import type * as AST from "effect/SchemaAST";
 
-// cspell:ignore Iptc
-
 const $I = $RepoCliId.create("commands/Files/internal/ImageAudit.schemas");
 
 /**

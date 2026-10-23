@@ -134,7 +134,7 @@ export default function Home({ searchParams }: HomeProps) {
             nonce={nonce}
             suppressHydrationWarning
             type="application/ld+json"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection. Owner: @beep/oip-web. Exit: Next.js ships a JSON-LD script primitive that escapes its payload.
             dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}
           />
           <OipHomePage

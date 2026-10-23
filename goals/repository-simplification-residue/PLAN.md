@@ -47,6 +47,7 @@ guidance surface (`history/receipts/guidance-classification.md`). Wave 2 reviews
 the 660 inline directives individually; wave 3 adds a compile check for the 324
 Markdown TypeScript fences and decides the three upstream-copied `.patterns` files.
 Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 (`history/receipts/guidance-wave-2a.md`); wave 2b takes the other directive kinds.
+Wave 2c reviewed the 182 `biome-ignore`, `cspell`, coverage, `noqa`, `oxlint-disable` and `shellcheck` directives (2 fixed, 91 stale removed, 89 kept with owner and exit; `history/receipts/guidance-wave-2c.md`); wave 3 takes the Markdown fence compile gate and the upstream-copied `.patterns` decision.
 #1855 `residue-detectors` is in progress: wave 1 closed F-S31-EV010, which #1899 had
 already fixed on main, and extended the EV010 proof to same-file helpers, resolving 16
 more rows (`history/receipts/detectors-wave-1.md`). Wave 2 is FP-1..FP-7.

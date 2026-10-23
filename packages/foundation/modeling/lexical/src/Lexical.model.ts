@@ -15,7 +15,6 @@
  * @since 0.0.0
  */
 
-// cspell:word youtu
 import { $LexicalSchemaId } from "@beep/identity/packages";
 import * as Md from "@beep/md/Md.model";
 import { LiteralKit, MappedLiteralKit, SchemaUtils } from "@beep/schema";

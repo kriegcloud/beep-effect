@@ -432,7 +432,7 @@ const proofStep = (context: RepoRunContext, tier: YeetProofTier, collectAll: boo
     ...step,
     env: {
       ...(step.env ?? {}),
-      // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+      // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
       BEEP_YEET_LANE_PROOF_MODE: Bun.env.BEEP_YEET_LANE_PROOF_MODE ?? "active",
       BEEP_YEET_PROOF_BASE: context.base,
     },
@@ -534,7 +534,7 @@ export const GIT_PUSH_STEP_ID = "publish:01-git-push" as const;
 const publishPushRefspec = (): string => {
   // Machine-local dead-owner recovery uses this narrow override to update the
   // original PR branch from a detached fixer worktree.
-  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
   const configured = Bun.env.BEEP_YEET_PUSH_REFSPEC;
   return configured !== undefined && Str.startsWith("HEAD:refs/heads/")(configured) ? configured : "HEAD";
 };

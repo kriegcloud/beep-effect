@@ -825,9 +825,9 @@ const decodeUnknownQualityCheckConcurrencyOption = S.decodeUnknownOption(Quality
 
 const qualityCheckConcurrencyArg = (): string =>
   `--concurrency=${pipe(
-    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
     decodeUnknownQualityCheckConcurrencyOption(Bun.env.BEEP_QUALITY_CHECK_CONCURRENCY),
-    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
     O.getOrElse(() => (Bun.env.GITHUB_ACTIONS === "true" ? "2" : "3"))
   )}`;
 

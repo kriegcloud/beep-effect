@@ -33,8 +33,6 @@ import {
 import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.ts";
 import { RuntimeFixtureScenarioId } from "./ProfessionalRuntime.values.ts";
 
-// cspell:words Priya Raman
-
 const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.fixtures");
 
 class RuntimeFixtureEmailInput extends S.Opaque<RuntimeFixtureEmailInput, { readonly brand: unique symbol }>()(

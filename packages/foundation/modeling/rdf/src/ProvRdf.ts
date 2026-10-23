@@ -217,7 +217,7 @@ const encodeScalar = (value: string | number | boolean): Result.Result<Literal, 
       pipe(
         encodeFiniteFromStringResult(number),
         Result.map((encoded) => literal(encoded, XSD_DOUBLE)),
-        /* istanbul ignore next -- Entity's schema admits only finite numeric prov:value inputs */
+        /* istanbul ignore next -- Entity's schema admits only finite numeric prov:value inputs. Owner: @beep/rdf. Exit: the prov:value encoder takes the Finite type, so the encode failure arm goes. */
         Result.mapError(() => codecError("Unable to encode a finite prov:value number"))
       )
     ),
@@ -471,7 +471,7 @@ const ensureUniqueRecordSubjects = (
       flow(
         A.findFirst((value) => samePredicate(value.predicate, RDF_TYPE)),
         O.match({
-          /* istanbul ignore next -- every successful record encoder emits its RDF type quad */
+          /* istanbul ignore next -- every successful record encoder emits its RDF type quad. Owner: @beep/rdf. Exit: record encoders return their RDF type quad as a typed field. */
           onNone: () => Result.fail(codecError("Encoded PROV record is missing its RDF type")),
           onSome: (typeQuad) => Result.succeed(serializeTerm(typeQuad.subject)),
         })

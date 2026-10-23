@@ -428,7 +428,6 @@ describe("CliLinks.linker: the RenderContext.link policy", () => {
 				assert.strictEqual(links.wrapped, "label");
 				// Four ESC in all: the open and close sequences' introducer and ST each. Nothing else.
 				assert.strictEqual(out.split("\u001B").length - 1, 4, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
-				// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 				assert.notMatch(out.replace(/\u001B\]8;;|\u001B\\/g, ""), /[\u0000-\u001F\u007F-\u009F]/, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
 			}
 		}),

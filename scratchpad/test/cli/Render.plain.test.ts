@@ -43,7 +43,6 @@ describe("Render.plain: no escapes of any kind", () => {
 				assert.notInclude(out, ESC);
 				assert.notInclude(out, "\u0007");
 				// Everything but line feeds: no control character remains, a tab included.
-				// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 				assert.notMatch(out, /[\u0000-\u0009\u000B-\u001F\u007F-\u009F]/);
 				assert.match(out, /red/, "the text around the escapes is kept");
 				assert.match(out, /loneescape/);

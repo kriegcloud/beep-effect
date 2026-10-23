@@ -131,7 +131,6 @@ TimeoutStartSec=0
 WantedBy=default.target
 `;
 
-// cspell:ignore DBUS
 const userSystemdEnvironment = A.join(
   [
     'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"',
