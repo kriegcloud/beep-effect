@@ -19,7 +19,7 @@ import {
   docketQuestionNamesEmail,
 } from "@beep/law-practice-use-cases/DocketIntake";
 import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
-import { GraphEmailAddress, GraphMessage, GraphRecipient, M365, M365Error } from "@beep/m365";
+import { GraphEmailAddress, GraphMessage, GraphRecipient, M365Error } from "@beep/m365";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
@@ -34,8 +34,9 @@ import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Str from "effect/String";
 import { backfillQuestions, DocketBackfillReport, describeDocketMessage } from "@/Backfill";
+import { fixtureConfig } from "./support/Config.ts";
 import { FakeM365, FakeM365Layer, throttled } from "./support/FakeM365.ts";
-import { CryptoLayer, FilesLayer, MAILBOX } from "./support/Pipeline.ts";
+import { CryptoLayer, FilesLayer } from "./support/Pipeline.ts";
 import type { DocketIntakeError } from "@beep/law-practice-use-cases/DocketIntake";
 import type { ReviewItemStoreShape } from "@beep/law-practice-use-cases/ReviewItemStore";
 
@@ -193,11 +194,7 @@ describe("@beep/docket-intake backfill-questions", () => {
       "reads the subject, sender, practice day and link of a message, none for one the mailbox lost, and fails on throttling",
       Effect.fnUntraced(function* () {
         const fake = yield* FakeM365;
-        const read = describeDocketMessage({
-          m365: yield* M365,
-          mailbox: MAILBOX,
-          timeZone: DateTime.zoneMakeNamedUnsafe("America/Chicago"),
-        });
+        const read = describeDocketMessage(fixtureConfig);
         yield* Ref.update(fake.script, (script) => ({
           ...script,
           getMessage: Effect.succeed(

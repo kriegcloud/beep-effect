@@ -27,7 +27,7 @@ import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
 import { M365, M365GetMessageRequest } from "@beep/m365";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -36,8 +36,7 @@ import * as S from "effect/Schema";
 import type { DocketJournalEntry } from "@beep/law-practice-server/DocketIntake";
 import type { DocketIntakeState, DocketQuestionEmail } from "@beep/law-practice-use-cases/DocketIntake";
 import type { QuestionReviewItem } from "@beep/law-practice-use-cases/QuestionQueue";
-import type { M365Error, M365Shape } from "@beep/m365";
-import type * as DateTime from "effect/DateTime";
+import type { M365Error } from "@beep/m365";
 import type { DocketIntakeAppConfig } from "./Config.ts";
 
 const $I = $DocketIntakeId.create("Backfill");
@@ -231,18 +230,19 @@ const isGone = (error: M365Error): boolean => error.reason === "response status"
  * @category utilities
  * @since 0.0.0
  */
-export const describeDocketMessage =
-  (input: { readonly m365: M365Shape; readonly mailbox: string; readonly timeZone: DateTime.TimeZone }) =>
-  (messageId: string): Effect.Effect<O.Option<DocketQuestionEmail>, DocketIntakeError> =>
-    input.m365
+export const describeDocketMessage = (config: DocketIntakeAppConfig) =>
+  Effect.fnUntraced(function* (messageId: string) {
+    const m365 = yield* M365;
+    return yield* m365
       .getMessage(
-        M365GetMessageRequest.make({ messageId, select: O.some(MESSAGE_FIELDS), userId: O.some(input.mailbox) })
+        M365GetMessageRequest.make({ messageId, select: O.some(MESSAGE_FIELDS), userId: O.some(config.mailbox) })
       )
       .pipe(
-        Effect.map((message) => O.some(docketQuestionEmailOf(message, input.timeZone))),
+        Effect.map((message): O.Option<DocketQuestionEmail> => O.some(docketQuestionEmailOf(message, config.timeZone))),
         Effect.catchIf(isGone, () => Effect.succeedNone),
         Effect.mapError((error) => DocketIntakeError.make({ cause: error.reason, stage: "mailbox" }))
       );
+  });
 
 /**
  * The backfill over the configured state directory and mailbox: the write
@@ -264,7 +264,7 @@ export const backfillFromMailbox = Effect.fnUntraced(function* (config: DocketIn
   const m365 = yield* M365;
   return yield* backfillQuestions({
     apply,
-    describe: describeDocketMessage({ m365, mailbox: config.mailbox, timeZone: config.timeZone }),
+    describe: flow(describeDocketMessage(config), Effect.provideService(M365, m365)),
     journal: yield* readDocketJournal(config.stateDirectory),
     state: yield* readDocketStateFile(config.stateDirectory),
   });

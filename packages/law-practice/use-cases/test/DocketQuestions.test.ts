@@ -25,8 +25,10 @@ import {
 } from "@beep/law-practice-use-cases/DocketIntake";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
+import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -359,4 +361,17 @@ describe("@beep/law-practice-use-cases docket questions", () => {
       })
     );
   });
+});
+
+describe("@beep/law-practice-use-cases docket question email properties", () => {
+  it.effect.prop(
+    "round-trips schema-derived question emails",
+    { email: Arbitrary.schema(DocketQuestionEmail) },
+    ({ email }) =>
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeEffect(DocketQuestionEmail)(yield* S.encodeEffect(DocketQuestionEmail)(email));
+        expect(S.toEquivalence(DocketQuestionEmail)(decoded, email)).toBe(true);
+      }),
+    { arbitrary: fcRuns(25) }
+  );
 });
