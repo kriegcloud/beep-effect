@@ -211,15 +211,18 @@ const ApiTransportDurationNumber = S.declare<number>(
   })
 );
 
+// Mirrors effect's `Duration.DurationObject`, whose members are declared
+// `weeks?: number | undefined`: a value typed against `Duration.Input` may hold
+// an explicit undefined, so these keys keep it (EF-40 exception).
 const ApiTransportDurationObject = S.Struct({
-  weeks: S.optional(ApiTransportDurationNumber),
-  days: S.optional(ApiTransportDurationNumber),
-  hours: S.optional(ApiTransportDurationNumber),
-  minutes: S.optional(ApiTransportDurationNumber),
-  seconds: S.optional(ApiTransportDurationNumber),
-  milliseconds: S.optional(ApiTransportDurationNumber),
-  microseconds: S.optional(ApiTransportDurationNumber),
-  nanoseconds: S.optional(ApiTransportDurationNumber),
+  weeks: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  days: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  hours: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  minutes: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  seconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  milliseconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  microseconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  nanoseconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
 });
 
 type ApiTransportDurationString = Extract<Duration.Input, string>;
@@ -301,12 +304,12 @@ export class ApiTransportOptions extends S.Opaque<ApiTransportOptions, { readonl
         })
       ),
     }),
-    retryBaseDelay: S.optional(ApiTransportDurationInput).pipe(
+    retryBaseDelay: S.optionalKey(ApiTransportDurationInput).pipe(
       $I.annoteKey("ApiTransportOptions.retryBaseDelay", {
         description: "Optional base delay for the jittered exponential retry schedule.",
       })
     ),
-    retryTimes: S.optional(ApiTransportDurationNumber).pipe(
+    retryTimes: S.optionalKey(ApiTransportDurationNumber).pipe(
       $I.annoteKey("ApiTransportOptions.retryTimes", {
         description: "Optional maximum number of transient transport retries.",
       })

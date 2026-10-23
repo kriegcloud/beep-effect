@@ -54,6 +54,13 @@ export * from "./internal/SchemaParityCodemodEdits.ts";
  */
 export * from "./internal/SchemaParityCodemodEngine.ts";
 /**
+ * The `exact-optional-keys` codemod rule.
+ *
+ * @category policies
+ * @since 0.0.0
+ */
+export * from "./internal/SchemaParityCodemodExactOptionalKeysRule.ts";
+/**
  * Schema-parity codemod import inspection.
  *
  * @category utilities
@@ -61,12 +68,18 @@ export * from "./internal/SchemaParityCodemodEngine.ts";
  */
 export * from "./internal/SchemaParityCodemodImports.ts";
 /**
- * The `literal-kit-facets` codemod rule.
+ * The `literal-kit-match-rename` codemod rule.
  *
  * @category policies
  * @since 0.0.0
  */
 export * from "./internal/SchemaParityCodemodLiteralKitMatchRule.ts";
+/**
+ * The `literal-kit-facets` codemod rule.
+ *
+ * @category policies
+ * @since 0.0.0
+ */
 export * from "./internal/SchemaParityCodemodLiteralKitRule.ts";
 /**
  * Judge-rubric lens drift lint utilities.

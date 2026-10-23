@@ -198,7 +198,7 @@ const ContactSubmissionFormSubmittedAtFromString = S.FiniteFromString.pipe(
 );
 
 const ContactSubmissionFormSubmittedAt = S.Union([S.Natural, ContactSubmissionFormSubmittedAtFromString]).pipe(
-  S.withDecodingDefault(Effect.succeed(0)),
+  S.withDecodingDefaultKey(Effect.succeed(0)),
   $I.annoteSchema("ContactSubmissionFormSubmittedAt", {
     description: "Form-submitted contact timestamp decoded from a number or numeric string.",
   })

@@ -1677,6 +1677,29 @@ const fencedArchivePlan = Effect.fn("WorktreeRemovalService.fencedArchivePlan")(
   return { ...plan, head, quietShells };
 });
 
+// A writer that reopens the lane by path, such as a detached job appending its log
+// under `.beep/`, can recreate the original path while the fence holds the checkout
+// aside. A plain rename back onto that path then fails and strands the checkout at
+// its fenced name (#2130). The late writes are moved aside and named instead, so the
+// checkout and its git link are back where they were and a rerun can finish.
+const restoreFencedCheckout = Effect.fn("WorktreeRemovalService.restoreFencedCheckout")(function* (
+  targetPath: string,
+  retirePath: string,
+  stamp: number
+): Effect.fn.Return<O.Option<string>, WorktreeCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const stranded = () =>
+    WorktreeCommandError.make({
+      message: `Retirement of ${targetPath} failed AND the checkout could not be restored; it remains intact at ${retirePath}.`,
+    });
+  const direct = yield* Effect.result(fs.rename(retirePath, targetPath));
+  if (Result.isSuccess(direct)) return O.none<string>();
+  const lateWritesPath = `${targetPath}.late-writes-${stamp}`;
+  yield* fs.rename(targetPath, lateWritesPath).pipe(Effect.mapError(stranded));
+  yield* fs.rename(retirePath, targetPath).pipe(Effect.mapError(stranded));
+  return O.some(lateWritesPath);
+});
+
 const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedWorktree")(function* (
   request: WorktreeRemovalRequest
 ): Effect.fn.Return<
@@ -1714,14 +1737,17 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
   if (Result.isFailure(planned)) {
     // A refusal inside the fence restores the checkout exactly where it was; a failed
     // restore must name the fenced path loudly so nothing is presumed lost.
-    yield* fs.rename(retirePath, request.targetPath).pipe(
-      Effect.mapError(() =>
-        WorktreeCommandError.make({
-          message: `Retirement of ${request.targetPath} failed AND the checkout could not be restored; it remains intact at ${retirePath}.`,
-        })
-      )
-    );
-    return yield* planned.failure;
+    const lateWrites = yield* restoreFencedCheckout(request.targetPath, retirePath, stamp);
+    return yield* O.match(lateWrites, {
+      onNone: () => Effect.fail(planned.failure),
+      onSome: (lateWritesPath) =>
+        Effect.fail(
+          WorktreeCommandError.make({
+            message: `${planned.failure.message} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
+            path: request.targetPath,
+          })
+        ),
+    });
   }
   const { reason, manifest, head, unpushedInspection, quietShells } = planned.success;
   // Re-verify quiescence after capture and before the destructive remove. A scan is a

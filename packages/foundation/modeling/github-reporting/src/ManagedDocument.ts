@@ -283,7 +283,7 @@ export class ManagedDocumentSource extends S.Opaque<ManagedDocumentSource, { rea
      *
      * @since 0.0.0
      */
-    text: S.optional(S.String).pipe(
+    text: S.optionalKey(S.String).pipe(
       $I.annoteKey("ManagedDocumentSource.text", {
         description: "The current text; absent and empty text both start a fresh document.",
       })

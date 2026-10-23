@@ -108,7 +108,7 @@ class EffectLawsAllowlistDocument extends S.Opaque<EffectLawsAllowlistDocument, 
     version: S.tag(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectLawsAllowlistEntry>()))
     ),
   }).pipe(
     $I.annoteSchema("EffectLawsAllowlistDocument", {
@@ -155,10 +155,13 @@ export class AllowlistCheckOptions extends S.Opaque<AllowlistCheckOptions, { rea
  */
 export class AllowlistCheckSummary extends S.Opaque<AllowlistCheckSummary, { readonly brand: unique symbol }>()(
   S.Struct({
-    ok: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
+    ok: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
     diagnostics: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("AllowlistCheckSummary", {

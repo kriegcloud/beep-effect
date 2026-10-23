@@ -269,13 +269,6 @@ export const referencesOf = (node: JsonLdNode): ReadonlyArray<readonly [property
   return out;
 };
 
-/** Drops keys whose value is `undefined`; JSON-LD has no undefined and no meaningful null. */
-const withoutUndefined = (value: Record<string, S.Json | undefined>): Record<string, S.Json> => {
-  const out: Record<string, S.Json> = {};
-  for (const [key, entry] of R.toEntries(value)) if (entry !== undefined) out[key] = entry;
-  return out;
-};
-
 /** The caller errors {@link JsonLdDocument.buildResult} can report. */
 type BuildError = InvalidNodeIdError | DuplicateNodeIdError | ConflictingTermError;
 
@@ -543,8 +536,8 @@ export class JsonLdDocument extends S.Class<JsonLdDocument, { readonly brand: un
 
   /**
    * The JSON-LD wire form of this graph as a plain value: every node's
-   * catch-all flattened into the node object, and every `undefined`-valued
-   * key dropped. Numbers use JSON wire semantics, including `-0` becoming `0`.
+   * catch-all flattened into the node object. Optional fields are exact keys
+   * (EF-40), so an absent field never reaches the wire as `undefined`. Numbers use JSON wire semantics, including `-0` becoming `0`.
    *
    * **Details**
    *
@@ -589,7 +582,7 @@ export class JsonLdDocument extends S.Class<JsonLdDocument, { readonly brand: un
         const flattened = {
           "@id": id,
           "@type": type,
-          ...withoutUndefined(rest),
+          ...rest,
           ...additional,
         };
         return flattened;

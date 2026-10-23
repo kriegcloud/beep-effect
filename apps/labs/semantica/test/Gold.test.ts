@@ -627,34 +627,42 @@ describe("C0 gold proposer", () => {
   });
 
   it.layer(BunServices.layer, { timeout: "30 seconds", excludeTestServices: true })((it) => {
-    it.effect("routes command options through Command.runWith and rejects paper plus subset", () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const manifest = yield* fs
-          .readFileString("fixtures/w1.manifest.json")
-          .pipe(Effect.flatMap(decodeCorpusManifestJson));
-        const fixtures = yield* fs.readFileString("fixtures/f1/index.json").pipe(Effect.flatMap(decodeF1IndexJson));
-        const paperId = A.getUnsafe(manifest.rows, 0).id;
-        const runCanary = Command.runWith(CanaryCommand, {
-          renderErrors: false,
-          version: "0.0.0",
-        });
-        const error = yield* provideScopedLayer(makeGoldTestLayer(manifest, fixtures))(
-          runCanary(["gold", "propose", "--paper", paperId, "--subset", "entity"]).pipe(
+    it.layer(
+      Layer.unwrap(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const manifest = yield* fs
+            .readFileString("fixtures/w1.manifest.json")
+            .pipe(Effect.flatMap(decodeCorpusManifestJson));
+          const fixtures = yield* fs.readFileString("fixtures/f1/index.json").pipe(Effect.flatMap(decodeF1IndexJson));
+          return makeGoldTestLayer(manifest, fixtures);
+        })
+      ),
+      { timeout: "30 seconds" }
+    )((it) => {
+      it.effect("routes command options through Command.runWith and rejects paper plus subset", () =>
+        Effect.gen(function* () {
+          const manifest = yield* (yield* CorpusManifestBuilder).build;
+          const paperId = A.getUnsafe(manifest.rows, 0).id;
+          const runCanary = Command.runWith(CanaryCommand, {
+            renderErrors: false,
+            version: "0.0.0",
+          });
+          const error = yield* runCanary(["gold", "propose", "--paper", paperId, "--subset", "entity"]).pipe(
             Effect.provideService(CanaryC0, unusedCanaryC0),
             Effect.provideService(CanaryC1, unusedCanaryC1),
             Effect.provideService(CanaryC2, unusedCanaryC2),
             Effect.provideService(Chunker, unusedChunker),
             Effect.flip
-          )
-        );
+          );
 
-        expect(error).toBeInstanceOf(GoldUnavailable);
-        if (error._tag === "GoldUnavailable") {
-          expect(error.message).toBe("Choose either --paper or --subset, not both.");
-          expect(error.reason).toBe("invalid-selection");
-        }
-      })
-    );
+          expect(error).toBeInstanceOf(GoldUnavailable);
+          if (error._tag === "GoldUnavailable") {
+            expect(error.message).toBe("Choose either --paper or --subset, not both.");
+            expect(error.reason).toBe("invalid-selection");
+          }
+        })
+      );
+    });
   });
 });

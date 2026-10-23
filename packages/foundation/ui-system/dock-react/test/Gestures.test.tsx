@@ -156,30 +156,29 @@ describe("dock pointer gestures", { concurrent: false }, () => {
     })
   );
 
-  it.effect("docks to a group left edge and the container bottom edge", () =>
+  it.effect("docks to a group left edge", () =>
     Effect.gen(function* () {
-      yield* Effect.scoped(
-        Effect.gen(function* () {
-          const left = yield* mount(true);
-          pointer(tab(panel1.id), "pointerDown", 100, 16);
-          pointer(tab(panel1.id), "pointerUp", 410, 200);
-          yield* left.graph.awaitIdle;
-          const leftWorkspace = left.graph.registry.get(left.graph.workspaceAtom);
-          expect(leftWorkspace.kind).toBe("populated");
-          if (leftWorkspace.kind === "populated") {
-            expect(
-              A.some(
-                DockNode.splits(leftWorkspace.root),
-                (split) =>
-                  split.layout.axis === "horizontal" &&
-                  A.some(DockNode.panels(SplitLayout.children(split.layout)[0]), (panel) => panel.id === panel1.id)
-              )
-            ).toBe(true);
-          }
-        })
-      );
+      const left = yield* mount(true);
+      pointer(tab(panel1.id), "pointerDown", 100, 16);
+      pointer(tab(panel1.id), "pointerUp", 410, 200);
+      yield* left.graph.awaitIdle;
+      const leftWorkspace = left.graph.registry.get(left.graph.workspaceAtom);
+      expect(leftWorkspace.kind).toBe("populated");
+      if (leftWorkspace.kind === "populated") {
+        expect(
+          A.some(
+            DockNode.splits(leftWorkspace.root),
+            (split) =>
+              split.layout.axis === "horizontal" &&
+              A.some(DockNode.panels(SplitLayout.children(split.layout)[0]), (panel) => panel.id === panel1.id)
+          )
+        ).toBe(true);
+      }
+    })
+  );
 
-      cleanup();
+  it.effect("docks to the container bottom edge", () =>
+    Effect.gen(function* () {
       const bottom = yield* mount(true);
       pointer(tab(panel1.id), "pointerDown", 100, 16);
       pointer(tab(panel1.id), "pointerUp", 400, 395);

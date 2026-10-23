@@ -597,6 +597,98 @@ describe("proof job launcher", () => {
       })
     )
   );
+  it.effect("stops a retiring lane's live jobs and leaves its settled ones", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const monitor = yield* launcher.submit(monitorSubmission(root));
+        const settled = yield* launcher.submit(submission(root));
+        yield* launcher.finalize(
+          settled.jobId,
+          Job.ProofJobSystemdResult.make({ serviceResult: "success", finalizedAt: stamp })
+        );
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        const stopped = yield* Job.stopLaneJobs(plan);
+
+        expect(stopped).toStrictEqual([Job.StoppedLaneJob.make({ jobId: monitor.jobId, outcome: "stop-requested" })]);
+        const argv = yield* fs.readFileString(`${root}/systemctl.argv`);
+        expect(argv).toContain(`--user\nstop\n${monitor.unit.unitName}`);
+        expect(argv).not.toContain(settled.unit.unitName);
+        expect(Job.renderStoppedLaneJobs(stopped)).toBe(`  lane job ${monitor.jobId}: stop-requested`);
+        expect(Job.renderStoppedLaneJobs([])).toBe("");
+      })
+    )
+  );
+  it.effect("stops a finished lane job's unit before its finalizer ran, keeping its outcome", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const finished = yield* launcher.submit(submission(root));
+        // The loop ended, but systemd has not run the finalizer: the unit is still loaded.
+        yield* launcher.markFinished(
+          finished.jobId,
+          Job.ProofJobOutcome.make({ verdictOutcome: "success", endedAt: stamp })
+        );
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        const stopped = yield* Job.stopLaneJobs(plan);
+
+        expect(stopped).toStrictEqual([Job.StoppedLaneJob.make({ jobId: finished.jobId, outcome: "stop-requested" })]);
+        expect(yield* fs.readFileString(`${root}/systemctl.argv`)).toContain(`--user\nstop\n${finished.unit.unitName}`);
+        const saved = O.getOrThrow(yield* launcher.read(finished.jobId));
+        assertNone(saved.cancelRequestedAt);
+        assertSome(
+          O.map(saved.outcome, (outcome) => outcome.verdictOutcome),
+          "success"
+        );
+      })
+    )
+  );
+  it.effect("leaves a settled job's unit alone when asked to stop it", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* launcher.finalize(
+          record.jobId,
+          Job.ProofJobSystemdResult.make({ serviceResult: "success", finalizedAt: stamp })
+        );
+
+        expect(yield* launcher.stopUnit(record.jobId)).toBe("already-terminal");
+      })
+    )
+  );
+  it.effect("stops nothing when a retiring lane's job listing cannot be read", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        // A file where the jobs directory belongs: the listing fails.
+        yield* fs.makeDirectory(`${root}/.beep/yeet`, { recursive: true });
+        yield* fs.writeFileString(`${root}/.beep/yeet/jobs`, "not a directory");
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        expect(yield* Job.stopLaneJobs(plan)).toStrictEqual([]);
+      })
+    )
+  );
   it.effect("rolls the cancel stamp back when the stop fails and the unit is still loaded", () =>
     fixture(
       Effect.fnUntraced(function* (root) {

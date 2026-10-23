@@ -33,6 +33,7 @@ import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
+import { accumulation } from "./internal/accumulation.ts";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
 import {
   ParseCode,
@@ -817,15 +818,15 @@ export abstract class Jsonc {
       if (isComment(kind)) {
         const offset = scanner.getTokenOffset();
         const length = scanner.getTokenLength();
-        parts.push(Str.substring(lastOffset, offset)(text));
+        accumulation.append(parts, Str.substring(lastOffset, offset)(text));
         if (P.isString(replaceCh)) {
-          parts.push(blankComment(Str.substring(offset, offset + length)(text), replaceCh));
+          accumulation.append(parts, blankComment(Str.substring(offset, offset + length)(text), replaceCh));
         }
         lastOffset = offset + length;
       }
       kind = scanner.scan();
     }
-    parts.push(Str.substring(lastOffset)(text));
+    accumulation.append(parts, Str.substring(lastOffset)(text));
     return A.join(parts, Str.empty);
   }
 

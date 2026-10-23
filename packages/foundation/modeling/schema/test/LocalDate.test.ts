@@ -855,7 +855,7 @@ describe("LocalDate", () => {
       );
     });
 
-    describe("use with S.optional", () => {
+    describe("use with S.optionalKey", () => {
       it.effect(
         "decodes with optional date present",
         Effect.fnUntraced(function* () {
