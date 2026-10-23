@@ -132,3 +132,19 @@ Three round-trip bugs the review found are fixed. Each one was pinned by a test 
 The writer differential is unchanged by these fixes (1 / 651 / 79, no row
 newly divergent), since no corpus example holds these constructs. The
 ledger's only change is the narrowed `mathValueSyntax` description.
+
+## S44 bridge follow-up (#2137)
+
+Escaped inline HTML now merges with surrounding Text runs while retaining its
+newlines. Each merged run has one source-map entry spanning its contributing
+nodes; inline math on either side remains recognized. The corpus generator
+resolves exactly the 22 rows attributed to adjacent Text runs, with no newly
+divergent rows. The writer totals are now 1 byte-equal, 673 reparse-equal and
+57 divergent (previously 1 / 651 / 79).
+
+The remaining 57 rows comprise 37 escaped-HTML newline rows, the unchanged
+19 intended URL-policy rows and the unchanged mixed-list model row. Preserving
+HTML newlines through Markdown writing and re-parsing remains open: the default
+`softBreak: "space"` folds the writer's literal newlines. The escaped-email,
+literal URL backslash and inline-math-before-digit gaps also remain open in
+#2137. This follow-up closes only the adjacent-run part of that issue.
