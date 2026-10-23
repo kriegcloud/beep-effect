@@ -41717,30 +41717,6 @@
             "functions": 0
           }
         },
-        "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 50,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 2,
-            "functions": 0
-          }
-        },
-        "packages/foundation/modeling/schema/src/Glob/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/foundation/modeling/schema/src/Html.ts": {
           "lines": 100,
           "statements": 100,
@@ -49017,18 +48993,6 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
-          }
-        },
-        "packages/foundation/modeling/utils/src/Glob.ts": {
-          "lines": 98.19,
-          "statements": 98.36,
-          "branches": 93.75,
-          "functions": 97.95,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 3,
-            "functions": 1
           }
         },
         "packages/foundation/modeling/utils/src/GlobalValue.ts": {
