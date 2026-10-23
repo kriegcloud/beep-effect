@@ -5,6 +5,7 @@ import {
   ListProviderInstancesQuery,
   ProbeProviderInstanceCommand,
   ProviderInstanceNotFound,
+  ProviderProbeUnavailable,
   ProviderUnauthenticated,
   RemoveProviderInstanceCommand,
   UpdateProviderInstanceCommand,
@@ -146,6 +147,23 @@ describe("@beep/agents-use-cases ProviderInstance", () => {
       })
     );
   }
+
+  it.effect(
+    "persists a failed probe snapshot and returns retry guidance",
+    Effect.fnUntraced(function* () {
+      const state = makeRepository([yield* makeInstance()]);
+      const snapshot = Domain.ProbeFailedSnapshot.make({ probedAt });
+      const useCases = ProviderInstance.makeProviderInstanceUseCases(state.repository, {
+        probe: () => Effect.succeed(snapshot),
+      });
+      const failure = yield* Effect.flip(useCases.probe(ProbeProviderInstanceCommand.make({ id })));
+      expect(S.is(ProviderProbeUnavailable)(failure)).toBe(true);
+      if (S.is(ProviderProbeUnavailable)(failure)) {
+        expect(failure.guidance).toBe(Domain.loginGuidance("claude", snapshot));
+      }
+      assertSome(state.read()[0]?.lastProbe ?? O.none(), snapshot);
+    })
+  );
 
   it.effect(
     "surfaces not-found paths for get, update, remove, and probe",

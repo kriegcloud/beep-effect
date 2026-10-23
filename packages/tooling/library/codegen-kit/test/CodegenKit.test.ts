@@ -1274,6 +1274,29 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("keeps object annotation precedence stable across pure allOf regrouping", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["distributeAllOf"], {});
+      const left = { type: "object", description: "a", properties: { a: { type: "string" } } };
+      const right = { type: "object", description: "b", properties: { b: { type: "string" } } };
+      const union = { anyOf: [{ properties: { kind: { const: "x" } } }, { properties: { kind: { const: "y" } } }] };
+      const flat = hook({ allOf: [left, union, right] });
+      expect(flat.description).toBe("b");
+      for (const allOf of [
+        [{ allOf: [left, union] }, right],
+        [left, { allOf: [union, right] }],
+        [{ allOf: [{ allOf: [left, union] }, { allOf: [right] }] }],
+        [{ allOf: [] }, left, union, right],
+      ]) {
+        expect(hook({ allOf })).toEqual(flat);
+      }
+      expect(hook(flat)).toEqual(flat);
+      expect(hook({ allOf: [{ description: "Group", allOf: [left, union] }, right] }).description).toBe("Group");
+      expect(hook({ allOf: [{ type: "object", allOf: [left, union] }, right] }).description).toBe("a");
+      expect(hook({ description: "Outer", allOf: [{ allOf: [left, union] }, right] }).description).toBe("Outer");
+    })
+  );
+
   it.effect("keeps annotation-only references and rejects conflicting intersections", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {
@@ -1480,6 +1503,19 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
         )
       );
       expect(conflict.message).toContain("conflicting constraint maxLength on overlapping property name");
+
+      for (const [property, message] of [
+        [true, "expected an object schema"],
+        [{ type: "string", anyOf: [{ type: "string" }] }, "anyOf with sibling constraints"],
+        [{ anyOf: [true] }, "expected object alternatives"],
+        [{ $ref: "#/$defs/Name" }, "$ref alternatives"],
+      ] as const) {
+        const failure = yield* transformFailure(() =>
+          hook(overlap({ type: "string" }, { type: "object", properties: { name: property } }))
+        );
+        expect(failure.transform).toBe("intersectSiblingProperties");
+        expect(failure.message).toContain(message);
+      }
 
       const reference = yield* transformFailure(() =>
         hook({

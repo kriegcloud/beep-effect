@@ -1,6 +1,6 @@
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
-import { dual, pipe } from "effect/Function";
+import { dual, identity, pipe } from "effect/Function";
 import * as JsonPointer from "effect/JsonPointer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -435,14 +435,18 @@ const schemaMapKeywords: ReadonlyArray<string> = [
  * copied verbatim and schema maps (`properties`, `$defs`, ...) are walked per entry, so a property named
  * like a keyword is never mistaken for one.
  */
-const walkSchema = (value: unknown, visit: (node: Record<string, unknown>) => unknown): unknown => {
-  if (A.isArray(value)) return A.map(value, (child) => walkSchema(child, visit));
+const walkSchema = (
+  value: unknown,
+  visit: (node: Record<string, unknown>) => unknown,
+  prepare: (node: Record<string, unknown>) => Record<string, unknown> = identity
+): unknown => {
+  if (A.isArray(value)) return A.map(value, (child) => walkSchema(child, visit, prepare));
   if (!P.isObject(value)) return value;
-  const children = R.map(value, (child, key) => {
+  const children = R.map(prepare(value), (child, key) => {
     if (A.contains(literalValueKeywords, key)) return child;
     if (A.contains(schemaMapKeywords, key) && P.isObject(child))
-      return R.map(child, (entry) => walkSchema(entry, visit));
-    return walkSchema(child, visit);
+      return R.map(child, (entry) => walkSchema(entry, visit, prepare));
+    return walkSchema(child, visit, prepare);
   });
   return visit(children);
 };
@@ -631,9 +635,19 @@ const distributeNode = (node: Record<string, unknown>, inline: (ref: string) => 
   return A.isArray(anyOf) ? mergeIntersection(combined, { anyOf }, inline) : combined;
 };
 
+// Only a pure grouping wrapper is transparent: siblings carry their own annotation or
+// constraint scope and must still be reduced as a member before its parent.
+const inlineAllOfMembers = (part: unknown): ReadonlyArray<unknown> =>
+  P.isObject(part) && A.isArray(part.allOf) && A.length(R.keys(part)) === 1
+    ? A.flatMap(part.allOf, inlineAllOfMembers)
+    : [part];
+
+const ungroupAllOf = (node: Record<string, unknown>): Record<string, unknown> =>
+  A.isArray(node.allOf) ? { ...node, allOf: A.flatMap(node.allOf, inlineAllOfMembers) } : node;
+
 const makeDistributeAllOf = (definitions: JsonSchema.Definitions, normalize: NodeTransform): NodeTransform => {
   const normalizeDeep = (value: unknown): unknown => walkSchema(value, (node) => normalize(node));
-  const flatten = (value: unknown): unknown => walkSchema(value, (node) => distributeNode(node, inline));
+  const flatten = (value: unknown): unknown => walkSchema(value, (node) => distributeNode(node, inline), ungroupAllOf);
   const inline = (ref: string): unknown =>
     pipe(
       definitionKey(ref),

@@ -1125,8 +1125,9 @@ const submitDetachedReadyMonitor = Effect.fn("Yeet.submitDetachedReadyMonitor")(
 });
 
 // Push-first publish (push-first-publish D1-D8): the cheap-gates tier and the
-// head-install preflight are the whole local gate, and neither takes an
-// admission ticket. Hosted CI and review are the proof; publish ends once the
+// head-install preflight are the whole local gate. Cheap gates hold a weighted
+// lease because the schema-catalog scan peaks near 12.6 GiB. Hosted CI and
+// review are the proof; publish ends once the
 // readiness monitor is submitted.
 const runPushFirstPublishPhases = Effect.fn("Yeet.runPushFirstPublishPhases")(function* (
   plan: RepoRunPlan,
@@ -1136,13 +1137,20 @@ const runPushFirstPublishPhases = Effect.fn("Yeet.runPushFirstPublishPhases")(fu
   monitorSteps: ReadonlyArray<RepoPlanStep>,
   recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
   extras: Ref.Ref<YeetVerdictExtras>,
-  skipCommit: boolean
+  skipCommit: boolean,
+  attempt: O.Option<YeetAttemptStarted> = O.none()
 ): Effect.fn.Return<
   YeetRunResult,
   YeetCommandError,
-  Crypto.Crypto | FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  Crypto.Crypto | FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner | MemoryStats
 > {
-  const gateResults = yield* runProofPhase(plan.context, gateSteps, recorder);
+  const gateResults = yield* runWithFullProofCoordinator(
+    plan.context,
+    gateSteps,
+    runProofPhase(plan.context, gateSteps, recorder),
+    { priority: "publish" },
+    attempt
+  );
   if (A.some(gateResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(
       plan.context,
@@ -1282,7 +1290,17 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
           skipCommit,
           attempt
         )
-      : runPushFirstPublishPhases(plan, options, fullSteps, publishSteps, monitorSteps, recorder, extras, skipCommit);
+      : runPushFirstPublishPhases(
+          plan,
+          options,
+          fullSteps,
+          publishSteps,
+          monitorSteps,
+          recorder,
+          extras,
+          skipCommit,
+          O.some(attempt)
+        );
 
   return yield* pipe(
     stash,
@@ -2265,7 +2283,16 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
       return yield* failWithIssueArtifacts(plan.context, prepareSteps, prepareResults, "yeet prepare phase failed.");
     }
 
-    const feedbackResults = yield* runPhase(plan.context, feedbackSteps, recorder);
+    const feedbackExecution = runPhase(plan.context, feedbackSteps, recorder);
+    const feedbackResults = yield* options.mode === "repair"
+      ? runWithFullProofCoordinator(
+          plan.context,
+          feedbackSteps,
+          feedbackExecution,
+          { priority: "verify" },
+          O.some(attempt)
+        )
+      : feedbackExecution;
     if (A.some(feedbackResults, (result) => result.exitCode !== 0)) {
       return yield* failWithIssueArtifacts(plan.context, feedbackSteps, feedbackResults, "yeet feedback phase failed.");
     }
@@ -2294,7 +2321,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   });
 
   const coordinatedExecution =
-    options.mode === "verify" && options.tier === "full"
+    options.mode === "verify" && (options.tier === "full" || options.tier === "cheap-gates")
       ? options.merged
         ? execution
         : runWithFullProofCoordinator(plan.context, fullSteps, execution, { priority: "verify" }, O.some(attempt))
@@ -2346,6 +2373,21 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     Effect.onExit((exit) => ensureAttemptTerminated(plan.context, attempt, terminalWritten, exit))
   );
 });
+
+/**
+ * Execute a hydrated plan through the runtime admission and verdict wiring.
+ *
+ * **Example** (Reference plan execution in a wiring test)
+ *
+ * ```ts
+ * import { runPlanExecutionForTesting } from "@beep/repo-cli/test/Yeet";
+ * console.log(typeof runPlanExecutionForTesting); // "function"
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const runPlanExecutionForTesting = runPlanExecution;
 
 /**
  * Prove the merge preview instead of the branch tree.
