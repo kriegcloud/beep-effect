@@ -245,7 +245,7 @@ class FenceCompilerOptions extends S.Opaque<FenceCompilerOptions, { readonly bra
     tsBuildInfoFile: S.Null,
     noUnusedLocals: S.Boolean,
     noUnusedParameters: S.Boolean,
-    moduleDetection: S.Literal("force"),
+    moduleDetection: S.tag("force"),
     plugins: S.Array(LanguageServicePlugin),
   }).pipe(
     $I.annoteSchema("FenceCompilerOptions", {
