@@ -322,8 +322,10 @@ query the caller runs on that connection outside the client.
   text. `DROP SCHEMA` and `DETACH` refresh the snapshot; this does not reset
   the native writer search path. Schema creation/replacement and `ATTACH` also
   refresh it, so recreated schemas and reattached catalogs become usable by
-  readers again. Entries naming missing schemas are omitted
-  from reader snapshots, preserving valid entry order and quoting. After
+  readers again. The writer snapshot retains the raw path. At each lease, readers omit
+  missing schemas against their own committed catalog inside the read-only
+  transaction, preserving valid entry order and quoting. Uncommitted writer
+  schema drops do not affect reader resolution. After
   `USE memory.s; DROP SCHEMA s`, readers resolve through `main` as the writer
   does, while the writer retains `memory.s`. On DuckDB 1.5.6, a detached catalog
   retained in the path can prevent binding the snapshot query itself; readers

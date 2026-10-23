@@ -1147,6 +1147,35 @@ describe("DuckDbClient", { concurrent: false }, () => {
 describe("DuckDbClient reader connections", { concurrent: false }, () => {
   it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
     it.effect(
+      "resolves reader paths against committed schemas during a writer transaction",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE main.probe_t AS SELECT 1 AS v`;
+        yield* sql`CREATE SCHEMA probe_s`;
+        yield* sql`CREATE TABLE probe_s.probe_t AS SELECT 42 AS v`;
+        yield* sql`USE memory.probe_s`;
+        const query = sql`SELECT v FROM probe_t`;
+        // The first lease must use the committed schema despite the writer's DROP.
+        yield* sql`BEGIN`;
+        yield* sql`DROP SCHEMA probe_s CASCADE`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql`ROLLBACK`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        // The reused lease must normalize again after COMMIT, then see recreation.
+        yield* sql`BEGIN`;
+        yield* sql`DROP SCHEMA probe_s CASCADE`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql`COMMIT`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 1 }]);
+        yield* sql`CREATE SCHEMA probe_s`;
+        yield* sql`CREATE TABLE probe_s.probe_t AS SELECT 99 AS v`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 99 }]);
+      })
+    );
+  });
+
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
+    it.effect(
       "filters dangling qualified paths for fresh and resynchronized reader leases",
       Effect.fnUntraced(function* () {
         // This isolated layer guarantees the first lease has no applied snapshot.

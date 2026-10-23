@@ -81,7 +81,7 @@ class SessionSnapshot extends S.Opaque<SessionSnapshot, { readonly brand: unique
 const decodeSessionSnapshot = S.decodeUnknownEffect(SessionSnapshot);
 const decodeSessionSchemas = S.decodeUnknownEffect(S.Array(S.Struct({ catalog: S.String, schema: S.String })));
 const SESSION_QUERY =
-  "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar, database_name AS catalog, schema_name AS schema FROM duckdb_schemas()";
+  "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar";
 
 // DuckDB retains dangling qualified entries after DROP SCHEMA. Tokenize only
 // outside quoted identifiers, retaining each surviving entry verbatim.
@@ -172,7 +172,7 @@ export type DuckDbConnection = SqlConnection.Connection & {
   readonly commit: Effect.Effect<void, SqlError>;
   readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly sessionSnapshot: Effect.Effect<SessionSnapshot, SqlError>;
-  readonly sameSessionSnapshot: ReturnType<typeof S.toEquivalence<SessionSnapshot>>;
+  readonly normalizeSessionSnapshot: (snapshot: SessionSnapshot) => Effect.Effect<SessionSnapshot, SqlError>;
   readonly runDriverStatement: (sql: string, operation: string) => Effect.Effect<void, SqlError>;
 };
 
@@ -277,24 +277,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     .runUnlocked("execute", () => native.runAndReadAll(SESSION_QUERY).then((result) => result.getRowObjects()))
     .pipe(
       Effect.flatMap((rows) =>
-        Effect.gen(function* () {
-          const current = yield* decodeSessionSnapshot(rows[0]);
-          const schemas = yield* decodeSessionSchemas(rows);
-          const searchPath = pipe(
-            searchPathEntries(current.searchPath),
-            A.filter((entry) => {
-              const identifiers = searchPathIdentifiers(entry);
-              return A.some(schemas, ({ catalog, schema }) =>
-                identifiers.length === 2
-                  ? Str.toLowerCase(catalog) === identifiers[0] && Str.toLowerCase(schema) === identifiers[1]
-                  : (catalog === current.database || catalog === "system" || catalog === "temp") &&
-                    Str.toLowerCase(schema) === identifiers[0]
-              );
-            }),
-            A.join(",")
-          );
-          return SessionSnapshot.make({ ...current, searchPath });
-        }).pipe(Effect.mapError((cause) => toSqlError(cause, "execute")))
+        decodeSessionSnapshot(rows[0]).pipe(Effect.mapError((cause) => toSqlError(cause, "execute")))
       ),
       Effect.exit,
       Effect.tap((result) => Effect.sync(() => MutableRef.set(snapshot, O.some(result)))),
@@ -596,7 +579,30 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         )
       ),
     sessionSnapshot,
-    sameSessionSnapshot: S.toEquivalence(SessionSnapshot),
+    normalizeSessionSnapshot: Effect.fnUntraced(function* (current) {
+      const rows = yield* gate.run("executeStream", () =>
+        native
+          .runAndReadAll("SELECT database_name AS catalog, schema_name AS schema FROM duckdb_schemas()")
+          .then((result) => result.getRowObjects())
+      );
+      const schemas = yield* decodeSessionSchemas(rows).pipe(
+        Effect.mapError((cause) => toSqlError(cause, "executeStream"))
+      );
+      const searchPath = pipe(
+        searchPathEntries(current.searchPath),
+        A.filter((entry) => {
+          const identifiers = searchPathIdentifiers(entry);
+          return A.some(schemas, ({ catalog, schema }) =>
+            identifiers.length === 2
+              ? Str.toLowerCase(catalog) === identifiers[0] && Str.toLowerCase(schema) === identifiers[1]
+              : (catalog === current.database || catalog === "system" || catalog === "temp") &&
+                Str.toLowerCase(schema) === identifiers[0]
+          );
+        }),
+        A.join(",")
+      );
+      return SessionSnapshot.make({ ...current, searchPath });
+    }),
     runDriverStatement: (sql, operation) => Effect.asVoid(runStatement(sql, [], operation, false, readRows, [])),
     execute: (sql, params, transformRows) => runRows(sql, params, "execute", true, transformRows),
     executeUnprepared: (sql, params, transformRows) => runRows(sql, params, "executeUnprepared", false, transformRows),
