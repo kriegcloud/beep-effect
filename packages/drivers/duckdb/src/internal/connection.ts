@@ -28,6 +28,7 @@ import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -78,8 +79,32 @@ class SessionSnapshot extends S.Opaque<SessionSnapshot, { readonly brand: unique
   }).pipe($I.annoteSchema("SessionSnapshot", { description: "Resolved writer session settings mirrored to readers." }))
 ) {}
 const decodeSessionSnapshot = S.decodeUnknownEffect(SessionSnapshot);
+const decodeSessionSchemas = S.decodeUnknownEffect(S.Array(S.Struct({ catalog: S.String, schema: S.String })));
 const SESSION_QUERY =
-  "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar";
+  "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar, database_name AS catalog, schema_name AS schema FROM duckdb_schemas()";
+
+// DuckDB retains dangling qualified entries after DROP SCHEMA. Tokenize only
+// outside quoted identifiers, retaining each surviving entry verbatim.
+const searchPathEntries = (path: string): ReadonlyArray<string> =>
+  pipe(
+    path,
+    Str.matchAll(/(?:"(?:[^"]|"")*"|[^,])+/g),
+    A.fromIterable,
+    A.map((match) => match[0])
+  );
+const searchPathIdentifiers = (entry: string): ReadonlyArray<string> =>
+  pipe(
+    entry,
+    Str.matchAll(/"(?:[^"]|"")*"|[^.]+/g),
+    A.fromIterable,
+    A.map((match) =>
+      pipe(
+        match[0],
+        (part) => (Str.startsWith('"')(part) ? pipe(part, Str.slice(1, -1), Str.replaceAll('""', '"')) : part),
+        Str.toLowerCase
+      )
+    )
+  );
 const changesSession = (sql: string): boolean =>
   A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET|PRAGMA)\b/i.test(text));
 
@@ -249,7 +274,24 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     .runUnlocked("execute", () => native.runAndReadAll(SESSION_QUERY).then((result) => result.getRowObjects()))
     .pipe(
       Effect.flatMap((rows) =>
-        decodeSessionSnapshot(rows[0]).pipe(Effect.mapError((cause) => toSqlError(cause, "execute")))
+        Effect.gen(function* () {
+          const current = yield* decodeSessionSnapshot(rows[0]);
+          const schemas = yield* decodeSessionSchemas(rows);
+          const searchPath = pipe(
+            searchPathEntries(current.searchPath),
+            A.filter((entry) => {
+              const identifiers = searchPathIdentifiers(entry);
+              return A.some(schemas, ({ catalog, schema }) =>
+                identifiers.length === 2
+                  ? Str.toLowerCase(catalog) === identifiers[0] && Str.toLowerCase(schema) === identifiers[1]
+                  : (catalog === current.database || catalog === "system" || catalog === "temp") &&
+                    Str.toLowerCase(schema) === identifiers[0]
+              );
+            }),
+            A.join(",")
+          );
+          return SessionSnapshot.make({ ...current, searchPath });
+        }).pipe(Effect.mapError((cause) => toSqlError(cause, "execute")))
       ),
       Effect.exit,
       Effect.tap((result) => Effect.sync(() => MutableRef.set(snapshot, O.some(result)))),

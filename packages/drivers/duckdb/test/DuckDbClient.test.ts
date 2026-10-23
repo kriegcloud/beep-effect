@@ -1147,6 +1147,80 @@ describe("DuckDbClient", { concurrent: false }, () => {
 describe("DuckDbClient reader connections", { concurrent: false }, () => {
   it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
     it.effect(
+      "filters dangling qualified paths for fresh and resynchronized reader leases",
+      Effect.fnUntraced(function* () {
+        // This isolated layer guarantees the first lease has no applied snapshot.
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE main.probe_t AS SELECT 1 AS v`;
+        yield* sql`CREATE SCHEMA probe_s`;
+        yield* sql`USE memory.probe_s`;
+        yield* sql`DROP SCHEMA probe_s`;
+        const query = sql`SELECT v, current_setting('TimeZone') AS zone FROM probe_t`;
+        const writerPath = yield* sql`SELECT current_setting('search_path') AS path`;
+        assert.deepStrictEqual(writerPath, [{ path: "memory.probe_s" }]);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`SET TimeZone='Asia/Tokyo'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        assert.deepStrictEqual(yield* sql`SELECT current_setting('search_path') AS path`, writerPath);
+      })
+    );
+  });
+
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
+    it.effect(
+      "preserves valid path order and quoted identifiers around dropped entries",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE SCHEMA "first,.schema"`;
+        yield* sql`CREATE SCHEMA "second""schema"`;
+        yield* sql`CREATE SCHEMA gone`;
+        yield* sql`CREATE TABLE "first,.schema".probe_t AS SELECT 42 AS v`;
+        yield* sql`CREATE TABLE "second""schema".probe_t AS SELECT 99 AS v`;
+        yield* sql`SET search_path='memory.gone,memory."first,.schema",memory."second""schema"'`;
+        yield* sql`DROP SCHEMA gone`;
+        const query = sql`SELECT v FROM probe_t`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        assert.deepStrictEqual(yield* query, [{ v: 42 }]);
+        assert.deepStrictEqual(
+          A.fromIterable(yield* sql`SELECT current_setting('search_path') AS path`.stream.pipe(Stream.runCollect)),
+          [{ path: 'memory."first,.schema",memory."second""schema"' }]
+        );
+        yield* sql`SET search_path='MEMORY."FIRST,.SCHEMA",system.pg_catalog,memory."second""schema"'`;
+        const settings = sql`SELECT current_setting('search_path') AS path`;
+        assert.deepStrictEqual(A.fromIterable(yield* settings.stream.pipe(Stream.runCollect)), yield* settings);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+      })
+    );
+  });
+
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
+    it.effect(
+      "retains native DETACH snapshot failures and recovers after resetting the path",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE main.probe_t AS SELECT 1 AS v`;
+        yield* sql`ATTACH ':memory:' AS detached`;
+        yield* sql`CREATE TABLE detached.main.probe_t AS SELECT 42 AS v`;
+        yield* sql`SET search_path='memory.main,detached.main'`;
+        const query = sql`SELECT v FROM probe_t`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`DETACH detached`;
+        // DuckDB cannot bind even current_setting() while a detached catalog
+        // remains in the path. Snapshot refresh records this native failure.
+        const writerError = yield* query.pipe(Effect.flip);
+        const readerError = yield* query.stream.pipe(Stream.runCollect, Effect.flip);
+        assert.strictEqual(writerError.reason._tag, "SqlSyntaxError");
+        assert.strictEqual(readerError.reason._tag, writerError.reason._tag);
+        yield* sql`RESET search_path`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 1 }]);
+        yield* sql`SET TimeZone='Asia/Tokyo'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+      })
+    );
+  });
+
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
+    it.effect(
       "streams 10000 rows while every consumer statement uses the writer",
       Effect.fnUntraced(function* () {
         const sql = yield* DuckDbClient.DuckDbClient;
