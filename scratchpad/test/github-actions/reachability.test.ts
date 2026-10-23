@@ -352,9 +352,21 @@ describe("bundle reachability", () => {
 	it("no lab module reaches the markdown engine", () => {
 		// The reporting suite (`GitHubMarkdown`, `ManagedDocument`, `CheckState` and
 		// `CheckDocument`) ships as `@beep/github-reporting` since wave 3-1, and that
-		// package's own reachability test pins the writer's exact edge set. What stays
-		// here is the confinement half: no module left in the lab reaches
-		// `@beep/markdown`.
+		// package's own reachability test pins each of those modules' exact edge sets
+		// and its driver-free closure. What stays here is the confinement half: no
+		// module left in the lab reaches `@beep/markdown`. The controls come first,
+		// so a blinded walker fails here rather than passing every negative below:
+		// the specifier reader sees a markdown edge, and the graph walker sees a
+		// known lab edge.
+		assert.isTrue(
+			[...runtimeSpecifiers('import { Markdown } from "@beep/markdown/Markdown";')].some(reachesMarkdown),
+			"the specifier reader misses a markdown edge — the walker is blind",
+		);
+		assert.include(
+			[...reachableRuntimeImports("PackageManagerInstaller.ts")],
+			"@beep/npm-spec/PackageManagerPin",
+			"PackageManagerInstaller does not reach its pin vocabulary — the walker is blind",
+		);
 		for (const entry of LIGHT_MODULES) {
 			assert.isFalse(
 				[...reachableRuntimeImports(entry)].some(reachesMarkdown),

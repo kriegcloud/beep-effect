@@ -306,9 +306,9 @@ describe("GitHubMarkdown", () => {
       );
 
       // The obligation is enforced at the type level, in both directions:
-      // @ts-expect-error — a non-string-encoded field makes `options` required
+      // @ts-expect-error -- a non-string-encoded field makes `options` required. Owner: @beep/github-reporting. Exit: remove if the API is meant to accept this.
       GitHubMarkdown.tableFor(Row);
-      // @ts-expect-error — and its column entry cannot omit `format`
+      // @ts-expect-error -- and its column entry cannot omit `format`. Owner: @beep/github-reporting. Exit: remove if the API is meant to accept this.
       GitHubMarkdown.tableFor(Row, { columns: { at: { header: "When" } } });
     });
 

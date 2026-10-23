@@ -23,16 +23,19 @@ const timeOf = (rows: ReadonlyArray<ReadonlyArray<string>>): number => {
 };
 
 /**
- * The best time of each size over interleaved passes. Interleaving exposes
- * both sizes to the same GC and JIT phases; keeping the best damps that noise
- * without hiding an algorithmic blowup, which slows every pass.
+ * The best time of each size over interleaved passes, after one untimed
+ * warm-up of each. Interleaving exposes both sizes to the same GC and JIT
+ * phases; keeping the best damps that noise (and the constant factor that
+ * coverage instrumentation adds cancels in the ratio) without hiding an
+ * algorithmic blowup, which slows every pass: an O(n x depth) admission gives
+ * a ratio near 4, a linear one near 2.
  */
 const bestTimes = (
   small: ReadonlyArray<ReadonlyArray<string>>,
   large: ReadonlyArray<ReadonlyArray<string>>
 ): readonly [small: number, large: number] =>
   A.reduce(
-    A.makeBy(7, Num.increment),
+    A.makeBy(9, Num.increment),
     [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY] as const,
     ([bestSmall, bestLarge]) => [Num.min(bestSmall, timeOf(small)), Num.min(bestLarge, timeOf(large))] as const
   );
@@ -42,6 +45,8 @@ describe("GitHubMarkdown growth", () => {
     Effect.gen(function* () {
       const rows = yield* Arbitrary.sampleEffect(Arbitrary.schema(Row), { count: 10_000, seed: 31 });
       const half = A.take(rows, 5_000);
+      timeOf(half);
+      timeOf(rows);
       const [small, large] = bestTimes(half, rows);
       const ratio = large / small;
       assert.isAtMost(ratio, 2.5, `t(10k)/t(5k) = ${ratio}`);

@@ -24,6 +24,7 @@
  * Defaults: `--runs 5000`; without `--out` the report is printed.
  */
 import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -45,7 +46,7 @@ const SEED = 31;
 
 // --- report schema ------------------------------------------------------------
 
-const PropertyOutcome = S.Literals(["passed", "falsified", "exhausted", "replay-mismatch"]);
+const PropertyOutcome = LiteralKit(["passed", "falsified", "exhausted", "replay-mismatch"]);
 
 const PropertyResult = S.Struct({
   id: S.NonEmptyString,

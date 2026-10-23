@@ -10,6 +10,7 @@ import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -22,6 +23,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 import type * as Duration from "effect/Duration";
 
 const NS = "savvy-web";
@@ -83,6 +85,25 @@ describe("CheckDocument", () => {
           const text = all[0] ?? "";
           assert.include(text, "fail");
           assert.notInclude(text, "pass");
+        }).pipe(withLayer(layer));
+      })
+    );
+
+    it.effect("an invalid entry dies at the report call and leaves the registry usable", () =>
+      Effect.gen(function* () {
+        const { writes, layer } = yield* harness();
+        yield* Effect.gen(function* () {
+          const doc = yield* CheckDocument;
+          const exit = yield* Effect.exit(
+            doc.report("build", deliberatelyInvalid<CheckReport>({ state: "not-a-state" }))
+          );
+          assert.isTrue(Exit.hasDies(exit));
+          // The rejected entry never reached the registry, so later reports,
+          // reads and passes still work.
+          yield* doc.report("lint", CheckReport.make({ state: "pass" }));
+          assert.deepStrictEqual((yield* doc.checks).order, ["lint"]);
+          yield* TestClock.adjust("500 millis");
+          assert.strictEqual((yield* Ref.get(writes)).length, 1);
         }).pipe(withLayer(layer));
       })
     );

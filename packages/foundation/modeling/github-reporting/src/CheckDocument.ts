@@ -920,8 +920,12 @@ const makeCheckDocument = Effect.fnUntraced(function* <E>(options: CheckDocument
   const report: CheckDocumentShape["report"] = dual(
     2,
     Effect.fn("CheckDocument.report")(function* (check: string, entry: CheckReport) {
+      // Admitted here, O(1) per report: an invalid entry dies at the caller's
+      // `report`, not later inside the daemon pass, the `checks` read or the
+      // finalizer flush, where it would poison the registry for the run.
+      const admitted = CheckReport.make(entry);
       yield* Ref.update(checksRef, (current) => ({
-        checks: HashMap.set(current.checks, check, entry),
+        checks: HashMap.set(current.checks, check, admitted),
         order: HashMap.has(current.checks, check) ? current.order : A.append(current.order, check),
       }));
       yield* Ref.update(versionRef, (count) => count + 1);
