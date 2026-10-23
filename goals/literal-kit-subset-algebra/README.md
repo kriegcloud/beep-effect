@@ -36,8 +36,9 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P2 Verify — implementation and codemod migration done; package verification
-and the upstream issues are next.
+P3 Yeet — [#2080](https://github.com/beep-effect/beep-effect/pull/2080) driven to
+mergeable. Closeout reflection: `history/reflections/2026-10-22-claude.md`.
+Follow-up after merge: upstream PRs for Effect-TS/effect#9821 and #9822.
 
 ## Latest Evidence
 
