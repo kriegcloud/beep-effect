@@ -14,9 +14,11 @@ import {
 } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const HEX = "6a13657ec19f43b1d7b95c2f0a1c1e5b8d4f7a206a13657ec19f43b1d7b95c2f";
 
@@ -47,23 +49,23 @@ describe("Sha256Digest", () => {
   it("normalizes uppercase hex to lowercase", () => {
     // Both spellings name the same digest, and a subject that disagrees with a
     // verifier on case is an attestation nobody can match.
-    const parsed = Sha256Digest.parseResult(HEX.toUpperCase());
+    const parsed = Sha256Digest.parseResult(Str.toUpperCase(HEX));
     assertSuccess(parsed, digestOf(HEX));
     assert.strictEqual(parsed.success, HEX);
   });
 
   it("rejects a digest of the wrong length", () => {
-    const parsed = Sha256Digest.parseResult(HEX.slice(0, 63));
-    assertFailure(parsed, InvalidSha256DigestError.make({ input: HEX.slice(0, 63) }));
+    const parsed = Sha256Digest.parseResult(Str.slice(0, 63)(HEX));
+    assertFailure(parsed, InvalidSha256DigestError.make({ input: Str.slice(0, 63)(HEX) }));
     assert.instanceOf(parsed.failure, InvalidSha256DigestError);
-    assert.strictEqual(parsed.failure.input, HEX.slice(0, 63));
+    assert.strictEqual(parsed.failure.input, Str.slice(0, 63)(HEX));
   });
 
   it("rejects non-hex characters", () => {
     // `g` is the discriminating character: right length, wrong alphabet.
     assertFailure(
-      Sha256Digest.parseResult(`g${HEX.slice(1)}`),
-      InvalidSha256DigestError.make({ input: `g${HEX.slice(1)}` })
+      Sha256Digest.parseResult(`g${Str.slice(1)(HEX)}`),
+      InvalidSha256DigestError.make({ input: `g${Str.slice(1)(HEX)}` })
     );
     assertFailure(Sha256Digest.parseResult(""), InvalidSha256DigestError.make({ input: "" }));
   });
@@ -83,7 +85,7 @@ describe("Sha256Digest", () => {
 
   it.effect("the Effect form succeeds where the Result form does", () =>
     Effect.gen(function* () {
-      assert.strictEqual(yield* Sha256Digest.parse(`SHA256:${HEX.toUpperCase()}`), HEX);
+      assert.strictEqual(yield* Sha256Digest.parse(`SHA256:${Str.toUpperCase(HEX)}`), HEX);
     })
   );
 });
@@ -124,14 +126,14 @@ describe("InTotoStatement", () => {
   });
 
   it("carries every subject of a multi-subject statement, in order", () => {
-    const second = InTotoSubject.forSha256("pkg:npm/right-pad@1.0.0", digestOf(HEX.toUpperCase()));
+    const second = InTotoSubject.forSha256("pkg:npm/right-pad@1.0.0", digestOf(Str.toUpperCase(HEX)));
     const statement = InTotoStatement.of({
       subject: [subject, second],
       predicateType: "https://example.test/predicate/v1",
       predicate,
     });
     assert.deepStrictEqual(
-      statement.subject.map((entry) => entry.name),
+      A.map(statement.subject, (entry) => entry.name),
       ["pkg:npm/left-pad@1.0.0", "pkg:npm/right-pad@1.0.0"]
     );
   });
@@ -143,7 +145,7 @@ describe("InTotoStatement", () => {
       predicate,
     });
     const json = statement.toJson();
-    assert.isFalse(json.includes("\n"), "the DSSE payload is compact by default");
+    assert.isFalse(Str.includes("\n")(json), "the DSSE payload is compact by default");
     assert.deepStrictEqual<unknown>(JSON.parse(json), {
       _type: IN_TOTO_STATEMENT_V1,
       subject: [{ name: "pkg:npm/left-pad@1.0.0", digest: { sha256: HEX } }],
@@ -158,7 +160,7 @@ describe("InTotoStatement", () => {
       predicateType: "https://example.test/predicate/v1",
       predicate,
     }).toJson({ space: 2 });
-    assert.isTrue(json.includes("\n"));
+    assert.isTrue(Str.includes("\n")(json));
   });
 
   it("nests a typed predicate without wrapping or renaming a field of it", () => {

@@ -146,6 +146,7 @@ describe("bundle reachability", () => {
       "effect/Predicate",
       "effect/Record",
       "effect/Schema",
+      "effect/String",
     ]);
   });
 
@@ -158,8 +159,13 @@ describe("bundle reachability", () => {
       "effect/Function",
       "effect/Result",
       "effect/Schema",
+      "effect/String",
     ]);
-    assert.deepStrictEqual(runtimeClosure("SlsaProvenance.ts").packages, ["@beep/identity/packages", "effect/Schema"]);
+    assert.deepStrictEqual(runtimeClosure("SlsaProvenance.ts").packages, [
+      "@beep/identity/packages",
+      "effect/Schema",
+      "effect/String",
+    ]);
     assert.deepStrictEqual(runtimeClosure("NtiaReport.ts").packages, [
       "@beep/identity/packages",
       "@beep/schema/LiteralKit",

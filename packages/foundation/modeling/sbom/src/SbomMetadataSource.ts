@@ -17,10 +17,11 @@
 
 import { $SbomId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Component, ComponentType, Contact, ExternalReference, SbomMetadata, Supplier } from "./SbomDocument.ts";
 import type { Package } from "@beep/package-json/Package";
 import type { Person } from "@beep/package-json/Person";
@@ -44,11 +45,16 @@ const $I = $SbomId.create("SbomMetadataSource");
 // matching no published example.
 
 /** The purl namespace and name segments for an npm package name. */
-const purlSegments = (name: string): string => {
-  const separator = name.lastIndexOf("/");
-  if (!name.startsWith("@") || separator <= 0) return encodeURIComponent(name);
-  return `${encodeURIComponent(name.slice(0, separator))}/${encodeURIComponent(name.slice(separator + 1))}`;
-};
+const purlSegments = (name: string): string =>
+  pipe(
+    Str.lastIndexOf("/")(name),
+    O.filter((separator) => Str.startsWith("@")(name) && separator > 0),
+    O.match({
+      onNone: () => encodeURIComponent(name),
+      onSome: (separator) =>
+        `${encodeURIComponent(Str.slice(0, separator)(name))}/${encodeURIComponent(Str.slice(separator + 1)(name))}`,
+    })
+  );
 
 // Data-first dispatch for the package-first members. `Package` is a type-only
 // import here (a value import would drag package-json's runtime IO in), so the

@@ -12,6 +12,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const statementJson = S.fromJsonString(InTotoStatement);
@@ -50,7 +51,7 @@ it.effect.prop(
   [Arbitrary.schema(Sha256Digest)],
   ([digest]) =>
     Effect.gen(function* () {
-      const parsed = yield* Sha256Digest.parse(`SHA256:${digest.toUpperCase()}`);
+      const parsed = yield* Sha256Digest.parse(`SHA256:${Str.toUpperCase(digest)}`);
       assert.strictEqual(parsed, digest);
       assert.strictEqual(yield* Sha256Digest.parse(parsed), parsed);
       assert.strictEqual(yield* Effect.fromResult(Sha256Digest.parseResult(parsed)), parsed);

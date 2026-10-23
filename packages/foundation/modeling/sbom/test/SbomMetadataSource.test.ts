@@ -17,7 +17,16 @@
 import { Package } from "@beep/package-json/Package";
 import { Contact, SbomMetadata, SbomMetadataSource, Supplier } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import type { ExternalReference } from "@beep/sbom";
+
+/** The first external reference of one type, or `undefined`. */
+const referenceOf = (
+  references: ReadonlyArray<ExternalReference>,
+  type: ExternalReference["type"]
+): ExternalReference | undefined => O.getOrUndefined(A.findFirst(references, (reference) => reference.type === type));
 
 const manifest = {
   name: "@effected/sbom",
@@ -139,7 +148,7 @@ describe("SbomMetadataSource.rootComponent", () => {
     Effect.gen(function* () {
       const authors = SbomMetadataSource.rootComponent(yield* decode()).authors ?? [];
       assert.deepStrictEqual(
-        authors.map((author) => author.name),
+        A.map(authors, (author) => author.name),
         ["Ray", "Vee"]
       );
       assert.strictEqual(authors[0]?.email, "ray@example.com");
@@ -151,7 +160,7 @@ describe("SbomMetadataSource.rootComponent", () => {
       const { maintainers: _maintainers, ...withoutMaintainers } = manifest;
       const authors = SbomMetadataSource.rootComponent(yield* decode(withoutMaintainers)).authors ?? [];
       assert.deepStrictEqual(
-        authors.map((author) => author.name),
+        A.map(authors, (author) => author.name),
         ["Dee"]
       );
     })
@@ -201,7 +210,7 @@ describe("SbomMetadataSource.externalReferences", () => {
       // `https://github.com/effected/kit`. The normalization is
       // `Repository.browseUrl`'s; this package only chooses the reference type.
       const references = SbomMetadataSource.externalReferences(yield* decode());
-      const vcs = references.find((reference) => reference.type === "vcs");
+      const vcs = referenceOf(references, "vcs");
       assert.strictEqual(vcs?.url, "https://github.com/effected/kit");
     })
   );
@@ -209,7 +218,7 @@ describe("SbomMetadataSource.externalReferences", () => {
   it.effect("normalizes the scp-like git form the predecessor's regex chain also handled", () =>
     Effect.gen(function* () {
       const pkg = yield* decode({ ...manifest, repository: "git@github.com:effected/kit.git" });
-      const vcs = SbomMetadataSource.externalReferences(pkg).find((reference) => reference.type === "vcs");
+      const vcs = referenceOf(SbomMetadataSource.externalReferences(pkg), "vcs");
       assert.strictEqual(vcs?.url, "https://github.com/effected/kit");
     })
   );
@@ -219,28 +228,22 @@ describe("SbomMetadataSource.externalReferences", () => {
       // The discriminating negative: an externalReference.url that is not a URL
       // is a document that validates and misleads.
       const pkg = yield* decode({ ...manifest, repository: "  " });
-      assert.isUndefined(SbomMetadataSource.externalReferences(pkg).find((r) => r.type === "vcs"));
+      assert.isUndefined(referenceOf(SbomMetadataSource.externalReferences(pkg), "vcs"));
     })
   );
 
   it.effect("maps bugs onto issue-tracker and homepage onto documentation", () =>
     Effect.gen(function* () {
       const references = SbomMetadataSource.externalReferences(yield* decode());
-      assert.strictEqual(
-        references.find((reference) => reference.type === "issue-tracker")?.url,
-        "https://github.com/effected/kit/issues"
-      );
-      assert.strictEqual(
-        references.find((reference) => reference.type === "documentation")?.url,
-        "https://effected.dev"
-      );
+      assert.strictEqual(referenceOf(references, "issue-tracker")?.url, "https://github.com/effected/kit/issues");
+      assert.strictEqual(referenceOf(references, "documentation")?.url, "https://effected.dev");
     })
   );
 
   it.effect("emits no issue-tracker reference for an email-only bugs entry", () =>
     Effect.gen(function* () {
       const pkg = yield* decode({ ...manifest, bugs: { email: "bugs@example.com" } });
-      assert.isUndefined(SbomMetadataSource.externalReferences(pkg).find((r) => r.type === "issue-tracker"));
+      assert.isUndefined(referenceOf(SbomMetadataSource.externalReferences(pkg), "issue-tracker"));
     })
   );
 
@@ -249,10 +252,7 @@ describe("SbomMetadataSource.externalReferences", () => {
       const references = SbomMetadataSource.externalReferences(yield* decode(), {
         documentationUrl: "https://docs.example",
       });
-      assert.strictEqual(
-        references.find((reference) => reference.type === "documentation")?.url,
-        "https://docs.example"
-      );
+      assert.strictEqual(referenceOf(references, "documentation")?.url, "https://docs.example");
     })
   );
 
@@ -261,15 +261,13 @@ describe("SbomMetadataSource.externalReferences", () => {
       const pkg = yield* decode();
       const supplier = Supplier.make({ name: "Acme", url: ["https://acme.example"] });
       assert.strictEqual(
-        SbomMetadataSource.externalReferences(pkg, { supplier }).find((r) => r.type === "website")?.url,
+        referenceOf(SbomMetadataSource.externalReferences(pkg, { supplier }), "website")?.url,
         "https://acme.example"
       );
 
       // Same URL twice is one reference, not two rows saying the same thing.
       const same = Supplier.make({ name: "Acme", url: ["https://effected.dev"] });
-      assert.isUndefined(
-        SbomMetadataSource.externalReferences(pkg, { supplier: same }).find((r) => r.type === "website")
-      );
+      assert.isUndefined(referenceOf(SbomMetadataSource.externalReferences(pkg, { supplier: same }), "website"));
     })
   );
 
@@ -296,7 +294,7 @@ describe("SbomMetadataSource.fromPackage", () => {
     Effect.gen(function* () {
       const metadata = SbomMetadataSource.fromPackage(yield* decode(), { supplier: Supplier.make({ name: "Acme" }) });
       assert.deepStrictEqual(
-        (metadata.supplier?.contact ?? []).map((contact) => contact.name),
+        A.map(metadata.supplier?.contact ?? [], (contact) => contact.name),
         ["Ray", "Vee"]
       );
     })
@@ -307,7 +305,7 @@ describe("SbomMetadataSource.fromPackage", () => {
       const supplier = Supplier.make({ name: "Acme", contact: [Contact.make({ name: "Support" })] });
       const metadata = SbomMetadataSource.fromPackage(yield* decode(), { supplier });
       assert.deepStrictEqual(
-        (metadata.supplier?.contact ?? []).map((contact) => contact.name),
+        A.map(metadata.supplier?.contact ?? [], (contact) => contact.name),
         ["Support"]
       );
     })
@@ -368,7 +366,10 @@ describe("SbomMetadataSource.fromPackage", () => {
       assert.strictEqual(root.publisher, "Dee");
       assert.isUndefined(root.copyright);
       assert.isTrue(
-        root.externalReferences?.some((ref) => ref.type === "documentation" && ref.url === "https://effected.dev")
+        A.some(
+          root.externalReferences ?? [],
+          (ref) => ref.type === "documentation" && ref.url === "https://effected.dev"
+        )
       );
     })
   );

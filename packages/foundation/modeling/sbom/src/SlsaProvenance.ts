@@ -17,6 +17,7 @@
 
 import { $SbomId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { PredicateType } from "./InTotoStatement.ts";
 
 const $I = $SbomId.create("SlsaProvenance");
@@ -353,7 +354,7 @@ export type GitHubWorkflowProvenance = typeof GitHubWorkflowProvenance.Type;
  * included — a divergence here is a divergence in the emitted predicate.
  */
 const workflowPathOf = (input: GitHubWorkflowProvenance): string =>
-  input.workflowRef.replace(`${input.repository}/`, "").replace(/@[\s\S]*$/, "");
+  Str.replace(/@[\s\S]*$/, "")(Str.replace(`${input.repository}/`, "")(input.workflowRef));
 
 /**
  * A SLSA Provenance v1 predicate.

@@ -9,7 +9,9 @@
 import { Component, Contact, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const ComponentDocument = S.Struct({
   metadata: S.Struct({ component: S.Record(S.String, S.Unknown) }),
@@ -58,7 +60,7 @@ describe("Sbom.generate", () => {
     // digest changes for no reason and an attestation subject drifts with it.
     const document = Sbom.generate({ root, components: [dep("zulu", "1.0.0"), dep("alpha", "2.0.0")] });
     assert.deepStrictEqual(
-      document.components.map((c) => c.name),
+      A.map(document.components, (c) => c.name),
       ["alpha", "zulu"]
     );
   });
@@ -116,7 +118,7 @@ describe("Sbom.toJson", () => {
 
   it("honours an explicit indent", () => {
     const dense = Sbom.toJson(Sbom.generate({ root, components: [] }), { space: 0 });
-    assert.isFalse(dense.includes("\n"));
+    assert.isFalse(Str.includes("\n")(dense));
   });
 
   it("accepts statically-undefined inputs under exactOptionalPropertyTypes", () => {
@@ -127,7 +129,7 @@ describe("Sbom.toJson", () => {
       space: undefined,
     };
     const json = Sbom.toJson(Sbom.generate({ root, components: [], metadata: input.metadata }), { space: input.space });
-    assert.isTrue(json.includes("\n"));
+    assert.isTrue(Str.includes("\n")(json));
     assert.strictEqual(json, Sbom.toJson(Sbom.generate({ root, components: [] })));
   });
 });

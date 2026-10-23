@@ -8,6 +8,8 @@
 
 import { Component, Contact, NtiaReport, Sbom, SbomDocument, SbomMetadata, Supplier } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import type { NtiaElementId } from "@beep/sbom";
 
 const root = Component.make({
@@ -33,7 +35,7 @@ const compliant = (metadata?: Partial<Parameters<typeof SbomMetadata.make>[0]>) 
   });
 
 const elementOf = (document: SbomDocument, id: NtiaElementId) => {
-  const found = NtiaReport.of(document).elements.find((element) => element.id === id);
+  const found = O.getOrUndefined(A.findFirst(NtiaReport.of(document).elements, (element) => element.id === id));
   assert.isDefined(found, `the report has no ${id} element`);
   return found;
 };
@@ -42,7 +44,7 @@ const satisfies = (document: SbomDocument, id: NtiaElementId): boolean => elemen
 
 describe("NtiaReport.of — the seven elements", () => {
   it("reports every element exactly once, in the published order", () => {
-    const ids = NtiaReport.of(compliant()).elements.map((element) => element.id);
+    const ids = A.map(NtiaReport.of(compliant()).elements, (element) => element.id);
     assert.deepStrictEqual(ids, [
       "supplierName",
       "componentName",

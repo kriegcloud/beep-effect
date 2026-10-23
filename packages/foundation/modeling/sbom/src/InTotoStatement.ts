@@ -12,6 +12,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as Brand from "effect/Brand";
 import type { SbomJsonOptions } from "./Sbom.ts";
 
@@ -124,7 +125,7 @@ const SHA256_RE = /^[0-9a-f]{64}$/u;
 /** The `sha256:` prefix a caller may have carried in from a digest reference. */
 const SHA256_PREFIX_RE = /^sha256:/i;
 
-const normalizeDigest = (value: string): string => value.replace(SHA256_PREFIX_RE, "").toLowerCase();
+const normalizeDigest = (value: string): string => Str.toLowerCase(Str.replace(SHA256_PREFIX_RE, "")(value));
 
 /** Statics attached to the {@link (Sha256Digest:variable)} schema. */
 interface Sha256DigestStatics {

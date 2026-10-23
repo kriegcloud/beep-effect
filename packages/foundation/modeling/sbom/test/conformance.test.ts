@@ -17,7 +17,9 @@ import { Component, Contact, ExternalReference, Sbom, SbomMetadata, Supplier } f
 import { isValidExpression, License } from "@beep/spdx";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import VENDORED_SCHEMA from "./fixtures/bom-1.6.SNAPSHOT.schema.json" with { type: "json" };
 
@@ -134,7 +136,7 @@ describe("CycloneDX 1.6 conformance — derived from the vendored schema", () =>
     const permitted = definition("component").properties?.type?.enum ?? [];
     assert.isAbove(permitted.length, 0);
     const document = emitted();
-    const types = [document.metadata.component.type, ...document.components.map((c) => c.type)];
+    const types = [document.metadata.component.type, ...A.map(document.components, (c) => c.type)];
     for (const type of types) {
       assert.include(permitted, type, `${type} is not a CycloneDX component type`);
     }
@@ -164,23 +166,23 @@ describe("CycloneDX 1.6 conformance — derived from the vendored schema", () =>
     // The `bom-ref` guard, generalized. A key the specification does not define
     // is either a typo or an invention, and both produce a document that looks
     // right to us and wrong to a verifier.
-    const known = (name: string) => new Set(Object.keys(definition(name).properties ?? {}));
+    const known = (name: string): ReadonlyArray<string> => R.keys(definition(name).properties ?? {});
     const document = emitted();
 
     const componentKeys = known("component");
     const rootComponent = document.metadata.component;
-    for (const key of Object.keys(rootComponent)) {
-      assert.isTrue(componentKeys.has(key), `component.${key} is not in the CycloneDX component definition`);
+    for (const key of R.keys(rootComponent)) {
+      assert.isTrue(A.contains(componentKeys, key), `component.${key} is not in the CycloneDX component definition`);
     }
 
     const metadataKeys = known("metadata");
-    for (const key of Object.keys(document.metadata)) {
-      assert.isTrue(metadataKeys.has(key), `metadata.${key} is not in the CycloneDX metadata definition`);
+    for (const key of R.keys(document.metadata)) {
+      assert.isTrue(A.contains(metadataKeys, key), `metadata.${key} is not in the CycloneDX metadata definition`);
     }
 
-    const documentKeys = new Set(Object.keys(SCHEMA.properties ?? {}));
-    for (const key of Object.keys(document)) {
-      assert.isTrue(documentKeys.has(key), `${key} is not a CycloneDX document property`);
+    const documentKeys = R.keys(SCHEMA.properties ?? {});
+    for (const key of R.keys(document)) {
+      assert.isTrue(A.contains(documentKeys, key), `${key} is not a CycloneDX document property`);
     }
   });
 });
@@ -212,7 +214,7 @@ describe("licenses — the three shapes the schema permits, chosen by @effected/
   // `@effected/spdx` — the kit's one SPDX engine — never by a local regex.
 
   it("the schema's license object offers exactly an id branch and a name branch", () => {
-    const branches = (definition("license").oneOf ?? []).flatMap((branch) => branch.required ?? []);
+    const branches = A.flatMap(definition("license").oneOf ?? [], (branch) => branch.required ?? []);
     assert.deepStrictEqual(branches, ["id", "name"]);
   });
 
@@ -258,12 +260,12 @@ describe("licenses — the three shapes the schema permits, chosen by @effected/
   });
 
   it("emits only keys the schema's license object defines", () => {
-    const known = new Set(Object.keys(definition("license").properties ?? {}));
+    const known = R.keys(definition("license").properties ?? {});
     for (const entry of licensesOf("MIT")) {
       const license = entry.license;
       assertTrue(P.isObject(license));
-      for (const key of Object.keys(license)) {
-        assert.isTrue(known.has(key), `license.${key} is not in the CycloneDX license definition`);
+      for (const key of R.keys(license)) {
+        assert.isTrue(A.contains(known, key), `license.${key} is not in the CycloneDX license definition`);
       }
     }
   });
