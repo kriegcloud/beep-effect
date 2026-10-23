@@ -40,6 +40,10 @@ stream-console row. Seven open rows became exceptions (below). A second scan rep
 `introduced=0 resolved=0`. The rewrite also refreshes line numbers for 108 rows whose files
 moved on `main` since the last write; those rows keep their status and reason.
 
+Review round 1 (below) restores two of those 81 rows, `ci-heavy-admission.test.ts:430/:446`,
+to open. The wave's net is 79 repairs (54 exceptions, 25 open) plus the inherited row, so the
+EV002 open count after the wave is 173, not 171.
+
 ## Repair 1: EV015 top-level single-test layer blocks
 
 **Ruling: a true false positive.** `@effect/vitest` 4.0.5 `makeLayer`
@@ -164,14 +168,31 @@ value, and `it.layer` cannot express them.
 A single body-derived provision is not exempt. Wave 3 migrated such tests to a nested
 `it.layer(Layer.unwrap(...))`.
 
-**Recognition** (`repeatsTestBodyLifecycle`). An EV002 provision is exempt when all of these
-hold:
+**Recognition** (`repeatsTestBodyLifecycle`, narrowed in review round 1 below). An EV002
+provision is exempt when another `Effect.provide`/`provideScopedLayer` call in the same test
+callback provides the same layer and both name the same store:
 
-- its layer reads a `const`/`let` or binding element declared inside the enclosing test
-  callback. Parameters do not count, and binding resolution ignores name positions.
-- another `Effect.provide`/`provideScopedLayer` call in the same callback reads the same
-  declaration.
-- both start a lifecycle: neither is a pure `Layer.succeed`/`mock`/`empty` stub, a
+- **Same layer.** Each provided layer is reduced to lifecycle keys (`lifecycleKeys`):
+  - a test-body layer binding is a key, and so is everything its initializer builds;
+  - a factory call is a key named by its callee text (`Pglite.makeLayer`, `makeGoldTestLayer`);
+  - `Layer.merge`/`mergeAll`/`provide`/`provideMerge`/`fresh` and `.pipe(...)` stages
+    contribute their operands' keys, never a key of their own.
+
+  Two provisions match only on an equal key. Different factories over the same directory stay
+  EV002.
+- **Same store.** The matching keys must share store evidence (`storeEvidence`): a variable
+  declared in the test body that the binding's initializer, or the factory's arguments, read
+  directly, such as a directory or path. These never count as evidence:
+  - service tags yielded from the context (`yield* Path.Path`, `yield* FileSystem.FileSystem`;
+    a non-call `yield*` of a PascalCase reference);
+  - `Ref.make` bindings;
+  - `ConfigProvider.layer`/`layerAdd` bindings;
+  - function-valued bindings (same-file helpers);
+  - the factory callee itself.
+
+  Layer-valued bindings (`Layer.*`/`Context.*` constructors) are followed but are not evidence.
+  No other value is followed, so two stores derived from one corpus root stay distinct.
+- **Both start a lifecycle.** Neither is a pure `Layer.succeed`/`mock`/`empty` stub, a
   `Context.*` value, or a context bound from `yield* Layer.build(...)`/`buildWithScope(...)`.
   A built context is built once, and providing it again rebuilds nothing.
 
@@ -206,8 +227,9 @@ exceptions.**
   - `EdgeAuthority.restart.pglite.test.ts:280`;
   - `Gold.test.ts` :547/:560;
   - `PracticeKg.projections.test.ts` :1992/:2183/:2187/:2194/:2350/:2380/:2414/:2424/:2434.
-- Other open rows: `ci-heavy-admission.test.ts` :430/:446. Two admission runs over the
-  body's `env` and `commands`; the second reads the output file the first wrote.
+- Other open rows: `ci-heavy-admission.test.ts` :430/:446 were retired by the first version
+  of the rule. They came back open in review round 1 (below), so the final count is 13 open
+  rows retired by this repair, including the inherited one.
 - Exceptions whose reasons already named the reopen or rerun:
   - `PracticeKg.projections` ×19, the `claimsLayer`/`host` reopen family;
   - `Gold.test.ts` :511/:522/:590/:614;
@@ -218,6 +240,74 @@ exceptions.**
 
 **Reversal**: drop `!repeatsTestBodyLifecycle(...)` from `emitLayerProvision`, then `--write`
 and restore the 28 reasons from the base inventory.
+
+## Review round 1 (#2186)
+
+**PRRT_kwDOPbO_N86vy825 (P2).** The first rule exempted a provision whenever another
+built-layer provision in the same test read any of the same test-body declarations. A shared
+utility binding was enough, such as a `Path` service, a `Ref` or a body
+`ConfigProvider.layer`. It had retired `ci-heavy-admission.test.ts:430/:446`: two runs of
+different stub-spawner layers over a shared `Ref` (`commands`) and config layer (`env`). That
+is not the open/close/reopen shape.
+
+**Fix.** Matching now requires the same lifecycle key (the same layer binding or the same
+factory callee) plus shared store evidence, which ignores service tags, refs, config layers,
+function values and the callee itself. The precise rule is under Repair 3 above.
+
+Failing-first fixtures, added to the same case:
+
+- Still EV002, 2 rows each:
+  - two different `L.mergeAll(gitSpawner(..., commands), env)` layers over a `Ref.make`
+    binding and a `ConfigProvider.layer` binding;
+  - two `Store.makeLayer({ dataDir: path.join("fixtures", "a") })` sharing only a
+    `yield* Path.Path` binding;
+  - `Store.makeLayer` and `Cache.makeLayer` over the same `dataDir`.
+- Still exempt, mirroring the retired PracticeKg shapes:
+  - a body `target = Store.makeLayer({ dataDir: path.join(out, "kg") })` provided twice
+    beside a `Path` service;
+  - a `host` built by `L.mergeAll(...).pipe(L.provide(resources))` over a store layer,
+    provided twice.
+
+The case failed at the positive loop (`test/effect-vitest-detectors.test.ts:1983`) under the
+first rule.
+
+Two intermediate versions were measured with `--write` against the lane head (`d3dcdbd0ac`)
+and rejected:
+
+- Following evidence transitively through every binding exempted
+  `PracticeKg.projections.test.ts:2468` (one of the seven register rows) and `:2344`, because
+  `brokenBundle` and `bundleOut` both derive from `corpusRoot`.
+- Counting the callee and function-valued helpers as evidence exempted
+  `semantica/test/Projection.test.ts:234/:244` through the shared `support` helper.
+
+Both are excluded in the final rule.
+
+**Inventory**, from the lane head with `lint effect-vitest --write`:
+
+- Exactly two rows come back: `EV002:packages/tooling/tool/cli/test/ci-heavy-admission.test.ts:430:provideScopedLayer@16#1`
+  and `:446:provideScopedLayer@44#1`. Both are `open`, their status on `main`, and their
+  reason (none) is unchanged.
+- No other row changes.
+- All 7 `#1855 wave 4 register` exceptions are present. Two are re-keyed by the main merge:
+  `PracticeKg.projections.test.ts:1776` and `:2468`, formerly `:1761` and `:2453`.
+- A second `--write` is byte-identical (sha256 check OK).
+- Every row's `(ruleId, file, symbol, occurrence)` key exists in `origin/main`'s inventory,
+  so no row is introduced.
+- `lint effect-vitest` reports 1,213 findings, `introduced=0 resolved=0`: 706 exceptions
+  and 507 open.
+
+Wave totals after the round: the repairs retire 79 rows (54 exceptions, 25 open), plus the
+one inherited row.
+
+**Verification**, each run alone through `beep-heavy` with `</dev/null`, after rebuilding the
+dependency dists:
+
+- repo-cli `bun run check` exits 0, and `tsc-rs -p test/tsconfig.json --noEmit` exits 0 with
+  0 errors.
+- effect-vitest-contract, -detectors, -primitives, -store and lint-command pass 354/354 on Bun
+  and 354/354 on Node.
+- Biome and oxlint are clean on the changed files.
+- `quality fallow audit --base origin/main --check` is ok with 0 findings.
 
 ## Kept as justified exceptions: EV004 scope-close assertions and four EV002 reopen rows
 
@@ -364,6 +454,6 @@ cross-provider lane.
 
 ## Reversal
 
-Revert the PR. The 81 rows come back from the base inventory with their status and
+Revert the PR. The 79 rows come back from the base inventory with their status and
 reasons, and the seven converted rows return to `open`. The inherited stream-console row
 stays resolved, because `main` removed its source. Per-repair reversals are listed above.

@@ -1791,7 +1791,7 @@ const isLayerProvisionCall = (call: CallExpression, imports: EffectVitestImports
 
 // Variables declared inside the test callback that a provided layer expression reads.
 const testBodyBindings = (
-  layer: Expression,
+  layer: MorphNode,
   callback: EffectVitestFunctionNode,
   imports: EffectVitestImports
 ): ReadonlyArray<MorphNode> =>
@@ -1810,12 +1810,115 @@ const testBodyBindings = (
           )
   );
 
-// `it.layer` builds one layer per block. A test that provides two built layers over the same
-// test-body value (open, close, reopen one store) owns several lifecycles that `it.layer` cannot express.
+const REF_MODULES = ["effect", "effect/Ref"];
+const CONFIG_PROVIDER_MODULES = ["effect", "effect/ConfigProvider"];
+const LAYER_COMBINATORS = ["merge", "mergeAll", "provide", "provideMerge", "fresh"];
+const LAYER_VALUES = [...LAYER_COMBINATORS, "succeed", "sync", "effect", "scoped", "unwrap", "mock", "empty"];
+
+const yieldedOperand = (initializer: Expression): O.Option<Expression> =>
+  Node.isYieldExpression(initializer) ? O.fromUndefinedOr(initializer.getExpression()) : O.some(initializer);
+
+// `yield* Path.Path` or `yield* FileSystem.FileSystem` reads a service tag; refs and config layers hold no store.
+const isUtilityInitializer = (initializer: Expression, imports: EffectVitestImports): boolean =>
+  O.match(yieldedOperand(initializer), {
+    onNone: constTrue,
+    onSome: (operand) =>
+      (Node.isYieldExpression(initializer) &&
+        (Node.isIdentifier(operand) || Node.isPropertyAccessExpression(operand)) &&
+        O.isSome(Str.match(/^[A-Z]/u)(Node.isIdentifier(operand) ? operand.getText() : operand.getName()))) ||
+      (Node.isCallExpression(operand) &&
+        (isProvenanceCall(operand, imports, REF_MODULES, "Ref", ["make"]) ||
+          isProvenanceCall(operand, imports, CONFIG_PROVIDER_MODULES, "ConfigProvider", ["layer", "layerAdd"]))),
+  });
+
+const isLayerValue = (expression: Expression, imports: EffectVitestImports): boolean =>
+  Node.isCallExpression(expression) &&
+  (isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", LAYER_VALUES) ||
+    isProvenanceCall(expression, imports, CONTEXT_MODULES, "Context", ["make", "add", "merge", "empty"]));
+
+const isLayerCombinator = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, LAYER_MODULES, "Layer", LAYER_COMBINATORS);
+
+const bodyDeclarationInitializer = (declaration: MorphNode): O.Option<Expression> =>
+  Node.isVariableDeclaration(declaration)
+    ? O.fromUndefinedOr(declaration.getInitializer())
+    : O.fromUndefinedOr(declaration.getFirstAncestorByKind(SyntaxKind.VariableDeclaration)?.getInitializer());
+
+// Test-body values a layer reads directly that can name its store: a directory, a path, a fixture. Service
+// tags, refs and config layers never count; layer-valued bindings are followed but are not evidence themselves,
+// and other values are not followed, so two stores derived from one corpus root stay distinct.
+const storeEvidence = (
+  node: MorphNode,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports,
+  seen: Array<MorphNode>
+): ReadonlyArray<MorphNode> =>
+  A.flatMap(testBodyBindings(node, callback, imports), (declaration) => {
+    if (A.some(seen, (visited) => visited === declaration)) return [];
+    seen.push(declaration);
+    return O.match(bodyDeclarationInitializer(declaration), {
+      onNone: () => [declaration],
+      onSome: (initializer) => {
+        if (isUtilityInitializer(initializer, imports) || isFunctionValue(initializer)) return [];
+        return O.exists(yieldedOperand(initializer), (operand) => isLayerValue(operand, imports))
+          ? storeEvidence(initializer, callback, imports, seen)
+          : [declaration];
+      },
+    });
+  });
+
+type LifecycleKey = { readonly key: MorphNode | string; readonly evidence: ReadonlyArray<MorphNode> };
+
+// The constructors a provided layer builds: a test-body layer binding (and what it builds), or a layer
+// factory call named by its callee. Layer combinators and `.pipe` stages contribute their operands.
+const lifecycleKeys = (
+  layer: MorphNode,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports,
+  seen: Array<MorphNode>
+): ReadonlyArray<LifecycleKey> => {
+  if (Node.isIdentifier(layer)) {
+    return A.flatMap(testBodyBindings(layer, callback, imports), (declaration) => {
+      if (!Node.isVariableDeclaration(declaration) || A.some(seen, (visited) => visited === declaration)) return [];
+      seen.push(declaration);
+      return O.match(bodyDeclarationInitializer(declaration), {
+        onNone: () => [],
+        onSome: (initializer) =>
+          isUtilityInitializer(initializer, imports)
+            ? []
+            : [
+                { key: declaration, evidence: storeEvidence(initializer, callback, imports, []) },
+                ...lifecycleKeys(initializer, callback, imports, seen),
+              ],
+      });
+    });
+  }
+  if (!Node.isCallExpression(layer)) return [];
+  const callee = layer.getExpression();
+  if (isLayerCombinator(layer, imports))
+    return A.flatMap(layer.getArguments(), (argument) => lifecycleKeys(argument, callback, imports, seen));
+  if (Node.isPropertyAccessExpression(callee) && callee.getName() === "pipe")
+    return A.flatMap([callee.getExpression(), ...layer.getArguments()], (part) =>
+      lifecycleKeys(part, callback, imports, seen)
+    );
+  const evidenceSeen = A.empty<MorphNode>();
+  return [
+    {
+      key: callee.getText(),
+      evidence: A.flatMap(layer.getArguments(), (argument) => storeEvidence(argument, callback, imports, evidenceSeen)),
+    },
+  ];
+};
+
+const sharesLifecycle = (left: LifecycleKey, right: LifecycleKey): boolean =>
+  left.key === right.key && A.some(left.evidence, (value) => A.some(right.evidence, (other) => other === value));
+
+// `it.layer` builds one layer per block. A test that provides the same layer binding or factory twice over
+// one test-body store value (open, close, reopen one store) owns several lifecycles `it.layer` cannot express.
 const repeatsTestBodyLifecycle = (node: MorphNode, layer: Expression, state: DetectorState): boolean =>
   O.exists(state.harness.enclosingTest(node), ({ callback }) => {
     const { imports } = state;
-    const own = startsLayerLifecycle(layer, imports) ? testBodyBindings(layer, callback, imports) : [];
+    const own = startsLayerLifecycle(layer, imports) ? lifecycleKeys(layer, callback, imports, []) : [];
     return (
       A.isReadonlyArrayNonEmpty(own) &&
       A.some(
@@ -1827,8 +1930,8 @@ const repeatsTestBodyLifecycle = (node: MorphNode, layer: Expression, state: Det
             providedLayer(other),
             (provided) =>
               startsLayerLifecycle(provided, imports) &&
-              A.some(testBodyBindings(provided, callback, imports), (binding) =>
-                A.some(own, (read) => read === binding)
+              A.some(lifecycleKeys(provided, callback, imports, []), (key) =>
+                A.some(own, (read) => sharesLifecycle(read, key))
               )
           )
       )

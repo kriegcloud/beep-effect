@@ -1936,6 +1936,8 @@ it.layer(NodeServices.layer)((it) => {
       for (const body of [
         'it.effect("reopen", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* write.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* read.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
         `${scoped} it.effect("replay", () => Fx.gen(function* () { const out = yield* makeOut; const layer = makeRunLayer(manifest, out); yield* run.pipe(provideScopedLayer(layer)); yield* replay.pipe(provideScopedLayer(layer)); }));`,
+        `import * as Path from "effect/Path"; ${scoped} it.effect("target", Fx.fnUntraced(function* () { const path = yield* Path.Path; const out = yield* makeOut(); const target = Store.makeLayer({ dataDir: path.join(out, "kg") }); yield* first.pipe(provideScopedLayer(target)); yield* second.pipe(provideScopedLayer(target)); }));`,
+        `import * as Path from "effect/Path"; ${scoped} it.effect("host", Fx.fnUntraced(function* () { const path = yield* Path.Path; const out = yield* makeOut(); const resources = L.mergeAll(Store.makeLayer({ dataDir: path.join(out, "kg") }), Clock.layer); const host = L.mergeAll(Server.layer, Toolkit).pipe(L.provide(resources)); yield* first.pipe(provideScopedLayer(host)); yield* second.pipe(provideScopedLayer(host)); }));`,
         `${scoped} it.effect("carry", Fx.fnUntraced(function* () { const carried = yield* makeOut; yield* first.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); yield* second.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); }));`,
       ]) {
         deepStrictEqual(yield* provisions(body), []);
@@ -1963,6 +1965,18 @@ it.layer(NodeServices.layer)((it) => {
         ],
         [
           'it.effect("built once", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; const context = yield* L.build(Store.makeLayer({ dataDir })); yield* a.pipe(Fx.provide(context)); yield* b.pipe(Fx.provide(context)); }));',
+          2,
+        ],
+        [
+          `import * as ConfigProvider from "effect/ConfigProvider"; import * as Ref from "effect/Ref"; ${scoped} it.effect("shared utilities", () => Fx.gen(function* () { const commands = yield* Ref.make([]); const root = yield* makeDataDir; const output = \`\${root}/out.txt\`; const env = ConfigProvider.layer(ConfigProvider.fromUnknown({ OUT: output })); yield* a.pipe(provideScopedLayer(L.mergeAll(gitSpawner("one", commands), env))); yield* b.pipe(provideScopedLayer(L.mergeAll(gitSpawner("", commands), env))); }));`,
+          2,
+        ],
+        [
+          'import * as Path from "effect/Path"; it.effect("path service", () => Fx.gen(function* () { const path = yield* Path.Path; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join("fixtures", "a") }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join("fixtures", "a") }))); }));',
+          2,
+        ],
+        [
+          'it.effect("different stores", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Cache.makeLayer({ dataDir }))); }));',
           2,
         ],
       ] as const) {

@@ -2241,6 +2241,48 @@
       "status": "open"
     },
     {
+      "id": "EV002:packages/tooling/tool/cli/test/ci-heavy-admission.test.ts:430:provideScopedLayer@16#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/ci-heavy-admission.test.ts",
+      "line": 430,
+      "endLine": 430,
+      "symbol": "provideScopedLayer",
+      "occurrence": "v2:8319f4c81f6116c9c001c70083a79d3332ccbad8369170d7ccb3ea602a3f4611",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideScopedLayer(Layer.mergeAll(gitSpawner(\"packages/a/src/index.ts\\n\", commands), env))",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV002:packages/tooling/tool/cli/test/ci-heavy-admission.test.ts:446:provideScopedLayer@44#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/ci-heavy-admission.test.ts",
+      "line": 446,
+      "endLine": 446,
+      "symbol": "provideScopedLayer",
+      "occurrence": "v2:80c2a2c5b53001b7ad63b01b0069a48371ce9bf85243fc3d1bcbd18c62a9f87d",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideScopedLayer(Layer.mergeAll(gitSpawner(\"\", commands), env))",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV002:packages/tooling/tool/cli/test/ci-heavy-admission.test.ts:465:provideScopedLayer@10#1",
       "lens": "resource",
       "ruleId": "EV002",
