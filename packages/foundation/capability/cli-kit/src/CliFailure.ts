@@ -370,17 +370,12 @@ const causeTree = (defect: Error): Block | undefined => {
     chain.push(firstLine(describe(current)));
     current = current instanceof Error ? current.cause : undefined;
   }
-  if (chain.length === 0) {
-    return undefined;
-  }
   const nest = (index: number): TreeInput.Encoded =>
     index === chain.length - 1
       ? { label: A.getUnsafe(chain, index) }
       : { label: A.getUnsafe(chain, index), children: [nest(index + 1)] };
-  return Doc.tree({
-    label: firstLine(describe(defect)),
-    children: [nest(0)],
-  });
+  // One expression, not an early return: V8 miscounts the implicit else of an early `if` here (a negative count).
+  return chain.length === 0 ? undefined : Doc.tree({ label: firstLine(describe(defect)), children: [nest(0)] });
 };
 
 const dieBlocks: {
