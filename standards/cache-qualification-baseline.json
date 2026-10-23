@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2d-1, feat/effected-promotion-w2d)",
-      "reason": "Record the new wave-2d-1 workspace @beep/markdown scaffolded by create-package with the generated task set, and the root catalog entry for commonmark 0.31.2 that moves from the scratchpad manifest; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2d-2, feat/effected-promotion-w2d2)",
+      "reason": "Record the wave-2d-2 @beep/md manifest edit that adds the @beep/markdown workspace dependency and the ./Md.syntax and ./Md.parse subpath exports for the syntax bridge, and the regenerated root policy-fingerprint inputs it implies; the turbo coupling is measured in the review; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w2d1.md",
-        "sha256": "ed27ded852978028e84e0399b7c9da87065f94f34eba91a73eb34527fb9f3970"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2d2.md",
+        "sha256": "5b7fbbb0cae33019cbf7c564bf46e2587ad81b29bf65966e76fa078fea36e1f5"
       }
     },
     "@beep/acp": {
@@ -706,11 +706,11 @@
       }
     },
     "@beep/md": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2d-2, feat/effected-promotion-w2d2)",
+      "reason": "Record the wave-2d-2 @beep/md manifest edit that adds the @beep/markdown workspace dependency and the ./Md.syntax and ./Md.parse subpath exports for the syntax bridge, and the regenerated root policy-fingerprint inputs it implies; the turbo coupling is measured in the review; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2d2.md",
+        "sha256": "5b7fbbb0cae33019cbf7c564bf46e2587ad81b29bf65966e76fa078fea36e1f5"
       }
     },
     "@beep/memfs": {
@@ -2876,6 +2876,10 @@
             "packages/foundation/modeling/html/src/**",
             "packages/foundation/modeling/identity/package.json",
             "packages/foundation/modeling/identity/src/**",
+            "packages/foundation/modeling/jsonc/package.json",
+            "packages/foundation/modeling/jsonc/src/**",
+            "packages/foundation/modeling/markdown/package.json",
+            "packages/foundation/modeling/markdown/src/**",
             "packages/foundation/modeling/md/package.json",
             "packages/foundation/modeling/md/src/**",
             "packages/foundation/modeling/provenance/package.json",
@@ -2888,8 +2892,12 @@
             "packages/foundation/modeling/skill-contract/src/**",
             "packages/foundation/modeling/spdx/package.json",
             "packages/foundation/modeling/spdx/src/**",
+            "packages/foundation/modeling/toml/package.json",
+            "packages/foundation/modeling/toml/src/**",
             "packages/foundation/modeling/utils/package.json",
             "packages/foundation/modeling/utils/src/**",
+            "packages/foundation/modeling/yaml/package.json",
+            "packages/foundation/modeling/yaml/src/**",
             "packages/foundation/primitive/data/package.json",
             "packages/foundation/primitive/data/src/**",
             "packages/tooling/library/ai-metrics/package.json",
@@ -61766,6 +61774,7 @@
         "dependencies": [
           "@beep/html#audit",
           "@beep/identity#audit",
+          "@beep/markdown#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
           "@beep/test-utils#audit",
@@ -61833,6 +61842,7 @@
         "dependencies": [
           "@beep/html#build",
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -61889,6 +61899,7 @@
         "dependencies": [
           "@beep/html#build",
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -61932,6 +61943,7 @@
         "dependencies": [
           "@beep/html#build",
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -62024,6 +62036,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -62112,6 +62125,7 @@
           "//#lint:policy-fingerprint",
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -62318,6 +62332,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -62364,6 +62379,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -62416,6 +62432,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -122717,7 +122734,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "e3c4e41450ab55d69c26625dfa869c1c6da131141161a63dfa22e4b30afe9c32"
+        "sha256": "585a32d41398c8c8f903768c7752f6b72f7f4ee4da02846595803f84c265bc0a"
       }
     ]
   }
