@@ -3588,7 +3588,8 @@
           "@beep/npm-spec",
           "@beep/package-json",
           "@beep/semver",
-          "@beep/spdx"
+          "@beep/spdx",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
           "@beep/fc-runs",
@@ -3598,7 +3599,8 @@
           "@beep/npm-spec",
           "@beep/package-json",
           "@beep/semver",
-          "@beep/spdx"
+          "@beep/spdx",
+          "@beep/test-utils"
         ]
       },
       {
