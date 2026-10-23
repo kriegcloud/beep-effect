@@ -22,10 +22,10 @@ import { cycloneDxViolations } from "./support/cyclonedx.ts";
 
 const parseJson = S.decodeUnknownResult(S.fromJsonString(S.Unknown));
 
-const emitted = (input: SbomInput.Encoded): unknown => Result.getOrThrow(parseJson(Sbom.toJson(Sbom.generate(input))));
+const emitted = (input: SbomInput.Admitted): unknown => Result.getOrThrow(parseJson(Sbom.toJson(Sbom.generate(input))));
 
 /** A document exercising every field the emitter can produce. */
-const full: SbomInput.Encoded = {
+const full: SbomInput.Admitted = {
   root: Component.make({
     type: "library",
     name: "@acme/kit",
@@ -71,7 +71,7 @@ const isComponentsDocument = S.is(S.Struct({ components: S.Array(S.Record(S.Stri
  */
 const validInput = Arbitrary.map(
   Arbitrary.all([Arbitrary.schema(SbomInput), Arbitrary.schema(EpochMillis)]),
-  ([input, millis]): SbomInput.Encoded => ({
+  ([input, millis]): SbomInput.Admitted => ({
     ...input,
     components: A.dedupeWith(input.components, sameComponent),
     ...(input.metadata !== undefined && {
@@ -104,7 +104,10 @@ describe("CycloneDX 1.6 conformance — the whole vendored schema", () => {
   });
 
   it("pins the timestamp gap: an unparseable timestamp emits an invalid document, and NTIA reports it", () => {
-    const input: SbomInput.Encoded = { ...full, metadata: { ...full.metadata, timestamp: "last tuesday" } };
+    const input: SbomInput.Admitted = {
+      ...full,
+      metadata: SbomMetadata.make({ ...full.metadata, timestamp: "last tuesday" }),
+    };
     assert.include(cycloneDxViolations(emitted(input)), "/metadata/timestamp format");
     assertFalse(NtiaReport.of(Sbom.generate(input)).compliant);
     assert.include(NtiaReport.of(Sbom.generate(input)).missing, "timestamp");

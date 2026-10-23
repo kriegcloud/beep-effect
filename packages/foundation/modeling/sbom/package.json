@@ -43,7 +43,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -60,7 +60,7 @@
     "exports": {
       ".": "./dist/index.js",
       "./*": "./dist/*.js",
-      "./internal/*": null,
+      "./internal/*": "./dist/internal/*.js",
       "./package.json": "./package.json"
     }
   },

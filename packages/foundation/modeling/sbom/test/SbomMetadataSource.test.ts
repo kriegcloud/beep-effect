@@ -88,6 +88,13 @@ describe("SbomMetadataSource.componentFor", () => {
     assert.strictEqual(bare.description, undefined);
   });
 
+  it("omits the bom-ref of a nameless, unversioned input instead of failing its admission", () => {
+    const nameless = SbomMetadataSource.componentFor({ name: "" });
+    assert.strictEqual(nameless.bomRef, undefined);
+    assert.strictEqual(nameless.purl, "pkg:npm/");
+    assert.strictEqual(SbomMetadataSource.componentFor({ name: "", version: "1.0.0" }).bomRef, "@1.0.0");
+  });
+
   it("honours an explicit component type", () => {
     assert.strictEqual(SbomMetadataSource.componentFor({ name: "app", type: "application" }).type, "application");
   });

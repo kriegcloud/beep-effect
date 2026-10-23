@@ -2,9 +2,10 @@
 // import inlines at transform time, so the walk touches no filesystem and runs
 // the same under Node and Bun (the package test runner is `bunx --bun vitest`).
 //
-// Sized to this package: every `src` module is a flat sibling, so a relative
-// edge is always `./<Module>.ts`, and anything else fails loudly instead of
-// being resolved by guesswork. Only top-of-line `import`/`export` statements
+// Sized to this package: every public `src` module is a flat sibling and the
+// one seam lives in `src/internal/`, so a relative edge is always
+// `./<Module>.ts` or `./internal/<module>.ts` from a top-level module, and
+// anything else fails loudly instead of being resolved by guesswork. Only top-of-line `import`/`export` statements
 // count, which is what keeps the `import` lines inside JSDoc examples (written
 // ` * import …`) and prose in comments out of the graph without a comment
 // stripper.
@@ -27,9 +28,9 @@ declare global {
 
 const SRC = "../../src/";
 
-const sources = import.meta.glob<string>("../../src/*.ts", { query: "?raw", import: "default", eager: true });
+const sources = import.meta.glob<string>("../../src/**/*.ts", { query: "?raw", import: "default", eager: true });
 
-/** Every `src` module by file name (for example `"Sbom.ts"`), sorted. */
+/** Every `src` module by path under `src` (for example `"Sbom.ts"` or `"internal/admission.ts"`), sorted. */
 export const sourceModules: ReadonlyArray<string> = A.sort(A.map(R.keys(sources), Str.slice(SRC.length)), Str.Order);
 
 /** The raw text of one `src` module; fails loudly for a module that does not exist. */
@@ -70,9 +71,9 @@ export const edgesOf = (
   };
 };
 
-const SIBLING = /^\.\/([A-Za-z]+\.ts)$/;
+const SIBLING = /^\.\/((?:internal\/)?[A-Za-z]+\.ts)$/;
 
-/** The sibling module a relative specifier names; anything but `./<Module>.ts` is a walker error. */
+/** The module a relative specifier names; anything but `./<Module>.ts` or `./internal/<module>.ts` is a walker error. */
 const siblingOf = (specifier: string): string =>
   pipe(
     O.fromNullishOr(SIBLING.exec(specifier)),

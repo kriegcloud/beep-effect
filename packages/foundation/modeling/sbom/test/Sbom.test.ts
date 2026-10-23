@@ -43,6 +43,21 @@ const dep = (name: string, version: string) =>
   });
 
 describe("Sbom.generate", () => {
+  it("takes admitted components, so validation stays with the caller's make and generate cannot throw", () => {
+    // The empty bom-ref is rejected where the component is built (CycloneDX
+    // `refType` has minLength 1), never inside `generate`.
+    assert.throws(() => Component.make({ type: "application", name: "x", bomRef: "" }));
+    // A plain record is not an admitted component, so it does not type-check.
+    // @ts-expect-error: `root` must be a `Component`, not its encoded shape.
+    const unadmitted: Parameters<typeof Sbom.generate>[0] = {
+      root: { type: "application", name: "x" },
+      components: [],
+    };
+    assert.strictEqual(unadmitted.components.length, 0);
+    const admitted = Component.make({ type: "application", name: "x", bomRef: "x" });
+    assert.strictEqual(Sbom.generate({ root: admitted, components: [admitted] }).components.length, 1);
+  });
+
   it("is a plain function — no Effect, no error channel", () => {
     // If this ever needs `yield*`, the pure-tier claim has been lost.
     const document = Sbom.generate({ root, components: [] });

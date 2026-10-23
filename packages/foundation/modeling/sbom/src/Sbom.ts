@@ -21,6 +21,7 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { admission } from "./internal/admission.ts";
 import { BOM_FORMAT, Component, documentJson, SbomDocument, SbomMetadata, SPEC_VERSION } from "./SbomDocument.ts";
 
 const $I = $SbomId.create("Sbom");
@@ -48,7 +49,12 @@ const $I = $SbomId.create("Sbom");
 export class SbomInput extends S.Opaque<SbomInput, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The component the BOM is about. */
-    root: Component.pipe($I.annoteKey("SbomInput.root", { description: "The component the BOM is about." })),
+    // Annotating `Component` directly would rebuild it to its underlying struct
+    // and drop the opaque `Component` type; the suspend keeps the decoded root
+    // an admitted `Component`, which `Sbom.generate` relies on.
+    root: S.suspend((): typeof Component => Component).pipe(
+      $I.annoteKey("SbomInput.root", { description: "The component the BOM is about." })
+    ),
     /** Its dependencies, in any order — the document sorts them. */
     components: S.Array(Component).pipe(
       $I.annoteKey("SbomInput.components", { description: "Its dependencies, in any order — the document sorts them." })
@@ -76,6 +82,17 @@ export declare namespace SbomInput {
    * @since 0.0.0
    */
   export type Encoded = typeof SbomInput.Encoded;
+
+  /**
+   * The admitted field values {@link Sbom.generate} takes: a root and
+   * components already built by `Component.make` (or decoded), and optional
+   * `SbomMetadata`. Unlike {@link SbomInput.Encoded}, nothing here can fail
+   * validation again.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Admitted = S.Struct.Type<typeof SbomInput.fields>;
 }
 
 /**
@@ -178,11 +195,13 @@ export class SbomWriteError extends S.TaggedError<SbomWriteError, { readonly bra
 }
 
 // Implementation of Sbom.generate; the public contract lives on the static.
-const generate = (input: SbomInput.Encoded): SbomDocument =>
-  // The one admission: the whole document graph is assembled as plain records
-  // and validated by a single `SbomDocument.make`, which copies the nested
-  // values (so a returned component is never the caller's object, D-22).
-  SbomDocument.make({
+const generate = (input: SbomInput.Admitted): SbomDocument =>
+  // The one document admission: the inputs are already admitted values (the
+  // caller's `Component.make`, or a decode), so the single `SbomDocument.make`
+  // (through `admission`, the seam `test/Sbom.admission.test.ts` counts)
+  // re-checks invariants that already hold and cannot throw. It copies the
+  // nested values (so a returned component is never the caller's object, D-22).
+  admission.admit(SbomDocument, {
     bomFormat: BOM_FORMAT,
     specVersion: SPEC_VERSION,
     version: 1,
@@ -206,7 +225,7 @@ const byName: Order.Order<Component.Encoded> = Order.mapInput(
  * conditional spreads are required by `exactOptionalPropertyTypes`: an explicit
  * `undefined` does not satisfy an `optionalKey` field.
  */
-const metadataWithRoot = (input: SbomInput.Encoded): SbomMetadata.Encoded => ({
+const metadataWithRoot = (input: SbomInput.Admitted): SbomMetadata.Encoded => ({
   component: input.root,
   ...(input.metadata?.timestamp !== undefined && { timestamp: input.metadata.timestamp }),
   ...(input.metadata?.authors !== undefined && { authors: input.metadata.authors }),
@@ -279,7 +298,10 @@ export class Sbom {
    *
    * **Details**
    *
-   * **Total** — no error channel, because there is nothing here that can fail.
+   * **Total** — no error channel, because there is nothing here that can fail:
+   * the root and components are admitted values (`Component.make` or a
+   * decode), so every invariant the document checks already holds. Plain
+   * records do not type-check; admit them first.
    * Components are sorted by name so two runs over the same inputs produce the
    * same bytes: an SBOM's digest becomes an attestation subject, and a document
    * that reordered itself between runs would change that digest for no reason.

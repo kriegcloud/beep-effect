@@ -333,16 +333,20 @@ const externalReferences: {
 );
 
 // Implementation of SbomMetadataSource.componentFor; the public contract lives on the static.
-const componentFor = (input: ComponentInput.Encoded): Component =>
-  Component.make({
+const componentFor = (input: ComponentInput.Encoded): Component => {
+  // `bomRef` is non-empty by schema (CycloneDX `refType`), so a nameless,
+  // unversioned input carries none rather than failing the admission.
+  const bomRef = input.version === undefined ? input.name : `${input.name}@${input.version}`;
+  return Component.make({
     type: input.type ?? "library",
     name: input.name,
     ...(input.version !== undefined && { version: input.version }),
     purl: npmPurl(input.name, input.version),
-    bomRef: input.version === undefined ? input.name : `${input.name}@${input.version}`,
+    ...(Str.isNonEmpty(bomRef) && { bomRef }),
     ...(input.description !== undefined && { description: input.description }),
     ...(input.license !== undefined && { licenses: [input.license] }),
   });
+};
 
 /** The root component's fields the manifest describes directly. */
 const manifestFields = (pkg: Package) => ({

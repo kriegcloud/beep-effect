@@ -491,6 +491,15 @@ export declare namespace InTotoSubjectInput {
    * @since 0.0.0
    */
   export type Encoded = typeof InTotoSubjectInput.Encoded;
+
+  /**
+   * The admitted field values {@link (InTotoStatement:class).forSubject} takes:
+   * the record's fields with `digest` as a validated {@link Sha256Digest}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Admitted = S.Struct.Type<typeof InTotoSubjectInput.fields>;
 }
 
 /**
@@ -583,8 +592,8 @@ export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: 
    *
    * @since 0.0.0
    */
-  static forSubject(input: (typeof InTotoSubjectInput)["~type.make.in"]): InTotoStatement {
-    // The make input, not `Encoded`: `digest` stays a validated `Sha256Digest`,
+  static forSubject(input: InTotoSubjectInput.Admitted): InTotoStatement {
+    // The admitted fields, not `Encoded`: `digest` stays a validated `Sha256Digest`,
     // and the subject is a plain record that `of` admits with the statement.
     return InTotoStatement.of({
       subject: [{ name: input.name, digest: { sha256: input.digest } }],

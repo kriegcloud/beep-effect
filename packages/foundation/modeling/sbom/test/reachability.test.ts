@@ -33,6 +33,7 @@ const MODULES = [
   "SigstoreBundle.ts",
   "SlsaProvenance.ts",
   "index.ts",
+  "internal/admission.ts",
 ];
 
 describe("the source walker", () => {

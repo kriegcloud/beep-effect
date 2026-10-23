@@ -39,7 +39,7 @@ console.log(Effect.runSync(program));
 // same inputs produce identical bytes
 ```
 
-Components are sorted by name so the document's digest — which becomes an attestation subject — does not change between runs over the same inputs. The models are branded `S.Opaque` records: `Sbom.generate` assembles the document from plain records and admits it with one `SbomDocument.make`, which validates and copies, so the returned components are never the caller's objects. Functions take each input's `Encoded` shape, so object literals work.
+Components are sorted by name so the document's digest — which becomes an attestation subject — does not change between runs over the same inputs. The models are branded `S.Opaque` records: `Sbom.generate` takes admitted components (from `Component.make`, `SbomMetadataSource` or a decode), assembles the document around them and admits it with one `SbomDocument.make`, which copies, so the returned components are never the caller's objects. Because its inputs are already valid, that `make` cannot throw; an invalid component, such as one with an empty `bomRef`, fails where it is built. The option functions take each input's `Encoded` shape, so object literals work there.
 
 `fromPackage` and `rootComponent` take a `Package` from `@beep/package-json`. A manifest never says which organization supplied the software, who assembled the BOM, or when, so `supplier`, `authors` and `timestamp` are explicit options, never derived.
 
@@ -121,7 +121,7 @@ console.log(Effect.runSync(program.pipe(Effect.provide(IdentityToken.layerStatic
 
 ## Features
 
-- `Sbom` — `generate` (total, one admission per document), `toJson` (total, canonical CycloneDX 1.6, `bomRef` emitted as `bom-ref`), and `write` (the one fallible member, over core `FileSystem`).
+- `Sbom` — `generate` (total over admitted components: it takes `SbomInput.Admitted`, so an invalid component fails at the caller's `Component.make`, and makes one admission per document), `toJson` (total, canonical CycloneDX 1.6, `bomRef` emitted as `bom-ref`), and `write` (the one fallible member, over core `FileSystem`).
 - `SbomDocument` — the owned CycloneDX 1.6 model: `Component`, `ComponentType`, `ExternalReference`, `ExternalReferenceType`, `Contact`, `Supplier`, `SbomMetadata`, `SbomDocument`.
 - `SbomMetadataSource` — manifest-derived metadata: `npmPurl`, `componentFor`, `rootComponent`, `externalReferences`, `fromPackage`, `formatCopyright`, `merge`, with `SbomMetadataOptions`, `ComponentInput` and `CopyrightYears`.
 - `NtiaReport` — the seven NTIA minimum elements as a total report (`compliant`, `missing`), with `NtiaElement` and `NtiaElementId`.
@@ -195,9 +195,10 @@ with an `Encoded` companion type.
 
 ### Deviations
 
-One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream
-behaviour, lab behaviour and reason are on the `sbom` row of `scratchpad/effected/PORT_LEDGER.json` (the port reviews
-stay in `scratchpad/effected/sbom/.review` with the signer).
+One entry per class of change (law- or ruling-forced) and one per behavioural divergence, each with the tests in this
+package that pin it. The `sbom` row of `scratchpad/effected/PORT_LEDGER.json` keeps the lab-era evidence under the
+pre-promotion `scratchpad/test/sbom/` paths, and the port reviews stay in `scratchpad/effected/sbom/.review` with the
+signer.
 
 - **native-runtime** — The lab replaces upstream `Object.entries`, `Date.parse`, `Object.assign` schema statics and native `Error` with Effect Record/Schema facilities, `S.Opaque` statics and a tagged error. (test/Sbom.test.ts; test/NtiaReport.test.ts; test/InTotoStatement.test.ts)
 - **identity-keys** — The lab registers `IdentityToken` with a package `IdentityComposer` key instead of the upstream `@effected/sbom` service key. (test/IdentityToken.test.ts)
