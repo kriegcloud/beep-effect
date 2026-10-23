@@ -4173,8 +4173,10 @@
     },
   },
   "patchedDependencies": {
+    "@effect/platform-node-shared@4.0.6": "patches/@effect%2Fplatform-node-shared@4.0.6.patch",
     "drizzle-orm@1.0.0-rc.5-ab785fc": "patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch",
     "@xstate/effect@1.0.0-alpha.9": "patches/@xstate%2Feffect@1.0.0-alpha.9.patch",
+    "effect@4.0.6": "patches/effect@4.0.6.patch",
   },
   "overrides": {
     "@effect/platform-node-shared": "catalog:",
