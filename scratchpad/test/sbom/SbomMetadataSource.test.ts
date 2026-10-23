@@ -3,7 +3,7 @@
 // Half of the hand-rolled predecessor is DEAD here rather than ported:
 // `parseAuthor` is `Person.FromValue`, and `parseRepository`'s four-substitution
 // git-URL normalization is `Repository.browseUrl` — both in
-// `@effected/package-json`, both with wire fidelity the hand-roll lacked. What
+// `@beep/package-json`, both with wire fidelity the hand-roll lacked. What
 // remains is the part that is genuinely CycloneDX vocabulary: which manifest
 // field becomes which external-reference type, how a supplier resolves, and
 // what a purl looks like.

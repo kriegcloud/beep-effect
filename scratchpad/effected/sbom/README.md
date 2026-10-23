@@ -7,7 +7,7 @@ Supply-chain artifacts for [Effect](https://effect.website) v4: a CycloneDX 1.6 
 
 `@cyclonedx/cyclonedx-library` is 6.6 MB with seven optional peer dependencies for around ten symbols this package actually needs — an object model and a JSON normalizer. The parts that would justify the weight (XML output, ajv validation, SPDX expression parsing) are exactly the parts an emitter never calls, and its `spdx-expression-parse` peer would install a second SPDX engine beside `@effected/spdx`. This package owns its CycloneDX 1.6 model directly instead, conformance-tested against the published schema rather than promised by a dependency.
 
-Emitting an SBOM and signing one are different kinds of work — pure computation over a manifest versus network-bound cryptography against Fulcio and Rekor — and the module boundary follows that split exactly. `SbomDocument`, `Sbom`, `SbomMetadataSource`, `NtiaReport`, `InTotoStatement` and `SlsaProvenance` reach nothing but `effect`, `@effected/spdx` and (as a type-only import) `@effected/package-json`. Only `SigstoreSigner.ts` imports `@sigstore/*`, and it is walked by a reachability test rather than left to convention: a namespace object gathering `generate` and `sign` together would make every SBOM consumer reachable to Fulcio's HTTP stack, silently, which is why none exists here.
+Emitting an SBOM and signing one are different kinds of work — pure computation over a manifest versus network-bound cryptography against Fulcio and Rekor — and the module boundary follows that split exactly. `SbomDocument`, `Sbom`, `SbomMetadataSource`, `NtiaReport`, `InTotoStatement` and `SlsaProvenance` reach nothing but `effect`, `@effected/spdx` and (as a type-only import) `@beep/package-json`. Only `SigstoreSigner.ts` imports `@sigstore/*`, and it is walked by a reachability test rather than left to convention: a namespace object gathering `generate` and `sign` together would make every SBOM consumer reachable to Fulcio's HTTP stack, silently, which is why none exists here.
 
 A license is a CycloneDX **expression** field with three legal shapes — `{license:{id}}` for a catalog identifier, a one-element `[{expression}]` tuple for an expression like `MIT OR Apache-2.0`, and `{license:{name}}` for anything else — and choosing between them is `@effected/spdx`'s job (`License.isKnownId`, `isValidExpression`), never a local regex. Emitting every value as an `id` produces a document that looks right and fails validation.
 
@@ -36,7 +36,7 @@ console.log(Sbom.toJson(document));
 
 Components are sorted by name so the document's digest — which becomes an attestation subject — does not change between runs over the same inputs for no reason.
 
-`Package`, `Person` and `Repository` come from `@effected/package-json` and are re-exported here, so naming the type `fromPackage` takes does not mean declaring a dependency you would not otherwise have. Inside `src/` the manifest types stay a type-only import; the entry point is the one place they cross as values.
+`Package`, `Person` and `Repository` come from `@beep/package-json` and are re-exported here, so naming the type `fromPackage` takes does not mean declaring a dependency you would not otherwise have. Inside `src/` the manifest types stay a type-only import; the entry point is the one place they cross as values.
 
 ## NTIA compliance
 

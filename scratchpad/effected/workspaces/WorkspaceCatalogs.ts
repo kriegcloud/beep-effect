@@ -1373,7 +1373,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 
 	/**
 	 * The real implementation of `@effected/npm`'s `CatalogResolver` contract —
-	 * the one `@effected/package-json` declares but cannot fill.
+	 * the one `@beep/package-json` declares but cannot fill.
 	 *
 	 * **Details**
 	 *

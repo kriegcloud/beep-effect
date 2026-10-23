@@ -1025,7 +1025,7 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
 
 	/**
 	 * The real implementation of `@effected/npm`'s `WorkspaceResolver` contract
-	 * — the one `@effected/package-json` declares but cannot fill.
+	 * — the one `@beep/package-json` declares but cannot fill.
 	 *
 	 * **Details**
 	 *
