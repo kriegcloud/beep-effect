@@ -79,6 +79,9 @@
     "@beep/memfs": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "bun-types": "catalog:"
+    "bun-types": "catalog:",
+    "jsonc-parser": "catalog:",
+    "smol-toml": "^1.9.1",
+    "yaml": "catalog:"
   }
 }
