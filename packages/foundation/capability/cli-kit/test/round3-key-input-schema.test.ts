@@ -1,6 +1,6 @@
 import { KeyInput, TestTerminal } from "@beep/cli-kit/TestTerminal";
 import { assert, describe, it } from "@effect/vitest";
-import { assertExitSuccess } from "@effect/vitest/utils";
+import { assertExitSuccess, assertFalse } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
@@ -32,10 +32,9 @@ describe("KeyInput schema", () => {
   });
 
   it("rejects a missing name and non-boolean modifiers", () => {
-    assert.isTrue(Exit.isFailure(decode({})));
-    assert.isTrue(Exit.isFailure(decode({ name: 1 })));
-    assert.isTrue(Exit.isFailure(decode({ name: "a", ctrl: "yes" })));
-    assert.isTrue(Exit.isFailure(decode({ name: "a", shift: null })));
+    for (const input of [{}, { name: 1 }, { name: "a", ctrl: "yes" }, { name: "a", shift: null }]) {
+      assertFalse(S.is(KeyInput)(input));
+    }
   });
 
   it.effect("queues decoded keys with undefined modifiers read as not held", () =>

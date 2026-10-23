@@ -5,11 +5,14 @@
 //
 // Two preconditions, neither of which is checked for you:
 
-import { NodeServices } from "@effect/platform-node";
+import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
+import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 // - It is NOT build-free. The sources import `@effected/env`, which resolves to that package's BUILT output, so
 //   `@effected/env` must have been built (`pnpm build --filter @effected/env`, or the `prepare` build on install).
 // - Every module reachable from the fixture must be type-strip-clean: no parameter properties, enums or namespaces.
@@ -37,6 +40,12 @@ const HOST_PATH = Config.String("PATH").pipe(
 
 const FIXTURES = `${import.meta.dirname}/fixtures`;
 
+// The real spawner and Path; the spawner touches its file system only to check an explicit cwd, and none is set here.
+const Platform = NodeChildProcessSpawner.layer.pipe(
+  Layer.provide(Layer.mergeAll(FileSystem.layerNoop({}), NodePath.layer)),
+  Layer.merge(NodePath.layer)
+);
+
 const run = Effect.fn("run")(function* (args: ReadonlyArray<string>, stdin: string) {
   const path = yield* Path.Path;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -55,7 +64,7 @@ const run = Effect.fn("run")(function* (args: ReadonlyArray<string>, stdin: stri
   return { stdout, stderr, exitCode: Number(exitCode) };
 });
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("a non-interactive run never consumes piped stdin", (it) => {
+it.layer(Platform, { timeout: "30 seconds" })("a non-interactive run never consumes piped stdin", (it) => {
   it.effect(
     "a handler that waits before reading still gets every byte, through the fallback path",
     () =>

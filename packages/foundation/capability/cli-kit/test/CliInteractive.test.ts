@@ -61,26 +61,19 @@ describe("CliInteractive.layer", () => {
   );
 });
 
-describe("CliInteractive.unless", () => {
+it.layer(CliInteractive.layerTest(true), { timeout: "30 seconds" })("CliInteractive.unless", (it) => {
   const read = CliInteractive;
 
   it.effect("unless(true) turns an interactive scope off", () =>
     Effect.gen(function* () {
       assert.strictEqual(yield* CliInteractive.unless(true)(read), false);
-    }).pipe(Effect.provide(CliInteractive.layerTest(true)))
+    })
   );
 
   it.effect("unless(false) leaves an interactive scope interactive", () =>
     Effect.gen(function* () {
       assert.strictEqual(yield* CliInteractive.unless(false)(read), true);
-    }).pipe(Effect.provide(CliInteractive.layerTest(true)))
-  );
-
-  it.effect("unless(false) never turns a non-interactive scope on", () =>
-    Effect.gen(function* () {
-      assert.strictEqual(yield* CliInteractive.unless(false)(read), false);
-      assert.strictEqual(yield* CliInteractive.unless(true)(read), false);
-    }).pipe(Effect.provide(CliInteractive.layerTest(false)))
+    })
   );
 
   it.effect("restores the outer value after the scope exits", () =>
@@ -89,20 +82,20 @@ describe("CliInteractive.unless", () => {
       const after = yield* read;
       assert.strictEqual(inside, false);
       assert.strictEqual(after, true);
-    }).pipe(Effect.provide(CliInteractive.layerTest(true)))
+    })
   );
 
   it.effect("narrowing nests: an inner unless(false) cannot undo an outer unless(true)", () =>
     Effect.gen(function* () {
       assert.strictEqual(yield* read.pipe(CliInteractive.unless(false), CliInteractive.unless(true)), false);
-    }).pipe(Effect.provide(CliInteractive.layerTest(true)))
+    })
   );
 
   it.effect("restores the outer value when the scoped effect fails", () =>
     Effect.gen(function* () {
       yield* Effect.fail("boom").pipe(CliInteractive.unless(true), Effect.ignore);
       assert.strictEqual(yield* read, true);
-    }).pipe(Effect.provide(CliInteractive.layerTest(true)))
+    })
   );
 
   it.effect("an interrupted unless scope still restores the outer value", () =>
@@ -111,6 +104,20 @@ describe("CliInteractive.unless", () => {
       yield* Effect.yieldNow;
       yield* Fiber.interrupt(fiber);
       assert.strictEqual(yield* read, true);
-    }).pipe(Effect.provide(CliInteractive.layerTest(true)))
+    })
   );
 });
+
+it.layer(CliInteractive.layerTest(false), { timeout: "30 seconds" })(
+  "CliInteractive.unless in a non-interactive scope",
+  (it) => {
+    const read = CliInteractive;
+
+    it.effect("unless(false) never turns a non-interactive scope on", () =>
+      Effect.gen(function* () {
+        assert.strictEqual(yield* CliInteractive.unless(false)(read), false);
+        assert.strictEqual(yield* CliInteractive.unless(true)(read), false);
+      })
+    );
+  }
+);

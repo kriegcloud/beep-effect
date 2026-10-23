@@ -80,14 +80,13 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const { double, err } = capturing();
         let finalized = false;
-        const program = Effect.gen(function* () {
-          yield* Effect.addFinalizer(() =>
+        const program = CliExit.set(1).pipe(
+          Effect.ensuring(
             Effect.sync(() => {
               finalized = true;
             })
-          );
-          yield* CliExit.set(1);
-        }).pipe(Effect.scoped);
+          )
+        );
         const exit = yield* CliRuntime.main(program, { platform: Layer.empty }).pipe(
           Effect.exit,
           Effect.provideService(Console.Console, double)

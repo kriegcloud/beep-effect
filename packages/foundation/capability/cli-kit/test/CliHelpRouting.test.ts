@@ -178,7 +178,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const { double, out } = capturing();
         const program = Command.runWith(app, { version: "1.0.0" })(["sub", "--nope"]).pipe(
-          Effect.provide(CliOutput.layer(CliOutput.defaultFormatter({ colors: false })))
+          Effect.provideService(CliOutput.Formatter, CliOutput.defaultFormatter({ colors: false }))
         );
         yield* CliRuntime.main(program, { platform: platformServices, helpOnUsageError: "stderr" }).pipe(
           Effect.exit,

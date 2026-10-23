@@ -42,7 +42,7 @@ const capture = Effect.fn("capture")(function* (
   return { out, err, levels };
 });
 
-describe("CliTheme.forAudience", () => {
+it.layer(CliTheme.layerTest({ color: "truecolor" }), { timeout: "30 seconds" })("CliTheme.forAudience", (it) => {
   it.effect(
     "an agent gets the theme at colour none, whatever the terminal could do; anyone else the theme itself",
     () =>
@@ -58,7 +58,7 @@ describe("CliTheme.forAudience", () => {
           assert.strictEqual(CliTheme.forAudience(theme, audience), theme, String(audience));
         }
         assert.include(theme.status(Status.core, "failure", "x"), ESC, "control: the theme itself paints");
-      }).pipe(Effect.provide(CliTheme.layerTest({ color: "truecolor" })))
+      })
   );
 });
 

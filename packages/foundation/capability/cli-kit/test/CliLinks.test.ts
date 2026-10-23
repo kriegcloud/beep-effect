@@ -266,23 +266,45 @@ describe("CliLinks: the target of a link", () => {
         );
       }
       assert.deepStrictEqual(file.target({ file: "C:\\my dir\\a#b.ts" }), O.some("file:///C:/my%20dir/a%23b.ts"));
-      // The same through layerTest, which has no filesystem and no Path.
-      const test = yield* CliLinks.pipe(Effect.provide(CliLinks.layerTest("file")));
+    })
+  );
+});
+
+for (const mode of ["vscode", "file", "off"] as const) {
+  it.layer(CliLinks.layerTest(mode), { timeout: "30 seconds" })(`CliLinks.layerTest("${mode}")`, (it) => {
+    it.effect("fixes the mode without a filesystem", () =>
+      Effect.gen(function* () {
+        assert.strictEqual((yield* CliLinks).mode, mode);
+      })
+    );
+  });
+}
+
+it.layer(CliLinks.layerTest("file"), { timeout: "30 seconds" })('CliLinks.layerTest("file") on Windows paths', (it) => {
+  it.effect("keeps a drive path's drive with no filesystem and no Path, and gives a drive-relative path none", () =>
+    Effect.gen(function* () {
+      const test = yield* CliLinks;
       assert.deepStrictEqual(test.target({ file: "D:\\a\\b.ts" }), O.some("file:///D:/a/b.ts"));
       // A drive-relative path ("C:x.ts") is not absolute, so it has no link without a Path to resolve it.
       assert.deepStrictEqual(test.target({ file: "C:x.ts" }), O.none());
     })
   );
+});
 
-  it.effect("layerTest fixes the mode without a filesystem", () =>
+it.layer(CliLinks.layerTest("vscode"), { timeout: "30 seconds" })('CliLinks.layerTest("vscode")', (it) => {
+  it.effect("links an absolute path and gives a relative one none, with no cwd to resolve it", () =>
     Effect.gen(function* () {
-      for (const mode of ["vscode", "file", "off"] as const) {
-        const l = yield* CliLinks.pipe(Effect.provide(CliLinks.layerTest(mode)));
-        assert.strictEqual(l.mode, mode);
-      }
-      const v = yield* CliLinks.pipe(Effect.provide(CliLinks.layerTest("vscode")));
+      const v = yield* CliLinks;
       assert.deepStrictEqual(v.target({ file: "/a/b.ts", line: 1 }), O.some("vscode://file/a/b.ts:1"));
       assert.deepStrictEqual(v.target({ file: "relative.ts" }), O.none(), "with no cwd, a relative path has no link");
+    })
+  );
+
+  it.effect("the service itself has no target for a disallowed scheme, so no other caller of target gets one", () =>
+    Effect.gen(function* () {
+      const l = yield* CliLinks;
+      assert.deepStrictEqual(l.target({ url: "javascript:alert(1)" }), O.none());
+      assert.deepStrictEqual(l.target({ url: "data:text/html,x" }), O.none());
     })
   );
 });
@@ -362,10 +384,7 @@ describe("CliLinks.linker: the RenderContext.link policy", () => {
         ]) {
           assert.strictEqual(human({ url }, "label"), "label", Result.getOrThrow(S.encodeUnknownResult(Json)(url)));
         }
-        // The service itself has no target for one either, so no other caller of `target` gets one.
-        const l = yield* CliLinks.pipe(Effect.provide(CliLinks.layerTest("vscode")));
-        assert.deepStrictEqual(l.target({ url: "javascript:alert(1)" }), O.none());
-        assert.deepStrictEqual(l.target({ url: "data:text/html,x" }), O.none());
+        // The service itself has no target for one either: see the CliLinks.layerTest("vscode") group.
       })
   );
 
