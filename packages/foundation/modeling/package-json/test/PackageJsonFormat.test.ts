@@ -16,7 +16,7 @@ import type { PackageFormatTextOptions, PackageJsonSyntaxError } from "@beep/pac
 
 const Json = S.fromJsonString(S.Unknown);
 
-const format = (source: string, options?: PackageFormatTextOptions): string => {
+const format = (source: string, options?: PackageFormatTextOptions.Encoded): string => {
   const result = PackageJsonFormat.formatToString(source, options);
   assertSuccess(result, Result.getOrThrow(result));
   return result.success;

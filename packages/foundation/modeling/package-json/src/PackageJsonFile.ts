@@ -5,6 +5,7 @@
 // (compose `Package.resolve` explicitly).
 
 import { $PackageJsonId } from "@beep/identity/packages";
+import { JsoncPath } from "@beep/jsonc/JsoncNode";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -16,7 +17,7 @@ import * as S from "effect/Schema";
 import { Package } from "./Package.ts";
 import { PackageJsonFormat } from "./PackageJsonFormat.ts";
 import { PackageManifest } from "./PackageManifest.ts";
-import type { JsoncPath, JsoncStringifyError } from "@beep/jsonc";
+import type { JsoncStringifyError } from "@beep/jsonc";
 import type { PackageDecodeError, PackageFormatOptions } from "./Package.ts";
 import type { PackageJsonModifyError } from "./PackageJsonFormat.ts";
 
@@ -277,26 +278,56 @@ export class PackageJsonWriteError extends S.TaggedError<PackageJsonWriteError, 
 /**
  * One surgical field edit for {@link PackageJsonFile}'s `modify`: set `value`
  * at `path`, or delete the key there when `value` is `undefined` (the
- * `@effected/jsonc` / `@effected/yaml` modify convention — deletion is spelled
+ * `@beep/jsonc` / `@beep/yaml` modify convention — deletion is spelled
  * with an explicit `value: undefined`, so it is always deliberate).
  *
+ * **Example** (Construct a field edit)
+ *
+ * ```ts
+ * import { PackageFieldEdit } from "@beep/package-json/PackageJsonFile";
+ *
+ * const edit = PackageFieldEdit.make({ path: ["packageManager"], value: "pnpm@11.3.0" });
+ * console.log(edit.path) // [ 'packageManager' ]
+ * ```
+ *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageFieldEdit extends S.Opaque<PackageFieldEdit, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: JsoncPath.pipe(
+      $I.annoteKey("PackageFieldEdit.path", {
+        description: 'The field path, e.g. `["packageManager"]` or `["devEngines", "runtime", "version"]`.',
+      })
+    ),
+    value: S.Unknown.pipe(
+      $I.annoteKey("PackageFieldEdit.value", {
+        description: "The plain JSON value to write, or `undefined` to delete the target key.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PackageFieldEdit", {
+      description: "One surgical package.json field edit: set `value` at `path`, or delete the key when undefined.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link PackageFieldEdit}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface PackageFieldEdit {
+export declare namespace PackageFieldEdit {
   /**
-   * The field path, e.g. `["packageManager"]` or `["devEngines", "runtime", "version"]`.
+   * The plain edit object `modify` accepts: a constructed
+   * {@link PackageFieldEdit} or an object literal with the same fields.
    *
+   * @category type-level
    * @since 0.0.0
    */
-  readonly path: JsoncPath;
-  /**
-   * The plain JSON value to write, or `undefined` to delete the target key.
-   *
-   * @since 0.0.0
-   */
-  readonly value: unknown;
+  export type Encoded = typeof PackageFieldEdit.Encoded;
 }
 
 /**
@@ -326,8 +357,8 @@ export interface PackageJsonFileShape {
    * @since 0.0.0
    */
   readonly modify: {
-    (path: string, edits: ReadonlyArray<PackageFieldEdit>): Effect.Effect<string, PackageJsonModifyFailure>;
-    (edits: ReadonlyArray<PackageFieldEdit>): (path: string) => Effect.Effect<string, PackageJsonModifyFailure>;
+    (path: string, edits: ReadonlyArray<PackageFieldEdit.Encoded>): Effect.Effect<string, PackageJsonModifyFailure>;
+    (edits: ReadonlyArray<PackageFieldEdit.Encoded>): (path: string) => Effect.Effect<string, PackageJsonModifyFailure>;
   };
   /**
    * Read and decode a package.json file. Fails with `PackageJsonNotFoundError`
@@ -366,8 +397,11 @@ export interface PackageJsonFileShape {
    * @since 0.0.0
    */
   readonly write: {
-    (path: string, pkg: Package, options?: PackageFormatOptions): Effect.Effect<void, PackageJsonWriteError>;
-    (pkg: Package, options?: PackageFormatOptions): (path: string) => Effect.Effect<void, PackageJsonWriteError>;
+    (path: string, pkg: Package, options?: PackageFormatOptions.Encoded): Effect.Effect<void, PackageJsonWriteError>;
+    (
+      pkg: Package,
+      options?: PackageFormatOptions.Encoded
+    ): (path: string) => Effect.Effect<void, PackageJsonWriteError>;
   };
   /**
    * Serialize and write a {@link PackageManifest}. Fails with
@@ -381,11 +415,11 @@ export interface PackageJsonFileShape {
     (
       path: string,
       manifest: PackageManifest,
-      options?: PackageFormatOptions
+      options?: PackageFormatOptions.Encoded
     ): Effect.Effect<void, PackageJsonWriteError>;
     (
       manifest: PackageManifest,
-      options?: PackageFormatOptions
+      options?: PackageFormatOptions.Encoded
     ): (path: string) => Effect.Effect<void, PackageJsonWriteError>;
   };
 }
@@ -475,11 +509,16 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
       // indentation from the file being overwritten. Any read failure (most
       // commonly a fresh file) falls back to the default indent.
       const withPreservedSource: {
-        (target: string, options?: PackageFormatOptions): Effect.Effect<PackageFormatOptions | undefined>;
-        (options?: PackageFormatOptions): (target: string) => Effect.Effect<PackageFormatOptions | undefined>;
+        (
+          target: string,
+          options?: PackageFormatOptions.Encoded
+        ): Effect.Effect<PackageFormatOptions.Encoded | undefined>;
+        (
+          options?: PackageFormatOptions.Encoded
+        ): (target: string) => Effect.Effect<PackageFormatOptions.Encoded | undefined>;
       } = dual(
         isPathFirst,
-        Effect.fn("withPreservedSource")(function* (target: string, options?: PackageFormatOptions) {
+        Effect.fn("withPreservedSource")(function* (target: string, options?: PackageFormatOptions.Encoded) {
           if (options?.indent !== "preserve" || options.sourceText !== undefined) {
             return options;
           }
@@ -512,7 +551,11 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
 
       const write: PackageJsonFileShape["write"] = dual(
         isPathFirst,
-        Effect.fn("PackageJsonFile.write")(function* (target: string, pkg: Package, options?: PackageFormatOptions) {
+        Effect.fn("PackageJsonFile.write")(function* (
+          target: string,
+          pkg: Package,
+          options?: PackageFormatOptions.Encoded
+        ) {
           const effective = yield* withPreservedSource(target, options);
           yield* writeText(target, pkg.toJsonString(effective));
         })
@@ -527,7 +570,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
         Effect.fn("PackageJsonFile.writeManifest")(function* (
           target: string,
           manifest: PackageManifest,
-          options?: PackageFormatOptions
+          options?: PackageFormatOptions.Encoded
         ) {
           const effective = yield* withPreservedSource(target, options);
           yield* writeText(target, manifest.toJsonString(effective));
@@ -536,7 +579,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
 
       const modify: PackageJsonFileShape["modify"] = dual(
         2,
-        Effect.fn("PackageJsonFile.modify")(function* (target: string, edits: ReadonlyArray<PackageFieldEdit>) {
+        Effect.fn("PackageJsonFile.modify")(function* (target: string, edits: ReadonlyArray<PackageFieldEdit.Encoded>) {
           const source = yield* readText(target);
           let text = source;
           for (const edit of edits) {

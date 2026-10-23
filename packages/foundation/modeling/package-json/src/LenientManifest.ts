@@ -49,7 +49,7 @@ const $I = $PackageJsonId.create("LenientManifest");
  * import { LenientFieldIssue } from "@beep/package-json/LenientManifest";
  * import * as S from "effect/Schema";
  *
- * const issue: LenientFieldIssue = { field: "name", expected: "a string", value: 42 };
+ * const issue = LenientFieldIssue.make({ field: "name", expected: "a string", value: 42 });
  * console.log(S.is(LenientFieldIssue)(issue)) // true
  * ```
  *
@@ -57,31 +57,41 @@ const $I = $PackageJsonId.create("LenientManifest");
  * @category schemas
  * @since 0.0.0
  */
-export const LenientFieldIssue = S.Struct({
-  field: S.String.pipe(
-    $I.annoteKey("LenientFieldIssue.field", { description: "The top-level field name that degraded." })
-  ),
-  expected: S.String.pipe(
-    $I.annoteKey("LenientFieldIssue.expected", { description: "The permissive shape the field required." })
-  ),
-  value: S.Unknown.pipe(
-    $I.annoteKey("LenientFieldIssue.value", {
-      description: "The raw value found on the wire, preserved for reporting.",
+export class LenientFieldIssue extends S.Opaque<LenientFieldIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
+    field: S.String.pipe(
+      $I.annoteKey("LenientFieldIssue.field", { description: "The top-level field name that degraded." })
+    ),
+    expected: S.String.pipe(
+      $I.annoteKey("LenientFieldIssue.expected", { description: "The permissive shape the field required." })
+    ),
+    value: S.Unknown.pipe(
+      $I.annoteKey("LenientFieldIssue.value", {
+        description: "The raw value found on the wire, preserved for reporting.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("LenientFieldIssue", {
+      description: "A field whose raw value did not match its permissive manifest shape.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("LenientFieldIssue", {
-    description: "A field whose raw value did not match its permissive manifest shape.",
-  })
-);
+  )
+) {}
 
 /**
- * A plain-object field degradation described by {@link LenientFieldIssue}.
+ * Companion types for {@link LenientFieldIssue}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type LenientFieldIssue = typeof LenientFieldIssue.Type;
+export declare namespace LenientFieldIssue {
+  /**
+   * The plain object a {@link LenientFieldIssue} encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LenientFieldIssue.Encoded;
+}
 
 // ── Permissive field shapes ─────────────────────────────────────────────────
 
@@ -171,7 +181,7 @@ const sift = (raw: Record<string, unknown>): LenientManifest => {
       known[key] = value;
     } else {
       rest[key] = value;
-      issues.push({ field: key, expected: guard.expected, value });
+      issues.push(LenientFieldIssue.make({ field: key, expected: guard.expected, value }));
     }
   }
   // The guards above are exactly the field schemas' permissive shapes, so the

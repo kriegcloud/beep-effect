@@ -11,6 +11,7 @@ import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -28,7 +29,7 @@ const $I = $PackageJsonId.create("PackageValidator");
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
  *
- * const failure: RuleFailure = { message: "Missing license field", path: O.some("license") };
+ * const failure = RuleFailure.make({ message: "Missing license field", path: O.some("license") });
  * console.log(S.is(RuleFailure)(failure)) // true
  * ```
  *
@@ -36,50 +37,104 @@ const $I = $PackageJsonId.create("PackageValidator");
  * @category schemas
  * @since 0.0.0
  */
-export const RuleFailure = S.Struct({
-  message: S.String.pipe(
-    $I.annoteKey("RuleFailure.message", { description: "A human-readable description of the failure." })
-  ),
-  path: S.Option(S.String).pipe(
-    $I.annoteKey("RuleFailure.path", {
-      description: "The JSON path where the failure occurred, or None when not applicable.",
+export class RuleFailure extends S.Opaque<RuleFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
+    message: S.String.pipe(
+      $I.annoteKey("RuleFailure.message", { description: "A human-readable description of the failure." })
+    ),
+    path: S.Option(S.String).pipe(
+      $I.annoteKey("RuleFailure.path", {
+        description: "The JSON path where the failure occurred, or None when not applicable.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("RuleFailure", {
+      description: "A validation-rule failure with its message and optional JSON path.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("RuleFailure", { description: "A validation-rule failure with its message and optional JSON path." })
-);
+  )
+) {}
 
 /**
- * A plain-object validation failure described by {@link RuleFailure}.
+ * Companion types for {@link RuleFailure}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type RuleFailure = typeof RuleFailure.Type;
+export declare namespace RuleFailure {
+  /**
+   * The plain failure object a rule's check may fail with: a constructed
+   * {@link RuleFailure} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RuleFailure.Encoded;
+}
+
+/** The check every rule implements: succeed, or fail with a rule failure. */
+type RuleCheck = (pkg: Package) => Effect.Effect<void, RuleFailure.Encoded>;
+
+const RuleCheck = S.declare((u: unknown): u is RuleCheck => P.isFunction(u)).pipe(
+  $I.annoteSchema("ValidationRule.Check", {
+    description: "A rule's check: succeeds, or fails with a RuleFailure.",
+  })
+);
 
 /**
  * A single validation rule: a name and a check that fails with a
  * {@link RuleFailure}.
  *
+ * **Example** (Define a custom rule)
+ *
+ * ```ts
+ * import { ValidationRule } from "@beep/package-json/PackageValidator";
+ * import * as Effect from "effect/Effect";
+ * import * as O from "effect/Option";
+ *
+ * const hasKeywords = ValidationRule.make({
+ *   name: "has-keywords",
+ *   validate: (pkg) =>
+ *     pkg.keywords !== undefined ? Effect.void : Effect.fail({ message: "Missing keywords", path: O.some("keywords") }),
+ * });
+ * console.log(hasKeywords.name) // has-keywords
+ * ```
+ *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class ValidationRule extends S.Opaque<ValidationRule, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: S.String.pipe(
+      $I.annoteKey("ValidationRule.name", { description: "The rule identifier (e.g. `has-license`)." })
+    ),
+    validate: RuleCheck.pipe(
+      $I.annoteKey("ValidationRule.validate", {
+        description: "The check: succeeds, or fails with a RuleFailure.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ValidationRule", {
+      description: "A single validation rule: a name and a check that fails with a RuleFailure.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link ValidationRule}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface ValidationRule {
+export declare namespace ValidationRule {
   /**
-   * The rule identifier (e.g. `has-license`).
+   * The plain rule object the validator accepts: a constructed
+   * {@link ValidationRule} or an object literal with the same fields.
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
-  readonly name: string;
-  /**
-   * The check — succeeds or fails with a {@link RuleFailure}.
-   *
-   * @category validation
-   * @since 0.0.0
-   */
-  readonly validate: (pkg: Package) => Effect.Effect<void, RuleFailure>;
+  export type Encoded = typeof ValidationRule.Encoded;
 }
 
 /**
@@ -160,36 +215,36 @@ export class PackageValidationError extends S.TaggedError<PackageValidationError
 
 // ── Default rules ─────────────────────────────────────────────────────────────
 
-const hasLicense: ValidationRule = {
+const hasLicense: ValidationRule = ValidationRule.make({
   name: "has-license",
   validate: (pkg) =>
     pkg.license !== undefined
       ? Effect.void
       : Effect.fail({ message: "Missing license field", path: O.some("license") }),
-};
+});
 
-const hasDescription: ValidationRule = {
+const hasDescription: ValidationRule = ValidationRule.make({
   name: "has-description",
   validate: (pkg) =>
     pkg.description !== undefined
       ? Effect.void
       : Effect.fail({ message: "Missing description field", path: O.some("description") }),
-};
+});
 
-const hasRepository: ValidationRule = {
+const hasRepository: ValidationRule = ValidationRule.make({
   name: "has-repository",
   // `repository` is a modeled field, so it is read directly rather than from `pkg.rest`.
   validate: (pkg) =>
     pkg.repository !== undefined
       ? Effect.void
       : Effect.fail({ message: "Missing repository field", path: O.some("repository") }),
-};
+});
 
-const notPrivate: ValidationRule = {
+const notPrivate: ValidationRule = ValidationRule.make({
   name: "not-private",
   validate: (pkg) =>
     pkg.isPrivate ? Effect.fail({ message: "Package is private", path: O.some("private") }) : Effect.void,
-};
+});
 
 const anyDependencyMatches: {
   (pkg: Package, predicate: (specifier: string) => boolean): boolean;
@@ -224,7 +279,7 @@ const anyDependencyMatches: {
  * @category validation
  * @since 0.0.0
  */
-export const noUnresolvedDepsRule: ValidationRule = {
+export const noUnresolvedDepsRule: ValidationRule = ValidationRule.make({
   name: "no-unresolved-deps",
   validate: (pkg) =>
     anyDependencyMatches(
@@ -233,7 +288,7 @@ export const noUnresolvedDepsRule: ValidationRule = {
     )
       ? Effect.fail({ message: "Unresolved workspace:/catalog: dependency", path: O.none() })
       : Effect.void,
-};
+});
 
 /**
  * A rule that fails when any dependency uses a local `file:`, `link:` or
@@ -259,7 +314,7 @@ export const noUnresolvedDepsRule: ValidationRule = {
  * @category validation
  * @since 0.0.0
  */
-export const noLocalDepsRule: ValidationRule = {
+export const noLocalDepsRule: ValidationRule = ValidationRule.make({
   name: "no-local-deps",
   validate: (pkg) =>
     anyDependencyMatches(
@@ -269,7 +324,7 @@ export const noLocalDepsRule: ValidationRule = {
     )
       ? Effect.fail({ message: "Local file:/link:/portal: dependency", path: O.none() })
       : Effect.void,
-};
+});
 
 /**
  * The default validation rules: license, description, repository and
@@ -291,11 +346,11 @@ export const noLocalDepsRule: ValidationRule = {
 export const defaultRules: ReadonlyArray<ValidationRule> = [hasLicense, hasDescription, hasRepository, notPrivate];
 
 const runRules: {
-  (pkg: Package, rules: ReadonlyArray<ValidationRule>): Effect.Effect<void, PackageValidationError>;
-  (rules: ReadonlyArray<ValidationRule>): (pkg: Package) => Effect.Effect<void, PackageValidationError>;
+  (pkg: Package, rules: ReadonlyArray<ValidationRule.Encoded>): Effect.Effect<void, PackageValidationError>;
+  (rules: ReadonlyArray<ValidationRule.Encoded>): (pkg: Package) => Effect.Effect<void, PackageValidationError>;
 } = dual(
   2,
-  Effect.fn("PackageValidator.validate")(function* (pkg: Package, rules: ReadonlyArray<ValidationRule>) {
+  Effect.fn("PackageValidator.validate")(function* (pkg: Package, rules: ReadonlyArray<ValidationRule.Encoded>) {
     const failures: Array<{ readonly rule: string; readonly message: string; readonly path: O.Option<string> }> = [];
     for (const rule of rules) {
       const result = yield* Effect.result(rule.validate(pkg));
@@ -395,7 +450,7 @@ export class PackageValidator extends Context.Service<
    * @category layers
    * @since 0.0.0
    */
-  static layerRules(config: { readonly rules: ReadonlyArray<ValidationRule> }): Layer.Layer<PackageValidator> {
+  static layerRules(config: { readonly rules: ReadonlyArray<ValidationRule.Encoded> }): Layer.Layer<PackageValidator> {
     return Layer.succeed(PackageValidator, {
       validate: Effect.fn("PackageValidator.validate")(runRules(config.rules)),
     });

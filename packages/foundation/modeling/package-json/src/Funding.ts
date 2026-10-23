@@ -34,6 +34,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import { restOf } from "./internal/wire.ts";
 import type * as SchemaIssue from "effect/SchemaIssue";
 
 const $I = $PackageJsonId.create("Funding");
@@ -53,8 +54,12 @@ const FundingFields = S.Struct({
 
 const decodeFundingFields = S.decodeUnknownEffect(FundingFields);
 
-const restOf = (raw: { readonly [k: string]: unknown }): Record<string, unknown> =>
-  R.fromEntries(A.filter(R.toEntries(raw), ([key]) => !HashSet.has(KNOWN_FUNDING_KEYS, key)));
+/** Whether two extension records hold the same keys with identical (`===`) values, in any order. */
+const sameExtensions = (original: Record<string, unknown>, current: Record<string, unknown>): boolean =>
+  R.keys(original).length === R.keys(current).length &&
+  A.every(R.toEntries(current), ([key, value]) =>
+    O.exists(R.get(original, key), (originalValue) => originalValue === value)
+  );
 
 /**
  * Whether the remembered object still describes this entry. Guarding the
@@ -69,15 +74,8 @@ const isFaithfulObject: {
 } = dual(2, (wire: { readonly [k: string]: unknown }, funding: Funding): boolean => {
   if (wire.url !== funding.url) return false;
   if ((P.isString(wire.type) ? wire.type : undefined) !== funding.type) return false;
-  const originalRest = restOf(wire);
-  const currentRest = funding.rest ?? {};
   // Replay only if no extension was added, deleted or changed.
-  if (R.keys(originalRest).length !== R.keys(currentRest).length) return false;
-  for (const [key, value] of R.toEntries(currentRest)) {
-    const original = R.get(originalRest, key);
-    if (O.isNone(original) || original.value !== value) return false;
-  }
-  return true;
+  return sameExtensions(restOf(wire, KNOWN_FUNDING_KEYS), funding.rest ?? {});
 });
 
 /** Whether the bare string form can still carry everything this entry holds. */
@@ -110,7 +108,7 @@ const decodeEntry = (input: EntryWire): Effect.Effect<Funding, SchemaIssue.Issue
   return decodeFundingFields(input).pipe(
     Effect.mapError((error) => error.issue),
     Effect.map((fields) => {
-      const rest = restOf(input);
+      const rest = restOf(input, KNOWN_FUNDING_KEYS);
       const funding = Funding.make({ ...fields, ...(!R.isEmptyRecord(rest) ? { rest } : {}) });
       Funding.rememberWire(funding, input);
       return funding;

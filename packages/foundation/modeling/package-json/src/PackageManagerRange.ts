@@ -40,20 +40,63 @@ import type { DevEngine } from "./DevEngines.ts";
 const $I = $PackageJsonId.create("PackageManagerRange");
 
 /**
- * The encoded shape of a `devEngines.packageManager` entry: what a raw
- * `package.json` object carries. A {@link DevEngine} instance satisfies it
- * structurally, so both a decoded entry and the plain object read straight off
- * disk are accepted.
+ * A `devEngines.packageManager` entry: what a raw `package.json` object
+ * carries.
+ *
+ * **Details**
+ *
+ * The readers accept its encoded side, which a decoded {@link DevEngine}
+ * satisfies structurally, so both a decoded entry and the plain object read
+ * straight off disk are accepted. An entry without a `version` names no range.
+ *
+ * **Example** (Construct a package-manager entry)
+ *
+ * ```ts
+ * import { DevEnginePackageManagerEntry } from "@beep/package-json/PackageManagerRange";
+ *
+ * const entry = DevEnginePackageManagerEntry.make({ name: "pnpm", version: "^12.6.0" });
+ * console.log(entry.version) // ^12.6.0
+ * ```
  *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class DevEnginePackageManagerEntry extends S.Opaque<
+  DevEnginePackageManagerEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    name: S.String.pipe(
+      $I.annoteKey("DevEnginePackageManagerEntry.name", { description: "The package-manager name (e.g. `pnpm`)." })
+    ),
+    version: S.optional(S.String).pipe(
+      $I.annoteKey("DevEnginePackageManagerEntry.version", {
+        description: "The `<range>[+<integrity>]` version constraint; an entry without one names no range.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DevEnginePackageManagerEntry", {
+      description: "A `devEngines.packageManager` entry: a package-manager name and an optional version range.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link DevEnginePackageManagerEntry}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface DevEnginePackageManagerEntry {
-  /** The package-manager name (e.g. `pnpm`). */
-  readonly name: string;
-  /** The `<range>[+<integrity>]` version constraint; an entry without one names no range. */
-  readonly version?: string | undefined;
+export declare namespace DevEnginePackageManagerEntry {
+  /**
+   * The plain entry object the `devEngines` readers accept: a decoded
+   * {@link DevEngine}, a constructed entry, or a raw manifest object.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DevEnginePackageManagerEntry.Encoded;
 }
 
 // A single exact, caret or tilde comparator over a pinnable version: the only
@@ -329,12 +372,10 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
     S.decodeTo(
       S.instanceOf(PackageManagerRange),
       SchemaTransformation.transformEffect({
-        decode: (input: string) => {
-          const parsed = PackageManagerRange.parseResult(input);
-          return Result.isSuccess(parsed)
-            ? Effect.succeed(parsed.success)
-            : Effect.fail(new SchemaIssue.InvalidValue({ message: parsed.failure.message }, input));
-        },
+        decode: (input: string) =>
+          Effect.fromResult(PackageManagerRange.parseResult(input)).pipe(
+            Effect.mapError((error) => new SchemaIssue.InvalidValue({ message: error.message }, input))
+          ),
         encode: (pm: PackageManagerRange) => Effect.succeed(pm.toString()),
       })
     )
@@ -437,7 +478,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * @since 0.0.0
    */
   static fromDevEngineResult(
-    engine: DevEnginePackageManagerEntry
+    engine: DevEnginePackageManagerEntry.Encoded
   ): Result.Result<PackageManagerRange, InvalidPackageManagerRangeError> {
     if (engine.version === undefined) {
       return Result.fail(InvalidPackageManagerRangeError.make({ input: engine.name, reason: "range" }));
@@ -467,7 +508,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * @since 0.0.0
    */
   static readonly fromDevEngine = Effect.fn("PackageManagerRange.fromDevEngine")(
-    (engine: DevEnginePackageManagerEntry) => Effect.fromResult(PackageManagerRange.fromDevEngineResult(engine))
+    (engine: DevEnginePackageManagerEntry.Encoded) => Effect.fromResult(PackageManagerRange.fromDevEngineResult(engine))
   );
 
   /**

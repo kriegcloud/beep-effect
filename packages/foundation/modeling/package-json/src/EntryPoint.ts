@@ -15,27 +15,69 @@ const ConditionsJson = S.fromJsonString(S.Unknown);
 /**
  * Controls condition priority when {@link resolveEntryPoint} selects a package's root export.
  *
+ * **Details**
+ *
+ * `conditions` lists the export conditions to honour, in priority order
+ * (default `["import", "default"]`). The first condition present in the
+ * manifest wins, so the order is the policy — `["require", "import"]` and
+ * `["import", "require"]` resolve the same manifest to different files, on
+ * purpose. `exports` and `main` are reserved for manifest arguments, so
+ * one-argument calls are unambiguous.
+ *
+ * **Example** (Construct resolution options)
+ *
+ * ```ts
+ * import { ResolveEntryPointOptions } from "@beep/package-json/EntryPoint";
+ *
+ * const options = ResolveEntryPointOptions.make({ conditions: ["require"] });
+ * console.log(options.conditions) // [ 'require' ]
+ * ```
+ *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class ResolveEntryPointOptions extends S.Opaque<ResolveEntryPointOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    conditions: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("ResolveEntryPointOptions.conditions", {
+        description: "The export conditions to honour, in priority order; defaults to import, then default.",
+      })
+    ),
+    exports: S.optionalKey(S.Never).pipe(
+      $I.annoteKey("ResolveEntryPointOptions.exports", {
+        description: "Reserved for manifest arguments, so one-argument calls are unambiguous.",
+      })
+    ),
+    main: S.optionalKey(S.Never).pipe(
+      $I.annoteKey("ResolveEntryPointOptions.main", {
+        description: "Reserved for manifest arguments, so one-argument calls are unambiguous.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ResolveEntryPointOptions", {
+      description: "Controls condition priority when resolveEntryPoint selects a package's root export.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link ResolveEntryPointOptions}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface ResolveEntryPointOptions {
+export declare namespace ResolveEntryPointOptions {
   /**
-   * The export conditions to honour, in priority order.
+   * The plain options object {@link resolveEntryPoint} accepts: a constructed
+   * {@link ResolveEntryPointOptions} or an object literal with the same fields.
    *
-   * **Details**
-   *
-   * The first condition present in the manifest wins, so the order is the
-   * policy — `["require", "import"]` and `["import", "require"]` resolve the
-   * same manifest to different files, on purpose.
-   *
-   * @defaultValue `["import", "default"]`
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly conditions?: ReadonlyArray<string>;
-  /** Reserved for manifest arguments, so one-argument calls are unambiguous. */
-  readonly exports?: never;
-  /** Reserved for manifest arguments, so one-argument calls are unambiguous. */
-  readonly main?: never;
+  export type Encoded = typeof ResolveEntryPointOptions.Encoded;
 }
 
 /**
@@ -132,17 +174,55 @@ export class UnresolvedEntryPointError extends S.TaggedError<
  * Deliberately structural rather than the full {@link PackageManifest}, so a
  * caller can resolve an entry point from an arbitrary object carrying these two fields —
  * a manifest parsed straight from a tarball, for instance, with nothing else
- * validated yet.
+ * validated yet. `exports` is read in each of its legal shapes; `main` is
+ * consulted only when `exports` is absent.
+ *
+ * **Example** (Construct an entry-point manifest)
+ *
+ * ```ts
+ * import { EntryPointManifest, resolveEntryPoint } from "@beep/package-json/EntryPoint";
+ * import * as Result from "effect/Result";
+ *
+ * const manifest = EntryPointManifest.make({ main: "./lib.js" });
+ * console.log(Result.getOrThrow(resolveEntryPoint(manifest, undefined))) // ./lib.js
+ * ```
  *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class EntryPointManifest extends S.Opaque<EntryPointManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    exports: S.optionalKey(S.Unknown).pipe(
+      $I.annoteKey("EntryPointManifest.exports", { description: "The `exports` field, in each of its legal shapes." })
+    ),
+    main: S.optionalKey(S.Unknown).pipe(
+      $I.annoteKey("EntryPointManifest.main", {
+        description: "The `main` field; consulted only when `exports` is absent.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("EntryPointManifest", {
+      description: "The structural manifest fields entry resolution reads: `exports` and `main`.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link EntryPointManifest}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface EntryPointManifest {
-  /** The `exports` field, in each of its legal shapes. */
-  readonly exports?: unknown;
-  /** The `main` field; consulted only when `exports` is absent. */
-  readonly main?: unknown;
+export declare namespace EntryPointManifest {
+  /**
+   * The plain manifest object {@link resolveEntryPoint} accepts: any object
+   * carrying the optional `exports` and `main` fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof EntryPointManifest.Encoded;
 }
 
 const DEFAULT_CONDITIONS: ReadonlyArray<string> = ["import", "default"];
@@ -191,6 +271,52 @@ const resolveConditions: {
   }
   return undefined;
 });
+
+/** Resolve a conditions object, failing with the conditions tried when none matches. */
+const resolveConditionsResult = (
+  conditionsObject: Record<string, unknown>,
+  conditions: ReadonlyArray<string>
+): Result.Result<string, UnresolvedEntryPointError> => {
+  const resolved = resolveConditions(conditionsObject, conditions);
+  return resolved === undefined
+    ? Result.fail(UnresolvedEntryPointError.make({ reason: "noConditionMatched", conditions }))
+    : Result.succeed(resolved);
+};
+
+/** Resolve the `"."` entry of a subpath map. */
+const resolveSubpathMap = (
+  exportsObject: Record<string, unknown>,
+  conditions: ReadonlyArray<string>
+): Result.Result<string, UnresolvedEntryPointError> => {
+  const dot = exportsObject["."];
+  if (P.isString(dot)) {
+    return Result.succeed(dot);
+  }
+  // A subpath map with no usable "." entry exports no root entry point.
+  return isPlainObject(dot)
+    ? resolveConditionsResult(dot, conditions)
+    : Result.fail(UnresolvedEntryPointError.make({ reason: "noRootExport" }));
+};
+
+/**
+ * Resolve a present `exports` field. An array fallback list, or any other
+ * non-string non-object value, is an `exports` this resolver does not
+ * implement — encapsulation still applies.
+ */
+const resolveExports = (
+  exportsField: unknown,
+  conditions: ReadonlyArray<string>
+): Result.Result<string, UnresolvedEntryPointError> => {
+  if (P.isString(exportsField)) {
+    return Result.succeed(exportsField);
+  }
+  if (!isPlainObject(exportsField)) {
+    return Result.fail(UnresolvedEntryPointError.make({ reason: "unsupportedExportsForm" }));
+  }
+  return isRootConditions(exportsField)
+    ? resolveConditionsResult(exportsField, conditions)
+    : resolveSubpathMap(exportsField, conditions);
+};
 
 /**
  * Resolve a package's root entry point from its manifest.
@@ -254,56 +380,28 @@ const resolveConditions: {
  * @since 0.0.0
  */
 export const resolveEntryPoint: {
-  (manifest: EntryPointManifest & { readonly exports: unknown }): Result.Result<string, UnresolvedEntryPointError>;
-  (manifest: EntryPointManifest & { readonly main: unknown }): Result.Result<string, UnresolvedEntryPointError>;
   (
-    options: ResolveEntryPointOptions | undefined
-  ): (manifest: EntryPointManifest) => Result.Result<string, UnresolvedEntryPointError>;
-  (): (manifest: EntryPointManifest) => Result.Result<string, UnresolvedEntryPointError>;
+    manifest: EntryPointManifest.Encoded & { readonly exports: unknown }
+  ): Result.Result<string, UnresolvedEntryPointError>;
+  (manifest: EntryPointManifest.Encoded & { readonly main: unknown }): Result.Result<string, UnresolvedEntryPointError>;
   (
-    manifest: EntryPointManifest,
-    options: ResolveEntryPointOptions | undefined
+    options: ResolveEntryPointOptions.Encoded | undefined
+  ): (manifest: EntryPointManifest.Encoded) => Result.Result<string, UnresolvedEntryPointError>;
+  (): (manifest: EntryPointManifest.Encoded) => Result.Result<string, UnresolvedEntryPointError>;
+  (
+    manifest: EntryPointManifest.Encoded,
+    options: ResolveEntryPointOptions.Encoded | undefined
   ): Result.Result<string, UnresolvedEntryPointError>;
 } = dual(
   (args) => args.length >= 2 || P.hasProperty(args[0], "exports") || P.hasProperty(args[0], "main"),
   (
-    manifest: EntryPointManifest,
-    options?: ResolveEntryPointOptions
+    manifest: EntryPointManifest.Encoded,
+    options?: ResolveEntryPointOptions.Encoded
   ): Result.Result<string, UnresolvedEntryPointError> => {
-    const conditions = options?.conditions ?? DEFAULT_CONDITIONS;
     const exportsField = manifest.exports;
-
-    if (P.isString(exportsField)) {
-      return Result.succeed(exportsField);
-    }
-
-    if (isPlainObject(exportsField)) {
-      if (isRootConditions(exportsField)) {
-        const resolved = resolveConditions(exportsField, conditions);
-        return resolved === undefined
-          ? Result.fail(UnresolvedEntryPointError.make({ reason: "noConditionMatched", conditions }))
-          : Result.succeed(resolved);
-      }
-      const dot = exportsField["."];
-      if (P.isString(dot)) {
-        return Result.succeed(dot);
-      }
-      if (isPlainObject(dot)) {
-        const resolved = resolveConditions(dot, conditions);
-        return resolved === undefined
-          ? Result.fail(UnresolvedEntryPointError.make({ reason: "noConditionMatched", conditions }))
-          : Result.succeed(resolved);
-      }
-      // A subpath map with no usable "." entry exports no root entry point.
-      return Result.fail(UnresolvedEntryPointError.make({ reason: "noRootExport" }));
-    }
-
-    // An array fallback list, or any other non-string non-object value, is an
-    // `exports` this resolver does not implement — encapsulation still applies.
     if (exportsField !== undefined) {
-      return Result.fail(UnresolvedEntryPointError.make({ reason: "unsupportedExportsForm" }));
+      return resolveExports(exportsField, options?.conditions ?? DEFAULT_CONDITIONS);
     }
-
     return Result.succeed(P.isString(manifest.main) && manifest.main !== "" ? manifest.main : "index.js");
   }
 );

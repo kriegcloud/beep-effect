@@ -250,7 +250,7 @@ Every failure is a `Schema.TaggedError` routed with `Effect.catchTag`. Causes ar
 - `Funding` — the `funding` field, decoded from a bare URL string, an object, or an array of either, and **always** to an array so a consumer never branches on arity. Each entry re-encodes in the form it was read from, and unrecognized keys survive in `rest`.
 - `licenseExpressionOf` — a `SpdxLicense` as an `Option<SpdxExpression>` from `@effected/spdx`, for a caller that wants the parsed expression rather than the string. `none` for the `SEE LICENSE IN …` and `UNLICENSED` forms, which are valid `license` values but not license expressions.
 - `Package` also types `keywords`, `maintainers` and `homepage` directly, alongside the existing `author` and `contributors`.
-- Field schemas (`DependencyMapField`, `BinField`, `ExportsField`, `PublishConfigField`, `PeerDependenciesMetaField`, `StringMapField`) exported for subclasses that extend the model. `RepositoryField` is exported too but deprecated: `Package.repository` now decodes through `Repository.FromValue`, which round-trips the original shorthand or object form; `RepositoryField` remains only for consumers still matching on the raw union.
+- Field schemas (`DependencyMapField`, `BinField`, `ExportsField`, `PublishConfigField`, `PeerDependenciesMetaField`, `StringMapField`) exported for subclasses that extend the model. The deprecated `RepositoryField` raw union was removed at promotion: `Package.repository` decodes through `Repository.FromValue`, which round-trips the original shorthand or object form.
 
 ## License
 

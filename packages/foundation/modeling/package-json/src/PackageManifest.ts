@@ -148,9 +148,7 @@ export class PackageManifest extends S.Class<PackageManifest, { readonly brand: 
    * @since 0.0.0
    */
   static readonly decode = Effect.fn("PackageManifest.decode")(function* (input: unknown) {
-    return yield* S.decodeUnknownEffect(PackageManifest.schema)(input).pipe(
-      Effect.catchTag("SchemaError", (cause) => PackageDecodeError.make({ cause }))
-    );
+    return yield* PackageDecodeError.decodeUnknown(PackageManifest.schema)(input);
   });
 
   /**
@@ -193,7 +191,7 @@ export class PackageManifest extends S.Class<PackageManifest, { readonly brand: 
    * @category serialization
    * @since 0.0.0
    */
-  toJsonString(options?: PackageFormatOptions): string {
+  toJsonString(options?: PackageFormatOptions.Encoded): string {
     const raw = Result.getOrThrowWith(S.encodeUnknownResult(PackageManifest.schema)(this), identity);
     return renderJson(raw, resolveFormatOptions(options));
   }

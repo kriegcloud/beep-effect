@@ -117,42 +117,74 @@ export class PackageJsonSyntaxError extends S.TaggedError<PackageJsonSyntaxError
  * because the text being formatted *is* the source text, and the defaults for
  * `indent` and `stripEmpty` differ — see each member.
  *
+ * **Example** (Construct text-formatting options)
+ *
+ * ```ts
+ * import { PackageFormatTextOptions } from "@beep/package-json/PackageJsonFormat";
+ *
+ * const options = PackageFormatTextOptions.make({ indent: "tab", stripEmpty: true });
+ * console.log(options.indent) // tab
+ * ```
+ *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageFormatTextOptions extends S.Opaque<PackageFormatTextOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    indent: S.optionalKey(S.Union([S.Finite, S.Literals(["tab", "preserve"])])).pipe(
+      $I.annoteKey("PackageFormatTextOptions.indent", {
+        description:
+          'Indentation: a spaces count, `"tab"`, or `"preserve"`. Defaults to `"preserve"` — unlike `Package.toJsonString`, this path always has the original text in hand, and reformatting a file in place should not silently restyle its indentation.',
+      })
+    ),
+    newline: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageFormatTextOptions.newline", { description: "Append a trailing newline (default `true`)." })
+    ),
+    sort: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageFormatTextOptions.sort", {
+        description: "Order top-level keys canonically and alphabetize dependency maps (default `true`).",
+      })
+    ),
+    stripEmpty: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageFormatTextOptions.stripEmpty", {
+        description:
+          "Strip dependency-map keys whose value is an empty object (default `false`). The strict path defaults this on because the model materializes absent maps as empty ones; here an empty map is a key the author actually wrote, and removing it would be a silent edit rather than a format.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PackageFormatTextOptions", {
+      description: "Options for PackageJsonFormat.formatToString: indent, newline, sort and stripEmpty.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link PackageFormatTextOptions}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface PackageFormatTextOptions {
+export declare namespace PackageFormatTextOptions {
   /**
-   * Indentation: a spaces count, `"tab"`, or `"preserve"`. Defaults to
-   * `"preserve"` — unlike `Package.toJsonString`, this path always has the
-   * original text in hand, and reformatting a file in place should not
-   * silently restyle its indentation.
+   * The plain options object {@link PackageJsonFormat.formatToString} accepts:
+   * a constructed {@link PackageFormatTextOptions} or an object literal with the
+   * same fields.
    *
+   * @category type-level
    * @since 0.0.0
    */
-  readonly indent?: number | "tab" | "preserve";
-  /**
-   * Append a trailing newline (default `true`).
-   *
-   * @since 0.0.0
-   */
-  readonly newline?: boolean;
-  /**
-   * Order top-level keys canonically and alphabetize dependency maps (default `true`).
-   *
-   * @since 0.0.0
-   */
-  readonly sort?: boolean;
-  /**
-   * Strip dependency-map keys whose value is an empty object (default
-   * `false`). The strict path defaults this on because the model materializes
-   * absent maps as empty ones; here an empty map is a key the author actually
-   * wrote, and removing it would be a silent edit rather than a format.
-   *
-   * @since 0.0.0
-   */
-  readonly stripEmpty?: boolean;
+  export type Encoded = typeof PackageFormatTextOptions.Encoded;
 }
+
+// The text path's defaults: preserve the source indentation and keep the
+// empty dependency maps an author wrote (see each option's description).
+const resolveTextFormatOptions = (source: string, options: PackageFormatTextOptions.Encoded | undefined) => ({
+  indent: resolveIndent(options?.indent ?? "preserve", source),
+  sort: options?.sort ?? true,
+  stripEmpty: options?.stripEmpty ?? false,
+  newline: options?.newline ?? true,
+});
 
 const isJsonObject: (value: unknown) => value is Record<string, unknown> = P.isObject;
 
@@ -352,11 +384,11 @@ export class PackageJsonFormat {
    * @since 0.0.0
    */
   static readonly formatToString: {
-    (source: string, options?: PackageFormatTextOptions): Result.Result<string, PackageJsonSyntaxError>;
-    (options?: PackageFormatTextOptions): (source: string) => Result.Result<string, PackageJsonSyntaxError>;
+    (source: string, options?: PackageFormatTextOptions.Encoded): Result.Result<string, PackageJsonSyntaxError>;
+    (options?: PackageFormatTextOptions.Encoded): (source: string) => Result.Result<string, PackageJsonSyntaxError>;
   } = dual(
     (args) => P.isString(args[0]),
-    (source: string, options?: PackageFormatTextOptions): Result.Result<string, PackageJsonSyntaxError> => {
+    (source: string, options?: PackageFormatTextOptions.Encoded): Result.Result<string, PackageJsonSyntaxError> => {
       // Shares `sortKeys` with `sortValue` via `renderJson`, so the two entry
       // points cannot drift in ordering.
       const decoded = S.decodeResult(Json)(source);
@@ -367,14 +399,7 @@ export class PackageJsonFormat {
       if (!isJsonObject(parsed)) {
         return Result.fail(PackageJsonSyntaxError.make({ reason: "not-an-object" }));
       }
-      return Result.succeed(
-        renderJson(parsed, {
-          indent: resolveIndent(options?.indent ?? "preserve", source),
-          sort: options?.sort ?? true,
-          stripEmpty: options?.stripEmpty ?? false,
-          newline: options?.newline ?? true,
-        })
-      );
+      return Result.succeed(renderJson(parsed, resolveTextFormatOptions(source, options)));
     }
   );
 

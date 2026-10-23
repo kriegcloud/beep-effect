@@ -80,34 +80,37 @@ describe("Funding — own __proto__ extension fidelity", () => {
   );
 });
 
+// One remembered-wire case: a bare object entry, or the same entry first in a
+// two-entry array, whose `rest` is then cleared or loses one key.
+const SECOND_ENTRY = "https://second.example";
+
+const deletionPersists = Effect.fnUntraced(function* (array: boolean, clear: boolean) {
+  const wrap = (entry: unknown): unknown => (array ? [entry, SECOND_ENTRY] : entry);
+  const text = '{"remove":2,"url":"https://fund.example","keep":1}';
+  const input = yield* S.decodeEffect(JsonObject)(text);
+  const entries = yield* decode(field, wrap(input));
+  assert.strictEqual(
+    yield* S.encodeEffect(Json)(yield* encode(field, entries)),
+    array ? `[${text},"${SECOND_ENTRY}"]` : text
+  );
+  const entry = entries[0];
+  assertDefined(entry);
+  const rest: Record<string, unknown> | undefined = entry.rest;
+  assertDefined(rest);
+  if (clear) Object.assign(entry, { rest: {} } satisfies Partial<Funding>);
+  else delete rest.remove;
+  const expected = wrap({ url: "https://fund.example", ...(clear ? {} : { keep: 1 }) });
+  const encoded = yield* encode(field, entries);
+  assert.deepStrictEqual<unknown>(encoded, expected);
+  assert.strictEqual(yield* S.encodeEffect(Json)(encoded), yield* S.encodeEffect(Json)(expected));
+});
+
 describe("Funding — extension deletions invalidate remembered-wire replay", () => {
-  for (const array of [false, true]) {
-    for (const clear of [false, true]) {
-      it.effect(`${array ? "array" : "bare object"}: ${clear ? "clearing rest" : "deleting one key"} persists`, () =>
-        Effect.gen(function* () {
-          const text = '{"remove":2,"url":"https://fund.example","keep":1}';
-          const input = yield* S.decodeEffect(JsonObject)(text);
-          const entries = yield* decode(field, array ? [input, "https://second.example"] : input);
-          assert.strictEqual(
-            yield* S.encodeEffect(Json)(yield* encode(field, entries)),
-            array ? `[${text},"https://second.example"]` : text
-          );
-          const entry = entries[0];
-          assertDefined(entry);
-          const rest: Record<string, unknown> | undefined = entry.rest;
-          assertDefined(rest);
-          if (clear) Object.assign(entry, { rest: {} } satisfies Partial<Funding>);
-          else delete rest.remove;
-          const expected = { url: "https://fund.example", ...(clear ? {} : { keep: 1 }) };
-          const encoded = yield* encode(field, entries);
-          assert.deepStrictEqual<unknown>(encoded, array ? [expected, "https://second.example"] : expected);
-          assert.strictEqual(
-            yield* S.encodeEffect(Json)(encoded),
-            yield* S.encodeEffect(Json)(array ? [expected, "https://second.example"] : expected)
-          );
-        })
-      );
-    }
+  const cases = A.flatMap([false, true], (array) => A.map([false, true], (clear) => [array, clear] as const));
+  for (const [array, clear] of cases) {
+    it.effect(`${array ? "array" : "bare object"}: ${clear ? "clearing rest" : "deleting one key"} persists`, () =>
+      deletionPersists(array, clear)
+    );
   }
 
   it.effect("an inherited name and an undefined extension still count as additions", () =>

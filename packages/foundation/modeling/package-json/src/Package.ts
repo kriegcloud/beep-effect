@@ -10,11 +10,11 @@ import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import { SemVer } from "@beep/semver";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Fn from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import * as Pipeable from "effect/Pipeable";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -208,6 +208,36 @@ export const PublishConfigField = S.Record(S.String, S.Unknown).pipe(
 export type PublishConfigField = typeof PublishConfigField.Type;
 
 /**
+ * One `peerDependenciesMeta` entry: metadata for a single peer dependency.
+ *
+ * **Example** (Construct optional peer metadata)
+ *
+ * ```ts
+ * import { PeerDependencyMeta } from "@beep/package-json/Package";
+ *
+ * const meta = PeerDependencyMeta.make({ optional: true });
+ * console.log(meta.optional); // true
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class PeerDependencyMeta extends S.Opaque<PeerDependencyMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
+    optional: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PeerDependencyMeta.optional", {
+        description: "Whether the peer dependency is optional: an absent peer is then not reported as missing.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PeerDependencyMeta", {
+      description: "One `peerDependenciesMeta` entry: metadata for a single peer dependency.",
+    })
+  )
+) {}
+
+/**
  * The `peerDependenciesMeta` field: a map of package name to `{ optional? }`.
  * Not meant to be referenced directly.
  *
@@ -224,7 +254,7 @@ export type PublishConfigField = typeof PublishConfigField.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PeerDependenciesMetaField = S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean) })).pipe(
+export const PeerDependenciesMetaField = S.Record(S.String, PeerDependencyMeta).pipe(
   $I.annoteSchema("PeerDependenciesMetaField", {
     description: "A map of peer dependency names to metadata with an optional boolean flag.",
   })
@@ -237,40 +267,6 @@ export const PeerDependenciesMetaField = S.Record(S.String, S.Struct({ optional:
  * @since 0.0.0
  */
 export type PeerDependenciesMetaField = typeof PeerDependenciesMetaField.Type;
-
-/**
- * The `repository` field's raw wire shape: a shorthand string or an object.
- *
- * **Example** (Decode a repository shorthand)
- *
- * ```ts
- * import { RepositoryField } from "@beep/package-json/Package";
- * import * as S from "effect/Schema";
- *
- * console.log(S.decodeUnknownSync(RepositoryField)("github:owner/repo")); // github:owner/repo
- * ```
- *
- * @deprecated Superseded by {@link Repository.FromValue}, which decodes both
- * encodings into a typed {@link Repository} with normalization getters and
- * round-trips the original form. Retained only as a name for the raw union;
- * `Package.repository` is a {@link Repository}.
- * @public
- * @category schemas
- * @since 0.0.0
- */
-export const RepositoryField = S.Union([S.String, S.Record(S.String, S.Unknown)]).pipe(
-  $I.annoteSchema("RepositoryField", {
-    description: "The `repository` field's raw wire shape: a shorthand string or an object.",
-  })
-);
-
-/**
- * Decoded value produced by {@link RepositoryField}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type RepositoryField = typeof RepositoryField.Type;
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 
@@ -330,9 +326,36 @@ export class PackageDecodeError extends S.TaggedError<PackageDecodeError, { read
   override get message(): string {
     return "Failed to decode package.json";
   }
+
+  /**
+   * Decode an unknown JSON value through a manifest codec, normalizing schema
+   * failures to a {@link PackageDecodeError} at the boundary. The one decode
+   * route behind `Package.decode` and `PackageManifest.decode`.
+   *
+   * **Example** (Decode through a manifest codec)
+   *
+   * ```ts
+   * import { Package, PackageDecodeError } from "@beep/package-json/Package";
+   * import * as Effect from "effect/Effect";
+   *
+   * const pkg = Effect.runSync(PackageDecodeError.decodeUnknown(Package.schema)({ name: "my-pkg", version: "1.0.0" }));
+   * console.log(pkg.name); // my-pkg
+   * ```
+   *
+   * @param schema - the manifest codec to decode through
+   * @returns a function from the raw JSON value to the decoded manifest
+   * @category decoding
+   * @since 0.0.0
+   */
+  static decodeUnknown<A, I>(schema: S.Codec<A, I>): (input: unknown) => Effect.Effect<A, PackageDecodeError> {
+    const decode = S.decodeUnknownEffect(schema);
+    return (input) => decode(input).pipe(Effect.mapError((cause) => PackageDecodeError.make({ cause })));
+  }
 }
 
 // ── Formatting options ──────────────────────────────────────────────────────
+
+const PackageIndentSchema = S.Union([S.Finite, S.Literals(["tab", "preserve"])]);
 
 /**
  * Indentation for serialized package.json output: a spaces count, `"tab"` for
@@ -344,32 +367,79 @@ export class PackageDecodeError extends S.TaggedError<PackageDecodeError, { read
  * @category type-level
  * @since 0.0.0
  */
-export type PackageIndent = number | "tab" | "preserve";
+export type PackageIndent = typeof PackageIndentSchema.Type;
 
 /**
  * Options for {@link Package.toJsonString} and `PackageJsonFile.write`.
  *
+ * **Details**
+ *
+ * `sourceText` backs `indent: "preserve"`: its indentation (tab vs N spaces,
+ * detected from the first indented line) is reused, and it is ignored for
+ * other `indent` values. When absent, `PackageJsonFile.write` supplies the
+ * existing file's text automatically; the pure {@link Package.toJsonString}
+ * falls back to the default indentation.
+ *
+ * **Example** (Construct formatting options)
+ *
+ * ```ts
+ * import { PackageFormatOptions } from "@beep/package-json/Package";
+ *
+ * const options = PackageFormatOptions.make({ indent: "tab", sort: false });
+ * console.log(options.indent); // tab
+ * ```
+ *
  * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageFormatOptions extends S.Opaque<PackageFormatOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    indent: S.optionalKey(PackageIndentSchema).pipe(
+      $I.annoteKey("PackageFormatOptions.indent", {
+        description: 'Indentation: a spaces count, `"tab"`, or `"preserve"` (default `2`).',
+      })
+    ),
+    newline: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageFormatOptions.newline", { description: "Append a trailing newline (default `true`)." })
+    ),
+    sort: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageFormatOptions.sort", {
+        description: "Order top-level keys canonically and alphabetize dependency maps (default `true`).",
+      })
+    ),
+    sourceText: S.optionalKey(S.String).pipe(
+      $I.annoteKey("PackageFormatOptions.sourceText", {
+        description: 'The original source text whose indentation `indent: "preserve"` reuses.',
+      })
+    ),
+    stripEmpty: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageFormatOptions.stripEmpty", {
+        description: "Strip empty dependency-map keys (default `true`).",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PackageFormatOptions", {
+      description: "Options for Package.toJsonString and PackageJsonFile.write: indent, newline, sort and stripEmpty.",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link PackageFormatOptions}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface PackageFormatOptions {
-  /** Indentation: a spaces count, `"tab"`, or `"preserve"` (default `2`). */
-  readonly indent?: PackageIndent;
-  /** Append a trailing newline (default `true`). */
-  readonly newline?: boolean;
-  /** Order top-level keys canonically and alphabetize dependency maps (default `true`). */
-  readonly sort?: boolean;
+export declare namespace PackageFormatOptions {
   /**
-   * The original source text backing `indent: "preserve"`: its indentation
-   * (tab vs N spaces, detected from the first indented line) is reused.
-   * Ignored for other `indent` values. When absent, `PackageJsonFile.write`
-   * supplies the existing file's text automatically; the pure
-   * {@link Package.toJsonString} falls back to the default indentation.
+   * The plain options object the serializers accept: a constructed
+   * {@link PackageFormatOptions} or an object literal with the same fields.
+   *
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly sourceText?: string;
-  /** Strip empty dependency-map keys (default `true`). */
-  readonly stripEmpty?: boolean;
+  export type Encoded = typeof PackageFormatOptions.Encoded;
 }
 
 // ── Model ───────────────────────────────────────────────────────────────────
@@ -385,6 +455,28 @@ export interface PackageFormatOptions {
 export type PackagePatch = Partial<{
   readonly [K in keyof (typeof Package)["fields"]]: (typeof Package)["fields"][K]["Type"];
 }>;
+
+/** The string-to-string map fields the dependency and script setters edit. */
+type StringMapKey = "dependencies" | "devDependencies" | "peerDependencies" | "optionalDependencies" | "scripts";
+
+/** Build the dual setter that adds or replaces one entry of a string map field. */
+const mapEntrySetter = (
+  key: StringMapKey
+): {
+  (name: string, value: string): (pkg: Package) => Package;
+  (pkg: Package, name: string, value: string): Package;
+} =>
+  Fn.dual(3, (pkg: Package, name: string, value: string) =>
+    pkg.copyWith(R.singleton(key, HashMap.set(pkg[key], name, value)))
+  );
+
+/** Build the dual setter that removes one entry of a string map field. */
+const mapEntryRemover = (
+  key: StringMapKey
+): {
+  (name: string): (pkg: Package) => Package;
+  (pkg: Package, name: string): Package;
+} => Fn.dual(2, (pkg: Package, name: string) => pkg.copyWith(R.singleton(key, HashMap.remove(pkg[key], name))));
 
 /**
  * A package.json document as a rich `Schema.Class`: typed known fields, a
@@ -590,9 +682,8 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   pipe<A, B, C>(this: A, ab: (_: A) => B, bc: (_: B) => C): C;
   pipe<A, B, C, D>(this: A, ab: (_: A) => B, bc: (_: B) => C, cd: (_: C) => D): D;
   pipe<A, B, C, D, E>(this: A, ab: (_: A) => B, bc: (_: B) => C, cd: (_: C) => D, de: (_: D) => E): E;
-  pipe(this: unknown): unknown {
-    // biome-ignore lint/complexity/noArguments: Pipeable.pipeArguments requires the arguments object
-    return Pipeable.pipeArguments(this, arguments);
+  pipe(this: unknown, ...fns: ReadonlyArray<(_: unknown) => unknown>): unknown {
+    return A.reduce(fns, this, (value, f) => f(value));
   }
 
   // ── Schema / wire transform ───────────────────────────────────────────
@@ -669,9 +760,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * @since 0.0.0
    */
   static readonly decode = Effect.fn("Package.decode")(function* (input: unknown) {
-    return yield* S.decodeUnknownEffect(Package.schema)(input).pipe(
-      Effect.catchTag("SchemaError", (cause) => PackageDecodeError.make({ cause }))
-    );
+    return yield* PackageDecodeError.decodeUnknown(Package.schema)(input);
   });
 
   // ── Computed getters ──────────────────────────────────────────────────
@@ -982,9 +1071,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly addDependency: {
     (name: string, specifier: string): (pkg: Package) => Package;
     (pkg: Package, name: string, specifier: string): Package;
-  } = Fn.dual(3, (pkg: Package, name: string, specifier: string) =>
-    pkg.copyWith({ dependencies: HashMap.set(pkg.dependencies, name, specifier) })
-  );
+  } = mapEntrySetter("dependencies");
 
   /**
    * Remove a `dependencies` entry. Dual API.
@@ -1008,9 +1095,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly removeDependency: {
     (name: string): (pkg: Package) => Package;
     (pkg: Package, name: string): Package;
-  } = Fn.dual(2, (pkg: Package, name: string) =>
-    pkg.copyWith({ dependencies: HashMap.remove(pkg.dependencies, name) })
-  );
+  } = mapEntryRemover("dependencies");
 
   /**
    * Add or replace a `devDependencies` entry. Dual API.
@@ -1033,9 +1118,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly addDevDependency: {
     (name: string, specifier: string): (pkg: Package) => Package;
     (pkg: Package, name: string, specifier: string): Package;
-  } = Fn.dual(3, (pkg: Package, name: string, specifier: string) =>
-    pkg.copyWith({ devDependencies: HashMap.set(pkg.devDependencies, name, specifier) })
-  );
+  } = mapEntrySetter("devDependencies");
 
   /**
    * Remove a `devDependencies` entry. Dual API.
@@ -1059,9 +1142,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly removeDevDependency: {
     (name: string): (pkg: Package) => Package;
     (pkg: Package, name: string): Package;
-  } = Fn.dual(2, (pkg: Package, name: string) =>
-    pkg.copyWith({ devDependencies: HashMap.remove(pkg.devDependencies, name) })
-  );
+  } = mapEntryRemover("devDependencies");
 
   /**
    * Add or replace a `peerDependencies` entry. Dual API.
@@ -1084,9 +1165,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly addPeerDependency: {
     (name: string, specifier: string): (pkg: Package) => Package;
     (pkg: Package, name: string, specifier: string): Package;
-  } = Fn.dual(3, (pkg: Package, name: string, specifier: string) =>
-    pkg.copyWith({ peerDependencies: HashMap.set(pkg.peerDependencies, name, specifier) })
-  );
+  } = mapEntrySetter("peerDependencies");
 
   /**
    * Remove a `peerDependencies` entry. Dual API.
@@ -1110,9 +1189,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly removePeerDependency: {
     (name: string): (pkg: Package) => Package;
     (pkg: Package, name: string): Package;
-  } = Fn.dual(2, (pkg: Package, name: string) =>
-    pkg.copyWith({ peerDependencies: HashMap.remove(pkg.peerDependencies, name) })
-  );
+  } = mapEntryRemover("peerDependencies");
 
   /**
    * Add or replace an `optionalDependencies` entry. Dual API.
@@ -1135,9 +1212,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly addOptionalDependency: {
     (name: string, specifier: string): (pkg: Package) => Package;
     (pkg: Package, name: string, specifier: string): Package;
-  } = Fn.dual(3, (pkg: Package, name: string, specifier: string) =>
-    pkg.copyWith({ optionalDependencies: HashMap.set(pkg.optionalDependencies, name, specifier) })
-  );
+  } = mapEntrySetter("optionalDependencies");
 
   /**
    * Remove an `optionalDependencies` entry. Dual API.
@@ -1161,9 +1236,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly removeOptionalDependency: {
     (name: string): (pkg: Package) => Package;
     (pkg: Package, name: string): Package;
-  } = Fn.dual(2, (pkg: Package, name: string) =>
-    pkg.copyWith({ optionalDependencies: HashMap.remove(pkg.optionalDependencies, name) })
-  );
+  } = mapEntryRemover("optionalDependencies");
 
   /**
    * Add or replace a `scripts` entry. Dual API.
@@ -1186,9 +1259,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly setScript: {
     (name: string, command: string): (pkg: Package) => Package;
     (pkg: Package, name: string, command: string): Package;
-  } = Fn.dual(3, (pkg: Package, name: string, command: string) =>
-    pkg.copyWith({ scripts: HashMap.set(pkg.scripts, name, command) })
-  );
+  } = mapEntrySetter("scripts");
 
   /**
    * Remove a `scripts` entry. Dual API.
@@ -1212,7 +1283,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
   static readonly removeScript: {
     (name: string): (pkg: Package) => Package;
     (pkg: Package, name: string): Package;
-  } = Fn.dual(2, (pkg: Package, name: string) => pkg.copyWith({ scripts: HashMap.remove(pkg.scripts, name) }));
+  } = mapEntryRemover("scripts");
 
   // ── Resolution ────────────────────────────────────────────────────────
 
@@ -1265,22 +1336,26 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
     const workspace = yield* WorkspaceResolver;
     const catalog = yield* CatalogResolver;
 
+    // The alias form resolves the TARGET package's version; the plain form
+    // resolves the map key's. Specifiers of any other protocol stay as written.
+    const resolveSpecifier = Effect.fnUntraced(function* (name: string, specifier: string) {
+      if (DependencySpecifier.isWorkspace(specifier)) {
+        const target = O.getOrElse(DependencySpecifier.workspaceTargetOf(specifier), () => name);
+        const version = yield* workspace.versionOf(target);
+        return O.map(version, (resolved) => DependencySpecifier.resolveWorkspace(specifier, resolved));
+      }
+      if (DependencySpecifier.isCatalog(specifier)) {
+        return yield* catalog.rangeOf(name, DependencySpecifier.catalogNameOf(specifier));
+      }
+      return O.none<string>();
+    });
+
     const resolveMap = Effect.fn("Package.resolve.map")(function* (map: HashMap.HashMap<string, string>) {
       let next = map;
       for (const [name, specifier] of HashMap.entries(map)) {
-        if (DependencySpecifier.isWorkspace(specifier)) {
-          // The alias form resolves the TARGET package's version; the plain
-          // form resolves the map key's.
-          const target = O.getOrElse(DependencySpecifier.workspaceTargetOf(specifier), () => name);
-          const version = yield* workspace.versionOf(target);
-          if (O.isSome(version)) {
-            next = HashMap.set(next, name, DependencySpecifier.resolveWorkspace(specifier, version.value));
-          }
-        } else if (DependencySpecifier.isCatalog(specifier)) {
-          const range = yield* catalog.rangeOf(name, DependencySpecifier.catalogNameOf(specifier));
-          if (O.isSome(range)) {
-            next = HashMap.set(next, name, range.value);
-          }
+        const resolved = yield* resolveSpecifier(name, specifier);
+        if (O.isSome(resolved)) {
+          next = HashMap.set(next, name, resolved.value);
         }
       }
       return next;
@@ -1314,7 +1389,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    * @category serialization
    * @since 0.0.0
    */
-  toJsonString(options?: PackageFormatOptions): string {
+  toJsonString(options?: PackageFormatOptions.Encoded): string {
     const raw = Result.getOrThrowWith(S.encodeUnknownResult(Package.schema)(this), Fn.identity);
     return renderJson(raw, resolveFormatOptions(options));
   }

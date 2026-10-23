@@ -29,7 +29,6 @@ import {
   PackageDecodeError,
   PeerDependenciesMetaField,
   PublishConfigField,
-  RepositoryField,
   StringMapField,
 } from "@beep/package-json/Package";
 import * as Result from "effect/Result";
@@ -83,7 +82,6 @@ describe("Package property floor", () => {
   roundTrips("ExportsField", ExportsField);
   roundTrips("PublishConfigField", PublishConfigField);
   roundTrips("PeerDependenciesMetaField", PeerDependenciesMetaField);
-  roundTrips("RepositoryField", RepositoryField);
   roundTrips("PackageDecodeError", PackageDecodeError);
   roundTrips("Package", Package, PackageSample);
   roundTrips("Package.schema", Package.schema, PackageSample);

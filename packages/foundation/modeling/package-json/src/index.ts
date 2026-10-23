@@ -5,17 +5,22 @@
  *
  * The {@link Package} class is the schema: typed known fields plus a `rest`
  * catch-all for round-trip fidelity, computed getters, dual-signature mutation
- * statics, and {@link Package.resolve} over the `@effected/npm` resolver
- * contracts. Leaf concepts (`PackageName`, `DependencySpecifier`,
- * `SpdxLicense`, {@link PackageManager}, {@link Person}, {@link DevEngine},
- * {@link Dependency}) carry their own statics and errors and compose into
- * `Package`'s fields. `Package` and {@link Person} are the two object-shaped
- * models, and both carry the `rest` catch-all; the remaining leaves model a
- * single scalar or a closed shape and so have no unknown keys to preserve.
- * {@link PackageJsonFile} is the only IO surface, over core `FileSystem` /
- * `Path`; {@link PackageValidator} runs rule-based validation over a decoded
- * `Package`; {@link PackageJsonFormat} sorts and formats without decoding, for
- * hosts that must accept manifests `Package.decode` rejects.
+ * statics, and {@link Package.resolve} over the `@beep/npm-spec` resolver
+ * contracts. Leaf concepts (`PackageName`, `SpdxLicense`, {@link PackageManager},
+ * {@link Person}, {@link DevEngine}, {@link Dependency}) carry their own
+ * statics and errors and compose into `Package`'s fields; dependency
+ * specifiers come from `@beep/npm-spec` and edits from `@beep/jsonc`, imported
+ * from those packages rather than re-exported here. `Package` and
+ * {@link Person} are the two object-shaped models, and both carry the `rest`
+ * catch-all; the remaining leaves model a single scalar or a closed shape and
+ * so have no unknown keys to preserve.
+ *
+ * `PackageJsonFile` is the only IO surface, over core `FileSystem` / `Path`. It
+ * is a subpath import (`@beep/package-json/PackageJsonFile`), never this
+ * barrel, so the root import closure stays IO-free. {@link PackageValidator}
+ * runs rule-based validation over a decoded `Package`; {@link PackageJsonFormat}
+ * sorts and formats without decoding, for hosts that must accept manifests
+ * `Package.decode` rejects.
  *
  * {@link PackageManifest} is the presence-lenient model — `name` / `version`
  * optional, `packageManager` accepting the range spelling as
@@ -29,19 +34,11 @@
  * @packageDocumentation
  */
 
-export { JsoncEdit, type JsoncPath } from "@beep/jsonc";
-export {
-  type DependencyProtocol,
-  DependencySpecifier,
-  type DependencySpecifierBrand,
-  InvalidDependencySpecifierError,
-  isValidDependencySpecifier,
-} from "@beep/npm-spec/DependencySpecifier";
 export { Dependency, isUnresolvedDependency, type UnresolvedDependency } from "./Dependency.ts";
 export { DevEngine, DevEngineOrArray, type DevEngines, DevEnginesSchema } from "./DevEngines.ts";
 export {
-  type EntryPointManifest,
-  type ResolveEntryPointOptions,
+  EntryPointManifest,
+  ResolveEntryPointOptions,
   resolveEntryPoint,
   UnresolvedEntryPointError,
 } from "./EntryPoint.ts";
@@ -54,31 +51,26 @@ export {
   ExportsField,
   Package,
   PackageDecodeError,
-  type PackageFormatOptions,
+  PackageFormatOptions,
   type PackageIndent,
   type PackagePatch,
   PeerDependenciesMetaField,
+  PeerDependencyMeta,
   PublishConfigField,
-  RepositoryField,
   StringMapField,
 } from "./Package.ts";
 export {
-  type PackageFieldEdit,
-  PackageJsonFile,
-  type PackageJsonFileShape,
-  PackageJsonNotFoundError,
-  PackageJsonParseError,
-  PackageJsonReadError,
-  PackageJsonWriteError,
-} from "./PackageJsonFile.ts";
-export {
-  type PackageFormatTextOptions,
+  PackageFormatTextOptions,
   PackageJsonFormat,
   PackageJsonModifyError,
   PackageJsonSyntaxError,
 } from "./PackageJsonFormat.ts";
 export { PackageManager } from "./PackageManager.ts";
-export { InvalidPackageManagerRangeError, PackageManagerRange } from "./PackageManagerRange.ts";
+export {
+  DevEnginePackageManagerEntry,
+  InvalidPackageManagerRangeError,
+  PackageManagerRange,
+} from "./PackageManagerRange.ts";
 export { PackageManifest } from "./PackageManifest.ts";
 export {
   InvalidPackageNameError,
@@ -93,9 +85,7 @@ export {
   PackageValidationError,
   PackageValidator,
   RuleFailure,
-  type ValidationRule,
+  ValidationRule,
 } from "./PackageValidator.ts";
 export { Person } from "./Person.ts";
 export { Bugs, Repository } from "./Repository.ts";
-export type { DependencyKind } from "@beep/npm-spec/DependencySection";
-export type { DevEnginePackageManagerEntry } from "./PackageManagerRange.ts";

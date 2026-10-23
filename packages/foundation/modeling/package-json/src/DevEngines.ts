@@ -1,5 +1,5 @@
-// The `devEngines` field model: a `DevEngine` class (a single runtime or
-// package-manager constraint) and the `DevEnginesSchema` struct grouping the
+// The `devEngines` field model: a `DevEngine` record (a single runtime or
+// package-manager constraint) and the `DevEnginesSchema` record grouping the
 // `packageManager` / `runtime` / `os` / `cpu` / `libc` constraint slots.
 
 import { $PackageJsonId } from "@beep/identity/packages";
@@ -23,8 +23,8 @@ const $I = $PackageJsonId.create("DevEngines");
  * @category models
  * @since 0.0.0
  */
-export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbol }>($I`DevEngine`)(
-  {
+export class DevEngine extends S.Opaque<DevEngine, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The engine name (e.g. `node`, `pnpm`).
      *
@@ -77,11 +77,28 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
     onFail: S.optionalKey(S.Literals(["warn", "error", "ignore"])).pipe(
       $I.annoteKey("DevEngine.onFail", { description: "The optional behavior when the constraint is unmet." })
     ),
-  },
-  $I.annote("DevEngine", {
-    description: "A single `devEngines` constraint with a name and optional `version` / `onFail`.",
-  })
+  }).pipe(
+    $I.annoteSchema("DevEngine", {
+      description: "A single `devEngines` constraint with a name and optional `version` / `onFail`.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link DevEngine}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DevEngine {
+  /**
+   * The plain wire object a {@link DevEngine} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DevEngine.Encoded;
+}
 
 /**
  * A `devEngines` constraint slot: a single {@link DevEngine} or an array of them.
@@ -128,52 +145,56 @@ export const DevEngineOrArray: S.Union<[typeof DevEngine, S.$Array<typeof DevEng
  * @category schemas
  * @since 0.0.0
  */
-export const DevEnginesSchema: S.Struct<{
-  readonly packageManager: S.optionalKey<typeof DevEngineOrArray>;
-  readonly runtime: S.optionalKey<typeof DevEngineOrArray>;
-  readonly os: S.optionalKey<typeof DevEngineOrArray>;
-  readonly cpu: S.optionalKey<typeof DevEngineOrArray>;
-  readonly libc: S.optionalKey<typeof DevEngineOrArray>;
-}> = S.Struct({
-  packageManager: S.optionalKey(DevEngineOrArray).pipe(
-    $I.annoteKey("DevEnginesSchema.packageManager", {
-      description: "Package-manager constraints for development, with optional versions and behavior when unmet",
+export class DevEnginesSchema extends S.Opaque<DevEnginesSchema, { readonly brand: unique symbol }>()(
+  S.Struct({
+    packageManager: S.optionalKey(DevEngineOrArray).pipe(
+      $I.annoteKey("DevEnginesSchema.packageManager", {
+        description: "Package-manager constraints for development, with optional versions and behavior when unmet",
+      })
+    ),
+    runtime: S.optionalKey(DevEngineOrArray).pipe(
+      $I.annoteKey("DevEnginesSchema.runtime", {
+        description: "Runtime constraints for development, with optional versions and behavior when unmet",
+      })
+    ),
+    os: S.optionalKey(DevEngineOrArray).pipe(
+      $I.annoteKey("DevEnginesSchema.os", {
+        description: "Operating-system constraints for development, with optional versions and behavior when unmet",
+      })
+    ),
+    cpu: S.optionalKey(DevEngineOrArray).pipe(
+      $I.annoteKey("DevEnginesSchema.cpu", {
+        description: "CPU architecture constraints for development, with optional versions and behavior when unmet",
+      })
+    ),
+    libc: S.optionalKey(DevEngineOrArray).pipe(
+      $I.annoteKey("DevEnginesSchema.libc", {
+        description: "C standard library constraints for development, with optional versions and behavior when unmet",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DevEnginesSchema", {
+      description:
+        "The `devEngines` field schema, modeling runtime and package-manager constraints as optional DevEngine slots.",
     })
-  ),
-  runtime: S.optionalKey(DevEngineOrArray).pipe(
-    $I.annoteKey("DevEnginesSchema.runtime", {
-      description: "Runtime constraints for development, with optional versions and behavior when unmet",
-    })
-  ),
-  os: S.optionalKey(DevEngineOrArray).pipe(
-    $I.annoteKey("DevEnginesSchema.os", {
-      description: "Operating-system constraints for development, with optional versions and behavior when unmet",
-    })
-  ),
-  cpu: S.optionalKey(DevEngineOrArray).pipe(
-    $I.annoteKey("DevEnginesSchema.cpu", {
-      description: "CPU architecture constraints for development, with optional versions and behavior when unmet",
-    })
-  ),
-  libc: S.optionalKey(DevEngineOrArray).pipe(
-    $I.annoteKey("DevEnginesSchema.libc", {
-      description: "C standard library constraints for development, with optional versions and behavior when unmet",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("DevEnginesSchema", {
-    description:
-      "The `devEngines` field schema, modeling runtime and package-manager constraints as optional DevEngine slots.",
-  })
-);
+  )
+) {}
 
 /**
- * Decoded value produced by {@link DevEnginesSchema}.
+ * Companion types for {@link DevEnginesSchema}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type DevEnginesSchema = typeof DevEnginesSchema.Type;
+export declare namespace DevEnginesSchema {
+  /**
+   * The plain wire object a {@link DevEnginesSchema} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DevEnginesSchema.Encoded;
+}
 
 /**
  * The decoded `devEngines` field type.

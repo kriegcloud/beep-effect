@@ -13,17 +13,16 @@
 // silently dropped.
 
 import { $PackageJsonId } from "@beep/identity/packages";
-import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual, identity } from "effect/Function";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
+import { restOf, sameRest } from "./internal/wire.ts";
 
 const $I = $PackageJsonId.create("Person");
 
@@ -61,15 +60,6 @@ const rememberWire: {
 
 const KNOWN_KEYS = HashSet.make("name", "email", "url");
 
-// Compare the JSON spelling, including key order, rather than structural
-// equality: replay is permitted only while the rest still has the same wire form.
-const encodeRestJson = S.encodeResult(S.fromJsonString(S.Unknown));
-const restJsonOf = (value: unknown): string => Result.getOrThrowWith(encodeRestJson(value ?? {}), identity);
-const sameRest: {
-  (a: unknown, b: unknown): boolean;
-  (b: unknown): (a: unknown) => boolean;
-} = dual(2, (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b));
-
 // A remembered wire value is replayed only while it still describes the person
 // faithfully. A person whose fields were changed after decoding re-encodes
 // canonically instead of emitting stale text.
@@ -101,7 +91,7 @@ const isFaithful: {
       isShorthandExpressible(person)
     );
   }
-  const rest = restOf(wire);
+  const rest = restOf(wire, KNOWN_KEYS);
   return (
     wire.name === person.name && wire.email === person.email && wire.url === person.url && sameRest(rest, person.rest)
   );
@@ -118,9 +108,6 @@ const PersonFields = S.Struct({
 });
 
 const decodePersonFields = S.decodeUnknownEffect(PersonFields);
-
-const restOf = (raw: { readonly [k: string]: unknown }): Record<string, unknown> =>
-  R.fromEntries(A.filter(R.toEntries(raw), ([key]) => !HashSet.has(KNOWN_KEYS, key)));
 
 // Replay the remembered object verbatim (key order included) while it still
 // matches the person; otherwise rebuild it, typed fields winning on collision.
@@ -265,7 +252,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
           decodePersonFields(raw).pipe(
             Effect.mapError((error) => error.issue),
             Effect.map((fields) => {
-              const rest = restOf(raw);
+              const rest = restOf(raw, KNOWN_KEYS);
               return rememberWire(Person.make({ ...fields, ...(!R.isEmptyRecord(rest) ? { rest } : {}) }), raw);
             })
           ),

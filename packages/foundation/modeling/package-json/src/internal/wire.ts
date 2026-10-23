@@ -5,11 +5,17 @@
 // catch-all; on encode `rest` flattens back to top-level keys, so the on-disk
 // shape never carries a literal `rest` key.
 //
+// It also holds the provenance helpers the field models (`Person`,
+// `Repository`, `Bugs`, `Funding`) share to decide whether a remembered wire
+// value still describes the decoded value.
+//
 // Private implementation module — never re-exported from `index.ts`.
 
 import * as A from "effect/Array";
+import { dual, identity } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 
@@ -77,3 +83,58 @@ export const makeWire = <Self, RD = never, RE = never>(
     S.decodeTo(Class)
   );
 };
+
+/**
+ * The keys of a raw wire object outside a documented key set: what a field
+ * model's `rest` catch-all holds.
+ *
+ * **Example** (Split the unknown keys off a person object)
+ *
+ * ```ts
+ * import { restOf } from "@beep/package-json/internal/wire";
+ * import * as HashSet from "effect/HashSet";
+ *
+ * console.log(restOf({ name: "Ann", twitter: "@ann" }, HashSet.make("name", "email", "url"))); // { twitter: '@ann' }
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const restOf: {
+  (wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown>;
+  (known: HashSet.HashSet<string>): (wire: { readonly [k: string]: unknown }) => Record<string, unknown>;
+} = dual(
+  2,
+  (wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown> =>
+    R.fromEntries(A.filter(R.toEntries(wire), ([key]) => !HashSet.has(known, key)))
+);
+
+const encodeRestJson = S.encodeResult(S.fromJsonString(S.Unknown));
+const restJsonOf = (value: unknown): string => Result.getOrThrowWith(encodeRestJson(value ?? {}), identity);
+
+/**
+ * Whether two `rest` records have the same JSON spelling.
+ *
+ * **Details**
+ *
+ * Compares the JSON spelling, key order included, rather than structural
+ * equality: a remembered wire object is replayed only while its rest still has
+ * the same wire form. A nullish rest compares as `{}`.
+ *
+ * **Example** (Compare rest records by spelling)
+ *
+ * ```ts
+ * import { sameRest } from "@beep/package-json/internal/wire";
+ *
+ * console.log(sameRest({ a: 1, b: 2 }, { a: 1, b: 2 })); // true
+ * console.log(sameRest({ a: 1, b: 2 }, { b: 2, a: 1 })); // false
+ * console.log(sameRest(undefined, {})); // true
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const sameRest: {
+  (a: unknown, b: unknown): boolean;
+  (b: unknown): (a: unknown) => boolean;
+} = dual(2, (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b));

@@ -15,7 +15,7 @@
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { dual, identity } from "effect/Function";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -25,6 +25,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
+import { restOf, sameRest } from "./internal/wire.ts";
 
 const $I = $PackageJsonId.create("Repository");
 
@@ -135,23 +136,7 @@ const KNOWN_BUGS_KEYS = HashSet.make("url", "email");
 // reason. An unguarded replay hands back the bytes that were read, so a value
 // edited after decoding re-encodes as the stale original and the edit is
 // silently lost. `Person` guarded this; `Repository` and `Bugs` did not.
-// The comparison remains sensitive to JSON key order and defaults nullish rest to {}.
-const encodeRestJson = S.encodeResult(S.fromJsonString(S.Unknown));
-const restJsonOf = (value: unknown): string => Result.getOrThrowWith(encodeRestJson(value ?? {}), identity);
-const sameRest: {
-  (a: unknown, b: unknown): boolean;
-  (b: unknown): (a: unknown) => boolean;
-} = dual(2, (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b));
-
-/** The keys of `wire` outside the documented set, which is what `rest` holds. */
-const restOf: {
-  (wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown>;
-  (known: HashSet.HashSet<string>): (wire: { readonly [k: string]: unknown }) => Record<string, unknown>;
-} = dual(
-  2,
-  (wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown> =>
-    R.fromEntries(A.filter(R.toEntries(wire), ([key]) => !HashSet.has(known, key)))
-);
+// The rest comparison is `sameRest`: sensitive to JSON key order, nullish as {}.
 
 /**
  * Whether the shorthand string can still carry everything this value holds.

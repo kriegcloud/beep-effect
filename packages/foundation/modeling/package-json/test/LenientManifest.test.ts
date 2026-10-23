@@ -52,7 +52,9 @@ describe("LenientManifest.decodeResult", () => {
     assert.strictEqual(manifest.name, undefined);
     assert.strictEqual(manifest.version, "2.0.0");
     assert.strictEqual(manifest.rest?.name, 42);
-    assert.deepStrictEqual(manifest.issues, [{ field: "name", expected: "a string", value: 42 }]);
+    assert.deepStrictEqual<ReadonlyArray<unknown>>(manifest.issues, [
+      { field: "name", expected: "a string", value: 42 },
+    ]);
   });
 
   it("degrades a malformed license without touching its neighbors", () => {

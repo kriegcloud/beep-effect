@@ -4,8 +4,8 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { SbomDocument, Package, Person, Repository } from "../../effected/sbom/index.ts";
-import * as Manifest from "@beep/package-json";
+import * as Sbom from "../../effected/sbom/index.ts";
+import { SbomDocument } from "../../effected/sbom/index.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -28,9 +28,11 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 
 describe("index property floor", () => {
   roundTrips("SbomDocument through the barrel", SbomDocument);
-  it.effect("reexports the manifest schemas by identity", () => Effect.sync(() => {
-    assert.strictEqual(Package, Manifest.Package);
-    assert.strictEqual(Person, Manifest.Person);
-    assert.strictEqual(Repository, Manifest.Repository);
+  // W3-f: the barrel no longer re-exports the manifest models; consumers import
+  // them from @beep/package-json directly.
+  it.effect("does not re-export the manifest models", () => Effect.sync(() => {
+    for (const name of ["Package", "Person", "Repository"]) {
+      assert.notProperty(Sbom, name);
+    }
   }));
 });
