@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "commit": "d15d3b8062b0d773a3e1b52533a52380b304ab6b",
+  "commit": "4d7a18f37f3051d3d1632d1823d07caa981cf05b",
   "tool": "goals/effected-promotion/ops/lockfiles-adoption-parity.ts",
-  "generatedAt": "2026-10-23T19:53:55.743Z",
+  "generatedAt": "2026-10-23T21:34:04.102Z",
   "lockfile": "bun.lock",
   "packagesKeys": 3347,
   "names": {
@@ -204,6 +204,11 @@
       "@beep/yaml"
     ],
     "unclassified": []
+  },
+  "timing": {
+    "runs": 15,
+    "legacyMedianMs": 10.2,
+    "kitMedianMs": 160.2
   },
   "ok": true
 }

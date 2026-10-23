@@ -22,6 +22,8 @@
  *
  *   bun goals/effected-promotion/ops/lockfiles-adoption-parity.ts [--out <report.json>]
  */
+
+import * as NodeURL from "node:url";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
@@ -29,10 +31,12 @@ import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Data from "effect/Data";
 import * as DateTime from "effect/DateTime";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
@@ -66,6 +70,13 @@ const ParityReport = S.Struct({
     workspaceProtocolOnlyLegacy: Sample,
     unclassified: Sample,
   }),
+  // Per-read cost (median of TIMING_RUNS) of each reader over the same
+  // content: the legacy shallow decode against the full kit parse.
+  timing: S.Struct({
+    runs: S.Int,
+    legacyMedianMs: S.Finite,
+    kitMedianMs: S.Finite,
+  }),
   ok: S.Boolean,
 });
 type ParityReport = typeof ParityReport.Type;
@@ -77,7 +88,7 @@ class LockfilesAdoptionParityFailed extends Data.TaggedError("LockfilesAdoptionP
 }> {}
 
 const TOOL = "goals/effected-promotion/ops/lockfiles-adoption-parity.ts";
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 
 // --- frozen legacy readers (repo-cli before 3-A1) -------------------------------
 
@@ -136,6 +147,19 @@ const kitVersion = (lockfile: Lockfile, name: string): O.Option<string> =>
 
 // --- main ---------------------------------------------------------------------
 
+const TIMING_RUNS = 15;
+
+const medianMs = Effect.fnUntraced(function* <A, E>(read: Effect.Effect<A, E>) {
+  const samples = yield* Effect.forEach(A.range(1, TIMING_RUNS), () =>
+    Effect.map(Effect.timed(read), ([duration]) => Duration.toMillis(duration))
+  );
+  const ordered = A.sort(samples, Order.Number);
+  return Num.round(
+    O.getOrElse(A.get(ordered, TIMING_RUNS >> 1), () => 0),
+    1
+  );
+});
+
 const versionEquivalence = O.makeEquivalence(Str.Equivalence);
 
 const sorted = (values: Iterable<string>): ReadonlyArray<string> => A.sort(A.fromIterable(values), Order.String);
@@ -182,6 +206,9 @@ const program = Effect.fn("LockfilesAdoptionParity.main")(function* () {
   const workspaceProtocol = A.filter(disagreeing, isWorkspaceProtocolRow);
   const unclassified = A.filter(disagreeing, (row) => !isWorkspaceProtocolRow(row));
 
+  const legacyMedianMs = yield* medianMs(decodeLegacyLockfile(content));
+  const kitMedianMs = yield* medianMs(Lockfile.parse(content, { format: "bun" }));
+
   const ok =
     A.isReadonlyArrayEmpty(onlyLegacy) && A.isReadonlyArrayEmpty(onlyKit) && A.isReadonlyArrayEmpty(unclassified);
   const report: ParityReport = {
@@ -210,6 +237,7 @@ const program = Effect.fn("LockfilesAdoptionParity.main")(function* () {
           `${row.name}: legacy=${O.getOrElse(row.legacy, () => "None")} kit=${O.getOrElse(row.kit, () => "None")}`
       ),
     },
+    timing: { runs: TIMING_RUNS, legacyMedianMs, kitMedianMs },
     ok,
   };
   const encoded = yield* encodeReport(report);
@@ -218,7 +246,7 @@ const program = Effect.fn("LockfilesAdoptionParity.main")(function* () {
     onSome: (out) => fileSystem.writeFileString(out, `${encoded}\n`),
   });
   yield* Console.log(
-    `names: ${report.names.agree} agree (legacy ${report.names.legacy}, kit ${report.names.kit}); versions: ${report.versions.agree}/${report.versions.probed} agree (legacy Some ${report.versions.legacySome}, kit Some ${report.versions.kitSome}, ${workspaceProtocol.length} workspace-protocol rows now None, ${unclassified.length} unclassified)`
+    `names: ${report.names.agree} agree (legacy ${report.names.legacy}, kit ${report.names.kit}); versions: ${report.versions.agree}/${report.versions.probed} agree (legacy Some ${report.versions.legacySome}, kit Some ${report.versions.kitSome}, ${workspaceProtocol.length} workspace-protocol rows now None, ${unclassified.length} unclassified); per-read median ${legacyMedianMs} ms legacy, ${kitMedianMs} ms kit`
   );
   if (!ok) {
     return yield* new LockfilesAdoptionParityFailed({ reason: "the adopted readers disagree with the legacy readers" });
