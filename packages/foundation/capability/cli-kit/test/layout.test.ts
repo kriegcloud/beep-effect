@@ -3,9 +3,13 @@ import { sanitize } from "@beep/cli-kit/Fmt";
 import { displayWidth, graphemes, stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "@beep/cli-kit/internal/layout";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { contextOf, labelLink, linksOf, plainPaint, sgrProblems } from "./helpers/renderContext.ts";
 import type { Inline, RenderContext } from "@beep/cli-kit";
 import type { Span } from "@beep/cli-kit/internal/layout";
@@ -25,29 +29,37 @@ describe("flatten", () => {
     Effect.gen(function* () {
       const human = yield* contextOf();
       assert.strictEqual(
-        flatten([Doc.path("a", "b", "c")], human)
-          .map((s) => s.text)
-          .join(""),
+        pipe(
+          flatten([Doc.path("a", "b", "c")], human),
+          A.map((s) => s.text),
+          A.join("")
+        ),
         "a › b › c"
       );
       const agent = yield* contextOf({ audience: "agent" });
       assert.strictEqual(
-        flatten([Doc.path("a", "b", "c")], agent)
-          .map((s) => s.text)
-          .join(""),
+        pipe(
+          flatten([Doc.path("a", "b", "c")], agent),
+          A.map((s) => s.text),
+          A.join("")
+        ),
         "a > b > c"
       );
       const ascii = yield* contextOf({ glyphs: Glyphs.ascii });
       assert.strictEqual(
-        flatten([Doc.path("a", "b")], ascii)
-          .map((s) => s.text)
-          .join(""),
+        pipe(
+          flatten([Doc.path("a", "b")], ascii),
+          A.map((s) => s.text),
+          A.join("")
+        ),
         "a > b"
       );
       assert.strictEqual(
-        flatten([Doc.path("only")], human)
-          .map((s) => s.text)
-          .join(""),
+        pipe(
+          flatten([Doc.path("only")], human),
+          A.map((s) => s.text),
+          A.join("")
+        ),
         "only"
       );
     })
@@ -153,7 +165,7 @@ describe("flatten under hostile input: nothing can reassemble into a live sequen
     const out: Array<string> = [];
     let frontier = [""];
     for (let n = 1; n <= length; n++) {
-      frontier = frontier.flatMap((prefix) => ALPHABET.map((ch) => prefix + ch));
+      frontier = A.flatMap(frontier, (prefix) => A.map(ALPHABET, (ch) => prefix + ch));
       out.push(...frontier);
     }
     return out;
@@ -258,8 +270,8 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
           const target = { url: "https://example.test/x" };
           // Two spans under one link, in different styles, so a cut can land in either.
           const cut = Math.max(1, Math.floor(graphemes(label).length / 2));
-          const first = graphemes(label).slice(0, cut).join("");
-          const rest = graphemes(label).slice(cut).join("");
+          const first = A.join(graphemes(label).slice(0, cut), "");
+          const rest = A.join(graphemes(label).slice(cut), "");
           const spans = flatten([Doc.link(target, [Doc.text(first, "failure"), Doc.text(rest, { bold: true })])], ctx);
           const total = widthOf(spans);
           assert.isAbove(total, 6, "the case is wider than the smallest width tried");
@@ -284,7 +296,7 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
 
             // Whole graphemes: what is kept, less the marker, is a prefix made of whole source graphemes.
             const original = graphemes(label);
-            const kept = width >= total ? plain : plain.endsWith("…") ? plain.slice(0, -1) : plain;
+            const kept = width >= total ? plain : Str.endsWith("…")(plain) ? Str.slice(0, -1)(plain) : plain;
             let prefix = "";
             let matched = kept === "";
             for (const g of original) {
@@ -295,7 +307,13 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
 
             // Maximal: when it was cut, the next whole grapheme would not have fitted beside the marker.
             if (width < total) {
-              const k = kept === "" ? -1 : original.findIndex((_, i) => original.slice(0, i + 1).join("") === kept);
+              const k =
+                kept === ""
+                  ? -1
+                  : O.getOrElse(
+                      A.findFirstIndex(original, (_, i) => A.join(A.take(original, i + 1), "") === kept),
+                      () => -1
+                    );
               assert.isTrue(kept === "" || k >= 0, `${where}: the kept text ends on a grapheme boundary`);
               const next = original[k + 1];
               assert.isDefined(next, `${where}: something was left out`);
@@ -331,9 +349,11 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
   it("a wide character that would straddle the edge is dropped whole", () => {
     const spans: ReadonlyArray<Span> = [{ text: "日本語" }];
     const cut = (width: number, ellipsis: string) =>
-      truncateSpans(spans, width, ellipsis)
-        .map((s) => s.text)
-        .join("");
+      pipe(
+        truncateSpans(spans, width, ellipsis),
+        A.map((s) => s.text),
+        A.join("")
+      );
     assert.strictEqual(cut(5, "…"), "日本…", "2 + 2 + 1 fits exactly");
     assert.strictEqual(cut(4, "…"), "日…", "the second wide character would pass the edge");
     assert.strictEqual(cut(4, ""), "日本");
@@ -406,9 +426,14 @@ describe("paintSpans", () => {
 });
 
 describe("wrapSpans", () => {
-  const textOf = (line: ReadonlyArray<Span>): string => line.map((s) => s.text).join("");
+  const textOf = (line: ReadonlyArray<Span>): string =>
+    pipe(
+      line,
+      A.map((s) => s.text),
+      A.join("")
+    );
   const lines = (spans: ReadonlyArray<Span>, width: number): ReadonlyArray<string> =>
-    wrapSpans(spans, width).map(textOf);
+    A.map(wrapSpans(spans, width), textOf);
 
   it("breaks at spaces and drops the space at the break", () => {
     assert.deepStrictEqual(lines([{ text: "the quick brown fox" }], 10), ["the quick", "brown fox"]);
@@ -448,13 +473,15 @@ describe("wrapSpans", () => {
     ];
     const wrapped = wrapSpans(spans, 7);
     const pairs = (list: ReadonlyArray<Span>) =>
-      list.flatMap((span) =>
-        graphemes(span.text)
-          .filter((g) => g !== " ")
-          .map((g) => [g, span.token ?? null, span.link === undefined ? null : JSON.stringify(span.link)] as const)
+      A.flatMap(list, (span) =>
+        pipe(
+          graphemes(span.text),
+          A.filter((g) => g !== " "),
+          A.map((g) => [g, span.token ?? null, span.link === undefined ? null : JSON.stringify(span.link)] as const)
+        )
       );
     assert.deepStrictEqual(
-      wrapped.flatMap((line) => pairs(line)),
+      A.flatMap(wrapped, (line) => pairs(line)),
       pairs(spans),
       "nothing lost, added or restyled"
     );
@@ -473,18 +500,34 @@ describe("wrapSpans", () => {
   it("with hardBreak off, a word longer than the width stays whole on a line of its own", () => {
     const url = "https://example.test/a/very/long/path";
     assert.deepStrictEqual(
-      wrapSpans([{ text: `see ${url} now` }], 10, { hardBreak: false }).map((line) => line.map((s) => s.text).join("")),
+      A.map(wrapSpans([{ text: `see ${url} now` }], 10, { hardBreak: false }), (line) =>
+        pipe(
+          line,
+          A.map((s) => s.text),
+          A.join("")
+        )
+      ),
       ["see", url, "now"]
     );
     // Everything else is unchanged: spaces still break and wide characters are never split.
     assert.deepStrictEqual(
-      wrapSpans([{ text: "the quick brown fox" }], 9, { hardBreak: false }).map((line) =>
-        line.map((s) => s.text).join("")
+      A.map(wrapSpans([{ text: "the quick brown fox" }], 9, { hardBreak: false }), (line) =>
+        pipe(
+          line,
+          A.map((s) => s.text),
+          A.join("")
+        )
       ),
       ["the quick", "brown fox"]
     );
     assert.deepStrictEqual(
-      wrapSpans([{ text: "abcdefghij" }], 4, { hardBreak: true }).map((line) => line.map((s) => s.text).join("")),
+      A.map(wrapSpans([{ text: "abcdefghij" }], 4, { hardBreak: true }), (line) =>
+        pipe(
+          line,
+          A.map((s) => s.text),
+          A.join("")
+        )
+      ),
       ["abcd", "efgh", "ij"]
     );
   });

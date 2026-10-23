@@ -21,6 +21,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Document } from "@beep/cli-kit/Doc";
 import type { FailureSettings } from "@beep/cli-kit/internal/failureTarget";
 
@@ -53,7 +54,7 @@ it.effect(
       const cell = MutableRef.make<typeof fallbackTarget | undefined>(undefined);
       yield* Effect.gen(function* () {
         yield* refreshFailureTarget(AudienceShape.make({ kind: "agent", source: "flag" }), {
-          displayPath: (path) => path.replace("/root/", ""),
+          displayPath: (path) => Str.replace("/root/", "")(path),
           stackFrames: "all",
           spans: "off",
           appModule: "/app/main.ts",

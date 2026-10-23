@@ -3,6 +3,10 @@
 import { Glyphs } from "@beep/cli-kit";
 import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 
 describe("Glyphs", () => {
   it("unicode and ascii are distinct, tagged sets", () => {
@@ -15,8 +19,12 @@ describe("Glyphs", () => {
   });
 
   it("the ascii set is ascii only, and every set has spinner frames", () => {
-    const text = [Glyphs.ascii.ellipsis, Glyphs.ascii.bullet, Glyphs.ascii.arrow, ...Glyphs.ascii.spinner].join("");
-    for (const ch of text) assert.isBelow(ch.codePointAt(0) ?? 0, 128);
+    const text = A.join([Glyphs.ascii.ellipsis, Glyphs.ascii.bullet, Glyphs.ascii.arrow, ...Glyphs.ascii.spinner], "");
+    for (const ch of text)
+      assert.isBelow(
+        O.getOrElse(Str.codePointAt(ch, 0), () => 0),
+        128
+      );
     assert.isAbove(Glyphs.unicode.spinner.length, 0);
     assert.isAbove(Glyphs.ascii.spinner.length, 0);
   });
@@ -32,7 +40,10 @@ describe("Glyphs", () => {
 
   it("the ascii separators are ascii only", () => {
     for (const ch of Glyphs.ascii.pathSeparator.human + Glyphs.ascii.pathSeparator.agent) {
-      assert.isBelow(ch.codePointAt(0) ?? 0, 128);
+      assert.isBelow(
+        O.getOrElse(Str.codePointAt(ch, 0), () => 0),
+        128
+      );
     }
   });
 
@@ -51,7 +62,7 @@ describe("Glyphs", () => {
     assert.deepStrictEqual(Glyphs.unicode.tree, { branch: "├─ ", last: "└─ ", pipe: "│  ", blank: "   " });
     assert.deepStrictEqual(Glyphs.ascii.tree, { branch: "|-- ", last: "\\-- ", pipe: "|   ", blank: "    " });
     for (const set of [Glyphs.unicode, Glyphs.ascii]) {
-      const widths = Object.values(set.tree).map((g) => displayWidth(g));
+      const widths = A.map(R.values(set.tree), (g) => displayWidth(g));
       assert.strictEqual(new Set(widths).size, 1, `${set.kind} segments share a width so branches align`);
       assert.strictEqual(
         Glyphs.select({ ascii: set.kind === "ascii" }).tree,
@@ -59,7 +70,11 @@ describe("Glyphs", () => {
         "selection shares the readonly tree data"
       );
     }
-    for (const ch of Object.values(Glyphs.ascii.tree).join("")) assert.isBelow(ch.codePointAt(0) ?? 0, 128);
+    for (const ch of A.join(R.values(Glyphs.ascii.tree), ""))
+      assert.isBelow(
+        O.getOrElse(Str.codePointAt(ch, 0), () => 0),
+        128
+      );
   });
 });
 

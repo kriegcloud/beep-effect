@@ -1,6 +1,7 @@
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import type { ColorLevel } from "@beep/runtime-env";
 import type { NamedColor, Style } from "../Token.ts";
 
@@ -70,17 +71,17 @@ export const parseHex = (hex: string): Rgb | undefined => {
   const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(hex);
   if (short !== null) {
     return [
-      Number.parseInt(hex.charAt(1).repeat(2), 16),
-      Number.parseInt(hex.charAt(2).repeat(2), 16),
-      Number.parseInt(hex.charAt(3).repeat(2), 16),
+      Number.parseInt(Str.repeat(2)(Str.slice(1, 2)(hex)), 16),
+      Number.parseInt(Str.repeat(2)(Str.slice(2, 3)(hex)), 16),
+      Number.parseInt(Str.repeat(2)(Str.slice(3, 4)(hex)), 16),
     ];
   }
   const long = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
   if (long === null) return undefined;
   return [
-    Number.parseInt(hex.slice(1, 3), 16),
-    Number.parseInt(hex.slice(3, 5), 16),
-    Number.parseInt(hex.slice(5, 7), 16),
+    Number.parseInt(Str.slice(1, 3)(hex), 16),
+    Number.parseInt(Str.slice(3, 5)(hex), 16),
+    Number.parseInt(Str.slice(5, 7)(hex), 16),
   ];
 };
 
@@ -146,7 +147,7 @@ const foreground: {
   (level: ColorLevel): (fg: NonNullable<Style["fg"]>) => string | undefined;
 } = dual(2, (fg: NonNullable<Style["fg"]>, level: ColorLevel): string | undefined => {
   // A name that is not a colour is ignored, as a malformed hex is, rather than printing `undefined` into an escape.
-  if (!fg.startsWith("#")) return R.has(NAMED, fg) ? String(NAMED[fg]) : undefined;
+  if (!Str.startsWith("#")(fg)) return R.has(NAMED, fg) ? String(NAMED[fg]) : undefined;
   const rgb = parseHex(fg);
   if (rgb === undefined) return undefined;
   if (level === "truecolor") return `38;2;${rgb[0]};${rgb[1]};${rgb[2]}`;
@@ -202,7 +203,7 @@ export const paintStyle: {
   if (level === "none" || text === "") return text;
   let out = text;
   for (const { open, close } of wraps(style, level)) {
-    out = `${open}${out.replaceAll(close, `${close}${open}`)}${close}`;
+    out = `${open}${Str.replaceAll(close, `${close}${open}`)(out)}${close}`;
   }
   return out;
 });

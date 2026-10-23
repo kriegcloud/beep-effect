@@ -12,6 +12,7 @@ import { capOf, renderDoc, renderDocLines, targetText, textLines, trimLine } fro
 import { plainInline } from "@beep/cli-kit/internal/renderPlain";
 import { Render } from "@beep/cli-kit/Render";
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 import type { Flavour, Line } from "@beep/cli-kit/internal/renderDoc";
 import type { RenderContext } from "@beep/cli-kit/Render";
 
@@ -50,7 +51,7 @@ it.effect.prop(
           A.map(trimmed, (span) => span.text),
           ""
         ),
-        A.join(strings, "").trimEnd()
+        Str.trimEnd(A.join(strings, ""))
       );
     }),
   runs
@@ -78,7 +79,7 @@ it.effect.prop(
     Effect.sync(() => {
       assert.strictEqual(capOf(capOf(n)), capOf(n));
       const rendered = targetText({ file: "source.ts", line: n, col: 2 }, ctx);
-      const parts = rendered.split(":");
+      const parts = Str.split(rendered, ":");
       assert.deepStrictEqual(parts, ["source.ts", String(n), "2"]);
       const recovered = {
         file: A.getUnsafe(parts, 0),

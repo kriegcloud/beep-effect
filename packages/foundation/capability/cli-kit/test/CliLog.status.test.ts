@@ -3,10 +3,14 @@
 import { CliLog, CliLogger, CliTheme, Status } from "@beep/cli-kit";
 import { Audience } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { AudienceKind } from "@beep/runtime-env";
 import type * as LogLevel from "effect/LogLevel";
 
@@ -23,8 +27,8 @@ const capture = Effect.fn("capture")(function* (
   const err: Array<string> = [];
   const levels: Array<LogLevel.LogLevel> = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   const recorder = Logger.make(({ logLevel }) => {
     levels.push(logLevel);
@@ -66,7 +70,7 @@ describe("CliLog.status", () => {
       assert.lengthOf(err, 1);
       const line = err[0] ?? "";
       assert.include(line, ESC, "the glyph is painted");
-      assert.match(line.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), ""), /^✗ acme\/web: 404$/);
+      assert.match(Str.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "")(line), /^✗ acme\/web: 404$/);
     })
   );
 
@@ -95,8 +99,9 @@ describe("CliLog.status", () => {
     Effect.gen(function* () {
       const { err } = yield* capture(CliLog.status(Status.core, "failure", HOSTILE), "human");
       const line = err[0] ?? "";
-      const glyph = line.slice(0, line.indexOf(" boom"));
-      const text = line.slice(line.indexOf(" boom"));
+      const boom = O.getOrThrow(Str.indexOf(" boom")(line));
+      const glyph = Str.slice(0, boom)(line);
+      const text = Str.slice(boom)(line);
       assert.include(glyph, ESC, "the glyph keeps its colour");
       assert.notInclude(text, ESC, "nothing from the text reaches the terminal as an escape");
       assert.notInclude(text, BEL);
@@ -158,7 +163,7 @@ describe("CliLog.status", () => {
         ),
         "agent"
       );
-      assert.deepStrictEqual(err, [`${" ".repeat(64)}ℹ a`, "  ℹ b", "ℹ c", "ℹ d", `${" ".repeat(64)}ℹ e`]);
+      assert.deepStrictEqual(err, [`${Str.repeat(64)(" ")}ℹ a`, "  ℹ b", "ℹ c", "ℹ d", `${Str.repeat(64)(" ")}ℹ e`]);
     })
   );
 

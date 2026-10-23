@@ -1,5 +1,6 @@
 import { formatIssue, issueEntries, issueTreeChildren } from "@beep/cli-kit/internal/format";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -10,7 +11,7 @@ it.effect("root issues keep core phrasing and a trie retains root, repeated-path
     assert.lengthOf(entries, 1);
     assert.deepStrictEqual(
       formatIssue(error.issue),
-      entries.map((entry) => entry.message)
+      A.map(entries, (entry) => entry.message)
     );
     assert.deepStrictEqual(
       issueTreeChildren([

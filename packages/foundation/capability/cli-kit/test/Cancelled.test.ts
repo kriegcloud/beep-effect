@@ -1,22 +1,26 @@
 import { Cancelled, CliRuntime, NotInteractive } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 
 const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -56,7 +60,7 @@ describe("Cancelled", () => {
   it("the exit-code marker is not an own enumerable property: a JSON dump or logger dump does not carry it", () => {
     const cancelled = Cancelled.make({ reason: "escape" });
     assert.notInclude(JSON.stringify(cancelled), "errorExitCode");
-    assert.notInclude(Object.keys(cancelled).join(","), "errorExitCode");
+    assert.notInclude(A.join(Struct.keys(cancelled), ","), "errorExitCode");
     // But core still finds it: `in` sees a prototype getter, and the code is read through it.
     assert.isTrue(Runtime.errorExitCode in cancelled);
     assert.strictEqual(Runtime.getErrorExitCode(cancelled), 130);
@@ -92,7 +96,7 @@ describe("a library that rewrites error.message cannot make these errors throw",
         error.message = "rewritten by a library";
       });
       assert.strictEqual(error.message, line);
-      assert.strictEqual(String(error).includes("rewritten"), false);
+      assert.strictEqual(Str.includes("rewritten")(String(error)), false);
     }
   });
 
@@ -129,7 +133,7 @@ describe("the fixed lines are the errors' own message", () => {
     });
     assert.notInclude(JSON.stringify(decoded), CANCELLED);
     assert.isTrue(Equal.equals(decoded, Cancelled.make({ reason: "escape" })));
-    assert.notInclude(Object.keys(NotInteractive.make()).join(","), "message");
+    assert.notInclude(A.join(Struct.keys(NotInteractive.make()), ","), "message");
   });
 
   it.effect("a consumer render that prints error.message gets the kit's line, for these errors and its own", () =>

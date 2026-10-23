@@ -10,12 +10,15 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as PlatformError from "effect/PlatformError";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
+import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 import * as TestClock from "effect/testing/TestClock";
 
@@ -29,8 +32,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -88,9 +91,9 @@ const harness = Effect.fn("harness")(function* (options: {
   };
 });
 
-const ndjson = (lines: ReadonlyArray<string>) => lines.filter((line) => line.startsWith("{"));
+const ndjson = (lines: ReadonlyArray<string>) => A.filter(lines, (line) => Str.startsWith("{")(line));
 /** The sink's one error line. CliLogger's plain lines share stderr, so it is picked out by its prefix. */
-const plain = (lines: ReadonlyArray<string>) => lines.filter((line) => line.startsWith("diagnostics log file"));
+const plain = (lines: ReadonlyArray<string>) => A.filter(lines, (line) => Str.startsWith("diagnostics log file")(line));
 const settle = Effect.forEach(Array.from({ length: 50 }), () => Effect.yieldNow);
 
 const program = Effect.gen(function* () {
@@ -167,15 +170,19 @@ describe("CliLog.layer file option", () => {
       const h = yield* harness({ file: { path: PATH }, env: { [LEVEL_ENV]: "debug" } });
       yield* h.log(program);
       yield* h.close;
-      const lines = (h.file() ?? "").split("\n").filter((l) => l !== "");
+      const lines = pipe(
+        h.file() ?? "",
+        Str.split("\n"),
+        A.filter((l) => l !== "")
+      );
       assert.strictEqual(lines.length, 2);
       // Identical to the stderr line for the same log call, byte for byte.
       assert.deepStrictEqual(lines, ndjson(h.err));
       assert.deepStrictEqual(
-        lines.map((l) => JSON.parse(l).level),
+        A.map(lines, (l) => JSON.parse(l).level),
         ["DEBUG", "ERROR"]
       );
-      assert.isTrue((h.file() ?? "").endsWith("\n"));
+      assert.isTrue(Str.endsWith("\n")(h.file() ?? ""));
     })
   );
 
@@ -198,7 +205,14 @@ describe("CliLog.layer file option", () => {
       });
       yield* set.log(program);
       yield* set.close;
-      assert.strictEqual((set.file() ?? "").split("\n").filter((l) => l !== "").length, 1);
+      assert.strictEqual(
+        pipe(
+          set.file() ?? "",
+          Str.split("\n"),
+          A.filter((l) => l !== "")
+        ).length,
+        1
+      );
 
       const unset = yield* harness({ file: { envVar: FILE_ENV }, env: { [LEVEL_ENV]: "error" } });
       yield* unset.log(program);
@@ -229,10 +243,10 @@ describe("CliLog.layer file option", () => {
       pathOrDescriptor: HOSTILE,
       description: `denied${ESC}]8;;x${ESC}\\\n::error::injected`,
     });
-    const lines = (entries: ReadonlyArray<string>) => entries.flatMap((entry) => entry.split(/\r\n|\r|\n/));
+    const lines = (entries: ReadonlyArray<string>) => A.flatMap(entries, (entry) => Str.split(entry, /\r\n|\r|\n/));
     const failureLines = (err: ReadonlyArray<string>) => {
-      const at = err.findIndex((entry) => entry.startsWith("diagnostics log file"));
-      assert.isAtLeast(at, 0, `control: the failure line was printed\n${err.join("\n")}`);
+      const at = O.getOrElse(A.findFirstIndex(err, Str.startsWith("diagnostics log file")), () => -1);
+      assert.isAtLeast(at, 0, `control: the failure line was printed\n${A.join(err, "\n")}`);
       return lines([A.getUnsafe(err, at)]);
     };
 
@@ -254,10 +268,10 @@ describe("CliLog.layer file option", () => {
             const printed = failureLines(h.err);
             for (const line of printed)
               assert.notInclude(line, ESC, Result.getOrThrow(S.encodeUnknownResult(Json)(line)));
-            const commands = printed.filter((line) => /^[\s\u0085]*::/.test(line) || line.includes("##["));
+            const commands = A.filter(printed, (line) => /^[\s\u0085]*::/.test(line) || Str.includes("##[")(line));
             if (ci === "github-actions") assert.deepStrictEqual(commands, []);
             else assert.isAbove(commands.length, 0, "control: outside Actions the text is not neutralized");
-            assert.include(printed.join("\n"), "add-mask", "the text is kept, only made inert");
+            assert.include(A.join(printed, "\n"), "add-mask", "the text is kept, only made inert");
           })
       );
     }
@@ -275,7 +289,7 @@ describe("CliLog.layer file option", () => {
         yield* h.log(Effect.logError("first"));
         let spins = 0;
         while (plain(h.err).length === 0 && spins++ < 1000) yield* Effect.yieldNow;
-        assert.strictEqual(plain(h.err).length, 1, h.err.join("\n"));
+        assert.strictEqual(plain(h.err).length, 1, A.join(h.err, "\n"));
 
         // The program is unaffected: it keeps logging and finishes with its own value. The fault has used up its
         // one failure, so a healthy sink WOULD write these: they are dropped because the sink disabled itself.
@@ -293,7 +307,7 @@ describe("CliLog.layer file option", () => {
         yield* h.close;
 
         const errors = plain(h.err);
-        assert.strictEqual(errors.length, 1, errors.join("\n"));
+        assert.strictEqual(errors.length, 1, A.join(errors, "\n"));
         assert.match(
           errors[0] ?? "",
           new RegExp(`^diagnostics log file ${PATH} failed: .*disk said no.*; further file logging disabled$`)
@@ -318,7 +332,7 @@ describe("CliLog.layer file option", () => {
         yield* h.log(Effect.logError("queued one"));
         yield* h.log(Effect.logError("queued two"));
         yield* h.close;
-        assert.strictEqual(plain(h.err).length, 1, h.err.join("\n"));
+        assert.strictEqual(plain(h.err).length, 1, A.join(h.err, "\n"));
         assert.isFalse(h.handle.volume.has(PATH));
       })
     );
@@ -356,7 +370,7 @@ describe("CliLog.layer file option", () => {
         yield* h.log(Effect.logError("second"));
         yield* settle;
         yield* h.close;
-        assert.strictEqual(plain(h.err).length, 1, h.err.join("\n"));
+        assert.strictEqual(plain(h.err).length, 1, A.join(h.err, "\n"));
         assert.match(plain(h.err)[0] ?? "", /failed: .*disk exploded.*; further file logging disabled$/);
         assert.isFalse(h.handle.volume.has(PATH));
       })
@@ -375,7 +389,7 @@ describe("CliLog.layer file option", () => {
         yield* h.log(Effect.logError("second"));
         yield* settle;
         yield* h.close;
-        assert.strictEqual(plain(h.err).length, 1, h.err.join("\n"));
+        assert.strictEqual(plain(h.err).length, 1, A.join(h.err, "\n"));
         assert.isFalse(h.handle.volume.has("/locked/dir/log.ndjson"));
       })
     );
@@ -403,7 +417,11 @@ describe("CliLog.layer file option", () => {
       yield* h.close;
       assert.strictEqual(made, 1);
       assert.strictEqual(
-        (h.handle.volume.text("/deep/er/log.ndjson") ?? "").split("\n").filter((l) => l !== "").length,
+        pipe(
+          h.handle.volume.text("/deep/er/log.ndjson") ?? "",
+          Str.split("\n"),
+          A.filter((l) => l !== "")
+        ).length,
         3
       );
     })

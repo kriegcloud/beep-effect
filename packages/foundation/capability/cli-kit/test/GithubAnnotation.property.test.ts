@@ -6,13 +6,23 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const unescape = (text: string) =>
-  text.replace(/%3A/g, ":").replace(/%2C/g, ",").replace(/%0D/g, "\r").replace(/%0A/g, "\n").replace(/%25/g, "%");
-const unescapeMessage = (text: string) => text.replace(/%0D/g, "\r").replace(/%0A/g, "\n").replace(/%25/g, "%");
+  pipe(
+    text,
+    Str.replace(/%3A/g, ":"),
+    Str.replace(/%2C/g, ","),
+    Str.replace(/%0D/g, "\r"),
+    Str.replace(/%0A/g, "\n"),
+    Str.replace(/%25/g, "%")
+  );
+const unescapeMessage = (text: string) =>
+  pipe(text, Str.replace(/%0D/g, "\r"), Str.replace(/%0A/g, "\n"), Str.replace(/%25/g, "%"));
 
 it.effect.prop(
   "annotation formatting preserves message and metadata through the workflow grammar",
@@ -20,19 +30,18 @@ it.effect.prop(
   ([annotation, message]) =>
     Effect.sync(() => {
       const formatted = GithubAnnotation.format(annotation, message);
-      const end = formatted.indexOf("::", 2);
-      assert.isAtLeast(end, 2);
-      const header = formatted.slice(2, end);
-      const firstSpace = header.indexOf(" ");
-      const level = firstSpace < 0 ? header : header.slice(0, firstSpace);
+      const end = 2 + O.getOrThrow(Str.indexOf("::")(Str.slice(2)(formatted)));
+      const header = Str.slice(2, end)(formatted);
+      const firstSpace = O.getOrElse(Str.indexOf(" ")(header), () => -1);
+      const level = firstSpace < 0 ? header : Str.slice(0, firstSpace)(header);
       assert.strictEqual(level, annotation.level);
-      const pairs = firstSpace < 0 ? [] : header.slice(firstSpace + 1).split(",");
+      const pairs = firstSpace < 0 ? [] : pipe(header, Str.slice(firstSpace + 1), Str.split(","));
       const fields: Record<string, string> = {};
       for (const pair of pairs) {
-        const equals = pair.indexOf("=");
-        fields[pair.slice(0, equals)] = unescape(pair.slice(equals + 1));
+        const equals = O.getOrThrow(Str.indexOf("=")(pair));
+        fields[Str.slice(0, equals)(pair)] = unescape(Str.slice(equals + 1)(pair));
       }
-      const decodedMessage = unescapeMessage(formatted.slice(end + 2));
+      const decodedMessage = unescapeMessage(Str.slice(end + 2)(formatted));
       assert.strictEqual(decodedMessage, message);
       const reconstructed = {
         level: annotation.level,

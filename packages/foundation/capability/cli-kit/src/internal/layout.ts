@@ -3,6 +3,7 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { LinkTarget } from "../Doc.ts";
 import { sanitize } from "../Fmt.ts";
 import { displayWidth, graphemes } from "./displayWidth.ts";
@@ -53,7 +54,7 @@ const pathSeparator = (ctx: RenderContext): string =>
   ctx.audience === "agent" ? ctx.glyphs.pathSeparator.agent : ` ${ctx.glyphs.pathSeparator.human} `;
 
 /** A link target is sanitized like content, and loses its line breaks, which no URL or path holds. */
-const safeTargetText = (text: string): string => sanitize(text).replace(/[\r\n]/g, "");
+const safeTargetText = (text: string): string => Str.replace(/[\r\n]/g, "")(sanitize(text));
 
 const safeTarget = (target: LinkTarget): LinkTarget =>
   S.is(LinkTarget.members[0])(target)

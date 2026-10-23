@@ -1,18 +1,21 @@
 import { CliAudience, CliFailure, CliRuntime, Render } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import type { CliFailureOptions, CliLogOptions, FailureDetails } from "@beep/cli-kit";
 
@@ -33,11 +36,10 @@ const platformServices = Layer.mergeAll(
   )
 );
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 interface Frame {
@@ -73,10 +75,12 @@ const failedUnder = (frame: Frame) =>
   Cause.annotate(Cause.fail(new Error("Config validation failed")), Context.make(Cause.StackTrace, frame));
 
 const trail = (frame: Frame, options?: CliFailureOptions): string =>
-  Render.plain(CliFailure.toDoc(failedUnder(frame), options), Render.contextOf({ audience: "agent" }))
-    .split("\n")
-    .filter((line) => line.startsWith("in: "))
-    .join("\n");
+  pipe(
+    Render.plain(CliFailure.toDoc(failedUnder(frame), options), Render.contextOf({ audience: "agent" })),
+    Str.split("\n"),
+    A.filter((line) => Str.startsWith("in: ")(line)),
+    A.join("\n")
+  );
 
 it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   describe("CliFailure.toDoc: the span trail", () => {
@@ -146,7 +150,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("a real Effect.fn defined in this repository is the program's, so the default keeps it", () =>
       Effect.gen(function* () {
         const load = Effect.fn("load")(function* () {
-          return yield* new TestError("nope");
+          return yield* TestError.make({ message: "nope" });
         });
         const exit = yield* Effect.exit(load());
         if (!Exit.isFailure(exit)) throw new Error("expected a failure");
@@ -246,11 +250,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
     it("a drive letter in another case is the same drive", () => {
       assert.strictEqual(
-        trail(companion(LOADER, KIT), { appModule: BIN.replace("C:", "c:") }),
+        trail(companion(LOADER, KIT), { appModule: Str.replace("C:", "c:")(BIN) }),
         "in: ConfigLoader.load"
       );
       assert.strictEqual(
-        trail(companion(LOADER.replace("C:", "c:"), KIT), { appModule: BIN }),
+        trail(companion(Str.replace("C:", "c:")(LOADER), KIT), { appModule: BIN }),
         "in: ConfigLoader.load",
         "either side may carry the lower case"
       );
@@ -315,7 +319,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       const err: Array<string> = [];
       const double: Console.Console = Object.assign(Object.create(console), {
         log: () => undefined,
-        error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+        error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
       });
       const tool = Command.make("tool").pipe(
         Command.withSharedFlags(CliAudience.flags()),
@@ -343,7 +347,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         Effect.provideService(Console.Console, double)
         // `env.log` types a file sink's FileSystem and Path into main's requirements; none is written here.
       );
-      return err.join("\n");
+      return A.join(err, "\n");
     });
 
     it.effect("defaults to app and keeps the setting through an audience flag's rewrite of the report", () =>
@@ -365,7 +369,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const kept = yield* runTool(
           undefined,
           undefined,
-          `file://${KIT.replace(/dist\/ConfigFile\.js:41:7$/, "dist/bin.js")}`
+          `file://${Str.replace(/dist\/ConfigFile\.js:41:7$/, "dist/bin.js")(KIT)}`
         );
         assert.include(kept, "ConfigFile.loadFrom", "the bin's own package is config-file's here, so its spans stay");
         const dropped = yield* runTool(undefined);
@@ -399,7 +403,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("an invalid value is ignored with one warning naming the variable and the settings", () =>
       Effect.gen(function* () {
         const text = yield* runTool(undefined, undefined, undefined, { spansEnvVar: "TOOL_SPANS", value: "loud" });
-        const warnings = text.split("\n").filter((line) => line.includes("TOOL_SPANS=loud"));
+        const warnings = pipe(
+          text,
+          Str.split("\n"),
+          A.filter((line) => Str.includes("TOOL_SPANS=loud")(line))
+        );
         assert.lengthOf(warnings, 1, text);
         assert.include(warnings[0], "is not a span setting (app|all|off); ignoring it");
         assert.include(text, "in: sync", "the default applies");
@@ -412,13 +420,18 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       () =>
         Effect.gen(function* () {
           const bad = { spansEnvVar: "TOOL_SPANS", value: "loud" };
-          const warnings = (text: string) => text.split("\n").filter((line) => line.includes("TOOL_SPANS=loud"));
+          const warnings = (text: string) =>
+            pipe(
+              text,
+              Str.split("\n"),
+              A.filter((line) => Str.includes("TOOL_SPANS=loud")(line))
+            );
           const atNone = yield* runTool(undefined, undefined, undefined, bad, { level: "None" });
           assert.lengthOf(warnings(atNone), 1, `printed at level None: ${atNone}`);
           // With the sink live (Debug, NDJSON), the warning is still one plain line, and no record carries it.
           const sinkOn = yield* runTool(undefined, undefined, undefined, bad, { level: "Debug", format: "json" });
           assert.lengthOf(warnings(sinkOn), 1, sinkOn);
-          assert.isFalse(warnings(sinkOn)[0]?.startsWith("{"), "a plain line, not an NDJSON record");
+          assert.isFalse(Str.startsWith("{")(A.getUnsafe(warnings(sinkOn), 0)), "a plain line, not an NDJSON record");
           // Side by side with log.envVar's own invalid value: delivered the same way.
           const both = yield* runTool(
             undefined,
@@ -428,12 +441,16 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
             { envVar: "TOOL_LOG", format: "json" },
             { TOOL_LOG: "shout" }
           );
-          const logWarning = both.split("\n").filter((line) => line.includes("TOOL_LOG=shout"));
+          const logWarning = pipe(
+            both,
+            Str.split("\n"),
+            A.filter((line) => Str.includes("TOOL_LOG=shout")(line))
+          );
           assert.lengthOf(logWarning, 1, both);
           assert.lengthOf(warnings(both), 1, both);
           assert.strictEqual(
-            warnings(both)[0]?.startsWith("{"),
-            logWarning[0]?.startsWith("{"),
+            Str.startsWith("{")(A.getUnsafe(warnings(both), 0)),
+            Str.startsWith("{")(A.getUnsafe(logWarning, 0)),
             "the two env vars' warnings take the same shape"
           );
         })
@@ -452,11 +469,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         });
         const [defaults = [], all = [], app = []] = seen;
         assert.isFalse(
-          defaults.some((line) => line.startsWith("in: ")),
+          A.some(defaults, (line) => Str.startsWith("in: ")(line)),
           "the run's off"
         );
-        assert.isTrue(all.some((line) => line.includes("ConfigFile.loadFrom")));
-        assert.isTrue(app.some((line) => line === "in: sync"));
+        assert.isTrue(A.some(all, (line) => Str.includes("ConfigFile.loadFrom")(line)));
+        assert.isTrue(A.some(app, (line) => line === "in: sync"));
         assert.notMatch(app[0] ?? "", /^\[FAIL\]/, "status: false still applies beside spans");
       })
     );

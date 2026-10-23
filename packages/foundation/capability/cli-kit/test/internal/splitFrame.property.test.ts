@@ -8,6 +8,8 @@ import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
 
 import { splitFrame } from "@beep/cli-kit/internal/splitFrame";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const words = S.Literals(["a", "b", "/", ":", "1", "(", ")"]).pipe(
   S.Array,
@@ -33,7 +35,7 @@ it.effect.prop(
   [Arbitrary.schema(S.String)],
   ([raw]) =>
     Effect.sync(() => {
-      const text = raw.trim().replace(/^at\s+/, "");
+      const text = pipe(raw, Str.trim, Str.replace(/^at\s+/, ""));
       const wrapped = /^(.*?)\s+\((.*)\)$/.exec(text);
       const fn = wrapped?.[1];
       const expected = {

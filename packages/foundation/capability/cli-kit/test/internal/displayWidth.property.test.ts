@@ -2,6 +2,7 @@ import { displayWidth, graphemes, stripAnsi } from "@beep/cli-kit/internal/displ
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -12,12 +13,12 @@ it.effect.prop(
   ([text]) =>
     Effect.sync(() => {
       const parsed = graphemes(text);
-      assert.strictEqual(parsed.join(""), text);
-      assert.deepStrictEqual(graphemes(parsed.join("")), parsed);
+      assert.strictEqual(A.join(parsed, ""), text);
+      assert.deepStrictEqual(graphemes(A.join(parsed, "")), parsed);
       const visible = stripAnsi(text);
       assert.strictEqual(
         displayWidth(visible),
-        graphemes(visible).reduce((sum, segment) => sum + displayWidth(segment), 0)
+        A.reduce(graphemes(visible), 0, (sum, segment) => sum + displayWidth(segment))
       );
     }),
   runs

@@ -4,13 +4,17 @@ import { Fmt } from "@beep/cli-kit/Fmt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -20,9 +24,8 @@ it.effect("CliLogStatusOptions preserves optional keys, undefined and plain cons
     assert.deepStrictEqual(omitted, {});
     const undefinedOptions = CliLogStatusOptions.make({ level: undefined, indent: undefined });
     assert.deepStrictEqual(undefinedOptions, { level: undefined, indent: undefined });
-    assert.isTrue(Object.hasOwn(undefinedOptions, "level"));
-    assert.isTrue(Object.hasOwn(undefinedOptions, "indent"));
-    assert.isFalse(Object.hasOwn(undefinedOptions, "_tag"));
+    // Own keys: both explicit-undefined keys are kept, and no tag is added.
+    assert.deepStrictEqual(A.sort(Struct.keys(undefinedOptions), Str.Order), ["indent", "level"]);
     for (const value of [
       omitted,
       undefinedOptions,
@@ -97,7 +100,7 @@ it.layer(CliLog.layer({ format: "json", level: "Info", plainLogger: false, neutr
         const captured: Console.Console = {
           ...console,
           error: (...args: ReadonlyArray<unknown>) => {
-            lines.push(args.map(String).join(" "));
+            lines.push(pipe(args, A.map(String), A.join(" ")));
           },
         };
         yield* Effect.logInfo(text).pipe(Effect.provideService(Console.Console, captured));
@@ -107,7 +110,7 @@ it.layer(CliLog.layer({ format: "json", level: "Info", plainLogger: false, neutr
         const encoded = yield* S.encodeEffect(Record)(value);
         assert.deepStrictEqual(yield* S.decodeEffect(Record)(encoded), value);
         assert.strictEqual(yield* S.encodeEffect(Record)(yield* S.decodeEffect(Record)(encoded)), encoded);
-        assert.isFalse((lines[0] ?? "").includes("##["));
+        assert.isFalse(Str.includes("##[")(lines[0] ?? ""));
       }),
     runs
   );
@@ -128,7 +131,7 @@ it.layer(
         const captured: Console.Console = {
           ...console,
           error: (...args: ReadonlyArray<unknown>) => {
-            lines.push(args.map(String).join(" "));
+            lines.push(pipe(args, A.map(String), A.join(" ")));
           },
         };
         yield* Effect.withFiber((fiber) =>

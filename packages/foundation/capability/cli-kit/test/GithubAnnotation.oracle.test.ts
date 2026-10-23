@@ -2,6 +2,9 @@ import { GithubAnnotation } from "@beep/cli-kit";
 import { WorkflowCommand } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { GithubAnnotationProperties } from "@beep/cli-kit";
 
 type Level = "error" | "warning" | "notice";
@@ -28,12 +31,14 @@ const oracle = (annotation: GithubAnnotationProperties, message: string): string
 const decode = (command: string) => {
   const match = /^::(error|warning|notice)(?: ([^:]*))?::([\s\S]*)$/.exec(command);
   if (match === null) return undefined;
-  const unescapeData = (text: string): string => text.replace(/%0D/g, "\r").replace(/%0A/g, "\n").replace(/%25/g, "%");
-  const unescapeProperty = (text: string): string => unescapeData(text.replace(/%3A/g, ":").replace(/%2C/g, ","));
+  const unescapeData = (text: string): string =>
+    pipe(text, Str.replace(/%0D/g, "\r"), Str.replace(/%0A/g, "\n"), Str.replace(/%25/g, "%"));
+  const unescapeProperty = (text: string): string =>
+    unescapeData(pipe(text, Str.replace(/%3A/g, ":"), Str.replace(/%2C/g, ",")));
   const properties: Record<string, string> = {};
-  for (const pair of match[2] === undefined || match[2] === "" ? [] : match[2].split(",")) {
-    const at = pair.indexOf("=");
-    properties[pair.slice(0, at)] = unescapeProperty(pair.slice(at + 1));
+  for (const pair of match[2] === undefined || match[2] === "" ? [] : Str.split(match[2], ",")) {
+    const at = O.getOrThrow(Str.indexOf("=")(pair));
+    properties[Str.slice(0, at)(pair)] = unescapeProperty(Str.slice(at + 1)(pair));
   }
   return { level: match[1], properties, message: unescapeData(A.getUnsafe(match, 3)) };
 };
@@ -43,7 +48,7 @@ const upTo = (length: number): ReadonlyArray<string> => {
   const out: Array<string> = [""];
   let frontier = [""];
   for (let n = 1; n <= length; n++) {
-    frontier = frontier.flatMap((prefix) => ALPHABET.map((ch) => prefix + ch));
+    frontier = A.flatMap(frontier, (prefix) => A.map(ALPHABET, (ch) => prefix + ch));
     out.push(...frontier);
   }
   return out;
@@ -174,7 +179,7 @@ describe("GithubAnnotation.format against the WorkflowCommand oracle", () => {
     ]) {
       const out = GithubAnnotation.format({ level: "error", title: "t\n::error::x" }, message);
       assert.notMatch(out, /[\r\n]/, JSON.stringify(message));
-      assert.strictEqual(out.match(/^::/gm)?.length, 1, "exactly one command on the line");
+      assert.lengthOf(A.fromIterable(Str.matchAll(/^::/gm)(out)), 1, "exactly one command on the line");
     }
   });
 

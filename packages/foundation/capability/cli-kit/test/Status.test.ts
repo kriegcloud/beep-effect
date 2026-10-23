@@ -1,12 +1,14 @@
 import { Glyphs, Status, Token } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import type { CoreStatusName } from "@beep/cli-kit";
 
 describe("Status.core", () => {
   it("holds the six core statuses with their ranks", () => {
-    const ranks = (["success", "skip", "pending", "info", "warning", "failure"] as const).map(
+    const ranks = A.map(
+      ["success", "skip", "pending", "info", "warning", "failure"] as const,
       (name) => Status.core.def(name).rank
     );
     assert.deepStrictEqual(ranks, [10, 20, 30, 40, 60, 90]);

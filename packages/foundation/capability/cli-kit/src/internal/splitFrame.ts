@@ -1,3 +1,6 @@
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
+
 /** What JavaScript's `.` does not match outside dotAll mode: the four line terminators. */
 const isTerminator = (ch: string | undefined): boolean => ch === "\n" || ch === "\r" || ch === " " || ch === " ";
 
@@ -15,7 +18,7 @@ const isSpace = (ch: string | undefined): boolean => ch !== undefined && /\s/.te
  * function nor the location may hold a line terminator, though the whitespace between them may.
  */
 const wrappedFrame = (text: string): { readonly fn: string; readonly location: string } | undefined => {
-  if (!text.endsWith(")")) return undefined;
+  if (!Str.endsWith(")")(text)) return undefined;
   let firstTerminator = -1;
   let lastTerminator = -1;
   for (let i = 0; i < text.length; i++) {
@@ -35,7 +38,7 @@ const wrappedFrame = (text: string): { readonly fn: string; readonly location: s
     while (isSpace(text[j])) j++;
     // `(` straight after the run, room for the closing `)`, and no terminator inside the location.
     if (text[j] === "(" && j <= text.length - 2 && lastTerminator < j) {
-      return { fn: text.slice(0, i), location: text.slice(j + 1, -1) };
+      return { fn: Str.slice(0, i)(text), location: Str.slice(j + 1, -1)(text) };
     }
     // Every later start inside this run reaches the same `j` and fails the same way.
     i = j;
@@ -60,7 +63,7 @@ const wrappedFrame = (text: string): { readonly fn: string; readonly location: s
  * @since 0.0.0
  */
 export const splitFrame = (raw: string): { readonly text: string; readonly fn?: string; readonly location: string } => {
-  const text = raw.trim().replace(/^at\s+/, "");
+  const text = pipe(raw, Str.trim, Str.replace(/^at\s+/, ""));
   const wrapped = wrappedFrame(text);
   return {
     text,

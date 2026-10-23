@@ -7,6 +7,9 @@ import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
 
 import { formatIssue, issueEntries, issueTreeChildren } from "@beep/cli-kit/internal/format";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { IssueEntry, IssueTreeNode } from "@beep/cli-kit/internal/format";
 
 const sample = S.Struct({ key: S.String, value: S.Json });
@@ -39,7 +42,7 @@ it.effect.prop(
       assert.deepStrictEqual(parsed, [{ message: "unknown key", path: [`extra_${input.key}`] }]);
       assert.deepStrictEqual(
         formatIssue(error.issue),
-        parsed.map((entry) => `${entry.message} at ${entry.path.join(".")}`)
+        A.map(parsed, (entry) => `${entry.message} at ${A.join(entry.path, ".")}`)
       );
       const json = S.fromJsonString(S.Json);
       const reparsedRaw = yield* S.decodeEffect(json)(yield* S.encodeEffect(json)(raw));
@@ -52,19 +55,23 @@ it.effect.prop(
 const path = S.Array(S.Literals(["group", "item", "value"]));
 const entry = S.Struct({ message: S.String, path });
 const readTree = (nodes: ReadonlyArray<IssueTreeNode>, path: ReadonlyArray<string> = []): ReadonlyArray<IssueEntry> =>
-  nodes.flatMap((node) => {
+  A.flatMap(nodes, (node) => {
     if (node.children !== undefined) return readTree(node.children, [...path, node.label]);
     // Collapsed single leaves have the last segment followed by ': '.
-    const separator = node.label.indexOf(": ");
-    return separator < 0
-      ? [{ message: node.label, path }]
-      : [{ message: node.label.slice(separator + 2), path: [...path, node.label.slice(0, separator)] }];
+    return O.match(Str.indexOf(": ")(node.label), {
+      onNone: () => [{ message: node.label, path }],
+      onSome: (separator) => [
+        { message: Str.slice(separator + 2)(node.label), path: [...path, Str.slice(0, separator)(node.label)] },
+      ],
+    });
   });
 // Messages without ': ' make the compact tree representation unambiguous.
 const entries = entry.pipe(
   S.Array,
   Arbitrary.schema,
-  Arbitrary.map((values) => values.map((value) => ({ ...value, message: value.message.replaceAll(": ", "colon ") })))
+  Arbitrary.map((values) =>
+    A.map(values, (value) => ({ ...value, message: Str.replaceAll(": ", "colon ")(value.message) }))
+  )
 );
 it.effect.prop(
   "the issue trie has an idempotent parse/render form and retains every path and message",
@@ -74,7 +81,7 @@ it.effect.prop(
       const tree = issueTreeChildren(input);
       const parsed = readTree(tree);
       const ordered = (values: ReadonlyArray<IssueEntry>) =>
-        values.map((value) => JSON.stringify([value.path, value.message])).sort();
+        A.map(values, (value) => JSON.stringify([value.path, value.message])).sort();
       assert.deepStrictEqual(ordered(parsed), ordered(input));
       assert.deepStrictEqual(issueTreeChildren(parsed), tree);
       assert.deepStrictEqual(readTree(issueTreeChildren(parsed)), parsed);

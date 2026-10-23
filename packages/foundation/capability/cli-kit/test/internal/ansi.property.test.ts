@@ -4,14 +4,22 @@ import { Style } from "@beep/cli-kit/Token";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const channel = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 }));
 const rgb = S.Tuple([channel, channel, channel]);
 const hexOf = (value: readonly [number, number, number]): `#${string}` =>
-  `#${value.map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+  `#${pipe(
+    value,
+    A.map((n) => Str.padStart(2, "0")(n.toString(16))),
+    A.join("")
+  )}`;
 it.effect.prop(
   "hex parsing has canonical idempotence and parse/stringify fidelity",
   [Arbitrary.schema(rgb)],
@@ -64,7 +72,7 @@ it.effect.prop(
         colors.push([232 + step, [gray, gray, gray]]);
       }
       const index = nearest256(value);
-      const selected = colors.find(([candidate]) => candidate === index);
+      const selected = O.getOrUndefined(A.findFirst(colors, ([candidate]) => candidate === index));
       if (selected === undefined) return assert.fail("formatter returned an index outside its palettes");
       for (const [, color] of colors) assert.isAtMost(distance(value, selected[1]), distance(value, color));
       assert.strictEqual(openSequence({ fg: hexOf(value) }, "256"), `\x1b[38;5;${index}m`);
@@ -78,13 +86,17 @@ it.effect.prop(
   [Arbitrary.schema(S.Tuple([nibble, nibble, nibble]))],
   ([value]) =>
     Effect.sync(() => {
-      const short = `#${value.map((n) => n.toString(16)).join("")}`;
+      const short = `#${pipe(
+        value,
+        A.map((n) => n.toString(16)),
+        A.join("")
+      )}`;
       const parsed = parseHex(short);
       assert.deepStrictEqual(parsed, [value[0] * 17, value[1] * 17, value[2] * 17]);
       if (parsed === undefined) return assert.fail("valid short hex did not parse");
       const canonical = hexOf(parsed);
       assert.deepStrictEqual(parseHex(canonical), parsed);
-      assert.strictEqual(parseHex(canonical.toUpperCase())?.join(","), parsed.join(","));
+      assert.deepStrictEqual(parseHex(Str.toUpperCase(canonical)), parsed);
     }),
   runs
 );

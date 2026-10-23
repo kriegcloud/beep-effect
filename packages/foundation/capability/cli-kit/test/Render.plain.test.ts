@@ -3,9 +3,11 @@ import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { composite, ESC } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
 import type { Block, LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
@@ -16,7 +18,7 @@ const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}
   Effect.map(contextOf(overrides), (ctx) => Render.plain(doc, ctx));
 
 const linesOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
-  Effect.map(plain(doc, overrides), (out) => out.split("\n"));
+  Effect.map(plain(doc, overrides), (out) => Str.split(out, "\n"));
 
 const BOX = /[─│┌┐└┘├┤┬┴┼═║╔╗╚╝]/;
 
@@ -111,7 +113,7 @@ describe("Render.plain: inline content", () => {
 
   it.effect("a file link shows path:line:col through displayPath; a column needs a line", () =>
     Effect.gen(function* () {
-      const displayPath = (absolute: string) => absolute.replace("/repo/", "");
+      const displayPath = (absolute: string) => Str.replace("/repo/", "")(absolute);
       const out = yield* linesOf(
         [
           Doc.paragraph(Doc.link({ file: "/repo/src/a.ts", line: 3, col: 5 }, "a.ts")),
@@ -158,7 +160,7 @@ describe("Render.plain: paragraphs", () => {
       const text = "the quick brown fox jumps over the lazy dog and keeps running past the old stone bridge";
       for (const width of [10, 17, 25, 40, 200]) {
         const out = yield* linesOf([Doc.paragraph(text)], { width });
-        assert.strictEqual(out.join(" "), text, `width ${width}: same words in the same order`);
+        assert.strictEqual(A.join(out, " "), text, `width ${width}: same words in the same order`);
         for (const line of out) assert.isAtMost(displayWidth(line), width, `width ${width}: "${line}"`);
       }
     })
@@ -205,7 +207,7 @@ describe("Render.plain: lists", () => {
     "a cap shows that many items and then the overflow row; without an overflow function the row is a default",
     () =>
       Effect.gen(function* () {
-        const items = ["a", "b", "c", "d"].map((t) => Doc.paragraph(t));
+        const items = A.map(["a", "b", "c", "d"], (t) => Doc.paragraph(t));
         assert.deepStrictEqual(yield* linesOf([Doc.list(items, { cap: 2 })]), ["- a", "- b", "… 2 more"]);
         assert.deepStrictEqual(yield* linesOf([Doc.list(items, { cap: 2 })], { glyphs: Glyphs.ascii }), [
           "- a",
@@ -274,7 +276,9 @@ describe("Render.plain: tables", () => {
           ]
         ),
       ]);
-      const valueColumns = out.slice(2).map((line) => displayWidth(line.slice(0, line.lastIndexOf(" ") + 1)));
+      const valueColumns = A.map(out.slice(2), (line) =>
+        displayWidth(Str.slice(0, O.getOrElse(Str.lastIndexOf(" ")(line), () => -1) + 1)(line))
+      );
       assert.strictEqual(new Set(valueColumns).size, 1, "both rows put the second column at the same display column");
     })
   );
@@ -298,7 +302,7 @@ describe("Render.plain: tables", () => {
         ),
       ]);
       assert.deepStrictEqual(out, ["a", "bbb  x"]);
-      for (const line of yield* linesOf([table()])) assert.strictEqual(line, line.trimEnd());
+      for (const line of yield* linesOf([table()])) assert.strictEqual(line, Str.trimEnd(line));
     })
   );
 
@@ -319,11 +323,11 @@ describe("Render.plain: tables", () => {
         [["1", "a very long message that goes on and on", "src/x.ts"]]
       );
       const fits = yield* linesOf([wide], { width: 200 });
-      assert.notMatch(fits.join("\n"), /…/, "it fits, so nothing is cut");
+      assert.notMatch(A.join(fits, "\n"), /…/, "it fits, so nothing is cut");
 
       const cut = yield* linesOf([wide], { width: 40 });
       for (const line of cut) assert.isAtMost(displayWidth(line), 40);
-      const cells = cut[2]?.split(/ {2,}/) ?? [];
+      const cells = Str.split(A.getUnsafe(cut, 2), / {2,}/);
       assert.strictEqual(cells[0], "1", "the narrow columns are untouched");
       assert.strictEqual(cells[2], "src/x.ts");
       assert.match(cells[1] ?? "", /…$/, "the widest column is the one cut");
@@ -364,7 +368,7 @@ describe("Render.plain: tables", () => {
       assert.strictEqual(out.length, 3);
       for (const line of out) assert.isAtMost(displayWidth(line), 12);
       assert.match(out[2] ?? "", /^a rathe…/);
-      assert.notInclude(out.join("\n"), "second");
+      assert.notInclude(A.join(out, "\n"), "second");
     })
   );
 
@@ -380,7 +384,7 @@ describe("Render.plain: tables", () => {
   it.effect("a header wider than its cells sets the column width", () =>
     Effect.gen(function* () {
       const out = yield* linesOf([Doc.table([{ header: "description" }, { header: "n" }], [["a", "1"]])]);
-      assert.deepStrictEqual(out, ["description  n", "-----------  -", `a${" ".repeat(12)}1`]);
+      assert.deepStrictEqual(out, ["description  n", "-----------  -", `a${Str.repeat(12)(" ")}1`]);
     })
   );
 
@@ -447,7 +451,7 @@ describe("Render.plain: tables", () => {
     Effect.gen(function* () {
       const out = yield* linesOf([Doc.table([{ header: "a" }, { header: "b" }], [["xxxxxx", "yyyyyy"]])], { width: 3 });
       assert.isAbove(out.length, 0);
-      assert.isTrue(out.every((line) => displayWidth(line) <= 4));
+      assert.isTrue(A.every(out, (line) => displayWidth(line) <= 4));
     })
   );
 });
@@ -468,7 +472,8 @@ describe("Render.plain: trees", () => {
     Effect.gen(function* () {
       const out = yield* linesOf([tree], { glyphs: Glyphs.ascii });
       assert.deepStrictEqual(out, ["root", "|-- a", "|   |-- a1", "|   \\-- a2", "\\-- b"]);
-      for (const line of out) assert.isTrue([...line].every((ch) => (ch.codePointAt(0) ?? 0) < 128));
+      for (const line of out)
+        assert.isTrue(A.every([...line], (ch) => O.getOrElse(Str.codePointAt(ch, 0), () => 0) < 128));
     })
   );
 
@@ -491,7 +496,7 @@ describe("Render.plain: collapsible, callout, code and diff", () => {
     Effect.gen(function* () {
       for (const kind of ["note", "tip", "important", "warning", "caution"] as const) {
         const out = yield* linesOf([Doc.callout(kind, [Doc.paragraph("careful")])]);
-        assert.deepStrictEqual(out, [`${kind.toUpperCase()}: careful`]);
+        assert.deepStrictEqual(out, [`${Str.toUpperCase(kind)}: careful`]);
       }
       assert.deepStrictEqual(yield* linesOf([Doc.callout("warning", [Doc.paragraph("one"), Doc.paragraph("two")])]), [
         "WARNING: one",
@@ -505,7 +510,7 @@ describe("Render.plain: collapsible, callout, code and diff", () => {
     Effect.gen(function* () {
       const out = yield* linesOf([Doc.codeBlock("let a = 1;\n\nlet b = 2;\n", "ts")]);
       assert.deepStrictEqual(out, ["    let a = 1;", "", "    let b = 2;"]);
-      assert.notInclude(out.join("\n"), "```");
+      assert.notInclude(A.join(out, "\n"), "```");
     })
   );
 
@@ -563,7 +568,12 @@ describe("Render.plain: Counts", () => {
       assert.deepStrictEqual(yield* linesOf([node]), ["3/99 passed, 1 failed, 1 skipped"]);
       const excludingSkips = Doc.counts({
         counters,
-        total: (all) => all.filter((c) => c.key !== "skip").reduce((sum, c) => sum + c.n, 0),
+        total: (all) =>
+          pipe(
+            all,
+            A.filter((c) => c.key !== "skip"),
+            A.reduce(0, (sum, c) => sum + c.n)
+          ),
         layout: "inline",
       });
       assert.deepStrictEqual(yield* linesOf([excludingSkips]), ["3/4 passed, 1 failed, 1 skipped"]);
@@ -593,7 +603,7 @@ describe("Render.plain: Counts", () => {
     Effect.gen(function* () {
       const counter = (label: string) => Doc.counter(Status.core, "failure", { key: "f", label, n: 1 });
       for (const label of ["a\r\nb", "a\rb", "a\nb", "\r::x", "x\n# h", "x\n---"]) {
-        const flat = label.replace(/\r\n|\r|\n/g, " ");
+        const flat = Str.replace(/\r\n|\r|\n/g, " ")(label);
         const inline = yield* linesOf([Doc.counts({ counters: [counter(label)], layout: "inline" })]);
         assert.deepStrictEqual(inline, [`1/1 ${flat}`], Result.getOrThrow(S.encodeUnknownResult(Json)(label)));
         const row = yield* linesOf([Doc.counts({ counters: [counter(label)], layout: "row" })]);
@@ -655,13 +665,13 @@ describe("Render.plain: a failure row built from nodes (the vitest-agent composi
           Doc.codeBlock("at freeze (src/Doc.ts:12:3)"),
         ]),
       ]);
-      const out = yield* linesOf([row], { displayPath: (p) => p.replace("/repo/", "") });
+      const out = yield* linesOf([row], { displayPath: (p) => Str.replace("/repo/", "")(p) });
 
-      const head = out.find((line) => line.includes(" > "));
+      const head = O.getOrUndefined(A.findFirst(out, Str.includes(" > ")));
       assert.isDefined(head);
       assert.include(head ?? "", "packages/cli > __test__/Doc.test.ts > Doc > freezes nodes");
       assert.include(head ?? "", "[assertion]");
-      assert.isTrue((head ?? "").startsWith("✗"));
+      assert.isTrue(Str.startsWith("✗")(head ?? ""));
 
       assert.includeMembers(out, ["- expected value", "- second line", "+ received value", "+ second line"]);
       const diffAt = out.indexOf("- expected value");
@@ -670,20 +680,20 @@ describe("Render.plain: a failure row built from nodes (the vitest-agent composi
       const stackAt = out.indexOf("stack");
       assert.isAbove(stackAt, diffAt);
       assert.isTrue(
-        out.slice(stackAt + 1).every((line) => line === "" || line.startsWith("  ")),
+        A.every(out.slice(stackAt + 1), (line) => line === "" || Str.startsWith("  ")(line)),
         "the stack body is indented"
       );
       assert.isTrue(
-        out.some((line) => line.includes("Doc.ts (src/Doc.ts:12:3)")),
+        A.some(out, (line) => Str.includes("Doc.ts (src/Doc.ts:12:3)")(line)),
         "the frame link reads label and path:line:col"
       );
-      assert.notInclude(out.join("\n"), ESC);
+      assert.notInclude(A.join(out, "\n"), ESC);
     })
   );
 });
 
 describe("Render.plain: okfit's trial (link suffix, verbatim, counts options, annotations)", () => {
-  const bundle = (absolute: string): string => absolute.replace("/repo/okf/", "");
+  const bundle = (absolute: string): string => Str.replace("/repo/okf/", "")(absolute);
   const counters = [
     Doc.counter(Status.core, "failure", { key: "error", label: "errors", n: 2 }),
     Doc.counter(Status.core, "warning", { key: "warning", label: "warnings", n: 1 }),
@@ -722,7 +732,11 @@ describe("Render.plain: okfit's trial (link suffix, verbatim, counts options, an
     Effect.gen(function* () {
       const text = `verified:\n  - by: human:x${ESC}[31m\n    at: 2026-10-01T00:00:00Z`;
       const out = yield* plain([Doc.verbatim(text, { indent: 2 })], { width: 10 });
-      assert.deepStrictEqual(out.split("\n"), ["  verified:", "    - by: human:x", "      at: 2026-10-01T00:00:00Z"]);
+      assert.deepStrictEqual(Str.split(out, "\n"), [
+        "  verified:",
+        "    - by: human:x",
+        "      at: 2026-10-01T00:00:00Z",
+      ]);
     })
   );
 
@@ -771,7 +785,7 @@ describe("Render.plain: reporter blocks (strong, lines, file, counts tables and 
   it.effect("a file is its display path, never linked or suffixed", () =>
     Effect.gen(function* () {
       const out = yield* plain([Doc.paragraph("at ", Doc.file("/repo/src/a.ts"))], {
-        displayPath: (a) => a.replace("/repo/", ""),
+        displayPath: (a) => Str.replace("/repo/", "")(a),
       });
       assert.strictEqual(out, "at src/a.ts");
     })
@@ -788,7 +802,7 @@ describe("Render.plain: reporter blocks (strong, lines, file, counts tables and 
           { totalRow: true }
         ),
       ]);
-      assert.deepStrictEqual(out.split("\n"), [
+      assert.deepStrictEqual(Str.split(out, "\n"), [
         "       passed  failed",
         "-----  ------  ------",
         "web    3       1",
@@ -811,7 +825,7 @@ describe("Render.plain: reporter blocks (strong, lines, file, counts tables and 
     Effect.gen(function* () {
       const item = Doc.section("FAIL a.test.ts", [Doc.paragraph("expected 1"), Doc.paragraph("got 2")]);
       assert.include(yield* plain([Doc.list([item])]), "\n\n", "control: an ordinary list keeps the section's spacing");
-      assert.deepStrictEqual((yield* plain([Doc.list([item], { compact: true })])).split("\n"), [
+      assert.deepStrictEqual(Str.split(yield* plain([Doc.list([item], { compact: true })]), "\n"), [
         "- FAIL a.test.ts",
         "  expected 1",
         "  got 2",
@@ -824,7 +838,7 @@ describe("Render.plain: reporter blocks (strong, lines, file, counts tables and 
       const content = "a very long line of text";
       const cut = yield* plain([Doc.line(content, { truncate: true })], { width: 10 });
       assert.strictEqual(cut, "a very lo…");
-      assert.isAbove((yield* plain([Doc.line(content)], { width: 10 })).split("\n").length, 1);
+      assert.isAbove(Str.split(yield* plain([Doc.line(content)], { width: 10 }), "\n").length, 1);
     })
   );
 
@@ -848,7 +862,7 @@ describe("Render.plain: reporter blocks (strong, lines, file, counts tables and 
           { style: "pipe" }
         ),
       ]);
-      assert.deepStrictEqual(out.split("\n"), [
+      assert.deepStrictEqual(Str.split(out, "\n"), [
         "----------|---------",
         "File      | % Stmts",
         "----------|---------",
@@ -880,20 +894,20 @@ describe("Render.plain: diffText in a compact list item (A5)", () => {
 
   it.effect("truncate cuts each line to the width with the theme ellipsis", () =>
     Effect.gen(function* () {
-      const long = `+ ${"x".repeat(40)}`;
+      const long = `+ ${Str.repeat(40)("x")}`;
       const out = yield* plain(failure(Doc.diffText(`${long}\n- 1`, { truncate: true })), { width: 20 });
-      const lines = out.split("\n");
-      assert.strictEqual(lines[1], `  + ${"x".repeat(15)}…`);
+      const lines = Str.split(out, "\n");
+      assert.strictEqual(lines[1], `  + ${Str.repeat(15)("x")}…`);
       assert.strictEqual(displayWidth(A.getUnsafe(lines, 1)), 20);
       assert.strictEqual(lines[2], "  - 1");
       const untruncated = yield* plain(failure(Doc.diffText(`${long}\n- 1`)), { width: 20 });
-      assert.strictEqual(untruncated.split("\n")[1], `  ${long}`, "control: without truncate the line is whole");
+      assert.strictEqual(Str.split(untruncated, "\n")[1], `  ${long}`, "control: without truncate the line is whole");
     })
   );
 
   it.effect("an agent's infinite width cuts nothing", () =>
     Effect.gen(function* () {
-      const long = `+ ${"x".repeat(400)}`;
+      const long = `+ ${Str.repeat(400)("x")}`;
       const out = yield* plain([Doc.diffText(long, { truncate: true })], {
         audience: "agent",
         width: Number.POSITIVE_INFINITY,

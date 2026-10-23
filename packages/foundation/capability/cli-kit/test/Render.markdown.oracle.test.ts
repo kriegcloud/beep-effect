@@ -3,9 +3,11 @@ import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { composite, ESC } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
 import type { Block, LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
@@ -39,26 +41,26 @@ const kids = (n: N | undefined): ReadonlyArray<N> => n?.children ?? [];
 const textOf = (n: N): string => {
   if (n.type === "text" || n.type === "inlineCode") return n.value ?? "";
   if (n.type === "break" || (n.type === "html" && n.value === "<br>")) return "\n";
-  return kids(n).map(textOf).join("");
+  return pipe(kids(n), A.map(textOf), A.join(""));
 };
 
-const descendantTypes = (n: N): ReadonlyArray<string> => [n.type, ...kids(n).flatMap(descendantTypes)];
+const descendantTypes = (n: N): ReadonlyArray<string> => [n.type, ...A.flatMap(kids(n), descendantTypes)];
 
 const tableOf = (root: N): N => {
-  const table = kids(root).find((c) => c.type === "table");
+  const table = O.getOrUndefined(A.findFirst(kids(root), (c) => c.type === "table"));
   assert.isDefined(table, "the output has a table");
   return table;
 };
 
 const cellTexts = (table: N): ReadonlyArray<ReadonlyArray<string>> =>
-  kids(table).map((row) => kids(row).map((cell) => textOf(cell)));
+  A.map(kids(table), (row) => A.map(kids(row), (cell) => textOf(cell)));
 
 const ALPHABET = ["|", "`", "<", ">", "\\", "\n", "*", "_", "[", "]", "&", "x", "#", "~", " ", "!", "(", ")"];
 const upTo = (alphabet: ReadonlyArray<string>, length: number): ReadonlyArray<string> => {
   const out: Array<string> = [];
   let frontier = [""];
   for (let n = 1; n <= length; n++) {
-    frontier = frontier.flatMap((prefix) => alphabet.map((ch) => prefix + ch));
+    frontier = A.flatMap(frontier, (prefix) => A.map(alphabet, (ch) => prefix + ch));
     out.push(...frontier);
   }
   return out;
@@ -84,11 +86,11 @@ describe("Render.markdown: headings and paragraphs", () => {
     Effect.gen(function* () {
       const titles = ["C#", "a #", "a ##", "a\\#", "a\\\\#", "a\\ #", "#", "\\##", "x `#`#"];
       const root = yield* treeOf([
-        ...titles.map((title) => Doc.heading(2, title)),
+        ...A.map(titles, (title) => Doc.heading(2, title)),
         Doc.section(A.getUnsafe(titles, 3), [Doc.paragraph("body")]),
       ]);
-      const headings = kids(root).filter((n) => n.type === "heading");
-      assert.deepStrictEqual(headings.map(textOf), [...titles, titles[3]]);
+      const headings = A.filter(kids(root), (n) => n.type === "heading");
+      assert.deepStrictEqual(A.map(headings, textOf), [...titles, titles[3]]);
     })
   );
 
@@ -101,7 +103,7 @@ describe("Render.markdown: headings and paragraphs", () => {
         Doc.heading(4, "Four"),
       ]);
       assert.deepStrictEqual(
-        kids(root).map((h) => [h.type, h.depth, textOf(h)]),
+        A.map(kids(root), (h) => [h.type, h.depth, textOf(h)]),
         [
           ["heading", 1, "One"],
           ["heading", 2, "Two"],
@@ -118,7 +120,7 @@ describe("Render.markdown: headings and paragraphs", () => {
         Doc.section("Outer", [Doc.paragraph("a"), Doc.section("Inner", [Doc.paragraph("b")])]),
       ]);
       assert.deepStrictEqual(
-        kids(root).map((n) => [n.type, n.depth, textOf(n)]),
+        A.map(kids(root), (n) => [n.type, n.depth, textOf(n)]),
         [
           ["heading", 2, "Outer"],
           ["paragraph", undefined, "a"],
@@ -142,7 +144,7 @@ describe("Render.markdown: headings and paragraphs", () => {
       const [p] = kids(root);
       assert.isDefined(p);
       assert.deepStrictEqual(
-        kids(p).map((c) => c.type),
+        A.map(kids(p), (c) => c.type),
         ["text", "inlineCode", "text", "link"]
       );
       assert.strictEqual(kids(p)[1]?.value, "pnpm test");
@@ -187,19 +189,19 @@ describe("Render.markdown: headings and paragraphs", () => {
         for (const line of lines) {
           const root = yield* treeOf([Doc.paragraph(line), Doc.paragraph(line)]);
           assert.deepStrictEqual(
-            kids(root).map((n) => n.type),
+            A.map(kids(root), (n) => n.type),
             ["paragraph", "paragraph"],
             Result.getOrThrow(S.encodeUnknownResult(Json)(line))
           );
           assert.strictEqual(
             textOf(A.getUnsafe(kids(root), 0)),
-            line.trimStart(),
+            Str.trimStart(line),
             Result.getOrThrow(S.encodeUnknownResult(Json)(line))
           );
         }
         const two = yield* treeOf([Doc.paragraph("first\n---\nsecond\n===")]);
         assert.deepStrictEqual(
-          kids(two).map((n) => n.type),
+          A.map(kids(two), (n) => n.type),
           ["paragraph"],
           "an underline after a line cannot make a heading"
         );
@@ -226,24 +228,24 @@ describe("Render.markdown: headings and paragraphs", () => {
       for (const line of lines) {
         const alone = yield* treeOf([Doc.paragraph(line)]);
         assert.deepStrictEqual(
-          kids(alone).map((n) => n.type),
+          A.map(kids(alone), (n) => n.type),
           ["paragraph"],
           Result.getOrThrow(S.encodeUnknownResult(Json)(line))
         );
         assert.strictEqual(
           textOf(A.getUnsafe(kids(alone), 0)),
-          line.trim(),
+          Str.trim(line),
           Result.getOrThrow(S.encodeUnknownResult(Json)(line))
         );
         const after = yield* treeOf([Doc.paragraph(`a\n${line}`)]);
         assert.deepStrictEqual(
-          kids(after).map((n) => n.type),
+          A.map(kids(after), (n) => n.type),
           ["paragraph"],
           `after: ${Result.getOrThrow(S.encodeUnknownResult(Json)(line))}`
         );
         assert.strictEqual(
           textOf(A.getUnsafe(kids(after), 0)),
-          `a\n${line.trim()}`,
+          `a\n${Str.trim(line)}`,
           `after: ${Result.getOrThrow(S.encodeUnknownResult(Json)(line))}`
         );
       }
@@ -257,11 +259,13 @@ describe("Render.markdown: headings and paragraphs", () => {
         const alphabet = ["-", "+", "=", " ", "a"];
         const ctx = yield* contextOf();
         const expectedOf = (text: string): string | undefined => {
-          const lines = text
-            .split("\n")
-            .filter((line) => line.trim() !== "")
-            .map((line) => line.trimStart());
-          return lines.length === 0 ? undefined : lines.join("\n").trimEnd();
+          const lines = pipe(
+            text,
+            Str.split("\n"),
+            A.filter((line) => Str.trim(line) !== ""),
+            A.map((line) => Str.trimStart(line))
+          );
+          return lines.length === 0 ? undefined : pipe(lines, A.join("\n"), Str.trimEnd);
         };
         const failures: Array<string> = [];
         let cases = 0;
@@ -277,7 +281,7 @@ describe("Render.markdown: headings and paragraphs", () => {
           const node = parsed.success;
           const ok = kids(node).length === 1 && kids(node)[0]?.type === "paragraph" && textOf(node) === expected;
           if (!ok && failures.length < 5)
-            failures.push(`${JSON.stringify(text)} -> ${JSON.stringify(kids(node).map((n) => n.type))}`);
+            failures.push(`${JSON.stringify(text)} -> ${JSON.stringify(A.map(kids(node), (n) => n.type))}`);
         };
         for (const text of upTo(alphabet, 6)) check(text);
         // A fixed-seed generator: the same multi-line texts every run.
@@ -289,9 +293,12 @@ describe("Render.markdown: headings and paragraphs", () => {
         for (let i = 0; i < 4000; i++) {
           const lineCount = 1 + next(3);
           const lines = Array.from({ length: lineCount }, () =>
-            Array.from({ length: 1 + next(8) }, () => alphabet[next(alphabet.length)]).join("")
+            A.join(
+              Array.from({ length: 1 + next(8) }, () => alphabet[next(alphabet.length)] ?? ""),
+              ""
+            )
           );
-          check(lines.join("\n"));
+          check(A.join(lines, "\n"));
         }
         assert.isAbove(cases, 15_000);
         assert.deepStrictEqual(failures, []);
@@ -348,19 +355,21 @@ describe("Render.markdown: headings and paragraphs", () => {
         const failures: Array<string> = [];
         let cases = 0;
         for (const text of upTo(alphabet, 3)) {
-          const lines = text
-            .split("\n")
-            .filter((line) => line.trim() !== "")
-            .map((line) => line.trimStart());
+          const lines = pipe(
+            text,
+            Str.split("\n"),
+            A.filter((line) => Str.trim(line) !== ""),
+            A.map((line) => Str.trimStart(line))
+          );
           if (lines.length === 0) continue;
-          const expected = lines.join("\n").trimEnd();
+          const expected = pipe(lines, A.join("\n"), Str.trimEnd);
           const root = yield* parse(Render.markdown([Doc.paragraph(text)], ctx));
           cases++;
           const types = new Set(descendantTypes(root));
           const ok =
             kids(root).length === 1 &&
             kids(root)[0]?.type === "paragraph" &&
-            [...types].every((t) => ["root", "paragraph", "text", "break"].includes(t)) &&
+            A.every([...types], (t) => ["root", "paragraph", "text", "break"].includes(t)) &&
             textOf(root) === expected;
           if (!ok && failures.length < 5)
             failures.push(
@@ -394,7 +403,7 @@ describe("Render.markdown: tables", () => {
       const table = tableOf(root);
       assert.deepStrictEqual(
         table.align,
-        [null, "right", "center", "left"].map((a) => a)
+        A.map([null, "right", "center", "left"], (a) => a)
       );
       assert.deepStrictEqual(cellTexts(table), [
         ["Name", "Count", "Mid", "L"],
@@ -423,28 +432,28 @@ describe("Render.markdown: tables", () => {
       const root = yield* treeOf([
         Doc.table(
           [{ header: "h" }],
-          cells.map((c) => [c])
+          A.map(cells, (c) => [c])
         ),
       ]);
       const table = tableOf(root);
       assert.strictEqual(kids(table).length, cells.length + 1, "one row per cell plus the header");
       assert.deepStrictEqual(
-        cellTexts(table)
-          .slice(1)
-          .map((row) => row[0]),
-        cells.map((c) => c.trim())
+        A.map(cellTexts(table).slice(1), (row) => row[0]),
+        A.map(cells, (c) => Str.trim(c))
       );
       for (const row of kids(table)) {
         for (const cell of kids(row)) {
-          const htmls = kids(cell)
-            .filter((c) => c.type === "html")
-            .map((c) => c.value);
+          const htmls = pipe(
+            kids(cell),
+            A.filter((c) => c.type === "html"),
+            A.map((c) => c.value)
+          );
           assert.isTrue(
-            htmls.every((h) => h === "<br>"),
+            A.every(htmls, (h) => h === "<br>"),
             "the only HTML is the renderer's own line break"
           );
           assert.isFalse(
-            descendantTypes(cell).some((t) => ["link", "emphasis", "strong", "delete", "inlineCode"].includes(t))
+            A.some(descendantTypes(cell), (t) => ["link", "emphasis", "strong", "delete", "inlineCode"].includes(t))
           );
         }
       }
@@ -472,18 +481,16 @@ describe("Render.markdown: tables", () => {
       const root = yield* treeOf([
         Doc.table(
           [{ header: "c" }],
-          codes.map((c) => [Doc.code(c)])
+          A.map(codes, (c) => [Doc.code(c)])
         ),
       ]);
-      const values = kids(tableOf(root))
-        .slice(1)
-        .map((row) => kids(kids(row)[0]).map((n) => [n.type, n.value]));
+      const values = A.map(kids(tableOf(root)).slice(1), (row) => A.map(kids(kids(row)[0]), (n) => [n.type, n.value]));
       // A `|` after an odd run of backslashes cannot be held by a code span in a cell (GFM's scanner pairs a backslash
       // with the next character, and the unescape then leaves an even run), so that code is `<code>` around text.
       const html = new Set(["a\\|b", "\\|", "`\\|`"]);
       assert.deepStrictEqual(
         values,
-        codes.map((c) =>
+        A.map(codes, (c) =>
           html.has(c)
             ? [
                 ["html", "<code>"],
@@ -499,21 +506,21 @@ describe("Render.markdown: tables", () => {
   it.effect("small-alphabet property: inline code in a cell of up to 5 characters reads back as itself", () =>
     Effect.gen(function* () {
       const ctx = yield* contextOf();
-      const codes = upTo(["\\", "|", "`", " ", "x"], 5).filter((c) => c.trim() !== "");
+      const codes = A.filter(upTo(["\\", "|", "`", " ", "x"], 5), (c) => Str.trim(c) !== "");
       const markdown = Render.markdown(
         [
           Doc.table(
             [{ header: "c" }, { header: "after" }],
-            codes.map((c) => [[Doc.code(c)], "z"])
+            A.map(codes, (c) => [[Doc.code(c)], "z"])
           ),
         ],
         ctx
       );
       const rows = kids(tableOf(yield* parse(markdown))).slice(1);
       assert.strictEqual(rows.length, codes.length);
-      const failures = codes.flatMap((c, index) => {
+      const failures = A.flatMap(codes, (c, index) => {
         const cells = kids(rows[index]);
-        const got = cells.map(textOf);
+        const got = A.map(cells, textOf);
         return got.length === 2 && got[0] === c && got[1] === "z"
           ? []
           : [`${JSON.stringify(c)} -> ${JSON.stringify(got)}`];
@@ -536,7 +543,7 @@ describe("Render.markdown: tables", () => {
             [
               Doc.table(
                 [{ header: "h" }],
-                batch.map((c) => [c])
+                A.map(batch, (c) => [c])
               ),
             ],
             ctx
@@ -545,12 +552,12 @@ describe("Render.markdown: tables", () => {
           const rows = kids(table).slice(1);
           if (rows.length !== batch.length)
             failures.push(`batch ${start}: ${rows.length} rows, wanted ${batch.length}`);
-          batch.forEach((cell, index) => {
+          A.forEach(batch, (cell, index) => {
             const row = rows[index];
-            const got = row === undefined ? undefined : kids(row).map(textOf);
-            const expected = cell.trim();
+            const got = row === undefined ? undefined : A.map(kids(row), textOf);
+            const expected = Str.trim(cell);
             const types = row === undefined ? [] : descendantTypes(row);
-            const clean = types.every((t) => ["tableRow", "tableCell", "text", "html"].includes(t));
+            const clean = A.every(types, (t) => ["tableRow", "tableCell", "text", "html"].includes(t));
             if (got?.length !== 1 || got[0] !== expected || !clean) {
               if (failures.length < 5)
                 failures.push(`${JSON.stringify(cell)} -> ${JSON.stringify(got)} ${JSON.stringify(types)}`);
@@ -588,7 +595,7 @@ describe("Render.markdown: tables", () => {
         }),
       ]);
       assert.deepStrictEqual(
-        kids(root).map((n) => n.type),
+        A.map(kids(root), (n) => n.type),
         ["table", "paragraph"]
       );
       assert.strictEqual(kids(tableOf(root)).length, 2);
@@ -598,7 +605,7 @@ describe("Render.markdown: tables", () => {
 });
 
 describe("Render.markdown: code, diff, collapsible and callout", () => {
-  const fenceValue = (n: N | undefined): string => (n?.value ?? "").replace(/\n$/, "");
+  const fenceValue = (n: N | undefined): string => Str.replace(/\n$/, "")(n?.value ?? "");
 
   it.effect("a code block is a fence with its language and exactly its text, however many backticks it holds", () =>
     Effect.gen(function* () {
@@ -614,14 +621,14 @@ describe("Render.markdown: code, diff, collapsible and callout", () => {
       for (const text of texts) {
         const root = yield* treeOf([Doc.codeBlock(text, "ts")]);
         assert.deepStrictEqual(
-          kids(root).map((n) => n.type),
+          A.map(kids(root), (n) => n.type),
           ["code"],
           Result.getOrThrow(S.encodeUnknownResult(Json)(text))
         );
         assert.strictEqual(kids(root)[0]?.lang, "ts");
         assert.strictEqual(
           fenceValue(kids(root)[0]),
-          text.replace(/\t/g, " "),
+          Str.replace(/\t/g, " ")(text),
           Result.getOrThrow(S.encodeUnknownResult(Json)(text))
         );
       }
@@ -643,7 +650,7 @@ describe("Render.markdown: code, diff, collapsible and callout", () => {
     Effect.gen(function* () {
       const root = yield* treeOf([Doc.codeBlock("body", "ts`\n# injected"), Doc.paragraph("after")]);
       assert.deepStrictEqual(
-        kids(root).map((n) => n.type),
+        A.map(kids(root), (n) => n.type),
         ["code", "paragraph"]
       );
       assert.strictEqual(fenceValue(kids(root)[0]), "body");
@@ -675,13 +682,13 @@ describe("Render.markdown: code, diff, collapsible and callout", () => {
           Doc.collapsible("Stack", [Doc.paragraph("frame ", Doc.code("one")), Doc.codeBlock("a\nb")]),
         ]);
         assert.deepStrictEqual(
-          kids(root).map((n) => n.type),
+          A.map(kids(root), (n) => n.type),
           ["html", "paragraph", "code", "html"]
         );
         assert.strictEqual(kids(root)[0]?.value, "<details><summary>Stack</summary>");
         assert.strictEqual(kids(root)[3]?.value, "</details>");
         assert.deepStrictEqual(
-          kids(kids(root)[1]).map((n) => n.type),
+          A.map(kids(kids(root)[1]), (n) => n.type),
           ["text", "inlineCode"]
         );
         const open = yield* treeOf([Doc.collapsible("T", [], { open: true })]);
@@ -693,9 +700,11 @@ describe("Render.markdown: code, diff, collapsible and callout", () => {
     Effect.gen(function* () {
       const title = `</summary></details><img src=x onerror=alert(1)> "q" & <b>`;
       const root = yield* treeOf([Doc.collapsible(title, [Doc.paragraph("body")])]);
-      const htmls = kids(root)
-        .filter((n) => n.type === "html")
-        .map((n) => n.value);
+      const htmls = pipe(
+        kids(root),
+        A.filter((n) => n.type === "html"),
+        A.map((n) => n.value)
+      );
       assert.deepStrictEqual(htmls.length, 2);
       assert.strictEqual(
         htmls[0],
@@ -710,21 +719,21 @@ describe("Render.markdown: code, diff, collapsible and callout", () => {
       for (const kind of ["note", "tip", "important", "warning", "caution"] as const) {
         const root = yield* treeOf([Doc.callout(kind, [Doc.paragraph("careful ", Doc.code("x")), Doc.codeBlock("y")])]);
         assert.deepStrictEqual(
-          kids(root).map((n) => n.type),
+          A.map(kids(root), (n) => n.type),
           ["blockquote"],
           kind
         );
         const [quote] = kids(root);
         assert.deepStrictEqual(
-          kids(quote).map((n) => n.type),
+          A.map(kids(quote), (n) => n.type),
           ["paragraph", "code"],
           kind
         );
-        assert.strictEqual(textOf(A.getUnsafe(kids(quote), 0)), `[!${kind.toUpperCase()}]\ncareful x`, kind);
+        assert.strictEqual(textOf(A.getUnsafe(kids(quote), 0)), `[!${Str.toUpperCase(kind)}]\ncareful x`, kind);
       }
       const empty = yield* treeOf([Doc.callout("note", []), Doc.paragraph("after")]);
       assert.deepStrictEqual(
-        kids(empty).map((n) => n.type),
+        A.map(kids(empty), (n) => n.type),
         ["blockquote", "paragraph"]
       );
       assert.strictEqual(textOf(A.getUnsafe(kids(kids(empty)[0]), 0)), "[!NOTE]");
@@ -745,7 +754,7 @@ describe("Render.markdown: links", () => {
         "mailto:a@b.test",
       ]) {
         const root = yield* treeOf([Doc.paragraph("x ", Doc.link({ url }, "the [label]"), " y")]);
-        const link = kids(kids(root)[0]).find((n) => n.type === "link");
+        const link = O.getOrUndefined(A.findFirst(kids(kids(root)[0]), (n) => n.type === "link"));
         assert.isDefined(link, url);
         assert.strictEqual(link?.url, url, url);
         assert.strictEqual(textOf(link), "the [label]", url);
@@ -767,17 +776,17 @@ describe("Render.markdown: links", () => {
       const root = yield* treeOf([
         Doc.table(
           [{ header: "h" }, { header: "after" }],
-          urls.map((url) => [[Doc.link({ url }, "l")], "z"])
+          A.map(urls, (url) => [[Doc.link({ url }, "l")], "z"])
         ),
       ]);
       const rows = kids(tableOf(root)).slice(1);
       assert.strictEqual(rows.length, urls.length);
-      urls.forEach((url, index) => {
+      A.forEach(urls, (url, index) => {
         const cells = kids(rows[index]);
         assert.strictEqual(cells.length, 2, `${url}: the row keeps its two cells`);
         assert.deepStrictEqual(
-          kids(cells[0]).map((n) => [n.type, n.url, textOf(n)]),
-          [["link", url.replaceAll("|", "%7C").replaceAll("`", "%60"), "l"]],
+          A.map(kids(cells[0]), (n) => [n.type, n.url, textOf(n)]),
+          [["link", pipe(url, Str.replaceAll("|", "%7C"), Str.replaceAll("`", "%60")), "l"]],
           url
         );
         assert.strictEqual(textOf(A.getUnsafe(cells, 1)), "z", url);
@@ -798,7 +807,7 @@ describe("Render.markdown: links", () => {
         const types = descendantTypes(A.getUnsafe(kids(root), 0));
         assert.notInclude(types, "link", url);
         assert.include(types, "inlineCode", url);
-        assert.strictEqual(textOf(A.getUnsafe(kids(root), 0)), `click (${url.replace(/\s+/g, " ")})`);
+        assert.strictEqual(textOf(A.getUnsafe(kids(root), 0)), `click (${Str.replace(/\s+/g, " ")(url)})`);
       }
     })
   );
@@ -821,12 +830,12 @@ describe("Render.markdown: links", () => {
         ];
         for (const url of hidden) {
           const root = yield* treeOf([Doc.paragraph("x ", Doc.link({ url }, "click"))]);
-          const links = [...descendants(root)].filter((n) => n.type === "link");
+          const links = A.filter([...descendants(root)], (n) => n.type === "link");
           for (const link of links) {
             // A link that is emitted decodes to exactly the URL text that was given, so the check saw what a reader sees.
             assert.strictEqual(
               link.url,
-              url.replace(/[\r\n]/g, "").trim(),
+              pipe(url, Str.replace(/[\r\n]/g, ""), Str.trim),
               Result.getOrThrow(S.encodeUnknownResult(Json)(url))
             );
             assert.notMatch(
@@ -867,7 +876,7 @@ describe("Render.markdown: links", () => {
         "/p?x=&#35;",
       ]) {
         const root = yield* treeOf([Doc.paragraph(Doc.link({ url }, "l"))]);
-        const link = [...descendants(root)].find((n) => n.type === "link");
+        const link = O.getOrUndefined(A.findFirst(descendants(root), (n) => n.type === "link"));
         assert.strictEqual(link?.url, url, url);
       }
     })
@@ -877,11 +886,11 @@ describe("Render.markdown: links", () => {
     "a file link with an absolute path is a file:// link; without a URL form it is the label and path:line:col as code",
     () =>
       Effect.gen(function* () {
-        const displayPath = (p: string) => p.replace("/repo/", "");
+        const displayPath = (p: string) => Str.replace("/repo/", "")(p);
         const abs = yield* treeOf([Doc.paragraph(Doc.link({ file: "/repo/my dir/a.ts", line: 3, col: 4 }, "a.ts"))], {
           displayPath,
         });
-        const link = kids(kids(abs)[0]).find((n) => n.type === "link");
+        const link = O.getOrUndefined(A.findFirst(kids(kids(abs)[0]), (n) => n.type === "link"));
         assert.strictEqual(link?.url, "file:///repo/my%20dir/a.ts");
         assert.isDefined(link);
         assert.strictEqual(textOf(link), "a.ts");
@@ -891,7 +900,7 @@ describe("Render.markdown: links", () => {
         const parts = kids(kids(rel)[0]);
         assert.notInclude(descendantTypes(A.getUnsafe(kids(rel), 0)), "link");
         assert.deepStrictEqual(
-          parts.map((n) => [n.type, n.value]),
+          A.map(parts, (n) => [n.type, n.value]),
           [
             ["text", "a.ts ("],
             ["inlineCode", "src/a.ts:3:4"],
@@ -912,7 +921,7 @@ describe("Render.markdown: links", () => {
 describe("Render.markdown: lists, trees and counts", () => {
   it.effect("a list is a bullet list of its items, nested lists included, with the overflow row after it", () =>
     Effect.gen(function* () {
-      const items = ["a", "b", "c"].map((t) => Doc.paragraph(t));
+      const items = A.map(["a", "b", "c"], (t) => Doc.paragraph(t));
       const root = yield* treeOf([
         Doc.list([Doc.paragraph("one two"), Doc.list([Doc.paragraph("inner")]), Doc.codeBlock("x\ny")]),
       ]);
@@ -926,14 +935,14 @@ describe("Render.markdown: lists, trees and counts", () => {
 
       const capped = yield* treeOf([Doc.list(items, { cap: 2 })]);
       assert.deepStrictEqual(
-        kids(capped).map((n) => n.type),
+        A.map(kids(capped), (n) => n.type),
         ["list", "paragraph"]
       );
       assert.strictEqual(kids(kids(capped)[0]).length, 2);
       assert.strictEqual(textOf(A.getUnsafe(kids(capped), 1)), "… 1 more");
       const ascii = yield* treeOf([Doc.list(items, { cap: 0 })], { glyphs: Glyphs.ascii });
       assert.deepStrictEqual(
-        kids(ascii).map((n) => n.type),
+        A.map(kids(ascii), (n) => n.type),
         ["paragraph"]
       );
       assert.strictEqual(textOf(A.getUnsafe(kids(ascii), 0)), "... 3 more");
@@ -949,22 +958,22 @@ describe("Render.markdown: lists, trees and counts", () => {
         }),
       ]);
       assert.deepStrictEqual(
-        kids(root).map((n) => n.type),
+        A.map(kids(root), (n) => n.type),
         ["paragraph", "list"]
       );
       assert.strictEqual(kids(kids(root)[0])[0]?.type, "inlineCode");
       const top = kids(kids(root)[1]);
       assert.deepStrictEqual(
-        top.map((item) => textOf(A.getUnsafe(kids(item), 0))),
+        A.map(top, (item) => textOf(A.getUnsafe(kids(item), 0))),
         ["a", "b"]
       );
       assert.deepStrictEqual(
-        kids(kids(top[0])[1]).map((item) => textOf(A.getUnsafe(kids(item), 0))),
+        A.map(kids(kids(top[0])[1]), (item) => textOf(A.getUnsafe(kids(item), 0))),
         ["a1", "a2"]
       );
       const lone = yield* treeOf([Doc.tree({ label: "only" })]);
       assert.deepStrictEqual(
-        kids(lone).map((n) => n.type),
+        A.map(kids(lone), (n) => n.type),
         ["paragraph"]
       );
     })
@@ -982,7 +991,7 @@ describe("Render.markdown: lists, trees and counts", () => {
         Doc.counts({ label: "Widgets", counters, qualifier: "(1 flaky)", durationMs: 1200, layout: "inline" }),
       ]);
       assert.deepStrictEqual(
-        kids(root).map((n) => n.type),
+        A.map(kids(root), (n) => n.type),
         ["paragraph"]
       );
       assert.strictEqual(textOf(A.getUnsafe(kids(root), 0)), "Widgets: 3/4 passed, 1 failed (1 flaky) (1.2s)");
@@ -995,13 +1004,13 @@ describe("Render.markdown: lists, trees and counts", () => {
       for (const label of ["x\n# h", "x\n---", "x\r\n===", "\r# h", "x\r- item", "x\n> q", "x\n```"]) {
         const inline = yield* treeOf([Doc.counts({ counters: [counter(label)], layout: "inline" })]);
         assert.deepStrictEqual(
-          kids(inline).map((n) => n.type),
+          A.map(kids(inline), (n) => n.type),
           ["paragraph"],
           `inline ${Result.getOrThrow(S.encodeUnknownResult(Json)(label))}`
         );
         const columns = yield* treeOf([Doc.counts({ counters: [counter(label)], layout: "columns" })]);
         assert.deepStrictEqual(
-          kids(columns).map((n) => n.type),
+          A.map(kids(columns), (n) => n.type),
           ["list"],
           `columns ${Result.getOrThrow(S.encodeUnknownResult(Json)(label))}`
         );
@@ -1012,7 +1021,7 @@ describe("Render.markdown: lists, trees and counts", () => {
         );
         const row = yield* treeOf([Doc.counts({ counters: [counter(label)], layout: "row" })]);
         assert.deepStrictEqual(
-          kids(row).map((n) => n.type),
+          A.map(kids(row), (n) => n.type),
           ["table"],
           `row ${Result.getOrThrow(S.encodeUnknownResult(Json)(label))}`
         );
@@ -1069,7 +1078,7 @@ describe("Render.markdown: lists, trees and counts", () => {
           });
           const root = yield* treeOf([counts]);
           assert.deepStrictEqual(
-            kids(root).map((n) => n.type),
+            A.map(kids(root), (n) => n.type),
             ["list"],
             Result.getOrThrow(S.encodeUnknownResult(Json)(label))
           );
@@ -1077,7 +1086,7 @@ describe("Render.markdown: lists, trees and counts", () => {
           assert.strictEqual(items.length, 2, `${Result.getOrThrow(S.encodeUnknownResult(Json)(label))}: two items`);
           for (const item of items) {
             assert.deepStrictEqual(
-              kids(item).map((n) => n.type),
+              A.map(kids(item), (n) => n.type),
               ["paragraph"],
               `${Result.getOrThrow(S.encodeUnknownResult(Json)(label))}: an item is one paragraph`
             );
@@ -1089,7 +1098,7 @@ describe("Render.markdown: lists, trees and counts", () => {
           }
           assert.strictEqual(
             textOf(A.getUnsafe(items, 0)),
-            `${label.trimStart()}: 1`,
+            `${Str.trimStart(label)}: 1`,
             Result.getOrThrow(S.encodeUnknownResult(Json)(label))
           );
         }
@@ -1100,11 +1109,11 @@ describe("Render.markdown: lists, trees and counts", () => {
     Effect.gen(function* () {
       const root = yield* treeOf([Doc.counts({ label: "Summary", counters, layout: "columns" })]);
       assert.deepStrictEqual(
-        kids(root).map((n) => n.type),
+        A.map(kids(root), (n) => n.type),
         ["paragraph", "list"]
       );
       assert.deepStrictEqual(
-        kids(kids(root)[1]).map((item) => textOf(item)),
+        A.map(kids(kids(root)[1]), (item) => textOf(item)),
         ["passed: 3", "failed: 1"]
       );
     })
@@ -1155,27 +1164,30 @@ describe("Render.markdown: no ANSI, and a hostile document stays inside its own 
   it.effect("the parsed hostile composite holds only the structure the renderer emitted", () =>
     Effect.gen(function* () {
       const root = yield* treeOf(composite({ codeAndPath: true }));
-      const types = kids(root).map((n) => n.type);
+      const types = A.map(kids(root), (n) => n.type);
       assert.deepStrictEqual(
-        types.filter((t) => t === "thematicBreak"),
+        A.filter(types, (t) => t === "thematicBreak"),
         [],
         "no rule from user text"
       );
-      const htmls = kids(root)
-        .filter((n) => n.type === "html")
-        .map((n) => n.value);
+      const htmls = pipe(
+        kids(root),
+        A.filter((n) => n.type === "html"),
+        A.map((n) => n.value)
+      );
       assert.isTrue(
-        htmls.every((h) => /^(<details( open)?><summary>[^<]*<\/summary>|<\/details>)$/.test(h ?? "")),
+        A.every(htmls, (h) => /^(<details( open)?><summary>[^<]*<\/summary>|<\/details>)$/.test(h ?? "")),
         Result.getOrThrow(S.encodeUnknownResult(Json)(htmls))
       );
-      for (const link of [...descendants(root)].filter((n) => n.type === "link")) {
+      for (const link of A.filter([...descendants(root)], (n) => n.type === "link")) {
         assert.match(
           link.url ?? "",
           /^(https:\/\/x\.test\/|file:\/\/\/repo\/)/,
           "a link is one the document asked for"
         );
       }
-      const inlineHtml = [...descendants(root)].filter(
+      const inlineHtml = A.filter(
+        [...descendants(root)],
         (n) => n.type === "html" && n.value !== "<br>" && !htmls.includes(n.value)
       );
       assert.deepStrictEqual(inlineHtml, [], "no HTML from user text");
@@ -1198,7 +1210,7 @@ describe("Render.markdown: okfit's trial (verbatim, link suffix, counts share, a
       assert.lengthOf(code, 1);
       assert.strictEqual(code[0]?.type, "code");
       // The parser keeps the fence's final line break in the value, as the code-block tests above note.
-      assert.strictEqual((code[0]?.value ?? "").replace(/\n$/, ""), "  verified:\n    - by: x ```\n    at: y");
+      assert.strictEqual(Str.replace(/\n$/, "")(code[0]?.value ?? ""), "  verified:\n    - by: x ```\n    at: y");
     })
   );
 
@@ -1251,7 +1263,7 @@ describe("Render.markdown: reporter blocks (parsed back)", () => {
         Doc.paragraph("a ", Doc.strong("To*tal"), " and ", Doc.em("x_y"), " ", Doc.strong(" pad ")),
       ]);
       const paragraph = kids(root)[0];
-      const types = kids(paragraph).map((n) => n.type);
+      const types = A.map(kids(paragraph), (n) => n.type);
       assert.deepStrictEqual(types.slice(0, 4), ["text", "strong", "text", "emphasis"]);
       assert.strictEqual(textOf(A.getUnsafe(kids(paragraph), 1)), "To*tal");
       assert.strictEqual(textOf(A.getUnsafe(kids(paragraph), 3)), "x_y");
@@ -1266,7 +1278,7 @@ describe("Render.markdown: reporter blocks (parsed back)", () => {
       assert.strictEqual(kids(root)[0]?.type, "paragraph");
       assert.strictEqual(textOf(root), "one\ntwo\n- three");
       assert.lengthOf(
-        descendantTypes(root).filter((type) => type === "break"),
+        A.filter(descendantTypes(root), (type) => type === "break"),
         2
       );
     })
@@ -1278,7 +1290,7 @@ describe("Render.markdown: reporter blocks (parsed back)", () => {
         [Doc.paragraph(Doc.link({ file: "/repo/src/a b.ts", line: 3 }, "a.ts"), " ", Doc.file("/repo/src/c.ts"))],
         {
           linkBase: "https://github.com/o/r/blob/sha/",
-          displayPath: (a) => a.replace("/repo/", ""),
+          displayPath: (a) => Str.replace("/repo/", "")(a),
         }
       );
       const link = kids(kids(root)[0])[0];
@@ -1286,7 +1298,7 @@ describe("Render.markdown: reporter blocks (parsed back)", () => {
       assert.strictEqual(link?.url, "https://github.com/o/r/blob/sha/src/a%20b.ts#L3");
       assert.strictEqual(textOf(root), "a.ts src/c.ts");
       assert.lengthOf(
-        descendantTypes(root).filter((type) => type === "link"),
+        A.filter(descendantTypes(root), (type) => type === "link"),
         1,
         "a file is never linked"
       );
@@ -1355,7 +1367,7 @@ describe("Render.markdown: reporter blocks (parsed back)", () => {
       const code = kids(yield* treeOf([Doc.diffText(unified)]))[0];
       assert.strictEqual(code?.type, "code");
       assert.strictEqual(code?.lang, "diff");
-      assert.strictEqual((code?.value ?? "").replace(/\n$/, ""), unified);
+      assert.strictEqual(Str.replace(/\n$/, "")(code?.value ?? ""), unified);
     })
   );
 
@@ -1377,7 +1389,7 @@ describe("Render.markdown: emphasis, list caps, counts headers, link fallbacks a
       assert.strictEqual(out, "a*b*c");
       const paragraph = kids(yield* parse(out))[0];
       assert.deepStrictEqual(
-        kids(paragraph).map((n) => n.type),
+        A.map(kids(paragraph), (n) => n.type),
         ["text", "emphasis", "text"]
       );
     })
@@ -1407,7 +1419,7 @@ describe("Render.markdown: emphasis, list caps, counts headers, link fallbacks a
         }),
       ]);
       assert.deepStrictEqual(
-        kids(root).map((n) => n.type),
+        A.map(kids(root), (n) => n.type),
         ["paragraph", "table", "paragraph"]
       );
       const cells = cellTexts(tableOf(root));
@@ -1416,7 +1428,7 @@ describe("Render.markdown: emphasis, list caps, counts headers, link fallbacks a
         ["3/4", "1", "250ms"],
       ]);
       assert.isTrue(
-        (cells[0] ?? []).every((cell) => cell !== ""),
+        A.every(cells[0] ?? [], (cell) => cell !== ""),
         "no empty header"
       );
       assert.strictEqual(textOf(A.getUnsafe(kids(root), 0)), "Widgets");

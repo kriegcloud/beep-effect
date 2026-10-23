@@ -12,6 +12,8 @@ import { sanitize } from "@beep/cli-kit/Fmt";
 import { renderGithubLog } from "@beep/cli-kit/internal/renderGithubLog";
 import { Render } from "@beep/cli-kit/Render";
 import { CommandNeutralizer } from "@beep/github-commands";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const ctx = Render.contextOf({ audience: "agent" });
 it.effect.prop(
@@ -21,15 +23,13 @@ it.effect.prop(
     Effect.sync(() => {
       const input = `prefix ${text} suffix`;
       const once = renderGithubLog([Doc.verbatim(input)], ctx);
-      const lines = sanitize(input)
-        .replace(/\r\n|\r/g, "\n")
-        .split("\n");
+      const lines = pipe(sanitize(input), Str.replace(/\r\n|\r/g, "\n"), Str.split("\n"));
       // github-log neutralization is a separate, intentional normalization of untrusted commands.
       assert.strictEqual(renderGithubLog([Doc.verbatim(once)], ctx), once);
       assert.strictEqual(once, A.join(A.flatMap(lines, CommandNeutralizer.lines), "\n"));
       assert.deepStrictEqual(
-        once.split("\n"),
-        renderGithubLog([Doc.verbatim(once.split("\n").join("\n"))], ctx).split("\n")
+        Str.split(once, "\n"),
+        Str.split(renderGithubLog([Doc.verbatim(pipe(once, Str.split("\n"), A.join("\n")))], ctx), "\n")
       );
     }),
   runs
@@ -42,9 +42,7 @@ it.effect.prop(
     Effect.sync(() => {
       const input = `::error::${payload}\ntext ##[warning]${payload} suffix`;
       const once = renderGithubLog([Doc.verbatim(input)], ctx);
-      const lines = sanitize(input)
-        .replace(/\r\n|\r/g, "\n")
-        .split("\n");
+      const lines = pipe(sanitize(input), Str.replace(/\r\n|\r/g, "\n"), Str.split("\n"));
       assert.strictEqual(once, A.join(A.flatMap(lines, CommandNeutralizer.lines), "\n"));
       assert.strictEqual(renderGithubLog([Doc.verbatim(once)], ctx), once);
     }),

@@ -4,16 +4,18 @@ import { AudienceShape } from "@beep/runtime-env/Audience";
 import { StreamEnv, TerminalSnapshot } from "@beep/runtime-env/TerminalEnv";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { commandLines } from "./helpers/runnerCommands.ts";
@@ -22,11 +24,10 @@ import type { AudienceKind } from "@beep/runtime-env";
 
 const Json = S.fromJsonString(S.Unknown);
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 const ESC = String.fromCharCode(0x1b);
@@ -49,8 +50,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -79,11 +80,8 @@ const layers = (audience: AudienceKind) => {
 it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
   describe("the report's last resort keeps the output policy", () => {
     /** A document whose block the renderer has no case for: the walker throws on it. */
-    class Broken extends Data.TaggedError("Broken")<{ readonly message: string }> {
+    class Broken extends S.TaggedError<Broken, { readonly brand: unique symbol }>()("Broken", { message: S.String }) {
       override readonly name = "Error";
-      constructor(message = "") {
-        super({ message });
-      }
 
       [CliDoc](): Document {
         return [deliberatelyInvalid<never>({ _tag: "NotABlock" })];
@@ -103,7 +101,7 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
           const { double, err } = capturing();
           const message = `bad${ESC}[31m red ${ESC}]8;;http://evil\u0007x\r::error::injected\n##[add-mask]y`;
           yield* CliRuntime.main(
-            Effect.suspend(() => Effect.fail(new Broken(message))),
+            Effect.suspend(() => Effect.fail(Broken.make({ message }))),
             {
               platform,
               env: {},
@@ -113,7 +111,7 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
             Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env)),
             Effect.provideService(Console.Console, double)
           );
-          const text = err.join("\n");
+          const text = A.join(err, "\n");
           assert.isAbove(err.length, 0, Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
           assert.notInclude(text, ESC, Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
           assert.notInclude(text, "\u0007", Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
@@ -128,7 +126,12 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
   describe("Doc.print forwards displayPath and width", () => {
     const doc: Document = [
       Doc.paragraph("open ", Doc.link({ file: `${USER}`, line: 3, col: 4 }, "x")),
-      Doc.paragraph(Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ")),
+      Doc.paragraph(
+        A.join(
+          Array.from({ length: 30 }, (_, i) => `word${i}`),
+          " "
+        )
+      ),
     ];
 
     const print = Effect.fn("print")(function* (audience: AudienceKind, options: DocPrintOptions | undefined) {
@@ -137,12 +140,12 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
         Effect.provideService(Audience, AudienceShape.make({ kind: audience, source: "override" })),
         Effect.provideService(Console.Console, double)
       );
-      return out.join("\n");
+      return A.join(out, "\n");
     });
 
     it.effect("displayPath is applied to the link's path", () =>
       Effect.gen(function* () {
-        const text = yield* print("agent", { displayPath: (p) => p.replace("/repo/", "") });
+        const text = yield* print("agent", { displayPath: (p) => Str.replace("/repo/", "")(p) });
         assert.include(text, "src/run.ts:3:4");
         assert.notInclude(text, "/repo/");
         assert.include(yield* print("agent", {}), "/repo/src/run.ts:3:4", "control: the identity without it");
@@ -152,10 +155,26 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
     it.effect("width is the context's, so an agent can be laid out at a width after all", () =>
       Effect.gen(function* () {
         const narrow = yield* print("agent", { width: 30 });
-        const longest = Math.max(...narrow.split("\n").map((line) => line.length));
+        const longest = Math.max(
+          ...pipe(
+            narrow,
+            Str.split("\n"),
+            A.map((line) => line.length)
+          )
+        );
         assert.isAtMost(longest, 40);
         const unbounded = yield* print("agent", {});
-        assert.isAbove(Math.max(...unbounded.split("\n").map((line) => line.length)), 100, "control: unbounded");
+        assert.isAbove(
+          Math.max(
+            ...pipe(
+              unbounded,
+              Str.split("\n"),
+              A.map((line) => line.length)
+            )
+          ),
+          100,
+          "control: unbounded"
+        );
       })
     );
   });
@@ -168,13 +187,13 @@ describe("main's env.displayPath is the default report's path display", () => {
         const { double, err } = capturing();
         yield* CliRuntime.main(dying("kaboom"), {
           platform,
-          env: { displayPath: (p) => p.replace("/repo/", "") },
+          env: { displayPath: (p) => Str.replace("/repo/", "")(p) },
         }).pipe(
           Effect.exit,
           Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env)),
           Effect.provideService(Console.Console, double)
         );
-        const text = err.join("\n");
+        const text = A.join(err, "\n");
         assert.include(text, "src/run.ts:3:4", Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
         assert.notInclude(text, "/repo/", Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
       }
@@ -184,7 +203,7 @@ describe("main's env.displayPath is the default report's path display", () => {
         Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ AI_AGENT: "x" })),
         Effect.provideService(Console.Console, double)
       );
-      assert.include(err.join("\n"), "/repo/src/run.ts:3:4", "control: absolute without the option");
+      assert.include(A.join(err, "\n"), "/repo/src/run.ts:3:4", "control: absolute without the option");
     })
   );
 
@@ -212,7 +231,7 @@ describe("a consumer render's output is untrusted text", () => {
     options: { readonly env?: boolean } = {}
   ) {
     const { double, err } = capturing();
-    const program = Effect.suspend(() => Effect.fail(new TestError("x")));
+    const program = Effect.suspend(() => Effect.fail(TestError.make({ message: "x" })));
     yield* (
       options.env === false
         ? CliRuntime.main(program, { platform: Layer.empty, render })
@@ -233,9 +252,13 @@ describe("a consumer render's output is untrusted text", () => {
         { GITHUB_ACTIONS: "true" },
       ]) {
         const err = yield* reportWith(env);
-        assert.deepStrictEqual(commandLines(err.join("\n")), [], Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
+        assert.deepStrictEqual(
+          commandLines(A.join(err, "\n")),
+          [],
+          Result.getOrThrow(S.encodeUnknownResult(Json)(env))
+        );
         assert.isAbove(err.length, 0);
-        assert.include(err.join("\n"), "secret", "the text itself is kept");
+        assert.include(A.join(err, "\n"), "secret", "the text itself is kept");
       }
     })
   );
@@ -243,7 +266,7 @@ describe("a consumer render's output is untrusted text", () => {
   it.effect("an agent gets no escape of any kind from it", () =>
     Effect.gen(function* () {
       const err = yield* reportWith({ AI_AGENT: "x", TERM: "xterm-256color" });
-      const text = err.join("\n");
+      const text = A.join(err, "\n");
       assert.notInclude(text, ESC);
       assert.notInclude(text, BEL);
       assert.notInclude(text, "evil");
@@ -260,7 +283,7 @@ describe("a consumer render's output is untrusted text", () => {
         // Detected CI (GITHUB_ACTIONS, no override) and an explicit ci audience outside Actions.
         for (const env of [{ GITHUB_ACTIONS: "true" }, { TEST_AUDIENCE: "ci" }, { CI: "true", TEST_AUDIENCE: "ci" }]) {
           const err = yield* reportWith(env);
-          const text = err.join("\n");
+          const text = A.join(err, "\n");
           assert.notInclude(text, ESC, Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
           assert.notInclude(text, BEL, Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
           assert.notInclude(text, "evil", Result.getOrThrow(S.encodeUnknownResult(Json)(env)));
@@ -273,7 +296,7 @@ describe("a consumer render's output is untrusted text", () => {
   it.effect("a human outside GitHub Actions keeps the consumer's own escapes, and nothing is neutralized", () =>
     Effect.gen(function* () {
       const err = yield* reportWith({ TEST_AUDIENCE: "human", TERM: "xterm-256color" });
-      const text = err.join("\n");
+      const text = A.join(err, "\n");
       assert.include(text, `${ESC}[31mred`, "the consumer's SGR is theirs");
       assert.notInclude(text, ZWSP);
       assert.strictEqual(commandLines(text).length, 2, "control: the command lines are really there");
@@ -283,7 +306,7 @@ describe("a consumer render's output is untrusted text", () => {
   it.effect("a human under GitHub Actions keeps the consumer's SGR but is neutralized", () =>
     Effect.gen(function* () {
       const err = yield* reportWith({ GITHUB_ACTIONS: "true", TEST_AUDIENCE: "human", TERM: "xterm-256color" });
-      const text = err.join("\n");
+      const text = A.join(err, "\n");
       assert.include(text, `${ESC}[31mred`);
       assert.deepStrictEqual(commandLines(text), []);
     })
@@ -292,7 +315,7 @@ describe("a consumer render's output is untrusted text", () => {
   it.effect("with no environment services at all it neutralizes, and does not strip what it cannot judge", () =>
     Effect.gen(function* () {
       const err = yield* reportWith({}, { env: false });
-      const text = err.join("\n");
+      const text = A.join(err, "\n");
       assert.deepStrictEqual(commandLines(text), []);
       assert.include(text, `${ESC}[31mred`, "an unknown audience is not an agent: no sanitising");
     })
@@ -302,7 +325,7 @@ describe("a consumer render's output is untrusted text", () => {
     Effect.gen(function* () {
       const { double, err } = capturing();
       yield* CliRuntime.main(
-        Effect.suspend(() => Effect.fail(new TestError("x"))),
+        Effect.suspend(() => Effect.fail(TestError.make({ message: "x" }))),
         {
           platform,
           env: {},
@@ -313,7 +336,7 @@ describe("a consumer render's output is untrusted text", () => {
         Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ GITHUB_ACTIONS: "true" })),
         Effect.provideService(Console.Console, double)
       );
-      assert.deepStrictEqual(commandLines(err.join("\n")), []);
+      assert.deepStrictEqual(commandLines(A.join(err, "\n")), []);
     })
   );
 });
@@ -324,7 +347,7 @@ describe("a delegating render gets the default report", () => {
     const { double, err } = capturing();
     yield* CliRuntime.main(dying("kaboom"), {
       platform,
-      env: { displayPath: (p) => p.replace("/repo/", "") },
+      env: { displayPath: (p) => Str.replace("/repo/", "")(p) },
       ...(render === undefined ? {} : { render }),
     }).pipe(
       Effect.exit,
@@ -340,10 +363,10 @@ describe("a delegating render gets the default report", () => {
       Effect.gen(function* () {
         const kit = yield* report();
         assert.isTrue(
-          kit.some((line) => line.includes(ESC)),
+          A.some(kit, (line) => Str.includes(ESC)(line)),
           "control: the default report is painted for this human"
         );
-        assert.include(kit.join("\n"), "src/run.ts:3:4");
+        assert.include(A.join(kit, "\n"), "src/run.ts:3:4");
         const delegated = yield* report((_error, details) => details.defaultLines);
         assert.deepStrictEqual(delegated, kit);
       })
@@ -367,7 +390,7 @@ describe("details.lines: the run's report, with or without its status (A2)", () 
     const { double, err } = capturing();
     yield* CliRuntime.main(dying("kaboom"), {
       platform,
-      env: { displayPath: (p) => p.replace("/repo/", "") },
+      env: { displayPath: (p) => Str.replace("/repo/", "")(p) },
       render,
     }).pipe(
       Effect.exit,
@@ -380,10 +403,10 @@ describe("details.lines: the run's report, with or without its status (A2)", () 
   it.effect("a prefixing render keeps the run's displayPath and has no status marker", () =>
     Effect.gen(function* () {
       const err = yield* run({ AI_AGENT: "x" }, (_error, details) =>
-        details.lines({ status: false }).map((line, index) => (index === 0 ? `prog: ${line}` : line))
+        A.map(details.lines({ status: false }), (line, index) => (index === 0 ? `prog: ${line}` : line))
       );
       assert.strictEqual(err[0], "prog: Error: kaboom");
-      const text = err.join("\n");
+      const text = A.join(err, "\n");
       assert.include(text, "src/run.ts:3:4");
       assert.notInclude(text, "/repo/");
       assert.notInclude(text, "[FAIL]");
@@ -396,12 +419,12 @@ describe("details.lines: the run's report, with or without its status (A2)", () 
       const withStatus = yield* run(human, (_error, details) => details.lines());
       const without = yield* run(human, (_error, details) => details.lines({ status: false }));
       assert.isTrue(
-        without.some((line) => line.includes(ESC)),
+        A.some(without, (line) => Str.includes(ESC)(line)),
         "painted, like the run"
       );
       assert.notStrictEqual(withStatus[0], without[0], "control: the status leads lines()");
-      assert.include(without.join("\n"), "src/run.ts:3:4");
-      const strip = (line: string | undefined) => (line ?? "").replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "");
+      assert.include(A.join(without, "\n"), "src/run.ts:3:4");
+      const strip = (line: string | undefined) => Str.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "")(line ?? "");
       assert.strictEqual(strip(without[0]), "Error: kaboom");
       assert.match(strip(withStatus[0]), /^\S+ Error: kaboom$/, "control: a glyph leads lines()");
     })
@@ -434,14 +457,14 @@ describe("main's env.stackFrames (A3)", () => {
     const { double, err } = capturing();
     yield* CliRuntime.main(dyingThroughVendor, {
       platform,
-      env: { displayPath: (p) => p.replace("/repo/", ""), ...(stackFrames === undefined ? {} : { stackFrames }) },
+      env: { displayPath: (p) => Str.replace("/repo/", "")(p), ...(stackFrames === undefined ? {} : { stackFrames }) },
       ...(render === undefined ? {} : { render }),
     }).pipe(
       Effect.exit,
       Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ AI_AGENT: "x" })),
       Effect.provideService(Console.Console, double)
     );
-    return err.join("\n");
+    return A.join(err, "\n");
   });
 
   it.effect("the default report hides a node_modules frame, and shows the program's through displayPath", () =>
@@ -488,7 +511,7 @@ describe("a report target that cannot be built falls back to plain", () => {
       () =>
         Effect.gen(function* () {
           const { double, err } = capturing();
-          const failure = new TestError("disk full");
+          const failure = TestError.make({ message: "disk full" });
           const exit = yield* Effect.fail(failure).pipe(
             CliRuntime.reportFailures(),
             Effect.provideService(Console.Console, double),
@@ -497,7 +520,7 @@ describe("a report target that cannot be built falls back to plain", () => {
           assertExitFailure(exit, Cause.fail(failure));
           const squashed = Cause.squash(exit.cause);
           assert.include(String(squashed), "disk full", "the program's own failure, not the target's defect");
-          assert.include(err.join("\n"), "disk full");
+          assert.include(A.join(err, "\n"), "disk full");
         })
     );
   });

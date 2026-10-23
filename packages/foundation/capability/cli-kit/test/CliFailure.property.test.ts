@@ -6,6 +6,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -23,7 +24,7 @@ it.effect.prop(
       assert.deepStrictEqual(CliFailure.toDoc(Cause.fail(decoded), { spans: "off" }), doc);
       const rendered = Render.plain(doc, context);
       assert.strictEqual(Fmt.sanitize(rendered), rendered);
-      for (const line of Fmt.sanitize(message).split(/\r\n|\r|\n/)) assert.include(rendered, Str.trim(line));
+      for (const line of Str.split(Fmt.sanitize(message), /\r\n|\r|\n/)) assert.include(rendered, Str.trim(line));
       assert.deepStrictEqual(
         Render.plain(CliFailure.toDoc(Cause.fail(Fmt.sanitize(message)), { spans: "off" }), context),
         rendered
@@ -37,13 +38,13 @@ it.effect.prop(
   [Arbitrary.schema(S.String), Arbitrary.schema(S.Finite), Arbitrary.schema(S.Finite)],
   ([text, row, column]) =>
     Effect.sync(() => {
-      const file = `/repo/file-${encodeURIComponent(text.toWellFormed()).replace(/\(/g, "%28").replace(/\)/g, "%29")}.ts`;
+      const file = `/repo/file-${pipe(encodeURIComponent(text.toWellFormed()), Str.replace(/\(/g, "%28"), Str.replace(/\)/g, "%29"))}.ts`;
       const line = Math.max(1, Math.floor(Math.abs(row % 1000)));
       const col = Math.max(1, Math.floor(Math.abs(column % 1000)));
       const pathError = new Error("failed");
       pathError.stack = `Error: failed\n at operation (${file}:${line}:${col})`;
       const urlError = new Error("failed");
-      urlError.stack = `Error: failed\n at operation (file://${file.replace(/%/g, "%25")}:${line}:${col})`;
+      urlError.stack = `Error: failed\n at operation (file://${Str.replace(/%/g, "%25")(file)}:${line}:${col})`;
       const pathReport = Render.plain(CliFailure.toDoc(Cause.die(pathError)), context);
       const urlReport = Render.plain(CliFailure.toDoc(Cause.die(urlError)), context);
       assert.strictEqual(urlReport, pathReport);

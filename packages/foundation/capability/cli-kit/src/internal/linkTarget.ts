@@ -1,8 +1,11 @@
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 // A lone surrogate makes `encodeURIComponent` throw, so it becomes U+FFFD first.
 const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+/** One code point outside printable ASCII; `encodeForOsc8` tests the string one code point at a time. */
+const NON_PRINTABLE_ASCII = /[^\x20-\x7e]/u;
 
 /**
  * A Windows drive path (`C:\x`, `C:/x`): absolute whatever the `Path` flavour, so never resolved against a directory.
@@ -64,9 +67,19 @@ export const UNC = /^(?:\\\\|\/\/)/;
  */
 export const encodePath = (path: string): string =>
   pipe(
-    path.replace(LONE_SURROGATE, "�").split("/"),
+    path,
+    Str.replace(LONE_SURROGATE, "�"),
+    Str.split("/"),
     A.map((segment) =>
-      encodeURIComponent(segment).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)
+      // The RFC 3986 sub-delims encodeURIComponent leaves bare, as their upper-case percent escapes.
+      pipe(
+        encodeURIComponent(segment),
+        Str.replace(/!/g, "%21"),
+        Str.replace(/'/g, "%27"),
+        Str.replace(/\(/g, "%28"),
+        Str.replace(/\)/g, "%29"),
+        Str.replace(/\*/g, "%2A")
+      )
     ),
     A.join("/")
   );
@@ -94,8 +107,9 @@ export const encodePath = (path: string): string =>
  */
 export const fileUrlPath = (absolute: string): string | undefined => {
   if (UNC.test(absolute)) return undefined;
-  if (DRIVE.test(absolute)) return `/${absolute.slice(0, 2)}${encodePath(absolute.slice(2).replace(/\\/g, "/"))}`;
-  return encodePath(absolute.startsWith("/") ? absolute : `/${absolute.replace(/\\/g, "/")}`);
+  if (DRIVE.test(absolute))
+    return `/${Str.slice(0, 2)(absolute)}${encodePath(pipe(absolute, Str.slice(2), Str.replace(/\\/g, "/")))}`;
+  return encodePath(Str.startsWith("/")(absolute) ? absolute : `/${Str.replace(/\\/g, "/")(absolute)}`);
 };
 
 /**
@@ -115,4 +129,10 @@ export const fileUrlPath = (absolute: string): string | undefined => {
  * @since 0.0.0
  */
 export const encodeForOsc8 = (url: string): string =>
-  url.replace(LONE_SURROGATE, "�").replace(/[^\x20-\x7e]/gu, (char) => encodeURIComponent(char));
+  pipe(
+    url,
+    Str.replace(LONE_SURROGATE, "�"),
+    A.fromIterable,
+    A.map((char) => (NON_PRINTABLE_ASCII.test(char) ? encodeURIComponent(char) : char)),
+    A.join("")
+  );

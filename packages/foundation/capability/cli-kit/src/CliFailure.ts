@@ -8,6 +8,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
+import * as Str from "effect/String";
 import { Cancelled } from "./Cancelled.ts";
 import { Doc } from "./Doc.ts";
 import { Fmt } from "./Fmt.ts";
@@ -129,7 +130,7 @@ const describe = (value: unknown): string =>
     () => "[unprintable value]"
   );
 
-const firstLine = (text: string): string => A.getUnsafe(text.split(/\r\n|\r|\n/, 1), 0);
+const firstLine = (text: string): string => A.headNonEmpty(Str.split(text, /\r\n|\r|\n/));
 
 const tagOf = (value: unknown): string | undefined => {
   if (!P.isObjectKeyword(value) || P.isFunction(value)) return undefined;
@@ -139,7 +140,7 @@ const tagOf = (value: unknown): string | undefined => {
 
 /** The failure status and the text of a message: one block per line, the status on the first. */
 const failureBlocks = (message: string): ReadonlyArray<Block> => {
-  const lines = message.split(/\r\n|\r|\n/);
+  const lines = Str.split(message, /\r\n|\r|\n/);
   return [
     Doc.paragraph(Doc.status(Status.core, "failure"), " ", A.getUnsafe(lines, 0)),
     ...A.map(A.drop(lines, 1), (line) => Doc.paragraph(line)),
@@ -182,16 +183,16 @@ interface Frame {
 
 /** The location of a frame as a path: a `file:` URL decoded, or an absolute POSIX or drive path; else `undefined`. */
 const asPath = (location: string): string | undefined => {
-  if (location.startsWith("file:")) {
+  if (Str.startsWith("file:")(location)) {
     return Result.getOrElse(
       Result.try(() => {
         const path = decodeURIComponent(new URL(location).pathname);
-        return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
+        return /^\/[A-Za-z]:\//.test(path) ? Str.slice(1)(path) : path;
       }),
       () => undefined
     );
   }
-  return location.startsWith("/") || /^[A-Za-z]:[\\/]/.test(location) ? location : undefined;
+  return Str.startsWith("/")(location) || /^[A-Za-z]:[\\/]/.test(location) ? location : undefined;
 };
 
 /** A location without its `:line:col`, and the position when there is one. */
@@ -254,7 +255,7 @@ const cleanStack: {
   2,
   (stack: unknown, mode: "app" | "all"): { readonly frames: ReadonlyArray<Frame>; readonly hidden: number } => {
     if (!P.isString(stack)) return { frames: [], hidden: 0 };
-    const lines = A.filter(stack.split(/\r\n|\r|\n/), (line) => /^\s*at\s/.test(line));
+    const lines = A.filter(Str.split(stack, /\r\n|\r|\n/), (line) => /^\s*at\s/.test(line));
     const app = A.filter(lines, (line) => {
       const file = frameFile(line);
       return file !== undefined && !/[\\/]node_modules[\\/]/.test(file) && !isRuntime(line);
@@ -399,8 +400,13 @@ const packageDirOf = (module: string | undefined): string | undefined => {
  * CommonJS frame on Windows reads `C:\…` where an `import.meta.url` reads `file:///C:/…`, and the drive's case is not
  * fixed (`c:` and `C:` are one drive). Lexical only: no file system, no realpath.
  */
-const comparable = (path: string): string =>
-  path.replace(/\\/g, "/").replace(/^([A-Za-z]):/, (_, drive: string) => `${drive.toLowerCase()}:`);
+const comparable = (path: string): string => {
+  const slashed = Str.replace(/\\/g, "/")(path);
+  return DRIVE.test(slashed) ? `${Str.toLowerCase(Str.slice(0, 1)(slashed))}${Str.slice(1)(slashed)}` : slashed;
+};
+
+/** A Windows drive prefix, `C:`. */
+const DRIVE = /^[A-Za-z]:/;
 
 /** Whether `file` is in the program's own package `appDir`, and not in a dependency nested in its `node_modules`. */
 const isAppFile: {
@@ -409,9 +415,9 @@ const isAppFile: {
 } = dual(2, (file: string, appDir: string | undefined): boolean => {
   if (appDir === undefined) return false;
   const path = comparable(file);
-  if (!path.startsWith(appDir)) return false;
-  const rest = path.slice(appDir.length);
-  return rest.startsWith("/") && !rest.includes("/node_modules/");
+  if (!Str.startsWith(appDir)(path)) return false;
+  const rest = Str.slice(appDir.length)(path);
+  return Str.startsWith("/")(rest) && !Str.includes("/node_modules/")(rest);
 });
 
 /** The file a span frame's captured stack points at, or `undefined` when it captured none. */
@@ -421,11 +427,11 @@ const spanFile = (frame: { readonly stack: () => string | undefined }): string |
       const stack = frame.stack();
       if (stack === undefined) return undefined;
       const line = pipe(
-        stack.split(/\r\n|\r|\n/),
+        Str.split(stack, /\r\n|\r|\n/),
         A.findFirst((candidate) => /^\s*at\s/.test(candidate)),
         O.getOrElse(() => stack)
       );
-      return frameFile(line.trim().startsWith("at ") ? line : `at ${line.trim()}`);
+      return frameFile(pipe(line, Str.trim, Str.startsWith("at ")) ? line : `at ${Str.trim(line)}`);
     }),
     () => undefined
   );

@@ -8,6 +8,7 @@ import { AudienceShape } from "@beep/runtime-env/Audience";
 // `provideEffect` resolves (Command.ts:941), so the prompt in `sub.parse` (Param.ts:1478-1485) cannot see them.
 // `CliAudience.run` / `runWith` scan argv first and provide the answer around the whole run.
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -20,6 +21,7 @@ import * as Prompt from "effect/cli/Prompt";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -27,6 +29,7 @@ import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 
 const gateLayer = (interactive: boolean, builtIns: ReadonlyArray<GlobalFlag.BuiltIn> = GlobalFlag.BuiltIns) =>
@@ -43,7 +46,7 @@ const makeFixtures = Effect.gen(function* () {
     gateConsumer: yield* Layer.build(
       gateLayer(
         false,
-        GlobalFlag.BuiltIns.filter((flag) => flag !== GlobalFlag.Wizard)
+        A.filter(GlobalFlag.BuiltIns, (flag) => flag !== GlobalFlag.Wizard)
       )
     ),
     tt: yield* Layer.build(terminalFactsLayer(true, true)),
@@ -81,8 +84,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -115,7 +118,7 @@ const root = Command.make("tool").pipe(Command.withSharedFlags(CliAudience.flags
 const run = Effect.fn("run")(function* (
   argv: ReadonlyArray<string>,
   via: "runWith" | "core" = "runWith",
-  gateWizard = false
+  gateWizard?: boolean
 ) {
   const fixtures = yield* Fixtures;
   const terminal = yield* TestTerminal.make();
@@ -133,7 +136,7 @@ const run = Effect.fn("run")(function* (
   }).pipe(
     Effect.exit,
     Effect.provideService(Console.Console, double),
-    gateWizard ? Effect.provideContext(fixtures.gateHuman) : (self) => self,
+    gateWizard === true ? Effect.provideContext(fixtures.gateHuman) : (self) => self,
     Effect.provideService(CliInteractive, true),
     Effect.provideService(Audience, AudienceShape.make({ kind: "human", source: "detected" }))
   );
@@ -179,7 +182,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
           ["--agent", "false", "init"],
         ]) {
           const { out, reads } = yield* run(argv);
-          assert.deepStrictEqual(out, ["profile=library audience=human/detected"], argv.join(" "));
+          assert.deepStrictEqual(out, ["profile=library audience=human/detected"], A.join(argv, " "));
           assert.deepStrictEqual(reads.keys, 2);
         }
       })
@@ -196,8 +199,10 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       Effect.gen(function* () {
         const { out, err, code, reads } = yield* run(["--agent", "--ci", "init"]);
         assert.strictEqual(code, 64);
-        assert.isFalse(out.some((line) => line.startsWith("profile=")));
-        assert.isTrue(err.some((line) => line.includes("Give at most one of --audience, --human, --agent, --ci")));
+        assert.isFalse(A.some(out, (line) => Str.startsWith("profile=")(line)));
+        assert.isTrue(
+          A.some(err, (line) => Str.includes("Give at most one of --audience, --human, --agent, --ci")(line))
+        );
         assert.deepStrictEqual(reads, QUIET);
       })
     );
@@ -218,11 +223,11 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
         const { out, err, code } = yield* run(["--agent", "--wizard", "init"], "runWith", true);
         assert.strictEqual(code, 64);
         assert.isTrue(
-          err.some((line) => line.includes("wizard")),
-          err.join("\n")
+          A.some(err, (line) => Str.includes("wizard")(line)),
+          A.join(err, "\n")
         );
         assert.isFalse(
-          out.some((line) => /wizard/i.test(line) && !line.includes("--wizard")),
+          A.some(out, (line) => /wizard/i.test(line) && !Str.includes("--wizard")(line)),
           "no wizard output"
         );
       })
@@ -233,7 +238,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       Effect.gen(function* () {
         const { code, out } = yield* run(["--agent", "--ci", "init"]);
         assert.strictEqual(code, 64);
-        assert.isFalse(out.some((line) => line.startsWith("profile=")));
+        assert.isFalse(A.some(out, (line) => Str.startsWith("profile=")(line)));
       })
     );
 
@@ -381,7 +386,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
         const humanOnTtys: Facts = { detected: "human", stdin: true, stdout: true, ambient: true };
         for (const flag of ["--agent", "--ci"]) {
           const { out, reads } = yield* runUnder(humanOnTtys, [flag, "init"]);
-          assert.deepStrictEqual(out, [`profile=x audience=${flag.slice(2)}/flag`], flag);
+          assert.deepStrictEqual(out, [`profile=x audience=${Str.slice(2)(flag)}/flag`], flag);
           assert.deepStrictEqual(reads, QUIET, flag);
         }
       })
@@ -426,10 +431,10 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
         });
         assert.isAtLeast(reads.subscriptions, 1, "the wizard read the terminal");
         assert.isFalse(
-          err.some((line) => /unrecogni[sz]ed.*wizard|wizard.*unrecogni[sz]ed|unknown.*wizard/i.test(line)),
-          err.join("\n")
+          A.some(err, (line) => /unrecogni[sz]ed.*wizard|wizard.*unrecogni[sz]ed|unknown.*wizard/i.test(line)),
+          A.join(err, "\n")
         );
-        assert.notStrictEqual(code, 64, err.join("\n"));
+        assert.notStrictEqual(code, 64, A.join(err, "\n"));
         // Without a terminal the gate's drop stands: the wizard is an unknown flag.
         const piped = yield* runUnder({ ...agentOnTtys, stdin: false }, ["--human", "--wizard", "init"], {
           gateWizard: true,
@@ -442,7 +447,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       "a consumer who left --wizard out of their own builtIns keeps it out: only a drop by the gate is restored",
       () =>
         Effect.gen(function* () {
-          const noWizard = GlobalFlag.BuiltIns.filter((flag) => flag !== GlobalFlag.Wizard);
+          const noWizard = A.filter(GlobalFlag.BuiltIns, (flag) => flag !== GlobalFlag.Wizard);
           assert.isFalse(noWizard.includes(GlobalFlag.Wizard));
           // Under a detected agent the gate has nothing to drop, and --human on real TTYs must not invent a wizard.
           const { err, code, reads } = yield* runUnder(agentOnTtys, ["--human", "--wizard", "init"], {
@@ -450,10 +455,10 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
             endInput: true,
             builtIns: noWizard,
           });
-          assert.strictEqual(code, 64, err.join("\n"));
+          assert.strictEqual(code, 64, A.join(err, "\n"));
           assert.isTrue(
-            err.some((line) => /unrecogni[sz]ed.*wizard/i.test(line)),
-            err.join("\n")
+            A.some(err, (line) => /unrecogni[sz]ed.*wizard/i.test(line)),
+            A.join(err, "\n")
           );
           assert.strictEqual(reads.subscriptions, 0, "the wizard never ran");
           // The same consumer's --human still widens the prompt itself.
@@ -466,7 +471,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       "a consumer config provided INSIDE the gate, without Wizard, is not overridden: --human --wizard is 64",
       () =>
         Effect.gen(function* () {
-          const noWizard = GlobalFlag.BuiltIns.filter((flag) => flag !== GlobalFlag.Wizard);
+          const noWizard = A.filter(GlobalFlag.BuiltIns, (flag) => flag !== GlobalFlag.Wizard);
           // The gate (outside) saw the full list and dropped Wizard, so its mark is set; the consumer's config is a
           // different object, so the mark must not license putting Wizard back into it.
           const inner = yield* runUnder(agentOnTtys, ["--human", "--wizard", "init"], {
@@ -474,10 +479,10 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
             endInput: true,
             innerBuiltIns: noWizard,
           });
-          assert.strictEqual(inner.code, 64, inner.err.join("\n"));
+          assert.strictEqual(inner.code, 64, A.join(inner.err, "\n"));
           assert.isTrue(
-            inner.err.some((line) => /unrecogni[sz]ed.*wizard/i.test(line)),
-            inner.err.join("\n")
+            A.some(inner.err, (line) => /unrecogni[sz]ed.*wizard/i.test(line)),
+            A.join(inner.err, "\n")
           );
           assert.strictEqual(inner.reads.subscriptions, 0, "the wizard never ran");
           // Control: with no consumer config inside, the gate's own object is current, so the restore still happens.

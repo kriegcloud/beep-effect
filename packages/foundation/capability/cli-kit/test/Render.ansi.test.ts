@@ -1,12 +1,14 @@
 import { Doc, Glyphs, Render, Status } from "@beep/cli-kit";
 import { displayWidth, stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { composite } from "./helpers/hostileDoc.ts";
 import {
   contextOf,
@@ -37,7 +39,7 @@ const OFF = {
 } as const;
 
 const tokensOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
-  Effect.map(ansi(doc, { ...TOKENS, ...overrides }), (out) => out.split("\n").map(decodeTokens));
+  Effect.map(ansi(doc, { ...TOKENS, ...overrides }), (out) => pipe(out, Str.split("\n"), A.map(decodeTokens)));
 
 const CONTROL = /[\u0000-\u0009\u000B-\u001F\u007F-\u009F]/;
 const BOX = /[─│┌┐└┘├┤┬┴┼═║╔╗╚╝]/;
@@ -75,7 +77,7 @@ describe("Render.ansi at colour none is Render.plain (the main property)", () =>
       const a = yield* ansi(doc, overrides);
       const p = yield* plain(doc, overrides);
       assert.notStrictEqual(a, p, "the two really do differ there");
-      assert.strictEqual(a.replaceAll(" › ", " > "), p.replaceAll("`", ""));
+      assert.strictEqual(Str.replaceAll(" › ", " > ")(a), Str.replaceAll("`", "")(p));
     })
   );
 
@@ -155,7 +157,7 @@ describe("Render.ansi: which token paints what (decoded, never raw bytes)", () =
     "an overflow row is muted, whether the default or a function's unstyled text, and keeps a token it sets",
     () =>
       Effect.gen(function* () {
-        const items = ["a", "b", "c"].map((t) => Doc.paragraph(t));
+        const items = A.map(["a", "b", "c"], (t) => Doc.paragraph(t));
         assert.deepStrictEqual((yield* tokensOf([Doc.list(items, { cap: 1 })]))[1], [["muted", "… 2 more"]]);
         assert.deepStrictEqual(
           (yield* tokensOf([Doc.list(items, { cap: 1, overflow: (hidden) => `${hidden} hidden` })]))[1],
@@ -192,7 +194,7 @@ describe("Render.ansi: which token paints what (decoded, never raw bytes)", () =
       for (const [kind, token] of R.toEntries(expected)) {
         const [line] = yield* tokensOf([Doc.callout(kind, [Doc.paragraph("text")])]);
         assert.deepStrictEqual(line, [
-          [token, `${kind.toUpperCase()}:`],
+          [token, `${Str.toUpperCase(kind)}:`],
           [undefined, " text"],
         ]);
       }
@@ -276,7 +278,7 @@ describe("Render.ansi: links go through ctx.link, and only it makes OSC 8", () =
           Doc.paragraph(Doc.link({ url })),
           Doc.paragraph(Doc.link({ file: "/repo/a.ts", line: 3, col: 4 }, "a.ts")),
         ],
-        { displayPath: (p: string) => p.replace("/repo/", "") }
+        { displayPath: (p: string) => Str.replace("/repo/", "")(p) }
       );
       assert.deepStrictEqual(out[0], [
         [undefined, "docs"],
@@ -318,13 +320,13 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
 
   it.effect("the blocks the width governs (paragraphs, tables, lists) fit it at every width, painted", () =>
     Effect.gen(function* () {
-      const governed = composite({ codeAndPath: true }).filter((block) =>
+      const governed = A.filter(composite({ codeAndPath: true }), (block) =>
         ["Paragraph", "Table", "List"].includes(block._tag)
       );
       assert.isAbove(governed.length, 2);
       for (const width of [16, 24, 40, 100]) {
         const out = yield* ansi(governed, { link, width });
-        for (const line of out.split("\n"))
+        for (const line of Str.split(out, "\n"))
           assert.isAtMost(displayWidth(line), width, `width ${width}: "${stripAnsi(line)}"`);
       }
     })
@@ -339,9 +341,9 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
         ),
       ];
       const out = yield* ansi(doc, { ...TOKENS, width: 20 });
-      const row = out.split("\n")[2] ?? "";
+      const row = Str.split(out, "\n")[2] ?? "";
       assert.isAtMost(displayWidth(row), 20);
-      const cut = decodeTokens(row).find(([token]) => token === "failure");
+      const cut = O.getOrUndefined(A.findFirst(decodeTokens(row), ([token]) => token === "failure"));
       assert.isDefined(cut);
       assert.match(cut?.[1] ?? "", /…$/);
     })
@@ -373,7 +375,7 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
       ];
       for (const [index, doc] of docs.entries()) {
         const a = yield* ansi([doc], OFF);
-        assert.deepStrictEqual(a.split("\n"), expected[index]);
+        assert.deepStrictEqual(Str.split(a, "\n"), expected[index]);
         assert.strictEqual(a, yield* plain([doc], OFF));
       }
     })
@@ -403,7 +405,7 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
         assert.strictEqual(links.pairs, 1, `width ${width}: one pair`);
         assert.match(links.wrapped, /^a .*…$/, `width ${width}: the pair wraps what is left, ending in the ellipsis`);
         assert.deepStrictEqual(sgrProblems(out), [], `width ${width}: SGR balanced`);
-        for (const line of out.split("\n")) assert.isAtMost(displayWidth(line), width);
+        for (const line of Str.split(out, "\n")) assert.isAtMost(displayWidth(line), width);
       }
     })
   );
@@ -439,7 +441,7 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
       });
       assert.strictEqual(out, "docs (https://example.test/ab)");
       assert.isTrue(
-        seen.every((url) => url === "https://example.test/ab"),
+        A.every(seen, (url) => url === "https://example.test/ab"),
         Result.getOrThrow(S.encodeUnknownResult(Json)(seen))
       );
     })
@@ -469,7 +471,7 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
         Doc.callout("note", [Doc.collapsible("d", [Doc.list([wide])])]),
       ]) {
         const out = yield* ansi([block], { ...TOKENS, width: 30 });
-        for (const line of out.split("\n")) assert.isAtMost(displayWidth(line), 30);
+        for (const line of Str.split(out, "\n")) assert.isAtMost(displayWidth(line), 30);
       }
     })
   );
@@ -478,8 +480,8 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
     Effect.gen(function* () {
       const url = "https://example.test/a/very/long/path/that/exceeds";
       const out = yield* ansi([Doc.paragraph(`see ${url} now and then some more words`)], { ...OFF, width: 14 });
-      assert.include(out.split("\n"), url);
-      assert.strictEqual(out.split("\n").join(" "), `see ${url} now and then some more words`);
+      assert.include(Str.split(out, "\n"), url);
+      assert.strictEqual(pipe(out, Str.split("\n"), A.join(" ")), `see ${url} now and then some more words`);
     })
   );
 });
@@ -498,14 +500,14 @@ describe("Render.ansi: okfit's trial (counts paint, link suffix, annotations)", 
           Doc.counts({ layout: "inline", label, counters, durationMs: 5, ...(paint === undefined ? {} : { paint }) }),
         ]);
       const all = (yield* painted()).flat();
-      assert.isTrue(all.some(([token, text]) => token === "failure" && text.includes("errors")));
+      assert.isTrue(A.some(all, ([token, text]) => token === "failure" && Str.includes("errors")(text)));
       const none = (yield* painted("none")).flat();
       assert.deepStrictEqual(
-        none.filter(([token]) => token !== undefined),
+        A.filter(none, ([token]) => token !== undefined),
         [],
         "nothing is painted"
       );
-      const glyph = (yield* painted("glyph")).flat().filter(([token]) => token !== undefined);
+      const glyph = A.filter((yield* painted("glyph")).flat(), ([token]) => token !== undefined);
       assert.deepStrictEqual(glyph, [["failure", "✗"]], "only the status glyph keeps its token");
     })
   );
@@ -551,7 +553,7 @@ describe("Render.ansi reporter blocks: contextOf, strong and em, diffText, pipe 
     const ctx = Render.contextOf({
       audience: "ci",
       width: 40,
-      displayPath: (a) => a.replace("/r/", ""),
+      displayPath: (a) => Str.replace("/r/", "")(a),
       neutralizeWorkflowCommands: true,
       linkBase: "https://x.test/blob/sha/",
     });
@@ -593,7 +595,7 @@ describe("Render.ansi reporter blocks: contextOf, strong and em, diffText, pipe 
 
 describe("Render.contextOf: a ci audience neutralizes workflow commands by default", () => {
   const doc = [Doc.paragraph("::error::injected"), Doc.paragraph("x ##[warning]y")];
-  const commands = (text: string) => text.split(LINE_BREAK).filter(isCommand);
+  const commands = (text: string) => pipe(text, Str.split(LINE_BREAK), A.filter(isCommand));
 
   it("ci neutralizes unless told not to; other audiences keep the explicit setting", () => {
     assert.deepStrictEqual(commands(Render.plain(doc, Render.contextOf({ audience: "ci" }))), []);
@@ -611,7 +613,7 @@ describe("Render.ansi: diffText in a compact list item (A5)", () => {
     Effect.gen(function* () {
       const doc = [Doc.list([Doc.section("FAIL a.test.ts", [Doc.diffText("+ Received\n\n- 1")])], { compact: true })];
       const out = yield* ansi(doc);
-      assert.strictEqual(out.split("\n")[2], "  ");
+      assert.strictEqual(Str.split(out, "\n")[2], "  ");
       assert.strictEqual(stripAnsi(out), "- FAIL a.test.ts\n  + Received\n  \n  - 1");
     })
   );

@@ -3,13 +3,20 @@
 import { CliLog, CliLogger } from "@beep/cli-kit";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { commandLines, isCommand } from "./helpers/runnerCommands.ts";
+
+/** A message part as `Array#join` writes it: a nullish part is empty. */
+const joinPart = (part: unknown): string => (P.isNullish(part) ? "" : String(part));
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -21,8 +28,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -74,7 +81,7 @@ describe("CliLogger sanitises and, under GitHub Actions, neutralizes", () => {
     Effect.gen(function* () {
       const err = yield* plain(Effect.logError(`${ESC}[31mx${ESC}[0m`));
       assert.deepStrictEqual(err, ["x"]);
-      const text = (yield* plain(Effect.logError(HOSTILE))).join("\n");
+      const text = A.join(yield* plain(Effect.logError(HOSTILE)), "\n");
       assert.notInclude(text, ESC);
       assert.notInclude(text, BEL);
       assert.notInclude(text, "evil");
@@ -92,7 +99,11 @@ describe("CliLogger sanitises and, under GitHub Actions, neutralizes", () => {
         "b\r\n  ##[stop-commands]t",
       ]) {
         const err = yield* plain(Effect.logError(text), "github-actions");
-        assert.deepStrictEqual(commandLines(err.join("\n")), [], Result.getOrThrow(S.encodeUnknownResult(Json)(text)));
+        assert.deepStrictEqual(
+          commandLines(A.join(err, "\n")),
+          [],
+          Result.getOrThrow(S.encodeUnknownResult(Json)(text))
+        );
         assert.isAbove(err.length, 0);
       }
     })
@@ -104,8 +115,8 @@ describe("CliLogger sanitises and, under GitHub Actions, neutralizes", () => {
       Effect.gen(function* () {
         for (const ci of ["absent", "generic"] as const) {
           const err = yield* plain(Effect.logError("x\n::error::y ##[z]"), ci);
-          assert.notInclude(err.join("\n"), ZWSP, ci);
-          assert.strictEqual(commandLines(err.join("\n")).length, 1, ci);
+          assert.notInclude(A.join(err, "\n"), ZWSP, ci);
+          assert.strictEqual(commandLines(A.join(err, "\n")).length, 1, ci);
         }
       })
   );
@@ -120,7 +131,8 @@ describe("CliLogger sanitises and, under GitHub Actions, neutralizes", () => {
 
   it.effect("a custom render receives sanitised string input and owns its own output", () =>
     Effect.gen(function* () {
-      const painted = (m: unknown) => `${ESC}[1m${String(Array.isArray(m) ? m.join(" ") : m)}${ESC}[22m`;
+      const painted = (m: unknown) =>
+        `${ESC}[1m${String(A.isArray(m) ? A.join(A.map(m, joinPart), " ") : m)}${ESC}[22m`;
       const err = yield* plain(Effect.logError(`${ESC}[31mhostile${ESC}[0m`), "absent", { render: painted });
       assert.deepStrictEqual(err, [`${ESC}[1mhostile${ESC}[22m`]);
     })
@@ -129,7 +141,7 @@ describe("CliLogger sanitises and, under GitHub Actions, neutralizes", () => {
   it.effect("a custom render's lines are still neutralized under Actions", () =>
     Effect.gen(function* () {
       const err = yield* plain(Effect.logError("fine"), "github-actions", { render: () => "::add-mask::from-render" });
-      assert.deepStrictEqual(commandLines(err.join("\n")), []);
+      assert.deepStrictEqual(commandLines(A.join(err, "\n")), []);
     })
   );
 });
@@ -144,7 +156,7 @@ describe("CliLog's pretty line sanitises and neutralizes", () => {
           "absent",
           audience
         );
-        const text = err.join("\n");
+        const text = A.join(err, "\n");
         // The kit paints the level itself with a human on a colour terminal; nothing the message carried survives.
         assert.notInclude(text, `${ESC}[31mred`);
         assert.notInclude(text, `${ESC}]8`);
@@ -160,7 +172,11 @@ describe("CliLog's pretty line sanitises and neutralizes", () => {
     Effect.gen(function* () {
       for (const text of [HOSTILE, "x\n::error::y", "prefix ##[error]y", "a\r\n::add-mask::z"]) {
         const err = yield* diagnostics(Effect.logError(text), "pretty", "github-actions");
-        assert.deepStrictEqual(commandLines(err.join("\n")), [], Result.getOrThrow(S.encodeUnknownResult(Json)(text)));
+        assert.deepStrictEqual(
+          commandLines(A.join(err, "\n")),
+          [],
+          Result.getOrThrow(S.encodeUnknownResult(Json)(text))
+        );
         assert.isAbove(err.length, 0);
       }
     })
@@ -169,8 +185,8 @@ describe("CliLog's pretty line sanitises and neutralizes", () => {
   it.effect("outside Actions the pretty text is untouched by neutralizing", () =>
     Effect.gen(function* () {
       const err = yield* diagnostics(Effect.logError("x\n::error::y"), "pretty", "generic");
-      assert.notInclude(err.join("\n"), ZWSP);
-      assert.isAbove(commandLines(err.join("\n")).length, 0);
+      assert.notInclude(A.join(err, "\n"), ZWSP);
+      assert.isAbove(commandLines(A.join(err, "\n")).length, 0);
     })
   );
 });
@@ -182,7 +198,7 @@ describe("CliLog's NDJSON: a runner can read ##[ out of a JSON string too", () =
     Effect.gen(function* () {
       for (const text of ["prefix ##[add-mask]secret", "x\n::error::y ##[stop-commands]t", "a ##[b] c ##[d]"]) {
         const err = yield* diagnostics(Effect.logError(text), "json", "github-actions");
-        const lines = err.filter((line) => line.startsWith("{"));
+        const lines = A.filter(err, (line) => Str.startsWith("{")(line));
         assert.strictEqual(lines.length, 1, Result.getOrThrow(S.encodeUnknownResult(Json)(err)));
         assert.isFalse(isCommand(lines[0] ?? ""), `the legacy parser finds ##[ anywhere: ${lines[0]}`);
         assert.strictEqual(parsed(lines[0] ?? "").message, text, "lossless: the JSON decodes to the same text");
@@ -193,7 +209,7 @@ describe("CliLog's NDJSON: a runner can read ##[ out of a JSON string too", () =
   it.effect("outside Actions the NDJSON line is exactly what JSON.stringify gives", () =>
     Effect.gen(function* () {
       const err = yield* diagnostics(Effect.logError("prefix ##[add-mask]secret"), "json", "absent");
-      const line = err.find((entry) => entry.startsWith("{")) ?? "";
+      const line = O.getOrElse(A.findFirst(err, Str.startsWith("{")), () => "");
       assert.include(line, "##[add-mask]");
       assert.strictEqual(parsed(line).message, "prefix ##[add-mask]secret");
     })
@@ -202,7 +218,7 @@ describe("CliLog's NDJSON: a runner can read ##[ out of a JSON string too", () =
   it.effect("a control character in a message is already escaped by JSON, so the line has none", () =>
     Effect.gen(function* () {
       const err = yield* diagnostics(Effect.logError(`a${ESC}[31mb\r\n`), "json", "github-actions");
-      const line = err.find((entry) => entry.startsWith("{")) ?? "";
+      const line = O.getOrElse(A.findFirst(err, Str.startsWith("{")), () => "");
       assert.notInclude(line, ESC);
       assert.notInclude(line, "\r");
     })

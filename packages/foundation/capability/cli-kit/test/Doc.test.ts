@@ -1,6 +1,8 @@
 import { Doc, Status, Token } from "@beep/cli-kit";
 import * as DocModel from "@beep/cli-kit/Doc";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
 import type { Block, Counter, Inline } from "@beep/cli-kit";
 
@@ -246,13 +248,23 @@ describe("Doc.counts", () => {
     const excluding = Doc.counts({
       counters: timedOut,
       layout: "inline",
-      total: (all) => all.filter((c) => c.key !== "skipped").reduce((sum, c) => sum + c.n, 0),
+      total: (all) =>
+        pipe(
+          all,
+          A.filter((c) => c.key !== "skipped"),
+          A.reduce(0, (sum, c) => sum + c.n)
+        ),
     });
     assert.strictEqual(Doc.total(excluding), 12);
     const passedOnly = Doc.counts({
       counters: timedOut,
       layout: "inline",
-      total: (all) => all.filter((c) => c.key === "passed").reduce((sum, c) => sum + c.n, 0),
+      total: (all) =>
+        pipe(
+          all,
+          A.filter((c) => c.key === "passed"),
+          A.reduce(0, (sum, c) => sum + c.n)
+        ),
     });
     assert.strictEqual(Doc.total(passedOnly), 7);
   });
@@ -268,7 +280,7 @@ describe("Doc.counts", () => {
       layout: "columns",
     });
     assert.deepStrictEqual(
-      Doc.visibleCounters(node).map((c) => c.key),
+      A.map(Doc.visibleCounters(node), (c) => c.key),
       ["b", "c"]
     );
     assert.strictEqual(Doc.total(node), 4, "hiding never changes the total");

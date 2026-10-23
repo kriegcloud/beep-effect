@@ -11,6 +11,8 @@ import { Doc } from "@beep/cli-kit/Doc";
 import { sanitize } from "@beep/cli-kit/Fmt";
 import { plainInline, renderPlain, renderPlainLines } from "@beep/cli-kit/internal/renderPlain";
 import { Render } from "@beep/cli-kit/Render";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const ctx = Render.contextOf({ audience: "agent" });
 it.effect.prop(
@@ -20,16 +22,14 @@ it.effect.prop(
     Effect.sync(() => {
       const input = `prefix ${text} suffix`;
       const once = renderPlain([Doc.verbatim(input)], ctx);
-      const lines = sanitize(input)
-        .replace(/\r\n|\r/g, "\n")
-        .split("\n");
+      const lines = pipe(sanitize(input), Str.replace(/\r\n|\r/g, "\n"), Str.split("\n"));
       const expected = A.join(lines, "\n");
       // github-log neutralization is a separate, intentional normalization of untrusted commands.
       assert.strictEqual(renderPlain([Doc.verbatim(once)], ctx), once);
       assert.strictEqual(once, expected);
       assert.deepStrictEqual(
-        once.split("\n"),
-        renderPlain([Doc.verbatim(once.split("\n").join("\n"))], ctx).split("\n")
+        Str.split(once, "\n"),
+        Str.split(renderPlain([Doc.verbatim(pipe(once, Str.split("\n"), A.join("\n")))], ctx), "\n")
       );
     }),
   runs
@@ -50,7 +50,7 @@ it.effect.prop(
       assert.deepStrictEqual(plainInline([Doc.text(rendered)], ctx), [{ text: rendered }]);
       assert.deepStrictEqual(
         renderPlainLines([Doc.verbatim(rendered)], ctx),
-        rendered.replace(/\r\n|\r/g, "\n").split("\n")
+        pipe(rendered, Str.replace(/\r\n|\r/g, "\n"), Str.split("\n"))
       );
     }),
   runs

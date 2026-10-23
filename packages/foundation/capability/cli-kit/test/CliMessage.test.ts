@@ -3,11 +3,14 @@
 import { CliMessage, CliTheme, Status, Token } from "@beep/cli-kit";
 import { Audience, CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as References from "effect/References";
+import * as Str from "effect/String";
 import { commandLines } from "./helpers/runnerCommands.ts";
 import type { AudienceKind } from "@beep/runtime-env";
 
@@ -16,8 +19,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const console_: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { console: console_, out, err };
 };
@@ -250,13 +253,13 @@ describe("CliMessage joins the output policy: sanitised, and neutralized under G
   const ZWSP = String.fromCodePoint(0x200b);
   const HOSTILE = `ok\n::add-mask::secret\n${ESC}[31mred${ESC}[0m ${ESC}]8;;http://evil${BEL}x${ESC}]8;;${BEL} a ##[error]b\rz`;
 
-  const lines = (written: ReadonlyArray<string>) => written.join("\n").split(/\r\n|\r|\n/);
+  const lines = (written: ReadonlyArray<string>) => pipe(written, A.join("\n"), Str.split(/\r\n|\r|\n/));
 
   it.effect("an agent gets no escape of any kind, whatever the text carries", () =>
     Effect.gen(function* () {
       for (const name of ["info", "failure"] as const) {
         const { out, err } = yield* run(CliMessage[name](HOSTILE), { audience: "agent", color: "truecolor" });
-        const text = [...out, ...err].join("\n");
+        const text = A.join([...out, ...err], "\n");
         assert.notInclude(text, ESC);
         assert.notInclude(text, BEL);
         assert.notInclude(text, "evil");
@@ -270,7 +273,7 @@ describe("CliMessage joins the output policy: sanitised, and neutralized under G
     () =>
       Effect.gen(function* () {
         const { out } = yield* run(CliMessage.info(HOSTILE), { audience: "human", color: "truecolor" });
-        const text = out.join("\n");
+        const text = A.join(out, "\n");
         assert.notInclude(text, `${ESC}[31mred`);
         assert.notInclude(text, `${ESC}]8`);
         assert.notInclude(text, BEL);
@@ -287,8 +290,8 @@ describe("CliMessage joins the output policy: sanitised, and neutralized under G
             ci: "github-actions",
           }
         );
-        assert.deepStrictEqual(commandLines([...out, ...err].join("\n")), [], audience);
-        assert.isAbove(lines([...out, ...err]).filter((line) => line.includes("add-mask")).length, 0);
+        assert.deepStrictEqual(commandLines(A.join([...out, ...err], "\n")), [], audience);
+        assert.isAbove(A.filter(lines([...out, ...err]), (line) => Str.includes("add-mask")(line)).length, 0);
       }
     })
   );
@@ -300,7 +303,7 @@ describe("CliMessage joins the output policy: sanitised, and neutralized under G
           audience: "agent",
           ...(ci === undefined ? {} : { ci }),
         });
-        const text = out.join("\n");
+        const text = A.join(out, "\n");
         assert.notInclude(text, ZWSP, String(ci));
         assert.strictEqual(commandLines(text).length, 2, String(ci));
       }

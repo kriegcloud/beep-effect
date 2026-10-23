@@ -3,9 +3,11 @@ import { makeFileSink } from "@beep/cli-kit/internal/fileSink";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertExitSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as Scope from "effect/Scope";
@@ -37,7 +39,7 @@ for (const { name, defect } of unprintableDefects) {
       const capture: Console.Console = {
         ...console,
         error: (...parts: ReadonlyArray<unknown>) => {
-          errors.push(parts.map(String).join(" "));
+          errors.push(pipe(parts, A.map(String), A.join(" ")));
         },
       };
       const handle = MemoryFileSystem.makeSync(
@@ -82,7 +84,7 @@ it.effect("a non-Error filesystem defect is printed once and disables later appe
     const capture: Console.Console = {
       ...console,
       error: (...parts: ReadonlyArray<unknown>) => {
-        errors.push(parts.map(String).join(" "));
+        errors.push(pipe(parts, A.map(String), A.join(" ")));
       },
     };
     const handle = MemoryFileSystem.makeSync({}, { faults: { writeFileString: MemoryFileSystem.die("disk gone") } });

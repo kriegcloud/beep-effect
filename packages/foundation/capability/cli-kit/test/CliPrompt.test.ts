@@ -6,6 +6,7 @@ import { Audience, TerminalEnv } from "@beep/runtime-env";
 // @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as CliError from "effect/cli/CliError";
@@ -14,6 +15,7 @@ import * as Flag from "effect/cli/Flag";
 import * as Prompt from "effect/cli/Prompt";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -21,6 +23,7 @@ import * as Queue from "effect/Queue";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import type { TestTerminalHandle } from "@beep/cli-kit/testing";
@@ -46,8 +49,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -180,10 +183,10 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const { out, err, code } = yield* run(app(withPrompt()), ["run"], { interactive: false, terminal });
         assert.strictEqual(code, 64);
         // Core prints the help on stdout for a usage error; the handler never ran.
-        assert.isFalse(out.some((line) => line.includes("profile=")));
+        assert.isFalse(A.some(out, (line) => Str.includes("profile=")(line)));
         assert.isTrue(
-          err.some((line) => line.includes("Missing required flag: --profile")),
-          err.join("\n")
+          A.some(err, (line) => Str.includes("Missing required flag: --profile")(line)),
+          A.join(err, "\n")
         );
         assert.deepStrictEqual(yield* terminal.reads, { keys: 0, lines: 0, subscriptions: 0 });
         assert.strictEqual(yield* terminal.pending, 1);
@@ -216,7 +219,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           });
           // Param.ts re-fails with the original MissingOption on QuitError, so a cancelled prompt exits 64, not 130.
           assert.strictEqual(code, 64);
-          assert.isTrue(err.some((line) => line.includes("Missing required flag: --profile")));
+          assert.isTrue(A.some(err, (line) => Str.includes("Missing required flag: --profile")(line)));
         })
     );
 
@@ -331,12 +334,12 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const wizard = yield* run(root, ["--wizard", "run"], { interactive: false, terminal, gate: true });
         assert.strictEqual(wizard.code, 64);
         assert.isTrue(
-          wizard.err.some((line) => line.includes("wizard")),
-          wizard.err.join("\n")
+          A.some(wizard.err, (line) => Str.includes("wizard")(line)),
+          A.join(wizard.err, "\n")
         );
         const help = yield* run(root, ["--help"], { interactive: false, terminal, gate: true });
         assert.strictEqual(help.code, 0);
-        assert.isFalse(help.out.some((line) => line.includes("--wizard")));
+        assert.isFalse(A.some(help.out, (line) => Str.includes("--wizard")(line)));
       })
     );
 
@@ -344,7 +347,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const terminal = yield* TestTerminal.make();
         const help = yield* run(root, ["--help"], { interactive: true, terminal, gate: true });
-        assert.isTrue(help.out.some((line) => line.includes("--wizard")));
+        assert.isTrue(A.some(help.out, (line) => Str.includes("--wizard")(line)));
       })
     );
 
@@ -352,7 +355,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const terminal = yield* TestTerminal.make();
         const help = yield* run(root, ["--help"], { interactive: false, terminal });
-        assert.isTrue(help.out.some((line) => line.includes("--wizard")));
+        assert.isTrue(A.some(help.out, (line) => Str.includes("--wizard")(line)));
       })
     );
   });

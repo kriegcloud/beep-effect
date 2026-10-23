@@ -1,6 +1,8 @@
 // A real CLI, run by CliStdin.test.ts in a child process with real piped stdin and the real NodeTerminal: a flag
 // that falls back to a prompt, and a handler that waits before it reads stdin. The wait is the point: a prompt
 // runner that attached to stdin in the meantime would have eaten the piped bytes.
+
+import { CliPrompt, CliRuntime } from "@beep/cli-kit";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
@@ -9,7 +11,6 @@ import * as Prompt from "effect/cli/Prompt";
 import * as Effect from "effect/Effect";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
-import { CliPrompt, CliRuntime } from "@beep/cli-kit";
 
 const profile = Flag.String("profile").pipe(
   Flag.withFallbackPrompt(

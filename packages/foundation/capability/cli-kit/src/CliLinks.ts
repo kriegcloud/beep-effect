@@ -120,7 +120,7 @@ const parseSetting = (raw: string): EditorLinks | undefined => {
 };
 
 /** A URL with its control characters and line breaks removed: none is legal in one, and each could end an OSC 8 early. */
-const cleanUrl = (url: string): string => sanitize(url).replace(/[\r\n]/g, "");
+const cleanUrl = (url: string): string => Str.replace(/[\r\n]/g, "")(sanitize(url));
 
 type LinkMode = "vscode" | "file" | "off";
 type Absolute = (file: string) => string | undefined;
@@ -218,7 +218,7 @@ const build: {
     ambient: Ambient
   ): Effect.fn.Return<CliLinksShape, never, CurrentRuntimeEnv> {
     const runtime = yield* CurrentRuntimeEnv;
-    const raw = options.envVar === undefined ? "" : O.getOrElse(yield* readOption(options.envVar), () => "").trim();
+    const raw = options.envVar === undefined ? "" : Str.trim(O.getOrElse(yield* readOption(options.envVar), () => ""));
     const fromEnv = parseSetting(raw);
     // A value that is not a mode warns once, as the audience override does, and the option is used.
     if (options.envVar !== undefined && raw !== "" && fromEnv === undefined) {
@@ -237,7 +237,7 @@ const build: {
       // A UNC path is not on this machine: it must not be resolved against the working directory as a filename.
       if (UNC.test(file)) return undefined;
       if (DRIVE.test(file)) return file;
-      if (path === undefined) return file.startsWith("/") ? file : undefined;
+      if (path === undefined) return Str.startsWith("/")(file) ? file : undefined;
       if (path.isAbsolute(file)) return file;
       return path.resolve(cwd, file);
     };

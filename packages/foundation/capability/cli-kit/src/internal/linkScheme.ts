@@ -1,5 +1,7 @@
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as Str from "effect/String";
 import { sanitize } from "../Fmt.ts";
 
 /** The URL schemes a link may have, besides a relative URL. */
@@ -29,6 +31,6 @@ const ALLOWED = HashSet.make("http", "https", "mailto", "file", "vscode", "vscod
  * @since 0.0.0
  */
 export const isAllowedLinkUrl = (url: string): boolean => {
-  const scheme = /^([a-z][a-z0-9+.-]*):/.exec(sanitize(url).replace(/\s/g, "").toLowerCase());
+  const scheme = /^([a-z][a-z0-9+.-]*):/.exec(pipe(sanitize(url), Str.replace(/\s/g, ""), Str.toLowerCase));
   return scheme === null || HashSet.has(ALLOWED, A.getUnsafe(scheme, 1));
 };

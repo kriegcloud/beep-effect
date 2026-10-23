@@ -1,4 +1,5 @@
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 
 // A short display-width implementation checked against `string-width` by a differential test. It embeds a hand-kept East Asian Width table that will drift from Unicode, and
 // `__test__/displayWidth.oracle.test.ts` is what catches the drift.
@@ -26,7 +27,7 @@ const ZERO2 = /^[\p{Mn}\p{Me}\p{Cf}\p{Cc}\u115F\u1160\u3164\uFFA0]+$/u;
  * @category formatting
  * @since 0.0.0
  */
-export const stripAnsi = (input: string): string => input.replace(ANSI, "");
+export const stripAnsi = (input: string): string => Str.replace(ANSI, "")(input);
 
 /**
  * The display width of `input` in terminal columns: graphemes, wide East Asian characters and emoji count two,

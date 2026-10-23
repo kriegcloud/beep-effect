@@ -17,9 +17,12 @@ import {
 } from "@beep/cli-kit/internal/failureTarget";
 import { Render } from "@beep/cli-kit/Render";
 import { CommandNeutralizer } from "@beep/github-commands";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
+import { pipe } from "effect/Function";
 import * as MutableRef from "effect/MutableRef";
+import * as Str from "effect/String";
 
 it.effect.prop(
   "guarding agent consumer lines is idempotent and preserves text after sanitization and command neutralization",
@@ -41,12 +44,12 @@ it.effect.prop(
   [Arbitrary.schema(S.String)],
   ([message]) =>
     Effect.sync(() => {
-      const safe = `message ${sanitize(message).replace(/[\r\n]/g, " ")} end`;
+      const safe = `message ${Str.replace(/[\r\n]/g, " ")(sanitize(message))} end`;
       const cause = Cause.fail(safe);
       const rendered = plainFailureLines(cause, false);
       assert.deepStrictEqual(rendered, linesOf(cause, fallbackTarget, false));
-      assert.deepStrictEqual(rendered.join("\n").split("\n"), rendered);
-      assert.strictEqual(rendered.join("\n"), CommandNeutralizer.text(safe));
+      assert.deepStrictEqual(pipe(rendered, A.join("\n"), Str.split("\n")), rendered);
+      assert.strictEqual(A.join(rendered, "\n"), CommandNeutralizer.text(safe));
     }),
   runs
 );
@@ -59,7 +62,7 @@ it.effect.prop(
         readSpans(undefined, "SPANS").pipe(
           Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ SPANS: raw }))
         );
-      const parsed = yield* parse(setting.toUpperCase());
+      const parsed = yield* parse(Str.toUpperCase(setting));
       assert.deepStrictEqual(parsed, { spans: setting, invalid: undefined });
       if (parsed.spans === undefined) return assert.fail("a valid setting failed to parse");
       assert.deepStrictEqual(yield* parse(parsed.spans), parsed);

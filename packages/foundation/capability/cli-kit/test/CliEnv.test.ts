@@ -5,6 +5,7 @@ import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -13,32 +14,33 @@ import * as CliConfig from "effect/cli/CliConfig";
 import * as Command from "effect/cli/Command";
 import * as GlobalFlag from "effect/cli/GlobalFlag";
 import * as Prompt from "effect/cli/Prompt";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Queue from "effect/Queue";
 import * as Runtime from "effect/Runtime";
+import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import type { CliEnvOptions } from "@beep/cli-kit";
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -225,7 +227,7 @@ describe("CliRuntime.main with the env option", () => {
         const exit = yield* CliRuntime.main(
           Effect.gen(function* () {
             yield* Effect.logDebug("inside");
-            return yield* new TestError("boom");
+            return yield* TestError.make({ message: "boom" });
           }),
           { platform: TTY, env: { log: { envVar: "TOOL_LOG" } } }
         ).pipe(
@@ -234,11 +236,11 @@ describe("CliRuntime.main with the env option", () => {
           Effect.provideService(Console.Console, double)
         );
         assertExitFailure(exit, Exit.isFailure(exit) ? exit.cause : Cause.empty);
-        assert.isTrue(err.some((line) => line.includes("Error: boom")));
-        const records = err.filter((line) => line.startsWith("{") || /^\d\d:\d\d:\d\d\.\d{3} /.test(line));
+        assert.isTrue(A.some(err, (line) => Str.includes("Error: boom")(line)));
+        const records = A.filter(err, (line) => Str.startsWith("{")(line) || /^\d\d:\d\d:\d\d\.\d{3} /.test(line));
         assert.isTrue(
-          records.some((line) => line.includes("inside")),
-          err.join("\n")
+          A.some(records, (line) => Str.includes("inside")(line)),
+          A.join(err, "\n")
         );
       })
   );
@@ -299,7 +301,7 @@ describe("CliRuntime.main with the env option", () => {
             Effect.provideService(ConfigProvider.ConfigProvider, withEnv(env)),
             Effect.provideService(Console.Console, double)
           );
-          return out.join("\n");
+          return A.join(out, "\n");
         });
         assert.include(yield* helpUnder({ FORCE_COLOR: "1" }), "\x1b[");
         assert.notInclude(yield* helpUnder({}), "\x1b[");
@@ -368,7 +370,7 @@ describe("CliRuntime.main with the env option", () => {
             Effect.provideService(ConfigProvider.ConfigProvider, withEnv({})),
             Effect.provideService(Console.Console, double)
           );
-          return out.join("\n");
+          return A.join(out, "\n");
         });
         assert.notInclude(yield* helpOn(PIPED), "--wizard");
         assert.include(yield* helpOn(TTY), "--wizard");
@@ -409,9 +411,13 @@ describe("CliRuntime.main with the env option", () => {
         Effect.provideService(Console.Console, double)
       );
       assert.deepStrictEqual(out, ["ran"]);
-      assert.strictEqual(err.filter((line) => line.includes("PROBE_AUDIENCE=bogus")).length, 1, err.join("\n"));
+      assert.strictEqual(
+        A.filter(err, (line) => Str.includes("PROBE_AUDIENCE=bogus")(line)).length,
+        1,
+        A.join(err, "\n")
+      );
       assert.isFalse(
-        err.some((line) => /^\[\d\d:\d\d:\d\d\.\d{3}\] WARN/.test(line)),
+        A.some(err, (line) => /^\[\d\d:\d\d:\d\d\.\d{3}\] WARN/.test(line)),
         "plain CliLogger line, not the default format"
       );
     })
@@ -426,7 +432,7 @@ describe("CliRuntime.main with the env option", () => {
         Effect.provideService(Console.Console, double)
       );
       assert.deepStrictEqual(out, ["ran"]);
-      assert.strictEqual(err.filter((line) => line.includes("PROBE_AUDIENCE=bogus")).length, 1);
+      assert.strictEqual(A.filter(err, (line) => Str.includes("PROBE_AUDIENCE=bogus")(line)).length, 1);
     })
   );
 

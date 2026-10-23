@@ -2,7 +2,9 @@ import { $CliKitId } from "@beep/identity/packages";
 import { AudienceKind } from "@beep/runtime-env/Audience";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $CliKitId.create("internal/scanAudience");
 
@@ -161,17 +163,17 @@ export const scanAudience = (argv: ReadonlyArray<string>): AudienceTally => {
   for (let index = 0; index < argv.length; index++) {
     const token = A.getUnsafe(argv, index);
     if (token === "--") break;
-    if (!token.startsWith("--")) continue;
-    const equals = token.indexOf("=");
-    const name = equals === -1 ? token.slice(2) : token.slice(2, equals);
-    const inline = equals === -1 ? undefined : token.slice(equals + 1);
+    if (!Str.startsWith("--")(token)) continue;
+    const equals = Str.indexOf("=")(token);
+    const name = O.match(equals, { onNone: () => Str.slice(2)(token), onSome: (at) => Str.slice(2, at)(token) });
+    const inline = O.getOrUndefined(O.map(equals, (at) => Str.slice(at + 1)(token)));
 
     if (name === "audience") {
       let value = inline;
       if (value === undefined) {
         const next = argv[index + 1];
         // A following token that looks like a flag is not the value: core reports the value as missing.
-        if (next !== undefined && !next.startsWith("-")) {
+        if (next !== undefined && !Str.startsWith("-")(next)) {
           value = next;
           index++;
         }
@@ -199,8 +201,8 @@ export const scanAudience = (argv: ReadonlyArray<string>): AudienceTally => {
       continue;
     }
 
-    const negated = name.slice(3);
-    if (name.startsWith("no-") && isBoolean(negated)) {
+    const negated = Str.slice(3)(name);
+    if (Str.startsWith("no-")(name) && isBoolean(negated)) {
       booleans[negated].push(false);
     }
   }

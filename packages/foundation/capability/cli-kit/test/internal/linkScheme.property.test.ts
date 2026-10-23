@@ -7,6 +7,7 @@ import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
 
 import { isAllowedLinkUrl } from "@beep/cli-kit/internal/linkScheme";
+import * as Str from "effect/String";
 
 it.effect.prop(
   "URL scheme parsing is stable under case folding and refuses obfuscated executable schemes",
@@ -16,9 +17,9 @@ it.effect.prop(
   ],
   ([path, scheme]) =>
     Effect.sync(() => {
-      assert.strictEqual(isAllowedLinkUrl(`${scheme.toUpperCase()}:${path}`), true);
+      assert.strictEqual(isAllowedLinkUrl(`${Str.toUpperCase(scheme)}:${path}`), true);
       assert.strictEqual(isAllowedLinkUrl(`j\ta v\na s\rc r i p t:${path}`), false);
-      assert.strictEqual(isAllowedLinkUrl(`${scheme}:${path}`.toLowerCase()), isAllowedLinkUrl(`${scheme}:${path}`));
+      assert.strictEqual(isAllowedLinkUrl(Str.toLowerCase(`${scheme}:${path}`)), isAllowedLinkUrl(`${scheme}:${path}`));
     }),
   runs
 );

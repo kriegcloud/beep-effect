@@ -1,10 +1,13 @@
 import { CliLinks, CliTheme, Doc, Glyphs, Render } from "@beep/cli-kit";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { composite } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
 import type { DocPrintOptions, Document } from "@beep/cli-kit";
@@ -25,8 +28,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -65,7 +68,10 @@ const under = Effect.fn("under")(function* <A>(
   return { value, out, err };
 });
 
-const WIDE = Array.from({ length: 60 }, (_, i) => `word${i}`).join(" ");
+const WIDE = A.join(
+  Array.from({ length: 60 }, (_, i) => `word${i}`),
+  " "
+);
 
 const doc: Document = [
   Doc.heading(1, "Report"),
@@ -154,7 +160,7 @@ describe("Doc.print: an agent never gets an escape of any kind", () => {
       for (const format of ["auto", "plain", "ansi", "markdown", "githubLog"] as const) {
         for (const stream of ["stdout", "stderr"] as const) {
           const { out, err } = yield* print(setup, { format, stream });
-          const text = [...out, ...err].join("\n");
+          const text = A.join([...out, ...err], "\n");
           assert.isAbove(text.length, 0, `${format} ${stream}`);
           assert.notInclude(text, ESC, `${format} ${stream}`);
           assert.notInclude(text, OSC, `${format} ${stream}`);
@@ -363,7 +369,14 @@ describe("Render.context", () => {
 });
 
 describe("the width", () => {
-  const longest = (text: string): number => Math.max(...text.split("\n").map((line) => [...line].length));
+  const longest = (text: string): number =>
+    Math.max(
+      ...pipe(
+        text,
+        Str.split("\n"),
+        A.map((line) => [...line].length)
+      )
+    );
 
   it.effect("a human's default is TerminalEnv.width(): the terminal's columns, else COLUMNS or 80", () =>
     Effect.gen(function* () {
@@ -397,7 +410,11 @@ describe("the width", () => {
         assert.include(out[0] ?? "", WIDE, audience);
         assert.notInclude(out[0] ?? "", "…", audience);
         assert.strictEqual(
-          (out[0] ?? "").split("\n").filter((line) => line.includes("word0 word1")).length,
+          pipe(
+            out[0] ?? "",
+            Str.split("\n"),
+            A.filter((line) => Str.includes("word0 word1")(line))
+          ).length,
           2,
           `${audience}: the paragraph and the table row`
         );

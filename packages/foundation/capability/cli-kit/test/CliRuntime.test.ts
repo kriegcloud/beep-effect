@@ -4,29 +4,30 @@ import { CliLogger } from "@beep/cli-kit/CliLogger";
 import { CliRuntime } from "@beep/cli-kit/CliRuntime";
 import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested";
 import { assert, describe, expectTypeOf, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as CliError from "effect/cli/CliError";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
+import { pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
+import * as S from "effect/Schema";
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 const capturing = (): { readonly console: Console.Console; readonly out: string[]; readonly err: string[] } => {
   const out: string[] = [];
   const err: string[] = [];
   const console_: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { console: console_, out, err };
 };
@@ -54,7 +55,7 @@ const failureOf = <A>(exit: Exit.Exit<A, Error>): unknown =>
 describe("CliRuntime.reportFailures", () => {
   it.effect("reports through the program's own logger, on stderr", () =>
     Effect.gen(function* () {
-      const { out, err, exit } = yield* F.pipe(new TestError("boom"), Effect.fail, run);
+      const { out, err, exit } = yield* F.pipe(TestError.make({ message: "boom" }), Effect.fail, run);
 
       assert.deepStrictEqual(err, ["[FAIL] Error: boom"]);
       // The bug this exists to prevent is the report landing on stdout.
@@ -65,14 +66,14 @@ describe("CliRuntime.reportFailures", () => {
 
   it.effect("re-fails rather than swallowing, so a broken run cannot exit zero", () =>
     Effect.gen(function* () {
-      const { exit } = yield* F.pipe(new TestError("boom"), Effect.fail, run);
+      const { exit } = yield* F.pipe(TestError.make({ message: "boom" }), Effect.fail, run);
       assert.strictEqual(Exit.isSuccess(exit), false);
     })
   );
 
   it.effect("marks the error so the runtime does NOT report it a second time", () =>
     Effect.gen(function* () {
-      const { exit } = yield* F.pipe(new TestError("boom"), Effect.fail, run);
+      const { exit } = yield* F.pipe(TestError.make({ message: "boom" }), Effect.fail, run);
       const error = failureOf(exit);
 
       // Read through core's own getter, not our property. The polarity is
@@ -115,7 +116,7 @@ describe("CliRuntime.reportFailures", () => {
 
   it.effect("renders several lines when the renderer returns several", () =>
     Effect.gen(function* () {
-      const { err } = yield* run(Effect.fail(new TestError("bad config")), {
+      const { err } = yield* run(Effect.fail(TestError.make({ message: "bad config" })), {
         render: (error) => [String(error), "  unknown key at groups.g.rulesetz"],
       });
 
@@ -159,12 +160,15 @@ describe("CliRuntime.reportFailures", () => {
     Effect.gen(function* () {
       const flags: Array<[unknown, boolean]> = [];
       const typed = new Error("typed");
-      yield* run(F.pipe(new TestError("bug"), Cause.die, Cause.combine(Cause.fail(typed)), Effect.failCause), {
-        render: (error, { isDefect }) => {
-          flags.push([error, isDefect]);
-          return String(error);
-        },
-      });
+      yield* run(
+        F.pipe(TestError.make({ message: "bug" }), Cause.die, Cause.combine(Cause.fail(typed)), Effect.failCause),
+        {
+          render: (error, { isDefect }) => {
+            flags.push([error, isDefect]);
+            return String(error);
+          },
+        }
+      );
       assert.deepStrictEqual(flags, [[typed, false]]);
     })
   );
@@ -241,23 +245,22 @@ describe("CliRuntime.reportFailures and ShowHelp", () => {
 
 describe("CliRuntime.reported", () => {
   /** A stand-in for the typed errors a CLI fails with (issue #717). */
-  class GateError extends Data.TaggedError("GateError")<{ readonly message: string }> {
+  class GateError extends S.TaggedError<GateError, { readonly brand: unique symbol }>()("GateError", {
+    message: S.String,
+    count: S.Finite,
+  }) {
     override readonly name = "Error";
-
-    readonly count: number;
-    constructor(count: number) {
-      super({ message: `gate: ${count} over budget` });
-      this.count = count;
-    }
   }
+  const gateError = (count: number): GateError => GateError.make({ message: `gate: ${count} over budget`, count });
+  const isGateError = S.is(GateError);
 
   it.effect("returns the same typed instance, with explicit narrowing for wrapper recovery", () =>
     Effect.gen(function* () {
-      const error = new GateError(2);
+      const error = gateError(2);
       const marked = CliRuntime.reported(error, 1);
 
       // A wrapper is possible; narrow before accessing the original subtype.
-      if (!(marked instanceof GateError)) return yield* Effect.fail(marked);
+      if (!isGateError(marked)) return yield* Effect.fail(marked);
       const typed: GateError = marked;
       assert.strictEqual(typed, error);
       assert.strictEqual(typed.count, 2);
@@ -265,9 +268,9 @@ describe("CliRuntime.reported", () => {
       assert.strictEqual(Runtime.getErrorReported(typed), false);
 
       // Recover only the preserved typed instance, leaving wrappers as failures.
-      const recovered = yield* Effect.fail(CliRuntime.reported(new GateError(3), 1)).pipe(
+      const recovered = yield* Effect.fail(CliRuntime.reported(gateError(3), 1)).pipe(
         Effect.catchIf(
-          (caught): caught is GateError => caught instanceof GateError,
+          (caught): caught is GateError => isGateError(caught),
           (caught) => Effect.succeed(caught.count)
         )
       );

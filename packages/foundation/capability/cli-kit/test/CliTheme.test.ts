@@ -1,13 +1,16 @@
 import { CliTheme, Status, Token } from "@beep/cli-kit";
 import { TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Prompt from "effect/cli/Prompt";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { NamedColor, Style, TokenName } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
@@ -288,11 +291,11 @@ const ESC = String.fromCharCode(0x1b);
 
 const decode = (painted: string): Style => {
   const style: { -readonly [K in keyof Style]: Style[K] } = {};
-  const opens = [...painted.matchAll(new RegExp(`${ESC}\\[([0-9;]+)m`, "g"))].map((match) => match[1] ?? "");
+  const opens = A.map([...Str.matchAll(new RegExp(`${ESC}\\[([0-9;]+)m`, "g"))(painted)], (match) => match[1] ?? "");
   for (const params of opens) {
-    const parts = params.split(";").map(Number);
+    const parts = pipe(params, Str.split(";"), A.map(Number));
     if (parts[0] === 38 && parts[1] === 2) {
-      const hex = (n: number | undefined) => (n ?? 0).toString(16).padStart(2, "0");
+      const hex = (n: number | undefined) => Str.padStart(2, "0")((n ?? 0).toString(16));
       style.fg = `#${hex(parts[2])}${hex(parts[3])}${hex(parts[4])}`;
     } else if (parts.length === 1 && parts[0] !== undefined) {
       const code = parts[0];

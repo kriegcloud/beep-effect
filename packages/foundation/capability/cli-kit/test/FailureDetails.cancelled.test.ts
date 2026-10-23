@@ -2,12 +2,15 @@
 
 import { Cancelled, CliLogger, CliRuntime, NotInteractive } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
+import { pipe } from "effect/Function";
 import * as Runtime from "effect/Runtime";
+import * as Str from "effect/String";
 import type { FailureDetails } from "@beep/cli-kit";
 
 /** What a renderer that gives a defect the issue-report treatment prints, once it has checked the kit's flags. */
@@ -26,7 +29,7 @@ const run = Effect.fn("run")(function* <A, E>(program: Effect.Effect<A, E>) {
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
     log: () => undefined,
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   const exit = yield* program.pipe(
     CliRuntime.reportFailures({ render: renderer(seen) }),
@@ -45,10 +48,10 @@ describe("FailureDetails.isCancelled / isNotInteractive", () => {
     Effect.gen(function* () {
       const { seen, err, exit } = yield* F.pipe(Cancelled.make({ reason: "interrupt" }), Effect.die, run);
       assert.deepStrictEqual(
-        seen.map((d) => [d.isDefect, d.isCancelled, d.isNotInteractive]),
+        A.map(seen, (d) => [d.isDefect, d.isCancelled, d.isNotInteractive]),
         [[true, true, false]]
       );
-      assert.isFalse(err.join("\n").includes("Please report"));
+      assert.isFalse(pipe(err, A.join("\n"), Str.includes("Please report")));
       assert.isTrue(err.length > 0, "the fixed Cancelled line was written");
       assert.strictEqual(codeOf(exit), 130, "the exit code is unchanged");
     })
@@ -58,10 +61,10 @@ describe("FailureDetails.isCancelled / isNotInteractive", () => {
     Effect.gen(function* () {
       const { seen, err } = yield* F.pipe(Cancelled.make({ reason: "interrupt" }), Effect.fail, run);
       assert.deepStrictEqual(
-        seen.map((d) => [d.isDefect, d.isCancelled, d.isNotInteractive]),
+        A.map(seen, (d) => [d.isDefect, d.isCancelled, d.isNotInteractive]),
         [[false, true, false]]
       );
-      assert.isFalse(err.join("\n").includes("Please report"));
+      assert.isFalse(pipe(err, A.join("\n"), Str.includes("Please report")));
     })
   );
 
@@ -71,10 +74,10 @@ describe("FailureDetails.isCancelled / isNotInteractive", () => {
       const asFailure = yield* F.pipe(NotInteractive.make(), Effect.fail, run);
       for (const { seen, err } of [asDefect, asFailure]) {
         assert.deepStrictEqual(
-          seen.map((d) => [d.isCancelled, d.isNotInteractive]),
+          A.map(seen, (d) => [d.isCancelled, d.isNotInteractive]),
           [[false, true]]
         );
-        assert.isFalse(err.join("\n").includes("Please report"));
+        assert.isFalse(pipe(err, A.join("\n"), Str.includes("Please report")));
       }
       assert.isTrue(asDefect.seen[0]?.isDefect);
       assert.isFalse(asFailure.seen[0]?.isDefect);
@@ -85,7 +88,7 @@ describe("FailureDetails.isCancelled / isNotInteractive", () => {
     Effect.gen(function* () {
       const { seen, err } = yield* run(Effect.die(new Error("bug")));
       assert.deepStrictEqual(
-        seen.map((d) => [d.isDefect, d.isCancelled, d.isNotInteractive]),
+        A.map(seen, (d) => [d.isDefect, d.isCancelled, d.isNotInteractive]),
         [[true, false, false]]
       );
       assert.deepStrictEqual(err, ["error: Error: bug", "Please report at https://example.test/issues"]);
@@ -100,7 +103,7 @@ describe("FailureDetails.isCancelled / isNotInteractive", () => {
         run
       );
       assert.deepStrictEqual(
-        seen.map((d) => [d.isDefect, d.isCancelled]),
+        A.map(seen, (d) => [d.isDefect, d.isCancelled]),
         [[false, false]]
       );
     })

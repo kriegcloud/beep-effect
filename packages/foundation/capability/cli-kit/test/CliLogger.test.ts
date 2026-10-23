@@ -2,8 +2,10 @@
 
 import { CliLogger, makeCliLogger } from "@beep/cli-kit/CliLogger";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as References from "effect/References";
@@ -25,8 +27,8 @@ const capturing = (): { readonly console: Console.Console; readonly out: string[
   const out: string[] = [];
   const err: string[] = [];
   const console_: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { console: console_, out, err };
 };

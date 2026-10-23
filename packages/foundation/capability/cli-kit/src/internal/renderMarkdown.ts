@@ -2,6 +2,7 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { Fmt, sanitize } from "../Fmt.ts";
 import { counterLabel, countsTableOf, totalOf, visibleCountersOf } from "./counts.ts";
 import { flatten } from "./layout.ts";
@@ -31,10 +32,12 @@ const BREAK = "\u0000";
  * is harmless, and escaping its `@` does not stop every reader.
  */
 const escapeText = (text: string): string =>
-  text
-    .replace(/[\\`!*_[\]<>&~|]/g, "\\$&")
-    .replace(/(?<=[a-z0-9+.-]):(?=\/\/)/gi, "\\:")
-    .replace(/\b(www)\./gi, "$1\\.");
+  pipe(
+    text,
+    Str.replace(/[\\`!*_[\]<>&~|]/g, "\\$&"),
+    Str.replace(/(?<=[a-z0-9+.-]):(?=\/\/)/gi, "\\:"),
+    Str.replace(/\b(www)\./gi, "$1\\.")
+  );
 
 /**
  * Escape a block marker at the start of a line: a heading or an ordered item, and always a leading `-`, `+` or `=`,
@@ -44,12 +47,18 @@ const escapeLineStart = (line: string): string => {
   if (/^[-+=]/.test(line)) return `\\${line}`;
   if (/^#{1,6}(?:\s|$)/.test(line)) return `\\${line}`;
   const ordered = /^(\d{1,9})([.)])(?:\s|$)/.exec(line);
-  if (ordered !== null) return `${ordered[1]}\\${line.slice(A.getUnsafe(ordered, 1).length)}`;
+  if (ordered !== null) return `${ordered[1]}\\${Str.slice(A.getUnsafe(ordered, 1).length)(line)}`;
   return line;
 };
 
 const htmlEscape = (text: string): string =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  pipe(
+    text,
+    Str.replace(/&/g, "&amp;"),
+    Str.replace(/</g, "&lt;"),
+    Str.replace(/>/g, "&gt;"),
+    Str.replace(/"/g, "&quot;")
+  );
 
 /** Whether some `|` in the text has an odd run of backslashes straight before it. */
 const pipeAfterOddBackslashes = (text: string): boolean => {
@@ -76,14 +85,14 @@ const codeSpan: {
   (text: string, mode: Mode): string;
   (mode: Mode): (text: string) => string;
 } = dual(2, (text: string, mode: Mode): string => {
-  const flat = text.replace(/\r\n|\r|\n/g, " ");
+  const flat = Str.replace(/\r\n|\r|\n/g, " ")(text);
   if (mode === "cell" && pipeAfterOddBackslashes(flat)) return `<code>${escapeText(flat)}</code>`;
-  const longest = Math.max(0, ...A.map([...flat.matchAll(/`+/g)], (run) => run[0].length));
-  const fence = "`".repeat(longest + 1);
-  const padded = /^`|`$/.test(flat) || (/^ .* $/.test(flat) && flat.trim() !== "") || flat === "";
+  const longest = Math.max(0, ...A.map([...Str.matchAll(/`+/g)(flat)], (run) => run[0].length));
+  const fence = Str.repeat(longest + 1)("`");
+  const padded = /^`|`$/.test(flat) || (/^ .* $/.test(flat) && Str.trim(flat) !== "") || flat === "";
   // Backslashes in a code span are literal, so they are not escaped: every `|` here follows an even run of them.
   // Escaping them too would change the code a reader sees; the markdown oracle tests pin this.
-  const body = mode === "cell" ? A.join(flat.split("|"), "\\|") : flat;
+  const body = mode === "cell" ? A.join(Str.split(flat, "|"), "\\|") : flat;
   const pad = padded ? " " : "";
   return `${fence}${pad}${body === "" ? " " : body}${pad}${fence}`;
 });
@@ -92,7 +101,11 @@ const textPiece: {
   (text: string, mode: Mode): string;
   (mode: Mode): (text: string) => string;
 } = dual(2, (text: string, mode: Mode): string =>
-  pipe(text.split(/\r\n|\r|\n/), A.map(escapeText), A.join(mode === "cell" ? "<br>" : mode === "line" ? " " : BREAK))
+  pipe(
+    Str.split(text, /\r\n|\r|\n/),
+    A.map(escapeText),
+    A.join(mode === "cell" ? "<br>" : mode === "line" ? " " : BREAK)
+  )
 );
 
 /**
@@ -109,19 +122,19 @@ const linkUrl: {
   (ctx: RenderContext): (target: LinkTarget) => string | undefined;
 } = dual(2, (target: LinkTarget, ctx: RenderContext): string | undefined => {
   if ("url" in target) {
-    const url = target.url.trim();
+    const url = Str.trim(target.url);
     return isAllowedLinkUrl(url) ? url : undefined;
   }
   if (ctx.linkBase !== undefined) {
     // A repository URL in place of `file://`: the display path under the base, with the line as GitHub's anchor. A
     // display path that is absolute or climbs out with `..` is not under the base, so it has no URL form.
-    const display = sanitize(ctx.displayPath(target.file)).replace(/\\/g, "/");
-    if (display.startsWith("/") || DRIVE.test(display) || display.split("/").includes("..")) return undefined;
+    const display = Str.replace(/\\/g, "/")(sanitize(ctx.displayPath(target.file)));
+    if (Str.startsWith("/")(display) || DRIVE.test(display) || Str.split(display, "/").includes("..")) return undefined;
     const url = `${ctx.linkBase}${encodePath(display)}${target.line === undefined ? "" : `#L${target.line}`}`;
     return isAllowedLinkUrl(url) ? url : undefined;
   }
   // The same builder as `CliLinks`, so a drive path links the same way here; a UNC or relative path has no link.
-  if (!target.file.startsWith("/") && !DRIVE.test(target.file)) return undefined;
+  if (!Str.startsWith("/")(target.file) && !DRIVE.test(target.file)) return undefined;
   const path = fileUrlPath(target.file);
   return path === undefined ? undefined : `file://${path}`;
 });
@@ -132,14 +145,10 @@ const linkUrl: {
  * inlines, so a raw `|` would split the row however the destination is written, and a backtick can open a code span.
  */
 const destination = (raw: string): string => {
-  const url = raw.replace(/&/g, "&amp;").replace(/\|/g, "%7C").replace(/`/g, "%60");
+  const url = pipe(raw, Str.replace(/&/g, "&amp;"), Str.replace(/\|/g, "%7C"), Str.replace(/`/g, "%60"));
   return /^[^\s()<>\\]*$/.test(url)
     ? url
-    : `<${url
-        .replace(/[\r\n]/g, "")
-        .replace(/\\/g, "\\\\")
-        .replace(/</g, "%3C")
-        .replace(/>/g, "%3E")}>`;
+    : `<${pipe(url, Str.replace(/[\r\n]/g, ""), Str.replace(/\\/g, "\\\\"), Str.replace(/</g, "%3C"), Str.replace(/>/g, "%3E"))}>`;
 };
 
 /**
@@ -165,9 +174,9 @@ const emphasized: {
       (A.getUnsafe(spans, i).strong === true) === strong &&
       (A.getUnsafe(spans, i).em === true) === em
     );
-    const lead = body.slice(0, body.length - body.trimStart().length);
-    const core = body.slice(lead.length).trimEnd();
-    const trail = body.slice(lead.length + core.length);
+    const lead = Str.slice(0, body.length - Str.trimStart(body).length)(body);
+    const core = pipe(body, Str.slice(lead.length), Str.trimEnd);
+    const trail = Str.slice(lead.length + core.length)(body);
     if ((!strong && !em) || core === "") {
       out += body;
       continue;
@@ -215,12 +224,12 @@ const inlineMd: {
 /** Flowing text as lines: blank lines dropped, each line cleared of indentation and of block markers, hard breaks between. */
 const flowLines = (markdown: string): Lines => {
   const lines = pipe(
-    markdown.split(BREAK),
-    A.map((line) => line.trimStart()),
-    A.filter((line) => line.trim() !== ""),
+    Str.split(markdown, BREAK),
+    A.map((line) => Str.trimStart(line)),
+    A.filter((line) => Str.trim(line) !== ""),
     A.map(escapeLineStart)
   );
-  return A.map(lines, (line, index) => (index < lines.length - 1 ? `${line}\\` : line.trimEnd()));
+  return A.map(lines, (line, index) => (index < lines.length - 1 ? `${line}\\` : Str.trimEnd(line)));
 };
 
 const joinBlocks = (blocks: ReadonlyArray<Lines>): Lines =>
@@ -257,8 +266,8 @@ const hang: {
   3,
   (lines: Lines, first: string, rest: string): Lines =>
     lines.length === 0
-      ? [first.trimEnd()]
-      : A.map(lines, (line, index) => `${index === 0 ? first : rest}${line}`.trimEnd())
+      ? [Str.trimEnd(first)]
+      : A.map(lines, (line, index) => Str.trimEnd(`${index === 0 ? first : rest}${line}`))
 );
 
 const overflowMd: {
@@ -278,8 +287,11 @@ const fenced: {
   (lines: Lines, info: string): Lines;
   (info: string): (lines: Lines) => Lines;
 } = dual(2, (lines: Lines, info: string): Lines => {
-  const longest = Math.max(0, ...A.flatMap(lines, (line) => A.map([...line.matchAll(/`+/g)], (run) => run[0].length)));
-  const fence = "`".repeat(Math.max(3, longest + 1));
+  const longest = Math.max(
+    0,
+    ...A.flatMap(lines, (line) => A.map([...Str.matchAll(/`+/g)(line)], (run) => run[0].length))
+  );
+  const fence = Str.repeat(Math.max(3, longest + 1))("`");
   return [`${fence}${info}`, ...lines, fence];
 });
 
@@ -295,7 +307,7 @@ const tableMd: {
     aligns: ReadonlyArray<"left" | "right" | "center" | undefined>,
     rows: ReadonlyArray<ReadonlyArray<string>>
   ): Lines => {
-    const row = (cells: ReadonlyArray<string>): string => `| ${A.join(cells, " | ")} |`.replace(/ {2}\|/g, " |");
+    const row = (cells: ReadonlyArray<string>): string => Str.replace(/ {2}\|/g, " |")(`| ${A.join(cells, " | ")} |`);
     return [row(header), row(A.map(aligns, (a) => (a === undefined ? "---" : align[a]))), ...A.map(rows, row)];
   }
 );
@@ -311,17 +323,17 @@ const countsMd: {
   const { ctx } = walk;
   const visible = visibleCountersOf(block);
   const total = totalOf(block);
-  const label = block.label === undefined ? "" : inlineMd(block.label, ctx, "line").trim();
-  const qualifier = block.qualifier === undefined ? "" : inlineMd(block.qualifier, ctx, "line").trim();
+  const label = block.label === undefined ? "" : Str.trim(inlineMd(block.label, ctx, "line"));
+  const qualifier = block.qualifier === undefined ? "" : Str.trim(inlineMd(block.qualifier, ctx, "line"));
   const duration = block.durationMs === undefined ? "" : Fmt.duration(block.durationMs);
-  const suffix = block.suffix === undefined ? "" : inlineMd(block.suffix, ctx, "line").trim();
+  const suffix = block.suffix === undefined ? "" : Str.trim(inlineMd(block.suffix, ctx, "line"));
   const name: {
     (counter: (typeof visible)[number], count?: number): string;
     (count?: number): (counter: (typeof visible)[number]) => string;
   } = dual(
     (args) => P.isObjectKeyword(args[0]),
     (counter: (typeof visible)[number], count?: number): string =>
-      escapeText(sanitize(counterLabel(counter, count)).replace(/\r\n|\r|\n/g, " "))
+      escapeText(Str.replace(/\r\n|\r|\n/g, " ")(sanitize(counterLabel(counter, count))))
   );
   // A share headline's label reads by the total it is a share of: "1/3 repos".
   const headlineName: {
@@ -371,7 +383,7 @@ const countsMd: {
         : // The name starts a list item, so it is cleared of indentation and of a block marker like any line start.
           [
             A.flatMap(visible, (counter) =>
-              hang([`${escapeLineStart(name(counter).trimStart())}: ${counter.n}`], "- ", "  ")
+              hang([`${escapeLineStart(Str.trimStart(name(counter)))}: ${counter.n}`], "- ", "  ")
             ),
           ]),
       ...(qualifier === "" ? [] : [flowLines(qualifier)]),
@@ -410,10 +422,10 @@ const countsMd: {
  * never sit unescaped in front of the run.
  */
 const headingText = (markdown: string): string => {
-  const text = markdown.trim();
+  const text = Str.trim(markdown);
   let start = text.length;
   while (start > 0 && text[start - 1] === "#") start--;
-  return `${text.slice(0, start)}${"\\#".repeat(text.length - start)}`;
+  return `${Str.slice(0, start)(text)}${Str.repeat(text.length - start)("\\#")}`;
 };
 
 const WHITESPACE = /\s/;
@@ -426,16 +438,16 @@ const trimCellEdges = (text: string): string => {
   let start = 0;
   let end = text.length;
   for (;;) {
-    if (start < end && WHITESPACE.test(text.charAt(start))) start += 1;
-    else if (start + 4 <= end && text.startsWith("<br>", start)) start += 4;
+    if (start < end && WHITESPACE.test(Str.slice(start, start + 1)(text))) start += 1;
+    else if (start + 4 <= end && Str.startsWith("<br>", start)(text)) start += 4;
     else break;
   }
   for (;;) {
-    if (end > start && WHITESPACE.test(text.charAt(end - 1))) end -= 1;
-    else if (end - 4 >= start && text.startsWith("<br>", end - 4)) end -= 4;
+    if (end > start && WHITESPACE.test(Str.slice(end - 1, end)(text))) end -= 1;
+    else if (end - 4 >= start && Str.startsWith("<br>", end - 4)(text)) end -= 4;
     else break;
   }
-  return text.slice(start, end);
+  return Str.slice(start, end)(text);
 };
 
 /** A block as markdown. `compact` is set on a compact list's item: a section there joins its parts with no blank lines. */
@@ -444,11 +456,11 @@ const blockMd: {
   (block: Block, depth: number, compact?: boolean): (walk: Walk) => Lines;
 } = dual(
   (args) => P.hasProperty(args[0], "ctx"),
-  (walk: Walk, block: Block, depth: number, compact = false): Lines => {
+  (walk: Walk, block: Block, depth: number, compact?: boolean): Lines => {
     const { ctx } = walk;
     return Match.valueTags(block, {
       Heading: (block): Lines => [
-        `${"#".repeat(block.level)} ${headingText(inlineMd(block.content, ctx, "line"))}`.trimEnd(),
+        Str.trimEnd(`${Str.repeat(block.level)("#")} ${headingText(inlineMd(block.content, ctx, "line"))}`),
       ],
       Paragraph: (block): Lines => flowLines(inlineMd(block.content, ctx, "flow")),
       List: (block): Lines => {
@@ -486,7 +498,7 @@ const blockMd: {
         } = dual(2, (children: typeof block.root.children, indent: number): void => {
           for (const child of children) {
             const label = flowLines(inlineMd(child.label, ctx, "line"))[0] ?? "";
-            lines.push(`${" ".repeat(indent)}- ${label}`.trimEnd());
+            lines.push(Str.trimEnd(`${Str.repeat(indent)(" ")}- ${label}`));
             visit(child.children, indent + 2);
           }
         });
@@ -495,11 +507,16 @@ const blockMd: {
       },
       Collapsible: (block): Lines => {
         const title = htmlEscape(
-          pipe(
-            flatten(block.title, ctx),
-            A.map((span) => span.text),
-            A.join("")
-          ).replace(/\r\n|\r|\n/g, " ")
+          Str.replace(
+            /\r\n|\r|\n/g,
+            " "
+          )(
+            pipe(
+              flatten(block.title, ctx),
+              A.map((span) => span.text),
+              A.join("")
+            )
+          )
         );
         const open = block.open === true ? " open" : "";
         // The HTML block ends at a blank line, so the body needs one before it and the close one after it.
@@ -515,16 +532,14 @@ const blockMd: {
         const body = joinBlocks(A.map(block.body, (child) => blockMd(walk, child, depth)));
         const first = block.body[0];
         const separate = first !== undefined && first._tag !== "Paragraph";
-        const quoted = [`[!${block.kind.toUpperCase()}]`, ...(separate ? [""] : []), ...body];
+        const quoted = [`[!${Str.toUpperCase(block.kind)}]`, ...(separate ? [""] : []), ...body];
         return A.map(quoted, (line) => (line === "" ? ">" : `> ${line}`));
       },
       CodeBlock: (block): Lines => {
-        const info = A.getUnsafe(
-          sanitize(block.lang ?? "")
-            .trim()
-            .split(/\s+/),
-          0
-        ).replace(/`/g, "");
+        const info = Str.replace(
+          /`/g,
+          ""
+        )(A.getUnsafe(pipe(sanitize(block.lang ?? ""), Str.trim, Str.split(/\s+/)), 0));
         return fenced(block.text === "" ? [] : textLines(block.text), info);
       },
       Diff: (block): Lines => {
@@ -537,7 +552,7 @@ const blockMd: {
           const shown = cap === undefined ? lines : lines.slice(0, cap);
           const hidden = lines.length - shown.length;
           return [
-            ...A.map(shown, (line) => `${marker} ${line}`.trimEnd()),
+            ...A.map(shown, (line) => Str.trimEnd(`${marker} ${line}`)),
             ...(hidden > 0 ? [`  ${ctx.glyphs.ellipsis} ${hidden} more lines`] : []),
           ];
         });
@@ -548,14 +563,14 @@ const blockMd: {
         const title =
           block.title === undefined
             ? []
-            : [`${"#".repeat(level)} ${headingText(inlineMd(block.title, ctx, "line"))}`.trimEnd()];
+            : [Str.trimEnd(`${Str.repeat(level)("#")} ${headingText(inlineMd(block.title, ctx, "line"))}`)];
         const parts = [title, ...A.map(block.children, (child) => blockMd(walk, child, depth + 1))];
-        return compact ? joinTight(parts) : joinBlocks(parts);
+        return compact === true ? joinTight(parts) : joinBlocks(parts);
       },
       Counts: (block): Lines => joinBlocks(countsMd(walk, block)),
       Verbatim: (block): Lines => {
         // Fenced, so the indentation survives: markdown would drop it from text, or read four spaces as code.
-        const indent = " ".repeat(Math.max(0, Math.floor(block.indent ?? 0)));
+        const indent = Str.repeat(Math.max(0, Math.floor(block.indent ?? 0)))(" ");
         return fenced(block.text === "" ? [] : A.map(textLines(block.text), (line) => `${indent}${line}`), "");
       },
       Annotation: (): Lines => [],
@@ -563,7 +578,7 @@ const blockMd: {
       Lines: (block): Lines => {
         // One paragraph, the entries kept apart by hard breaks, so a reader never runs them together. An empty entry
         // between two others is an empty line, a hard break of its own; at either end it has nothing to hold it.
-        const entries = A.map(block.lines, (entry) => escapeLineStart(inlineMd(entry, ctx, "line").trim()));
+        const entries = A.map(block.lines, (entry) => escapeLineStart(Str.trim(inlineMd(entry, ctx, "line"))));
         let first = 0;
         let last = entries.length;
         while (first < last && entries[first] === "") first++;

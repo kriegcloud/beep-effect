@@ -1,6 +1,7 @@
 import { CliRuntime } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 // @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
@@ -11,11 +12,13 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Runtime from "effect/Runtime";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 
 const platformServices = Layer.mergeAll(
@@ -51,9 +54,9 @@ const capturing = () => {
     seq.push([stream, line]);
   };
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => record("out", args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => record("err", args.map(String).join(" ")),
-    warn: (...args: ReadonlyArray<unknown>) => record("err", `warn:${args.map(String).join(" ")}`),
+    log: (...args: ReadonlyArray<unknown>) => record("out", pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => record("err", pipe(args, A.map(String), A.join(" "))),
+    warn: (...args: ReadonlyArray<unknown>) => record("err", `warn:${pipe(args, A.map(String), A.join(" "))}`),
   });
   return { double, out, err, seq };
 };
@@ -74,7 +77,7 @@ const run = Effect.fn("run")(function* (
   return { out, err, code: codeOf(exit) };
 });
 
-const helpIn = (lines: ReadonlyArray<string>): boolean => lines.some((line) => line.includes(HELP_MARK));
+const helpIn = (lines: ReadonlyArray<string>): boolean => A.some(lines, (line) => Str.includes(HELP_MARK)(line));
 
 it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   describe("CliRuntime.main helpOnUsageError", () => {
@@ -87,7 +90,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         it.effect(`${label}: help stays on stdout, stderr empty, exit 0`, () =>
           Effect.gen(function* () {
             const { out, err, code } = yield* run(args, "stderr");
-            assert.isTrue(helpIn(out), out.join("\n"));
+            assert.isTrue(helpIn(out), A.join(out, "\n"));
             assert.deepStrictEqual(err, []);
             assert.strictEqual(code, 0);
           })

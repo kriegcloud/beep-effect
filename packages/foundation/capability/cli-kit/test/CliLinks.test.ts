@@ -4,6 +4,7 @@ import { CliLinks } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,6 +12,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { linksOf } from "./helpers/renderContext.ts";
 import type { CliLinksShape, EditorLinks } from "@beep/cli-kit";
 
@@ -20,7 +22,11 @@ const dir = MemoryFileSystem.directory();
 const file = MemoryFileSystem.file("");
 
 /** `n` nested directories under the root: `/a/a/a` for 3. */
-const deep = (n: number): string => `/${Array.from({ length: n }, () => "a").join("/")}`;
+const deep = (n: number): string =>
+  `/${A.join(
+    Array.from({ length: n }, () => "a"),
+    "/"
+  )}`;
 
 interface Setup {
   readonly env?: Record<string, string>;
@@ -251,7 +257,7 @@ describe("CliLinks: the target of a link", () => {
       const file = yield* target("file");
       const vscode = yield* target("vscode");
       for (const path of ["C:\\x\\y.ts", "C:/x/y.ts", "c:\\x\\y.ts"]) {
-        const drive = path.slice(0, 1);
+        const drive = Str.slice(0, 1)(path);
         assert.deepStrictEqual(file.target({ file: path, line: 3 }), O.some(`file:///${drive}:/x/y.ts`), path);
         assert.deepStrictEqual(
           vscode.target({ file: path, line: 3, col: 4 }),
@@ -409,7 +415,7 @@ describe("CliLinks.linker: the RenderContext.link policy", () => {
         "/repo/\u009B31m.ts",
       ];
       const outs = [
-        ...hostile.map((f) => human({ file: f, line: 1 }, "label")),
+        ...A.map(hostile, (f) => human({ file: f, line: 1 }, "label")),
         human({ url: "https://x.test/\u001B\\\u0007\r\nnext\u001B]8;;evil\u0007" }, "label"),
         human({ url: "\u001B]8;;" }, "label"),
       ];
@@ -419,9 +425,9 @@ describe("CliLinks.linker: the RenderContext.link policy", () => {
         assert.isTrue(links.balanced, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
         assert.strictEqual(links.wrapped, "label");
         // Four ESC in all: the open and close sequences' introducer and ST each. Nothing else.
-        assert.strictEqual(out.split("\u001B").length - 1, 4, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
+        assert.strictEqual(Str.split(out, "\u001B").length - 1, 4, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
         assert.notMatch(
-          out.replace(/\u001B\]8;;|\u001B\\/g, ""),
+          Str.replace(/\u001B\]8;;|\u001B\\/g, "")(out),
           /[\u0000-\u001F\u007F-\u009F]/,
           Result.getOrThrow(S.encodeUnknownResult(Json)(out))
         );

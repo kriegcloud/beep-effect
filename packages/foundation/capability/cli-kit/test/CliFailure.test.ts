@@ -21,15 +21,17 @@ import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
 // @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import type { Block, Document } from "@beep/cli-kit";
 import type { AudienceKind, StreamEnv } from "@beep/runtime-env";
@@ -69,9 +71,9 @@ const layers = (audience: AudienceKind, stdout: Partial<StreamEnv> = {}, stderr:
 };
 
 // Pure rendering fixtures are constructed once outside test callbacks.
-const renderContexts = ["human", "agent", "ci"].flatMap((audience) =>
-  ["none", "basic", "truecolor"].flatMap((color) =>
-    [false, true].map((hyperlinks) => ({
+const renderContexts = A.flatMap(["human", "agent", "ci"], (audience) =>
+  A.flatMap(["none", "basic", "truecolor"], (color) =>
+    A.map([false, true], (hyperlinks) => ({
       audience,
       color,
       hyperlinks,
@@ -96,31 +98,31 @@ const contextFor = (
   stderr: Partial<StreamEnv> = {},
   options?: { readonly displayPath?: (p: string) => string }
 ) => {
-  const fixture = renderContexts.find(
-    (entry) =>
-      entry.audience === audience &&
-      entry.color === (stderr.color ?? "none") &&
-      entry.hyperlinks === (stderr.hyperlinks ?? false)
+  const fixture = O.getOrThrowWith(
+    A.findFirst(
+      renderContexts,
+      (entry) =>
+        entry.audience === audience &&
+        entry.color === (stderr.color ?? "none") &&
+        entry.hyperlinks === (stderr.hyperlinks ?? false)
+    ),
+    () => new Error("missing rendering fixture")
   );
-  if (fixture === undefined) throw new Error("missing rendering fixture");
   return { ...fixture.context, ...options };
 };
 
 const plain = (doc: Document, audience: AudienceKind = "agent"): string => Render.plain(doc, contextFor(audience));
 
-class Boom extends Data.TaggedError("Boom")<{ readonly message: string }> {
-  constructor(message: string) {
-    super({ message: message });
-    this.name = "Boom";
-  }
+class Boom extends S.TaggedError<Boom, { readonly brand: unique symbol }>()("Boom", { message: S.String }) {
+  override readonly name = "Boom";
 }
 
-const kinds = (doc: Document): ReadonlyArray<string> => doc.map((block: Block) => block._tag);
+const kinds = (doc: Document): ReadonlyArray<string> => A.map(doc, (block: Block) => block._tag);
 
 /** A defect whose stack is exactly `frames`, as V8 prints them. */
 const errorWithStack = (message: string, frames: ReadonlyArray<string>): Error => {
   const error = new Error(message);
-  error.stack = [`Error: ${message}`, ...frames.map((frame) => `    at ${frame}`)].join("\n");
+  error.stack = A.join([`Error: ${message}`, ...A.map(frames, (frame) => `    at ${frame}`)], "\n");
   return error;
 };
 
@@ -135,11 +137,11 @@ const INTERNAL_FRAMES = [
 it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   describe("CliFailure.toDoc: a typed failure", () => {
     it("is one failure status line carrying the error's own text", () => {
-      const doc = CliFailure.toDoc(Cause.fail(new Boom("disk full")));
+      const doc = CliFailure.toDoc(Cause.fail(Boom.make({ message: "disk full" })));
       assert.deepStrictEqual(kinds(doc), ["Paragraph"]);
       const text = plain(doc);
-      assert.strictEqual(text.split("\n").length, 1);
-      assert.include(text, String(new Boom("disk full")));
+      assert.strictEqual(Str.split(text, "\n").length, 1);
+      assert.include(text, String(Boom.make({ message: "disk full" })));
       assert.include(text, "✗");
     });
 
@@ -154,7 +156,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     });
 
     it("a message with several lines is several lines, the status on the first", () => {
-      const lines = plain(CliFailure.toDoc(Cause.fail(new Error("one\ntwo\nthree")))).split("\n");
+      const lines = Str.split(plain(CliFailure.toDoc(Cause.fail(new Error("one\ntwo\nthree")))), "\n");
       assert.strictEqual(lines.length, 3);
       assert.include(lines[0] ?? "", "one");
       assert.include(lines[2] ?? "", "three");
@@ -162,11 +164,8 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   });
 
   describe("CliFailure.toDoc: who writes the document", () => {
-    class Mine extends Data.TaggedError("Mine")<{ readonly message: string }> {
+    class Mine extends S.TaggedError<Mine, { readonly brand: unique symbol }>()("Mine", { message: S.String }) {
       override readonly name = "Error";
-      constructor(message = "") {
-        super({ message });
-      }
 
       [CliDoc](): Document {
         return [Doc.heading(2, "my own"), Doc.paragraph("with a body")];
@@ -174,23 +173,20 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     }
 
     it("an error with [CliDoc] uses its document, and nothing else", () => {
-      const doc = CliFailure.toDoc(Cause.fail(new Mine("ignored message")));
+      const doc = CliFailure.toDoc(Cause.fail(Mine.make({ message: "ignored message" })));
       assert.deepStrictEqual(kinds(doc), ["Heading", "Paragraph"]);
       assert.notInclude(plain(doc), "ignored message");
     });
 
     it("a throwing [CliDoc] falls back to the generic line", () => {
-      class Bad extends Data.TaggedError("Bad")<{ readonly message: string }> {
+      class Bad extends S.TaggedError<Bad, { readonly brand: unique symbol }>()("Bad", { message: S.String }) {
         override readonly name = "Error";
-        constructor(message = "") {
-          super({ message });
-        }
 
         [CliDoc](): Document {
           throw new Error("nope");
         }
       }
-      assert.include(plain(CliFailure.toDoc(Cause.fail(new Bad("fallback me")))), "fallback me");
+      assert.include(plain(CliFailure.toDoc(Cause.fail(Bad.make({ message: "fallback me" })))), "fallback me");
     });
 
     it("the per-tag render map is honoured, and [CliDoc] still beats it", () => {
@@ -200,13 +196,18 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           return [Doc.paragraph(`custom for ${error.message}`)];
         },
       };
-      assert.strictEqual(plain(CliFailure.toDoc(Cause.fail(new Boom("x")), { render })), "custom for x");
+      assert.strictEqual(plain(CliFailure.toDoc(Cause.fail(Boom.make({ message: "x" })), { render })), "custom for x");
       assert.notInclude(
-        plain(CliFailure.toDoc(Cause.fail(new Mine("m")), { render: { Mine: () => [Doc.paragraph("map")] } })),
+        plain(
+          CliFailure.toDoc(Cause.fail(Mine.make({ message: "m" })), { render: { Mine: () => [Doc.paragraph("map")] } })
+        ),
         "map"
       );
       // A tag with no entry is the generic line, and an inherited name is not an entry.
-      assert.include(plain(CliFailure.toDoc(Cause.fail(new Boom("y")), { render: { Other: () => [] } })), "y");
+      assert.include(
+        plain(CliFailure.toDoc(Cause.fail(Boom.make({ message: "y" })), { render: { Other: () => [] } })),
+        "y"
+      );
       assert.include(plain(CliFailure.toDoc(Cause.fail({ _tag: "constructor", message: "z" }), { render: {} })), "z");
     });
   });
@@ -237,9 +238,14 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       const lines = SchemaIssueRenderer.render(error.issue);
       assert.isAbove(lines.length, 1);
       for (const line of lines) {
-        const [message, path] = line.split(" at ");
+        const [message, path] = Str.split(line, " at ");
         assert.include(text, message ?? "", line);
-        for (const segment of (path ?? "").split(".").filter((s) => s !== "")) assert.include(text, segment, line);
+        for (const segment of pipe(
+          path ?? "",
+          Str.split("."),
+          A.filter((s) => s !== "")
+        ))
+          assert.include(text, segment, line);
       }
       // The nesting is the path: g sits under groups.
       assert.match(text, /groups\n.*g\n.*extra: unknown key/);
@@ -278,7 +284,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       const doc = CliFailure.toDoc(Cause.die(errorWithStack("boom", INTERNAL_FRAMES)));
       const text = plain(doc);
       assert.include(text, `no user frames (${INTERNAL_FRAMES.length} internal frames hidden)`);
-      const stack = doc.find((block) => block._tag === "Collapsible");
+      const stack = O.getOrUndefined(A.findFirst(doc, (block) => block._tag === "Collapsible"));
       assert.isDefined(stack);
       assert.isAbove(stack.body.length, 0);
     });
@@ -296,7 +302,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
     it("displayPath relativises every frame", () => {
       const error = errorWithStack("boom", [`run (${USER}:3:4)`]);
-      const displayPath = (p: string) => p.replace("/repo/", "");
+      const displayPath = (p: string) => Str.replace("/repo/", "")(p);
       const doc = CliFailure.toDoc(Cause.die(error), { displayPath });
       // The context applies the same function to the link's target, as the default report does.
       const text = Render.plain(doc, contextFor("agent", {}, { displayPath }));
@@ -326,10 +332,10 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it("an Error.cause chain nests as a Tree under the message", () => {
       const error = new Error("outer", { cause: new Error("middle", { cause: new Error("root") }) });
       const doc = CliFailure.toDoc(Cause.die(error));
-      const tree = doc.find((block) => block._tag === "Tree");
+      const tree = O.getOrUndefined(A.findFirst(doc, (block) => block._tag === "Tree"));
       assert.isDefined(tree);
       const text = plain(doc);
-      const order = ["outer", "middle", "root"].map((word) => text.lastIndexOf(word));
+      const order = A.map(["outer", "middle", "root"], (word) => O.getOrThrow(Str.lastIndexOf(word)(text)));
       assert.deepStrictEqual(
         [...order].sort((a, b) => a - b),
         order
@@ -355,10 +361,10 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       const b = new Error("b", { cause: a });
       a.cause = b;
       const doc = CliFailure.toDoc(Cause.die(new Error("outer", { cause: a })));
-      const tree = doc.find((block) => block._tag === "Tree");
+      const tree = O.getOrUndefined(A.findFirst(doc, (block) => block._tag === "Tree"));
       assert.isDefined(tree);
       const text = plain([tree]);
-      assert.strictEqual(text.split("\n").length, 3);
+      assert.strictEqual(Str.split(text, "\n").length, 3);
       assert.match(text, /outer\n.*Error: a\n.*Error: b$/);
     });
 
@@ -370,21 +376,21 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       assert.strictEqual(String(outer), String(inner));
       assert.strictEqual(outer.stack, inner.stack);
       const doc = CliFailure.toDoc(Cause.die(new Error("root", { cause: outer })));
-      const tree = doc.find((block) => block._tag === "Tree");
+      const tree = O.getOrUndefined(A.findFirst(doc, (block) => block._tag === "Tree"));
       assert.isDefined(tree);
       const text = plain([tree]);
-      assert.strictEqual(text.split("\n").length, 3);
-      assert.strictEqual(text.match(/Error: repeat/g)?.length, 2);
+      assert.strictEqual(Str.split(text, "\n").length, 3);
+      assert.lengthOf(A.fromIterable(Str.matchAll(/Error: repeat/g)(text)), 2);
     });
 
     it("an acyclic cause chain renders at most eight descendants", () => {
       let error = new Error("cause-9");
       for (let index = 8; index >= 0; index--) error = new Error(`cause-${index}`, { cause: error });
       const doc = CliFailure.toDoc(Cause.die(error));
-      const tree = doc.find((block) => block._tag === "Tree");
+      const tree = O.getOrUndefined(A.findFirst(doc, (block) => block._tag === "Tree"));
       assert.isDefined(tree);
       const text = plain([tree]);
-      assert.strictEqual(text.split("\n").length, 9);
+      assert.strictEqual(Str.split(text, "\n").length, 9);
       assert.include(text, "cause-8");
       assert.notInclude(text, "cause-9");
     });
@@ -397,7 +403,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   });
 
   describe("CliFailure.toDoc: the span path", () => {
-    const spanned = Effect.fail(new Boom("x")).pipe(Effect.withSpan("inner"), Effect.withSpan("outer"));
+    const spanned = Effect.fail(Boom.make({ message: "x" })).pipe(Effect.withSpan("inner"), Effect.withSpan("outer"));
 
     it.effect("is shown as `in: outer › inner`, outermost first, with the audience's separator", () =>
       Effect.gen(function* () {
@@ -410,7 +416,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     );
 
     it("a reason with no spans has no `in:` line", () => {
-      assert.notInclude(plain(CliFailure.toDoc(Cause.fail(new Boom("x")))), "in:");
+      assert.notInclude(plain(CliFailure.toDoc(Cause.fail(Boom.make({ message: "x" })))), "in:");
     });
 
     it.effect("the names are the annotation's StackFrame chain, which is where the runtime keeps them", () =>
@@ -436,7 +442,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     });
 
     it("interrupts beside a real failure are not rendered: the failure is the story", () => {
-      const cause = Cause.combine(Cause.interrupt(1), Cause.fail(new Boom("real")));
+      const cause = Cause.combine(Cause.interrupt(1), Cause.fail(Boom.make({ message: "real" })));
       const text = plain(CliFailure.toDoc(cause));
       assert.include(text, "real");
       assert.notInclude(text, "interrupted");
@@ -459,9 +465,9 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
     it("every reason of a cause is rendered, in order", () => {
       const text = plain(
-        CliFailure.toDoc(Cause.combine(Cause.fail(new Boom("first")), Cause.die(new Error("second"))))
+        CliFailure.toDoc(Cause.combine(Cause.fail(Boom.make({ message: "first" })), Cause.die(new Error("second"))))
       );
-      assert.isBelow(text.indexOf("first"), text.indexOf("second"));
+      assert.isBelow(O.getOrThrow(Str.indexOf("first")(text)), O.getOrThrow(Str.indexOf("second")(text)));
     });
   });
 
@@ -518,8 +524,8 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       const err: string[] = [];
       const out: string[] = [];
       const double: Console.Console = Object.assign(Object.create(console), {
-        log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-        error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+        log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+        error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
       });
       return { double, err, out };
     };
@@ -542,7 +548,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
     // Fresh errors per run: `reportFailures` marks the error it reports with its exit code, and a shared instance would
     // carry the first run's mark into the next.
-    const failing = Effect.suspend(() => Effect.fail(new Boom("disk full")));
+    const failing = Effect.suspend(() => Effect.fail(Boom.make({ message: "disk full" })));
     const dying = Effect.suspend(() => Effect.die(errorWithStack("kaboom", [`run (${USER}:3:4)`, ...INTERNAL_FRAMES])));
 
     it.effect("an agent gets the plain rendering: a status line, no escape of any kind", () =>
@@ -553,7 +559,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         assert.strictEqual(err.length, 1);
         assert.include(err[0] ?? "", "disk full");
         assert.include(err[0] ?? "", "✗");
-        assert.notInclude(err.join("\n"), ESC);
+        assert.notInclude(A.join(err, "\n"), ESC);
       })
     );
 
@@ -561,8 +567,8 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const { err, code } = yield* runMain(failing, { TERM: "xterm-256color" }, true);
         assert.strictEqual(code, 1);
-        assert.include(err.join("\n"), "disk full");
-        assert.include(err.join("\n"), `${ESC}[`);
+        assert.include(A.join(err, "\n"), "disk full");
+        assert.include(A.join(err, "\n"), `${ESC}[`);
       })
     );
 
@@ -571,7 +577,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         for (const env of [{ AI_AGENT: "claude" }, { TERM: "xterm-256color" }]) {
           const { err, code } = yield* runMain(dying, env, true);
           assert.strictEqual(code, 1);
-          const text = err.join("\n");
+          const text = A.join(err, "\n");
           assert.include(text, "kaboom");
           assert.include(text, `${USER}:3:4`);
           assert.notInclude(text, "node:internal");
@@ -588,7 +594,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           throw thrown;
         });
         const { err } = yield* runMain(program, { AI_AGENT: "claude" }, true);
-        const text = err.join("\n");
+        const text = A.join(err, "\n");
         assert.include(text, "thrown by a thunk");
         // V8 names the thunk's own frame by Effect's method alias; the frame is still the program's.
         const first = /\((.*CliFailure\.test\.ts:\d+:\d+)\)/.exec(thrown?.stack ?? "")?.[1];
@@ -600,7 +606,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("exit codes are unchanged: the exitCode option, a marked error's own code, and Cancelled's 130", () =>
       Effect.gen(function* () {
         assert.strictEqual((yield* runMain(failing, {}, true, { exitCode: 7 })).code, 7);
-        const marked = CliRuntime.reported(new Boom("m"), 4);
+        const marked = CliRuntime.reported(Boom.make({ message: "m" }), 4);
         assert.strictEqual((yield* runMain(Effect.fail(marked), {}, true, { exitCode: 7 })).code, 4);
         const cancelled = yield* runMain(
           Effect.fail(Cancelled.make({ reason: "escape" })),
@@ -649,7 +655,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         );
         for (const env of [{ AI_AGENT: "claude", TERM: "xterm-256color" }, { TERM: "xterm-256color" }]) {
           const { err } = yield* runMain(program, env, true);
-          const text = err.join("\n");
+          const text = A.join(err, "\n");
           assert.notInclude(text, "evil");
           assert.notInclude(text, BEL);
           assert.notInclude(text, "\r");
@@ -657,7 +663,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           // Whatever escapes remain are SGR the kit painted: no OSC and no cursor control.
           assert.notInclude(text, `${ESC}]`);
           for (const line of err) {
-            for (const match of line.matchAll(new RegExp(`${ESC}(.)`, "g"))) assert.strictEqual(match[1], "[");
+            for (const match of Str.matchAll(new RegExp(`${ESC}(.)`, "g"))(line)) assert.strictEqual(match[1], "[");
           }
         }
       })
@@ -672,7 +678,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           const { double, err } = capturing();
           const tool = Command.make("tool").pipe(
             Command.withSharedFlags(CliAudience.flags()),
-            Command.withSubcommands([Command.make("go", {}, () => Effect.fail(new Boom("flagged")))])
+            Command.withSubcommands([Command.make("go", {}, () => Effect.fail(Boom.make({ message: "flagged" })))])
           );
           // The platform main builds the environment from is the colour terminal; the command only gets the
           // services core's runner needs, so they cannot replace the terminal.
@@ -684,7 +690,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
             Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env)),
             Effect.provideService(Console.Console, double)
           );
-          return err.join("\n");
+          return A.join(err, "\n");
         });
         const flagged = yield* runTool(["--agent", "go"]);
         assert.include(flagged, "flagged");
@@ -730,7 +736,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
             ),
             Effect.provideService(Console.Console, double)
           );
-          return err.join("\n");
+          return A.join(err, "\n");
         });
         const all = yield* runTool("all");
         assert.notInclude(all, ESC, "control: the flag made it an agent's report");
@@ -744,7 +750,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it("is the plain lines of the cause: the stack of a defect, a tree for a schema error", () => {
       const cause = Cause.die(errorWithStack("kaboom", [`run (${USER}:3:4)`, ...INTERNAL_FRAMES]));
       const lines = CliRuntime.defaultRender(Cause.squash(cause), { cause, isDefect: true });
-      const text = (typeof lines === "string" ? [lines] : lines).join("\n");
+      const text = A.join(typeof lines === "string" ? [lines] : lines, "\n");
       assert.include(text, "kaboom");
       assert.include(text, `${USER}:3:4`);
       assert.notInclude(text, ESC);
@@ -870,7 +876,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       assert.include(text, `${USER}:9:1`);
       const note = `(+${INTERNAL_FRAMES.length + 1} internal frames hidden)`;
       assert.include(text, note);
-      assert.isAbove(text.indexOf(note), text.indexOf(`${USER}:9:1`), "the note follows the frames");
+      assert.isAbove(
+        O.getOrThrow(Str.indexOf(note)(text)),
+        O.getOrThrow(Str.indexOf(`${USER}:9:1`)(text)),
+        "the note follows the frames"
+      );
     });
 
     it("nothing hidden prints no note", () => {

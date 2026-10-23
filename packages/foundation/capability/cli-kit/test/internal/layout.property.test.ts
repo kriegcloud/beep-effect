@@ -11,6 +11,9 @@ import { sanitize } from "@beep/cli-kit/Fmt";
 import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
 import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "@beep/cli-kit/internal/layout";
 import { Render } from "@beep/cli-kit/Render";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const ctx = Render.contextOf({ audience: "agent" });
 const width = S.Int.check(S.isBetween({ minimum: 1, maximum: 40 }));
@@ -39,23 +42,25 @@ it.effect.prop(
       assert.deepStrictEqual(truncateSpans(clipped, columns, "…"), clipped);
       assert.isAtMost(widthOf(clipped), columns);
       const wrapped = wrapSpans(spans, columns);
-      const lines = wrapped.map((line) => paintSpans(line, ctx));
+      const lines = A.map(wrapped, (line) => paintSpans(line, ctx));
       // Reparse each canonical output line separately, retaining blank lines too.
-      const reparsed = lines.map((line) => flatten([Doc.text(line)], ctx));
+      const reparsed = A.map(lines, (line) => flatten([Doc.text(line)], ctx));
       assert.deepStrictEqual(
-        reparsed.map((line) => paintSpans(line, ctx)),
+        A.map(reparsed, (line) => paintSpans(line, ctx)),
         lines
       );
       assert.deepStrictEqual(
-        reparsed.map((line) =>
-          wrapSpans(line, columns)
-            .map((part) => paintSpans(part, ctx))
-            .join("\n")
+        A.map(reparsed, (line) =>
+          pipe(
+            wrapSpans(line, columns),
+            A.map((part) => paintSpans(part, ctx)),
+            A.join("\n")
+          )
         ),
         lines
       );
-      const words = sanitize(text).replace(/\s/g, "");
-      assert.strictEqual(lines.join("").replace(/\s/g, ""), words);
+      const words = Str.replace(/\s/g, "")(sanitize(text));
+      assert.strictEqual(pipe(lines, A.join(""), Str.replace(/\s/g, "")), words);
     }),
   runs
 );

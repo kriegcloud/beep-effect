@@ -4,8 +4,10 @@ import { Render } from "@beep/cli-kit/Render";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const context = Render.contextOf({ audience: "agent", neutralizeWorkflowCommands: false });
@@ -36,7 +38,7 @@ for (const [name, format] of [
       Effect.gen(function* () {
         const text = `content:${value}:end`;
         const formatted = format([Doc.verbatim(text)], context);
-        const expected = Fmt.sanitize(text).replace(/\r\n?/g, "\n");
+        const expected = Str.replace(/\r\n?/g, "\n")(Fmt.sanitize(text));
         assert.strictEqual(formatted, expected);
         assert.strictEqual(format([Doc.verbatim(formatted)], context), formatted);
         const serialized = yield* S.encodeEffect(JsonText)(formatted);
@@ -75,12 +77,12 @@ it.effect.prop(
     Effect.gen(function* () {
       const text = `content:${value}:end`;
       const formatted = Render.markdown([Doc.verbatim(text)], context);
-      const lines = formatted.split("\n");
+      const lines = Str.split(formatted, "\n");
       const fence = lines[0] ?? "";
       assert.match(fence, /^`{3,}$/);
       assert.strictEqual(lines[lines.length - 1], fence);
-      const parsed = lines.slice(1, -1).join("\n");
-      assert.strictEqual(parsed, Fmt.sanitize(text).replace(/\r\n?/g, "\n"));
+      const parsed = A.join(lines.slice(1, -1), "\n");
+      assert.strictEqual(parsed, Str.replace(/\r\n?/g, "\n")(Fmt.sanitize(text)));
       assert.strictEqual(Render.markdown([Doc.verbatim(parsed)], context), formatted);
       const serialized = yield* S.encodeEffect(JsonText)(parsed);
       const decoded = yield* S.decodeEffect(JsonText)(serialized);

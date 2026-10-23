@@ -4,6 +4,7 @@ import { assert, it } from "@effect/vitest";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const HOST_PATH = Config.String("PATH").pipe(Config.withDefault(""));
 const HOST_HOME = Config.option(Config.String("HOME"));
@@ -26,7 +27,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CliTest", (it) => {
       const sandbox = yield* CliTest.sandbox({ path: yield* HOST_PATH });
       assert.notStrictEqual(sandbox.env.HOME, O.getOrUndefined(yield* HOST_HOME));
       assert.strictEqual(sandbox.env.NO_COLOR, "1");
-      assert.isTrue(sandbox.env.XDG_CONFIG_HOME?.startsWith(sandbox.home));
+      assert.isTrue(O.exists(O.fromUndefinedOr(sandbox.env.XDG_CONFIG_HOME), Str.startsWith(sandbox.home)));
     })
   );
 
@@ -34,7 +35,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CliTest", (it) => {
     Effect.gen(function* () {
       const sandbox = yield* CliTest.sandbox({ path: yield* HOST_PATH });
       const result = yield* CliTest.run(BIN, [], { sandbox, execPath: process.execPath, stdin: "hello" });
-      assert.isTrue(result.stdout.includes("stdin=hello"));
+      assert.isTrue(Str.includes("stdin=hello")(result.stdout));
     })
   );
 
@@ -45,7 +46,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CliTest", (it) => {
         const sandbox = yield* CliTest.sandbox({ path: yield* HOST_PATH });
         const result = yield* CliTest.run(BIN, [], { sandbox, execPath: process.execPath });
         assert.strictEqual(result.exitCode, 3);
-        assert.isFalse(result.stdout.includes("stdin="));
+        assert.isFalse(Str.includes("stdin=")(result.stdout));
       }),
     { timeout: 5000 }
   );

@@ -1,5 +1,6 @@
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { displayWidth, graphemes, stripAnsi } from "./internal/displayWidth.ts";
 
 /**
@@ -57,7 +58,8 @@ const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
  * @category formatting
  * @since 0.0.0
  */
-export const sanitize = (input: string): string => stripAnsi(input).replace(/\t/g, " ").replace(CONTROL, "");
+export const sanitize = (input: string): string =>
+  pipe(stripAnsi(input), Str.replace(/\t/g, " "), Str.replace(CONTROL, ""));
 
 /**
  * Small, pure formatting primitives for terminal output.

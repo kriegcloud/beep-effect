@@ -2,7 +2,10 @@ import { Token } from "@beep/cli-kit";
 import { nearest256, paintStyle } from "@beep/cli-kit/internal/ansi";
 import { Style as StyleSchema } from "@beep/cli-kit/Token";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import type { NamedColor, Style, TokenName } from "@beep/cli-kit";
 
@@ -40,7 +43,7 @@ const TOKENS: ReadonlyArray<TokenName> = [
 
 describe("Token.defaults and Token.resolve", () => {
   it("defaults has exactly the eight tokens as readonly styles with the original values", () => {
-    assert.deepStrictEqual(Object.keys(Token.defaults).sort(), [...TOKENS].sort());
+    assert.deepStrictEqual(A.sort(R.keys(Token.defaults), Str.Order), A.sort(TOKENS, Str.Order));
     assert.deepStrictEqual(Token.defaults, {
       success: { fg: "green" },
       failure: { fg: "red" },
@@ -64,7 +67,7 @@ describe("Token.defaults and Token.resolve", () => {
     const before = JSON.stringify(Token.defaults);
     const overrides = { success: { fg: "#00ff00", bold: true } } as const;
     assert.deepStrictEqual(Token.resolve("success", overrides), overrides.success);
-    for (const token of TOKENS.filter((name) => name !== "success")) {
+    for (const token of A.filter(TOKENS, (name) => name !== "success")) {
       assert.deepStrictEqual(Token.resolve(token, overrides), Token.defaults[token], token);
     }
     assert.strictEqual(JSON.stringify(Token.defaults), before);

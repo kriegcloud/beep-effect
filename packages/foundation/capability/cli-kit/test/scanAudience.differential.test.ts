@@ -2,6 +2,7 @@ import { CliAudience } from "@beep/cli-kit";
 import { scanAudience, tallyAudience } from "@beep/cli-kit/internal/scanAudience";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Argument from "effect/cli/Argument";
 import * as Command from "effect/cli/Command";
@@ -102,7 +103,7 @@ const parserServices = Layer.mergeAll(
 );
 it.layer(parserServices, { timeout: "30 seconds" })("scanAudience agrees with core's parser", (it) => {
   for (const argv of accepted) {
-    it.effect(argv.join(" ") || "(no arguments)", () =>
+    it.effect(A.join(argv, " ") || "(no arguments)", () =>
       Effect.gen(function* () {
         const parsed = yield* parsedBy(argv);
         // Every argv in this list is one core parses, so a rejection here is itself a finding.
@@ -118,7 +119,7 @@ it.layer(parserServices, { timeout: "30 seconds" })("scanAudience agrees with co
   }
 
   for (const [argv, counted] of rejected) {
-    it.effect(`core rejects ${argv.join(" ")}; the scan counts only ${JSON.stringify(counted)}`, () =>
+    it.effect(`core rejects ${A.join(argv, " ")}; the scan counts only ${JSON.stringify(counted)}`, () =>
       Effect.gen(function* () {
         assert.isUndefined(yield* parsedBy(argv), "core should have refused this argv");
         assert.deepStrictEqual(scanAudience(argv).given, counted);

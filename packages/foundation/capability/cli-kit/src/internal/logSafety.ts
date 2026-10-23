@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { sanitize } from "../Fmt.ts";
 import type * as Fiber from "effect/Fiber";
 
@@ -97,4 +98,4 @@ export const sanitizeParts = (message: unknown): unknown => {
  * @category encoding
  * @since 0.0.0
  */
-export const neutralizeJson = (line: string): string => line.replaceAll("##[", "#\\u0023[");
+export const neutralizeJson = (line: string): string => Str.replaceAll("##[", "#\\u0023[")(line);

@@ -3,13 +3,13 @@ import { CliRuntime } from "@beep/cli-kit/CliRuntime";
 import { assert, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
+import * as S from "effect/Schema";
 
 it.effect("an unprintable failure still produces a safe last-resort diagnostic", () =>
   Effect.gen(function* () {
@@ -117,12 +117,14 @@ it("a nonconfigurable marker falls back after partial installation", () => {
 });
 
 it("a prototype exit-code getter is still marked in place", () => {
-  class GetterError extends Data.TaggedError("GetterError")<{ readonly message: string }> {
+  class GetterError extends S.TaggedError<GetterError, { readonly brand: unique symbol }>()("GetterError", {
+    message: S.String,
+  }) {
     override get [Runtime.errorExitCode](): number {
       return 3;
     }
   }
-  const original = new GetterError({ message: "getter" });
+  const original = GetterError.make({ message: "getter" });
   const marked = CliRuntime.reported(original, 23);
   assert.strictEqual(marked, original);
   assert.strictEqual(Runtime.getErrorExitCode(marked), 23);

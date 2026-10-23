@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.layer(CliLinks.layerTest("file"), { timeout: "30 seconds" })((it) => {
@@ -21,9 +22,9 @@ it.layer(CliLinks.layerTest("file"), { timeout: "30 seconds" })((it) => {
         const target = links.target({ url: text });
         if (O.isSome(target)) {
           assert.deepStrictEqual(links.target({ url: target.value }), target);
-          assert.strictEqual(target.value, Fmt.sanitize(text).replace(/[\r\n]/g, ""));
+          assert.strictEqual(target.value, Str.replace(/[\r\n]/g, "")(Fmt.sanitize(text)));
         } else {
-          assert.deepStrictEqual(links.target({ url: Fmt.sanitize(text).replace(/[\r\n]/g, "") }), target);
+          assert.deepStrictEqual(links.target({ url: Str.replace(/[\r\n]/g, "")(Fmt.sanitize(text)) }), target);
         }
       }),
     runs
@@ -37,7 +38,7 @@ it.layer(CliLinks.layerTest("file"), { timeout: "30 seconds" })((it) => {
         const file = `/repo/${text.toWellFormed()}`;
         const target = links.target({ file });
         const encoded = O.getOrThrow(target);
-        assert.strictEqual(decodeURIComponent(encoded.slice("file://".length)), file);
+        assert.strictEqual(decodeURIComponent(Str.slice("file://".length)(encoded)), file);
         assert.deepStrictEqual(links.target({ url: encoded }), target);
         const link = CliLinks.linker({ links, audience: "agent", hyperlinks: true });
         assert.strictEqual(link({ file }, text), text);
@@ -65,7 +66,7 @@ it.effect.prop(
             (context) => Effect.provideContext(CliLinks, context)
           )
         );
-      const first = yield* parse(`  ${mode.toUpperCase()}  `);
+      const first = yield* parse(`  ${Str.toUpperCase(mode)}  `);
       const second = yield* parse(first.mode);
       assert.strictEqual(first.mode, mode);
       assert.strictEqual(second.mode, first.mode);

@@ -7,6 +7,7 @@ import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
 
 import { encodeForOsc8, encodePath, fileUrlPath } from "@beep/cli-kit/internal/linkTarget";
+import * as Str from "effect/String";
 
 it.effect.prop(
   "path segment encoding round-trips normalized Unicode, preserves separators, and stabilizes after decoding",
@@ -18,7 +19,7 @@ it.effect.prop(
       assert.strictEqual(parsed, path.toWellFormed());
       assert.strictEqual(encodePath(parsed), encoded);
       assert.strictEqual(decodeURIComponent(encodePath(decodeURIComponent(encoded))), parsed);
-      assert.strictEqual(encoded.split("/").length, path.split("/").length);
+      assert.strictEqual(Str.split(encoded, "/").length, Str.split(path, "/").length);
       // Percent encoding is an encoder, not a sanitizer: '%' itself must be escaped.
       assert.strictEqual(encodePath("%"), "%25");
     }),
@@ -32,7 +33,7 @@ it.effect.prop(
       const encoded = encodeForOsc8(input);
       assert.strictEqual(encodeForOsc8(encoded), encoded);
       assert.match(encoded, /^[\x20-\x7e]*$/);
-      const noPercent = input.replaceAll("%", "pct");
+      const noPercent = Str.replaceAll("%", "pct")(input);
       const parsed = decodeURIComponent(encodeForOsc8(noPercent));
       assert.strictEqual(parsed, noPercent.toWellFormed());
       assert.strictEqual(decodeURIComponent(encodeForOsc8(parsed)), parsed);

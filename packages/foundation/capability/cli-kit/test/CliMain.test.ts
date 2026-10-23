@@ -2,14 +2,15 @@ import { CliExit, CliRuntime } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as CliError from "effect/cli/CliError";
 import * as Command from "effect/cli/Command";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
 import * as Path from "effect/Path";
@@ -39,11 +40,10 @@ const platformServices = Layer.mergeAll(
 
 const Json = S.fromJsonString(S.Unknown);
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 class Platform extends Context.Service<Platform, { readonly name: string }>()(
@@ -54,8 +54,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -110,7 +110,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("a platform layer that fails to build renders one line on stderr with the fallback code", () =>
       Effect.gen(function* () {
         const { double, out, err } = capturing();
-        const broken = Layer.effect(Platform, Effect.fail(new TestError("HOME is not set")));
+        const broken = Layer.effect(Platform, Effect.fail(TestError.make({ message: "HOME is not set" })));
         const program = Effect.asVoid(Platform);
         const exit = yield* CliRuntime.main(program, { platform: broken, exitCode: 3 }).pipe(
           Effect.exit,
@@ -126,7 +126,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("the default logger is installed outermost: a failure lands on stderr", () =>
       Effect.gen(function* () {
         const { double, out, err } = capturing();
-        yield* CliRuntime.main(Effect.fail(new TestError("boom")), { platform: Layer.empty }).pipe(
+        yield* CliRuntime.main(Effect.fail(TestError.make({ message: "boom" })), { platform: Layer.empty }).pipe(
           Effect.exit,
           Effect.provideService(Console.Console, double)
         );
@@ -164,7 +164,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const { double } = capturing();
         const program = Effect.gen(function* () {
           yield* CliExit.set(2);
-          return yield* new TestError("boom");
+          return yield* TestError.make({ message: "boom" });
         });
         const exit = yield* CliRuntime.main(program, { platform: Layer.empty, exitCode: 5 }).pipe(
           Effect.exit,
@@ -253,7 +253,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     // record against MinimumLogLevel BEFORE any logger runs, so a flag value of `none` silences every Effect.log*
     // call made inside the handler. The failure report is written by reportFailures AFTER the handler's scope
     // has closed, so it must still reach stderr, and the exit code must still be right.
-    const boom = Command.make("boom", {}, () => Effect.fail(new TestError("boom")));
+    const boom = Command.make("boom", {}, () => Effect.fail(TestError.make({ message: "boom" })));
     const app = Command.make("tool").pipe(Command.withSubcommands([boom]));
 
     for (const level of ["none", "all", "debug"]) {
@@ -300,7 +300,7 @@ for (const channel of ["interrupt", "mixed", "failure", "defect"] as const) {
     Effect.gen(function* () {
       let builds = 0;
       let executed = 0;
-      const original = new TestError("first platform build failed");
+      const original = TestError.make({ message: "first platform build failed" });
       const platform = Layer.effectContext(
         Effect.gen(function* () {
           builds += 1;

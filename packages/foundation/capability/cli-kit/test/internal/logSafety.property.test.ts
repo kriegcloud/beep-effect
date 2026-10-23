@@ -8,6 +8,7 @@ const runs = { arbitrary: fcRuns(100) };
 
 import { sanitize } from "@beep/cli-kit/Fmt";
 import { neutralizeJson, sanitizeParts } from "@beep/cli-kit/internal/logSafety";
+import * as Str from "effect/String";
 
 const Json = S.fromJsonString(S.Json);
 it.effect.prop(
@@ -20,7 +21,7 @@ it.effect.prop(
       const encoded = yield* stringify(value);
       const neutral = neutralizeJson(encoded);
       assert.strictEqual(neutralizeJson(neutral), neutral);
-      assert.strictEqual(neutral.includes("##["), false);
+      assert.strictEqual(Str.includes("##[")(neutral), false);
       const parsed = yield* parse(neutral);
       assert.deepStrictEqual(parsed, yield* parse(encoded));
       assert.deepStrictEqual(yield* parse(neutralizeJson(yield* stringify(parsed))), parsed);

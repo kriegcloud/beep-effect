@@ -3,16 +3,18 @@ import { Markdown } from "@beep/markdown/Markdown";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import { commandLines } from "./helpers/runnerCommands.ts";
 import type { Document } from "@beep/cli-kit";
@@ -20,11 +22,10 @@ import type { AudienceKind } from "@beep/runtime-env";
 
 const Json = S.fromJsonString(S.Unknown);
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 const ZWSP = String.fromCodePoint(0x200b);
@@ -123,14 +124,14 @@ it.layer(layers("agent", "absent"), { timeout: "30 seconds" })((it) => {
                 for (const stream of ["stdout", "stderr"] as const) {
                   const written: Array<string> = [];
                   const double = Object.assign(Object.create(console), {
-                    log: (...args: ReadonlyArray<unknown>) => written.push(args.map(String).join(" ")),
-                    error: (...args: ReadonlyArray<unknown>) => written.push(args.map(String).join(" ")),
+                    log: (...args: ReadonlyArray<unknown>) => written.push(pipe(args, A.map(String), A.join(" "))),
+                    error: (...args: ReadonlyArray<unknown>) => written.push(pipe(args, A.map(String), A.join(" "))),
                   });
                   yield* Doc.print(docOf(text), { format, stream }).pipe(
                     withContext(audience, "github-actions"),
                     Effect.provideService(Console.Console, double)
                   );
-                  assert.deepStrictEqual(commandLines(written.join("\n")), [], `${format} ${stream}`);
+                  assert.deepStrictEqual(commandLines(A.join(written, "\n")), [], `${format} ${stream}`);
                 }
               }
             })
@@ -145,7 +146,7 @@ it.layer(layers("agent", "absent"), { timeout: "30 seconds" })((it) => {
         assert.include(out, `${ZWSP}::error::x`);
         assert.include(out, "keep");
         assert.strictEqual(
-          out.replaceAll(ZWSP, ""),
+          Str.replaceAll(ZWSP, "")(out),
           Render.plain(docOf("keep\n::error::x"), yield* contextFor("agent", "none"))
         );
       })
@@ -154,7 +155,7 @@ it.layer(layers("agent", "absent"), { timeout: "30 seconds" })((it) => {
     it.effect("githubLog is not neutralized twice", () =>
       Effect.gen(function* () {
         const out = Render.githubLog(docOf("::error::x"), yield* contextFor("ci", "github-actions"));
-        assert.strictEqual(out.split(ZWSP).length - 1, 1);
+        assert.strictEqual(Str.split(out, ZWSP).length - 1, 1);
         assert.notInclude(out, `${ZWSP}${ZWSP}`);
       })
     );
@@ -172,7 +173,11 @@ it.layer(layers("agent", "absent"), { timeout: "30 seconds" })((it) => {
     const headingsOf = (markdown: string): ReadonlyArray<string> => {
       const parsed = Markdown.parseResult(markdown);
       if (parsed._tag === "Failure") throw new Error("the markdown did not parse");
-      return parsed.success.children.filter((node) => node.type === "heading").map((node) => node.type);
+      return pipe(
+        parsed.success.children,
+        A.filter((node) => node.type === "heading"),
+        A.map((node) => node.type)
+      );
     };
 
     it.effect("every heading survives: a bare ## is not a command, so the facade leaves it alone", () =>
@@ -262,15 +267,17 @@ describe("the default failure report", () => {
     )
   );
 
-  const report = Effect.fn("report")(function* (env: Record<string, string>, message: string, withEnv = true) {
+  const report = Effect.fn("report")(function* (env: Record<string, string>, message: string, withEnv?: boolean) {
     const err: Array<string> = [];
     const double = Object.assign(Object.create(console), {
       log: () => undefined,
-      error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+      error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
     });
-    const program = Effect.suspend(() => Effect.fail(new TestError(message)));
+    const program = Effect.suspend(() => Effect.fail(TestError.make({ message })));
     yield* (
-      withEnv ? CliRuntime.main(program, { platform, env: {} }) : CliRuntime.main(program, { platform: Layer.empty })
+      withEnv === false
+        ? CliRuntime.main(program, { platform: Layer.empty })
+        : CliRuntime.main(program, { platform, env: {} })
     ).pipe(
       Effect.exit,
       Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env)),
@@ -289,7 +296,7 @@ describe("the default failure report", () => {
         for (const message of HOSTILE) {
           const err = yield* report(env, message);
           assert.deepStrictEqual(
-            commandLines(err.join("\n")),
+            commandLines(A.join(err, "\n")),
             [],
             `${Result.getOrThrow(S.encodeUnknownResult(Json)(env))} ${Result.getOrThrow(S.encodeUnknownResult(Json)(message))}`
           );
@@ -304,7 +311,7 @@ describe("the default failure report", () => {
       for (const message of HOSTILE) {
         const err = yield* report({ GITHUB_ACTIONS: "true" }, message, false);
         assert.deepStrictEqual(
-          commandLines(err.join("\n")),
+          commandLines(A.join(err, "\n")),
           [],
           Result.getOrThrow(S.encodeUnknownResult(Json)(message))
         );
@@ -317,7 +324,7 @@ describe("the default failure report", () => {
       const cause = Cause.fail(new Error(message));
       const lines = CliRuntime.defaultRender(Cause.squash(cause), { cause, isDefect: false });
       assert.deepStrictEqual(
-        commandLines((typeof lines === "string" ? [lines] : lines).join("\n")),
+        commandLines(A.join(typeof lines === "string" ? [lines] : lines, "\n")),
         [],
         Result.getOrThrow(S.encodeUnknownResult(Json)(message))
       );
@@ -327,7 +334,7 @@ describe("the default failure report", () => {
   it.effect("outside GitHub Actions the report is untouched: no zero-width space", () =>
     Effect.gen(function* () {
       const err = yield* report({ AI_AGENT: "x" }, "x\n::error::y");
-      assert.notInclude(err.join("\n"), ZWSP);
+      assert.notInclude(A.join(err, "\n"), ZWSP);
     })
   );
 });
@@ -337,7 +344,7 @@ it.layer(layers("agent", "none"), { timeout: "30 seconds" })(
   (it) => {
     const stackOf = (frames: ReadonlyArray<string>): Error => {
       const error = new Error("boom");
-      error.stack = ["Error: boom", ...frames.map((frame) => `    at ${frame}`)].join("\n");
+      error.stack = A.join(["Error: boom", ...A.map(frames, (frame) => `    at ${frame}`)], "\n");
       return error;
     };
     const plain = (doc: Document) => Effect.map(contextFor("agent", "none"), (ctx) => Render.plain(doc, ctx));

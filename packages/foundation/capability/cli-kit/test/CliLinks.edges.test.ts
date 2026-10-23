@@ -5,16 +5,22 @@ import { MemoryFileSystem } from "@beep/memfs";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { contextOf } from "./helpers/renderContext.ts";
 import type { CliLinksShape, EditorLinks, LinkTarget } from "@beep/cli-kit";
+
+/** A message part as `Array#join` writes it: a nullish part is empty. */
+const joinPart = (part: unknown): string => (P.isNullish(part) ? "" : String(part));
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -26,7 +32,7 @@ const ST = `${ESC}\\`;
 const warnings = (sink: Array<string>) =>
   Logger.layer([
     Logger.make(({ message }) => {
-      sink.push(Array.isArray(message) ? message.join(" ") : String(message));
+      sink.push(A.isArray(message) ? A.join(A.map(message, joinPart), " ") : String(message));
     }),
   ]);
 
@@ -144,7 +150,8 @@ describe("CliLinks.linker writes a URL as OSC 8 wants it: bytes outside 32 to 12
     };
     return CliLinks.linker({ links: l, hyperlinks: true, audience: "human" })({ url }, "label");
   };
-  const urlOf = (written: string): string => written.slice(OSC_OPEN.length, written.indexOf(ST));
+  const urlOf = (written: string): string =>
+    Str.slice(OSC_OPEN.length, O.getOrThrow(Str.indexOf(ST)(written)))(written);
 
   it("a non-ASCII URL is encoded as UTF-8 bytes", () => {
     assert.strictEqual(urlOf(write("https://x.test/é/日本")), "https://x.test/%C3%A9/%E6%97%A5%E6%9C%AC");
@@ -160,9 +167,9 @@ describe("CliLinks.linker writes a URL as OSC 8 wants it: bytes outside 32 to 12
   it("a lone surrogate cannot throw, and a control character is gone before it could end the sequence", () => {
     assert.doesNotThrow(() => write("https://x.test/\uD800"));
     const out = write(`https://x.test/a${ESC}\\b${BEL}c`);
-    assert.strictEqual(out.split(ESC).length - 1, 4, "exactly the two OSC 8 pairs' own escapes");
-    for (const byte of out.slice(OSC_OPEN.length, out.indexOf(ST)))
-      assert.isTrue(byte.charCodeAt(0) >= 32 && byte.charCodeAt(0) <= 126);
+    assert.strictEqual(Str.split(out, ESC).length - 1, 4, "exactly the two OSC 8 pairs' own escapes");
+    for (const byte of Str.slice(OSC_OPEN.length, O.getOrThrow(Str.indexOf(ST)(out)))(out))
+      assert.isTrue(O.exists(Str.charCodeAt(byte, 0), (code) => code >= 32 && code <= 126));
   });
 
   it("every character it writes between the escapes is printable ASCII", () => {
@@ -176,7 +183,10 @@ describe("CliLinks.linker writes a URL as OSC 8 wants it: bytes outside 32 to 12
     for (const url of samples) {
       const written = urlOf(write(url));
       for (const ch of written)
-        assert.isTrue(ch.charCodeAt(0) >= 32 && ch.charCodeAt(0) <= 126, `${JSON.stringify(url)} -> ${written}`);
+        assert.isTrue(
+          O.exists(Str.charCodeAt(ch, 0), (code) => code >= 32 && code <= 126),
+          `${JSON.stringify(url)} -> ${written}`
+        );
     }
   });
 });
@@ -191,7 +201,7 @@ describe("an invalid editor-links value is warned about once, like the audience 
         sink
       );
       assert.strictEqual(l.mode, "vscode", "the option, not the bad value");
-      assert.strictEqual(sink.length, 1, sink.join("\n"));
+      assert.strictEqual(sink.length, 1, A.join(sink, "\n"));
       assert.include(sink[0] ?? "", "TOOL_EDITOR_LINKS=emacs");
       assert.include(sink[0] ?? "", "auto|vscode|file|off");
     })

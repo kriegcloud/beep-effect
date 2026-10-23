@@ -10,9 +10,11 @@ it.effect("CliLog retains its runtime class identity", () =>
 
 import { CliEnv } from "@beep/cli-kit/CliEnv";
 import { envBuildLogLayer } from "@beep/cli-kit/CliLog";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as References from "effect/References";
@@ -32,7 +34,7 @@ it.layer(
         const captured: Console.Console = {
           ...console,
           error: (...args: ReadonlyArray<unknown>) => {
-            lines.push(args.map(String).join(" "));
+            lines.push(pipe(args, A.map(String), A.join(" ")));
           },
         };
         yield* Effect.withFiber((fiber) =>
@@ -68,7 +70,7 @@ it.layer(
       const captured: Console.Console = {
         ...console,
         error: (...args: ReadonlyArray<unknown>) => {
-          lines.push(args.map(String).join(" "));
+          lines.push(pipe(args, A.map(String), A.join(" ")));
         },
       };
       yield* Effect.withFiber((fiber) =>
@@ -96,7 +98,7 @@ it.layer(envBuildLogLayer({ format: "json" }), { timeout: "30 seconds" })((it) =
       const captured: Console.Console = {
         ...console,
         error: (...args: ReadonlyArray<unknown>) => {
-          lines.push(args.map(String).join(" "));
+          lines.push(pipe(args, A.map(String), A.join(" ")));
         },
       };
       yield* Effect.logInfo("quiet configuration").pipe(Effect.provideService(Console.Console, captured));

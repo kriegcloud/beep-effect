@@ -101,8 +101,8 @@ const indentOf = (indent: number | string | undefined): string => {
   if (indent === undefined) return "";
   // Floored and capped: `indent: 1e12` would make `repeat` throw a RangeError inside the log call.
   if (P.isNumber(indent))
-    return Number.isFinite(indent) && indent > 0 ? " ".repeat(Math.min(MAX_INDENT, Math.floor(indent))) : "";
-  return sanitize(indent).replace(/\r\n|\r|\n/g, "");
+    return Number.isFinite(indent) && indent > 0 ? Str.repeat(Math.min(MAX_INDENT, Math.floor(indent)))(" ") : "";
+  return Str.replace(/\r\n|\r|\n/g, "")(sanitize(indent));
 };
 
 /**
@@ -668,10 +668,10 @@ export class CliLog {
           const message = sanitize(
             A.isArray(record.message) ? pipe(record.message, A.map(String), A.join(" ")) : String(record.message)
           );
-          const name = record.logLevel.toUpperCase();
+          const name = Str.toUpperCase(record.logLevel);
           const levelText = paintStyle(LEVEL_STYLES[name] ?? {}, color, name);
           const cause = record.cause.reasons.length > 0 ? `\n${record.cause.pipe(Cause.pretty, sanitize)}` : "";
-          const line = `${record.date.toISOString().slice(11, 23)} ${levelText}${component} ${message}${cause}`;
+          const line = `${Str.slice(11, 23)(record.date.toISOString())} ${levelText}${component} ${message}${cause}`;
           return underActions ? CommandNeutralizer.text(line) : line;
         };
 

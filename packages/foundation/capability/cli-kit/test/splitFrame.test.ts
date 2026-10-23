@@ -1,11 +1,14 @@
 import { CliFailure } from "@beep/cli-kit";
 import { splitFrame } from "@beep/cli-kit/internal/splitFrame";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 /** The regular expression `splitFrame` replaced, kept here as the oracle for its exact behaviour. */
 const legacy = (raw: string): ReturnType<typeof splitFrame> => {
-  const text = raw.trim().replace(/^at\s+/, "");
+  const text = pipe(raw, Str.trim, Str.replace(/^at\s+/, ""));
   const wrapped = /^(.*?)\s+\((.*)\)$/.exec(text);
   const fn = wrapped?.[1];
   return {
@@ -19,7 +22,7 @@ const upTo = (alphabet: ReadonlyArray<string>, length: number): ReadonlyArray<st
   const out: Array<string> = [""];
   let frontier = [""];
   for (let n = 1; n <= length; n++) {
-    frontier = frontier.flatMap((prefix) => alphabet.map((ch) => prefix + ch));
+    frontier = A.flatMap(frontier, (prefix) => A.map(alphabet, (ch) => prefix + ch));
     for (const item of frontier) out.push(item);
   }
   return out;
@@ -54,17 +57,17 @@ describe("splitFrame", () => {
   });
 
   it("is linear: 100,000 tabs before an unclosed parenthesis returns at once, with the unsplit shape", () => {
-    const raw = `at x${"\t".repeat(100_000)}(a`;
+    const raw = `at x${Str.repeat(100_000)("\t")}(a`;
     const started = performance.now();
     const split = splitFrame(raw);
     const elapsed = performance.now() - started;
-    assert.deepStrictEqual(split, { text: raw.slice(3), location: raw.slice(3) });
+    assert.deepStrictEqual(split, { text: Str.slice(3)(raw), location: Str.slice(3)(raw) });
     assert.isBelow(elapsed, 500, `took ${elapsed} ms`);
   });
 
   it("is linear through CliFailure.toDoc too", () => {
     const error = new Error("m");
-    error.stack = `Error: m\n    at x${"\t".repeat(100_000)}(a`;
+    error.stack = `Error: m\n    at x${Str.repeat(100_000)("\t")}(a`;
     const started = performance.now();
     const doc = CliFailure.toDoc(Cause.die(error), { stackFrames: "all" });
     const elapsed = performance.now() - started;

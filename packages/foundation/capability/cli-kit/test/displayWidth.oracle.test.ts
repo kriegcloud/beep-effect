@@ -3,6 +3,9 @@
 
 import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 import stringWidth from "string-width";
 
 const OSC8 = "\u001b]8;;https://example.com\u0007link\u001b]8;;\u0007";
@@ -76,7 +79,7 @@ describe("displayWidth against string-width", () => {
       if (!assigned.test(ch)) continue;
       checked++;
       if (displayWidth(ch) !== stringWidth(ch)) {
-        mismatches.push(`U+${cp.toString(16).toUpperCase()} ours=${displayWidth(ch)} oracle=${stringWidth(ch)}`);
+        mismatches.push(`U+${Str.toUpperCase(cp.toString(16))} ours=${displayWidth(ch)} oracle=${stringWidth(ch)}`);
       }
     }
     // Well over the ~297,000 assigned code points outside the skipped ones: a sweep that quietly shrank would fail.
@@ -99,7 +102,11 @@ describe("displayWidth against string-width", () => {
   it("a seeded fuzz of 5,000 compositions agrees", () => {
     // Every curated string is an atom but the empty one. A free-standing combining mark glued after an emoji or
     // flag is the documented divergence, and none of these atoms is one.
-    const atoms = CURATED.map(([, text]) => text).filter((text) => text !== "");
+    const atoms = pipe(
+      CURATED,
+      A.map(([, text]) => text),
+      A.filter((text) => text !== "")
+    );
     // mulberry32, fixed seed: the run never varies.
     let state = 0x5eed1234;
     const next = (): number => {

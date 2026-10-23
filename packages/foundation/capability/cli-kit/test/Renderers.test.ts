@@ -1,8 +1,10 @@
 import { ConfigIssueRenderer } from "@beep/cli-kit/ConfigIssueRenderer";
 import { SchemaIssueRenderer } from "@beep/cli-kit/SchemaIssueRenderer";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 /** Decode strictly and hand back the raw issue tree. */
@@ -32,7 +34,7 @@ describe("SchemaIssueRenderer", () => {
       // Core's own phrasing is "Expected no excess property", which describes the
       // schema's rule rather than the mistake.
       assert.include(lines, "unknown key at ownr");
-      assert.notInclude(lines.join("\n"), "excess property");
+      assert.notInclude(A.join(lines, "\n"), "excess property");
     })
   );
 
@@ -49,11 +51,11 @@ describe("SchemaIssueRenderer", () => {
       const lines = SchemaIssueRenderer.render(yield* issueFrom(Config, { groups: { g: { repos: "not-an-array" } } }));
 
       assert.strictEqual(
-        lines.some((line) => line.includes("groups.g.repos")),
+        A.some(lines, (line) => Str.includes("groups.g.repos")(line)),
         true
       );
       assert.strictEqual(
-        lines.every((line) => !line.startsWith("unknown key")),
+        A.every(lines, (line) => !Str.startsWith("unknown key")(line)),
         true
       );
     })
@@ -74,7 +76,7 @@ describe("SchemaIssueRenderer", () => {
       // Undeduplicated, the union repeats the unknown-key line once per branch,
       // burying the three lines that say what was allowed.
       assert.lengthOf(
-        lines.filter((line) => line.startsWith("unknown key")),
+        A.filter(lines, (line) => Str.startsWith("unknown key")(line)),
         1
       );
     })

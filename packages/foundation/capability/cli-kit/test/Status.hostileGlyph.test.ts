@@ -3,10 +3,13 @@
 import { CliLog, CliLogger, CliMessage, CliTheme, Doc, Glyphs, Render, Status } from "@beep/cli-kit";
 import { Audience } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
+import * as Str from "effect/String";
 import type { AudienceKind } from "@beep/runtime-env";
 
 const ESC = String.fromCharCode(0x1b);
@@ -16,7 +19,7 @@ const HOSTILE = `${ESC}]8;;https://evil.example${BEL}!${ESC}]8;;${BEL}${ESC}[2A$
 const vocab = Status.extend({ evil: { glyph: HOSTILE, ascii: HOSTILE, token: "failure", rank: 95 } });
 
 /** What is left of a line once the kit's own SGR colour (ESC [ … m) is removed: nothing else may be an escape. */
-const withoutColour = (line: string): string => line.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "");
+const withoutColour = (line: string): string => Str.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "")(line);
 
 const assertNeutralised = (line: string, label: string): void => {
   assert.include(line, "!", `${label}: the mark itself is drawn`);
@@ -31,8 +34,8 @@ const run = Effect.fn("run")(function* (
 ) {
   const lines: Array<string> = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => lines.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => lines.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => lines.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => lines.push(pipe(args, A.map(String), A.join(" "))),
   });
   yield* effect.pipe(
     Effect.provide(Layer.mergeAll(CliTheme.layerTest({ color: "truecolor" }), Audience.layerTest(audience))),

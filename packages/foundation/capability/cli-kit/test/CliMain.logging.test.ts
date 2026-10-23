@@ -6,13 +6,16 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
 
@@ -39,8 +42,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -71,7 +74,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         );
         assert.deepStrictEqual(out, []);
         assert.isTrue(
-          err.some((line) => line.includes("platform built")),
+          A.some(err, (line) => Str.includes("platform built")(line)),
           Result.getOrThrow(S.encodeUnknownResult(Json)(err))
         );
       })
@@ -84,7 +87,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         yield* CliRuntime.main(Effect.void, { platform: chatty }).pipe(Effect.provideService(Console.Console, double));
         assert.deepStrictEqual(out, []);
         assert.isTrue(
-          err.some((line) => line.includes("platform built")),
+          A.some(err, (line) => Str.includes("platform built")(line)),
           Result.getOrThrow(S.encodeUnknownResult(Json)(err))
         );
       })
@@ -101,7 +104,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         platform: io,
         env: formatter === undefined ? {} : { formatter },
       }).pipe(Effect.provideService(Console.Console, double));
-      return out.join("\n");
+      return A.join(out, "\n");
     });
 
     it.effect("a custom formatVersion survives the formatter main installs", () =>
@@ -131,7 +134,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           env: { log: { level: "Debug", format: "json" } },
         }).pipe(Effect.provideService(Console.Console, double));
         assert.deepStrictEqual(out, []);
-        const records = err.filter((line) => line.includes("migration ran"));
+        const records = A.filter(err, (line) => Str.includes("migration ran")(line));
         assert.lengthOf(records, 1, Result.getOrThrow(S.encodeUnknownResult(Json)(err)));
         const record = Result.getOrThrow(S.decodeResult(LogRecord)(A.getUnsafe(records, 0)));
         assert.strictEqual(record.level, "DEBUG");
@@ -153,7 +156,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           )
         );
         assert.isTrue(
-          err.some((line) => line.includes("migration ran")),
+          A.some(err, (line) => Str.includes("migration ran")(line)),
           Result.getOrThrow(S.encodeUnknownResult(Json)(err))
         );
       })
@@ -165,7 +168,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         yield* CliRuntime.main(Effect.void, { platform: debugging, env: { log: { format: "json" } } }).pipe(
           Effect.provideService(Console.Console, double)
         );
-        assert.isFalse(err.some((line) => line.includes("migration ran")));
+        assert.isFalse(A.some(err, (line) => Str.includes("migration ran")(line)));
       })
     );
   });
@@ -194,7 +197,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env))
       );
       assert.deepStrictEqual(out, []);
-      const built = err.find((line) => line.includes("migration ran"));
+      const built = O.getOrUndefined(A.findFirst(err, Str.includes("migration ran")));
       assert.isDefined(built, Result.getOrThrow(S.encodeUnknownResult(Json)(err)));
       return { err, built };
     });
@@ -203,11 +206,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const { err } = yield* run({ AI_AGENT: "claude-code_x_agent" });
         assert.isTrue(
-          err.some((line) => line.includes("handler ran")),
+          A.some(err, (line) => Str.includes("handler ran")(line)),
           "control: the runtime line was written"
         );
         assert.deepStrictEqual(
-          err.filter((line) => !isJson(line)),
+          A.filter(err, (line) => !isJson(line)),
           []
         );
       })
@@ -251,11 +254,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         // The platform double's stdout is not a terminal, and stderr mirrors it: a human piping stderr to a file.
         const { err } = yield* run({});
         assert.isTrue(
-          err.some((line) => line.includes("handler ran")),
+          A.some(err, (line) => Str.includes("handler ran")(line)),
           "control: the runtime line was written"
         );
         assert.deepStrictEqual(
-          err.filter((line) => isJson(line)),
+          A.filter(err, (line) => isJson(line)),
           []
         );
       })
@@ -286,7 +289,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           Effect.provideService(Console.Console, double),
           Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}))
         );
-        const built = err.find((line) => line.includes("migration ran")) ?? "";
+        const built = O.getOrElse(A.findFirst(err, Str.includes("migration ran")), () => "");
         assert.isFalse(isJson(built), built);
       })
     );
@@ -295,7 +298,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   describe("CliRuntime.main: build-time lines are neutralized under GitHub Actions", () => {
     const injecting = Layer.mergeAll(io, Layer.effectDiscard(Effect.logWarning("build ##[warning]injected")));
     const commands = (lines: ReadonlyArray<string>) =>
-      lines.flatMap((line) => line.split(LINE_BREAK)).filter(isCommand);
+      pipe(
+        lines,
+        A.flatMap((line) => Str.split(line, LINE_BREAK)),
+        A.filter(isCommand)
+      );
     const run = Effect.fn("run")(function* (format: "auto" | "json" | "pretty", env: Record<string, string>) {
       const { double, err } = capturing();
       yield* CliRuntime.main(Effect.void, { platform: injecting, env: { log: { level: "Debug", format } } }).pipe(
@@ -310,7 +317,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         Effect.gen(function* () {
           const err = yield* run(format, { GITHUB_ACTIONS: "true", CI: "true" });
           assert.isTrue(
-            err.some((line) => line.includes("injected")),
+            A.some(err, (line) => Str.includes("injected")(line)),
             `the build line was written: ${Result.getOrThrow(S.encodeUnknownResult(Json)(err))}`
           );
           assert.deepStrictEqual(commands(err), [], Result.getOrThrow(S.encodeUnknownResult(Json)(err)));
@@ -327,7 +334,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
   describe("CliRuntime.main: the audience-override warning is neutralized under GitHub Actions", () => {
     const commands = (lines: ReadonlyArray<string>) =>
-      lines.flatMap((line) => line.split(LINE_BREAK)).filter(isCommand);
+      pipe(
+        lines,
+        A.flatMap((line) => Str.split(line, LINE_BREAK)),
+        A.filter(isCommand)
+      );
     const run = Effect.fn("run")(function* (format: "auto" | "json" | "pretty", env: Record<string, string>) {
       const { double, err } = capturing();
       yield* CliRuntime.main(Effect.void, {
@@ -349,7 +360,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
             TOOL_AUDIENCE: "##[error]injected\n::error::injected",
           });
           assert.isTrue(
-            err.some((line) => line.includes("TOOL_AUDIENCE")),
+            A.some(err, (line) => Str.includes("TOOL_AUDIENCE")(line)),
             `the warning was written: ${Result.getOrThrow(S.encodeUnknownResult(Json)(err))}`
           );
           assert.deepStrictEqual(commands(err), [], Result.getOrThrow(S.encodeUnknownResult(Json)(err)));
@@ -414,7 +425,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("agent with diagnostics on: still exactly one warning, in NDJSON", () =>
       Effect.gen(function* () {
         const err = yield* run({ ...AGENT, TOOL_AUDIENCE: "bogus" }, { level: "Debug" });
-        const warnings = err.filter((line) => line.includes("TOOL_AUDIENCE=bogus"));
+        const warnings = A.filter(err, (line) => Str.includes("TOOL_AUDIENCE=bogus")(line));
         assert.lengthOf(warnings, 1, Result.getOrThrow(S.encodeUnknownResult(Json)(err)));
         assert.isTrue(isJson(A.getUnsafe(warnings, 0)), warnings[0]);
       })
@@ -452,12 +463,12 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           );
           assert.deepStrictEqual(out, []);
           assert.strictEqual(
-            err.filter((line) => line.includes("TOOL_AUDIENCE=bogus")).length,
+            A.filter(err, (line) => Str.includes("TOOL_AUDIENCE=bogus")(line)).length,
             1,
             Result.getOrThrow(S.encodeUnknownResult(Json)(err))
           );
           assert.isFalse(
-            seen.some((line) => line.includes("TOOL_AUDIENCE")),
+            A.some(seen, (line) => Str.includes("TOOL_AUDIENCE")(line)),
             `not on the extra logger: ${Result.getOrThrow(S.encodeUnknownResult(Json)(seen))}`
           );
           // Control: the extra logger is installed and live for the run's own records.
@@ -466,7 +477,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
             env: { log: { logger: { stderrFrom: "Error" }, extraLoggers: [extra] } },
           }).pipe(Effect.provideService(Console.Console, capturing().double));
           assert.isTrue(
-            seen.some((line) => line.includes("run record")),
+            A.some(seen, (line) => Str.includes("run record")(line)),
             `control: the extra logger saw the run: ${Result.getOrThrow(S.encodeUnknownResult(Json)(seen))}`
           );
         })
@@ -489,16 +500,16 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
             Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ TOOL_AUDIENCE: "bogus" }))
           );
           assert.isTrue(
-            err.some((line) => line.includes("TOOL_AUDIENCE=bogus")),
+            A.some(err, (line) => Str.includes("TOOL_AUDIENCE=bogus")(line)),
             `the override warning is on stderr: ${Result.getOrThrow(S.encodeUnknownResult(Json)({ out, err }))}`
           );
-          assert.isFalse(out.some((line) => line.includes("TOOL_AUDIENCE")));
+          assert.isFalse(A.some(out, (line) => Str.includes("TOOL_AUDIENCE")(line)));
           // The host chose to route warnings below Error to stdout, and the platform's own build-time line honours it.
           assert.isTrue(
-            out.some((line) => line.includes("platform warned")),
+            A.some(out, (line) => Str.includes("platform warned")(line)),
             `the platform warning follows stderrFrom: ${Result.getOrThrow(S.encodeUnknownResult(Json)({ out, err }))}`
           );
-          assert.isFalse(err.some((line) => line.includes("platform warned")));
+          assert.isFalse(A.some(err, (line) => Str.includes("platform warned")(line)));
         })
     );
   });

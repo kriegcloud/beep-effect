@@ -271,7 +271,7 @@ export const linesOf: {
   (
     cause: Cause.Cause<unknown>,
     target: FailureTarget,
-    status = true,
+    status?: boolean,
     spans: SpanSetting | undefined = target.spans
   ): ReadonlyArray<string> => {
     const full = CliFailure.toDoc(cause, {
@@ -280,9 +280,9 @@ export const linesOf: {
       ...O.getSomesStruct({ spans: O.fromUndefinedOr(spans) }),
       ...O.getSomesStruct({ appModule: O.fromUndefinedOr(target.appModule) }),
     });
-    const doc = status ? full : withoutStatus(full);
+    const doc = status === false ? withoutStatus(full) : full;
     const text = Render[target.format](doc, target.ctx);
-    return text === "" ? [] : text.split("\n");
+    return text === "" ? [] : Str.split(text, "\n");
   }
 );
 

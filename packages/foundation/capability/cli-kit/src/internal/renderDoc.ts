@@ -1,7 +1,9 @@
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { Fmt, sanitize } from "../Fmt.ts";
 import { counterLabel, countsTableOf, totalOf, visibleCountersOf } from "./counts.ts";
 import { truncateSpans, widthOf, wrapSpans } from "./layout.ts";
@@ -113,7 +115,7 @@ export const trimLine = (line: Line): Line => {
   while (out.length > 0) {
     const last = A.getUnsafe(out, out.length - 1);
     if (last.hold === true) break;
-    const trimmed = last.text.trimEnd();
+    const trimmed = Str.trimEnd(last.text);
     if (trimmed === "") {
       out.pop();
       continue;
@@ -125,7 +127,7 @@ export const trimLine = (line: Line): Line => {
 };
 
 const oneLine = (spans: ReadonlyArray<Span>): ReadonlyArray<Span> =>
-  A.map(spans, (s) => ({ ...s, text: s.text.replace(/\r\n|\r|\n/g, " ") }));
+  A.map(spans, (s) => ({ ...s, text: Str.replace(/\r\n|\r|\n/g, " ")(s.text) }));
 
 /** Give every span without a token of its own this one. */
 const toned: {
@@ -145,7 +147,7 @@ const sliceSpans: {
   let left = end;
   for (const s of spans) {
     if (left <= 0) break;
-    out.push(s.text.length <= left ? s : { ...s, text: s.text.slice(0, left) });
+    out.push(s.text.length <= left ? s : { ...s, text: Str.slice(0, left)(s.text) });
     left -= s.text.length;
   }
   return out;
@@ -165,7 +167,7 @@ const sliceSpans: {
  * @since 0.0.0
  */
 export const textLines = (text: string): ReadonlyArray<string> => {
-  const lines = sanitize(text).split(/\r\n|\r|\n/);
+  const lines = Str.split(sanitize(text), /\r\n|\r|\n/);
   return lines.length > 1 && lines[lines.length - 1] === "" ? lines.slice(0, -1) : lines;
 };
 
@@ -193,7 +195,7 @@ const joinCells: {
     A.flatMap(cells, (cell, index) => (index === 0 ? cell : [span(separator), ...cell]))
 );
 
-const blank = (width: number): Span => span(" ".repeat(width));
+const blank = (width: number): Span => span(Str.repeat(width)(" "));
 
 type Align = "left" | "right" | "center";
 
@@ -300,10 +302,11 @@ const cellOf: {
   // CRLF run followed by more text, since it can read each CRLF as one break or two.
   let end = text.length;
   while (end > 0 && (text[end - 1] === "\n" || text[end - 1] === "\r")) end--;
-  const joined = text.slice(0, end);
-  const at = joined.search(/\r\n|\r|\n/);
-  if (at < 0) return sliceSpans(spans, joined.length);
-  return [...sliceSpans(spans, at), span(walk.ctx.glyphs.ellipsis, "muted")];
+  const joined = Str.slice(0, end)(text);
+  return O.match(Str.search(joined, /\r\n|\r|\n/), {
+    onNone: () => sliceSpans(spans, joined.length),
+    onSome: (at) => [...sliceSpans(spans, at), span(walk.ctx.glyphs.ellipsis, "muted")],
+  });
 });
 
 type TableBlock = Extract<Block, { readonly _tag: "Table" }>;
@@ -342,7 +345,7 @@ const tableLines: {
       )
     );
   const rule: Line = joinCells(
-    A.map(widths, (w) => [span("-".repeat(w), "muted")]),
+    A.map(widths, (w) => [span(Str.repeat(w)("-"), "muted")]),
     "  "
   );
 
@@ -354,7 +357,7 @@ const tableLines: {
       span(
         pipe(
           widths,
-          A.map((w, index) => "-".repeat(w + (index === 0 ? 1 : 2))),
+          A.map((w, index) => Str.repeat(w + (index === 0 ? 1 : 2))("-")),
           A.join("|")
         ),
         "muted"
@@ -468,7 +471,8 @@ const countsLayout: {
     (count?: number): (counter: Counter) => string;
   } = dual(
     (args) => P.isObjectKeyword(args[0]),
-    (counter: Counter, count?: number): string => sanitize(counterLabel(counter, count)).replace(/\r\n|\r|\n/g, " ")
+    (counter: Counter, count?: number): string =>
+      Str.replace(/\r\n|\r|\n/g, " ")(sanitize(counterLabel(counter, count)))
   );
   // The first counter is the headline: it shows its share of the total, and its label reads by that total
   // ("1/3 repos", not "1/3 repo"), as the noun counts the denominator.
@@ -523,7 +527,7 @@ const blockLines: {
   (block: Block, width: number, compact?: boolean): (walk: Walk) => ReadonlyArray<Line>;
 } = dual(
   (args) => P.hasProperty(args[0], "flavour"),
-  (walk: Walk, block: Block, width: number, compact = false): ReadonlyArray<Line> =>
+  (walk: Walk, block: Block, width: number, compact?: boolean): ReadonlyArray<Line> =>
     Match.valueTags(block, {
       Heading: (block): ReadonlyArray<Line> => [trimLine(toned(oneLine(inline(walk, block.content)), "emphasis"))],
       Paragraph: (block): ReadonlyArray<Line> => {
@@ -557,7 +561,7 @@ const blockLines: {
         ),
       ],
       Callout: (block): ReadonlyArray<Line> => {
-        const label = `${block.kind.toUpperCase()}:`;
+        const label = `${Str.toUpperCase(block.kind)}:`;
         const hanging = label.length + 1;
         const body = A.flatMap(block.body, (child) => blockLines(walk, child, width - hanging));
         const head = span(label, callouts[block.kind]);
@@ -581,12 +585,12 @@ const blockLines: {
             A.map((child) => blockLines(walk, child, width))
           ),
         ];
-        return A.flatMap(groups, (group, index) => (index === 0 || compact ? group : [[], ...group]));
+        return A.flatMap(groups, (group, index) => (index === 0 || compact === true ? group : [[], ...group]));
       },
       Counts: (block): ReadonlyArray<Line> => countsLines(walk, block),
       Verbatim: (block): ReadonlyArray<Line> => {
         // Kept exactly: sanitized line by line, indented, and never wrapped or cut.
-        const indent = " ".repeat(Math.max(0, Math.floor(block.indent ?? 0)));
+        const indent = Str.repeat(Math.max(0, Math.floor(block.indent ?? 0)))(" ");
         return A.map(textLines(block.text), (line) => [{ text: `${indent}${line}`, hold: true }]);
       },
       Annotation: (): ReadonlyArray<Line> => [],
@@ -609,7 +613,7 @@ const blockLines: {
         const shown = cap === undefined ? lines : lines.slice(0, cap);
         const hidden = lines.length - shown.length;
         const tone = (line: string): Tone | undefined =>
-          line.startsWith("+") ? "success" : line.startsWith("-") ? "failure" : undefined;
+          Str.startsWith("+")(line) ? "success" : Str.startsWith("-")(line) ? "failure" : undefined;
         const cut = (spans: Line): Line =>
           block.truncate === true ? truncateSpans(spans, width, walk.ctx.glyphs.ellipsis) : spans;
         return [

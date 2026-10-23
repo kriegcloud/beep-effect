@@ -3,14 +3,17 @@
 import { CliLog } from "@beep/cli-kit";
 import { TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as References from "effect/References";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Audience } from "@beep/runtime-env";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
@@ -22,8 +25,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -36,9 +39,11 @@ const records = Effect.gen(function* () {
 });
 
 const levelsOf = (lines: ReadonlyArray<string>): ReadonlyArray<string> =>
-  lines
-    .filter((line) => line.startsWith("{"))
-    .map((line) => Result.getOrThrow(S.decodeResult(LogLevelRecord)(line)).level);
+  pipe(
+    lines,
+    A.filter((line) => Str.startsWith("{")(line)),
+    A.map((line) => Result.getOrThrow(S.decodeResult(LogLevelRecord)(line)).level)
+  );
 
 /** Run `program` under a layer that needs nothing, with an optional env var and a captured Console. */
 const run = Effect.fn("run")(function* (
@@ -91,7 +96,7 @@ describe("CliLog.layer plainLogger: false (diagnostics only)", () => {
     Effect.gen(function* () {
       const { out, err } = yield* run(diagnosticsOnly({ level: "Info" }));
       assert.deepStrictEqual(levelsOf(err), ["INFO", "WARN", "ERROR"]);
-      assert.strictEqual(err.length, 3, err.join("\n"));
+      assert.strictEqual(err.length, 3, A.join(err, "\n"));
       assert.deepStrictEqual(out, []);
     })
   );
@@ -100,7 +105,7 @@ describe("CliLog.layer plainLogger: false (diagnostics only)", () => {
     Effect.gen(function* () {
       const { err } = yield* run(CliLog.layer({ format: "json", level: "Info" }));
       assert.deepStrictEqual(levelsOf(err), ["INFO", "WARN", "ERROR"]);
-      assert.strictEqual(err.length, 6, err.join("\n"));
+      assert.strictEqual(err.length, 6, A.join(err, "\n"));
     })
   );
 
@@ -144,8 +149,8 @@ describe("CliLog.layer level option", () => {
     Effect.gen(function* () {
       const { err } = yield* run(CliLog.layer({ format: "json", level: "Error", envVar: ENV }), { [ENV]: "bogus" });
       assert.isFalse(
-        err.some((line) => line.includes("bogus")),
-        err.join("\n")
+        A.some(err, (line) => Str.includes("bogus")(line)),
+        A.join(err, "\n")
       );
       assert.deepStrictEqual(levelsOf(err), ["ERROR"]);
     })
@@ -184,15 +189,15 @@ describe("CliLog.layer requirements follow the fixed format", () => {
         run(layer.pipe(Layer.provide(TerminalEnv.layerTest({ stderr: { isTerminal: true, color } }))));
       const painted = (yield* under("basic")).err;
       const plain = (yield* under("none")).err;
-      assert.strictEqual(painted.length, 3, painted.join("\n"));
-      assert.strictEqual(plain.length, 3, plain.join("\n"));
+      assert.strictEqual(painted.length, 3, A.join(painted, "\n"));
+      assert.strictEqual(plain.length, 3, A.join(plain, "\n"));
       assert.isTrue(
-        painted.every((line) => line.includes(ESC)),
-        painted.join("\n")
+        A.every(painted, (line) => Str.includes(ESC)(line)),
+        A.join(painted, "\n")
       );
       assert.isFalse(
-        plain.some((line) => line.includes(ESC)),
-        plain.join("\n")
+        A.some(plain, (line) => Str.includes(ESC)(line)),
+        A.join(plain, "\n")
       );
       assert.match(plain[0] ?? "", /^\d\d:\d\d:\d\d\.\d{3} INFO i$/);
     })

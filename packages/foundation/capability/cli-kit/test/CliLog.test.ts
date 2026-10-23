@@ -3,21 +3,24 @@ import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
 // @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Runtime from "effect/Runtime";
+import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
 import type { CliLogFile, CliLoggerOptions } from "@beep/cli-kit";
@@ -41,11 +44,10 @@ const platformServices = Layer.mergeAll(
   )
 );
 
-class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
+class TestError extends S.TaggedError<TestError, { readonly brand: unique symbol }>()("TestError", {
+  message: S.String,
+}) {
   override readonly name = "Error";
-  constructor(message: string, options?: { readonly cause?: unknown }) {
-    super({ message, ...options });
-  }
 }
 
 const ENV = "VITEST_REPORTER_LOG_LEVEL";
@@ -54,8 +56,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -100,10 +102,11 @@ const both = Effect.gen(function* () {
 });
 
 /** The sink's NDJSON lines: CliLogger's plain lines share stderr, so a parser reads the lines that start with `{`. */
-const ndjson = (lines: ReadonlyArray<string>): ReadonlyArray<string> => lines.filter((line) => line.startsWith("{"));
+const ndjson = (lines: ReadonlyArray<string>): ReadonlyArray<string> =>
+  A.filter(lines, (line) => Str.startsWith("{")(line));
 /** The sink's pretty lines: a time, a level, then the message. */
 const pretty = (lines: ReadonlyArray<string>): ReadonlyArray<string> =>
-  lines.filter((line) => /^\d\d:\d\d:\d\d\.\d{3} /.test(line));
+  A.filter(lines, (line) => /^\d\d:\d\d:\d\d\.\d{3} /.test(line));
 
 const json = (line: string): { level: string; message: unknown; annotations: Record<string, unknown> } =>
   JSON.parse(line);
@@ -133,11 +136,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         assert.deepStrictEqual(out, []);
         assert.strictEqual(ndjson(err).length, 2);
         assert.deepStrictEqual(
-          ndjson(err).map((l) => json(l).level),
+          A.map(ndjson(err), (l) => json(l).level),
           ["DEBUG", "ERROR"]
         );
         assert.deepStrictEqual(
-          ndjson(err).map((l) => json(l).message),
+          A.map(ndjson(err), (l) => json(l).message),
           ["dbg", "boom"]
         );
       })
@@ -170,7 +173,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           { env: { [ENV]: "warn" } }
         );
         assert.deepStrictEqual(
-          ndjson(err).map((l) => json(l).level),
+          A.map(ndjson(err), (l) => json(l).level),
           ["WARN", "ERROR"]
         );
       })
@@ -182,7 +185,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           env: { [ENV]: "debug" },
         });
         assert.deepStrictEqual(
-          ndjson(err).map((l) => json(l).message),
+          A.map(ndjson(err), (l) => json(l).message),
           ["boom"]
         );
       })
@@ -200,7 +203,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         ["trace", ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"]],
       ];
       for (const [value, expected] of cases) {
-        it.effect(`${value} => ${expected.join(",") || "nothing"}`, () =>
+        it.effect(`${value} => ${A.join(expected, ",") || "nothing"}`, () =>
           Effect.gen(function* () {
             const { err } = yield* capture(
               Effect.gen(function* () {
@@ -214,7 +217,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
               { env: { [ENV]: value } }
             );
             assert.deepStrictEqual(
-              ndjson(err).map((l) => json(l).level),
+              A.map(ndjson(err), (l) => json(l).level),
               expected
             );
           })
@@ -227,10 +230,10 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const { err } = yield* capture(Effect.logError("boom"), { env: { [ENV]: "bogus" } });
         // The one line is the plain CliLogger warning and "boom" (an Info-or-above record) printed by CliLogger;
         // nothing is written as NDJSON by the sink.
-        assert.strictEqual(err.filter((l) => l.includes("bogus")).length, 1, err.join("\n"));
+        assert.strictEqual(A.filter(err, (l) => Str.includes("bogus")(l)).length, 1, A.join(err, "\n"));
         assert.deepStrictEqual(ndjson(err), []);
         assert.deepStrictEqual(
-          err.filter((l) => !l.includes("bogus")),
+          A.filter(err, (l) => !Str.includes("bogus")(l)),
           ["boom"]
         );
       })
@@ -257,7 +260,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const { err } = yield* capture(one, { env, audience: "human", stderrTty: false, color: "none" });
         assert.match(pretty(err)[0] ?? "", /INFO hello$/);
         assert.deepStrictEqual(ndjson(err), []);
-        assert.notInclude(err.join("\n"), "\x1b");
+        assert.notInclude(A.join(err, "\n"), "\x1b");
       })
     );
 
@@ -318,7 +321,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   });
 
   describe("CliLog owns the logger set", () => {
-    const boom = Command.make("boom", {}, () => Effect.fail(new TestError("boom")));
+    const boom = Command.make("boom", {}, () => Effect.fail(TestError.make({ message: "boom" })));
     const inside = Command.make("inside", {}, () => Effect.logDebug("inside"));
     const app = Command.make("tool").pipe(Command.withSubcommands([boom, inside]));
 
@@ -345,13 +348,15 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
     // Neither the diagnostics default nor `--log-level none` may silence the failure report.
     for (const argv of [["boom"], ["--log-level", "none", "boom"]]) {
-      it.effect(`a failure is still reported, once and plain, with the diagnostics level None: ${argv.join(" ")}`, () =>
-        Effect.gen(function* () {
-          const { out, err, code } = yield* runMain(argv);
-          assert.deepStrictEqual(err, ["[FAIL] Error: boom"]);
-          assert.deepStrictEqual(out, []);
-          assert.strictEqual(code, 1);
-        })
+      it.effect(
+        `a failure is still reported, once and plain, with the diagnostics level None: ${A.join(argv, " ")}`,
+        () =>
+          Effect.gen(function* () {
+            const { out, err, code } = yield* runMain(argv);
+            assert.deepStrictEqual(err, ["[FAIL] Error: boom"]);
+            assert.deepStrictEqual(out, []);
+            assert.strictEqual(code, 1);
+          })
       );
     }
 
@@ -359,7 +364,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const { err } = yield* runMain(["inside"], { [ENV]: "debug" });
         // One NDJSON line from the sink. CliLogger keeps the threshold it had and prints nothing for a debug record.
-        assert.strictEqual(err.length, 1, err.join("\n"));
+        assert.strictEqual(err.length, 1, A.join(err, "\n"));
         assert.strictEqual(json(err[0] ?? "").level, "DEBUG");
       })
     );
@@ -369,14 +374,14 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const { err, code } = yield* runMain(["boom"], { [ENV]: "debug" });
         assert.strictEqual(code, 1);
         assert.include(err, "[FAIL] Error: boom");
-        assert.isTrue(ndjson(err).some((line) => json(line).level === "ERROR"));
+        assert.isTrue(A.some(ndjson(err), (line) => json(line).level === "ERROR"));
       })
     );
 
     it.effect("--log-level debug: the sink follows the flag, with the diagnostics level still None", () =>
       Effect.gen(function* () {
         const { err } = yield* runMain(["--log-level", "debug", "inside"]);
-        assert.isTrue(ndjson(err).some((line) => json(line).message === "inside"));
+        assert.isTrue(A.some(ndjson(err), (line) => json(line).message === "inside"));
       })
     );
 
@@ -412,7 +417,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         it.effect(`${label}: the sink records a debug record and CliLogger stays quiet; the failure is reported`, () =>
           Effect.gen(function* () {
             const debug = yield* runMain(["inside"], { [ENV]: "debug" }, wiring());
-            assert.strictEqual(debug.err.length, 1, debug.err.join("\n"));
+            assert.strictEqual(debug.err.length, 1, A.join(debug.err, "\n"));
             assert.strictEqual(json(debug.err[0] ?? "").level, "DEBUG");
             const failed = yield* runMain(["boom"], {}, wiring());
             assert.deepStrictEqual(failed.err, ["[FAIL] Error: boom"]);
@@ -502,9 +507,9 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           { env, audience: "human", stderrTty: true }
         );
         // Outside the flag the build-time audience (human on a TTY) gives pretty; inside it, agent gives NDJSON.
-        assert.match(pretty(err).join("\n"), /INFO outside$/);
+        assert.match(A.join(pretty(err), "\n"), /INFO outside$/);
         assert.deepStrictEqual(
-          ndjson(err).map((line) => json(line).message),
+          A.map(ndjson(err), (line) => json(line).message),
           ["hello"]
         );
       })
@@ -513,7 +518,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("and the reverse: an agent build with --human in force gets pretty", () =>
       Effect.gen(function* () {
         const { err } = yield* capture(inside("human"), { env, audience: "agent", stderrTty: true });
-        assert.match(pretty(err).join("\n"), /INFO hello$/);
+        assert.match(A.join(pretty(err), "\n"), /INFO hello$/);
         assert.deepStrictEqual(ndjson(err), []);
       })
     );
@@ -521,7 +526,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
     it.effect("an explicit format is never overridden by the audience in force", () =>
       Effect.gen(function* () {
         const { err } = yield* capture(inside("agent"), { env, audience: "human", stderrTty: true, format: "pretty" });
-        assert.match(pretty(err).join("\n"), /INFO hello$/);
+        assert.match(A.join(pretty(err), "\n"), /INFO hello$/);
       })
     );
   });
@@ -537,7 +542,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         ...(neutralize === undefined ? {} : { neutralize }),
       }).pipe(Layer.provide(CurrentRuntimeEnv.layerTest({ ci: O.some("github-actions") })));
     const commands = (lines: ReadonlyArray<string>) =>
-      lines.flatMap((line) => line.split(LINE_BREAK)).filter(isCommand);
+      pipe(
+        lines,
+        A.flatMap((line) => Str.split(line, LINE_BREAK)),
+        A.filter(isCommand)
+      );
     const written = Effect.fn("written")(function* (layer: Layer.Layer<never>) {
       const { double, err } = capturing();
       yield* hostile.pipe(Effect.provide(layer), Effect.provideService(Console.Console, double));
@@ -566,7 +575,11 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
   describe("CliLog.layer's runtimeEnv option (A9)", () => {
     const hostile = Effect.logWarning("::error::injected\n##[warning]also");
     const commands = (lines: ReadonlyArray<string>) =>
-      lines.flatMap((line) => line.split(LINE_BREAK)).filter(isCommand);
+      pipe(
+        lines,
+        A.flatMap((line) => Str.split(line, LINE_BREAK)),
+        A.filter(isCommand)
+      );
     const actions = RuntimeEnv.fromRecord({ GITHUB_ACTIONS: "true" });
     const local = RuntimeEnv.fromRecord({});
     const written = Effect.fn("written")(function* (layer: Layer.Layer<never>, inFiber?: RuntimeEnv) {
@@ -624,7 +637,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         true satisfies Same<RIn<ReturnType<typeof autoNoFile>>, Audience | TerminalEnv>,
         true satisfies Same<RIn<ReturnType<typeof autoMaybe>>, Audience | TerminalEnv | Fs>,
       ];
-      assert.isTrue(checks.every(Boolean));
+      assert.isTrue(A.every(checks, Boolean));
       assert.isUndefined(maybe);
     });
   });
@@ -651,9 +664,13 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
               yield* Effect.logWarning("::error::injected").pipe(Effect.provideService(Console.Console, double));
               assert.isAtLeast(err.length, 2, "the plain line and the NDJSON line were both written");
               assert.deepStrictEqual(
-                err.flatMap((line) => line.split(LINE_BREAK)).filter(isCommand),
+                pipe(
+                  err,
+                  A.flatMap((line) => Str.split(line, LINE_BREAK)),
+                  A.filter(isCommand)
+                ),
                 [],
-                err.join(" | ")
+                A.join(err, " | ")
               );
             })
         );
@@ -670,9 +687,14 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
           Effect.gen(function* () {
             yield* Effect.logWarning("::error::injected").pipe(Effect.provideService(Console.Console, double));
             // The plain line is the one a `::` command could open: an NDJSON line starts with `{`.
-            assert.deepStrictEqual(err.flatMap((line) => line.split(LINE_BREAK)).filter(isCommand), [
-              "::error::injected",
-            ]);
+            assert.deepStrictEqual(
+              pipe(
+                err,
+                A.flatMap((line) => Str.split(line, LINE_BREAK)),
+                A.filter(isCommand)
+              ),
+              ["::error::injected"]
+            );
           })
         );
       });

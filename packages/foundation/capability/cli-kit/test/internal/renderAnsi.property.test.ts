@@ -10,6 +10,9 @@ import { Doc } from "@beep/cli-kit/Doc";
 import { sanitize } from "@beep/cli-kit/Fmt";
 import { renderAnsi } from "@beep/cli-kit/internal/renderAnsi";
 import { Render } from "@beep/cli-kit/Render";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const ctx = Render.contextOf({ audience: "agent", color: "none" });
 it.effect.prop(
@@ -21,15 +24,11 @@ it.effect.prop(
       const rendered = renderAnsi([Doc.verbatim(input)], ctx);
       assert.strictEqual(
         rendered,
-        input
-          .replace(/\r\n|\r/g, "\n")
-          .split("\n")
-          .map(sanitize)
-          .join("\n")
+        pipe(input, Str.replace(/\r\n|\r/g, "\n"), Str.split("\n"), A.map(sanitize), A.join("\n"))
       );
       assert.strictEqual(renderAnsi([Doc.verbatim(rendered)], ctx), rendered);
-      const parsed = rendered.split("\n");
-      assert.deepStrictEqual(renderAnsi([Doc.verbatim(parsed.join("\n"))], ctx).split("\n"), parsed);
+      const parsed = Str.split(rendered, "\n");
+      assert.deepStrictEqual(Str.split(renderAnsi([Doc.verbatim(A.join(parsed, "\n"))], ctx), "\n"), parsed);
     }),
   runs
 );
@@ -38,7 +37,7 @@ it.effect.prop(
   [Arbitrary.schema(S.String)],
   ([text]) =>
     Effect.sync(() => {
-      const label = `label ${sanitize(text).replace(/\r|\n/g, " ")} end`;
+      const label = `label ${Str.replace(/\r|\n/g, " ")(sanitize(text))} end`;
       const target = "https://example.com/details";
       const rendered = renderAnsi([Doc.paragraph(Doc.link({ url: target }, label))], ctx);
       assert.strictEqual(rendered, `${label} (${target})`);
@@ -52,7 +51,7 @@ it.effect.prop(
   [Arbitrary.schema(S.String), Arbitrary.schema(S.Literals(["basic", "256", "truecolor"]))],
   ([text, color]) =>
     Effect.sync(() => {
-      const safe = `prefix ${sanitize(text).replace(/[\r\n]/g, " ")} suffix`;
+      const safe = `prefix ${Str.replace(/[\r\n]/g, " ")(sanitize(text))} suffix`;
       const human = Render.contextOf({ audience: "human", color });
       const document = (value: string) => [Doc.paragraph(Doc.strong(Doc.text(value, "accent")))];
       const painted = renderAnsi(document(safe), human);

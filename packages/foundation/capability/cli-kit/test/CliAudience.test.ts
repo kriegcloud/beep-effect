@@ -3,6 +3,7 @@ import { MemoryFileSystem } from "@beep/memfs";
 import { Audience } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Argument from "effect/cli/Argument";
@@ -10,11 +11,14 @@ import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Runtime from "effect/Runtime";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
 
 const memoryPlatform = (fs: FileSystem.FileSystem) =>
@@ -39,8 +43,8 @@ const capturing = () => {
   const out: string[] = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
-    log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),
-    error: (...args: ReadonlyArray<unknown>) => err.push(args.map(String).join(" ")),
+    log: (...args: ReadonlyArray<unknown>) => out.push(pipe(args, A.map(String), A.join(" "))),
+    error: (...args: ReadonlyArray<unknown>) => err.push(pipe(args, A.map(String), A.join(" "))),
   });
   return { double, out, err };
 };
@@ -135,7 +139,7 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
             assert.strictEqual(code, 64);
             assert.deepStrictEqual(out, [], "a usage error writes nothing to stdout");
             assert.deepStrictEqual(seen, [], "the handler never runs");
-            assert.strictEqual(err.length, 1, err.join("\n"));
+            assert.strictEqual(err.length, 1, A.join(err, "\n"));
             assert.include(err[0], "Give at most one of --audience, --human, --agent, --ci (once).");
           })
         );
@@ -159,8 +163,8 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
           const { code, out, err } = yield* run(["--agent", "--ci", "--help"]);
           assert.strictEqual(code, 0);
           assert.isTrue(
-            out.some((line) => line.includes("USAGE")),
-            out.join("\n")
+            A.some(out, (line) => Str.includes("USAGE")(line)),
+            A.join(out, "\n")
           );
           assert.deepStrictEqual(err, []);
         })
@@ -169,11 +173,16 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
     it.effect("--audience's help line lists the choices exactly once: core's (choices: …), no placeholder list", () =>
       Effect.gen(function* () {
         const { out } = yield* run(["--help"]);
-        const line =
-          out.flatMap((text) => text.split("\n")).find((text) => text.trimStart().startsWith("--audience")) ?? "";
+        const line = O.getOrElse(
+          A.findFirst(
+            A.flatMap(out, (text) => Str.split(text, "\n")),
+            (text) => pipe(text, Str.trimStart, Str.startsWith("--audience"))
+          ),
+          () => ""
+        );
         // The whole line names the choices once: core's "(choices: human, agent, ci)", and no placeholder list of its own.
         assert.include(line, "(choices: human, agent, ci)", line);
-        assert.lengthOf(line.match(/human/g) ?? [], 1, line);
+        assert.lengthOf(A.fromIterable(Str.matchAll(/human/g)(line)), 1, line);
       })
     );
 
@@ -182,14 +191,14 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
         Effect.gen(function* () {
           const visible = yield* run(["--help"]);
           assert.isTrue(
-            visible.out.some((line) => line.includes("--audience")),
+            A.some(visible.out, (line) => Str.includes("--audience")(line)),
             "control: shown when not hidden"
           );
           const hidden = yield* run(["--help"], { hidden: true });
           assert.strictEqual(hidden.code, 0);
-          assert.isFalse(hidden.out.some((line) => line.includes("--audience")));
+          assert.isFalse(A.some(hidden.out, (line) => Str.includes("--audience")(line)));
           for (const flag of ["--human", "--agent", "--ci"]) {
-            assert.isFalse(hidden.out.some((line) => line.includes(flag)));
+            assert.isFalse(A.some(hidden.out, (line) => Str.includes(flag)(line)));
           }
         })
       );
