@@ -143,32 +143,32 @@ export type CliEnvServices = CurrentRuntimeEnv | TerminalEnv | Audience | CliThe
  */
 export const CliEnvTestOptions = S.Struct({
   /** Whether standard input, output and error are all terminals; `false` by default, as for a pipe. */
-  tty: S.optionalKey(S.Boolean).pipe(
+  tty: S.optional(S.Boolean).pipe(
     $I.annoteKey("CliEnvTestOptions.tty", { description: "Whether all three standard streams are terminals." })
   ),
   /**
    * The `TERM` the layer's own builds read: `dumb` makes a terminal not interactive and, with the theme's glyphs at
    * `auto`, draws ASCII. Unset by default, whatever the host's `TERM` is.
    */
-  term: S.optionalKey(S.String).pipe(
+  term: S.optional(S.String).pipe(
     $I.annoteKey("CliEnvTestOptions.term", { description: "The TERM answer read by this test environment." })
   ),
   /** The audience; `human` by default. */
-  audience: S.optionalKey(AudienceKind).pipe(
+  audience: S.optional(AudienceKind).pipe(
     $I.annoteKey("CliEnvTestOptions.audience", { description: "The fixed audience of the test run." })
   ),
   /** The width of the terminal, in columns; none by default, so a width falls back to the reader's (80). */
-  columns: S.optionalKey(S.Finite).pipe(
+  columns: S.optional(S.Finite).pipe(
     $I.annoteKey("CliEnvTestOptions.columns", {
       description: "The terminal width answer, preserved exactly as supplied.",
     })
   ),
   /** The colour level of both stdout and stderr; `none` by default. Fixed as given: `term` does not change it. */
-  color: S.optionalKey(ColorLevel).pipe(
+  color: S.optional(ColorLevel).pipe(
     $I.annoteKey("CliEnvTestOptions.color", { description: "Fixed colour support for stdout and stderr." })
   ),
   /** Options for the theme, as {@link CliEnvOptions.theme}; its glyphs are `auto` by default, so `term` decides. */
-  theme: S.optionalKey(CliThemeOptions).pipe(
+  theme: S.optional(CliThemeOptions).pipe(
     $I.annoteKey("CliEnvTestOptions.theme", { description: "Token and glyph overrides for the test theme." })
   ),
 }).pipe(

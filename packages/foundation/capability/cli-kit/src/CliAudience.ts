@@ -110,7 +110,7 @@ export const CliAudienceFlagsOptions = S.Struct({
    * Hide all four flags from every help screen. They still parse and resolve; describe them in the root
    * command's description instead.
    */
-  hidden: S.optionalKey(S.Boolean).pipe(
+  hidden: S.optional(S.Boolean).pipe(
     $I.annoteKey("CliAudienceFlagsOptions.hidden", {
       description: "Hide the audience flags without changing parsing or resolution.",
     })

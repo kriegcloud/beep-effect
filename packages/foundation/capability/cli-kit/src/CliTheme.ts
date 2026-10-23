@@ -100,11 +100,11 @@ export interface StreamTheme {
  */
 export const CliThemeOptions = S.Struct({
   /** Styles that replace the default of a token. */
-  tokens: S.optionalKey(S.Record(TokenName, S.optionalKey(Style))).pipe(
+  tokens: S.optional(S.Record(TokenName, S.optionalKey(Style))).pipe(
     $I.annoteKey("CliThemeOptions.tokens", { description: "Partial replacements for default semantic token styles." })
   ),
   /** The glyph set. `auto`, the default, is ASCII only when `TERM=dumb`. */
-  glyphs: S.optionalKey(S.Literals(["unicode", "ascii", "auto"])).pipe(
+  glyphs: S.optional(S.Literals(["unicode", "ascii", "auto"])).pipe(
     $I.annoteKey("CliThemeOptions.glyphs", { description: "Glyph selection, with auto following TERM." })
   ),
 }).pipe(
@@ -137,17 +137,17 @@ export type CliThemeOptions = typeof CliThemeOptions.Type;
  */
 export const CliThemeTestOptions = S.Struct({
   /** The stdout colour level; `none` by default. */
-  color: S.optionalKey(ColorLevel).pipe(
+  color: S.optional(ColorLevel).pipe(
     $I.annoteKey("CliThemeTestOptions.color", { description: "Fixed stdout colour support." })
   ),
   /** The stderr colour level; the same as `color` by default. */
-  stderrColor: S.optionalKey(ColorLevel).pipe(
+  stderrColor: S.optional(ColorLevel).pipe(
     $I.annoteKey("CliThemeTestOptions.stderrColor", {
       description: "Fixed stderr colour support, defaulting to stdout.",
     })
   ),
   /** The glyph set; Unicode by default. */
-  glyphs: S.optionalKey(S.Literals(["unicode", "ascii"])).pipe(
+  glyphs: S.optional(S.Literals(["unicode", "ascii"])).pipe(
     $I.annoteKey("CliThemeTestOptions.glyphs", { description: "The fixed glyph set used by a test." })
   ),
 }).pipe(

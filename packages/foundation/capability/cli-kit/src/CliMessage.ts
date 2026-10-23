@@ -33,7 +33,7 @@ export const CliMessageOptions = S.Struct({
    * Where the line goes. Defaults to stderr for a status whose rank is at or above `warning`'s in its
    * vocabulary, stdout otherwise.
    */
-  stream: S.optionalKey(S.Literals(["stdout", "stderr"])).pipe(
+  stream: S.optional(S.Literals(["stdout", "stderr"])).pipe(
     $I.annoteKey("CliMessageOptions.stream", { description: "The output stream override for a status line." })
   ),
 }).pipe($I.annoteSchema("CliMessageOptions", { description: "Plain output routing options for a status message." }));
@@ -114,7 +114,9 @@ export abstract class CliMessage {
       options?: CliMessageOptions
     ): (vocab: Status<N>) => Effect.fn.Return<void, never, CliTheme | Audience>;
   } = dual(
-    4,
+    // The options are optional, so the arity cannot tell `status(vocab, name, text)` from the data-last
+    // `status(name, text, options)`: a vocabulary in first position is the data-first call.
+    (args) => args[0] instanceof Status,
     Effect.fn("status")(function* <N extends string>(
       vocab: Status<N>,
       name: N,
