@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-23T21:11:01.900Z",
+  "generatedAt": "2026-10-23T21:38:53.766Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -66,7 +66,7 @@
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
     "publicModules": 3588,
-    "publicExports": 25253,
+    "publicExports": 25254,
     "openModules": 542,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -31570,8 +31570,8 @@
           "exportKind": "class",
           "filePath": "src/FileDiff.schema.ts",
           "repoPath": "packages/foundation/modeling/schema/src/FileDiff.schema.ts",
-          "line": 67,
-          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-67-added",
+          "line": 50,
+          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-50-added",
           "currentTags": [
             "@category",
             "@since"
@@ -31598,8 +31598,8 @@
           "exportKind": "class",
           "filePath": "src/FileDiff.schema.ts",
           "repoPath": "packages/foundation/modeling/schema/src/FileDiff.schema.ts",
-          "line": 101,
-          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-101-deleted",
+          "line": 84,
+          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-84-deleted",
           "currentTags": [
             "@category",
             "@since"
@@ -31626,8 +31626,8 @@
           "exportKind": "class",
           "filePath": "src/FileDiff.schema.ts",
           "repoPath": "packages/foundation/modeling/schema/src/FileDiff.schema.ts",
-          "line": 136,
-          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-136-modified",
+          "line": 119,
+          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-119-modified",
           "currentTags": [
             "@category",
             "@since"
@@ -31654,8 +31654,8 @@
           "exportKind": "const",
           "filePath": "src/FileDiff.schema.ts",
           "repoPath": "packages/foundation/modeling/schema/src/FileDiff.schema.ts",
-          "line": 170,
-          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-170-info",
+          "line": 153,
+          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-153-info",
           "currentTags": [
             "@category",
             "@since"
@@ -31682,8 +31682,8 @@
           "exportKind": "type",
           "filePath": "src/FileDiff.schema.ts",
           "repoPath": "packages/foundation/modeling/schema/src/FileDiff.schema.ts",
-          "line": 192,
-          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-192-info",
+          "line": 175,
+          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-175-info",
           "currentTags": [
             "@category",
             "@since"
@@ -31710,8 +31710,8 @@
           "exportKind": "namespace",
           "filePath": "src/FileDiff.schema.ts",
           "repoPath": "packages/foundation/modeling/schema/src/FileDiff.schema.ts",
-          "line": 210,
-          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-210-info",
+          "line": 193,
+          "anchor": "packages-foundation-modeling-schema-src-filediff-schema-ts-193-info",
           "currentTags": [
             "@category",
             "@since"
@@ -200191,8 +200191,8 @@
           "exportKind": "class",
           "filePath": "src/Transport.ts",
           "repoPath": "packages/foundation/capability/api-transport/src/Transport.ts",
-          "line": 280,
-          "anchor": "packages-foundation-capability-api-transport-src-transport-ts-280-apitransportoptions",
+          "line": 283,
+          "anchor": "packages-foundation-capability-api-transport-src-transport-ts-283-apitransportoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -200219,8 +200219,8 @@
           "exportKind": "interface",
           "filePath": "src/Transport.ts",
           "repoPath": "packages/foundation/capability/api-transport/src/Transport.ts",
-          "line": 357,
-          "anchor": "packages-foundation-capability-api-transport-src-transport-ts-357-apitransport",
+          "line": 360,
+          "anchor": "packages-foundation-capability-api-transport-src-transport-ts-360-apitransport",
           "currentTags": [
             "@category",
             "@since"
@@ -200247,8 +200247,8 @@
           "exportKind": "const",
           "filePath": "src/Transport.ts",
           "repoPath": "packages/foundation/capability/api-transport/src/Transport.ts",
-          "line": 398,
-          "anchor": "packages-foundation-capability-api-transport-src-transport-ts-398-makeapitransport",
+          "line": 401,
+          "anchor": "packages-foundation-capability-api-transport-src-transport-ts-401-makeapitransport",
           "currentTags": [
             "@category",
             "@since"
@@ -343501,8 +343501,8 @@
           "exportKind": "interface",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 76,
-          "anchor": "packages-drivers-github-src-githubclient-ts-76-githubclientshape",
+          "line": 77,
+          "anchor": "packages-drivers-github-src-githubclient-ts-77-githubclientshape",
           "currentTags": [
             "@public",
             "@category",
@@ -343524,8 +343524,8 @@
           "exportKind": "class",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 210,
-          "anchor": "packages-drivers-github-src-githubclient-ts-210-githubclientoptions",
+          "line": 211,
+          "anchor": "packages-drivers-github-src-githubclient-ts-211-githubclientoptions",
           "currentTags": [
             "@public",
             "@category",
@@ -343547,8 +343547,8 @@
           "exportKind": "namespace",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 254,
-          "anchor": "packages-drivers-github-src-githubclient-ts-254-githubclientoptions",
+          "line": 255,
+          "anchor": "packages-drivers-github-src-githubclient-ts-255-githubclientoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -343569,8 +343569,8 @@
           "exportKind": "class",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 286,
-          "anchor": "packages-drivers-github-src-githubclient-ts-286-recordedcall",
+          "line": 287,
+          "anchor": "packages-drivers-github-src-githubclient-ts-287-recordedcall",
           "currentTags": [
             "@public",
             "@category",
@@ -343592,8 +343592,8 @@
           "exportKind": "class",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 357,
-          "anchor": "packages-drivers-github-src-githubclient-ts-357-githubfixtures",
+          "line": 358,
+          "anchor": "packages-drivers-github-src-githubclient-ts-358-githubfixtures",
           "currentTags": [
             "@public",
             "@category",
@@ -343615,8 +343615,8 @@
           "exportKind": "namespace",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 458,
-          "anchor": "packages-drivers-github-src-githubclient-ts-458-githubfixtures",
+          "line": 459,
+          "anchor": "packages-drivers-github-src-githubclient-ts-459-githubfixtures",
           "currentTags": [
             "@category",
             "@since"
@@ -343637,8 +343637,8 @@
           "exportKind": "class",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 518,
-          "anchor": "packages-drivers-github-src-githubclient-ts-518-githubclient",
+          "line": 519,
+          "anchor": "packages-drivers-github-src-githubclient-ts-519-githubclient",
           "currentTags": [
             "@public",
             "@category",
@@ -343660,8 +343660,8 @@
           "exportKind": "const",
           "filePath": "src/GitHubClient.ts",
           "repoPath": "packages/drivers/github/src/GitHubClient.ts",
-          "line": 687,
-          "anchor": "packages-drivers-github-src-githubclient-ts-687-makeclientshape",
+          "line": 688,
+          "anchor": "packages-drivers-github-src-githubclient-ts-688-makeclientshape",
           "currentTags": [
             "@internal",
             "@category",
@@ -392666,8 +392666,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 104,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-104-lexicalnodeversion",
+          "line": 120,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-120-lexicalnodeversion",
           "currentTags": [
             "@category",
             "@since"
@@ -392688,8 +392688,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 125,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-125-lexicalnodeversion",
+          "line": 141,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-141-lexicalnodeversion",
           "currentTags": [
             "@category",
             "@since"
@@ -392710,8 +392710,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 155,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-155-textformatbits",
+          "line": 171,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-171-textformatbits",
           "currentTags": [
             "@category",
             "@since"
@@ -392732,8 +392732,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 171,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-171-textformatbit",
+          "line": 187,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-187-textformatbit",
           "currentTags": [
             "@category",
             "@since"
@@ -392754,8 +392754,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 192,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-192-textformatbit",
+          "line": 208,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-208-textformatbit",
           "currentTags": [
             "@category",
             "@since"
@@ -392776,8 +392776,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 208,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-208-text-format-mask-all",
+          "line": 224,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-224-text-format-mask-all",
           "currentTags": [
             "@category",
             "@since"
@@ -392798,8 +392798,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 243,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-243-textformatmask",
+          "line": 259,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-259-textformatmask",
           "currentTags": [
             "@category",
             "@since"
@@ -392820,8 +392820,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 260,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-260-textformatmask",
+          "line": 276,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-276-textformatmask",
           "currentTags": [
             "@category",
             "@since"
@@ -392842,8 +392842,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 279,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-279-hastextformat",
+          "line": 295,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-295-hastextformat",
           "currentTags": [
             "@category",
             "@since"
@@ -392864,8 +392864,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 301,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-301-withtextformat",
+          "line": 317,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-317-withtextformat",
           "currentTags": [
             "@category",
             "@since"
@@ -392886,8 +392886,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 325,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-325-textdetailbits",
+          "line": 341,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-341-textdetailbits",
           "currentTags": [
             "@category",
             "@since"
@@ -392908,8 +392908,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 341,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-341-textdetailbit",
+          "line": 357,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-357-textdetailbit",
           "currentTags": [
             "@category",
             "@since"
@@ -392930,8 +392930,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 362,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-362-textdetailbit",
+          "line": 378,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-378-textdetailbit",
           "currentTags": [
             "@category",
             "@since"
@@ -392952,8 +392952,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 378,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-378-text-detail-mask-all",
+          "line": 394,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-394-text-detail-mask-all",
           "currentTags": [
             "@category",
             "@since"
@@ -392974,8 +392974,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 413,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-413-textdetailmask",
+          "line": 429,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-429-textdetailmask",
           "currentTags": [
             "@category",
             "@since"
@@ -392996,8 +392996,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 430,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-430-textdetailmask",
+          "line": 446,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-446-textdetailmask",
           "currentTags": [
             "@category",
             "@since"
@@ -393018,8 +393018,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 449,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-449-lexicalindentdepth",
+          "line": 465,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-465-lexicalindentdepth",
           "currentTags": [
             "@category",
             "@since"
@@ -393038,32 +393038,32 @@
         {
           "symbolName": "LexicalIndentDepth",
           "exportKind": "type",
-          "filePath": "src/Lexical.model.ts",
-          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 471,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-471-lexicalindentdepth",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "TableCellHeaderState",
-          "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
           "line": 487,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-487-tablecellheaderstate",
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-487-lexicalindentdepth",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "TableCellHeaderState",
+          "exportKind": "const",
+          "filePath": "src/Lexical.model.ts",
+          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+          "line": 503,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-503-tablecellheaderstate",
           "currentTags": [
             "@category",
             "@since"
@@ -393084,8 +393084,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 508,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-508-tablecellheaderstate",
+          "line": 524,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-524-tablecellheaderstate",
           "currentTags": [
             "@category",
             "@since"
@@ -393106,8 +393106,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 527,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-527-tablecellspan",
+          "line": 543,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-543-tablecellspan",
           "currentTags": [
             "@category",
             "@since"
@@ -393128,8 +393128,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 549,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-549-tablecellspan",
+          "line": 565,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-565-tablecellspan",
           "currentTags": [
             "@category",
             "@since"
@@ -393150,8 +393150,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 568,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-568-tabledimension",
+          "line": 584,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-584-tabledimension",
           "currentTags": [
             "@category",
             "@since"
@@ -393172,8 +393172,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 590,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-590-tabledimension",
+          "line": 606,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-606-tabledimension",
           "currentTags": [
             "@category",
             "@since"
@@ -393194,8 +393194,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 607,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-607-artifactrefid",
+          "line": 623,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-623-artifactrefid",
           "currentTags": [
             "@category",
             "@since"
@@ -393214,32 +393214,32 @@
         {
           "symbolName": "ArtifactRefId",
           "exportKind": "type",
-          "filePath": "src/Lexical.model.ts",
-          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 638,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-638-artifactrefid",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "ElementFormat",
-          "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
           "line": 654,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-654-elementformat",
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-654-artifactrefid",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "ElementFormat",
+          "exportKind": "const",
+          "filePath": "src/Lexical.model.ts",
+          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+          "line": 670,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-670-elementformat",
           "currentTags": [
             "@category",
             "@since"
@@ -393260,8 +393260,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 676,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-676-elementformat",
+          "line": 692,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-692-elementformat",
           "currentTags": [
             "@category",
             "@since"
@@ -393282,8 +393282,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 692,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-692-direction",
+          "line": 708,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-708-direction",
           "currentTags": [
             "@category",
             "@since"
@@ -393302,32 +393302,32 @@
         {
           "symbolName": "Direction",
           "exportKind": "type",
-          "filePath": "src/Lexical.model.ts",
-          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 713,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-713-direction",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "TextMode",
-          "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
           "line": 729,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-729-textmode",
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-729-direction",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "TextMode",
+          "exportKind": "const",
+          "filePath": "src/Lexical.model.ts",
+          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+          "line": 745,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-745-textmode",
           "currentTags": [
             "@category",
             "@since"
@@ -393348,8 +393348,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 750,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-750-textmode",
+          "line": 766,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-766-textmode",
           "currentTags": [
             "@category",
             "@since"
@@ -393370,8 +393370,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 766,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-766-headingtag",
+          "line": 782,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-782-headingtag",
           "currentTags": [
             "@category",
             "@since"
@@ -393390,32 +393390,32 @@
         {
           "symbolName": "HeadingTag",
           "exportKind": "type",
-          "filePath": "src/Lexical.model.ts",
-          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 787,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-787-headingtag",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "ListType",
-          "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
           "line": 803,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-803-listtype",
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-803-headingtag",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "ListType",
+          "exportKind": "const",
+          "filePath": "src/Lexical.model.ts",
+          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+          "line": 819,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-819-listtype",
           "currentTags": [
             "@category",
             "@since"
@@ -393436,30 +393436,30 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 824,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-824-listtype",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "ListTag",
-          "exportKind": "const",
-          "filePath": "src/Lexical.model.ts",
-          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
           "line": 840,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-840-listtag",
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-840-listtype",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "ListTag",
+          "exportKind": "const",
+          "filePath": "src/Lexical.model.ts",
+          "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+          "line": 856,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-856-listtag",
           "currentTags": [
             "@category",
             "@since"
@@ -393480,8 +393480,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 861,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-861-listtag",
+          "line": 877,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-877-listtag",
           "currentTags": [
             "@category",
             "@since"
@@ -393502,8 +393502,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 893,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-893-safeinlinestyle",
+          "line": 909,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-909-safeinlinestyle",
           "currentTags": [
             "@category",
             "@since"
@@ -393524,8 +393524,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 919,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-919-safeinlinestyle",
+          "line": 935,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-935-safeinlinestyle",
           "currentTags": [
             "@category",
             "@since"
@@ -393546,8 +393546,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 951,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-951-safestylevalue",
+          "line": 967,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-967-safestylevalue",
           "currentTags": [
             "@category",
             "@since"
@@ -393568,8 +393568,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 977,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-977-safestylevalue",
+          "line": 993,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-993-safestylevalue",
           "currentTags": [
             "@category",
             "@since"
@@ -393590,8 +393590,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1008,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1008-safeurl",
+          "line": 1024,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1024-safeurl",
           "currentTags": [
             "@category",
             "@since"
@@ -393612,8 +393612,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1034,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1034-safeurl",
+          "line": 1050,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1050-safeurl",
           "currentTags": [
             "@category",
             "@since"
@@ -393634,8 +393634,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1051,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1051-basenode",
+          "line": 1067,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1067-basenode",
           "currentTags": [
             "@category",
             "@since"
@@ -393656,8 +393656,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1090,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1090-basenode",
+          "line": 1106,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1106-basenode",
           "currentTags": [
             "@category",
             "@since"
@@ -393678,8 +393678,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1146,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1146-elementnode",
+          "line": 1162,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1162-elementnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393704,8 +393704,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1205,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1205-elementnode",
+          "line": 1221,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1221-elementnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393726,8 +393726,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1254,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1254-textbase",
+          "line": 1270,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1270-textbase",
           "currentTags": [
             "@category",
             "@since"
@@ -393748,8 +393748,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1288,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1288-textbase",
+          "line": 1304,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1304-textbase",
           "currentTags": [
             "@category",
             "@since"
@@ -393770,8 +393770,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1337,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1337-textnode",
+          "line": 1353,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1353-textnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393792,8 +393792,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1366,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1366-textnode",
+          "line": 1382,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1382-textnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393814,8 +393814,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1409,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1409-tabnode",
+          "line": 1425,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1425-tabnode",
           "currentTags": [
             "@invariant",
             "@see",
@@ -393838,8 +393838,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1441,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1441-tabnode",
+          "line": 1457,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1457-tabnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393860,8 +393860,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1486,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1486-linebreaknode",
+          "line": 1502,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1502-linebreaknode",
           "currentTags": [
             "@category",
             "@since"
@@ -393882,8 +393882,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1514,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1514-linebreaknode",
+          "line": 1530,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1530-linebreaknode",
           "currentTags": [
             "@category",
             "@since"
@@ -393904,8 +393904,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1550,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1550-rootnode",
+          "line": 1566,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1566-rootnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393926,8 +393926,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1578,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1578-rootnode",
+          "line": 1594,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1594-rootnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393948,8 +393948,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1614,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1614-paragraphnode",
+          "line": 1630,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1630-paragraphnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393970,8 +393970,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1642,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1642-paragraphnode",
+          "line": 1658,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1658-paragraphnode",
           "currentTags": [
             "@category",
             "@since"
@@ -393992,8 +393992,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1678,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1678-headingnode",
+          "line": 1694,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1694-headingnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394014,8 +394014,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1708,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1708-headingnode",
+          "line": 1724,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1724-headingnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394036,8 +394036,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1753,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1753-quotenode",
+          "line": 1769,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1769-quotenode",
           "currentTags": [
             "@see",
             "@category",
@@ -394059,8 +394059,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1816,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1816-quotenode",
+          "line": 1832,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1832-quotenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394081,8 +394081,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1881,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1881-listnode",
+          "line": 1897,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1897-listnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394103,8 +394103,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1916,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1916-listnode",
+          "line": 1932,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1932-listnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394125,8 +394125,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 1976,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1976-listnodevalue",
+          "line": 1992,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-1992-listnodevalue",
           "currentTags": [
             "@invariant",
             "@see",
@@ -394149,8 +394149,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2002,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2002-listnodevalue",
+          "line": 2018,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2018-listnodevalue",
           "currentTags": [
             "@see",
             "@category",
@@ -394172,8 +394172,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2019,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2019-listitemnode",
+          "line": 2035,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2035-listitemnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394194,8 +394194,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2063,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2063-listitemnode",
+          "line": 2079,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2079-listitemnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394216,8 +394216,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2103,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2103-linknode",
+          "line": 2119,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2119-linknode",
           "currentTags": [
             "@category",
             "@since"
@@ -394238,8 +394238,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2145,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2145-linknode",
+          "line": 2161,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2161-linknode",
           "currentTags": [
             "@category",
             "@since"
@@ -394260,8 +394260,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2190,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2190-codenode",
+          "line": 2206,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2206-codenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394282,8 +394282,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2228,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2228-codenode",
+          "line": 2244,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2244-codenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394304,8 +394304,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2275,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2275-artifactrefnode",
+          "line": 2291,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2291-artifactrefnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394326,8 +394326,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2311,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2311-artifactrefnode",
+          "line": 2327,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2327-artifactrefnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394348,8 +394348,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2359,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2359-youtubenode",
+          "line": 2375,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2375-youtubenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394374,8 +394374,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2395,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2395-youtubenode",
+          "line": 2411,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2411-youtubenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394396,8 +394396,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2435,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2435-tablecellnode",
+          "line": 2451,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2451-tablecellnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394418,8 +394418,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2504,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2504-tablecellnode",
+          "line": 2520,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2520-tablecellnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394440,8 +394440,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2552,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2552-tablerownode",
+          "line": 2568,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2568-tablerownode",
           "currentTags": [
             "@category",
             "@since"
@@ -394462,8 +394462,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2593,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2593-tablerownode",
+          "line": 2609,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2609-tablerownode",
           "currentTags": [
             "@category",
             "@since"
@@ -394484,8 +394484,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2631,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2631-tablenode",
+          "line": 2647,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2647-tablenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394506,8 +394506,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2679,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2679-tablenode",
+          "line": 2695,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2695-tablenode",
           "currentTags": [
             "@category",
             "@since"
@@ -394528,8 +394528,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2756,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2756-lexicalnode",
+          "line": 2772,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2772-lexicalnode",
           "currentTags": [
             "@invariant",
             "@category",
@@ -394551,8 +394551,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2790,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2790-lexicalnode",
+          "line": 2806,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2806-lexicalnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394573,8 +394573,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2810,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2810-lexicalnode",
+          "line": 2826,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2826-lexicalnode",
           "currentTags": [
             "@category",
             "@since"
@@ -394595,8 +394595,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2902,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2902-serializededitorstate",
+          "line": 2918,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2918-serializededitorstate",
           "currentTags": [
             "@category",
             "@since"
@@ -394617,8 +394617,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 2975,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2975-serializededitorstate",
+          "line": 2991,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-2991-serializededitorstate",
           "currentTags": [
             "@category",
             "@since"
@@ -394639,8 +394639,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3025,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3025-lexicalnodewire",
+          "line": 3041,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3041-lexicalnodewire",
           "currentTags": [
             "@category",
             "@since"
@@ -394661,8 +394661,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3053,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3053-lexicalnodewire",
+          "line": 3069,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3069-lexicalnodewire",
           "currentTags": [
             "@category",
             "@since"
@@ -394683,8 +394683,8 @@
           "exportKind": "namespace",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3070,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3070-lexicalnodewire",
+          "line": 3086,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3086-lexicalnodewire",
           "currentTags": [
             "@category",
             "@since"
@@ -394705,8 +394705,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3115,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3115-serializededitorstatewire",
+          "line": 3131,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3131-serializededitorstatewire",
           "currentTags": [
             "@category",
             "@since"
@@ -394727,8 +394727,8 @@
           "exportKind": "type",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3148,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3148-serializededitorstatewire",
+          "line": 3164,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3164-serializededitorstatewire",
           "currentTags": [
             "@category",
             "@since"
@@ -394749,8 +394749,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3169,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3169-editorstatewirefromjson",
+          "line": 3185,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3185-editorstatewirefromjson",
           "currentTags": [
             "@category",
             "@since"
@@ -394771,8 +394771,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3193,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3193-lexicaldecodeerror",
+          "line": 3209,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3209-lexicaldecodeerror",
           "currentTags": [
             "@category",
             "@since"
@@ -394793,8 +394793,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3221,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3221-lexicalcompatibilityissue",
+          "line": 3237,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3237-lexicalcompatibilityissue",
           "currentTags": [
             "@category",
             "@since"
@@ -394815,8 +394815,8 @@
           "exportKind": "class",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3253,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3253-lexicalcompatibilityresult",
+          "line": 3269,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3269-lexicalcompatibilityresult",
           "currentTags": [
             "@category",
             "@since"
@@ -394837,8 +394837,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3333,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3333-decodeeditorstatestrictresult",
+          "line": 3349,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3349-decodeeditorstatestrictresult",
           "currentTags": [
             "@category",
             "@since"
@@ -394863,8 +394863,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3368,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3368-decodeeditorstatestrict",
+          "line": 3384,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3384-decodeeditorstatestrict",
           "currentTags": [
             "@category",
             "@since"
@@ -394885,8 +394885,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3389,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3389-decodeeditorstatelossless",
+          "line": 3405,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3405-decodeeditorstatelossless",
           "currentTags": [
             "@category",
             "@since"
@@ -394907,8 +394907,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3416,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3416-analyzeeditorstatecompatibilityresult",
+          "line": 3432,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3432-analyzeeditorstatecompatibilityresult",
           "currentTags": [
             "@category",
             "@since"
@@ -394933,8 +394933,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3452,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3452-analyzeeditorstatecompatibility",
+          "line": 3468,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3468-analyzeeditorstatecompatibility",
           "currentTags": [
             "@category",
             "@since"
@@ -394955,8 +394955,8 @@
           "exportKind": "const",
           "filePath": "src/Lexical.model.ts",
           "repoPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-          "line": 3477,
-          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3477-editorstatefromjson",
+          "line": 3493,
+          "anchor": "packages-foundation-modeling-lexical-src-lexical-model-ts-3493-editorstatefromjson",
           "currentTags": [
             "@category",
             "@since"
@@ -440265,7 +440265,7 @@
         "srcDir": "src",
         "sourceFileCount": 467,
         "publicModuleCount": 465,
-        "publicExportCount": 4332
+        "publicExportCount": 4333
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -446466,7 +446466,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 21,
+          "exportCount": 22,
           "remediationStatus": "resolved"
         },
         {
@@ -500868,8 +500868,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/AllowlistCheck.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-          "line": 305,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-allowlistcheck-ts-305-runallowlistcheck",
+          "line": 308,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-allowlistcheck-ts-308-runallowlistcheck",
           "currentTags": [
             "@category",
             "@since"
@@ -500890,8 +500890,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/AllowlistCheck.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-          "line": 375,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-allowlistcheck-ts-375-reportallowlistchecksummary",
+          "line": 378,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-allowlistcheck-ts-378-reportallowlistchecksummary",
           "currentTags": [
             "@category",
             "@since"
@@ -501274,8 +501274,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/Laws.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-          "line": 891,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-command-ts-891-lawscommand",
+          "line": 909,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-laws-command-ts-909-lawscommand",
           "currentTags": [
             "@category",
             "@since"
@@ -501890,8 +501890,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/MarkdownFences.model.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/MarkdownFences.model.ts",
-          "line": 278,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-278-markdownfencessummary",
+          "line": 281,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-markdownfences-model-ts-281-markdownfencessummary",
           "currentTags": [
             "@category",
             "@since"
@@ -508481,12 +508481,34 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "export * from \"./internal/SchemaParityCodemodImports.ts\";",
+          "symbolName": "export * from \"./internal/SchemaParityCodemodExactOptionalKeysRule.ts\";",
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
           "line": 62,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-62-export-from-internal-schemaparitycodemodimports-ts",
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-62-export-from-internal-schemaparitycodemodexactoptionalkeysrule-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./internal/SchemaParityCodemodImports.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/commands/Lint/index.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
+          "line": 69,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-69-export-from-internal-schemaparitycodemodimports-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508507,8 +508529,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 69,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-69-export-from-internal-schemaparitycodemodliteralkitmatchrule-ts",
+          "line": 76,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-76-export-from-internal-schemaparitycodemodliteralkitmatchrule-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508529,9 +508551,12 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 70,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-70-export-from-internal-schemaparitycodemodliteralkitrule-ts",
-          "currentTags": [],
+          "line": 83,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-83-export-from-internal-schemaparitycodemodliteralkitrule-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
           "missingRequiredTags": [],
           "forbiddenTags": [],
           "missingSummary": false,
@@ -508548,8 +508573,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 77,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-77-export-diffjudgerubricfamily-diffjudgerubriclenses-judgerubricdrift-judgerubricfamilyinput-lintjudgerubriccommand-from-judgerubric-ts",
+          "line": 90,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-90-export-diffjudgerubricfamily-diffjudgerubriclenses-judgerubricdrift-judgerubricfamilyinput-lintjudgerubriccommand-from-judgerubric-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508570,8 +508595,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 90,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-90-export-from-lint-command-ts",
+          "line": 103,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-103-export-from-lint-command-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508592,8 +508617,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 97,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-97-export-from-lint-errors-ts",
+          "line": 110,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-110-export-from-lint-errors-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508614,8 +508639,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 104,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-104-export-decodeeffectvitestfindingjson-decodeeffectvitestinventorydocument-decodeeffectvitestprimitivegraphdocument-effectvitestcensuspath-effectvitestcensusrow-effectvitestfinding-effectvitestfindingruleid-effectvitestinventorydocument-effectvitestinventorypath-effectvitestlintoptions-effectvitestpackagetiming-effectvitestprimitive-effectvitestprimitivecoverage-effectvitestprimitivegraphdocument-effectvitestprimitivegraphpath-effectvitestreplacement-effectvitestruleid-effectvitestscantiming-effectvitestsourcefileglobs-encodeeffectvitestfindingjson-encodeeffectvitestinventorydocument-encodeeffectvitestprimitivegraphdocument-encodeschemafirstinventorydocument-isactiveschemafirstruleadvisory-iseffectvitesttestfilepath-literalkitconstassertionviolation-makeeffectvitestfindingkey-makeschemafirstentrykey-schemacrispeningpolicypath-schemafirstbacklogrow-schemafirstinventorydocument-schemafirstinventorypath-schemafirstlintoptions-schemafirstlintsummary-schemafirstoccurrenceanchor-schemafirstparityfindings-schemafirstparityruleid-schemafirstparityrulesummary-schemafirstbacklogrowkeys-schemafirstentryorder-sortschemafirstentries-from-lint-schemas-ts",
+          "line": 117,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-117-export-decodeeffectvitestfindingjson-decodeeffectvitestinventorydocument-decodeeffectvitestprimitivegraphdocument-effectvitestcensuspath-effectvitestcensusrow-effectvitestfinding-effectvitestfindingruleid-effectvitestinventorydocument-effectvitestinventorypath-effectvitestlintoptions-effectvitestpackagetiming-effectvitestprimitive-effectvitestprimitivecoverage-effectvitestprimitivegraphdocument-effectvitestprimitivegraphpath-effectvitestreplacement-effectvitestruleid-effectvitestscantiming-effectvitestsourcefileglobs-encodeeffectvitestfindingjson-encodeeffectvitestinventorydocument-encodeeffectvitestprimitivegraphdocument-encodeschemafirstinventorydocument-isactiveschemafirstruleadvisory-iseffectvitesttestfilepath-literalkitconstassertionviolation-makeeffectvitestfindingkey-makeschemafirstentrykey-schemacrispeningpolicypath-schemafirstbacklogrow-schemafirstinventorydocument-schemafirstinventorypath-schemafirstlintoptions-schemafirstlintsummary-schemafirstoccurrenceanchor-schemafirstparityfindings-schemafirstparityruleid-schemafirstparityrulesummary-schemafirstbacklogrowkeys-schemafirstentryorder-sortschemafirstentries-from-lint-schemas-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508636,8 +508661,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 158,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-158-export-from-opaqueroundtrips-ts",
+          "line": 171,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-171-export-from-opaqueroundtrips-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508658,8 +508683,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 165,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-165-export-collecttesttypecheckblindspots-defaulttesttypecheckbaselinepath-lintpackagetesttypecheckcommand-packagetesttypecheckoptions-runpackagetesttypechecklint-testtypecheckblindspot-testtypecheckblindspotbaseline-testtypecheckblindspotkind-testtypecheckblindspotsummary-from-packagetesttypecheck-ts",
+          "line": 178,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-178-export-collecttesttypecheckblindspots-defaulttesttypecheckbaselinepath-lintpackagetesttypecheckcommand-packagetesttypecheckoptions-runpackagetesttypechecklint-testtypecheckblindspot-testtypecheckblindspotbaseline-testtypecheckblindspotkind-testtypecheckblindspotsummary-from-packagetesttypecheck-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508680,8 +508705,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 182,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-182-export-generateschemacatalogdocument-generateschemacatalogshards-lintschemacatalogcommand-renderschemacatalogshard-runschemacatalog-schemacatalogdocument-schemacatalogentry-schemacatalogentrykind-schemacatalogoptions-schemacatalogowner-schemacatalogshard-schemacatalogsummary-schemacatalogshardpath-shardschemacatalogdocument-from-schemacatalog-ts",
+          "line": 195,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-195-export-generateschemacatalogdocument-generateschemacatalogshards-lintschemacatalogcommand-renderschemacatalogshard-runschemacatalog-schemacatalogdocument-schemacatalogentry-schemacatalogentrykind-schemacatalogoptions-schemacatalogowner-schemacatalogshard-schemacatalogsummary-schemacatalogshardpath-shardschemacatalogdocument-from-schemacatalog-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508702,8 +508727,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 204,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-204-export-diffschemafirstparity-fnschemaentryfromfunctionlike-getsomesstructentryfromcallexpression-isschemacrispeningpolicyexempt-lintschemafirstcommand-literalmemberequals-makeschemafirstownerresolver-makeschemafirstproject-normalizationentryfromcallexpression-nullreturnentryfromfunctionlike-runschemafirstlint-schemacrispeningfamilypolicy-schemacrispeningpolicydocument-schemafirstincludedglobs-schemafirstinventoryentry-schemafirstsourcefileglobs-schemacrispeningfamilyforfile-schemafirstparityentriesfromsourcefile-sourcetexthasschemaarbitrarypropertycoverage-toschemafirstbacklog-from-schemafirst-ts",
+          "line": 217,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-217-export-diffschemafirstparity-fnschemaentryfromfunctionlike-getsomesstructentryfromcallexpression-isschemacrispeningpolicyexempt-lintschemafirstcommand-literalmemberequals-makeschemafirstownerresolver-makeschemafirstproject-normalizationentryfromcallexpression-nullreturnentryfromfunctionlike-runschemafirstlint-schemacrispeningfamilypolicy-schemacrispeningpolicydocument-schemafirstincludedglobs-schemafirstinventoryentry-schemafirstsourcefileglobs-schemacrispeningfamilyforfile-schemafirstparityentriesfromsourcefile-sourcetexthasschemaarbitrarypropertycoverage-toschemafirstbacklog-from-schemafirst-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508724,8 +508749,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 232,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-232-export-from-schemaparitycodemod-ts",
+          "line": 245,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-245-export-from-schemaparitycodemod-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508746,8 +508771,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 239,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-239-export-from-schematopology-ts",
+          "line": 252,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-252-export-from-schematopology-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -508768,8 +508793,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 246,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-246-export-collecttsconfigoverlayviolations-linttsconfigoverlaycommand-runtsconfigoverlaylint-tsconfigoverlaycompileroptionkey-tsconfigoverlaydocumentkey-tsconfigoverlayviolation-tsconfigoverlayviolationscope-from-tsconfigoverlay-ts",
+          "line": 259,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-259-export-collecttsconfigoverlayviolations-linttsconfigoverlaycommand-runtsconfigoverlaylint-tsconfigoverlaycompileroptionkey-tsconfigoverlaydocumentkey-tsconfigoverlayviolation-tsconfigoverlayviolationscope-from-tsconfigoverlay-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -527839,8 +527864,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 204,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-204-libraryreference",
+          "line": 207,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-207-libraryreference",
           "currentTags": [
             "@category",
             "@since"
@@ -527861,8 +527886,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 253,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-253-libraryversion",
+          "line": 256,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-256-libraryversion",
           "currentTags": [
             "@category",
             "@since"
@@ -527883,8 +527908,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 273,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-273-librarysource",
+          "line": 276,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-276-librarysource",
           "currentTags": [
             "@category",
             "@since"
@@ -527905,8 +527930,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 314,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-314-libraryoccurrence",
+          "line": 317,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-317-libraryoccurrence",
           "currentTags": [
             "@category",
             "@since"
@@ -527927,8 +527952,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 370,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-370-librarycapture",
+          "line": 376,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-376-librarycapture",
           "currentTags": [
             "@category",
             "@since"
@@ -527949,8 +527974,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 401,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-401-libraryqualification",
+          "line": 407,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-407-libraryqualification",
           "currentTags": [
             "@category",
             "@since"
@@ -527971,8 +527996,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 427,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-427-libraryintakefile",
+          "line": 433,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-433-libraryintakefile",
           "currentTags": [
             "@category",
             "@since"
@@ -527993,8 +528018,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 450,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-450-libraryintakeroot",
+          "line": 456,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-456-libraryintakeroot",
           "currentTags": [
             "@category",
             "@since"
@@ -528015,8 +528040,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 467,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-467-libraryintake",
+          "line": 473,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-473-libraryintake",
           "currentTags": [
             "@category",
             "@since"
@@ -528037,8 +528062,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 495,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-495-librarymanifest",
+          "line": 501,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-501-librarymanifest",
           "currentTags": [
             "@category",
             "@since"
@@ -528059,8 +528084,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 517,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-517-librarycatalog",
+          "line": 523,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-523-librarycatalog",
           "currentTags": [
             "@category",
             "@since"
@@ -528081,8 +528106,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 548,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-548-libraryinventoryoptions",
+          "line": 554,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-554-libraryinventoryoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -528103,8 +528128,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Research/Library/Library.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Research/Library/Library.schemas.ts",
-          "line": 571,
-          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-571-libraryacquireoptions",
+          "line": 577,
+          "anchor": "packages-tooling-tool-cli-src-commands-research-library-library-schemas-ts-577-libraryacquireoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -551473,8 +551498,8 @@
           "exportKind": "namespace",
           "filePath": "src/SbomMetadataSource.ts",
           "repoPath": "packages/foundation/modeling/sbom/src/SbomMetadataSource.ts",
-          "line": 221,
-          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-221-componentinput",
+          "line": 220,
+          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-220-componentinput",
           "currentTags": [
             "@category",
             "@since"
@@ -551495,8 +551520,8 @@
           "exportKind": "class",
           "filePath": "src/SbomMetadataSource.ts",
           "repoPath": "packages/foundation/modeling/sbom/src/SbomMetadataSource.ts",
-          "line": 247,
-          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-247-copyrightyears",
+          "line": 246,
+          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-246-copyrightyears",
           "currentTags": [
             "@public",
             "@category",
@@ -551518,8 +551543,8 @@
           "exportKind": "namespace",
           "filePath": "src/SbomMetadataSource.ts",
           "repoPath": "packages/foundation/modeling/sbom/src/SbomMetadataSource.ts",
-          "line": 270,
-          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-270-copyrightyears",
+          "line": 269,
+          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-269-copyrightyears",
           "currentTags": [
             "@category",
             "@since"
@@ -551540,8 +551565,8 @@
           "exportKind": "class",
           "filePath": "src/SbomMetadataSource.ts",
           "repoPath": "packages/foundation/modeling/sbom/src/SbomMetadataSource.ts",
-          "line": 470,
-          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-470-sbommetadatasource",
+          "line": 469,
+          "anchor": "packages-foundation-modeling-sbom-src-sbommetadatasource-ts-469-sbommetadatasource",
           "currentTags": [
             "@public",
             "@category",
@@ -578548,8 +578573,8 @@
           "exportKind": "class",
           "filePath": "src/JsonLdDocument.ts",
           "repoPath": "packages/foundation/modeling/schema-org/src/JsonLdDocument.ts",
-          "line": 367,
-          "anchor": "packages-foundation-modeling-schema-org-src-jsonlddocument-ts-367-jsonlddocument",
+          "line": 360,
+          "anchor": "packages-foundation-modeling-schema-org-src-jsonlddocument-ts-360-jsonlddocument",
           "currentTags": [
             "@public",
             "@category",
@@ -578822,8 +578847,8 @@
           "exportKind": "const",
           "filePath": "src/Thing.ts",
           "repoPath": "packages/foundation/modeling/schema-org/src/Thing.ts",
-          "line": 46,
-          "anchor": "packages-foundation-modeling-schema-org-src-thing-ts-46-thingfields",
+          "line": 45,
+          "anchor": "packages-foundation-modeling-schema-org-src-thing-ts-45-thingfields",
           "currentTags": [
             "@public",
             "@category",
@@ -586935,8 +586960,8 @@
           "exportKind": "const",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 44,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-44-rule-names",
+          "line": 45,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-45-rule-names",
           "currentTags": [
             "@category",
             "@since"
@@ -586957,8 +586982,8 @@
           "exportKind": "const",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 72,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-72-rulenameschema",
+          "line": 74,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-74-rulenameschema",
           "currentTags": [
             "@category",
             "@since"
@@ -586979,8 +587004,8 @@
           "exportKind": "type",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 91,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-91-rulename",
+          "line": 93,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-93-rulename",
           "currentTags": [
             "@category",
             "@since"
@@ -587001,8 +587026,8 @@
           "exportKind": "const",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 111,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-111-ruleseverityschema",
+          "line": 113,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-113-ruleseverityschema",
           "currentTags": [
             "@category",
             "@since"
@@ -587023,8 +587048,8 @@
           "exportKind": "type",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 132,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-132-ruleseverity",
+          "line": 134,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-134-ruleseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -587045,8 +587070,8 @@
           "exportKind": "class",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 164,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-164-ruleregistryschema",
+          "line": 166,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-166-ruleregistryschema",
           "currentTags": [
             "@category",
             "@since"
@@ -587067,8 +587092,8 @@
           "exportKind": "const",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 196,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-196-rules",
+          "line": 199,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-199-rules",
           "currentTags": [
             "@category",
             "@since"
@@ -587089,8 +587114,8 @@
           "exportKind": "const",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 270,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-270-rulepath",
+          "line": 281,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-281-rulepath",
           "currentTags": [
             "@param",
             "@returns",
@@ -587113,8 +587138,8 @@
           "exportKind": "const",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/policy-pack/lint-rules/src/index.ts",
-          "line": 291,
-          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-291-rulesdir",
+          "line": 302,
+          "anchor": "packages-tooling-policy-pack-lint-rules-src-index-ts-302-rulesdir",
           "currentTags": [
             "@returns",
             "@category",
@@ -640608,8 +640633,8 @@
           "exportKind": "class",
           "filePath": "src/Journal.ts",
           "repoPath": "packages/foundation/modeling/jsonl/src/Journal.ts",
-          "line": 442,
-          "anchor": "packages-foundation-modeling-jsonl-src-journal-ts-442-journalconfig",
+          "line": 448,
+          "anchor": "packages-foundation-modeling-jsonl-src-journal-ts-448-journalconfig",
           "currentTags": [
             "@public",
             "@category",
@@ -640631,8 +640656,8 @@
           "exportKind": "interface",
           "filePath": "src/Journal.ts",
           "repoPath": "packages/foundation/modeling/jsonl/src/Journal.ts",
-          "line": 1534,
-          "anchor": "packages-foundation-modeling-jsonl-src-journal-ts-1534-journalclass",
+          "line": 1540,
+          "anchor": "packages-foundation-modeling-jsonl-src-journal-ts-1540-journalclass",
           "currentTags": [
             "@public",
             "@category",
@@ -640654,8 +640679,8 @@
           "exportKind": "const",
           "filePath": "src/Journal.ts",
           "repoPath": "packages/foundation/modeling/jsonl/src/Journal.ts",
-          "line": 1626,
-          "anchor": "packages-foundation-modeling-jsonl-src-journal-ts-1626-journal",
+          "line": 1632,
+          "anchor": "packages-foundation-modeling-jsonl-src-journal-ts-1632-journal",
           "currentTags": [
             "@public",
             "@category",
@@ -642443,8 +642468,8 @@
           "exportKind": "class",
           "filePath": "src/AccountCostControls.ts",
           "repoPath": "infra/src/AccountCostControls.ts",
-          "line": 51,
-          "anchor": "infra-src-accountcostcontrols-ts-51-accountcostcontrolsconfig",
+          "line": 52,
+          "anchor": "infra-src-accountcostcontrols-ts-52-accountcostcontrolsconfig",
           "currentTags": [
             "@category",
             "@since"
@@ -642465,8 +642490,8 @@
           "exportKind": "const",
           "filePath": "src/AccountCostControls.ts",
           "repoPath": "infra/src/AccountCostControls.ts",
-          "line": 83,
-          "anchor": "infra-src-accountcostcontrols-ts-83-loadaccountcostcontrolsconfig",
+          "line": 84,
+          "anchor": "infra-src-accountcostcontrols-ts-84-loadaccountcostcontrolsconfig",
           "currentTags": [
             "@category",
             "@since"
@@ -642487,8 +642512,8 @@
           "exportKind": "class",
           "filePath": "src/AccountCostControls.ts",
           "repoPath": "infra/src/AccountCostControls.ts",
-          "line": 116,
-          "anchor": "infra-src-accountcostcontrols-ts-116-accountcostcontrols",
+          "line": 119,
+          "anchor": "infra-src-accountcostcontrols-ts-119-accountcostcontrols",
           "currentTags": [
             "@category",
             "@since"

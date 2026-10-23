@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-23T21:11:01.900Z
+Generated: 2026-10-23T21:38:53.766Z
 
 ## Scope
 
@@ -15,7 +15,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
 | publicModules | 3588 |
-| publicExports | 25253 |
+| publicExports | 25254 |
 | openModules | 542 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -181,7 +181,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 123 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 124 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
 | 125 | `@beep/github-reporting` | `packages/foundation/modeling/github-reporting` | clean | 5 | 40 | 0 | 0 |
-| 126 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4332 | 47 | 35 |
+| 126 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4333 | 47 | 35 |
 | 127 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 128 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 129 | `@beep/commands` | `packages/drivers/commands` | clean | 8 | 58 | 0 | 0 |
@@ -660,12 +660,12 @@ Export findings:
 - `src/Email.ts:52` `EmailString` (type) - 2 example import violation(s)
 - `src/Email.ts:76` `Email` (const) - 1 example import violation(s)
 - `src/Email.ts:96` `Email` (type) - 1 example import violation(s)
-- `src/FileDiff.schema.ts:67` `Added` (class) - 1 example import violation(s)
-- `src/FileDiff.schema.ts:101` `Deleted` (class) - 1 example import violation(s)
-- `src/FileDiff.schema.ts:136` `Modified` (class) - 1 example import violation(s)
-- `src/FileDiff.schema.ts:170` `Info` (const) - 1 example import violation(s)
-- `src/FileDiff.schema.ts:192` `Info` (type) - 1 example import violation(s)
-- `src/FileDiff.schema.ts:210` `Info` (namespace) - 1 example import violation(s)
+- `src/FileDiff.schema.ts:50` `Added` (class) - 1 example import violation(s)
+- `src/FileDiff.schema.ts:84` `Deleted` (class) - 1 example import violation(s)
+- `src/FileDiff.schema.ts:119` `Modified` (class) - 1 example import violation(s)
+- `src/FileDiff.schema.ts:153` `Info` (const) - 1 example import violation(s)
+- `src/FileDiff.schema.ts:175` `Info` (type) - 1 example import violation(s)
+- `src/FileDiff.schema.ts:193` `Info` (namespace) - 1 example import violation(s)
 - `src/Fn/Fn.schema.ts:528` `ThunkOf` (function) - 3 example import violation(s)
 - `src/Fn/Fn.schema.ts:598` `Fn` (function) - 5 example import violation(s)
 - `src/Fn/Fn.schema.ts:481` `AnyFn` (const) - 1 example import violation(s)
@@ -1251,9 +1251,9 @@ Export findings:
 - `src/Transport.ts:67` `ApiAuth` (const) - 1 example import violation(s)
 - `src/Transport.ts:114` `ApiAuth` (type) - 1 example import violation(s)
 - `src/Transport.ts:177` `RateLimitSnapshot` (class) - 1 example import violation(s)
-- `src/Transport.ts:280` `ApiTransportOptions` (class) - 1 example import violation(s)
-- `src/Transport.ts:357` `ApiTransport` (interface) - 1 example import violation(s)
-- `src/Transport.ts:398` `makeApiTransport` (const) - 1 example import violation(s)
+- `src/Transport.ts:283` `ApiTransportOptions` (class) - 1 example import violation(s)
+- `src/Transport.ts:360` `ApiTransport` (interface) - 1 example import violation(s)
+- `src/Transport.ts:401` `makeApiTransport` (const) - 1 example import violation(s)
 
 ### @beep/epistemic-config
 
@@ -1959,10 +1959,10 @@ Module findings:
 - `src/Lexical.normalize.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/Lexical.model.ts:1146` `ElementNode` (class) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:2359` `YouTubeNode` (class) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:3333` `decodeEditorStateStrictResult` (const) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:3416` `analyzeEditorStateCompatibilityResult` (const) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:1162` `ElementNode` (class) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:2375` `YouTubeNode` (class) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:3349` `decodeEditorStateStrictResult` (const) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:3432` `analyzeEditorStateCompatibilityResult` (const) - 1 documentation section/link violation(s)
 - `src/index.ts:26` `export { editorStateToPlainText, nodeToPlainText } from "./Lexical.behavior.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:41` `export {
   ARTIFACT_URI_PREFIX,
