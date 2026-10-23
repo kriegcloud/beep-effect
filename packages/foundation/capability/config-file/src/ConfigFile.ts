@@ -20,6 +20,7 @@ import * as P from "effect/Predicate";
 import * as PubSub from "effect/PubSub";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as SchemaIssue from "effect/SchemaIssue";
 import * as Semaphore from "effect/Semaphore";
 import * as Str from "effect/String";
 import { ConfigCodecError } from "./ConfigCodec.ts";
@@ -368,6 +369,32 @@ export class ConfigValidationError extends S.TaggedError<ConfigValidationError, 
   override get message(): string {
     const at = O.match(this.path, { onNone: () => "", onSome: (p) => ` at "${p}"` });
     return `Config validation failed${at}`;
+  }
+
+  /**
+   * The carried failure narrowed to a `SchemaIssue.Issue`, or `None` when a
+   * caller-supplied `validate` failed with some other value.
+   *
+   * **Details**
+   *
+   * A schema failure on the `ConfigFile.read` or `load` path always carries an
+   * `Issue`, so an importer that only passes a schema can treat `None` as a
+   * defect. Wrap the issue in `S.SchemaError` to render the standard message.
+   *
+   * **Example** (Narrow a validate rejection)
+   *
+   * ```ts
+   * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
+   * import * as O from "effect/Option";
+   *
+   * const error = ConfigValidationError.make({ path: O.none(), issue: new Error("rejected") });
+   * console.log(O.isNone(error.schemaIssue)) // true
+   * ```
+   *
+   * @since 0.0.0
+   */
+  get schemaIssue(): O.Option<SchemaIssue.Issue> {
+    return O.liftPredicate(this.issue, SchemaIssue.isIssue);
   }
 }
 

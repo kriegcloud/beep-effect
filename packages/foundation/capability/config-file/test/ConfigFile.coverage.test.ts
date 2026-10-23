@@ -5,6 +5,7 @@ import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -147,6 +148,7 @@ it.effect("error messages retain paths, plural candidate counts and in-memory va
       ConfigValidationError.make({ path: O.none(), issue: "invalid" }).message,
       "Config validation failed"
     );
+    assertNone(ConfigValidationError.make({ path: O.none(), issue: "invalid" }).schemaIssue);
     assert.strictEqual(
       ConfigFileNotFoundError.make({ searched: ["one", "two"], candidates: ["/a", "/b"] }).message,
       "No config file found (searched: one, two — 2 candidate paths checked)"
