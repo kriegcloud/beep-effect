@@ -23,7 +23,7 @@ import {
   WorkspaceRoot,
 } from "@beep/repo-workspaces";
 import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces/WorkspacesSync";
-import { afterEach, assert, describe, it, vi } from "@effect/vitest";
+import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -264,10 +264,6 @@ describe("findWorkspaceRootSync — stopAt over a nested checkout", () => {
   };
   const ops = memOps(files);
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it("control: with no ceiling the ascent adopts the outer workspace", () => {
     assert.strictEqual(findWorkspaceRootSync(CWD, ops), "/outer");
   });
@@ -289,15 +285,21 @@ describe("findWorkspaceRootSync — stopAt over a nested checkout", () => {
     assert.isNull(findWorkspaceRootSync(CWD, { ...ops, stopAt: "/outer/checkout/./" }));
   });
 
-  it("a relative ceiling resolves against the process cwd at lookup time", () => {
-    // Built BEFORE the cwd moves: the ceiling must be resolved when the call
-    // runs, not when the options object was assembled.
-    const bounded = { ...ops, stopAt: "checkout" };
-    vi.spyOn(process, "cwd").mockReturnValue("/outer");
+  it("a relative ceiling resolves through the supplied path's cwd at lookup time", () => {
+    // The consumer's `resolve` decides what a relative ceiling means, as
+    // node's does against `process.cwd()`. Its working directory moves AFTER
+    // the options object is built: the ceiling must be resolved when the call
+    // runs, not when the options were assembled.
+    let cwd = "/outer";
+    const path = {
+      ...hostPath.posix,
+      resolve: (...segments: Array<string>) => hostPath.posix.resolve(cwd, ...segments),
+    };
+    const bounded = { ...ops, path, stopAt: "checkout" };
     assert.isNull(findWorkspaceRootSync(CWD, bounded));
     // Discriminating control: the same relative ceiling under a cwd that makes
     // it name a non-ancestor never matches, so the ascent is unbounded again.
-    vi.spyOn(process, "cwd").mockReturnValue("/elsewhere");
+    cwd = "/elsewhere";
     assert.strictEqual(findWorkspaceRootSync(CWD, bounded), "/outer");
   });
 
