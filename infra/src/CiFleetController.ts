@@ -18,6 +18,8 @@ import * as pulumi from "@pulumi/pulumi";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as S from "effect/Schema";
+import { resolveInfraArtifactPath } from "./internal/InfraArtifactPath.ts";
+import type { InfraPathEnv } from "./internal/InfraArtifactPath.ts";
 
 const $I = $InfraId.create("CiFleetController");
 
@@ -706,11 +708,18 @@ export const makeCiFleetControllerConfig = (values: CiFleetControllerPulumiConfi
 /**
  * Load the CI fleet controller configuration from Pulumi config.
  *
+ * **Details**
+ *
+ * Relative Lambda ZIP paths resolve against `BEEP_INFRA_ARTIFACTS_ROOT`, or
+ * `$HOME/beep-infra-artifacts` when that variable is unset; absolute values
+ * are used as configured.
+ *
  * @category constructors
  * @since 0.0.0
  */
-export const loadCiFleetControllerConfig = (): CiFleetControllerConfig => {
+export const loadCiFleetControllerConfig = (env: InfraPathEnv = process.env): CiFleetControllerConfig => {
   const config = new pulumi.Config("ciFleetController");
+  const artifactPath = resolveInfraArtifactPath(env);
 
   return makeCiFleetControllerConfig(
     CiFleetControllerPulumiConfigValues.make({
@@ -723,11 +732,11 @@ export const loadCiFleetControllerConfig = (): CiFleetControllerConfig => {
       githubAppKeyBase64SsmParameterArn: config.require("githubAppKeyBase64SsmParameterArn"),
       githubAppKmsKeyArn: config.require("githubAppKmsKeyArn"),
       githubAppWebhookSecretSsmParameterArn: config.require("githubAppWebhookSecretSsmParameterArn"),
-      runnerBinariesSyncerLambdaZip: config.require("runnerBinariesSyncerLambdaZip"),
+      runnerBinariesSyncerLambdaZip: artifactPath(config.require("runnerBinariesSyncerLambdaZip")),
       runnerRolePermissionsBoundaryArn: config.require("runnerRolePermissionsBoundaryArn"),
-      runnersLambdaZip: config.require("runnersLambdaZip"),
-      terminationWatcherLambdaZip: config.require("terminationWatcherLambdaZip"),
-      webhookLambdaZip: config.require("webhookLambdaZip"),
+      runnersLambdaZip: artifactPath(config.require("runnersLambdaZip")),
+      terminationWatcherLambdaZip: artifactPath(config.require("terminationWatcherLambdaZip")),
+      webhookLambdaZip: artifactPath(config.require("webhookLambdaZip")),
     })
   );
 };

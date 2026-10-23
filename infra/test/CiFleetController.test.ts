@@ -1,4 +1,9 @@
-import { CiFleetController, CiFleetControllerPulumiConfigValues, makeCiFleetControllerConfig } from "@beep/infra";
+import {
+  CiFleetController,
+  CiFleetControllerPulumiConfigValues,
+  loadCiFleetControllerConfig,
+  makeCiFleetControllerConfig,
+} from "@beep/infra";
 import { it } from "@beep/test-runner";
 import { O, Str } from "@beep/utils";
 import { assert, describe, expect } from "@effect/vitest";
@@ -626,5 +631,36 @@ describe("@beep/infra CiFleetController", () => {
         )
       );
     })
+  );
+});
+
+describe("@beep/infra loadCiFleetControllerConfig", { concurrent: false }, () => {
+  it.effect("resolves relative Lambda ZIP paths against the artifacts root", () =>
+    Effect.acquireUseRelease(
+      Effect.sync(pulumi.runtime.allConfig),
+      () =>
+        Effect.sync(() => {
+          pulumi.runtime.setAllConfig({
+            "ciFleetController:githubAppIdSsmParameterArn": validConfigValues.githubAppIdSsmParameterArn,
+            "ciFleetController:githubAppKeyBase64SsmParameterArn": validConfigValues.githubAppKeyBase64SsmParameterArn,
+            "ciFleetController:githubAppKmsKeyArn": validConfigValues.githubAppKmsKeyArn,
+            "ciFleetController:githubAppWebhookSecretSsmParameterArn":
+              validConfigValues.githubAppWebhookSecretSsmParameterArn,
+            "ciFleetController:runnerBinariesSyncerLambdaZip": "gha-runner/v7.10.1/runner-binaries-syncer.zip",
+            "ciFleetController:runnerRolePermissionsBoundaryArn": validConfigValues.runnerRolePermissionsBoundaryArn,
+            "ciFleetController:runnersLambdaZip": "gha-runner/v7.10.1/runners.zip",
+            "ciFleetController:terminationWatcherLambdaZip": "/opt/artifacts/termination-watcher.zip",
+            "ciFleetController:webhookLambdaZip": "gha-runner/v7.10.1/webhook.zip",
+          });
+          const config = loadCiFleetControllerConfig({ HOME: "/home/example" });
+          expect(config.runnerBinariesSyncerLambdaZip).toBe(
+            "/home/example/beep-infra-artifacts/gha-runner/v7.10.1/runner-binaries-syncer.zip"
+          );
+          expect(config.runnersLambdaZip).toBe("/home/example/beep-infra-artifacts/gha-runner/v7.10.1/runners.zip");
+          expect(config.terminationWatcherLambdaZip).toBe("/opt/artifacts/termination-watcher.zip");
+          expect(config.webhookLambdaZip).toBe("/home/example/beep-infra-artifacts/gha-runner/v7.10.1/webhook.zip");
+        }),
+      (config) => Effect.sync(() => pulumi.runtime.setAllConfig(config))
+    )
   );
 });

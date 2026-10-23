@@ -493,22 +493,6 @@ const makeConnectionClient = (
   return client;
 };
 
-const makeNodeClient = (options: DuckDbConnectionOptions): DuckDbAdapter => {
-  const getConnection = acquireSharedConnection(options);
-  const connectionLock = Semaphore.makeUnsafe(1);
-  const useNodeConnection = Effect.fn("DuckDb.useNodeConnection")(function* <A, R>(
-    operation: DuckDbOperation,
-    use: NativeUse<A, R>
-  ): Effect.fn.Return<A, DuckDbError, R> {
-    return yield* connectionLock.withPermit(
-      Effect.gen(function* () {
-        return yield* use(yield* getConnection(operation));
-      })
-    );
-  });
-  return makeConnectionClient(options, useNodeConnection);
-};
-
 const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
   Layer.effectContext(
     Effect.gen(function* () {
@@ -598,39 +582,6 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    * @since 0.0.0
    */
   static readonly makeLayer = (client: DuckDbAdapter): Layer.Layer<DuckDb> => Layer.succeed(DuckDb, DuckDb.of(client));
-
-  /**
-   * Build a native DuckDB Node API client.
-   *
-   * **Details**
-   *
-   * The returned client lazily opens one shared native connection on first use
-   * and serializes operations through that connection. Prefer
-   * {@link DuckDb.makeNodeLayer} when the connection should be closed with an
-   * Effect scope finalizer.
-   *
-   * **Example** (In-memory native client)
-   *
-   * ```ts
-   * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
-   * import * as Effect from "effect/Effect";
-   * const client = DuckDb.makeNodeClient(DuckDbConnectionOptions.make({
-   *   databasePath: ":memory:"
-   * }))
-   *
-   * const program = Effect.gen(function* () {
-   *   yield* client.run("create table events (id varchar)")
-   *   yield* client.run("insert into events values ($id)", { id: "run-1" })
-   *   return yield* client.query("select id from events order by id")
-   * })
-   *
-   * Effect.runPromise(program).then((rows) => console.log(rows.length)) // 1
-   * ```
-   *
-   * @category constructors
-   * @since 0.0.0
-   */
-  static readonly makeNodeClient = makeNodeClient;
 
   /**
    * Build the native DuckDB Node API service layer.

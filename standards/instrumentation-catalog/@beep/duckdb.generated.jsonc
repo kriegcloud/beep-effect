@@ -16,7 +16,6 @@
     {"name":"DuckDb.runMany","owner":"@beep/duckdb","family":"driver","conforms":true},
     {"name":"DuckDb.runOnConnection","owner":"@beep/duckdb","family":"driver","conforms":true},
     {"name":"DuckDb.useLayerConnection","owner":"@beep/duckdb","family":"driver","conforms":true},
-    {"name":"DuckDb.useNodeConnection","owner":"@beep/duckdb","family":"driver","conforms":true},
     {"name":"DuckDb.useTransactionConnection","owner":"@beep/duckdb","family":"driver","conforms":true},
     {"name":"DuckDb.withTransaction","owner":"@beep/duckdb","family":"driver","conforms":true},
     {"name":"DuckDb.withTransactionOnConnection","owner":"@beep/duckdb","family":"driver","conforms":true},

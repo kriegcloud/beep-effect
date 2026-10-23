@@ -8,6 +8,7 @@
  */
 
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
+import { CalendarDate } from "@beep/law-practice-domain";
 import { DocketCategory, DocketDueDate, DocketResponsePeriod } from "@beep/law-practice-domain/values/DocketDeadline";
 import { LiteralKit } from "@beep/schema";
 import { LocalDateFromString } from "@beep/schema/LocalDate";
@@ -836,6 +837,70 @@ export class TrackedDate extends S.Opaque<TrackedDate, { readonly brand: unique 
 ) {}
 
 /**
+ * Where a candidate due date came from.
+ *
+ * **Details**
+ *
+ * - `stated`: the message states the date outright;
+ * - `computed`: computed from the mailing date and the response period;
+ * - `extractor`: the first reader's date in an agent review;
+ * - `reviewer`: the second reader's date in an agent review;
+ * - `tracked`: the date the attorney's docket sheet already tracks.
+ *
+ * **Example** (Guard a candidate source)
+ *
+ * ```ts
+ * import { DocketCandidateDateSource } from "@beep/law-practice-use-cases/DocketIntake"
+ *
+ * console.log(DocketCandidateDateSource.is.stated("stated")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const DocketCandidateDateSource = LiteralKit(["stated", "computed", "extractor", "reviewer", "tracked"]).pipe(
+  $I.annoteSchema("DocketCandidateDateSource", {
+    description: "Where a candidate due date came from: stated, computed, either agent reader, or the docket sheet.",
+  })
+);
+
+/**
+ * Runtime type for {@link DocketCandidateDateSource}.
+ *
+ * @see {@link DocketCandidateDateSource} for the sources.
+ * @category models
+ * @since 0.0.0
+ */
+export type DocketCandidateDateSource = typeof DocketCandidateDateSource.Type;
+
+/**
+ * One date a docket item's deadline could be, with where it came from.
+ *
+ * **Example** (Decode a stated date)
+ *
+ * ```ts
+ * import { DocketCandidateDate } from "@beep/law-practice-use-cases/DocketIntake"
+ * import * as S from "effect/Schema"
+ *
+ * const candidate = S.decodeUnknownOption(DocketCandidateDate)({ date: "2026-11-02", source: "stated" })
+ * console.log(candidate._tag) // "Some"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocketCandidateDate extends S.Opaque<DocketCandidateDate, { readonly brand: unique symbol }>()(
+  S.Struct({
+    date: LocalDateFromString.annotateKey({ description: "The candidate due date." }),
+    source: DocketCandidateDateSource.annotateKey({ description: "Where the date came from." }),
+  }).pipe(
+    $I.annoteSchema("DocketCandidateDate", {
+      description: "One date a docket item's deadline could be, with where it came from.",
+    })
+  )
+) {}
+
+/**
  * Outcome: both agents agree the message needs no docket entry.
  *
  * **Example** (Make the outcome)
@@ -885,6 +950,16 @@ export class DocketEntered extends S.Opaque<DocketEntered, { readonly brand: uni
  * Outcome: a docket item without a usable date, one the agents disagree on,
  * or one the review flagged has a needs-review entry.
  *
+ * **Details**
+ *
+ * Besides ids and flags, the outcome keeps what the attorney needs to know
+ * which email it is about: its subject, sender, day of receipt and Outlook
+ * link, its thread, the dates the deadline could be, and the matter. It also
+ * keeps the docket item's title, the calendar title a date the attorney picks
+ * gives the entry. Every one of those keys is optional or defaults to empty,
+ * so ledger records written before they existed still decode. The subject,
+ * the sender, the title and the matter are never logged.
+ *
  * **Example** (Read the outcome tag)
  *
  * ```ts
@@ -899,11 +974,25 @@ export class DocketEntered extends S.Opaque<DocketEntered, { readonly brand: uni
  */
 export class DocketNeedsReview extends S.Opaque<DocketNeedsReview, { readonly brand: unique symbol }>()(
   S.TaggedStruct("DocketNeedsReview", {
+    candidateDates: S.Array(DocketCandidateDate)
+      .pipe(S.withConstructorDefault(Effect.succeed([])), S.withDecodingDefaultTypeKey(Effect.succeed([])))
+      .annotateKey({ description: "Dates the deadline could be, from either reader or the docket sheet." }),
+    conversationId: opt(S.NonEmptyString, "Mail thread (Graph conversationId) of the message."),
+    docket: opt(S.NonEmptyString, "Docket number of the matched matter, when exactly one is known."),
     entry: DocketWrittenEntry.annotateKey({ description: "The needs-review entry." }),
     flags: S.Array(DocketEntryFlag).annotateKey({ description: "Things the attorney should check." }),
+    matter: opt(S.NonEmptyString, "One-line summary of what the matter lookup found (never logged)."),
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
+    messageLink: opt(S.NonEmptyString, "Link that opens the message in Outlook."),
     reason: DocketNeedsReviewReason.annotateKey({ description: "Why no dated entry was written." }),
+    receivedDate: opt(CalendarDate, "Calendar day the message was received on, in the practice time zone."),
     review: opt(ReviewVerdict, "Verdict of the review, when the item went through one."),
+    sender: opt(S.NonEmptyString, "Sender address of the message (never logged)."),
+    subject: opt(S.NonEmptyString, "Subject line of the message (never logged)."),
+    title: opt(
+      S.NonEmptyString,
+      "Title of the docket item, without the needs-review prefix: the calendar title a chosen date writes (never logged)."
+    ),
   }).pipe($I.annoteSchema("DocketNeedsReview", { description: "A docket item needs the attorney's review." }))
 ) {}
 
@@ -972,10 +1061,14 @@ export type DocketIntakeOutcome = typeof DocketIntakeOutcome.Type;
  *
  * **Details**
  *
- * A settled record holds ids, dates and flags only. While a review is still
- * running, `review` holds its completed rounds so a restart continues from
- * the next round; a record that has `review` is not settled, and the rounds
- * are dropped when the message settles.
+ * A settled record holds ids, dates and flags, and, for a needs-review
+ * message, what identifies the email to the attorney: its subject, sender,
+ * Outlook link, candidate dates, matter and the item's title (see
+ * {@link DocketNeedsReview}). The record stays in the state directory, and
+ * those fields are never logged. While a review is still running, `review`
+ * holds its completed rounds so a restart continues from the next round; a
+ * record that has `review` is not settled, and the rounds are dropped when
+ * the message settles.
  *
  * **Example** (Make a ledger record)
  *

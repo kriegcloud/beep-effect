@@ -9,6 +9,7 @@
     {"name":"DocketDryRun.create","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketDryRun.findByKey","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketDryRun.markEntered","owner":"@beep/docket-intake","family":"app","conforms":true},
+    {"name":"DocketIntakeApp.backfillQuestions","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.dryRunCycle","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.listRuns","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.pollCycle","owner":"@beep/docket-intake","family":"app","conforms":true},
