@@ -21,6 +21,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
 import * as Deferred from "effect/Deferred";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
@@ -762,19 +763,40 @@ describe("proof job launcher", () => {
       })
     )
   );
-  // The wait starts immediately, so its 15 ms deadline is armed on this test's own TestClock
-  // before the clock advances; the active unit keeps the poll loop from ever settling first.
+  // The wait arms its 15 ms deadline on this test's own TestClock as it starts. A delegating
+  // Clock counts each 1 ms poll sleep, which the loop requests only after a full read of the
+  // still-running record. The clock advances only once that first poll has completed, so the
+  // timeout is proven to fire against an observed active unit rather than before any read.
   it.effect("times out while a unit remains active", () =>
     fixture(
       Effect.fnUntraced(function* (root) {
         const launcher = yield* ProofJobLauncher.make(root);
         const record = yield* launcher.submit(submission(root));
+        const completedPolls = yield* Ref.make(0);
+        const firstPollCompleted = yield* Deferred.make<void>();
+        const clock = yield* Clock.Clock;
+        const pollObservingClock: Clock.Clock = {
+          ...clock,
+          sleep: (duration) =>
+            Duration.toMillis(duration) === 1
+              ? Ref.update(completedPolls, (n) => n + 1).pipe(
+                  Effect.andThen(Deferred.succeed(firstPollCompleted, undefined)),
+                  Effect.andThen(clock.sleep(duration))
+                )
+              : clock.sleep(duration),
+        };
         const waiting = yield* launcher
           .wait(record.jobId, Job.ProofJobWaitOptions.make({ timeoutMs: O.some(15), pollIntervalMs: 1 }))
-          .pipe(Effect.flip, Effect.forkChild({ startImmediately: true }));
+          .pipe(
+            Effect.flip,
+            Effect.provideService(Clock.Clock, pollObservingClock),
+            Effect.forkChild({ startImmediately: true })
+          );
+        yield* Deferred.await(firstPollCompleted);
         yield* TestClock.adjust("15 millis");
         const error = yield* Fiber.join(waiting);
         expect(error.message).toContain("Timed out");
+        expect(yield* Ref.get(completedPolls)).toBeGreaterThanOrEqual(1);
       })
     )
   );
@@ -1984,25 +2006,34 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("proof job record guards
   );
 });
 
-// it.live: a contender on a held record lock sleeps 25 ms between file-lock attempts, with real
-// filesystem IO between sleeps, so a TestClock adjustment cannot drive the retry loop. The live
-// clock proves the busy verdict arrives only after the contender's real backoff (199 pauses of
-// 25 ms, about 5 s), not on its first refused attempt.
-it.live("reports a record lock held by a live process as busy", () =>
+// The contender pauses 25 ms between file-lock attempts. A delegating Clock counts those pauses
+// and returns at once, so the test needs neither live time nor a TestClock adjustment that real
+// filesystem IO between attempts would outrun. The count proves the busy verdict comes only
+// after the whole bounded backoff (200 attempts, 199 pauses), and the record proves the refused
+// cancel changed nothing.
+it.effect("reports a record lock held by a live process as busy", () =>
   fixture(
     Effect.fnUntraced(function* (root) {
       const fs = yield* FileSystem.FileSystem;
-      const launcher = yield* ProofJobLauncher.make(root);
+      const retryPauses = yield* Ref.make(0);
+      const clock = yield* Clock.Clock;
+      const pauseCountingClock: Clock.Clock = {
+        ...clock,
+        sleep: (duration) =>
+          Duration.toMillis(duration) === 25 ? Ref.update(retryPauses, (n) => n + 1) : clock.sleep(duration),
+      };
+      // The launcher captures its context, Clock included, when it is made.
+      const launcher = yield* ProofJobLauncher.make(root).pipe(Effect.provideService(Clock.Clock, pauseCountingClock));
       const record = yield* launcher.submit(submission(root));
       const lockPath = `${root}/.beep/yeet/jobs/${record.jobId}.lock`;
       const holder = `${process.pid}:test-holder`;
       expect(yield* acquireJournalFileLock(lockPath, holder, 1)).toBe(true);
-      const contendedAt = yield* Clock.currentTimeMillis;
+      const pausesBeforeCancel = yield* Ref.get(retryPauses);
       const busy = yield* launcher.cancel(record.jobId).pipe(Effect.flip);
-      const busyAfterMillis = (yield* Clock.currentTimeMillis) - contendedAt;
       yield* releaseJournalFileLock(lockPath, holder);
       expect(busy).toMatchObject({ message: `Proof job ${record.jobId} stayed busy.` });
-      expect(busyAfterMillis).toBeGreaterThanOrEqual(4_000);
+      expect((yield* Ref.get(retryPauses)) - pausesBeforeCancel).toBe(199);
+      assertNone(O.getOrThrow(yield* launcher.read(record.jobId)).cancelRequestedAt);
       expect(yield* fs.exists(lockPath)).toBe(false);
     })
   )

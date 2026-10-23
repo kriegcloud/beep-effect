@@ -33,9 +33,9 @@ whose files moved on main since the last write; those rows keep their status and
 | --- | --- | --- | --- |
 | `@beep/repo-cli` | `test/proof-shadow.test.ts` | 13 EV009 | `it.live` to `it.effect`. The bodies only run the shadow recorder and ledger against a temp checkout. The ledger stamps `DateTime.now` and compares expiry against the same clock, so the fixed TestClock keeps every decision; no body sleeps or times out. |
 | `@beep/repo-cli` | `test/proof-digest.test.ts` | 3 EV009 | `it.live` to `it.effect`. Golden-digest checks over Crypto and fixture files; no clock or console dependency. |
-| `@beep/repo-cli` | `test/proof-job.test.ts` | 2 EV009 | The wait-timeout case moves to `it.effect`: the wait is forked with `startImmediately`, which arms its 15 ms `timeoutOrElse` deadline on the test's own TestClock, then `TestClock.adjust("15 millis")` fires it. A negative control with a 14 ms adjust hangs to the test deadline, so the case now pins the deadline exactly instead of racing real sleeps. The record-lock case stays live: its contender retries with real filesystem IO between 25 ms sleeps, which one adjustment cannot drive. It now reads `Clock.currentTimeMillis` around the contention and asserts the busy verdict arrives only after at least 4 s of real backoff (nominal 199 x 25 ms), a stronger check than the verdict alone. |
+| `@beep/repo-cli` | `test/proof-job.test.ts` | 2 EV009 | Both cases move to `it.effect` (final form after review round 1). Wait timeout: the wait is forked with `startImmediately`, which arms its 15 ms deadline on the test's own TestClock. A delegating `Clock` counts the loop's 1 ms poll sleeps and signals a `Deferred` on the first one. The loop requests that sleep only after a full read of the still-running record. The clock advances past the deadline only after that signal, and the test asserts at least one completed poll. Record lock: a delegating `Clock`, provided when the launcher is made, counts the contender's 25 ms retry pauses and returns at once. The test asserts the busy verdict, exactly 199 pauses (the full 200-attempt backoff) and an unchanged record (`cancelRequestedAt` none). |
 | `@beep/repo-cli` | `test/yeet-inbox-porcelain.test.ts` | 1 EV009 | `it.live` to `it.effect` with `TestClock.setTime` pinned to the file's `AT` instant (2026-08-17). The expired-waiver case (`2000-01-01`) needs a "now" after that stamp, which the live clock supplied; the pinned TestClock supplies it deterministically. |
-| `@beep/professional-desktop` | `test/intake-atoms.test.ts` | 1 EV009 | Stays `it.live`: native AtomRegistry idle timers are the subject. It now reads `Clock.currentTimeMillis` around the 50 ms wait and asserts the live clock passed the 10 ms idle TTL before the eviction witness is checked, the same evidence wave 1 used for the live test-runner case. |
+| `@beep/professional-desktop` | `test/intake-atoms.test.ts` | 1 EV009 | Stays `it.live`, because AtomRegistry arms its idle sweep with a native `setTimeout` against `Date.now`, which TestClock cannot advance. The idle witness is armed after the file-input release. The test asserts the witness is present, awaits the registry's own `onNodeRemoved` signal for it under a 3 s live watchdog, then asserts it was evicted no earlier than the 10 ms TTL and is gone from `getNodes()`. Only then does it check that the file input survives. |
 | `@beep/repo-cli` | `test/ci-heavy-admission.test.ts` (2), `doctest.test.ts`, `fixtures/bun-spawn-env/spawn-env.test.ts`, `graft-cache-sync.test.ts`, `native-runtime.test.ts`, `schema-catalog.test.ts`, `session-orchestrator.test.ts` | 9 EV014 | Explicit `{ timeout: "30 seconds" }` hook budget, the policy's canonical value. |
 | `@beep/repo-cli` | `test/skills-provenance.test.ts` | 1 EV014 | `{ timeout: "60 seconds" }`, the value the file's other layer blocks already use. |
 | `@beep/agents-use-cases` | `test/AssistantTurn.test.ts` | 1 EV014 | `{ timeout: "30 seconds" }`. |
@@ -124,7 +124,7 @@ reports TS6305 without them.
 | `check` (includes the test overlay) `@beep/repo-cli`, `@beep/professional-desktop`, `@beep/agents-use-cases`, `@beep/nlp-mcp`, `@beep/workspace-server` | exit 0, 0 errors each; repo-cli `tsc-rs -p test/tsconfig.json` exit 0 |
 | repo-cli changed suites (12 files incl. `bun-spawn-env-parity`), Node / Bun | 277 / 277 passed |
 | `ThreadStore`, `AssistantTurn`, `Streaming.functions`, `intake-atoms`, Node / Bun | 12, 7, 2, 8 passed on both |
-| proof-job timeout negative control (14 ms adjust) | hangs to the 5 s test deadline, as expected |
+| proof-job timeout probes | 14 ms adjust: hangs to the 5 s deadline. Adjust before the first-poll signal: fails `expected 0 to be greater than or equal to 1` on Node and Bun |
 | coverage ratchet `@beep/workspace-server`, `@beep/agents-use-cases`, `@beep/nlp-mcp` | `ok: compared 3 package(s) with epsilon 0.001` |
 | coverage ratchet `@beep/professional-desktop` | `ok: compared 1 package(s)` |
 | coverage ratchet `@beep/repo-cli` | `ok: compared 1 package(s)`, 358 files / 7,535 passed. A first run had two reds outside this wave: `knowledge-doctor-evaluators` compares the `HEAD` tree with the working tree, so it fails on the uncommitted packet manifest (it passes 14/14 with that file at `HEAD`), and `cache-pilot-orchestration` hit `EADDRINUSE 127.0.0.1:47511` (environment; passes 25/25 alone). The rerun held the manifest at `HEAD` and restored it afterwards. |
@@ -139,6 +139,39 @@ reports TS6305 without them.
 Environment note: the dependency build emits `dist/**/test/*.d.ts` declaration files
 for four test kits, which the effect-vitest scope counts (files 2,361 to 2,365). They
 produce no finding and are ignored build output.
+
+## Review round 1 (#2153)
+
+Two P2 threads on test validity, fixed in the lane at `85985aaf38`:
+
+- **PRRT_kwDOPbO_N86vuxeZ** (`proof-job.test.ts`, wait timeout): `TestClock.adjust` could
+  fire the 15 ms deadline before the first record read, which is real filesystem I/O, had
+  finished. The test seam is the `Clock` reference. `Effect.sleep` resolves it through
+  `clockWith`, so a delegating clock provided to the forked wait sees the poll loop's 1 ms
+  sleep, which the loop requests only after a complete read. The test awaits that signal
+  before advancing and asserts at least one completed poll. Probe: advancing before the
+  signal fails with `expected 0 to be greater than or equal to 1` on Node and Bun. Restored
+  afterwards. No production change.
+- **PRRT_kwDOPbO_N86vuxet** (`intake-atoms.test.ts`): the `elapsed > 10` check after a fixed
+  50 ms sleep could not fail. The fixed sleep and that check are gone. The test awaits the
+  registry's `onNodeRemoved` callback for the idle witness and asserts presence before and
+  eviction no earlier than the TTL. It stays live because the sweep is a native timer.
+  A first draft polled `getNodes()` in a sleep loop, which the scan flagged as EV013
+  `retry-loop-candidate`; the removal hook replaces that draft.
+- **Same scrutiny for the record-lock test:** its `>= 4,000 ms` bound was dropped. The
+  launcher captures its context, `Clock` included, at `make`, so the counting clock is
+  provided there. The test now runs under `it.effect` with no real wait (it used to take about 5 s),
+  and asserts the exact pause count plus the unchanged record.
+
+Rerun, each command alone through `beep-heavy`:
+
+| Check | Result |
+| --- | --- |
+| `check` with test overlay, `@beep/repo-cli` and `@beep/professional-desktop` | exit 0, 0 errors; repo-cli deps rebuilt first after the main merge (TS6305) |
+| `proof-job.test.ts`, Node / Bun | 106 / 106 passed |
+| `intake-atoms.test.ts`, Node / Bun | 8 / 8 passed, three runs on each |
+| `lint effect-vitest` against the committed inventory | `introduced=0 resolved=0`; the inventory needs no rewrite |
+| Biome / oxlint on both files | clean |
 
 ## Reversal
 
