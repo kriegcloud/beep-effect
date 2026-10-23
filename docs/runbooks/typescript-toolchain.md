@@ -61,7 +61,9 @@ exception was upstream 7.1-dev behaviour, fixed in #1670). Rules of the road:
 - `tsc-rs --version` prints `Version 7.1.0-dev`; the `.bin/tsc` ↔ `.bin/tsgo`
   version equality test covers the Effect
   binary; `EffectTsgoEffectFnPolicy.test.ts` independently verifies the tsc-rs
-  identity and that both shared Effect rules and type errors still fail Check.
+  identity, that an Effect-only finding leaves tsc-rs at exit 0 (the
+  standalone diagnostics lane gates Effect rules), and that type errors still
+  fail Check.
 
 ### Updating tsc-rs
 
@@ -89,6 +91,11 @@ After a bump:
 3. Run `bun run check` and `bun run check:configs` across the repo, and fix new
    TypeScript errors at their source. Effect-rule (377xxx) findings do not fail
    these gates.
+4. Run the `@beep/repo-configs` tests (`bunx vitest run` in
+   `packages/tooling/policy-pack/repo-configs`). `bun run check` does not run
+   them. `EffectTsgoEffectFnPolicy.test.ts` checks the tsc-rs identity
+   (`^Version 7\.1\.0-dev`, which must move with ts-rust's TypeScript pin), the
+   root-map unknown-rule canary and the exit-code policy.
 
 ## Binary paths (Linux x64)
 

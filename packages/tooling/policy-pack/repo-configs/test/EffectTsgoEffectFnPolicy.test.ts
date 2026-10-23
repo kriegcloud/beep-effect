@@ -27,7 +27,7 @@ const effectTsgoCliPath = fileURLToPath(
   new URL("../../../../../node_modules/@effect/tsgo/dist/effect-tsgo.cjs", import.meta.url)
 );
 
-// Shared Effect rules gate tsc-rs until the standalone diagnostics lane is promoted.
+// tsc-rs reports Effect rules but gates TypeScript errors only; the standalone diagnostics lane gates the rules.
 // Its embedded Effect port may lag the independently reviewed editor/rule compiler.
 const RootCatalog = S.Struct({
   catalog: S.Struct({ "tsc-rs": S.String, "@effect/tsgo": S.String }),
