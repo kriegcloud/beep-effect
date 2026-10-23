@@ -253,6 +253,11 @@ query the caller runs on that connection outside the client.
   the file and is refused with `ConnectionError` while this process holds the
   same file read-write. In-process readers of a file you also write should use
   the read-write client.
+- Legacy `DuckDb` READ_ONLY opens also use the cache and fail their first
+  statement with `DuckDbError` beside an in-process writer. Standalone legacy
+  READ_ONLY opens share one cached database. Law-practice projection scans and
+  email reads use the build's read-write service; claims reuse the host service
+  or open a cached READ_ONLY connection when run standalone.
 - The refusal works in both directions. While a `readOnly` client of a file is
   open, a later read-write `DuckDbClient` open of that file fails with
   `ConnectionError` (retryable; the native cause is DuckDB's `Can't open a
@@ -423,7 +428,7 @@ DDL for it.
 | Streams with one writer statement per row outside a transaction | supported with `readerConnections > 0`; streams on `reserve` still deadlock |
 | `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); `exportDatabase` is #2082 |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
-| READ_ONLY client beside a read-write client of the same file in one process, in either open order | the later open is refused with `ConnectionError`; share the read-write client instead |
+| READ_ONLY beside read-write of the same file in one process, in either open order (client and legacy) | later open refused: client `ConnectionError`, legacy first statement `DuckDbError`; share the read-write service |
 
 ## Testing
 
