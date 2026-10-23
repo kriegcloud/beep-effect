@@ -1268,6 +1268,9 @@ const mapTextRun = (
   ]);
 };
 
+const escapedInlineHtml = (state: BridgeState, kid: Kit.PhrasingContent): boolean =>
+  kid.type === "html" && headHtmlKept(state, kid.value) && !(state.options.breakTag && isBreakTag(kid.value));
+
 const mapPhrasingChildren = (
   state: BridgeState,
   kids: ReadonlyArray<Kit.PhrasingContent>,
@@ -1318,17 +1321,10 @@ const mapPhrasingChildren = (
       continue;
     }
     flush();
-    const previous = A.last(out);
-    const mergesHtml =
-      kid.type === "html" &&
-      state.options.html === MdHtmlPolicy.Enum.escapeAsText &&
-      !(state.options.breakTag && isBreakTag(kid.value)) &&
-      mergeableText &&
-      O.isSome(previous) &&
-      previous.value._tag === "text";
+    const mergesHtml = mergeableText && escapedInlineHtml(state, kid);
     const path = new SlotPath(parent, offset + out.length - (mergesHtml ? 1 : 0));
     for (const inline of phrasingStep(kid)(state, path)) {
-      append(inline, kid.type === "html" && state.options.html === MdHtmlPolicy.Enum.escapeAsText);
+      append(inline, escapedInlineHtml(state, kid));
     }
   }
   flush();
