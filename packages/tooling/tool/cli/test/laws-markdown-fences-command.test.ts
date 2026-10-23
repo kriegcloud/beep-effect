@@ -56,6 +56,20 @@ const generatedReadme = markdownOf(
   fence,
   "<!-- docgen:api-reference:end -->"
 );
+// Each fence is cut off before its closer, so the compiler reports it at the end of the staged file.
+const unclosedFences = markdownOf(
+  `${fence}ts`,
+  "export const block = () => {",
+  "  const value = 1",
+  fence,
+  `${fence}ts`,
+  "export const call = Math.max(1,",
+  "  2",
+  fence,
+  `${fence}ts`,
+  "export const template = `unterminated ${1}",
+  fence
+);
 const brokenHistory = markdownOf(`${fence}ts`, "const history: number = 'text'", fence);
 const skillsLock = `${JSON.stringify({
   version: 2,
@@ -92,7 +106,8 @@ const runGit = Effect.fn("MarkdownFencesCommandTest.runGit")(function* (root: st
 
 /** A git checkout with the repository's compiler, a guidance file, a generated region and a history packet. */
 const makeFixtureCheckout = Effect.fn("MarkdownFencesCommandTest.makeFixtureCheckout")(function* (
-  withSkillsLock: boolean
+  withSkillsLock: boolean,
+  guideText: string = guide
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -107,7 +122,7 @@ const makeFixtureCheckout = Effect.fn("MarkdownFencesCommandTest.makeFixtureChec
   if (withSkillsLock) {
     yield* writeRepoFile(root, "skills-lock.json", skillsLock);
   }
-  yield* writeRepoFile(root, "docs/guide.md", guide);
+  yield* writeRepoFile(root, "docs/guide.md", guideText);
   yield* writeRepoFile(root, "packages/demo/README.md", generatedReadme);
   yield* writeRepoFile(root, "goals/demo/SPEC.md", brokenHistory);
   yield* fs.makeDirectory(path.join(root, "node_modules", ".bin"), { recursive: true });
@@ -154,6 +169,26 @@ it.layer(TestLayer, { timeout: "120 seconds" })((it) => {
             A.map(failure.diagnostics, (diagnostic) => `${diagnostic.path}:${diagnostic.line}:${diagnostic.code}`)
           )
         ).toEqual(["docs/guide.md:6:TS2322", "docs/guide.md:12:fence-suppression"]);
+      })
+    );
+
+    it.effect(
+      "fails unclosed braces, parentheses and templates reported at the end of a staged fence",
+      Effect.fnUntraced(function* () {
+        const root = yield* makeFixtureCheckout(true, unclosedFences);
+
+        const summary = yield* runMarkdownFences(
+          MarkdownFencesOptions.make({ cwd: root, strictCheck: true, pathPrefix: "docs/" })
+        );
+
+        expect(summary.checkedFences).toBe(3);
+        expect(summary.strictFailure).toBe(true);
+        // Every diagnostic lands on its fence's last body line: 3, 7 and 10.
+        expect(
+          A.map(summary.failures, (failure) =>
+            A.dedupe(A.map(failure.diagnostics, (diagnostic) => `${diagnostic.path}:${diagnostic.line}`))
+          )
+        ).toEqual([["docs/guide.md:3"], ["docs/guide.md:7"], ["docs/guide.md:10"]]);
       })
     );
 

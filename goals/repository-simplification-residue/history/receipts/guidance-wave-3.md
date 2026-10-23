@@ -53,7 +53,15 @@ diagnostic while any staged fence has a syntax error (12 syntax failures, then t
 
 Surface: 526 tracked files before and after; 147 hold a TypeScript fence. Checks:
 1090 = 500 + 590; 500 = 485 + 15; 231 = 77 + 54 + 71 + 29 + 0; 147 = 13 + 5 + 10 + 118 + 1.
-No fence was added or deleted, so the fence count is unchanged.
+No fence was added or deleted by this wave, so its fence count is unchanged.
+
+After review round 1 (#2135) the lane merged `main` at `e70bf22d9a`. That merge brought
+two new fences in `packages/foundation/modeling/md/README.md` (#2121), both compiling, so
+the current run reads 526 files, 147 with fences, 1092 fences, 487 checked, 15 opt-outs,
+590 generated and 0 failing (1092 = 487 + 15 + 590). The base replay was re-run with the
+round-1 end-of-file fix and compiles until a pass finds no new failure (3 passes); it
+still finds 231 failing fences at `599b553267`, with the same per-file counts, and the
+fixed gate caught no guidance fence on the current tree, so no fix or opt-out was added.
 
 Reconciliation with wave 1's "324 fences": wave 1 counted `ts`, `tsx`, `typescript`,
 `js`, `javascript` and `mts` fences on its own 342-file surface, which had no package
@@ -229,6 +237,31 @@ Round 2: every round-1 finding resolved; 1 P1 and 5 P2 new, all in the rewritten
 hand-written Option tag check, native `self.map`, a type assertion), all fixed. Review
 loops stop after round 2.
 
+## Review round 1 (#2135)
+
+- **PRRT_kwDOPbO_N86vqjmy (P1), end-of-file syntax errors dropped.** A staged fence body
+  ends in a newline and the stager adds another, so tsc reports an unclosed `{`, `(`,
+  string or template one or two lines past the body, and the verdict's line range
+  dropped it: the gate passed those fences. `mapFenceDiagnostics` now clamps every
+  diagnostic of a staged fence to the fence's last body line (`bodyLineCount`), and the
+  verdict range ends on that same line, so no diagnostic inside a staged fence file is
+  dropped. Regression: `laws-markdown-fences-command.test.ts` "fails unclosed braces,
+  parentheses and templates reported at the end of a staged fence" (three fences, each
+  must fail on its last body line); it failed with the old mapping (`strictFailure`
+  false) and passes with the fix. `laws-markdown-fences.test.ts` adds a pure end-of-file
+  mapping case. Census: no newly caught fence (see Census).
+- **PRRT_kwDOPbO_N86vqjm- (P2), module doc.** The `MarkdownFences.ts` module doc now names
+  `@ts-ignore` and `@ts-nocheck` as the rejected directives, matching
+  `SUPPRESSION_PATTERN`, and documents the end-of-file attribution.
+
+Round-1 reruns, each alone through `beep-heavy` with `</dev/null`: repo-cli `bun run check`
+exit 0 and `tsc-rs -p test/tsconfig.json` 0 errors; the four law test files 46/46 on Node
+and on Bun; coverage of `MarkdownFences.ts`, `MarkdownFences.model.ts`,
+`internal/TypeScriptFences.ts` and `SchemaTagIdioms.ts` 100% lines, functions, branches
+and statements; `beep laws markdown-fences --check` `failed=0`; schema-tag-idioms 0
+findings; schema-first `introduced=0`; effect-vitest `introduced=0`; fallow audit
+`introduced=0`; Biome and oxlint clean; retired-effect-paths 0 findings.
+
 ## Verification
 
 Every command ran alone through `beep-heavy` with `</dev/null`, from the worktree root
@@ -236,7 +269,7 @@ unless a package path is shown.
 
 | Gate | Result |
 | --- | --- |
-| `bun run beep laws markdown-fences --check` (whole surface) | 526 files, 1090 fences, 485 checked, 15 opt-out, 590 generated, `failed=0`, exit 0 |
+| `bun run beep laws markdown-fences --check` (whole surface) | 526 files, 1090 fences, 485 checked, 15 opt-out, 590 generated, `failed=0`, exit 0; after the round-1 fix and the `main` merge: 1092 fences, 487 checked, 15 opt-out, 590 generated, `failed=0` |
 | `@beep/repo-cli` typed check (`tsc-rs -p tsconfig.check.json`, `test/tsconfig.json`, `scripts/tsconfig.json`) | 0 errors each |
 | New and affected tests on Bun (`bunx --bun vitest run`: both markdown-fences files, schema-tag-idioms pair, `quality-tasks`, `root-tasks-turbo-inputs`) | 6 files, 317 tests passed |
 | Same law tests on Node (`bunx vitest run`, four law files) | 4 files, 45 tests passed |

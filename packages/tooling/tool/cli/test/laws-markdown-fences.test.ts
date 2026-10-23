@@ -173,32 +173,36 @@ describe("Markdown fence typecheck law", () => {
   });
 
   describe("diagnostic mapping", () => {
-    it.effect("maps staged diagnostics to Markdown lines and drops unknown fences", () =>
-      Effect.sync(() => {
-        const fences = [checkedFence("docs/a.md", 3, "missing()\n"), checkedFence("docs/b.md", 10, "x\ny\n")];
-        const output = A.join(
-          [
-            "fence-0.ts(1,1): error TS2304: Cannot find name 'missing'.",
-            "fence-1.ts(2,5): error TS2322: Type 'string' is not assignable to type 'number'.",
-            "  continuation line of a message chain",
-            "fence-9.ts(1,1): error TS2304: Cannot find name 'gone'.",
-          ],
-          "\n"
-        );
+    it.effect(
+      "maps staged diagnostics to Markdown lines, end-of-file ones to the last body line, and drops unknown fences",
+      () =>
+        Effect.sync(() => {
+          const fences = [checkedFence("docs/a.md", 3, "missing()\n"), checkedFence("docs/b.md", 10, "x\ny\n")];
+          const output = A.join(
+            [
+              "fence-0.ts(1,1): error TS2304: Cannot find name 'missing'.",
+              "fence-1.ts(2,5): error TS2322: Type 'string' is not assignable to type 'number'.",
+              "  continuation line of a message chain",
+              "fence-1.ts(3,1): error TS1005: '}' expected.",
+              "fence-9.ts(1,1): error TS2304: Cannot find name 'gone'.",
+            ],
+            "\n"
+          );
 
-        expect(
-          A.map(mapFenceDiagnostics(fences, output), (diagnostic) => [
-            diagnostic.path,
-            diagnostic.line,
-            diagnostic.column,
-            diagnostic.code,
-          ])
-        ).toEqual([
-          ["docs/a.md", 4, 1, "TS2304"],
-          ["docs/b.md", 12, 5, "TS2322"],
-        ]);
-        expect(pipe(fences, mapFenceDiagnostics(""))).toEqual([]);
-      })
+          expect(
+            A.map(mapFenceDiagnostics(fences, output), (diagnostic) => [
+              diagnostic.path,
+              diagnostic.line,
+              diagnostic.column,
+              diagnostic.code,
+            ])
+          ).toEqual([
+            ["docs/a.md", 4, 1, "TS2304"],
+            ["docs/b.md", 12, 5, "TS2322"],
+            ["docs/b.md", 12, 1, "TS1005"],
+          ]);
+          expect(pipe(fences, mapFenceDiagnostics(""))).toEqual([]);
+        })
     );
 
     it.effect("names staged files by language and renders failures as path:line:col", () =>

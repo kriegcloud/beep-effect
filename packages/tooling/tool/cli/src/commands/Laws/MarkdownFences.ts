@@ -24,6 +24,10 @@
  * `@ts-nocheck` fails, because either directive would hide it from the check;
  * a negative example proves its failure with `@ts-expect-error` instead.
  *
+ * A diagnostic the compiler reports past a fence's last body line (an
+ * unclosed `{`, `(`, string or template is reported at end of file) is
+ * attributed to that last line, so no diagnostic of a staged fence is dropped.
+ *
  * **Gotchas**
  *
  * The compiler reports no semantic diagnostic while any staged fence has a
@@ -45,6 +49,7 @@ import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -100,6 +105,7 @@ const SKILLS_PREFIX = ".claude/skills/";
 /** Staged module names are `fence-<index>.ts(x)`; `tsc --pretty false` prints diagnostics as `file(line,col): error TSn: message`. */
 const DIAGNOSTIC_PATTERN = /^fence-(\d+)\.tsx?\((\d+),(\d+)\): error (TS\d+): (.*)$/gmu;
 const ERROR_LINE_PATTERN = /error TS\d+:/u;
+const TRAILING_NEWLINE_PATTERN = /\n$/u;
 /** Directives that would silently exempt a staged fence from the check. */
 const SUPPRESSION_PATTERN = /@ts-(?:nocheck|ignore)\b/gu;
 
@@ -111,6 +117,9 @@ const byLocation = Order.combine(
 
 const hasPrefix = (file: string, prefixes: ReadonlyArray<string>): boolean =>
   A.some(prefixes, (prefix) => Str.startsWith(prefix)(file));
+
+const bodyLineCount = (fence: MarkdownFence): number =>
+  A.length(Str.split("\n")(Str.replace(TRAILING_NEWLINE_PATTERN, "")(fence.body)));
 
 const baseName = (file: string): string => A.lastNonEmpty(Str.split("/")(file));
 
@@ -300,7 +309,9 @@ export const stagedFenceFileName: {
  * **Details**
  *
  * Body line `n` of the fence opened on Markdown line `l` is Markdown line
- * `l + n`. A diagnostic whose staged index names no fence is dropped; the
+ * `l + n`. A diagnostic past the last body line, where the compiler reports an
+ * unclosed bracket, string or template at end of file, maps to the last body
+ * line. A diagnostic whose staged index names no fence is dropped; the
  * caller compares the error count against the mapped count.
  *
  * **Example** (Map a missing-name diagnostic)
@@ -339,7 +350,7 @@ export const mapFenceDiagnostics: {
         O.map(A.get(fences, Number(index)), (fence) =>
           MarkdownFenceDiagnostic.make({
             path: fence.path,
-            line: fence.line + Number(line),
+            line: fence.line + Num.min(Number(line), bodyLineCount(fence)),
             column: Number(column),
             code: `${code}`,
             message: `${message}`,
@@ -504,7 +515,7 @@ const verdictsFor = (
     if (fence.disposition !== "checked") {
       return MarkdownFenceVerdict.cases.skipped.make({ fence });
     }
-    const end = fence.line + A.length(Str.split("\n")(fence.body));
+    const end = fence.line + bodyLineCount(fence);
     const own = A.appendAll(
       suppressionDiagnostics(fence),
       A.filter(
