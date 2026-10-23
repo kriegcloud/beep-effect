@@ -39,15 +39,15 @@ export class TerseEffectRulesOptions extends S.Opaque<TerseEffectRulesOptions, {
   S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     excludePaths: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
   }).pipe(
@@ -83,31 +83,31 @@ export class TerseEffectRulesSummary extends S.Opaque<TerseEffectRulesSummary, {
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     blockingFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     informationalFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     rewritableFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     blockingFindings: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     informationalFindings: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     rewritableFindings: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("TerseEffectRulesSummary", {

@@ -112,11 +112,11 @@ export const RetryPolicySchema = RetryPolicy.pipe(
 export class TransportOptions extends S.Opaque<TransportOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** A GitHub Enterprise API root. */
-    baseUrl: S.optional(S.String).pipe(
+    baseUrl: S.optionalKey(S.String).pipe(
       $I.annoteKey("TransportOptions.baseUrl", { description: "A GitHub Enterprise API root." })
     ),
     /** A replacement for the global `fetch`. */
-    fetch: S.optional(FetchFunction).pipe(
+    fetch: S.optionalKey(FetchFunction).pipe(
       $I.annoteKey("TransportOptions.fetch", { description: "A replacement for the global fetch." })
     ),
     /** The resolved retry policy. */
@@ -130,13 +130,13 @@ export class TransportOptions extends S.Opaque<TransportOptions, { readonly bran
      */
     token: S.String.pipe(
       S.Redacted,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("TransportOptions.token", {
         description: "The bearer credential. Absent means unauthenticated.",
       })
     ),
     /** Appended to octokit's own user agent. */
-    userAgent: S.optional(S.String).pipe(
+    userAgent: S.optionalKey(S.String).pipe(
       $I.annoteKey("TransportOptions.userAgent", { description: "Appended to octokit's own user agent." })
     ),
   }).pipe(

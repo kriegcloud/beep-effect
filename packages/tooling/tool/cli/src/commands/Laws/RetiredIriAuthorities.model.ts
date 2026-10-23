@@ -325,7 +325,7 @@ export class RetiredIriAuthoritiesOptions extends S.Opaque<
     cwd: S.String,
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
   }).pipe(
     $I.annoteSchema("RetiredIriAuthoritiesOptions", {
@@ -366,7 +366,7 @@ export class RetiredIriAuthoritiesSummary extends S.Opaque<
     strictFailure: S.Boolean,
     findings: S.Array(RetiredIriAuthorityFinding).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<RetiredIriAuthorityFinding>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<RetiredIriAuthorityFinding>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<RetiredIriAuthorityFinding>()))
     ),
   }).pipe(
     $I.annoteSchema("RetiredIriAuthoritiesSummary", {

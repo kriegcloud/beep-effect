@@ -22,8 +22,8 @@ class WiderFile extends Context.Service<WiderFile, ConfigFileShape<Settings> & {
 // `A` comes only from the call's context. The tag must keep `A` inferable, or it
 // falls to `unknown` and the correctly shaped key below is rejected.
 class Optional extends S.Class<Optional, { readonly brand: unique symbol }>("Optional")({
-  cacheDir: S.optional(S.String),
-  projectKey: S.optional(S.String),
+  cacheDir: S.optionalKey(S.String),
+  projectKey: S.optionalKey(S.String),
 }) {}
 class OptionalFile extends ConfigFile.Service<OptionalFile, Optional>()("key-typing/OptionalFile") {}
 

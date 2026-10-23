@@ -12,6 +12,7 @@
     "../rules/no-empty-named-blocks.grit",
     "../rules/prefer-array-flat-map.grit",
     "../rules/prefer-identity-annote-pipe.grit",
-    "../rules/no-hand-built-identity-annotation.grit"
+    "../rules/no-hand-built-identity-annotation.grit",
+    "../rules/prefer-exact-optional-key.grit"
   ]
 }
