@@ -1,3 +1,4 @@
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { accountsCommand } from "@beep/repo-cli";
 import {
@@ -611,6 +612,25 @@ describe("accounts board rendering", () => {
       )
     ).toBe(true);
     expect(board).toContain("abcdefghijklmnopqr… ●");
+  });
+
+  it("fits wide and emoji labels by display width, so every frame line stays 64 columns", () => {
+    const wide = "研究開発チームの共有アカウント@example.com";
+    const emoji = "🙂🙂 team@example.com";
+    const board = plainBoard(reportOf([ok(wide, [weekly(30, inHours(20))]), ok(emoji, [weekly(10, inHours(5))])]), 64);
+    const lines = linesOf(board);
+    // Code-unit lengths undercount these labels; the terminal's columns are what must line up.
+    expect(A.every(lines, (line) => Fmt.width(line) <= 64)).toBe(true);
+    expect(
+      A.every(
+        A.filter(lines, (line) => /^[╭│╰]/.test(line)),
+        (line) => Fmt.width(line) === 64
+      )
+    ).toBe(true);
+    // Both labels are cut on a whole character to the 18-column label cell and end in the ellipsis, so the status
+    // column starts at the same terminal column on both rows.
+    expect(board).toContain("│ ▶ 🙂🙂 team@example.…   ready");
+    expect(board).toContain("│ 2 研究開発チームの共…   ready");
   });
 
   it("prints a hint when no account is registered, and colors on request", () => {

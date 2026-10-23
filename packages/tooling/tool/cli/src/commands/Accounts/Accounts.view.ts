@@ -12,6 +12,7 @@
  * @since 0.0.0
  */
 import defaultChalk, { Chalk } from "@beep/chalk";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -129,12 +130,20 @@ const makePalette = (color: boolean) => {
 
 type Palette = ReturnType<typeof makePalette>;
 
-// Fit plain text into a column: cut with an ellipsis, or pad with spaces.
-const fit = (text: string, width: number): string =>
-  Str.length(text) > width ? `${Str.slice(0, Math.max(width - 1, 0))(text)}…` : pipe(text, Str.padEnd(width));
+// Spaces that pad display-width-fitted text out to `width` columns.
+const padding = (text: string, width: number): string => Str.repeat(Math.max(width - Fmt.width(text), 0))(" ");
 
-const fitRight = (text: string, width: number): string =>
-  Str.length(text) > width ? Str.slice(0, width)(text) : pipe(text, Str.padStart(width));
+// Fit plain text into a column by display width: cut with an ellipsis, or pad with spaces. A wide character or an
+// emoji counts as the two columns a terminal gives it.
+const fit = (text: string, width: number): string => {
+  const cut = Fmt.truncate(text, width);
+  return `${cut}${padding(cut, width)}`;
+};
+
+const fitRight = (text: string, width: number): string => {
+  const cut = Fmt.truncate(text, width, { ellipsis: "" });
+  return `${padding(cut, width)}${cut}`;
+};
 
 const percent = (value: number): string => `${Math.round(value)}%`;
 
@@ -290,7 +299,7 @@ const SEPARATOR = " · ";
 const joinFitted = (parts: ReadonlyArray<string>, plain: ReadonlyArray<string>, width: number): string =>
   A.join(
     A.reduce(A.zip(parts, plain), { kept: A.empty<string>(), used: 0, full: false }, (state, [part, text]) => {
-      const used = state.used + (A.isReadonlyArrayEmpty(state.kept) ? 0 : SEPARATOR.length) + Str.length(text);
+      const used = state.used + (A.isReadonlyArrayEmpty(state.kept) ? 0 : SEPARATOR.length) + Fmt.width(text);
       return state.full || used > width
         ? { ...state, full: true }
         : { kept: A.append(state.kept, part), used, full: false };
@@ -299,8 +308,6 @@ const joinFitted = (parts: ReadonlyArray<string>, plain: ReadonlyArray<string>, 
   );
 
 const stripAnsi = (text: string): string => Str.replace(/\u001b\[[0-9;]*m/g, "")(text);
-
-const visibleLength = (text: string): number => Str.length(stripAnsi(text));
 
 interface Columns {
   readonly bar: number;
@@ -317,13 +324,13 @@ const MIN_LABEL_WIDTH = 10;
 // `fit` truncates the labels it then cannot hold.
 const columnsFor = (width: number, labels: ReadonlyArray<string>): Columns => {
   const inner = width - 4;
-  const wanted = Math.min(Math.max(...A.map(labels, Str.length), 8) + 2, MAX_LABEL_WIDTH);
+  const wanted = Math.min(Math.max(...A.map(labels, Fmt.width), 8) + 2, MAX_LABEL_WIDTH);
   const label = Math.max(Math.min(wanted, inner - ROW_FIXED_WIDTH - MIN_BAR_WIDTH), MIN_LABEL_WIDTH);
   return { inner, label, bar: Math.max(inner - ROW_FIXED_WIDTH - label, MIN_BAR_WIDTH) };
 };
 
 const framed = (content: string, columns: Columns, palette: Palette): string =>
-  `${palette.border("│")} ${content}${Str.repeat(Math.max(columns.inner - visibleLength(content), 0))(" ")} ${palette.border("│")}`;
+  `${palette.border("│")} ${content}${Str.repeat(Math.max(columns.inner - Fmt.width(content), 0))(" ")} ${palette.border("│")}`;
 
 const rowLines = (
   section: AccountSection,
@@ -404,7 +411,7 @@ const panelLines = (group: AccountGroup, width: number, now: DateTime.Utc, palet
   const firstReady = A.findFirst(group.rows, (row) => row.availability === "ready");
   const title = ` ${sectionTitle[group.section]} `;
   const hint = O.map(panelHint(group, now, firstReady, palette), (text) => ` ${text} `);
-  const fill = Math.max(width - 4 - Str.length(title) - O.match(hint, { onNone: () => 0, onSome: visibleLength }), 0);
+  const fill = Math.max(width - 4 - Str.length(title) - O.match(hint, { onNone: () => 0, onSome: Fmt.width }), 0);
   const top = `${palette.border("╭─")}${palette.title(title)}${palette.border(Str.repeat(fill)("─"))}${O.getOrElse(hint, () => "")}${palette.border("─╮")}`;
   const bottom = palette.border(`╰${Str.repeat(width - 2)("─")}╯`);
   return [
