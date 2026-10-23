@@ -4138,7 +4138,7 @@
         "spdx-exceptions": "2.5.0",
         "spdx-expression-parse": "5.0.0",
         "spdx-license-ids": "3.0.24",
-        "string-width": "^8.3.0",
+        "string-width": "catalog:",
         "ts-morph": "catalog:",
         "vitest": "catalog:",
       },
