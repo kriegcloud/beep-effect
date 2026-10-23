@@ -1,6 +1,10 @@
 # cli — upstream knowledge bundle (verbatim)
 
-Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
+> Promoted as `@beep/cli-kit` in wave 4-C of `goals/effected-promotion`. The sections on `./ui`, `./ui/testing`
+> and live views describe the Ink half, which stays in the scratchpad lab until the packet's close (SPEC W4-m); the
+> package holds the root and `./testing`.
+
+Provenance: $HOME/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
 decisions live in README.md → Port notes, not here.
 
