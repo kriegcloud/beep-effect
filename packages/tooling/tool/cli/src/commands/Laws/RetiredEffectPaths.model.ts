@@ -13,6 +13,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -330,10 +331,7 @@ export class RetiredEffectPathsSummary extends S.Opaque<RetiredEffectPathsSummar
     skippedBinaryFiles: S.Int,
     allowlistedFiles: S.Int,
     strictFailure: S.Boolean,
-    findings: S.Array(RetiredEffectPathFinding).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<RetiredEffectPathFinding>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<RetiredEffectPathFinding>()))
-    ),
+    findings: ArrayKeyDefaultEmpty(RetiredEffectPathFinding),
   }).pipe(
     $I.annoteSchema("RetiredEffectPathsSummary", {
       description: "Result of one retired Effect module path law run over the git-tracked text files.",

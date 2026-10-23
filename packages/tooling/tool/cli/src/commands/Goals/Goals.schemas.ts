@@ -17,6 +17,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -956,10 +957,7 @@ export class GoalRequiredCheckSnapshot extends S.Opaque<GoalRequiredCheckSnapsho
       S.withConstructorDefault(Effect.succeedNone),
       S.withDecodingDefaultKey(Effect.succeed(null))
     ),
-    gaps: S.Array(GoalCompletionEvidenceGap).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<GoalCompletionEvidenceGap>())),
-      S.withDecodingDefaultKey(Effect.succeed([]))
-    ),
+    gaps: ArrayKeyDefaultEmpty(GoalCompletionEvidenceGap),
   }).pipe(
     $I.annoteSchema("GoalRequiredCheckSnapshot", {
       description: "Historical required-context list with source version references and merge-time applicability.",
@@ -1021,10 +1019,7 @@ export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { rea
     acceptedHead: S.OptionFromNullOr(S.NonEmptyString),
     merge: S.OptionFromNullOr(GoalMergeResult),
     evidence: S.Array(GoalEvidenceCheck),
-    requiredCheckFacts: S.Array(GoalRequiredCheckFact).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<GoalRequiredCheckFact>())),
-      S.withDecodingDefaultKey(Effect.succeed([]))
-    ),
+    requiredCheckFacts: ArrayKeyDefaultEmpty(GoalRequiredCheckFact),
     nonRequiredReds: S.Array(GoalNonRequiredRed),
     subClaims: S.Array(GoalEvidenceCheck),
     outcome: GoalCompletionOutcome,
@@ -1261,9 +1256,7 @@ export type CapabilitySlug = typeof CapabilitySlug.Type;
  */
 export const isCapabilitySlug = S.is(CapabilitySlug);
 
-const CapabilitySlugList = S.Array(CapabilitySlug).pipe(
-  S.withConstructorDefault(Effect.succeed(A.empty<CapabilitySlug>())),
-  S.withDecodingDefaultKey(Effect.succeed(A.empty<CapabilitySlug>())),
+const CapabilitySlugList = ArrayKeyDefaultEmpty(CapabilitySlug).pipe(
   $I.annoteSchema("CapabilitySlugList", {
     description: "Defaulted ordered declarations of goal capabilities.",
   })

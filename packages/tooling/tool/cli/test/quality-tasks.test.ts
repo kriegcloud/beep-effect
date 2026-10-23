@@ -3513,7 +3513,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 
-    it.effect("includes untracked files in the diff-scoped audit input", () =>
+    it.effect("preserves renames and includes untracked files in the diff-scoped audit input", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
@@ -3526,7 +3526,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         yield* fs.writeFileString(path.join(repoRoot, "tracked.ts"), "export const tracked = 1;\n");
         yield* runGit(repoRoot, ["add", "tracked.ts"]);
         yield* runGit(repoRoot, ["commit", "-m", "init"]);
-        yield* fs.writeFileString(path.join(repoRoot, "tracked.ts"), "export const tracked = 2;\n");
+        yield* runGit(repoRoot, ["mv", "tracked.ts", "renamed.ts"]);
         yield* fs.writeFileString(path.join(repoRoot, "untracked.ts"), "export const untracked = true;\n");
 
         const result = yield* collectAuditDiffInputForTesting(repoRoot, "HEAD");
@@ -3535,6 +3535,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         expect(result.stdout).toContain("tracked.ts");
         expect(result.stdout).toContain("untracked.ts");
         expect(result.stdout).toContain("new file mode");
+        expect(result.stdout).toContain("rename from tracked.ts");
+        expect(result.stdout).toContain("rename to renamed.ts");
+
+        const codemodResult = yield* collectAuditDiffInputForTesting(repoRoot, "HEAD", 0, true);
+        expect(codemodResult.exitCode).toBe(0);
+        expect(codemodResult.stdout).not.toContain("rename from");
+        expect(codemodResult.stdout).toContain("deleted file mode");
+        expect(codemodResult.stdout).toContain("+export const tracked = 1;");
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make), TestClock.withLive)
     );
 
