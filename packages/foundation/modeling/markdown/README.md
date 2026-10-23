@@ -12,7 +12,7 @@ The engine is a vendored, hardened port of commonmark.js, the reference parser m
 
 Nodes use mdast's type names and field shapes, so the tree is already what the remark ecosystem reads, and `Mdast.toMdast` strips this package's fidelity fields to give you plain mdast JSON. Frontmatter, which mdast cannot parse, is captured behind a parse option and decoded through per-format codecs that live on their own subpaths, so a bundle that needs the JSON codec never pulls in the yaml engine.
 
-Rendering markdown to HTML is out of scope. Reach your existing renderer through the mdast projection.
+Rendering markdown to HTML is out of scope. Reach your existing renderer through the mdast projection, or bridge into the repo's semantic Markdown model: `@beep/md/Md.parse` and `@beep/md/Md.syntax` fold a parsed `MarkdownDocument` into an `Md.Document`, report every construct they cannot carry as a typed loss, and keep a source map back to this package's positions. `@beep/md` then renders Markdown or safe HTML.
 
 The package is ESM-only. Its runtime dependencies are `effect` v4 and the workspace packages `@beep/identity`, `@beep/schema` and `@beep/utils`; the frontmatter codecs add `@beep/yaml`, `@beep/toml` and `@beep/jsonc`, and only the codec you import reaches your bundle. Import from the leaf modules (`@beep/markdown/MarkdownDocument`, `@beep/markdown/Markdown`, and so on). The root barrel re-exports the core leaves only.
 

@@ -91,8 +91,20 @@ The same revocation flow used in `09-errors-across-boundaries.md`, annotated wit
 
 ````ts
 // packages/iam/server/src/Membership/Membership.http-handlers.ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
-import { $IamServerId } from "@beep/identity"
+import * as Identity from "@beep/identity";
+
+// Minimal schemas and typed dependencies for this standalone example.
+const RevokeMembershipRequest = S.Struct({ membershipId: S.String, actor: S.Struct({ role: S.String }) });
+type RevokeMembershipRequest = typeof RevokeMembershipRequest.Type;
+const RevokeMembership = S.Struct({ membershipId: S.String });
+type RevokeMembership = typeof RevokeMembership.Type;
+declare const parseRevokeMembership: (req: RevokeMembershipRequest) => Effect.Effect<RevokeMembership>;
+declare const membershipService: { readonly revoke: (cmd: RevokeMembership) => Effect.Effect<string> };
+const HttpResponse = { ok: (body: string) => ({ status: 200, body }) };
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamServerId } = Identity.make("iam-server");
 const $I = $IamServerId.create("Membership.http-handlers")
 void $I
 
@@ -130,8 +142,18 @@ The outer `Effect.fn("POST ...")` opens the protocol span. The inner `Effect.wit
 
 ````ts
 // packages/iam/use-cases/src/Membership/Membership.service.ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
-import { $IamUseCasesId } from "@beep/identity"
+import * as Identity from "@beep/identity";
+
+// Minimal schemas and typed dependencies for this standalone example.
+const MembershipId = S.Struct({ value: S.String });
+type MembershipId = typeof MembershipId.Type;
+const RevokeMembership = S.Struct({ membershipId: MembershipId });
+type RevokeMembership = typeof RevokeMembership.Type;
+declare const repo: { readonly findById: (id: MembershipId) => Effect.Effect<{ readonly id: MembershipId }> };
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamUseCasesId } = Identity.make("iam-use-cases");
 const $I = $IamUseCasesId.create("Membership.service")
 void $I
 
@@ -164,8 +186,16 @@ The use-case opens `MembershipRepository.findById` around the port call. It reco
 
 ````ts
 // packages/iam/server/src/Membership/Membership.repo.ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
-import { $IamServerId } from "@beep/identity"
+import * as Identity from "@beep/identity";
+
+// Minimal schemas and typed dependencies for this standalone example.
+const MembershipId = S.Struct({ value: S.String });
+type MembershipId = typeof MembershipId.Type;
+declare const runDrizzleQuery: (id: MembershipId) => Effect.Effect<ReadonlyArray<unknown>>;
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamServerId } = Identity.make("iam-server");
 const $I = $IamServerId.create("Membership.repo")
 void $I
 
@@ -198,8 +228,21 @@ The adapter never names `iam.membership.*` attributes. It owns the technical sur
 
 ````ts
 // packages/iam/server/src/Membership/Membership.repo.ts (continued)
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
-import { $IamServerId } from "@beep/identity"
+import * as Identity from "@beep/identity";
+
+// Minimal schemas and typed dependencies for this standalone example.
+const MembershipId = S.Struct({ value: S.String });
+type MembershipId = typeof MembershipId.Type;
+class PostgresError extends S.TaggedError<PostgresError, { readonly brand: unique symbol }>()("PostgresError", { sqlState: S.String }) {}
+class MembershipRepositoryNotFound extends S.TaggedError<MembershipRepositoryNotFound, { readonly brand: unique symbol }>()("MembershipRepositoryNotFound", {}) {}
+class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable, { readonly brand: unique symbol }>()("MembershipRepositoryUnavailable", {}) {}
+declare const findById: (id: MembershipId) => Effect.Effect<ReadonlyArray<unknown>, PostgresError | MembershipRepositoryNotFound>;
+const translateRepoErrors = <A, R>(effect: Effect.Effect<A, PostgresError | MembershipRepositoryNotFound, R>) =>
+  effect.pipe(Effect.catchTag("PostgresError", () => Effect.fail(new MembershipRepositoryUnavailable())));
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamServerId } = Identity.make("iam-server");
 const $I = $IamServerId.create("Membership.repo")
 void $I
 

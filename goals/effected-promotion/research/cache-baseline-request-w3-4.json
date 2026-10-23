@@ -1,5 +1,5 @@
 {
-  "previous": "819ee0893c61bd0bbf7ece66b93d14a617323e9022d754a1f0edd055df56d1b4",
+  "previous": "bf9966de68cb5a05802a1b5ae17a5f464510ae0e873ca69b34cac4d15b6f71b9",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-4, feat/effected-promotion-w3-4)",
     "reason": "Record the new wave-3-4 workspace @beep/package-json scaffolded by create-package with the generated task set, and the root catalog exact pins validate-npm-package-name 7.0.2 and @types/validate-npm-package-name 4.0.2, both already locked as transitives; no qualification is granted.",

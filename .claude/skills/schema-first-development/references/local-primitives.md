@@ -17,7 +17,7 @@ the lines using its covered facets (ADAPT, per the facet census in
 Use this baseline unless the file already follows a stronger local pattern.
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import { LiteralKit } from "@beep/schema"
 import * as S from "effect/Schema"
 ```
@@ -27,7 +27,8 @@ import * as S from "effect/Schema"
 Create a file-local composer and use it for schema identifiers and annotations.
 
 ```ts
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 ```
 
 Use `$I\`Name\`` for class or service identifiers. Annotation metadata comes
@@ -78,6 +79,7 @@ Schema annotations and transformations can rebuild schema values. If a
 repo helper that reattaches those statics instead of hand-copying properties:
 
 ```ts
+import { LiteralKit } from "@beep/schema";
 import { withLiteralKitStatics } from "@beep/schema/SchemaUtils/withLiteralKitStatics"
 
 const StatusBase = LiteralKit(["draft", "published"])
@@ -132,6 +134,9 @@ modeling style.
 Prefer:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 export class InputError extends S.TaggedError<InputError, { readonly brand: unique symbol }>($I`InputError`)(
   "InputError",
   { message: S.String },

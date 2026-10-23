@@ -66,8 +66,24 @@ needs importing. Kits are layered with `extend`, which adds columns and extras b
 shadow or drop what a parent kit declared:
 
 ```ts
+import { getTableName, sql } from "drizzle-orm"
+import * as S from "effect/Schema"
+import * as EffectModel from "effect/schema/Model";
+import { make } from "@beep/effect-drizzle"
+
+const db = make("pg", (pg) => ({
+  defaultColumns: {
+    createdAt: EffectModel.DateTimeInsert.pipe(pg.timestamp()),
+    updatedAt: EffectModel.DateTimeUpdate.pipe(pg.timestamp()),
+    rowVersion: S.Int.pipe(pg.integer(), pg.default(1), pg.version())
+  },
+  defaultExtras: (columns) => [
+    pg.Table.check(sql<boolean>`${columns.rowVersion} > 0`, "row_version_positive")
+  ]
+}))
+
 const audited = db.extend((pg) => ({
-  columns: { deletedAt: NullOr(String).pipe(pg.timestamp()) }
+  columns: { deletedAt: S.NullOr(S.String).pipe(pg.timestamp()) }
 }))
 ```
 
@@ -75,25 +91,41 @@ Then define models by piping SQL intent through ordinary Effect schemas. Bare sc
 their columns automatically whenever the encoded representation is unambiguous:
 
 ```ts
+import { getTableName, sql } from "drizzle-orm"
+import * as S from "effect/Schema"
+import * as EffectModel from "effect/schema/Model";
+import { make } from "@beep/effect-drizzle"
+
+const db = make("pg", (pg) => ({
+  defaultColumns: {
+    createdAt: EffectModel.DateTimeInsert.pipe(pg.timestamp()),
+    updatedAt: EffectModel.DateTimeUpdate.pipe(pg.timestamp()),
+    rowVersion: S.Int.pipe(pg.integer(), pg.default(1), pg.version())
+  },
+  defaultExtras: (columns) => [
+    pg.Table.check(sql<boolean>`${columns.rowVersion} > 0`, "row_version_positive")
+  ]
+}))
+
 const { Entity, Model, pg, schema, toPgTable, Repository } = db
 
 class Account extends Entity<Account>("Account")({
-  id: Int.pipe(pg.integer(), pg.identity("always"), pg.primaryKey()),
-  email: String.check(isMaxLength(320)).pipe(pg.varchar(), pg.unique()),
-  status: Literals(["active", "disabled"]).pipe(pg.enum("account_status")),
-  displayName: String.pipe(pg.text(), pg.index()),
-  settings: Struct({ theme: String }),
-  nickname: NullOr(String)
+  id: S.Int.pipe(pg.integer(), pg.identity("always"), pg.primaryKey()),
+  email: S.String.check(S.isMaxLength(320)).pipe(pg.varchar(), pg.unique()),
+  status: S.Literals(["active", "disabled"]).pipe(pg.enum("account_status")),
+  displayName: S.String.pipe(pg.text(), pg.index()),
+  settings: S.Struct({ theme: S.String }),
+  nickname: S.NullOr(S.String)
 }) {}
 
 class Membership extends Model<Membership>("Membership")(
   {
-    accountId: Int.pipe(pg.integer()),
-    organizationId: Int.pipe(pg.integer()),
-    role: Literals(["owner", "member"]).pipe(pg.enum())
+    accountId: S.Int.pipe(pg.integer()),
+    organizationId: S.Int.pipe(pg.integer()),
+    role: S.Literals(["owner", "member"]).pipe(pg.enum())
   },
   (columns) => [
-    Table.compositePrimaryKey("membership_pk", [columns.accountId, columns.organizationId])
+    pg.Table.compositePrimaryKey("membership_pk", [columns.accountId, columns.organizationId])
   ]
 ) {}
 

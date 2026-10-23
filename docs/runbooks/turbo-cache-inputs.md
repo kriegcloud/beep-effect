@@ -104,6 +104,7 @@ maintained representation of the scanner's workspace discovery.
 | `lint:judge-rubric` | Precise rubric input and policy implementation dependency retained. |
 | `lint:circular`, `lint:ecosystem-polarity`, `lint:reflection-artifacts` | Keep precise source/reflection globs; do not exclude legitimate nested source by directory name. |
 | `lint:effect-imports-markdown` | Retain authored Markdown consumed by the scanner, including internal docs it actually reads. |
+| `lint:markdown-fences` | Remains uncached: it compiles every guidance TypeScript fence against the workspace's TypeScript sources and the root tsconfig, so any source edit can change a verdict. |
 | `goals:index-check` | Retain goal inputs and implementation dependency. |
 | `knowledge:semantic-delta`, `knowledge:refs-check`, `goals:doctor`, `changeset:status` | Remain uncached; Git state and reference/packet checks are not qualified for result replay. |
 | `lint:oxlint`, `lint:shadcn`, `lint:jsdoc-module-tags`, `lint:typos` | Remain uncached; preserve each scanner/report contract. `lint:shadcn` also reads the theme stylesheets, `components.json`, tsconfig paths, and package exports. |

@@ -89,10 +89,10 @@ import type { DuckDbShape } from "@beep/duckdb";
 import type { TestContext } from "@effect/vitest";
 
 class ConcurrentClaimsReader extends Context.Service<ConcurrentClaimsReader, DuckDbShape>()(
-  "test/ConcurrentClaimsReader"
+  "@beep/law-practice-server/test/PracticeKg.projections.test/ConcurrentClaimsReader"
 ) {}
 class ConcurrentClaimsOptions extends Context.Service<ConcurrentClaimsOptions, PracticeKgClaimsOptions>()(
-  "test/ConcurrentClaimsOptions"
+  "@beep/law-practice-server/test/PracticeKg.projections.test/ConcurrentClaimsOptions"
 ) {}
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
@@ -1809,13 +1809,15 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.layer(
+    // Tests run concurrently (`sequence.concurrent`), so each block below gets its own bundle,
+    // claims store and read-only reader: claims one block writes never reach another block's counts.
+    const claimsReaderLayer = (bundleName: string) =>
       Layer.unwrap(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const corpusRoot = yield* makeFixtureCorpus();
-          const bundleOut = path.join(corpusRoot, "bundle-concurrent-claims-readers");
+          const bundleOut = path.join(corpusRoot, bundleName);
           yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
           const inputs = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-concurrent-claims-" });
           const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
@@ -1846,16 +1848,20 @@ describe("practice KG projections", () => {
             Layer.succeed(
               OfficeActionReview,
               OfficeActionReview.of({
-                extractCandidate: () => Effect.die("Normalized patent claims must not invoke extraction."),
-                review: () => Effect.die("Normalized patent claims must not invoke review."),
+                extractCandidate: Effect.fn("OfficeActionReview.extractCandidate")(() =>
+                  Effect.die("Normalized patent claims must not invoke extraction.")
+                ),
+                review: Effect.fn("OfficeActionReview.review")(() =>
+                  Effect.die("Normalized patent claims must not invoke review.")
+                ),
               })
             ),
             Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
           );
         })
-      ),
-      { timeout: "120 seconds" }
-    )((it) => {
+      );
+
+    it.layer(claimsReaderLayer("bundle-concurrent-claims-readers"), { timeout: "120 seconds" })((it) => {
       it.effect(
         "resolves standalone claims while an independent cached read-only connection remains open",
         Effect.fnUntraced(function* () {
@@ -1870,6 +1876,53 @@ describe("practice KG projections", () => {
           expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
           expect(rows.length).toBeGreaterThan(0);
           expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
+        }),
+        { timeout: 120_000 }
+      );
+    });
+
+    it.layer(claimsReaderLayer("bundle-shared-claims-reader"), { timeout: "120 seconds" })((it) => {
+      it.effect(
+        "resolves claims through a DuckDb connection the caller already holds",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+
+          // No catalogued document has the `20001US05-patent` stem: the lookup takes its not-found path.
+          const summary = yield* runPracticeKgClaimsBatch(options).pipe(Effect.provideService(DuckDb, reader));
+
+          expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
+        }),
+        { timeout: 120_000 }
+      );
+
+      it.effect(
+        "resolves a catalogued source document through a DuckDb connection the caller already holds",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+          const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
+          // The docket fixture is catalogued as `Response OA - 20001US01.txt`.
+          const matched = PracticeKgClaimsOptions.make({
+            bundleOut: options.bundleOut,
+            inputs: options.inputs,
+            patentDocuments: [
+              PracticeKgPatentDocumentInput.make({
+                docket: "20001US01",
+                document,
+                sourceFile: "Response OA - 20001US01.txt",
+              }),
+            ],
+          });
+
+          const summary = yield* runPracticeKgClaimsBatch(matched).pipe(Effect.provideService(DuckDb, reader));
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const rows = yield* decodeCandidateClaimRows(
+            yield* sql.unsafe(PracticeKgQueries.candidateClaims, [null, `${fixtureClients.alpha}.20001`, null])
+          );
+
+          expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
+          expect(A.map(rows, (row) => row.sourceDocumentDigest)).toContain(fixtureDigests.docket);
         }),
         { timeout: 120_000 }
       );

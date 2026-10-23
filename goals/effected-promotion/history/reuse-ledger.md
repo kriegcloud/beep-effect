@@ -58,3 +58,27 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | observability `catalog/Catalog.names.ts` `PackageName` | #137 | 3-A9 (optional) | `ScopedPackageName`. |
 | mcpb-kit manifests and `ensureWindowsBindings` | #136 | excluded | Deferred to the npm driver. |
 | m365-mcp and github test-only readers | - | excluded | Test fixtures; not worth the edge. |
+
+## `@beep/repo-tsconfig` (wave 3-2, SPEC W3-c)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| repo-cli `Quality/EffectDiagnostics.ts` `buildProjects` and `effectDiagnosticsProjectConfig` (get-tsconfig `parseTsconfig`) | #158 | adopted (3-2) | `TsconfigLoader.resolve` / `.compilerOptions`; the local `EffectiveProjectConfig` schema is deleted. Inventory and every lspconfig string identical before and after. |
+| repo-cli `test/test-tsgo-turbo-inputs.test.ts` build-reference walk | #158 | adopted (3-2) | `TsconfigLoader.resolve`. |
+| repo-cli `internal/quality/TestTypecheckCoverage.ts` hand-rolled extends walk | #159 | adopted (3-2) | One tolerant `TsconfigLoader.resolve` per visited config (W3-m). Every package's uncovered set identical before and after. |
+| repo-cli `Quality/CheckCensus.ts` `TsconfigReferences`, `TsconfigOutDir` | #162 | 3-A5 | `TsconfigLoader.compilerOptions(ref)` gives the inherited, absolutized `outDir`; prove census output parity. |
+| docgen `Configuration.ts` `readTSConfig`, `CLI.ts`, `Core.ts` | #160 | 3-A6 | `TsconfigLoader.compilerOptions` plus `TsconfigValidator`; after 3-3 and 3-A4 (shared `Configuration.ts`). |
+| repo-utils `src/schemas/TSConfig.ts` and its test | #161, #242, #266 | 3-A6 | Deleted once docgen uses the validator; needs the `@beep/tsconfig` closed view and its changeset. |
+| repo-cli `TsconfigSync/TsconfigSync.schemas.ts` | #164 | 3-A7 | A pure-model site (`@beep/tsconfig`); needs byte parity of tsconfig-sync output. |
+| repo-cli `Quality.command.ts` `resolveTsconfigInheritance` | #163 | excluded | A pure resolver over a pre-read map with branch semantics and exact diagnostics; the map ruled it partial. |
+| repo-utils `src/TsConfig.ts` `collectTsConfigPaths` | #245 | excluded | Downward enumeration, a different capability. |
+| repo-cli `KnowledgeDoctor.domain.ts` root `paths` projection | - | candidate | Re-check with 3-A5. |
+
+## `@beep/md` syntax bridge (wave 2d-2, SPEC D-48 to D-51)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| `@beep/md` `Md.model.ts`: no Markdown source parser | #237 | resolved in 2d-2 | `@beep/md/Md.syntax` `fromMarkdownDocument` folds the `@beep/markdown` tree into `Md.Document`; the unsupported-node policy is the `MdLossReason` taxonomy (D-48). `@beep/markdown` has no `@beep/md` import. |
+| `@beep/md` `Md.ts`: write-side DSL with no parser | #290 | resolved in 2d-2 | Merged into #237: `@beep/md/Md.parse` parses text. `@beep/schema`'s Markdown-to-HTML path stays (excluded with #227 and #258, MQ7 cycle). |
+| `@beep/md` merge design and hand-rolled frontmatter splitting | #259 | partly resolved in 2d-2 | Placement decided (D-02: parser in `@beep/markdown`, bridge in `@beep/md`) and the unsupported-node policy written (D-48). The frontmatter splitters are the 2d-A sites #37, #27, #276 and #231 above. |
+

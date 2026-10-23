@@ -21,7 +21,7 @@ const program = Effect.gen(function* () {
 })
 
 const layer = Runpod.makeLayer(
-  new RunpodConfigInput({
+  RunpodConfigInput.make({
     apiKey: Redacted.make("runpod-api-key")
   })
 )

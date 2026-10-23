@@ -11,6 +11,9 @@ Comprehensive error handling patterns used throughout the Effect library, emphas
 ```typescript
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate"
+
+declare const someEffect: Effect.Effect<string, string>;
+
 // ❌ WRONG - This breaks Effect semantics
 Effect.gen(function*() {
   try {
@@ -32,13 +35,19 @@ Effect.gen(function*() {
     // Handle error appropriately
     return yield* Effect.fail("handled error")
   }
-  return result.value
+  return result.success
 })
 ```
 
 ### ✅ MANDATORY: return yield* Pattern
 
 ```typescript
+import * as Effect from "effect/Effect";
+
+declare const invalidCondition: boolean;
+declare const shouldInterrupt: boolean;
+declare const someOtherEffect: Effect.Effect<string>;
+
 // ✅ CORRECT - Always use return yield* for terminal effects
 Effect.gen(function*() {
   if (invalidCondition) {
@@ -231,9 +240,14 @@ export type ValidationErrorReason = typeof ValidationErrorReason.Type;
 The codebase uses flat error structures with union types for composition, not abstract base classes:
 
 ```typescript
+import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import {$SchemaId} from "@beep/identity";
 import * as S from "effect/Schema";
+
+const HttpClientErrorReason = LiteralKit(["Transport", "Encode", "InvalidUrl", "StatusCode", "Decode", "EmptyBody"]);
+type Data = { readonly url: string };
+const url = "https://example.com";
 
 const $I = $SchemaId.create("relative/path/to/file");
 
@@ -291,6 +305,7 @@ export type HttpClientError = typeof HttpClientError.Type;
 // Usage in function signatures
 const fetchData: (url: string) => Effect.Effect<Data, HttpClientError> = Effect.fn(function* (url) {
   // Implementation...
+  return { url };
 });
 
 // Discriminate using catchTag
@@ -299,9 +314,11 @@ const handleErrors = fetchData(url)
   Effect.catchTags({
     RequestError: (error) => {
       // Handle request errors
+      return Effect.succeed({ url });
     },
     ResponseError: (error) => {
       // Handle response errors
+      return Effect.succeed({ url });
     }
   }),
   
@@ -324,6 +341,12 @@ The codebase prefers flat error structures over inheritance because:
 For operations that might throw:
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+
+class ParseError extends S.TaggedError<ParseError, { readonly brand: unique symbol }>()("ParseError", { input: S.String, cause: S.Defect({ includeStack: true }), message: S.optionalKey(S.String) }) {}
+class ValidationError extends S.TaggedError<ValidationError, { readonly brand: unique symbol }>()("ValidationError", { field: S.String, message: S.String }) {}
+
 // Basic try pattern
 const parseJson = (input: string) =>
   Effect.try({
@@ -359,8 +382,18 @@ const parsePositiveNumber = (input: string) =>
 For Promise-based operations:
 
 ```typescript
+import * as S from "effect/Schema";
+import * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
+
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
+
+declare const mapErrnoToReason: (code: string | undefined) => PlatformError.SystemErrorTag;
+
+class ParseError extends S.TaggedError<ParseError, { readonly brand: unique symbol }>()("ParseError", { input: S.String, cause: S.Defect({ includeStack: true }), message: S.optionalKey(S.String) }) {}
+class NetworkError extends S.TaggedError<NetworkError, { readonly brand: unique symbol }>()("NetworkError", { status: S.Number, url: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) }) {}
+
 // Network request with structured errors
 const fetchUser = flow(
   (id: string) => Effect.tryPromise({
@@ -371,7 +404,7 @@ const fetchUser = flow(
       cause: error
     })
   }),
-  Effect.flatMap((response) => response.ok
+  Effect.flatMap((response): Effect.Effect<unknown, ParseError | NetworkError> => response.ok
                                ? Effect.tryPromise({
       try: () => response.json(),
       catch: (error) => new ParseError({
@@ -391,8 +424,8 @@ const readFile = (path: string) => Effect.tryPromise({
     path,
     "utf8"
   )),
-  catch: (error: NodeJS.ErrnoException) => new SystemError({
-    reason: mapErrnoToReason(error.code),
+  catch: (error) => PlatformError.systemError({
+    _tag: mapErrnoToReason(P.hasProperty(error, "code") && P.isString(error.code) ? error.code : undefined),
     module: "FileSystem",
     method: "readFile",
     pathOrDescriptor: path,
@@ -408,6 +441,11 @@ const readFile = (path: string) => Effect.tryPromise({
 Handle all errors uniformly:
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+
+declare const riskyOperation: (input: string) => Effect.Effect<string, Error>;
+
 const robustOperation = (input: string) =>
   riskyOperation(input).pipe(
     Effect.catch((error) =>
@@ -422,6 +460,12 @@ const robustOperation = (input: string) =>
 Handle specific error types:
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as Schedule from "effect/Schedule";
+
+declare const complexOperation: (input: string) => Effect.Effect<string, { readonly _tag: "ValidationError"; readonly field: string } | { readonly _tag: "NetworkError"; readonly status: number }>;
+
 const handleSpecificErrors = (input: string) =>
   complexOperation(input).pipe(
     Effect.catchTag("ValidationError", (error) => {
@@ -448,6 +492,9 @@ Selectively handle certain errors:
 ```typescript
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
+
+declare const operation: (input: string) => Effect.Effect<string, { readonly _tag: "ValidationError"; readonly field: string } | { readonly _tag: "NetworkError"; readonly status: number }>;
+
 const handleRecoverableErrors = (input: string) =>
   operation(input).pipe(
     Effect.catchIf(
@@ -466,6 +513,9 @@ const handleRecoverableErrors = (input: string) =>
 import { assert, describe, it } from "@effect/vitest"
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
+
+declare const operation: (input: string) => Effect.Effect<string, { readonly _tag: "ValidationError"; readonly field: string } | { readonly _tag: "NetworkError"; readonly status: number }>;
+
 describe("error handling", () => {
   it.effect("should fail with specific error", 
     Effect.fnUntraced(function*() {
@@ -496,6 +546,13 @@ describe("error handling", () => {
 ### Testing Error Transformations
 
 ```typescript
+import * as Effect from "effect/Effect";
+import { assert, it } from "@effect/vitest";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+
+class CustomError extends S.TaggedError<CustomError, { readonly brand: unique symbol }>()("CustomError", { message: S.String }) {}
+
 it.effect("should transform errors correctly", 
   Effect.fnUntraced(function*() {
     const error = yield* Effect.flip(
@@ -513,34 +570,51 @@ it.effect("should transform errors correctly",
 ### Error Transformation Utilities
 
 ```typescript
+import * as S from "effect/Schema";
 import * as Match from "effect/Match";
+
+import * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
+class ResourceNotFoundError extends S.TaggedError<ResourceNotFoundError, { readonly brand: unique symbol }>()("ResourceNotFoundError", { resource: S.String }) {}
+class AccessDeniedError extends S.TaggedError<AccessDeniedError, { readonly brand: unique symbol }>()("AccessDeniedError", { resource: S.String }) {}
+class UnknownError extends S.TaggedError<UnknownError, { readonly brand: unique symbol }>()("UnknownError", { cause: S.Defect({ includeStack: true }) }) {}
+type DomainError = ResourceNotFoundError | AccessDeniedError | UnknownError;
+
 // Convert platform errors to domain errors
-const mapFileSystemError = Match.type<SystemError>()
-.pipe(
-  Match.withReturnType<DomainError>(),
-  Match.when(
-    {reason: "NotFound"},
-    (error) => new ResourceNotFoundError({resource: error.pathOrDescriptor})
-  ),
-  Match.when(
-    {reason: "PermissionDenied"},
-    (error) => new AccessDeniedError({resource: error.pathOrDescriptor})
-  ),
-  Match.orElse((error) => new UnknownError({cause: error}))
-);
+const mapFileSystemError = (error: PlatformError.PlatformError): DomainError => {
+  const reason = error.reason;
+  if (!(reason instanceof PlatformError.SystemError)) {
+    return new UnknownError({ cause: error });
+  }
+  const path = reason.pathOrDescriptor;
+  const resource = P.isString(path)
+    ? path
+    : P.isNumber(path) ? Str.concat("descriptor:", `${path}`) : "unknown resource";
+  return Match.value(reason).pipe(
+    Match.withReturnType<DomainError>(),
+    Match.when({ _tag: "NotFound" }, () => new ResourceNotFoundError({ resource })),
+    Match.when({ _tag: "PermissionDenied" }, () => new AccessDeniedError({ resource })),
+    Match.orElse(() => new UnknownError({ cause: error }))
+  );
+};
 
 // Error aggregation for multiple operations
-const aggregateErrors = <E>(errors: ReadonlyArray<E>): E | AggregateError<E> => {
+const aggregateErrors = <E>(errors: ReadonlyArray<E>): E | AggregateError => {
   if (errors.length === 1) {
     return errors[0]!;
   }
-  return new AggregateError({errors});
+  return new AggregateError(errors);
 };
 ```
 
 ### Error Logging Patterns
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as Cause from "effect/Cause";
+
 const withErrorLogging = <A, E, R>(
   name: string,
   effect: Effect.Effect<A, E, R>
@@ -556,6 +630,9 @@ const withErrorLogging = <A, E, R>(
 ### Retry with Exponential Backoff
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as Schedule from "effect/Schedule";
+
 const withRetry = <A, E, R>(
   operation: Effect.Effect<A, E, R>,
   isRetryable: (error: E) => boolean = () => true
@@ -572,6 +649,12 @@ const withRetry = <A, E, R>(
 ### Circuit Breaker Pattern
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as Duration from "effect/Duration";
+import * as S from "effect/Schema";
+
+class CircuitBreakerError extends S.TaggedError<CircuitBreakerError, { readonly brand: unique symbol }>()("CircuitBreakerError", { message: S.String }) {}
+
 const withCircuitBreaker = <A, E, R>(
   operation: Effect.Effect<A, E, R>,
   failureThreshold: number = 5,
@@ -585,6 +668,8 @@ const withCircuitBreaker = <A, E, R>(
 ### Fallback Chain Pattern
 
 ```typescript
+import * as Effect from "effect/Effect";
+
 const withFallbacks = <A, E, R>(
   primary: Effect.Effect<A, E, R>,
   fallbacks: ReadonlyArray<Effect.Effect<A, E, R>>

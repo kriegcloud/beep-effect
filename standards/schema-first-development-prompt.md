@@ -315,14 +315,20 @@ export interface TaskInput {
 
 export const isTaskInput = (input: unknown): input is TaskInput => {
   // parallel validation logic
+  return typeof input === "object" && input !== null &&
+    "id" in input && typeof input.id === "string" &&
+    "title" in input && typeof input.title === "string";
 };
 ```
 
 **Target:**
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages";
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/from/package/src");
 
@@ -370,8 +376,11 @@ regular-expression helper, assertion, or comment.
 **Target:**
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages";
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/from/package/src");
 const SLUG_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -411,6 +420,8 @@ silently widening an encoded contract.
 **Smell:**
 
 ```ts
+import * as O from "effect/Option";
+
 const makeImportOptions = (input: {
   readonly strict?: boolean;
   readonly note?: string | null;
@@ -423,9 +434,12 @@ const makeImportOptions = (input: {
 **Target:**
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages";
+import * as Identity from "@beep/identity";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/from/package/src");
 
@@ -471,9 +485,12 @@ interface Job {
 
 ```ts
 import { LiteralKit } from "@beep/schema";
-import { $PackageNameId } from "@beep/identity/packages";
+import * as Identity from "@beep/identity";
 import * as Tuple from "effect/Tuple";
 import * as S from "effect/Schema";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/from/package/src");
 const JobKind = LiteralKit(["queued", "completed"]);
@@ -506,7 +523,7 @@ class JobCompleted extends S.Opaque<JobCompleted, { readonly brand: unique symbo
 }
 
 export const Job = JobKind.mapMembers(
-  Tuple.evolve([JobQueued.thunkThis, JobCompleted.thunkThis])
+  ([queued, completed]) => Tuple.make(JobQueued, JobCompleted)
 ).pipe(
   S.toTaggedUnion("kind"),
   $I.annoteSchema("Job", {
@@ -543,6 +560,10 @@ Foundation/Modeling decision; the `SFV4-codec-static` gate holds that line.
 **Smell:**
 
 ```ts
+import { SchemaUtils } from "@beep/schema";
+import * as S from "effect/Schema";
+
+const EntityIdBase = S.String.pipe(S.brand("EntityId"));
 export const EntityId = EntityIdBase.pipe(
   SchemaUtils.withStatics((schema) => ({
     decodeOption: S.decodeUnknownOption(schema),
@@ -554,6 +575,9 @@ export const EntityId = EntityIdBase.pipe(
 **Target:**
 
 ```ts
+import * as S from "effect/Schema";
+
+const EntityIdBase = S.String.pipe(S.brand("EntityId"));
 export const EntityId = EntityIdBase;
 
 // at the call site, or hoisted once when a module calls it repeatedly
@@ -581,12 +605,21 @@ untyped throws.
 **Smell:**
 
 ```ts
+import * as S from "effect/Schema";
+
+const TaskInput = S.Struct({ id: S.String, title: S.String });
+type TaskInput = typeof TaskInput.Type;
+declare const text: string;
 const payload = JSON.parse(text) as TaskInput;
 ```
 
 **Target:**
 
 ```ts
+import * as S from "effect/Schema";
+
+const TaskInput = S.Struct({ id: S.String, title: S.String });
+type TaskInput = typeof TaskInput.Type;
 const TaskInputFromJson = S.fromJsonString(TaskInput);
 const decodeTaskInput = S.decodeUnknownEffect(TaskInput);
 const decodeTaskInputJson = S.decodeUnknownEffect(TaskInputFromJson);
@@ -615,6 +648,8 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
+const MySchema = S.Struct({ id: S.String });
+
 it.prop("MySchema generates only valid values", [Arbitrary.schema(MySchema)], ([value]) => {
   expect(S.is(MySchema)(value)).toBe(true);
 });
@@ -626,6 +661,12 @@ property also proves the schema is generatable.
 For meaningful codecs, transforms, refinements, defaults, or equivalence:
 
 ```ts
+import { expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+
+const MySchema = S.Struct({ id: S.String });
 const encode = S.encodeUnknownResult(MySchema);
 const decode = S.decodeUnknownResult(MySchema);
 const equivalent = S.toEquivalence(MySchema);

@@ -2,17 +2,18 @@
 
 ## 🎯 PURPOSE
 
-This directory contains Beep guidance and retained upstream Effect references.
-The [architecture standard](../standards/ARCHITECTURE.md) defines this
-repository's package topology. The three upstream references below are labeled
-in their scope sections; their illustrative examples are not a compiled
-repository template.
+This directory contains Beep guidance and one retained upstream Effect
+reference. The [architecture standard](../standards/ARCHITECTURE.md) defines
+this repository's package topology. Every TypeScript example in these files is
+compiled by `bun run beep laws markdown-fences --check`; a fence that cannot
+stand alone carries the reviewed `skip-type-checking` opt-out. The upstream
+reference is labeled in its scope section.
 
 ## 📚 AVAILABLE PATTERNS
 
 ### Core Development Patterns
 
-- **[effect-library-development.md](./effect-library-development.md)** - Upstream Effect library reference; scope and example limits are stated in the file
+- **[effect-library-development.md](./effect-library-development.md)** - Effect development patterns for this repository, subordinate to the Effect-first standard
 - **[module-organization.md](./module-organization.md)** - Upstream Effect module layout reference; Beep topology follows the architecture standard
 - **[effect-module-paths.md](./effect-module-paths.md)** - Current Effect module import paths and the retired `unstable` mapping
 - **[error-handling.md](./error-handling.md)** - Structured error management with Effect
@@ -23,7 +24,7 @@ repository template.
 
 ### Testing Patterns
 
-- **[testing-patterns.md](./testing-patterns.md)** - Upstream Effect testing reference; use current package test conventions
+- **[testing-patterns.md](./testing-patterns.md)** - `@effect/vitest` testing patterns for this repository, subordinate to the testing standard
 
 ### Architecture Patterns
 
@@ -60,6 +61,7 @@ repository template.
 - __return yield_ for errors_*: Makes termination explicit in generators
 - **Immediate linting**: `biome check --write <changed files>` after editing TypeScript files
 - **JSDoc compilation validation**: `bun run docgen` must pass
+- **Markdown example compilation**: `bun run beep laws markdown-fences --check` must pass
 - **Effect testing patterns**: Use @effect/vitest with `it.effect`
 - **TestClock for time**: Use TestClock for any time-dependent operations
 

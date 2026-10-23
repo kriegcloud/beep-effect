@@ -19,6 +19,7 @@ Loaded on demand from `effect-first-development/SKILL.md`. Repository laws win o
 ### 10) Observability and metrics
 
 ```ts
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric"
 
@@ -31,19 +32,21 @@ const runOperation = Effect.fn("Operation.run")(function* (id: string) {
   yield* Effect.annotateCurrentSpan("operationId", id)
   yield* Effect.logInfo("operation started")
   return "ok"
-}).pipe(
+},
   Effect.withLogSpan("operation.run"),
   Effect.annotateLogs({ service: "beep-effect" }),
-  Effect.trackDuration(latency),
-  Effect.trackErrors(errors)
+  Effect.trackDuration(latency, Duration.toMillis),
+  Effect.trackErrors(errors, () => 1)
 )
 ```
 
 ### 10b) Boundary logging with Cause
 
 ```ts
+import * as S from "effect/Schema";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+class DomainError extends S.TaggedError<DomainError, { readonly brand: unique symbol }>()("DomainError", { message: S.String }) {}
 const respond = <A>(effect: Effect.Effect<A, DomainError>) =>
   effect.pipe(
     Effect.catchCause((cause) => {
@@ -61,10 +64,12 @@ const respond = <A>(effect: Effect.Effect<A, DomainError>) =>
 ### 10c) Process entrypoint teardown
 
 ```ts
+import * as Effect from "effect/Effect";
 import { BunRuntime } from "@effect/platform-bun"
 import * as Cause from "effect/Cause";
 import * as Exit from "effect/Exit";
 import * as Runtime from "effect/Runtime";
+const program = Effect.void;
 // NEVER: recover the root failure just to set process.exitCode.
 // const main = program.pipe(Effect.catchCause((cause) => Effect.sync(() => {
 //   process.exitCode = 1
@@ -104,10 +109,10 @@ const program = Effect.sleep(retryWindow).pipe(
 ### 12) Nullish schemas to Option
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as S from "effect/Schema"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 export class ProfileInput extends S.Opaque<ProfileInput, { readonly brand: unique symbol }>()(
   S.Struct({
@@ -139,11 +144,11 @@ const dataLast = pipe("hello", prefixTag("info"))
 ### 14) JSON parse / stringify with Schema
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 class UserJsonCodecError extends S.TaggedError<UserJsonCodecError, { readonly brand: unique symbol }>($I`UserJsonCodecError`)(
   "UserJsonCodecError",
@@ -192,7 +197,9 @@ export const generateReport = Effect.fn("Report.generate")(function* () {
 ### 16) Promise boundaries with `Effect.tryPromise`
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+class HttpRequestError extends S.TaggedError<HttpRequestError, { readonly brand: unique symbol }>()("HttpRequestError", { url: S.String, message: S.String }) {}
 const fetchBody = (url: string) =>
   Effect.tryPromise({
     try: () => fetch(url).then((response) => response.text()),
@@ -211,7 +218,11 @@ generator call site bridges. Direct-value insert converters are already values a
 must not be passed to `Effect.fromResult`. Law: `EF-22b`.
 
 ```ts
+import * as Result from "effect/Result";
 import * as Effect from "effect/Effect";
+type CandorDisposition = { readonly value: string };
+declare const toCandorDispositionInsert: (disposition: CandorDisposition) => Result.Result<{ readonly value: string }, string>;
+declare const write: (row: { readonly value: string }) => Effect.Effect<void, string>;
 const insertDisposition = Effect.fnUntraced(function* (disposition: CandorDisposition) {
   const row = yield* Effect.fromResult(toCandorDispositionInsert(disposition))
   return yield* write(row)
@@ -222,6 +233,9 @@ const insertDisposition = Effect.fnUntraced(function* (disposition: CandorDispos
 
 ```ts
 import * as Effect from "effect/Effect";
+type Connection = { readonly query: (sql: string) => Effect.Effect<string> };
+declare const openConnection: Effect.Effect<Connection, string>;
+declare const closeConnection: (conn: Connection) => Effect.Effect<void>;
 const withConnection = <A, E, R>(
   use: (conn: Connection) => Effect.Effect<A, E, R>
 ) =>
