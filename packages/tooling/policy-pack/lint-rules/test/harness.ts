@@ -13,7 +13,7 @@
  * subprocess JSON through `effect/Schema`, and imports the package's public rule
  * registry through the `@beep/lint-rules` alias.
  */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { rulePath } from "@beep/lint-rules";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -24,7 +24,7 @@ import { encodeConfig, jsonReportParser, validateLinterProcess } from "./codec.t
 import type { RuleName } from "@beep/lint-rules";
 
 /** Absolute path to the package root (`.../lint-rules`). */
-const packageRoot = fileURLToPath(new URL("../", import.meta.url));
+const packageRoot = NodeURL.fileURLToPath(new URL("../", import.meta.url));
 
 /** One parsed Biome plugin diagnostic. */
 type PluginDiagnostic = {

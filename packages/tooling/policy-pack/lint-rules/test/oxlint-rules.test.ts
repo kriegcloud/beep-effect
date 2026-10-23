@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import plugin from "@beep/lint-rules/oxlint";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -156,7 +156,7 @@ describe("oxlint rules", () => {
   }
 });
 
-const repoRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 const canary = "scratchpad/effected/.canary/LawsCanary.ts";
 const admitted = ["src/Ordinary.ts", "scratchpad/effected/example/Ordinary.ts", canary];
 const ignored = [

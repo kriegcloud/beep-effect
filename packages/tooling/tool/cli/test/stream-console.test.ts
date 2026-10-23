@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   drainProcessStreams,
   noteProcessStreamWriteFailure,
@@ -832,7 +832,7 @@ describe("stream console", () => {
     it.effect(
       "delivers a large block through a pipe before a forced exit under Bun",
       Effect.fnUntraced(function* () {
-        const modulePath = fileURLToPath(new URL("../src/internal/cli/Stdout.ts", import.meta.url));
+        const modulePath = NodeURL.fileURLToPath(new URL("../src/internal/cli/Stdout.ts", import.meta.url));
         const script = A.join(
           [
             "const { streamConsole, drainProcessStreams } = await import(process.argv[1]);",
@@ -844,7 +844,7 @@ describe("stream console", () => {
         const child = yield* StepExec.runCaptured({
           command: "bun",
           args: ["--eval", script, modulePath],
-          cwd: fileURLToPath(new URL("..", import.meta.url)),
+          cwd: NodeURL.fileURLToPath(new URL("..", import.meta.url)),
           source: "stdout",
           bound: StepExec.OutputBound.make({ maxChars: 5 * 1024 * 1024, truncatedNotice: "\n[test] truncated" }),
           timeout: "60 seconds",

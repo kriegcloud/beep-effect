@@ -5,5 +5,5 @@ or {
   `new URL($path, import.meta.url).pathname`,
   `new URL(import.meta.url).pathname`
 } as $access where {
-  register_diagnostic(span=$access, message="Rule: file URL pathname. Why: pathname is URL-encoded, not a native filesystem path. Fix: use fileURLToPath(new URL(...)) from node:url or the Effect Path API.", severity="error")
+  register_diagnostic(span=$access, message="Rule: file URL pathname. Why: pathname is URL-encoded, not a native filesystem path. Fix: import * as NodeURL from node:url and use NodeURL.fileURLToPath(new URL(...)), or use the Effect Path API.", severity="error")
 }

@@ -4,7 +4,7 @@
  * Run with `bun run render` from the package root. The parity test in `test/assets.test.ts`
  * fails until the checked-in files match this output.
  */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { beep, renderBrandAssets } from "@beep/brand";
 import { A } from "@beep/utils";
 import { BunRuntime } from "@effect/platform-bun";
@@ -15,7 +15,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 
-const packageRoot = fileURLToPath(new URL("../", import.meta.url));
+const packageRoot = NodeURL.fileURLToPath(new URL("../", import.meta.url));
 
 const writeAsset = Effect.fn("writeAsset")(function* (asset: { readonly path: string; readonly content: string }) {
   const fs = yield* FileSystem.FileSystem;

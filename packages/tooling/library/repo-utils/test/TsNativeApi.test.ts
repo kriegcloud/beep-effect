@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   TsNativeApi,
   TsNativeBinaryNotFound,
@@ -22,7 +22,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Scope from "effect/Scope";
 import type { Node } from "@typescript/native/unstable/ast";
 
-const fixture = fileURLToPath(new URL("./fixtures/ts-native/", import.meta.url));
+const fixture = NodeURL.fileURLToPath(new URL("./fixtures/ts-native/", import.meta.url));
 const layer = TsNativeApi.layer(TsNativeConfig.make({ cwd: fixture, tsconfig: "tsconfig.json" })).pipe(
   Layer.provide(NodeServices.layer)
 );

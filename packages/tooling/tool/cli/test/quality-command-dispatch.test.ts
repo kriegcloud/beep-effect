@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
 import { qualityCommand } from "@beep/repo-cli/commands/Quality";
 import {
@@ -220,7 +220,9 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     Effect.fnUntraced(function* ([includes]) {
       const fs = yield* FileSystem.FileSystem;
       const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-merge-" });
-      const profile = yield* readEffectDiagnosticsProfile(fileURLToPath(new URL("../../../../..", import.meta.url)));
+      const profile = yield* readEffectDiagnosticsProfile(
+        NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url))
+      );
       const plugin = {
         name: "@effect/language-service",
         effectFn: ["untraced"],
@@ -250,7 +252,9 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-missing-" });
-      const profile = yield* readEffectDiagnosticsProfile(fileURLToPath(new URL("../../../../..", import.meta.url)));
+      const profile = yield* readEffectDiagnosticsProfile(
+        NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url))
+      );
       // No `plugins` at all, and a `plugins` list without the Effect language service.
       yield* fs.writeFileString(`${dir}/none.json`, yield* encodeUnknownJson({ compilerOptions: {} }));
       yield* fs.writeFileString(

@@ -1,5 +1,5 @@
 /** Validate complete exact-source independent review coverage. */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -7,7 +7,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const inventoryPath = `${repoRoot}goals/boolean-creep/data/inventory.jsonl`;
 const reviewDir = Bun.argv[2];
 if (reviewDir === undefined) {

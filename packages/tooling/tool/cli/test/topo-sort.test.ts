@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -7,7 +7,7 @@ import * as Str from "effect/String";
 
 const bucketNames = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
 
-const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
 
 const workspaceDependencyNames = (packageJson: {
   readonly dependencies?: Readonly<Record<string, string>>;

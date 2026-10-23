@@ -1,5 +1,4 @@
 import * as NodeURL from "node:url";
-import { fileURLToPath } from "node:url";
 import { defineConfig, mergeConfig } from "vitest/config";
 import shared, { vitestDoctestActive } from "../../vitest.shared.ts";
 
@@ -32,7 +31,7 @@ export default mergeConfig(
       isolate: true,
       environment: "jsdom",
       include: vitestDoctestActive ? [] : ["test/**/*.test.{ts,tsx}"],
-      setupFiles: [fileURLToPath(new URL("./test/setup.dom.ts", import.meta.url))],
+      setupFiles: [NodeURL.fileURLToPath(new URL("./test/setup.dom.ts", import.meta.url))],
     },
   })
 );

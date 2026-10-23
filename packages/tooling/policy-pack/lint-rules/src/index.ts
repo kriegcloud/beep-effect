@@ -11,7 +11,7 @@
  * @since 0.1.0
  */
 
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { $LintRulesId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -267,7 +267,8 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
  * @category configuration
  * @since 0.1.0
  */
-export const rulePath = (name: RuleName): string => fileURLToPath(new URL(`../rules/${name}.grit`, import.meta.url));
+export const rulePath = (name: RuleName): string =>
+  NodeURL.fileURLToPath(new URL(`../rules/${name}.grit`, import.meta.url));
 
 /**
  * Absolute filesystem path to the directory holding the `.grit` rule files.
@@ -287,4 +288,4 @@ export const rulePath = (name: RuleName): string => fileURLToPath(new URL(`../ru
  * @category configuration
  * @since 0.1.0
  */
-export const rulesDir = (): string => fileURLToPath(new URL("../rules/", import.meta.url));
+export const rulesDir = (): string => NodeURL.fileURLToPath(new URL("../rules/", import.meta.url));

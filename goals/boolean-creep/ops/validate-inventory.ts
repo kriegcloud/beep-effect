@@ -13,7 +13,7 @@
  * file/symbol/member cluster, duplicate declaration-line/member cluster, or
  * status-shape mismatch.
  */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -122,7 +122,7 @@ export const InventoryRecord = S.Union([QualifiedRecord, DisqualifiedRecord]);
 
 const decodeRecordLine = S.decodeUnknownResult(S.fromJsonString(InventoryRecord));
 
-const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const defaultInventory = `${repoRoot}goals/boolean-creep/data/inventory.jsonl`;
 const targets = Bun.argv.length > 2 ? Bun.argv.slice(2) : [defaultInventory];
 

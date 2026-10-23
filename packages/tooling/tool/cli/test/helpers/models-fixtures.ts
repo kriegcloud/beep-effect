@@ -4,7 +4,7 @@
  *
  * @internal
  */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   CodexModelsCache,
   CursorModelList,
@@ -21,7 +21,7 @@ import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import type * as PlatformError from "effect/PlatformError";
 
-const fixturesDir = fileURLToPath(new URL("../fixtures/models/", import.meta.url));
+const fixturesDir = NodeURL.fileURLToPath(new URL("../fixtures/models/", import.meta.url));
 
 const decoderFor = <Schema extends S.Top>(schema: Schema) => S.decodeUnknownEffect(schema);
 

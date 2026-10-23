@@ -20,7 +20,7 @@ export type RuleSource = {
 export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
   "no-file-url-pathname": {
     invalidCount: 4,
-    messageIncludes: "file URL pathname",
+    messageIncludes: "NodeURL.fileURLToPath(new URL(...))",
     invalid: A.join(
       [
         'const a = new URL("./space here.ts", import.meta.url).pathname;',
@@ -32,9 +32,11 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
     ),
     valid: A.join(
       [
-        'const a = fileURLToPath(new URL("./space here.ts", import.meta.url));',
+        'const a = NodeURL.fileURLToPath(new URL("./space here.ts", import.meta.url));',
         'const b = new URL("https://example.com/path").pathname;',
         "const c = new URL(request.url, baseUrl).pathname;",
+        'const url = new URL("./asset", import.meta.url);',
+        'const path = url.protocol === "file:" ? NodeURL.fileURLToPath(url) : url.pathname;',
         'const d = "new URL(./file, import.meta.url).pathname";',
         '// new URL("./file", import.meta.url).pathname',
       ],

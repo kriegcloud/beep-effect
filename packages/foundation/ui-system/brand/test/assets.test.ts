@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { beep, renderBrandAssets, renderThemeCss } from "@beep/brand";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Str from "effect/String";
 
-const packageRoot = fileURLToPath(new URL("../", import.meta.url));
+const packageRoot = NodeURL.fileURLToPath(new URL("../", import.meta.url));
 
 const readPackageFile = Effect.fn("readPackageFile")(function* (relative: string) {
   const fs = yield* FileSystem.FileSystem;

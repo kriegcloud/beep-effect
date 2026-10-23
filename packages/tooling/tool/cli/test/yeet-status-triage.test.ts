@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   deriveYeetMergeReady,
   GateUnproven,
@@ -432,7 +432,7 @@ describe("yeet review-thread classification", () => {
 const readCapturedThreads = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;
   return yield* fs.readFileString(
-    fileURLToPath(new URL("./fixtures/pr-review-bodies/pr1184-threads.json", import.meta.url))
+    NodeURL.fileURLToPath(new URL("./fixtures/pr-review-bodies/pr1184-threads.json", import.meta.url))
   );
 });
 

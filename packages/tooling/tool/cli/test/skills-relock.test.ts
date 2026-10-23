@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   classifySkillPatchHunks,
   decodeSkillsLockDocumentJson,
@@ -55,8 +55,10 @@ import * as Str from "effect/String";
 const TestLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 
 const textEncoder = new TextEncoder();
-const oracleLockFixture = fileURLToPath(new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url));
-const repoRootDir = fileURLToPath(new URL("../../../../../", import.meta.url));
+const oracleLockFixture = NodeURL.fileURLToPath(
+  new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url)
+);
+const repoRootDir = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 const RenovateConfig = S.fromJsonString(
   S.Struct({
     customManagers: S.Array(S.Struct({ matchStrings: S.Array(S.String), datasourceTemplate: S.String })),

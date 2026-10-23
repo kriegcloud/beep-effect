@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as FileSystem from "effect/FileSystem";
 import { assert, describe, it } from "@effect/vitest";
@@ -229,7 +229,7 @@ describe("NpmRegistry — the registry dimension", () => {
 				// source because the guarantee IS the type, which erases at runtime.
 				const fs = yield* FileSystem.FileSystem;
 				const source = yield* fs.readFileString(
-					fileURLToPath(new URL("../../effected/npm/NpmRegistry.ts", import.meta.url)),
+					NodeURL.fileURLToPath(new URL("../../effected/npm/NpmRegistry.ts", import.meta.url)),
 				);
 				assert.include(source, "readonly token?: never;");
 				assert.include(source, "@deprecated");

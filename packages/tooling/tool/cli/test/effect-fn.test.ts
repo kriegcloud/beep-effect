@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/test/Laws";
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
 import { A } from "@beep/utils";
@@ -20,7 +20,7 @@ const temporaryWorkingDirectory = Layer.effectDiscard(
 );
 const nativeWorkingDirectory = temporaryWorkingDirectory.pipe(Layer.provideMerge(NodeServices.layer));
 const testLayer = TSMorphServiceLive.pipe(Layer.provideMerge(nativeWorkingDirectory));
-const CLI_ENTRYPOINT = fileURLToPath(new URL("../src/bin.ts", import.meta.url));
+const CLI_ENTRYPOINT = NodeURL.fileURLToPath(new URL("../src/bin.ts", import.meta.url));
 
 const writeProjectFile = Effect.fn(function* (relativePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;

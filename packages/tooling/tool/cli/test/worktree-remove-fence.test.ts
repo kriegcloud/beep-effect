@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
   invokerExemption,
@@ -256,7 +256,7 @@ const walkingWatcherTable = Effect.fn("WorktreeRemoveFenceTest.walkingWatcherTab
 // without advancing it.
 const quickSettle = (attempts: number) => WorktreeFenceSettlePolicy.make({ interval: Duration.zero, attempts });
 
-const WORKTREE_REMOVE_FENCE_INVOKER = fileURLToPath(
+const WORKTREE_REMOVE_FENCE_INVOKER = NodeURL.fileURLToPath(
   new URL("./support/WorktreeRemoveFenceInvoker.ts", import.meta.url)
 );
 

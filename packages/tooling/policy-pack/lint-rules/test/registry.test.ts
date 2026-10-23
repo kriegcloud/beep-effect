@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { RULE_NAMES, RULES, RuleRegistrySchema, rulePath, rulesDir } from "@beep/lint-rules";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { it } from "@beep/test-runner";
@@ -29,7 +29,7 @@ const decodeRuleRegistry = S.decodeUnknownEffect(RuleRegistrySchema);
 const encodeRuleRegistry = S.encodeEffect(RuleRegistrySchema);
 
 /** Repo root (five levels up from `test/registry.test.ts`). */
-const repoRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 
 describe("rule registry", () => {
   it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) =>

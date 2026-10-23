@@ -1,7 +1,7 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { build, version as esbuildVersion } from "esbuild";
 
-const packageRoot = fileURLToPath(new URL("../", import.meta.url));
+const packageRoot = NodeURL.fileURLToPath(new URL("../", import.meta.url));
 
 export const bundleConsumerEntrypointId = "test/bundle-pg-integer.consumer.ts";
 
