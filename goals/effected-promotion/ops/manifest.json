@@ -79,8 +79,7 @@
     "jq . goals/effected-promotion/ops/manifest.json",
     "rg -n \"effected-promotion|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/effected-promotion",
     "git diff --check -- goals/effected-promotion",
-    "bun run beep lint reflection-artifacts",
-    "bun goals/effected-promotion/ops/repo-workspaces-differential.ts --out goals/effected-promotion/research/repo-workspaces-differential-w4.json"
+    "bun run beep lint reflection-artifacts"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",
