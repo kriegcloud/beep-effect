@@ -611,7 +611,13 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       const rows = yield* gate.run("executeStream", () =>
         native
           .runAndReadAll("SELECT database_name AS catalog, schema_name AS schema FROM duckdb_schemas()")
-          .then((result) => result.getRowObjects())
+          .then((result) => {
+            try {
+              return result.getRowObjects();
+            } finally {
+              ignoreNative(() => result.closeSync());
+            }
+          })
       );
       const schemas = yield* decodeSessionSchemas(rows).pipe(
         Effect.mapError((cause) => toSqlError(cause, "executeStream"))
