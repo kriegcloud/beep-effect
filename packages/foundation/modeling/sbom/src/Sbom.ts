@@ -60,7 +60,7 @@ export class SbomInput extends S.Opaque<SbomInput, { readonly brand: unique symb
       $I.annoteKey("SbomInput.components", { description: "Its dependencies, in any order — the document sorts them." })
     ),
     /** Document metadata. `root` is threaded onto it automatically. */
-    metadata: S.optional(SbomMetadata).pipe(
+    metadata: S.optionalKey(SbomMetadata).pipe(
       $I.annoteKey("SbomInput.metadata", {
         description: "Document metadata. `root` is threaded onto it automatically.",
       })
@@ -115,7 +115,7 @@ export declare namespace SbomInput {
 export class SbomJsonOptions extends S.Opaque<SbomJsonOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** `JSON.stringify` indentation. Defaults to `2`; `0` emits one line. */
-    space: S.optional(S.Finite).pipe(
+    space: S.optionalKey(S.Finite).pipe(
       $I.annoteKey("SbomJsonOptions.space", {
         description: "JSON.stringify indentation. Defaults to 2; 0 emits one line.",
       })

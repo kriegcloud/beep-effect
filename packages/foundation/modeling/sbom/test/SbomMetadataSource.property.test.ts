@@ -84,7 +84,7 @@ it.effect.prop(
       assert.strictEqual(holder, input.holder);
       assert.strictEqual(year, input.year);
       assert.strictEqual(startYear, input.startYear === input.year ? undefined : input.startYear);
-      const parsed = { year, startYear };
+      const parsed = { year, ...(startYear !== undefined && { startYear }) };
       assert.strictEqual(SbomMetadataSource.formatCopyright(holder, parsed), rendered);
       assert.strictEqual(SbomMetadataSource.formatCopyright(input.holder, input), rendered);
     }),

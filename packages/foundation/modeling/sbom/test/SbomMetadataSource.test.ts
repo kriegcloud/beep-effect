@@ -15,7 +15,15 @@
 // collapses that slash to `%2F` and is not a canonical purl.
 
 import { Package } from "@beep/package-json/Package";
-import { Contact, SbomMetadata, SbomMetadataSource, Supplier } from "@beep/sbom";
+import {
+  ComponentInput,
+  Contact,
+  CopyrightYears,
+  SbomMetadata,
+  SbomMetadataOptions,
+  SbomMetadataSource,
+  Supplier,
+} from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -99,37 +107,21 @@ describe("SbomMetadataSource.componentFor", () => {
     assert.strictEqual(SbomMetadataSource.componentFor({ name: "app", type: "application" }).type, "application");
   });
 
-  it("accepts statically-undefined optional fields under exactOptionalPropertyTypes", () => {
-    // Regression for #664: a caller forwarding a statically optional value
-    // (the shape `@effected/workspaces` hands out for `version`) must compile
-    // without a conditional spread. This test file is compiled with
-    // exactOptionalPropertyTypes: true, so the widening lives or dies here.
-    const pkg: {
-      name: string;
-      version: string | undefined;
-      license: string | undefined;
-      description: string | undefined;
-      type: "library" | undefined;
-    } = {
-      name: "left-pad",
-      version: undefined,
-      license: undefined,
-      description: undefined,
-      type: undefined,
-    };
-    const component = SbomMetadataSource.componentFor({
-      name: pkg.name,
-      version: pkg.version,
-      license: pkg.license,
-      description: pkg.description,
-      type: pkg.type,
-    });
-    // Explicit `undefined` behaves exactly like an omitted key: no version
-    // segment in the purl, no licenses, no description, the default type.
-    assert.strictEqual(component.purl, "pkg:npm/left-pad");
-    assert.strictEqual(component.licenses, undefined);
-    assert.strictEqual(component.description, undefined);
-    assert.strictEqual(component.type, "library");
+  it("rejects explicit undefined optional fields (EF-40 exact optional keys)", () => {
+    // The #664 widening is retired: `ComponentInput`'s optional fields are
+    // exact keys, so a caller with no version omits the key. A present key
+    // holding `undefined` fails validation...
+    assert.isFalse(S.is(ComponentInput)({ name: "left-pad", version: undefined }));
+    assert.isFalse(S.is(ComponentInput)({ name: "left-pad", license: undefined }));
+    assert.isFalse(S.is(ComponentInput)({ name: "left-pad", description: undefined }));
+    assert.isFalse(S.is(ComponentInput)({ name: "left-pad", type: undefined }));
+    assert.isTrue(S.is(ComponentInput)({ name: "left-pad" }));
+    // ...and does not type-check: this file is compiled with
+    // exactOptionalPropertyTypes: true.
+    const pkg: { name: string; version: string | undefined } = { name: "left-pad", version: undefined };
+    // @ts-expect-error: `version` is an exact optional key; `undefined` is not a value for it.
+    const input: ComponentInput.Encoded = pkg;
+    assert.isDefined(input);
   });
 });
 
@@ -341,47 +333,24 @@ describe("SbomMetadataSource.fromPackage", () => {
     })
   );
 
-  it.effect("accepts statically-undefined options under exactOptionalPropertyTypes", () =>
-    Effect.gen(function* () {
-      // Same wall as ComponentInput (#664): a timestamp or supplier read out
-      // of config arrives as `T | undefined`, and forwarding it must compile
-      // without a conditional spread at every call site.
-      const config: {
-        supplier: Supplier | undefined;
-        authors: ReadonlyArray<Contact> | undefined;
-        timestamp: string | undefined;
-        publisher: string | undefined;
-        copyright: string | undefined;
-        documentationUrl: string | undefined;
-        type: "library" | undefined;
-      } = {
-        supplier: undefined,
-        authors: undefined,
-        timestamp: undefined,
-        publisher: undefined,
-        copyright: undefined,
-        documentationUrl: undefined,
-        type: undefined,
-      };
-      const pkg = yield* decode();
-      const metadata = SbomMetadataSource.fromPackage(pkg, config);
-      assert.isUndefined(metadata.supplier);
-      assert.isUndefined(metadata.authors);
-      assert.isUndefined(metadata.timestamp);
-      // The same options feed the root component: explicit `undefined` falls
-      // through to the manifest exactly as an omitted key does.
-      const root = SbomMetadataSource.rootComponent(pkg, config);
-      assert.strictEqual(root.type, "library");
-      assert.strictEqual(root.publisher, "Dee");
-      assert.isUndefined(root.copyright);
-      assert.isTrue(
-        A.some(
-          root.externalReferences ?? [],
-          (ref) => ref.type === "documentation" && ref.url === "https://effected.dev"
-        )
-      );
-    })
-  );
+  it("rejects explicit undefined options (EF-40 exact optional keys)", () => {
+    // Same exact keys as ComponentInput: an option read out of config as
+    // `T | undefined` is omitted at the call site, never forwarded as
+    // `undefined`. A present key holding `undefined` fails validation...
+    assert.isFalse(S.is(SbomMetadataOptions)({ supplier: undefined }));
+    assert.isFalse(S.is(SbomMetadataOptions)({ authors: undefined }));
+    assert.isFalse(S.is(SbomMetadataOptions)({ timestamp: undefined }));
+    assert.isFalse(S.is(SbomMetadataOptions)({ publisher: undefined }));
+    assert.isFalse(S.is(SbomMetadataOptions)({ copyright: undefined }));
+    assert.isFalse(S.is(SbomMetadataOptions)({ documentationUrl: undefined }));
+    assert.isFalse(S.is(SbomMetadataOptions)({ type: undefined }));
+    assert.isTrue(S.is(SbomMetadataOptions)({}));
+    // ...and does not type-check.
+    const config: { timestamp: string | undefined } = { timestamp: undefined };
+    // @ts-expect-error: `timestamp` is an exact optional key; `undefined` is not a value for it.
+    const options: SbomMetadataOptions.Encoded = config;
+    assert.isDefined(options);
+  });
 });
 
 describe("SbomMetadataSource.formatCopyright", () => {
@@ -403,9 +372,13 @@ describe("SbomMetadataSource.formatCopyright", () => {
     );
   });
 
-  it("accepts a statically-undefined start year under exactOptionalPropertyTypes", () => {
+  it("rejects an explicit undefined start year (EF-40 exact optional keys)", () => {
+    assert.isFalse(S.is(CopyrightYears)({ startYear: undefined, year: 2026 }));
+    assert.isTrue(S.is(CopyrightYears)({ year: 2026 }));
     const years: { startYear: number | undefined; year: number } = { startYear: undefined, year: 2026 };
-    assert.strictEqual(SbomMetadataSource.formatCopyright("Acme", years), "Copyright 2026 Acme");
+    // @ts-expect-error: `startYear` is an exact optional key; `undefined` is not a value for it.
+    const input: CopyrightYears.Encoded = years;
+    assert.isDefined(input);
   });
 
   it("takes the year as an argument, never from an ambient clock", () => {

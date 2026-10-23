@@ -6,7 +6,7 @@
 // could only happen because the CycloneDX library might throw; with an owned
 // model over already-validated Schema values, neither can fail.
 
-import { Component, Contact, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
+import { Component, Contact, Sbom, SbomInput, SbomJsonOptions, SbomMetadata, Supplier } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -136,15 +136,22 @@ describe("Sbom.toJson", () => {
     assert.isFalse(Str.includes("\n")(dense));
   });
 
-  it("accepts statically-undefined inputs under exactOptionalPropertyTypes", () => {
-    // The #664 widening, applied to this module's inputs: an explicit
-    // `undefined` metadata or indent behaves exactly like an omitted key.
+  it("rejects an explicit undefined metadata or indent (EF-40 exact optional keys)", () => {
+    // `metadata` and `space` are exact optional keys: a caller with no value
+    // omits the key. A present key holding `undefined` fails validation...
+    assert.isFalse(S.is(SbomInput)({ root, components: [], metadata: undefined }));
+    assert.isFalse(S.is(SbomJsonOptions)({ space: undefined }));
+    assert.isTrue(S.is(SbomJsonOptions)({}));
+    // ...and does not type-check under exactOptionalPropertyTypes.
     const input: { metadata: SbomMetadata | undefined; space: number | undefined } = {
       metadata: undefined,
       space: undefined,
     };
-    const json = Sbom.toJson(Sbom.generate({ root, components: [], metadata: input.metadata }), { space: input.space });
-    assert.isTrue(Str.includes("\n")(json));
-    assert.strictEqual(json, Sbom.toJson(Sbom.generate({ root, components: [] })));
+    // @ts-expect-error: `metadata` is an exact optional key; `undefined` is not a value for it.
+    const generateInput: Parameters<typeof Sbom.generate>[0] = { root, components: [], metadata: input.metadata };
+    // @ts-expect-error: `space` is an exact optional key; `undefined` is not a value for it.
+    const jsonOptions: SbomJsonOptions.Encoded = { space: input.space };
+    assert.isDefined(generateInput);
+    assert.isDefined(jsonOptions);
   });
 });

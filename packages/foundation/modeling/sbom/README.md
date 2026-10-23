@@ -169,8 +169,9 @@ Promotion changes, beyond the lab port recorded below:
   the digest stays a validated `Sha256Digest`. The data-first dispatch of `Sbom.toJson` and `Sbom.write` reads the
   `bomFormat` key instead of a structural check.
 - The five input and option structs that upstream typed `?: T | undefined` (`SbomInput.metadata`,
-  `SbomJsonOptions.space`, `SbomMetadataOptions`, `ComponentInput`, `CopyrightYears.startYear`) are `S.optional`
-  again after the lab's `S.optionalKey` (#1928); the document model keeps `S.optionalKey`, as upstream has it.
+  `SbomJsonOptions.space`, `SbomMetadataOptions`, `ComponentInput`, `CopyrightYears.startYear`) keep the lab's exact
+  `S.optionalKey` (EF-40): a caller omits an absent field, and a present key holding `undefined` is rejected, both by
+  the type checker and by decoding. The document model is `S.optionalKey` too, as upstream has it.
 - `Component.bomRef` is non-empty, as the CycloneDX `refType` (`minLength: 1`) requires; upstream accepted `""`
   and emitted a document the schema rejects.
 - `Contact.email` is the named external-protocol schema `ContactEmail` (passed through verbatim).

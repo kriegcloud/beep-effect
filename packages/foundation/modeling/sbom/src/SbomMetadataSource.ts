@@ -102,7 +102,7 @@ const npmPurl = (name: string, version?: string): string => {
 export class SbomMetadataOptions extends S.Opaque<SbomMetadataOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The supplying organization — NTIA minimum element 1. */
-    supplier: S.optional(Supplier).pipe(
+    supplier: S.optionalKey(Supplier).pipe(
       $I.annoteKey("SbomMetadataOptions.supplier", {
         description: "The supplying organization — NTIA minimum element 1.",
       })
@@ -110,35 +110,35 @@ export class SbomMetadataOptions extends S.Opaque<SbomMetadataOptions, { readonl
     /** Who assembled the BOM — NTIA minimum element 6. */
     authors: Contact.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("SbomMetadataOptions.authors", { description: "Who assembled the BOM — NTIA minimum element 6." })
     ),
     /** When it was assembled — NTIA minimum element 7, as an ISO 8601 string. */
-    timestamp: S.optional(S.String).pipe(
+    timestamp: S.optionalKey(S.String).pipe(
       $I.annoteKey("SbomMetadataOptions.timestamp", {
         description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string.",
       })
     ),
     /** The publishing entity. Falls back to the supplier, then the manifest's author. */
-    publisher: S.optional(S.String).pipe(
+    publisher: S.optionalKey(S.String).pipe(
       $I.annoteKey("SbomMetadataOptions.publisher", {
         description: "The publishing entity. Falls back to the supplier, then the manifest's author.",
       })
     ),
     /** A copyright statement; {@link SbomMetadataSource.formatCopyright} builds one. */
-    copyright: S.optional(S.String).pipe(
+    copyright: S.optionalKey(S.String).pipe(
       $I.annoteKey("SbomMetadataOptions.copyright", {
         description: "A copyright statement; SbomMetadataSource.formatCopyright builds one.",
       })
     ),
     /** The documentation URL, winning over the manifest's `homepage`. */
-    documentationUrl: S.optional(S.String).pipe(
+    documentationUrl: S.optionalKey(S.String).pipe(
       $I.annoteKey("SbomMetadataOptions.documentationUrl", {
         description: "The documentation URL, winning over the manifest's homepage.",
       })
     ),
     /** The root component's type. Defaults to `library`. */
-    type: S.optional(ComponentType).pipe(
+    type: S.optionalKey(ComponentType).pipe(
       $I.annoteKey("SbomMetadataOptions.type", { description: "The root component's type. Defaults to library." })
     ),
   }).pipe(
@@ -186,25 +186,24 @@ export class ComponentInput extends S.Opaque<ComponentInput, { readonly brand: u
     name: S.String.pipe($I.annoteKey("ComponentInput.name", { description: "The package name, scope included." })),
     /**
      * Its resolved version. Absent produces a component with no version and no
-     * purl version segment. Typed `string | undefined` so a caller forwarding a
-     * statically optional version (e.g. `WorkspacePackage.version` from the
-     * effected `workspaces` module) compiles under `exactOptionalPropertyTypes`.
+     * purl version segment. An exact optional key (EF-40): a caller with no
+     * version omits the key, and a present key holding `undefined` is rejected.
      */
-    version: S.optional(S.String).pipe(
+    version: S.optionalKey(S.String).pipe(
       $I.annoteKey("ComponentInput.version", {
         description: "Its resolved version. Absent produces a component with no version and no purl version segment.",
       })
     ),
     /** An SPDX identifier or expression. */
-    license: S.optional(S.String).pipe(
+    license: S.optionalKey(S.String).pipe(
       $I.annoteKey("ComponentInput.license", { description: "An SPDX identifier or expression." })
     ),
     /** A short description. */
-    description: S.optional(S.String).pipe(
+    description: S.optionalKey(S.String).pipe(
       $I.annoteKey("ComponentInput.description", { description: "A short description." })
     ),
     /** The component type. Defaults to `library`. */
-    type: S.optional(ComponentType).pipe(
+    type: S.optionalKey(ComponentType).pipe(
       $I.annoteKey("ComponentInput.type", { description: "The component type. Defaults to library." })
     ),
   }).pipe(
@@ -247,7 +246,7 @@ export declare namespace ComponentInput {
 export class CopyrightYears extends S.Opaque<CopyrightYears, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The first year of the range. Omit for a single-year statement. */
-    startYear: S.optional(S.Finite).pipe(
+    startYear: S.optionalKey(S.Finite).pipe(
       $I.annoteKey("CopyrightYears.startYear", {
         description: "The first year of the range. Omit for a single-year statement.",
       })
