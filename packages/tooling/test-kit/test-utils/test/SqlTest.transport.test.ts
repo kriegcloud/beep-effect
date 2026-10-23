@@ -7,14 +7,15 @@ import {
   SqlTestHarnessError,
   TestDatabaseInfo,
 } from "@beep/test-utils";
-import { describe, expect, vi } from "@effect/vitest";
+import { describe, expect } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/sql/SqlClient";
+import { vi } from "vitest";
 
-const transport = { rejectSqlite: false };
+const transport = vi.hoisted(() => ({ rejectSqlite: false }));
 
 // Exercise harness lifecycle logic with real local SQL clients at the transport seam.
 vi.mock("@effect/platform-bun/BunFileSystem", () => import("@effect/platform-node/NodeFileSystem"));
