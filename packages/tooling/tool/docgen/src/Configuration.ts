@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 import { $RepoDocgenId } from "@beep/identity/packages";
 import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@beep/repo-utils";
 import { A } from "@beep/utils";
@@ -17,8 +19,9 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as jsonc from "jsonc-parser";
+import * as SchemaIssue from "effect/SchemaIssue";
 import * as Domain from "./Domain.ts";
+import type { ConfigReadSchema } from "@beep/config-file/ConfigFile";
 
 const $I = $RepoDocgenId.create("Configuration");
 
@@ -397,33 +400,36 @@ class PackageJsonSchema extends S.Opaque<PackageJsonSchema, { readonly brand: un
   }).pipe($I.annoteSchema("PackageJsonSchema"))
 ) {}
 
-const readJsoncFile = Effect.fn("readJsonCFile")(function* <Schema extends S.ConstraintDecoder<unknown>>(
+// `ConfigFile.read` carries the schema failure as a structured `SchemaIssue`
+// tree; a value that is not one would break its contract, so it is a defect.
+const SchemaIssueValue = S.declare(SchemaIssue.isIssue).pipe(
+  $I.annoteSchema("SchemaIssueValue", {
+    description: "The structured schema issue a config-file validation failure carries.",
+  })
+);
+const formatIssue = SchemaIssue.makeFormatterDefault();
+
+const readJsoncFile = Effect.fn("readJsonCFile")(function* <A, I>(
   filePath: string,
-  schema: Schema
-): Effect.fn.Return<Schema["Type"], Domain.DocgenError, FileSystem.FileSystem> {
-  const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError((cause) =>
+  schema: ConfigReadSchema<A, I>
+): Effect.fn.Return<A, Domain.DocgenError, FileSystem.FileSystem> {
+  const fail = (step: string, detail: string) =>
+    Effect.fail(
       Domain.DocgenError.make({
-        message: `[Configuration.readJsoncFile] Failed to read '${filePath}'\n${String(cause)}`,
+        message: `[Configuration.readJsoncFile] Failed to ${step} '${filePath}'\n${detail}`,
       })
-    )
-  );
+    );
 
-  const parsed = yield* Effect.try({
-    catch: (cause) =>
-      Domain.DocgenError.make({
-        message: `[Configuration.readJsoncFile] Failed to parse '${filePath}'\n${String(cause)}`,
-      }),
-    try: () => jsonc.parse(content),
-  });
-
-  return yield* S.decodeUnknownEffect(schema)(parsed).pipe(
-    Effect.mapError((cause) =>
-      Domain.DocgenError.make({
-        message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
-      })
-    )
+  return yield* ConfigFile.read(filePath, { schema, codec: JsoncCodec }).pipe(
+    Effect.catchTags({
+      ConfigFileReadError: (error) => fail("read", String(error.cause)),
+      ConfigCodecError: (error) => fail("parse", String(error.cause)),
+      ConfigValidationError: (error) =>
+        S.decodeUnknownEffect(SchemaIssueValue)(error.issue).pipe(
+          Effect.orDie,
+          Effect.flatMap((issue) => fail("decode", formatIssue(issue)))
+        ),
+    })
   );
 });
 

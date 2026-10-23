@@ -34,7 +34,12 @@ const makeLoadArgs = (): Parameters<typeof Configuration.load>[0] => ({
   examplesCompilerOptions: O.none(),
 });
 
-const makeDocgenJsonLayer = (config: unknown | undefined, configFile = "docgen.json") =>
+interface DocgenConfigFile {
+  readonly exists: boolean;
+  readonly text: O.Option<string>;
+}
+
+const makeDocgenFileLayer = (configFile: string, file: DocgenConfigFile) =>
   Layer.effect(
     FileSystem.FileSystem,
     Effect.gen(function* () {
@@ -45,8 +50,8 @@ const makeDocgenJsonLayer = (config: unknown | undefined, configFile = "docgen.j
         if (fileName === "package.json") {
           return Effect.succeed(encodeJson({ name: "name", homepage: "homepage" }));
         }
-        if (fileName === configFile && config !== undefined) {
-          return Effect.succeed(encodeJson(config));
+        if (fileName === configFile && O.isSome(file.text)) {
+          return Effect.succeed(file.text.value);
         }
         return Effect.fail(
           PlatformError.systemError({
@@ -59,7 +64,7 @@ const makeDocgenJsonLayer = (config: unknown | undefined, configFile = "docgen.j
       };
 
       const exists: FileSystem.FileSystem["exists"] = (filePath) =>
-        Effect.succeed(path.basename(filePath) === configFile && config !== undefined);
+        Effect.succeed(path.basename(filePath) === configFile && file.exists);
 
       return FileSystem.makeNoop({
         exists,
@@ -67,6 +72,15 @@ const makeDocgenJsonLayer = (config: unknown | undefined, configFile = "docgen.j
       });
     })
   ).pipe(Layer.provide(Path.layer));
+
+const makeDocgenJsonLayer = (config: unknown | undefined, configFile = "docgen.json") =>
+  makeDocgenFileLayer(configFile, {
+    exists: config !== undefined,
+    text: O.map(O.fromUndefinedOr(config), encodeJson),
+  });
+
+const makeTextLayer = (file: DocgenConfigFile) =>
+  Layer.mergeAll(Path.layer, Domain.Process.layer, makeDocgenFileLayer("docgen.json", file));
 
 const makeTestLayer = (config?: unknown, configFile?: string) =>
   Layer.mergeAll(Path.layer, Domain.Process.layer, makeDocgenJsonLayer(config, configFile));
@@ -179,6 +193,47 @@ describe("Configuration", () => {
         expect(isDomainDocgenError(error)).toBe(true);
         expect(Str.includes("[Configuration.readJsoncFile] Failed to decode")(error.message)).toBe(true);
         expect(Str.includes("projectHomepage")(error.message)).toBe(true);
+      })
+    )
+  );
+
+  // docgen read docgen.json through jsonc-parser with its errors ignored, so a
+  // malformed file decoded whatever fragment survived. Through ConfigFile.read
+  // and JsoncCodec (wave 3, W3-e) the parse failure is typed.
+  it.layer(makeTextLayer({ exists: true, text: O.some('{ "srcDir": "src", ') }))((it) =>
+    it.effect(
+      "raises a typed parse error when docgen.json is malformed JSONC",
+      Effect.fnUntraced(function* () {
+        const error = yield* Configuration.load(makeLoadArgs()).pipe(Effect.flip);
+        expect(isDomainDocgenError(error)).toBe(true);
+        expect(Str.includes("[Configuration.readJsoncFile] Failed to parse")(error.message)).toBe(true);
+        expect(Str.includes("docgen.json")(error.message)).toBe(true);
+      })
+    )
+  );
+
+  it.layer(
+    makeTextLayer({
+      exists: true,
+      text: O.some('{\n  // comments and trailing commas stay legal\n  "srcDir": "lib",\n}\n'),
+    })
+  )((it) =>
+    it.effect(
+      "reads comments and trailing commas in docgen.json",
+      Effect.fnUntraced(function* () {
+        const config = yield* Configuration.load(makeLoadArgs());
+        expect(config.srcDir).toBe("lib");
+      })
+    )
+  );
+
+  it.layer(makeTextLayer({ exists: true, text: O.none() }))((it) =>
+    it.effect(
+      "raises a typed read error when docgen.json exists but cannot be read",
+      Effect.fnUntraced(function* () {
+        const error = yield* Configuration.load(makeLoadArgs()).pipe(Effect.flip);
+        expect(isDomainDocgenError(error)).toBe(true);
+        expect(Str.includes("[Configuration.readJsoncFile] Failed to read")(error.message)).toBe(true);
       })
     )
   );
