@@ -319,6 +319,30 @@ const plainContinuationCases: ReadonlyArray<OracleCase> = [
   { name: "flow sequence continuation", input: "[x\n 'y', z]\n", expected: ["x 'y'", "z"] },
   { name: "flow mapping continuation", input: '{a: x\n "b"}\n', expected: { a: 'x "b"' } },
   { name: "CRLF continuation", input: 'a: x\r\n  "y"\r\nb: 1\r\n', expected: { a: 'x "y"', b: 1 } },
+  {
+    name: "tab separation after the indentation",
+    input: 'a: x\n  \t"y"\nb: 1\n',
+    expected: { a: 'x "y"', b: 1 },
+  },
+  { name: "tab separation after a one-space indentation", input: "a: x\n \t'y'\n", expected: { a: "x 'y'" } },
+  {
+    name: "tab separation before a block-scalar indicator",
+    input: "a: x\n  \t|y\nb: 1\n",
+    expected: { a: "x |y", b: 1 },
+  },
+  { name: "tab separation in a compact mapping", input: '- a: x\n   \t"b"\n', expected: [{ a: 'x "b"' }] },
+  { name: "tab separation in a flow sequence", input: '[x\n \t"y"]\n', expected: ['x "y"'] },
+  { name: "tab-led document-root continuation", input: 'x\n\t"y"\n', expected: 'x "y"' },
+  {
+    name: "flow mapping key spanning a quote-led line",
+    input: '{x\n "y"\n : 1}\n',
+    expected: { 'x "y"': 1 },
+  },
+  {
+    name: "flow mapping key spanning a quote-led line with trailing text",
+    input: '{x\n "y" z\n : 1}\n',
+    expected: { 'x "y" z': 1 },
+  },
   { name: "quoted key at the mapping indent (control)", input: 'a: x\n"y": 1\n', expected: { a: "x", y: 1 } },
   {
     name: "quoted key in a compact mapping (control)",

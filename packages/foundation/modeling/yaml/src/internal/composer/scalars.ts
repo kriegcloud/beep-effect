@@ -560,13 +560,13 @@ export const collectMultilineKey: {
     return { value: Str.trim(first?.source ?? ""), nextIdx: startIdx + 1 };
   }
 
-  const parts: string[] = [Str.trim(first.source)];
+  // A plain first token can span lines (the lexer runs it on across a
+  // quote-led continuation line), so it folds like the parts after it.
+  const plain = isPlainFlowScalar(first);
+  const seed = plain ? plainSourceText(first.source) : Str.trim(first.source);
+  const parts: string[] = [seed];
   const idx = collectKeyContinuation(children, startIdx + 1, parts);
-  if (parts.length === 1) {
-    return { value: Str.trim(first.source), nextIdx: idx };
-  }
-
-  return { value: foldFlowLines(A.join(parts, "\n")), nextIdx: idx };
+  return { value: parts.length === 1 && !plain ? seed : foldFlowLines(A.join(parts, "\n")), nextIdx: idx };
 });
 
 /** True for a plain (unquoted) flow scalar. */

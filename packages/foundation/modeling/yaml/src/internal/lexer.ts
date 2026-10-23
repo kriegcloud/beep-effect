@@ -485,18 +485,22 @@ export function createScanner(text: string): YamlScanner {
   }
 
   /**
-   * Whether `ch` at offset `at` and column `column` continues the open plain
-   * scalar (YAML 1.2 s-ns-plain-next-line): the line is indented past the
-   * scalar's parent collection and `ch` is an ns-plain-char, so indicators
-   * are scalar text. A comment, a `: ` value indicator, a flow indicator
-   * inside flow context and a column-0 document marker still end the scalar.
+   * Whether `ch`, the first content at offset `at` on its line, continues the
+   * open plain scalar (YAML 1.2 s-ns-plain-next-line): the line's indentation
+   * (spaces only; separation blanks, tabs included, may follow it) reaches
+   * past the scalar's parent collection, and `ch` is an ns-plain-char, so
+   * indicators are scalar text. A comment, a `: ` value indicator, a flow
+   * indicator inside flow context and a line-start document marker still end
+   * the scalar.
    */
-  function continuesPlainAt(ch: string, at: number, column: number): boolean {
-    if (plainFloor === undefined || column <= plainFloor || ch === "#" || plainScalarStopsAt(at)) return false;
+  function continuesPlainAt(ch: string, at: number): boolean {
+    const lineStart = lineStartOf(text, at);
+    if (plainFloor === undefined || countSpaces(text, lineStart) <= plainFloor) return false;
+    if (ch === "#" || plainScalarStopsAt(at)) return false;
     // A line whose run ends at a `:` value indicator would make a multi-line
     // implicit key, which is invalid: the indicator scanners keep its diagnostic.
     if (charAt(plainRunEnd(at)) === ":") return false;
-    return !(column === 0 && isDocumentMarkerAt(text, at));
+    return !(at === lineStart && isDocumentMarkerAt(text, at));
   }
 
   /**
@@ -506,19 +510,19 @@ export function createScanner(text: string): YamlScanner {
    * {@link scanPlainScalar} absorbs those lines into the scalar's token.
    */
   function continuesPlainScalar(ch: string): boolean {
-    return !lineIndentLocked && !isStyleIndicator(ch) && continuesPlainAt(ch, pos, col);
+    return !lineIndentLocked && !isStyleIndicator(ch) && continuesPlainAt(ch, pos);
   }
 
   /**
    * The offset of the first content character on the next non-blank line
-   * after the line break at the cursor, or `-1` at the end of input or when
-   * a tab sits in that line's indentation.
+   * after the line break at the cursor, past its leading spaces and tabs, or
+   * `-1` at the end of input.
    */
   function nextLineContent(): number {
     let lineStart = lineBreakEnd(text, pos);
     while (lineStart < text.length) {
       const content = blankRunEnd(lineStart);
-      if (!isLineEnd(charAt(content))) return content === lineStart + countSpaces(text, lineStart) ? content : -1;
+      if (!isLineEnd(charAt(content))) return content;
       lineStart = lineBreakEnd(text, content);
     }
     return -1;
@@ -534,7 +538,7 @@ export function createScanner(text: string): YamlScanner {
     const content = nextLineContent();
     if (content < 0) return false;
     const ch = charAt(content);
-    if (!isStyleIndicator(ch) || !continuesPlainAt(ch, content, content - lineStartOf(text, content))) return false;
+    if (!isStyleIndicator(ch) || !continuesPlainAt(ch, content)) return false;
     advance(content - pos);
     lockLineIndent();
     return true;

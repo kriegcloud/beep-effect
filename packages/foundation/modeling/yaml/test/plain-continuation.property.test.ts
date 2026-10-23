@@ -29,6 +29,8 @@ const ContinuationLine = S.Struct({
   tail: S.Array(Word).check(S.isMaxLength(2)),
   blankBefore: S.Boolean,
   extraIndent: S.Literals([0, 1, 2]),
+  // Separation blanks after the indentation: YAML 1.2 allows tabs there.
+  separation: S.Literals(["", "\t", " \t"]),
 });
 
 const Layout = S.Literals(["map", "nested-map", "seq", "compact-map", "root", "flow-seq"]);
@@ -58,7 +60,7 @@ const renderLine = (indent: number, line: ContinuationLine): string => {
     ""
   );
   const text = `${line.lead}${A.join(line.body, "")}${quoteClose}${tail}`;
-  return `${line.blankBefore ? "\n" : ""}${Str.repeat(indent + line.extraIndent)(" ")}${text}\n`;
+  return `${line.blankBefore ? "\n" : ""}${Str.repeat(indent + line.extraIndent)(" ")}${line.separation}${text}\n`;
 };
 
 const render = (layout: Layout, first: ReadonlyArray<string>, lines: ReadonlyArray<ContinuationLine>): string => {
@@ -88,9 +90,9 @@ describe("plain-scalar continuation lines", () => {
     runs
   );
 
-  it.effect("a quote-led continuation line that ends at a value indicator stays invalid", () =>
+  it.effect("a quote-led line that ends at a value indicator or is tab-indented stays invalid", () =>
     Effect.sync(() => {
-      for (const input of ['a: x\n  "y": 1\n', "a: x\n  'y': 1\n"]) {
+      for (const input of ['a: x\n  "y": 1\n', "a: x\n  'y': 1\n", 'a: x\n\t"y"\nb: 1\n']) {
         assert.throws(() => parse(input));
         assertTrue(Result.isFailure(Yaml.parseResult(input)), input);
       }
