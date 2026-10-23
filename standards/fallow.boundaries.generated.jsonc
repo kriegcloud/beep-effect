@@ -4168,6 +4168,7 @@
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
+          "@beep/config-file",
           "@beep/duckdb",
           "@beep/exiftool",
           "@beep/fc-runs",
@@ -4213,6 +4214,7 @@
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
+          "@beep/config-file",
           "@beep/duckdb",
           "@beep/exiftool",
           "@beep/fc-runs",
@@ -4277,6 +4279,7 @@
         "from": "@beep/repo-docgen",
         "allow": [
           "@beep/chalk",
+          "@beep/config-file",
           "@beep/identity",
           "@beep/md",
           "@beep/repo-docgen",
@@ -4288,6 +4291,7 @@
         ],
         "allowTypeOnly": [
           "@beep/chalk",
+          "@beep/config-file",
           "@beep/identity",
           "@beep/md",
           "@beep/repo-docgen",

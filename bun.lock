@@ -2293,6 +2293,9 @@
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
+        "jsonc-parser": "catalog:",
+        "smol-toml": "^1.9.1",
+        "yaml": "catalog:",
       },
     },
     "packages/foundation/capability/file-processing": {
@@ -3758,6 +3761,7 @@
         "@beep/ai-sync": "workspace:^",
         "@beep/chalk": "workspace:^",
         "@beep/colors": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/exiftool": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
@@ -3842,6 +3846,7 @@
       "dependencies": {
         "@babel/code-frame": "catalog:",
         "@beep/chalk": "workspace:^",
+        "@beep/config-file": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/repo-utils": "workspace:^",
@@ -3851,7 +3856,6 @@
         "@effect/platform-bun": "catalog:",
         "doctrine": "catalog:",
         "effect": "catalog:",
-        "jsonc-parser": "catalog:",
         "ts-morph": "catalog:",
       },
       "devDependencies": {
