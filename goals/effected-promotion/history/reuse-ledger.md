@@ -8,7 +8,7 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
-| m365-mcp `OutboxConfig.ts` `stateRoot` (staging root and audit directory) | #180 | adopted in 4-X | `XdgBase.dir("data")` / `XdgBase.dir("state")`. Parity: the env matrix in `test/OutboxConfig.xdg.test.ts`, committed against the old body first; its divergent rows are inverted on purpose (relative or space-padded values ignored, HOME normalized, the missing-root message names an absolute path). |
+| m365-mcp `OutboxConfig.ts` `stateRoot` (staging root and audit directory) | #180 | adopted in 4-X | `XdgBase.dir("data")` / `XdgBase.dir("state")`. Parity: the env matrix in `test/OutboxConfig.xdg.test.ts`, committed against the old body first; its divergent rows are inverted on purpose (relative or space-padded values ignored, a value with only trailing whitespace used verbatim instead of trimmed, HOME normalized, the missing-root message names an absolute path). |
 | repo-cli `internal/state/WorkstationState.ts` `resolveWorkstationStateDir` | #167 | adopted in 4-X | `XdgBase.require("state")`; the override variable and the five callers are unchanged. Parity: `test/workstation-state-xdg.test.ts`, committed against the old body first, with the same inverted rows. |
 | ai-metrics `forwarder.ts` and `data-root.ts` `aiMetricsStateHome` | #176, #288 | queued for 4-X-A | Exception Ledger "Duplicate XDG base-directory resolution". |
 | repo-cli `internal/repo-run/BeepCacheRoot.ts` | #168 | queued for 4-X-A | Keeps its override and TMPDIR rungs; only the XDG rung moves. |
