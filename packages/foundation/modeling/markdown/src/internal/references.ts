@@ -325,8 +325,24 @@ export class ReferenceScanner {
     return openParens;
   }
 
-  /** Advance past a {@link reDestinationRun} at the cursor and return the character there. */
-  private skipDestinationRun(): string {
+  /**
+   * Advance over ordinary destination text and return its stopping character.
+   *
+   * **Details**
+   * Internal metering seam: wrapping this step counts both skipped UTF-16 units and
+   * delimiter visits without retaining subjects or changing the destination grammar.
+   *
+   * **Example** (Skip ordinary destination text)
+   * ```ts
+   * import { ReferenceScanner } from "@beep/markdown/internal/references";
+   * const scanner = new ReferenceScanner("path(nested)");
+   * scanner.skipDestinationRun() // => "("
+   * scanner.pos // => 4
+   * ```
+   * @category parsing
+   * @since 0.0.0
+   */
+  skipDestinationRun(): string {
     reDestinationRun.lastIndex = this.pos;
     if (reDestinationRun.test(this.subject)) {
       this.pos = reDestinationRun.lastIndex;
