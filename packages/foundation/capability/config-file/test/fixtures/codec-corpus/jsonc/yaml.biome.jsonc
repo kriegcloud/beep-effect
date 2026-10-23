@@ -1,0 +1,11 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+  "root": false,
+  "extends": "//",
+  "files": {
+    // The yaml-test-suite corpus is vendored byte-exact from upstream; its
+    // in.json files are JSON streams (not single documents) and a format
+    // sweep would rewrite the expected outputs.
+    "includes": ["**", "!test/fixtures/yaml-test-suite"]
+  }
+}

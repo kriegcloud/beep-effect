@@ -8,8 +8,8 @@ import { dual } from "effect/Function";
 // `instanceId` is OPAQUE here — composed and looked up, never parsed.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { Lockfile } from "../../lockfiles/index.ts";
-import { ResolvedPackage } from "../../lockfiles/ResolvedPackage.ts";
+import type { Lockfile } from "@beep/lockfiles";
+import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -54,7 +54,7 @@ export interface InstanceIndex {
  *
  * ```ts
  * import { indexInstances } from "@beep/scratchpad/effected/workspaces/internal/roots";
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
  * import * as MutableHashMap from "effect/MutableHashMap";
  *
  * const lockfile = Lockfile.make({
@@ -128,8 +128,8 @@ export type ImporterRoots = typeof ImporterRoots.Type;
  *
  * ```ts
  * import { indexInstances, rootInstances } from "@beep/scratchpad/effected/workspaces/internal/roots";
- * import { Lockfile } from "@beep/scratchpad/effected/lockfiles/Lockfile";
- * import { LockfileImporter } from "@beep/scratchpad/effected/lockfiles/LockfileImporter";
+ * import { Lockfile } from "@beep/lockfiles/Lockfile";
+ * import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
  *
  * const lockfile = Lockfile.make({
  *   format: "npm", lockfileVersion: "3", packages: [], workspaceDependencies: [],

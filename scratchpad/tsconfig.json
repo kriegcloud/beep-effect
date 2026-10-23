@@ -56,6 +56,9 @@
       "path": "../packages/epistemic/domain/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/capability/config-file/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/capability/file-processing/tsconfig.json"
     },
     {
@@ -90,6 +93,9 @@
     },
     {
       "path": "../packages/foundation/modeling/jsonc/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/lockfiles/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/managed-section/tsconfig.json"

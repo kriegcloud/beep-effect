@@ -551,11 +551,19 @@ const pushExplicitKeyMarker = (scan: FlattenScan, offset: number): void => {
   scan.items.push(SemanticKey.make({ kind: "key" }));
 };
 
+/** Marks a `:` the comma directly follows as closed, so the next entry's key cannot become its value. */
+const closeEmptyFlowValue = (scan: FlattenScan): void => {
+  const index = lastNonCommentIndex(scan.items);
+  const last = scan.items[index];
+  if (last?.kind === "value-sep") scan.items[index] = SemanticValueSep.make({ ...last, closed: true });
+};
+
 const flattenComma = (scan: FlattenScan, child: CstNode, state: ComposerState): void => {
   // A node-less explicit key ends at the comma. Materialize its
   // null key before the following entry can supply a node to it.
   materializeEmptyExplicitKey(scan, state);
   flushPendingFlowMeta(scan, state, child.offset);
+  closeEmptyFlowValue(scan);
 };
 
 const flattenValueSep = (scan: FlattenScan, child: CstNode, state: ComposerState): void => {

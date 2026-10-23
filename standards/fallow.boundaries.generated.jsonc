@@ -168,6 +168,12 @@
         ]
       },
       {
+        "name": "@beep/config-file",
+        "patterns": [
+          "packages/foundation/capability/config-file/src/**"
+        ]
+      },
+      {
         "name": "@beep/cosmos",
         "patterns": [
           "packages/drivers/cosmos/src/**"
@@ -489,6 +495,12 @@
         "name": "@beep/lint-rules",
         "patterns": [
           "packages/tooling/policy-pack/lint-rules/src/**"
+        ]
+      },
+      {
+        "name": "@beep/lockfiles",
+        "patterns": [
+          "packages/foundation/modeling/lockfiles/src/**"
         ]
       },
       {
@@ -1690,6 +1702,33 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/config-file",
+        "allow": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
         ]
       },
       {
@@ -2928,6 +2967,31 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/lockfiles",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/lockfiles",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/lockfiles",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/yaml"
         ]
       },
       {
@@ -4207,6 +4271,7 @@
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
+          "@beep/config-file",
           "@beep/duckdb",
           "@beep/exiftool",
           "@beep/fc-runs",
@@ -4254,6 +4319,7 @@
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
+          "@beep/config-file",
           "@beep/duckdb",
           "@beep/exiftool",
           "@beep/fc-runs",
@@ -4320,6 +4386,7 @@
         "from": "@beep/repo-docgen",
         "allow": [
           "@beep/chalk",
+          "@beep/config-file",
           "@beep/identity",
           "@beep/md",
           "@beep/repo-docgen",
@@ -4331,6 +4398,7 @@
         ],
         "allowTypeOnly": [
           "@beep/chalk",
+          "@beep/config-file",
           "@beep/identity",
           "@beep/md",
           "@beep/repo-docgen",
@@ -4501,6 +4569,7 @@
         "from": "@beep/scratchpad",
         "allow": [
           "@beep/commands",
+          "@beep/config-file",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4518,6 +4587,7 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/law-practice-use-cases",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/managed-section",
           "@beep/markdown",
@@ -4556,6 +4626,7 @@
         ],
         "allowTypeOnly": [
           "@beep/commands",
+          "@beep/config-file",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4573,6 +4644,7 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/law-practice-use-cases",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/managed-section",
           "@beep/markdown",

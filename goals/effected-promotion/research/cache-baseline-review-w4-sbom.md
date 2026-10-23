@@ -59,3 +59,9 @@ Two other inputs changed without a reported drift, and are not subjects:
 Recording these subjects accepts the existing posture for the new workspace
 and the root catalog entries. No qualification is granted, and no other
 subject changes.
+
+Re-recorded after merging `origin/main` at `ee0f308c3f` (#2134 `@beep/config-file`, #2159 `@beep/lockfiles`
+and the rest): `cache-policy` reported the same 8 tuples and nothing else, so the request is unchanged except
+for its fresh `previous` stamp. The `@beep/sbom` manifest's `exports` and `publishConfig.exports` now map
+`./internal/*` (the `src/internal/admission.ts` seam the admission-count test swaps), which changes no task;
+`biome.jsonc` gains one exclude for the vendored CycloneDX schema and no reported drift.

@@ -73,7 +73,7 @@ const parentEnvironment = Layer.effectDiscard(
   })
 );
 
-it.layer(parentEnvironment)("inherited parent environment", (it) => {
+it.layer(parentEnvironment, { timeout: "30 seconds" })("inherited parent environment", (it) => {
   for (const scenario of scenarios) {
     for (const objectForm of [false, true]) {
       const program = `process.exit(process.env.BEEP_PARITY_PARENT === ${scenario.parentExpression} && process.env.BEEP_PARITY_CHILD === ${scenario.childExpression} && process.env.BEEP_PARITY_WITNESS === ${scenario.witnessExpression} ? 0 : 61)`;

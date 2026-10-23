@@ -38,7 +38,10 @@ P1 Implement — waves 1a (#1956), 1b (#1981), 2a (#1988), 2b (#1992, #1994,
 #2002), 2c (#2016, D-37) and 2d-1 (#2102, `@beep/markdown`, D-38..D-46)
 merged. 2d-A (four adopter sites, D-47) merged in #2114. Wave 2d-2 (`@beep/md`
 `Md.syntax`/`Md.parse`, D-48..D-51) merged in #2121; the evidence-gated 2d-3
-writer fixes (D-52, `math` on by default) are in review. P0
+writer fixes (D-52, `math` on by default) merged in #2141 and D-53 in #2143.
+Wave 3 (W3-a..W3-n) is in progress; everything left is sequenced by
+[`research/wave-4-plan-2026-10-23.md`](./research/wave-4-plan-2026-10-23.md)
+(W4-a..W4-t, mirrored in [`PLAN.md`](./PLAN.md)). P0
 research is complete:
 see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md),
 [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md)
@@ -49,10 +52,11 @@ and [`research/wave-2d-plan-2026-10-22.md`](./research/wave-2d-plan-2026-10-22.m
 - 2026-10-20 discovery workflow: 34-row package map (30 now, 4 deferred), 6
   waves, 312 deduplicated reuse sites (29 confirmed, 209 partial, 74 refuted),
   three scored `@beep/md` merge designs.
-- Decisions D-01..D-46 are in [`SPEC.md`](./SPEC.md).
+- Decisions D-01..D-53, W3-a..W3-n and W4-a..W4-t are in [`SPEC.md`](./SPEC.md).
 
 ## Notes
 
 - Port provenance: `scratchpad/EFFECTED_PORT_GOAL.md`, `scratchpad/effected/PORT_LEDGER.json`,
   and the per-module review reports archived under `history/port-reviews/`.
-- Deferred modules stay in `scratchpad/effected` until their first consumer (D-05).
+- Deferred modules leave the lab at C, pinned by the last sha that holds them (D-05 as amended by
+  W4-m; see the PLAN "Deferred" section).

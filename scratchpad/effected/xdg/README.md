@@ -1,7 +1,7 @@
 # xdg (lab port of @effected/xdg)
 
 
-XDG Base Directory resolution for Effect. `Xdg` reads the environment — `$HOME`, the four `*_HOME` variables, `$XDG_RUNTIME_DIR`, and the `$XDG_CONFIG_DIRS` / `$XDG_DATA_DIRS` search paths — once, at layer construction. `AppDirs` turns that into the config, data, cache, state and runtime directories for one application namespace, with on-demand creation. `NativeDirs` supplies the macOS and Windows conventions for applications that want them, and `XdgConfig` plugs the whole thing into [`@effected/config-file`](../config-file) as a resolver chain and a save target.
+XDG Base Directory resolution for Effect. `Xdg` reads the environment — `$HOME`, the four `*_HOME` variables, `$XDG_RUNTIME_DIR`, and the `$XDG_CONFIG_DIRS` / `$XDG_DATA_DIRS` search paths — once, at layer construction. `AppDirs` turns that into the config, data, cache, state and runtime directories for one application namespace, with on-demand creation. `NativeDirs` supplies the macOS and Windows conventions for applications that want them, and `XdgConfig` plugs the whole thing into [`@beep/config-file`](../../../packages/foundation/capability/config-file) as a resolver chain and a save target.
 
 ## Why @effected/xdg
 
@@ -67,7 +67,7 @@ The platform is a `Context.Reference`, never a global read. Pin it in a test wit
 `XdgConfig` is the bridge into `@effected/config-file`. `resolver` searches the app's whole config search path, `nativeResolver` probes the OS-native directory, and `savePath` names the default write target:
 
 ```ts
-import { ConfigFile, JsonCodec, MergeStrategy } from "@beep/scratchpad/effected/config-file/index";
+import { ConfigFile, JsonCodec, MergeStrategy } from "@beep/config-file";
 import { XdgConfig } from "@beep/scratchpad/effected/xdg/index";
 import * as S from "effect/Schema";
 

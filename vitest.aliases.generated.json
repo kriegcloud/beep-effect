@@ -2163,6 +2163,21 @@
   "@beep/package-json/internal/*": [
     "./packages/foundation/modeling/package-json/src/internal/*"
   ],
+  "@beep/config-file": [
+    "./packages/foundation/capability/config-file/src/index.ts"
+  ],
+  "@beep/config-file/*": ["./packages/foundation/capability/config-file/src/*"],
+  "@beep/config-file/internal/*": [
+    "./packages/foundation/capability/config-file/src/internal/*"
+  ],
+  "@beep/lockfiles": ["./packages/foundation/modeling/lockfiles/src/index.ts"],
+  "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
+  "@beep/lockfiles/internal/*": [
+    "./packages/foundation/modeling/lockfiles/src/internal/*"
+  ],
   "@beep/sbom": ["./packages/foundation/modeling/sbom/src/index.ts"],
-  "@beep/sbom/*": ["./packages/foundation/modeling/sbom/src/*"]
+  "@beep/sbom/*": ["./packages/foundation/modeling/sbom/src/*"],
+  "@beep/sbom/internal/*": [
+    "./packages/foundation/modeling/sbom/src/internal/*"
+  ]
 }

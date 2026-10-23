@@ -236,6 +236,8 @@ const generatedComposers = $I.compose(
   "github-reporting",
   "repo-tsconfig",
   "package-json",
+  "config-file",
+  "lockfiles",
   "sbom"
 );
 
@@ -3425,6 +3427,40 @@ export const $RepoTsconfigId: Identity.IdentityComposer<"@beep/repo-tsconfig"> =
  * @since 0.0.0
  */
 export const $PackageJsonId: Identity.IdentityComposer<"@beep/package-json"> = composers.$PackageJsonId;
+
+/**
+ * Identity composer for `@beep/config-file`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $ConfigFileId } from "@beep/identity/packages"
+ *
+ * const id = $ConfigFileId.make("ConfigFile")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = composers.$ConfigFileId;
+
+/**
+ * Identity composer for `@beep/lockfiles`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $LockfilesId } from "@beep/identity/packages"
+ *
+ * const id = $LockfilesId.make("Lockfiles")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
 
 /**
  * Identity composer for `@beep/sbom`.
