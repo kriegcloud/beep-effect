@@ -329,7 +329,7 @@ const httpReplyParts = (output: string) => {
   return pipe(
     A.findFirstIndex(lines, (line) => Str.isEmpty(Str.trim(line))),
     O.map((blank) => ({
-      status: Str.trim(O.getOrElse(A.head(lines), () => "")),
+      status: Str.trim(A.join(A.take(lines, 1), "")),
       headers: A.take(lines, blank),
       body: A.join(A.drop(lines, blank + 1), "\n"),
     }))

@@ -451,6 +451,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
 
     for (const [kind, source] of R.toEntries({
       imported: 'import { Runtime } from "./excluded.ts"; export const it = Runtime.it;',
+      namespace: 'import * as Runtime from "./excluded.ts"; export const it = Runtime.it;',
+      default: 'import Runtime from "./excluded.ts"; export const it = Runtime.it;',
+      typeOnly: 'import type { Runtime } from "./excluded.ts"; export const it = Runtime.it;',
+      destructured: 'import { Runtime } from "./excluded.ts"; export const { it } = Runtime;',
+      uninitialized: 'import { Runtime } from "./excluded.ts"; export const it: unknown;',
       mutable: 'import { Runtime } from "./excluded.ts"; export let it = Runtime.it;',
       callback: 'import { Runtime } from "./excluded.ts"; export const it = () => Runtime.it;',
       call: 'import { Runtime } from "./excluded.ts"; export const it = Runtime.it();',
@@ -468,7 +473,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
               "export const Runtime = { it: 1 };"
             );
             const empty = { ...f.first, statementMap: {}, fnMap: {}, branchMap: {}, s: {}, f: {}, b: {} };
-            if (kind === "imported") {
+            if (kind === "imported" || kind === "default") {
               yield* f.write(1, empty);
               yield* f.write(2, empty);
               const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
@@ -494,6 +499,58 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         expect(A.map(manifest.packages, (entry) => entry.selection.testRuntime)).toEqual(["bun", "node"]);
         expect(manifest.producerRuntime).toBe("bun");
         expect(A.dedupe(A.map(manifest.packages, (entry) => entry.reportPath))).toHaveLength(2);
+      })
+    );
+    it.effect("rejects two canonical invocations that use different coverage providers", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("bun", true);
+        const packages = A.map(f.packages, (selection) =>
+          CoverageProducerPackage.make({ ...selection, testOnly: false })
+        );
+        yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/mixed-providers/one",
+            identity: f.identity,
+            partitionId: "mixed",
+            packages,
+          })
+        );
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            ...f.options,
+            artifactRoot: ".beep/mixed-providers",
+            expectedPartitions: [CoverageProducerPartition.make({ partitionId: "mixed", packages })],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("mixed coverage providers within one package");
+      })
+    );
+    it.effect("rejects evidence consisting entirely of test-only invocations", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("bun", true);
+        const packages = A.map(f.packages, (selection) =>
+          CoverageProducerPackage.make({ ...selection, testOnly: true })
+        );
+        yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/test-only/one",
+            identity: f.identity,
+            partitionId: "test-only",
+            packages,
+          })
+        );
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            ...f.options,
+            artifactRoot: ".beep/test-only",
+            expectedPartitions: [CoverageProducerPartition.make({ partitionId: "test-only", packages })],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("missing canonical coverage invocation");
       })
     );
     it.effect("authenticates Bun-only Unit receipts without adding their hits to canonical Node/V8 coverage", () =>
