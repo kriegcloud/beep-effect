@@ -1119,6 +1119,29 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
     );
 
     it.effect(
+      "refreshes search_path after dropping and recreating the current schema",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE main.reader_drop_t AS SELECT 1 AS v`;
+        yield* sql`CREATE SCHEMA reader_drop`;
+        yield* sql`CREATE TABLE reader_drop.reader_drop_t AS SELECT 42 AS v`;
+        yield* sql`SET search_path='reader_drop'`;
+        const query = sql`SELECT v FROM reader_drop_t`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql.unsafe(
+          "DROP SCHEMA reader_drop CASCADE; CREATE SCHEMA reader_drop; CREATE TABLE reader_drop.reader_drop_t AS SELECT 99 AS v"
+        );
+        assert.deepStrictEqual(yield* query, [{ v: 1 }]);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`SET search_path='reader_drop'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 99 }]);
+        yield* sql`DROP SCHEMA IF EXISTS reader_drop CASCADE`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 1 }]);
+        yield* sql`RESET search_path`;
+      })
+    );
+
+    it.effect(
       "mirrors TimeZone and Calendar and refreshes after failed SET text",
       Effect.fnUntraced(function* () {
         const sql = yield* DuckDbClient.DuckDbClient;

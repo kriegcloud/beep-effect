@@ -283,7 +283,8 @@ query the caller runs on that connection outside the client.
   (`INSERT … RETURNING`, for example) fail with `AuthorizationError`.
 - Readers mirror the writer's resolved current database, search path,
   TimeZone and Calendar, including state retained by failed multi-statement
-  text. Other raw session settings are not mirrored. Temporary tables and
+  text, and search-path resets caused by `DROP SCHEMA` or `DETACH`. Other raw
+  session settings are not mirrored. Temporary tables and
   temporary macros remain writer-only; reader queries referring to them fail
   with `SqlSyntaxError` (DuckDB Catalog Error). Reader streams containing
   `USE`, `SET`, `RESET`, any `PRAGMA`, or transaction control are refused before execution

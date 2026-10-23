@@ -82,6 +82,9 @@ const SESSION_QUERY =
 const changesSession = (sql: string): boolean =>
   A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET|PRAGMA)\b/i.test(text));
 
+const changesWriterSession = (sql: string): boolean =>
+  changesSession(sql) || A.some(splitStatements(sql), (text) => /^\s*(?:DROP\s+SCHEMA|DETACH)\b/i.test(text));
+
 const readerStreamRefusal = (
   reader: boolean,
   sql: string,
@@ -348,7 +351,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
             yield* invalidate;
             if (
               options.trackSession === true &&
-              (changesSession(sql) || control === "rollback" || control === "commit")
+              (changesWriterSession(sql) || control === "rollback" || control === "commit")
             ) {
               yield* refreshSession;
             }
@@ -455,7 +458,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         Effect.flatMap(currentConverter, (converter) =>
           gate.holdLock.pipe(
             Effect.andThen(
-              options.trackSession === true && changesSession(sql)
+              options.trackSession === true && changesWriterSession(sql)
                 ? Effect.addFinalizer(() => refreshSession)
                 : Effect.void
             ),
