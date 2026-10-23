@@ -44,7 +44,7 @@
     "@beep/github": "workspace:^",
     "@beep/github-commands": "workspace:^",
     "@beep/glob": "workspace:^",
-    "@effected/markdown": "workspace:^",
+    "@beep/markdown": "workspace:^",
     "@beep/npm-spec": "workspace:^",
     "@effected/sbom": "workspace:^",
     "@beep/semver": "workspace:^",

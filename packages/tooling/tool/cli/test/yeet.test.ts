@@ -1305,6 +1305,46 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
       })
     );
 
+    it.effect("allows clean reusable publishes and distinguishes staged amends from dirty push-only runs", () =>
+      Effect.gen(function* () {
+        const { filePath, tempContext, tmpDir } = yield* trackedFileRepository;
+        const fs = yield* FileSystem.FileSystem;
+        const preservingAmend = defaultYeetRunOptions({ reuseVerified: true, amend: true, noEdit: true });
+        expect(yield* shouldSkipCommitForReusablePublishForTesting(tempContext, defaultYeetRunOptions())).toBe(false);
+        expect(yield* shouldSkipCommitForReusablePublishForTesting(tempContext, preservingAmend)).toBe(true);
+        expect(
+          yield* shouldSkipCommitForReusablePublishForTesting(tempContext, defaultYeetRunOptions({ pushOnly: true }))
+        ).toBe(true);
+
+        yield* fs.writeFileString(filePath, "pending tracked edit\n");
+        for (const { options, expectedMessage } of [
+          {
+            options: preservingAmend,
+            expectedMessage: "--reuse-verified found uncommitted changes but no staged amend intent",
+          },
+          {
+            options: defaultYeetRunOptions({ pushOnly: true }),
+            expectedMessage: "--push-only found uncommitted changes",
+          },
+          {
+            options: defaultYeetRunOptions({ pushOnly: true, reuseVerified: true }),
+            expectedMessage: "--push-only --reuse-verified found uncommitted changes",
+          },
+        ]) {
+          const error = yield* shouldSkipCommitForReusablePublishForTesting(tempContext, options).pipe(Effect.flip);
+          expect(error.message).toContain(expectedMessage);
+          expect(error.message).toContain("tracked.txt");
+        }
+        yield* runGit(tmpDir, ["add", "tracked.txt"]);
+        expect(yield* shouldSkipCommitForReusablePublishForTesting(tempContext, preservingAmend)).toBe(false);
+        const stagedPush = yield* shouldSkipCommitForReusablePublishForTesting(
+          tempContext,
+          defaultYeetRunOptions({ pushOnly: true })
+        ).pipe(Effect.flip);
+        expect(stagedPush.message).toContain("--push-only refuses staged changes");
+      })
+    );
+
     it.effect("fingerprints large dirty diffs without command capture truncation", () =>
       Effect.gen(function* () {
         const { filePath, tempContext } = yield* trackedFileRepository;

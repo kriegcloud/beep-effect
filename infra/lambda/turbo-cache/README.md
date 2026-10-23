@@ -73,7 +73,7 @@ three bundled-handler smoke checks, and three unminified CommonJS esbuild
 bundles targeting Node.js 22. It writes the resulting ZIP to:
 
 ```text
-/home/elpresidank/beep-infra-artifacts/turbo-cache/2.12.0/turbo-cache.zip
+$HOME/beep-infra-artifacts/turbo-cache/2.12.0/turbo-cache.zip
 ```
 
 All npm dependencies, including `@aws-sdk/client-ssm`, are bundled. Node.js
