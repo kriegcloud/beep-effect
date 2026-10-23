@@ -170,6 +170,50 @@ not be stored is logged (`docket intake questions were not stored`) and
 stored again next cycle; the docket entries are written either way. Without
 the variable, docket intake runs exactly as before.
 
+Each question says which email it is about: its subject, sender and day
+received, a link that opens it in Outlook, a link to its needs-review
+calendar entry, and the matter. The docket intake ledger keeps those for
+each needs-review message. A ledger record is pruned about a day after its
+message is digested, and the question stored for it then stays as it was.
+
+### Questions stored before they named their email
+
+Questions stored before 2026-10-22 only say "a message". `backfill-questions`
+finds each docket intake question that does not name its email, matches it to
+a message the write journal marked (by the message-id digest in the
+question's id), reads that message's subject, sender, time of receipt and
+Outlook link from Graph, and rewrites the question with the email added. The
+question keeps its id and its options, so answers already given still match.
+It prints one JSON line of counts and never a subject or a sender.
+
+Run it from the deploy checkout once that checkout has the command
+([practice services](practice-services.md), Upgrade). It reads the docket
+state and journal without taking the state lock, so the service can keep
+running. Look first; this writes nothing:
+
+```bash
+op run --env-file=$HOME/.config/beep-docket-intake/service.env -- bun run apps/docket-intake/src/bin.ts backfill-questions
+```
+
+Then write:
+
+```bash
+op run --env-file=$HOME/.config/beep-docket-intake/service.env -- bun run apps/docket-intake/src/bin.ts backfill-questions --apply
+```
+
+| Count | Meaning | What to do |
+| --- | --- | --- |
+| `found` | Docket intake questions that do not name their email. | None. |
+| `enriched` | Questions rewritten (or, without `--apply`, that would be). | None. |
+| `inLedger` | The message is still a needs-review record in the ledger, which the service republishes every cycle. | Run the command again in a day or two, once the record is pruned. |
+| `unmatched` | No message in the write journal digests to the question's id, for example one processed before the journal existed. | Nothing can name it; the attorney opens it from its calendar entry. |
+| `unreadable` | Graph no longer has the message under that id, usually because it was moved to another folder. | As for `unmatched`. |
+
+A second run changes nothing: a question that names its email is never
+picked again. Exit code 1 with `DOCKET_INTAKE_REVIEW_HUB_DIR is not set` means
+the environment file lacks the variable; 3 means Graph throttled the run, so
+run the same command again later.
+
 ## 6. The daily notice
 
 The notice sends one email from the attorney's mailbox to itself, through

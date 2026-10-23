@@ -42,6 +42,7 @@ Run from the repository root with `bun run apps/docket-intake/src/bin.ts <comman
 | `runs` | Prints one line per run in the write journal, newest first. Calls no provider. |
 | `undo --run <runId> [--dry-run] [--yes]` | Takes back one run's writes. Needs `--yes` unless `--dry-run`. `--run latest` picks the newest run. |
 | `smoke [--write]` | Read-only connection check; with `--write` it also creates, finds and deletes one test event. |
+| `backfill-questions [--apply]` | Makes stored review hub questions that do not say which email they are about name it. Counts only, unless `--apply`. |
 
 - `poll` reads new mail, processes it, and writes every digest that is owed:
   one for each day that is over and not digested yet, earliest first. After
@@ -90,6 +91,25 @@ Run from the repository root with `bun run apps/docket-intake/src/bin.ts <comman
   counts. With `--write` it also creates one all-day event tomorrow with the
   subject `[beep live smoke] safe to delete`, finds it by its key and deletes
   it. Each step prints `PASS` or `FAIL` with ids and counts only.
+- `backfill-questions` is for questions the review hub stored before
+  questions said which email they are about (see
+  [Review hub questions](#review-hub-questions)). It needs
+  `DOCKET_INTAKE_REVIEW_HUB_DIR` and the Graph settings, not the model key.
+  For each docket intake question that does not name its email, it finds the
+  message: the question's id carries the first 32 hex digits of the SHA-256
+  of the message id, and it digests every message the write journal marked.
+  It reads that message's subject, sender, time of receipt and Outlook link
+  from Graph (those four fields only, never the body) and adds the email to
+  the question: two facts at the top, and the question text names the
+  subject. The question keeps its id, its options and its other facts, so an
+  answer already given still matches it. Without `--apply` it writes
+  nothing. A question whose message is still a needs-review record in the
+  ledger is left alone and counted as `inLedger`: the service publishes it
+  again every cycle from that record. Run the command again once the record
+  has been pruned, a day or two later. A question that names its email is
+  never picked again, so running the command twice changes nothing. It reads
+  the state file and the journal without taking `state.lock`, so it can run
+  while the service runs.
 
 A first run on a real mailbox:
 
@@ -132,7 +152,7 @@ write that `undo` could not find. An undo adds `undo-event-deleted`,
 
 ## Output and exit codes
 
-`poll`, `dry-run`, `runs` and `undo` print JSON lines on standard output;
+`poll`, `dry-run`, `runs`, `undo` and `backfill-questions` print JSON lines on standard output;
 logs go to standard error, so `… | head -n 1 | jq .` reads a report. Output is
 ids, dates, categories and counts. It never carries the text, sender or
 subject of a mail message. A `dry-run` entry carries the subject the service
@@ -144,11 +164,12 @@ would write on the calendar entry.
 | `dry-run` | The same counts, `dryRun: true`, and `entries`: one `{ messageId, kind, category, date, flags, subject }` per entry it would create. |
 | `runs` | One line per run: `runId`, `startedAt`, `eventsCreated`, `messagesMarked`, and what undos did: `eventsDeleted`, `eventsKept`, `eventsGone`, `messagesUnmarked`, `messagesGone`, and `eventsAdopted`: events the run found by key that no journal line named, such as one a crashed cycle created. |
 | `undo` | `runId`, `dryRun`, `deleted`, `kept`, `gone`, `unmarked`, `messagesGone`, `ledgerCleared`, `messagesKept` (a later run marked them again) and `alreadyUndone` (an earlier undo of the run handled them). |
+| `backfill-questions` | `applied`, `found` (questions that do not name their email), and how each of them ended: `enriched` (written, or would be without `--apply`), `inLedger`, `unmatched` (no journaled message digests to its id) and `unreadable` (Graph no longer has the message, for example after it was moved to another folder). |
 
 | Code | Meaning |
 | --- | --- |
 | 0 | The command finished. |
-| 1 | It failed: a missing or invalid setting, a state or journal error, a run id the journal does not have, a Graph or model error. |
+| 1 | It failed: a missing or invalid setting (including `backfill-questions` without `DOCKET_INTAKE_REVIEW_HUB_DIR`), a state, journal or review hub error, a run id the journal does not have, a Graph or model error. |
 | 2 | Refused: `undo` ran without `--yes` or `--dry-run`. Nothing was read or written. |
 | 3 | Microsoft Graph throttled the command. |
 
@@ -175,6 +196,7 @@ All settings come from the environment.
 | `DOCKET_INTAKE_REVIEW_ACCEPT_THRESHOLD` | no | Confidence score, from `0` to `1`, a review round must reach for an item to be accepted. Defaults to `0.85`. |
 | `DOCKET_INTAKE_KG_BUNDLE_DIR` | no | Directory of the practice knowledge-graph bundle used for the matter lookup. Unset: no lookup, and every entry is flagged `matter-lookup-failed`. |
 | `DOCKET_INTAKE_DOCKET_SHEET_CSV` | no | CSV export of the attorney's docket sheet to cross-check dates against. Unset: no cross-check and no flag. |
+| `DOCKET_INTAKE_REVIEW_HUB_DIR` | no | Data directory of the review hub. Set: every needs-review message is stored there as a question for the attorney. Unset: no questions, and `backfill-questions` fails. |
 | `AI_ANTHROPIC_API_KEY` | yes for `poll`, `run` and `dry-run` | Key for the model both agents use. |
 | `AI_ANTHROPIC_MODEL` | no | Model id; the Anthropic driver's default applies when unset. |
 
@@ -329,6 +351,29 @@ is flagged `tracked-date-differs`. The sheet can move an entry earlier and add
 a flag; it never accepts a flagged item or clears a flag. A sheet that cannot
 be read is flagged `tracked-dates-unavailable` and the entry is written all
 the same.
+
+## Review hub questions
+
+With `DOCKET_INTAKE_REVIEW_HUB_DIR` set, every cycle raises a question for
+each needs-review message in the ledger and stores it in the review hub
+(`docs/runbooks/practice-review-hub.md`). A question says which email it is
+about, in this order, leaving out what is not known:
+
+1. `The email is "<subject>" from <sender>, received <date>.`
+2. `Open the email in Outlook: <link>`
+3. `Its needs-review calendar entry: <link>`
+4. `Matter: <what the matter lookup found>`
+
+Then come the flags, the dates the deadline could be, and the review rounds.
+The question text names the email by its subject. Each candidate date (the
+first reader's, the second reader's and the docket sheet's) is also an
+answer that moves the needs-review entry to that date.
+
+The ledger keeps the subject, the sender, the Outlook link, the candidate
+dates and the matter on each needs-review record for this. The state file
+stays in the state directory; none of it is logged or put in the digest.
+Questions stored before 2026-10-22, whose ledger records are gone, are fixed
+with `backfill-questions`.
 
 ## Development
 

@@ -33,9 +33,13 @@ because the `question` member extends its `ReviewItem` union.
 
 - **Resolved messages stay listed.** A question whose docket message is later resolved stays in
   `items.jsonl` until it is answered, because the item store has no delete or tombstone.
-- **Thin questions.** The docket ledger record has no candidate dates, docket or thread, so most
-  docket questions offer only the two non-writing options. Carrying candidate dates in the ledger
-  would enable date options.
+- **Thin questions.** Resolved 2026-10-22 (SPEC Decision Log): needs-review ledger records keep the
+  email (subject, sender, day received, Outlook link), the thread, the docket, the matter and the
+  candidate dates, so each question names its email, links it and its needs-review entry, and
+  offers the candidate dates as answers. Questions stored earlier are rewritten by
+  `docket-intake backfill-questions`; candidate dates cannot be recovered for them. Still open:
+  links live in fact text, because `SourceRef` names Box files only; a `links` field on the
+  question item would move them out of prose.
 - **The pane client.** The `practice-claude-mod-review-queue` follow-on calls the hub's four tools.
   The routing item is registered with the orchestrator. Until it lands, the attorney uses the tools
   from Claude Code (connected 2026-10-21); Claude Desktop's chat would reach them through the practice
