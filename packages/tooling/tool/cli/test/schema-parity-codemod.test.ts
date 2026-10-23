@@ -583,6 +583,13 @@ export const Piped = Status.pick(["live"]).pipe((s) => s);
     );
   });
 
+  it("leaves a re-wrap alone when a local LiteralKit shadows the factory", () => {
+    const text = `${kitTyped}const LiteralKit = (literals: ReadonlyArray<string>) => literals.length;
+export const n = LiteralKit(Status.pick(["draft"]).literals);
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
   it("reports a re-wrap with explicit type arguments and a $match element read as residue", () => {
     const text = `${kitImport}${kitTyped}export const Open = LiteralKit<readonly ["draft"]>(Status.pick(["draft"]).literals);
 export const m = Status["$match"];

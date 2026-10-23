@@ -130,9 +130,29 @@ const pickCallOf = (argument: Node): O.Option<CallExpression> =>
     )
   );
 
+/**
+ * The name alone can be shadowed, so the binding must be an import of
+ * `LiteralKit` from `@beep/schema`, one of its subpaths, or (inside the schema
+ * package) a relative path to the `LiteralKit` module.
+ */
+const isSchemaLiteralKitBinding = (callee: Node): boolean =>
+  A.some(callee.getSymbol()?.getDeclarations() ?? [], (declaration) =>
+    pipe(
+      O.liftPredicate(declaration, Node.isImportSpecifier),
+      O.exists((specifier) => {
+        const moduleSpecifier = specifier.getImportDeclaration().getModuleSpecifierValue();
+        return (
+          moduleSpecifier === "@beep/schema" ||
+          Str.startsWith("@beep/schema/")(moduleSpecifier) ||
+          Str.includes("/LiteralKit")(moduleSpecifier)
+        );
+      })
+    )
+  );
+
 const planRewrap = (call: CallExpression): O.Option<Decision> => {
   const callee = call.getExpression();
-  if (!Node.isIdentifier(callee) || callee.getText() !== "LiteralKit") {
+  if (!Node.isIdentifier(callee) || callee.getText() !== "LiteralKit" || !isSchemaLiteralKitBinding(callee)) {
     return O.none();
   }
   const [argument, ...rest] = call.getArguments();
