@@ -9,6 +9,7 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Yaml } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
+import { assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -82,9 +83,7 @@ describe("plain-scalar continuation lines", () => {
     ([layout, first, lines]) =>
       Effect.sync(() => {
         const input = render(layout, first, lines);
-        const ours = Yaml.parseResult(input);
-        assert.isTrue(Result.isSuccess(ours), input);
-        assert.deepStrictEqual(Result.getOrThrow(ours), parse(input), input);
+        assertSuccess(Yaml.parseResult(input), parse(input));
       }),
     runs
   );
@@ -93,7 +92,7 @@ describe("plain-scalar continuation lines", () => {
     Effect.sync(() => {
       for (const input of ['a: x\n  "y": 1\n', "a: x\n  'y': 1\n"]) {
         assert.throws(() => parse(input));
-        assert.isTrue(Result.isFailure(Yaml.parseResult(input)), input);
+        assertTrue(Result.isFailure(Yaml.parseResult(input)), input);
       }
     })
   );
