@@ -1145,6 +1145,21 @@ describe("DuckDbClient", { concurrent: false }, () => {
 });
 
 describe("DuckDbClient reader connections", { concurrent: false }, () => {
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }))((it) => {
+    it.effect("normalizes unqualified schemas against the reader database and system catalogs", () =>
+      Effect.gen(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE SCHEMA unqualified_probe`;
+        yield* sql`SET search_path='unqualified_probe,pg_catalog'`;
+        const query = sql`SELECT current_setting('search_path') AS path`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [
+          { path: "memory.unqualified_probe,memory.pg_catalog" },
+        ]);
+        assert.deepStrictEqual(yield* query, [{ path: "unqualified_probe,pg_catalog" }]);
+      })
+    );
+  });
+
   it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
     it.effect(
       "resolves reader paths against committed schemas during a writer transaction",
