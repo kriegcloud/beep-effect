@@ -1280,6 +1280,7 @@ const mapPhrasingChildren = (
   const out: Array<Model.Inline> = [];
   let run: Array<Kit.Text> = [];
   let mergeableText = false;
+  const nextPath = (merging: boolean): SlotPath => new SlotPath(parent, offset + out.length - (merging ? 1 : 0));
   const append = (inline: Model.Inline, mergeable: boolean): void => {
     const previous = A.last(out);
     if (mergeable && mergeableText && inline._tag === "text" && O.isSome(previous) && previous.value._tag === "text") {
@@ -1302,7 +1303,7 @@ const mapPhrasingChildren = (
   const flush = (): void => {
     if (A.isArrayNonEmpty(run)) {
       const start = state.slots.length;
-      const inlines = mapTextRun(state, run, new SlotPath(parent, offset + out.length));
+      const inlines = mapTextRun(state, run, nextPath(mergeableText));
       const slots = A.drop(state.slots, start);
       rollback(state, start);
       for (const [index, inline] of A.zip(A.range(0, inlines.length - 1), inlines)) {
@@ -1322,7 +1323,7 @@ const mapPhrasingChildren = (
     }
     flush();
     const mergesHtml = mergeableText && escapedInlineHtml(state, kid);
-    const path = new SlotPath(parent, offset + out.length - (mergesHtml ? 1 : 0));
+    const path = nextPath(mergesHtml);
     for (const inline of phrasingStep(kid)(state, path)) {
       append(inline, escapedInlineHtml(state, kid));
     }

@@ -458,6 +458,14 @@ describe("@beep/md/Md.syntax phrasing mapping", () => {
     }
   });
 
+  it("locates skipped math recognition on the merged text run", () => {
+    const result = bridge("before <b>$x&amp;y$");
+    expect(reasons(result)).toEqual(["htmlEscapedAsText", "recognizerSkipped"]);
+    for (const loss of result.losses) {
+      assertSome(loss.mdPath, ["children", 0, "children", 0]);
+    }
+  });
+
   it("keeps math recognition and source ranges at merged HTML boundaries", () => {
     const source = "$a$ before <b>after $b$ end";
     const result = bridge(source);
