@@ -304,9 +304,9 @@ const recordedVersion = (version: string | undefined): { readonly version?: stri
     : { version: resolved.plain, ...O.getSomesStruct({ peerSuffix: O.fromUndefinedOr(resolved.peerSuffix) }) };
 };
 
-// The plain constructor input of an `ImporterDependency`, admitted once by
-// `LockfileImporter.make`.
-type ImporterDependencyInput = (typeof ImporterDependency)["~type.make.in"];
+// An `ImporterDependency`'s fields without the brand: plain constructor input
+// that `LockfileImporter.make` admits once.
+type ImporterDependencyInput = Omit<ImporterDependency, "brand">;
 
 /**
  * Build one {@link ImporterDependency}, decoding the raw specifier string into
