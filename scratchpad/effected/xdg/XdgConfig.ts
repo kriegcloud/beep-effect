@@ -1,4 +1,4 @@
-import type { ConfigResolver } from "../config-file/index.ts";
+import type { ConfigResolver } from "@beep/config-file";
 import { Walker } from "@beep/walker/Walker";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
