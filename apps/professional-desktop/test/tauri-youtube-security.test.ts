@@ -1,6 +1,7 @@
 import { YouTubeWatchRequest } from "@beep/editor/youtube-embed";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -95,12 +96,10 @@ describe("packaged YouTube security boundaries", () => {
       (permission) => typeof permission !== "string" && permission.identifier === "opener:allow-open-url"
     );
 
-    expect(opener).toEqual(
-      O.some({
-        identifier: "opener:allow-open-url",
-        allow: [{ url: youtubeWatchCapability }],
-      })
-    );
+    assertSome(opener, {
+      identifier: "opener:allow-open-url",
+      allow: [{ url: youtubeWatchCapability }],
+    });
   });
 
   it("rejects watch-url lookalikes and suffixes at the typed event boundary", () => {
