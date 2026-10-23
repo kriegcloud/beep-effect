@@ -2,12 +2,11 @@ import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
-import * as S from "effect/Schema";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import { LinkTarget } from "../Doc.ts";
 import { sanitize } from "../Fmt.ts";
 import { displayWidth, graphemes } from "./displayWidth.ts";
-import type { Inline } from "../Doc.ts";
+import type { Inline, LinkTarget } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Style, TokenName } from "../Token.ts";
 
@@ -57,7 +56,9 @@ const pathSeparator = (ctx: RenderContext): string =>
 const safeTargetText = (text: string): string => Str.replace(/[\r\n]/g, "")(sanitize(text));
 
 const safeTarget = (target: LinkTarget): LinkTarget =>
-  S.is(LinkTarget.members[0])(target)
+  // A structural test, so this module needs no runtime edge to Doc.ts (which imports Render, which imports this). A
+  // file target may carry `url: undefined` and stays a file target, as the schema decides.
+  P.hasProperty(target, "url") && P.isString(target.url)
     ? { url: safeTargetText(target.url) }
     : {
         file: safeTargetText(target.file),

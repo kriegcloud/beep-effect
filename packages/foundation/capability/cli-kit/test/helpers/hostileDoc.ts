@@ -3,10 +3,10 @@ import type { Block } from "@beep/cli-kit";
 
 export const ESC = "\u001B";
 // User text that CONTAINS escape bytes in every place a string can enter a document.
-export const SGR = `${ESC}[31mred${ESC}[0m`;
-export const OSC = `${ESC}]8;;https://evil.test\u0007click${ESC}]8;;\u0007`;
-export const LONE = `lone${ESC}escape`;
-export const BELL = "bell\u0007\tafter";
+const SGR = `${ESC}[31mred${ESC}[0m`;
+const OSC = `${ESC}]8;;https://evil.test\u0007click${ESC}]8;;\u0007`;
+const LONE = `lone${ESC}escape`;
+const BELL = "bell\u0007\tafter";
 
 /**
  * A document with every node kind and hostile text in every place a string can enter it.

@@ -20,7 +20,7 @@ export const LINE_BREAK = /\r\n|\r|\n/;
 /**
  * .NET's `Char.IsWhiteSpace`, which is what `TrimStart` removes. Note U+0085 is in it and U+200B and U+FEFF are not.
  */
-export const isDotNetWhitespace = (ch: string): boolean => {
+const isDotNetWhitespace = (ch: string): boolean => {
   const code = O.getOrElse(Str.codePointAt(ch, 0), () => 0);
   return (
     (code >= 0x09 && code <= 0x0d) ||
