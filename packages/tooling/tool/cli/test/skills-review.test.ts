@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   decodeSkillsLockDocumentJson,
   dequeueGhosted,
@@ -66,7 +67,9 @@ import type { SkillReviewAnswer, SkillReviewScript, SkillReviewSession } from "@
 const TestLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 
 const textEncoder = new TextEncoder();
-const oracleLockFixture = new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url).pathname;
+const oracleLockFixture = NodeURL.fileURLToPath(
+  new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url)
+);
 
 const SKILL = "demo";
 const TARGETS = [`.claude/skills/${SKILL}`, `.agents/skills/${SKILL}`];

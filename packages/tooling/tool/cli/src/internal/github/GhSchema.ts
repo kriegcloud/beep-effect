@@ -37,7 +37,7 @@ const $I = $RepoCliId.create("internal/github/GhSchema");
  * **Example** (Make actor from login)
  *
  * ```ts
- * import { GhActor } from "@beep/repo-cli/internal/github"
+ * import { GhActor } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(GhActor.make({ login: "octocat" }).login)
  * ```
@@ -64,7 +64,7 @@ export class GhActor extends S.Opaque<GhActor, { readonly brand: unique symbol }
  * **Example** (Make page info fields)
  *
  * ```ts
- * import { GhPageInfo } from "@beep/repo-cli/internal/github"
+ * import { GhPageInfo } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(GhPageInfo.make({ endCursor: null, hasNextPage: false }).hasNextPage)
  * ```
@@ -89,7 +89,7 @@ export class GhPageInfo extends S.Opaque<GhPageInfo, { readonly brand: unique sy
  * **Example** (Make comment with author)
  *
  * ```ts
- * import { GhActor, GhComment } from "@beep/repo-cli/internal/github"
+ * import { GhActor, GhComment } from "@beep/repo-cli/test/SharedInternals"
  *
  * const comment = GhComment.make({
  *   author: GhActor.make({ login: "octocat" }),
@@ -139,7 +139,7 @@ export class GhComment extends S.Opaque<GhComment, { readonly brand: unique symb
  * **Example** (Make narrow monitor view)
  *
  * ```ts
- * import { GhPrView } from "@beep/repo-cli/internal/github"
+ * import { GhPrView } from "@beep/repo-cli/test/SharedInternals"
  *
  * const view = GhPrView.make({ headRefName: "feature", number: 42, state: "OPEN" })
  * console.log(view.number)

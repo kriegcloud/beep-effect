@@ -7,8 +7,8 @@ import { dual } from "effect/Function";
 // Assembly precedence follows pnpm: lockfile-recorded catalogs first, then the
 // inline `pnpm-workspace.yaml` catalogs, which win.
 
-import type { Lockfile } from "../lockfiles/index.ts";
-import { filenameFor } from "../lockfiles/index.ts";
+import type { Lockfile } from "@beep/lockfiles";
+import { filenameFor } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { PartialReleaseAgeGate, ReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";

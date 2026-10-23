@@ -83,7 +83,7 @@ const makeRepoCommandCapture = (
  * **Example** (Run a repo command capture)
  *
  * ```ts
- * import { runRepoCommandCapture } from "@beep/repo-cli/internal/repo-run"
+ * import { runRepoCommandCapture } from "@beep/repo-cli/test/RepoRun"
  *
  * const capture = runRepoCommandCapture("git", ["status", "--short"], process.cwd())
  * console.log(capture)
@@ -108,7 +108,7 @@ export const runRepoCommandCapture = makeRepoCommandCapture("RepoRun.runRepoComm
  * **Example** (Run a repo command streaming capture)
  *
  * ```ts
- * import { runRepoCommandStreamingCapture } from "@beep/repo-cli/internal/repo-run"
+ * import { runRepoCommandStreamingCapture } from "@beep/repo-cli/test/RepoRun"
  *
  * const capture = runRepoCommandStreamingCapture("bun", ["--version"], process.cwd())
  * console.log(capture)
@@ -153,7 +153,7 @@ export const runRepoCommandStreamingCapture = makeRepoCommandCapture("RepoRun.ru
  * **Example** (Read a NUL-separated status)
  *
  * ```ts
- * import { runRepoCommandCaptureRaw } from "@beep/repo-cli/internal/repo-run"
+ * import { runRepoCommandCaptureRaw } from "@beep/repo-cli/test/RepoRun"
  *
  * const capture = runRepoCommandCaptureRaw("git", ["status", "--porcelain=v1", "-z"], process.cwd())
  * console.log(capture)
@@ -223,7 +223,7 @@ const makeRepoPlanStepExecutor = (identifier: string, capture: typeof runRepoCom
  * **Example** (Execute a repo plan step)
  *
  * ```ts
- * import { executeRepoPlanStep, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ * import { executeRepoPlanStep, RepoPlanStep } from "@beep/repo-cli/test/RepoRun"
  *
  * const step = RepoPlanStep.make({
  *   args: ["status", "--short"],
@@ -254,7 +254,7 @@ export const executeRepoPlanStep = makeRepoPlanStepExecutor("RepoRun.executeRepo
  * **Example** (Execute a repo plan step streaming)
  *
  * ```ts
- * import { executeRepoPlanStepStreaming, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ * import { executeRepoPlanStepStreaming, RepoPlanStep } from "@beep/repo-cli/test/RepoRun"
  *
  * const step = RepoPlanStep.make({
  *   args: ["--version"],
@@ -287,7 +287,7 @@ export const executeRepoPlanStepStreaming = makeRepoPlanStepExecutor(
  * **Example** (Resolve a local repo binary)
  *
  * ```ts
- * import { resolveLocalRepoBinary } from "@beep/repo-cli/internal/repo-run"
+ * import { resolveLocalRepoBinary } from "@beep/repo-cli/test/RepoRun"
  *
  * const turbo = resolveLocalRepoBinary(process.cwd(), "turbo")
  * console.log(turbo)

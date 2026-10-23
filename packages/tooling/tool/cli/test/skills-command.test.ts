@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   decodeSkillsLockDocumentJson,
   encodeSkillsLockDocumentJson,
@@ -543,7 +544,9 @@ describe("skills command", () => {
 });
 
 const emptyLockV2 = SkillsLockDocument.make({ version: 2, skills: {} });
-const oracleLockFixture = new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url).pathname;
+const oracleLockFixture = NodeURL.fileURLToPath(
+  new URL("./fixtures/skills-provenance/oracle-lock-v2.json", import.meta.url)
+);
 
 it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 lock", (it) => {
   it.effect("refuses to refetch a vendored entry at its floating ref", () =>
