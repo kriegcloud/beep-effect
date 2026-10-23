@@ -4,9 +4,16 @@
 // is exactly affine in components: the root, carried on the metadata, plus one
 // node per dependency. A later edit that re-admitted each component (a
 // `Component.make` in the sort, or a per-component document) would double that
-// slope without failing any behavioural test. This guard counts the work
-// instead of timing it: a counting `admission.admit` adds the node count of
-// every value it is handed, then calls through.
+// slope without failing any behavioural test. Two guards hold it:
+//
+// - the counter: a counting `admission.admit` adds the node count of every
+//   value it is handed, then calls through, so the work through the seam is
+//   pinned at exactly n + 1;
+// - the source scan: the counter only sees the seam, so a direct `.make`
+//   inside `src/Sbom.ts` would bypass the tally. The scan reads the module's
+//   raw text and requires one `admission.admit` call and no other schema
+//   `make`, which leaves the seam the only construction path the counter
+//   needs to see.
 
 import { admission } from "@beep/sbom/internal/admission";
 import { Sbom } from "@beep/sbom/Sbom";
@@ -15,9 +22,12 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
+import { sourceOf } from "./support/sourceGraph.ts";
 import type { SbomDocument } from "@beep/sbom/SbomDocument";
 import type * as S from "effect/Schema";
 
@@ -113,5 +123,58 @@ describe("Sbom.generate admission", () => {
         assert.strictEqual(small, none + 2 * 1_000, "each component is walked twice");
       })
     );
+  });
+});
+
+// Top-of-line comment and doc lines, so JSDoc examples that call
+// `Component.make` and prose that names it do not count as code.
+const COMMENT_LINE = /^\s*(?:\/\/|\/\*\*?|\*).*$/gm;
+
+// Any `<Name>.make` reference, called or passed point-free.
+const MAKE_REFERENCE = /\b([A-Za-z_$][\w$]*)\s*\.\s*make\b/g;
+
+const SEAM_CALL = /\badmission\s*\.\s*admit\s*\(/g;
+
+// `make`s that construct no document node: the write error and an `Order`.
+const NON_ADMITTING_MAKES = HashSet.make("SbomWriteError", "Order");
+
+/** The construction paths one module's code takes: direct schema `make`s and calls through the seam. */
+const constructionsOf = (
+  source: string
+): { readonly directMakes: ReadonlyArray<string>; readonly seamCalls: number } => {
+  const code = Str.replace(COMMENT_LINE, "")(source);
+  return {
+    directMakes: A.filter(
+      A.flatMap(A.fromIterable(Str.matchAll(MAKE_REFERENCE)(code)), (match) =>
+        match[1] === undefined ? [] : [match[1]]
+      ),
+      (name) => !HashSet.has(NON_ADMITTING_MAKES, name)
+    ),
+    seamCalls: A.length(A.fromIterable(Str.matchAll(SEAM_CALL)(code))),
+  };
+};
+
+describe("Sbom.generate construction path", () => {
+  it("src/Sbom.ts admits only through the seam, with no direct schema make", () => {
+    const { directMakes, seamCalls } = constructionsOf(sourceOf("Sbom.ts"));
+    assert.deepStrictEqual(directMakes, [], "a direct make bypasses the admission counter");
+    assert.strictEqual(seamCalls, 1, "generate admits the document through admission.admit once");
+  });
+
+  it("the scan flags a direct make in code and ignores one in a doc comment", () => {
+    const fixture = [
+      "/**",
+      ' * const root = Component.make({ type: "application", name: "app" })',
+      " */",
+      "const generate = (input) =>",
+      "  admission.admit(SbomDocument, {",
+      "    components: A.map(input.components, Component.make),",
+      "    metadata: SbomMetadata.make({ component: input.root }),",
+      "  });",
+      "const order = Order.make(compare);",
+    ].join("\n");
+    const { directMakes, seamCalls } = constructionsOf(fixture);
+    assert.deepStrictEqual(directMakes, ["Component", "SbomMetadata"]);
+    assert.strictEqual(seamCalls, 1);
   });
 });
