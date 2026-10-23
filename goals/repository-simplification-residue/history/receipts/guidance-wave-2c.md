@@ -211,7 +211,7 @@ Line numbers are at the base `04a3dc1e23`. Kept reasons are quoted from the base
 the `Owner`/`Exit` tail added by this wave is in the source line, except for the 22
 digest-pinned `noqa` and the Semgrep fixture's `biome-ignore-all`, whose reasons are given here.
 
-| Path | Line (base) | Kind | Disposition | Reason |
+| Path | Line (base `04a3dc1e23`) | Kind | Disposition | Reason |
 | --- | --- | --- | --- | --- |
 | `apps/oip-web/src/app/layout.tsx` | 266 | biome-ignore `lint/security/noDangerouslySetInnerHtml` | kept | static theme controller without user input. Owner and exit in source. |
 | `apps/oip-web/src/app/page.tsx` | 137 | biome-ignore `lint/security/noDangerouslySetInnerHtml` | kept | JSON-LD is generated server-side and escaped before injection. Owner and exit in source. |
@@ -411,3 +411,26 @@ digest-pinned `noqa` and the Semgrep fixture's `biome-ignore-all`, whose reasons
 The first push edited `goals/repository-simplification-confidence/history/outputs/semgrep/first-party.ts` to add an `Owner`/`Exit` tail to its `biome-ignore-all`. That file is the #2091 Semgrep rule fixture. The SAST lane passes changed files to Semgrep as explicit paths, which bypasses `.semgrepignore` (`goals/**/history/outputs/`), so the fixture's deliberate `eval`, `exec` and private-key cases fired as blocking findings.
 
 The file is restored byte for byte to main. Its `biome-ignore-all` stays counted as kept, with the reason recorded only in the table above, the same treatment as the digest-pinned `noqa`. The fixture's `ruleid:` and `ok:` lines are Semgrep test annotations, not suppressions; they were never in this census, and future censuses must leave them out too. Counts are unchanged: 182 real directives, 2 fixed, 91 stale, 89 kept, of which 66 carry `Owner`/`Exit` in source and 23 are recorded only here. The SAST lane gap is the orchestrator's follow-up.
+
+## Review round 2 (#2124): line numbers at head
+
+The disposition table gives lines at the base `04a3dc1e23`. Stale rows exist only there.
+I checked every row against base: all 192 path:line pairs hold the directive they name.
+Checking the kept and fixed rows against this PR's head, nine kept directives sit on a
+different line. They moved because of this wave's own edits (a reason tail reflowed onto a
+second line, or the `Uri.ts` branch deleted above them) or the #2114 merge:
+
+| Path | Base line | Head line |
+| --- | --- | --- |
+| `packages/foundation/ui-system/editor/src/mermaid-view.tsx` | 773 | 772 |
+| `packages/tooling/library/repo-utils/src/index.ts` | 9 | 8 |
+| `packages/foundation/capability/langextract/src/VerifiedSpan/VerifiedSpan.behavior.ts` | 545 | 546 |
+| `packages/foundation/capability/langextract/src/VerifiedSpan/VerifiedSpan.behavior.ts` | 594 | 595 |
+| `packages/foundation/modeling/rdf/src/Iri.ts` | 212 | 210 |
+| `packages/foundation/modeling/rdf/src/Iri.ts` | 245 | 243 |
+| `packages/foundation/modeling/rdf/src/Iri.ts` | 250 | 248 |
+| `packages/foundation/modeling/skill-contract/src/SkillProjection.ts` | 479 | 472 |
+| `packages/tooling/tool/cli/python/photo-face/beep_photo_face/worker.py` | 58 | 60 |
+
+The two fixed rows have no head line, since their directive is gone: `Uri.ts:160`
+(branch deleted) and `worker.py:59` (`E402` no longer needed).
