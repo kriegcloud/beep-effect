@@ -1219,7 +1219,7 @@ export const proveCiLanePartition = Effect.fn("CiLane.proveCiLanePartition")(fun
 });
 
 const partitionedLaneTask = (laneId: PartitionedCiLane): string =>
-  PartitionedCiLaneSchema.$match(laneId, { lint: () => "lint", "test-unit": () => "test" });
+  PartitionedCiLaneSchema.match(laneId, { lint: () => "lint", "test-unit": () => "test" });
 
 const partitionDryRunArgs = (laneId: PartitionedCiLane, options: CiLaneRunOptions): ReadonlyArray<string> =>
   directTurboArgs(
@@ -1433,7 +1433,7 @@ const turboTaskLaneStep = (
   });
 
 const docgenLaneSteps = (repoRoot: string, options: CiLaneRunOptions): ReadonlyArray<QualityTaskStep> =>
-  DocgenLaneMode.$match(options.mode, {
+  DocgenLaneMode.match(options.mode, {
     auto: () => [
       rootScriptStep(repoRoot, "ci:docgen", "docgen:local", ["--base", options.base, "--head", options.head]),
     ],
@@ -1564,7 +1564,7 @@ export const ciLaneStepsForTesting: {
 } = dual(
   3,
   (repoRoot: string, laneId: CiLaneId, options: CiLaneRunOptions): ReadonlyArray<QualityTaskStep> =>
-    CiLaneId.$match(laneId, {
+    CiLaneId.match(laneId, {
       build: () => [turboRootLaneStep(repoRoot, "build", "build", A.empty<string>(), options)],
       // D2 admission profile: a solo proof uses measured-safe c3; any active
       // sibling lease lowers it to c2. Hosted CI has no local admission lease
@@ -2668,7 +2668,7 @@ const ciLocalLaneFlags = (laneId: CiLaneId, plan: CiLocalStepPlan): ReadonlyArra
   // to the hosted one.
   const turboShapeFlags = [...affectedFlags, "--summarize"];
 
-  return CiLaneId.$match(laneId, {
+  return CiLaneId.match(laneId, {
     build: () => turboShapeFlags,
     check: () => turboShapeFlags,
     codegen: A.empty<string>,

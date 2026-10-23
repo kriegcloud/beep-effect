@@ -569,7 +569,7 @@ const runWealthCashRequest = (input: RuntimeFixtureInput): CandidateOutputSet =>
 
 const fixtureRunnerForScenario: (
   scenarioId: RuntimeFixtureScenarioId
-) => (input: RuntimeFixtureInput) => CandidateOutputSet = RuntimeFixtureScenarioId.$match({
+) => (input: RuntimeFixtureInput) => CandidateOutputSet = RuntimeFixtureScenarioId.match({
   "law-patent-intake": () => runLawPatentIntake,
   "wealth-cash-request": () => runWealthCashRequest,
 });

@@ -824,7 +824,7 @@ type ShadowableLane = {
 };
 
 const observedOutcome = (lane: QualityTaskLaneRun): O.Option<ProofOutcome> =>
-  GithubCheckLaneRunStatus.$match(lane.status, {
+  GithubCheckLaneRunStatus.match(lane.status, {
     passed: () => O.some<ProofOutcome>("passed"),
     failed: () => O.some<ProofOutcome>("failed"),
     reused: O.none<ProofOutcome>,

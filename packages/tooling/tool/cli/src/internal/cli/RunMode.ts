@@ -76,7 +76,7 @@ export const RunModeOptions = RunModeKit.literals;
  * @category models
  * @since 0.0.0
  */
-export const RunModeMatch = RunModeKit.$match;
+export const RunModeMatch = RunModeKit.match;
 
 /**
  * Enum mapping for {@link RunMode} literals.

@@ -435,7 +435,7 @@ const renderRgbModel = (
 ): string => {
   const [red = 0, green = 0, blue = 0] = arguments_;
 
-  return AnsiRenderLevel.$match(level, {
+  return AnsiRenderLevel.match(level, {
     ansi: () => ansiStyles[type].ansi(rgbToAnsi(Number(red), Number(green), { blue: Number(blue) })),
     ansi16m: () => ansiStyles[type].ansi16m(Number(red), Number(green), Number(blue)),
     ansi256: () => ansiStyles[type].ansi256(rgbToAnsi256(Number(red), Number(green), { blue: Number(blue) })),
@@ -479,7 +479,7 @@ export const getModelAnsi = (
   type: StyleChannel,
   ...arguments_: ReadonlyArray<number | string>
 ): string =>
-  ColorModelName.$match(model, {
+  ColorModelName.match(model, {
     ansi256: () => renderAnsi256Model(type, arguments_),
     hex: () => renderHexModel(level, type, arguments_),
     rgb: () => renderRgbModel(level, type, arguments_),

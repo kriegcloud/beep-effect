@@ -250,7 +250,7 @@ export const attemptInputFactFields = {
  * @since 0.0.0
  */
 export const admissionTokenWeight = (kind: AdmissionWorkKind): number =>
-  AdmissionWorkKind.$match(kind, {
+  AdmissionWorkKind.match(kind, {
     "full-proof": () => 3,
     "merged-preview": () => 5,
     "review-fix": () => 1,

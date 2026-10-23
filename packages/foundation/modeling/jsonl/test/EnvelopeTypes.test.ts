@@ -50,9 +50,9 @@ declare const NeedsAService: S.Codec<number, string, SomeService, never>;
 
 /** Never called; it exists so the `@ts-expect-error` below is type-checked. */
 const boundIsLoadBearing = (): void => {
-  // @ts-expect-error — a payload schema requiring services must be rejected at
-  // REGISTRATION. If this line ever stops erroring, the DataSchema bound has
-  // silently stopped binding and the sync core's no-runtime guarantee is gone.
+  // If this line ever stops erroring, the DataSchema bound has silently stopped
+  // binding and the sync core's no-runtime guarantee is gone.
+  // @ts-expect-error -- a payload schema requiring services must be rejected at registration. Owner: @beep/jsonl. Exit: remove if the DataSchema bound is meant to admit service-requiring schemas.
   JsonlEvent.make("needs-a-service", { data: NeedsAService });
 };
 
@@ -87,13 +87,13 @@ assertType<
 declare const at: DateTime.Utc;
 
 const encodeIsTyped = (): void => {
-  // @ts-expect-error — the payload must match the schema registered for the tag.
+  // @ts-expect-error -- the payload must match the schema registered for the tag. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   Envelope.encodeResult({ event: "mail-received", data: { round: "seven", from: "x" }, at }, registry);
 
-  // @ts-expect-error — the tag must be one the registry defines.
+  // @ts-expect-error -- the tag must be one the registry defines. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   Envelope.encodeResult({ event: "not-in-registry", data: undefined, at }, registry);
 
-  // @ts-expect-error — a payload belonging to a DIFFERENT tag is rejected.
+  // @ts-expect-error -- a payload belonging to a DIFFERENT tag is rejected. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   Envelope.encodeResult({ event: "relinked", data: { round: 1, from: "x" }, at }, registry);
 };
 

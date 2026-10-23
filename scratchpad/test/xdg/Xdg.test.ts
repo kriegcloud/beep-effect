@@ -136,7 +136,7 @@ describe("Xdg", () => {
 			assert.isFalse(S.is(XdgPlatform)("other"));
 			assert.deepStrictEqual(XdgPlatform.pick(["linux", "darwin"]).literals, ["linux", "darwin"]);
 			assert.strictEqual(XdgPlatform.mapMembers((members) => members).members.length, 11);
-			assert.strictEqual(XdgPlatform.$match("linux", {
+			assert.strictEqual(XdgPlatform.match("linux", {
 				aix: () => "aix", android: () => "android", darwin: () => "darwin",
 				freebsd: () => "freebsd", haiku: () => "haiku", linux: () => "selected",
 				openbsd: () => "openbsd", sunos: () => "sunos", win32: () => "win32",

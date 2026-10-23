@@ -96,7 +96,7 @@ describe("AppDirs", () => {
 			assert.isFalse(S.is(AppDirKind)("other"));
 			assert.deepStrictEqual(AppDirKind.pick(["config", "runtime"]).literals, ["config", "runtime"]);
 			assert.strictEqual(AppDirKind.mapMembers((members) => members).members.length, 5);
-			assert.strictEqual(AppDirKind.$match("cache", {
+			assert.strictEqual(AppDirKind.match("cache", {
 				config: () => "config", data: () => "data", cache: () => "selected",
 				state: () => "state", runtime: () => "runtime",
 			}), "selected");

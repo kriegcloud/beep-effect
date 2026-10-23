@@ -440,7 +440,7 @@ const serveAndRun = Effect.fn("QaRecord.serveAndRun")(function* (
     )
     .pipe(QaCommandError.mapError("qa record could not start the witness collector."));
 
-  return yield* CaptureLane.$match(options.lane, {
+  return yield* CaptureLane.match(options.lane, {
     obs: () => runObsLane(layout, running, target, options),
     playwright: () => runPlaywrightLane(layout, running, sessionId, target, options),
   });
@@ -508,7 +508,7 @@ export const runQaRecord = Effect.fn("QaRecord.run")(function* (
     commitSha: commit.sha,
     lane: options.lane,
     layout,
-    scenario: CaptureLane.$match(options.lane, {
+    scenario: CaptureLane.match(options.lane, {
       obs: O.none<string>,
       playwright: () => O.some(options.scenario),
     }),

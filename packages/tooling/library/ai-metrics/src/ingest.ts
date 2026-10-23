@@ -140,7 +140,7 @@ const decodeTranscriptTurn = (
   lineNumber: number,
   line: string
 ): O.Option<AgentTurn> =>
-  AiMetricsTranscriptSource.$match(sourceKind, {
+  AiMetricsTranscriptSource.match(sourceKind, {
     codex: () =>
       pipe(
         CodexTranscriptLine.decodeJsonOption(line),

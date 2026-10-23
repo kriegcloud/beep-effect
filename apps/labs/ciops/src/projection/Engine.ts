@@ -56,7 +56,7 @@ export const admissionWeightFor: {
   (kind: AdmissionWorkKind, policy: AdmissionPolicyParams): number;
   (policy: AdmissionPolicyParams): (kind: AdmissionWorkKind) => number;
 } = dual(2, (kind: AdmissionWorkKind, policy: AdmissionPolicyParams): number =>
-  AdmissionWorkKind.$match(kind, {
+  AdmissionWorkKind.match(kind, {
     "full-proof": () => policy.weights.fullProof,
     "merged-preview": () => policy.weights.mergedPreview,
     "review-fix": () => policy.weights.reviewFix,
@@ -69,7 +69,7 @@ const effectivePriorityRank = (
   projectionInstantMillis: number,
   policy: AdmissionPolicyParams
 ): number =>
-  AdmissionPriority.$match(request.priority, {
+  AdmissionPriority.match(request.priority, {
     publish: () => 0,
     verify: () => (projectionInstantMillis - request.enqueuedAtMillis >= policy.publishAgingSeconds * 1000 ? 0 : 1),
   });

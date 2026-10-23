@@ -317,7 +317,7 @@ const wasTruncated = (input: string, maxLength: number): boolean =>
   Str.length(sanitizeSensitiveText(input)) > maxLength;
 
 const detailForChannel = (summary: CauseSummary, options: RedactCauseOptions): O.Option<string> =>
-  RedactionChannel.$match({
+  RedactionChannel.match({
     client: O.none<string>,
     diagnostic: () => O.some(redactString(summary.pretty, options.detailLimit)),
   })(options.channel);

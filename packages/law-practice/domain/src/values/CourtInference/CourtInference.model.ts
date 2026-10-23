@@ -68,7 +68,7 @@ export const CourtLevel = CourtLevelBase.pipe(
  */
 export type CourtLevel = typeof CourtLevel.Type;
 
-const KnownCourtLevel = LiteralKit(CourtLevelBase.pick(["supreme", "appellate", "trial"]).literals);
+const KnownCourtLevel = CourtLevelBase.pick(["supreme", "appellate", "trial"]);
 
 const CourtJurisdictionBase = LiteralKit(["federal", "state", "unknown"]);
 

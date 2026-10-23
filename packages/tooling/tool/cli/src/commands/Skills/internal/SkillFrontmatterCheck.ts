@@ -7,6 +7,8 @@
  */
 
 import { decodeAgentSkillFrontmatterStrict } from "@beep/ai-sync";
+import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
+import { FrontmatterFormat } from "@beep/markdown/MarkdownNode";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -14,7 +16,6 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Str from "effect/String";
-import { extractFrontmatter } from "../../../internal/schema/Frontmatter.ts";
 import { decodeYamlTextWith } from "../../../internal/schema/TextCodec.ts";
 import {
   SKILL_BODY_LINE_LIMIT,
@@ -23,6 +24,7 @@ import {
   SkillFrontmatterReport,
 } from "../SkillFrontmatter.schemas.ts";
 import { SkillsCommandError } from "../Skills.errors.ts";
+import type { FrontmatterSourceBlock } from "@beep/markdown/FrontmatterSource";
 
 const decodeFrontmatter = decodeYamlTextWith(decodeAgentSkillFrontmatterStrict);
 
@@ -40,13 +42,19 @@ const frontmatterIssue = (skill: string, frontmatter: string): Effect.Effect<O.O
     })
   );
 
+const blockIssue = (skill: string, block: FrontmatterSourceBlock): Effect.Effect<O.Option<string>> =>
+  FrontmatterFormat.is.yaml(block.format)
+    ? frontmatterIssue(skill, Str.trim(block.value))
+    : Effect.succeedSome(`SKILL.md frontmatter is ${block.format}; the Agent Skills format requires a YAML block.`);
+
 /**
  * Check every installed skill's `SKILL.md` against the Agent Skills format.
  *
  * **Details**
  *
  * Each skill contributes at most one finding: a missing frontmatter block, a
- * frontmatter block that fails strict decoding (unknown keys, bad name
+ * block fenced as JSON or TOML instead of YAML, a frontmatter block that fails
+ * strict decoding (unknown keys, bad name
  * grammar, over-long fields, non-string metadata), or a `name` that differs
  * from its directory. A finding on a repo-authored skill is an issue and fails
  * the check. A finding on a skill named in `upstreamNames` (lock-managed
@@ -93,9 +101,9 @@ export const checkInstalledSkills = Effect.fn("Skills.checkInstalledSkills")(fun
     if (lines > SKILL_BODY_LINE_LIMIT) {
       advisories.push(SkillBodyAdvisory.make({ skill, lines, limit: SKILL_BODY_LINE_LIMIT }));
     }
-    const issue = yield* O.match(extractFrontmatter(raw), {
+    const issue = yield* O.match(O.fromUndefinedOr(FrontmatterSource.split(raw).frontmatter), {
       onNone: () => Effect.succeedSome("SKILL.md has no YAML frontmatter block."),
-      onSome: (frontmatter) => frontmatterIssue(skill, frontmatter),
+      onSome: (block) => blockIssue(skill, block),
     });
     if (O.isSome(issue)) {
       const bucket = HashSet.has(upstreamNames, skill) ? upstreamIssues : issues;

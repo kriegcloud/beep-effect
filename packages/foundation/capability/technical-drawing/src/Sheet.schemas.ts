@@ -145,7 +145,7 @@ const PageSizePt = Fn({ input: SheetFormat, output: PagePoints }).pipe(
  * @since 0.0.0
  */
 export const pageSizePt: (format: SheetFormat) => PagePoints = PageSizePt.implementSync((format) =>
-  SheetFormat.$match(format, {
+  SheetFormat.match(format, {
     letter: () => PagePoints.make({ width: 612, height: 792 }),
     a4: () => PagePoints.make({ width: 21 * PT_PER_CM, height: 29.7 * PT_PER_CM }),
   })
@@ -289,7 +289,7 @@ const MarginsCm = Fn({ input: MarginStandard, output: SheetMargins }).pipe(
  * @since 0.0.0
  */
 export const marginsCm: (standard: MarginStandard) => SheetMargins = MarginsCm.implementSync((standard) =>
-  MarginStandard.$match(standard, {
+  MarginStandard.match(standard, {
     "cfr-cm": () => SheetMargins.make(MARGINS_CM),
     "cfr-strict": () =>
       SheetMargins.make({
@@ -353,7 +353,7 @@ export type LabelTypeface = typeof LabelTypeface.Type;
 
 // The stroke glyphs borrow the sans cap height, so one size reads alike in both.
 const capPerEm = (typeface: LabelTypeface): number =>
-  LabelTypeface.$match(typeface, {
+  LabelTypeface.match(typeface, {
     stroke: () => SANS_FACE.capHeight / SANS_FACE.unitsPerEm,
     sans: () => SANS_FACE.capHeight / SANS_FACE.unitsPerEm,
     serif: () => SERIF_FACE.capHeight / SERIF_FACE.unitsPerEm,
@@ -580,7 +580,7 @@ export class LabelStyle extends S.Opaque<LabelStyle, { readonly brand: unique sy
  */
 export const labelFontFamily = (style: LabelStyle): string =>
   O.getOrElse(style.fontFamily, () =>
-    LabelTypeface.$match(style.typeface, {
+    LabelTypeface.match(style.typeface, {
       stroke: () => "Times New Roman",
       sans: () => "Arial",
       serif: () => "Times New Roman",

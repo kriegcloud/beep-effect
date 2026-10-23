@@ -16,8 +16,10 @@ concept's intent, its covered facets retire in the same PR that migrates their
 consumers, with no alias; the whole concept retires unless the lines reading
 its uncovered members outnumber the lines using its covered facets (ADAPT, per
 the facet census). Retirement leaves no shim or compat module. LiteralKit is
-ADAPT: it keeps `Enum`, `is`, `$match`, `toTaggedUnion` and `LiteralToKey`.
-Persisted and served encodings stay byte-identical.
+ADAPT: it keeps `Enum`, `is`, `match`, `matchOrElse`, `toTaggedUnion` and
+`LiteralToKey`. Its `pick` and `omit` return kits, because upstream `pick`
+returns a bare `Literals` (2026-10-22 census amendments). Persisted and served
+encodings stay byte-identical.
 
 Decision: `standards/architecture/DECISIONS.md`, "Upstream-First
 Foundation/Modeling". Operational rules:

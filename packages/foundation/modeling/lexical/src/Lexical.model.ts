@@ -1846,7 +1846,7 @@ const ListNodeFields = S.Struct({
   .check(
     S.makeFilter(
       ({ listType, tag }) =>
-        ListType.$match(listType, {
+        ListType.match(listType, {
           number: () => ListTag.is.ol(tag),
           bullet: () => ListTag.is.ul(tag),
           check: () => ListTag.is.ul(tag),

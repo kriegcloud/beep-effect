@@ -153,7 +153,7 @@ const statusDriftFindings = Effect.fn("Explore.statusDriftFindings")(function* (
   if (O.isNone(parsed)) {
     return A.empty<GoalDoctorFinding>();
   }
-  const manifestStatus = yield* PacketRoot.$match(root, {
+  const manifestStatus = yield* PacketRoot.match(root, {
     goals: () =>
       decodeGoalPacketManifestStatus(parsed.value).pipe(Effect.map((manifest) => manifest.initiative.status)),
     explorations: () =>

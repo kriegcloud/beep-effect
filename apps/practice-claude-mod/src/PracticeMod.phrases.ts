@@ -58,7 +58,7 @@ const lastSegment = (path: string): string =>
   );
 
 const sentenceFor = (tool: PracticeKgToolName, input: PhraseInput): string =>
-  PracticeKgToolName.$match(tool, {
+  PracticeKgToolName.match(tool, {
     kg_clients: () => "Listing the firm's clients",
     kg_docket_family: () =>
       input.application_number !== undefined

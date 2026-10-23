@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `WorkspaceSnapshots.at(ref)` against a workspace root NESTED inside a larger
 // git repo — the case a scripted `Git` mock cannot discriminate, because it
 // needs real git's two path-base conventions to diverge.

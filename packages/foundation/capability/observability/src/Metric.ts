@@ -180,7 +180,7 @@ const phaseOutcomeFromExit = <A, E>(exit: Exit.Exit<A, E>): PhaseOutcome =>
   );
 
 const incrementOutcomeCounter = (outcome: PhaseOutcome, options: ObserveWorkflowOptions): Effect.Effect<void> =>
-  PhaseOutcome.$match({
+  PhaseOutcome.match({
     completed: () => incrementCounter(options.completed, options.attributes),
     failed: () => incrementCounter(options.failed, options.attributes),
     interrupted: () => incrementCounter(options.interrupted, options.attributes),

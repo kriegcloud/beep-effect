@@ -6,6 +6,11 @@
  */
 
 /**
+ * @category errors
+ * @since 0.0.0
+ */
+export * from "./LiteralKit.errors.ts";
+/**
  * @category schemas
  * @since 0.0.0
  */

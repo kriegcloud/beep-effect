@@ -47,7 +47,7 @@ const serializableSessionDataset = (session: SerializeOntologySessionCommand["se
 };
 
 const isPersistableTurtleChange = (change: ChangeOperation): boolean =>
-  GraphPartition.$match(change.partition, {
+  GraphPartition.match(change.partition, {
     asserted: () => true,
     ontologies: () => false,
     inferred: () => false,

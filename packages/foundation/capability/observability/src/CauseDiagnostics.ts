@@ -491,7 +491,7 @@ export const summarizeCause = (cause: Cause.Cause<unknown>): CauseSummary => {
 
   return pipe(
     classification,
-    CauseClassification.$match({
+    CauseClassification.match({
       defect: () => CauseSummaryTagged.cases.defect.make(fields),
       empty: () => CauseSummaryTagged.cases.empty.make(fields),
       failure: () => CauseSummaryTagged.cases.failure.make(fields),
@@ -548,7 +548,7 @@ export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary 
 
         return pipe(
           summary.classification,
-          CauseClassification.$match({
+          CauseClassification.match({
             defect: () => ObservedExitSummaryTagged.cases.defect.make(fields),
             empty: () => ObservedExitSummaryTagged.cases.empty.make(fields),
             failure: () => ObservedExitSummaryTagged.cases.failure.make(fields),

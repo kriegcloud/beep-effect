@@ -453,7 +453,7 @@ export const rewritePendingChangesets = Effect.fn("DeletePackage.rewritePendingC
 
   const slug = pipe(packageName, Str.replace("@beep/", Str.empty));
   const deletionNote = path.join(changesetDir, `delete-${slug}.md`);
-  yield* DeletionNotePolicy.$match(deletionNotePolicy, {
+  yield* DeletionNotePolicy.match(deletionNotePolicy, {
     "emit-empty-note": () => fs.writeFileString(deletionNote, renderCanonicalDeletionChangeset(packageName)),
     "labs-exempt": () => Effect.void,
     "private-exempt": () => Effect.void,
@@ -529,7 +529,7 @@ const baselineStepOutcome = (
   after: O.Option<BaselineOutputStamp>
 ): BaselineStepOutcome => {
   if (exitCode === 0) return "ok";
-  return BaselineWriterExitPolicy.$match(exitPolicy, {
+  return BaselineWriterExitPolicy.match(exitPolicy, {
     "zero-only": (): BaselineStepOutcome => "failed",
     "tolerate-finding-exit": (): BaselineStepOutcome =>
       exitCode === 1 && baselineOutputWritten(before, after) ? "tolerated" : "failed",
@@ -581,7 +581,7 @@ const runBaselineWriters = Effect.fn("DeletePackage.runBaselineWriters")(functio
       Effect.mapError(DomainError.newCause("Failed to spawn bun."))
     );
     const after = yield* statBaselineOutput(repoRoot, step.verifiedOutput);
-    yield* BaselineStepOutcome.$match(baselineStepOutcome(exitCode, step.exitPolicy, before, after), {
+    yield* BaselineStepOutcome.match(baselineStepOutcome(exitCode, step.exitPolicy, before, after), {
       ok: () => Effect.void,
       tolerated: () =>
         Console.log(

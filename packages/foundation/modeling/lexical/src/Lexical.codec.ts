@@ -582,7 +582,7 @@ const listItemChildrenToMd = (children: ReadonlyArray<LexicalNode>): ReadonlyArr
 
 function listToBlock(node: ListNode): Md.Block {
   const items = A.filter(node.children, ListItemNode.is);
-  return ListType.$match(node.listType, {
+  return ListType.match(node.listType, {
     check: () =>
       Md.TaskList.make({
         children: A.map(items, (item) =>

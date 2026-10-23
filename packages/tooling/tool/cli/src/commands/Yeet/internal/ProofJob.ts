@@ -472,7 +472,7 @@ export const terminationReasonForServiceResult: {
   (result: ProofJobServiceResult, cancelRequested: boolean): ProofJobTerminationReason =>
     cancelRequested
       ? ProofJobTerminationReason.Enum.cancelled
-      : ProofJobServiceResult.$match(result, {
+      : ProofJobServiceResult.match(result, {
           success: () => ProofJobTerminationReason.Enum["unrecorded-failure"],
           "exit-code": () => ProofJobTerminationReason.Enum["unrecorded-failure"],
           unknown: () => ProofJobTerminationReason.Enum["unrecorded-failure"],

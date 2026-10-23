@@ -538,7 +538,7 @@ const tagNames = [
  *
  * **Details**
  *
- * Provides `.Enum`, the `.is.<literal>` guard map, `.$match`,
+ * Provides `.Enum`, the `.is.<literal>` guard map, `.match`,
  * `S.decodeUnknownResult(TagName)`, and `TagName.Type`
  * (`"param" | "returns" | ... | "overload"`).
  *

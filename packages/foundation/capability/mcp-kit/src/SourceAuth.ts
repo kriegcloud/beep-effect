@@ -229,7 +229,7 @@ export const SourceAuthDecision = Data.taggedEnum<SourceAuthDecision>();
 export const decideSourceAuthMount = Effect.fn("decideSourceAuthMount")(function* (
   registration: SourceAuthRegistration
 ) {
-  return yield* SourceAuthGate.$match(registration.gate, {
+  return yield* SourceAuthGate.match(registration.gate, {
     none: () => Effect.succeed(SourceAuthDecision.Mount({ credential: O.none() })),
     soft: () =>
       Effect.map(resolveSourceCredential(registration), (credential) => SourceAuthDecision.Mount({ credential })),

@@ -864,7 +864,7 @@ const matchingTranscriptHooks = (
           )
       );
 
-const reconciliationBasis = HookPulseAgentKind.$match({
+const reconciliationBasis = HookPulseAgentKind.match({
   "codex-cli": F.constant(
     "failed-or-interrupted: exec wrappers are not one-to-one with inner hook calls; non-use unqualified"
   ),

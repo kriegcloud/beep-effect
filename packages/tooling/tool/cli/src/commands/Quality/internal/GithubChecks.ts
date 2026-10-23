@@ -651,7 +651,7 @@ const decodeCheapGateConcurrency = S.decodeUnknownOption(CheapGateConcurrency);
  * @since 0.0.0
  */
 export const githubCheckTierConcurrency = (tier: GithubCheckLaneTier): number =>
-  GithubCheckLaneTier.$match(tier, {
+  GithubCheckLaneTier.match(tier, {
     "cheap-gates": () =>
       O.match(
         Effect.runSync(
@@ -672,7 +672,7 @@ export const githubCheckTierConcurrency = (tier: GithubCheckLaneTier): number =>
                 return 1;
               },
               onSome: (width) =>
-                CheapGateConcurrency.$match(width, {
+                CheapGateConcurrency.match(width, {
                   "1": () => 1,
                   "2": () => 2,
                   "3": () => 3,

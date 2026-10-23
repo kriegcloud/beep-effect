@@ -19,7 +19,7 @@ import { YeetProofTier } from "../../../internal/repo-run/QualityScheduler.schem
 import {
   byRepoPlanStepAscending,
   enforceConservativeResume,
-  RepoPlanPhase,
+  phaseOrderValue,
   RepoPlanStep,
   RepoPlanWave,
   RepoRunPlan,
@@ -394,7 +394,7 @@ const fallowAdvisoryFeedbackStep = (context: RepoRunContext): RepoPlanStep =>
   );
 
 const proofDefinitionForTier = (tier: YeetProofTier) =>
-  YeetProofTier.$match(tier, {
+  YeetProofTier.match(tier, {
     full: () => repoProofStepDefinition("pre-push"),
     "cheap-gates": () => repoProofStepDefinition("cheap-gates"),
     "review-fix": () => repoProofStepDefinition("review-fix"),
@@ -406,7 +406,7 @@ const proofArgsForTier = (
   collectAll: boolean,
   args: ReadonlyArray<string>
 ): ReadonlyArray<string> =>
-  YeetProofTier.$match(tier, {
+  YeetProofTier.match(tier, {
     full: () => [...args, ...(collectAll ? ["--collect-all"] : [])],
     "cheap-gates": () => args,
     "review-fix": () => [...args, "--base", context.base, "--head", context.head],
@@ -416,7 +416,7 @@ const changesetStatusLanesForProof = (context: RepoRunContext): ReadonlyArray<Gi
   context.branch === "main" ? [] : [githubCheckChangesetStatusLane(context.repoRoot)];
 
 const proofLanesForTier = (context: RepoRunContext, tier: YeetProofTier): ReadonlyArray<GithubCheckLaneSpec> =>
-  YeetProofTier.$match(tier, {
+  YeetProofTier.match(tier, {
     full: () => githubCheckPrePushLanes(context.repoRoot, changesetStatusLanesForProof(context)),
     "cheap-gates": () => [...changesetStatusLanesForProof(context), ...githubCheckCheapGateLanes(context.repoRoot)],
     "review-fix": A.empty<GithubCheckLaneSpec>,
@@ -929,7 +929,7 @@ const stepsForMode = (
   message: O.Option<string>,
   options: YeetRunPlanModeOptions
 ): ReadonlyArray<RepoPlanStep> =>
-  YeetRunMode.$match(options.mode, {
+  YeetRunMode.match(options.mode, {
     repair: () => [...repairSteps(context), repairCheapGateStep(context), ...feedbackSteps(context)],
     verify: () => [
       fallowAdvisoryFeedbackStep(context),
@@ -1081,17 +1081,5 @@ export const yeetPlanPhases = (plan: RepoRunPlan): ReadonlyArray<RepoPlanStep["p
     plan.steps,
     A.map((step) => step.phase),
     A.dedupe,
-    A.sort(
-      Order.mapInput(Order.Number, (phase: RepoPlanStep["phase"]) =>
-        RepoPlanPhase.$match(phase, {
-          prepare: () => 0,
-          feedback: () => 1,
-          commit: () => 2,
-          "early-publish": () => 3,
-          full: () => 4,
-          publish: () => 5,
-          monitor: () => 6,
-        })
-      )
-    )
+    A.sort(Order.mapInput(Order.Number, phaseOrderValue))
   );

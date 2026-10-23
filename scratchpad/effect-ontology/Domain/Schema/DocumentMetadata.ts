@@ -476,7 +476,7 @@ const tokenAdjustment = Match.type<number>().pipe(
   Match.orElse(() => 0)
 );
 
-const densityAdjustment = EntityDensity.$match({
+const densityAdjustment = EntityDensity.match({
   sparse: () => -5,
   moderate: () => 0,
   dense: () => 5,
@@ -503,7 +503,7 @@ const recommendChunkingStrategy = (
   entityDensity: EntityDensity,
   complexity: ComplexityScore
 ): ChunkingStrategy =>
-  DocumentType.$match(documentType, {
+  DocumentType.match(documentType, {
     article: () => ChunkingStrategy.Enum.paragraph_based,
     transcript: () => ChunkingStrategy.Enum.speaker_aware,
     report: () => fallbackChunkingStrategy(entityDensity, complexity),

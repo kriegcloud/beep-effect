@@ -2297,7 +2297,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
       return yield* failWithIssueArtifacts(plan.context, feedbackSteps, feedbackResults, "yeet feedback phase failed.");
     }
 
-    return yield* YeetRunMode.$match(options.mode, {
+    return yield* YeetRunMode.match(options.mode, {
       repair: () => emptyPlanResult(plan.context),
       verify: () => runVerifyMode(plan.context, fullSteps, options.tier, recorder),
       publish: () =>

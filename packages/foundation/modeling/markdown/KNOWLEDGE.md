@@ -815,7 +815,20 @@ way, so the toggle is a consumer opt-in and the conformance harnesses run
 untouched. The fence grammar is a closed set — the yaml, toml and JSON
 spellings, with the `gray-matter` and `remark-frontmatter` npm packages as
 the external authorities the grammar was checked against. An unclosed fence
-is not frontmatter and emits no diagnostic. The capture runs as an offset-0
+is not frontmatter and emits no diagnostic.
+
+> Port note (`@beep/markdown`, wave 2d-A): a fence line may carry trailing
+> spaces and tabs, on the opening and the closing line, for all three
+> spellings. Upstream required the exact fence. micromark-extension-frontmatter
+> 2.0.0, which remark-frontmatter runs, consumes trailing `markdownSpace` on
+> both fences; gray-matter trims the opening line's language hint and closes
+> on any line that starts with the delimiter; `@changesets/parse` 1.0.0 closes
+> on `--- `. A changeset closed by `--- ` releases its packages, so the
+> exact-fence grammar made repo-cli's changeset guard skip it silently.
+> Indentation stays outside the grammar: micromark and gray-matter reject an
+> indented fence, and only `@changesets/parse` accepts one. The write paths
+> (`FrontmatterSource.join`, `MarkdownFrontmatter.set`) still emit canonical
+> fences. The capture runs as an offset-0
 pre-scan in the block-parser constructor rather than as a registry
 construct, because it fires at most once and before any block. One capture
 node exists, not per-format classes: mdast has no JSON frontmatter type
@@ -950,6 +963,11 @@ round-trip byte-for-byte except at two documented normalization edges: a
 closing fence at end-of-document gains a final newline on `join`, and
 mismatched open/close fence-line terminators re-emit both with the opening
 one — value and body bytes survive verbatim in every case.
+
+> Port note (`@beep/markdown`, wave 2d-A): the facade shares the widened
+> fence grammar (see the capture-node port note), so a fence line may carry
+> trailing spaces and tabs, and `join` gains a third normalization edge: it
+> drops them, because it always writes the canonical fence.
 
 
 ---

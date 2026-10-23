@@ -34,7 +34,7 @@ const defaultCandidateTools = [AiMetricsTool.Enum.langfuse, AiMetricsTool.Enum.p
 const defaultPhoenixImage = "arizephoenix/phoenix:latest";
 
 const servicePort = (tool: AiMetricsTool): number =>
-  AiMetricsTool.$match(tool, {
+  AiMetricsTool.match(tool, {
     langfuse: () => 3001,
     opik: () => 5173,
     phoenix: () => 6006,
@@ -881,7 +881,7 @@ const makeStorageLayout = (dataRoot: string): AiMetricsStorageLayout =>
   });
 
 const serviceImage = (tool: AiMetricsTool, phoenixImage: string): string =>
-  AiMetricsTool.$match(tool, {
+  AiMetricsTool.match(tool, {
     langfuse: () => "langfuse/langfuse:latest",
     opik: () => "comet/opik:latest",
     phoenix: () => phoenixImage,
@@ -990,7 +990,7 @@ const deploymentCommandFlags = (
   storage: AiMetricsStorageLayout,
   defaultService: O.Option<AiMetricsServiceSpec>
 ) =>
-  AiMetricsDeployTarget.$match(target, {
+  AiMetricsDeployTarget.match(target, {
     dankserver: () => ({
       collectorDataRoot: ` --data-root ${storage.dataRoot}`,
       otlp: " --otlp",
@@ -1295,7 +1295,7 @@ const initialDoctorStatus: AiMetricsInstallDoctorStatus = AiMetricsInstallDoctor
 
 const doctorStatusFor = (checks: ReadonlyArray<AiMetricsInstallDoctorCheck>): AiMetricsInstallDoctorStatus =>
   A.reduce<AiMetricsInstallDoctorCheck, AiMetricsInstallDoctorStatus>(checks, initialDoctorStatus, (aggregate, check) =>
-    AiMetricsInstallDoctorCheckStatus.$match(check.status, {
+    AiMetricsInstallDoctorCheckStatus.match(check.status, {
       failed: () => AiMetricsInstallDoctorStatus.Enum.failed,
       passed: () => aggregate,
       skipped: () => aggregate,

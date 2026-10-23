@@ -394,7 +394,7 @@ export const convertTextOffsetRange: {
       return yield* VerifiedSpanError.fromReason("limit-exceeded");
     }
 
-    return yield* TextOffsetUnit.$match(range.unit, {
+    return yield* TextOffsetUnit.match(range.unit, {
       "unicode-code-point": () => convertCodePointRange(range, sourceText),
       "utf16-code-unit": () => convertUtf16CodeUnitRange(range, sourceText),
     });
