@@ -56,7 +56,7 @@ export const stripComments = (source: string): string =>
 // whose specifier group 2 holds; group 3 is a side-effect `import "x"` at the
 // start of a line; group 4 is a dynamic `import("x")`.
 const EDGE =
-  /(?:^|\n)\s*(?:import|export)\b(\s*type\b)?[^;]*?\bfrom\s*["']([^"']+)["']|(?:^|\n)\s*import\s*["']([^"']+)["']|\bimport\s*\(\s*["']([^"']+)["']\s*\)/g;
+  /(?:^|\n)\s*(?:import|export)\b(\s+type\b)?\s+(?:[\w$]+\s*,\s*)?(?:\{[^{};]*\}|\*(?:\s+as\s+[\w$]+)?|[\w$]+)\s+from\s*["']([^"']+)["']|(?:^|\n)\s*import\s*["']([^"']+)["']|\bimport\s*\(\s*["']([^"']+)["']\s*\)/g;
 
 const edgeOf = (match: RegExpMatchArray): ReadonlyArray<string> =>
   match[1] === undefined ? A.fromNullishOr(match[2] ?? match[3] ?? match[4]) : [];

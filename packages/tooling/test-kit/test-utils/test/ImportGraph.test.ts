@@ -69,6 +69,21 @@ describe("ImportGraph.runtimeImportsOf", () => {
     expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual(["./mixed.ts"]);
   });
 
+  it("does not read from-like strings inside exported declaration bodies", () => {
+    const source = lines(
+      "export class PackageJsonFile {",
+      '  message = `Failed to read package.json from "${this.path}"`;',
+      "}",
+      "export const text = 'from \"./x.ts\"';",
+      "export function message() {",
+      '  return `from "@beep/markdown"`;',
+      "}",
+      'import Default, { value } from "./real.ts";',
+      'export * as ns from "./namespace.ts";'
+    );
+    expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual(["./real.ts", "./namespace.ts"]);
+  });
+
   it("ignores a side-effect import that does not start a line and a dynamic import of a non-literal", () => {
     const source = lines("const text = 'import \"./quoted.ts\"';", "const load = (name: string) => import(name);");
     expect(ImportGraph.runtimeImportsOf(source)).toStrictEqual([]);
