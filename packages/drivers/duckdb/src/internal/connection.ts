@@ -370,9 +370,11 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
   // A raw `COMMIT` has no `onCommitFailure` to clean up after a refusal, so the
   // driver rolls the transaction back itself before failing.
   const rollBackThenFail = (error: SqlError): Effect.Effect<never, SqlError> =>
-    gate
-      .run("rollbackTransaction", () => native.run("ROLLBACK"))
-      .pipe(Effect.ensuring(setIdle), Effect.ignore, Effect.andThen(Effect.fail(error)));
+    runStatement("ROLLBACK", [], "rollbackTransaction", false, readRows, []).pipe(
+      Effect.ensuring(setIdle),
+      Effect.ignore,
+      Effect.andThen(Effect.fail(error))
+    );
 
   const runStatement = <A>(
     sql: string,

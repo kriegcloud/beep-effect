@@ -1196,13 +1196,16 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
       "recovers the reader snapshot after an aborted session-changing writer transaction",
       Effect.fnUntraced(function* () {
         const sql = yield* DuckDbClient.DuckDbClient;
-        yield* sql`BEGIN`;
-        yield* sql.unsafe("SET TimeZone='Asia/Tokyo'; SELECT CAST('bad' AS INTEGER)").pipe(Effect.flip);
-        yield* sql`SELECT 1`.stream.pipe(Stream.runCollect, Effect.flip);
-        yield* sql`ROLLBACK`;
-        const query = sql`SELECT current_setting('TimeZone') AS zone`;
-        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
-        yield* sql`SET TimeZone='UTC'`;
+        for (const finish of ["ROLLBACK", "COMMIT"]) {
+          yield* sql`BEGIN`;
+          yield* sql.unsafe("SET TimeZone='Asia/Tokyo'; SELECT CAST('bad' AS INTEGER)").pipe(Effect.flip);
+          yield* sql`SELECT 1`.stream.pipe(Stream.runCollect, Effect.flip);
+          if (finish === "COMMIT") yield* sql.unsafe(finish).pipe(Effect.flip);
+          else yield* sql.unsafe(finish);
+          const query = sql`SELECT current_setting('TimeZone') AS zone`;
+          assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+          yield* sql`SET TimeZone='UTC'`;
+        }
       })
     );
 
