@@ -22,6 +22,7 @@
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -34,6 +35,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { restOf, sameRest } from "./internal/wire.ts";
 import { ManifestEmail } from "./Person.ts";
+import type * as SchemaIssue from "effect/SchemaIssue";
 
 const $I = $PackageJsonId.create("Repository");
 
@@ -138,6 +140,24 @@ type FieldWire = string | { readonly [k: string]: unknown };
 
 const KNOWN_REPOSITORY_KEYS = HashSet.make("type", "url", "directory");
 const KNOWN_BUGS_KEYS = HashSet.make("url", "email");
+
+// The documented keys of each object form, validated by the same route
+// `Funding` and `Person` use: the struct produces the issue tree, so a missing
+// or non-string `url` (or a malformed `type`, `directory` or `email`) fails the
+// decode as a schema issue instead of being rewritten or dropped. A value the
+// model cannot hold must not decode to one it can; `LenientManifest` is the tier
+// that keeps such a field verbatim.
+const RepositoryFields = S.Struct({
+  type: S.optionalKey(S.String),
+  url: S.String,
+  directory: S.optionalKey(S.String),
+});
+const BugsFields = S.Struct({
+  url: S.optionalKey(S.String),
+  email: S.optionalKey(ManifestEmail),
+});
+const decodeRepositoryFields = S.decodeUnknownEffect(RepositoryFields);
+const decodeBugsFields = S.decodeUnknownEffect(BugsFields);
 
 // A remembered OBJECT wire is replayed only while it still describes the value
 // faithfully — the same discipline `Person` already applies, and for the same
@@ -407,35 +427,42 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
   ]).pipe(
     S.decodeTo(
       S.instanceOf(Repository),
-      SchemaTransformation.transform({
-        decode: (input: string | { readonly [k: string]: unknown }): Repository => {
+      // `transformEffect` rather than `transform`: this transform constructs
+      // the instance itself, so it carries the field validation the class
+      // factory would otherwise perform, including the required `url`.
+      SchemaTransformation.transformEffect({
+        decode: (input: string | { readonly [k: string]: unknown }): Effect.Effect<Repository, SchemaIssue.Issue> => {
           if (P.isString(input)) {
             const repository = Repository.make({ url: input });
             repository.#wire = input;
-            return repository;
+            return Effect.succeed(repository);
           }
-          const rest = restOf(input, KNOWN_REPOSITORY_KEYS);
-          const repository = Repository.make({
-            url: P.isString(input.url) ? input.url : "",
-            ...(P.isString(input.type) && { type: input.type }),
-            ...(P.isString(input.directory) && { directory: input.directory }),
-            ...(!R.isEmptyRecord(rest) && { rest }),
-          });
-          repository.#wire = input;
-          return repository;
+          return decodeRepositoryFields(input).pipe(
+            Effect.mapError((error) => error.issue),
+            Effect.map((fields) => {
+              const rest = restOf(input, KNOWN_REPOSITORY_KEYS);
+              const repository = Repository.make({ ...fields, ...(!R.isEmptyRecord(rest) && { rest }) });
+              repository.#wire = input;
+              return repository;
+            })
+          );
         },
-        encode: (repository: Repository): string | { readonly [k: string]: unknown } => {
+        encode: (repository: Repository) => {
           const wire = repository.#wire;
           // Replay the shorthand only while it still describes this value —
           // an edited url must not re-encode as the stale original.
-          if (P.isString(wire) && wire === repository.url && isStringExpressibleRepository(repository)) return wire;
-          if (wire !== undefined && !P.isString(wire) && isFaithfulRepository(wire, repository)) return wire;
-          return {
+          if (P.isString(wire) && wire === repository.url && isStringExpressibleRepository(repository)) {
+            return Effect.succeed<FieldWire>(wire);
+          }
+          if (wire !== undefined && !P.isString(wire) && isFaithfulRepository(wire, repository)) {
+            return Effect.succeed<FieldWire>(wire);
+          }
+          return Effect.succeed<FieldWire>({
             ...(repository.type !== undefined && { type: repository.type }),
             url: repository.url,
             ...(repository.directory !== undefined && { directory: repository.directory }),
             ...repository.rest,
-          };
+          });
         },
       })
     )
@@ -522,31 +549,38 @@ export class Bugs extends S.Class<Bugs, { readonly brand: unique symbol }>($I`Bu
   ]).pipe(
     S.decodeTo(
       S.instanceOf(Bugs),
-      SchemaTransformation.transform({
-        decode: (input: string | { readonly [k: string]: unknown }): Bugs => {
+      // `transformEffect` for the same reason as `Repository.FromValue`: a
+      // malformed `url` or `email` is a schema issue, not a silent drop.
+      SchemaTransformation.transformEffect({
+        decode: (input: string | { readonly [k: string]: unknown }): Effect.Effect<Bugs, SchemaIssue.Issue> => {
           if (P.isString(input)) {
             const bugs = Bugs.make({ url: input });
             bugs.#wire = input;
-            return bugs;
+            return Effect.succeed(bugs);
           }
-          const rest = restOf(input, KNOWN_BUGS_KEYS);
-          const bugs = Bugs.make({
-            ...(P.isString(input.url) && { url: input.url }),
-            ...(P.isString(input.email) && { email: input.email }),
-            ...(!R.isEmptyRecord(rest) && { rest }),
-          });
-          bugs.#wire = input;
-          return bugs;
+          return decodeBugsFields(input).pipe(
+            Effect.mapError((error) => error.issue),
+            Effect.map((fields) => {
+              const rest = restOf(input, KNOWN_BUGS_KEYS);
+              const bugs = Bugs.make({ ...fields, ...(!R.isEmptyRecord(rest) && { rest }) });
+              bugs.#wire = input;
+              return bugs;
+            })
+          );
         },
-        encode: (bugs: Bugs): string | { readonly [k: string]: unknown } => {
+        encode: (bugs: Bugs) => {
           const wire = bugs.#wire;
-          if (P.isString(wire) && wire === bugs.url && isStringExpressibleBugs(bugs)) return wire;
-          if (wire !== undefined && !P.isString(wire) && isFaithfulBugs(wire, bugs)) return wire;
-          return {
+          if (P.isString(wire) && wire === bugs.url && isStringExpressibleBugs(bugs)) {
+            return Effect.succeed<FieldWire>(wire);
+          }
+          if (wire !== undefined && !P.isString(wire) && isFaithfulBugs(wire, bugs)) {
+            return Effect.succeed<FieldWire>(wire);
+          }
+          return Effect.succeed<FieldWire>({
             ...(bugs.url !== undefined && { url: bugs.url }),
             ...(bugs.email !== undefined && { email: bugs.email }),
             ...bugs.rest,
-          };
+          });
         },
       })
     )

@@ -333,6 +333,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 - **upstream-bug** — The lab honors funding-extension deletions, clearing and own-key replacements while preserving bare/array representation, where upstream can replay stale extensions. (test/Funding.test.ts:87; test/Funding.test.ts:114)
 - **upstream-bug** — The lab returns None for an accepted lone-surrogate repository directory while preserving its wire value; upstream throws URIError when directoryUrl is read (test/Repository.test.ts:338).
 - **upstream-bug** — The lab preserves a declared __proto__ subclass field through Package.wireFor decoding and round trips; upstream loses the field and rejects its own encoding (test/Package.test.ts:227).
+- **upstream-bug** — The lab fails the `Repository.FromValue` and `Bugs.FromValue` decode with a schema issue on a missing or non-string repository `url` or a non-string `type`, `directory`, bugs `url` or `email`, as `Funding` and `Person` do; upstream rewrites the url to `""` and drops the other keys, so a decode→encode round trip loses wire data. A required string `url` cannot hold a malformed value without inventing one, and `LenientManifest` keeps such a field verbatim (test/Repository.coverage.test.ts:19,32,44,56,64).
 
 ### Dependency backlog
 
