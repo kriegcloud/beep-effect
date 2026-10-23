@@ -292,22 +292,20 @@ const detailsOf = (row: AccountRanking, now: DateTime.Utc, palette: Palette): Re
     ],
   });
 
-// Join colored parts and cut the result to a visible width. The parts are
-// cut as plain text first so no escape sequence is ever split.
+// Join colored parts, keeping whole parts while they fit a visible width. `Fmt.width` counts ANSI escapes as no
+// columns, so a part is measured as it is and no escape sequence is ever split.
 const SEPARATOR = " · ";
 
-const joinFitted = (parts: ReadonlyArray<string>, plain: ReadonlyArray<string>, width: number): string =>
+const joinFitted = (parts: ReadonlyArray<string>, width: number): string =>
   A.join(
-    A.reduce(A.zip(parts, plain), { kept: A.empty<string>(), used: 0, full: false }, (state, [part, text]) => {
-      const used = state.used + (A.isReadonlyArrayEmpty(state.kept) ? 0 : SEPARATOR.length) + Fmt.width(text);
+    A.reduce(parts, { kept: A.empty<string>(), used: 0, full: false }, (state, part) => {
+      const used = state.used + (A.isReadonlyArrayEmpty(state.kept) ? 0 : SEPARATOR.length) + Fmt.width(part);
       return state.full || used > width
         ? { ...state, full: true }
         : { kept: A.append(state.kept, part), used, full: false };
     }).kept,
     SEPARATOR
   );
-
-const stripAnsi = (text: string): string => Str.replace(/\u001b\[[0-9;]*m/g, "")(text);
 
 interface Columns {
   readonly bar: number;
@@ -366,7 +364,7 @@ const rowLines = (
   );
   const details = detailsOf(row, now, palette);
   const indent = "   ";
-  const detailLine = joinFitted(details, A.map(details, stripAnsi), columns.inner - indent.length);
+  const detailLine = joinFitted(details, columns.inner - indent.length);
   return Str.isEmpty(detailLine)
     ? [framed(head, columns, palette)]
     : [framed(head, columns, palette), framed(`${indent}${detailLine}`, columns, palette)];
