@@ -1,3 +1,10 @@
+/**
+ * App-namespaced XDG directories: the five-rung precedence per kind, the
+ * runtime directory, the config and data search paths, and on-demand creation.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $XdgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";

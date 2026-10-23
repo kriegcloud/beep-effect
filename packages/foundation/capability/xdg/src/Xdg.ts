@@ -1,3 +1,10 @@
+/**
+ * The XDG Base Directory environment, read once at layer construction, and the
+ * platform the native-directory decisions are taken against.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $XdgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { HostProcessPlatform } from "@beep/utils/HostProcess";

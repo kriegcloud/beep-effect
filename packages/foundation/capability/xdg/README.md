@@ -1,26 +1,43 @@
-# xdg (lab port of @effected/xdg)
+# @beep/xdg
 
+XDG Base Directory resolution for Effect. `Xdg` reads the environment (`$HOME`, the four `*_HOME` variables, `$XDG_RUNTIME_DIR` and the `$XDG_CONFIG_DIRS` / `$XDG_DATA_DIRS` search paths) once, at layer construction. `XdgBase` resolves one base directory with its spec default, purely or through `Config`. `AppDirs` turns the environment into the config, data, cache, state and runtime directories of one application namespace, with on-demand creation. `NativeDirs` supplies the macOS and Windows conventions, and the `@beep/xdg/XdgConfig` subpath plugs the whole thing into [`@beep/config-file`](../config-file) as a resolver chain and a save target.
 
-XDG Base Directory resolution for Effect. `Xdg` reads the environment — `$HOME`, the four `*_HOME` variables, `$XDG_RUNTIME_DIR`, and the `$XDG_CONFIG_DIRS` / `$XDG_DATA_DIRS` search paths — once, at layer construction. `AppDirs` turns that into the config, data, cache, state and runtime directories for one application namespace, with on-demand creation. `NativeDirs` supplies the macOS and Windows conventions for applications that want them, and `XdgConfig` plugs the whole thing into [`@beep/config-file`](../../../packages/foundation/capability/config-file) as a resolver chain and a save target.
+## Why this package
 
-## Why @effected/xdg
+Path resolution is not IO, and modeling it as IO poisons everything downstream. The environment is fixed for the life of a process, so `Xdg` reads it exactly once, when the layer is built, and the service's shape *is* the resolved value. `appDirs.dirs.config` is a `string`, not an `Effect<string, XdgEnvError>`, so it drops straight into config-file's `defaultPath` slot.
 
-Path resolution is not IO, and modeling it as IO poisons everything downstream. The environment is fixed for the life of a process, so this package reads it exactly once — when the layer is built — and the service's shape *is* the resolved value. `appDirs.dirs.config` is a `string`, not an `Effect<string, XdgEnvError>`. Reading a path cannot fail, cannot be observed to do IO and drops straight into config-file's `defaultPath` slot, which is typed `Effect<string, never, R>` and would otherwise need an `orDie` to satisfy.
+Taking the spec seriously means three things. Only absolute values count: an empty, whitespace-only or relative `$XDG_*` value is invalid and ignored, as `systemd-path` ignores it. The system search paths are half of XDG: a config lookup probes the app's own config directory and then each `$XDG_CONFIG_DIRS` entry, namespaced, and absorbs failure per candidate. And the runtime directory has no fallback, because there is no defensible one.
 
-Two more things follow from taking the spec seriously. The system search paths are half of XDG and are usually skipped: a config lookup here probes the app's own config directory — whichever rung of the precedence below resolved it — *and then* each `$XDG_CONFIG_DIRS` entry, namespaced, and it absorbs failure per candidate — an unreadable `/etc/xdg` means "this candidate did not match", never "abort the search and hide the perfectly readable file below it". And the runtime directory has no fallback ladder, because there is no defensible one: it must be user-owned and mode 0700, so when `$XDG_RUNTIME_DIR` is unset the key is simply absent rather than pointing somewhere invented.
+Creating directories needs a `FileSystem` and a `Path` implementation, provided once at the edge. Resolution itself needs neither.
 
-All `@effected/*` packages are ESM-only: the exports maps publish only `import` conditions, so `require()` — including tools that resolve in CJS mode — fails with Node's `ERR_PACKAGE_PATH_NOT_EXPORTED` rather than loading a CJS build that does not exist. Import from an ES module.
+## Usage
 
-`effect` v4 is a peer dependency, and so are `@effected/walker` (the upward-traversal and search primitives the resolvers are built on) and `@effected/config-file` (whose `ConfigResolver` seam `XdgConfig` implements). Package managers that install peers automatically will pull them in; add them to your manifest explicitly if yours does not. There are no runtime dependencies.
+### One base directory
 
-Creating directories needs a `FileSystem` and a `Path` implementation, provided once at the edge — from `@effect/platform-node` on Node. Resolution itself needs neither.
+`XdgBase` is the small entry point for code that needs one directory, such as a state root, without an `AppDirs` namespace:
 
-## Quick start
+```ts
+import { XdgBase } from "@beep/xdg/XdgBase";
+import * as ConfigProvider from "effect/ConfigProvider";
+import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+
+// Pure: the variable's value wins when it is absolute, else the spec default under an absolute HOME.
+console.log(O.getOrNull(XdgBase.resolve("state", { home: "/home/ada", value: "relative" }))); // /home/ada/.local/state
+
+// Through Config: `dir` answers Option.none() when nothing resolves; `require` fails with a ConfigError naming HOME.
+const provider = ConfigProvider.fromUnknown({ HOME: "/home/ada" });
+console.log(Effect.runSync(XdgBase.require("data").parse(provider))); // /home/ada/.local/share
+```
+
+`XdgBase` is HOME-optional: a missing or relative `$HOME` makes the default absent instead of failing, so `dir` can say "no directory" and the caller decides. The runtime kind never has a default.
+
+### Application directories
 
 Build `AppDirs` for your namespace, provide it the `Xdg` environment and the platform layers, and read the paths:
 
 ```ts
-import { AppDirs, Xdg } from "@beep/scratchpad/effected/xdg/index";
+import { AppDirs, Xdg } from "@beep/xdg";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -46,7 +63,7 @@ Effect.runPromise(program.pipe(Effect.provide(AppDirsLive)));
 
 `AppDirs.layer` is a layer-returning *function*, not a layer: calling it twice builds two independent services. Bind its result to a const, as above, and provide that const.
 
-## Precedence
+### Precedence
 
 Each of `config`, `data`, `cache` and `state` resolves through five rungs, first match wins:
 
@@ -60,15 +77,15 @@ Rungs 4 and 5 are deliberately not the spec's per-kind defaults (`~/.config`, `~
 
 `NativeDirs.resolve` is pure — platform, namespace, environment and `Path` all arrive as parameters — so the whole matrix is testable with no filesystem and no `process.platform` read. On macOS `config`, `data` and `state` collapse to `~/Library/Application Support/<ns>` while `cache` stays under `~/Library/Caches/<ns>`; on Windows they split across `%APPDATA%` and `%LOCALAPPDATA%`. Everywhere else it returns `Option.none()`, because on Linux XDG *is* the native convention and there is nothing to override.
 
-The platform is a `Context.Reference`, never a global read. Pin it in a test with `Layer.succeed(CurrentPlatform, "win32")` and exercise the Windows paths on a Mac.
+The platform is read through `@beep/utils/HostProcess` `HostProcessPlatform`, never a global read; `currentPlatform` maps it onto `XdgPlatform` and treats anything else (a browser, a worker, an unknown OS) as Linux. Pin it in a test with `Layer.succeed(HostProcessPlatform, "win32")` and exercise the Windows paths on a Mac.
 
-## Config files
+### Config files
 
-`XdgConfig` is the bridge into `@effected/config-file`. `resolver` searches the app's whole config search path, `nativeResolver` probes the OS-native directory, and `savePath` names the default write target:
+`XdgConfig` is the bridge into `@beep/config-file`, served from its own `@beep/xdg/XdgConfig` subpath so the root never loads config-file. `resolver` searches the app's whole config search path, `nativeResolver` probes the OS-native directory, and `savePath` names the default write target:
 
 ```ts
 import { ConfigFile, JsonCodec, MergeStrategy } from "@beep/config-file";
-import { XdgConfig } from "@beep/scratchpad/effected/xdg/index";
+import { XdgConfig } from "@beep/xdg/XdgConfig";
 import * as S from "effect/Schema";
 
 class AppShape extends S.Class<AppShape>("AppShape")({
@@ -92,7 +109,7 @@ export const AppConfigLive = ConfigFile.layer(AppConfig, {
 
 Order matters: put `resolver` before `nativeResolver` so an existing `~/.config/<app>/config.json` still wins over the OS-native directory. `savePath` does not create the directory — `ConfigFile.save` already creates the parent of whatever path it is handed.
 
-## Errors
+### Errors
 
 | Tag | Means | Recovery |
 | --- | --- | --- |
@@ -101,79 +118,87 @@ Order matters: put `resolver` before `nativeResolver` so an existing `~/.config/
 
 A namespace that is empty, or contains a path separator, or is exactly `.` or `..`, is a **defect** at layer construction rather than a typed error. It can only come from code, and `namespace: "../.."` would resolve the application's directories outside `$HOME` entirely.
 
-## Testing
+### Testing
 
-`@effected/memfs` virtualizes the filesystem, not the platform. `AppDirs` and `XdgConfig` read the platform through the `CurrentPlatform` reference, which defaults to the host's `process.platform`, so a test that only swaps the filesystem still takes the host's darwin, linux or win32 branch. Pin the platform as well:
-
-```ts
-import { MemoryFileSystem } from "@beep/memfs";
-import { AppDirs, CurrentPlatform, Xdg, XdgPaths } from "@beep/scratchpad/effected/xdg/index";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
-
-const TestEnv = Layer.mergeAll(
-  Xdg.layerFrom(XdgPaths.make({ home: "/home/ada", configDirs: ["/etc/xdg"], dataDirs: ["/usr/share"] })),
-  MemoryFileSystem.layer,
-  Path.layer,
-);
-
-const config = Effect.gen(function* () {
-  const appDirs = yield* AppDirs;
-  return appDirs.dirs.config;
-}).pipe(
-  Effect.provide(AppDirs.layer({ namespace: "myapp", native: true }).pipe(Layer.provide(TestEnv))),
-  Effect.provideService(CurrentPlatform, "linux"),
-);
-// "/home/ada/.myapp" on every host; pin "darwin" and the same program answers
-// "/home/ada/Library/Application Support/myapp"
-```
-
-`Layer.succeed(CurrentPlatform, "win32")` is the equivalent layer form, for composing the pin into a test layer graph.
+`@beep/memfs` virtualizes the filesystem, not the platform. `AppDirs` and `XdgConfig` read the platform through `HostProcessPlatform`, which defaults to the host's `process.platform`, so a test that only swaps the filesystem still takes the host's branch. Provide `Layer.succeed(HostProcessPlatform, "linux")` (or `Effect.provideService`) beside `Xdg.layerFrom(...)` and `MemoryFileSystem.layer` to pin it, and drive `Xdg.layer` and `XdgBase` with `ConfigProvider.fromUnknown({ ... })` instead of mutating the real environment.
 
 ## Features
 
-- `Xdg` / `XdgPaths` — the resolved XDG environment as a value, including the `$XDG_CONFIG_DIRS` and `$XDG_DATA_DIRS` search paths, split and defaulted per the spec. `Xdg.layerFrom` serves fixed paths for tests.
-- `AppDirs` / `ResolvedAppDirs` — the five app-namespaced directories plus the config and data search paths, with `ensureConfig`, `ensureData`, `ensureCache`, `ensureState`, `ensureRuntime` and `ensure` for on-demand creation.
-- `NativeDirs` — the macOS and Windows conventions, resolved purely from a platform, a namespace and an environment.
-- `CurrentPlatform` — the platform as a `Context.Reference`, defaulting to `process.platform` and overridable in a test.
-- `XdgConfig` — `resolver`, `nativeResolver` and `savePath`, dropping straight into `@effected/config-file`'s `ConfigResolver` and `defaultPath` slots.
-- `XdgEnvError` / `AppDirsError` — tagged errors carrying their cause structurally.
+- `Xdg` / `XdgPaths`: the resolved XDG environment as a branded value, absolute values only, including the `$XDG_CONFIG_DIRS` and `$XDG_DATA_DIRS` search paths, split and defaulted per the spec. `Xdg.layerFrom` serves fixed paths for tests.
+- `XdgBase` / `XdgBaseKind`: one base directory with its spec default. `resolve` is pure; `dir` and `require` are `Config` wrappers; `variable` names the environment variable.
+- `AppDirs` / `ResolvedAppDirs`: the five app-namespaced directories plus the config and data search paths, with `ensureConfig`, `ensureData`, `ensureCache`, `ensureState`, `ensureRuntime` and `ensure` for on-demand creation. `AppDirsOptions` and `AppDirOverrides` are branded schemas; `AppDirs.layer` takes their encoded form.
+- `NativeDirs`: the macOS and Windows conventions, resolved purely from a platform, a namespace and an environment.
+- `currentPlatform`: `HostProcessPlatform` mapped onto `XdgPlatform`.
+- `@beep/xdg/XdgConfig` (subpath only): `resolver`, `nativeResolver` and `savePath` for `@beep/config-file`'s `ConfigResolver` and `defaultPath` slots.
+- `XdgEnvError` / `AppDirsError` / `AppDirsNamespaceError`: tagged errors carrying their cause structurally.
 
-## License
+## Named importers
 
-[MIT](LICENSE)
+The capability gate for `foundation/capability` requires at least two importing packages:
 
+- `@beep/m365-mcp`: `OutboxConfig` resolves the default attachment staging root and the audit directory through `XdgBase.dir("data")` and `XdgBase.dir("state")`.
+- `@beep/repo-cli`: `internal/state/WorkstationState.ts` `resolveWorkstationStateDir` resolves the workstation state root through `XdgBase.require("state")` for its five callers (Accounts, Palantiri, Session Register, SessionLedger and the Yeet PR-session registry).
+
+The other hand-written XDG resolutions in the repo are tracked by the Exception Ledger row "Duplicate XDG base-directory resolution" in `goals/effected-promotion/SPEC.md` until the adoption PR (4-X-A) removes them.
+
+## Development
+
+```bash
+# from the repository root
+bun run beep quality package-verify @beep/xdg
+
+# from packages/foundation/capability/xdg
+bun run check
+bun run lint
+bun run test
+bun run docgen
+```
+
+Tests live in `test/` and import package source through `@beep/xdg/<Module>` aliases. `test/fixtures/systemd-path.golden.json` freezes 900 `systemd-path` answers that `test/XdgBase.test.ts` replays; `goals/effected-promotion/ops/xdg-systemd-differential.ts` regenerates it (`--golden`) and compares the live `systemd-path` with `XdgBase` and `Xdg.layer` (record: `goals/effected-promotion/research/xdg-systemd-differential-w4.json`). `test/rootClosure.test.ts` walks the raw `src` modules (`test/support/rawModules.ts`) and pins that the root barrel never loads `XdgConfig`, `@beep/config-file` or `@beep/walker`. `KNOWLEDGE.md` carries the upstream design notes verbatim.
 
 ## Port notes
 
-### Attribution
-
-- Upstream package: `@effected/xdg` 0.9.0
-- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
-- License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- Vendored-engine notices: none found in source headers.
-
 ### Added exports
 
-None.
+- `XdgBase` and `XdgBaseKind` (`src/XdgBase.ts`), new in the promotion.
+- `currentPlatform` replaces the upstream `CurrentPlatform` reference.
+- `AppDirsNamespaceError` is exported from the root.
 
 ### Deviations
 
 One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
 
-- **native-runtime** — Namespace validation now creates AppDirsNamespaceError instead of native Error while preserving defects and messages (scratchpad/test/xdg/AppDirs.test.ts:464,480-485,487).
-- **tagged-errors** — Tagged schema errors now preserve encoded cause stacks, and namespace defects use the added tagged error model (scratchpad/test/xdg/Xdg.test.ts:155; scratchpad/test/xdg/AppDirs.test.ts:182,464).
-- **schema-first** — LiteralKit domains, schema option values, namespace guards and schema JSON decoding replace upstream literal schemas, interfaces, predicates and JSON.parse (scratchpad/test/xdg/Xdg.test.ts:124; scratchpad/test/xdg/AppDirs.test.ts:86,112,127,138,487; scratchpad/test/xdg/XdgConfig.test.ts:192).
-- **numeric-domains** — The savePath integration fixture now uses S.Finite instead of Schema.Number (scratchpad/test/xdg/XdgConfig.test.ts:192,197).
-- **type-safety** — The upstream cause cast is replaced by property narrowing, and later diagnostic skip directives are removed (scratchpad/test/xdg/Xdg.test.ts:61,69-71; module suite scratchpad/test/xdg/**).
-- **tsgo-diagnostics** — Scoped layer builds and context provision replace effectful Effect.provide fixtures, with corrected instance types and direct platform provision (module suite scratchpad/test/xdg/**).
-- **effect-first** — Effect.fn, Bool.match, Effect.asSome and direct service effects replace generator wrappers, Boolean ternaries and redundant helper forms (scratchpad/test/xdg/XdgConfig.test.ts:185,192; scratchpad/test/xdg/NativeDirs.test.ts:31; module suite scratchpad/test/xdg/**).
-- **effect-imports** — Implementation, tests and the converted AppDirs example now import effect modules individually instead of the root barrel (module suite scratchpad/test/xdg/**).
-- **identity-annotations** — Composer keys, identifiers and field annotations replace upstream service keys and short schema identities (module suite scratchpad/test/xdg/**).
-- **upstream-bug** — Empty optional environment directory values now become absent keys and follow fallbacks instead of producing relative paths (scratchpad/test/xdg/Xdg.test.ts:99; scratchpad/test/xdg/AppDirs.test.ts:157).
-- **upstream-bug** — Empty HOME now fails with typed XdgEnvError instead of resolving relative fallback paths (scratchpad/test/xdg/Xdg.test.ts:108).
+- **native-runtime** — Namespace validation now creates AppDirsNamespaceError instead of native Error while preserving defects and messages (test/AppDirs.test.ts:464,480-485,487).
+- **tagged-errors** — Tagged schema errors now preserve encoded cause stacks, and namespace defects use the added tagged error model (test/Xdg.test.ts:155; test/AppDirs.test.ts:182,464).
+- **schema-first** — LiteralKit domains, schema option values, namespace guards and schema JSON decoding replace upstream literal schemas, interfaces, predicates and JSON.parse (test/Xdg.test.ts:124; test/AppDirs.test.ts:86,112,127,138,487; test/XdgConfig.test.ts:192).
+- **numeric-domains** — The savePath integration fixture now uses S.Finite instead of Schema.Number (test/XdgConfig.test.ts:192,197).
+- **type-safety** — The upstream cause cast is replaced by property narrowing, and later diagnostic skip directives are removed (test/Xdg.test.ts:61,69-71; module suite test/**).
+- **tsgo-diagnostics** — Scoped layer builds and context provision replace effectful Effect.provide fixtures, with corrected instance types and direct platform provision (module suite test/**).
+- **effect-first** — Effect.fn, Bool.match, Effect.asSome and direct service effects replace generator wrappers, Boolean ternaries and redundant helper forms (test/XdgConfig.test.ts:185,192; test/NativeDirs.test.ts:31; module suite test/**).
+- **effect-imports** — Implementation, tests and the converted AppDirs example now import effect modules individually instead of the root barrel (module suite test/**).
+- **identity-annotations** — Composer keys, identifiers and field annotations replace upstream service keys and short schema identities (module suite test/**).
+- **upstream-bug** — Empty optional environment directory values now become absent keys and follow fallbacks instead of producing relative paths (test/Xdg.test.ts:99; test/AppDirs.test.ts:157).
+- **upstream-bug** — Empty HOME now fails with typed XdgEnvError instead of resolving relative fallback paths (test/Xdg.test.ts:108).
 
-### Dependency backlog
+### Promotion shifts (wave 4-X)
 
-None.
+- **absolute-only** — `Xdg.layer` ignores empty, whitespace-only and relative `$XDG_*_HOME` and `$XDG_RUNTIME_DIR` values, drops relative `$XDG_CONFIG_DIRS` / `$XDG_DATA_DIRS` entries (a list left empty takes the default), and keeps `APPDATA` / `LOCALAPPDATA` only as drive or UNC roots (test/Xdg.test.ts "invalid environment values").
+- **host-platform** — `CurrentPlatform` and its `globalThis.process` read are replaced by `currentPlatform` over `@beep/utils/HostProcess` `HostProcessPlatform` (test/Xdg.coverage.test.ts).
+- **opaque-records** — `XdgPaths`, `NativeDirs`, `ResolvedAppDirs`, `AppDirOverrides` and `AppDirsOptions` are branded `S.Opaque` schemas, admitted once where they are built; `AppDirs.layer` takes `AppDirsOptions.Encoded`, and `AppDirsShape` is derived from the service (test/AppDirs.test.ts).
+- **subpath** — `XdgConfig` is no longer re-exported from the root; import `@beep/xdg/XdgConfig` (test/rootClosure.test.ts).
+- **systemd-path oracle** — `XdgBase` matches `systemd-path` on every recorded case except the documented `passwd-fallback` rows, where `systemd-path` reads the user database and `XdgBase` answers none (test/XdgBase.test.ts).
+
+## Provenance
+
+Ported from upstream `@effected/xdg` (MIT, C. Spencer Beggs) through the effected port, then promoted from the scratchpad into this workspace package by `goals/effected-promotion` (wave 4, PR 4-X). The package [LICENSE](LICENSE) carries both the beep-effect and the upstream copyright notices. Schema identities moved from `@beep/scratchpad/effected/xdg/*` to `@beep/xdg/*`.
+
+### Attribution
+
+- Upstream package: `@effected/xdg` 0.9.0
+- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (`$HOME/YeeBois/references/effect/effected`)
+- License: [LICENSE](./LICENSE) (upstream MIT notice alongside the beep-effect notice)
+- Vendored-engine notices: none found in source headers.
+
+## License
+
+[MIT](LICENSE)

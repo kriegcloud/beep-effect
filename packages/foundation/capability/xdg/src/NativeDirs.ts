@@ -1,3 +1,10 @@
+/**
+ * The OS-native application directories for macOS and Windows, resolved purely
+ * from a platform, a namespace and an environment.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $XdgId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

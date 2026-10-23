@@ -1,3 +1,11 @@
+/**
+ * The bridge from XDG directories into `@beep/config-file` discovery: resolvers
+ * for the XDG search path and the native config directory, and the default save
+ * path. Served from the `@beep/xdg/XdgConfig` subpath only.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Walker } from "@beep/walker/Walker";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -47,7 +55,7 @@ const nativeResolver = (options: {
 });
 
 // Implementation of XdgConfig.savePath; the public contract lives on the static.
-const savePath = Effect.fn("savePath")(function* (
+const savePath = Effect.fn("XdgConfig.savePath")(function* (
   filename: string
 ): Effect.fn.Return<string, never, AppDirs | Path.Path> {
   const appDirs = yield* AppDirs;

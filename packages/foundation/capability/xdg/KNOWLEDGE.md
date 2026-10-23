@@ -1,8 +1,20 @@
 # xdg — upstream knowledge bundle (verbatim)
 
-Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
+Provenance: `$HOME/YeeBois/references/effect/effected` @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
-decisions live in README.md → Port notes, not here.
+decisions live in README.md → Port notes and Provenance, not here.
+
+Upstream paths and commands below describe the upstream checkout, not this package.
+In this repo `@effected/xdg` is `@beep/xdg` at `packages/foundation/capability/xdg`:
+upstream `packages/xdg/src/<Module>.ts` maps to `src/<Module>.ts`, and upstream
+`__test__/` maps to `test/`. Other names: `@effected/walker`, `@effected/config-file`
+and `@effected/memfs` are `@beep/walker`, `@beep/config-file` and `@beep/memfs`,
+regular `dependencies` (memfs a devDependency) rather than peers. Two upstream facts
+below changed in the promotion: `CurrentPlatform` is now `currentPlatform` over
+`@beep/utils/HostProcess` `HostProcessPlatform`, and `XdgConfig` is served from the
+`@beep/xdg/XdgConfig` subpath only (README.md → Port notes). The upstream
+`pnpm vitest` / `pnpm build` commands map to `bun run test` / `bun run build` in the
+package, or `bun run beep quality package-verify @beep/xdg` from the repository root.
 
 ---
 <!-- packages/xdg/CLAUDE.md -->
