@@ -4,7 +4,6 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// cspell:ignore greptileai
 
 import { O } from "@beep/utils";
 import * as A from "effect/Array";

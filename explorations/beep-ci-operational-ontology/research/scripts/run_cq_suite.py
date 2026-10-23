@@ -212,7 +212,7 @@ if len(snapshot_paths) != 1:
 else:
     try:
         golden = load_store(S6 / "graphs/abox.ttl", snapshot_paths[0])
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         fail(f"golden store failed to load: {exc}")
         golden = None
 

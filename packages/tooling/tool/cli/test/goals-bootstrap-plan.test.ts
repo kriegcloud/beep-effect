@@ -55,7 +55,7 @@ const encodeUnknownMaterializationPlan = S.encodeUnknownEffect(MaterializationPl
 const isMaterializationPlan2 = S.is(MaterializationPlan);
 
 const FIXTURES_ROOT = new URL("./fixtures/goals-plan", import.meta.url).pathname;
-// biome-ignore lint/suspicious/noUndeclaredEnvVars: Local golden regeneration is an explicit uncached test-authoring mode.
+// biome-ignore lint/suspicious/noUndeclaredEnvVars: Local golden regeneration is an explicit uncached test-authoring mode; REGEN_GOLDENS is declared in turbo.json global.env, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
 const REGEN = Bun.env.REGEN_GOLDENS === "1";
 const PILOT_SLUG = "knowledge-surface-automation";
 const PROJECTION_REPEAT_RUNS = 20;

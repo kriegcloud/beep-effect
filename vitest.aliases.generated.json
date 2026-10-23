@@ -2141,5 +2141,14 @@
   "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
   "@beep/lockfiles/internal/*": [
     "./packages/foundation/modeling/lockfiles/src/internal/*"
+  ],
+  "@beep/github-reporting": [
+    "./packages/foundation/modeling/github-reporting/src/index.ts"
+  ],
+  "@beep/github-reporting/*": [
+    "./packages/foundation/modeling/github-reporting/src/*"
+  ],
+  "@beep/github-reporting/internal/*": [
+    "./packages/foundation/modeling/github-reporting/src/internal/*"
   ]
 }

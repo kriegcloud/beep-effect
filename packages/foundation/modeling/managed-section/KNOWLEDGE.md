@@ -11,6 +11,11 @@ is `@beep/managed-section`, `packages/templates/src/` is
 `@beep/memfs`, `@effected/git` is `@beep/git`, and the upstream
 `pnpm build --filter @effected/templates` gate is
 `bun run beep quality package-verify @beep/managed-section` here.
+The in-kit consumer this text calls `@effected/github-actions`'s `ManagedDocument` is
+`@beep/github-reporting/ManagedDocument` (`packages/foundation/modeling/github-reporting`),
+promoted in wave 3-1 of `goals/effected-promotion`. It imports this package through
+the `CommentStyle`, `Section`, `SectionDialect` and `SectionDocument` leaves only, never
+the root barrel, because the root re-exports `ManagedSection` and with it `effect/FileSystem`.
 
 ---
 <!-- packages/templates/CLAUDE.md -->

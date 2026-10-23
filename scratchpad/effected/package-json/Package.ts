@@ -437,7 +437,6 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
 	pipe<A, B, C, D>(this: A, ab: (_: A) => B, bc: (_: B) => C, cd: (_: C) => D): D;
 	pipe<A, B, C, D, E>(this: A, ab: (_: A) => B, bc: (_: B) => C, cd: (_: C) => D, de: (_: D) => E): E;
 	pipe(this: unknown): unknown {
-		// biome-ignore lint/complexity/noArguments: Pipeable.pipeArguments requires the arguments object
 		return Pipeable.pipeArguments(this, arguments);
 	}
 

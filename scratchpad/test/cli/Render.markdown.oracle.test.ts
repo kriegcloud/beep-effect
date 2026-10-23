@@ -613,7 +613,6 @@ describe("Render.markdown: code, diff, collapsible and callout", () => {
 		Effect.gen(function* () {
 			const out = yield* render([Doc.codeBlock("x", "ts\u001B[31m")]);
 			assert.notInclude(out, ESC);
-			// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 			assert.notMatch(out, /[\u0000-\u0009\u000B-\u001F\u007F-\u009F]/);
 			assert.strictEqual(kids(yield* parse(out))[0]?.type, "code");
 		}),
@@ -1100,7 +1099,6 @@ describe("Render.markdown: no ANSI, and a hostile document stays inside its own 
 			});
 			assert.deepStrictEqual(calls, []);
 			assert.notInclude(out, ESC);
-			// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 			assert.notMatch(out, /[\u0000-\u0009\u000B-\u001F\u007F-\u009F]/);
 		}),
 	);

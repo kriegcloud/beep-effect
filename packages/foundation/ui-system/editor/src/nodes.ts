@@ -5,8 +5,6 @@
  * highlight extension, code blocks keep plain text/tab/linebreak children,
  * which is exactly the wire profile `@beep/lexical-schema` persists.
  *
- * cspell:ignore Klass
- *
  * @packageDocumentation \@beep/editor/nodes
  * @since 0.0.0
  */

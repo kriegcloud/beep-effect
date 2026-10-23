@@ -762,7 +762,6 @@ const renderFailure = (source: string, message: string): JSX.Element => (
   </div>
 );
 
-// cspell:ignore nosemgrep
 const renderSuccess = (svg: string): JSX.Element => (
   <div
     data-testid="mermaid-diagram"
@@ -770,7 +769,7 @@ const renderSuccess = (svg: string): JSX.Element => (
     // block and clipping boundary even if a future renderer emits a class-based
     // layout rule that the SVG policy does not recognize.
     className="my-3 overflow-x-auto rounded border bg-background p-3 contain-paint"
-    // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitizes at the browser parser boundary and the inert SVG policy revalidates the exact bytes injected here.
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitizes at the browser parser boundary and the inert SVG policy revalidates the exact bytes injected here. Owner: @beep/editor. Exit: Mermaid renders through a DOM node API instead of an SVG string.
     dangerouslySetInnerHTML={{ __html: svg }} // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml -- DOMPurify and the inert SVG policy validate the exact bytes before this sink.
   />
 );

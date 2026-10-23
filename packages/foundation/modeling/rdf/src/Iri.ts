@@ -12,8 +12,6 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { SCHEMA_ORG_NAMESPACE } from "./Vocab/generated/SchemaOrg.terms.ts";
 
-// cspell:words ireg ucschar iprivate Ucschar Iprivate Iunreserved Isegment irelative Abempty Hier hier
-
 const $I = $RdfId.create("iri");
 
 /**
@@ -209,7 +207,7 @@ const scanComponent = (
   while (index < Str.length(input)) {
     const codePoint = codePointAt(input, index);
 
-    /* istanbul ignore next -- loop bounds keep the code point lookup in range */
+    /* istanbul ignore next -- loop bounds keep the code point lookup in range. Owner: @beep/rdf. Exit: the scanner iterates code points with a total iterator instead of an index lookup. */
     if (codePoint === undefined) {
       return undefined;
     }
@@ -242,12 +240,12 @@ const scanComponent = (
     consumed += width;
   }
 
-  /* istanbul ignore else -- callers gate required-empty segments before scanning */
+  /* istanbul ignore else -- callers gate required-empty segments before scanning. Owner: @beep/rdf. Exit: scanComponent drops minimumLength once every caller gates empty segments itself. */
   if (consumed >= minimumLength) {
     return index;
   }
 
-  /* istanbul ignore next -- callers gate required-empty segments before scanning */
+  /* istanbul ignore next -- callers gate required-empty segments before scanning. Owner: @beep/rdf. Exit: scanComponent drops minimumLength once every caller gates empty segments itself. */
   return undefined;
 };
 

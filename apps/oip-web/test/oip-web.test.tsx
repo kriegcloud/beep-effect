@@ -145,14 +145,14 @@ const formContactRequest = (formData = contactFormData()) =>
 
 const mockMediaQueryList = (matches: boolean): MediaQueryList => ({
   addEventListener: vi.fn(),
-  // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
+  // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members. Owner: @beep/oip-web. Exit: lib.dom drops the deprecated MediaQueryList listener members.
   addListener: vi.fn(),
   dispatchEvent: vi.fn(),
   matches,
   media: "(prefers-reduced-motion: reduce)",
   onchange: null,
   removeEventListener: vi.fn(),
-  // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
+  // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members. Owner: @beep/oip-web. Exit: lib.dom drops the deprecated MediaQueryList listener members.
   removeListener: vi.fn(),
 });
 

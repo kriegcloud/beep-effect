@@ -233,7 +233,7 @@ const generatedComposers = $I.compose(
   "runtime-env",
   "epistemics",
   "markdown",
-  "lockfiles"
+  "lockfiles", "github-reporting"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3388,3 +3388,20 @@ export const $MarkdownId: Identity.IdentityComposer<"@beep/markdown"> = composer
  * @since 0.0.0
  */
 export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
+
+/**
+ * Identity composer for `@beep/github-reporting`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GithubReportingId } from "@beep/identity/packages"
+ *
+ * const id = $GithubReportingId.make("GithubReporting")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GithubReportingId: Identity.IdentityComposer<"@beep/github-reporting"> = composers.$GithubReportingId;

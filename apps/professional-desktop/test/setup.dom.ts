@@ -18,9 +18,9 @@ if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
       matches: false,
       media: query,
       onchange: null,
-      // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
+      // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members. Owner: @beep/professional-desktop. Exit: lib.dom drops the deprecated MediaQueryList listener members.
       addListener: () => {},
-      // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
+      // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members. Owner: @beep/professional-desktop. Exit: lib.dom drops the deprecated MediaQueryList listener members.
       removeListener: () => {},
       addEventListener: () => {},
       removeEventListener: () => {},

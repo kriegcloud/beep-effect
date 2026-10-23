@@ -1,4 +1,3 @@
-// cspell:ignore Condvar unreaped
 use serde::Serialize;
 use std::env;
 use std::io::{BufRead, BufReader, Read, Write};

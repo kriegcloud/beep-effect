@@ -125,7 +125,7 @@ def _parse_architecture(properties: Any) -> str:
 def _probe_device(torch: Any, ordinal: int) -> dict[str, Any]:
     try:
         device_count = int(torch.cuda.device_count())
-    except Exception as error:  # noqa: BLE001 - dependency boundary
+    except Exception as error:  # dependency boundary
         raise WorkerError(
             "rocm-unavailable", f"could not query ROCm device count: {error}"
         ) from error
@@ -158,7 +158,7 @@ def _probe_device(torch: Any, ordinal: int) -> dict[str, Any]:
             raise RuntimeError("ROCm matmul produced an unexpected result")
     except WorkerError:
         raise
-    except Exception as error:  # noqa: BLE001 - device boundary
+    except Exception as error:  # device boundary
         raise WorkerError(
             "device-probe-failed",
             (
@@ -189,7 +189,7 @@ def resolve_compute(torch: Any, arguments: WorkerArguments) -> RuntimeSelection:
     hip_version = getattr(getattr(torch, "version", None), "hip", None)
     try:
         cuda_available = bool(torch.cuda.is_available())
-    except Exception:  # noqa: BLE001 - dependency boundary
+    except Exception:  # dependency boundary
         cuda_available = False
     if not hip_version:
         if arguments.compute == "rocm":
@@ -634,7 +634,7 @@ def _load_strict_safetensors(
 ) -> None:
     try:
         state = safetensors_torch.load_file(str(path), device="cpu")
-    except Exception as error:  # noqa: BLE001 - safetensors boundary
+    except Exception as error:  # safetensors boundary
         raise WorkerError(
             "model-integrity-failed",
             f"could not decode pinned {component} safetensors: {error}",
@@ -665,7 +665,7 @@ def _load_strict_safetensors(
         )
     try:
         model.load_state_dict(stripped, strict=True)
-    except Exception as error:  # noqa: BLE001 - torch boundary
+    except Exception as error:  # torch boundary
         raise WorkerError(
             "model-state-mismatch",
             f"{component} strict state load failed: {error}",
@@ -775,7 +775,7 @@ class AdaFaceAnalysis:
     def get(self, image: np.ndarray) -> list[Any]:
         try:
             boxes, landmarks = self.detector.detect(image, max_num=32, metric="default")
-        except Exception as error:  # noqa: BLE001 - model boundary
+        except Exception as error:  # model boundary
             raise WorkerError(
                 "worker-failed", f"det_10g face detection failed: {error}"
             ) from error

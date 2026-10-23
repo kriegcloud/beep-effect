@@ -12,7 +12,6 @@
  */
 
 import { BrowserSafeUrlPolicySpec, sanitizeUrlDestinationWithPolicy } from "@beep/md/Md.escape";
-// cspell:word youtu
 import * as Md from "@beep/md/Md.model";
 import { A, O, Str, thunkEmptyStr } from "@beep/utils";
 import { flow, pipe } from "effect/Function";

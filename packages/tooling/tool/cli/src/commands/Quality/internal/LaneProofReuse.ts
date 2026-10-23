@@ -205,7 +205,7 @@ const virtualTreeSha = Effect.fn("LaneProofReuse.virtualTreeSha")(function* (rep
 });
 
 const laneProofMode = (): LaneProofMode => {
-  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
   const candidate = Bun.env.BEEP_YEET_LANE_PROOF_MODE ?? "off";
   return isLaneProofMode(candidate) ? candidate : "off";
 };
@@ -238,7 +238,7 @@ export const prepareLaneProofSession = Effect.fn("LaneProofReuse.prepareSession"
   const path = yield* Path.Path;
   const repoRoot = first.value.step.cwd;
   const storePath = path.join(repoRoot, ".beep", "yeet", "lane-proofs.json");
-  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
   const proofBase = Bun.env.BEEP_YEET_PROOF_BASE ?? "origin/main";
   const prepared = yield* Effect.all({
     baseSha: runGit(repoRoot, ["rev-parse", proofBase]),
