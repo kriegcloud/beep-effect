@@ -4,7 +4,7 @@ import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
 import type { AudienceKind } from "@beep/runtime-env";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
-import { Markdown } from "../../effected/markdown/index.ts";
+import { Markdown } from "@beep/markdown/Markdown";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";

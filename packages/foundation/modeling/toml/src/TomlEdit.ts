@@ -105,7 +105,7 @@ export class TomlRange extends S.Opaque<TomlRange, { readonly brand: unique symb
  * **Details**
  *
  * Structurally identical to the edit shapes of `@beep/jsonc`,
- * `@beep/yaml` and `@effected/markdown` (same field names, types and
+ * `@beep/yaml` and `@beep/markdown` (same field names, types and
  * semantics), so consumer code can be written once over "a document codec's
  * Edit/Range/Path".
  *
