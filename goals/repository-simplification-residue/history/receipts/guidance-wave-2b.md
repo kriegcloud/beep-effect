@@ -33,13 +33,14 @@ The census pattern also matches 9 lines that are not directives, and they stay: 
 that detects the directive; three `@effect-diagnostics` hits are JSDoc in
 `Quality.command.ts`; four are quoted in immutable effected-promotion review logs.
 
-By root, real directives before: packages 128, scratchpad 105, `vitest.setup.ts` 6,
-`vitest.shared.ts` 1. After: packages 126, scratchpad 102, `vitest.setup.ts` 5,
-`vitest.shared.ts` 1.
+By root, real directives before (241): packages 128, scratchpad 105, `vitest.setup.ts` 6,
+`vitest.shared.ts` 1, apps 1 (`apps/storybook/.storybook/preview.tsx`, found only with
+`--hidden`). After (235): packages 126, scratchpad 102, `vitest.setup.ts` 5,
+`vitest.shared.ts` 1, apps 1.
 
-`@effect-diagnostics` header lines can name several rules. Counted per rule, the 98
+`@effect-diagnostics` header lines can name several rules. Counted per rule, the 99
 directives carried 141 rule entries (122 in `scratchpad/test`, 11 in `scratchpad/party`,
-7 at the root). After: 13 removed as stale, 3 fixed in source, 8 narrowed from
+7 at the root, 1 in `apps/storybook`). After: 13 removed as stale, 3 fixed in source, 8 narrowed from
 `skip-file` to `-next-line`, 117 kept.
 
 ## Method
@@ -124,7 +125,8 @@ module-load decodes of encoded fixture records are the point of that fixture.
   - `packages/ecosystem/effect-drizzle/test/fixtures.ts:853` and
     `sqlite-fixtures.ts:238`: the physical-name fallback is runtime-only until model
     statics preserve column-name literals.
-- **`@effect-diagnostics` (94 lines).** 79 scratchpad test headers (75 effected-lab
+- **`@effect-diagnostics` (95 lines: the 94 below plus the storybook preview line, covered
+  under Review round 1).** 79 scratchpad test headers (75 effected-lab
   suites under the 2026-10-09 operator ruling, "Tests, entry-point headers" in
   `scratchpad/effected/DIAGNOSTIC_EXCEPTIONS.md`, and 4 beep-lab suites) carry 109 live
   rule entries: `nodeBuiltinImport` 46, `strictEffectProvide` 29,
