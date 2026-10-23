@@ -317,7 +317,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
     "bitlocker-on",
     host.bitLocker("C:").pipe(
       Effect.map(
-        BitLockerProtection.$match({
+        BitLockerProtection.match({
           on: () => satisfied,
           off: () => missing("BitLocker is off for drive C:."),
           unknown: () => missing("BitLocker protection for drive C: could not be confirmed."),
@@ -328,7 +328,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
 
   const connectM365 = m365.signIn.pipe(
     Effect.flatMap(
-      M365SignInOutcome.$match({
+      M365SignInOutcome.match({
         connected: () => Effect.void,
         "waiting-for-browser": () =>
           Effect.fail(

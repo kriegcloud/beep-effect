@@ -9,11 +9,15 @@ import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
+import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Fiber from "effect/Fiber";
+import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
@@ -760,6 +764,80 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "appends complete rows and guards a caught failed flush",
+      Effect.fnUntraced(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        yield* client`CREATE TABLE appended (id INTEGER PRIMARY KEY, xs INTEGER[], data JSON)`;
+        yield* client.appendRows({ table: "appended", rows: [[1, [null, 7], { ok: true }]] });
+        yield* client.withTransaction(client.appendRows({ table: "appended", rows: [[2, [], null]] }));
+        yield* client
+          .withTransaction(
+            client
+              .appendRows({ table: "appended", rows: [[3, [], null]] })
+              .pipe(Effect.andThen(Effect.fail("rollback")))
+          )
+          .pipe(Effect.flip);
+        assert.deepStrictEqual(yield* client`SELECT id, xs FROM appended ORDER BY id`, [
+          { id: 1, xs: [null, 7] },
+          { id: 2, xs: [] },
+        ]);
+        const duplicate = yield* Effect.flip(
+          client.appendRows({
+            table: "appended",
+            rows: [
+              [4, [], null],
+              [1, [], null],
+            ],
+          })
+        );
+        assert.strictEqual(duplicate.reason._tag, "UniqueViolation");
+        const refused = yield* Effect.flip(
+          client.withTransaction(
+            Effect.gen(function* () {
+              yield* client`INSERT INTO appended VALUES (5, [], NULL)`;
+              yield* client.appendRows({ table: "appended", rows: [[1, [], null]] }).pipe(Effect.ignore);
+            })
+          )
+        );
+        assertUnknownError(refused, "commitTransaction");
+        assert.deepStrictEqual(yield* client`SELECT id FROM appended ORDER BY id`, [{ id: 1 }, { id: 2 }]);
+        assertUnknownError(yield* Effect.flip(client.appendRows({ table: "appended", rows: [[6]] })), "appendRows");
+        assertUnknownError(
+          yield* Effect.flip(client.appendRows({ table: "appended", rows: [["bad", [], null]] })),
+          "appendRows"
+        );
+        assertUnknownError(
+          yield* Effect.flip(client.appendRows({ table: "appended", rows: [[Symbol("bad"), [], null]] })),
+          "appendRows"
+        );
+        yield* client.appendRows({ table: "appended", rows: [] });
+        yield* client`CREATE TABLE append_required (id INTEGER NOT NULL)`;
+        const constraint = yield* client.appendRows({ table: "append_required", rows: [[null]] }).pipe(Effect.flip);
+        assert.strictEqual(constraint.reason._tag, "ConstraintError");
+        yield* client`CREATE SCHEMA append_schema`;
+        yield* client`CREATE TABLE append_schema.scoped (id INTEGER)`;
+        yield* client.appendRows({ table: "scoped", schema: "append_schema", rows: [[42]] });
+        assert.deepStrictEqual(yield* client`SELECT * FROM append_schema.scoped`, [{ id: 42 }]);
+      })
+    );
+
+    it.effect("discards buffered rows when a later append value fails", () =>
+      Effect.gen(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        yield* client`CREATE TABLE append_failed_batch (id INTEGER)`;
+        for (const bad of ["bad", Symbol("bad")]) {
+          const error = yield* client
+            .appendRows({ table: "append_failed_batch", rows: [[1], [bad]] })
+            .pipe(Effect.flip);
+          assertUnknownError(error, "appendRows");
+          assert.deepStrictEqual(yield* client`SELECT * FROM append_failed_batch`, []);
+        }
+        yield* client.appendRows({ table: "append_failed_batch", rows: [[1], [2]] });
+        assert.deepStrictEqual(yield* client`SELECT * FROM append_failed_batch ORDER BY id`, [{ id: 1 }, { id: 2 }]);
+      })
+    );
+
+    it.effect(
       "runs driver extras",
       Effect.fnUntraced(function* () {
         const client = yield* DuckDbClient.DuckDbClient;
@@ -817,7 +895,12 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
   });
 
-  it.layer(DuckDbClient.layerClient({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
+  it.layer(
+    Layer.mergeAll(DuckDbClient.layerClient({ databasePath: ":memory:" }), FileSystem.layerNoop({}), Path.layer),
+    {
+      timeout: "30 seconds",
+    }
+  )((it) => {
     it.effect(
       "layerClient provides DuckDbClient only",
       Effect.fnUntraced(function* () {
@@ -1059,4 +1142,240 @@ describe("DuckDbClient", { concurrent: false }, () => {
       }),
     { arbitrary: fcRuns(20) }
   );
+});
+
+describe("DuckDbClient reader connections", { concurrent: false }, () => {
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
+    it.effect(
+      "streams 10000 rows while every consumer statement uses the writer",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE reader_consumed (v BIGINT)`;
+        yield* sql<{ readonly v: number }>`SELECT range AS v FROM range(10000)`.stream.pipe(
+          Stream.runForEach((row) => sql`INSERT INTO reader_consumed VALUES (${row.v})`)
+        );
+        assert.deepStrictEqual(yield* sql`SELECT count(*) AS n, sum(v) AS total FROM reader_consumed`, [
+          { n: 10000, total: 49995000 },
+        ]);
+      })
+    );
+
+    it.effect(
+      "refuses a streamed write and returns the reader after failure",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE reader_write (v INTEGER)`;
+        const error = yield* sql`INSERT INTO reader_write VALUES (1) RETURNING v`.stream.pipe(
+          Stream.runCollect,
+          Effect.flip
+        );
+        assert.strictEqual(error.reason._tag, "AuthorizationError");
+        assert.deepStrictEqual(yield* sql`SELECT * FROM reader_write`, []);
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT 42 AS v`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+      })
+    );
+
+    it.effect(
+      "mirrors accumulated catalog and schema state, including failed text",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`ATTACH ':memory:' AS reader_a`;
+        yield* sql`CREATE SCHEMA reader_a.s`;
+        yield* sql`CREATE TABLE reader_a.s.t AS SELECT 42 AS v`;
+        // The original catalog deliberately has no schema s.
+        yield* sql.unsafe("USE reader_a; SET search_path = 's'");
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT v FROM t`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql`CREATE SCHEMA memory.s`;
+        yield* sql`CREATE TABLE memory.s.t AS SELECT 1 AS v`;
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT v FROM t`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql`USE memory`;
+        yield* sql.unsafe("USE reader_a; SELECT * FROM missing").pipe(Effect.flip);
+        assert.deepStrictEqual(
+          A.fromIterable(yield* sql`SELECT current_database() AS db`.stream.pipe(Stream.runCollect)),
+          [{ db: "reader_a" }]
+        );
+        yield* sql`USE memory`;
+        yield* sql`RESET search_path`;
+      })
+    );
+
+    it.effect(
+      "refreshes search_path after dropping and recreating the current schema",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE main.reader_drop_t AS SELECT 1 AS v`;
+        yield* sql`CREATE SCHEMA reader_drop`;
+        yield* sql`CREATE TABLE reader_drop.reader_drop_t AS SELECT 42 AS v`;
+        yield* sql`SET search_path='reader_drop'`;
+        const query = sql`SELECT v FROM reader_drop_t`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql.unsafe(
+          "DROP SCHEMA reader_drop CASCADE; CREATE SCHEMA reader_drop; CREATE TABLE reader_drop.reader_drop_t AS SELECT 99 AS v"
+        );
+        assert.deepStrictEqual(yield* query, [{ v: 1 }]);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`SET search_path='reader_drop'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 99 }]);
+        yield* sql`DROP SCHEMA IF EXISTS reader_drop CASCADE`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 1 }]);
+        yield* sql`RESET search_path`;
+      })
+    );
+
+    it.effect(
+      "mirrors TimeZone and Calendar and refreshes after failed SET text",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        const query = sql`SELECT date_trunc('day', TIMESTAMPTZ '2024-01-15 12:00:00+00') AS day, current_setting('TimeZone') AS zone, current_setting('Calendar') AS calendar`;
+        yield* sql`PRAGMA TimeZone = 'Asia/Tokyo'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`PRAGMA Calendar = 'japanese'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`SET TimeZone = 'Pacific/Kiritimati'`;
+        yield* sql`SET Calendar = 'japanese'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql.unsafe("SET TimeZone='Asia/Tokyo'; SELECT * FROM missing").pipe(Effect.flip);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        assert.deepStrictEqual(yield* sql`SELECT current_setting('TimeZone') AS zone`, [{ zone: "Asia/Tokyo" }]);
+        yield* sql`SET Calendar = 'gregorian'`;
+        yield* sql`SET TimeZone = 'UTC'`;
+      })
+    );
+
+    it.effect(
+      "refuses reader session changes without leaking them to the next lease",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        for (const text of [
+          "USE reader_a; SELECT 1",
+          "SET TimeZone='Asia/Tokyo'; SELECT 1",
+          "RESET TimeZone; SELECT 1",
+          "PRAGMA TimeZone='Asia/Tokyo'; SELECT 1",
+          "PRAGMA Calendar='japanese'; SELECT 1",
+          "PRAGMA search_path='s'; SELECT 1",
+          "COMMIT",
+          "/* before */ SET search_path='s'; SELECT 1",
+        ]) {
+          const error = yield* sql.unsafe(text).stream.pipe(Stream.runCollect, Effect.flip);
+          assert.strictEqual(error.reason._tag, "AuthorizationError");
+          const query = sql`SELECT current_database() AS db, current_setting('search_path') AS path, current_setting('TimeZone') AS zone`;
+          assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        }
+      })
+    );
+
+    it.effect(
+      "returns an interrupted reader lease to the pool",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        const started = yield* Deferred.make<void>();
+        const fiber = yield* sql`SELECT * FROM range(10000)`.stream.pipe(
+          Stream.runForEach(() => Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never))),
+          Effect.forkChild
+        );
+        yield* Deferred.await(started);
+        yield* Fiber.interrupt(fiber);
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT 7 AS v`.stream.pipe(Stream.runCollect)), [{ v: 7 }]);
+      })
+    );
+
+    it.effect(
+      "reads committed state beside the writer's open transaction",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE reader_isolation (v INTEGER)`;
+        yield* sql`INSERT INTO reader_isolation VALUES (1)`;
+        const beginRead = yield* Deferred.make<void>();
+        const finishedRead = yield* Deferred.make<void>();
+        const fiber = yield* Deferred.await(beginRead).pipe(
+          Effect.andThen(sql`SELECT v FROM reader_isolation`.stream.pipe(Stream.runCollect)),
+          Effect.tap(() => Deferred.succeed(finishedRead, undefined)),
+          Effect.forkChild
+        );
+        yield* sql.withTransaction(
+          Effect.gen(function* () {
+            yield* sql`INSERT INTO reader_isolation VALUES (2)`;
+            yield* Deferred.succeed(beginRead, undefined);
+            yield* Deferred.await(finishedRead);
+          })
+        );
+        assert.deepStrictEqual(A.fromIterable(yield* Fiber.join(fiber)), [{ v: 1 }]);
+      })
+    );
+
+    it.effect(
+      "recovers the reader snapshot after an aborted session-changing writer transaction",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        for (const finish of ["ROLLBACK", "COMMIT"]) {
+          yield* sql`BEGIN`;
+          yield* sql.unsafe("SET TimeZone='Asia/Tokyo'; SELECT CAST('bad' AS INTEGER)").pipe(Effect.flip);
+          yield* sql`SELECT 1`.stream.pipe(Stream.runCollect, Effect.flip);
+          if (finish === "COMMIT") yield* sql.unsafe(finish).pipe(Effect.flip);
+          else yield* sql.unsafe(finish);
+          const query = sql`SELECT current_setting('TimeZone') AS zone`;
+          assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+          yield* sql`SET TimeZone='UTC'`;
+        }
+      })
+    );
+
+    it.effect(
+      "refreshes session settings after a reserved writer stream, including failure",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        // The reservation must close before the next stream borrows a reader.
+        const successfulLease = yield* Scope.make();
+        yield* Effect.gen(function* () {
+          const writer = yield* sql.reserve;
+          yield* writer.executeStream("SET TimeZone='Asia/Tokyo'; SELECT 1", [], undefined).pipe(Stream.runDrain);
+        }).pipe(Scope.use(successfulLease));
+        const query = sql`SELECT current_setting('TimeZone') AS zone`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ zone: "Asia/Tokyo" }]);
+        const failedLease = yield* Scope.make();
+        yield* Effect.gen(function* () {
+          const writer = yield* sql.reserve;
+          yield* writer
+            .executeStream("SET TimeZone='Pacific/Kiritimati'; SELECT * FROM missing", [], undefined)
+            .pipe(Stream.runDrain, Effect.flip);
+        }).pipe(Scope.use(failedLease));
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [
+          { zone: "Pacific/Kiritimati" },
+        ]);
+        assert.deepStrictEqual(A.fromIterable(yield* sql.unsafe("").stream.pipe(Stream.runCollect)), []);
+        yield* sql`SET TimeZone='UTC'`;
+      })
+    );
+
+    it.effect(
+      "keeps temporary tables and macros on the writer",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TEMP TABLE reader_temp AS SELECT 1 AS v`;
+        yield* sql`CREATE TEMP MACRO reader_temp_macro() AS 1`;
+        assert.deepStrictEqual(yield* sql`SELECT * FROM reader_temp`, [{ v: 1 }]);
+        for (const text of ["SELECT * FROM reader_temp", "SELECT reader_temp_macro() AS v"]) {
+          const error = yield* sql.unsafe(text).stream.pipe(Stream.runCollect, Effect.flip);
+          assert.strictEqual(error.reason._tag, "SqlSyntaxError");
+        }
+      })
+    );
+  });
+
+  for (const config of [
+    { databasePath: ":memory:", readerConnections: 1 },
+    { databasePath: ":memory:", readerConnections: 1, timeZone: "Pacific/Kiritimati" },
+    { databasePath: ":memory:", readerConnections: 1, databaseOptions: { TimeZone: "Asia/Tokyo" } },
+  ]) {
+    it.layer(DuckDbClient.layer(config), { timeout: "30 seconds" })((it) => {
+      it.effect(
+        `matches the writer TimeZone at connect (${config.timeZone ?? config.databaseOptions?.TimeZone ?? "default"})`,
+        Effect.fnUntraced(function* () {
+          const sql = yield* DuckDbClient.DuckDbClient;
+          const query = sql`SELECT current_setting('TimeZone') AS zone`;
+          assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        })
+      );
+    });
+  }
 });

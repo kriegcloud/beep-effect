@@ -1,8 +1,9 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file asyncFunction:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 
 const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../../effected/cli");
 
@@ -44,36 +45,38 @@ describe("entrypoint boundary", () => {
 		assert.isTrue([...reachable].some((file) => /effected\/cli\/CliRuntime\.ts$/.test(file)));
 	});
 
-	it("the main entry exports the whole presentation layer, and only testing exports the test doubles", async () => {
-		const main = await import("../../effected/cli/index.ts");
-		const testing = await import("../../effected/cli/testing.ts");
-		assert.deepStrictEqual(Object.keys(main).sort(), [
-			"Cancelled",
-			"CliAudience",
-			"CliColor",
-			"CliDoc",
-			"CliEnv",
-			"CliExit",
-			"CliFailure",
-			"CliInteractive",
-			"CliLinks",
-			"CliLog",
-			"CliLogger",
-			"CliMessage",
-			"CliPrompt",
-			"CliRuntime",
-			"CliTheme",
-			"ConfigIssueRenderer",
-			"Doc",
-			"Fmt",
-			"GithubAnnotation",
-			"Glyphs",
-			"NotInteractive",
-			"Render",
-			"SchemaIssueRenderer",
-			"Status",
-			"Token",
-		]);
-		assert.deepStrictEqual(Object.keys(testing).sort(), ["CliTest", "TestTerminal"]);
-	});
+	it.effect("the main entry exports the whole presentation layer, and only testing exports the test doubles", () =>
+		Effect.gen(function* () {
+			const main = yield* Effect.promise(() => import("../../effected/cli/index.ts"));
+			const testing = yield* Effect.promise(() => import("../../effected/cli/testing.ts"));
+			assert.deepStrictEqual(Object.keys(main).sort(), [
+				"Cancelled",
+				"CliAudience",
+				"CliColor",
+				"CliDoc",
+				"CliEnv",
+				"CliExit",
+				"CliFailure",
+				"CliInteractive",
+				"CliLinks",
+				"CliLog",
+				"CliLogger",
+				"CliMessage",
+				"CliPrompt",
+				"CliRuntime",
+				"CliTheme",
+				"ConfigIssueRenderer",
+				"Doc",
+				"Fmt",
+				"GithubAnnotation",
+				"Glyphs",
+				"NotInteractive",
+				"Render",
+				"SchemaIssueRenderer",
+				"Status",
+				"Token",
+			]);
+			assert.deepStrictEqual(Object.keys(testing).sort(), ["CliTest", "TestTerminal"]);
+		}),
+	);
 });

@@ -272,7 +272,7 @@ const tableColumnCount: (rows: ReadonlyArray<TableRow>) => number = A.reduce(0, 
   N.max(max, tableRowColumnCount(row))
 );
 
-const markdownTableSeparatorCell = TableAlignment.$match({
+const markdownTableSeparatorCell = TableAlignment.match({
   left: () => ":---",
   center: () => ":---:",
   right: () => "---:",

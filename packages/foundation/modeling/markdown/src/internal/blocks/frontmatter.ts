@@ -21,8 +21,17 @@
 // - No other language hint is recognized (`---yaml`, `---toml`, `---coffee`
 //   are content, not fences) — gray-matter parity is capability parity at
 //   the `Frontmatter.schema` seam, not convention-for-convention emulation.
-// - A fence line is exactly the fence: no leading or trailing whitespace
-//   (micromark-extension-frontmatter's posture). Line terminators are
+// - A fence line is the fence followed by optional trailing spaces and tabs,
+//   on the opening and the closing line alike. That is
+//   micromark-extension-frontmatter@2.0.0's posture (its `openSequence` and
+//   `closeSequence` states consume `markdownSpace` before the line ending),
+//   so remark-frontmatter agrees; gray-matter trims the opening line's
+//   language hint and closes on any line that starts with the delimiter; and
+//   @changesets/parse 1.0.0 closes on `---` followed by any whitespace. A
+//   widening of the upstream kit grammar, which required the exact fence.
+//   Leading indentation is still not a fence: micromark (`Indent not
+//   allowed`) and gray-matter (an offset-0 `startsWith` and a `\n---` close)
+//   reject it, and only @changesets/parse accepts it. Line terminators are
 //   already stripped by the preprocessor, so CRLF sources need no special
 //   casing here.
 // - No closing fence, no frontmatter: the scan returns null and the
@@ -86,6 +95,18 @@ const FENCES = HashMap.fromIterable<string, FenceRule>([
   ["+++", { format: "toml", close: "+++" }],
   ["---json", { format: "json", close: "---" }],
 ]);
+
+/** Trailing spaces and tabs after a fence (micromark's `markdownSpace`; no other whitespace). */
+const reFenceTrailingSpace = /[ \t]+$/;
+
+/** A fence line's fence spelling: the line without its trailing spaces and tabs. */
+const fenceSpelling = Str.replace(reFenceTrailingSpace, "");
+
+/** The fence rule a line opens, when the line is an opening fence. */
+const openingRule = (line: string): FenceRule | undefined => O.getOrUndefined(HashMap.get(FENCES, fenceSpelling(line)));
+
+/** Whether `line` is `rule`'s closing fence, trailing spaces and tabs allowed. */
+const isClosingFence = (line: string, rule: FenceRule): boolean => fenceSpelling(line) === rule.close;
 
 /**
  * A successful capture: everything the parser needs to skip and materialize.
@@ -198,14 +219,13 @@ export const scanFrontmatter: {
   (text: string): (lines: ReadonlyArray<SourceLine.Encoded>) => FrontmatterCapture | null;
 } = dual(2, (lines: ReadonlyArray<SourceLine.Encoded>, text: string): FrontmatterCapture | null => {
   const opening = lines[0];
-  const rule =
-    opening === undefined || opening.start !== 0 ? undefined : O.getOrUndefined(HashMap.get(FENCES, opening.text));
+  const rule = opening === undefined || opening.start !== 0 ? undefined : openingRule(opening.text);
   if (rule === undefined) {
     return null;
   }
   for (let closeIndex = 1; closeIndex < lines.length; closeIndex += 1) {
     const closing = A.getUnsafe(lines, closeIndex);
-    if (closing.text === rule.close) {
+    if (isClosingFence(closing.text, rule)) {
       return FrontmatterCapture.make({
         format: rule.format,
         value: interiorValue(lines, closeIndex, text),
@@ -251,7 +271,7 @@ export type RawNewline = typeof RawNewline.Type;
  * ORIGINAL source, no preprocessing (no U+0000 replacement — the value slice
  * is verbatim bytes; a fence line containing U+0000 simply is not a fence,
  * matching the preprocessed scan where the replacement character breaks the
- * exact match the same way).
+ * fence match the same way).
  *
  * **Example** (Validate RawFrontmatterCapture data)
  *
@@ -327,7 +347,7 @@ const lineBounds = (source: string, from: number): readonly [lineEnd: number, ne
 };
 
 /**
- * Scan the lines after the opening fence for `rule`'s exact closing fence,
+ * Scan the lines after the opening fence for `rule`'s closing fence,
  * capturing everything between the two.
  */
 const closingFence = (
@@ -338,7 +358,7 @@ const closingFence = (
 ): O.Option<RawFrontmatterCapture> => {
   for (let lineStart = valueStart; ; ) {
     const [lineEnd, next] = lineBounds(source, lineStart);
-    if (Str.slice(lineStart, lineEnd)(source) === rule.close) {
+    if (isClosingFence(Str.slice(lineStart, lineEnd)(source), rule)) {
       return O.some(
         RawFrontmatterCapture.make({
           format: rule.format,
@@ -391,10 +411,10 @@ const closingFence = (
  */
 export const scanRawFrontmatter = (source: string): O.Option<RawFrontmatterCapture> => {
   // The opening fence line: source up to the first terminator. It must be
-  // exactly a fence and must be terminated — a closing fence needs
-  // somewhere to live.
+  // a fence (trailing spaces and tabs allowed) and must be terminated — a
+  // closing fence needs somewhere to live.
   const [openingEnd, valueStart] = lineBounds(source, 0);
-  const rule = O.getOrUndefined(HashMap.get(FENCES, Str.slice(0, openingEnd)(source)));
+  const rule = openingRule(Str.slice(0, openingEnd)(source));
   if (rule === undefined || valueStart === openingEnd) {
     return O.none();
   }

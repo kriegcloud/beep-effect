@@ -1064,7 +1064,7 @@ export const StorageServiceLive = Layer.unwrap(
       pathPrefix: prefix,
     });
 
-    return StorageBackend.$match(type, {
+    return StorageBackend.match(type, {
       gcs: () => Layer.effect(StorageService, makeGcsStore(storageConfig)),
       local: () => makeLocalStorageServiceLayer(storageConfig),
       memory: () => Layer.effect(StorageService, makeMemoryStore),

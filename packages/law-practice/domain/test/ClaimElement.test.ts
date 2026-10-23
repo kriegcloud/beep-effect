@@ -245,7 +245,7 @@ const validFindingInput = Arbitrary.map(
     const referring = { path: `${claimNumber}.a`, anchor: anchorAt(offset, `the ${referringQuote}`) };
     const introducing = { path: `${claimNumber}.b`, anchor: anchorAt(offset, `a ${firstQuote}`) };
     const other = { path: `${claimNumber}.c`, anchor: anchorAt(offset, `a ${secondQuote}`) };
-    return AntecedentFindingKind.$match(kind, {
+    return AntecedentFindingKind.match(kind, {
       "missing-antecedent": () => ({ kind, rule, referring, chain }),
       "ambiguous-antecedent": () => ({ kind, rule, referring, chain, candidates: [introducing, other] }),
       "antecedent-outside-chain": () => ({ kind, rule, referring, chain, introducing }),

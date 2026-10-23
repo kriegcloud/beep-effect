@@ -2492,6 +2492,27 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/github-reporting": {
+      "name": "@beep/github-reporting",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/managed-section": "workspace:^",
+        "@beep/markdown": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/github": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "micromark": "catalog:",
+        "micromark-extension-gfm": "catalog:",
+      },
+    },
     "packages/foundation/modeling/glob": {
       "name": "@beep/glob",
       "version": "0.0.0",
@@ -2652,6 +2673,7 @@
       "dependencies": {
         "@beep/html": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -2850,6 +2872,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
@@ -3583,6 +3606,26 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/tooling/library/repo-tsconfig": {
+      "name": "@beep/repo-tsconfig",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/tsconfig": "workspace:^",
+        "@beep/walker": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/tooling/library/repo-utils": {
       "name": "@beep/repo-utils",
       "version": "0.0.0",
@@ -3746,6 +3789,7 @@
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/obs": "workspace:^",
@@ -3759,6 +3803,7 @@
         "@beep/repo-ai-metrics": "workspace:^",
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-docgen": "workspace:^",
+        "@beep/repo-tsconfig": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@beep/runpod": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -3787,7 +3832,6 @@
         "effect": "catalog:",
         "fast-xml-parser": "catalog:",
         "fast-xml-validator": "catalog:",
-        "get-tsconfig": "catalog:",
         "handlebars": "catalog:",
         "image-size": "catalog:",
         "is-unsafe": "2.0.2",
@@ -3803,6 +3847,7 @@
         "@beep/fc-runs": "workspace:^",
         "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
+        "@changesets/parse": "catalog:",
         "@commitlint/is-ignored": "catalog:",
         "@effect/platform-node-shared": "catalog:",
         "@effect/vitest": "catalog:",
@@ -3946,6 +3991,7 @@
         "@beep/github": "workspace:^",
         "@beep/github-commands": "workspace:^",
         "@beep/github-references": "workspace:^",
+        "@beep/github-reporting": "workspace:^",
         "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
@@ -3965,6 +4011,7 @@
         "@beep/pretext": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/rdf": "workspace:^",
+        "@beep/repo-tsconfig": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -4062,6 +4109,7 @@
     "@biomejs/biome": "2.5.6",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
+    "@changesets/parse": "^1.0.0",
     "@chenglou/pretext": "1.0.0",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
@@ -4224,7 +4272,6 @@
     "fflate": "^0.8.3",
     "framer-motion": "^14.5.0",
     "frimousse": "0.4.0",
-    "get-tsconfig": "4.14.3",
     "graphology": "0.26.0",
     "handlebars": "^4.7.10",
     "image-size": "^2.0.4",
@@ -4538,6 +4585,8 @@
 
     "@beep/github-references": ["@beep/github-references@workspace:packages/foundation/modeling/github-references"],
 
+    "@beep/github-reporting": ["@beep/github-reporting@workspace:packages/foundation/modeling/github-reporting"],
+
     "@beep/glob": ["@beep/glob@workspace:packages/foundation/modeling/glob"],
 
     "@beep/gov-legal-mcp": ["@beep/gov-legal-mcp@workspace:packages/drivers/gov-legal-mcp"],
@@ -4687,6 +4736,8 @@
     "@beep/repo-configs": ["@beep/repo-configs@workspace:packages/tooling/policy-pack/repo-configs"],
 
     "@beep/repo-docgen": ["@beep/repo-docgen@workspace:packages/tooling/tool/docgen"],
+
+    "@beep/repo-tsconfig": ["@beep/repo-tsconfig@workspace:packages/tooling/library/repo-tsconfig"],
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:packages/tooling/library/repo-utils"],
 

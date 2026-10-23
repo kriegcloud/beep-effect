@@ -6,7 +6,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { DuckDb } from "@beep/duckdb";
 import { $LawPracticeServerId } from "@beep/identity/packages";
 import { KgAttributionSource, PracticeKgEpistemicStatus } from "@beep/law-practice-domain/values";
 import {
@@ -29,7 +29,6 @@ import * as Str from "effect/String";
 import { PracticeKgProjectionError } from "./PracticeKg.errors.ts";
 import { PracticeKgBundle } from "./PracticeKg.host.ts";
 import { PracticeKgDocketRegisterRow, practiceKgRegisterClientNames } from "./PracticeKg.register.ts";
-import { withDuckDb } from "./PracticeKg.rows.ts";
 import { PracticeKgEdgeRow, PracticeKgNodeRow } from "./PracticeKg.schemas.ts";
 import type { PracticeKgMatterLookupRequest } from "@beep/law-practice-use-cases/server";
 
@@ -341,57 +340,53 @@ INSERT INTO matter_dockets VALUES (
  * import * as Effect from "effect/Effect";
  * import { PracticeKgMatterTables, writeMatterTables } from "../../src/PracticeKg.matters.ts"
  *
- * const write = writeMatterTables("/corpus/staging/practice-kg-bundle/practice.duckdb")(
+ * const write = writeMatterTables(
  *   PracticeKgMatterTables.make({ dockets: [], matters: [] })
  * )
  * console.log(Effect.isEffect(write)) // true
  * ```
  *
- * @param databasePath - Bundle DuckDB written earlier in the same build.
- * @returns A function from matter tables to the write effect.
- * @effects Creates and fills two tables in the bundle DuckDB.
+ * @param tables - Matter rows to write through the caller's DuckDb service.
+ * @returns The write effect.
+ * @effects Creates and fills two tables through the injected read-write DuckDb service.
  * @category use-cases
  * @since 0.0.0
  */
-export const writeMatterTables = (databasePath: string) =>
-  Effect.fn("PracticeKg.writeMatterTables")(function* (tables: PracticeKgMatterTables) {
-    return yield* Effect.gen(function* () {
-      const db = yield* DuckDb;
-      yield* Effect.forEach(createMatterTables, (statement) => db.run(statement), { discard: true });
-      yield* Effect.forEach(
-        tables.matters,
-        (row) =>
-          db.run(insertMatter, [
-            row.familyKey,
-            row.family,
-            row.client,
-            row.clientName,
-            row.attributionSource,
-            row.epistemicStatus,
-            row.docketCount,
-            row.documentCount,
-          ]),
-        { discard: true }
-      );
-      yield* Effect.forEach(
-        tables.dockets,
-        (row) =>
-          db.run(insertMatterDocket, [
-            row.docketKey,
-            row.docket,
-            row.familyKey,
-            row.epistemicStatus,
-            row.documentCount,
-            A.join(row.applicationNumbers, listSeparator),
-            A.join(row.patentNumbers, listSeparator),
-          ]),
-        { discard: true }
-      );
-    }).pipe(
-      withDuckDb(DuckDbConnectionOptions.make({ databasePath })),
-      PracticeKgProjectionError.mapError(`Failed writing matter tables to "${databasePath}".`)
+export const writeMatterTables = Effect.fn("PracticeKg.writeMatterTables")(function* (tables: PracticeKgMatterTables) {
+  return yield* Effect.gen(function* () {
+    const db = yield* DuckDb;
+    yield* Effect.forEach(createMatterTables, (statement) => db.run(statement), { discard: true });
+    yield* Effect.forEach(
+      tables.matters,
+      (row) =>
+        db.run(insertMatter, [
+          row.familyKey,
+          row.family,
+          row.client,
+          row.clientName,
+          row.attributionSource,
+          row.epistemicStatus,
+          row.docketCount,
+          row.documentCount,
+        ]),
+      { discard: true }
     );
-  });
+    yield* Effect.forEach(
+      tables.dockets,
+      (row) =>
+        db.run(insertMatterDocket, [
+          row.docketKey,
+          row.docket,
+          row.familyKey,
+          row.epistemicStatus,
+          row.documentCount,
+          A.join(row.applicationNumbers, listSeparator),
+          A.join(row.patentNumbers, listSeparator),
+        ]),
+      { discard: true }
+    );
+  }).pipe(PracticeKgProjectionError.mapError("Failed writing matter tables."));
+});
 
 class MatterHitRow extends S.Opaque<MatterHitRow, { readonly brand: unique symbol }>()(
   S.Struct({

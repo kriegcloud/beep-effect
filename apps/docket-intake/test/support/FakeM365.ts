@@ -104,7 +104,9 @@ export const FakeM365Layer = Layer.effect(
       getListItem: unused,
       getMailFolder: unused,
       getMessage: Effect.fnUntraced(function* (request) {
-        return yield* run(`getMessage ${request.messageId}`, (script) => script.getMessage);
+        // The projection is recorded too: a read meant to skip the body must say so.
+        const select = O.getOrElse(request.select, () => "-");
+        return yield* run(`getMessage ${request.messageId} select=${select}`, (script) => script.getMessage);
       }),
       getMessageAuthoredText: unused,
       getSite: unused,

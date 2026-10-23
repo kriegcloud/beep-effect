@@ -610,7 +610,7 @@ const staticApiEntryFromSwitch = (
         ruleId: "SFV4-static-api",
         line,
         owner,
-        reason: `Schema-modeled discriminator switch "${expressionText}" should use schema-derived .match/.guards or LiteralKit.$match when semantics match.`,
+        reason: `Schema-modeled discriminator switch "${expressionText}" should use schema-derived .match/.guards or LiteralKit.match when semantics match.`,
       });
     })
   );
@@ -1092,7 +1092,7 @@ const SchemaUtilsDefaultWrapper = LiteralKit([
   })
 );
 const isSchemaUtilsDefaultWrapper = S.is(SchemaUtilsDefaultWrapper);
-const defaultWrapperUpstreamForm = SchemaUtilsDefaultWrapper.$match({
+const defaultWrapperUpstreamForm = SchemaUtilsDefaultWrapper.match({
   optionalKeyWithDefault: () => "S.withDecodingDefaultTypeKey(Effect.succeed(value))",
   withEncodeDefault: () => "S.withDecodingDefaultTypeKey(Effect.sync(thunk))",
   boolWithDefault: () => "S.Boolean.pipe(S.withDecodingDefaultTypeKey(Effect.succeed(value)))",
@@ -1106,7 +1106,7 @@ const OpaqueSchemaWrapper = LiteralKit(["Defect", "OpaqueUnknown"]).pipe(
   })
 );
 const isOpaqueSchemaWrapper = S.is(OpaqueSchemaWrapper);
-const opaqueWrapperUpstreamForm = OpaqueSchemaWrapper.$match({
+const opaqueWrapperUpstreamForm = OpaqueSchemaWrapper.match({
   Defect: () => "S.Defect(options)",
   OpaqueUnknown: () => "S.Unknown",
 });
@@ -1257,7 +1257,7 @@ const wrapperModuleOf = (moduleSpecifier: string): O.Option<ParityWrapperModule>
 const wrapperExportedBy =
   (member: string) =>
   (module: ParityWrapperModule): O.Option<ParityWrapper> =>
-    ParityWrapperModule.$match(module, {
+    ParityWrapperModule.match(module, {
       "schema-root": () => opaqueWrapperNamed(member),
       "schema-utils": () => schemaUtilsWrapper(member),
       opaque: () => opaqueWrapperNamed(member),

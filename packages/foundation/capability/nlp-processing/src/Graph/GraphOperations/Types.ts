@@ -453,7 +453,7 @@ export const OperationCost = Complexity.mapMembers(
       (cost: OperationCost, nodeCount: number): OperationCost;
       (nodeCount: number): (cost: OperationCost) => OperationCost;
     } = dual(2, (cost: OperationCost, nodeCount: number): OperationCost => {
-      const timeMultiplier = Complexity.$match(cost.complexity, {
+      const timeMultiplier = Complexity.match(cost.complexity, {
         "O(1)": () => 1,
         "O(n)": () => nodeCount,
         "O(n log n)": () => nodeCount * Math.log2(nodeCount),

@@ -33,8 +33,6 @@ import {
 import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.ts";
 import { RuntimeFixtureScenarioId } from "./ProfessionalRuntime.values.ts";
 
-// cspell:words Priya Raman
-
 const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.fixtures");
 
 class RuntimeFixtureEmailInput extends S.Opaque<RuntimeFixtureEmailInput, { readonly brand: unique symbol }>()(
@@ -571,7 +569,7 @@ const runWealthCashRequest = (input: RuntimeFixtureInput): CandidateOutputSet =>
 
 const fixtureRunnerForScenario: (
   scenarioId: RuntimeFixtureScenarioId
-) => (input: RuntimeFixtureInput) => CandidateOutputSet = RuntimeFixtureScenarioId.$match({
+) => (input: RuntimeFixtureInput) => CandidateOutputSet = RuntimeFixtureScenarioId.match({
   "law-patent-intake": () => runLawPatentIntake,
   "wealth-cash-request": () => runWealthCashRequest,
 });

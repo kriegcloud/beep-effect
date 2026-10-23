@@ -228,7 +228,7 @@ const F1FixtureFields = S.Struct({
 
 const F1FixtureExpectationCheck = S.makeFilter(
   (fixture: typeof F1FixtureFields.Type) =>
-    FixtureExpectation.$match(fixture.expectation, {
+    FixtureExpectation.match(fixture.expectation, {
       parses: () => O.isNone(fixture.degradedKind),
       degraded: () => O.isSome(fixture.degradedKind),
     }),

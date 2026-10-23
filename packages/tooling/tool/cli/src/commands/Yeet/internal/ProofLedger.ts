@@ -161,7 +161,7 @@ const sameReuseIdentity = (left: ProofInputDigest, right: ProofInputDigest): boo
 const miss = (key: string, reason: ProofReuseMiss["reason"]): ProofReuseMiss => ProofReuseMiss.make({ key, reason });
 
 const decideExactFact = (fact: ProofFact, now: DateTime.DateTime): ProofReuseDecision =>
-  ProofOutcome.$match(fact.outcome, {
+  ProofOutcome.match(fact.outcome, {
     failed: () => miss(fact.key.key, "prior-failed"),
     passed: () =>
       factExpiredAt(fact, now)

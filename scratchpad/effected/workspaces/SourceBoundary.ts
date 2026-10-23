@@ -1,4 +1,3 @@
-// biome-ignore-all lint/suspicious/noTemplateCurlyInString: the shipped fixtures are source text, and a template substitution inside one is the point
 import * as P from "effect/Predicate";
 import { dual, pipe } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";

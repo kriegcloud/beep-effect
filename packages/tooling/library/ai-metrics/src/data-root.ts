@@ -452,7 +452,7 @@ export const aiMetricsStateRoot = (stateHome: string): string => `${stateHome}/b
  */
 export const resolveAiMetricsDataRoot = (input: AiMetricsDataRootInput): O.Option<AiMetricsDataRoot> => {
   const rung = (path: string, source: AiMetricsDataRootSource): AiMetricsDataRootRung => ({ path, source });
-  const targetRung: O.Option<AiMetricsDataRootRung> = AiMetricsDeployTarget.$match(input.target, {
+  const targetRung: O.Option<AiMetricsDataRootRung> = AiMetricsDeployTarget.match(input.target, {
     dankserver: () => O.some(rung(dankserverDataRoot, AiMetricsDataRootSource.Enum["target-default"])),
     local: () =>
       pipe(

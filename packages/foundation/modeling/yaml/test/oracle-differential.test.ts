@@ -13,6 +13,10 @@
 // - Oracle: `yaml@2.9.0` (`YAML.parse` defaults; `parseAllDocuments` for the
 //   multi-document case)
 // - Authored: 2026-08-12, offline, in a scratch script outside the test run
+// - Plain-scalar continuation group: authored 2026-10-23 against `yaml@2.9.1`
+//   the same way (effected-promotion wave 3, W3-d)
+// - Compact-sequence and block-scalar-item groups: authored 2026-10-23
+//   against `yaml@2.9.1` the same way (#2131)
 // - Case matrix extended from the savvy-web-systems dogfood sweep of the same
 //   date (51 cases, double-oracle: yaml@2.9.0 + js-yaml@4.3.1, a case counted
 //   only where both agreed)
@@ -291,6 +295,143 @@ const realWorldCases: ReadonlyArray<OracleCase> = [
   },
 ];
 
+// YAML 1.2 s-ns-plain-next-line admits any ns-plain-char at the start of a
+// continuation line, so a quote or another indicator there is scalar text.
+// The engine used to lex such a line as a new quoted scalar, block scalar or
+// flow collection, which split the value into stray keys or swallowed the
+// following siblings, with no diagnostic.
+const plainContinuationCases: ReadonlyArray<OracleCase> = [
+  { name: "double-quote-led continuation", input: 'a: x\n  "y"\n', expected: { a: 'x "y"' } },
+  { name: "single-quote-led continuation", input: "a: x\n  'y'\n", expected: { a: "x 'y'" } },
+  {
+    name: "quote-led continuation with flow indicators, then a sibling",
+    input: 'a: x,\n  "y"];\nb: 1\n',
+    expected: { a: 'x, "y"];', b: 1 },
+  },
+  { name: "sequence entry continuation", input: '- x\n  "y"\n', expected: ['x "y"'] },
+  { name: "compact mapping continuation", input: '- a: x\n    "b"\n', expected: [{ a: 'x "b"' }] },
+  { name: "unclosed quote spanning two continuation lines", input: 'a: x\n  "y\n  z"\n', expected: { a: 'x "y z"' } },
+  { name: "blank line before the continuation", input: 'a: x\n\n  "y"\n', expected: { a: 'x\n"y"' } },
+  { name: "document-root continuation", input: 'x\n"y"\n', expected: 'x "y"' },
+  { name: "explicit key continuation", input: '? x\n  "y"\n: z\n', expected: { 'x "y"': "z" } },
+  { name: "block-scalar indicator continuation", input: "a: x\n  | y\nb: 1\n", expected: { a: "x | y", b: 1 } },
+  { name: "bare block-scalar indicator continuation", input: "a: x\n  |\nb: 1\n", expected: { a: "x |", b: 1 } },
+  { name: "flow-opening continuation keeps the sibling", input: "a: x\n  [y\nb: 1\n", expected: { a: "x [y", b: 1 } },
+  { name: "explicit-key indicator continuation", input: "a: x\n  ? y\nb: 1\n", expected: { a: "x ? y", b: 1 } },
+  { name: "flow sequence continuation", input: "[x\n 'y', z]\n", expected: ["x 'y'", "z"] },
+  { name: "flow mapping continuation", input: '{a: x\n "b"}\n', expected: { a: 'x "b"' } },
+  { name: "CRLF continuation", input: 'a: x\r\n  "y"\r\nb: 1\r\n', expected: { a: 'x "y"', b: 1 } },
+  {
+    name: "tab separation after the indentation",
+    input: 'a: x\n  \t"y"\nb: 1\n',
+    expected: { a: 'x "y"', b: 1 },
+  },
+  { name: "tab separation after a one-space indentation", input: "a: x\n \t'y'\n", expected: { a: "x 'y'" } },
+  {
+    name: "tab separation before a block-scalar indicator",
+    input: "a: x\n  \t|y\nb: 1\n",
+    expected: { a: "x |y", b: 1 },
+  },
+  { name: "tab separation in a compact mapping", input: '- a: x\n   \t"b"\n', expected: [{ a: 'x "b"' }] },
+  { name: "tab separation in a flow sequence", input: '[x\n \t"y"]\n', expected: ['x "y"'] },
+  { name: "tab-led document-root continuation", input: 'x\n\t"y"\n', expected: 'x "y"' },
+  {
+    name: "flow mapping key spanning a quote-led line",
+    input: '{x\n "y"\n : 1}\n',
+    expected: { 'x "y"': 1 },
+  },
+  {
+    name: "flow mapping key spanning a quote-led line with trailing text",
+    input: '{x\n "y" z\n : 1}\n',
+    expected: { 'x "y" z': 1 },
+  },
+  { name: "quoted key at the mapping indent (control)", input: 'a: x\n"y": 1\n', expected: { a: "x", y: 1 } },
+  {
+    name: "quoted key in a compact mapping (control)",
+    input: '- a: x\n  "b": 1\n',
+    expected: [{ a: "x", b: 1 }],
+  },
+  {
+    name: "quoted key in a nested mapping (control)",
+    input: 'a:\n  b: x\n  "c": 1\n',
+    expected: { a: { b: "x", c: 1 } },
+  },
+];
+
+// YAML 1.2 lets a block mapping value be a block sequence at the mapping's
+// own indent (l+block-sequence(n-1), "compact" indentation). Inside a
+// sequence item the mapping's keys sit past the dash, and the lexer opens the
+// scope only for the first such sequence, so a second key with a compact
+// sequence value failed with InvalidIndentation (#2131).
+const compactSequenceInItemCases: ReadonlyArray<OracleCase> = [
+  { name: "the #2131 repro", input: "- a:\n  - 0\n  b:\n  - false\n", expected: [{ a: [0], b: [false] }] },
+  {
+    name: "a third key with a compact sequence",
+    input: "- a:\n  - 0\n  b:\n  - false\n  c:\n  - x\n  - y\n",
+    expected: [{ a: [0], b: [false], c: ["x", "y"] }],
+  },
+  {
+    name: "a comment between the keys",
+    input: "- a:\n  - 0\n  # note\n  b:\n  - false\n",
+    expected: [{ a: [0], b: [false] }],
+  },
+  {
+    name: "flow values beside compact sequences",
+    input: "- a:\n  - 0\n  b: [1, 2]\n  c:\n  - {x: 1}\n",
+    expected: [{ a: [0], b: [1, 2], c: [{ x: 1 }] }],
+  },
+  { name: "under a top-level mapping", input: "p:\n  - a:\n    - 0\n    b: 1\n", expected: { p: [{ a: [0], b: 1 }] } },
+  {
+    name: "under a top-level mapping, two compact sequences",
+    input: "p:\n  - a:\n    - 0\n    b:\n    - 1\n",
+    expected: { p: [{ a: [0], b: [1] }] },
+  },
+  { name: "inside a nested sequence", input: "- - a:\n    - 0\n    b:\n    - 1\n", expected: [[{ a: [0], b: [1] }]] },
+  {
+    name: "mapping items inside the compact sequence",
+    input: "- a:\n  - x: 1\n    y: 2\n  b:\n  - 3\n",
+    expected: [{ a: [{ x: 1, y: 2 }], b: [3] }],
+  },
+  {
+    name: "a deeper sequence after a compact one",
+    input: "- a:\n  - 0\n  b:\n   - 1\n",
+    expected: [{ a: [0], b: [1] }],
+  },
+  {
+    name: "two sequence items",
+    input: "- a:\n  - 0\n  b:\n  - 1\n- c:\n  - 2\n  d:\n  - 3\n",
+    expected: [
+      { a: [0], b: [1] },
+      { c: [2], d: [3] },
+    ],
+  },
+  { name: "wide entry indentation", input: "-   a:\n    - 0\n    b:\n    - 1\n", expected: [{ a: [0], b: [1] }] },
+];
+
+// A block scalar's token swallows the line breaks of its body, so the
+// implicit-mapping lookahead for a sequence item ran past it and took the
+// next line's `key:` for the item's own value indicator: `a:\n- >-\n  x\nb: 1`
+// parsed as `{a: [{x: null, b: 1}]}` with no diagnostic, and the indented
+// spelling failed (found by the #2131 corpus differential).
+const blockScalarItemCases: ReadonlyArray<OracleCase> = [
+  { name: "folded strip item before a sibling", input: "a:\n- >-\n  x\nb: 1\n", expected: { a: ["x"], b: 1 } },
+  { name: "literal item before a flow sibling", input: "a:\n- |\n  x\nb: []\n", expected: { a: ["x\n"], b: [] } },
+  {
+    name: "two folded items before a sibling",
+    input: "a:\n- >-\n  x\n- >-\n  y\nb: 1\n",
+    expected: { a: ["x", "y"], b: 1 },
+  },
+  { name: "indented sequence before a sibling", input: "a:\n  - >-\n    x\nb: 1\n", expected: { a: ["x"], b: 1 } },
+  { name: "tagged item before a sibling", input: "a:\n- !!str >-\n  x\nb: 1\n", expected: { a: ["x"], b: 1 } },
+  { name: "anchored item before a sibling", input: "a:\n- &k |\n  x\nb: 1\n", expected: { a: ["x\n"], b: 1 } },
+  { name: "key-shaped body line stays scalar text", input: "- |\n  x\n  y: 1\n", expected: ["x\ny: 1\n"] },
+  {
+    name: "keep-chomp item in an indented sequence",
+    input: "m:\n  - |+\n    text\n\nb: 1\n",
+    expected: { m: ["text\n\n"], b: 1 },
+  },
+];
+
 const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["controls", controlCases],
   ["dedent after a trailing comment", dedentCases],
@@ -299,6 +440,9 @@ const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["flow and block-scalar boundaries", flowAndBlockScalarCases],
   ["empty values before a sibling key", emptyValueCases],
   ["real-world shapes", realWorldCases],
+  ["plain-scalar continuation lines", plainContinuationCases],
+  ["compact sequence values in sequence-item mappings", compactSequenceInItemCases],
+  ["block scalar sequence items before a sibling", blockScalarItemCases],
 ];
 
 describe("oracle-differential (yaml@2.9.0 semantic expectations)", () => {

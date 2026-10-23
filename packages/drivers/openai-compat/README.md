@@ -13,6 +13,7 @@ bun add @beep/openai-compat
 
 ```ts
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import {
   OpenAiCompatChatCompletionRequest,
@@ -24,7 +25,7 @@ const program = Effect.gen(function* () {
   const client = yield* OpenAiCompatClient
 
   return yield* client.createChatCompletion(
-    new OpenAiCompatChatCompletionRequest({
+    OpenAiCompatChatCompletionRequest.make({
       messages: [{ content: "Hello", role: "user" }],
       model: "gpt-compatible"
     })
@@ -32,8 +33,8 @@ const program = Effect.gen(function* () {
 })
 
 const layer = OpenAiCompatClient.makeLayer(
-  new OpenAiCompatClientOptions({
-    apiKey: Redacted.make("test-key"),
+  OpenAiCompatClientOptions.make({
+    apiKey: O.some(Redacted.make("test-key")),
     apiUrl: "https://provider.example/v1"
   })
 )
@@ -58,22 +59,24 @@ Effect AI `LanguageModel` service:
 ```ts
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
-import { makeFromProvider } from "@beep/openai-compat"
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { OpenAiCompatAssistantMessage, OpenAiCompatChatCompletionChoice, OpenAiCompatChatCompletionResponse, makeFromProvider } from "@beep/openai-compat"
 
 const languageModel = makeFromProvider({
   model: "gpt-compatible",
   moduleName: "CompatProvider",
   provider: {
     createChatCompletion: () =>
-      Effect.succeed({
+      Effect.succeed(OpenAiCompatChatCompletionResponse.make({
         choices: [
-          {
-            finish_reason: "stop",
-            index: 0,
-            message: { content: "Hello", role: "assistant" }
-          }
+          OpenAiCompatChatCompletionChoice.make({
+            finish_reason: O.some("stop"),
+            index: S.Natural.make(0),
+            message: O.some(OpenAiCompatAssistantMessage.make({ content: O.some("Hello") }))
+          })
         ]
-      }),
+      })),
     streamChatCompletion: () => Stream.empty
   }
 })
@@ -98,7 +101,7 @@ message, tool-call, response-format, usage models, and
 ```ts
 import { OpenAiCompatChatCompletionRequest } from "@beep/openai-compat"
 
-const request = new OpenAiCompatChatCompletionRequest({
+const request = OpenAiCompatChatCompletionRequest.make({
   messages: [{ content: "Hello", role: "user" }],
   model: "gpt-compatible"
 })

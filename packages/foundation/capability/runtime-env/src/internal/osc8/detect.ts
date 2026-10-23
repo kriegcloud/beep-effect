@@ -330,7 +330,7 @@ const explanationFor = (
   terminalVersion: O.Option<string>,
   wrapperName: string
 ): string =>
-  Osc8Reason.$match(reason, {
+  Osc8Reason.match(reason, {
     "force-env": () => "FORCE_HYPERLINK env var is set",
     "no-hyperlink-env": () => "NO_HYPERLINK env var is set",
     "no-color-env": () => "NO_COLOR env var is set",

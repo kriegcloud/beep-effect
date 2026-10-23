@@ -69,7 +69,11 @@ Mount-only chat configuration is grouped so React rerenders cannot produce a
 half-live plugin/config state:
 
 ```tsx
-import { ChatComposer } from "@beep/editor/chat/chat-composer";
+import { ChatComposer, type ChatComposerMountConfig, type ChatComposerProps } from "@beep/editor/chat/chat-composer";
+
+declare const upload: NonNullable<ChatComposerMountConfig["onAttach"]>;
+declare const dispatchTurn: NonNullable<ChatComposerMountConfig["onSend"]>;
+declare const findMentions: NonNullable<ChatComposerProps["mentionSource"]>;
 
 export const Reply = () => (
   <ChatComposer

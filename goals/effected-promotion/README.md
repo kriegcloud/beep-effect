@@ -35,9 +35,10 @@ Use this command for execution-capable sessions:
 ## Current Phase
 
 P1 Implement — waves 1a (#1956), 1b (#1981), 2a (#1988), 2b (#1992, #1994,
-#2002) and 2c (#2016, D-37) merged. Wave 2d-1 (`@beep/markdown`, D-38..D-46)
-is in review; 2d-2 (`@beep/md` `Md.syntax`/`Md.parse`) and 2d-A (four adopter
-sites) follow in parallel, then the evidence-gated 2d-3 writer fixes. P0
+#2002), 2c (#2016, D-37) and 2d-1 (#2102, `@beep/markdown`, D-38..D-46)
+merged. 2d-A (four adopter sites, D-47) merged in #2114. Wave 2d-2 (`@beep/md`
+`Md.syntax`/`Md.parse`, D-48..D-51) is in review, then the evidence-gated 2d-3
+writer fixes. P0
 research is complete:
 see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md),
 [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md)

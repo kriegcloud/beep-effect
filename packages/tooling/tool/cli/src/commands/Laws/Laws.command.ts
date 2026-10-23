@@ -22,6 +22,8 @@ import { AllowlistCheckOptions, reportAllowlistCheckSummary, runAllowlistCheck }
 import { EffectFnRulesOptions, runEffectFnRules } from "./EffectFn.ts";
 import { EffectImportCorpusMode, EffectImportRulesOptions, runEffectImportRules } from "./EffectImports.ts";
 import { FrozenGrantSetRulesOptions, runFrozenGrantSetRules } from "./FrozenGrantSet.ts";
+import { MarkdownFencesOptions } from "./MarkdownFences.model.ts";
+import { formatMarkdownFenceFailure, MarkdownFenceTypechecker, runMarkdownFences } from "./MarkdownFences.ts";
 import {
   isRepoRelativeDirectoryPrefix,
   NoNativeRuntimeRulesOptions,
@@ -624,6 +626,65 @@ const lawsRetiredEffectPathsCommand = Command.make(
 ).pipe(Command.withDescription("Check git-tracked text files for retired Effect module paths"));
 
 /**
+ * CLI command for the Markdown TypeScript fence typecheck law.
+ *
+ * **Example** (Reference the markdown-fences subcommand)
+ *
+ * ```ts
+ * console.log("lawsMarkdownFencesCommand")
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+const lawsMarkdownFencesCommand = Command.make(
+  "markdown-fences",
+  {
+    check: Flag.Boolean("check").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Fail when any guidance Markdown TypeScript fence does not typecheck")
+    ),
+    path: Flag.String("path").pipe(
+      Flag.withDefault(""),
+      Flag.withDescription("Check only surface files whose repository-relative path starts with this prefix")
+    ),
+    json: Flag.Boolean("json").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Emit the complete law summary as schema-shaped JSON")
+    ),
+  },
+  Effect.fn(function* ({ check, json, path }) {
+    const summary = yield* runMarkdownFences(
+      MarkdownFencesOptions.make({ cwd: process.cwd(), strictCheck: check, pathPrefix: path })
+    );
+    const counters = [
+      `mode=${check ? "check" : "report"}`,
+      `scanned_files=${summary.scannedFiles}`,
+      `fence_files=${summary.fenceFiles}`,
+      `fences=${summary.fences}`,
+      `checked=${summary.checkedFences}`,
+      `opt_out=${summary.optOutFences}`,
+      `generated=${summary.generatedFences}`,
+      `failed=${summary.failures.length}`,
+    ];
+
+    yield* json
+      ? printCommandJson(summary)
+      : printLines([
+          ...A.map(counters, (counter) => `[effect-governance-markdown-fences] ${counter}`),
+          ...A.flatMap(summary.failures, formatMarkdownFenceFailure),
+        ]);
+
+    if (summary.strictFailure) {
+      return yield* failWithReportedExit("effect-governance-markdown-fences: check failed.");
+    }
+  })
+).pipe(
+  Command.withDescription("Typecheck the TypeScript fences of the guidance Markdown surface"),
+  Command.provide(MarkdownFenceTypechecker.layer)
+);
+
+/**
  * CLI command for the retired IRI authority law.
  *
  * **Example** (Reference the retired-iri-authorities subcommand)
@@ -835,6 +896,7 @@ export const lawsCommand = Command.make("laws", {}, () =>
     "- bun run beep laws native-runtime --check",
     "- bun run beep laws effect-fn --check",
     "- bun run beep laws frozen-grant-set --check",
+    "- bun run beep laws markdown-fences --check",
     "- bun run beep laws retired-effect-paths --check",
     "- bun run beep laws retired-iri-authorities --check",
     "- bun run beep laws schema-tag-idioms --check",
@@ -849,6 +911,7 @@ export const lawsCommand = Command.make("laws", {}, () =>
     lawsNativeRuntimeCommand,
     lawsEffectFnCommand,
     lawsFrozenGrantSetCommand,
+    lawsMarkdownFencesCommand,
     lawsRetiredEffectPathsCommand,
     lawsRetiredIriAuthoritiesCommand,
     lawsSchemaTagIdiomsCommand,

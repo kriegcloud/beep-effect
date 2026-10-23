@@ -30,10 +30,14 @@ upstream exit yet ([record](./history/receipts/patch-proofs-record.md)).
 Issue #1861 is complete ahead of its 2026-10-30 deadline: the hold register records
 every retained override, patch, catalog hold and OSV exception, with the removed
 and renewed holds proved ([register](./history/receipts/hold-register.md)).
-Issue #1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
-every stale file ([record](./history/receipts/guidance-classification.md)); the
-660-directive review and a Markdown example compile check remain.
-Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 ([record](./history/receipts/guidance-wave-2a.md)); wave 2b takes the other directive kinds.
+Issue #1856 is complete: wave 1 classified the 342-file guidance surface and fixed
+every stale file ([record](./history/receipts/guidance-classification.md)); waves
+2a to 2c reviewed the 660 inline directives and wave 3 added the Markdown example
+compile gate.
+Wave 2a reviewed all 225 `fallow-ignore` directives and resolved #1910 ([record](./history/receipts/guidance-wave-2a.md)); wave 2b takes the TypeScript suppressions.
+Wave 2b reviewed every `@ts-expect-error` and `@effect-diagnostics` directive, removing 13 stale rule entries and fixing 5 suppressions at the source ([record](./history/receipts/guidance-wave-2b.md)); wave 2c takes the remaining directive kinds.
+Wave 2c reviewed the 182 remaining `biome-ignore`, `cspell`, coverage, `noqa`, `oxlint-disable` and `shellcheck` directives: 2 fixed, 91 stale removed, 89 kept with owner and exit ([record](./history/receipts/guidance-wave-2c.md)); wave 3 takes the Markdown fence compile gate and the upstream-copied `.patterns` decision.
+Wave 3 completes #1856: the `lint:markdown-fences` gate compiles every guidance TypeScript fence (231 of 500 failed before; now 485 pass, 15 reviewed opt-outs, 590 docgen-generated), `testing-patterns.md` and `effect-library-development.md` are rewritten for this repository, and `module-organization.md` stays a labeled upstream reference ([record](./history/receipts/guidance-wave-3.md)).
 Issue #1855 is in progress: wave 1 closed F-S31-EV010 (already fixed by #1899) and taught
 the EV010 proof to follow same-file helpers, resolving 16 more rows with no exception
 added ([record](./history/receipts/detectors-wave-1.md)); FP-1..FP-7 come next.

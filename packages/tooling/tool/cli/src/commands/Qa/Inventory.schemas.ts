@@ -479,7 +479,7 @@ export class QaFinding extends S.Opaque<QaFinding, { readonly brand: unique symb
  * @since 0.0.0
  */
 export const isRequiredSeverity = (severity: QaSeverity): boolean =>
-  QaSeverity.$match(severity, {
+  QaSeverity.match(severity, {
     P0: () => true,
     P1: () => true,
     P2: () => false,

@@ -72,7 +72,7 @@ const fallbackExtractor = SourceTextExtractor.make({
 
 const executionFailed = (message: string): C0ExecutionFailed => C0ExecutionFailed.make({ message });
 
-const selectionIncludesW1: (selection: EvalSelectionMode) => boolean = EvalSelectionMode.$match({
+const selectionIncludesW1: (selection: EvalSelectionMode) => boolean = EvalSelectionMode.match({
   f1: () => false,
   "f1+w1": () => true,
 });
@@ -258,7 +258,7 @@ const makeCanaryC0 = Effect.fn("CanaryC0.make")(function* (
       stage: "c0" as const,
     };
     const run = EvalRun.make({ ...runBody, id: yield* Effect.fromResult(makeRunId(runBody)).pipe(Effect.orDie) });
-    const mode = RuntimeMode.$match(config.offline || options.offline ? "replay" : "live", {
+    const mode = RuntimeMode.match(config.offline || options.offline ? "replay" : "live", {
       live: () => "live" as const,
       replay: () => "replay" as const,
     });

@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
@@ -428,7 +428,6 @@ describe("CliLinks.linker: the RenderContext.link policy", () => {
 				assert.strictEqual(links.wrapped, "label");
 				// Four ESC in all: the open and close sequences' introducer and ST each. Nothing else.
 				assert.strictEqual(out.split("\u001B").length - 1, 4, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
-				// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 				assert.notMatch(out.replace(/\u001B\]8;;|\u001B\\/g, ""), /[\u0000-\u001F\u007F-\u009F]/, Result.getOrThrow(S.encodeUnknownResult(Json)(out)));
 			}
 		}),

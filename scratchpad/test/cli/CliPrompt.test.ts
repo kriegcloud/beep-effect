@@ -2,7 +2,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { MemoryFileSystem } from "@beep/memfs";
 import * as Stdio from "effect/Stdio";
 import * as Path from "effect/Path";
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure } from "@effect/vitest/utils";
 import { Audience, TerminalEnv } from "@beep/runtime-env";

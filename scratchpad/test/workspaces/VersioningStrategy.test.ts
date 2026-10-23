@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Classification is pure and total, so most of this file is plain `it()`.
 // Only `detect` — the one effectful entry point — needs a runner, and it is
 // tested against `WorkspaceDiscovery.layerTest` plus a stub

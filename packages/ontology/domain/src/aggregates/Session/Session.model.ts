@@ -98,7 +98,7 @@ const graphIsCanonicalPartition = (graph: GraphTerm, partition: Exclude<GraphPar
   });
 
 const graphMatchesPartition = (change: PartitionedQuad): boolean =>
-  GraphPartition.$match(change.partition, {
+  GraphPartition.match(change.partition, {
     asserted: () => isDefaultGraph(change.quad.graph),
     ontologies: () => isDefaultGraph(change.quad.graph) || graphIsCanonicalPartition(change.quad.graph, "ontologies"),
     inferred: () => isDefaultGraph(change.quad.graph) || graphIsCanonicalPartition(change.quad.graph, "inferred"),
@@ -591,7 +591,7 @@ export const datasetForPartition: {
 } = dual(
   2,
   (partitions: SessionGraphPartitions, partition: GraphPartition): Dataset =>
-    GraphPartition.$match(partition, {
+    GraphPartition.match(partition, {
       asserted: () => partitions.asserted,
       ontologies: () => partitions.ontologies,
       inferred: () => partitions.inferred,
@@ -605,7 +605,7 @@ const setPartitionDataset = (
   partition: GraphPartition,
   dataset: Dataset
 ): SessionGraphPartitions =>
-  GraphPartition.$match(partition, {
+  GraphPartition.match(partition, {
     asserted: () => SessionGraphPartitions.make({ ...partitions, asserted: dataset }),
     ontologies: () => SessionGraphPartitions.make({ ...partitions, ontologies: dataset }),
     inferred: () => SessionGraphPartitions.make({ ...partitions, inferred: dataset }),

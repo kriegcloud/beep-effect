@@ -460,7 +460,7 @@ describe("Contradiction domain invariants", () => {
       Effect.sync(() => {
         expect(A.dedupe(basis.leftEvidenceIds)).toHaveLength(basis.leftEvidenceIds.length);
         expect(A.dedupe(basis.rightEvidenceIds)).toHaveLength(basis.rightEvidenceIds.length);
-        ContradictionMatchBasisKind.$match(basis.kind, {
+        ContradictionMatchBasisKind.match(basis.kind, {
           "independent-evidence": () =>
             expect(A.dedupe([...basis.leftEvidenceIds, ...basis.rightEvidenceIds])).toHaveLength(
               basis.leftEvidenceIds.length + basis.rightEvidenceIds.length

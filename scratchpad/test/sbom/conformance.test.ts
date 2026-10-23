@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Conformance against the CycloneDX 1.6 specification itself.
 //
 // This package declines the CycloneDX library (6.6 MB, seven optional peers)

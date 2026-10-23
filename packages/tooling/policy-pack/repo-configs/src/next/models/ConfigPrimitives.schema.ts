@@ -4,7 +4,6 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// cspell:words oklab
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";

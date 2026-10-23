@@ -99,7 +99,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           hidden
           aria-hidden="true"
           data-direction-contract
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: static build-time direction contract, no user input
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static build-time direction contract, no user input. Owner: @beep/todox. Exit: the contract ships as a static asset instead of inline HTML.
           dangerouslySetInnerHTML={{ __html: directionContract }}
         />
         <link rel="preload" href="/fonts/Fraunces-Variable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />

@@ -1117,7 +1117,7 @@ export class EffectVitestReplacement extends S.Opaque<EffectVitestReplacement, {
 ) {}
 
 const EffectVitestFindingLensRule = S.Union([
-  S.Struct({ lens: LiteralKit(EffectVitestLens.pick(["detector", "resource"]).literals), ruleId: EffectVitestRuleId }),
+  S.Struct({ lens: EffectVitestLens.pick(["detector", "resource"]), ruleId: EffectVitestRuleId }),
   S.Struct({ lens: S.tag("resource"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-RES-")) }),
   S.Struct({ lens: S.tag("flake"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-FLAKE-")) }),
   S.Struct({ lens: S.tag("property"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-PROP-")) }),

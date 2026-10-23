@@ -69,7 +69,7 @@ describe("Doc inline constructors", () => {
 
 	it("status rejects a misspelt name at compile time", () => {
 		const bad = () =>
-			// @ts-expect-error "timeot" is not a status name in the core vocabulary
+			// @ts-expect-error -- "timeot" is not a status name in the core vocabulary. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 			Doc.status(Status.core, "timeot");
 		assert.isFunction(bad);
 	});
@@ -334,7 +334,7 @@ describe("Doc.counter", () => {
 
 	it("rejects a misspelt status name at compile time", () => {
 		const bad = () =>
-			// @ts-expect-error "timeot" is not a status name in the core vocabulary
+			// @ts-expect-error -- "timeot" is not a status name in the core vocabulary. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 			Doc.counter(Status.core, "timeot", { key: "k", label: "l", n: 1 });
 		assert.isFunction(bad);
 	});

@@ -112,6 +112,33 @@ describe("MarkdownFrontmatter.set", () => {
     })
   );
 
+  it.effect("rewrites a block with padded fences to canonical fences in every format", () =>
+    Effect.gen(function* () {
+      for (const [source, codec, expected] of [
+        [
+          "--- \ntitle: Old\ncount: 1\n---\t\n\n# Body\n",
+          YamlFrontmatter,
+          "---\ntitle: New\ncount: 2\n---\n\n# Body\n",
+        ],
+        [
+          '+++\t\ntitle = "Old"\ncount = 1\n+++ \n\n# Body\n',
+          TomlFrontmatter,
+          '+++\ntitle = "New"\ncount = 2\n+++\n\n# Body\n',
+        ],
+        [
+          '---json \n{"title":"Old","count":1}\n---  \n\n# Body\n',
+          JsonFrontmatter,
+          '---json\n{\n  "title": "New",\n  "count": 2\n}\n---\n\n# Body\n',
+        ],
+      ] as const) {
+        const document = yield* parseDoc(source);
+        assert.isDefined(document.frontmatter, source);
+        const updated = yield* MarkdownFrontmatter.setToString(Meta, codec)(document, { title: "New", count: 2 });
+        assert.strictEqual(updated, expected, source);
+      }
+    })
+  );
+
   it.effect("inserts a fenced block at offset 0 with a blank line when the document has none", () =>
     Effect.gen(function* () {
       const source = "# Body\n\ntext\n";

@@ -651,7 +651,7 @@ const decodeCheapGateConcurrency = S.decodeUnknownOption(CheapGateConcurrency);
  * @since 0.0.0
  */
 export const githubCheckTierConcurrency = (tier: GithubCheckLaneTier): number =>
-  GithubCheckLaneTier.$match(tier, {
+  GithubCheckLaneTier.match(tier, {
     "cheap-gates": () =>
       O.match(
         Effect.runSync(
@@ -672,7 +672,7 @@ export const githubCheckTierConcurrency = (tier: GithubCheckLaneTier): number =>
                 return 1;
               },
               onSome: (width) =>
-                CheapGateConcurrency.$match(width, {
+                CheapGateConcurrency.match(width, {
                   "1": () => 1,
                   "2": () => 2,
                   "3": () => 3,
@@ -851,6 +851,13 @@ export const githubCheckCheapGateLanes = (repoRoot: string): ReadonlyArray<Githu
     "repo-quality",
     "preflight",
     rootTaskLane(repoRoot, "lint:effect-imports-markdown", "lint:effect-imports-markdown")
+  ),
+  githubCheckLane(
+    "lint:markdown-fences",
+    "cheap-gates",
+    "repo-quality",
+    "preflight",
+    rootTaskLane(repoRoot, "lint:markdown-fences", "lint:markdown-fences")
   ),
   githubCheckLane(
     "lint:retired-effect-paths",

@@ -524,6 +524,42 @@ describe("@beep/m365 service", () => {
     );
   });
 
+  it.layer(makeTestLayer(), { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "reads only the selected fields of one message through $select, and nothing more without one",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith(() =>
+          Effect.succeed(
+            makeJsonResponse({
+              id: "AAMkAGI2",
+              subject: "Office action response",
+              receivedDateTime: "2026-10-06T12:00:00Z",
+              from: { emailAddress: { address: "examiner@example.com" } },
+              webLink: "https://outlook.example.com/mail/AAMkAGI2",
+            })
+          )
+        );
+        const m365 = yield* M365;
+        const message = yield* m365.getMessage(
+          M365GetMessageRequest.make({
+            messageId: "message-id",
+            select: O.some("subject,from,receivedDateTime,webLink"),
+            userId: O.some("user-id"),
+          })
+        );
+        yield* m365.getMessage(M365GetMessageRequest.make({ messageId: "message-id" }));
+
+        assertSome(message.subject, "Office action response");
+        const urls = A.map(yield* testHttp.captures, (capture) => decodeURIComponent(capture.url));
+        expect(urls).toStrictEqual([
+          `${GRAPH_BASE_URL}/users/user-id/messages/message-id?$select=subject,from,receivedDateTime,webLink`,
+          `${GRAPH_BASE_URL}/me/messages/message-id`,
+        ]);
+      })
+    );
+  });
+
   it.layer(makeAuthFailureLayer(), { timeout: "5 seconds" })((it) => {
     it.effect(
       "preserves auth failures before HTTP execution",

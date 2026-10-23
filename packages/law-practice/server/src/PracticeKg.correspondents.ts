@@ -7,7 +7,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { DuckDb } from "@beep/duckdb";
 import { $LawPracticeServerId } from "@beep/identity/packages";
 import { PracticeKgEpistemicStatus } from "@beep/law-practice-domain/values";
 import {
@@ -41,7 +41,6 @@ import { PracticeKgProjectionError } from "./PracticeKg.errors.ts";
 import { PracticeKgDocumentAttribution } from "./PracticeKg.families.ts";
 import { GraphTextSourceSpec } from "./PracticeKg.fts.ts";
 import { PracticeKgBundle } from "./PracticeKg.host.ts";
-import { withDuckDb } from "./PracticeKg.rows.ts";
 import type { PracticeKgCorrespondentLookupRequest } from "@beep/law-practice-use-cases/server";
 
 const $I = $LawPracticeServerId.create("PracticeKg.correspondents");
@@ -386,7 +385,7 @@ export class PracticeKgCorrespondentTablesInput extends S.Opaque<
  * ```ts
  * import { PracticeKgEmailMessagesInput } from "@beep/law-practice-server"
  *
- * const input = PracticeKgEmailMessagesInput.make({ databasePath: "/bundle/practice.duckdb", sourceSpecs: [] })
+ * const input = PracticeKgEmailMessagesInput.make({ sourceSpecs: [] })
  * console.log(input.sourceSpecs.length) // 0
  * ```
  *
@@ -398,11 +397,10 @@ export class PracticeKgEmailMessagesInput extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    databasePath: S.String,
     sourceSpecs: S.Array(GraphTextSourceSpec),
   }).pipe(
     $I.annoteSchema("PracticeKgEmailMessagesInput", {
-      description: "Bundle DuckDB and the extraction sources whose metadata holds the email headers.",
+      description: "Extraction sources whose metadata holds the email headers.",
     })
   )
 ) {}
@@ -657,14 +655,14 @@ const readMessage = Effect.fn("PracticeKg.readEmailMessage")(function* (source: 
  * import { PracticeKgEmailMessagesInput, readPracticeKgEmailMessages } from "@beep/law-practice-server"
  *
  * const messages = readPracticeKgEmailMessages(
- *   PracticeKgEmailMessagesInput.make({ databasePath: "/bundle/practice.duckdb", sourceSpecs: [] })
+ *   PracticeKgEmailMessagesInput.make({ sourceSpecs: [] })
  * )
  * console.log(Effect.isEffect(messages)) // true
  * ```
  *
- * @param input - Bundle DuckDB and extraction sources.
+ * @param input - Extraction sources; documents are read through the caller's DuckDb service.
  * @returns Email headers, one message per email document with readable metadata.
- * @effects Opens the bundle DuckDB read-only and reads metadata files.
+ * @effects Reads through the injected read-write DuckDb service and reads metadata files.
  * @category use-cases
  * @since 0.0.0
  */
@@ -673,7 +671,7 @@ export const readPracticeKgEmailMessages = Effect.fn("PracticeKg.readEmailMessag
 ): Effect.fn.Return<
   ReadonlyArray<PracticeKgEmailMessage>,
   PracticeKgProjectionError,
-  FileSystem.FileSystem | Path.Path
+  DuckDb | FileSystem.FileSystem | Path.Path
 > {
   const path = yield* Path.Path;
   if (!A.isReadonlyArrayNonEmpty(input.sourceSpecs)) {
@@ -686,12 +684,7 @@ export const readPracticeKgEmailMessages = Effect.fn("PracticeKg.readEmailMessag
   const emailSources = yield* Effect.gen(function* () {
     const db = yield* DuckDb;
     return yield* db.query(emailSourcesSql(sources)).pipe(Effect.flatMap(decodeEmailSourceRows));
-  }).pipe(
-    withDuckDb(
-      DuckDbConnectionOptions.make({ databaseOptions: { access_mode: "READ_ONLY" }, databasePath: input.databasePath })
-    ),
-    PracticeKgProjectionError.mapError(`Failed listing email documents in "${input.databasePath}".`)
-  );
+  }).pipe(PracticeKgProjectionError.mapError("Failed listing email documents."));
   const read = yield* Effect.forEach(emailSources, readMessage);
   const missing = A.length(read) - A.length(A.getSomes(read));
   if (missing > 0) {
@@ -732,7 +725,7 @@ const latest = extremeOf((values) => A.max(values, Order.String));
 
 const tallied = (tally: Tally, message: PracticeKgEmailMessage, participant: PracticeKgEmailParticipant): Tally => ({
   ...tally,
-  ...PracticeKgEmailParticipantRole.$match(participant.role, {
+  ...PracticeKgEmailParticipantRole.match(participant.role, {
     cc: () => ({ cc: HashSet.add(tally.cc, identityOf(message)) }),
     from: () => ({ from: HashSet.add(tally.from, identityOf(message)) }),
     to: () => ({ to: HashSet.add(tally.to, identityOf(message)) }),
@@ -978,66 +971,64 @@ const insertAddress = "INSERT INTO contact_addresses VALUES ($1, $2, $3, $4, $5,
  * import * as Effect from "effect/Effect";
  * import { PracticeKgCorrespondentTables, writePracticeKgCorrespondentTables } from "@beep/law-practice-server"
  *
- * const write = writePracticeKgCorrespondentTables("/bundle/practice.duckdb")(
+ * const write = writePracticeKgCorrespondentTables(
  *   PracticeKgCorrespondentTables.make({ addresses: [], correspondents: [], links: [] })
  * )
  * console.log(Effect.isEffect(write)) // true
  * ```
  *
- * @param databasePath - Bundle DuckDB written earlier in the same build.
- * @returns A function from the tables to the write effect.
- * @effects Creates and fills three tables in the bundle DuckDB.
+ * @param tables - Correspondent rows to write through the caller's DuckDb service.
+ * @returns The write effect.
+ * @effects Uses the injected read-write DuckDb service to create and fill three tables in the bundle DuckDB.
  * @category use-cases
  * @since 0.0.0
  */
-export const writePracticeKgCorrespondentTables = (databasePath: string) =>
-  Effect.fn("PracticeKg.writeCorrespondentTables")(function* (tables: PracticeKgCorrespondentTables) {
-    return yield* Effect.gen(function* () {
-      const db = yield* DuckDb;
-      yield* Effect.forEach(createCorrespondentTables, (statement) => db.run(statement), { discard: true });
-      yield* Effect.forEach(
-        tables.correspondents,
-        (row) =>
-          db.run(insertCorrespondent, [
-            row.familyKey,
-            row.address,
-            row.contactId,
-            row.displayName,
-            row.roleAddress,
-            row.isPracticeAddress,
-            row.messageCount,
-            row.fromCount,
-            row.toCount,
-            row.ccCount,
-            row.firstAt,
-            row.lastAt,
-            row.epistemicStatus,
-          ]),
-        { discard: true }
-      );
-      yield* Effect.forEach(
-        tables.links,
-        (row) => db.run(insertLink, [row.contactId, row.clientNumber, row.familyKey, row.source, row.evidence]),
-        { discard: true }
-      );
-      yield* Effect.forEach(
-        tables.addresses,
-        (row) =>
-          db.run(insertAddress, [
-            row.address,
-            row.contactId,
-            row.displayName,
-            row.organization,
-            row.roleAddress,
-            row.isPracticeAddress,
-          ]),
-        { discard: true }
-      );
-    }).pipe(
-      withDuckDb(DuckDbConnectionOptions.make({ databasePath })),
-      PracticeKgProjectionError.mapError(`Failed writing correspondent tables to "${databasePath}".`)
+export const writePracticeKgCorrespondentTables = Effect.fn("PracticeKg.writeCorrespondentTables")(function* (
+  tables: PracticeKgCorrespondentTables
+) {
+  return yield* Effect.gen(function* () {
+    const db = yield* DuckDb;
+    yield* Effect.forEach(createCorrespondentTables, (statement) => db.run(statement), { discard: true });
+    yield* Effect.forEach(
+      tables.correspondents,
+      (row) =>
+        db.run(insertCorrespondent, [
+          row.familyKey,
+          row.address,
+          row.contactId,
+          row.displayName,
+          row.roleAddress,
+          row.isPracticeAddress,
+          row.messageCount,
+          row.fromCount,
+          row.toCount,
+          row.ccCount,
+          row.firstAt,
+          row.lastAt,
+          row.epistemicStatus,
+        ]),
+      { discard: true }
     );
-  });
+    yield* Effect.forEach(
+      tables.links,
+      (row) => db.run(insertLink, [row.contactId, row.clientNumber, row.familyKey, row.source, row.evidence]),
+      { discard: true }
+    );
+    yield* Effect.forEach(
+      tables.addresses,
+      (row) =>
+        db.run(insertAddress, [
+          row.address,
+          row.contactId,
+          row.displayName,
+          row.organization,
+          row.roleAddress,
+          row.isPracticeAddress,
+        ]),
+      { discard: true }
+    );
+  }).pipe(PracticeKgProjectionError.mapError("Failed writing correspondent tables."));
+});
 
 const contactsSql = `
 SELECT contact_id AS "contactId", display_name AS "displayName", organization, role_address AS "roleAddress"

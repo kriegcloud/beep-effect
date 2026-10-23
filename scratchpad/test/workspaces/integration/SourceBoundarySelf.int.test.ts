@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The package's own source, scanned by the scanner it ships. Real disk, real
 // lexing: ConfigDependencyHooks.ts embeds a child script whose process.argv and
 // process.stdout.write sit in TEMPLATE TEXT, which must not count, while six

@@ -350,7 +350,6 @@ const ollamaBootstrapCommand = (model: string): ReadonlyArray<string> => {
   // TODO(effect-native-migration): model schema
   const pullPayload = shellQuote(encodeUnknownJsonSync({ name: model }));
 
-  // cspell:ignore resolv
   return [
     "bash",
     "-lc",

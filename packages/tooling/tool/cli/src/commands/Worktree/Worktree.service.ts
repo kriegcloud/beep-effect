@@ -1284,7 +1284,7 @@ const describeHolder = Effect.fnUntraced(function* (
   const role = O.match(terminal, {
     onNone: () => "",
     onSome: (state) =>
-      DesktopTerminalShellState.$match(state, {
+      DesktopTerminalShellState.match(state, {
         idle: () => " (the Claude Desktop Terminal panel shell)",
         busy: () => " (the Claude Desktop Terminal panel shell, running a command)",
       }),

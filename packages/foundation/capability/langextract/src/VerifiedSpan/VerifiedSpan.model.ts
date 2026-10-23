@@ -396,7 +396,7 @@ const isVerifiedSpanLocationFailureReason = S.is(VerifiedSpanLocationFailureReas
 const isVerifiedSpanAnchorFailureReason = S.is(VerifiedSpanAnchorFailureReason);
 
 const hasConsistentFailureStage = (failure: VerifiedSpanAttemptFailureStruct): boolean =>
-  VerifiedSpanAttemptFailureStage.$match(failure.stage, {
+  VerifiedSpanAttemptFailureStage.match(failure.stage, {
     anchor: () => isVerifiedSpanAnchorFailureReason(failure.reason),
     location: () => isVerifiedSpanLocationFailureReason(failure.reason),
     source: () => isVerifiedSpanSourceFailureReason(failure.reason),
@@ -635,7 +635,7 @@ const VerifiedSpanAttemptRecordStruct = S.Struct(VerifiedSpanAttemptRecordFields
 type VerifiedSpanAttemptRecordStruct = typeof VerifiedSpanAttemptRecordStruct.Type;
 
 const hasConsistentAttemptLink = (attempt: VerifiedSpanAttemptRecordStruct): boolean =>
-  VerifiedSpanAttemptKind.$match(attempt.kind, {
+  VerifiedSpanAttemptKind.match(attempt.kind, {
     "re-anchor": () =>
       O.isSome(attempt.previousAttemptId) && sourceTextIdentityEquivalence(attempt.expectedSource, attempt.source),
     verification: () => true,
@@ -652,7 +652,7 @@ const hasConsistentFailureCandidates = (
   attempt: VerifiedSpanAttemptRecordStruct,
   failure: VerifiedSpanAttemptFailureStruct
 ): boolean =>
-  VerifiedSpanAttemptFailureStage.$match(failure.stage, {
+  VerifiedSpanAttemptFailureStage.match(failure.stage, {
     anchor: () =>
       A.isReadonlyArrayNonEmpty(attempt.candidates) && hasCandidateAt(attempt.candidates, failure.candidateIndex),
     location: () =>
@@ -676,7 +676,7 @@ const sourceFailureMatchesEvidence = (
   );
   const sourceVersionSupported = Eq.equals(attempt.source.normalizationVersion, VERIFIED_SPAN_NORMALIZATION_VERSION);
 
-  return VerifiedSpanSourceFailureReason.$match(reason, {
+  return VerifiedSpanSourceFailureReason.match(reason, {
     "cross-scope": () => !(expectedInMatter && sourceInMatter),
     "normalization-version-mismatch": () =>
       expectedInMatter && sourceInMatter && !(expectedVersionSupported && sourceVersionSupported),
@@ -694,7 +694,7 @@ const hasConsistentAttemptSource = (attempt: VerifiedSpanAttemptRecordStruct): b
 
   return VerifiedSpanAttemptOutcome.match({
     failed: ({ failure }) =>
-      VerifiedSpanAttemptFailureStage.$match(failure.stage, {
+      VerifiedSpanAttemptFailureStage.match(failure.stage, {
         anchor: () => hasAuthorizedSource,
         location: () => hasAuthorizedSource,
         source: () =>
@@ -799,7 +799,7 @@ const hasAllowedAttemptTransition = (
   attempt: VerifiedSpanAttemptRecord
 ): boolean =>
   sourceTextIdentityEquivalence(attempt.expectedSource, previous.source) &&
-  VerifiedSpanAttemptKind.$match(attempt.kind, {
+  VerifiedSpanAttemptKind.match(attempt.kind, {
     "re-anchor": () =>
       VerifiedSpanAttemptOutcome.guards.failed(previous.outcome) &&
       Eq.equals(previous.outcome.failure.reason, "stale-source") &&

@@ -106,7 +106,8 @@ migration path; the tag is the start of a removal, not a home.
 
 ## Upstream-first retirement in `foundation/modeling`
 
-Decision: `DECISIONS.md` "Upstream-First Foundation/Modeling" (2026-09-29).
+Decision: `DECISIONS.md` "Upstream-First Foundation/Modeling" (2026-09-29), amended by
+"Upstream-First Census Amendments" (2026-10-22).
 
 The section above removes an unreleased in-repo symbol at once only when no consumer remains. A
 `foundation/modeling` concept that retires under rule 2, or a covered facet trimmed from an ADAPT
@@ -116,23 +117,30 @@ deprecated. These packages are `private: true` and no version of them has reache
 this repository, so nobody waits on a window. The rules:
 
 1. **Intent is judged per facet, on the consumed surface.** A facet is the schema value itself or
-   one exported member or static that consumers read (`Kit.Enum`, `Kit.is`, `Kit.$match`).
+   one exported member or static that consumers read (`Kit.Enum`, `Kit.is`, `Kit.match`).
    Upstream covers a facet when public upstream API covers what consumers use that facet for: an
    exported symbol, possibly outside `effect/Schema`, or an inline composition of exported symbols
    at the consumer. Check coverage in the installed `effect` package's `dist/*.d.ts`
    declarations. A symbol marked `@internal` never counts, and a matching name is not evidence.
+   Coverage must survive the derivation consumers perform: when consumers derive a value from the
+   facet (a subset, a refinement, a transformed schema) and keep programming against the result,
+   the upstream result type must still carry what they read. Upstream `Literals.pick` returns a
+   bare `Literals`, so 24 sites re-wrapped it in `LiteralKit(...)` to get `Enum`, `is` and `match`
+   back; that facet was uncovered although the call itself existed upstream.
 2. **Uncovered facets that outweigh the covered ones make the concept ADAPT.** Count consumer lines outside the
    concept's own sources and compare two sums: the lines that read its uncovered members, and the
-   lines that use its covered facets, construction sites included (construction is the schema
-   facet). Record both sums with the per-facet table in the owning goal packet's decision log
+   lines that use its covered facets. Construction lines are neutral and count on neither side:
+   every consumer constructs the concept whatever its disposition, so construction measures reach,
+   not which facets carry the use. Record both sums with the per-facet table in the owning goal packet's decision log
    before the PR opens. When the uncovered sum is the larger, the concept is ADAPT: it stays, its
    covered facets are deleted, and their consumers move to the upstream equivalents. Otherwise the
    concept retires, and consumers of its uncovered minor facets adapt to what upstream offers. A
    disposition stands on the census it was ruled from; a later count reopens it only through a new
    entry in that decision log. LiteralKit is the precedent (census 2026-09-15): the uncovered keyed
    members `.Enum` 1,172, `.is` 603, `$match` 243 and `toTaggedUnion` 36 sum to 2,054 lines
-   against 2,048 covered (construction 1,521, `.Options` 395, `.thunk` 65,
-   `.pickOptions`/`.omitOptions` 52, `.HashSet` 15); `enumMapping` (12 lines) was dropped as a
+   against 527 covered (`.Options` 395, `.thunk` 65, `.pickOptions`/`.omitOptions` 52, `.HashSet`
+   15). The 2026-09-15 census also counted construction (1,521 lines) as covered, which made the
+   comparison read 2,054 against 2,048, a near-tie produced by construction alone; `enumMapping` (12 lines) was dropped as a
    minor facet with no upstream equivalent. Helpers in a utility namespace that are each a public
    concept (the `SchemaUtils` leaves) are judged one by one.
 3. **Same PR, no alias.** A retirement deletes the concept's implementation, its exports (the
@@ -142,7 +150,7 @@ this repository, so nobody waits on a window. The rules:
    opens a deprecation window and is rejected.
 4. **Census before a large RETIRE.** Before a RETIRE with more than 100 audited consumers opens its
    PR, count the usage of each facet outside the concept's own sources (construction sites for the
-   schema facet, reads of each exported member), and record lines and files per facet next to the
+   schema facet, recorded but neutral under rule 2, and reads of each exported member), and record lines and files per facet next to the
    upstream symbol that covers it, plus both sums from rule 2. The census goes in the owning goal
    packet's decision log. If the uncovered sum is the larger (rule 2), log the flip to ADAPT there
    before the PR opens.
@@ -151,6 +159,12 @@ this repository, so nobody waits on a window. The rules:
    upstream codecs that reproduces the bytes. Only in-memory shapes may change. A persisted or
    served boundary whose upstream default differs and that no such codec reproduces is a separate
    migration goal; it leaves the retirement PR.
+6. **A replacement that changes meaning gets its own row.** When the upstream replacement for a
+   facet changes what consumers' code means, not only how it is spelled, the facet needs its own
+   decision row that states the semantic loss, whatever its site count and whether or not rule 4's
+   census threshold applies. Replacing a computed complement (`Kit.omit([...])`) with an
+   enumerated `pick` of the remaining members is the precedent: the list goes stale when the parent
+   grows, and the retirement hid that behind 13 sites, below the 100-consumer threshold.
 
 The windows above still govern slices, promoted `shared/use-cases` contracts, and ports. A
 retirement may replace the implementation behind a field of a promoted contract only when the

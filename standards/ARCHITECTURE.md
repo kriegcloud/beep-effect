@@ -1477,12 +1477,23 @@ technical/driver failures inline or leaking them through the public use-case
 API:
 
 ````ts
-import { $IamUseCasesId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as S from "effect/Schema";
+import * as Identity from "@beep/identity";
 import * as Context from "effect/Context";
-import type * as Effect from "effect/Effect";
+import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
-import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
-import type { MembershipRepositoryUnavailable } from "./Membership.errors.ts";
+
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+// Small local stand-ins for the illustrative slice imports.
+class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable, { readonly brand: unique symbol }>()("MembershipRepositoryUnavailable", {}) {}
+const Membership = S.Struct({ id: MembershipId });
+type Membership = typeof Membership.Type;
+// import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
+// import type { MembershipRepositoryUnavailable } from "./Membership.errors.ts";
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamUseCasesId } = Identity.make("iam-use-cases");
 
 const $I = $IamUseCasesId.create("entities/Membership/Membership.ports");
 
@@ -1504,16 +1515,44 @@ export class MembershipRepository extends Context.Service<
 The implementation belongs in server:
 
 ````ts
+import { LiteralKit } from "@beep/schema";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Drizzle } from "@beep/drizzle";
-import { MembershipRepository } from "@beep/iam-use-cases/server";
-import { toMembershipRepositoryUnavailable } from "@beep/iam-use-cases/server/Membership.errors";
-import { MembershipRow, MembershipTable } from "@beep/iam-tables/entities/Membership";
-import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
+
+// Small local stand-ins for the illustrative slice imports.
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void, MembershipRepositoryUnavailable>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>, MembershipRepositoryUnavailable>;
+}>()("example/MembershipRepository") {}
+const MembershipRow = S.Struct({ id: MembershipId, organizationId: S.String, actorId: S.String, role: MembershipRole, status: MembershipStatus });
+const MembershipTable = { name: "memberships", toRow: (model: Membership) => model, fromRow: (row: typeof MembershipRow.Type) => Membership.make(row) };
+class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable, { readonly brand: unique symbol }>()("MembershipRepositoryUnavailable", { operation: S.String, cause: S.Defect() }) {}
+const toMembershipRepositoryUnavailable = (operation: string, cause: unknown) => new MembershipRepositoryUnavailable({ operation, cause });
+// import { MembershipRepository } from "@beep/iam-use-cases/server";
+// import { toMembershipRepositoryUnavailable } from "@beep/iam-use-cases/server/Membership.errors";
+// import { MembershipRow, MembershipTable } from "@beep/iam-tables/entities/Membership";
+// import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
 
 /**
  * Server-side Drizzle adapter implementing the Membership repository port.
@@ -1719,8 +1758,11 @@ forbidden when it:
 Domain errors are actionable, and domain model behavior is pure:
 
 ````ts
-import { $IamDomainId } from "@beep/identity/packages";
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamDomainId } = Identity.make("iam-domain");
 
 const $I = $IamDomainId.create("entities/Membership/Membership.errors");
 
@@ -1742,13 +1784,20 @@ export class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRev
 ````
 
 ````ts
-import { $IamDomainId } from "@beep/identity/packages";
+import * as Identity from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { AccountId } from "@beep/iam-domain/entities/Account";
-import { OrganizationId } from "@beep/iam-domain/entities/Organization";
-import { MembershipAlreadyRevoked } from "./Membership.errors.ts";
+
+// Small local stand-ins for the illustrative slice imports.
+const AccountId = S.String.pipe(S.brand("AccountId"));
+const OrganizationId = S.String.pipe(S.brand("OrganizationId"));
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+// import { AccountId } from "@beep/iam-domain/entities/Account";
+// import { OrganizationId } from "@beep/iam-domain/entities/Organization";
+// import { MembershipAlreadyRevoked } from "./Membership.errors.ts";
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamDomainId } = Identity.make("iam-domain");
 
 const $I = $IamDomainId.create("entities/Membership/Membership.model");
 
@@ -1810,7 +1859,7 @@ export type MembershipStatus = typeof MembershipStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class Membership extends Model.Class<Membership>($I`Membership`)(
+export class Membership extends S.Class<Membership, { readonly brand: unique symbol }>($I`Membership`)(
   {
     id: MembershipId,
     organizationId: OrganizationId,
@@ -1847,15 +1896,23 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
 Use-case service defines the contract in product language:
 
 ````ts
-import { $IamUseCasesId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+import * as Identity from "@beep/identity";
 import * as Context from "effect/Context";
-import type * as Effect from "effect/Effect";
-import type { RevokeMembershipCommand } from "./Membership.commands.ts";
-import type {
-  MembershipNotFound,
-  MembershipRevocationDenied,
-  MembershipRevocationFailed,
-} from "./Membership.errors.ts";
+import * as Effect from "effect/Effect";
+
+class MembershipRevocationDenied extends S.TaggedError<MembershipRevocationDenied, { readonly brand: unique symbol }>()("MembershipRevocationDenied", { reason: S.String }) {}
+// Small local stand-ins for the illustrative slice imports.
+class MembershipNotFound extends S.TaggedError<MembershipNotFound, { readonly brand: unique symbol }>()("MembershipNotFound", {}) {}
+class MembershipRevocationFailed extends S.TaggedError<MembershipRevocationFailed, { readonly brand: unique symbol }>()("MembershipRevocationFailed", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const RevokeMembershipCommand = S.Struct({ membershipId: MembershipId });
+type RevokeMembershipCommand = typeof RevokeMembershipCommand.Type;
+// import type { RevokeMembershipCommand } from "./Membership.commands.ts";
+// import type { MembershipNotFound, MembershipRevocationDenied, MembershipRevocationFailed, } from "./Membership.errors.ts";
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamUseCasesId } = Identity.make("iam-use-cases");
 
 const $I = $IamUseCasesId.create("entities/Membership/Membership.service");
 
@@ -1878,11 +1935,48 @@ export class MembershipService extends Context.Service<
 Server layer wires that contract to the runtime boundary:
 
 ````ts
+import { LiteralKit } from "@beep/schema";
+import * as Context from "effect/Context";
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { MembershipNotFound, type RevokeMembershipCommand } from "@beep/iam-use-cases/public";
-import { MembershipAccess, MembershipRepository, MembershipService } from "@beep/iam-use-cases/server";
+
+// Small local stand-ins for the illustrative slice imports.
+class MembershipNotFound extends S.TaggedError<MembershipNotFound, { readonly brand: unique symbol }>()("MembershipNotFound", {}) {}
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+const RevokeMembershipCommand = S.Struct({ membershipId: MembershipId });
+type RevokeMembershipCommand = typeof RevokeMembershipCommand.Type;
+class MembershipRevocationDenied extends S.TaggedError<MembershipRevocationDenied, { readonly brand: unique symbol }>()("MembershipRevocationDenied", { reason: S.String }) {}
+class MembershipRevocationFailed extends S.TaggedError<MembershipRevocationFailed, { readonly brand: unique symbol }>()("MembershipRevocationFailed", {}) {}
+class MembershipService extends Context.Service<MembershipService, {
+  readonly revoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
+}>()("example/MembershipService") {}
+class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable, { readonly brand: unique symbol }>()("MembershipRepositoryUnavailable", { operation: S.String, cause: S.Defect() }) {}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void, MembershipRepositoryUnavailable>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>, MembershipRepositoryUnavailable>;
+}>()("example/MembershipRepository") {}
+class MembershipAccess extends Context.Service<MembershipAccess, {
+  readonly assertCanRevoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipRevocationDenied>;
+}>()("example/MembershipAccess") {}
+// import { MembershipNotFound, type RevokeMembershipCommand } from "@beep/iam-use-cases/public";
+// import { MembershipAccess, MembershipRepository, MembershipService } from "@beep/iam-use-cases/server";
 
 /**
  * Live composition wiring the Membership service to its ports.
@@ -1900,6 +1994,7 @@ export const MembershipLayer = Layer.effect(
       revoke: Effect.fn("MembershipLayer.revoke")(function* (command: RevokeMembershipCommand) {
         yield* access.assertCanRevoke(command);
         const model = yield* repo.findById(command.membershipId).pipe(
+          Effect.mapError(() => new MembershipRevocationFailed()),
           Effect.flatMap(
             O.match({
               onNone: () => Effect.fail(new MembershipNotFound()),
@@ -1908,7 +2003,10 @@ export const MembershipLayer = Layer.effect(
           )
         );
 
-        yield* model.revoke().pipe(Effect.flatMap(repo.save));
+        yield* model.revoke().pipe(
+          Effect.flatMap(repo.save),
+          Effect.mapError(() => new MembershipRevocationFailed())
+        );
       }),
     };
   })
@@ -1923,9 +2021,23 @@ that boundary rule.
 Server handlers consume use-case services:
 
 ````ts
+import * as Context from "effect/Context";
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
-import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public";
-import { MembershipService } from "@beep/iam-use-cases/server";
+
+class MembershipRevocationDenied extends S.TaggedError<MembershipRevocationDenied, { readonly brand: unique symbol }>()("MembershipRevocationDenied", { reason: S.String }) {}
+// Small local stand-ins for the illustrative slice imports.
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const RevokeMembershipCommand = S.Struct({ membershipId: MembershipId });
+type RevokeMembershipCommand = typeof RevokeMembershipCommand.Type;
+class MembershipNotFound extends S.TaggedError<MembershipNotFound, { readonly brand: unique symbol }>()("MembershipNotFound", {}) {}
+class MembershipRevocationFailed extends S.TaggedError<MembershipRevocationFailed, { readonly brand: unique symbol }>()("MembershipRevocationFailed", {}) {}
+class MembershipService extends Context.Service<MembershipService, {
+  readonly revoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
+}>()("example/MembershipService") {}
+// import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public";
+// import { MembershipService } from "@beep/iam-use-cases/server";
 
 /**
  * HTTP handler that delegates revoke commands to the Membership use-case service.

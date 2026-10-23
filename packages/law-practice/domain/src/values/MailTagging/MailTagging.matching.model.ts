@@ -342,7 +342,7 @@ const contactDomainWeight = UnitInterval.make(0.35);
  * @category getters
  * @since 0.0.0
  */
-export const matterEvidenceWeight: (kind: MatterEvidenceKind) => UnitInterval = MatterEvidenceKind.$match({
+export const matterEvidenceWeight: (kind: MatterEvidenceKind) => UnitInterval = MatterEvidenceKind.match({
   "application-number": () => identifierWeight,
   "patent-number": () => identifierWeight,
   "docket-number": () => docketWeight,
@@ -710,7 +710,7 @@ const matchedCategories = (decision: MatterMatched): ReadonlyArray<MailCategoryN
 
 // Evidence that names the matter itself; contact evidence only says who is writing.
 // Exhaustive, so a new evidence kind must be classified before it compiles.
-const namesMatter: (kind: MatterEvidenceKind) => boolean = MatterEvidenceKind.$match({
+const namesMatter: (kind: MatterEvidenceKind) => boolean = MatterEvidenceKind.match({
   "application-number": () => true,
   "patent-number": () => true,
   "docket-number": () => true,
@@ -728,7 +728,7 @@ const belowThresholdCategories = (decision: MatterUnmatched): ReadonlyArray<Mail
     : signalCategories(decision.practiceCategories);
 
 const unmatchedCategories = (decision: MatterUnmatched): ReadonlyArray<MailCategoryName> =>
-  UnmatchedReason.$match(decision.reason, {
+  UnmatchedReason.match(decision.reason, {
     "no-signal": () => signalCategories(decision.practiceCategories),
     "below-threshold": () => belowThresholdCategories(decision),
     ambiguous: () => nearMissCategories(decision.practiceCategories),

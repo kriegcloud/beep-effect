@@ -140,14 +140,14 @@ export class QaProbe extends S.Opaque<QaProbe, { readonly brand: unique symbol }
  */
 export const isBlockingProbe = (probe: QaProbe): boolean =>
   probe.required &&
-  QaProbeStatus.$match(probe.status, {
+  QaProbeStatus.match(probe.status, {
     fail: () => true,
     pass: () => false,
     warn: () => false,
   });
 
 const statusMark = (status: QaProbeStatus): string =>
-  QaProbeStatus.$match(status, {
+  QaProbeStatus.match(status, {
     fail: () => "FAIL",
     pass: () => "ok",
     warn: () => "warn",

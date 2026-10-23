@@ -1,5 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file processEnvInEffect:skip-file
-// biome-ignore-all lint/suspicious/noTemplateCurlyInString: fixture file contents
+// @effect-diagnostics nodeBuiltinImport:skip-file processEnvInEffect:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; processEnvInEffect because it asserts the Bun runner's npm_config_user_agent. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 //
 // PackedInstall against real package managers and a real fixture workspace.
 //

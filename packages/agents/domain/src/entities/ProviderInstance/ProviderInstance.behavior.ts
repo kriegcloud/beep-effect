@@ -16,7 +16,7 @@ import { AuthSnapshot, ProviderKind } from "./ProviderInstance.values.ts";
  *
  * Total and exhaustive: dispatches on the {@link AuthSnapshot} `status` tag via
  * the schema-derived match, then on {@link ProviderKind} via its LiteralKit
- * `$match`, so adding a snapshot variant or provider kind is a type error
+ * `match`, so adding a snapshot variant or provider kind is a type error
  * until guidance exists for it. Unauthenticated instances are told the exact
  * login command; failed probes are pointed at the binary path.
  *
@@ -46,17 +46,17 @@ export const loginGuidance: {
 } = dual(2, (kind: ProviderKind, snapshot: AuthSnapshot): string =>
   AuthSnapshot.match(snapshot, {
     authenticated: () =>
-      ProviderKind.$match(kind, {
+      ProviderKind.match(kind, {
         claude: () => "The Claude CLI is authenticated; no action needed.",
         codex: () => "The Codex CLI is authenticated; no action needed.",
       }),
     unauthenticated: () =>
-      ProviderKind.$match(kind, {
+      ProviderKind.match(kind, {
         claude: () => "Run `claude auth login` in your terminal, then probe again.",
         codex: () => "Run `codex login` in your terminal, then probe again.",
       }),
     "probe-failed": () =>
-      ProviderKind.$match(kind, {
+      ProviderKind.match(kind, {
         claude: () =>
           "The Claude CLI probe failed before reporting auth status. Check that the instance binary path points at a runnable `claude` binary, then probe again.",
         codex: () =>

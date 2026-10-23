@@ -331,6 +331,9 @@
       "path": "packages/foundation/modeling/github-references"
     },
     {
+      "path": "packages/foundation/modeling/github-reporting"
+    },
+    {
       "path": "packages/foundation/modeling/glob"
     },
     {
@@ -482,6 +485,9 @@
     },
     {
       "path": "packages/tooling/library/qa-capture"
+    },
+    {
+      "path": "packages/tooling/library/repo-tsconfig"
     },
     {
       "path": "packages/tooling/library/repo-utils"

@@ -6,20 +6,26 @@
  */
 
 import { DocketRunId, makeDocketRunId, readDocketJournal } from "@beep/law-practice-server/DocketIntake";
+import { makeReviewFilesLayer, ReviewFilesConfig } from "@beep/law-practice-server/ReviewFiles";
 import {
   DocketIntakeState,
   DocketLedgerRecord,
   DocketNeedsReview,
+  DocketQuestionInput,
+  DocketQuestions,
+  DocketQuestionsLive,
   DocketWrittenEntry,
   IntakeFailed,
   NotDocketItem,
 } from "@beep/law-practice-use-cases/DocketIntake";
+import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
+import { GraphMessage } from "@beep/m365";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -39,6 +45,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
+import { DocketBackfillReport } from "@/Backfill";
 import { makeCommand, makeHandlers } from "@/Commands";
 import { DocketCycleReport } from "@/Cycle";
 import { DocketDryRunReport } from "@/DryRun";
@@ -109,6 +116,7 @@ const printed = Effect.map(TestConsole.logLines, (lines) =>
 const firstLine = Effect.flatMap(printed, (lines) => Effect.fromOption(A.head(lines)));
 
 const decodeCycleReport = S.decodeUnknownEffect(S.fromJsonString(DocketCycleReport));
+const decodeBackfillReport = S.decodeUnknownEffect(S.fromJsonString(DocketBackfillReport));
 const decodeDryRunReport = S.decodeUnknownEffect(S.fromJsonString(DocketDryRunReport));
 const encodeState = S.encodeEffect(S.fromJsonString(DocketIntakeState));
 
@@ -119,6 +127,7 @@ const kindOf = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
   Effect.map(failureOf(effect), O.flatMap(O.liftPredicate(S.is(DocketIntakeCommandError))));
 
 const DAY = LocalDate.make({ year: 2030, month: 1, day: 9 });
+const REVIEW_HUB = "/fixture/review-hub";
 const record = (outcome: DocketLedgerRecord["outcome"]) =>
   DocketLedgerRecord.make({ attempts: 1, outcome, processedOn: DAY, receivedAt: "2030-01-09T09:00:00.000Z" });
 
@@ -420,6 +429,104 @@ describe("@beep/docket-intake commands", () => {
         ]);
         expect(A.map(journal, (line) => line.kind)).toStrictEqual(["run-completed"]);
         expect(A.filter(yield* Ref.get(fake.calls), (call) => !Str.startsWith("get")(call))).toStrictEqual([]);
+      })
+    );
+  });
+
+  it.layer(commandsLayer({ ...fixtureEnv, DOCKET_INTAKE_REVIEW_HUB_DIR: REVIEW_HUB }), { timeout: "10 seconds" })(
+    (it) => {
+      it.effect(
+        "backfill-questions names the email of a journaled message's stored question and prints counts only",
+        Effect.fnUntraced(function* () {
+          const handlers = yield* makeTestHandlers;
+          const fake = yield* FakeM365;
+          const fs = yield* FileSystem.FileSystem;
+          // The cycle enters and marks `m1`; its question was stored before questions named their email.
+          yield* handlers.poll(noFlags);
+          yield* fs.makeDirectory(REVIEW_HUB, { recursive: true });
+          const questions = Context.get(
+            yield* Layer.build(DocketQuestionsLive.pipe(Layer.provide(BunCrypto.layer))),
+            DocketQuestions
+          );
+          const store = Context.get(
+            yield* Layer.build(makeReviewFilesLayer(ReviewFilesConfig.make({ dataDirectory: REVIEW_HUB }))),
+            ReviewItemStore
+          );
+          const stored = yield* questions.raise(
+            DocketQuestionInput.make({
+              outcome: DocketNeedsReview.make({
+                entry: DocketWrittenEntry.make({ eventId: "event-review" }),
+                flags: [],
+                messageId: "m1",
+                reason: "no-usable-date",
+              }),
+            })
+          );
+          yield* store.upsert(O.toArray(stored));
+          yield* Ref.update(fake.script, (script) => ({
+            ...script,
+            getMessage: Effect.succeed(
+              GraphMessage.make({
+                id: "m1",
+                receivedDateTime: O.some("2030-01-09T10:00:00Z"),
+                subject: O.some("Office action response"),
+              })
+            ),
+          }));
+
+          yield* handlers.backfillQuestions({ apply: false });
+          const dry = yield* fs.readFileString(`${REVIEW_HUB}/items.jsonl`);
+          yield* handlers.backfillQuestions({ apply: true });
+          const lines = A.drop(yield* printed, 1);
+          const reports = yield* Effect.forEach(lines, (line) => decodeBackfillReport(line));
+
+          expect(A.map(reports, ({ applied, enriched, found }) => [applied, found, enriched])).toStrictEqual([
+            [false, 1, 1],
+            [true, 1, 1],
+          ]);
+          expect(A.every(lines, (line) => !Str.includes("Office action response")(line))).toBe(true);
+          assertTrue(!Str.includes("Office action response")(dry));
+          assertTrue(Str.includes("Office action response")(yield* fs.readFileString(`${REVIEW_HUB}/items.jsonl`)));
+        })
+      );
+    }
+  );
+
+  it.layer(commandsLayer({ ...fixtureEnv, DOCKET_INTAKE_REVIEW_HUB_DIR: REVIEW_HUB }), { timeout: "10 seconds" })(
+    (it) => {
+      it.effect(
+        "backfill-questions reports an unreadable review hub as a command failure",
+        Effect.fnUntraced(function* () {
+          const handlers = yield* makeTestHandlers;
+          const fs = yield* FileSystem.FileSystem;
+          yield* handlers.poll(noFlags);
+          yield* fs.makeDirectory(REVIEW_HUB, { recursive: true });
+          yield* fs.writeFileString(`${REVIEW_HUB}/items.jsonl`, "not json\n");
+
+          const failed = yield* kindOf(handlers.backfillQuestions({ apply: false }));
+
+          assertSome(
+            O.map(failed, (error) => error.kind),
+            "failed"
+          );
+          assertTrue(O.exists(failed, (error) => Str.startsWith("review hub items, read: ")(error.message)));
+        })
+      );
+    }
+  );
+
+  it.layer(CommandsLayer, { timeout: "10 seconds" })((it) => {
+    it.effect(
+      "backfill-questions fails without a review hub directory",
+      Effect.fnUntraced(function* () {
+        const handlers = yield* makeTestHandlers;
+
+        const failed = yield* kindOf(handlers.backfillQuestions({ apply: false }));
+
+        assertSome(
+          O.map(failed, (error) => error.kind),
+          "failed"
+        );
       })
     );
   });

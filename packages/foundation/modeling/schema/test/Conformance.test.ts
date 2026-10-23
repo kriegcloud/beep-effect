@@ -91,11 +91,11 @@ describe("Conformance", () => {
   });
 
   it("types the annotation key and validates raw AST payloads before exposing them", () => {
-    // @ts-expect-error The registered annotation key rejects scalar payloads.
+    // @ts-expect-error -- The registered annotation key rejects scalar payloads. Owner: @beep/schema. Exit: remove if the API is meant to accept this.
     const Scalar = S.String.annotate({ conformance: "not-a-registry" });
     const Invalid = S.String.annotate({
       conformance: {
-        // @ts-expect-error Direct attachment requires metadata validated and branded by Annotation.
+        // @ts-expect-error -- Direct attachment requires metadata validated and branded by Annotation. Owner: @beep/schema. Exit: remove if the API is meant to accept this.
         sources: ["not-a-source"],
         profiles: ["not-a-profile"],
         invariants: ["not-an-invariant"],

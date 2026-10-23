@@ -130,7 +130,7 @@ const commandFor = (
   paths: AiProviderCliPaths,
   provider: AiProviderCliProvider
 ): readonly [string, ReadonlyArray<string>] =>
-  AiProviderCliProvider.$match(provider, {
+  AiProviderCliProvider.match(provider, {
     claude: () => [paths.claudePath, ["auth", "status"]] as const,
     codex: () => [paths.codexPath, ["login", "status"]] as const,
   });
@@ -283,7 +283,7 @@ const makeService = (paths: AiProviderCliPaths, runner: AiProviderCliRunner): Ai
     checkAuthSnapshot: Effect.fn("AiProviderCli.checkAuthSnapshot")(function* (provider, inputOptions) {
       const [, result] = yield* runProbe(provider, inputOptions);
 
-      return yield* AiProviderCliProvider.$match(provider, {
+      return yield* AiProviderCliProvider.match(provider, {
         claude: () => claudeSnapshot(result),
         codex: () => Effect.succeed(codexSnapshot(result)),
       });

@@ -61,19 +61,20 @@ Source: `packages/foundation/modeling/schema/src/{SchemaUtils,LiteralKit,MappedL
 ```ts
 import { $SchemaId } from "@beep/identity/packages";          // ~90 pre-built composers
 import * as S from "effect/Schema";
+import { LiteralKit } from "@beep/schema";
 
 const $I = $SchemaId.create("relative/path/from/pkg/src");    // file-scoped child composer
+
+// pipeable schema annotation
+export const HeadingLevel = LiteralKit([1,2,3,4,5,6]).pipe($I.annoteSchema("HeadingLevel", { description: "Heading level." }));
 
 // plain tagged data: branded Opaque over an annotated TaggedStruct
 export class Heading extends S.Opaque<Heading, { readonly brand: unique symbol }>()(
   S.TaggedStruct("heading", { level: HeadingLevel }).pipe($I.annoteSchema("Heading", { description: "…" }))
 ) { static readonly is = S.is(Heading); }
 
-// pipeable schema annotation
-export const HeadingLevel = LiteralKit([1,2,3,4,5,6]).pipe($I.annoteSchema("HeadingLevel", { … }));
-
 // per-key annotation
-{ level: HeadingLevel.annotateKey({ description: "…" }) }
+const fields = { level: HeadingLevel.annotateKey({ description: "…" }) };
 
 // typed error (identifier from $I, never a bare string)
 class ParseError extends S.TaggedError<ParseError, { readonly brand: unique symbol }>($I`ParseError`)(
@@ -118,7 +119,7 @@ Distilled from `packages/foundation/modeling/md/src/` and `.../lexical/src/`.
 
 **1. Six heading nodes → one `Heading{ level }`.** Kills ~20 repeated match arms + the
 `headingConstructors`/`headingMarkerCount` lookup tables.
-```ts
+```ts skip-type-checking
 // before: H1..H6 as six S.TaggedClass nodes, six render arms, two lookup tables
 // after:
 export const HeadingLevel = LiteralKit([1,2,3,4,5,6]).pipe($I.annoteSchema("HeadingLevel", { … }));  // Md.model.ts:830
@@ -139,7 +140,7 @@ export class Heading extends S.Opaque<Heading, { readonly brand: unique symbol }
 ```
 
 **3. `*Defaults` spreads → schema-field defaults.** ~30 construction sites collapse.
-```ts
+```ts skip-type-checking
 // before: new ParagraphNode({ ...ParagraphDefaults, children })  // version:1, direction:none, format:"", indent:0 …
 // after (fields carry their own defaults):
 version: LexicalNodeVersion.pipe(S.withConstructorDefault(Effect.succeed(1))),                 // Lexical.model.ts
@@ -150,7 +151,7 @@ direction: SomeDirection.pipe(S.withConstructorDefault(Effect.succeedNone)),
 ```
 
 **4. Nullable field + null-ternary → `Option` field.**
-```ts
+```ts skip-type-checking
 // before: backgroundColor: string | null;  … color != null ? color : fallback
 // after:
 backgroundColor: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -158,7 +159,7 @@ backgroundColor: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effe
 ```
 
 **5. Duplicated imperative segmentation loop → one shared `dual` combinator.**
-```ts
+```ts skip-type-checking
 // before: let runs = []; for (const c of children) { if (isInline(c)) …push… }  // repeated in every list renderer
 // after: one combinator, data-first or data-last, no let/for/push:
 export const segmentInlineRuns: {
@@ -172,9 +173,13 @@ export const segmentInlineRuns: {
 
 **6. Hand fixtures → schema-derived property laws.**
 ```ts
+import * as S from "effect/Schema";
 import { fcRuns } from "@beep/test-utils";
 import { expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+const Document = S.Struct({ text: S.String });
+declare const encode: (doc: typeof Document.Type) => string;
+declare const decode: (input: string) => typeof Document.Type;
 const DocumentArbitrary = Arbitrary.schema(Document);              // Md.test.ts:120
 it.prop("round-trips losslessly", [DocumentArbitrary], ([doc]) => {
   expect(decode(encode(doc))).toEqual(doc);

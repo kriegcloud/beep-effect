@@ -209,7 +209,7 @@ def _download_pinned_artifact(
         descriptor.source, headers={"User-Agent": "beep-photo-face/2"}
     )
     try:
-        with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
+        with urllib.request.urlopen(request, timeout=60) as response:
             content_length = response.headers.get("Content-Length")
             if (
                 content_length is not None

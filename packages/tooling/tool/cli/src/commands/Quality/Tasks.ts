@@ -1902,7 +1902,7 @@ export const redSchedulingDecision = (
   O.match(estimate, {
     onNone: stopAfterRed,
     onSome: (value) =>
-      GatePrecisionClass.$match(value.precision, {
+      GatePrecisionClass.match(value.precision, {
         precise: stopAfterRed,
         imprecise: continueAfterImpreciseRed,
       }),
@@ -2861,7 +2861,7 @@ const policyLintTurboStep = (
   base?: string
 ): QualityTaskStep => {
   const concurrency = pipe(
-    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Same declared boundary as the hosted Check lane.
+    // biome-ignore lint/suspicious/noUndeclaredEnvVars: Same declared boundary as the hosted Check lane: BEEP_QUALITY_CHECK_CONCURRENCY is in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
     decodePolicyLintConcurrencyOption(Bun.env.BEEP_QUALITY_CHECK_CONCURRENCY),
     O.getOrElse(() => "4")
   );
@@ -2934,6 +2934,7 @@ const policyMediumTasks = [
   "lint:circular",
   "lint:effect-imports",
   "lint:effect-imports-markdown",
+  "lint:markdown-fences",
   "lint:retired-effect-paths",
   "lint:retired-iri-authorities",
   "lint:schema-tag-idioms",

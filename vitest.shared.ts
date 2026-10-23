@@ -1,6 +1,6 @@
 // The include list must exist before vitest boots, and Effect's Node FileSystem
 // is async, so this config-time scan uses the synchronous Node builtins. This file is one of the
-// three declared directive exemptions in `beep quality tsgo-rules` (Quality.command.ts).
+// two declared directive exemptions in `beep quality tsgo-rules` (Quality.command.ts).
 // @effect-diagnostics nodeBuiltinImport:skip-file
 
 import * as NodeFS from "node:fs";
