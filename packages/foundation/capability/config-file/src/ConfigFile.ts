@@ -454,6 +454,15 @@ export type ConfigEncodeError = ConfigCodecError | ConfigValidationError;
 /**
  * Options shared by {@link ConfigFileShape.encode} and {@link ConfigFileShape.write}.
  *
+ * **Example** (Prefix a TOML schema directive)
+ *
+ * ```ts
+ * import { ConfigEncodeOptions } from "@beep/config-file/ConfigFile";
+ *
+ * const options = ConfigEncodeOptions.make({ header: "#:schema ./config.schema.json" });
+ * console.log(options.header) // #:schema ./config.schema.json
+ * ```
+ *
  * @public
  * @category configuration
  * @since 0.0.0

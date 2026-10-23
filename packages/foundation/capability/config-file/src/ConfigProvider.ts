@@ -87,6 +87,15 @@ export const asConfigProvider = <A>(
 /**
  * Options for {@link layerConfigProvider}.
  *
+ * **Example** (Make the file the primary source)
+ *
+ * ```ts
+ * import { LayerConfigProviderOptions } from "@beep/config-file/ConfigProvider";
+ *
+ * const options = LayerConfigProviderOptions.make({ asPrimary: true });
+ * console.log(options.asPrimary) // true
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0

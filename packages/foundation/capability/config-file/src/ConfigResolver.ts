@@ -118,6 +118,15 @@ export interface ConfigResolver<R = never> {
  * `subpath` and `filename` are the `subpaths`/`filenames` entries that matched,
  * exactly as the caller spelled them.
  *
+ * **Example** (Build a match in a hand-written resolver)
+ *
+ * ```ts
+ * import { ConfigMatch } from "@beep/config-file/ConfigResolver";
+ *
+ * const match = ConfigMatch.make({ path: "/repo/.apprc", dir: "/repo", filename: ".apprc" });
+ * console.log(match.path, match.dir) // /repo/.apprc /repo
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
@@ -174,6 +183,16 @@ export class ConfigMatch extends S.Opaque<ConfigMatch, { readonly brand: unique 
  * nothing matched. It exists so the failure path can be as informative as the
  * success path: {@link ConfigMatch} says which candidate won and anchored
  * where; `probed` says what lost, and where the search looked.
+ *
+ * **Example** (Report a lookup that found nothing)
+ *
+ * ```ts
+ * import { ConfigProbe } from "@beep/config-file/ConfigResolver";
+ * import * as O from "effect/Option";
+ *
+ * const probe = ConfigProbe.make({ match: O.none(), probed: ["/repo/a/.apprc", "/repo/.apprc"] });
+ * console.log(O.isNone(probe.match), probe.probed.length) // true 2
+ * ```
  *
  * @public
  * @category type-level
