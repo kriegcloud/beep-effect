@@ -985,39 +985,52 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
     })
   );
 
-  it.effect("Codex and Cursor SessionStart adapters preserve the shared stamp", () =>
-    Effect.gen(function* () {
-      const root = yield* makeHarnessFixtureRoot();
-      const oracle = yield* typescriptHarnessHash(root);
-      const fixtures = [
-        {
-          writerPath: codexWriterPath,
-          agentKind: HookPulseAgentKind.Enum["codex-cli"],
-          payload: { ...sessionStartPayload(root), hook_event_name: "SessionStart" },
-          registeredEvent: undefined,
-          stdout: "",
-        },
-        {
-          writerPath: cursorWriterPath,
-          agentKind: HookPulseAgentKind.Enum["cursor-cli"],
-          payload: { ...sessionStartPayload(root), hook_event_name: undefined },
-          registeredEvent: "sessionStart",
-          stdout: "{}\n",
-        },
-      ];
-      for (const fixture of fixtures) {
-        const run = yield* runWriter(yield* encodeJson(fixture.payload), {
-          writerPath: fixture.writerPath,
-          ...(fixture.registeredEvent === undefined ? {} : { registeredEvent: fixture.registeredEvent }),
-        });
-        expect(run.stdout).toBe(fixture.stdout);
+  // Keep adapters as separate cases so a hosted failure identifies its boundary.
+  // Both use the synthetic indexed harness and runWriter's empty temporary HOME.
+  for (const adapter of [
+    {
+      writerPath: codexWriterPath,
+      agentKind: HookPulseAgentKind.Enum["codex-cli"],
+      hookEvent: "SessionStart",
+      registeredEvent: undefined,
+      stdout: "",
+    },
+    {
+      writerPath: cursorWriterPath,
+      agentKind: HookPulseAgentKind.Enum["cursor-cli"],
+      hookEvent: undefined,
+      registeredEvent: "sessionStart",
+      stdout: "{}\n",
+    },
+  ]) {
+    it.effect(`${adapter.agentKind} SessionStart adapter preserves the shared stamp`, () =>
+      Effect.gen(function* () {
+        const root = yield* makeHarnessFixtureRoot();
+        const oracle = yield* typescriptHarnessHash(root);
+        const run = yield* runWriter(
+          yield* encodeJson({ ...sessionStartPayload(root), hook_event_name: adapter.hookEvent }),
+          {
+            writerPath: adapter.writerPath,
+            ...(adapter.registeredEvent === undefined ? {} : { registeredEvent: adapter.registeredEvent }),
+          }
+        );
+        expect(run.stdout).toBe(adapter.stdout);
         expect(run.rows).toHaveLength(1);
         const decoded = yield* decodeHookPulseRow(pipe(A.head(run.rows), O.getOrThrow));
+        // Refusals contain only timestamp, agent kind and reason. Report those
+        // alongside process status without dumping the raw payload or environment.
+        const refusals = yield* Effect.forEach(run.refusals, (row) => decodeHookPulseRefusalJson(row));
+        const diagnostics = yield* encodeJson({
+          exitCode: run.exitCode,
+          stderr: run.stderr,
+          refusalReasons: A.map(refusals, (refusal) => refusal.reason),
+        });
+        yield* Effect.logInfo(`${adapter.agentKind} stamp diagnostics: ${diagnostics}`);
         assertSome(decoded.harnessHash, oracle.harnessHash);
-        expect(decoded.agentKind).toBe(fixture.agentKind);
-      }
-    })
-  );
+        expect(decoded.agentKind).toBe(adapter.agentKind);
+      })
+    );
+  }
 
   it.effect("preserves git stamp parity with nested docs, symlinks and unrelated quoted names", () =>
     Effect.gen(function* () {
