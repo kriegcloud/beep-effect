@@ -1,6 +1,8 @@
 /**
  * The signed bundle, as a value.
  *
+ * **Details**
+ *
  * This module imports NOTHING from `@sigstore/*`, deliberately. A bundle is
  * what crosses the seam to `@beep/github`'s attestation upload, and it is what
  * a verifier reads; neither should have to load Fulcio's transport to name the

@@ -1,6 +1,8 @@
 /**
  * The emitter facade.
  *
+ * **Details**
+ *
  * `generate` and `toJson` are plain total functions: the model is owned, so
  * there is no third-party serializer whose failure they would need to surface.
  * Only `write` has an error channel, and it is the filesystem's.

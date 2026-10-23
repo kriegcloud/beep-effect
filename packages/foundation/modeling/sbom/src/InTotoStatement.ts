@@ -1,6 +1,8 @@
 /**
  * in-toto Statement v1: the value that gets signed.
  *
+ * **Details**
+ *
  * This module reaches nothing — no `@sigstore/*`, no filesystem, no clock. That
  * is deliberate: a statement, a subject and a digest are exactly what a
  * VERIFIER needs, and a verifier must be able to depend on the shapes without

@@ -1,6 +1,8 @@
 /**
  * Manifest → CycloneDX derivation.
  *
+ * **Details**
+ *
  * Author parsing and repository-URL normalization are not done here: they are
  * `@beep/package-json`'s `Person.FromValue` and `Repository.browseUrl`,
  * which serve consumers with no SBOM interest at all. What lives here is the
@@ -441,7 +443,7 @@ const merge: {
  *
  * ```ts
  * import { Package } from "@beep/package-json/Package";
- * import { Sbom } from "@beep/sbom";
+ * import { Sbom } from "@beep/sbom/Sbom";
  * import { SbomMetadataSource } from "@beep/sbom/SbomMetadataSource";
  * import { Supplier } from "@beep/sbom/SbomDocument";
  * import * as Effect from "effect/Effect";

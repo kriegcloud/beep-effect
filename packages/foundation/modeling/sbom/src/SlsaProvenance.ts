@@ -1,6 +1,8 @@
 /**
  * SLSA Provenance v1 for a GitHub Actions `workflow/v1` build.
  *
+ * **Details**
+ *
  * Design notes:
  *
  * 1. TYPED, not `Record<string, unknown>`: a verifier reading a malformed

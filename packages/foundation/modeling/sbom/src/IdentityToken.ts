@@ -1,6 +1,8 @@
 /**
  * The inverted OIDC contract.
  *
+ * **Details**
+ *
  * Signing needs a workload identity token. Issuing one needs the Actions
  * runtime — `ACTIONS_ID_TOKEN_REQUEST_URL`, the runner's token service, a
  * platform HTTP client — which lives in the effected `github-actions` module, a

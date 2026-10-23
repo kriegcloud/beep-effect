@@ -13,7 +13,7 @@
  * **Example** (Read the SLSA predicate identifier from the entry point)
  *
  * ```ts
- * import { SLSA_PROVENANCE_V1 } from "@beep/sbom";
+ * import { SLSA_PROVENANCE_V1 } from "@beep/sbom/SlsaProvenance";
  *
  * console.log(SLSA_PROVENANCE_V1) // https://slsa.dev/provenance/v1
  * ```

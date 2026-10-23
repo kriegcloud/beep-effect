@@ -1,6 +1,8 @@
 /**
  * The CycloneDX 1.6 model, owned.
  *
+ * **Details**
+ *
  * A general-purpose CycloneDX library carries XML serialization, schema
  * validation and SPDX expression parsing, which an emitter never calls. What an
  * emitter needs is an object model and a JSON normalizer, which is what this

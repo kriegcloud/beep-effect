@@ -1,6 +1,8 @@
 /**
  * The NTIA minimum elements, as a report.
  *
+ * **Details**
+ *
  * Three design choices, each with a reason:
  *
  * - `id` is a stable literal, not a display string. Consumers branch on the
