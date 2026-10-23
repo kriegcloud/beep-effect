@@ -69,7 +69,7 @@ layer(Layer.mergeAll(storeLayer, NodeServices.layer), { timeout: "30 seconds" })
           const loaded = yield* store.load(file);
           const legacy = yield* legacyLoad(text);
           expect(yield* encodeManifest(loaded)).toEqual(yield* encodeManifest(legacy));
-        }).pipe(Effect.scoped)
+        })
       );
 
       it.effect(`round-trips ${fixture} through the writer and the reader`, () =>
@@ -79,7 +79,7 @@ layer(Layer.mergeAll(storeLayer, NodeServices.layer), { timeout: "30 seconds" })
           const target = yield* freshTarget();
           yield* store.init(target, loaded);
           expect(yield* encodeManifest(yield* store.load(target))).toEqual(yield* encodeManifest(loaded));
-        }).pipe(Effect.scoped)
+        })
       );
     }
 
@@ -89,7 +89,7 @@ layer(Layer.mergeAll(storeLayer, NodeServices.layer), { timeout: "30 seconds" })
         const target = yield* freshTarget();
         yield* store.init(target, seedModelsManifest);
         expect(yield* encodeManifest(yield* store.load(target))).toEqual(yield* encodeManifest(seedModelsManifest));
-      }).pipe(Effect.scoped)
+      })
     );
 
     it.effect("reports a YAML syntax error as a typed parse failure", () =>
@@ -99,7 +99,7 @@ layer(Layer.mergeAll(storeLayer, NodeServices.layer), { timeout: "30 seconds" })
         const error = yield* Effect.flip(store.load(file));
         expect(error).toMatchObject({ _tag: "ModelsManifestError", path: file });
         expect(error.message).toBe(`Failed to parse YAML in ${file}.`);
-      }).pipe(Effect.scoped)
+      })
     );
 
     it.effect("reports a well-formed manifest of the wrong shape as a decode failure", () =>
@@ -110,7 +110,7 @@ layer(Layer.mergeAll(storeLayer, NodeServices.layer), { timeout: "30 seconds" })
         expect(error).toMatchObject({ _tag: "ModelsManifestError", path: file });
         expect(error.message).toContain(`Failed to decode the models manifest at ${file}`);
         expect(error.message).toContain("bindings");
-      }).pipe(Effect.scoped)
+      })
     );
   }
 );

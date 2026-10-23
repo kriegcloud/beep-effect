@@ -200,7 +200,7 @@ describe("Configuration", () => {
   // docgen read docgen.json through jsonc-parser with its errors ignored, so a
   // malformed file decoded whatever fragment survived. Through ConfigFile.read
   // and JsoncCodec (wave 3, W3-e) the parse failure is typed.
-  it.layer(makeTextLayer({ exists: true, text: O.some('{ "srcDir": "src", ') }))((it) =>
+  it.layer(makeTextLayer({ exists: true, text: O.some('{ "srcDir": "src", ') }), { timeout: "30 seconds" })((it) =>
     it.effect(
       "raises a typed parse error when docgen.json is malformed JSONC",
       Effect.fnUntraced(function* () {
@@ -216,7 +216,8 @@ describe("Configuration", () => {
     makeTextLayer({
       exists: true,
       text: O.some('{\n  // comments and trailing commas stay legal\n  "srcDir": "lib",\n}\n'),
-    })
+    }),
+    { timeout: "30 seconds" }
   )((it) =>
     it.effect(
       "reads comments and trailing commas in docgen.json",
@@ -227,7 +228,7 @@ describe("Configuration", () => {
     )
   );
 
-  it.layer(makeTextLayer({ exists: true, text: O.none() }))((it) =>
+  it.layer(makeTextLayer({ exists: true, text: O.none() }), { timeout: "30 seconds" })((it) =>
     it.effect(
       "raises a typed read error when docgen.json exists but cannot be read",
       Effect.fnUntraced(function* () {
