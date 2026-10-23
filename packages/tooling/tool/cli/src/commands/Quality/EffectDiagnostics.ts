@@ -59,7 +59,7 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
     }),
   }).pipe(
     $I.annoteSchema("EffectDiagnosticsProfile", {
-      description: "The eleven rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
+      description: "The eleven rules absent from tsc-rs 0.8.0, configured for the standalone @effect/tsgo lane.",
     })
   )
 ) {}
