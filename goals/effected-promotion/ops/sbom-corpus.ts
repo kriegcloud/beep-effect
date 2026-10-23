@@ -25,6 +25,8 @@
  *
  *   bun goals/effected-promotion/ops/sbom-corpus.ts [--out <report.json>]
  */
+
+import * as NodeURL from "node:url";
 import { Package } from "@beep/package-json/Package";
 import { NtiaElementId, NtiaReport } from "@beep/sbom/NtiaReport";
 import { Sbom } from "@beep/sbom/Sbom";
@@ -134,7 +136,7 @@ const violationsAgainst = (schema: typeof SchemaDocument.Type): Violations => {
 
 // --- census -------------------------------------------------------------------
 
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const argv = A.drop(process.argv, 2);
 const flagValue = (name: string): O.Option<string> =>
   pipe(
