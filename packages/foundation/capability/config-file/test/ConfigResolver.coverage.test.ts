@@ -1,5 +1,6 @@
 import { ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { MemoryFileSystem } from "@beep/memfs";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import { afterEach, assert, describe, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -19,11 +20,31 @@ it.layer(platform, { timeout: "30 seconds" })((it) => {
         assertNone(yield* ConfigResolver.systemEtc({ app: "absent", filename: "config" }).resolve);
       })
     );
-    it.effect("uses root when process has no cwd and skips etc on Windows", () =>
+    it.effect("uses root when process has no cwd", () =>
       Effect.gen(function* () {
-        vi.stubGlobal("process", { platform: "win32" });
+        vi.stubGlobal("process", {});
         assertSome(yield* ConfigResolver.upwardWalk({ filename: "config" }).resolve, "/config");
-        assertNone(yield* ConfigResolver.systemEtc({ app: "app", filename: "config" }).resolve);
+      })
+    );
+    it.effect("skips etc on Windows, read from HostProcessPlatform rather than the process global", () =>
+      Effect.gen(function* () {
+        // Conformance shift (W3-e): the platform is the `HostProcessPlatform`
+        // reference, so a test pins it with `provideService` instead of stubbing
+        // `globalThis.process`.
+        const etc = ConfigResolver.systemEtc({ app: "app", filename: "config", dir: "/" });
+        const windows = yield* Effect.provideService(
+          etc.resolveProbe ?? Effect.die("no probe"),
+          HostProcessPlatform,
+          "win32"
+        );
+        assertNone(windows.match);
+        assert.deepStrictEqual(windows.probed, []);
+        const linux = yield* Effect.provideService(
+          etc.resolveProbe ?? Effect.die("no probe"),
+          HostProcessPlatform,
+          "linux"
+        );
+        assert.deepStrictEqual(linux.probed, ["/app/config"]);
       })
     );
     it.effect("uses the host cwd when no cwd is supplied", () =>

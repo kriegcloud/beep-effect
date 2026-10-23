@@ -86,7 +86,7 @@ describe("ConfigMigration.make", () => {
       assert.isTrue(S.is(ConfigMigrationError)(error));
       assert.strictEqual(error._tag, "ConfigMigrationError");
       assert.strictEqual(error.version, Number.POSITIVE_INFINITY);
-      assert.strictEqual(error.name, "infinity-fails");
+      assert.strictEqual(error.migration, "infinity-fails");
       assert.strictEqual(error.phase, "apply");
       assert.strictEqual(error.cause, boom);
     })
@@ -103,7 +103,7 @@ describe("ConfigMigration.make", () => {
       assert.instanceOf(error, ConfigMigrationError);
       assert.isTrue(S.is(ConfigMigrationError)(error));
       assert.strictEqual(error._tag, "ConfigMigrationError");
-      assert.strictEqual(error.name, "add-b");
+      assert.strictEqual(error.migration, "add-b");
       assert.strictEqual(error.version, 2);
       assert.strictEqual(error.phase, "apply");
       // identity preserved — not String(e), not e.message, not a reason string.
@@ -313,7 +313,7 @@ describe("ConfigMigration.make with a custom versionAccess", () => {
       assert.isTrue(S.is(ConfigMigrationError)(error));
       assert.strictEqual(error.phase, "read-version");
       assert.strictEqual(error.version, 0);
-      assert.strictEqual(error.name, "");
+      assert.strictEqual(error.migration, "");
       assert.instanceOf(error.cause, Error);
       assert.isTrue(error.cause instanceof Error);
       assert.strictEqual(error.cause.message, "meta.schemaVersion is missing or not a number");
@@ -350,7 +350,7 @@ describe("ConfigMigration.make with a custom versionAccess", () => {
       assert.isTrue(S.is(ConfigMigrationError)(error));
       assert.strictEqual(error.phase, "write-version");
       assert.strictEqual(error.version, 2);
-      assert.strictEqual(error.name, "add-b");
+      assert.strictEqual(error.migration, "add-b");
       assert.strictEqual(error.cause, boom);
     })
   );

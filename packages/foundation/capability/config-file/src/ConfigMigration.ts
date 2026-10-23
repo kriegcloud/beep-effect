@@ -27,7 +27,7 @@ const $I = $ConfigFileId.create("ConfigMigration");
  * import { ConfigMigrationError } from "@beep/config-file/ConfigMigration";
  *
  * const error = ConfigMigrationError.make({
- *   version: 2, name: "rename-host", phase: "apply", cause: new Error("Invalid config"),
+ *   version: 2, migration: "rename-host", phase: "apply", cause: new Error("Invalid config"),
  * });
  * console.log(error.message) // Migration "rename-host" (v2) failed during apply
  * ```
@@ -60,8 +60,8 @@ export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError, { 
      *
      * @since 0.0.0
      */
-    name: S.String.pipe(
-      $I.annoteKey("ConfigMigrationError.name", {
+    migration: S.String.pipe(
+      $I.annoteKey("ConfigMigrationError.migration", {
         description: "The name of the step that failed; empty when reading the version failed.",
       })
     ),
@@ -95,7 +95,7 @@ export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError, { 
    * import { ConfigMigrationError } from "@beep/config-file/ConfigMigration";
    *
    * const error = ConfigMigrationError.make({
-   *   version: 2, name: "rename-host", phase: "apply", cause: new Error("Invalid config"),
+   *   version: 2, migration: "rename-host", phase: "apply", cause: new Error("Invalid config"),
    * });
    * console.log(error.message) // Migration "rename-host" (v2) failed during apply
    * ```
@@ -106,7 +106,7 @@ export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError, { 
   override get message(): string {
     return this.phase === "read-version"
       ? "Failed to read the config version"
-      : `Migration "${this.name}" (v${this.version}) failed during ${this.phase}`;
+      : `Migration "${this.migration}" (v${this.version}) failed during ${this.phase}`;
   }
 }
 
@@ -289,7 +289,9 @@ const runPhase: {
     name: string,
     run: () => Effect.Effect<A, E>
   ): Effect.Effect<A, ConfigMigrationError> =>
-    Effect.suspend(run).pipe(Effect.mapError((cause) => ConfigMigrationError.make({ version, name, phase, cause })))
+    Effect.suspend(run).pipe(
+      Effect.mapError((cause) => ConfigMigrationError.make({ version, migration: name, phase, cause }))
+    )
 );
 
 // Implementation of ConfigMigration.make; the public contract lives on the static.

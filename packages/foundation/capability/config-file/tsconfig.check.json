@@ -12,7 +12,13 @@
       "path": "../../modeling/jsonc/tsconfig.json"
     },
     {
+      "path": "../../modeling/schema/tsconfig.json"
+    },
+    {
       "path": "../../modeling/toml/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/utils/tsconfig.json"
     },
     {
       "path": "../../modeling/yaml/tsconfig.json"

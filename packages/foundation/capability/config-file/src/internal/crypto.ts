@@ -3,6 +3,8 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const $I = $ConfigFileId.create("internal/crypto");
 
@@ -191,11 +193,10 @@ export const fromBase64 = (raw: string): Effect.Effect<Uint8Array<ArrayBuffer>, 
   Effect.try({
     try: () => {
       const binary = atob(raw);
-      const buf = new ArrayBuffer(binary.length);
-      const bytes = new Uint8Array(buf);
-      for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-      }
+      const bytes = new Uint8Array(new ArrayBuffer(binary.length));
+      // `atob` yields one character per byte (0-255), so iterating the string
+      // visits each byte once and the `None` fallback is unreachable.
+      bytes.set(A.map(A.fromIterable(binary), (char) => O.getOrElse(Str.charCodeAt(char, 0), () => 0)));
       return bytes;
     },
     catch: fail("encoding"),

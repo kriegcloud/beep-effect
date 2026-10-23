@@ -1,3 +1,5 @@
+import { $ConfigFileId } from "@beep/identity/packages";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import { Walker } from "@beep/walker/Walker";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -9,6 +11,8 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type * as PlatformError from "effect/PlatformError";
+
+const $I = $ConfigFileId.create("ConfigResolver");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -110,32 +114,46 @@ export interface ConfigResolver<R = never> {
  * @category type-level
  * @since 0.0.0
  */
-export interface ConfigMatch {
-  /**
-   * The directory the matching candidate was resolved against, when the resolver has one.
-   *
-   * @since 0.0.0
-   */
-  readonly dir?: string;
-  /**
-   * The `filenames`/`filename` entry that matched, when the resolver takes one.
-   *
-   * @since 0.0.0
-   */
-  readonly filename?: string;
-  /**
-   * The filesystem path that matched.
-   *
-   * @since 0.0.0
-   */
-  readonly path: string;
-  /**
-   * The `subpaths` entry that matched, when the resolver takes `subpaths`.
-   *
-   * @since 0.0.0
-   */
-  readonly subpath?: string;
-}
+export class ConfigMatch extends S.Opaque<ConfigMatch, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The directory the matching candidate was resolved against, when the resolver has one.
+     *
+     * @since 0.0.0
+     */
+    dir: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ConfigMatch.dir", {
+        description: "The directory the matching candidate was resolved against, when the resolver has one.",
+      })
+    ),
+    /**
+     * The `filenames`/`filename` entry that matched, when the resolver takes one.
+     *
+     * @since 0.0.0
+     */
+    filename: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ConfigMatch.filename", {
+        description: "The filenames/filename entry that matched, when the resolver takes one.",
+      })
+    ),
+    /**
+     * The filesystem path that matched.
+     *
+     * @since 0.0.0
+     */
+    path: S.String.pipe($I.annoteKey("ConfigMatch.path", { description: "The filesystem path that matched." })),
+    /**
+     * The `subpaths` entry that matched, when the resolver takes `subpaths`.
+     *
+     * @since 0.0.0
+     */
+    subpath: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ConfigMatch.subpath", {
+        description: "The subpaths entry that matched, when the resolver takes subpaths.",
+      })
+    ),
+  }).pipe($I.annoteSchema("ConfigMatch", { description: "How a resolver found a config file, not merely where." }))
+) {}
 
 /**
  * The full report of one resolver lookup: what matched, and what was checked.
@@ -153,22 +171,67 @@ export interface ConfigMatch {
  * @category type-level
  * @since 0.0.0
  */
-export interface ConfigProbe {
-  /**
-   * The match, when a candidate existed on disk.
-   *
-   * @since 0.0.0
-   */
-  readonly match: O.Option<ConfigMatch>;
-  /**
-   * Candidate paths checked on disk, in probe order. Empty when the lookup
-   * produced no candidate to report — no root found, a platform short-circuit,
-   * or a filesystem failure absorbed across the whole probe.
-   *
-   * @since 0.0.0
-   */
-  readonly probed: ReadonlyArray<string>;
-}
+export class ConfigProbe extends S.Opaque<ConfigProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The match, when a candidate existed on disk.
+     *
+     * @since 0.0.0
+     */
+    match: S.Option(ConfigMatch).pipe(
+      $I.annoteKey("ConfigProbe.match", { description: "The match, when a candidate existed on disk." })
+    ),
+    /**
+     * Candidate paths checked on disk, in probe order. Empty when the lookup
+     * produced no candidate to report — no root found, a platform short-circuit,
+     * or a filesystem failure absorbed across the whole probe.
+     *
+     * @since 0.0.0
+     */
+    probed: S.Array(S.String).pipe(
+      $I.annoteKey("ConfigProbe.probed", { description: "Candidate paths checked on disk, in probe order." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ConfigProbe", {
+      description: "The full report of one resolver lookup: what matched, and what was checked.",
+    })
+  )
+) {}
+
+/**
+ * Admit one lookup's plain result as a {@link ConfigProbe}: the single `make`
+ * a resolve performs, after every candidate was built as plain data.
+ */
+const probeOf: {
+  (match: O.Option<typeof ConfigMatch.Encoded>, probed: ReadonlyArray<string>): ConfigProbe;
+  (probed: ReadonlyArray<string>): (match: O.Option<typeof ConfigMatch.Encoded>) => ConfigProbe;
+} = dual(
+  2,
+  (match: O.Option<typeof ConfigMatch.Encoded>, probed: ReadonlyArray<string>): ConfigProbe =>
+    ConfigProbe.make({ match: O.map(match, ConfigMatch.make), probed })
+);
+
+/** The probe of a lookup that checked nothing and found nothing. */
+const emptyProbe = (): ConfigProbe => probeOf(O.none(), []);
+
+/**
+ * Probe `paths` in order and stop at the first that exists.
+ *
+ * **Details**
+ *
+ * `Walker.firstMatch` short-circuits at the first existing candidate, so the
+ * paths actually CHECKED are the prefix ending at the match — the full list
+ * only when nothing was found.
+ */
+const firstExisting = Effect.fnUntraced(function* (paths: ReadonlyArray<string>) {
+  const fs = yield* FileSystem.FileSystem;
+  const found = yield* Walker.firstMatch(paths, (candidate) => fs.exists(candidate));
+  const probed = O.match(
+    O.flatMap(found, (target) => A.findFirstIndex(paths, (candidate) => candidate === target)),
+    { onNone: () => paths, onSome: (index) => A.take(paths, index + 1) }
+  );
+  return { found, probed };
+});
 
 /**
  * Build a resolver from a probe-reporting lookup, deriving `resolveMatch` and
@@ -194,7 +257,7 @@ const fromProbe: {
 
 /** Absorb any failure into an empty probe — the resolver contract. */
 const absorb = <E, R>(effect: Effect.Effect<ConfigProbe, E, R>): Effect.Effect<ConfigProbe, never, R> =>
-  Effect.orElseSucceed(effect, (): ConfigProbe => ({ match: O.none(), probed: [] }));
+  Effect.orElseSucceed(effect, emptyProbe);
 
 const cwdOf = (given: string | undefined): string => given ?? globalThis.process?.cwd?.() ?? "/";
 
@@ -207,10 +270,7 @@ const explicitPath = (target: string): ConfigResolver<FileSystem.FileSystem | Pa
         const fs = yield* FileSystem.FileSystem;
         const exists = yield* fs.exists(target);
         // No `dir`: an explicit path names a file, not an anchored candidate.
-        return {
-          match: exists ? O.some<ConfigMatch>({ path: target }) : O.none<ConfigMatch>(),
-          probed: [target],
-        };
+        return probeOf(exists ? O.some({ path: target }) : O.none(), [target]);
       })
     )
   );
@@ -228,12 +288,9 @@ const staticDir = (options: {
         const path = yield* Path.Path;
         const candidate = path.join(options.dir, options.filename);
         const exists = yield* fs.exists(candidate);
-        return {
-          match: exists
-            ? O.some<ConfigMatch>({ path: candidate, dir: options.dir, filename: options.filename })
-            : O.none<ConfigMatch>(),
-          probed: [candidate],
-        };
+        return probeOf(exists ? O.some({ path: candidate, dir: options.dir, filename: options.filename }) : O.none(), [
+          candidate,
+        ]);
       })
     )
   );
@@ -340,7 +397,6 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
   fromProbe(
     options.name ?? "walk",
     Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const subpaths = options.subpaths ?? ["."];
       const filenames = options.filenames ?? [options.filename];
@@ -351,7 +407,7 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
       // ancestor is exhausted before the walk ascends. A parent's first
       // candidate must never beat a child's second, which is exactly what
       // registering one resolver per filename would do.
-      const candidates: Array<ConfigMatch> = [];
+      const candidates: Array<typeof ConfigMatch.Encoded> = [];
       for (const dir of dirs) {
         for (const sub of subpaths) {
           for (const filename of filenames) {
@@ -365,17 +421,10 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
         }
       }
       const paths = A.map(candidates, (candidate) => candidate.path);
-      const found = yield* Walker.firstMatch(paths, (candidate) => fs.exists(candidate));
-      // `firstMatch` short-circuits at the first existing candidate, so the
-      // paths actually CHECKED are the prefix ending at the match — the full
-      // list only when nothing was found.
-      const probed = O.match(found, {
-        onNone: () => paths,
-        onSome: (target) => paths.slice(0, paths.indexOf(target) + 1),
-      });
+      const { found, probed } = yield* firstExisting(paths);
       // `firstMatch` returns the path; recover the descriptor that produced it.
       const match = O.flatMap(found, (target) => A.findFirst(candidates, (candidate) => candidate.path === target));
-      return { match, probed };
+      return probeOf(match, probed);
     })
   );
 
@@ -404,7 +453,6 @@ const rootAnchored: {
     fromProbe(
       name,
       Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const dirs = yield* Walker.ascend(cwdOf(options.cwd));
 
@@ -412,31 +460,24 @@ const rootAnchored: {
         // No root, no candidates: root detection probes for `.git`/workspace
         // markers, not config paths, so there is nothing config-shaped to
         // report as searched.
-        if (O.isNone(root)) return { match: O.none<ConfigMatch>(), probed: [] };
+        if (O.isNone(root)) return emptyProbe();
 
         const subpaths = options.subpaths ?? ["."];
-        const paths = A.map(subpaths, (sub) => path.join(root.value, sub, options.filename));
-        const found = yield* Walker.firstMatch(paths, (candidate) => fs.exists(candidate));
+        const candidates = A.map(subpaths, (sub) => ({ sub, path: path.join(root.value, sub, options.filename) }));
         // As in `upwardWalk`: the checked prefix, ending at the match.
-        const probed = O.match(found, {
-          onNone: () => paths,
-          onSome: (target) => paths.slice(0, paths.indexOf(target) + 1),
-        });
-        const match = O.map(found, (target): ConfigMatch => {
-          const matchedSubpath =
-            options.subpaths === undefined
-              ? O.none<string>()
-              : A.findFirst(subpaths, (sub) => path.join(root.value, sub, options.filename) === target);
-          return {
-            path: target,
+        const { found, probed } = yield* firstExisting(A.map(candidates, (candidate) => candidate.path));
+        const match = O.flatMap(found, (target) => A.findFirst(candidates, (candidate) => candidate.path === target));
+        return probeOf(
+          O.map(match, (candidate) => ({
+            path: candidate.path,
             // The anchor is the ROOT, not the subpath directory: a consumer
             // asking "where is my project" wants the git/workspace root back.
             dir: root.value,
             filename: options.filename,
-            ...(O.isSome(matchedSubpath) && { subpath: matchedSubpath.value }),
-          };
-        });
-        return { match, probed };
+            ...(options.subpaths !== undefined && { subpath: candidate.sub }),
+          })),
+          probed
+        );
       })
     )
 );
@@ -502,19 +543,14 @@ const systemEtc = (options: {
     absorb(
       Effect.gen(function* () {
         // `/etc` has no meaning on Windows; short-circuit to "not found".
-        if (globalThis.process?.platform === "win32") return { match: O.none<ConfigMatch>(), probed: [] };
+        if ((yield* HostProcessPlatform) === "win32") return emptyProbe();
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const base = options.dir ?? "/etc";
         const dir = path.join(base, options.app);
         const candidate = path.join(dir, options.filename);
         const exists = yield* fs.exists(candidate);
-        return {
-          match: exists
-            ? O.some<ConfigMatch>({ path: candidate, dir, filename: options.filename })
-            : O.none<ConfigMatch>(),
-          probed: [candidate],
-        };
+        return probeOf(exists ? O.some({ path: candidate, dir, filename: options.filename }) : O.none(), [candidate]);
       })
     )
   );

@@ -1,5 +1,6 @@
 import { ConfigEvents } from "@beep/config-file/ConfigEvent";
 import { ConfigFile, ConfigValidationError } from "@beep/config-file/ConfigFile";
+import { ConfigMatch } from "@beep/config-file/ConfigResolver";
 import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
@@ -171,7 +172,7 @@ it.layer(
       {
         name: "match-only",
         resolve: Effect.succeedSome("/matched.json"),
-        resolveMatch: Effect.succeedSome({ path: "/matched.json", dir: "/" }),
+        resolveMatch: Effect.succeedSome(ConfigMatch.make({ path: "/matched.json", dir: "/" })),
       },
     ],
   }).pipe(Layer.provide(Layer.mergeAll(MemoryFileSystem.layerWith({ "/matched.json": '{"port":7}' }), Path.layer))),
@@ -186,7 +187,7 @@ it.layer(
         {
           path: "/matched.json",
           resolver: "match-only",
-          match: { path: "/matched.json", dir: "/" },
+          match: ConfigMatch.make({ path: "/matched.json", dir: "/" }),
           value: { port: 7 },
         },
       ]);

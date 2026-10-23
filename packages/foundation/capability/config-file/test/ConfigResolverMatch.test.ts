@@ -1,5 +1,5 @@
 import { ConfigFile } from "@beep/config-file/ConfigFile";
-import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { ConfigMatch, ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
@@ -120,7 +120,10 @@ describe("ConfigResolver match reporting", () => {
           cwd: "/repo/pkg/src",
         });
         const match = yield* resolver.resolveMatch ?? Effect.succeedNone;
-        assertSome(match, { path: "/repo/app.toml", dir: "/repo", filename: "app.toml", subpath: "." });
+        assertSome(
+          match,
+          ConfigMatch.make({ path: "/repo/app.toml", dir: "/repo", filename: "app.toml", subpath: "." })
+        );
       })
     );
   });
@@ -130,7 +133,7 @@ describe("ConfigResolver match reporting", () => {
       Effect.gen(function* () {
         const resolver = ConfigResolver.staticDir({ dir: "/etc/app", filename: "config.json" });
         const match = yield* resolver.resolveMatch ?? Effect.succeedNone;
-        assertSome(match, { path: "/etc/app/config.json", dir: "/etc/app", filename: "config.json" });
+        assertSome(match, ConfigMatch.make({ path: "/etc/app/config.json", dir: "/etc/app", filename: "config.json" }));
       })
     );
   });
@@ -144,12 +147,15 @@ describe("ConfigResolver match reporting", () => {
           cwd: "/repo/pkg",
         });
         const match = yield* resolver.resolveMatch ?? Effect.succeedNone;
-        assertSome(match, {
-          path: "/repo/.config/config.json",
-          dir: "/repo",
-          filename: "config.json",
-          subpath: ".config",
-        });
+        assertSome(
+          match,
+          ConfigMatch.make({
+            path: "/repo/.config/config.json",
+            dir: "/repo",
+            filename: "config.json",
+            subpath: ".config",
+          })
+        );
       })
     );
   });
@@ -159,7 +165,7 @@ describe("ConfigResolver match reporting", () => {
       Effect.gen(function* () {
         const resolver = ConfigResolver.explicitPath("/somewhere/else.json");
         const match = yield* resolver.resolveMatch ?? Effect.succeedNone;
-        assertSome(match, { path: "/somewhere/else.json" });
+        assertSome(match, ConfigMatch.make({ path: "/somewhere/else.json" }));
       })
     );
   });
@@ -202,7 +208,7 @@ describe("ConfigResolver match reporting", () => {
       Effect.gen(function* () {
         const config = yield* DocConfig;
         const sources = yield* config.discover;
-        assert.deepStrictEqual(sources[0]?.match, { path: "/repo/app.json" });
+        assert.deepStrictEqual(sources[0]?.match, ConfigMatch.make({ path: "/repo/app.json" }));
       })
     );
   });
@@ -237,7 +243,7 @@ describe("ConfigResolver probe reporting", () => {
           cwd: "/repo/pkg",
         });
         const probe = yield* resolver.resolveProbe ?? Effect.succeed({ match: O.none(), probed: [] });
-        assertSome(probe.match, { path: "/repo/app.toml", dir: "/repo", filename: "app.toml" });
+        assertSome(probe.match, ConfigMatch.make({ path: "/repo/app.toml", dir: "/repo", filename: "app.toml" }));
         // firstMatch short-circuits: the prefix ends at the match, so nothing
         // above /repo — and no later candidate there — was ever checked.
         assert.deepStrictEqual(probe.probed, [

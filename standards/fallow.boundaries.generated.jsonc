@@ -1682,7 +1682,9 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/memfs",
+          "@beep/schema",
           "@beep/toml",
+          "@beep/utils",
           "@beep/walker",
           "@beep/yaml"
         ],
@@ -1692,7 +1694,9 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/memfs",
+          "@beep/schema",
           "@beep/toml",
+          "@beep/utils",
           "@beep/walker",
           "@beep/yaml"
         ]

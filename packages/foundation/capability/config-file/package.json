@@ -67,7 +67,9 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/jsonc": "workspace:^",
+    "@beep/schema": "workspace:^",
     "@beep/toml": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@beep/walker": "workspace:^",
     "@beep/yaml": "workspace:^",
     "effect": "catalog:"

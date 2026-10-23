@@ -13,13 +13,13 @@ import * as PubSub from "effect/PubSub";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
+import * as Str from "effect/String";
 import { ConfigCodecError } from "./ConfigCodec.ts";
 import { ConfigEvent } from "./ConfigEvent.ts";
-import { ConfigResolver } from "./ConfigResolver.ts";
+import { ConfigMatch, ConfigProbe, ConfigResolver } from "./ConfigResolver.ts";
 import type * as SchemaAST from "effect/SchemaAST";
 import type { ConfigCodec } from "./ConfigCodec.ts";
 import type { ConfigEventPayload, ConfigEvents, ConfigEventsShape } from "./ConfigEvent.ts";
-import type { ConfigMatch, ConfigProbe } from "./ConfigResolver.ts";
 import type { ConfigSource, MergeStrategy, NonEmptySources } from "./MergeStrategy.ts";
 
 const $I = $ConfigFileId.create("ConfigFile");
@@ -720,7 +720,7 @@ const prependHeader: {
   (document: string, header: string | undefined): string;
   (header: string | undefined): (document: string) => string;
 } = dual(2, (document: string, header: string | undefined): string =>
-  header === undefined ? document : header.endsWith("\n") ? `${header}${document}` : `${header}\n${document}`
+  header === undefined ? document : Str.endsWith("\n")(header) ? `${header}${document}` : `${header}\n${document}`
 );
 
 const makeImpl: {
@@ -824,35 +824,45 @@ const makeImpl: {
       return validated;
     });
 
+    /**
+     * One resolver's lookup as a probe.
+     *
+     * **Details**
+     *
+     * `resolve` cannot fail — the absorption contract — so no error handling
+     * here. `resolveProbe` is the same lookup carrying its own detail plus the
+     * paths it checked; a resolver that omits it degrades to `resolveMatch`,
+     * then to a bare-path match, contributing no candidates — the mirror of
+     * `ConfigSource.match` degrading when `resolveMatch` is absent.
+     */
+    const probeResolver = (resolver: ConfigResolver<RR>): Effect.Effect<ConfigProbe> =>
+      Effect.provide(
+        resolver.resolveProbe ??
+          Effect.map(
+            resolver.resolveMatch ??
+              Effect.map(
+                resolver.resolve,
+                O.map((target) => ConfigMatch.make({ path: target }))
+              ),
+            (match) => ConfigProbe.make({ match, probed: [] })
+          ),
+        resolverEnv
+      );
+
     const discover = Effect.fn("ConfigFile.discover")(function* () {
       const sources: Array<ConfigSource<A>> = [];
       const candidates: Array<string> = [];
       for (const resolver of options.resolvers) {
-        // `resolve` cannot fail — the absorption contract — so no error handling here.
-        // `resolveProbe` is the same lookup carrying its own detail plus the
-        // paths it checked; a resolver that omits it degrades to `resolveMatch`,
-        // then to a bare-path match, contributing no candidates — the mirror of
-        // `ConfigSource.match` degrading when `resolveMatch` is absent.
-        let found: O.Option<ConfigMatch>;
-        if (resolver.resolveProbe !== undefined) {
-          const probe: ConfigProbe = yield* Effect.provide(resolver.resolveProbe, resolverEnv);
-          found = probe.match;
-          // Only a miss consumes the probe list: on a hit the prefix says which
-          // candidate won, which `ConfigMatch` already reports in full.
-          if (O.isNone(found)) {
-            candidates.push(...probe.probed);
-          }
-        } else if (resolver.resolveMatch !== undefined) {
-          found = yield* Effect.provide(resolver.resolveMatch, resolverEnv);
+        const probe = yield* probeResolver(resolver);
+        // Only a miss consumes the probe list: on a hit the prefix says which
+        // candidate won, which `ConfigMatch` already reports in full.
+        if (O.isNone(probe.match)) {
+          candidates.push(...probe.probed);
         } else {
-          found = O.map(yield* Effect.provide(resolver.resolve, resolverEnv), (path) => ({ path }));
-        }
-        if (O.isSome(found)) {
-          const match = found.value;
-          const target = match.path;
+          const match = probe.match.value;
           // Emitted before the read, so a corrupt file is still reported as found.
-          yield* emit({ _tag: "Discovered", path: target, resolver: resolver.name });
-          sources.push({ path: target, resolver: resolver.name, match, value: yield* loadFrom(target) });
+          yield* emit({ _tag: "Discovered", path: match.path, resolver: resolver.name });
+          sources.push({ path: match.path, resolver: resolver.name, match, value: yield* loadFrom(match.path) });
         }
       }
       return { sources, candidates };
