@@ -1,5 +1,9 @@
 import { ModelsAtomicExchange, makeModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service";
-import { ModelsExchangeFault, ModelsExchangeProbeError } from "@beep/repo-cli/commands/Models/Models.errors";
+import {
+  ModelsExchangeFault,
+  ModelsExchangeProbeError,
+  ModelsLocatorError,
+} from "@beep/repo-cli/commands/Models/Models.errors";
 import {
   ModelsPublicationOwner,
   ModelsPublicationState,
@@ -883,6 +887,28 @@ layer(
     })
   );
 
+  it.effect("retains live bytes and the recovery journal when a qualified exchange fails", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { root, target, journals } = yield* fixture("file", true);
+      const base = yield* ModelsAtomicExchange;
+      const publisher = yield* publisherWith({
+        ...base,
+        exchange: () => Effect.fail(ModelsLocatorError.make({ message: "fixture exchange failed", path: target })),
+      });
+      const error = yield* publisher.publishFile(root, target, intendedFile).pipe(Effect.flip);
+      expect(error.message).toContain("fixture exchange failed");
+      expect(error.target).toBe(target);
+      expect(error.journal).toBeDefined();
+      expect(yield* fs.readFileString(target)).toBe(nativeFile);
+      const publication = yield* firstTracked(journals);
+      expect(publication.state._tag).toBe("staged");
+      expect(yield* fs.readFileString(publication.staging)).toBe(intendedFile);
+      const reports = yield* (yield* publisherWith()).recover(root, "pending");
+      expect(reports[0]?.result).toMatchObject({ _tag: "skipped", reason: "owner-alive" });
+    })
+  );
+
   for (const corruption of ["file-bytes", "tree-bytes", "missing-tree"]) {
     it.effect(`rejects ${corruption} corruption between staging and verification`, () =>
       Effect.gen(function* () {
@@ -1209,4 +1235,42 @@ layer(
       expect((yield* firstTracked(journals)).state._tag).toBe("recovered");
     })
   );
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  for (const mutation of ["owner-absent", "foreign-recorded-path"]) {
+    it.effect(`recovery handles ${mutation} through the journal boundary`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { root, target, journals } = yield* fixture("file", true);
+        yield* crash("publish-file", root, target, "staged");
+        const journal = O.getOrThrow(A.head(yield* journalsIn(journals)));
+        const tracked = trackedOf(journal);
+        const foreign = path.join(root, "foreign-staging");
+        yield* fs.writeFileString(foreign, competitorFile);
+        const publication = SkillTrackedPublication.make({
+          ...tracked,
+          ...(mutation === "owner-absent" ? { owner: O.none() } : { staging: foreign }),
+        });
+        yield* fs.writeFileString(
+          path.join(journals, `${journal.id}.json`),
+          yield* encodeJournal(SkillPublicationJournal.make({ ...journal, publication }))
+        );
+        const reports = yield* (yield* publisherWith()).recover(root, "pending");
+        expect(reports[0]?.result).toMatchObject(
+          mutation === "owner-absent"
+            ? { _tag: "recovered", outcome: "preimage" }
+            : { _tag: "refused", reason: "foreign-artifact" }
+        );
+        expect(yield* fs.readFileString(target)).toBe(nativeFile);
+        expect(yield* fs.readFileString(foreign)).toBe(competitorFile);
+      })
+    );
+  }
 });
