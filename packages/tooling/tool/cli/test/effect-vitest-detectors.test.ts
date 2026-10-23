@@ -1,7 +1,9 @@
 import {
+  browserModeIncludeGlobs,
   collectEffectVitestImports,
   detectEffectVitestFindings,
   resolveEffectVitestBinding,
+  retainBrowserSafeFindings,
 } from "@beep/repo-cli/test/Lint";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { layer, vi } from "@effect/vitest";
@@ -1896,6 +1898,124 @@ it.layer(NodeServices.layer)((it) => {
           )
         );
       }
+    })
+  );
+
+  it.effect("exempts top-level single-test layer blocks, whose TestClock no other test shares", () =>
+    Effect.gen(function* () {
+      const adjust = 'Fx.gen(function* () { yield* TC.adjust("1 second"); })';
+      for (const body of [
+        `it.layer(resource, { timeout: "30 seconds" })((it) => { it.effect("one", () => ${adjust}); });`,
+        `it.layer(resource)("named", (it) => { it.effect("one", Fx.fnUntraced(function* () { yield* TC.adjust("4 seconds"); })); });`,
+        `it.layer(resource)("expression body", (it) => it.effect("one", () => ${adjust}));`,
+        `import { describe, layer } from "@effect/vitest"; describe("suite", () => { layer(resource)((it) => { it.effect("one", () => ${adjust}); }); });`,
+        `const pollInterval = "5 seconds"; it.layer(resource)((it) => { const expected = 3; it.effect("one", () => Fx.gen(function* () { yield* TC.adjust(pollInterval); expect(expected).toBe(3); })); });`,
+      ]) {
+        assertFalse(yield* hasRule(body, "EV015"));
+      }
+      for (const body of [
+        `it.layer(resource)((it) => { it.effect("a", () => ${adjust}); it.effect("b", () => Fx.void); });`,
+        `it.layer(resource)((it) => { it.effect.each([1, 2])("case %d", () => ${adjust}); });`,
+        `it.layer(resource)((it) => { for (const name of ["a", "b"]) it.effect(name, () => ${adjust}); });`,
+        `it.layer(resource)((it) => { it.effect("a", () => ${adjust}); it.layer(child)("inner", (it) => { it.effect("b", () => Fx.void); }); });`,
+        `it.layer(resource)((it) => { it.effect("a", () => ${adjust}); registerMore(it); });`,
+        `it.layer(resource)((it) => { it.effect.prop("p", [fc.string()], () => ${adjust}); });`,
+        `it.layer(resource)("parent", (it) => { it.layer(child)("single", (it) => { it.effect("a", () => ${adjust}); }); });`,
+      ]) {
+        assertTrue(yield* hasRule(body, "EV015"));
+      }
+    })
+  );
+
+  it.effect("permits repeated lifecycles of a layer built from test-body values and keeps single provisions", () =>
+    Effect.gen(function* () {
+      const scoped = 'import { provideScopedLayer } from "@beep/test-utils";';
+      const provisions = Effect.fnUntraced(function* (body: string) {
+        return A.filter(yield* findings(body), (row) => row.ruleId === "EV002");
+      });
+      for (const body of [
+        'it.effect("reopen", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* write.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* read.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+        `${scoped} it.effect("replay", () => Fx.gen(function* () { const out = yield* makeOut; const layer = makeRunLayer(manifest, out); yield* run.pipe(provideScopedLayer(layer)); yield* replay.pipe(provideScopedLayer(layer)); }));`,
+        `${scoped} it.effect("carry", Fx.fnUntraced(function* () { const carried = yield* makeOut; yield* first.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); yield* second.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); }));`,
+      ]) {
+        deepStrictEqual(yield* provisions(body), []);
+      }
+      for (const [body, count] of [
+        [
+          'const shared = Store.makeLayer({ dataDir: "fixtures" }); it.effect("module", () => Fx.gen(function* () { yield* a.pipe(Fx.provide(shared)); yield* b.pipe(Fx.provide(shared)); }));',
+          2,
+        ],
+        [
+          'it.effect("single", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+          1,
+        ],
+        [
+          'it.effect("distinct", () => Fx.gen(function* () { const left = yield* makeDataDir; const right = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: left }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: right }))); }));',
+          2,
+        ],
+        [
+          'it.effect("stub beside", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(L.succeed(Config, dataDir))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+          1,
+        ],
+        [
+          'it.effect("parameter", (ctx) => Fx.gen(function* () { yield* a.pipe(Fx.provide(Store.makeLayer(ctx))); yield* b.pipe(Fx.provide(Store.makeLayer(ctx))); }));',
+          2,
+        ],
+        [
+          'it.effect("built once", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; const context = yield* L.build(Store.makeLayer({ dataDir })); yield* a.pipe(Fx.provide(context)); yield* b.pipe(Fx.provide(context)); }));',
+          2,
+        ],
+      ] as const) {
+        deepStrictEqual((yield* provisions(body)).length, count);
+      }
+    })
+  );
+
+  it.effect("reads browser-mode include globs only from enabled vitest browser projects", () =>
+    Effect.gen(function* () {
+      const config = (text: string) =>
+        new Project({ useInMemoryFileSystem: true, skipAddingFilesFromTsConfig: true }).createSourceFile(
+          "vitest.browser.config.ts",
+          text
+        );
+      deepStrictEqual(
+        browserModeIncludeGlobs(
+          config(
+            'export default defineConfig({ test: { name: "b", include: ["test/browser/**/*.test.{ts,tsx}"], browser: { enabled: true, instances: [{ browser: "chromium" }] } } });'
+          )
+        ),
+        ["test/browser/**/*.test.{ts,tsx}"]
+      );
+      deepStrictEqual(
+        browserModeIncludeGlobs(
+          config(
+            'export default mergeConfig(shared, defineConfig({ test: { include: ["test/**/*.test.ts"], browser: { enabled: true } } }));'
+          )
+        ),
+        ["test/**/*.test.ts"]
+      );
+      for (const text of [
+        'export default defineConfig({ test: { include: ["test/**/*.test.ts"], browser: { enabled: false } } });',
+        'export default defineConfig({ test: { environment: "jsdom", include: ["test/**/*.test.{ts,tsx}"] } });',
+        'export default defineConfig({ test: { exclude: ["test/browser/**"] } });',
+        "export default defineConfig({ test: { browser: { enabled: true } } });",
+        'const include = ["test/**"]; export default defineConfig({ test: { include, browser: { enabled: true } } });',
+      ]) {
+        deepStrictEqual(browserModeIncludeGlobs(config(text)), []);
+      }
+    })
+  );
+
+  it.effect("drops only node:assert-backed data-assertion rows from files a browser project runs", () =>
+    Effect.gen(function* () {
+      const rows = yield* findings(
+        'it("x", () => expect(value).toEqual(O.some(1))); it.effect("y", () => Fx.provide(program, L.scoped(Service, acquire)));'
+      );
+      assertTrue(A.some(rows, (row) => row.ruleId === "EV006"));
+      deepStrictEqual(retainBrowserSafeFindings(rows, false), rows);
+      const browser = retainBrowserSafeFindings(rows, true);
+      assertFalse(A.some(browser, (row) => row.ruleId === "EV006"));
+      assertTrue(A.some(browser, (row) => row.ruleId === "EV002"));
     })
   );
 

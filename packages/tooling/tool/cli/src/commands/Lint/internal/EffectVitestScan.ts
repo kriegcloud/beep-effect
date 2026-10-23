@@ -17,7 +17,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { Project } from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
 import { failWithReportedExit } from "../../../internal/cli/ExitCodeError.ts";
 import { createWorkspaceOwnerResolver } from "../../../internal/tsmorph/index.ts";
 import { EffectVitestLintError } from "../Lint.errors.ts";
@@ -39,7 +39,7 @@ import {
   writeEffectVitestInventory,
   writeEffectVitestRows,
 } from "./EffectVitestStore.ts";
-import type { SourceFile } from "ts-morph";
+import type { Node as MorphNode, ObjectLiteralExpression, SourceFile } from "ts-morph";
 import type { EffectVitestLintOptions, EffectVitestPrimitiveGraphDocument } from "../Lint.schemas.ts";
 
 const EffectVitestPackageMetadata = S.Struct({
@@ -163,6 +163,109 @@ export const discoverEffectVitestSourcePaths = Effect.fn("EffectVitestScan.disco
     )
     .pipe(EffectVitestLintError.mapError("Unable to discover the Effect Vitest D9 scope."));
 });
+
+const literalStrings = (expression: MorphNode | undefined): O.Option<ReadonlyArray<string>> =>
+  Node.isArrayLiteralExpression(expression)
+    ? O.all(
+        A.map(expression.getElements(), (element) =>
+          Node.isStringLiteral(element) || Node.isNoSubstitutionTemplateLiteral(element)
+            ? O.some(element.getLiteralValue())
+            : O.none()
+        )
+      )
+    : O.none();
+
+const propertyInitializer = (owner: ObjectLiteralExpression, name: string): O.Option<MorphNode> =>
+  O.flatMap(O.fromUndefinedOr(owner.getProperty(name)), (property) =>
+    Node.isPropertyAssignment(property) ? O.fromUndefinedOr(property.getInitializer()) : O.none()
+  );
+
+const enablesBrowserMode = (owner: ObjectLiteralExpression): boolean =>
+  O.exists(
+    propertyInitializer(owner, "browser"),
+    (browser) =>
+      Node.isObjectLiteralExpression(browser) &&
+      O.exists(propertyInitializer(browser, "enabled"), (enabled) => enabled.getKind() === SyntaxKind.TrueKeyword)
+  );
+
+/**
+ * Read the literal `include` globs of every vitest project object that enables browser mode.
+ *
+ * **Details**
+ *
+ * A project counts only when its object literal holds `browser: { enabled: true }` beside an
+ * `include` array of string literals. Disabled browser blocks, jsdom environments, and computed
+ * include lists yield nothing, so their files keep every finding.
+ *
+ * **Example** (Read a browser project's include globs)
+ *
+ * ```ts
+ * import { browserModeIncludeGlobs } from "@beep/repo-cli/commands/Lint"
+ * import { Project } from "ts-morph"
+ *
+ * const config = new Project({ useInMemoryFileSystem: true }).createSourceFile(
+ *   "vitest.browser.config.ts",
+ *   'export default defineConfig({ test: { include: ["test/browser/**\/*.test.ts"], browser: { enabled: true } } })'
+ * )
+ * console.log(browserModeIncludeGlobs(config)) // ["test/browser/**\/*.test.ts"]
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const browserModeIncludeGlobs = (config: SourceFile): ReadonlyArray<string> =>
+  A.flatMap(
+    A.filter(config.getDescendantsOfKind(SyntaxKind.ObjectLiteralExpression), enablesBrowserMode),
+    (project: ObjectLiteralExpression) =>
+      O.getOrElse(O.flatMap(propertyInitializer(project, "include"), literalStrings), A.empty<string>)
+  );
+
+// `@effect/vitest/utils` asserters wrap `node:assert`, which a real browser runtime does not provide.
+const NODE_ASSERT_REPLACEMENT_RULES = ["EV006"];
+
+/**
+ * Drop rows whose canonical replacement needs `node:assert` when the file runs in a browser project.
+ *
+ * **Example** (Keep Node rows and drop browser data-assertion rows)
+ *
+ * ```ts
+ * import { retainBrowserSafeFindings } from "@beep/repo-cli/commands/Lint"
+ *
+ * console.log(retainBrowserSafeFindings([], true)) // []
+ * ```
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const retainBrowserSafeFindings: {
+  (findings: ReadonlyArray<EffectVitestFinding>, browserMode: boolean): ReadonlyArray<EffectVitestFinding>;
+  (browserMode: boolean): (findings: ReadonlyArray<EffectVitestFinding>) => ReadonlyArray<EffectVitestFinding>;
+} = dual(2, (findings: ReadonlyArray<EffectVitestFinding>, browserMode: boolean) =>
+  browserMode ? A.filter(findings, (finding) => !A.contains(NODE_ASSERT_REPLACEMENT_RULES, finding.ruleId)) : findings
+);
+
+const VitestConfigGlobs = ["{apps,packages,infra}/**/vitest*.config.{ts,mts,js,mjs}"];
+
+const discoverBrowserModeTestPaths = Effect.fnUntraced(function* (root: string) {
+  const fsUtils = yield* FsUtils;
+  const path = yield* Path.Path;
+  const configProject = new Project({ skipAddingFilesFromTsConfig: true, skipFileDependencyResolution: true });
+  const configs = yield* fsUtils.globFiles(
+    VitestConfigGlobs,
+    GlobOptions.make({ cwd: root, absolute: true, ignore: ["**/node_modules/**"] })
+  );
+  const included = yield* Effect.forEach(configs, (configPath) =>
+    A.match(browserModeIncludeGlobs(configProject.addSourceFileAtPath(configPath)), {
+      onEmpty: () => Effect.succeed(A.empty<string>()),
+      onNonEmpty: (globs) =>
+        fsUtils.globFiles(
+          globs,
+          GlobOptions.make({ cwd: path.dirname(configPath), absolute: true, ignore: ["**/node_modules/**"] })
+        ),
+    })
+  );
+  return HashSet.fromIterable(A.map(A.flatten(included), toPosixPath));
+}, EffectVitestLintError.mapError("Unable to discover the vitest browser-mode projects."));
 
 const legacyFindingKey = (finding: EffectVitestFinding): string =>
   makeEffectVitestFindingKey(
@@ -447,6 +550,7 @@ export const runEffectVitestLint = Effect.fn("EffectVitestScan.run")(function* (
     fallbackPrefixes: [{ prefix: "infra/", owner: "@beep/infra" }],
   });
   const sourcePaths = yield* discoverEffectVitestSourcePaths(root);
+  const browserModePaths = yield* discoverBrowserModeTestPaths(root);
   yield* Console.log(
     `[effect-vitest:phase] discoveryMs=${(performance.now() - started).toFixed(1)} files=${sourcePaths.length}`
   );
@@ -473,7 +577,10 @@ export const runEffectVitestLint = Effect.fn("EffectVitestScan.run")(function* (
         lines: countEffectVitestSourceLines(text),
       })
     );
-    const detected = yield* detectEffectVitestFindings(sourceFile, file, owner);
+    const detected = retainBrowserSafeFindings(
+      yield* detectEffectVitestFindings(sourceFile, file, owner),
+      HashSet.has(browserModePaths, toPosixPath(absolute))
+    );
     findings.push(...(kind === "test" ? detected : A.filter(detected, (finding) => finding.ruleId === "EV003")));
   });
   for (const sourceFile of project.getSourceFiles()) yield* collectSource(sourceFile);

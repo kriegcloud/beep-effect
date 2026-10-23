@@ -1768,6 +1768,73 @@ const detectRuntimeBoundary = (
   }
 };
 
+const providesBuiltLayer = (layer: Expression, imports: EffectVitestImports): boolean =>
+  !isPureStubLayer(layer, imports) && !isContextProvision(layer, imports);
+
+// A context bound from `yield* Layer.build(...)` was built once; providing it again starts no new lifecycle.
+const isBuiltContext = (layer: Expression, imports: EffectVitestImports): boolean =>
+  Node.isIdentifier(layer) &&
+  O.exists(localInitializer(layer, imports), (initializer) => {
+    const built = Node.isYieldExpression(initializer) ? initializer.getExpression() : initializer;
+    return (
+      Node.isCallExpression(built) &&
+      isProvenanceCall(built, imports, LAYER_MODULES, "Layer", ["build", "buildWithScope"])
+    );
+  });
+
+const startsLayerLifecycle = (layer: Expression, imports: EffectVitestImports): boolean =>
+  providesBuiltLayer(layer, imports) && !isBuiltContext(layer, imports);
+
+const isLayerProvisionCall = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  !Node.isCallExpression(call.getExpression()) &&
+  (isPublicLayerProvider(call, imports) || isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["provide"]));
+
+// Variables declared inside the test callback that a provided layer expression reads.
+const testBodyBindings = (
+  layer: Expression,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): ReadonlyArray<MorphNode> =>
+  A.flatMap(
+    [...(Node.isIdentifier(layer) ? [layer] : []), ...layer.getDescendantsOfKind(SyntaxKind.Identifier)],
+    (reference) =>
+      isNamePosition(reference)
+        ? []
+        : O.toArray(
+            O.filter(
+              imports.resolveBinding(reference),
+              (declaration) =>
+                (Node.isVariableDeclaration(declaration) || Node.isBindingElement(declaration)) &&
+                containsNode(callback, declaration)
+            )
+          )
+  );
+
+// `it.layer` builds one layer per block. A test that provides two built layers over the same
+// test-body value (open, close, reopen one store) owns several lifecycles that `it.layer` cannot express.
+const repeatsTestBodyLifecycle = (node: MorphNode, layer: Expression, state: DetectorState): boolean =>
+  O.exists(state.harness.enclosingTest(node), ({ callback }) => {
+    const { imports } = state;
+    const own = startsLayerLifecycle(layer, imports) ? testBodyBindings(layer, callback, imports) : [];
+    return (
+      A.isReadonlyArrayNonEmpty(own) &&
+      A.some(
+        callbackCalls(callback),
+        (other) =>
+          other !== node &&
+          isLayerProvisionCall(other, imports) &&
+          O.exists(
+            providedLayer(other),
+            (provided) =>
+              startsLayerLifecycle(provided, imports) &&
+              A.some(testBodyBindings(provided, callback, imports), (binding) =>
+                A.some(own, (read) => read === binding)
+              )
+          )
+      )
+    );
+  });
+
 const emitLayerProvision = (
   node: MorphNode,
   layer: O.Option<Expression>,
@@ -1775,7 +1842,7 @@ const emitLayerProvision = (
   state: DetectorState
 ): void => {
   const { imports, makeFinding, findings, file, owner } = state;
-  if (O.exists(layer, (value) => !isPureStubLayer(value, imports) && !isContextProvision(value, imports))) {
+  if (O.exists(layer, (value) => providesBuiltLayer(value, imports) && !repeatsTestBodyLifecycle(node, value, state))) {
     const unresolved = !O.exists(layer, (value) => isResourceExpression(value, imports));
     findings.push(
       makeFinding({
@@ -2390,12 +2457,66 @@ const detectLayerTimeout = ({ call }: ReturnType<typeof inspectContext>, state: 
   }
 };
 
+// `each`, `for` and `prop` register several cases from one call; a curried callee does the same.
+const MULTI_CASE_MEMBERS = ["each", "for", "prop", "propEffect"];
+
+const isSingleCaseRegistration = (registration: CallExpression): boolean => {
+  const callee = registration.getExpression();
+  return (
+    !Node.isCallExpression(callee) &&
+    callee.getFirstDescendantByKind(SyntaxKind.CallExpression) === undefined &&
+    !A.some(callee.getDescendantsOfKind(SyntaxKind.Identifier), (name) =>
+      A.contains(MULTI_CASE_MEMBERS, name.getText())
+    )
+  );
+};
+
+const isDirectBlockStatement = (registration: CallExpression, block: EffectVitestFunctionNode): boolean => {
+  const body = block.getBody();
+  const statement = registration.getParent();
+  return body === registration || (Node.isExpressionStatement(statement) && statement.getParent() === body);
+};
+
+// The block's tester may only appear as the base of its one registration, never passed to a helper.
+const testerConfinedTo = (registration: CallExpression, block: EffectVitestFunctionNode): boolean =>
+  A.every(block.getParameters(), (parameter) => {
+    const name = parameter.getNameNode();
+    return (
+      Node.isIdentifier(name) &&
+      A.every(
+        block.getDescendantsOfKind(SyntaxKind.Identifier),
+        (reference) =>
+          reference === name ||
+          reference.getText() !== name.getText() ||
+          isNamePosition(reference) ||
+          containsNode(registration.getExpression(), reference)
+      )
+    );
+  });
+
+// `@effect/vitest` builds every top-level `it.layer` in a fresh memo map, so its TestClock is the block's
+// own. Nested blocks fork the parent's memo map and share its TestClock, so they never qualify.
+const ownsUnsharedTestClock = (block: EffectVitestFunctionNode, adjust: CallExpression, state: DetectorState) =>
+  O.isNone(state.harness.enclosingLayerBlock(block)) &&
+  A.match(
+    A.filter(callbackCalls(block), (call) => O.isSome(classifyHarnessCall(call, state.imports))),
+    {
+      onEmpty: constFalse,
+      onNonEmpty: ([registration, ...rest]) =>
+        A.isReadonlyArrayEmpty(rest) &&
+        containsNode(registration, adjust) &&
+        isSingleCaseRegistration(registration) &&
+        isDirectBlockStatement(registration, block) &&
+        testerConfinedTo(registration, block),
+    }
+  );
+
 const detectLayerClockReset = ({ call, member }: ReturnType<typeof inspectContext>, state: DetectorState): void => {
   const { imports, harness, makeFinding, findings, file, owner } = state;
 
   if (member === "adjust" && isProvenanceCall(call, imports, TEST_CLOCK_MODULES, "TestClock", ["adjust"])) {
     const layer = harness.enclosingLayerBlock(call);
-    if (O.isSome(layer)) {
+    if (O.exists(layer, (block) => !ownsUnsharedTestClock(block, call, state))) {
       findings.push(
         makeFinding({ ruleId: "EV015", node: call, file, owner, symbol: "TestClock.adjust", judgment: true })
       );
