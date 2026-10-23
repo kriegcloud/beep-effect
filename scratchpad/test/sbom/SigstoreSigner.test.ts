@@ -109,7 +109,7 @@ describe("SigstoreSigner.sign — the real DSSE builder", () => {
 			it.effect("produces a bundle carrying the statement as its DSSE payload", () =>
 				Effect.gen(function* () {
 					const bundle = yield* (yield* SigstoreSigner).sign(statement);
-					assert.instanceOf(bundle, SigstoreBundle);
+					assertTrue(S.is(SigstoreBundle)(bundle));
 					assert.strictEqual(bundle.mediaType, SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE);
 
 					const envelope = bundle.dsseEnvelope;
@@ -169,7 +169,7 @@ describe("SigstoreSigner.sign — the real DSSE builder", () => {
 			it.effect("accepts statically-undefined options under exactOptionalPropertyTypes", () =>
 				Effect.gen(function* () {
 					const bundle = yield* (yield* SigstoreSigner).sign(statement);
-					assert.instanceOf(bundle, SigstoreBundle);
+					assertTrue(S.is(SigstoreBundle)(bundle));
 				}),
 			);
 		});

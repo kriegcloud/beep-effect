@@ -81,8 +81,8 @@ export type NtiaElementId = typeof NtiaElementId.Type;
  * @category models
  * @since 0.0.0
  */
-export class NtiaElement extends S.Class<NtiaElement, { readonly brand: unique symbol }>($I`NtiaElement`)(
-  {
+export class NtiaElement extends S.Opaque<NtiaElement, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Which element this is. */
     id: NtiaElementId.pipe($I.annoteKey("NtiaElement.id", { description: "Which element this is." })),
     /** Whether the document satisfies it. */
@@ -93,21 +93,36 @@ export class NtiaElement extends S.Class<NtiaElement, { readonly brand: unique s
     value: S.optionalKey(S.String).pipe(
       $I.annoteKey("NtiaElement.value", { description: "The value that satisfied it, when one did." })
     ),
-  },
-  $I.annote("NtiaElement", { description: "One element's verdict." })
+  }).pipe($I.annoteSchema("NtiaElement", { description: "One element's verdict." }))
 ) {}
 
+/**
+ * Companion types for {@link NtiaElement}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace NtiaElement {
+  /**
+   * The plain object a {@link NtiaElement} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof NtiaElement.Encoded;
+}
+
+// Each verdict is a plain record; `NtiaReport.of` admits all seven at once.
 const element: {
-  (id: NtiaElementId, value: string | undefined): NtiaElement;
-  (value: string | undefined): (id: NtiaElementId) => NtiaElement;
+  (id: NtiaElementId, value: string | undefined): NtiaElement.Encoded;
+  (value: string | undefined): (id: NtiaElementId) => NtiaElement.Encoded;
 } = dual(
   2,
-  (id: NtiaElementId, value: string | undefined): NtiaElement =>
-    NtiaElement.make({
-      id,
-      satisfied: value !== undefined,
-      ...(value !== undefined && { value }),
-    })
+  (id: NtiaElementId, value: string | undefined): NtiaElement.Encoded => ({
+    id,
+    satisfied: value !== undefined,
+    ...(value !== undefined && { value }),
+  })
 );
 
 const PresentText = S.String.check(S.isTrimmed(), S.isNonEmpty()).pipe(
@@ -128,15 +143,15 @@ const present = (value: string | undefined): string | undefined => {
 };
 
 /** Element 1: the entity that supplies the software. */
-const supplierName = (document: SbomDocument): NtiaElement =>
+const supplierName = (document: SbomDocument): NtiaElement.Encoded =>
   element("supplierName", present(document.metadata?.supplier?.name));
 
 /** Element 2: what the software is called. */
-const componentName = (document: SbomDocument): NtiaElement =>
+const componentName = (document: SbomDocument): NtiaElement.Encoded =>
   element("componentName", present(document.metadata?.component?.name));
 
 /** Element 3: which release it is. */
-const componentVersion = (document: SbomDocument): NtiaElement =>
+const componentVersion = (document: SbomDocument): NtiaElement.Encoded =>
   element("componentVersion", present(document.metadata?.component?.version));
 
 /**
@@ -147,7 +162,7 @@ const componentVersion = (document: SbomDocument): NtiaElement =>
  * Present-and-non-empty is not enough: a homepage URL in the `purl` field is a
  * string, and identifies the component to nobody.
  */
-const uniqueIdentifier = (document: SbomDocument): NtiaElement => {
+const uniqueIdentifier = (document: SbomDocument): NtiaElement.Encoded => {
   const purl = present(document.metadata?.component?.purl);
   return element("uniqueIdentifier", isPackageIdentifier(purl) ? purl : undefined);
 };
@@ -166,7 +181,7 @@ const uniqueIdentifier = (document: SbomDocument): NtiaElement => {
  * An empty list is compliant. "This package has no dependencies" is an
  * assertion, not a gap.
  */
-const dependencyRelationship = (document: SbomDocument): NtiaElement => {
+const dependencyRelationship = (document: SbomDocument): NtiaElement.Encoded => {
   const count = document.components.length;
   return element(
     "dependencyRelationship",
@@ -182,7 +197,7 @@ const dependencyRelationship = (document: SbomDocument): NtiaElement => {
  * Named authors first; a supplier or a publisher is the honest fallback, since
  * both identify an entity that stood behind the document.
  */
-const sbomAuthor = (document: SbomDocument): NtiaElement => {
+const sbomAuthor = (document: SbomDocument): NtiaElement.Encoded => {
   const author = pipe(
     document.metadata?.authors ?? [],
     A.map((contact) => present(contact.name)),
@@ -204,7 +219,7 @@ const parseTimestamp = S.decodeUnknownResult(S.DateFromString);
  * Parsed, not merely present — a field holding `last tuesday` records nothing,
  * and this is the cheapest place to notice.
  */
-const timestamp = (document: SbomDocument): NtiaElement => {
+const timestamp = (document: SbomDocument): NtiaElement.Encoded => {
   const stamped = present(document.metadata?.timestamp);
   return element(
     "timestamp",

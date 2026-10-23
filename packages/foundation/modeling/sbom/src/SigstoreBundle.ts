@@ -83,8 +83,8 @@ export const IN_TOTO_PAYLOAD_TYPE = "application/vnd.in-toto+json" as const;
  * @category models
  * @since 0.0.0
  */
-export class SigstoreBundle extends S.Class<SigstoreBundle, { readonly brand: unique symbol }>($I`SigstoreBundle`)(
-  {
+export class SigstoreBundle extends S.Opaque<SigstoreBundle, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The bundle's media type, usually {@link SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE}. */
     mediaType: S.String.pipe(
       $I.annoteKey("SigstoreBundle.mediaType", {
@@ -101,6 +101,23 @@ export class SigstoreBundle extends S.Class<SigstoreBundle, { readonly brand: un
     dsseEnvelope: S.Unknown.pipe(
       $I.annoteKey("SigstoreBundle.dsseEnvelope", { description: "The signed DSSE envelope carrying the statement." })
     ),
-  },
-  $I.annote("SigstoreBundle", { description: "A signed Sigstore bundle: the wire form of an attestation." })
+  }).pipe(
+    $I.annoteSchema("SigstoreBundle", { description: "A signed Sigstore bundle: the wire form of an attestation." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link SigstoreBundle}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SigstoreBundle {
+  /**
+   * The plain object a {@link SigstoreBundle} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SigstoreBundle.Encoded;
+}

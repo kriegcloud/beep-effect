@@ -43,7 +43,7 @@ it.effect.prop(
       const pkg = yield* Package.decode({ name: "example", version: "1.0.0" });
       const supplier = Supplier.make({ name: "Example", url: urls });
       const metadata = SbomMetadataSource.fromPackage(pkg, { supplier });
-      assert.instanceOf(metadata.supplier, Supplier);
+      assertTrue(S.is(Supplier)(metadata.supplier));
       assert.strictEqual(metadata.supplier?.name, supplier.name);
       assert.deepStrictEqual(metadata.supplier?.url, urls);
       assert.deepStrictEqual(supplier.url, urls);

@@ -100,10 +100,8 @@ export const GITHUB_BUILD_TYPE = "https://actions.github.io/buildtypes/workflow/
  * @category models
  * @since 0.0.0
  */
-export class SlsaBuildDefinition extends S.Class<SlsaBuildDefinition, { readonly brand: unique symbol }>(
-  $I`SlsaBuildDefinition`
-)(
-  {
+export class SlsaBuildDefinition extends S.Opaque<SlsaBuildDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The build type URI — {@link GITHUB_BUILD_TYPE} for an Actions workflow. */
     buildType: S.String.pipe(
       $I.annoteKey("SlsaBuildDefinition.buildType", {
@@ -195,9 +193,26 @@ export class SlsaBuildDefinition extends S.Class<SlsaBuildDefinition, { readonly
         description: "The artifacts the build consumed — for Actions, the commit it built.",
       })
     ),
-  },
-  $I.annote("SlsaBuildDefinition", { description: "How the build was invoked, and what it was invoked from." })
+  }).pipe(
+    $I.annoteSchema("SlsaBuildDefinition", { description: "How the build was invoked, and what it was invoked from." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link SlsaBuildDefinition}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SlsaBuildDefinition {
+  /**
+   * The plain object a {@link SlsaBuildDefinition} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SlsaBuildDefinition.Encoded;
+}
 
 /**
  * Who ran the build, and the record of that run.
@@ -218,8 +233,8 @@ export class SlsaBuildDefinition extends S.Class<SlsaBuildDefinition, { readonly
  * @category models
  * @since 0.0.0
  */
-export class SlsaRunDetails extends S.Class<SlsaRunDetails, { readonly brand: unique symbol }>($I`SlsaRunDetails`)(
-  {
+export class SlsaRunDetails extends S.Opaque<SlsaRunDetails, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The build platform's identity. */
     builder: S.Struct({
       /** A URI identifying the builder — the reusable workflow, for Actions. */
@@ -238,9 +253,24 @@ export class SlsaRunDetails extends S.Class<SlsaRunDetails, { readonly brand: un
         })
       ),
     }).pipe($I.annoteKey("SlsaRunDetails.metadata", { description: "Metadata about this particular run." })),
-  },
-  $I.annote("SlsaRunDetails", { description: "Who ran the build, and the record of that run." })
+  }).pipe($I.annoteSchema("SlsaRunDetails", { description: "Who ran the build, and the record of that run." }))
 ) {}
+
+/**
+ * Companion types for {@link SlsaRunDetails}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SlsaRunDetails {
+  /**
+   * The plain object a {@link SlsaRunDetails} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SlsaRunDetails.Encoded;
+}
 
 /**
  * The claims and runner facts a GitHub Actions provenance predicate is built
@@ -282,67 +312,76 @@ export class SlsaRunDetails extends S.Class<SlsaRunDetails, { readonly brand: un
  * @category schemas
  * @since 0.0.0
  */
-export const GitHubWorkflowProvenance = S.Struct({
-  /** The GitHub server's base URL — `https://github.com`, or a GHES host. */
-  serverUrl: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.serverUrl", {
-      description: "The GitHub server's base URL — https://github.com, or a GHES host.",
+export class GitHubWorkflowProvenance extends S.Opaque<GitHubWorkflowProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The GitHub server's base URL — `https://github.com`, or a GHES host. */
+    serverUrl: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.serverUrl", {
+        description: "The GitHub server's base URL — https://github.com, or a GHES host.",
+      })
+    ),
+    /** `owner/repo`. */
+    repository: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.repository", { description: "owner/repo." })),
+    /** The git ref built. */
+    ref: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.ref", { description: "The git ref built." })),
+    /** The commit built. */
+    sha: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.sha", { description: "The commit built." })),
+    /** The event that triggered the workflow. */
+    eventName: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.eventName", { description: "The event that triggered the workflow." })
+    ),
+    /** The workflow reference: `owner/repo/.github/workflows/x.yml@ref`. */
+    workflowRef: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.workflowRef", {
+        description: "The workflow reference: owner/repo/.github/workflows/x.yml@ref.",
+      })
+    ),
+    /** The job's workflow reference, which identifies the builder. */
+    jobWorkflowRef: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.jobWorkflowRef", {
+        description: "The job's workflow reference, which identifies the builder.",
+      })
+    ),
+    /** The repository's numeric id. */
+    repositoryId: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.repositoryId", { description: "The repository's numeric id." })
+    ),
+    /** The repository owner's numeric id. */
+    repositoryOwnerId: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.repositoryOwnerId", { description: "The repository owner's numeric id." })
+    ),
+    /** `github-hosted` or `self-hosted`. */
+    runnerEnvironment: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.runnerEnvironment", { description: "github-hosted or self-hosted." })
+    ),
+    /** The workflow run's id. */
+    runId: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.runId", { description: "The workflow run's id." })),
+    /** Which attempt of that run this is. */
+    runAttempt: S.String.pipe(
+      $I.annoteKey("GitHubWorkflowProvenance.runAttempt", { description: "Which attempt of that run this is." })
+    ),
+  }).pipe(
+    $I.annoteSchema("GitHubWorkflowProvenance", {
+      description: "The claims and runner facts a GitHub Actions provenance predicate is built from.",
     })
-  ),
-  /** `owner/repo`. */
-  repository: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.repository", { description: "owner/repo." })),
-  /** The git ref built. */
-  ref: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.ref", { description: "The git ref built." })),
-  /** The commit built. */
-  sha: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.sha", { description: "The commit built." })),
-  /** The event that triggered the workflow. */
-  eventName: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.eventName", { description: "The event that triggered the workflow." })
-  ),
-  /** The workflow reference: `owner/repo/.github/workflows/x.yml@ref`. */
-  workflowRef: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.workflowRef", {
-      description: "The workflow reference: owner/repo/.github/workflows/x.yml@ref.",
-    })
-  ),
-  /** The job's workflow reference, which identifies the builder. */
-  jobWorkflowRef: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.jobWorkflowRef", {
-      description: "The job's workflow reference, which identifies the builder.",
-    })
-  ),
-  /** The repository's numeric id. */
-  repositoryId: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.repositoryId", { description: "The repository's numeric id." })
-  ),
-  /** The repository owner's numeric id. */
-  repositoryOwnerId: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.repositoryOwnerId", { description: "The repository owner's numeric id." })
-  ),
-  /** `github-hosted` or `self-hosted`. */
-  runnerEnvironment: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.runnerEnvironment", { description: "github-hosted or self-hosted." })
-  ),
-  /** The workflow run's id. */
-  runId: S.String.pipe($I.annoteKey("GitHubWorkflowProvenance.runId", { description: "The workflow run's id." })),
-  /** Which attempt of that run this is. */
-  runAttempt: S.String.pipe(
-    $I.annoteKey("GitHubWorkflowProvenance.runAttempt", { description: "Which attempt of that run this is." })
-  ),
-}).pipe(
-  $I.annoteSchema("GitHubWorkflowProvenance", {
-    description: "The claims and runner facts a GitHub Actions provenance predicate is built from.",
-  })
-);
+  )
+) {}
 
 /**
- * Decoded claims and runner facts accepted by the GitHub workflow provenance constructor.
+ * Companion types for {@link GitHubWorkflowProvenance}.
  *
- * @see {@link GitHubWorkflowProvenance} for the runtime schema that validates these claims.
  * @category type-level
  * @since 0.0.0
  */
-export type GitHubWorkflowProvenance = typeof GitHubWorkflowProvenance.Type;
+export declare namespace GitHubWorkflowProvenance {
+  /**
+   * The plain object a {@link GitHubWorkflowProvenance} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof GitHubWorkflowProvenance.Encoded;
+}
 
 /**
  * The workflow file's path, with the repository prefix and the `@ref` suffix
@@ -353,7 +392,7 @@ export type GitHubWorkflowProvenance = typeof GitHubWorkflowProvenance.Type;
  * Reproduces upstream's extraction exactly, first occurrence and first `@`
  * included — a divergence here is a divergence in the emitted predicate.
  */
-const workflowPathOf = (input: GitHubWorkflowProvenance): string =>
+const workflowPathOf = (input: GitHubWorkflowProvenance.Encoded): string =>
   Str.replace(/@[\s\S]*$/, "")(Str.replace(`${input.repository}/`, "")(input.workflowRef));
 
 /**
@@ -385,8 +424,8 @@ const workflowPathOf = (input: GitHubWorkflowProvenance): string =>
  * @category models
  * @since 0.0.0
  */
-export class SlsaProvenance extends S.Class<SlsaProvenance, { readonly brand: unique symbol }>($I`SlsaProvenance`)(
-  {
+export class SlsaProvenance extends S.Opaque<SlsaProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** What was built, and from what. */
     buildDefinition: SlsaBuildDefinition.pipe(
       $I.annoteKey("SlsaProvenance.buildDefinition", { description: "What was built, and from what." })
@@ -395,8 +434,7 @@ export class SlsaProvenance extends S.Class<SlsaProvenance, { readonly brand: un
     runDetails: SlsaRunDetails.pipe(
       $I.annoteKey("SlsaProvenance.runDetails", { description: "Who built it, and when." })
     ),
-  },
-  $I.annote("SlsaProvenance", { description: "A SLSA Provenance v1 predicate." })
+  }).pipe($I.annoteSchema("SlsaProvenance", { description: "A SLSA Provenance v1 predicate." }))
 ) {
   /**
    * The predicate type URI a statement carrying this must declare.
@@ -464,9 +502,10 @@ export class SlsaProvenance extends S.Class<SlsaProvenance, { readonly brand: un
    * @category constructors
    * @since 0.0.0
    */
-  static forGitHubWorkflow(input: GitHubWorkflowProvenance): SlsaProvenance {
+  static forGitHubWorkflow(input: GitHubWorkflowProvenance.Encoded): SlsaProvenance {
+    // One admission for the whole predicate: the nested records are plain.
     return SlsaProvenance.make({
-      buildDefinition: SlsaBuildDefinition.make({
+      buildDefinition: {
         buildType: GITHUB_BUILD_TYPE,
         externalParameters: {
           workflow: {
@@ -489,13 +528,29 @@ export class SlsaProvenance extends S.Class<SlsaProvenance, { readonly brand: un
             digest: { gitCommit: input.sha },
           },
         ],
-      }),
-      runDetails: SlsaRunDetails.make({
+      },
+      runDetails: {
         builder: { id: `${input.serverUrl}/${input.jobWorkflowRef}` },
         metadata: {
           invocationId: `${input.serverUrl}/${input.repository}/actions/runs/${input.runId}/attempts/${input.runAttempt}`,
         },
-      }),
+      },
     });
   }
+}
+
+/**
+ * Companion types for {@link SlsaProvenance}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SlsaProvenance {
+  /**
+   * The plain object a {@link SlsaProvenance} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SlsaProvenance.Encoded;
 }

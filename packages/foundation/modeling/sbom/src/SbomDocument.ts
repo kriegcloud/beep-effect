@@ -12,6 +12,8 @@ import { $SbomId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { isValidExpression, License } from "@beep/spdx";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -138,10 +140,8 @@ export type ExternalReferenceType = typeof ExternalReferenceType.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExternalReference extends S.Class<ExternalReference, { readonly brand: unique symbol }>(
-  $I`ExternalReference`
-)(
-  {
+export class ExternalReference extends S.Opaque<ExternalReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The reference kind. */
     type: ExternalReferenceType.pipe($I.annoteKey("ExternalReference.type", { description: "The reference kind." })),
     /** The URL it points at, passed through exactly as supplied. */
@@ -150,9 +150,36 @@ export class ExternalReference extends S.Class<ExternalReference, { readonly bra
         description: "The URL it points at, passed through exactly as supplied.",
       })
     ),
-  },
-  $I.annote("ExternalReference", { description: "A link from a component to something outside the BOM." })
+  }).pipe(
+    $I.annoteSchema("ExternalReference", { description: "A link from a component to something outside the BOM." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link ExternalReference}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ExternalReference {
+  /**
+   * The plain object a {@link ExternalReference} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ExternalReference.Encoded;
+}
+
+// A contact's email as CycloneDX carries it: an external-protocol string. The
+// 1.6 schema declares `format: idn-email`, but npm never validates a manifest
+// author's email, and the emitter passes the value through verbatim rather than
+// inventing a stricter rule (the `@beep/package-json` `ManifestEmail` precedent).
+const ContactEmail = S.String.pipe(
+  $I.annoteSchema("ContactEmail", {
+    description: "A CycloneDX contact email: an external-protocol string passed through verbatim.",
+  })
+);
 
 /**
  * A point of contact — a person at a supplier, or an author of the BOM.
@@ -170,17 +197,34 @@ export class ExternalReference extends S.Class<ExternalReference, { readonly bra
  * @category models
  * @since 0.0.0
  */
-export class Contact extends S.Class<Contact, { readonly brand: unique symbol }>($I`Contact`)(
-  {
+export class Contact extends S.Opaque<Contact, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The contact's name. */
     name: S.optionalKey(S.String).pipe($I.annoteKey("Contact.name", { description: "The contact's name." })),
     /** Their email address. */
-    email: S.optionalKey(S.String).pipe($I.annoteKey("Contact.email", { description: "Their email address." })),
+    email: S.optionalKey(ContactEmail).pipe($I.annoteKey("Contact.email", { description: "Their email address." })),
     /** Their telephone number. */
     phone: S.optionalKey(S.String).pipe($I.annoteKey("Contact.phone", { description: "Their telephone number." })),
-  },
-  $I.annote("Contact", { description: "A point of contact — a person at a supplier, or an author of the BOM." })
+  }).pipe(
+    $I.annoteSchema("Contact", { description: "A point of contact — a person at a supplier, or an author of the BOM." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link Contact}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace Contact {
+  /**
+   * The plain object a {@link Contact} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Contact.Encoded;
+}
 
 /**
  * The organization that supplied a component.
@@ -203,8 +247,8 @@ export class Contact extends S.Class<Contact, { readonly brand: unique symbol }>
  * @category models
  * @since 0.0.0
  */
-export class Supplier extends S.Class<Supplier, { readonly brand: unique symbol }>($I`Supplier`)(
-  {
+export class Supplier extends S.Opaque<Supplier, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The supplier organization's name. */
     name: S.String.pipe($I.annoteKey("Supplier.name", { description: "The supplier organization's name." })),
     /** Its URLs. */
@@ -215,9 +259,24 @@ export class Supplier extends S.Class<Supplier, { readonly brand: unique symbol 
       S.optionalKey,
       $I.annoteKey("Supplier.contact", { description: "Its points of contact." })
     ),
-  },
-  $I.annote("Supplier", { description: "The organization that supplied a component." })
+  }).pipe($I.annoteSchema("Supplier", { description: "The organization that supplied a component." }))
 ) {}
+
+/**
+ * Companion types for {@link Supplier}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace Supplier {
+  /**
+   * The plain object a {@link Supplier} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Supplier.Encoded;
+}
 
 /**
  * One component in the BOM — the root, or a dependency.
@@ -245,8 +304,8 @@ export class Supplier extends S.Class<Supplier, { readonly brand: unique symbol 
  * @category models
  * @since 0.0.0
  */
-export class Component extends S.Class<Component, { readonly brand: unique symbol }>($I`Component`)(
-  {
+export class Component extends S.Opaque<Component, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** What kind of component this is. */
     type: ComponentType.pipe($I.annoteKey("Component.type", { description: "What kind of component this is." })),
     /** The component's name — NTIA minimum element 2. */
@@ -305,9 +364,24 @@ export class Component extends S.Class<Component, { readonly brand: unique symbo
     copyright: S.optionalKey(S.String).pipe(
       $I.annoteKey("Component.copyright", { description: "A copyright statement." })
     ),
-  },
-  $I.annote("Component", { description: "One component in the BOM — the root, or a dependency." })
+  }).pipe($I.annoteSchema("Component", { description: "One component in the BOM — the root, or a dependency." }))
 ) {}
+
+/**
+ * Companion types for {@link Component}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace Component {
+  /**
+   * The plain object a {@link Component} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Component.Encoded;
+}
 
 /**
  * Document-level metadata: who made the BOM, when, and about what.
@@ -325,8 +399,8 @@ export class Component extends S.Class<Component, { readonly brand: unique symbo
  * @category models
  * @since 0.0.0
  */
-export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique symbol }>($I`SbomMetadata`)(
-  {
+export class SbomMetadata extends S.Opaque<SbomMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** When the BOM was assembled — NTIA minimum element 7. */
     timestamp: S.optionalKey(S.String).pipe(
       $I.annoteKey("SbomMetadata.timestamp", { description: "When the BOM was assembled — NTIA minimum element 7." })
@@ -345,9 +419,26 @@ export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique
     supplier: S.optionalKey(Supplier).pipe(
       $I.annoteKey("SbomMetadata.supplier", { description: "Who supplied that component — NTIA minimum element 1." })
     ),
-  },
-  $I.annote("SbomMetadata", { description: "Document-level metadata: who made the BOM, when, and about what." })
+  }).pipe(
+    $I.annoteSchema("SbomMetadata", { description: "Document-level metadata: who made the BOM, when, and about what." })
+  )
 ) {}
+
+/**
+ * Companion types for {@link SbomMetadata}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SbomMetadata {
+  /**
+   * The plain object a {@link SbomMetadata} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SbomMetadata.Encoded;
+}
 
 /**
  * A CycloneDX 1.6 bill of materials.
@@ -376,8 +467,8 @@ export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique
  * @category models
  * @since 0.0.0
  */
-export class SbomDocument extends S.Class<SbomDocument, { readonly brand: unique symbol }>($I`SbomDocument`)(
-  {
+export class SbomDocument extends S.Opaque<SbomDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Always `"CycloneDX"`. */
     bomFormat: S.tag(BOM_FORMAT).pipe($I.annoteKey("SbomDocument.bomFormat", { description: 'Always `"CycloneDX"`.' })),
     /** Always `"1.6"`. */
@@ -394,18 +485,28 @@ export class SbomDocument extends S.Class<SbomDocument, { readonly brand: unique
     components: S.Array(Component).pipe(
       $I.annoteKey("SbomDocument.components", { description: "The components the BOM describes, sorted by name." })
     ),
-  },
-  $I.annote("SbomDocument", { description: "A CycloneDX 1.6 bill of materials." })
+  }).pipe($I.annoteSchema("SbomDocument", { description: "A CycloneDX 1.6 bill of materials." }))
 ) {}
 
+/**
+ * Companion types for {@link SbomDocument}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SbomDocument {
+  /**
+   * The plain object a {@link SbomDocument} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SbomDocument.Encoded;
+}
+
 /** Drop absent keys so the emitted JSON omits them rather than carrying nulls. */
-const compact = <T extends Record<string, unknown>>(value: T): Record<string, unknown> => {
-  const out: Record<string, unknown> = {};
-  for (const [key, entry] of R.toEntries(value)) {
-    if (entry !== undefined) out[key] = entry;
-  }
-  return out;
-};
+const compact = (value: Readonly<Record<string, unknown>>): Record<string, unknown> =>
+  R.filter(value, P.isNotUndefined);
 
 /**
  * The `licenses` array in one of the three shapes CycloneDX permits.
@@ -434,8 +535,20 @@ const licensesJson = (licenses: ReadonlyArray<string>): ReadonlyArray<Record<str
   );
 };
 
+/** `f` over a present optional field; an absent one stays absent, and `compact` drops it. */
+const optionally = <A, B>(value: A | undefined, f: (value: A) => B): B | undefined =>
+  O.getOrUndefined(O.map(O.fromUndefinedOr(value), f));
+
 const contactJson = (contact: Contact): Record<string, unknown> =>
   compact({ name: contact.name, email: contact.email, phone: contact.phone });
+
+const contactsJson = (contacts: ReadonlyArray<Contact>): ReadonlyArray<Record<string, unknown>> =>
+  A.map(contacts, contactJson);
+
+const referenceJson = (reference: ExternalReference): Record<string, unknown> => ({
+  url: reference.url,
+  type: reference.type,
+});
 
 const componentJson = (component: Component): Record<string, unknown> =>
   compact({
@@ -448,18 +561,23 @@ const componentJson = (component: Component): Record<string, unknown> =>
     description: component.description,
     publisher: component.publisher,
     copyright: component.copyright,
-    authors: component.authors === undefined ? undefined : A.map(component.authors, contactJson),
+    authors: optionally(component.authors, contactsJson),
     // `licenses` is an array of single-key wrappers, never bare strings.
-    licenses: component.licenses === undefined ? undefined : licensesJson(component.licenses),
+    licenses: optionally(component.licenses, licensesJson),
     purl: component.purl,
-    externalReferences:
-      component.externalReferences === undefined
-        ? undefined
-        : A.map(component.externalReferences, (reference) => ({
-            url: reference.url,
-            type: reference.type,
-          })),
+    externalReferences: optionally(component.externalReferences, (references) => A.map(references, referenceJson)),
     tags: component.tags,
+  });
+
+const supplierJson = (supplier: Supplier): Record<string, unknown> =>
+  compact({ name: supplier.name, url: supplier.url, contact: optionally(supplier.contact, contactsJson) });
+
+const metadataJson = (metadata: SbomMetadata): Record<string, unknown> =>
+  compact({
+    timestamp: metadata.timestamp,
+    authors: optionally(metadata.authors, contactsJson),
+    component: optionally(metadata.component, componentJson),
+    supplier: optionally(metadata.supplier, supplierJson),
   });
 
 /**
@@ -492,26 +610,6 @@ export const documentJson = (document: SbomDocument): Record<string, unknown> =>
     bomFormat: document.bomFormat,
     specVersion: document.specVersion,
     version: document.version,
-    metadata:
-      document.metadata === undefined
-        ? undefined
-        : compact({
-            timestamp: document.metadata.timestamp,
-            authors:
-              document.metadata.authors === undefined ? undefined : A.map(document.metadata.authors, contactJson),
-            component:
-              document.metadata.component === undefined ? undefined : componentJson(document.metadata.component),
-            supplier:
-              document.metadata.supplier === undefined
-                ? undefined
-                : compact({
-                    name: document.metadata.supplier.name,
-                    url: document.metadata.supplier.url,
-                    contact:
-                      document.metadata.supplier.contact === undefined
-                        ? undefined
-                        : A.map(document.metadata.supplier.contact, contactJson),
-                  }),
-          }),
+    metadata: optionally(document.metadata, metadataJson),
     components: A.map(document.components, componentJson),
   });

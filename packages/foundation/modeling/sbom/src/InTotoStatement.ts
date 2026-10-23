@@ -307,8 +307,8 @@ export type Sha256Digest = string & Brand.Brand<"Sha256Digest">;
  * @category models
  * @since 0.0.0
  */
-export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: unique symbol }>($I`InTotoSubject`)(
-  {
+export class InTotoSubject extends S.Opaque<InTotoSubject, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** How the subject is identified — a purl for an npm package. */
     name: S.String.pipe(
       $I.annoteKey("InTotoSubject.name", { description: "How the subject is identified — a purl for an npm package." })
@@ -317,8 +317,7 @@ export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: uniq
     digest: S.Record(S.String, S.String).pipe(
       $I.annoteKey("InTotoSubject.digest", { description: "Algorithm to hex digest." })
     ),
-  },
-  $I.annote("InTotoSubject", { description: "A content-addressed artifact an attestation is about." })
+  }).pipe($I.annoteSchema("InTotoSubject", { description: "A content-addressed artifact an attestation is about." }))
 ) {
   /**
    * A subject identified by a SHA-256 digest.
@@ -350,6 +349,22 @@ export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: uniq
 }
 
 /**
+ * Companion types for {@link InTotoSubject}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace InTotoSubject {
+  /**
+   * The plain object a {@link InTotoSubject} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof InTotoSubject.Encoded;
+}
+
+/**
  * Input to {@link (InTotoStatement:class).of}.
  *
  * **Details**
@@ -374,29 +389,40 @@ export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: uniq
  * @category schemas
  * @since 0.0.0
  */
-export const InTotoStatementInput = S.Struct({
-  /** The artifacts the statement is about. */
-  subject: S.Array(InTotoSubject).pipe(
-    $I.annoteKey("InTotoStatementInput.subject", { description: "The artifacts the statement is about." })
-  ),
-  /** What the statement asserts. */
-  predicateType: S.String.pipe(
-    $I.annoteKey("InTotoStatementInput.predicateType", { description: "What the statement asserts." })
-  ),
-  /** The assertion's body — a `SlsaProvenance`, a BOM, or a caller's own shape. */
-  predicate: S.Unknown.pipe(
-    $I.annoteKey("InTotoStatementInput.predicate", {
-      description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape.",
-    })
-  ),
-}).pipe($I.annoteSchema("InTotoStatementInput", { description: "Input to InTotoStatement.of." }));
+export class InTotoStatementInput extends S.Opaque<InTotoStatementInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The artifacts the statement is about. */
+    subject: S.Array(InTotoSubject).pipe(
+      $I.annoteKey("InTotoStatementInput.subject", { description: "The artifacts the statement is about." })
+    ),
+    /** What the statement asserts. */
+    predicateType: S.String.pipe(
+      $I.annoteKey("InTotoStatementInput.predicateType", { description: "What the statement asserts." })
+    ),
+    /** The assertion's body — a `SlsaProvenance`, a BOM, or a caller's own shape. */
+    predicate: S.Unknown.pipe(
+      $I.annoteKey("InTotoStatementInput.predicate", {
+        description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape.",
+      })
+    ),
+  }).pipe($I.annoteSchema("InTotoStatementInput", { description: "Input to InTotoStatement.of." }))
+) {}
 
 /**
- * Decoded input accepted by the statement constructor.
+ * Companion types for {@link InTotoStatementInput}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type InTotoStatementInput = typeof InTotoStatementInput.Type;
+export declare namespace InTotoStatementInput {
+  /**
+   * The plain object a {@link InTotoStatementInput} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof InTotoStatementInput.Encoded;
+}
 
 /**
  * Input to {@link (InTotoStatement:class).forSubject}.
@@ -423,31 +449,42 @@ export type InTotoStatementInput = typeof InTotoStatementInput.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const InTotoSubjectInput = S.Struct({
-  /** How the single subject is identified. */
-  name: S.String.pipe(
-    $I.annoteKey("InTotoSubjectInput.name", { description: "How the single subject is identified." })
-  ),
-  /** Its SHA-256 digest. */
-  digest: Sha256Digest.pipe($I.annoteKey("InTotoSubjectInput.digest", { description: "Its SHA-256 digest." })),
-  /** What the statement asserts. */
-  predicateType: S.String.pipe(
-    $I.annoteKey("InTotoSubjectInput.predicateType", { description: "What the statement asserts." })
-  ),
-  /** The assertion's body — a `SlsaProvenance`, a BOM, or a caller's own shape. */
-  predicate: S.Unknown.pipe(
-    $I.annoteKey("InTotoSubjectInput.predicate", {
-      description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape.",
-    })
-  ),
-}).pipe($I.annoteSchema("InTotoSubjectInput", { description: "Input to InTotoStatement.forSubject." }));
+export class InTotoSubjectInput extends S.Opaque<InTotoSubjectInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** How the single subject is identified. */
+    name: S.String.pipe(
+      $I.annoteKey("InTotoSubjectInput.name", { description: "How the single subject is identified." })
+    ),
+    /** Its SHA-256 digest. */
+    digest: Sha256Digest.pipe($I.annoteKey("InTotoSubjectInput.digest", { description: "Its SHA-256 digest." })),
+    /** What the statement asserts. */
+    predicateType: S.String.pipe(
+      $I.annoteKey("InTotoSubjectInput.predicateType", { description: "What the statement asserts." })
+    ),
+    /** The assertion's body — a `SlsaProvenance`, a BOM, or a caller's own shape. */
+    predicate: S.Unknown.pipe(
+      $I.annoteKey("InTotoSubjectInput.predicate", {
+        description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape.",
+      })
+    ),
+  }).pipe($I.annoteSchema("InTotoSubjectInput", { description: "Input to InTotoStatement.forSubject." }))
+) {}
 
 /**
- * Decoded input accepted by the single-artifact constructor.
+ * Companion types for {@link InTotoSubjectInput}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type InTotoSubjectInput = typeof InTotoSubjectInput.Type;
+export declare namespace InTotoSubjectInput {
+  /**
+   * The plain object a {@link InTotoSubjectInput} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof InTotoSubjectInput.Encoded;
+}
 
 /**
  * An in-toto Statement v1.
@@ -514,7 +551,7 @@ export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: 
    *
    * @since 0.0.0
    */
-  static of(input: InTotoStatementInput): InTotoStatement {
+  static of(input: InTotoStatementInput.Encoded): InTotoStatement {
     return InTotoStatement.make({
       _type: IN_TOTO_STATEMENT_V1,
       subject: input.subject,
@@ -539,9 +576,11 @@ export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: 
    *
    * @since 0.0.0
    */
-  static forSubject(input: InTotoSubjectInput): InTotoStatement {
+  static forSubject(input: (typeof InTotoSubjectInput)["~type.make.in"]): InTotoStatement {
+    // The make input, not `Encoded`: `digest` stays a validated `Sha256Digest`,
+    // and the subject is a plain record that `of` admits with the statement.
     return InTotoStatement.of({
-      subject: [InTotoSubject.forSha256(input.name, input.digest)],
+      subject: [{ name: input.name, digest: { sha256: input.digest } }],
       predicateType: input.predicateType,
       predicate: input.predicate,
     });
@@ -567,7 +606,7 @@ export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: 
    *
    * @since 0.0.0
    */
-  toJson(options?: SbomJsonOptions): string {
+  toJson(options?: SbomJsonOptions.Encoded): string {
     return Result.getOrThrow(
       S.encodeResult(S.fromJsonString(S.Unknown, { space: options?.space ?? 0 }))({
         _type: this._type,

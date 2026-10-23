@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, identity } from "effect/Function";
 import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -37,26 +38,38 @@ const $I = $SbomId.create("Sbom");
  * @category schemas
  * @since 0.0.0
  */
-export const SbomInput = S.Struct({
-  /** The component the BOM is about. */
-  root: Component.pipe($I.annoteKey("SbomInput.root", { description: "The component the BOM is about." })),
-  /** Its dependencies, in any order — the document sorts them. */
-  components: S.Array(Component).pipe(
-    $I.annoteKey("SbomInput.components", { description: "Its dependencies, in any order — the document sorts them." })
-  ),
-  /** Document metadata. `root` is threaded onto it automatically. */
-  metadata: S.optional(SbomMetadata).pipe(
-    $I.annoteKey("SbomInput.metadata", { description: "Document metadata. `root` is threaded onto it automatically." })
-  ),
-}).pipe($I.annoteSchema("SbomInput", { description: "Input to Sbom.generate." }));
+export class SbomInput extends S.Opaque<SbomInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The component the BOM is about. */
+    root: Component.pipe($I.annoteKey("SbomInput.root", { description: "The component the BOM is about." })),
+    /** Its dependencies, in any order — the document sorts them. */
+    components: S.Array(Component).pipe(
+      $I.annoteKey("SbomInput.components", { description: "Its dependencies, in any order — the document sorts them." })
+    ),
+    /** Document metadata. `root` is threaded onto it automatically. */
+    metadata: S.optional(SbomMetadata).pipe(
+      $I.annoteKey("SbomInput.metadata", {
+        description: "Document metadata. `root` is threaded onto it automatically.",
+      })
+    ),
+  }).pipe($I.annoteSchema("SbomInput", { description: "Input to Sbom.generate." }))
+) {}
 
 /**
- * Decoded root, dependencies and optional metadata accepted by {@link Sbom.generate}.
+ * Companion types for {@link SbomInput}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type SbomInput = typeof SbomInput.Type;
+export declare namespace SbomInput {
+  /**
+   * The plain object a {@link SbomInput} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SbomInput.Encoded;
+}
 
 /**
  * Controls the JSON indentation used by {@link Sbom.toJson}.
@@ -75,22 +88,32 @@ export type SbomInput = typeof SbomInput.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const SbomJsonOptions = S.Struct({
-  /** `JSON.stringify` indentation. Defaults to `2`; `0` emits one line. */
-  space: S.optional(S.Finite).pipe(
-    $I.annoteKey("SbomJsonOptions.space", {
-      description: "JSON.stringify indentation. Defaults to 2; 0 emits one line.",
-    })
-  ),
-}).pipe($I.annoteSchema("SbomJsonOptions", { description: "Options for Sbom.toJson." }));
+export class SbomJsonOptions extends S.Opaque<SbomJsonOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** `JSON.stringify` indentation. Defaults to `2`; `0` emits one line. */
+    space: S.optional(S.Finite).pipe(
+      $I.annoteKey("SbomJsonOptions.space", {
+        description: "JSON.stringify indentation. Defaults to 2; 0 emits one line.",
+      })
+    ),
+  }).pipe($I.annoteSchema("SbomJsonOptions", { description: "Options for Sbom.toJson." }))
+) {}
 
 /**
- * Decoded indentation options accepted by {@link Sbom.toJson}.
+ * Companion types for {@link SbomJsonOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type SbomJsonOptions = typeof SbomJsonOptions.Type;
+export declare namespace SbomJsonOptions {
+  /**
+   * The plain object a {@link SbomJsonOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SbomJsonOptions.Encoded;
+}
 
 /**
  * Raised when a BOM cannot be written to disk.
@@ -148,20 +171,23 @@ export class SbomWriteError extends S.TaggedError<SbomWriteError, { readonly bra
 }
 
 // Implementation of Sbom.generate; the public contract lives on the static.
-const generate = (input: SbomInput): SbomDocument =>
+const generate = (input: SbomInput.Encoded): SbomDocument =>
+  // The one admission: the whole document graph is assembled as plain records
+  // and validated by a single `SbomDocument.make`, which copies the nested
+  // values (so a returned component is never the caller's object, D-22).
   SbomDocument.make({
     bomFormat: BOM_FORMAT,
     specVersion: SPEC_VERSION,
     version: 1,
     metadata: metadataWithRoot(input),
-    components: A.sort(
-      input.components,
-      Order.mapInput(
-        Order.make<string>((a, b) => Str.localeCompare(b)(a)),
-        (component: Component) => component.name
-      )
-    ),
+    components: A.sort(input.components, byName),
   });
+
+/** Components sorted by name, so two runs over the same inputs produce the same bytes. */
+const byName: Order.Order<Component.Encoded> = Order.mapInput(
+  Order.make<string>((a, b) => Str.localeCompare(b)(a)),
+  (component: Component.Encoded) => component.name
+);
 
 /**
  * Thread the root component onto the caller's metadata, or synthesize metadata
@@ -169,30 +195,29 @@ const generate = (input: SbomInput): SbomDocument =>
  *
  * **Details**
  *
- * Rebuilt through `SbomMetadata.make` rather than spread into a plain object:
- * a spread of a `Schema.Class` instance loses its prototype, and a plain object
- * standing in for a class field is the kind of lie that works until something
- * asks whether it is an instance. The conditional spreads are required by
- * `exactOptionalPropertyTypes` — an explicit `undefined` does not satisfy an
- * `optionalKey` field.
+ * A plain record, admitted with the rest of the document by `generate`. The
+ * conditional spreads are required by `exactOptionalPropertyTypes`: an explicit
+ * `undefined` does not satisfy an `optionalKey` field.
  */
-const metadataWithRoot = (input: SbomInput): SbomMetadata =>
-  SbomMetadata.make({
-    component: input.root,
-    ...(input.metadata?.timestamp !== undefined && { timestamp: input.metadata.timestamp }),
-    ...(input.metadata?.authors !== undefined && { authors: input.metadata.authors }),
-    ...(input.metadata?.supplier !== undefined && { supplier: input.metadata.supplier }),
-  });
+const metadataWithRoot = (input: SbomInput.Encoded): SbomMetadata.Encoded => ({
+  component: input.root,
+  ...(input.metadata?.timestamp !== undefined && { timestamp: input.metadata.timestamp }),
+  ...(input.metadata?.authors !== undefined && { authors: input.metadata.authors }),
+  ...(input.metadata?.supplier !== undefined && { supplier: input.metadata.supplier }),
+});
 
-/** Data-first dispatch for the document-first members: the subject is an `SbomDocument`. */
-const isSbomDocument = S.is(SbomDocument);
-const isDocumentFirst = (args: IArguments): boolean => isSbomDocument(args[0]);
+/**
+ * Data-first dispatch for the document-first members: the subject is an
+ * `SbomDocument`. Recognized by its `bomFormat` key, which no options record
+ * carries, rather than by a structural `S.is` that would walk the document.
+ */
+const isDocumentFirst = (args: IArguments): boolean => P.hasProperty(args[0], "bomFormat");
 
 // Implementation of Sbom.toJson; the public contract lives on the static.
 const toJson: {
-  (document: SbomDocument, options?: SbomJsonOptions): string;
-  (options?: SbomJsonOptions): (document: SbomDocument) => string;
-} = dual(isDocumentFirst, (document: SbomDocument, options?: SbomJsonOptions): string =>
+  (document: SbomDocument, options?: SbomJsonOptions.Encoded): string;
+  (options?: SbomJsonOptions.Encoded): (document: SbomDocument) => string;
+} = dual(isDocumentFirst, (document: SbomDocument, options?: SbomJsonOptions.Encoded): string =>
   Result.getOrThrowWith(
     S.encodeResult(S.fromJsonString(S.Unknown, { space: options?.space ?? 2 }))(documentJson(document)),
     identity
@@ -204,15 +229,15 @@ const write: {
   (
     document: SbomDocument,
     path: string,
-    options?: SbomJsonOptions
+    options?: SbomJsonOptions.Encoded
   ): Effect.Effect<void, SbomWriteError, FileSystem.FileSystem>;
   (
     path: string,
-    options?: SbomJsonOptions
+    options?: SbomJsonOptions.Encoded
   ): (document: SbomDocument) => Effect.Effect<void, SbomWriteError, FileSystem.FileSystem>;
 } = dual(
   isDocumentFirst,
-  Effect.fn("Sbom.write")(function* (document: SbomDocument, path: string, options?: SbomJsonOptions) {
+  Effect.fn("Sbom.write")(function* (document: SbomDocument, path: string, options?: SbomJsonOptions.Encoded) {
     const fs = yield* FileSystem.FileSystem;
     yield* fs
       .writeFileString(path, toJson(document, options))

@@ -8,6 +8,8 @@
 
 import { GITHUB_BUILD_TYPE, SLSA_PROVENANCE_V1, SlsaProvenance } from "@beep/sbom";
 import { assert, describe, it, vi } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
+import * as S from "effect/Schema";
 import FIXTURE from "./fixtures/actions-attest-provenance.json" with { type: "json" };
 
 /** The claims the vendored fixture was transcribed for. */
@@ -42,7 +44,8 @@ describe("SlsaProvenance.forGitHubWorkflow", () => {
     // The predecessor wrapped this body in `Effect.try` behind a
     // `SlsaError { reason: "env" }` arm that nothing could ever fire.
     const provenance = SlsaProvenance.forGitHubWorkflow(claims);
-    assert.instanceOf(provenance, SlsaProvenance);
+    // Opaque (W4-g): structural membership, not a prototype.
+    assertTrue(S.is(SlsaProvenance)(provenance));
   });
 
   it("declares the published predicate and build type URIs", () => {

@@ -17,9 +17,11 @@
 import { Package } from "@beep/package-json/Package";
 import { Contact, SbomMetadata, SbomMetadataSource, Supplier } from "@beep/sbom";
 import { assert, describe, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { ExternalReference } from "@beep/sbom";
 
 /** The first external reference of one type, or `undefined`. */
@@ -452,8 +454,14 @@ describe("SbomMetadataSource.merge", () => {
     assert.strictEqual(SbomMetadataSource.merge(explicit, inferred).supplier?.name, "Inferred");
   });
 
-  it("returns a SbomMetadata instance, not a plain object", () => {
-    const merged = SbomMetadataSource.merge(SbomMetadata.make({}), SbomMetadata.make({}));
-    assert.instanceOf(merged, SbomMetadata);
+  it("returns an admitted SbomMetadata, structurally — Opaque records have no prototype", () => {
+    // Inverted from the lab's `instanceOf` pin (W4-g): `SbomMetadata` is a
+    // branded `S.Opaque`, so membership is the schema's structural check, and a
+    // merge copies its inputs rather than aliasing them.
+    const base = SbomMetadata.make({ timestamp: "2025-01-01T00:00:00Z" });
+    const merged = SbomMetadataSource.merge(base, SbomMetadata.make({}));
+    assertTrue(S.is(SbomMetadata)(merged));
+    assert.notStrictEqual(merged, base);
+    assert.deepStrictEqual(merged, base);
   });
 });

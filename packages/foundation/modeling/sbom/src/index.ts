@@ -27,15 +27,15 @@ export {
   CYCLONEDX_BOM_PREDICATE,
   IN_TOTO_STATEMENT_V1,
   InTotoStatement,
-  type InTotoStatementInput,
+  InTotoStatementInput,
   InTotoSubject,
-  type InTotoSubjectInput,
+  InTotoSubjectInput,
   InvalidSha256DigestError,
   type PredicateType,
   Sha256Digest,
 } from "./InTotoStatement.ts";
 export { NtiaElement, NtiaElementId, NtiaReport } from "./NtiaReport.ts";
-export { Sbom, type SbomInput, type SbomJsonOptions, SbomWriteError } from "./Sbom.ts";
+export { Sbom, SbomInput, SbomJsonOptions, SbomWriteError } from "./Sbom.ts";
 export {
   Component,
   ComponentType,
@@ -47,15 +47,15 @@ export {
   Supplier,
 } from "./SbomDocument.ts";
 export {
-  type ComponentInput,
-  type CopyrightYears,
-  type SbomMetadataOptions,
+  ComponentInput,
+  CopyrightYears,
+  SbomMetadataOptions,
   SbomMetadataSource,
 } from "./SbomMetadataSource.ts";
 export { IN_TOTO_PAYLOAD_TYPE, SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE, SigstoreBundle } from "./SigstoreBundle.ts";
 export {
   GITHUB_BUILD_TYPE,
-  type GitHubWorkflowProvenance,
+  GitHubWorkflowProvenance,
   SLSA_PROVENANCE_V1,
   SlsaBuildDefinition,
   SlsaProvenance,

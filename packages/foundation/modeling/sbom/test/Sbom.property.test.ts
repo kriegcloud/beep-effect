@@ -59,7 +59,10 @@ it.effect.prop(
     Effect.gen(function* () {
       const document = Sbom.generate(input);
       assert.strictEqual(Sbom.toJson(Sbom.generate(input)), Sbom.toJson(document));
-      assert.strictEqual(document.metadata?.component, input.root);
+      // Single admission copies (W4-g): the root is the caller's value by
+      // structure, never by reference.
+      assert.deepStrictEqual(document.metadata?.component, input.root);
+      assert.notStrictEqual(document.metadata?.component, input.root);
     }),
   runs
 );
