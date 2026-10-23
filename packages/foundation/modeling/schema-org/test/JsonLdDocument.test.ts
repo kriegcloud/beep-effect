@@ -231,10 +231,8 @@ describe("JsonLdDocument.toJsonLd — the wire form", () => {
     assert.notProperty(node, "additional", "`additional` is this package's word, not a schema.org term");
   });
 
-  it("drops undefined-valued keys rather than emitting them", () => {
-    const graph = Result.getOrThrow(
-      JsonLdDocument.buildResult([Person.make({ "@id": ALICE, name: "Alice", email: undefined, url: undefined })])
-    );
+  it("emits only the fields that are set", () => {
+    const graph = Result.getOrThrow(JsonLdDocument.buildResult([Person.make({ "@id": ALICE, name: "Alice" })]));
 
     const wire = graph.toJsonLd();
     if (!S.is(WireDocument)(wire)) assert.fail("expected a JSON-LD wire document");
@@ -243,7 +241,7 @@ describe("JsonLdDocument.toJsonLd — the wire form", () => {
     assert.deepStrictEqual(
       R.keys(node ?? {}),
       ["@id", "@type", "name"],
-      "a set field survives; the two passed as explicit undefined do not — JSON-LD has no undefined"
+      "only the set field is emitted; optional keys are exact, so there is no undefined to drop"
     );
   });
 

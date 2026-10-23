@@ -2171,5 +2171,10 @@
   "@beep/config-file/*": ["./packages/foundation/capability/config-file/src/*"],
   "@beep/config-file/internal/*": [
     "./packages/foundation/capability/config-file/src/internal/*"
+  ],
+  "@beep/xdg": ["./packages/foundation/capability/xdg/src/index.ts"],
+  "@beep/xdg/*": ["./packages/foundation/capability/xdg/src/*"],
+  "@beep/xdg/internal/*": [
+    "./packages/foundation/capability/xdg/src/internal/*"
   ]
 }

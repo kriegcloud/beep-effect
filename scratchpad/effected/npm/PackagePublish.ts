@@ -228,7 +228,7 @@ export const PackOptions = S.Struct({
 	/** Which npm runs the command. Defaults to {@link NpmExecutor.ambient}. */
 	executor: S.instanceOf(NpmExecutor, {
 		toCodecArbitrary: () => S.link<NpmExecutor>()(S.toType(NpmExecutor), SchemaTransformation.passthrough()),
-	}).pipe(S.optional, $I.annoteKey("PackOptions.executor", { description: "The npm executor; omission selects ambient npm." })),
+	}).pipe(S.optionalKey, $I.annoteKey("PackOptions.executor", { description: "The npm executor; omission selects ambient npm." })),
 }).pipe($I.annoteSchema("PackOptions", { description: "Structural options shared by packing operations." }));
 /**
  * Decoded packing options represented by {@link (PackOptions:variable)}.

@@ -42,6 +42,7 @@ import {
   SchemaParityCodemodRulePlan,
 } from "./SchemaParityCodemod.schemas.ts";
 import { findSchemaParityCodemodEditOverlap, renderSchemaParityCodemodEdits } from "./SchemaParityCodemodEdits.ts";
+import { exactOptionalKeysRule } from "./SchemaParityCodemodExactOptionalKeysRule.ts";
 import { schemaParityCodemodValueImports } from "./SchemaParityCodemodImports.ts";
 import { literalKitMatchRenameRule } from "./SchemaParityCodemodLiteralKitMatchRule.ts";
 import { literalKitFacetsRule } from "./SchemaParityCodemodLiteralKitRule.ts";
@@ -81,7 +82,8 @@ const $I = $RepoCliId.create("commands/Lint/internal/SchemaParityCodemodEngine")
 export const SchemaParityCodemodRules: HashMap.HashMap<SchemaParityCodemodRuleId, SchemaParityCodemodRule> =
   HashMap.make(
     [literalKitFacetsRule.id, literalKitFacetsRule],
-    [literalKitMatchRenameRule.id, literalKitMatchRenameRule]
+    [literalKitMatchRenameRule.id, literalKitMatchRenameRule],
+    [exactOptionalKeysRule.id, exactOptionalKeysRule]
   );
 
 const importKey = SchemaParityCodemodImport.match({

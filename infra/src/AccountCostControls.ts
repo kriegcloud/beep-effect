@@ -6,6 +6,7 @@
  */
 import { $InfraId } from "@beep/identity/packages";
 import { EmailString } from "@beep/schema";
+import * as O from "@beep/utils/Option";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as A from "effect/Array";
@@ -51,8 +52,8 @@ const PositiveDollars = S.Finite.check(S.isGreaterThan(0)).pipe(
 export class AccountCostControlsConfig extends S.Opaque<AccountCostControlsConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     expectedAccountId: AccountId,
-    monthlyBudgetUsd: PositiveDollars.pipe(S.withDecodingDefault(Effect.succeed(500))),
-    anomalyImpactUsd: PositiveDollars.pipe(S.withDecodingDefault(Effect.succeed(10))),
+    monthlyBudgetUsd: PositiveDollars.pipe(S.withDecodingDefaultKey(Effect.succeed(500))),
+    anomalyImpactUsd: PositiveDollars.pipe(S.withDecodingDefaultKey(Effect.succeed(10))),
   }).pipe(
     $I.annoteSchema("AccountCostControlsConfig", {
       description: "Account-scoped cost controls that never stop or resize workloads.",
@@ -85,8 +86,10 @@ export const loadAccountCostControlsConfig = (): AccountCostControlsConfig => {
   return Result.getOrThrowWith(
     decodeAccountCostControlsConfig({
       expectedAccountId: config.require("expectedAccountId"),
-      monthlyBudgetUsd: config.getNumber("monthlyBudgetUsd"),
-      anomalyImpactUsd: config.getNumber("anomalyImpactUsd"),
+      ...O.getSomesStruct({
+        monthlyBudgetUsd: O.fromUndefinedOr(config.getNumber("monthlyBudgetUsd")),
+        anomalyImpactUsd: O.fromUndefinedOr(config.getNumber("anomalyImpactUsd")),
+      }),
     }),
     () => new pulumi.RunError("Invalid accountCostControls account or spending threshold configuration")
   );

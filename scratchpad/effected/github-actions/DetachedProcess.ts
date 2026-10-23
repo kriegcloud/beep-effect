@@ -413,7 +413,7 @@ export const DetachedSpawnOptions = S.Struct({
    *
    * @since 0.0.0
    */
-  args: S.String.pipe(S.Array, S.optional, $I.annoteKey("DetachedSpawnOptions.args", { description: "The executable arguments, omitted for none." })),
+  args: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("DetachedSpawnOptions.args", { description: "The executable arguments, omitted for none." })),
   /**
    * Where the child's stdout and stderr go, opened for append.
    *

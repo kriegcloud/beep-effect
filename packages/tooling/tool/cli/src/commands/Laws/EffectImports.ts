@@ -138,40 +138,40 @@ export class EffectImportRulesOptions extends S.Opaque<EffectImportRulesOptions,
   S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     candidate: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     effectOnly: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     mode: EffectImportCorpusMode.pipe(
       S.withConstructorDefault(Effect.succeed("code" as const)),
-      S.withDecodingDefault(Effect.succeed("code" as const))
+      S.withDecodingDefaultKey(Effect.succeed("code" as const))
     ),
     enforceDocumentation: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     excludePaths: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
     includePrefixes: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     promotedFamilyPrefixes: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES)),
-      S.withDecodingDefault(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES))
+      S.withDecodingDefaultKey(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES))
     ),
   }).pipe(
     $I.annoteSchema("EffectImportRulesOptions", {
@@ -263,15 +263,15 @@ export class EffectImportRulesSummary extends S.Opaque<EffectImportRulesSummary,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     manualReviews: S.Array(EffectImportManualReview).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectImportManualReview>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<EffectImportManualReview>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectImportManualReview>()))
     ),
     parserWarnings: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("EffectImportRulesSummary", {

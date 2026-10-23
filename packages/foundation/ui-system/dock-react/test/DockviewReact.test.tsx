@@ -195,23 +195,23 @@ describe("DockviewReact", { concurrent: false }, () => {
     })
   );
 
-  it.effect("renders missing-renderer diagnostics and the empty watermark", () =>
+  it.effect("renders missing-renderer diagnostics", () =>
     Effect.gen(function* () {
       const missing = Panel.make({
         id: panel1Id,
         title: "Missing",
         view: ComponentPanelView.make({ renderer: RendererKey.make("not-registered"), input: {} }),
       });
-      yield* Effect.scoped(
-        Effect.gen(function* () {
-          const graph = yield* makeGraph(makeWorkspace([missing]));
-          const view = render(<DockviewReact graph={graph} components={{}} />);
-          sizeRoot();
-          expect((yield* Effect.promise(() => screen.findByRole("alert"))).textContent).toContain("not-registered");
-          view.unmount();
-        })
-      );
+      const graph = yield* makeGraph(makeWorkspace([missing]));
+      const view = render(<DockviewReact graph={graph} components={{}} />);
+      sizeRoot();
+      expect((yield* Effect.promise(() => screen.findByRole("alert"))).textContent).toContain("not-registered");
+      view.unmount();
+    })
+  );
 
+  it.effect("renders the empty watermark", () =>
+    Effect.gen(function* () {
       const empty = yield* Effect.acquireRelease(makeDockAtoms(), (graph) => Effect.sync(() => graph.dispose()));
       render(<DockviewReact graph={empty} components={{}} watermarkComponent={() => <div>Watermark</div>} />);
       expect(screen.getByText("Watermark").isConnected).toBe(true);

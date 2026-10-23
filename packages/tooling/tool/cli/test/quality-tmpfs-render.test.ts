@@ -2,6 +2,7 @@ import { renderTmpfsReportLinesForTesting } from "@beep/repo-cli/test/Quality";
 import { TmpfsReapCandidate, TmpfsReapReport } from "@beep/repo-cli/test/RepoRun";
 import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect/Function";
+import * as Struct from "effect/Struct";
 
 const report = TmpfsReapReport.make({
   scannedAt: "2026-08-30T12:00:00.000Z",
@@ -39,7 +40,7 @@ describe("tmpfs reap quality rendering", () => {
   });
 
   it("falls back to the legacy root and supports the pipeable apply form", () => {
-    const legacy = TmpfsReapReport.make({ ...report, tmpRoots: undefined, candidates: [], warnings: [] });
+    const legacy = TmpfsReapReport.make({ ...Struct.omit(report, ["tmpRoots"]), candidates: [], warnings: [] });
     const lines = pipe(legacy, renderTmpfsReportLinesForTesting(true));
 
     expect(lines[0]).toBe("TMPFS REAP APPLY — removing only classified, idle artifacts with zero live references");

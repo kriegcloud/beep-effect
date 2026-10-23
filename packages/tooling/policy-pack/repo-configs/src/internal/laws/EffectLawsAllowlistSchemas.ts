@@ -45,7 +45,7 @@ export class EffectLawsAllowlistDocument extends S.Opaque<
     version: S.tag(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
     ),
   }).pipe(
     $I.annoteSchema("EffectLawsAllowlistDocument", {
@@ -62,11 +62,11 @@ export class EffectLawsAllowlistSnapshot extends S.Opaque<
     path: PosixPath,
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
     ),
     diagnostics: ArrayOfStrings.pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
   }).pipe(
     $I.annoteSchema("EffectLawsAllowlistSnapshot", {

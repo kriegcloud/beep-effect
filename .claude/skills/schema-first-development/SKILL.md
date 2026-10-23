@@ -108,9 +108,10 @@ Keep `Schema` as the source of truth for pure data models.
   `bun run beep laws schema-tag-idioms --check` enforces it.
 - Prefer schema-derived tagged-union helpers (`.cases`, `.guards`, `.isAnyOf`,
   `.match`) when constructing, guarding, or branching on a schema tagged union.
-- Use `S.OptionFromNullOr`, `S.OptionFromNullishOr`,
-  `S.OptionFromOptionalKey`, and `S.OptionFromOptional` for absence at the
-  boundary.
+- Use `S.OptionFromNullOr`, `S.OptionFromNullishOr` and
+  `S.OptionFromOptionalKey` for absence at the boundary. Optional fields use
+  exact keys (EF-40): `S.optionalKey`, `S.withDecodingDefaultKey`,
+  `S.OptionFromOptionalKey`, never their `undefined`-admitting siblings.
 - Use `S.OptionFrom*` when the wire/schema field is optional or nullish. If
   runtime `Option` values are already being shaped into an object, prefer
   `O.getSomesStruct({...})` (`@beep/utils`) for heterogeneous struct spreads
@@ -118,7 +119,7 @@ Keep `Schema` as the source of truth for pure data models.
   key; reserve `R.getSomes({...})` for homogeneous dynamic-key dictionaries.
   Use `O.all({...})` for all-or-nothing fixed-shape composition. (Amended
   2026-07-05 — see `standards/architecture/DECISIONS.md`.)
-- Use `S.withConstructorDefault(...)`, `S.withDecodingDefault(...)`, and
+- Use `S.withConstructorDefault(...)`, `S.withDecodingDefaultKey(...)`, and
   `S.decodeTo(...)` with `SchemaTransformation` for normalization and fallback
   behavior.
 - Prefer built-in schema constructors and checks before `S.makeFilter(...)`.
