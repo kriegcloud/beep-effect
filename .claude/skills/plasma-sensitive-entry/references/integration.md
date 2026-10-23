@@ -89,7 +89,7 @@ acceptance check can qualify actual dialog delivery.
 
 ## Concrete SSH consumer
 
-Use `scripts/ssh-askpass.py` as `SSH_ASKPASS` only inside the existing approved
+Use the [SSH askpass adapter](../scripts/ssh-askpass.py) as `SSH_ASKPASS` only inside the existing approved
 remote SSH wrapper when it needs a text challenge. The executable must have an
 absolute path. Set `SSH_ASKPASS_REQUIRE=force` for that single SSH invocation;
 set `NumberOfPasswordPrompts=1`, restrict `PreferredAuthentications` to the
@@ -160,7 +160,8 @@ master can then carry the authorized operation without another text prompt.
 ## Workstation discovery installation
 
 Run `python3 <skill>/scripts/install.py` once from the reviewed checkout. It
-adds global `~/.agents/skills` and `~/.claude/skills` discovery links, and a
+adds discovery links at the current-user installation destinations
+`$HOME/.agents/skills` and `$HOME/.claude/skills`, and a
 marked default rule to `~/.codex/AGENTS.md`, preserving existing instructions.
 It refuses a competing skill directory/link. New Codex chats discover the
 rule regardless of cwd; already running chats keep their loaded instructions.

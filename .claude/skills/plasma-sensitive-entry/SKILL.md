@@ -31,15 +31,16 @@ chat. A dialog collects the value; the agent receives only sanitized status.
 2. Verify the local Plasma session and `kdialog` are available. Use only the
    selected session's display and bus metadata; never print its environment.
    If the agent lacks user-bus context, use the integration contract's
-   [current-user preparation](references/integration.md#current-user-gui-preparation).
+   [current-user preparation](./references/integration.md#current-user-gui-preparation).
    A missing GUI is a blocker: arrange human entry in the trusted application.
    Never fall back to chat, question tools, terminal typing or plaintext files.
-3. Use [the pipe helper](scripts/prompt.py) from a trusted adapter, following
-   [the integration contract](references/integration.md). The adapter creates
+3. Use [the pipe helper](./scripts/prompt.py) from a trusted adapter, following
+   [the integration contract](./references/integration.md). The adapter creates
    a private pipe, passes its write descriptor using `pass_fds`, and consumes
    the read side in memory. The helper refuses standard descriptors and only
    writes a successful, nonempty answer to that inherited pipe. The bundled
-   `scripts/ssh-askpass.py` is the concrete SSH consumer; never run it directly.
+   [SSH askpass adapter](./scripts/ssh-askpass.py) is the concrete SSH consumer;
+   never run it directly.
 4. Keep answers out of tool arguments/results, stdout/stderr, environment,
    shell history, files, screenshots and telemetry. Do not invoke `kdialog
    --password` directly as an agent tool: its stdout contains the answer.
