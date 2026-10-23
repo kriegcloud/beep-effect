@@ -1,3 +1,10 @@
+/**
+ * Failure reports as documents: a status line for a typed failure, a tree of rejected values for a schema failure,
+ * and a defect with a collapsible stack of the program's own frames.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";

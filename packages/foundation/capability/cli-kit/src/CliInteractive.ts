@@ -1,3 +1,10 @@
+/**
+ * Whether this run may prompt a person: a human audience with a terminal on stdin and stdout, and `TERM` not
+ * `dumb`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Context from "effect/Context";

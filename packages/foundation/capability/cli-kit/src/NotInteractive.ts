@@ -1,3 +1,9 @@
+/**
+ * The failure a prompt raises when there is no terminal to prompt on: it exits 64 with one fixed line.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";

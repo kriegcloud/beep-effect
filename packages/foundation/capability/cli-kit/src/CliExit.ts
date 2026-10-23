@@ -1,3 +1,9 @@
+/**
+ * The findings exit code a handler that succeeds can still set, read by `CliRuntime.main` when the run ends.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

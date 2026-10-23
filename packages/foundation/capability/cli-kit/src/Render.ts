@@ -1,3 +1,10 @@
+/**
+ * Pure renderers from a document to text (`plain`, `ansi`, `markdown`, `githubLog`) and the rendering context they
+ * share: width, audience, colour, glyphs, links and path display.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";

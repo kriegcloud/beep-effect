@@ -1,3 +1,10 @@
+/**
+ * The document IR (headings, paragraphs, lists, tables, trees, counts, callouts, code, diffs, annotations), its
+ * builders, and `Doc.print`, which renders a document for the audience on the right stream.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";

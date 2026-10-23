@@ -1,3 +1,9 @@
+/**
+ * The failure a person causes by backing out of a prompt: it exits 130 with one fixed line, never a stack.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";

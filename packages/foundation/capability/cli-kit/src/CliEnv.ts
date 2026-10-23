@@ -1,3 +1,10 @@
+/**
+ * The environment layer a program runs under: audience, terminal facts, theme, links, logging and the help
+ * formatter, assembled once from options and the process environment.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceKind } from "@beep/runtime-env/Audience";

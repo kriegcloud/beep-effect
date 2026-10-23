@@ -1,3 +1,9 @@
+/**
+ * The glyph sets a theme draws with, Unicode and ASCII, and the selection between them from `TERM`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

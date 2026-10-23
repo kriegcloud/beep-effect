@@ -1,3 +1,10 @@
+/**
+ * Text formatting for terminal output: sanitising untrusted text (`sanitize`, `stripControls`), display width,
+ * grapheme-safe truncation, durations, percentages and plurals.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";

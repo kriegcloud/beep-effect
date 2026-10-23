@@ -1,3 +1,10 @@
+/**
+ * GitHub Actions annotations: the severities, the optional file and position properties, and the escaped
+ * `::level props::message` workflow command.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { WorkflowCommand } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

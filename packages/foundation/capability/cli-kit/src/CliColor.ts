@@ -1,3 +1,9 @@
+/**
+ * Whether output carries ANSI colour, decided once from the audience and the stream and shared by every writer.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { TerminalEnv } from "@beep/runtime-env";
 import * as CliOutput from "effect/cli/CliOutput";
 import * as Effect from "effect/Effect";

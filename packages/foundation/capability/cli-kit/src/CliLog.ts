@@ -1,3 +1,10 @@
+/**
+ * Diagnostics with their own level: pretty lines for a person, NDJSON for an agent or CI, an optional NDJSON log
+ * file, and component tags.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";

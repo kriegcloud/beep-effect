@@ -1,3 +1,10 @@
+/**
+ * Status vocabularies: each status has a Unicode glyph, an ASCII fallback, a token and a rank, and the core
+ * vocabulary covers success, failure, warning, info, skip and pending.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Arr from "effect/Array";

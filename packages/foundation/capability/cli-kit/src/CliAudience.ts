@@ -1,3 +1,10 @@
+/**
+ * The audience flags (`--audience`, `--human`, `--agent`, `--ci`) and the runner that applies them before the
+ * command runs, so every later decision reads the audience the person asked for.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { AudienceKind, AudienceShape } from "@beep/runtime-env/Audience";

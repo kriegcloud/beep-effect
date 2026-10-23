@@ -1,3 +1,9 @@
+/**
+ * Turns a schema issue tree into lines a user can act on, such as `unknown key at groups.g.rulesetz`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { formatIssue } from "./internal/format.ts";
 
 /**

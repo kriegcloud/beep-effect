@@ -1,3 +1,10 @@
+/**
+ * A logger that writes plain lines, with no timestamp, level or fiber id, to stderr by default, so stdout carries
+ * only the program's output.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";

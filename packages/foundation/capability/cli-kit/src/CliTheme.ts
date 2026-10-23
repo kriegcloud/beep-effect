@@ -1,3 +1,9 @@
+/**
+ * The theme service: per-stream colour level, glyph set and the paint, SGR and status functions built from them.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { TerminalEnv } from "@beep/runtime-env";
 import { ColorLevel } from "@beep/runtime-env/ColorLevel";

@@ -1,3 +1,10 @@
+/**
+ * File links that open in an editor (`vscode://file/…`) or as `file://` URLs, drawn as OSC 8 hyperlinks where the
+ * terminal renders them and never for an agent.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { AudienceKind } from "@beep/runtime-env/Audience";

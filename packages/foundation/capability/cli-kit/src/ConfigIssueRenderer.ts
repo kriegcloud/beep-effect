@@ -1,3 +1,10 @@
+/**
+ * One line per rejected value for a config validation failure, from the structural `{ readonly issue }` so the
+ * package needs no config-file dependency.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { formatIssue } from "./internal/format.ts";
 
 /**

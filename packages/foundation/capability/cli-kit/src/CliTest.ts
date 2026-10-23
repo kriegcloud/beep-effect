@@ -1,3 +1,10 @@
+/**
+ * Hermetic subprocess tests for a built bin: a sandbox with its own home and XDG directories, and a run that
+ * returns the exit code and both streams as data.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

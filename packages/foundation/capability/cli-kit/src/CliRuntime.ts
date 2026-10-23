@@ -1,3 +1,10 @@
+/**
+ * The program boundary: `CliRuntime.main` runs a command with its environment, reports a failure as a document on
+ * stderr through the audience's renderer, and exits with the right code.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";

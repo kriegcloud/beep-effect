@@ -8,6 +8,7 @@
  * see the reachability test beside it.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 export { CliTest, type RunOptions, type RunResult, type Sandbox } from "./CliTest.ts";
 export { type KeyInput, TestTerminal, type TestTerminalHandle } from "./TestTerminal.ts";

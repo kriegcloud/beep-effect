@@ -1,3 +1,10 @@
+/**
+ * A scripted `effect/Terminal` for driving core prompts in tests: queue keys and lines, end input, and read what
+ * the prompt displayed.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

@@ -1,3 +1,10 @@
+/**
+ * Semantic colour tokens (`success`, `failure`, `warning`, `info`, `error`, `muted`, `accent`, `emphasis`), their
+ * default styles and the styles a theme can override them with.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as P from "effect/Predicate";

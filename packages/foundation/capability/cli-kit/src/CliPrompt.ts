@@ -1,3 +1,10 @@
+/**
+ * Prompts that know when there is nobody to ask: a fallback answer, a clean `NotInteractive` failure, and the
+ * gates that keep core prompts off a non-interactive run.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -50,7 +57,12 @@ export class FlagTarget extends S.Opaque<FlagTarget, { readonly brand: unique sy
  * @since 0.0.0
  */
 export declare namespace FlagTarget {
-  /** The plain target input. @category type-level @since 0.0.0 */
+  /**
+   * The plain target input.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export type Encoded = typeof FlagTarget.Encoded;
 }
 /**
@@ -88,7 +100,12 @@ export class ArgumentTarget extends S.Opaque<ArgumentTarget, { readonly brand: u
  * @since 0.0.0
  */
 export declare namespace ArgumentTarget {
-  /** The plain target input. @category type-level @since 0.0.0 */
+  /**
+   * The plain target input.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export type Encoded = typeof ArgumentTarget.Encoded;
 }
 /**
@@ -128,7 +145,12 @@ export type CliPromptTarget = typeof CliPromptTarget.Type;
  * @since 0.0.0
  */
 export declare namespace CliPromptTarget {
-  /** Plain missing-parameter input. @category type-level @since 0.0.0 */
+  /**
+   * Plain missing-parameter input.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export type Encoded = typeof CliPromptTarget.Encoded;
 }
 

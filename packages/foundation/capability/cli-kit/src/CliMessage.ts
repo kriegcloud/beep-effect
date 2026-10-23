@@ -1,3 +1,10 @@
+/**
+ * One themed status line per call (`success`, `info`, `warning`, `failure`, `status`), written through `Console` on
+ * the stream its rank selects, sanitised and neutralized under GitHub Actions.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
 import { Audience } from "@beep/runtime-env";
