@@ -101,18 +101,18 @@ export class CliFailureOptions extends S.Opaque<CliFailureOptions, { readonly br
      * in it, read from the path alone with no file system. A module not under `node_modules` changes nothing: the rule
      * already keeps its spans. Unset by default.
      */
-    appModule: S.optional(S.String).pipe(
+    appModule: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliFailureOptions.appModule", { description: "The appModule field of CliFailureOptions." })
     ),
     /** Turns an absolute path into its display form, for the stack frames; the identity by default. */
-    displayPath: S.optional(DisplayPath).pipe(
+    displayPath: S.optionalKey(DisplayPath).pipe(
       $I.annoteKey("CliFailureOptions.displayPath", { description: "The displayPath field of CliFailureOptions." })
     ),
     /**
      * A document per error `_tag`, for errors that do not implement {@link CliDoc}. A tag with no entry is shown by
      * the default rules.
      */
-    render: S.optional(S.Record(S.String, CliFailureOptionsRenderValue)).pipe(
+    render: S.optionalKey(S.Record(S.String, CliFailureOptionsRenderValue)).pipe(
       $I.annoteKey("CliFailureOptions.render", { description: "The render field of CliFailureOptions." })
     ),
     /**
@@ -132,7 +132,7 @@ export class CliFailureOptions extends S.Opaque<CliFailureOptions, { readonly br
      * is installed under `node_modules/@effected/` (a kit companion's bin) names itself with `appModule`, or its own
      * spans are left out with the kit's.
      */
-    spans: S.optional(S.Union([S.Literal("app"), S.Literal("all"), S.Literal("off")])).pipe(
+    spans: S.optionalKey(S.Union([S.Literal("app"), S.Literal("all"), S.Literal("off")])).pipe(
       $I.annoteKey("CliFailureOptions.spans", { description: "The spans field of CliFailureOptions." })
     ),
     /**
@@ -142,7 +142,7 @@ export class CliFailureOptions extends S.Opaque<CliFailureOptions, { readonly br
      * install, `npx`, a pnpm store), only the runtime's and Effect's are left out, so its own frames still show. `all`
      * shows every frame, unfiltered.
      */
-    stackFrames: S.optional(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
+    stackFrames: S.optionalKey(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
       $I.annoteKey("CliFailureOptions.stackFrames", { description: "The stackFrames field of CliFailureOptions." })
     ),
   }).pipe($I.annoteSchema("CliFailureOptions", { description: "Plain CliFailureOptions data." }))

@@ -29,10 +29,10 @@ const capturing = () => {
 
 const run = Effect.fn("run")(function* <E>(failure: E, render?: (error: unknown) => string) {
   const { double, out, err } = capturing();
-  const exit = yield* CliRuntime.main(Effect.fail(failure), { platform: Layer.empty, render }).pipe(
-    Effect.exit,
-    Effect.provideService(Console.Console, double)
-  );
+  const exit = yield* CliRuntime.main(
+    Effect.fail(failure),
+    render === undefined ? { platform: Layer.empty } : { platform: Layer.empty, render }
+  ).pipe(Effect.exit, Effect.provideService(Console.Console, double));
   const code = Exit.isFailure(exit) ? exit.cause.pipe(Cause.squash, Runtime.getErrorExitCode) : undefined;
   const reported = Exit.isFailure(exit) ? exit.cause.pipe(Cause.squash, Runtime.getErrorReported) : undefined;
   return { code, reported, out, err };

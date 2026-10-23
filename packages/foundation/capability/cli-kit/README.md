@@ -229,7 +229,8 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 
 - `./ui`, `./ui/testing` and `./ui/testing/serializer` are not part of this package: the Ink half stays in the lab until the packet's close (W4-m), importing this package's leaves.
 - `CliMessage.status` dispatches on a `Status` vocabulary in first position; it was `dual(4, …)` with an optional fourth parameter, so a three-argument data-first call ran as data-last (#1928 remedy, W4-j).
-- The 22 option fields that #1928 moved to `S.optionalKey` are `S.optional` again, as upstream (W4-j; #2145 EF-40 is not on main).
+- Optional schema fields are exact optional keys (`S.optionalKey`, EF-40 from #2145), so a present key holding `undefined` is rejected where upstream's `S.optional` accepted it; the explicit-undefined tests pin that rejection (W4-j, EF-40 branch).
+- A `file:` stack frame becomes a path by `fileURLToPath`'s rules without importing `node:url` (#2152): an encoded `/` or `\`, or a host other than `localhost`, leaves the frame as written.
 - Option bags and records are branded `S.Opaque` classes taking `X.Encoded`; the service shapes are derived from their `Context.Service` classes; `Column` is a tagged IR node; `parseHex`, `fileUrlPath` and `capOf` return `Option`.
 - Span names carry their owner (`CliMessage.status`, `Doc.print`, `FileSink.make`, …).
 - `erasableSyntax.test.ts` and `entrypoints.test.ts` are gone: `tsconfig.base.json`'s `erasableSyntaxOnly` enforces the first, and `boundary.test.ts` absorbs the second.

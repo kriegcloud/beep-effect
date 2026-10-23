@@ -34,7 +34,7 @@ const $I = $CliKitId.create("Fmt");
 export class TruncateOptions extends S.Opaque<TruncateOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Marks the cut; `…` by default. Counted by display width. */
-    ellipsis: S.optional(S.String).pipe(
+    ellipsis: S.optionalKey(S.String).pipe(
       $I.annoteKey("TruncateOptions.ellipsis", { description: "The ellipsis field of TruncateOptions." })
     ),
   }).pipe($I.annoteSchema("TruncateOptions", { description: "Plain TruncateOptions data." }))
@@ -82,14 +82,14 @@ export declare namespace TruncateOptions {
 export class PercentOptions extends S.Opaque<PercentOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Decimal places to round to; `1` by default. A trailing zero decimal is dropped. */
-    digits: S.optional(AnyNumber).pipe(
+    digits: S.optionalKey(AnyNumber).pipe(
       $I.annoteKey("PercentOptions.digits", { description: "The digits field of PercentOptions." })
     ),
     /**
      * What the input is scaled to: `1` (the default) is a ratio from 0 to 1, `100` is already a percentage from 0
      * to 100, as istanbul's coverage numbers are.
      */
-    scale: S.optional(S.Union([S.Literal(1), S.Literal(100)])).pipe(
+    scale: S.optionalKey(S.Union([S.Literal(1), S.Literal(100)])).pipe(
       $I.annoteKey("PercentOptions.scale", { description: "The scale field of PercentOptions." })
     ),
   }).pipe($I.annoteSchema("PercentOptions", { description: "Plain PercentOptions data." }))

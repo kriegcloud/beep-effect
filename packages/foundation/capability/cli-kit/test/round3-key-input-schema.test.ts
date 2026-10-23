@@ -1,7 +1,7 @@
 import { KeyInput, TestTerminal } from "@beep/cli-kit/TestTerminal";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
-import { assertExitSuccess, assertFalse } from "@effect/vitest/utils";
+import { assertFalse, assertNone } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -25,12 +25,15 @@ describe("KeyInput schema", () => {
     assert.deepStrictEqual(encode(key), Exit.succeed(key));
   });
 
-  it("accepts and preserves explicit undefined modifiers", () => {
-    const key = { name: "enter", ctrl: undefined, meta: undefined, shift: undefined };
-    const decoded = decode(key);
-    assertExitSuccess(decoded, KeyInput.make(key));
-    assert.isTrue("ctrl" in decoded.value);
-    assert.isTrue(S.is(KeyInput)(key));
+  it("rejects explicit undefined modifiers (EF-40 exact optional keys)", () => {
+    for (const key of [
+      { name: "enter", ctrl: undefined },
+      { name: "enter", meta: undefined },
+      { name: "enter", shift: undefined },
+    ]) {
+      assertNone(S.decodeUnknownOption(KeyInput)(key));
+      assertFalse(S.is(KeyInput)(key));
+    }
   });
 
   it("rejects a missing name and non-boolean modifiers", () => {
@@ -39,10 +42,10 @@ describe("KeyInput schema", () => {
     }
   });
 
-  it.effect("queues decoded keys with undefined modifiers read as not held", () =>
+  it.effect("queues decoded keys with absent modifiers read as not held", () =>
     Effect.gen(function* () {
       const terminal = yield* TestTerminal.make();
-      const key = yield* S.decodeEffect(KeyInput)({ name: "x", ctrl: undefined, meta: true });
+      const key = yield* S.decodeEffect(KeyInput)({ name: "x", meta: true });
       yield* terminal.input([key]);
       const queue = yield* Effect.scopedWith((scope) =>
         Effect.flatMap(Layer.buildWithScope(terminal.layer, scope), (context) =>

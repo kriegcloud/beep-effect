@@ -7,6 +7,7 @@
  */
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
+import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as CliError from "effect/cli/CliError";
@@ -263,7 +264,7 @@ export class ReportFailuresOptions extends S.Opaque<ReportFailuresOptions, { rea
      * fallback, and it defaults to `1`. Pass an integer in `0..255`, the range a
      * POSIX exit status can carry — `256` wraps to `0` and passes a failed run.
      */
-    exitCode: S.optional(AnyNumber).pipe(
+    exitCode: S.optionalKey(AnyNumber).pipe(
       $I.annoteKey("ReportFailuresOptions.exitCode", { description: "The exitCode field of ReportFailuresOptions." })
     ),
     /**
@@ -289,7 +290,7 @@ export class ReportFailuresOptions extends S.Opaque<ReportFailuresOptions, { rea
      * since the kit cannot tell your own colour from an injected sequence: a `render` must sanitise the data it
      * interpolates (an error message, a file name) itself.
      */
-    render: S.optional(ReportFailuresOptionsRender).pipe(
+    render: S.optionalKey(ReportFailuresOptionsRender).pipe(
       $I.annoteKey("ReportFailuresOptions.render", { description: "The render field of ReportFailuresOptions." })
     ),
     /**
@@ -308,7 +309,7 @@ export class ReportFailuresOptions extends S.Opaque<ReportFailuresOptions, { rea
      * `ShowHelp`, so a parse error would exit with this code having printed
      * nothing on stderr.
      */
-    usageExitCode: S.optional(AnyNumber).pipe(
+    usageExitCode: S.optionalKey(AnyNumber).pipe(
       $I.annoteKey("ReportFailuresOptions.usageExitCode", {
         description: "The usageExitCode field of ReportFailuresOptions.",
       })
@@ -835,12 +836,15 @@ export abstract class CliRuntime {
                     )
                   );
                 }
-                yield* refreshFailureTarget(undefined, {
-                  displayPath: options.env?.displayPath,
-                  stackFrames: options.env?.stackFrames,
-                  spans,
-                  appModule: options.env?.appModule,
-                });
+                yield* refreshFailureTarget(
+                  undefined,
+                  O.getSomesStruct({
+                    displayPath: O.fromUndefinedOr(options.env?.displayPath),
+                    stackFrames: O.fromUndefinedOr(options.env?.stackFrames),
+                    spans: O.fromUndefinedOr(spans),
+                    appModule: O.fromUndefinedOr(options.env?.appModule),
+                  })
+                );
               })
             )
           ).pipe(Layer.provideMerge(env));

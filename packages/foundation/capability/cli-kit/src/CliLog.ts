@@ -70,7 +70,7 @@ export class CliLogStatusOptions extends S.Opaque<CliLogStatusOptions, { readonl
      * The level the line is logged at. By default it follows the status's rank in its vocabulary: `Error` at or above
      * `failure`'s rank, `Warn` at or above `warning`'s, and `Info` below that.
      */
-    level: S.optional(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).pipe(
+    level: S.optionalKey(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).pipe(
       $I.annoteKey("CliLogStatusOptions.level", {
         description: "The message severity overriding the status vocabulary's rank.",
       })
@@ -80,7 +80,7 @@ export class CliLogStatusOptions extends S.Opaque<CliLogStatusOptions, { readonl
      * spaces (floored, at most 64; zero, a negative or a non-finite number is none), or a string. A string is sanitised as text is (escapes and controls removed, a tab a space) and its line
      * breaks dropped, so the indent can never carry an escape onto the trusted line. None by default.
      */
-    indent: S.optional(
+    indent: S.optionalKey(
       S.Union([
         S.declare(P.isNumber).pipe(
           $I.annoteSchema("CliLogStatusOptions.NumericIndent", {
@@ -169,14 +169,14 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      */
     argv: S.String.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("CliLogOptions.argv", { description: "The argv field of CliLogOptions." })
     ),
     /**
      * The environment variable that sets the diagnostics level, for example `MYTOOL_LOG_LEVEL`. Read through
      * `Config`, never `process`. Unset or empty means `None`. Ignored when `level` is given.
      */
-    envVar: S.optional(S.String).pipe(
+    envVar: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliLogOptions.envVar", { description: "The envVar field of CliLogOptions." })
     ),
     /**
@@ -190,7 +190,7 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      */
     extraLoggers: CliLogOptionsExtraLoggersItem.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("CliLogOptions.extraLoggers", { description: "The extraLoggers field of CliLogOptions." })
     ),
     /**
@@ -209,7 +209,7 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      * CI detection from the environment. An agent or a CI gets NDJSON, as its runtime lines are; anything else gets
      * a plain line, the same choice the runtime lines make. `json` is NDJSON and `pretty` plain throughout.
      */
-    format: S.optional(S.Union([S.Literal("auto"), S.Literal("json"), S.Literal("pretty")])).pipe(
+    format: S.optionalKey(S.Union([S.Literal("auto"), S.Literal("json"), S.Literal("pretty")])).pipe(
       $I.annoteKey("CliLogOptions.format", { description: "The format field of CliLogOptions." })
     ),
     /**
@@ -220,11 +220,11 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      * Beats `envVar`, which is then not read at all (so a bad value there neither warns nor overrides this), and
      * loses to core's `--log-level` flag like every diagnostics level: the sink follows the flag while it is set.
      */
-    level: S.optional(S.Literals(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"])).pipe(
+    level: S.optionalKey(S.Literals(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"])).pipe(
       $I.annoteKey("CliLogOptions.level", { description: "The level field of CliLogOptions." })
     ),
     /** Options for the `CliLogger` this layer builds for ordinary log lines; see {@link CliLoggerOptions}. */
-    logger: S.optional(CliLoggerOptions).pipe(
+    logger: S.optionalKey(CliLoggerOptions).pipe(
       $I.annoteKey("CliLogOptions.logger", { description: "The logger field of CliLogOptions." })
     ),
     /**
@@ -233,7 +233,7 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      * the layer was built with: a host that builds this layer over its environment covers records logged outside it
      * too. `true` always neutralizes, `false` never does.
      */
-    neutralize: S.optional(S.Union([S.Boolean, S.Literal("auto")])).pipe(
+    neutralize: S.optionalKey(S.Union([S.Boolean, S.Literal("auto")])).pipe(
       $I.annoteKey("CliLogOptions.neutralize", { description: "The neutralize field of CliLogOptions." })
     ),
     /**
@@ -255,7 +255,7 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      * `logger.stderrFrom` says) and never to `extraLoggers` or the file sink. The failure report and the `CliMessage` lines
      * always go through a plain `CliLogger`.
      */
-    plainLogger: S.optional(S.Boolean).pipe(
+    plainLogger: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("CliLogOptions.plainLogger", { description: "The plainLogger field of CliLogOptions." })
     ),
     /**
@@ -275,7 +275,7 @@ export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: uni
      */
     runtimeEnv: RuntimeEnv.pipe(
       S.toType,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("CliLogOptions.runtimeEnv", { description: "The runtimeEnv field of CliLogOptions." })
     ),
   }).pipe($I.annoteSchema("CliLogOptions", { description: "Plain CliLogOptions data." }))

@@ -1,6 +1,7 @@
 import { RunOptions, RunResult, Sandbox } from "@beep/cli-kit/CliTest";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
@@ -52,18 +53,18 @@ it.effect.prop(
   runs
 );
 
-it.effect("RunOptions retains absent, undefined and empty overrides as distinct plain objects", () =>
+it.effect("RunOptions retains absent and empty overrides and rejects explicit undefined", () =>
   Effect.gen(function* () {
     const required = { sandbox: { root: "/tmp/cli", home: "/tmp/cli/home", env: {} }, execPath: "/usr/bin/node" };
-    for (const value of [
-      required,
-      { ...required, cwd: undefined, env: undefined, stdin: undefined },
-      { ...required, cwd: "", env: {}, stdin: "" },
-    ]) {
+    for (const value of [required, { ...required, cwd: "", env: {}, stdin: "" }]) {
       const encoded = yield* S.encodeEffect(RunOptions)(
         RunOptions.make({ ...value, sandbox: Sandbox.make(value.sandbox) })
       );
       assert.deepStrictEqual(yield* S.decodeEffect(RunOptions)(encoded), value);
+    }
+    // EF-40: a present key holding `undefined` is rejected.
+    for (const key of ["cwd", "env", "stdin"]) {
+      assertNone(S.decodeOption(RunOptions)({ ...required, [key]: undefined }));
     }
   })
 );

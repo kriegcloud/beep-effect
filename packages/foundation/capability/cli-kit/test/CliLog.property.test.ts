@@ -18,17 +18,16 @@ import * as Struct from "effect/Struct";
 
 const runs = { arbitrary: fcRuns(100) };
 
-it.effect("CliLogStatusOptions preserves optional keys, undefined and plain construction", () =>
+it.effect("CliLogStatusOptions keeps exact optional keys and plain construction", () =>
   Effect.gen(function* () {
     const omitted = CliLogStatusOptions.make({});
     assert.deepStrictEqual<unknown>(omitted, {});
-    const undefinedOptions = CliLogStatusOptions.make({ level: undefined, indent: undefined });
-    assert.deepStrictEqual<unknown>(undefinedOptions, { level: undefined, indent: undefined });
-    // Own keys: both explicit-undefined keys are kept, and no tag is added.
-    assert.deepStrictEqual(A.sort(Struct.keys(undefinedOptions), Str.Order), ["indent", "level"]);
+    const full = CliLogStatusOptions.make({ level: "Info", indent: 1 });
+    // Own keys: only the given keys, and no tag is added.
+    assert.deepStrictEqual(A.sort(Struct.keys(full), Str.Order), ["indent", "level"]);
     for (const value of [
       omitted,
-      undefinedOptions,
+      full,
       { level: "Warn", indent: 2 },
       { indent: "  │ " },
       { indent: Number.NaN },
@@ -41,7 +40,10 @@ it.effect("CliLogStatusOptions preserves optional keys, undefined and plain cons
       assert.deepStrictEqual(decoded, value);
       assert.deepStrictEqual(yield* S.encodeEffect(CliLogStatusOptions)(decoded), encoded);
     }
+    // EF-40: a present key holding `undefined` is rejected.
     for (const value of [
+      { level: undefined },
+      { indent: undefined },
       { level: "All" },
       { level: "None" },
       { level: "warning" },

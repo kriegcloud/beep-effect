@@ -37,10 +37,10 @@ describe("audience flag schemas", () => {
     rejects(AudienceTally, { given: ["nobody"], conflict: false });
   });
 
-  it("CliAudienceFlagsOptions keeps hidden optional and accepts explicit undefined", () => {
+  it("CliAudienceFlagsOptions keeps hidden an exact optional key", () => {
     roundTrips(CliAudienceFlagsOptions, {});
     roundTrips(CliAudienceFlagsOptions, { hidden: true });
-    roundTrips(CliAudienceFlagsOptions, { hidden: undefined });
+    rejects(CliAudienceFlagsOptions, { hidden: undefined });
     rejects(CliAudienceFlagsOptions, { hidden: "yes" });
   });
 });
@@ -48,7 +48,8 @@ describe("audience flag schemas", () => {
 describe("theme, env and message option schemas", () => {
   it("CliThemeOptions accepts partial token overrides and the three glyph choices", () => {
     roundTrips(CliThemeOptions, {});
-    roundTrips(CliThemeOptions, { tokens: undefined, glyphs: undefined });
+    rejects(CliThemeOptions, { tokens: undefined });
+    rejects(CliThemeOptions, { glyphs: undefined });
     roundTrips(CliThemeOptions, { tokens: { accent: { fg: "red", bold: true } }, glyphs: "auto" });
     roundTrips(CliThemeOptions, { tokens: {}, glyphs: "ascii" });
     rejects(CliThemeOptions, { glyphs: "emoji" });
@@ -59,7 +60,7 @@ describe("theme, env and message option schemas", () => {
   it("CliThemeTestOptions accepts colour levels and the two fixed glyph sets", () => {
     roundTrips(CliThemeTestOptions, {});
     roundTrips(CliThemeTestOptions, { color: "truecolor", stderrColor: "basic", glyphs: "unicode" });
-    roundTrips(CliThemeTestOptions, { color: undefined, stderrColor: undefined, glyphs: undefined });
+    for (const key of ["color", "stderrColor", "glyphs"]) rejects(CliThemeTestOptions, { [key]: undefined });
     rejects(CliThemeTestOptions, { glyphs: "auto" });
     rejects(CliThemeTestOptions, { color: "neon" });
   });
@@ -74,14 +75,10 @@ describe("theme, env and message option schemas", () => {
       color: "256",
       theme: { glyphs: "auto" },
     });
-    roundTrips(CliEnvTestOptions, {
-      tty: undefined,
-      term: undefined,
-      audience: undefined,
-      columns: undefined,
-      color: undefined,
-      theme: undefined,
-    });
+    // EF-40: every optional key rejects a present `undefined`.
+    for (const key of ["tty", "term", "audience", "columns", "color", "theme"]) {
+      rejects(CliEnvTestOptions, { [key]: undefined });
+    }
     rejects(CliEnvTestOptions, { audience: "robot" });
     rejects(CliEnvTestOptions, { theme: { glyphs: "emoji" } });
     rejects(CliEnvTestOptions, { columns: "80" });
@@ -90,7 +87,7 @@ describe("theme, env and message option schemas", () => {
   it("CliMessageOptions accepts only the two stream names", () => {
     roundTrips(CliMessageOptions, {});
     roundTrips(CliMessageOptions, { stream: "stderr" });
-    roundTrips(CliMessageOptions, { stream: undefined });
+    rejects(CliMessageOptions, { stream: undefined });
     rejects(CliMessageOptions, { stream: "stdin" });
   });
 });

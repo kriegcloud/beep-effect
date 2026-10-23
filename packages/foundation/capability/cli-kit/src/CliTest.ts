@@ -102,7 +102,7 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
       $I.annoteKey("RunOptions.execPath", { description: "The explicitly selected runtime executable." })
     ),
     /** The child's working directory. Defaults to the sandbox `root`. */
-    cwd: S.optional(S.String).pipe(
+    cwd: S.optionalKey(S.String).pipe(
       $I.annoteKey("RunOptions.cwd", {
         description: "An optional working-directory override; otherwise the sandbox root.",
       })
@@ -111,7 +111,7 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
      * Extra environment variables, merged over the sandbox environment — the
      * way to override `PATH` for one run.
      */
-    env: S.optional(S.Record(S.String, S.String)).pipe(
+    env: S.optionalKey(S.Record(S.String, S.String)).pipe(
       $I.annoteKey("RunOptions.env", {
         description: "Optional environment overrides merged over the sandbox environment.",
       })
@@ -120,7 +120,7 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
      * Text written to the child's stdin, which is then closed. Omitted or `""`,
      * the child gets an already-ended empty input, never an open pipe.
      */
-    stdin: S.optional(S.String).pipe(
+    stdin: S.optionalKey(S.String).pipe(
       $I.annoteKey("RunOptions.stdin", {
         description: "Optional child input; omitted, undefined or empty means an already-ended stream.",
       })

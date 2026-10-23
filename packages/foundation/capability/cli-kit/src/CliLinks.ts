@@ -91,15 +91,15 @@ export type CliLinksShape = (typeof CliLinks)["Service"];
 export class CliLinksOptions extends S.Opaque<CliLinksOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The working directory; `PWD` through `Config`, then `Path.resolve(".")`, when omitted. */
-    cwd: S.optional(S.String).pipe(
+    cwd: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliLinksOptions.cwd", { description: "The cwd field of CliLinksOptions." })
     ),
     /** The setting, `auto` by default. An environment variable the consumer names beats it. */
-    editorLinks: S.optional(EditorLinks).pipe(
+    editorLinks: S.optionalKey(EditorLinks).pipe(
       $I.annoteKey("CliLinksOptions.editorLinks", { description: "The editorLinks field of CliLinksOptions." })
     ),
     /** The environment variable that overrides the setting, read through `Config`. Not read unless named. */
-    envVar: S.optional(S.String).pipe(
+    envVar: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliLinksOptions.envVar", { description: "The envVar field of CliLinksOptions." })
     ),
   }).pipe($I.annoteSchema("CliLinksOptions", { description: "Plain CliLinksOptions data." }))

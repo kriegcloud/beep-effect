@@ -110,19 +110,19 @@ export declare namespace FailureTarget {
 export class FailureSettings extends S.Opaque<FailureSettings, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The appModule field. */
-    appModule: S.optional(S.String).pipe(
+    appModule: S.optionalKey(S.String).pipe(
       $I.annoteKey("FailureSettings.appModule", { description: "The appModule field of FailureSettings." })
     ),
     /** The displayPath field. */
-    displayPath: S.optional(DisplayPath).pipe(
+    displayPath: S.optionalKey(DisplayPath).pipe(
       $I.annoteKey("FailureSettings.displayPath", { description: "The displayPath field of FailureSettings." })
     ),
     /** The spans field. */
-    spans: S.optional(S.suspend(() => SpanSetting)).pipe(
+    spans: S.optionalKey(S.suspend(() => SpanSetting)).pipe(
       $I.annoteKey("FailureSettings.spans", { description: "The spans field of FailureSettings." })
     ),
     /** The stackFrames field. */
-    stackFrames: S.optional(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
+    stackFrames: S.optionalKey(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
       $I.annoteKey("FailureSettings.stackFrames", { description: "The stackFrames field of FailureSettings." })
     ),
   }).pipe($I.annoteSchema("FailureSettings", { description: "Plain FailureSettings data." }))
@@ -275,12 +275,13 @@ export const refreshFailureTarget: {
     const recorded = MutableRef.get(cell);
     const target = yield* build(
       audience,
-      settings ?? {
-        displayPath: recorded?.ctx.displayPath,
-        stackFrames: recorded?.stackFrames,
-        spans: recorded?.spans,
-        appModule: recorded?.appModule,
-      }
+      settings ??
+        O.getSomesStruct({
+          displayPath: O.fromUndefinedOr(recorded?.ctx.displayPath),
+          stackFrames: O.fromUndefinedOr(recorded?.stackFrames),
+          spans: O.fromUndefinedOr(recorded?.spans),
+          appModule: O.fromUndefinedOr(recorded?.appModule),
+        })
     );
     if (target !== undefined) MutableRef.set(cell, target);
   })

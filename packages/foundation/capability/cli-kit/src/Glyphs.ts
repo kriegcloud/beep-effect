@@ -110,7 +110,7 @@ export class GlyphSelectOptions extends S.Opaque<GlyphSelectOptions, { readonly 
     /**
      * `true` is ASCII, `false` is Unicode, and `auto` (the default) is ASCII only when `term` is `dumb`.
      */
-    ascii: S.optional(S.Union([S.Boolean, S.Literal("auto")])).pipe(
+    ascii: S.optionalKey(S.Union([S.Boolean, S.Literal("auto")])).pipe(
       $I.annoteKey("GlyphSelectOptions.ascii", { description: "The ascii field of GlyphSelectOptions." })
     ),
     /**
@@ -118,7 +118,7 @@ export class GlyphSelectOptions extends S.Opaque<GlyphSelectOptions, { readonly 
      * caller with no Effect context (an Ink component) uses it, and `process` is never consulted. Unset is not
      * `dumb`.
      */
-    term: S.optional(S.String).pipe(
+    term: S.optionalKey(S.String).pipe(
       $I.annoteKey("GlyphSelectOptions.term", { description: "The term field of GlyphSelectOptions." })
     ),
   }).pipe($I.annoteSchema("GlyphSelectOptions", { description: "Plain GlyphSelectOptions data." }))

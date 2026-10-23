@@ -1227,22 +1227,22 @@ const counterOf = (counter: Counter.Encoded): Counter =>
 export class DocPrintOptions extends S.Opaque<DocPrintOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Turns an absolute path into its display form, for example relative to the workspace; see `Render.context`. */
-    displayPath: S.optional(DisplayPath).pipe(
+    displayPath: S.optionalKey(DisplayPath).pipe(
       $I.annoteKey("DocPrintOptions.displayPath", { description: "The displayPath field of DocPrintOptions." })
     ),
     /**
      * The renderer. `auto`, the default, is chosen from the audience: `plain` for an agent, `githubLog` for a CI
      * that `CurrentRuntimeEnv` says is GitHub Actions and `plain` for every other, and `ansi` for a human.
      */
-    format: S.optional(
+    format: S.optionalKey(
       S.Union([S.Literal("auto"), S.Literal("plain"), S.Literal("ansi"), S.Literal("markdown"), S.Literal("githubLog")])
     ).pipe($I.annoteKey("DocPrintOptions.format", { description: "The format field of DocPrintOptions." })),
     /** The stream to write to; `stdout` by default. */
-    stream: S.optional(S.Union([S.Literal("stdout"), S.Literal("stderr")])).pipe(
+    stream: S.optionalKey(S.Union([S.Literal("stdout"), S.Literal("stderr")])).pipe(
       $I.annoteKey("DocPrintOptions.stream", { description: "The stream field of DocPrintOptions." })
     ),
     /** The display columns to lay out at, replacing the audience's default; see `Render.context`. */
-    width: S.optional(AnyNumber).pipe(
+    width: S.optionalKey(AnyNumber).pipe(
       $I.annoteKey("DocPrintOptions.width", { description: "The width field of DocPrintOptions." })
     ),
   }).pipe($I.annoteSchema("DocPrintOptions", { description: "Plain DocPrintOptions data." }))

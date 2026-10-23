@@ -69,26 +69,26 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * `node_modules/@effected/` (a kit companion's bin); see `CliFailureOptions.appModule`. Only `CliRuntime.main`
      * reads this.
      */
-    appModule: S.optional(S.String).pipe(
+    appModule: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliEnvOptions.appModule", { description: "The appModule field of CliEnvOptions." })
     ),
     /** The environment variable that overrides the audience, read through `Config`; see `Audience.layer`. */
-    audienceEnvVar: S.optional(S.String).pipe(
+    audienceEnvVar: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliEnvOptions.audienceEnvVar", { description: "The audienceEnvVar field of CliEnvOptions." })
     ),
     /**
      * Turns an absolute path into its display form, for example relative to the workspace: the stack frames of the
      * default failure report are shown through it. Only `CliRuntime.main` reads this. The identity by default.
      */
-    displayPath: S.optional(DisplayPath).pipe(
+    displayPath: S.optionalKey(DisplayPath).pipe(
       $I.annoteKey("CliEnvOptions.displayPath", { description: "The displayPath field of CliEnvOptions." })
     ),
     /** Whether file links open in an editor; `auto` by default. See {@link CliLinks}. */
-    editorLinks: S.optional(EditorLinks).pipe(
+    editorLinks: S.optionalKey(EditorLinks).pipe(
       $I.annoteKey("CliEnvOptions.editorLinks", { description: "The editorLinks field of CliEnvOptions." })
     ),
     /** The environment variable that overrides `editorLinks`, read through `Config`. Not read unless named. */
-    editorLinksEnvVar: S.optional(S.String).pipe(
+    editorLinksEnvVar: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliEnvOptions.editorLinksEnvVar", { description: "The editorLinksEnvVar field of CliEnvOptions." })
     ),
     /**
@@ -100,7 +100,7 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * `main` installs a coloured default formatter inside the platform, which shadows any formatter the platform
      * sets; this is the way to keep a method of your own. Methods you omit keep the coloured defaults.
      */
-    formatter: S.optional(CliEnvOptionsFormatter).pipe(
+    formatter: S.optionalKey(CliEnvOptionsFormatter).pipe(
       $I.annoteKey("CliEnvOptions.formatter", { description: "The formatter field of CliEnvOptions." })
     ),
     /**
@@ -122,7 +122,7 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * `logger.stderrFrom` says) and never to the host's `extraLoggers` or log file. The failure report and the `CliMessage` lines always
      * go through a plain `CliLogger`.
      */
-    log: S.optional(S.Union([CliLogOptions, CliLogFileOptions])).pipe(
+    log: S.optionalKey(S.Union([CliLogOptions, CliLogFileOptions])).pipe(
       $I.annoteKey("CliEnvOptions.log", { description: "The log field of CliEnvOptions." })
     ),
     /**
@@ -131,7 +131,7 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * `all` shows every span, and `off` drops the trail. Applies to the report `main` writes,
      * `FailureDetails.defaultLines` and `FailureDetails.lines`. Only `CliRuntime.main` reads this.
      */
-    spans: S.optional(S.Union([S.Literal("app"), S.Literal("all"), S.Literal("off")])).pipe(
+    spans: S.optionalKey(S.Union([S.Literal("app"), S.Literal("all"), S.Literal("off")])).pipe(
       $I.annoteKey("CliEnvOptions.spans", { description: "The spans field of CliEnvOptions." })
     ),
     /**
@@ -140,7 +140,7 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * rebuild. `spans` beats it (the variable is then not read at all); unset or empty is the default; a value that is
      * not a setting is ignored with one warning. Not read unless named. Only `CliRuntime.main` reads this.
      */
-    spansEnvVar: S.optional(S.String).pipe(
+    spansEnvVar: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliEnvOptions.spansEnvVar", { description: "The spansEnvVar field of CliEnvOptions." })
     ),
     /**
@@ -151,7 +151,7 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * every frame. Applies to the report `main` writes, `FailureDetails.defaultLines` and `FailureDetails.lines`. Only
      * `CliRuntime.main` reads this.
      */
-    stackFrames: S.optional(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
+    stackFrames: S.optionalKey(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
       $I.annoteKey("CliEnvOptions.stackFrames", { description: "The stackFrames field of CliEnvOptions." })
     ),
     /**
@@ -164,11 +164,11 @@ export class CliEnvOptions extends S.Opaque<CliEnvOptions, { readonly brand: uni
      * answer: `env: { stderrIsTerminal: Effect.sync(() => process.stderr.isTTY === true) }`. Core's `Stdio` has no
      * stderr terminal check to read instead; that gap is tracked upstream as Effect-TS/effect#8639.
      */
-    stderrIsTerminal: S.optional(CliEnvOptionsStderrIsTerminal).pipe(
+    stderrIsTerminal: S.optionalKey(CliEnvOptionsStderrIsTerminal).pipe(
       $I.annoteKey("CliEnvOptions.stderrIsTerminal", { description: "The stderrIsTerminal field of CliEnvOptions." })
     ),
     /** Options for the theme; see {@link CliThemeOptions}. */
-    theme: S.optional(CliThemeOptions).pipe(
+    theme: S.optionalKey(CliThemeOptions).pipe(
       $I.annoteKey("CliEnvOptions.theme", { description: "The theme field of CliEnvOptions." })
     ),
   }).pipe($I.annoteSchema("CliEnvOptions", { description: "Plain CliEnvOptions data." }))
@@ -225,32 +225,32 @@ export type CliEnvServices = CurrentRuntimeEnv | TerminalEnv | Audience | CliThe
 export class CliEnvTestOptions extends S.Opaque<CliEnvTestOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Whether standard input, output and error are all terminals; `false` by default, as for a pipe. */
-    tty: S.optional(S.Boolean).pipe(
+    tty: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("CliEnvTestOptions.tty", { description: "Whether all three standard streams are terminals." })
     ),
     /**
      * The `TERM` the layer's own builds read: `dumb` makes a terminal not interactive and, with the theme's glyphs at
      * `auto`, draws ASCII. Unset by default, whatever the host's `TERM` is.
      */
-    term: S.optional(S.String).pipe(
+    term: S.optionalKey(S.String).pipe(
       $I.annoteKey("CliEnvTestOptions.term", { description: "The TERM answer read by this test environment." })
     ),
     /** The audience; `human` by default. */
-    audience: S.optional(AudienceKind).pipe(
+    audience: S.optionalKey(AudienceKind).pipe(
       $I.annoteKey("CliEnvTestOptions.audience", { description: "The fixed audience of the test run." })
     ),
     /** The width of the terminal, in columns; none by default, so a width falls back to the reader's (80). */
-    columns: S.optional(S.Finite).pipe(
+    columns: S.optionalKey(S.Finite).pipe(
       $I.annoteKey("CliEnvTestOptions.columns", {
         description: "The terminal width answer, preserved exactly as supplied.",
       })
     ),
     /** The colour level of both stdout and stderr; `none` by default. Fixed as given: `term` does not change it. */
-    color: S.optional(ColorLevel).pipe(
+    color: S.optionalKey(ColorLevel).pipe(
       $I.annoteKey("CliEnvTestOptions.color", { description: "Fixed colour support for stdout and stderr." })
     ),
     /** Options for the theme, as {@link CliEnvOptions.theme}; its glyphs are `auto` by default, so `term` decides. */
-    theme: S.optional(CliThemeOptions).pipe(
+    theme: S.optionalKey(CliThemeOptions).pipe(
       $I.annoteKey("CliEnvTestOptions.theme", { description: "Token and glyph overrides for the test theme." })
     ),
   }).pipe(

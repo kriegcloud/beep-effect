@@ -100,7 +100,7 @@ export class RenderContext extends S.Opaque<RenderContext, { readonly brand: uni
      * without a leading `/`) and `#L<line>` when it has a line, in place of a `file://` URL a step summary's reader
      * cannot open. The other renderers do not read it.
      */
-    linkBase: S.optional(S.String).pipe(
+    linkBase: S.optionalKey(S.String).pipe(
       $I.annoteKey("RenderContext.linkBase", { description: "The linkBase field of RenderContext." })
     ),
     /**
@@ -116,7 +116,7 @@ export class RenderContext extends S.Opaque<RenderContext, { readonly brand: uni
      * The trigger is the runner, not the audience: a person or an agent whose output lands in an Actions log is read
      * by it just the same. `Render.context` sets it when `CurrentRuntimeEnv` says GitHub Actions.
      */
-    neutralizeWorkflowCommands: S.optional(S.Boolean).pipe(
+    neutralizeWorkflowCommands: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("RenderContext.neutralizeWorkflowCommands", {
         description: "The neutralizeWorkflowCommands field of RenderContext.",
       })
@@ -184,41 +184,41 @@ export class RenderContextOfOptions extends S.Opaque<RenderContextOfOptions, { r
       $I.annoteKey("RenderContextOfOptions.audience", { description: "The audience field of RenderContextOfOptions." })
     ),
     /** The colour level; `none` by default, which paints nothing. */
-    color: S.optional(ColorLevel).pipe(
+    color: S.optionalKey(ColorLevel).pipe(
       $I.annoteKey("RenderContextOfOptions.color", { description: "The color field of RenderContextOfOptions." })
     ),
     /** Turns an absolute path into its display form; the identity by default. */
-    displayPath: S.optional(DisplayPath).pipe(
+    displayPath: S.optionalKey(DisplayPath).pipe(
       $I.annoteKey("RenderContextOfOptions.displayPath", {
         description: "The displayPath field of RenderContextOfOptions.",
       })
     ),
     /** The glyph set; Unicode by default. */
-    glyphs: S.optional(GlyphSet).pipe(
+    glyphs: S.optionalKey(GlyphSet).pipe(
       $I.annoteKey("RenderContextOfOptions.glyphs", { description: "The glyphs field of RenderContextOfOptions." })
     ),
     /** See {@link RenderContext.linkBase}; unset by default. */
-    linkBase: S.optional(S.String).pipe(
+    linkBase: S.optionalKey(S.String).pipe(
       $I.annoteKey("RenderContextOfOptions.linkBase", { description: "The linkBase field of RenderContextOfOptions." })
     ),
     /**
      * Hyperlinks: `off` (the default) leaves every label unlinked; a `CliLinksShape`, such as a `CliLinks` service's
      * value, makes OSC 8 hyperlinks through {@link CliLinks.linker}, for any audience but an agent.
      */
-    links: S.optional(S.Union([S.Literal("off"), LinksService])).pipe(
+    links: S.optionalKey(S.Union([S.Literal("off"), LinksService])).pipe(
       $I.annoteKey("RenderContextOfOptions.links", { description: "The links field of RenderContextOfOptions." })
     ),
     /**
      * See {@link RenderContext.neutralizeWorkflowCommands}. `true` by default for a `ci` audience, whose output the
      * Actions runner may read (it is harmless elsewhere), and unset for the others; an explicit `false` always wins.
      */
-    neutralizeWorkflowCommands: S.optional(S.Boolean).pipe(
+    neutralizeWorkflowCommands: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("RenderContextOfOptions.neutralizeWorkflowCommands", {
         description: "The neutralizeWorkflowCommands field of RenderContextOfOptions.",
       })
     ),
     /** The display columns; unbounded (`Infinity`) by default. */
-    width: S.optional(AnyNumber).pipe(
+    width: S.optionalKey(AnyNumber).pipe(
       $I.annoteKey("RenderContextOfOptions.width", { description: "The width field of RenderContextOfOptions." })
     ),
   }).pipe($I.annoteSchema("RenderContextOfOptions", { description: "Plain RenderContextOfOptions data." }))
@@ -274,7 +274,7 @@ const guarded: {
 export class RenderContextOptions extends S.Opaque<RenderContextOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     /** Turns an absolute path into its display form, for example relative to the working directory; the identity by default. */
-    displayPath: S.optional(DisplayPath).pipe(
+    displayPath: S.optionalKey(DisplayPath).pipe(
       $I.annoteKey("RenderContextOptions.displayPath", {
         description: "The displayPath field of RenderContextOptions.",
       })
@@ -284,7 +284,7 @@ export class RenderContextOptions extends S.Opaque<RenderContextOptions, { reado
      * terminal's columns as stdout reports them even when the stream is `"stderr"`; a human whose stream is not a
      * terminal (a pipe, a file), an agent and a CI get no limit at all.
      */
-    width: S.optional(AnyNumber).pipe(
+    width: S.optionalKey(AnyNumber).pipe(
       $I.annoteKey("RenderContextOptions.width", { description: "The width field of RenderContextOptions." })
     ),
   }).pipe($I.annoteSchema("RenderContextOptions", { description: "Plain RenderContextOptions data." }))

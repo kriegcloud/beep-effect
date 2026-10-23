@@ -63,7 +63,7 @@ export class CliLoggerOptions extends S.Opaque<CliLoggerOptions, { readonly bran
      * builds its environment) is sanitised but not neutralized. Provide the environment around the program, as `main`
      * does, for the neutralizing to apply.
      */
-    render: S.optional(CliLoggerOptionsRender).pipe(
+    render: S.optionalKey(CliLoggerOptionsRender).pipe(
       $I.annoteKey("CliLoggerOptions.render", { description: "The render field of CliLoggerOptions." })
     ),
     /**
@@ -77,7 +77,7 @@ export class CliLoggerOptions extends S.Opaque<CliLoggerOptions, { readonly bran
      * its log lines rather than a separate document written with
      * `Console.log`.
      */
-    stderrFrom: S.optional(S.Literals(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"])).pipe(
+    stderrFrom: S.optionalKey(S.Literals(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"])).pipe(
       $I.annoteKey("CliLoggerOptions.stderrFrom", { description: "The stderrFrom field of CliLoggerOptions." })
     ),
   }).pipe($I.annoteSchema("CliLoggerOptions", { description: "Plain CliLoggerOptions data." }))

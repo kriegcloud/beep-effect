@@ -383,9 +383,9 @@ describe("Render.githubLog: annotations (okfit's trial)", () => {
 describe("Render.githubLog: always neutralizes (G6)", () => {
   it.effect("text that would be a command is neutralized whatever neutralizeWorkflowCommands says", () =>
     Effect.gen(function* () {
-      for (const neutralizeWorkflowCommands of [true, false, undefined]) {
-        const out = yield* log([Doc.paragraph("::error::injected")], { neutralizeWorkflowCommands });
-        assert.isFalse(isCommand(out), String(neutralizeWorkflowCommands));
+      for (const options of [{ neutralizeWorkflowCommands: true }, { neutralizeWorkflowCommands: false }, {}]) {
+        const out = yield* log([Doc.paragraph("::error::injected")], options);
+        assert.isFalse(isCommand(out), String(options.neutralizeWorkflowCommands));
       }
     })
   );
