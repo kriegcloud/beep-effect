@@ -7704,15 +7704,15 @@
     },
     "@beep/epistemic-domain": {
       "path": "packages/epistemic/domain",
-      "lines": 93.44,
-      "statements": 91.95,
+      "lines": 92.36,
+      "statements": 90.07,
       "branches": 100,
-      "functions": 78.26,
+      "functions": 61.64,
       "uncovered": {
-        "lines": 28,
-        "statements": 37,
+        "lines": 20,
+        "statements": 28,
         "branches": 0,
-        "functions": 35
+        "functions": 28
       },
       "files": {
         "packages/epistemic/domain/src/entities/Activity/Activity.model.ts": {
@@ -7967,54 +7967,6 @@
             "functions": 0
           }
         },
-        "packages/epistemic/domain/src/values/ClaimDispositionStatus/ClaimDispositionStatus.model.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/epistemic/domain/src/values/ClaimDispositionStatus/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/epistemic/domain/src/values/ClaimGate/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts": {
           "lines": 100,
           "statements": 100,
@@ -8123,30 +8075,6 @@
             "functions": 0
           }
         },
-        "packages/epistemic/domain/src/values/EdgeRelation/EdgeRelation.model.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/epistemic/domain/src/values/EdgeRelation/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/epistemic/domain/src/values/EpistemicFixtureKey/EpistemicFixtureKey.model.ts": {
           "lines": 100,
           "statements": 100,
@@ -8160,30 +8088,6 @@
           }
         },
         "packages/epistemic/domain/src/values/EpistemicFixtureKey/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/epistemic/domain/src/values/EvidenceSpan/index.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -9699,15 +9603,15 @@
           }
         },
         "packages/foundation/modeling/epistemics/src/EvidenceSpan/EvidenceSpan.model.ts": {
-          "lines": 75,
-          "statements": 69.23,
+          "lines": 100,
+          "statements": 100,
           "branches": 100,
-          "functions": 0,
+          "functions": 100,
           "uncovered": {
-            "lines": 3,
-            "statements": 4,
+            "lines": 0,
+            "statements": 0,
             "branches": 0,
-            "functions": 3
+            "functions": 0
           }
         },
         "packages/foundation/modeling/epistemics/src/EvidenceSpan/index.ts": {
