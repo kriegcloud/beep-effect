@@ -1,6 +1,8 @@
 /**
  * Runtime import graphs read from source text, for package boundary tests.
  *
+ * **Details**
+ *
  * A test hands this module its package's sources as raw text, typically from
  * Vite's eager `?raw` glob import, so the walk needs no filesystem at test
  * time. Type-only edges (`import type`, `export type`) are erased at runtime

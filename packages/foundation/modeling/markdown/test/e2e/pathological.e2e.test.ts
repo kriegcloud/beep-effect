@@ -211,7 +211,7 @@ describe("pathological inputs", () => {
     );
   }
 
-  it.layer(DestinationWork.layer)((it) => {
+  it.layer(DestinationWork.layer, { timeout: "5 seconds" })((it) => {
     it.effect("unclosed links B scales linearly", () =>
       Effect.gen(function* () {
         const { workOf } = yield* DestinationWork;
