@@ -76,6 +76,8 @@
     "@beep/memfs": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
+    "ajv": "catalog:",
+    "ajv-formats": "catalog:",
     "bun-types": "catalog:"
   }
 }

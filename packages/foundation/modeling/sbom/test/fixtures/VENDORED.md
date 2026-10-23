@@ -13,18 +13,33 @@ rather than against our own assumptions.
 | Upstream | <https://github.com/CycloneDX/cyclonedx-javascript-library> |
 | License | Apache-2.0 |
 | Pinned | 2026-07-25 |
+| sha256 | `52bb47627804f8543a5c69dc3949060729150afc8cc58f0a808cb931a248eeed` |
 
 ### Why this is here
 
-`@effected/sbom` [declines the CycloneDX library as a runtime dependency](../../../../okf/decisions/sbom-owns-its-emitter.md) — 6.6 MB with seven optional peers, for an object model and a JSON normalizer we can emit directly. Declining the *library* is not the same as declining the *specification*, so the published schema is vendored here as a **test-only conformance oracle**.
+`@beep/sbom` declines the CycloneDX library as a runtime dependency: 6.6 MB with seven optional peers, for an object model and a JSON normalizer the package emits directly. Declining the *library* is not the same as declining the *specification*, so the published schema is vendored here as a **test-only conformance oracle**.
 
 The filename says `SNAPSHOT` because that is what the library ships; the `$id` inside is the released `bom-1.6.schema.json`.
 
 ### How it is used
 
-`__test__/conformance.test.ts` reads this file and derives its expectations from it — `required` arrays, `enum` members, property names — rather than hand-writing them. That is what makes it an oracle: a wrong `externalReference.type`, a missing `required` field or a renamed property fails against the specification itself, not against a copy of our own assumptions.
+Two layers read this file through a JSON import (no filesystem at test time):
 
-It is **targeted conformance over the subset we emit**, not full JSON-schema validation. Full validation would need a validator (`ajv`), and taking one as a devDependency to check output we fully control is the weight this package exists to avoid. The subset is the whole of what the emitter produces, so nothing we write is unchecked.
+- `test/conformance.test.ts` derives its expectations from it — `required` arrays, `enum` members, property names — rather than hand-writing them, so a wrong `externalReference.type`, a missing `required` field or a renamed property fails against the specification itself.
+- `test/conformance.ajv.test.ts` validates whole emitted documents against it with `ajv` `8.20.0` and `ajv-formats` `3.0.1` (exact devDependency pins, effected-promotion W4-b): a fixed document exercising every field, a seeded property over valid inputs, and pinned gaps (an unparseable timestamp and duplicate components emit invalid documents; an empty `bomRef` is refused at construction). `goals/effected-promotion/ops/sbom-corpus.ts` runs the same validator over an SBOM for every tracked repo manifest.
+
+### External references: stand-ins, not yet vendored
+
+The schema names two sibling schemas by `$ref`: `spdx.SNAPSHOT.schema.json` (the SPDX license-id enumeration) and `jsf-0.82.SNAPSHOT.schema.json` (the JSF signature). Both ship in the same `@cyclonedx/cyclonedx-library@10.1.0` `res/schema/` directory. They are **not vendored yet**: fetching them is a download this lane was not cleared to make. Until they are, `test/support/cyclonedx.ts` registers recorded stand-ins:
+
+| `$ref` | Stand-in | What is not checked |
+| --- | --- | --- |
+| `spdx.SNAPSHOT.schema.json` | `{ "type": "string" }` | that a `license.id` is in the SPDX enumeration; the emitter writes `license.id` only for an id `@beep/spdx` knows, and `conformance.test.ts` checks that branch |
+| `jsf-0.82.SNAPSHOT.schema.json` | `{ "definitions": { "signature": {} } }` | nothing the emitter writes: it never emits a `signature` |
+
+`ajv-formats` implements `date-time` but not `idn-email` or `iri-reference`; those two are registered as accept-all, so emails and URLs pass through unchecked by format.
+
+Follow-up: vendor both files from the same release, record their commit and sha256 here, add them to the `_typos.toml` excludes beside this file, and replace the stand-ins.
 
 ### Updating
 
@@ -40,6 +55,7 @@ Re-pin when targeting a new CycloneDX version. Per the settled ruling the emitte
 | Package version | `@actions/attest@3.2.0` |
 | License | MIT |
 | Pinned | 2026-07-25 |
+| sha256 | `fb2216434a46e87fe1670686ec80765cc282102ab002e6241cdbb7d4afcd1043` |
 
 ### Why this is here
 

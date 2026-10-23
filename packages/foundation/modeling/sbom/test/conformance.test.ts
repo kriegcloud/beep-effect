@@ -8,10 +8,11 @@
 // type, a missing required field or a renamed property therefore fails against
 // the specification, not against a copy of our own assumptions.
 //
-// This is targeted conformance over the subset we emit, not full JSON-schema
-// validation: validating fully would need `ajv`, and taking a validator as a
-// devDependency to check output we entirely control is the weight this package
-// exists to avoid. The subset IS everything the emitter produces.
+// This is targeted conformance over the subset we emit. Full JSON Schema
+// validation of the same documents runs in `conformance.ajv.test.ts` with the
+// `ajv` devDependency, which adds no runtime weight; the subset here stays
+// because it names each rule it checks, and it is what covers the SPDX
+// license-id branch while that external schema is not vendored.
 
 import { Component, Contact, ExternalReference, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
 import { isValidExpression, License } from "@beep/spdx";
@@ -204,14 +205,14 @@ const licensesOf = (...licenses: ReadonlyArray<string>): ReadonlyArray<Record<st
   return emitted.metadata.component.licenses ?? [];
 };
 
-describe("licenses — the three shapes the schema permits, chosen by @effected/spdx", () => {
+describe("licenses — the three shapes the schema permits, chosen by @beep/spdx", () => {
   // A manifest's `license` field is an SPDX EXPRESSION field: `MIT`,
   // `MIT OR Apache-2.0` and `UNLICENSED` are all legal values of it, and the
   // specification renders them through three different JSON shapes. Emitting
   // every one as `{ license: { id } }` produces a document that looks right
   // and fails validation, because `license.id` is constrained to the SPDX
   // identifier enumeration. The id-versus-expression question is answered by
-  // `@effected/spdx` — the kit's one SPDX engine — never by a local regex.
+  // `@beep/spdx` — the kit's one SPDX engine — never by a local regex.
 
   it("the schema's license object offers exactly an id branch and a name branch", () => {
     const branches = A.flatMap(definition("license").oneOf ?? [], (branch) => branch.required ?? []);

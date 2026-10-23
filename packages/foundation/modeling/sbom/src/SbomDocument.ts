@@ -322,9 +322,15 @@ export class Component extends S.Opaque<Component, { readonly brand: unique symb
         description: "The package URL uniquely identifying it — NTIA minimum element 4.",
       })
     ),
-    /** The identifier other parts of the document reference it by. */
-    bomRef: S.optionalKey(S.String).pipe(
-      $I.annoteKey("Component.bomRef", { description: "The identifier other parts of the document reference it by." })
+    /**
+     * The identifier other parts of the document reference it by. Non-empty:
+     * the CycloneDX 1.6 `refType` has `minLength: 1`, so an empty one would
+     * emit a document that fails the specification.
+     */
+    bomRef: S.optionalKey(S.NonEmptyString).pipe(
+      $I.annoteKey("Component.bomRef", {
+        description: "The non-empty identifier other parts of the document reference it by.",
+      })
     ),
     /** A short description. */
     description: S.optionalKey(S.String).pipe(
