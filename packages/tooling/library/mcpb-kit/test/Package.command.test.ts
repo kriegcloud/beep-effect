@@ -8,7 +8,6 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import * as Queue from "effect/Queue";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
@@ -73,17 +72,6 @@ it.layer(commandEnvironment, { concurrent: false, timeout: "5 seconds" })("MCPB 
     } = {}
   ) {
     const fs = yield* FileSystem.FileSystem;
-    const writes = yield* Queue.unbounded<{
-      readonly path: string;
-      readonly resolve: (exitCode: number) => void;
-    }>();
-    yield* Effect.gen(function* () {
-      while (true) {
-        const write = yield* Queue.take(writes);
-        yield* fs.writeFileString(write.path, "synthetic archive");
-        write.resolve(options.exitCode ?? 0);
-      }
-    }).pipe(Effect.forkChild);
     yield* fs.remove("/repo", { recursive: true, force: true });
     yield* fs.makeDirectory(nativeDir, { recursive: true });
     yield* fs.writeFileString(
@@ -97,12 +85,13 @@ it.layer(commandEnvironment, { concurrent: false, timeout: "5 seconds" })("MCPB 
       value: (args: ReadonlyArray<string>) => {
         calls.push(args);
         if (options.rejectLaunch === true) throw new Error("synthetic process start failure");
+        const exitCode = options.exitCode ?? 0;
+        // `Bun.spawn` is a plain function, so the synthetic archive is written by
+        // running the in-memory filesystem's own effect outside the test fiber.
         const exited =
           args[0] === "zip" && options.noArchive !== true
-            ? new Promise<number>((resolve) => {
-                Queue.offerUnsafe(writes, { path: args[3] ?? archive, resolve });
-              })
-            : Promise.resolve(options.exitCode ?? 0);
+            ? Effect.runPromise(Effect.as(fs.writeFileString(args[3] ?? archive, "synthetic archive"), exitCode))
+            : Promise.resolve(exitCode);
         return {
           stdout: new Blob([options.listing ?? inventory]).stream(),
           exited,
