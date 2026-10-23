@@ -337,10 +337,18 @@ export const getScalarValue: {
  * - Trailing whitespace before newlines trimmed
  */
 function decodePlainScalar(raw: string): string {
-  const trimmed = Str.trim(raw);
+  const trimmed = plainSourceText(raw);
   if (!Str.includes("\n")(trimmed)) return trimmed;
   return foldFlowLines(trimmed);
 }
+
+/**
+ * A plain scalar's trimmed source with every line break normalized to `\n`.
+ * One plain token can span lines (the lexer runs it on across a continuation
+ * line that starts with a quote or block-scalar indicator), CRLF breaks
+ * included.
+ */
+const plainSourceText = (raw: string): string => Str.replace(/\r\n?/g, "\n")(Str.trim(raw));
 
 /**
  * Decode single-quoted scalar with flow folding.
@@ -581,7 +589,7 @@ const collectKeyContinuation = (children: readonly CstNode[], startIdx: number, 
   for (; idx < children.length; idx++) {
     const child = children[idx];
     if (child === undefined || isSegmentBoundary(child)) break;
-    if (isPlainFlowScalar(child)) parts.push(Str.trim(child.source));
+    if (isPlainFlowScalar(child)) parts.push(plainSourceText(child.source));
     else if (!isBlankTrivia(child)) break;
   }
   return idx;
@@ -697,7 +705,7 @@ export const collectMultilinePlainScalar: {
     }
 
     if (cur.parts.length === 1) {
-      return { value: Str.trim(first.source), nextIdx: cur.idx, partsCount: 1, endOffset: cur.endOffset };
+      return { value: decodePlainScalar(first.source), nextIdx: cur.idx, partsCount: 1, endOffset: cur.endOffset };
     }
 
     // Apply flow folding to the collected parts
@@ -737,7 +745,7 @@ const makePlainScalarCursor = (
   children,
   minContinuationColumn,
   sourceText,
-  parts: [Str.trim(first.source)],
+  parts: [plainSourceText(first.source)],
   endOffset: first.offset + first.length,
   emptyLines: 0,
   idx: startIdx + 1,
@@ -799,7 +807,7 @@ const mergePlainScalar = (cur: PlainScalarCursor, child: CstNode): boolean => {
   // This prevents merging e.g. "bar" (col 2) with "invalid" (col 0)
   // when the block mapping key is at col 0.
   if (isBelowContinuationColumn(cur, child)) return false;
-  pushPlainScalarPart(cur, Str.trim(child.source), child.offset + child.length);
+  pushPlainScalarPart(cur, plainSourceText(child.source), child.offset + child.length);
   cur.idx++;
   return true;
 };
