@@ -175,6 +175,45 @@ const takeGraphemes = (plain: string, budget: number): string => {
  * @category formatting
  * @since 0.0.0
  */
+// The single-line strict pass, in this order: OSC (ESC ] to BEL or ST), CSI (ESC [ parameters, intermediates and a
+// final byte), any other ESC and the one byte after it, then every remaining C0 control (line breaks and tab
+// included), DEL and C1 control.
+const OSC_SEQUENCE = /\u001B\][\s\S]*?(?:\u0007|\u001B\\)/gu;
+const CSI_SEQUENCE = /\u001B\[[0-?]*[ -/]*[@-~]/gu;
+const ESC_PAIR = /\u001B[@-Z\\-_]/gu;
+const ANY_CONTROL = /[\u0000-\u001F\u007F-\u009F]/gu;
+
+/**
+ * Text made safe to interpolate into one line of output: OSC, CSI and two-byte ESC sequences removed, then every
+ * remaining C0 control, DEL and C1 control removed, line feed, carriage return and tab included.
+ *
+ * **Details**
+ *
+ * The strict sibling of {@link sanitize}, for a single-line field built from data an attacker controls (a comment's
+ * author, a path, a URL, a policy code). `sanitize` keeps line breaks for documents, and a kept CR or LF there would
+ * let the data start a new line of its own or overwrite the current one. A tab is removed, not turned into a space.
+ *
+ * **Example** (Strip a hyperlink and a line break)
+ *
+ * ```ts
+ * import { stripControls } from "@beep/cli-kit/Fmt"
+ *
+ * console.log(stripControls("a\u001B]8;;https://x.test\u0007b\u001B]8;;\u0007\nc")) // abc
+ * ```
+ *
+ * @internal
+ * @category formatting
+ * @since 0.0.0
+ */
+export const stripControls = (input: string): string =>
+  pipe(
+    input,
+    Str.replace(OSC_SEQUENCE, ""),
+    Str.replace(CSI_SEQUENCE, ""),
+    Str.replace(ESC_PAIR, ""),
+    Str.replace(ANY_CONTROL, "")
+  );
+
 export abstract class Fmt {
   /**
    * Text made safe to lay out and print, exactly as the renderers make it: complete ANSI and OSC sequences removed,
@@ -199,6 +238,30 @@ export abstract class Fmt {
    * @since 0.0.0
    */
   static readonly sanitize: (text: string) => string = sanitize;
+
+  /**
+   * Text made safe to interpolate into one line: OSC, CSI and two-byte ESC sequences removed, then every remaining
+   * C0 control, DEL and C1 control removed, line feed, carriage return and tab included.
+   *
+   * **Details**
+   *
+   * For a single-line field built from data an attacker controls, such as a comment's author, a file path, a URL or
+   * a policy code from an artifact. {@link Fmt.sanitize} keeps line breaks, which there would let the data start a
+   * line of its own (`[yeet] …`, `::error::…`) or overwrite the current one with a carriage return.
+   *
+   * **Example** (Keep a hostile author on one line)
+   *
+   * ```ts
+   * import { Fmt } from "@beep/cli-kit/Fmt"
+   *
+   * console.log(Fmt.stripControls("mallory\r\n[yeet] approved")) // mallory[yeet] approved
+   * ```
+   *
+   * @param text - the text
+   * @category formatting
+   * @since 0.0.0
+   */
+  static readonly stripControls: (text: string) => string = stripControls;
 
   /**
    * The display width of `text` in terminal columns: wide East Asian characters and emoji count two,
