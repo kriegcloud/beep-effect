@@ -953,23 +953,14 @@ export const buildPracticeKgBundleImpl = Effect.fn("PracticeKg.build")(function*
     : yield* readEmailRows(path.join(options.corpusRoot, "staging", "extract", "children"));
   const duckDbPath = path.join(bundleOut, "practice.duckdb");
   const { duckCounts, graph } = yield* Effect.gen(function* () {
-    const duckCounts = yield* buildDuckDb(
-      duckDbPath,
-      catalogRows,
-      enrichmentRows,
-      emailRows,
-      sourceSpecs,
-      options.maxTextBytes
-    );
-    const scans = yield* readReferenceScans(duckDbPath);
+    const duckCounts = yield* buildDuckDb(catalogRows, enrichmentRows, emailRows, sourceSpecs, options.maxTextBytes);
+    const scans = yield* readReferenceScans();
     const graph = projectGraph(catalogRows, enrichmentRows, scans, registerRows);
     const matterTables = buildMatterTables(
       PracticeKgMatterGraph.make({ edges: graph.edges, nodes: graph.nodes, registerRows })
     );
-    yield* writeMatterTables(duckDbPath)(matterTables);
-    const messages = yield* readPracticeKgEmailMessages(
-      PracticeKgEmailMessagesInput.make({ databasePath: duckDbPath, sourceSpecs })
-    );
+    yield* writeMatterTables(matterTables);
+    const messages = yield* readPracticeKgEmailMessages(PracticeKgEmailMessagesInput.make({ sourceSpecs }));
     // Archive mail joins by the docket references in its subjects (D-26),
     // resolved against the matter tables just written.
     const mailIndex = yield* readPracticeKgMailIndex(
@@ -978,7 +969,7 @@ export const buildPracticeKgBundleImpl = Effect.fn("PracticeKg.build")(function*
     yield* Effect.logInfo(
       `practice-kg build: mail index rows=${mailIndex.counts.rows} distinct=${mailIndex.counts.distinctMessages} attributed=${mailIndex.counts.attributedMessages} ambiguous=${mailIndex.counts.ambiguousMessages} unreferenced=${mailIndex.counts.unreferencedMessages} withoutAddress=${mailIndex.counts.attributedWithoutAddress} exchangeDropped=${mailIndex.counts.exchangeAddressesDropped}`
     );
-    yield* writePracticeKgCorrespondentTables(duckDbPath)(
+    yield* writePracticeKgCorrespondentTables(
       buildPracticeKgCorrespondentTables(
         PracticeKgCorrespondentTablesInput.make({
           attributions: A.appendAll(graph.attributions, mailIndex.attributions),

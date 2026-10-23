@@ -6,6 +6,7 @@ import {
 } from "@beep/law-practice-domain/values/PatentDocument";
 import {
   attributeDocuments,
+  buildDuckDb,
   buildPracticeKgBundle,
   LawPracticeServerLive,
   PRACTICE_KG_MCP_INSTRUCTIONS,
@@ -65,6 +66,7 @@ import * as McpServer from "effect/ai/McpServer";
 import * as Response from "effect/ai/Response";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
@@ -930,6 +932,21 @@ describe("practice KG projections", () => {
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
+      "drops FTS scratch tokens before returning the shared writer to later build steps",
+      Effect.fnUntraced(function* () {
+        yield* Effect.gen(function* () {
+          const db = yield* DuckDb;
+          yield* buildDuckDb([], [], [], [], 2_097_152);
+          expect(
+            yield* db.query("SELECT table_name FROM duckdb_tables() WHERE temporary AND table_name = 'fts_tokens'")
+          ).toStrictEqual([]);
+          expect(yield* db.query("SELECT term FROM fts_terms")).toStrictEqual([]);
+          yield* db.run("CREATE TEMP TABLE fts_tokens (term VARCHAR)");
+        }).pipe(withDuckDb(":memory:"));
+      })
+    );
+
+    it.effect(
       "builds byte-identical ordered dumps with stable IRIs and complete provenance",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -1784,6 +1801,66 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
+    it.effect(
+      "resolves standalone claims while an independent cached read-only connection remains open",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const corpusRoot = yield* makeFixtureCorpus();
+        const bundleOut = path.join(corpusRoot, "bundle-concurrent-claims-readers");
+        yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
+        const inputs = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-concurrent-claims-" });
+        const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
+        const readers = yield* Layer.build(
+          DuckDb.makeNodeLayer(
+            DuckDbConnectionOptions.make({
+              databasePath: path.join(bundleOut, "practice.duckdb"),
+              databaseOptions: { access_mode: "READ_ONLY" },
+            })
+          )
+        );
+        const reader = Context.get(readers, DuckDb);
+        // Opening is lazy: establish the independent reader before starting the standalone lookup.
+        yield* reader.query("SELECT digest FROM documents ORDER BY digest");
+        const [summary, rows] = yield* Effect.all(
+          [
+            runPracticeKgClaimsBatch(
+              PracticeKgClaimsOptions.make({
+                bundleOut,
+                inputs,
+                patentDocuments: [
+                  PracticeKgPatentDocumentInput.make({
+                    docket: "20001US05",
+                    document,
+                    sourceFile: "20001US05-patent.md",
+                  }),
+                ],
+              })
+            ).pipe(
+              provideScopedLayer(
+                Layer.mergeAll(
+                  Layer.succeed(
+                    OfficeActionReview,
+                    OfficeActionReview.of({
+                      extractCandidate: () => Effect.die("Normalized patent claims must not invoke extraction."),
+                      review: () => Effect.die("Normalized patent claims must not invoke review."),
+                    })
+                  ),
+                  Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
+                )
+              )
+            ),
+            reader.query("SELECT digest FROM documents ORDER BY digest"),
+          ],
+          { concurrency: 2 }
+        );
+        expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
+        expect(rows.length).toBeGreaterThan(0);
+        expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
+      }),
+      { timeout: 120_000 }
+    );
+
     it.effect(
       "persists docket-scoped normalized patents with exact claims-section evidence and bounded input",
       Effect.fnUntraced(function* () {

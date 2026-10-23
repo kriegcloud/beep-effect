@@ -254,7 +254,7 @@ query the caller runs on that connection outside the client.
   statement with `DuckDbError` beside an in-process writer. Standalone legacy
   READ_ONLY opens share one cached database. Law-practice projection scans and
   email reads use the build's read-write service; claims reuse the host service
-  or open a scoped read-write connection when run standalone.
+  or open a cached READ_ONLY connection when run standalone.
 - The refusal works in both directions. While a `readOnly` client of a file is
   open, a later read-write `DuckDbClient` open of that file fails with
   `ConnectionError` (retryable; the native cause is DuckDB's `Can't open a

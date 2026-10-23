@@ -462,7 +462,7 @@ const bundleDirectory = Effect.fnUntraced(function* (options: {
   const directory = yield* fs.makeTempDirectoryScoped({ prefix: "docket-matters-" });
   if (options.database) {
     const databasePath = path.join(directory, "practice.duckdb");
-    yield* writeMatterTables(databasePath)(tables).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
+    yield* writeMatterTables(tables).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
     if (options.documents) {
       yield* Effect.gen(function* () {
         const db = yield* DuckDb;

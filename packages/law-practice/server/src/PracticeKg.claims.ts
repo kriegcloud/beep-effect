@@ -310,7 +310,15 @@ const resolveSourceDocumentDigest = Effect.fn("PracticeKgClaims.resolveSourceDoc
     return A.length(rows) === 1 ? A.head(rows).pipe(O.map((row) => row.digest)) : O.none<string>();
   });
   return yield* O.match(existing, {
-    onNone: () => lookup.pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath: bundleDuckDbPath }))),
+    onNone: () =>
+      lookup.pipe(
+        withDuckDb(
+          DuckDbConnectionOptions.make({
+            databasePath: bundleDuckDbPath,
+            databaseOptions: { access_mode: "READ_ONLY" },
+          })
+        )
+      ),
     onSome: (db) => lookup.pipe(Effect.provideService(DuckDb, db)),
   }).pipe(
     Effect.flatMap((digest) =>

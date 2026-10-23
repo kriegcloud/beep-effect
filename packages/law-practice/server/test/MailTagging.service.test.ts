@@ -168,7 +168,7 @@ const makeWorkspace = Effect.gen(function* () {
   const path = yield* Path.Path;
   const directory = yield* temporaryDirectory;
   const databasePath = path.join(directory, "practice.duckdb");
-  yield* writeMatterTables(databasePath)(tables).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
+  yield* writeMatterTables(tables).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
   const folderMapPath = yield* writeText(
     directory,
     "matter-folders.json",

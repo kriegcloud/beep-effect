@@ -177,7 +177,7 @@ describe("practice KG bundle compare", () => {
         const directory = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-compare-" });
         const databasePath = path.join(directory, "practice.duckdb");
 
-        yield* writeMatterTables(databasePath)(base).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
+        yield* writeMatterTables(base).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath })));
         const read = yield* readPracticeKgMatterTables.pipe(
           withDuckDb(DuckDbConnectionOptions.make({ databaseOptions: { access_mode: "READ_ONLY" }, databasePath }))
         );

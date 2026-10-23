@@ -112,7 +112,7 @@ export class PracticeKgReferenceScans extends S.Opaque<PracticeKgReferenceScans,
  * **Details**
  *
  * Runs after {@link buildDuckDb} has written `documents` and `document_text`,
- * reopening the database read-only. Only `docket`-category documents with a
+ * using the caller's read-write service. Only `docket`-category documents with a
  * family are scanned; email exports and unsorted files never vote on family
  * attribution. The result is fully ordered so a rebuild from the same corpus
  * yields identical rows.
@@ -123,18 +123,17 @@ export class PracticeKgReferenceScans extends S.Opaque<PracticeKgReferenceScans,
  * import * as Effect from "effect/Effect";
  * import { readReferenceScans } from "../../src/PracticeKg.references.ts"
  *
- * const scans = readReferenceScans("/corpus/staging/practice-kg-bundle/practice.duckdb")
+ * const scans = readReferenceScans()
  *
  * console.log(Effect.isEffect(scans)) // true
  * ```
  *
- * @param databasePath - Bundle DuckDB written earlier in the same build.
  * @returns Ordered docket-reference and number-mention rows.
  * @effects Reads through the injected read-write DuckDb service.
  * @category use-cases
  * @since 0.0.0
  */
-export const readReferenceScans = Effect.fn("PracticeKg.readReferenceScans")(function* (databasePath: string) {
+export const readReferenceScans = Effect.fn("PracticeKg.readReferenceScans")(function* () {
   return yield* Effect.gen(function* () {
     const db = yield* DuckDb;
     const docketReferences = yield* db
@@ -150,5 +149,5 @@ export const readReferenceScans = Effect.fn("PracticeKg.readReferenceScans")(fun
         PracticeKgProjectionError.mapError("Graph number-mention rows failed schema validation.")
       );
     return PracticeKgReferenceScans.make({ docketReferences, numberMentions });
-  }).pipe(PracticeKgProjectionError.mapError(`Failed scanning graph references in "${databasePath}".`));
+  }).pipe(PracticeKgProjectionError.mapError("Failed scanning graph references."));
 });
