@@ -173,6 +173,32 @@ Rerun, each command alone through `beep-heavy`:
 | `lint effect-vitest` against the committed inventory | `introduced=0 resolved=0`; the inventory needs no rewrite |
 | Biome / oxlint on both files | clean |
 
+## Review round 2 (#2153)
+
+One P2 thread, fixed in the lane at `bef0c8be32`:
+
+- **PRRT_kwDOPbO_N86vvP-h** (`proof-job.test.ts`, wait timeout): if a regression made
+  `wait` return before polling (a settled record or a wave), the 1 ms poll sleep would
+  never run. The test would then hang on `firstPollCompleted` until the 30 s test timeout,
+  with no diagnosis. The test now races `Deferred.await(firstPollCompleted)` against
+  `Fiber.await` of the forked wait with `Effect.raceFirst`. If the wait fiber ends first,
+  the test dies at once with `wait returned before its first poll: ...` and the rendered
+  exit (`Exit.match` with `Cause.pretty` for the flipped wait result). The losing
+  `Fiber.await` side is interrupted, which leaves the wait fiber running for the clock
+  advance and `Fiber.join`. A losing `Deferred.await` is interrupted cleanly.
+- Negative probe: finalizing the record (`serviceResult: "signal"`) before the wait makes
+  it return `{"kind":"settled",...}` at once. The test then fails within seconds with the
+  early-return message and the settled record, on Node and on Bun. Restored afterwards.
+
+Rerun, each command alone through `beep-heavy`:
+
+| Check | Result |
+| --- | --- |
+| `check` with test overlay, `@beep/repo-cli` | exit 0, 0 errors |
+| `proof-job.test.ts`, Node / Bun | 106 / 106 passed |
+| `lint effect-vitest` | `introduced=0 resolved=0` |
+| Biome / oxlint on the file | clean |
+
 ## Reversal
 
 Revert the PR. The 38 rows come back with their previous status, and the six ThreadStore

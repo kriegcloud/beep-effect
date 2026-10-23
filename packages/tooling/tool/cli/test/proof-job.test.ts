@@ -16,6 +16,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
@@ -23,6 +24,7 @@ import * as Command from "effect/cli/Command";
 import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
@@ -792,7 +794,21 @@ describe("proof job launcher", () => {
             Effect.provideService(Clock.Clock, pollObservingClock),
             Effect.forkChild({ startImmediately: true })
           );
-        yield* Deferred.await(firstPollCompleted);
+        // A regression that makes wait return before its first poll ends the fiber without the
+        // 1 ms sleep, so the signal would never come: fail at once with what wait returned.
+        yield* Effect.raceFirst(
+          Deferred.await(firstPollCompleted),
+          Fiber.await(waiting).pipe(
+            Effect.flatMap((exit) =>
+              Effect.die(
+                `wait returned before its first poll: ${Exit.match(exit, {
+                  onSuccess: (error) => error.message,
+                  onFailure: Cause.pretty,
+                })}`
+              )
+            )
+          )
+        );
         yield* TestClock.adjust("15 millis");
         const error = yield* Fiber.join(waiting);
         expect(error.message).toContain("Timed out");
