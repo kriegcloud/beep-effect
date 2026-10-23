@@ -24,6 +24,16 @@ const unescape = (text: string) =>
 const unescapeMessage = (text: string) =>
   pipe(text, Str.replace(/%0D/g, "\r"), Str.replace(/%0A/g, "\n"), Str.replace(/%25/g, "%"));
 
+const reconstruct = (annotation: AnnotationOptions, fields: Record<string, string>) => ({
+  level: annotation.level,
+  ...(annotation.title === undefined ? {} : { title: fields.title }),
+  ...(annotation.file === undefined ? {} : { file: fields.file }),
+  ...(annotation.line === undefined ? {} : { line: Number(fields.line) }),
+  ...(annotation.endLine === undefined ? {} : { endLine: Number(fields.endLine) }),
+  ...(annotation.col === undefined ? {} : { col: Number(fields.col) }),
+  ...(annotation.endColumn === undefined ? {} : { endColumn: Number(fields.endColumn) }),
+});
+
 it.effect.prop(
   "annotation formatting preserves message and metadata through the workflow grammar",
   [Arbitrary.schema(AnnotationOptions), Arbitrary.schema(S.String)],
@@ -43,15 +53,7 @@ it.effect.prop(
       }
       const decodedMessage = unescapeMessage(Str.slice(end + 2)(formatted));
       assert.strictEqual(decodedMessage, message);
-      const reconstructed = {
-        level: annotation.level,
-        ...(annotation.title === undefined ? {} : { title: fields.title }),
-        ...(annotation.file === undefined ? {} : { file: fields.file }),
-        ...(annotation.line === undefined ? {} : { line: Number(fields.line) }),
-        ...(annotation.endLine === undefined ? {} : { endLine: Number(fields.endLine) }),
-        ...(annotation.col === undefined ? {} : { col: Number(fields.col) }),
-        ...(annotation.endColumn === undefined ? {} : { endColumn: Number(fields.endColumn) }),
-      };
+      const reconstructed = reconstruct(annotation, fields);
       assertTrue(AnnotationOptions.pipe(S.toEquivalence)(reconstructed, annotation));
       assert.strictEqual(GithubAnnotation.format(reconstructed, decodedMessage), formatted);
       assert.strictEqual(A.join(Str.split(formatted, "\n"), ""), formatted);

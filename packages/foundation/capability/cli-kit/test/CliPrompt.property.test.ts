@@ -7,6 +7,19 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { CliPromptFallbackOptions } from "@beep/cli-kit/CliPrompt";
 
+const assertMissingTarget = (
+  target: CliPromptTarget,
+  error: { readonly _tag: string; readonly option?: string; readonly argument?: string }
+): void => {
+  if ("flag" in target) {
+    assert.strictEqual(error._tag, "MissingOption");
+    if (error._tag === "MissingOption") assert.strictEqual(error.option, target.flag);
+  } else {
+    assert.strictEqual(error._tag, "MissingArgument");
+    if (error._tag === "MissingArgument") assert.strictEqual(error.argument, target.argument);
+  }
+};
+
 const runs = { arbitrary: fcRuns(100) };
 
 it.effect.prop(
@@ -30,13 +43,7 @@ it.effect.prop(
       const options: CliPromptFallbackOptions<string | undefined> = { ...target, otherwise: undefined };
       for (const value of [target, options]) {
         const error = yield* Effect.flip(answerWithoutPerson(value));
-        if ("flag" in target) {
-          assert.strictEqual(error._tag, "MissingOption");
-          if (error._tag === "MissingOption") assert.strictEqual(error.option, target.flag);
-        } else {
-          assert.strictEqual(error._tag, "MissingArgument");
-          if (error._tag === "MissingArgument") assert.strictEqual(error.argument, target.argument);
-        }
+        assertMissingTarget(target, error);
       }
     }),
   runs

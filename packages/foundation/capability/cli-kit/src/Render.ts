@@ -153,6 +153,16 @@ export interface RenderContextOptions {
   readonly width?: number | undefined;
 }
 
+const contextPaint = (color: ColorLevel): RenderContext["paint"] =>
+  color === "none"
+    ? dual(2, (_token: TokenName | Style, text: string): string => text)
+    : dual(2, (token: TokenName | Style, text: string): string => paintStyle(Token.resolve(token), color, text));
+
+const neutralizeOptions = (options: RenderContextOfOptions): { readonly neutralizeWorkflowCommands?: boolean } => {
+  if (options.neutralizeWorkflowCommands ?? options.audience === "ci") return { neutralizeWorkflowCommands: true };
+  return options.neutralizeWorkflowCommands === false ? { neutralizeWorkflowCommands: false } : {};
+};
+
 /**
  * Pure renderers of a document: `(doc, context) => string`.
  *
@@ -287,10 +297,7 @@ export class Render {
       width: options.width ?? Number.POSITIVE_INFINITY,
       audience: options.audience,
       color,
-      paint:
-        color === "none"
-          ? dual(2, (_token: TokenName | Style, text: string): string => text)
-          : dual(2, (token: TokenName | Style, text: string): string => paintStyle(Token.resolve(token), color, text)),
+      paint: contextPaint(color),
       glyphs: options.glyphs ?? Glyphs.unicode,
       link:
         links === "off"
@@ -298,11 +305,7 @@ export class Render {
           : CliLinks.linker({ links, hyperlinks: true, audience: options.audience }),
       displayPath: options.displayPath ?? ((absolute: string) => absolute),
       // A ci audience may be read by the Actions runner, and neutralizing is harmless anywhere else.
-      ...((options.neutralizeWorkflowCommands ?? options.audience === "ci")
-        ? { neutralizeWorkflowCommands: true }
-        : options.neutralizeWorkflowCommands === false
-          ? { neutralizeWorkflowCommands: false }
-          : {}),
+      ...neutralizeOptions(options),
       ...O.getSomesStruct({ linkBase: O.fromUndefinedOr(options.linkBase) }),
     };
   };

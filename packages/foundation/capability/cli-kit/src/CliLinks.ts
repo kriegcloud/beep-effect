@@ -125,6 +125,12 @@ const cleanUrl = (url: string): string => Str.replace(/[\r\n]/g, "")(sanitize(ur
 type LinkMode = "vscode" | "file" | "off";
 type Absolute = (file: string) => string | undefined;
 
+const editorUrl = (path: string, target: Extract<LinkTarget, { readonly file: string }>): string => {
+  const position =
+    target.line === undefined ? "" : target.col === undefined ? `:${target.line}` : `:${target.line}:${target.col}`;
+  return `vscode://file${path}${position}`;
+};
+
 const makeTarget: {
   (mode: LinkMode, absolute: Absolute): (target: LinkTarget) => O.Option<string>;
   (absolute: Absolute): (mode: LinkMode) => (target: LinkTarget) => O.Option<string>;
@@ -142,9 +148,7 @@ const makeTarget: {
       const path = fileUrlPath(resolved);
       if (path === undefined) return O.none();
       if (mode === "file") return O.some(`file://${path}`);
-      const position =
-        target.line === undefined ? "" : target.col === undefined ? `:${target.line}` : `:${target.line}:${target.col}`;
-      return O.some(`vscode://file${path}${position}`);
+      return O.some(editorUrl(path, target));
     }
 );
 
@@ -208,6 +212,34 @@ interface Ambient {
   readonly path: O.Option<Path.Path>;
 }
 
+const resolveAbsolute =
+  (path: Path.Path | undefined, cwd: string): Absolute =>
+  (file: string): string | undefined => {
+    // A UNC path is not on this machine: it must not be resolved against the working directory as a filename.
+    if (UNC.test(file)) return undefined;
+    if (DRIVE.test(file)) return file;
+    if (path === undefined) return Str.startsWith("/")(file) ? file : undefined;
+    if (path.isAbsolute(file)) return file;
+    return path.resolve(cwd, file);
+  };
+
+const selectMode = Effect.fnUntraced(function* (
+  setting: EditorLinks,
+  runtime: typeof CurrentRuntimeEnv.Service,
+  ambient: Ambient,
+  path: Path.Path | undefined,
+  cwd: string
+): Effect.fn.Return<LinkMode> {
+  if (setting !== "auto") return setting;
+  if (O.exists(runtime.terminal, (terminal) => terminal.name === "vscode")) return "vscode";
+  if (O.isNone(ambient.fs) || path === undefined) return "file";
+  {
+    const root = yield* findRoot(ambient.fs.value, path, cwd);
+    const base = O.getOrElse(root, () => cwd);
+    return (yield* isDirectory(ambient.fs.value, path.join(base, ".vscode"))) ? "vscode" : "file";
+  }
+});
+
 const build: {
   (options: CliLinksOptions, ambient: Ambient): Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
   (ambient: Ambient): (options: CliLinksOptions) => Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
@@ -233,24 +265,9 @@ const build: {
     const cwd =
       options.cwd ?? O.getOrUndefined(pwd) ?? (O.isSome(ambient.path) ? ambient.path.value.resolve(".") : ".");
     const path = O.getOrUndefined(ambient.path);
-    const absolute = (file: string): string | undefined => {
-      // A UNC path is not on this machine: it must not be resolved against the working directory as a filename.
-      if (UNC.test(file)) return undefined;
-      if (DRIVE.test(file)) return file;
-      if (path === undefined) return Str.startsWith("/")(file) ? file : undefined;
-      if (path.isAbsolute(file)) return file;
-      return path.resolve(cwd, file);
-    };
+    const absolute = resolveAbsolute(path, cwd);
 
-    let mode: "vscode" | "file" | "off";
-    if (setting !== "auto") mode = setting;
-    else if (O.exists(runtime.terminal, (terminal) => terminal.name === "vscode")) mode = "vscode";
-    else if (O.isNone(ambient.fs) || path === undefined) mode = "file";
-    else {
-      const root = yield* findRoot(ambient.fs.value, path, cwd);
-      const base = O.getOrElse(root, () => cwd);
-      mode = (yield* isDirectory(ambient.fs.value, path.join(base, ".vscode"))) ? "vscode" : "file";
-    }
+    const mode = yield* selectMode(setting, runtime, ambient, path, cwd);
     return { mode, target: makeTarget(mode, absolute) };
   })
 );

@@ -25,6 +25,7 @@ import { paintStyle } from "./internal/ansi.ts";
 import { Level, passes } from "./internal/diagnostics.ts";
 import { makeFileSink } from "./internal/fileSink.ts";
 import { neutralizeJson, TrustedLine } from "./internal/logSafety.ts";
+import { provideBuilt } from "./internal/provideBuilt.ts";
 import { scanAudience } from "./internal/scanAudience.ts";
 import type { AudienceKind, RuntimeEnv } from "@beep/runtime-env";
 import type * as Fiber from "effect/Fiber";
@@ -362,6 +363,8 @@ const actionsDecision: {
     }
 );
 
+const logColor = (terminal: typeof TerminalEnv.Service | undefined) => terminal?.stderr.color ?? "none";
+
 /**
  * Diagnostics kept apart from a program's output: a level, a format and a place to write.
  *
@@ -635,10 +638,10 @@ export class CliLog {
         // Captured here, not required: the fallback for a record whose own fiber has no CurrentRuntimeEnv.
         const captured = yield* Effect.serviceOption(CurrentRuntimeEnv);
         // The option beats the capture: a host that names its environment means it.
-        const fallback = options.runtimeEnv === undefined ? captured : O.some(options.runtimeEnv);
+        const fallback = O.orElse(O.fromUndefinedOr(options.runtimeEnv), () => captured);
         const underActionsIn = actionsDecision(options.neutralize ?? "auto", fallback);
 
-        const color = terminal?.stderr.color ?? "none";
+        const color = logColor(terminal);
         // Decided per record, not once at build: the logger is built outermost, before an audience flag is read,
         // so the format follows the `Audience` in force in the fiber that logs (`CliAudience.run` provides it
         // around the whole run), falling back to the one the layer was built with.
@@ -864,24 +867,12 @@ const buildTimeAudience: {
     // A conflict is core's usage error later; until then the environment decides, as it does at runtime.
     if (!conflict && flagged !== undefined) return Effect.succeed(flagged);
     return Effect.map(Audience, (audience) => audience.kind).pipe(
-      (self) =>
-        Effect.scopedWith((scope) =>
-          Effect.flatMap(
-            Layer.buildWithScope(
-              Audience.layer(audienceEnvVar === undefined ? undefined : { envVar: audienceEnvVar }).pipe(
-                Layer.provide(Layer.succeed(CurrentRuntimeEnv, detected))
-              ),
-              scope
-            ),
-            (context) => Effect.provideContext(self, context)
-          )
-        ),
-      (self) =>
-        Effect.scopedWith((scope) =>
-          Effect.flatMap(Layer.buildWithScope(Logger.layer([]), scope), (context) =>
-            Effect.provideContext(self, context)
-          )
+      provideBuilt(
+        Audience.layer(audienceEnvVar === undefined ? undefined : { envVar: audienceEnvVar }).pipe(
+          Layer.provide(Layer.succeed(CurrentRuntimeEnv, detected))
         )
+      ),
+      provideBuilt(Logger.layer([]))
     );
   }
 );
@@ -918,6 +909,23 @@ const buildTimeDecision: {
   })
 );
 
+type BuildLogLayer = {
+  (audienceEnvVar?: string | undefined): (options: CliLogOptions | CliLogFileOptions) => Layer.Layer<never>;
+  (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never>;
+};
+
+const makeBuildLogLayer = (
+  build: (
+    options: CliLogOptions | CliLogFileOptions,
+    audienceEnvVar?: string | undefined
+  ) => Effect.Effect<Layer.Layer<never>>
+): BuildLogLayer =>
+  dual(
+    (args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]),
+    (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never> =>
+      Layer.unwrap(build(options, audienceEnvVar))
+  );
+
 /**
  * The logger the platform is built under by `CliRuntime.main` with `env.log`: the log level and env var apply to
  * what the platform logs while it builds, too.
@@ -945,36 +953,27 @@ const buildTimeDecision: {
  * @category layers
  * @since 0.0.0
  */
-export const platformLogLayer: {
-  (audienceEnvVar?: string | undefined): (options: CliLogOptions | CliLogFileOptions) => Layer.Layer<never>;
-  (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never>;
-} = dual(
-  (args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]),
-  (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never> =>
-    Layer.unwrap(
-      Effect.gen(function* () {
-        const { level } = yield* readLevel(options.level, options.envVar);
-        const ambient = yield* References.MinimumLogLevel;
-        const { ndjson, runtimeEnv } = yield* buildTimeDecision(options, audienceEnvVar);
-        if (ndjson) {
-          return CliLog.layer({
-            level,
-            format: "json",
-            ...O.getSomesStruct({ plainLogger: O.fromUndefinedOr(options.plainLogger) }),
-            ...O.getSomesStruct({ logger: O.fromUndefinedOr(options.logger) }),
-            ...O.getSomesStruct({ extraLoggers: O.fromUndefinedOr(options.extraLoggers) }),
-            ...O.getSomesStruct({ neutralize: O.fromUndefinedOr(options.neutralize) }),
-            runtimeEnv,
-          });
-        }
-        return Layer.merge(
-          Logger.layer([
-            makeCliLogger(options.logger, actionsDecision(options.neutralize ?? "auto", O.some(runtimeEnv))),
-          ]),
-          LogLevel.isLessThan(level, ambient) ? Layer.succeed(References.MinimumLogLevel, level) : Layer.empty
-        );
-      })
-    )
+export const platformLogLayer: BuildLogLayer = makeBuildLogLayer(
+  Effect.fnUntraced(function* (options, audienceEnvVar) {
+    const { level } = yield* readLevel(options.level, options.envVar);
+    const ambient = yield* References.MinimumLogLevel;
+    const { ndjson, runtimeEnv } = yield* buildTimeDecision(options, audienceEnvVar);
+    if (ndjson) {
+      return CliLog.layer({
+        level,
+        format: "json",
+        ...O.getSomesStruct({ plainLogger: O.fromUndefinedOr(options.plainLogger) }),
+        ...O.getSomesStruct({ logger: O.fromUndefinedOr(options.logger) }),
+        ...O.getSomesStruct({ extraLoggers: O.fromUndefinedOr(options.extraLoggers) }),
+        ...O.getSomesStruct({ neutralize: O.fromUndefinedOr(options.neutralize) }),
+        runtimeEnv,
+      });
+    }
+    return Layer.merge(
+      Logger.layer([makeCliLogger(options.logger, actionsDecision(options.neutralize ?? "auto", O.some(runtimeEnv)))]),
+      LogLevel.isLessThan(level, ambient) ? Layer.succeed(References.MinimumLogLevel, level) : Layer.empty
+    );
+  })
 );
 
 /**
@@ -1004,26 +1003,19 @@ export const platformLogLayer: {
  * @category layers
  * @since 0.0.0
  */
-export const envBuildLogLayer: {
-  (audienceEnvVar?: string | undefined): (options: CliLogOptions | CliLogFileOptions) => Layer.Layer<never>;
-  (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never>;
-} = dual(
-  (args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]),
-  (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never> =>
-    Layer.unwrap(
-      Effect.gen(function* () {
-        const { ndjson, runtimeEnv } = yield* buildTimeDecision(options, audienceEnvVar);
-        const underActions = actionsDecision(options.neutralize ?? "auto", O.some(runtimeEnv));
-        // A configuration warning is never program output: whatever `stderrFrom` the program's logger raises, every
-        // line the environment build writes goes to stderr.
-        if (!ndjson) return Logger.layer([makeCliLogger({ ...options.logger, stderrFrom: "All" }, underActions)]);
-        return Logger.layer([
-          Logger.make<unknown, void>((record) => {
-            if (!LogLevel.isGreaterThanOrEqualTo(record.logLevel, "Warn")) return;
-            const json = Logger.formatJson.log(record);
-            record.fiber.getRef(Console.Console).error(underActions(record.fiber) ? neutralizeJson(json) : json);
-          }),
-        ]);
-      })
-    )
+export const envBuildLogLayer: BuildLogLayer = makeBuildLogLayer(
+  Effect.fnUntraced(function* (options, audienceEnvVar) {
+    const { ndjson, runtimeEnv } = yield* buildTimeDecision(options, audienceEnvVar);
+    const underActions = actionsDecision(options.neutralize ?? "auto", O.some(runtimeEnv));
+    // A configuration warning is never program output: whatever `stderrFrom` the program's logger raises, every
+    // line the environment build writes goes to stderr.
+    if (!ndjson) return Logger.layer([makeCliLogger({ ...options.logger, stderrFrom: "All" }, underActions)]);
+    return Logger.layer([
+      Logger.make<unknown, void>((record) => {
+        if (!LogLevel.isGreaterThanOrEqualTo(record.logLevel, "Warn")) return;
+        const json = Logger.formatJson.log(record);
+        record.fiber.getRef(Console.Console).error(underActions(record.fiber) ? neutralizeJson(json) : json);
+      }),
+    ]);
+  })
 );

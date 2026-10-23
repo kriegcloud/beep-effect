@@ -1,7 +1,7 @@
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
-import { flatten, paintSpans } from "./layout.ts";
-import { renderDoc, showsSuffix, targetText } from "./renderDoc.ts";
+import { inlineSpans } from "./inlineSpans.ts";
+import { paintSpans } from "./layout.ts";
+import { renderDoc } from "./renderDoc.ts";
 import type { Document, Inline } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
@@ -20,27 +20,17 @@ import type { Flavour } from "./renderDoc.ts";
 const inline: {
   (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
   (ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
-} = dual(2, (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> => {
-  const flat = flatten(inlines, ctx);
-  const out: Array<Span> = [];
-  let i = 0;
-  while (i < flat.length) {
-    const link = A.getUnsafe(flat, i).link;
-    let label = "";
-    do {
-      const span = A.getUnsafe(flat, i);
-      label += span.text;
-      out.push(span.code === true && span.token === undefined ? { ...span, token: "accent" } : span);
-      i++;
-    } while (link !== undefined && i < flat.length && A.getUnsafe(flat, i).link === link);
-    if (link !== undefined && ctx.link(link, label) === label) {
-      const target = targetText(link, ctx);
-      if (showsSuffix(A.getUnsafe(flat, i - 1).suffix, label, target))
-        out.push({ text: ` (${target})`, token: "muted" });
-    }
-  }
-  return out;
-});
+} = dual(
+  2,
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
+    inlineSpans(
+      inlines,
+      ctx,
+      (span) => (span.code === true && span.token === undefined ? { ...span, token: "accent" } : span),
+      (link, label) => ctx.link(link, label) === label,
+      (target) => ({ text: ` (${target})`, token: "muted" })
+    )
+);
 
 const ansi: Flavour = {
   inline,

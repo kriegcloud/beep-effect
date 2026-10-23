@@ -351,27 +351,39 @@ const dieBlocks: {
   }
 );
 
+const customFailureRenderer = (error: unknown, options: CliFailureOptions | undefined) => {
+  const tag = tagOf(error);
+  if (tag === undefined || options?.render === undefined) return undefined;
+  return R.has(options.render, tag) ? options.render[tag] : undefined;
+};
+
+const renderFailureOverride = (
+  error: unknown,
+  spans: ReadonlyArray<Block>,
+  options: CliFailureOptions | undefined
+): ReadonlyArray<Block> | undefined => {
+  if (hasCliDoc(error)) {
+    const rendered = Result.try(() => [...error[CliDoc](), ...spans]);
+    if (Result.isSuccess(rendered)) return rendered.success;
+    // A document that cannot be built falls through to the generic line: a report must not fail to report.
+  }
+  const custom = customFailureRenderer(error, options);
+  if (custom !== undefined) {
+    const rendered = Result.try(() => [...custom(error), ...spans]);
+    if (Result.isSuccess(rendered)) return rendered.success;
+    // Likewise, a failed custom renderer falls through.
+  }
+  return undefined;
+};
+
 const failBlocks: {
   (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): ReadonlyArray<Block>;
   (spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): (error: unknown) => ReadonlyArray<Block>;
 } = dual(
   3,
   (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): ReadonlyArray<Block> => {
-    if (hasCliDoc(error)) {
-      const rendered = Result.try(() => [...error[CliDoc](), ...spans]);
-      if (Result.isSuccess(rendered)) return rendered.success;
-      // A document that cannot be built falls through to the generic line: a report must not fail to report.
-    }
-    const tag = tagOf(error);
-    const custom =
-      tag === undefined || options?.render === undefined || !R.has(options.render, tag)
-        ? undefined
-        : options.render[tag];
-    if (custom !== undefined) {
-      const rendered = Result.try(() => [...custom(error), ...spans]);
-      if (Result.isSuccess(rendered)) return rendered.success;
-      // Likewise, a failed custom renderer falls through.
-    }
+    const rendered = renderFailureOverride(error, spans, options);
+    if (rendered !== undefined) return rendered;
     if (S.is(Cancelled)(error) || S.is(NotInteractive)(error)) return [Doc.paragraph(error.message)];
     const schema = schemaBlocks(error);
     if (schema !== undefined) return [...schema, ...spans];
@@ -442,6 +454,21 @@ const spanFile = (frame: { readonly stack: () => string | undefined }): string |
  * are one entry, `name`, judged by the definition's site, so a kit function the program calls goes with its
  * definition.
  */
+const showSpan = (mode: "app" | "all", file: string | undefined, appDir: string | undefined): boolean =>
+  mode === "all" || file === undefined || isAppFile(file, appDir) || !isKitFile(file);
+
+const spanStep = (frame: typeof Cause.StackTrace.Service, mode: "app" | "all", appDir: string | undefined) => {
+  const name = frame.name;
+  const parent = frame.parent;
+  const definition = O.getOrUndefined(
+    O.filter(O.fromUndefinedOr(parent), (candidate) => candidate.name === `${name} (definition)`)
+  );
+  const file = (definition === undefined ? undefined : spanFile(definition)) ?? spanFile(frame);
+  const visible = showSpan(mode, file, appDir);
+  // A call and its definition are one entry, `X`, never `X (definition) › X`: the definition is skipped.
+  return { visible, next: definition === undefined ? parent : definition.parent };
+};
+
 const spanBlocks: {
   (reason: CauseType.Reason<unknown>, mode: "app" | "all" | "off", appDir: string | undefined): ReadonlyArray<Block>;
   (
@@ -459,15 +486,12 @@ const spanBlocks: {
     const names: Array<string> = [];
     let frame = Context.getOrUndefined(Cause.reasonAnnotations(reason), Cause.StackTrace);
     for (let seen = 0; frame !== undefined && seen < MAX_SPANS; seen++) {
-      const parent = frame.parent;
-      const definition = parent !== undefined && parent.name === `${frame.name} (definition)` ? parent : undefined;
-      const file = (definition === undefined ? undefined : spanFile(definition)) ?? spanFile(frame);
-      if (mode === "all" || file === undefined || isAppFile(file, appDir) || !isKitFile(file)) names.push(frame.name);
-      // A call and its definition are one entry, `X`, never `X (definition) › X`: the definition is skipped.
-      frame = definition === undefined ? parent : definition.parent;
+      const step = spanStep(frame, mode, appDir);
+      if (step.visible) names.push(frame.name);
+      frame = step.next;
     }
     if (names.length === 0) return [];
-    return [Doc.paragraph(Doc.text("in: ", "muted"), Doc.path(...names.reverse()))];
+    return [Doc.paragraph(Doc.text("in: ", "muted"), Doc.path(...A.reverse(names)))];
   }
 );
 

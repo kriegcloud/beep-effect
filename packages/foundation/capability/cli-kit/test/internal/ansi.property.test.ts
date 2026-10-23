@@ -56,21 +56,27 @@ it.effect.prop(
 const cubeLevels = [0, 95, 135, 175, 215, 255] as const;
 const distance = (left: readonly [number, number, number], right: readonly [number, number, number]) =>
   (left[0] - right[0]) ** 2 + (left[1] - right[1]) ** 2 + (left[2] - right[2]) ** 2;
+const palette = (): ReadonlyArray<readonly [number, readonly [number, number, number]]> => {
+  const colors: Array<readonly [number, readonly [number, number, number]]> = [];
+  for (const [r, red] of A.zip(A.range(0, cubeLevels.length - 1), cubeLevels)) {
+    for (const [g, green] of A.zip(A.range(0, cubeLevels.length - 1), cubeLevels)) {
+      for (const [b, blue] of A.zip(A.range(0, cubeLevels.length - 1), cubeLevels))
+        colors.push([16 + 36 * r + 6 * g + b, [red, green, blue]]);
+    }
+  }
+  for (let step = 0; step < 24; step++) {
+    const gray = 8 + 10 * step;
+    colors.push([232 + step, [gray, gray, gray]]);
+  }
+  return colors;
+};
+
 it.effect.prop(
   "256-color formatting selects the minimum RGB distance over the complete cube and gray ramp",
   [Arbitrary.schema(rgb)],
   ([value]) =>
     Effect.sync(() => {
-      const colors: Array<readonly [number, readonly [number, number, number]]> = [];
-      for (const [r, red] of cubeLevels.entries()) {
-        for (const [g, green] of cubeLevels.entries()) {
-          for (const [b, blue] of cubeLevels.entries()) colors.push([16 + 36 * r + 6 * g + b, [red, green, blue]]);
-        }
-      }
-      for (let step = 0; step < 24; step++) {
-        const gray = 8 + 10 * step;
-        colors.push([232 + step, [gray, gray, gray]]);
-      }
+      const colors = palette();
       const index = nearest256(value);
       const selected = O.getOrUndefined(A.findFirst(colors, ([candidate]) => candidate === index));
       if (selected === undefined) return assert.fail("formatter returned an index outside its palettes");

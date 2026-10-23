@@ -43,6 +43,9 @@ const CURATED: ReadonlyArray<readonly [label: string, text: string]> = [
   ["Hangul filler", "한\u3164글"],
 ];
 
+const skipsCodePoint = (cp: number): boolean =>
+  (cp >= 0xd800 && cp <= 0xdfff) || cp === 0x1b || (cp >= 0x1f1e6 && cp <= 0x1f1ff);
+
 describe("displayWidth against string-width", () => {
   it("the oracle is the version the decision was measured against", () => {
     // 7.2.0 said 2 for a bare U+26A0 and 8.3.0 says 1; if this flips, string-width drifted and the sweep below
@@ -72,9 +75,8 @@ describe("displayWidth against string-width", () => {
     const mismatches: string[] = [];
     let checked = 0;
     for (let cp = 0; cp <= 0x10ffff; cp++) {
-      if ((cp >= 0xd800 && cp <= 0xdfff) || cp === 0x1b) continue;
       // Documented divergence: a lone regional indicator is 1 for the oracle and 2 here.
-      if (cp >= 0x1f1e6 && cp <= 0x1f1ff) continue;
+      if (skipsCodePoint(cp)) continue;
       const ch = String.fromCodePoint(cp);
       if (!assigned.test(ch)) continue;
       checked++;

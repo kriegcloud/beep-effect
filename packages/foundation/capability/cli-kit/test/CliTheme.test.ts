@@ -289,22 +289,31 @@ const NAMES: Readonly<Record<number, NamedColor | undefined>> = {
 
 const ESC = String.fromCharCode(0x1b);
 
+type MutableStyle = { -readonly [K in keyof Style]: Style[K] };
+
+const applyCode = (style: MutableStyle, code: number): void => {
+  if (code === 1) style.bold = true;
+  else if (code === 2) style.dim = true;
+  else if (code === 3) style.italic = true;
+  else if (code === 4) style.underline = true;
+  else if (NAMES[code] !== undefined) style.fg = NAMES[code];
+};
+
+const applyParams = (style: MutableStyle, parts: ReadonlyArray<number>): void => {
+  if (parts[0] === 38 && parts[1] === 2) {
+    const hex = (n: number | undefined) => Str.padStart(2, "0")((n ?? 0).toString(16));
+    style.fg = `#${hex(parts[2])}${hex(parts[3])}${hex(parts[4])}`;
+  } else if (parts.length === 1 && parts[0] !== undefined) {
+    applyCode(style, parts[0]);
+  }
+};
+
 const decode = (painted: string): Style => {
   const style: { -readonly [K in keyof Style]: Style[K] } = {};
   const opens = A.map([...Str.matchAll(new RegExp(`${ESC}\\[([0-9;]+)m`, "g"))(painted)], (match) => match[1] ?? "");
   for (const params of opens) {
     const parts = pipe(params, Str.split(";"), A.map(Number));
-    if (parts[0] === 38 && parts[1] === 2) {
-      const hex = (n: number | undefined) => Str.padStart(2, "0")((n ?? 0).toString(16));
-      style.fg = `#${hex(parts[2])}${hex(parts[3])}${hex(parts[4])}`;
-    } else if (parts.length === 1 && parts[0] !== undefined) {
-      const code = parts[0];
-      if (code === 1) style.bold = true;
-      else if (code === 2) style.dim = true;
-      else if (code === 3) style.italic = true;
-      else if (code === 4) style.underline = true;
-      else if (NAMES[code] !== undefined) style.fg = NAMES[code];
-    }
+    applyParams(style, parts);
   }
   return style;
 };

@@ -5,6 +5,7 @@ import { stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as Match from "effect/Match";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
@@ -44,51 +45,61 @@ export const contextOf = (overrides: Partial<RenderContext> = {}): Effect.Effect
     return ctx;
   }).pipe(Effect.provide(CliTheme.layerTest({ color: "truecolor" })));
 
+const closes: Record<string, string> = { "39": "fg", "22": "weight", "23": "italic", "24": "underline", "49": "bg" };
+
+const sgrKind = (param: string): string =>
+  Match.value(param).pipe(
+    Match.when("1", () => "weight"),
+    Match.when("2", () => "weight"),
+    Match.when("3", () => "italic"),
+    Match.when("4", () => "underline"),
+    Match.orElse(() => "fg")
+  );
+
+const addSgr = (active: ReadonlyArray<string>, kind: string): ReadonlyArray<string> =>
+  A.contains(active, kind) ? active : [...active, kind];
+
+const replaySgr = (param: string, active: ReadonlyArray<string>, problems: string[]): ReadonlyArray<string> => {
+  if (param === "" || param === "0") return [];
+  if (!(param in closes)) return addSgr(active, sgrKind(param));
+  const kind = closes[param];
+  if (kind === undefined) return active;
+  if (!A.contains(active, kind)) problems.push(`stray closer ${param}`);
+  return A.filter(active, (entry) => entry !== kind);
+};
+
 /** Replays SGR by its meaning: every closer must close something open, and nothing may stay open. */
 export const sgrProblems = (text: string): ReadonlyArray<string> => {
   const problems: Array<string> = [];
-  const active = new Set<string>();
-  const closes: Record<string, string> = { "39": "fg", "22": "weight", "23": "italic", "24": "underline", "49": "bg" };
+  let active: ReadonlyArray<string> = [];
   for (const match of Str.matchAll(SGR)(text)) {
-    const param = match[1] ?? "";
-    if (param === "" || param === "0") {
-      active.clear();
-    } else if (param in closes) {
-      const kind = closes[param];
-      if (kind === undefined) continue;
-      if (!active.delete(kind)) problems.push(`stray closer ${param}`);
-    } else if (param === "1" || param === "2") active.add("weight");
-    else if (param === "3") active.add("italic");
-    else if (param === "4") active.add("underline");
-    else active.add("fg");
+    active = replaySgr(match[1] ?? "", active, problems);
   }
-  if (active.size > 0) problems.push(`left open: ${A.join([...active], ",")}`);
+  if (active.length > 0) problems.push(`left open: ${A.join(active, ",")}`);
   return problems;
+};
+
+const readLink = (
+  text: string,
+  match: RegExpMatchArray,
+  state: { open: boolean; pairs: number; balanced: boolean; wrapped: string; last: number }
+): void => {
+  const before = Str.slice(state.last, match.index)(text);
+  if (state.open) state.wrapped += before;
+  state.last = (match.index ?? 0) + A.getUnsafe(match, 0).length;
+  const opens = (match[1] ?? "") !== "";
+  if (state.open === opens) state.balanced = false;
+  state.open = opens;
+  if (opens) state.pairs++;
 };
 
 /** The hyperlinks of a string, in order: a non-empty target opens one, an empty target closes it. */
 export const linksOf = (
   text: string
 ): { readonly pairs: number; readonly wrapped: string; readonly balanced: boolean } => {
-  let open = false;
-  let pairs = 0;
-  let balanced = true;
-  let wrapped = "";
-  let last = 0;
-  for (const match of Str.matchAll(OSC8)(text)) {
-    const before = Str.slice(last, match.index)(text);
-    if (open) wrapped += before;
-    last = (match.index ?? 0) + match[0].length;
-    if ((match[1] ?? "") !== "") {
-      if (open) balanced = false;
-      open = true;
-      pairs++;
-    } else {
-      if (!open) balanced = false;
-      open = false;
-    }
-  }
-  return { pairs, wrapped: stripAnsi(wrapped), balanced: balanced && !open };
+  const state = { open: false, pairs: 0, balanced: true, wrapped: "", last: 0 };
+  for (const match of Str.matchAll(OSC8)(text)) readLink(text, match, state);
+  return { pairs: state.pairs, wrapped: stripAnsi(state.wrapped), balanced: state.balanced && !state.open };
 };
 
 const TOKEN_IDS: Readonly<Record<string, number>> = {
@@ -117,6 +128,9 @@ export const tokenPaint: {
 
 const TOKEN_RUN = /\u001B\[38;5;(\d+)m([^\u001B]*)\u001B\[39m/g;
 
+const tokenName = (names: Record<string, string>, id: string | undefined): string =>
+  names[id ?? ""] ?? (id === "100" ? "style" : "?");
+
 /** The tokens of a `tokenPaint` string, in order, as `[token, text]`; unpainted text is `[undefined, text]`. */
 export const decodeTokens = (painted: string): ReadonlyArray<readonly [string | undefined, string]> => {
   const names = R.fromEntries(A.map(R.toEntries(TOKEN_IDS), ([name, id]) => [String(id), name] as const));
@@ -126,7 +140,7 @@ export const decodeTokens = (painted: string): ReadonlyArray<readonly [string | 
     // A matchAll match always carries its index; the type does not say so.
     const at = match.index ?? last;
     if (at > last) out.push([undefined, Str.slice(last, at)(painted)]);
-    out.push([names[match[1] ?? ""] ?? (match[1] === "100" ? "style" : "?"), match[2] ?? ""]);
+    out.push([tokenName(names, match[1]), match[2] ?? ""]);
     last = at + match[0].length;
   }
   if (last < painted.length) out.push([undefined, Str.slice(last)(painted)]);

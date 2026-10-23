@@ -291,6 +291,14 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       readonly via?: "runWith" | "core";
     }
 
+    const terminalFixture = (facts: Facts, fixtures: typeof Fixtures.Service) => {
+      if (facts.stdin) return facts.stdout ? fixtures.tt : fixtures.tf;
+      return facts.stdout ? fixtures.ft : fixtures.ff;
+    };
+
+    const wizardFixture = (facts: Facts, fixtures: typeof Fixtures.Service, builtIns: RunUnderOptions["builtIns"]) =>
+      builtIns === undefined ? (facts.ambient ? fixtures.gateHuman : fixtures.gateQuiet) : fixtures.gateConsumer;
+
     const runUnder = Effect.fn("runUnder")(function* (
       facts: Facts,
       argv: ReadonlyArray<string>,
@@ -301,7 +309,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       const terminal = yield* TestTerminal.make();
       yield* terminal.input([{ name: "down" }, { name: "enter" }]);
       // Core's wizard keeps reading until the input ends; ending it quits the wizard instead of hanging.
-      if (endInput) yield* terminal.end;
+      if (endInput === true) yield* terminal.end;
       const { double, out, err } = capturing();
       const program =
         via === "runWith"
@@ -320,19 +328,13 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
       }).pipe(
         Effect.exit,
         Effect.provideService(Console.Console, double),
-        gateWizard
-          ? Effect.provideContext(
-              builtIns === undefined ? (facts.ambient ? fixtures.gateHuman : fixtures.gateQuiet) : fixtures.gateConsumer
-            )
-          : (self) => self,
+        gateWizard === true ? Effect.provideContext(wizardFixture(facts, fixtures, builtIns)) : (self) => self,
         // The consumer's own config, provided under the gate: it filters whatever `builtIns` it finds.
         builtIns === undefined
           ? (self) => self
           : Effect.provideService(CliConfig.CliConfig, CliConfig.make({ builtIns })),
         Effect.provideService(CliInteractive, facts.ambient),
-        Effect.provideContext(
-          facts.stdin ? (facts.stdout ? fixtures.tt : fixtures.tf) : facts.stdout ? fixtures.ft : fixtures.ff
-        ),
+        Effect.provideContext(terminalFixture(facts, fixtures)),
         Effect.provideService(Audience, AudienceShape.make({ kind: facts.detected, source: "detected" })),
         Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env))
       );

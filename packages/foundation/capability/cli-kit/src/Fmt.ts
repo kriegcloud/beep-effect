@@ -61,6 +61,21 @@ const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
 export const sanitize = (input: string): string =>
   pipe(stripAnsi(input), Str.replace(/\t/g, " "), Str.replace(CONTROL, ""));
 
+const truncationLimit = (width: number): number =>
+  Number.isFinite(width) ? Math.floor(width) : width === Number.POSITIVE_INFINITY ? Number.POSITIVE_INFINITY : 0;
+
+const takeGraphemes = (plain: string, budget: number): string => {
+  let out = "";
+  let used = 0;
+  for (const grapheme of graphemes(plain)) {
+    const w = displayWidth(grapheme);
+    if (used + w > budget) break;
+    out += grapheme;
+    used += w;
+  }
+  return out;
+};
+
 /**
  * Small, pure formatting primitives for terminal output.
  *
@@ -150,11 +165,7 @@ export abstract class Fmt {
   } = dual(
     (args) => P.isString(args[0]),
     (text: string, width: number, options?: TruncateOptions): string => {
-      const limit = Number.isFinite(width)
-        ? Math.floor(width)
-        : width === Number.POSITIVE_INFINITY
-          ? Number.POSITIVE_INFINITY
-          : 0;
+      const limit = truncationLimit(width);
       if (limit <= 0) return "";
       if (displayWidth(text) <= limit) return text;
 
@@ -164,14 +175,7 @@ export abstract class Fmt {
       const useEllipsis = ellipsisWidth <= limit && ellipsis !== "";
       const budget = useEllipsis ? limit - ellipsisWidth : limit;
 
-      let out = "";
-      let used = 0;
-      for (const grapheme of graphemes(plain)) {
-        const w = displayWidth(grapheme);
-        if (used + w > budget) break;
-        out += grapheme;
-        used += w;
-      }
+      const out = takeGraphemes(plain, budget);
       return useEllipsis ? `${out}${ellipsis}` : out;
     }
   );

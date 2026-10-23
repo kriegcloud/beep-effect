@@ -130,6 +130,59 @@ const FALSE_WORDS: ReadonlyArray<string> = ["false", "no", "off", "0", "n"];
 
 const isKind = S.is(AudienceKind);
 
+const booleanValue = (value: string | undefined): boolean | undefined => {
+  if (value === undefined) return undefined;
+  if (A.contains(TRUE_WORDS, value)) return true;
+  if (A.contains(FALSE_WORDS, value)) return false;
+  return undefined;
+};
+
+const audienceValue = (argv: ReadonlyArray<string>, index: number, inline: string | undefined) => {
+  if (inline !== undefined) return { value: inline, index };
+  const next = A.get(argv, index + 1).pipe(O.getOrUndefined);
+  return next !== undefined && !Str.startsWith("-")(next)
+    ? { value: next, index: index + 1 }
+    : { value: undefined, index };
+};
+
+const scanBoolean = (
+  argv: ReadonlyArray<string>,
+  index: number,
+  inline: string | undefined,
+  values: boolean[]
+): number => {
+  if (inline !== undefined) {
+    const parsed = booleanValue(inline);
+    if (parsed !== undefined) values.push(parsed);
+    return index;
+  }
+  const parsed = booleanValue(A.get(argv, index + 1).pipe(O.getOrUndefined));
+  values.push(parsed ?? true);
+  return parsed === undefined ? index : index + 1;
+};
+
+const scanFlag = (
+  argv: ReadonlyArray<string>,
+  index: number,
+  audience: AudienceKind[],
+  booleans: Record<AudienceKind, boolean[]>
+): number => {
+  const token = A.getUnsafe(argv, index);
+  if (!Str.startsWith("--")(token)) return index;
+  const equals = Str.indexOf("=")(token);
+  const name = O.match(equals, { onNone: () => Str.slice(2)(token), onSome: (at) => Str.slice(2, at)(token) });
+  const inline = O.getOrUndefined(O.map(equals, (at) => Str.slice(at + 1)(token)));
+  if (name === "audience") {
+    const parsed = audienceValue(argv, index, inline);
+    if (parsed.value !== undefined && isKind(parsed.value)) audience.push(parsed.value);
+    return parsed.index;
+  }
+  if (isKind(name)) return scanBoolean(argv, index, inline, booleans[name]);
+  const negated = Str.slice(3)(name);
+  if (Str.startsWith("no-")(name) && isKind(negated)) booleans[negated].push(false);
+  return index;
+};
+
 /**
  * Read the audience flags straight out of `argv`, the way core will parse them later.
  *
@@ -158,53 +211,9 @@ const isKind = S.is(AudienceKind);
 export const scanAudience = (argv: ReadonlyArray<string>): AudienceTally => {
   const audience: AudienceKind[] = [];
   const booleans: Record<AudienceKind, boolean[]> = { human: [], agent: [], ci: [] };
-  const isBoolean = S.is(AudienceKind);
-
   for (let index = 0; index < argv.length; index++) {
-    const token = A.getUnsafe(argv, index);
-    if (token === "--") break;
-    if (!Str.startsWith("--")(token)) continue;
-    const equals = Str.indexOf("=")(token);
-    const name = O.match(equals, { onNone: () => Str.slice(2)(token), onSome: (at) => Str.slice(2, at)(token) });
-    const inline = O.getOrUndefined(O.map(equals, (at) => Str.slice(at + 1)(token)));
-
-    if (name === "audience") {
-      let value = inline;
-      if (value === undefined) {
-        const next = argv[index + 1];
-        // A following token that looks like a flag is not the value: core reports the value as missing.
-        if (next !== undefined && !Str.startsWith("-")(next)) {
-          value = next;
-          index++;
-        }
-      }
-      if (value !== undefined && isKind(value)) audience.push(value);
-      continue;
-    }
-
-    if (isBoolean(name)) {
-      if (inline !== undefined) {
-        if (TRUE_WORDS.includes(inline)) booleans[name].push(true);
-        else if (FALSE_WORDS.includes(inline)) booleans[name].push(false);
-        continue;
-      }
-      const next = argv[index + 1];
-      if (next !== undefined && TRUE_WORDS.includes(next)) {
-        booleans[name].push(true);
-        index++;
-      } else if (next !== undefined && FALSE_WORDS.includes(next)) {
-        booleans[name].push(false);
-        index++;
-      } else {
-        booleans[name].push(true);
-      }
-      continue;
-    }
-
-    const negated = Str.slice(3)(name);
-    if (Str.startsWith("no-")(name) && isBoolean(negated)) {
-      booleans[negated].push(false);
-    }
+    if (A.getUnsafe(argv, index) === "--") break;
+    index = scanFlag(argv, index, audience, booleans);
   }
 
   return tallyAudience({ audience, ...booleans });

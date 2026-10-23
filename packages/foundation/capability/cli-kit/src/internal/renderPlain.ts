@@ -1,7 +1,7 @@
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
-import { flatten } from "./layout.ts";
-import { renderDocLines, showsSuffix, targetText } from "./renderDoc.ts";
+import { inlineSpans } from "./inlineSpans.ts";
+import { renderDocLines } from "./renderDoc.ts";
 import type { Document, Inline } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
@@ -27,26 +27,17 @@ import type { Flavour, Line } from "./renderDoc.ts";
 export const plainInline: {
   (ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
   (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
-} = dual(2, (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> => {
-  const flat = flatten(inlines, ctx);
-  const out: Array<Span> = [];
-  let i = 0;
-  while (i < flat.length) {
-    const link = A.getUnsafe(flat, i).link;
-    let label = "";
-    do {
-      const span = A.getUnsafe(flat, i);
-      label += span.text;
-      out.push({ text: span.code === true ? `\`${span.text}\`` : span.text });
-      i++;
-    } while (link !== undefined && i < flat.length && A.getUnsafe(flat, i).link === link);
-    if (link !== undefined) {
-      const target = targetText(link, ctx);
-      if (showsSuffix(A.getUnsafe(flat, i - 1).suffix, label, target)) out.push({ text: ` (${target})` });
-    }
-  }
-  return out;
-});
+} = dual(
+  2,
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
+    inlineSpans(
+      inlines,
+      ctx,
+      (span) => ({ text: span.code === true ? `\`${span.text}\`` : span.text }),
+      () => true,
+      (target) => ({ text: ` (${target})` })
+    )
+);
 
 const plain: Flavour = {
   inline: plainInline,

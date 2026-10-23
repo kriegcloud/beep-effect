@@ -309,6 +309,32 @@ const cellOf: {
   });
 });
 
+/**
+ * The columns and capped row window shared by text and Markdown tables.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const tableWindow = (block: Extract<Block, { readonly _tag: "Table" }>) => {
+  const columns = Math.max(block.columns.length, ...A.map(block.rows, (row) => row.length));
+  const cap = capOf(block.cap);
+  const shown = cap === undefined ? block.rows : A.take(block.rows, cap);
+  return { columns, shown, hidden: block.rows.length - shown.length };
+};
+
+/**
+ * A capped text window with its omitted line count.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const textWindow: {
+  (text: string, cap: number | undefined): { readonly shown: ReadonlyArray<string>; readonly hidden: number };
+  (cap: number | undefined): (text: string) => { readonly shown: ReadonlyArray<string>; readonly hidden: number };
+} = dual(2, (text: string, cap: number | undefined) => {
+  const lines = textLines(text);
+  const shown = cap === undefined ? lines : A.take(lines, cap);
+  return { shown, hidden: lines.length - shown.length };
+});
+
 type TableBlock = Extract<Block, { readonly _tag: "Table" }>;
 type TreeBlock = Extract<Block, { readonly _tag: "Tree" }>;
 type CountsBlock = Extract<Block, { readonly _tag: "Counts" }>;
@@ -317,14 +343,11 @@ const tableLines: {
   (walk: Walk, block: TableBlock, width: number): ReadonlyArray<Line>;
   (block: TableBlock, width: number): (walk: Walk) => ReadonlyArray<Line>;
 } = dual(3, (walk: Walk, block: TableBlock, width: number): ReadonlyArray<Line> => {
-  const columns = Math.max(block.columns.length, ...A.map(block.rows, (row) => row.length));
+  const { columns, shown, hidden } = tableWindow(block);
   if (columns === 0) return [];
-  const cap = capOf(block.cap);
-  const shown = cap === undefined ? block.rows : block.rows.slice(0, cap);
   const header = A.makeBy(columns, (index) => toned(cellOf(walk, block.columns[index]?.header), "emphasis"));
   const body = A.map(shown, (row) => A.makeBy(columns, (index) => cellOf(walk, row[index])));
   const showHeader = A.some(header, (cell) => cell.length > 0);
-  const hidden = block.rows.length - shown.length;
   // No header text and no row shown, such as a counts table over zero projects: nothing to draw but the overflow line.
   if (!showHeader && body.length === 0) return hidden > 0 ? [overflowLine(walk, block.overflow, hidden)] : [];
 
@@ -333,7 +356,7 @@ const tableLines: {
   );
   shrink(widths, width);
 
-  const render = (row: ReadonlyArray<Line>): Line =>
+  const render = (row: ReadonlyArray<Line>, separator: string): Line =>
     trimLine(
       joinCells(
         A.map(row, (cell, index) => {
@@ -341,7 +364,7 @@ const tableLines: {
           const cut = widthOf(cell) > columnWidth ? truncateSpans(cell, columnWidth, walk.ctx.glyphs.ellipsis) : cell;
           return pad(cut, columnWidth, block.columns[index]?.align ?? "left");
         }),
-        "  "
+        separator
       )
     );
   const rule: Line = joinCells(
@@ -349,7 +372,7 @@ const tableLines: {
     "  "
   );
 
-  if (block.style === "pipe") {
+  const pipeTable = (): ReadonlyArray<Line> => {
     // Istanbul's shape: each cell padded and joined with " | ", and a rule of dashes meeting at "|" above and
     // below the header and at the end.
     // The first column's rule has the cell and the space after it; every other has a space on each side.
@@ -363,21 +386,15 @@ const tableLines: {
         "muted"
       ),
     ];
-    const pipeRow = (row: ReadonlyArray<Line>): Line =>
-      trimLine(
-        joinCells(
-          A.map(row, (cell, index) => {
-            const columnWidth = A.getUnsafe(widths, index);
-            const cut = widthOf(cell) > columnWidth ? truncateSpans(cell, columnWidth, walk.ctx.glyphs.ellipsis) : cell;
-            return pad(cut, columnWidth, block.columns[index]?.align ?? "left");
-          }),
-          " | "
-        )
-      );
+    const pipeRow = (row: ReadonlyArray<Line>): Line => render(row, " | ");
     const piped = [...(showHeader ? [pipeRule, pipeRow(header)] : []), pipeRule, ...A.map(body, pipeRow), pipeRule];
     return hidden > 0 ? [...piped, overflowLine(walk, block.overflow, hidden)] : piped;
+  };
+
+  if (block.style === "pipe") {
+    return pipeTable();
   }
-  const lines = [...(showHeader ? [render(header), rule] : []), ...A.map(body, render)];
+  const lines = [...(showHeader ? [render(header, "  "), rule] : []), ...A.map(body, (row) => render(row, "  "))];
   return hidden > 0 ? [...lines, overflowLine(walk, block.overflow, hidden)] : lines;
 });
 
@@ -408,9 +425,7 @@ const diffSide: {
   (walk: Walk, marker: string, token: Tone, text: string, cap: number | undefined): ReadonlyArray<Line>;
   (marker: string, token: Tone, text: string, cap: number | undefined): (walk: Walk) => ReadonlyArray<Line>;
 } = dual(5, (walk: Walk, marker: string, token: Tone, text: string, cap: number | undefined): ReadonlyArray<Line> => {
-  const lines = textLines(text);
-  const shown = cap === undefined ? lines : lines.slice(0, cap);
-  const hidden = lines.length - shown.length;
+  const { shown, hidden } = textWindow(text, cap);
   return [
     ...A.map(shown, (line) => trimLine([span(`${marker} ${line}`, token)])),
     ...(hidden > 0 ? [[span(`  ${walk.ctx.glyphs.ellipsis} ${hidden} more lines`, "muted")]] : []),
@@ -454,16 +469,44 @@ const countsLines: {
   (block: CountsBlock): (walk: Walk) => ReadonlyArray<Line>;
 } = dual(2, (walk: Walk, block: CountsBlock): ReadonlyArray<Line> => keepPaint(block.paint, countsLayout(walk, block)));
 
+const countsColumns = (
+  visible: ReturnType<typeof visibleCountersOf>,
+  nameOf: (counter: ReturnType<typeof visibleCountersOf>[number]) => string,
+  label: Line,
+  qualifier: Line,
+  duration: string,
+  suffix: Line
+): ReadonlyArray<Line> => {
+  const labelWidth = Math.max(0, ...A.map(visible, (counter) => widthOf([span(nameOf(counter))])));
+  const numberWidth = Math.max(0, ...A.map(visible, (counter) => String(counter.n).length));
+  return [
+    ...(label.length === 0 ? [] : [label]),
+    ...A.map(visible, (counter) =>
+      trimLine([
+        ...pad([span(nameOf(counter), counter.status.def.token)], labelWidth, "left"),
+        span("  "),
+        ...pad([span(String(counter.n), counter.status.def.token)], numberWidth, "right"),
+      ])
+    ),
+    ...(qualifier.length === 0 ? [] : [qualifier]),
+    ...(duration === "" ? [] : [[span(duration, "muted")]]),
+    ...(suffix.length === 0 ? [] : [suffix]),
+  ];
+};
+
+const countsPart = (walk: Walk, value: ReadonlyArray<Inline> | undefined, tone: Tone): Line =>
+  value === undefined ? [] : toned(oneLine(inline(walk, value)), tone);
+
 const countsLayout: {
   (walk: Walk, block: CountsBlock): ReadonlyArray<Line>;
   (block: CountsBlock): (walk: Walk) => ReadonlyArray<Line>;
 } = dual(2, (walk: Walk, block: CountsBlock): ReadonlyArray<Line> => {
   const visible = visibleCountersOf(block);
   const total = totalOf(block);
-  const label = block.label === undefined ? [] : toned(oneLine(inline(walk, block.label)), "emphasis");
-  const qualifier = block.qualifier === undefined ? [] : toned(oneLine(inline(walk, block.qualifier)), "muted");
+  const label = countsPart(walk, block.label, "emphasis");
+  const qualifier = countsPart(walk, block.qualifier, "muted");
   const duration = block.durationMs === undefined ? "" : Fmt.duration(block.durationMs);
-  const suffix = block.suffix === undefined ? [] : toned(oneLine(inline(walk, block.suffix)), "muted");
+  const suffix = countsPart(walk, block.suffix, "muted");
   // A counter's label is one line, like the block's own label: a line break in it would start a line of its own.
   type Counter = (typeof visible)[number];
   const nameOf: {
@@ -490,21 +533,7 @@ const countsLayout: {
     ];
   }
   if (block.layout === "columns") {
-    const labelWidth = Math.max(0, ...A.map(visible, (counter) => widthOf([span(nameOf(counter))])));
-    const numberWidth = Math.max(0, ...A.map(visible, (counter) => String(counter.n).length));
-    return [
-      ...(label.length === 0 ? [] : [label]),
-      ...A.map(visible, (counter) =>
-        trimLine([
-          ...pad([span(nameOf(counter), counter.status.def.token)], labelWidth, "left"),
-          span("  "),
-          ...pad([span(String(counter.n), counter.status.def.token)], numberWidth, "right"),
-        ])
-      ),
-      ...(qualifier.length === 0 ? [] : [qualifier]),
-      ...(duration === "" ? [] : [[span(duration, "muted")]]),
-      ...(suffix.length === 0 ? [] : [suffix]),
-    ];
+    return countsColumns(visible, nameOf, label, qualifier, duration, suffix);
   }
   const head = label.length === 0 ? [] : [...label, span(":")];
   const tally = joinChunks(counters, ", ");

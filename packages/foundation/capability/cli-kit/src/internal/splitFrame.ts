@@ -7,6 +7,26 @@ const isTerminator = (ch: string | undefined): boolean => ch === "\n" || ch === 
 /** One UTF-16 unit of JavaScript's `\s`; every character `\s` matches is in the BMP. */
 const isSpace = (ch: string | undefined): boolean => ch !== undefined && /\s/.test(ch);
 
+const terminatorsOf = (text: string) => {
+  let firstTerminator = -1;
+  let lastTerminator = -1;
+  for (let i = 0; i < text.length; i++) {
+    if (!isTerminator(text[i])) continue;
+    if (firstTerminator === -1) firstTerminator = i;
+    lastTerminator = i;
+  }
+  return { firstTerminator, lastTerminator };
+};
+
+const spaceEnd = (text: string, start: number): number => {
+  let end = start;
+  while (isSpace(text[end])) end++;
+  return end;
+};
+
+const isLocationStart = (text: string, at: number, lastTerminator: number): boolean =>
+  text[at] === "(" && at <= text.length - 2 && lastTerminator < at;
+
 /**
  * A frame text split as `fn (location)`: at the FIRST whitespace run followed by `(`, when the text ends with `)`.
  *
@@ -17,15 +37,11 @@ const isSpace = (ch: string | undefined): boolean => ch !== undefined && /\s/.te
  * (an `eval` frame's `eval at <anonymous> (file:1:2), <anonymous>:1:1`). As with the regular expression, neither the
  * function nor the location may hold a line terminator, though the whitespace between them may.
  */
+const terminatorBefore = (first: number, at: number): boolean => first !== -1 && first < at;
+
 const wrappedFrame = (text: string): { readonly fn: string; readonly location: string } | undefined => {
   if (!Str.endsWith(")")(text)) return undefined;
-  let firstTerminator = -1;
-  let lastTerminator = -1;
-  for (let i = 0; i < text.length; i++) {
-    if (!isTerminator(text[i])) continue;
-    if (firstTerminator === -1) firstTerminator = i;
-    lastTerminator = i;
-  }
+  const { firstTerminator, lastTerminator } = terminatorsOf(text);
   let i = 0;
   while (i < text.length) {
     if (!isSpace(text[i])) {
@@ -33,11 +49,10 @@ const wrappedFrame = (text: string): { readonly fn: string; readonly location: s
       continue;
     }
     // The function is everything before this run; once it would hold a terminator, every later one would too.
-    if (firstTerminator !== -1 && firstTerminator < i) return undefined;
-    let j = i;
-    while (isSpace(text[j])) j++;
+    if (terminatorBefore(firstTerminator, i)) return undefined;
+    const j = spaceEnd(text, i);
     // `(` straight after the run, room for the closing `)`, and no terminator inside the location.
-    if (text[j] === "(" && j <= text.length - 2 && lastTerminator < j) {
+    if (isLocationStart(text, j, lastTerminator)) {
       return { fn: Str.slice(0, i)(text), location: Str.slice(j + 1, -1)(text) };
     }
     // Every later start inside this run reaches the same `j` and fails the same way.

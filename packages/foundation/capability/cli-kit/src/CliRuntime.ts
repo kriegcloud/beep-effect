@@ -33,6 +33,7 @@ import {
 import { routeHelpOnUsageError } from "./internal/HelpRouting.ts";
 import { isExitCode } from "./internal/isExitCode.ts";
 import { TrustedLine } from "./internal/logSafety.ts";
+import { provideBuilt } from "./internal/provideBuilt.ts";
 import { NotInteractive } from "./NotInteractive.ts";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
@@ -316,6 +317,11 @@ const chooseExitCode: {
     : (fallback ?? 1)
 );
 
+const renderedExitCode = (error: unknown, usageCode: number): number | undefined => {
+  if (isShowHelp(error)) return error.errors.length > 0 ? usageCode : 0;
+  return isRenderedUserError(error) ? chooseExitCode(error, usageCode) : undefined;
+};
+
 /**
  * Report a CLI program's failures through the program's own logger.
  *
@@ -500,21 +506,8 @@ export abstract class CliRuntime {
             // Command.runWith printed help (stdout) and any parse errors (stderr)
             // BEFORE re-failing with ShowHelp. Rendering it again prints a stray
             // "Help requested" line.
-            if (isShowHelp(error)) {
-              const code = error.errors.length > 0 ? (options.usageExitCode ?? 64) : 0;
-              return yield* Effect.fail(CliRuntime.reported(error, code));
-            }
-
-            // Command.runWith rendered a UserError through the CliOutput formatter
-            // and flipped its mark to false before re-failing. Rendering it again
-            // prints the same complaint twice. A UserError is a usage error, so it
-            // exits like a ShowHelp carrying errors, unless it carries a code of
-            // its own (CliRuntime.reported(userError, 3)), which it keeps. With
-            // runWith's `renderErrors: false` the mark stays true and it renders
-            // below.
-            if (isRenderedUserError(error)) {
-              return yield* Effect.fail(CliRuntime.reported(error, chooseExitCode(error, options.usageExitCode ?? 64)));
-            }
+            const alreadyRendered = renderedExitCode(error, options.usageExitCode ?? 64);
+            if (alreadyRendered !== undefined) return yield* Effect.fail(CliRuntime.reported(error, alreadyRendered));
 
             const render = options.render;
 
@@ -724,25 +717,11 @@ export abstract class CliRuntime {
       }
       if (code !== 0) return yield* ExitRequested.make({ code });
     }).pipe(
-      (self) =>
-        Effect.scopedWith((scope) =>
-          Effect.flatMap(Layer.buildWithScope(CliExit.layer, scope), (context) => Effect.provideContext(self, context))
-        ),
-      (self) =>
-        Effect.scopedWith((scope) =>
-          Effect.flatMap(Layer.buildWithScope(inside, scope), (context) => Effect.provideContext(self, context))
-        ),
-      (self) =>
-        Effect.scopedWith((scope) =>
-          Effect.flatMap(Layer.buildWithScope(options.platform, scope), (context) =>
-            Effect.provideContext(self, context)
-          )
-        ),
+      provideBuilt(CliExit.layer),
+      provideBuilt(inside),
+      provideBuilt(options.platform),
       CliRuntime.reportFailures(options),
-      (self) =>
-        Effect.scopedWith((scope) =>
-          Effect.flatMap(Layer.buildWithScope(logger, scope), (context) => Effect.provideContext(self, context))
-        )
+      provideBuilt(logger)
     );
     // One cell per run, outside failure reporting, which the environment layer fills from inside it.
     return Effect.suspend(() =>

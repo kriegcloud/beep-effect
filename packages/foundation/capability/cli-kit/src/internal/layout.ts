@@ -58,12 +58,13 @@ const safeTargetText = (text: string): string => Str.replace(/[\r\n]/g, "")(sani
 const safeTarget = (target: LinkTarget): LinkTarget =>
   // A structural test, so this module needs no runtime edge to Doc.ts (which imports Render, which imports this). A
   // file target may carry `url: undefined` and stays a file target, as the schema decides.
-  P.hasProperty(target, "url") && P.isString(target.url)
-    ? { url: safeTargetText(target.url) }
-    : {
-        file: safeTargetText(target.file),
-        ...O.getSomesStruct({ line: O.fromUndefinedOr(target.line), col: O.fromUndefinedOr(target.col) }),
-      };
+  Match.value(target).pipe(
+    Match.when({ url: P.isString }, (target) => ({ url: safeTargetText(target.url) })),
+    Match.orElse((target) => ({
+      file: safeTargetText(target.file),
+      ...O.getSomesStruct({ line: O.fromUndefinedOr(target.line), col: O.fromUndefinedOr(target.col) }),
+    }))
+  );
 
 const spansOf: {
   (inline: Inline, ctx: RenderContext): ReadonlyArray<Span>;
@@ -200,6 +201,40 @@ const spansFromCells = (cells: ReadonlyArray<Cell>): ReadonlyArray<Span> => {
   return out;
 };
 
+const takeCells = (spans: ReadonlyArray<Span>, budget: number): ReadonlyArray<Span> => {
+  const kept: Array<Cell> = [];
+  let used = 0;
+  for (const cell of cellsOf(spans)) {
+    if (used + cell.width > budget) break;
+    kept.push(cell);
+    used += cell.width;
+  }
+  return spansFromCells(kept);
+};
+
+const appendEllipsis = (
+  out: ReadonlyArray<Span>,
+  spans: ReadonlyArray<Span>,
+  ellipsis: string
+): ReadonlyArray<Span> => {
+  const last = out[out.length - 1];
+  if (last === undefined) {
+    // Nothing but the marker fits: it stands for the whole label, so it keeps the first span's style and link.
+    const first = A.getUnsafe(spans, 0);
+    return [
+      {
+        text: ellipsis,
+        ...O.getSomesStruct({ token: O.fromUndefinedOr(first.token) }),
+        ...O.getSomesStruct({ link: O.fromUndefinedOr(first.link) }),
+      },
+    ];
+  }
+  if (last.code === true) {
+    return [...out, { text: ellipsis, ...O.getSomesStruct({ link: O.fromUndefinedOr(last.link) }) }];
+  }
+  return [...A.dropRight(out, 1), { ...last, text: last.text + ellipsis }];
+};
+
 /**
  * Cut spans to at most `width` columns, marking the cut with `ellipsis`.
  *
@@ -235,32 +270,10 @@ export const truncateSpans: {
   const useEllipsis = ellipsis !== "" && ellipsisWidth <= limit;
   const budget = useEllipsis ? limit - ellipsisWidth : limit;
 
-  const kept: Array<Cell> = [];
-  let used = 0;
-  for (const cell of cellsOf(spans)) {
-    if (used + cell.width > budget) break;
-    kept.push(cell);
-    used += cell.width;
-  }
-  const out = spansFromCells(kept);
+  const out = takeCells(spans, budget);
   if (!useEllipsis) return out;
 
-  const last = out[out.length - 1];
-  if (last === undefined) {
-    // Nothing but the marker fits: it stands for the whole label, so it keeps the first span's style and link.
-    const first = A.getUnsafe(spans, 0);
-    return [
-      {
-        text: ellipsis,
-        ...O.getSomesStruct({ token: O.fromUndefinedOr(first.token) }),
-        ...O.getSomesStruct({ link: O.fromUndefinedOr(first.link) }),
-      },
-    ];
-  }
-  if (last.code === true) {
-    return [...out, { text: ellipsis, ...O.getSomesStruct({ link: O.fromUndefinedOr(last.link) }) }];
-  }
-  return [...out.slice(0, -1), { ...last, text: last.text + ellipsis }];
+  return appendEllipsis(out, spans, ellipsis);
 });
 
 /**
@@ -315,6 +328,19 @@ export const paintSpans: {
 const isLineBreak = (grapheme: string): boolean => grapheme === "\n" || grapheme === "\r\n" || grapheme === "\r";
 
 const cellsWidth = (cells: ReadonlyArray<Cell>): number => A.reduce(cells, 0, (sum, cell) => sum + cell.width);
+
+const wordRun = (cells: ReadonlyArray<Cell>, start: number) => {
+  let i = start;
+  const spaces: Array<Cell> = [];
+  while (i < cells.length && A.getUnsafe(cells, i).grapheme === " ") spaces.push(A.getUnsafe(cells, i++));
+  const word: Array<Cell> = [];
+  while (i < cells.length) {
+    const { grapheme } = A.getUnsafe(cells, i);
+    if (grapheme === " " || isLineBreak(grapheme)) break;
+    word.push(A.getUnsafe(cells, i++));
+  }
+  return { spaces, word, end: i };
+};
 
 /**
  * Options for {@link wrapSpans}.
@@ -371,39 +397,14 @@ export const wrapSpans: {
       used = 0;
     };
 
-    let i = 0;
-    while (i < cells.length) {
-      if (isLineBreak(A.getUnsafe(cells, i).grapheme)) {
-        flush();
-        i++;
-        continue;
-      }
-      const spaces: Array<Cell> = [];
-      while (i < cells.length && A.getUnsafe(cells, i).grapheme === " ") spaces.push(A.getUnsafe(cells, i++));
-      const word: Array<Cell> = [];
-      while (i < cells.length) {
-        const { grapheme } = A.getUnsafe(cells, i);
-        if (grapheme === " " || isLineBreak(grapheme)) break;
-        word.push(A.getUnsafe(cells, i++));
-      }
-      if (word.length === 0) continue;
-
-      // Every overflow flush immediately appends a word or cell; an empty line is a leading line.
-      const lead = spaces;
-      const leadWidth = cellsWidth(lead);
-      const wordWidth = cellsWidth(word);
-      if (used + leadWidth + wordWidth <= limit) {
-        line.push(...lead, ...word);
-        used += leadWidth + wordWidth;
-        continue;
-      }
+    const appendOverflow = (word: ReadonlyArray<Cell>, wordWidth: number): void => {
       if (line.length > 0) {
         flush();
       }
       if (wordWidth <= limit || options?.hardBreak === false) {
         line.push(...word);
         used = wordWidth;
-        continue;
+        return;
       }
       for (const cell of word) {
         if (used + cell.width > limit && line.length > 0) {
@@ -412,6 +413,39 @@ export const wrapSpans: {
         line.push(cell);
         used += cell.width;
       }
+    };
+
+    const appendWord = (
+      lead: ReadonlyArray<Cell>,
+      word: ReadonlyArray<Cell>,
+      leadWidth: number,
+      wordWidth: number
+    ): void => {
+      if (used + leadWidth + wordWidth <= limit) {
+        line.push(...lead, ...word);
+        used += leadWidth + wordWidth;
+        return;
+      }
+      appendOverflow(word, wordWidth);
+    };
+
+    let i = 0;
+    while (i < cells.length) {
+      if (isLineBreak(A.getUnsafe(cells, i).grapheme)) {
+        flush();
+        i++;
+        continue;
+      }
+      const run = wordRun(cells, i);
+      const { spaces, word } = run;
+      i = run.end;
+      if (word.length === 0) continue;
+
+      // Every overflow flush immediately appends a word or cell; an empty line is a leading line.
+      const lead = spaces;
+      const leadWidth = cellsWidth(lead);
+      const wordWidth = cellsWidth(word);
+      appendWord(lead, word, leadWidth, wordWidth);
     }
     if (line.length > 0 || lines.length === 0) flush();
     return A.map(lines, spansFromCells);

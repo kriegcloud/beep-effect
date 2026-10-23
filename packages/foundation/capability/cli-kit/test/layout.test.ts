@@ -24,6 +24,51 @@ const CASES: ReadonlyArray<readonly [string, string]> = [
   ["flag and skin tone", "🇯🇵🇫🇷 👍🏽 ok"],
 ];
 
+const checkTriples = (
+  ALPHABET: ReadonlyArray<string>,
+  check: (inlines: ReadonlyArray<Inline>, label: string) => void
+): void => {
+  for (const a of ALPHABET) {
+    for (const b of ALPHABET) {
+      for (const c of ALPHABET)
+        check([Doc.text(a), Doc.code(b), Doc.text(c)], Result.getOrThrow(S.encodeUnknownResult(Json)([a, b, c])));
+    }
+  }
+};
+
+const assertMaximal = (original: ReadonlyArray<string>, kept: string, where: string, width: number): void => {
+  const k =
+    kept === ""
+      ? -1
+      : O.getOrElse(
+          A.findFirstIndex(original, (_, i) => A.join(A.take(original, i + 1), "") === kept),
+          () => -1
+        );
+  assert.isTrue(kept === "" || k >= 0, `${where}: the kept text ends on a grapheme boundary`);
+  const next = original[k + 1];
+  assert.isDefined(next, `${where}: something was left out`);
+  assert.isAbove(
+    displayWidth(kept) + displayWidth(next ?? "") + displayWidth("…"),
+    width,
+    `${where}: "${next}" would have fitted, so too little was kept`
+  );
+};
+
+const assertKeptGraphemes = (label: string, plain: string, width: number, total: number, where: string): void => {
+  // Whole graphemes: what is kept, less the marker, is a prefix made of whole source graphemes.
+  const original = graphemes(label);
+  const kept = width >= total ? plain : Str.endsWith("…")(plain) ? Str.slice(0, -1)(plain) : plain;
+  let prefix = "";
+  let matched = kept === "";
+  for (const g of original) {
+    prefix += g;
+    if (prefix === kept) matched = true;
+  }
+  assert.isTrue(matched, `${where}: "${kept}" is a prefix of whole graphemes of "${label}"`);
+
+  if (width < total) assertMaximal(original, kept, where, width);
+};
+
 describe("flatten", () => {
   it.effect("turns a Path into its segments joined by the audience's separator", () =>
     Effect.gen(function* () {
@@ -223,12 +268,7 @@ describe("flatten under hostile input: nothing can reassemble into a live sequen
           for (const second of short)
             check([Doc.text(first), Doc.code(second)], Result.getOrThrow(S.encodeUnknownResult(Json)([first, second])));
         }
-        for (const a of ALPHABET) {
-          for (const b of ALPHABET) {
-            for (const c of ALPHABET)
-              check([Doc.text(a), Doc.code(b), Doc.text(c)], Result.getOrThrow(S.encodeUnknownResult(Json)([a, b, c])));
-          }
-        }
+        checkTriples(ALPHABET, check);
         assert.isAbove(cases, 60_000, "the enumeration ran");
         assert.deepStrictEqual(failures, []);
       }),
@@ -294,35 +334,7 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
             assert.strictEqual(links.pairs, 1, `${where}: exactly one OSC 8 pair`);
             assert.strictEqual(links.wrapped, plain, `${where}: the pair wraps all of the kept text`);
 
-            // Whole graphemes: what is kept, less the marker, is a prefix made of whole source graphemes.
-            const original = graphemes(label);
-            const kept = width >= total ? plain : Str.endsWith("…")(plain) ? Str.slice(0, -1)(plain) : plain;
-            let prefix = "";
-            let matched = kept === "";
-            for (const g of original) {
-              prefix += g;
-              if (prefix === kept) matched = true;
-            }
-            assert.isTrue(matched, `${where}: "${kept}" is a prefix of whole graphemes of "${label}"`);
-
-            // Maximal: when it was cut, the next whole grapheme would not have fitted beside the marker.
-            if (width < total) {
-              const k =
-                kept === ""
-                  ? -1
-                  : O.getOrElse(
-                      A.findFirstIndex(original, (_, i) => A.join(A.take(original, i + 1), "") === kept),
-                      () => -1
-                    );
-              assert.isTrue(kept === "" || k >= 0, `${where}: the kept text ends on a grapheme boundary`);
-              const next = original[k + 1];
-              assert.isDefined(next, `${where}: something was left out`);
-              assert.isAbove(
-                displayWidth(kept) + displayWidth(next ?? "") + displayWidth("…"),
-                width,
-                `${where}: "${next}" would have fitted, so too little was kept`
-              );
-            }
+            assertKeptGraphemes(label, plain, width, total, where);
           }
         })
     );

@@ -158,6 +158,23 @@ const resolve = (input: AudienceFlagInput): Effect.Effect<AudienceShape, CliErro
   return kind === undefined ? Audience : Effect.succeed(AudienceShape.make({ kind, source: "flag" }));
 };
 
+type AudienceRun<E, R> = Effect.Effect<
+  void,
+  Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+  Exclude<R, Audience> | Audience | Command.Environment
+>;
+
+const wizardConfig = Effect.fnUntraced(function* (ambient: typeof CliConfig.CliConfig.Service, interactive: boolean) {
+  const hasWizard = A.contains(ambient.builtIns, GlobalFlag.Wizard);
+  const restore = interactive && !hasWizard && (yield* WizardDropped) === ambient;
+  const drop = !interactive && hasWizard;
+  if (!restore && !drop) return undefined;
+  const builtIns = interactive
+    ? [...ambient.builtIns, GlobalFlag.Wizard]
+    : A.filter(ambient.builtIns, (flag) => flag !== GlobalFlag.Wizard);
+  return CliConfig.make({ builtIns });
+});
+
 /**
  * The audience flags of a CLI: `--audience <human|agent|ci>` and the shorthands `--human`, `--agent`, `--ci`,
  * resolved into `@beep/runtime-env`'s `Audience`.
@@ -343,37 +360,19 @@ export class CliAudience {
     <const Name extends string, Input, E, R, ContextInput>(
       command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
       config: { readonly version: string; readonly renderErrors?: boolean | undefined }
-    ): (
-      input: ReadonlyArray<string>
-    ) => Effect.Effect<
-      void,
-      Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
-      Exclude<R, Audience> | Audience | Command.Environment
-    >;
+    ): (input: ReadonlyArray<string>) => AudienceRun<E, R>;
     <const Name extends string, Input, E, R, ContextInput>(config: {
       readonly version: string;
       readonly renderErrors?: boolean | undefined;
     }): (
       command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>
-    ) => (
-      input: ReadonlyArray<string>
-    ) => Effect.Effect<
-      void,
-      Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
-      Exclude<R, Audience> | Audience | Command.Environment
-    >;
+    ) => (input: ReadonlyArray<string>) => AudienceRun<E, R>;
   } = dual(
     2,
     <const Name extends string, Input, E, R, ContextInput>(
       command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
       config: { readonly version: string; readonly renderErrors?: boolean | undefined }
-    ): ((
-      input: ReadonlyArray<string>
-    ) => Effect.Effect<
-      void,
-      Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
-      Exclude<R, Audience> | Audience | Command.Environment
-    >) => {
+    ): ((input: ReadonlyArray<string>) => AudienceRun<E, R>) => {
       // `provide` is applied here, so there is one wiring and conflict detection cannot be dropped by omission.
       const core = CommandModule.runWith(
         CliAudience.provide<Name, AudienceFlagInput & Input, ContextInput, E, R>(command),
@@ -397,16 +396,8 @@ export class CliAudience {
         // The wizard prompts, so it follows the decision: the environment gated it from the detected audience,
         // before the flag was read. A non-interactive run drops it, and a run the flag has made interactive
         // where the gate had dropped it gets it back.
-        const hasWizard = ambient.builtIns.includes(GlobalFlag.Wizard);
-        // Restored only into the config the gate produced: a consumer's own `builtIns` without it, whether it came from
-        // outside the gate or inside, is a different object and stays without it.
-        const restore = interactive && !hasWizard && (yield* WizardDropped) === ambient;
-        const drop = !interactive && hasWizard;
-        if (!restore && !drop) return yield* decided;
-        const builtIns = interactive
-          ? [...ambient.builtIns, GlobalFlag.Wizard]
-          : A.filter(ambient.builtIns, (flag) => flag !== GlobalFlag.Wizard);
-        return yield* Effect.provideService(decided, CliConfig.CliConfig, CliConfig.make({ builtIns }));
+        const config = yield* wizardConfig(ambient, interactive);
+        return yield* config === undefined ? decided : Effect.provideService(decided, CliConfig.CliConfig, config);
       });
     }
   );
@@ -436,30 +427,17 @@ export class CliAudience {
     <const Name extends string, Input, E, R, ContextInput>(
       command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
       config: { readonly version: string; readonly renderErrors?: boolean | undefined }
-    ): Effect.Effect<
-      void,
-      Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
-      Exclude<R, Audience> | Audience | Command.Environment
-    >;
+    ): AudienceRun<E, R>;
     <const Name extends string, Input, E, R, ContextInput>(config: {
       readonly version: string;
       readonly renderErrors?: boolean | undefined;
-    }): (
-      command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>
-    ) => Effect.Effect<
-      void,
-      Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
-      Exclude<R, Audience> | Audience | Command.Environment
-    >;
+    }): (command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>) => AudienceRun<E, R>;
   } = dual(
     2,
     <const Name extends string, Input, E, R, ContextInput>(
       command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
       config: { readonly version: string; readonly renderErrors?: boolean | undefined }
-    ): Effect.Effect<
-      void,
-      Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
-      Exclude<R, Audience> | Audience | Command.Environment
-    > => Stdio.Stdio.use(({ args }) => Effect.flatMap(args, (argv) => CliAudience.runWith(command, config)(argv)))
+    ): AudienceRun<E, R> =>
+      Stdio.Stdio.use(({ args }) => Effect.flatMap(args, (argv) => CliAudience.runWith(command, config)(argv)))
   );
 }

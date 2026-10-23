@@ -8,7 +8,7 @@ import { counterLabel, countsTableOf, totalOf, visibleCountersOf } from "./count
 import { flatten } from "./layout.ts";
 import { isAllowedLinkUrl } from "./linkScheme.ts";
 import { DRIVE, encodePath, fileUrlPath } from "./linkTarget.ts";
-import { capOf, isAnnotation, showsSuffix, targetText, textLines } from "./renderDoc.ts";
+import { capOf, isAnnotation, showsSuffix, tableWindow, targetText, textLines, textWindow } from "./renderDoc.ts";
 import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
@@ -117,6 +117,20 @@ const textPiece: {
  * because a browser ignores them inside a scheme (`java<tab>script:`). An entity cannot hide one either: the
  * destination escapes `&`, so what a reader decodes is the text that was checked here.
  */
+const repositoryUrl = (
+  target: Extract<LinkTarget, { readonly file: string }>,
+  ctx: RenderContext,
+  base: string
+): string | undefined => {
+  // A repository URL in place of `file://`: the display path under the base, with the line as GitHub's anchor. A
+  // display path that is absolute or climbs out with `..` is not under the base, so it has no URL form.
+  const display = Str.replace(/\\/g, "/")(sanitize(ctx.displayPath(target.file)));
+  if (Str.startsWith("/")(display) || DRIVE.test(display) || A.contains(Str.split(display, "/"), ".."))
+    return undefined;
+  const url = `${base}${encodePath(display)}${target.line === undefined ? "" : `#L${target.line}`}`;
+  return isAllowedLinkUrl(url) ? url : undefined;
+};
+
 const linkUrl: {
   (target: LinkTarget, ctx: RenderContext): string | undefined;
   (ctx: RenderContext): (target: LinkTarget) => string | undefined;
@@ -126,12 +140,7 @@ const linkUrl: {
     return isAllowedLinkUrl(url) ? url : undefined;
   }
   if (ctx.linkBase !== undefined) {
-    // A repository URL in place of `file://`: the display path under the base, with the line as GitHub's anchor. A
-    // display path that is absolute or climbs out with `..` is not under the base, so it has no URL form.
-    const display = Str.replace(/\\/g, "/")(sanitize(ctx.displayPath(target.file)));
-    if (Str.startsWith("/")(display) || DRIVE.test(display) || Str.split(display, "/").includes("..")) return undefined;
-    const url = `${ctx.linkBase}${encodePath(display)}${target.line === undefined ? "" : `#L${target.line}`}`;
-    return isAllowedLinkUrl(url) ? url : undefined;
+    return repositoryUrl(target, ctx, ctx.linkBase);
   }
   // The same builder as `CliLinks`, so a drive path links the same way here; a UNC or relative path has no link.
   if (!Str.startsWith("/")(target.file) && !DRIVE.test(target.file)) return undefined;
@@ -155,6 +164,20 @@ const destination = (raw: string): string => {
  * Spans as markdown: each piece escaped, or fenced as code, and `**` or `_` around each stretch of strong or emphasised
  * spans. The spaces at a stretch's edges stay outside its markers, where a reader would otherwise not see emphasis.
  */
+const emphasizeBody = (body: string, strong: boolean, em: boolean): string => {
+  const lead = Str.slice(0, body.length - Str.trimStart(body).length)(body);
+  const core = pipe(body, Str.slice(lead.length), Str.trimEnd);
+  const trail = Str.slice(lead.length + core.length)(body);
+  if ((!strong && !em) || core === "") {
+    return body;
+  }
+  // `*` for emphasis, not `_`: GFM opens and closes `*` inside a word, where `_` reads as literal text.
+  return `${lead}${strong ? "**" : ""}${em ? "*" : ""}${core}${em ? "*" : ""}${strong ? "**" : ""}${trail}`;
+};
+
+const sameEmphasis = (spans: ReadonlyArray<Span>, i: number, strong: boolean, em: boolean): boolean =>
+  i < spans.length && (A.getUnsafe(spans, i).strong === true) === strong && (A.getUnsafe(spans, i).em === true) === em;
+
 const emphasized: {
   (spans: ReadonlyArray<Span>, mode: Mode): string;
   (mode: Mode): (spans: ReadonlyArray<Span>) => string;
@@ -169,25 +192,33 @@ const emphasized: {
       const span = A.getUnsafe(spans, i);
       body += span.code === true ? codeSpan(span.text, mode) : textPiece(span.text, mode);
       i++;
-    } while (
-      i < spans.length &&
-      (A.getUnsafe(spans, i).strong === true) === strong &&
-      (A.getUnsafe(spans, i).em === true) === em
-    );
-    const lead = Str.slice(0, body.length - Str.trimStart(body).length)(body);
-    const core = pipe(body, Str.slice(lead.length), Str.trimEnd);
-    const trail = Str.slice(lead.length + core.length)(body);
-    if ((!strong && !em) || core === "") {
-      out += body;
-      continue;
-    }
-    // `*` for emphasis, not `_`: GFM opens and closes `*` inside a word, where `_` reads as literal text.
-    out += `${lead}${strong ? "**" : ""}${em ? "*" : ""}${core}${em ? "*" : ""}${strong ? "**" : ""}${trail}`;
+    } while (sameEmphasis(spans, i, strong, em));
+    out += emphasizeBody(body, strong, em);
   }
   return out;
 });
 
 /** Inline nodes as markdown: text escaped, code fenced, a link as `[label](url)` or, with no URL form, label and path. */
+const linkedMarkdown = (
+  run: ReadonlyArray<Span>,
+  link: LinkTarget,
+  label: string,
+  ctx: RenderContext,
+  mode: Mode
+): string => {
+  const raw = pipe(
+    run,
+    A.map((span) => span.text),
+    A.join("")
+  );
+  const url = linkUrl(link, ctx);
+  const target = targetText(link, ctx);
+  if (url !== undefined) return `[${label}](${destination(url)})`;
+  return showsSuffix(A.getUnsafe(run, run.length - 1).suffix, raw, target)
+    ? `${label} (${codeSpan(target, mode)})`
+    : label;
+};
+
 const inlineMd: {
   (inlines: ReadonlyArray<Inline>, ctx: RenderContext, mode: Mode): string;
   (ctx: RenderContext, mode: Mode): (inlines: ReadonlyArray<Inline>) => string;
@@ -201,22 +232,13 @@ const inlineMd: {
     const start = i;
     do i++;
     while (i < flat.length && A.getUnsafe(flat, i).link === link);
-    const run = flat.slice(start, i);
+    const run = A.take(A.drop(flat, start), i - start);
     const label = emphasized(run, mode);
     if (link === undefined) {
       out += label;
       continue;
     }
-    const raw = pipe(
-      run,
-      A.map((span) => span.text),
-      A.join("")
-    );
-    const url = linkUrl(link, ctx);
-    const target = targetText(link, ctx);
-    if (url !== undefined) out += `[${label}](${destination(url)})`;
-    else
-      out += showsSuffix(A.getUnsafe(flat, i - 1).suffix, raw, target) ? `${label} (${codeSpan(target, mode)})` : label;
+    out += linkedMarkdown(run, link, label, ctx, mode);
   }
   return out;
 });
@@ -316,6 +338,94 @@ interface Walk {
   readonly ctx: RenderContext;
 }
 
+type CountsParts = {
+  readonly block: CountsBlock;
+  readonly visible: ReturnType<typeof visibleCountersOf>;
+  readonly total: number;
+  readonly label: string;
+  readonly qualifier: string;
+  readonly duration: string;
+  readonly suffix: string;
+  readonly name: (counter: ReturnType<typeof visibleCountersOf>[number], count?: number) => string;
+  readonly headlineName: (counter: ReturnType<typeof visibleCountersOf>[number], index: number) => string;
+};
+
+const countsRow = (parts: CountsParts): ReadonlyArray<Lines> => {
+  const { block, visible, total, label, qualifier, duration, suffix, headlineName } = parts;
+  // Every column of the table is named: the counters by their labels and the duration as `duration`. The label,
+  // which names the row rather than a column, goes above it, and the qualifier and suffix below.
+  const header = [
+    ...A.map(visible, (counter, index) => headlineName(counter, index)),
+    ...(duration === "" ? [] : ["duration"]),
+  ];
+  const cells = [
+    ...A.map(visible, (counter, index) =>
+      index === 0 && block.share !== false ? `${counter.n}/${total}` : String(counter.n)
+    ),
+    ...(duration === "" ? [] : [duration]),
+  ];
+  const after = pipe(
+    [qualifier, suffix],
+    A.filter((part) => part !== ""),
+    A.join(" ")
+  );
+  return [
+    ...(label === "" ? [] : [flowLines(label)]),
+    ...(header.length === 0
+      ? []
+      : [
+          tableMd(
+            header,
+            A.map(header, () => undefined),
+            [cells]
+          ),
+        ]),
+    ...(after === "" ? [] : [flowLines(after)]),
+  ];
+};
+
+const countsColumns = (parts: CountsParts): ReadonlyArray<Lines> => {
+  const { visible, label, qualifier, duration, suffix, name } = parts;
+  return [
+    ...(label === "" ? [] : [flowLines(label)]),
+    ...(visible.length === 0
+      ? []
+      : // The name starts a list item, so it is cleared of indentation and of a block marker like any line start.
+        [
+          A.flatMap(visible, (counter) =>
+            hang([`${escapeLineStart(Str.trimStart(name(counter)))}: ${counter.n}`], "- ", "  ")
+          ),
+        ]),
+    ...(qualifier === "" ? [] : [flowLines(qualifier)]),
+    ...(duration === "" ? [] : [[duration]]),
+    ...(suffix === "" ? [] : [flowLines(suffix)]),
+  ];
+};
+
+const countsInline = (parts: CountsParts): ReadonlyArray<Lines> => {
+  const { block, visible, total, label, qualifier, duration, suffix, name, headlineName } = parts;
+  const tally = pipe(
+    visible,
+    A.map((counter, index) =>
+      index === 0 && block.share !== false
+        ? `${counter.n}/${total} ${headlineName(counter, index)}`
+        : `${counter.n} ${name(counter)}`
+    ),
+    A.join(", ")
+  );
+  const head = pipe(
+    [label === "" ? "" : `${label}:`, tally],
+    A.filter((part) => part !== ""),
+    A.join(" ")
+  );
+  const line = pipe(
+    [head, qualifier, duration === "" ? "" : `(${duration})`, suffix],
+    A.filter((part) => part !== ""),
+    A.join(" ")
+  );
+  return line === "" ? [] : [flowLines(line)];
+};
+
 const countsMd: {
   (walk: Walk, block: CountsBlock): ReadonlyArray<Lines>;
   (block: CountsBlock): (walk: Walk) => ReadonlyArray<Lines>;
@@ -343,74 +453,12 @@ const countsMd: {
     index === 0 && block.share !== false ? name(counter, total) : name(counter)
   );
 
-  if (block.layout === "row") {
-    // Every column of the table is named: the counters by their labels and the duration as `duration`. The label,
-    // which names the row rather than a column, goes above it, and the qualifier and suffix below.
-    const header = [
-      ...A.map(visible, (counter, index) => headlineName(counter, index)),
-      ...(duration === "" ? [] : ["duration"]),
-    ];
-    const cells = [
-      ...A.map(visible, (counter, index) =>
-        index === 0 && block.share !== false ? `${counter.n}/${total}` : String(counter.n)
-      ),
-      ...(duration === "" ? [] : [duration]),
-    ];
-    const after = pipe(
-      [qualifier, suffix],
-      A.filter((part) => part !== ""),
-      A.join(" ")
-    );
-    return [
-      ...(label === "" ? [] : [flowLines(label)]),
-      ...(header.length === 0
-        ? []
-        : [
-            tableMd(
-              header,
-              A.map(header, () => undefined),
-              [cells]
-            ),
-          ]),
-      ...(after === "" ? [] : [flowLines(after)]),
-    ];
-  }
-  if (block.layout === "columns") {
-    return [
-      ...(label === "" ? [] : [flowLines(label)]),
-      ...(visible.length === 0
-        ? []
-        : // The name starts a list item, so it is cleared of indentation and of a block marker like any line start.
-          [
-            A.flatMap(visible, (counter) =>
-              hang([`${escapeLineStart(Str.trimStart(name(counter)))}: ${counter.n}`], "- ", "  ")
-            ),
-          ]),
-      ...(qualifier === "" ? [] : [flowLines(qualifier)]),
-      ...(duration === "" ? [] : [[duration]]),
-      ...(suffix === "" ? [] : [flowLines(suffix)]),
-    ];
-  }
-  const tally = pipe(
-    visible,
-    A.map((counter, index) =>
-      index === 0 && block.share !== false
-        ? `${counter.n}/${total} ${headlineName(counter, index)}`
-        : `${counter.n} ${name(counter)}`
-    ),
-    A.join(", ")
+  const parts = { block, visible, total, label, qualifier, duration, suffix, name, headlineName };
+  return Match.value(block.layout).pipe(
+    Match.when("row", () => countsRow(parts)),
+    Match.when("columns", () => countsColumns(parts)),
+    Match.orElse(() => countsInline(parts))
   );
-  const head = pipe(
-    [label === "" ? "" : `${label}:`, tally],
-    A.filter((part) => part !== ""),
-    A.join(" ")
-  );
-  const line = pipe(
-    [head, qualifier, duration === "" ? "" : `(${duration})`, suffix],
-    A.filter((part) => part !== ""),
-    A.join(" ")
-  );
-  return line === "" ? [] : [flowLines(line)];
 });
 
 /**
@@ -434,18 +482,28 @@ const WHITESPACE = /\s/;
  * A cell's text without the whitespace and `<br>` breaks at either edge, scanned from each end. A regex alternation
  * anchored only at the end retries from every position of an interior run, which is quadratic on a long one.
  */
+const leadingCellSpace = (text: string, start: number, end: number): number => {
+  if (start < end && WHITESPACE.test(Str.slice(start, start + 1)(text))) return 1;
+  return start + 4 <= end && Str.startsWith("<br>", start)(text) ? 4 : 0;
+};
+
+const trailingCellSpace = (text: string, start: number, end: number): number => {
+  if (end > start && WHITESPACE.test(Str.slice(end - 1, end)(text))) return 1;
+  return end - 4 >= start && Str.startsWith("<br>", end - 4)(text) ? 4 : 0;
+};
+
 const trimCellEdges = (text: string): string => {
   let start = 0;
   let end = text.length;
-  for (;;) {
-    if (start < end && WHITESPACE.test(Str.slice(start, start + 1)(text))) start += 1;
-    else if (start + 4 <= end && Str.startsWith("<br>", start)(text)) start += 4;
-    else break;
+  let step = leadingCellSpace(text, start, end);
+  while (step > 0) {
+    start += step;
+    step = leadingCellSpace(text, start, end);
   }
-  for (;;) {
-    if (end > start && WHITESPACE.test(Str.slice(end - 1, end)(text))) end -= 1;
-    else if (end - 4 >= start && Str.startsWith("<br>", end - 4)(text)) end -= 4;
-    else break;
+  step = trailingCellSpace(text, start, end);
+  while (step > 0) {
+    end -= step;
+    step = trailingCellSpace(text, start, end);
   }
   return Str.slice(start, end)(text);
 };
@@ -473,17 +531,14 @@ const blockMd: {
         return joinBlocks([items, hidden > 0 ? overflowMd(block.overflow, hidden, ctx) : []]);
       },
       Table: (block): Lines => {
-        const columns = Math.max(block.columns.length, ...A.map(block.rows, (row) => row.length));
+        const { columns, shown, hidden } = tableWindow(block);
         if (columns === 0) return [];
-        const cap = capOf(block.cap);
-        const shown = cap === undefined ? block.rows : block.rows.slice(0, cap);
         // A line break at the edge of a cell is not content: the cell is its trimmed text.
         const cell = (inlines: ReadonlyArray<Inline> | undefined): string =>
           inlines === undefined ? "" : trimCellEdges(inlineMd(inlines, ctx, "cell"));
         const header = A.makeBy(columns, (index) => cell(block.columns[index]?.header));
         const aligns = A.makeBy(columns, (index) => block.columns[index]?.align);
         const rows = A.map(shown, (row) => A.makeBy(columns, (index) => cell(row[index])));
-        const hidden = block.rows.length - shown.length;
         const overflow = hidden > 0 ? overflowMd(block.overflow, hidden, ctx) : [];
         // No header text and no row shown, such as a counts table over zero projects: an empty table is noise, as in
         // the text renderers, which draw nothing for it.
@@ -548,9 +603,7 @@ const blockMd: {
           (marker: string, text: string): Lines;
           (text: string): (marker: string) => Lines;
         } = dual(2, (marker: string, text: string): Lines => {
-          const lines = textLines(text);
-          const shown = cap === undefined ? lines : lines.slice(0, cap);
-          const hidden = lines.length - shown.length;
+          const { shown, hidden } = textWindow(text, cap);
           return [
             ...A.map(shown, (line) => Str.trimEnd(`${marker} ${line}`)),
             ...(hidden > 0 ? [`  ${ctx.glyphs.ellipsis} ${hidden} more lines`] : []),
