@@ -113,7 +113,7 @@ bun run test
 bun run docgen
 ```
 
-Tests live in `test/` and import package source through `@beep/github-reporting/<Module>` aliases; shared helpers are in `test/support/`. `test/reachability.test.ts` walks the runtime import graph and pins the subpath-only writer and the managed-section leaf imports. `test/GitHubMarkdown.gfm.test.ts` is a GFM HTML differential against micromark with `micromark-extension-gfm`, and `test/GitHubMarkdown.admission.test.ts` is a fixed-seed growth guard that counts node admissions instead of timing them (exactly 30 per row at 5k and 10k rows, with a quadratic-builder negative control). The long-run differential is `goals/effected-promotion/ops/github-reporting-gfm-differential.ts`. `KNOWLEDGE.md` carries the upstream interface notes verbatim.
+Tests live in `test/` and import package source through `@beep/github-reporting/<Module>` aliases; shared helpers are in `test/support/`. `test/reachability.test.ts` walks the runtime import graph and pins the subpath-only writer and the managed-section leaf imports. `test/GitHubMarkdown.gfm.test.ts` is a GFM HTML differential against micromark with `micromark-extension-gfm`, and `test/GitHubMarkdown.admission.test.ts` is a fixed-seed growth guard that counts node admissions instead of timing them: it spies on the writer's internal `admission.admit` seam (`src/internal/admission.ts`) and pins exactly 30 per row at 5k and 10k rows, with a quadratic-builder negative control. The long-run differential is `goals/effected-promotion/ops/github-reporting-gfm-differential.ts`. `KNOWLEDGE.md` carries the upstream interface notes verbatim.
 
 ## Provenance
 

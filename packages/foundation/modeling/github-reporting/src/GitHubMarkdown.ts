@@ -32,6 +32,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
 import * as Str from "effect/String";
+import { admission } from "./internal/admission.ts";
 
 const $I = $GithubReportingId.create("GitHubMarkdown");
 
@@ -252,7 +253,7 @@ interface ColumnRuntime {
  * exactly how a pre-rendered markdown fragment must travel: GFM structure
  * around it is escaped, the fragment itself is not.
  */
-const passthrough = (value: string): Html => Html.make({ value });
+const passthrough = (value: string): Html => admission.admit(Html, { value });
 
 const escapeLinkLabel = (text: string): string => {
   const characters = Str.split(text, "");
@@ -297,7 +298,7 @@ const escapeLinkLabel = (text: string): string => {
  */
 const render = (root: Root): string => Markdown.stringifyResult(root).pipe(Result.getOrThrow, Str.trimEnd);
 
-const block = (node: Root["children"][number]): string => render(Root.make({ children: [node] }));
+const block = (node: Root["children"][number]): string => render(admission.admit(Root, { children: [node] }));
 
 /**
  * The fluent markdown writer for GitHub surfaces — PR comments, check-run
@@ -384,12 +385,14 @@ export abstract class GitHubMarkdown {
     // renders `<br>` inside a cell, so line structure survives inline.
     const inline: (value: string) => string = Str.replace(/\r\n|\r|\n/g, "<br>");
     const cells = (values: ReadonlyArray<string>): TableRow =>
-      TableRow.make({
+      admission.admit(TableRow, {
         children: A.map(headers, (_, index) =>
-          TableCell.make({ children: [A.get(values, index).pipe(O.getOrElse(thunkEmptyStr), inline, passthrough)] })
+          admission.admit(TableCell, {
+            children: [A.get(values, index).pipe(O.getOrElse(thunkEmptyStr), inline, passthrough)],
+          })
         ),
       });
-    return block(Table.make({ children: [cells(headers), ...A.map(rows, cells)] }));
+    return block(admission.admit(Table, { children: [cells(headers), ...A.map(rows, cells)] }));
   });
 
   /**
@@ -528,7 +531,11 @@ export abstract class GitHubMarkdown {
     (text: string, url: string): string;
     (url: string): (text: string) => string;
   } = dual(2, (text: string, url: string): string =>
-    block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(escapeLinkLabel(text))] })] }))
+    block(
+      admission.admit(Paragraph, {
+        children: [admission.admit(Link, { url, children: [passthrough(escapeLinkLabel(text))] })],
+      })
+    )
   );
 
   /**
@@ -545,7 +552,7 @@ export abstract class GitHubMarkdown {
    * @since 0.0.0
    */
   static code(text: string): string {
-    return block(Paragraph.make({ children: [InlineCode.make({ value: text })] }));
+    return block(admission.admit(Paragraph, { children: [admission.admit(InlineCode, { value: text })] }));
   }
 
   /**
@@ -567,7 +574,7 @@ export abstract class GitHubMarkdown {
     // the serializer falls back to an indented code block, which GitHub
     // renders but which cannot be copy-pasted around other markdown safely.
     return block(
-      Code.make({
+      admission.admit(Code, {
         value: content,
         fenceChar: "`",
         ...(language === undefined || language === "" ? {} : { lang: language }),
@@ -602,11 +609,11 @@ export abstract class GitHubMarkdown {
     (items: ReadonlyArray<string>, options?: GitHubListOptions.Encoded): string => {
       const ordered = options?.ordered ?? false;
       return block(
-        List.make({
+        admission.admit(List, {
           ordered,
           ...(ordered ? { start: 1 } : {}),
           children: A.map(items, (item) =>
-            ListItem.make({ children: [passthrough(Str.replace(/\r\n|\r/g, "\n")(item))] })
+            admission.admit(ListItem, { children: [passthrough(Str.replace(/\r\n|\r/g, "\n")(item))] })
           ),
         })
       );
