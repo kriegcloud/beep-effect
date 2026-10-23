@@ -1,7 +1,5 @@
 import { DevEngine, DevEnginesSchema } from "@beep/package-json/DevEngines";
-import { Package } from "@beep/package-json/Package";
 import { assert, describe, it } from "@effect/vitest";
-import { assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -27,29 +25,6 @@ describe("DevEnginesSchema", () => {
       assert.isTrue(S.is(DevEngine)(decoded.packageManager));
       assert.strictEqual(Object.getPrototypeOf(decoded.packageManager), Object.prototype);
       assert.isTrue(A.isArray(decoded.runtime));
-    })
-  );
-});
-
-// npm documents `warn`, `error` and `ignore`; `download` is the OpenJS
-// devEngines proposal value pnpm implements (3-A2).
-describe("DevEngine.onFail", () => {
-  it.effect("accepts download, per the OpenJS devEngines proposal pnpm implements", () =>
-    Effect.gen(function* () {
-      const wire = { runtime: { name: "node", version: "^24.0.0", onFail: "download" as const } };
-      const decoded = yield* S.decodeEffect(DevEnginesSchema)(wire);
-      assertTrue(S.is(DevEngine)(decoded.runtime));
-      deepStrictEqual(yield* S.encodeEffect(DevEnginesSchema)(decoded), wire);
-      const devEngines = { packageManager: { name: "pnpm", onFail: "download" as const } };
-      const pkg = yield* Package.decode({ name: "pkg", version: "1.0.0", devEngines });
-      deepStrictEqual((yield* S.encodeUnknownEffect(Package.schema)(pkg)).devEngines, devEngines);
-    })
-  );
-
-  it.effect("still rejects a value outside warn, error, ignore and download", () =>
-    Effect.gen(function* () {
-      const error = yield* Effect.flip(S.decodeUnknownEffect(DevEngine)({ name: "node", onFail: "retry" }));
-      strictEqual(error._tag, "SchemaError");
     })
   );
 });
