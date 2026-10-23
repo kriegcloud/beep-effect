@@ -98,6 +98,8 @@ Document the owning declaration rather than inventing a barrel Example.
 ### Value-level export
 
 ````ts
+import * as S from "effect/Schema"
+
 /**
  * Decodes an unknown value as a non-empty user name without throwing.
  *
@@ -131,6 +133,10 @@ export const decodeUserName = S.decodeUnknownOption(S.Trimmed.check(S.isNonEmpty
 ### Pure type-level export
 
 ````ts
+import * as S from "effect/Schema"
+
+const UserName = S.Trimmed.check(S.isNonEmpty())
+
 /**
  * Encoded input accepted by {@link UserName} before schema decoding.
  *

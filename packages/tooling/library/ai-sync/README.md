@@ -30,11 +30,11 @@ console.log(validateCurrentCheckoutDogfoodConfigs)
 ```
 
 ```ts
-import { CodexConfig, codexMcpServersToClaudeMcpJson } from "@beep/ai-sync"
+import { CodexConfig, CodexMcpServer, codexMcpServersToClaudeMcpJson } from "@beep/ai-sync"
 
 const config = CodexConfig.make({
   mcp_servers: {
-    local: { command: "node", args: ["server.js"] },
+    local: CodexMcpServer.make({ command: "node", args: ["server.js"] }),
   },
 })
 

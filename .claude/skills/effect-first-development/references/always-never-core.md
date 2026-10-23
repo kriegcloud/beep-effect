@@ -21,6 +21,8 @@ Loaded on demand from `effect-first-development/SKILL.md`. Repository laws win o
 import { pipe } from "effect/Function";
 import * as A from "effect/Array"
 import * as O from "effect/Option"
+declare const users: ReadonlyArray<{ readonly id: string; readonly name: string }>;
+declare const id: string;
 
 // NEVER: User | undefined
 // const user = users.find((u) => u.id === id)
@@ -43,9 +45,9 @@ const name = pipe(
 ```ts
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 class JsonParseError extends S.TaggedError<JsonParseError, { readonly brand: unique symbol }>($I`JsonParseError`)(
   "JsonParseError",
@@ -62,10 +64,10 @@ const parseJson = (raw: string) =>
 ### 3) Schema naming + annotation
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as S from "effect/Schema"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 // NEVER: export const UserSchema = S.Struct(...)
 // NEVER: export interface User { readonly id: string; readonly name: string }
@@ -90,6 +92,7 @@ const decodeUser = S.decodeUnknownEffect(User)
 
 ```ts
 import * as P from "effect/Predicate"
+declare const value: unknown;
 
 // NEVER: typeof value === "string"
 // ALWAYS:
@@ -100,7 +103,7 @@ const isStringValue = P.isString(value)
 
 ```ts
 import { LiteralKit } from "@beep/schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as Match from "effect/Match";
 import { pipe } from "effect/Function";
 import * as F from "effect/Function"
@@ -109,7 +112,7 @@ import * as P from "effect/Predicate"
 import * as S from "effect/Schema"
 import * as Str from "effect/String"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 const TopicKind = LiteralKit(["plain", "scoped"])
 
@@ -165,7 +168,7 @@ export const TopicName = S.NonEmptyString.check(
         pipe(
           value,
           classifyTopicKind,
-          TopicKind.$match({
+          TopicKind.match({
             plain: isTopicSegment,
             scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
           })
@@ -179,7 +182,6 @@ export const TopicName = S.NonEmptyString.check(
       title: "Topic Name",
       description: "Checks for a plain or scoped topic name.",
     }))
-  )
 ).pipe(
   S.brand("TopicName"),
   $I.annoteSchema("TopicName", {
@@ -224,11 +226,11 @@ const summarize = (items: ReadonlyArray<string>) =>
 
 ```ts
 import { LiteralKit } from "@beep/schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as Tuple from "effect/Tuple";
 import * as S from "effect/Schema"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 const JobStateTag = LiteralKit(["queued", "running", "failed"])
 
@@ -271,9 +273,9 @@ export const render = (state: JobState) =>
 ### 7) Service identity via package composer
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as Context from "effect/Context";
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 export class MyService extends Context.Service<MyService, {
   readonly ping: () => string
@@ -284,11 +286,11 @@ export class MyService extends Context.Service<MyService, {
 
 ```ts
 import { LiteralKit } from "@beep/schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import { $SchemaId } from "@beep/identity/packages"
 import * as Tuple from "effect/Tuple";
 import * as S from "effect/Schema"
 
-const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+const $I = $SchemaId.create("relative/path/to/file/from/package/src")
 
 // Preferred when the discriminant is `_tag`.
 export const TaskEvent = S.TaggedUnion({
