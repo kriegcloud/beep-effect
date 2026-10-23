@@ -109,7 +109,10 @@ const changesSession = (sql: string): boolean =>
   A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET|PRAGMA)\b/i.test(text));
 
 const changesWriterSession = (sql: string): boolean =>
-  changesSession(sql) || A.some(splitStatements(sql), (text) => /^\s*(?:DROP\s+SCHEMA|DETACH)\b/i.test(text));
+  changesSession(sql) ||
+  A.some(splitStatements(sql), (text) =>
+    /^\s*(?:(?:CREATE(?:\s+OR\s+REPLACE)?|DROP)\s+SCHEMA|ATTACH|DETACH)\b/i.test(text)
+  );
 
 const readerStreamRefusal = (
   reader: boolean,

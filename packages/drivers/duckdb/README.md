@@ -320,13 +320,15 @@ query the caller runs on that connection outside the client.
 - Readers mirror the writer's resolved current database, search path,
   TimeZone and Calendar, including state retained by failed multi-statement
   text. `DROP SCHEMA` and `DETACH` refresh the snapshot; this does not reset
-  the native writer search path. Entries naming missing schemas are omitted
+  the native writer search path. Schema creation/replacement and `ATTACH` also
+  refresh it, so recreated schemas and reattached catalogs become usable by
+  readers again. Entries naming missing schemas are omitted
   from reader snapshots, preserving valid entry order and quoting. After
   `USE memory.s; DROP SCHEMA s`, readers resolve through `main` as the writer
   does, while the writer retains `memory.s`. On DuckDB 1.5.6, a detached catalog
   retained in the path can prevent binding the snapshot query itself; readers
-  report that native failure until the writer repairs the path (for example,
-  `RESET search_path`). Other raw session settings are not mirrored. Temporary tables and
+  report that native failure until the writer reattaches the catalog or repairs
+  the path (for example, `RESET search_path`). Other raw session settings are not mirrored. Temporary tables and
   temporary macros remain writer-only; reader queries referring to them fail
   with `SqlSyntaxError` (DuckDB Catalog Error). Reader streams containing
   `USE`, `SET`, `RESET`, any `PRAGMA`, or transaction control are refused before execution

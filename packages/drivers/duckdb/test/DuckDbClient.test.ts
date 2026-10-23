@@ -1162,6 +1162,16 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
         yield* sql`SET TimeZone='Asia/Tokyo'`;
         assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
         assert.deepStrictEqual(yield* sql`SELECT current_setting('search_path') AS path`, writerPath);
+        yield* sql`CREATE SCHEMA probe_s`;
+        yield* sql`CREATE TABLE probe_s.probe_t AS SELECT 42 AS v`;
+        assert.deepStrictEqual(yield* query, [{ v: 42, zone: "Asia/Tokyo" }]);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`DROP SCHEMA probe_s CASCADE`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`CREATE OR REPLACE SCHEMA probe_s`;
+        yield* sql`CREATE TABLE probe_s.probe_t AS SELECT 99 AS v`;
+        assert.deepStrictEqual(yield* query, [{ v: 99, zone: "Asia/Tokyo" }]);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
       })
     );
   });
@@ -1211,6 +1221,10 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
         const readerError = yield* query.stream.pipe(Stream.runCollect, Effect.flip);
         assert.strictEqual(writerError.reason._tag, "SqlSyntaxError");
         assert.strictEqual(readerError.reason._tag, writerError.reason._tag);
+        yield* sql`ATTACH ':memory:' AS detached`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`DETACH detached`;
+        assert.strictEqual((yield* query.stream.pipe(Stream.runCollect, Effect.flip)).reason._tag, "SqlSyntaxError");
         yield* sql`RESET search_path`;
         assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ v: 1 }]);
         yield* sql`SET TimeZone='Asia/Tokyo'`;
