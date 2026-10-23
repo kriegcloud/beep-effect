@@ -20,7 +20,8 @@ import {
   SchemaParityCodemodSite,
 } from "./SchemaParityCodemod.schemas.ts";
 import { renderSchemaParityCodemodEdits } from "./SchemaParityCodemodEdits.ts";
-import type { CallExpression, ElementAccessExpression, PropertyAccessExpression, SourceFile } from "ts-morph";
+import { isLiteralKitOwnerDeclaration } from "./SchemaParityCodemodLiteralKitRule.ts";
+import type { CallExpression, ElementAccessExpression, PropertyAccessExpression, SourceFile, Type } from "ts-morph";
 import type { SchemaParityCodemodRuleContext } from "./SchemaParityCodemod.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Lint/internal/SchemaParityCodemodLiteralKitMatchRule");
@@ -89,15 +90,19 @@ const leftover = (facet: LiteralKitMatchRenameFacet, node: Node, reason: string)
 const replaceNode = (node: Node, text: string): SchemaParityCodemodEdit =>
   SchemaParityCodemodEdit.make({ start: node.getStart(), end: node.getEnd(), text });
 
+const declaresOwnerProperty = (type: Type, name: string): boolean =>
+  A.some(type.getProperty(name)?.getDeclarations() ?? [], isLiteralKitOwnerDeclaration);
+
 /**
- * A kit-typed receiver carries both keyed helper records. `Data.taggedEnum`
- * objects expose `$is` and `$match` but never `Enum`, so this check keeps the
- * rule off them without resolving the member's declaration, which no longer
- * exists once the kit itself has been renamed.
+ * A kit-typed receiver carries both keyed helper records, and both resolve to
+ * a declaration in a LiteralKit owner module. The `$match` member itself is
+ * not resolved: its declaration no longer exists once the kit has been
+ * renamed. Matching only on the `Enum` and `is` names would also rename an
+ * unrelated object such as `{ Enum: {}, is: {}, $match }`.
  */
 const isKitTyped = (node: Node): boolean => {
   const type = node.getType();
-  return type.getProperty("Enum") !== undefined && type.getProperty("is") !== undefined;
+  return declaresOwnerProperty(type, "Enum") && declaresOwnerProperty(type, "is");
 };
 
 const planMatchAccess = (access: PropertyAccessExpression): O.Option<Decision> =>
@@ -225,9 +230,10 @@ const planLiteralKitMatchRename = (
  * **Details**
  *
  * The rule is type-directed on the receiver: a read is rewritten only when the
- * receiver's type carries both `Enum` and `is`, which is true of kits, mapped
- * kit directions and schemas decorated with `withLiteralKitStatics`, and false
- * of `Data.taggedEnum` objects that share the `$match` spelling. A re-wrap with
+ * receiver's `Enum` and `is` properties are declared by a LiteralKit owner
+ * module. That holds for kits, mapped kit directions and schemas decorated with
+ * `withLiteralKitStatics`, and not for `Data.taggedEnum` objects or local
+ * objects that share the `$match` spelling. A re-wrap with
  * explicit type arguments and a `["$match"]` element read are reported as
  * residue.
  *

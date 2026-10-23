@@ -434,7 +434,7 @@ export class RepoStepRunResult extends S.Opaque<RepoStepRunResult, { readonly br
  * **Example** (Rank two phases)
  *
  * ```ts
- * import { phaseOrderValue } from "@beep/repo-cli/internal/repo-run/RepoRun.models"
+ * import { phaseOrderValue } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(phaseOrderValue("commit") < phaseOrderValue("publish")) // true
  * ```
