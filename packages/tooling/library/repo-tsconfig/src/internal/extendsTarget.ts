@@ -389,7 +389,11 @@ const firstExisting = (
   Effect.findFirst(candidates, (candidate) =>
     fs.stat(candidate).pipe(
       Effect.map((info) => info.type === "File"),
-      Effect.catchReason("PlatformError", "NotFound", () => Effect.succeed(false))
+      Effect.catchTag("PlatformError", (error) =>
+        error.reason._tag === "NotFound" || (P.hasProperty(error.cause, "code") && error.cause.code === "ENOTDIR")
+          ? Effect.succeed(false)
+          : Effect.fail(error)
+      )
     )
   );
 

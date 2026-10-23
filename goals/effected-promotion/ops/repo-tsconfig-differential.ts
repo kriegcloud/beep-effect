@@ -400,6 +400,11 @@ interface SyntheticCase {
 const T = "tsconfig.json";
 const SYNTHETIC: ReadonlyArray<SyntheticCase> = [
   {
+    name: "through-file",
+    exports: '{".":["./base.json/strict","./tsconfig.json"]}',
+    files: ["base.json", T],
+  },
+  {
     name: "directory-condition",
     exports: '{".":{"types":"./directory.json","default":"./tsconfig.json"}}',
     files: ["directory.json/child.json", T],

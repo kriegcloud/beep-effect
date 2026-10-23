@@ -27,6 +27,12 @@ interface Row {
 }
 
 const rows: ReadonlyArray<Row> = [
+  {
+    name: "through-file",
+    exports: '{".":["./base.json/strict","./tsconfig.json"]}',
+    files: ["base.json", "tsconfig.json"],
+    expected: O.some("tsconfig.json"),
+  },
   // A directory is a miss, even when its name ends in `.json` (#2133).
   {
     name: "directory-condition",

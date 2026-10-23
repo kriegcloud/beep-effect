@@ -75,7 +75,9 @@ class UnsupportedPathOperationError extends S.TaggedError<
  *   exists: existsSync,
  *   readFile: (p) => readFileSync(p, "utf8"),
  *   realPath: realpathSync,
- *   isFile: (p) => statSync(p, { throwIfNoEntry: false })?.isFile() ?? false,
+ *   isFile: (p) => {
+ *       try { return statSync(p).isFile(); } catch { return false; }
+ *     },
  * };
  * console.log(typeof fileSystem.readFile) // function
  * ```
@@ -399,7 +401,9 @@ const compilerOptions: {
  * // `realPath` follows package symlinks; `isFile` skips directory targets.
  * const resolved = TsconfigLoaderSync.resolve("./tsconfig.json", {
  * 	fileSystem: { exists: existsSync, readFile: (p) => readFileSync(p, "utf8"), realPath: realpathSync,
- *     isFile: (p) => statSync(p, { throwIfNoEntry: false })?.isFile() ?? false },
+ *     isFile: (p) => {
+ *       try { return statSync(p).isFile(); } catch { return false; }
+ *     } },
  * 	path,
  * });
  * console.log(typeof resolved.compilerOptions) // object

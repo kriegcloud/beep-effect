@@ -91,6 +91,19 @@ describe("TsconfigLoaderSync.resolve", () => {
     assert.deepStrictEqual(resolved.extendedPaths, ["/proj/base.json", "/proj/tsconfig.json"]);
   });
 
+  it("reports a missing extends target when stat traverses a file (ENOTDIR)", () => {
+    const fs = MemoryFileSystem.makeSync(
+      tree(["/proj/tsconfig.json", '{"extends":"./base.json/strict"}'], ["/proj/base.json", "{}"])
+    ).sync;
+    const thrown = capture(() =>
+      TsconfigLoaderSync.resolve("/proj/tsconfig.json", {
+        path: posixPath,
+        fileSystem: { ...fs, isFile: (path) => fs.stat(path).isFile() },
+      })
+    );
+    assert.instanceOf(thrown, TsconfigExtendsError);
+  });
+
   it("retains the exists fallback for adapters without isFile", () => {
     const thrown = capture(() => TsconfigLoaderSync.resolve("/proj/tsconfig.json", posixOptions(directoryFiles)));
     assert.isTrue(PlatformError.isPlatformError(thrown));
