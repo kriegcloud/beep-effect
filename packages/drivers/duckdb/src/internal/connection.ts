@@ -80,7 +80,7 @@ const decodeSessionSnapshot = S.decodeUnknownEffect(SessionSnapshot);
 const SESSION_QUERY =
   "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar";
 const changesSession = (sql: string): boolean =>
-  A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET)\b/i.test(text));
+  A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET|PRAGMA)\b/i.test(text));
 
 const readerStreamRefusal = (
   reader: boolean,

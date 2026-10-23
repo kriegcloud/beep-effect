@@ -286,8 +286,9 @@ query the caller runs on that connection outside the client.
   text. Other raw session settings are not mirrored. Temporary tables and
   temporary macros remain writer-only; reader queries referring to them fail
   with `SqlSyntaxError` (DuckDB Catalog Error). Reader streams containing
-  `USE`, `SET`, `RESET` or transaction control are refused before execution
-  with `AuthorizationError`, so session state cannot leak across leases.
+  `USE`, `SET`, `RESET`, any `PRAGMA`, or transaction control are refused before execution
+  with `AuthorizationError`, so session state cannot leak across leases. All reader `PRAGMA` text is refused
+  conservatively because DuckDB also uses it to change session settings.
 - With no readers, a consumer that runs one client statement per row outside
   a transaction still deadlocks; collect first or use `withTransaction`.
   Streams on a `reserve`d connection still deadlock with readers enabled.

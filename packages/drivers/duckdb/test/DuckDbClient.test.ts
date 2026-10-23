@@ -1123,6 +1123,10 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
       Effect.fnUntraced(function* () {
         const sql = yield* DuckDbClient.DuckDbClient;
         const query = sql`SELECT date_trunc('day', TIMESTAMPTZ '2024-01-15 12:00:00+00') AS day, current_setting('TimeZone') AS zone, current_setting('Calendar') AS calendar`;
+        yield* sql`PRAGMA TimeZone = 'Asia/Tokyo'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql`PRAGMA Calendar = 'japanese'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
         yield* sql`SET TimeZone = 'Pacific/Kiritimati'`;
         yield* sql`SET Calendar = 'japanese'`;
         assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
@@ -1142,6 +1146,9 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
           "USE reader_a; SELECT 1",
           "SET TimeZone='Asia/Tokyo'; SELECT 1",
           "RESET TimeZone; SELECT 1",
+          "PRAGMA TimeZone='Asia/Tokyo'; SELECT 1",
+          "PRAGMA Calendar='japanese'; SELECT 1",
+          "PRAGMA search_path='s'; SELECT 1",
           "COMMIT",
           "/* before */ SET search_path='s'; SELECT 1",
         ]) {
