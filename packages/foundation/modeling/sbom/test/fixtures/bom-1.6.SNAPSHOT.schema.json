@@ -3,8 +3,11 @@
   "$id": "http://cyclonedx.org/schema/bom-1.6.schema.json",
   "type": "object",
   "title": "CycloneDX Bill of Materials Standard",
-  "$comment": "CycloneDX JSON schema is published under the terms of the Apache License 2.0.",
-  "required": ["bomFormat", "specVersion"],
+  "$comment" : "CycloneDX JSON schema is published under the terms of the Apache License 2.0.",
+  "required": [
+    "bomFormat",
+    "specVersion"
+  ],
   "additionalProperties": false,
   "properties": {
     "$schema": {
@@ -14,7 +17,9 @@
       "type": "string",
       "title": "BOM Format",
       "description": "Specifies the format of the BOM. This helps to identify the file as CycloneDX since BOMs do not have a filename convention, nor does JSON schema support namespaces. This value must be \"CycloneDX\".",
-      "enum": ["CycloneDX"]
+      "enum": [
+        "CycloneDX"
+      ]
     },
     "specVersion": {
       "type": "string",
@@ -44,55 +49,55 @@
     },
     "components": {
       "type": "array",
-      "items": { "$ref": "#/definitions/component" },
+      "items": {"$ref": "#/definitions/component"},
       "uniqueItems": true,
       "title": "Components",
       "description": "A list of software and hardware components."
     },
     "services": {
       "type": "array",
-      "items": { "$ref": "#/definitions/service" },
+      "items": {"$ref": "#/definitions/service"},
       "uniqueItems": true,
       "title": "Services",
       "description": "A list of services. This may include microservices, function-as-a-service, and other types of network or intra-process services."
     },
     "externalReferences": {
       "type": "array",
-      "items": { "$ref": "#/definitions/externalReference" },
+      "items": {"$ref": "#/definitions/externalReference"},
       "title": "External References",
       "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
     },
     "dependencies": {
       "type": "array",
-      "items": { "$ref": "#/definitions/dependency" },
+      "items": {"$ref": "#/definitions/dependency"},
       "uniqueItems": true,
       "title": "Dependencies",
       "description": "Provides the ability to document dependency relationships including provided & implemented components."
     },
     "compositions": {
       "type": "array",
-      "items": { "$ref": "#/definitions/compositions" },
+      "items": {"$ref": "#/definitions/compositions"},
       "uniqueItems": true,
       "title": "Compositions",
       "description": "Compositions describe constituent parts (including components, services, and dependency relationships) and their completeness. The completeness of vulnerabilities expressed in a BOM may also be described."
     },
     "vulnerabilities": {
       "type": "array",
-      "items": { "$ref": "#/definitions/vulnerability" },
+      "items": {"$ref": "#/definitions/vulnerability"},
       "uniqueItems": true,
       "title": "Vulnerabilities",
       "description": "Vulnerabilities identified in components or services."
     },
     "annotations": {
       "type": "array",
-      "items": { "$ref": "#/definitions/annotations" },
+      "items": {"$ref": "#/definitions/annotations"},
       "uniqueItems": true,
       "title": "Annotations",
       "description": "Comments made by people, organizations, or tools about any object with a bom-ref, such as components, services, vulnerabilities, or the BOM itself. Unlike inventory information, annotations may contain opinions or commentary from various stakeholders. Annotations may be inline (with inventory) or externalized via BOM-Link and may optionally be signed."
     },
     "formulation": {
       "type": "array",
-      "items": { "$ref": "#/definitions/formula" },
+      "items": {"$ref": "#/definitions/formula"},
       "uniqueItems": true,
       "title": "Formulation",
       "description": "Describes how a component or service was manufactured or deployed. This is achieved through the use of formulas, workflows, tasks, and steps, which declare the precise steps to reproduce along with the observed formulas describing the steps which transpired in the manufacturing process."
@@ -140,7 +145,7 @@
             "title": "Attestation",
             "additionalProperties": false,
             "properties": {
-              "summary": {
+              "summary":  {
                 "type": "string",
                 "title": "Summary",
                 "description": "The short description explaining the main points of the attestation."
@@ -282,7 +287,7 @@
               },
               "externalReferences": {
                 "type": "array",
-                "items": { "$ref": "#/definitions/externalReference" },
+                "items": {"$ref": "#/definitions/externalReference"},
                 "title": "External References",
                 "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
               },
@@ -409,19 +414,19 @@
               "type": "array",
               "title": "Organizations",
               "description": "The list of organizations which claims are made against.",
-              "items": { "$ref": "#/definitions/organizationalEntity" }
+              "items": {"$ref": "#/definitions/organizationalEntity"}
             },
             "components": {
               "type": "array",
               "title": "Components",
               "description": "The list of components which claims are made against.",
-              "items": { "$ref": "#/definitions/component" }
+              "items": {"$ref": "#/definitions/component"}
             },
             "services": {
               "type": "array",
               "title": "Services",
               "description": "The list of services which claims are made against.",
-              "items": { "$ref": "#/definitions/service" }
+              "items": {"$ref": "#/definitions/service"}
             }
           }
         },
@@ -435,9 +440,7 @@
               "type": "string",
               "title": "Statement",
               "description": "The brief statement affirmed by an individual regarding all declarations.\n*- Notes This could be an affirmation of acceptance by a third-party auditor or receiving individual of a file.",
-              "examples": [
-                "I certify, to the best of my knowledge, that all information is correct."
-              ]
+              "examples": [ "I certify, to the best of my knowledge, that all information is correct." ]
             },
             "signatories": {
               "type": "array",
@@ -637,7 +640,7 @@
               }
             ]
           }
-        },
+      },
         "tools": {
           "title": "Tools",
           "description": "The tool(s) used in the creation, enrichment, and validation of the BOM.",
@@ -650,14 +653,14 @@
               "properties": {
                 "components": {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/component" },
+                  "items": {"$ref": "#/definitions/component"},
                   "uniqueItems": true,
                   "title": "Components",
                   "description": "A list of software and hardware components used as tools."
                 },
                 "services": {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/service" },
+                  "items": {"$ref": "#/definitions/service"},
                   "uniqueItems": true,
                   "title": "Services",
                   "description": "A list of services used as tools. This may include microservices, function-as-a-service, and other types of network or intra-process services."
@@ -668,7 +671,7 @@
               "type": "array",
               "title": "Tools (legacy)",
               "description": "[Deprecated] The tool(s) used in the creation, enrichment, and validation of the BOM.",
-              "items": { "$ref": "#/definitions/tool" }
+              "items": {"$ref": "#/definitions/tool"}
             }
           ]
         },
@@ -681,7 +684,7 @@
           "type": "array",
           "title": "BOM Authors",
           "description": "The person(s) who created the BOM.\nAuthors are common in BOMs created through manual processes. BOMs created through automated means may have `@.manufacturer` instead.",
-          "items": { "$ref": "#/definitions/organizationalContact" }
+          "items": {"$ref": "#/definitions/organizationalContact"}
         },
         "component": {
           "title": "Component",
@@ -708,7 +711,7 @@
           "type": "array",
           "title": "Properties",
           "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-          "items": { "$ref": "#/definitions/property" }
+          "items": {"$ref": "#/definitions/property"}
         }
       }
     },
@@ -735,13 +738,13 @@
         },
         "hashes": {
           "type": "array",
-          "items": { "$ref": "#/definitions/hash" },
+          "items": {"$ref": "#/definitions/hash"},
           "title": "Hashes",
           "description": "The hashes of the tool (if applicable)."
         },
         "externalReferences": {
           "type": "array",
-          "items": { "$ref": "#/definitions/externalReference" },
+          "items": {"$ref": "#/definitions/externalReference"},
           "title": "External References",
           "description": "External references provide a way to document systems, sites, and information that may be relevant, but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
         }
@@ -761,7 +764,9 @@
           "type": "string",
           "title": "Organization Name",
           "description": "The name of the organization",
-          "examples": ["Example Inc."]
+          "examples": [
+            "Example Inc."
+          ]
         },
         "address": {
           "$ref": "#/definitions/postalAddress",
@@ -782,7 +787,7 @@
           "type": "array",
           "title": "Organizational Contact",
           "description": "A contact at the organization. Multiple contacts are allowed.",
-          "items": { "$ref": "#/definitions/organizationalContact" }
+          "items": {"$ref": "#/definitions/organizationalContact"}
         }
       }
     },
@@ -820,7 +825,10 @@
     "component": {
       "type": "object",
       "title": "Component",
-      "required": ["type", "name"],
+      "required": [
+        "type",
+        "name"
+      ],
       "additionalProperties": false,
       "properties": {
         "type": {
@@ -881,11 +889,11 @@
           "description": "The organization that created the component.\nManufacturer is common in components created through automated processes. Components created through manual means may have `@.authors` instead.",
           "$ref": "#/definitions/organizationalEntity"
         },
-        "authors": {
+        "authors" :{
           "type": "array",
           "title": "Component Authors",
           "description": "The person(s) who created the component.\nAuthors are common in components created through manual processes. Components created through automated means may have `@.manufacturer` instead.",
-          "items": { "$ref": "#/definitions/organizationalContact" }
+          "items": {"$ref": "#/definitions/organizationalContact"}
         },
         "author": {
           "deprecated": true,
@@ -924,7 +932,11 @@
         },
         "scope": {
           "type": "string",
-          "enum": ["required", "optional", "excluded"],
+          "enum": [
+            "required",
+            "optional",
+            "excluded"
+          ],
           "meta:enum": {
             "required": "The component is required for runtime",
             "optional": "The component is optional at runtime. Optional components are components that are not capable of being called due to them not being installed or otherwise accessible by any means. Components that are installed but due to configuration or other restrictions are prohibited from being called must be scoped as 'required'.",
@@ -938,7 +950,7 @@
           "type": "array",
           "title": "Component Hashes",
           "description": "The hashes of the component.",
-          "items": { "$ref": "#/definitions/hash" }
+          "items": {"$ref": "#/definitions/hash"}
         },
         "licenses": {
           "$ref": "#/definitions/licenseChoice",
@@ -960,9 +972,7 @@
           "type": "string",
           "title": "Package URL (purl)",
           "description": "Asserts the identity of the component using package-url (purl). The purl, if specified, must be valid and conform to the specification defined at: [https://github.com/package-url/purl-spec](https://github.com/package-url/purl-spec). Refer to `@.evidence.identity` to optionally provide evidence that substantiates the assertion of the component's identity.",
-          "examples": [
-            "pkg:maven/com.acme/tomcat-catalina@9.0.14?packaging=jar"
-          ]
+          "examples": ["pkg:maven/com.acme/tomcat-catalina@9.0.14?packaging=jar"]
         },
         "omniborId": {
           "type": "array",
@@ -1001,31 +1011,31 @@
               "type": "array",
               "title": "Ancestors",
               "description": "Describes zero or more components in which a component is derived from. This is commonly used to describe forks from existing projects where the forked version contains a ancestor node containing the original component it was forked from. For example, Component A is the original component. Component B is the component being used and documented in the BOM. However, Component B contains a pedigree node with a single ancestor documenting Component A - the original component from which Component B is derived from.",
-              "items": { "$ref": "#/definitions/component" }
+              "items": {"$ref": "#/definitions/component"}
             },
             "descendants": {
               "type": "array",
               "title": "Descendants",
               "description": "Descendants are the exact opposite of ancestors. This provides a way to document all forks (and their forks) of an original or root component.",
-              "items": { "$ref": "#/definitions/component" }
+              "items": {"$ref": "#/definitions/component"}
             },
             "variants": {
               "type": "array",
               "title": "Variants",
               "description": "Variants describe relations where the relationship between the components is not known. For example, if Component A contains nearly identical code to Component B. They are both related, but it is unclear if one is derived from the other, or if they share a common ancestor.",
-              "items": { "$ref": "#/definitions/component" }
+              "items": {"$ref": "#/definitions/component"}
             },
             "commits": {
               "type": "array",
               "title": "Commits",
               "description": "A list of zero or more commits which provide a trail describing how the component deviates from an ancestor, descendant, or variant.",
-              "items": { "$ref": "#/definitions/commit" }
+              "items": {"$ref": "#/definitions/commit"}
             },
             "patches": {
               "type": "array",
               "title": "Patches",
               "description": ">A list of zero or more patches describing how the component deviates from an ancestor, descendant, or variant. Patches may be complementary to commits or may be used in place of commits.",
-              "items": { "$ref": "#/definitions/patch" }
+              "items": {"$ref": "#/definitions/patch"}
             },
             "notes": {
               "type": "string",
@@ -1036,13 +1046,13 @@
         },
         "externalReferences": {
           "type": "array",
-          "items": { "$ref": "#/definitions/externalReference" },
+          "items": {"$ref": "#/definitions/externalReference"},
           "title": "External References",
           "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
         },
         "components": {
           "type": "array",
-          "items": { "$ref": "#/definitions/component" },
+          "items": {"$ref": "#/definitions/component"},
           "uniqueItems": true,
           "title": "Components",
           "description": "A list of software and hardware components included in the parent component. This is not a dependency tree. It provides a way to specify a hierarchical representation of component assemblies, similar to system &#8594; subsystem &#8594; parts assembly in physical supply chains."
@@ -1057,13 +1067,13 @@
           "title": "Release notes",
           "description": "Specifies optional release notes."
         },
-        "modelCard": {
+         "modelCard": {
           "$ref": "#/definitions/modelCard",
           "title": "AI/ML Model Card"
         },
         "data": {
           "type": "array",
-          "items": { "$ref": "#/definitions/componentData" },
+          "items": {"$ref": "#/definitions/componentData"},
           "title": "Data",
           "description": "This object SHOULD be specified for any component of type `data` and must not be specified for other component types."
         },
@@ -1075,7 +1085,7 @@
           "type": "array",
           "title": "Properties",
           "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-          "items": { "$ref": "#/definitions/property" }
+          "items": {"$ref": "#/definitions/property"}
         },
         "tags": {
           "$ref": "#/definitions/tags",
@@ -1092,7 +1102,10 @@
       "type": "object",
       "title": "SWID Tag",
       "description": "Specifies metadata and content for ISO-IEC 19770-2 Software Identification (SWID) Tags.",
-      "required": ["tagId", "name"],
+      "required": [
+        "tagId",
+        "name"
+      ],
       "additionalProperties": false,
       "properties": {
         "tagId": {
@@ -1140,7 +1153,9 @@
       "type": "object",
       "title": "Attachment",
       "description": "Specifies the metadata and content for an attachment.",
-      "required": ["content"],
+      "required": [
+        "content"
+      ],
       "additionalProperties": false,
       "properties": {
         "contentType": {
@@ -1148,13 +1163,19 @@
           "title": "Content-Type",
           "description": "Specifies the format and nature of the data being attached, helping systems correctly interpret and process the content. Common content type examples include `application/json` for JSON data and `text/plain` for plain text documents.\n [RFC 2045 section 5.1](https://www.ietf.org/rfc/rfc2045.html#section-5.1) outlines the structure and use of content types. For a comprehensive list of registered content types, refer to the [IANA media types registry](https://www.iana.org/assignments/media-types/media-types.xhtml).",
           "default": "text/plain",
-          "examples": ["text/plain", "application/json", "image/png"]
+          "examples": [
+            "text/plain",
+            "application/json",
+            "image/png"
+          ]
         },
         "encoding": {
           "type": "string",
           "title": "Encoding",
           "description": "Specifies the optional encoding the text is represented in.",
-          "enum": ["base64"],
+          "enum": [
+            "base64"
+          ],
           "meta:enum": {
             "base64": "Base64 is a binary-to-text encoding scheme that represents binary data in an ASCII string."
           }
@@ -1169,7 +1190,10 @@
     "hash": {
       "type": "object",
       "title": "Hash",
-      "required": ["alg", "content"],
+      "required": [
+        "alg",
+        "content"
+      ],
       "additionalProperties": false,
       "properties": {
         "alg": {
@@ -1283,7 +1307,7 @@
                   "$ref": "#/definitions/organizationalContact"
                 }
               },
-              "oneOf": [
+              "oneOf":[
                 {
                   "required": ["organization"]
                 },
@@ -1309,7 +1333,7 @@
                   "$ref": "#/definitions/organizationalContact"
                 }
               },
-              "oneOf": [
+              "oneOf":[
                 {
                   "required": ["organization"]
                 },
@@ -1335,7 +1359,7 @@
                   "$ref": "#/definitions/organizationalContact"
                 }
               },
-              "oneOf": [
+              "oneOf":[
                 {
                   "required": ["organization"]
                 },
@@ -1411,7 +1435,7 @@
           "type": "array",
           "title": "Properties",
           "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-          "items": { "$ref": "#/definitions/property" }
+          "items": {"$ref": "#/definitions/property"}
         }
       }
     },
@@ -1419,7 +1443,10 @@
       "title": "License Acknowledgement",
       "description": "Declared licenses and concluded licenses represent two different stages in the licensing process within software development. Declared licenses refer to the initial intention of the software authors regarding the licensing terms under which their code is released. On the other hand, concluded licenses are the result of a comprehensive analysis of the project's codebase to identify and confirm the actual licenses of the components used, which may differ from the initially declared licenses. While declared licenses provide an upfront indication of the licensing intentions, concluded licenses offer a more thorough understanding of the actual licensing within a project, facilitating proper compliance and risk management. Observed licenses are defined in `@.evidence.licenses`. Observed licenses form the evidence necessary to substantiate a concluded license.",
       "type": "string",
-      "enum": ["declared", "concluded"],
+      "enum": [
+        "declared",
+        "concluded"
+      ],
       "meta:enum": {
         "declared": "Declared licenses represent the initial intentions of authors regarding the licensing terms of their code.",
         "concluded": "Concluded licenses are verified and confirmed."
@@ -1440,7 +1467,7 @@
             "required": ["license"],
             "additionalProperties": false,
             "properties": {
-              "license": { "$ref": "#/definitions/license" }
+              "license": {"$ref": "#/definitions/license"}
             }
           }
         },
@@ -1451,32 +1478,30 @@
           "additionalItems": false,
           "minItems": 1,
           "maxItems": 1,
-          "items": [
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["expression"],
-              "properties": {
-                "expression": {
-                  "type": "string",
-                  "title": "SPDX License Expression",
-                  "description": "A valid SPDX license expression.\nRefer to https://spdx.org/specifications for syntax requirements",
-                  "examples": [
-                    "Apache-2.0 AND (MIT OR GPL-2.0-only)",
-                    "GPL-3.0-only WITH Classpath-exception-2.0"
-                  ]
-                },
-                "acknowledgement": {
-                  "$ref": "#/definitions/licenseAcknowledgementEnumeration"
-                },
-                "bom-ref": {
-                  "$ref": "#/definitions/refType",
-                  "title": "BOM Reference",
-                  "description": "An optional identifier which can be used to reference the license elsewhere in the BOM. Every bom-ref must be unique within the BOM.\nValue SHOULD not start with the BOM-Link intro 'urn:cdx:' to avoid conflicts with BOM-Links."
-                }
+          "items": [{
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["expression"],
+            "properties": {
+              "expression": {
+                "type": "string",
+                "title": "SPDX License Expression",
+                "description": "A valid SPDX license expression.\nRefer to https://spdx.org/specifications for syntax requirements",
+                "examples": [
+                  "Apache-2.0 AND (MIT OR GPL-2.0-only)",
+                  "GPL-3.0-only WITH Classpath-exception-2.0"
+                ]
+              },
+              "acknowledgement": {
+                "$ref": "#/definitions/licenseAcknowledgementEnumeration"
+              },
+              "bom-ref": {
+                "$ref": "#/definitions/refType",
+                "title": "BOM Reference",
+                "description": "An optional identifier which can be used to reference the license elsewhere in the BOM. Every bom-ref must be unique within the BOM.\nValue SHOULD not start with the BOM-Link intro 'urn:cdx:' to avoid conflicts with BOM-Links."
               }
             }
-          ]
+          }]
         }
       ]
     },
@@ -1518,12 +1543,19 @@
       "type": "object",
       "title": "Patch",
       "description": "Specifies an individual patch",
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["unofficial", "monkey", "backport", "cherry-pick"],
+          "enum": [
+            "unofficial",
+            "monkey",
+            "backport",
+            "cherry-pick"
+          ],
           "meta:enum": {
             "unofficial": "A patch which is not developed by the creators or maintainers of the software being patched. Refer to [https://en.wikipedia.org/wiki/Unofficial_patch](https://en.wikipedia.org/wiki/Unofficial_patch).",
             "monkey": "A patch which dynamically modifies runtime behavior. Refer to [https://en.wikipedia.org/wiki/Monkey_patch](https://en.wikipedia.org/wiki/Monkey_patch).",
@@ -1540,7 +1572,7 @@
         },
         "resolves": {
           "type": "array",
-          "items": { "$ref": "#/definitions/issue" },
+          "items": {"$ref": "#/definitions/issue"},
           "title": "Resolves",
           "description": "A collection of issues the patch resolves"
         }
@@ -1569,12 +1601,18 @@
       "type": "object",
       "title": "Issue",
       "description": "An individual issue that has been resolved.",
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["defect", "enhancement", "security"],
+          "enum": [
+            "defect",
+            "enhancement",
+            "security"
+          ],
           "meta:enum": {
             "defect": "A fault, flaw, or bug in software.",
             "enhancement": "A new feature or behavior in software.",
@@ -1608,7 +1646,11 @@
               "type": "string",
               "title": "Name",
               "description": "The name of the source.",
-              "examples": ["National Vulnerability Database", "NVD", "Apache"]
+              "examples": [
+                "National Vulnerability Database",
+                "NVD",
+                "Apache"
+              ]
             },
             "url": {
               "type": "string",
@@ -1659,7 +1701,10 @@
       "type": "object",
       "title": "External Reference",
       "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM.",
-      "required": ["url", "type"],
+      "required": [
+        "url",
+        "type"
+      ],
       "additionalProperties": false,
       "properties": {
         "url": {
@@ -1779,7 +1824,7 @@
         },
         "hashes": {
           "type": "array",
-          "items": { "$ref": "#/definitions/hash" },
+          "items": {"$ref": "#/definitions/hash"},
           "title": "Hashes",
           "description": "The hashes of the external reference (if applicable)."
         }
@@ -1789,7 +1834,9 @@
       "type": "object",
       "title": "Dependency",
       "description": "Defines the direct dependencies of a component, service, or the components provided/implemented by a given component. Components or services that do not have their own dependencies must be declared as empty elements within the graph. Components or services that are not represented in the dependency graph may have unknown dependencies. It is recommended that implementations assume this to be opaque and not an indicator of an object being dependency-free. It is recommended to leverage compositions to indicate unknown dependency graphs.",
-      "required": ["ref"],
+      "required": [
+        "ref"
+      ],
       "additionalProperties": false,
       "properties": {
         "ref": {
@@ -1820,7 +1867,9 @@
     "service": {
       "type": "object",
       "title": "Service",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -1882,7 +1931,7 @@
         },
         "data": {
           "type": "array",
-          "items": { "$ref": "#/definitions/serviceData" },
+          "items": {"$ref": "#/definitions/serviceData"},
           "title": "Data",
           "description": "Specifies information about the data including the directional flow of data and the data classification."
         },
@@ -1892,13 +1941,13 @@
         },
         "externalReferences": {
           "type": "array",
-          "items": { "$ref": "#/definitions/externalReference" },
+          "items": {"$ref": "#/definitions/externalReference"},
           "title": "External References",
           "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
         },
         "services": {
           "type": "array",
-          "items": { "$ref": "#/definitions/service" },
+          "items": {"$ref": "#/definitions/service"},
           "uniqueItems": true,
           "title": "Services",
           "description": "A list of services included or deployed behind the parent service. This is not a dependency tree. It provides a way to specify a hierarchical representation of service assemblies."
@@ -1912,7 +1961,7 @@
           "type": "array",
           "title": "Properties",
           "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-          "items": { "$ref": "#/definitions/property" }
+          "items": {"$ref": "#/definitions/property"}
         },
         "tags": {
           "$ref": "#/definitions/tags",
@@ -1928,7 +1977,10 @@
     "serviceData": {
       "type": "object",
       "title": "Hash Objects",
-      "required": ["flow", "classification"],
+      "required": [
+        "flow",
+        "classification"
+      ],
       "additionalProperties": false,
       "properties": {
         "flow": {
@@ -1943,7 +1995,9 @@
           "type": "string",
           "title": "Name",
           "description": "Name for the defined data",
-          "examples": ["Credit card reporting"]
+          "examples": [
+            "Credit card reporting"
+          ]
         },
         "description": {
           "type": "string",
@@ -1997,7 +2051,12 @@
     },
     "dataFlowDirection": {
       "type": "string",
-      "enum": ["inbound", "outbound", "bi-directional", "unknown"],
+      "enum": [
+        "inbound",
+        "outbound",
+        "bi-directional",
+        "unknown"
+      ],
       "meta:enum": {
         "inbound": "Data that enters a service.",
         "outbound": "Data that exits a service.",
@@ -2011,7 +2070,9 @@
       "type": "object",
       "title": "Copyright",
       "description": "A copyright notice informing users of the underlying claims to copyright ownership in a published work.",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
         "text": {
@@ -2030,7 +2091,7 @@
         "identity": {
           "title": "Identity Evidence",
           "description": "Evidence that substantiates the identity of a component. The identity may be an object or an array of identity objects. Support for specifying identity as a single object was introduced in CycloneDX v1.5. Arrays were introduced in v1.6. It is recommended that all implementations use arrays, even if only one identity object is specified.",
-          "oneOf": [
+          "oneOf" : [
             {
               "type": "array",
               "title": "Array of Identity Objects",
@@ -2050,7 +2111,7 @@
           "description": "Evidence of individual instances of a component spread across multiple locations.",
           "items": {
             "type": "object",
-            "required": ["location"],
+            "required": [ "location" ],
             "additionalProperties": false,
             "properties": {
               "bom-ref": {
@@ -2100,7 +2161,9 @@
               "description": "Within a call stack, a frame is a discrete unit that encapsulates an execution context, including local variables, parameters, and the return address. As function calls are made, frames are pushed onto the stack, forming an array-like structure that orchestrates the flow of program execution and manages the sequence of function invocations.",
               "items": {
                 "type": "object",
-                "required": ["module"],
+                "required": [
+                  "module"
+                ],
                 "additionalProperties": false,
                 "properties": {
                   "package": {
@@ -2152,7 +2215,7 @@
         },
         "copyright": {
           "type": "array",
-          "items": { "$ref": "#/definitions/copyright" },
+          "items": {"$ref": "#/definitions/copyright"},
           "title": "Copyright Evidence",
           "description": "Copyright evidence captures intellectual property assertions, providing evidence of possible ownership and legal protection."
         }
@@ -2161,7 +2224,9 @@
     "compositions": {
       "type": "object",
       "title": "Compositions",
-      "required": ["aggregate"],
+      "required": [
+        "aggregate"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -2249,7 +2314,9 @@
       "type": "object",
       "title": "Lightweight name-value pair",
       "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
         "name": {
           "type": "string",
@@ -2272,14 +2339,22 @@
     },
     "releaseType": {
       "type": "string",
-      "examples": ["major", "minor", "patch", "pre-release", "internal"],
+      "examples": [
+        "major",
+        "minor",
+        "patch",
+        "pre-release",
+        "internal"
+      ],
       "description": "The software versioning type. It is recommended that the release type use one of 'major', 'minor', 'patch', 'pre-release', or 'internal'. Representing all possible software release types is not practical, so standardizing on the recommended values, whenever possible, is strongly encouraged.\n\n* __major__ = A major release may contain significant changes or may introduce breaking changes.\n* __minor__ = A minor release, also known as an update, may contain a smaller number of changes than major releases.\n* __patch__ = Patch releases are typically unplanned and may resolve defects or important security issues.\n* __pre-release__ = A pre-release may include alpha, beta, or release candidates and typically have limited support. They provide the ability to preview a release prior to its general availability.\n* __internal__ = Internal releases are not for public consumption and are intended to be used exclusively by the project or manufacturer that produced it."
     },
     "note": {
       "type": "object",
       "title": "Note",
       "description": "A note containing the locale and content.",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
         "locale": {
@@ -2297,7 +2372,9 @@
     "releaseNotes": {
       "type": "object",
       "title": "Release notes",
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "additionalProperties": false,
       "properties": {
         "type": {
@@ -2347,13 +2424,13 @@
         },
         "resolves": {
           "type": "array",
-          "items": { "$ref": "#/definitions/issue" },
+          "items": {"$ref": "#/definitions/issue"},
           "title": "Resolves",
           "description": "A collection of issues that have been resolved."
         },
         "notes": {
           "type": "array",
-          "items": { "$ref": "#/definitions/note" },
+          "items": {"$ref": "#/definitions/note"},
           "title": "Notes",
           "description": "Zero or more release notes containing the locale and content. Multiple note objects may be specified to support release notes in a wide variety of languages."
         },
@@ -2361,7 +2438,7 @@
           "type": "array",
           "title": "Properties",
           "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-          "items": { "$ref": "#/definitions/property" }
+          "items": {"$ref": "#/definitions/property"}
         }
       }
     },
@@ -2395,7 +2472,15 @@
       "type": "string",
       "title": "Severity",
       "description": "Textual representation of the severity of the vulnerability adopted by the analysis method. If the analysis method uses values other than what is provided, the user is expected to translate appropriately.",
-      "enum": ["critical", "high", "medium", "low", "info", "none", "unknown"],
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info",
+        "none",
+        "unknown"
+      ],
       "meta:enum": {
         "critical": "Critical severity",
         "high": "High severity",
@@ -2521,7 +2606,9 @@
           "type": "string",
           "title": "URL",
           "description": "The url of the vulnerability documentation as provided by the source.",
-          "examples": ["https://nvd.nist.gov/vuln/detail/CVE-2021-39182"]
+          "examples": [
+            "https://nvd.nist.gov/vuln/detail/CVE-2021-39182"
+          ]
         },
         "name": {
           "type": "string",
@@ -2568,7 +2655,10 @@
           "description": "Zero or more pointers to vulnerabilities that are the equivalent of the vulnerability specified. Often times, the same vulnerability may exist in multiple sources of vulnerability intelligence, but have different identifiers. References provide a way to correlate vulnerabilities across multiple sources of vulnerability intelligence.",
           "items": {
             "type": "object",
-            "required": ["id", "source"],
+            "required": [
+              "id",
+              "source"
+            ],
             "additionalProperties": false,
             "properties": {
               "id": {
@@ -2716,14 +2806,14 @@
               "properties": {
                 "components": {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/component" },
+                  "items": {"$ref": "#/definitions/component"},
                   "uniqueItems": true,
                   "title": "Components",
                   "description": "A list of software and hardware components used as tools."
                 },
                 "services": {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/service" },
+                  "items": {"$ref": "#/definitions/service"},
                   "uniqueItems": true,
                   "title": "Services",
                   "description": "A list of services used as tools. This may include microservices, function-as-a-service, and other types of network or intra-process services."
@@ -2734,7 +2824,7 @@
               "type": "array",
               "title": "Tools (legacy)",
               "description": "[Deprecated] The tool(s) used to identify, confirm, or score the vulnerability.",
-              "items": { "$ref": "#/definitions/tool" }
+              "items": {"$ref": "#/definitions/tool"}
             }
           ]
         },
@@ -2796,7 +2886,9 @@
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": ["ref"],
+            "required": [
+              "ref"
+            ],
             "additionalProperties": false,
             "properties": {
               "ref": {
@@ -2866,7 +2958,11 @@
     "affectedStatus": {
       "description": "The vulnerability status of a given version or range of versions of a product. The statuses 'affected' and 'unaffected' indicate that the version is affected or unaffected by the vulnerability. The status 'unknown' indicates that it is unknown or unspecified whether the given version is affected. There can be many reasons for an 'unknown' status, including that an investigation has not been undertaken or that a vendor has not disclosed the status.",
       "type": "string",
-      "enum": ["affected", "unaffected", "unknown"],
+      "enum": [
+        "affected",
+        "unaffected",
+        "unknown"
+      ],
       "meta:enum": {
         "affected": "The version is affected by the vulnerability.",
         "unaffected": "The version is not affected by the vulnerability.",
@@ -2908,7 +3004,12 @@
       "type": "object",
       "title": "Annotations",
       "description": "A comment, note, explanation, or similar textual content which provides additional context to the object(s) being annotated.",
-      "required": ["subjects", "annotator", "timestamp", "text"],
+      "required": [
+        "subjects",
+        "annotator",
+        "timestamp",
+        "text"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -2940,16 +3041,24 @@
           "description": "The organization, person, component, or service which created the textual content of the annotation.",
           "oneOf": [
             {
-              "required": ["organization"]
+              "required": [
+                "organization"
+              ]
             },
             {
-              "required": ["individual"]
+              "required": [
+                "individual"
+              ]
             },
             {
-              "required": ["component"]
+              "required": [
+                "component"
+              ]
             },
             {
-              "required": ["service"]
+              "required": [
+                "service"
+              ]
             }
           ],
           "additionalProperties": false,
@@ -3054,8 +3163,8 @@
               "type": "array",
               "title": "Datasets",
               "description": "The datasets used to train and evaluate the model.",
-              "items": {
-                "oneOf": [
+              "items" : {
+                "oneOf" : [
                   {
                     "title": "Inline Data Information",
                     "$ref": "#/definitions/componentData"
@@ -3158,7 +3267,7 @@
               "description": "What are the ethical risks involved in the application of this model?",
               "items": { "$ref": "#/definitions/risk" }
             },
-            "environmentalConsiderations": {
+            "environmentalConsiderations":{
               "$ref": "#/definitions/environmentalConsiderations",
               "title": "Environmental Considerations",
               "description": "What are the various environmental impacts the corresponding machine learning model has exhibited across its lifecycle?"
@@ -3177,7 +3286,7 @@
           "type": "array",
           "title": "Properties",
           "description": "Provides the ability to document properties in a name-value store. This provides flexibility to include data not officially supported in the standard without having to use additional namespaces or create extensions. Unlike key-value stores, properties support duplicate names, each potentially having different values. Property names of interest to the general public are encouraged to be registered in the [CycloneDX Property Taxonomy](https://github.com/CycloneDX/cyclonedx-property-taxonomy). Formal registration is optional.",
-          "items": { "$ref": "#/definitions/property" }
+          "items": {"$ref": "#/definitions/property"}
         }
       }
     },
@@ -3190,14 +3299,16 @@
           "title": "Input/Output Format",
           "description": "The data format for input/output to the model.",
           "type": "string",
-          "examples": ["string", "image", "time-series"]
+          "examples": [ "string", "image", "time-series"]
         }
       }
     },
     "componentData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "properties": {
         "bom-ref": {
           "$ref": "#/definitions/refType",
@@ -3319,7 +3430,7 @@
           "$ref": "#/definitions/organizationalContact"
         }
       },
-      "oneOf": [
+      "oneOf":[
         {
           "required": ["organization"]
         },
@@ -3482,7 +3593,11 @@
       "title": "Energy consumption",
       "description": "Describes energy consumption information incurred for the specified lifecycle activity.",
       "type": "object",
-      "required": ["activity", "energyProviders", "activityEnergyCost"],
+      "required": [
+        "activity",
+        "energyProviders",
+        "activityEnergyCost"
+      ],
       "additionalProperties": false,
       "properties": {
         "activity": {
@@ -3547,7 +3662,10 @@
       "type": "object",
       "title": "Energy Measure",
       "description": "A measure of energy.",
-      "required": ["value", "unit"],
+      "required": [
+        "value",
+        "unit"
+      ],
       "additionalProperties": false,
       "properties": {
         "value": {
@@ -3557,7 +3675,7 @@
         },
         "unit": {
           "type": "string",
-          "enum": ["kWh"],
+          "enum": [ "kWh" ],
           "title": "Unit",
           "description": "Unit of energy.",
           "meta:enum": {
@@ -3570,7 +3688,10 @@
       "type": "object",
       "title": "CO2 Measure",
       "description": "A measure of carbon dioxide (CO2).",
-      "required": ["value", "unit"],
+      "required": [
+        "value",
+        "unit"
+      ],
       "additionalProperties": false,
       "properties": {
         "value": {
@@ -3580,7 +3701,7 @@
         },
         "unit": {
           "type": "string",
-          "enum": ["tCO2eq"],
+          "enum": [ "tCO2eq" ],
           "title": "Unit",
           "description": "Unit of carbon dioxide (CO2).",
           "meta:enum": {
@@ -3593,7 +3714,11 @@
       "type": "object",
       "title": "Energy Provider",
       "description": "Describes the physical provider of energy used for model development or operations.",
-      "required": ["organization", "energySource", "energyProvided"],
+      "required": [
+        "organization",
+        "energySource",
+        "energyProvided"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -3650,7 +3775,7 @@
         },
         "externalReferences": {
           "type": "array",
-          "items": { "$ref": "#/definitions/externalReference" },
+          "items": {"$ref": "#/definitions/externalReference"},
           "title": "External References",
           "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
         }
@@ -3676,31 +3801,31 @@
           "type": "string",
           "title": "Region",
           "description": "The region or state in the country.",
-          "examples": ["Texas"]
+          "examples": [ "Texas" ]
         },
         "locality": {
           "type": "string",
           "title": "Locality",
           "description": "The locality or city within the country.",
-          "examples": ["Austin"]
+          "examples": [ "Austin" ]
         },
         "postOfficeBoxNumber": {
           "type": "string",
           "title": "Post Office Box Number",
           "description": "The post office box number.",
-          "examples": ["901"]
+          "examples": [ "901" ]
         },
         "postalCode": {
           "type": "string",
           "title": "Postal Code",
           "description": "The postal code.",
-          "examples": ["78758"]
+          "examples": [ "78758" ]
         },
         "streetAddress": {
           "type": "string",
           "title": "Street Address",
           "description": "The street address.",
-          "examples": ["100 Main Street"]
+          "examples": [ "100 Main Street" ]
         }
       }
     },
@@ -3758,7 +3883,11 @@
       "description": "A specialized orchestration task.",
       "$comment": "Workflow are as task themselves and can trigger other workflow tasks.  These relationships can be modeled in the taskDependencies graph.",
       "type": "object",
-      "required": ["bom-ref", "uid", "taskTypes"],
+      "required": [
+        "bom-ref",
+        "uid",
+        "taskTypes"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -3835,9 +3964,7 @@
         "inputs": {
           "title": "Inputs",
           "description": "Represents resources and data brought into a task at runtime by executor or task commands",
-          "examples": [
-            "a `configuration` file which was declared as a local `component` or `externalReference`"
-          ],
+          "examples": ["a `configuration` file which was declared as a local `component` or `externalReference`"],
           "type": "array",
           "items": {
             "$ref": "#/definitions/inputType"
@@ -3900,7 +4027,11 @@
       "description": "Describes the inputs, sequence of steps and resources used to accomplish a task and its output.",
       "$comment": "Tasks are building blocks for constructing assemble CI/CD workflows or pipelines.",
       "type": "object",
-      "required": ["bom-ref", "uid", "taskTypes"],
+      "required": [
+        "bom-ref",
+        "uid",
+        "taskTypes"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -3958,9 +4089,7 @@
         "inputs": {
           "title": "Inputs",
           "description": "Represents resources and data brought into a task at runtime by executor or task commands",
-          "examples": [
-            "a `configuration` file which was declared as a local `component` or `externalReference`"
-          ],
+          "examples": ["a `configuration` file which was declared as a local `component` or `externalReference`"],
           "type": "array",
           "items": {
             "$ref": "#/definitions/inputType"
@@ -4074,7 +4203,10 @@
       "title": "Workspace",
       "description": "A named filesystem or data resource shareable by workflow tasks.",
       "type": "object",
-      "required": ["bom-ref", "uid"],
+      "required": [
+        "bom-ref",
+        "uid"
+      ],
       "additionalProperties": false,
       "properties": {
         "bom-ref": {
@@ -4096,7 +4228,7 @@
           "title": "Aliases",
           "description": "The names for the workspace as referenced by other workflow tasks. Effectively, a name mapping so other tasks can use their own local name in their steps.",
           "type": "array",
-          "items": { "type": "string" }
+          "items": {"type": "string"}
         },
         "description": {
           "title": "Description",
@@ -4133,7 +4265,7 @@
           "title": "Managed data type",
           "description": "The name of a domain-specific data type the workspace represents.",
           "$comment": "This property is for CI/CD frameworks that are able to provide access to structured, managed data at a more granular level than a filesystem.",
-          "examples": ["ConfigMap", "Secret"],
+          "examples": ["ConfigMap","Secret"],
           "type": "string"
         },
         "volumeRequest": {
@@ -4146,9 +4278,7 @@
           "title": "Volume",
           "description": "Information about the actual volume instance allocated to the workspace.",
           "$comment": "The actual volume allocated may be different than the request.",
-          "examples": [
-            "see https://kubernetes.io/docs/concepts/storage/persistent-volumes/"
-          ],
+          "examples": ["see https://kubernetes.io/docs/concepts/storage/persistent-volumes/"],
           "$ref": "#/definitions/volume"
         },
         "properties": {
@@ -4181,7 +4311,9 @@
           "title": "Mode",
           "description": "The mode for the volume instance.",
           "type": "string",
-          "enum": ["filesystem", "block"],
+          "enum": [
+            "filesystem", "block"
+          ],
           "default": "filesystem"
         },
         "path": {
@@ -4220,7 +4352,11 @@
       "description": "Represents a resource that can conditionally activate (or fire) tasks based upon associated events and their data.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "bom-ref", "uid"],
+      "required": [
+        "type",
+        "bom-ref",
+        "uid"
+      ],
       "properties": {
         "bom-ref": {
           "title": "BOM Reference",
@@ -4255,7 +4391,12 @@
           "title": "Type",
           "description": "The source type of event which caused the trigger to fire.",
           "type": "string",
-          "enum": ["manual", "api", "webhook", "scheduled"]
+          "enum": [
+            "manual",
+            "api",
+            "webhook",
+            "scheduled"
+          ]
         },
         "event": {
           "title": "Event",
@@ -4280,9 +4421,7 @@
         "inputs": {
           "title": "Inputs",
           "description": "Represents resources and data brought into a task at runtime by executor or task commands",
-          "examples": [
-            "a `configuration` file which was declared as a local `component` or `externalReference`"
-          ],
+          "examples": ["a `configuration` file which was declared as a local `component` or `externalReference`"],
           "type": "array",
           "items": {
             "$ref": "#/definitions/inputType"
@@ -4362,16 +4501,24 @@
       "type": "object",
       "oneOf": [
         {
-          "required": ["resource"]
+          "required": [
+            "resource"
+          ]
         },
         {
-          "required": ["parameters"]
+          "required": [
+            "parameters"
+          ]
         },
         {
-          "required": ["environmentVars"]
+          "required": [
+            "environmentVars"
+          ]
         },
         {
-          "required": ["data"]
+          "required": [
+            "data"
+          ]
         }
       ],
       "additionalProperties": false,
@@ -4379,13 +4526,19 @@
         "source": {
           "title": "Source",
           "description": "A reference to the component or service that provided the input to the task (e.g., reference to a service with data flow value of `inbound`)",
-          "examples": ["source code repository", "database"],
+          "examples": [
+            "source code repository",
+            "database"
+          ],
           "$ref": "#/definitions/resourceReferenceChoice"
         },
         "target": {
           "title": "Target",
           "description": "A reference to the component or service that received or stored the input if not the task itself (e.g., a local, named storage workspace)",
-          "examples": ["workspace", "directory"],
+          "examples": [
+            "workspace",
+            "directory"
+          ],
           "$ref": "#/definitions/resourceReferenceChoice"
         },
         "resource": {
@@ -4441,13 +4594,19 @@
       "type": "object",
       "oneOf": [
         {
-          "required": ["resource"]
+          "required": [
+            "resource"
+          ]
         },
         {
-          "required": ["environmentVars"]
+          "required": [
+            "environmentVars"
+          ]
         },
         {
-          "required": ["data"]
+          "required": [
+            "data"
+          ]
         }
       ],
       "additionalProperties": false,
@@ -4473,15 +4632,17 @@
         "target": {
           "title": "Target",
           "description": "Component or service that received the output from the task (e.g., reference to an artifactory service with data flow value of `outbound`)",
-          "examples": [
-            "a log file described as an `externalReference` within its target domain."
-          ],
+          "examples": ["a log file described as an `externalReference` within its target domain."],
           "$ref": "#/definitions/resourceReferenceChoice"
         },
         "resource": {
           "title": "Resource",
           "description": "A reference to an independent resource generated as output by the task.",
-          "examples": ["configuration file", "source code", "scanning service"],
+          "examples": [
+            "configuration file",
+            "source code",
+            "scanning service"
+          ],
           "$ref": "#/definitions/resourceReferenceChoice"
         },
         "data": {
@@ -4544,10 +4705,14 @@
       },
       "oneOf": [
         {
-          "required": ["ref"]
+          "required": [
+            "ref"
+          ]
         },
         {
-          "required": ["externalReference"]
+          "required": [
+            "externalReference"
+          ]
         }
       ]
     },
@@ -4635,21 +4800,13 @@
       "type": "object",
       "title": "Identity Evidence",
       "description": "Evidence that substantiates the identity of a component.",
-      "required": ["field"],
+      "required": [ "field" ],
       "additionalProperties": false,
       "properties": {
         "field": {
           "type": "string",
           "enum": [
-            "group",
-            "name",
-            "version",
-            "purl",
-            "cpe",
-            "omniborId",
-            "swhid",
-            "swid",
-            "hash"
+            "group", "name", "version", "purl", "cpe", "omniborId", "swhid", "swid", "hash"
           ],
           "title": "Field",
           "description": "The identity field of the component which the evidence describes."
@@ -4672,7 +4829,10 @@
           "description": "The methods used to extract and/or analyze the evidence.",
           "items": {
             "type": "object",
-            "required": ["technique", "confidence"],
+            "required": [
+              "technique" ,
+              "confidence"
+            ],
             "additionalProperties": false,
             "properties": {
               "technique": {
@@ -4791,16 +4951,16 @@
                 "type": "array",
                 "title": "Descriptions",
                 "description": "The supplemental text that provides additional guidance or context to the requirement, but is not directly part of the requirement.",
-                "items": { "type": "string" }
+                "items": { "type":  "string" }
               },
               "openCre": {
                 "type": "array",
                 "title": "OWASP OpenCRE Identifier(s)",
                 "description": "The Common Requirements Enumeration (CRE) identifier(s). CRE is a structured and standardized framework for uniting security standards and guidelines. CRE links each section of a resource to a shared topic identifier (a Common Requirement). Through this shared topic link, all resources map to each other. Use of CRE promotes clear and unambiguous communication among stakeholders.",
                 "items": {
-                  "type": "string",
+                  "type":  "string",
                   "pattern": "^CRE:[0-9]+-[0-9]+$",
-                  "examples": ["CRE:764-507"]
+                  "examples": [ "CRE:764-507" ]
                 }
               },
               "parent": {
@@ -4818,7 +4978,7 @@
               },
               "externalReferences": {
                 "type": "array",
-                "items": { "$ref": "#/definitions/externalReference" },
+                "items": {"$ref": "#/definitions/externalReference"},
                 "title": "External References",
                 "description": "External references provide a way to document systems, sites, and information that may be relevant, but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
               }
@@ -4865,7 +5025,7 @@
         },
         "externalReferences": {
           "type": "array",
-          "items": { "$ref": "#/definitions/externalReference" },
+          "items": {"$ref": "#/definitions/externalReference"},
           "title": "External References",
           "description": "External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM."
         },
@@ -4886,7 +5046,9 @@
       "title": "Cryptographic Properties",
       "description": "Cryptographic assets have properties that uniquely define them and that make them actionable for further reasoning. As an example, it makes a difference if one knows the algorithm family (e.g. AES) or the specific variant or instantiation (e.g. AES-128-GCM). This is because the security level and the algorithm primitive (authenticated encryption) are only defined by the definition of the algorithm variant. The presence of a weak cryptographic algorithm like SHA1 vs. HMAC-SHA1 also makes a difference.",
       "additionalProperties": false,
-      "required": ["assetType"],
+      "required": [
+        "assetType"
+      ],
       "properties": {
         "assetType": {
           "type": "string",
@@ -5202,13 +5364,24 @@
               "type": "string",
               "title": "Certificate Format",
               "description": "The format of the certificate",
-              "examples": ["X.509", "PEM", "DER", "CVC"]
+              "examples": [
+                "X.509",
+                "PEM",
+                "DER",
+                "CVC"
+              ]
             },
             "certificateExtension": {
               "type": "string",
               "title": "Certificate File Extension",
               "description": "The file extension of the certificate",
-              "examples": ["crt", "pem", "cer", "der", "p12"]
+              "examples": [
+                "crt",
+                "pem",
+                "cer",
+                "der",
+                "p12"
+              ]
             }
           }
         },
@@ -5266,71 +5439,71 @@
               }
             },
             "id": {
-              "type": "string",
-              "title": "ID",
-              "description": "The optional unique identifier for the related cryptographic material."
+                "type": "string",
+                "title": "ID",
+                "description": "The optional unique identifier for the related cryptographic material."
             },
             "state": {
-              "type": "string",
-              "title": "State",
-              "description": "The key state as defined by NIST SP 800-57.",
-              "enum": [
-                "pre-activation",
-                "active",
-                "suspended",
-                "deactivated",
-                "compromised",
-                "destroyed"
-              ]
+                "type": "string",
+                "title": "State",
+                "description": "The key state as defined by NIST SP 800-57.",
+                "enum": [
+                    "pre-activation",
+                    "active",
+                    "suspended",
+                    "deactivated",
+                    "compromised",
+                    "destroyed"
+                ]
             },
             "algorithmRef": {
-              "$ref": "#/definitions/refType",
-              "title": "Algorithm Reference",
-              "description": "The bom-ref to the algorithm used to generate the related cryptographic material."
+                "$ref": "#/definitions/refType",
+                "title": "Algorithm Reference",
+                "description": "The bom-ref to the algorithm used to generate the related cryptographic material."
             },
             "creationDate": {
-              "type": "string",
-              "format": "date-time",
-              "title": "Creation Date",
-              "description": "The date and time (timestamp) when the related cryptographic material was created."
+                "type": "string",
+                "format": "date-time",
+                "title": "Creation Date",
+                "description": "The date and time (timestamp) when the related cryptographic material was created."
             },
             "activationDate": {
-              "type": "string",
-              "format": "date-time",
-              "title": "Activation Date",
-              "description": "The date and time (timestamp) when the related cryptographic material was activated."
+                "type": "string",
+                "format": "date-time",
+                "title": "Activation Date",
+                "description": "The date and time (timestamp) when the related cryptographic material was activated."
             },
             "updateDate": {
-              "type": "string",
-              "format": "date-time",
-              "title": "Update Date",
-              "description": "The date and time (timestamp) when the related cryptographic material was updated."
+                "type": "string",
+                "format": "date-time",
+                "title": "Update Date",
+                "description": "The date and time (timestamp) when the related cryptographic material was updated."
             },
             "expirationDate": {
-              "type": "string",
-              "format": "date-time",
-              "title": "Expiration Date",
-              "description": "The date and time (timestamp) when the related cryptographic material expires."
+                "type": "string",
+                "format": "date-time",
+                "title": "Expiration Date",
+                "description": "The date and time (timestamp) when the related cryptographic material expires."
             },
             "value": {
-              "type": "string",
-              "title": "Value",
-              "description": "The associated value of the cryptographic material."
+                "type": "string",
+                "title": "Value",
+                "description": "The associated value of the cryptographic material."
             },
             "size": {
-              "type": "integer",
-              "title": "Size",
-              "description": "The size of the cryptographic asset (in bits)."
+                "type": "integer",
+                "title": "Size",
+                "description": "The size of the cryptographic asset (in bits)."
             },
             "format": {
-              "type": "string",
-              "title": "Format",
-              "description": "The format of the related cryptographic material (e.g. P8, PEM, DER)."
+                "type": "string",
+                "title": "Format",
+                "description": "The format of the related cryptographic material (e.g. P8, PEM, DER)."
             },
             "securedBy": {
-              "$ref": "#/definitions/securedBy",
-              "title": "Secured By",
-              "description": "The mechanism by which the cryptographic asset is secured by."
+                "$ref": "#/definitions/securedBy",
+                "title": "Secured By",
+                "description": "The mechanism by which the cryptographic asset is secured by."
             }
           }
         },
@@ -5369,7 +5542,11 @@
               "type": "string",
               "title": "Protocol Version",
               "description": "The version of the protocol.",
-              "examples": ["1.0", "1.2", "1.99"]
+              "examples": [
+                "1.0",
+                "1.2",
+                "1.99"
+              ]
             },
             "cipherSuites": {
               "type": "array",
@@ -5442,7 +5619,9 @@
           "type": "string",
           "title": "Common Name",
           "description": "A common name for the cipher suite.",
-          "examples": ["TLS_DHE_RSA_WITH_AES_128_CCM"]
+          "examples": [
+            "TLS_DHE_RSA_WITH_AES_128_CCM"
+          ]
         },
         "algorithms": {
           "type": "array",
@@ -5462,12 +5641,15 @@
             "type": "string",
             "title": "identifier",
             "description": "Cipher suite identifier",
-            "examples": ["0xC0", "0x9E"]
+            "examples": [
+              "0xC0",
+              "0x9E"
+            ]
           }
         }
       }
     },
-    "cryptoRefArray": {
+    "cryptoRefArray" : {
       "type": "array",
       "items": {
         "$ref": "#/definitions/refType"
@@ -5483,7 +5665,13 @@
           "type": "string",
           "title": "Mechanism",
           "description": "Specifies the mechanism by which the cryptographic asset is secured by.",
-          "examples": ["HSM", "TPM", "SGX", "Software", "None"]
+          "examples": [
+            "HSM",
+            "TPM",
+            "SGX",
+            "Software",
+            "None"
+          ]
         },
         "algorithmRef": {
           "$ref": "#/definitions/refType",

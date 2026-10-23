@@ -13,7 +13,12 @@ rather than against our own assumptions.
 | Upstream | <https://github.com/CycloneDX/cyclonedx-javascript-library> |
 | License | Apache-2.0 |
 | Pinned | 2026-07-25 |
-| sha256 | `52bb47627804f8543a5c69dc3949060729150afc8cc58f0a808cb931a248eeed` |
+| Upstream release | tag `v10.1.0` of the library repository (the npm tarball's `res/schema/` copy) |
+| Carried from | effected `packages/sbom/__test__/fixtures/`, vendored there in effected commit `7d8beae930c1269dc77897a1172306d82c8c610a` |
+| sha256 | `83821ba49aa366ad1f1d16c34837d05edd010f036f652e310db1c77d57b37c58` (the upstream bytes, identical to the effected copy) |
+
+The file is excluded from Biome (`biome.jsonc`) so a format sweep cannot rewrite it: a reformatted copy no longer hashes
+to the pin above, and its provenance could not be checked.
 
 ### Why this is here
 
@@ -26,7 +31,7 @@ The filename says `SNAPSHOT` because that is what the library ships; the `$id` i
 Two layers read this file through a JSON import (no filesystem at test time):
 
 - `test/conformance.test.ts` derives its expectations from it — `required` arrays, `enum` members, property names — rather than hand-writing them, so a wrong `externalReference.type`, a missing `required` field or a renamed property fails against the specification itself.
-- `test/conformance.ajv.test.ts` validates whole emitted documents against it with `ajv` `8.20.0` and `ajv-formats` `3.0.1` (exact devDependency pins, effected-promotion W4-b): a fixed document exercising every field, a seeded property over valid inputs, and pinned gaps (an unparseable timestamp and duplicate components emit invalid documents; an empty `bomRef` is refused at construction). `goals/effected-promotion/ops/sbom-corpus.ts` runs the same validator over an SBOM for every tracked repo manifest.
+- `test/conformance.ajv.test.ts` validates whole emitted documents against it with `ajv` `8.20.0` and `ajv-formats` `3.0.1` (exact devDependency pins, effected-promotion W4-b): a fixed document exercising every field, a seeded property over valid inputs, and pinned gaps (an unparseable timestamp and duplicate components emit invalid documents; an empty `bomRef` is refused at construction). `goals/effected-promotion/ops/sbom-corpus.ts` builds the same validator (same stand-ins, same format registrations) over this file, read as data, and runs it over an SBOM for every tracked repo manifest.
 
 ### External references: stand-ins, not yet vendored
 

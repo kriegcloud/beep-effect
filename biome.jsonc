@@ -86,7 +86,10 @@
       "!explorations/beep-ci-operational-ontology/ontology/extraction/s4/beep-ci-ops/corpus/run4-ledger",
       // ciops lab: the gate-order handoff fixture is pinned by sha256 (goal ciops-ontology-pipeline P2 Ruling 2).
       "!apps/labs/ciops/test/fixtures",
-      "!**/modeling/html/data"
+      "!**/modeling/html/data",
+      // @beep/sbom: the CycloneDX JSON schema is an upstream byte copy pinned by
+      // sha256 in test/fixtures/VENDORED.md; reformatting it breaks that pin.
+      "!packages/foundation/modeling/sbom/test/fixtures/*.schema.json"
     ]
   },
   "css": {
