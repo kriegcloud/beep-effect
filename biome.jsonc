@@ -164,7 +164,7 @@
       },
       "complexity": {
         "noBannedTypes": "off",
-        // effect-smol alignment. Kept advisory: the flagged constructors carry typed
+        // Effect style alignment. Kept advisory: the flagged constructors carry typed
         // parameters / DI shape that are not safely removable (see STYLE.md).
         "noUselessConstructor": "warn",
         "noUselessFragments": "off",
@@ -203,7 +203,7 @@
       },
       "suspicious": {
         "noDeprecatedImports": "error",
-        // effect-smol alignment. noVar is mandatory (P2, 0 violations). noConsole stays
+        // Effect style alignment. noVar is mandatory (P2, 0 violations). noConsole stays
         // advisory: enforcing it repo-wide is a large, separate effort and much console
         // use is legitimate (see STYLE.md).
         "noConsole": "warn",
