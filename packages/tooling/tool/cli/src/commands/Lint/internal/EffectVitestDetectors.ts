@@ -1867,10 +1867,28 @@ const storeEvidence = (
     });
   });
 
-type LifecycleKey = { readonly key: MorphNode | string; readonly evidence: ReadonlyArray<MorphNode> };
+type LifecycleKey = { readonly key: MorphNode | string; readonly evidence: ReadonlyArray<MorphNode | string> };
 
-// The constructors a provided layer builds: a test-body layer binding (and what it builds), or a layer
-// factory call named by its callee. Layer combinators and `.pipe` stages contribute their operands.
+// Generic constructors name no store themselves: `Layer.effect(StoreA, openA(dir))` and
+// `Layer.effect(StoreB, openB(dir))` are different layers, so their key is the whole normalized call.
+const GENERIC_LAYER_CONSTRUCTORS = ["succeed", "sync", "effect", "scoped", "unwrap", "mock"];
+
+const normalizedText = (node: MorphNode): string => Str.replace(/\s+/gu, "")(node.getText());
+
+// A factory argument names its store by its whole expression, so `path.join(root, "a")` and
+// `path.join(root, "b")` stay distinct; object arguments compare property by property.
+const argumentStoreEvidence = (
+  argument: MorphNode,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): ReadonlyArray<string> =>
+  A.flatMap(Node.isObjectLiteralExpression(argument) ? argument.getProperties() : [argument], (part) =>
+    A.isReadonlyArrayNonEmpty(storeEvidence(part, callback, imports, [])) ? [normalizedText(part)] : []
+  );
+
+// The constructors a provided layer builds: a test-body layer binding (and what it builds), a project
+// factory call named by its callee, or a generic Layer constructor named by its whole call. Layer
+// combinators and `.pipe` stages contribute their operands.
 const lifecycleKeys = (
   layer: MorphNode,
   callback: EffectVitestFunctionNode,
@@ -1901,11 +1919,12 @@ const lifecycleKeys = (
     return A.flatMap([callee.getExpression(), ...layer.getArguments()], (part) =>
       lifecycleKeys(part, callback, imports, seen)
     );
-  const evidenceSeen = A.empty<MorphNode>();
   return [
     {
-      key: callee.getText(),
-      evidence: A.flatMap(layer.getArguments(), (argument) => storeEvidence(argument, callback, imports, evidenceSeen)),
+      key: isProvenanceCall(layer, imports, LAYER_MODULES, "Layer", GENERIC_LAYER_CONSTRUCTORS)
+        ? normalizedText(layer)
+        : normalizedText(callee),
+      evidence: A.flatMap(layer.getArguments(), (argument) => argumentStoreEvidence(argument, callback, imports)),
     },
   ];
 };

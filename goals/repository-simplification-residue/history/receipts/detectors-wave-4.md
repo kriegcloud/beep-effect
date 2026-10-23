@@ -174,15 +174,23 @@ callback provides the same layer and both name the same store:
 
 - **Same layer.** Each provided layer is reduced to lifecycle keys (`lifecycleKeys`):
   - a test-body layer binding is a key, and so is everything its initializer builds;
-  - a factory call is a key named by its callee text (`Pglite.makeLayer`, `makeGoldTestLayer`);
+  - a project factory call is a key named by its callee text (`Pglite.makeLayer`,
+    `makeGoldTestLayer`);
+  - a generic Layer constructor (`succeed`, `sync`, `effect`, `scoped`, `unwrap`, `mock`) is a
+    key named by its whole whitespace-normalized call, service tag and factory argument
+    included (review round 2);
   - `Layer.merge`/`mergeAll`/`provide`/`provideMerge`/`fresh` and `.pipe(...)` stages
     contribute their operands' keys, never a key of their own.
 
   Two provisions match only on an equal key. Different factories over the same directory stay
   EV002.
-- **Same store.** The matching keys must share store evidence (`storeEvidence`): a variable
-  declared in the test body that the binding's initializer, or the factory's arguments, read
-  directly, such as a directory or path. These never count as evidence:
+- **Same store.** The matching keys must share store evidence. For a layer binding, the
+  evidence is a variable declared in the test body that the initializer reads directly
+  (`storeEvidence`), and the same declaration matches itself. For a factory or constructor
+  call, the evidence is the whole normalized text of each argument, or of each property of an
+  object argument, that reads such a variable (`argumentStoreEvidence`, review round 2). So
+  `{ dataDir: path.join(root, "a") }` and `{ dataDir: path.join(root, "b") }` differ, while
+  a body `const target = path.join(root, "a")` passed to both provisions matches. These never count as evidence:
   - service tags yielded from the context (`yield* Path.Path`, `yield* FileSystem.FileSystem`;
     a non-call `yield*` of a PascalCase reference);
   - `Ref.make` bindings;
@@ -307,6 +315,55 @@ dependency dists:
 - effect-vitest-contract, -detectors, -primitives, -store and lint-command pass 354/354 on Bun
   and 354/354 on Node.
 - Biome and oxlint are clean on the changed files.
+- `quality fallow audit --base origin/main --check` is ok with 0 findings.
+
+## Review round 2 (#2186)
+
+Two P2 threads on the narrowed rule. Both are fixed, with failing-first fixtures written
+against `088311eff7`: the case failed at the positive loop
+(`test/effect-vitest-detectors.test.ts:1997`).
+
+- **PRRT_kwDOPbO_N86vzTia, generic constructor keys.** The callee-text key made every
+  `Layer.effect`/`scoped`/`sync`/`unwrap`, and every `succeed`/`mock` inside a merge, one
+  key across different services. Generic Layer constructors now key on their whole
+  whitespace-normalized call, which covers the service tag and the factory or acquire
+  argument. Project factories keep their callee name as the key.
+- **PRRT_kwDOPbO_N86vzTid, derived store paths.** Factory evidence reduced
+  `path.join(root, "a")` and `path.join(root, "b")` to `[root]`. Call evidence is now the
+  whole normalized text of each argument, or of each property of an object argument, that
+  reads a test-body store value. A layer binding still keeps its identity as its own key.
+
+Fixtures added to the case:
+
+- Still EV002, 2 rows each:
+  - `L.effect(StoreA, openA(dataDir))` vs `L.effect(StoreB, openB(dataDir))`;
+  - `L.mergeAll(L.succeed(ServiceA, { dataDir }), Other)` vs
+    `L.mergeAll(L.succeed(ServiceB, { dataDir }), Other)`;
+  - `Store.makeLayer({ dataDir: path.join(root, "a") })` vs `... "b"`.
+- Still exempt:
+  - `L.effect(StoreA, openA(dataDir))` provided twice;
+  - a body `const target = path.join(root, "a")` passed as `dataDir` to both provisions;
+  - every earlier exempt fixture (open/close/reopen, a layer binding, `carry`, `target`,
+    `host`).
+
+**Inventory.**
+
+- `lint effect-vitest --write` leaves `standards/effect-vitest.inventory.jsonc` byte-identical
+  to `088311eff7`. No row changes: none re-opens, and no retired row returns.
+- All 7 `#1855 wave 4 register` exceptions survive.
+- A second `--write` is byte-stable.
+- Every row's `(ruleId, file, symbol, occurrence)` key exists in `origin/main`'s inventory.
+- `lint effect-vitest` reports 1,213 findings, `introduced=0 resolved=0`.
+- The wave counts are unchanged from round 1 (79 retired: 54 exceptions and 25 open, plus 1
+  inherited), so PLAN, README and the statusNote need no correction.
+
+**Verification**, each run alone through `beep-heavy` with `</dev/null`:
+
+- repo-cli `bun run check` exits 0, and `tsc-rs -p test/tsconfig.json --noEmit` exits 0 with
+  0 errors.
+- effect-vitest-contract, -detectors, -primitives, -store and lint-command pass 354/354 on Bun
+  and 354/354 on Node.
+- Biome and oxlint are clean.
 - `quality fallow audit --base origin/main --check` is ok with 0 findings.
 
 ## Kept as justified exceptions: EV004 scope-close assertions and four EV002 reopen rows
