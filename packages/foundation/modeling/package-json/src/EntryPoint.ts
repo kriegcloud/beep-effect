@@ -1,3 +1,12 @@
+/**
+ * Root entry-point resolution from a manifest's `exports` / `main` fields:
+ * `resolveEntryPoint`, its `EntryPointManifest` and `ResolveEntryPointOptions`
+ * inputs, and the discriminated `UnresolvedEntryPointError`. Pure and IO-free.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, identity } from "effect/Function";

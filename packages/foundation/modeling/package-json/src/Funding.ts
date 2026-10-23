@@ -1,28 +1,33 @@
-// The `funding` field model: where to send money for a package.
-//
-// npm accepts three encodings — a bare URL string, an object with `url` and an
-// optional `type`, or an array mixing either — and this model normalizes the
-// READ side of that: `Funding.FromField` always decodes to an array, so a
-// consumer crediting maintainers never branches on arity.
-//
-// The WRITE side is not normalized, which is the whole difficulty. The package
-// holds the same wire-fidelity requirement `Person`, `Repository` and `Bugs`
-// do: a formatter must not rewrite one legal encoding into another. A lone
-// entry read as a bare value therefore re-encodes as a bare value, never as a
-// one-element array, and an entry read from the string form re-encodes to that
-// exact string. Both are remembered as private provenance on the instance — its
-// wire value, and whether it was the whole field written bare — because
-// provenance must not appear in the encoded output, must not affect
-// structural equality, and must not survive being copied into a hand-built
-// value.
-//
-// Unlike `Bugs`, whose email-only entry makes `url` optional, `url` is
-// REQUIRED here: npm's object form carries no other way to say where the money
-// goes, so an entry without one is a decode failure rather than a
-// partially-populated value. The failure is expressed the way every other
-// shape violation in this tier is — as a schema issue, which the manifest
-// tiers normalize to `PackageDecodeError` at their decode boundary — rather
-// than as a degradation, which is `LenientManifest`'s job alone.
+/**
+ * The `funding` field model: where to send money for a package.
+ *
+ * npm accepts three encodings — a bare URL string, an object with `url` and an
+ * optional `type`, or an array mixing either — and this model normalizes the
+ * READ side of that: `Funding.FromField` always decodes to an array, so a
+ * consumer crediting maintainers never branches on arity.
+ *
+ * The WRITE side is not normalized, which is the whole difficulty. The package
+ * holds the same wire-fidelity requirement `Person`, `Repository` and `Bugs`
+ * do: a formatter must not rewrite one legal encoding into another. A lone
+ * entry read as a bare value therefore re-encodes as a bare value, never as a
+ * one-element array, and an entry read from the string form re-encodes to that
+ * exact string. Both are remembered as private provenance on the instance — its
+ * wire value, and whether it was the whole field written bare — because
+ * provenance must not appear in the encoded output, must not affect
+ * structural equality, and must not survive being copied into a hand-built
+ * value.
+ *
+ * Unlike `Bugs`, whose email-only entry makes `url` optional, `url` is
+ * REQUIRED here: npm's object form carries no other way to say where the money
+ * goes, so an entry without one is a decode failure rather than a
+ * partially-populated value. The failure is expressed the way every other
+ * shape violation in this tier is — as a schema issue, which the manifest
+ * tiers normalize to `PackageDecodeError` at their decode boundary — rather
+ * than as a degradation, which is `LenientManifest`'s job alone.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";

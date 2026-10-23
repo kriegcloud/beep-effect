@@ -1,24 +1,29 @@
-// The `packageManager` field model: a `PackageManager` class parsing
-// `"pnpm@10.33.0+sha512.abc"` into `name` / `version` / `integrity` (a genuine
-// `Option` — absence is computed on by `PackageManager.hasIntegrity`), with a
-// `PackageManager.FromString` string codec.
-//
-// The field carries the corepack pin triple, and this module shares BOTH of the
-// strict pieces with `@effected/npm`'s `PackageManagerPin` rather than
-// re-deriving them: the integrity half is npm's `CorepackIntegrityHash`, and
-// the version half IS `@effected/semver`'s `SemVer.PinnableVersionString` —
-// the shared "exact version, no build metadata, no surrounding whitespace"
-// schema, whose parse is the same strict one corepack performs with
-// `semver.valid` (minus the trim: a padded version is a typed failure here).
-//
-// The one load-bearing grammar rule, identical to the pin's: the FIRST `+`
-// after the version begins the integrity component. The version position never
-// carries semver build metadata, so `pnpm@10.33.0+sha512.abc` is version
-// `10.33.0` plus integrity `sha512.abc`, and a malformed tail after `+` fails
-// typed rather than falling back to build-metadata parsing.
-//
-// What this module does NOT share with the pin is the name grammar; the
-// `PackageManager` class remarks carry that decision and its evidence.
+/**
+ * The `packageManager` field model: a `PackageManager` class parsing
+ * `"pnpm@10.33.0+sha512.abc"` into `name` / `version` / `integrity` (a genuine
+ * `Option` — absence is computed on by `PackageManager.hasIntegrity`), with a
+ * `PackageManager.FromString` string codec.
+ *
+ * The field carries the corepack pin triple, and this module shares BOTH of the
+ * strict pieces with `@beep/npm-spec`'s `PackageManagerPin` rather than
+ * re-deriving them: the integrity half is npm's `CorepackIntegrityHash`, and
+ * the version half IS `@beep/semver`'s `SemVer.PinnableVersionString` —
+ * the shared "exact version, no build metadata, no surrounding whitespace"
+ * schema, whose parse is the same strict one corepack performs with
+ * `semver.valid` (minus the trim: a padded version is a typed failure here).
+ *
+ * The one load-bearing grammar rule, identical to the pin's: the FIRST `+`
+ * after the version begins the integrity component. The version position never
+ * carries semver build metadata, so `pnpm@10.33.0+sha512.abc` is version
+ * `10.33.0` plus integrity `sha512.abc`, and a malformed tail after `+` fails
+ * typed rather than falling back to build-metadata parsing.
+ *
+ * What this module does NOT share with the pin is the name grammar; the
+ * `PackageManager` class remarks carry that decision and its evidence.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
@@ -53,9 +58,9 @@ const invalid: {
  *
  * **Details**
  *
- * The same `<name>@<version>[+<integrity>]` triple `@effected/npm`'s
+ * The same `<name>@<version>[+<integrity>]` triple `@beep/npm-spec`'s
  * `PackageManagerPin` models, in its `package.json` field form. Both share the
- * strict pieces — the version is `@effected/semver`'s
+ * strict pieces — the version is `@beep/semver`'s
  * `SemVer.PinnableVersionString` (decode rules through `SemVer.isPinnable`),
  * the integrity is npm's `CorepackIntegrityHash` — and
  * both apply the first-`+`-is-integrity rule. Reach for the pin when
@@ -113,7 +118,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
       })
     ),
     /**
-     * The version (e.g. `10.33.0`): `@effected/semver`'s
+     * The version (e.g. `10.33.0`): `@beep/semver`'s
      * `SemVer.PinnableVersionString` — an exact SemVer 2.0.0 version with no
      * build metadata and no surrounding whitespace. Prerelease versions are
      * allowed (`10.0.0-rc.1`); ranges, partial versions, dist-tags,
@@ -125,7 +130,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
      */
     version: SemVer.PinnableVersionString,
     /**
-     * The optional integrity hash (e.g. `sha512.abc`): `@effected/npm`'s
+     * The optional integrity hash (e.g. `sha512.abc`): `@beep/npm-spec`'s
      * `CorepackIntegrityHash`, the shared restriction of the `IntegrityHash`
      * brand to the corepack `<algo>.<hex>` form.
      *
@@ -134,7 +139,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
     integrity: S.Option(CorepackIntegrityHash).pipe(
       $I.annoteKey("PackageManager.integrity", {
         description:
-          "The optional integrity hash (e.g. `sha512.abc`): `@effected/npm`'s `CorepackIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the corepack `<algo>.<hex>` form.",
+          "The optional integrity hash (e.g. `sha512.abc`): `@beep/npm-spec`'s `CorepackIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the corepack `<algo>.<hex>` form.",
       })
     ),
   },
@@ -151,7 +156,7 @@ export class PackageManager extends S.Class<PackageManager, { readonly brand: un
    * Decoding splits on the first `@`, then on the first `+` — which always
    * begins the integrity, never semver build metadata — and validates each
    * component: the name against the lowercase grammar, the version through
-   * `@effected/semver`'s strict parse, the integrity through
+   * `@beep/semver`'s strict parse, the integrity through
    * `CorepackIntegrityHash`. Every failure is a typed decode failure naming
    * the component that failed. Encoding prints the canonical string, which is
    * byte-identical to any input this codec accepts.

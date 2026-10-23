@@ -1,6 +1,11 @@
-// The `devEngines` field model: a `DevEngine` record (a single runtime or
-// package-manager constraint) and the `DevEnginesSchema` record grouping the
-// `packageManager` / `runtime` / `os` / `cpu` / `libc` constraint slots.
+/**
+ * The `devEngines` field model: a `DevEngine` record (a single runtime or
+ * package-manager constraint) and the `DevEnginesSchema` record grouping the
+ * `packageManager` / `runtime` / `os` / `cpu` / `libc` constraint slots.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as S from "effect/Schema";

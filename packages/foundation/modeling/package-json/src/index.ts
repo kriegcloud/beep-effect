@@ -32,6 +32,7 @@
  * byte-preserving field edits for tools that mutate other people's manifests.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { Dependency, isUnresolvedDependency, type UnresolvedDependency } from "./Dependency.ts";

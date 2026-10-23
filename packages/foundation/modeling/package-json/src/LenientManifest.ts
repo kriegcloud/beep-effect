@@ -1,18 +1,23 @@
-// The shape-lenient discovery tier: `LenientManifest` decodes arbitrary
-// real-world package.json JSON without ever failing the document over one
-// malformed field. Every top-level field shares its name with `Package`, but
-// is typed as its plain permissive JSON shape (any string, not the branded
-// npm grammar; a plain record, not a `HashMap`); a present field that is not
-// even that shape degrades to absence, is preserved verbatim in `rest`, and
-// is reported on `issues`. Leniency is per-field, never per-syntax: input
-// that is not a JSON object at all stays a typed error.
-//
-// The kit's tolerance ladder (see PackageManifest.ts for the full comment):
-//   Package         — strict, publishable.
-//   PackageManifest — presence-lenient, shape-on-presence strict.
-//   LenientManifest — shape-lenient discovery/sniffing (this module).
-//   @effected/npm Manifest — shape-blind outside the four dependency fields.
-//   PackageJsonFormat — decode-free text path.
+/**
+ * The shape-lenient discovery tier: `LenientManifest` decodes arbitrary
+ * real-world package.json JSON without ever failing the document over one
+ * malformed field. Every top-level field shares its name with `Package`, but
+ * is typed as its plain permissive JSON shape (any string, not the branded
+ * npm grammar; a plain record, not a `HashMap`); a present field that is not
+ * even that shape degrades to absence, is preserved verbatim in `rest`, and
+ * is reported on `issues`. Leniency is per-field, never per-syntax: input
+ * that is not a JSON object at all stays a typed error.
+ *
+ * The kit's tolerance ladder (see PackageManifest.ts for the full comment):
+ * Package         — strict, publishable.
+ * PackageManifest — presence-lenient, shape-on-presence strict.
+ * LenientManifest — shape-lenient discovery/sniffing (this module).
+ * `@beep/npm-spec` Manifest — shape-blind outside the four dependency fields.
+ * PackageJsonFormat — decode-free text path.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";

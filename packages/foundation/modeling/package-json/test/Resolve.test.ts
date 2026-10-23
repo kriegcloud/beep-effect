@@ -86,7 +86,7 @@ describe("Package.resolve", () => {
     }
   );
 
-  // The alias form gets the shared @effected/npm publish semantics: the dep
+  // The alias form gets the shared @beep/npm-spec publish semantics: the dep
   // key is the alias, the TARGET package's version is looked up, and the
   // published form is `npm:<target>@<projected>`.
   it.layer(Layer.mergeAll(workspaceOf({ "@x/charts": "2.0.0", charts: "1.5.0" }), CatalogResolver.noop), {
@@ -104,7 +104,7 @@ describe("Package.resolve", () => {
 
   // The widened error channel: a CatalogResolver whose assembly failed
   // surfaces its typed CatalogAssemblyError through Package.resolve untouched
-  // — never re-wrapped or defected. Mirrors @effected/npm's identity pin.
+  // — never re-wrapped or defected. Mirrors @beep/npm-spec's identity pin.
   const assemblyFailure = CatalogAssemblyError.make({
     source: "manifest",
     path: "pnpm-workspace.yaml",

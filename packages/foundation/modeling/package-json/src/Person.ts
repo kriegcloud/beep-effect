@@ -1,16 +1,21 @@
-// The `author` / `contributors` field model: a `Person` class with structured
-// `name` / `email` / `url` plus a `rest` catch-all, `Person.FromString` — the
-// `"Name <email> (url)"` shorthand codec — and `Person.FromValue`, the union
-// accepting either the object or the shorthand string. Wired into
-// `Package.author` / `Package.contributors`.
-//
-// Wire-form fidelity is a hard requirement here: a formatter must not rewrite
-// legal input into a different-but-equivalent encoding. Two mechanisms carry
-// it. (1) A person decoded from the shorthand string re-encodes to that exact
-// string — the original text is remembered on the instance and replayed
-// verbatim, so unusual-but-legal spacing survives. (2) Unknown keys on the
-// object form land in `rest` and flatten back on encode, instead of being
-// silently dropped.
+/**
+ * The `author` / `contributors` field model: a `Person` class with structured
+ * `name` / `email` / `url` plus a `rest` catch-all, `Person.FromString` — the
+ * `"Name <email> (url)"` shorthand codec — and `Person.FromValue`, the union
+ * accepting either the object or the shorthand string. Wired into
+ * `Package.author` / `Package.contributors`.
+ *
+ * Wire-form fidelity is a hard requirement here: a formatter must not rewrite
+ * legal input into a different-but-equivalent encoding. Two mechanisms carry
+ * it. (1) A person decoded from the shorthand string re-encodes to that exact
+ * string — the original text is remembered on the instance and replayed
+ * verbatim, so unusual-but-legal spacing survives. (2) Unknown keys on the
+ * object form land in `rest` and flatten back on encode, instead of being
+ * silently dropped.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";

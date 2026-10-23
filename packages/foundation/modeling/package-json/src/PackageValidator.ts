@@ -1,7 +1,12 @@
-// The `PackageValidator` service: validate a `Package` against a set of
-// `ValidationRule`s, aggregating every failure into one
-// `PackageValidationError`. Ships `PackageValidator.layer` (the default rule
-// set) and the genuinely-parameterized `PackageValidator.layerRules` factory.
+/**
+ * The `PackageValidator` service: validate a `Package` against a set of
+ * `ValidationRule`s, aggregating every failure into one
+ * `PackageValidationError`. Ships `PackageValidator.layer` (the default rule
+ * set) and the genuinely-parameterized `PackageValidator.layerRules` factory.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";

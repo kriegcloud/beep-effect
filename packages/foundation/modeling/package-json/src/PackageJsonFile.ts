@@ -1,8 +1,13 @@
-// The `PackageJsonFile` service — the only IO module. It reads and writes
-// package.json over core `FileSystem` / `Path`, so the layer requires those
-// services and the consumer provides a platform implementation
-// (`@effect/platform-node`) at the edge. Resolution is not fused into `write`
-// (compose `Package.resolve` explicitly).
+/**
+ * The `PackageJsonFile` service — the only IO module. It reads and writes
+ * package.json over core `FileSystem` / `Path`, so the layer requires those
+ * services and the consumer provides a platform implementation
+ * (`@effect/platform-node`) at the edge. Resolution is not fused into `write`
+ * (compose `Package.resolve` explicitly).
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { JsoncPath } from "@beep/jsonc/JsoncNode";

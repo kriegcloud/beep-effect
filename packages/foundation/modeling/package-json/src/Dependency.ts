@@ -1,8 +1,13 @@
-// The single `Dependency` model — one class carrying a `kind` field
-// (`prod` / `dev` / `peer` / `optional`) rather than one class per map. The
-// protocol getters are written once, delegating to
-// `@effected/npm`'s `DependencySpecifier`; `kind` types against `@effected/npm`'s
-// `DependencyKind`, the kit-wide dependency-section vocabulary.
+/**
+ * The single `Dependency` model — one class carrying a `kind` field
+ * (`prod` / `dev` / `peer` / `optional`) rather than one class per map. The
+ * protocol getters are written once, delegating to
+ * `@beep/npm-spec`'s `DependencySpecifier`; `kind` types against `@beep/npm-spec`'s
+ * `DependencyKind`, the kit-wide dependency-section vocabulary.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { DependencyKind } from "@beep/npm-spec/DependencySection";
@@ -16,7 +21,7 @@ const $I = $PackageJsonId.create("Dependency");
 
 /**
  * A resolved dependency entry pairing a package name with its version
- * specifier and the `kind` of map it came from (`@effected/npm`'s
+ * specifier and the `kind` of map it came from (`@beep/npm-spec`'s
  * `DependencyKind`). The protocol predicates delegate to `DependencySpecifier`.
  *
  * **Example** (Inspect a production dependency)
@@ -107,7 +112,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
   },
   $I.annote("Dependency", {
     description:
-      "A resolved dependency entry pairing a package name with its version specifier and the `kind` of map it came from (`@effected/npm`'s `DependencyKind`). The protocol predicates delegate to `DependencySpecifier`.",
+      "A resolved dependency entry pairing a package name with its version specifier and the `kind` of map it came from (`@beep/npm-spec`'s `DependencyKind`). The protocol predicates delegate to `DependencySpecifier`.",
   })
 ) {
   /**

@@ -1,8 +1,13 @@
-// Valid npm package names: the `ScopedPackageName` / `UnscopedPackageName`
-// branded schemas, the `PackageName` union with its classification statics
-// (`PackageName.isValid`, `PackageName.scope`, `PackageName.unscoped`,
-// `PackageName.isScoped`), and the `InvalidPackageNameError` the concept
-// raises.
+/**
+ * Valid npm package names: the `ScopedPackageName` / `UnscopedPackageName`
+ * branded schemas, the `PackageName` union with its classification statics
+ * (`PackageName.isValid`, `PackageName.scope`, `PackageName.unscoped`,
+ * `PackageName.isScoped`), and the `InvalidPackageNameError` the concept
+ * raises.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as HashSet from "effect/HashSet";
@@ -101,7 +106,7 @@ const isNotReserved = S.makeFilter(
  * import { ScopedPackageName } from "@beep/package-json/PackageName";
  * import * as S from "effect/Schema";
  *
- * console.log(S.decodeUnknownSync(ScopedPackageName)("@effected/semver")) // @effected/semver
+ * console.log(S.decodeUnknownSync(ScopedPackageName)("@beep/semver")) // @beep/semver
  * ```
  *
  * @public
@@ -209,9 +214,9 @@ const PackageNameBase: Omit<S.Opaque<PackageName, typeof PackageNameUnion, {}>, 
  * import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
  *
- * console.log(PackageName.isValid("@effected/semver")) // true
- * console.log(O.getOrElse(PackageName.scope("@effected/semver"), () => "no scope")) // effected
- * console.log(PackageName.unscoped("@effected/semver")) // semver
+ * console.log(PackageName.isValid("@beep/semver")) // true
+ * console.log(O.getOrElse(PackageName.scope("@beep/semver"), () => "no scope")) // beep
+ * console.log(PackageName.unscoped("@beep/semver")) // semver
  * ```
  *
  * @public
@@ -226,7 +231,7 @@ export const PackageName = class extends PackageNameBase {
    *
    * ```ts
    * import { PackageName } from "@beep/package-json/PackageName";
-   * console.log(PackageName.isValid("@effected/semver")) // true
+   * console.log(PackageName.isValid("@beep/semver")) // true
    * console.log(PackageName.isValid("Bad Name")) // false
    * ```
    *

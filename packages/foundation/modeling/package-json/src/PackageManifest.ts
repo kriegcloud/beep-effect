@@ -1,24 +1,29 @@
-// The presence-lenient manifest model: `PackageManifest` is `Package` with the
-// publishability requirements relaxed — `name` and `version` may be absent,
-// and `packageManager` accepts the range spelling — while every field that IS
-// present still decodes through the same typed codecs.
-//
-// npm itself draws this line: `name` and `version` are required only for a
-// package that will be PUBLISHED. The idiomatic monorepo root manifest —
-// `{ "private": true, "packageManager": "pnpm@11.2.0", "devEngines": {...} }` —
-// has neither and is entirely valid, and a tool that edits other people's
-// manifests meets that shape as its primary target.
-//
-// The kit's tolerance ladder, so nothing here duplicates a sibling:
-//   Package            — strict, publishable: name+version required.
-//   PackageManifest    — presence-lenient: absence allowed, shape-on-presence
-//                        still validated (this module).
-//   LenientManifest    — shape-lenient discovery/sniffing: malformed fields
-//                        degrade to absence (kept in `rest`, reported on
-//                        `issues`) instead of failing the document.
-//   @effected/npm Manifest — shape-blind outside the four dependency fields,
-//                        for mid-build resolution.
-//   PackageJsonFormat  — decode-free text path: anything syntactically JSON.
+/**
+ * The presence-lenient manifest model: `PackageManifest` is `Package` with the
+ * publishability requirements relaxed — `name` and `version` may be absent,
+ * and `packageManager` accepts the range spelling — while every field that IS
+ * present still decodes through the same typed codecs.
+ *
+ * npm itself draws this line: `name` and `version` are required only for a
+ * package that will be PUBLISHED. The idiomatic monorepo root manifest —
+ * `{ "private": true, "packageManager": "pnpm@11.2.0", "devEngines": {...} }` —
+ * has neither and is entirely valid, and a tool that edits other people's
+ * manifests meets that shape as its primary target.
+ *
+ * The kit's tolerance ladder, so nothing here duplicates a sibling:
+ * Package            — strict, publishable: name+version required.
+ * PackageManifest    — presence-lenient: absence allowed, shape-on-presence
+ * still validated (this module).
+ * LenientManifest    — shape-lenient discovery/sniffing: malformed fields
+ * degrade to absence (kept in `rest`, reported on
+ * `issues`) instead of failing the document.
+ * `@beep/npm-spec` Manifest — shape-blind outside the four dependency fields,
+ * for mid-build resolution.
+ * PackageJsonFormat  — decode-free text path: anything syntactically JSON.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { SemVer } from "@beep/semver";
@@ -55,7 +60,7 @@ const $I = $PackageJsonId.create("PackageManifest");
  * For tolerance of malformed fields, use the shape-lenient `LenientManifest`
  * discovery tier — which degrades them to absence, preserved in `rest` and
  * reported on `issues` — or the decode-free {@link PackageJsonFormat} text
- * path (or `@effected/npm`'s shape-blind `Manifest`); here, silently carrying
+ * path (or `@beep/npm-spec`'s shape-blind `Manifest`); here, silently carrying
  * a value the type claims to have validated would be a lie, and silently
  * dropping it would break round-trip fidelity.
  *

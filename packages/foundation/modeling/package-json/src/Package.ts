@@ -1,9 +1,14 @@
-// The core `Package` model: a rich `Schema.Class` for a package.json document
-// with computed getters, dual-signature immutable-mutation statics, a
-// derived-patch `copyWith`, the `rest` catch-all with its wire transform /
-// `.extend()` story (`Package.schema`, `Package.wireFor`), the pure
-// `Package.toJsonString` serializer, and `Package.resolve` over the
-// `@effected/npm` resolver contracts.
+/**
+ * The core `Package` model: a rich `Schema.Class` for a package.json document
+ * with computed getters, dual-signature immutable-mutation statics, a
+ * derived-patch `copyWith`, the `rest` catch-all with its wire transform /
+ * `.extend()` story (`Package.schema`, `Package.wireFor`), the pure
+ * `Package.toJsonString` serializer, and `Package.resolve` over the
+ * `@beep/npm-spec` resolver contracts.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
@@ -1295,16 +1300,16 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
    *
    * **Details**
    *
-   * Classification and projection go through `@effected/npm`'s
+   * Classification and projection go through `@beep/npm-spec`'s
    * `DependencySpecifier` statics: `workspace:` uses the pnpm publish-time
    * projection, and the alias form `workspace:<name>@<range>` resolves the
    * TARGET package's version and becomes the published `npm:<name>@<range>`
    * alias. Specifiers the resolvers answer `Option.none()` for are left
-   * unchanged — resolution still succeeds. Fails with `@effected/npm`'s
+   * unchanged — resolution still succeeds. Fails with `@beep/npm-spec`'s
    * `CatalogAssemblyError` when catalog assembly failed, or
    * `DependencyResolutionError` when a resolver's mechanism failed; requires
    * `CatalogResolver` and `WorkspaceResolver` in `R`. For fail-typed
-   * resolution over the tolerant model, see `@effected/npm`'s
+   * resolution over the tolerant model, see `@beep/npm-spec`'s
    * `Manifest#resolve`.
    *
    * **Example** (Resolve catalog dependencies with no-op resolvers)

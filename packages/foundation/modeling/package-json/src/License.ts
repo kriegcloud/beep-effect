@@ -1,6 +1,11 @@
-// SPDX license validation: the `SpdxLicense` branded schema (accepting real
-// SPDX expressions plus the `UNLICENSED` and `SEE LICENSE IN` special cases)
-// and the `InvalidSpdxLicenseError` the concept raises.
+/**
+ * SPDX license validation: the `SpdxLicense` branded schema (accepting real
+ * SPDX expressions plus the `UNLICENSED` and `SEE LICENSE IN` special cases)
+ * and the `InvalidSpdxLicenseError` the concept raises.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { isValidExpression, SpdxExpression as SpdxExpressionOps } from "@beep/spdx";

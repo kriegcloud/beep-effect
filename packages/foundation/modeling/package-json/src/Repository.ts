@@ -1,17 +1,22 @@
-// The `repository` and `bugs` field models: where a package lives, and where
-// to report problems with it.
-//
-// Both accept npm's two encodings — a shorthand string or an object — and both
-// hold the same wire-fidelity requirement the `Person` model does: a formatter
-// must not rewrite one legal encoding into another, so a value read from the
-// string form re-encodes to that exact string. The mechanism is `Person`'s: a
-// private field of provenance, because the wire form is provenance rather than data —
-// it must not appear in the encoded output, must not affect structural
-// equality, and must not survive being copied into a hand-built value.
-//
-// Normalization is exposed as DERIVED GETTERS over a verbatim `url`, never by
-// rewriting the field. A caller that wants a browsable link asks for one; a
-// caller that wants the bytes it read keeps them.
+/**
+ * The `repository` and `bugs` field models: where a package lives, and where
+ * to report problems with it.
+ *
+ * Both accept npm's two encodings — a shorthand string or an object — and both
+ * hold the same wire-fidelity requirement the `Person` model does: a formatter
+ * must not rewrite one legal encoding into another, so a value read from the
+ * string form re-encodes to that exact string. The mechanism is `Person`'s: a
+ * private field of provenance, because the wire form is provenance rather than data —
+ * it must not appear in the encoded output, must not affect structural
+ * equality, and must not survive being copied into a hand-built value.
+ *
+ * Normalization is exposed as DERIVED GETTERS over a verbatim `url`, never by
+ * rewriting the field. A caller that wants a browsable link asks for one; a
+ * caller that wants the bytes it read keeps them.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import * as A from "effect/Array";

@@ -1,27 +1,32 @@
-// The range-tolerant `packageManager` field model: a `PackageManagerRange`
-// class parsing `"pnpm@^11.20.0"` (or an exact `"pnpm@11.2.0"`) into
-// `name` / `range` / `integrity`, with a `PackageManagerRange.FromString`
-// string codec.
-//
-// The strict `PackageManager` models what corepack provisions — an exact,
-// pinnable version. pnpm's own reading of the field is wider: with
-// `manage-package-manager-versions` it accepts a semver *range* and resolves
-// it itself, and manifests carrying `pnpm@^11.20.0` exist in the wild. This
-// class models
-// that wider field without weakening the strict one: the range text is carried
-// **verbatim** (the `Repository` posture — fidelity first, interpretation as
-// derived getters), validated only to parse as a semver range, and `isExact`
-// reports whether it is in fact an exact pinnable version.
-//
-// The grammar shares the strict form's one load-bearing rule: the FIRST `+`
-// after the `@` begins the integrity component, never semver build metadata.
-// A range whose own text would carry `+` build metadata in a comparator
-// therefore cannot be expressed in this field — the field's grammar owns `+`.
-//
-// `devEngines.packageManager` carries the same `<range>[+<integrity>]` tail in
-// its `version` slot, with the name in its own slot; `fromDevEngine` reads that
-// shape onto this model through the same component validation `parseResult`
-// uses, so the two fields cannot drift apart.
+/**
+ * The range-tolerant `packageManager` field model: a `PackageManagerRange`
+ * class parsing `"pnpm@^11.20.0"` (or an exact `"pnpm@11.2.0"`) into
+ * `name` / `range` / `integrity`, with a `PackageManagerRange.FromString`
+ * string codec.
+ *
+ * The strict `PackageManager` models what corepack provisions — an exact,
+ * pinnable version. pnpm's own reading of the field is wider: with
+ * `manage-package-manager-versions` it accepts a semver *range* and resolves
+ * it itself, and manifests carrying `pnpm@^11.20.0` exist in the wild. This
+ * class models
+ * that wider field without weakening the strict one: the range text is carried
+ * **verbatim** (the `Repository` posture — fidelity first, interpretation as
+ * derived getters), validated only to parse as a semver range, and `isExact`
+ * reports whether it is in fact an exact pinnable version.
+ *
+ * The grammar shares the strict form's one load-bearing rule: the FIRST `+`
+ * after the `@` begins the integrity component, never semver build metadata.
+ * A range whose own text would carry `+` build metadata in a comparator
+ * therefore cannot be expressed in this field — the field's grammar owns `+`.
+ *
+ * `devEngines.packageManager` carries the same `<range>[+<integrity>]` tail in
+ * its `version` slot, with the name in its own slot; `fromDevEngine` reads that
+ * shape onto this model through the same component validation `parseResult`
+ * uses, so the two fields cannot drift apart.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
@@ -316,17 +321,17 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
     /**
      * The version position, verbatim: a semver range (`^11.20.0`,
      * `>=10 <12`, ...) or an exact version (`11.2.0`). Validated to parse
-     * through `@effected/semver`'s `Range.parseResult`; never normalized, so
+     * through `@beep/semver`'s `Range.parseResult`; never normalized, so
      * the field round-trips byte-identically.
      */
     range: SemVerRangeString.pipe(
       $I.annoteKey("PackageManagerRange.range", {
         description:
-          "The version position, verbatim: a semver range (`^11.20.0`, `>=10 <12`, ...) or an exact version (`11.2.0`). Validated to parse through `@effected/semver`'s `Range.parseResult`; never normalized, so the field round-trips byte-identically.",
+          "The version position, verbatim: a semver range (`^11.20.0`, `>=10 <12`, ...) or an exact version (`11.2.0`). Validated to parse through `@beep/semver`'s `Range.parseResult`; never normalized, so the field round-trips byte-identically.",
       })
     ),
     /**
-     * The optional integrity hash (e.g. `sha512.abc`): `@effected/npm`'s
+     * The optional integrity hash (e.g. `sha512.abc`): `@beep/npm-spec`'s
      * `CorepackIntegrityHash`. Meaningful only alongside an exact range —
      * an integrity pins one artifact — but carried whenever the manifest
      * carries it, because fidelity outranks plausibility in a field model.
@@ -334,7 +339,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
     integrity: S.Option(CorepackIntegrityHash).pipe(
       $I.annoteKey("PackageManagerRange.integrity", {
         description:
-          "The optional integrity hash (e.g. `sha512.abc`): `@effected/npm`'s `CorepackIntegrityHash`. Meaningful only alongside an exact range — an integrity pins one artifact — but carried whenever the manifest carries it, because fidelity outranks plausibility in a field model.",
+          "The optional integrity hash (e.g. `sha512.abc`): `@beep/npm-spec`'s `CorepackIntegrityHash`. Meaningful only alongside an exact range — an integrity pins one artifact — but carried whenever the manifest carries it, because fidelity outranks plausibility in a field model.",
       })
     ),
   },
@@ -390,7 +395,7 @@ export class PackageManagerRange extends S.Class<PackageManagerRange, { readonly
    * Splits on the first `@`, then on the first `+` — which always begins the
    * integrity, never semver build metadata — and validates each component:
    * the name against the lowercase grammar, the range through
-   * `@effected/semver`'s `Range.parseResult`, the integrity through
+   * `@beep/semver`'s `Range.parseResult`, the integrity through
    * `CorepackIntegrityHash`. {@link PackageManagerRange.parse} is defined in
    * terms of this function.
    *

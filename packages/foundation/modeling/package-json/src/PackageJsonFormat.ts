@@ -1,20 +1,25 @@
-// Decode-free canonical sort and format. Two entry points over the same
-// ordering rules, carried as statics on `PackageJsonFormat`:
-// `sortValue` for value→value hosts and `formatToString` for bytes→bytes
-// hosts, mirroring the two shapes `sort-package-json` offers.
-//
-// The class shape and the `formatToString` name are the kit formatter
-// convention, already spelled the same way by `JsoncFormatter`, `YamlFormat`
-// and `TomlFormat` — a consumer who has met one kit formatter has met all
-// four. `sortValue` carries the value→value shape that only this package
-// needs.
-//
-// This is a capability distinct from `Package.toJsonString`, not a weakening of
-// it — the strict path keeps its guarantees exactly, and a caller picks between
-// them by name at the call site. Nothing here decodes, so nothing here can
-// normalize: field encodings that the model would canonicalize (string-form
-// `author` shorthand above all) survive untouched because they are never
-// looked at.
+/**
+ * Decode-free canonical sort and format. Two entry points over the same
+ * ordering rules, carried as statics on `PackageJsonFormat`:
+ * `sortValue` for value→value hosts and `formatToString` for bytes→bytes
+ * hosts, mirroring the two shapes `sort-package-json` offers.
+ *
+ * The class shape and the `formatToString` name are the kit formatter
+ * convention, already spelled the same way by `JsoncFormatter`, `YamlFormat`
+ * and `TomlFormat` — a consumer who has met one kit formatter has met all
+ * four. `sortValue` carries the value→value shape that only this package
+ * needs.
+ *
+ * This is a capability distinct from `Package.toJsonString`, not a weakening of
+ * it — the strict path keeps its guarantees exactly, and a caller picks between
+ * them by name at the call site. Nothing here decodes, so nothing here can
+ * normalize: field encodings that the model would canonicalize (string-form
+ * `author` shorthand above all) survive untouched because they are never
+ * looked at.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $PackageJsonId } from "@beep/identity/packages";
 import { JsoncEdit, JsoncModifier } from "@beep/jsonc";
@@ -192,7 +197,7 @@ const isJsonObject: (value: unknown) => value is Record<string, unknown> = P.isO
 /**
  * Indicates that a surgical modification could not be applied: the value on
  * the navigation path is not the container kind the next path segment
- * requires. The underlying `@effected/jsonc` `JsoncModificationError` —
+ * requires. The underlying `@beep/jsonc` `JsoncModificationError` —
  * which names the expected container and the 1-based depth of the mismatch —
  * is preserved on the structured `cause` field, never stringified.
  *
@@ -240,7 +245,7 @@ export class PackageJsonModifyError extends S.TaggedError<PackageJsonModifyError
   },
   $I.annoteError<PackageJsonModifyError>("PackageJsonModifyError", {
     description:
-      "Indicates that a surgical modification could not be applied: the value on the navigation path is not the container kind the next path segment requires. The underlying `@effected/jsonc` `JsoncModificationError` — which names the expected container and the 1-based depth of the mismatch — is preserved on the structured `cause` field, never stringified.",
+      "Indicates that a surgical modification could not be applied: the value on the navigation path is not the container kind the next path segment requires. The underlying `@beep/jsonc` `JsoncModificationError` — which names the expected container and the 1-based depth of the mismatch — is preserved on the structured `cause` field, never stringified.",
   })
 ) {
   /**
@@ -416,12 +421,12 @@ export class PackageJsonFormat {
    *
    * **Details**
    *
-   * Built on `@effected/jsonc`'s scanner-based edit engine. Inserted content
+   * Built on `@beep/jsonc`'s scanner-based edit engine. Inserted content
    * matches the source's own style: indentation (tab vs N spaces) is detected
    * from the first indented line and the line ending from the first `\r\n`.
    *
    * Passing `value === undefined` deletes the target key (including its
-   * comma) — the `@effected/jsonc` / `@effected/yaml` modify convention. A
+   * comma) — the `@beep/jsonc` / `@beep/yaml` modify convention. A
    * missing insertion target appends after the last key of its container.
    *
    * **Example** (Compute an edit for one package field)

@@ -1,8 +1,8 @@
 // The `packageManager` field: `<name>@<version>[+<integrity>]`.
 //
-// Two of the three components are shared verbatim with `@effected/npm`'s
+// Two of the three components are shared verbatim with `@beep/npm-spec`'s
 // `PackageManagerPin` and are tested here for the FIELD's behaviour, not the
-// pin's: the version through `@effected/semver`'s strict parse, the integrity
+// pin's: the version through `@beep/semver`'s strict parse, the integrity
 // through npm's `CorepackIntegrityHash`. The third — the name — is deliberately
 // looser than the pin's four literals, and the latitude has its own suite
 // below.
@@ -124,7 +124,7 @@ describe("PackageManager.FromString", () => {
 
 // The strictening. Each of these was ACCEPTED by the previous regex-level
 // version grammar (`\d+\.\d+\.\d+(?:-[a-zA-Z0-9._-]+)?`) and is rejected by
-// `@effected/semver`'s strict parse — the same validation corepack performs
+// `@beep/semver`'s strict parse — the same validation corepack performs
 // with `semver.valid`. Reinstating that regex turns this whole block red.
 describe("PackageManager.FromString version rejection matrix", () => {
   const rejects = (input: string, why: string) =>
@@ -187,7 +187,7 @@ describe("PackageManager.FromString version rejection matrix", () => {
   });
 });
 
-// The name half is where this field model and `@effected/npm`'s
+// The name half is where this field model and `@beep/npm-spec`'s
 // `PackageManagerPin` deliberately diverge. Evidence for the latitude, recorded
 // in the module's TSDoc: corepack 0.34.0 recognises only npm/pnpm/yarn and
 // would reject `bun@1.2.20` — a value six published packages in this repo's own
@@ -220,7 +220,7 @@ describe("PackageManager consolidation", () => {
   // The integrity half is a shared VALUE, so object identity settles it. A
   // private copy of the corepack restriction would pass every rejection test
   // above and compile clean; only this assertion sees it.
-  it("integrity IS @effected/npm's shared corepack schema, not a copy that agrees with it", () => {
+  it("integrity IS @beep/npm-spec's shared corepack schema, not a copy that agrees with it", () => {
     // `Schema.Option(X)` keeps `X` on `.value`.
     assert.strictEqual(
       PackageManager.fields.integrity.value,
@@ -234,7 +234,7 @@ describe("PackageManager consolidation", () => {
 
   // The version half is a shared VALUE too since it became
   // `SemVer.PinnableVersionString`, so identity settles it the same way.
-  it("version IS @effected/semver's shared pinnable schema, not a copy that agrees with it", () => {
+  it("version IS @beep/semver's shared pinnable schema, not a copy that agrees with it", () => {
     // A non-optional field keeps the schema directly on `fields`.
     assert.strictEqual(
       PackageManager.fields.version,
@@ -248,7 +248,7 @@ describe("PackageManager consolidation", () => {
   });
 
   // The equivalence corpus stays as the BEHAVIOURAL guard: whatever this
-  // field accepts must be exactly what `@effected/semver`'s strict parse
+  // field accepts must be exactly what `@beep/semver`'s strict parse
   // accepts (minus build metadata, which the grammar cannot express). A
   // hand-rolled parser that drifts from SemVer on any corpus entry fails here,
   // whichever direction it drifts. Corpus entries are untrimmed on purpose:
