@@ -85,9 +85,9 @@ const Totals = S.Struct({
 type Totals = typeof Totals.Type;
 
 const CorpusReport = S.Struct({
-  schemaVersion: S.Literal(1),
-  tool: S.Literal(TOOL),
-  scope: S.Literal(SCOPE),
+  schemaVersion: S.tag(1),
+  tool: S.tag(TOOL),
+  scope: S.tag(SCOPE),
   commit: S.optionalKey(S.String),
   totals: Totals,
   manifests: S.Array(ManifestRow),
