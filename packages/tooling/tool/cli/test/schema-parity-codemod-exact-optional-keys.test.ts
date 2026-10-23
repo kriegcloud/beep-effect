@@ -162,6 +162,15 @@ describe("exact-optional-keys rule", () => {
     );
   });
 
+  it("drops the paired | undefined from companion interfaces", () => {
+    strictEqual(
+      rewrite(
+        'export class CodeNode extends S.Class<CodeNode>("CodeNode")({ theme: S.OptionFromOptional(S.String) }) {}\nexport declare namespace CodeNode {\n  export interface Type {\n    readonly theme: string;\n  }\n  export interface Encoded {\n    readonly theme?: string | undefined;\n    readonly other?: string | undefined;\n  }\n}\n'
+      ),
+      'export class CodeNode extends S.Class<CodeNode>("CodeNode")({ theme: S.OptionFromOptionalKey(S.String) }) {}\nexport declare namespace CodeNode {\n  export interface Type {\n    readonly theme: string;\n  }\n  export interface Encoded {\n    readonly theme?: string;\n    readonly other?: string | undefined;\n  }\n}\n'
+    );
+  });
+
   it("reports each rewritten site with its facet", () => {
     const outcome = plan(
       "export const A = S.Struct({ a: S.optional(S.String), b: S.OptionFromOptional(S.Number) });\n"

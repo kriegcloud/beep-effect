@@ -185,8 +185,9 @@ const fieldOwner = (site: Node): O.Option<{ readonly key: string; readonly owner
 
 /**
  * `| undefined` members of hand-written companion types that mirror a
- * rewritten field: `declare namespace Owner { type Encoded = { key?: X | undefined } }`.
- * `optional` also narrows the decoded side, so every alias in the namespace is
+ * rewritten field: `declare namespace Owner { type Encoded = { key?: X | undefined } }`
+ * or `interface Encoded { key?: X | undefined }`. `optional` also narrows the
+ * decoded side, so every alias and interface in the namespace is
  * paired; the other members only change the encoded side.
  */
 const pairedDeclarationEdits = (
@@ -202,9 +203,12 @@ const pairedDeclarationEdits = (
           pipe(
             sourceFile.getDescendantsOfKind(SyntaxKind.ModuleDeclaration),
             A.filter((namespace) => namespace.getName() === owner),
-            A.flatMap((namespace) => namespace.getDescendantsOfKind(SyntaxKind.TypeAliasDeclaration)),
-            A.filter((alias) => member === "optional" || alias.getName() === "Encoded"),
-            A.flatMap((alias) => alias.getDescendantsOfKind(SyntaxKind.PropertySignature)),
+            A.flatMap((namespace) => [
+              ...namespace.getDescendantsOfKind(SyntaxKind.TypeAliasDeclaration),
+              ...namespace.getDescendantsOfKind(SyntaxKind.InterfaceDeclaration),
+            ]),
+            A.filter((companion) => member === "optional" || companion.getName() === "Encoded"),
+            A.flatMap((companion) => companion.getDescendantsOfKind(SyntaxKind.PropertySignature)),
             A.filter((property) => property.hasQuestionToken() && property.getName() === key),
             A.filterMap((property) =>
               pipe(
