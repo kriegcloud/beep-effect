@@ -2367,6 +2367,12 @@
       "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
       "@beep/lockfiles/internal/*": [
         "./packages/foundation/modeling/lockfiles/src/internal/*"
+      ],
+      "@beep/repo-workspaces": [
+        "./packages/tooling/library/repo-workspaces/src/index.ts"
+      ],
+      "@beep/repo-workspaces/*": [
+        "./packages/tooling/library/repo-workspaces/src/*"
       ]
     }
   }

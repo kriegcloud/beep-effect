@@ -237,7 +237,8 @@ const generatedComposers = $I.compose(
   "repo-tsconfig",
   "package-json",
   "config-file",
-  "lockfiles"
+  "lockfiles",
+  "repo-workspaces"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3460,3 +3461,20 @@ export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = com
  * @since 0.0.0
  */
 export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
+
+/**
+ * Identity composer for `@beep/repo-workspaces`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $RepoWorkspacesId } from "@beep/identity/packages"
+ *
+ * const id = $RepoWorkspacesId.make("RepoWorkspaces")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $RepoWorkspacesId: Identity.IdentityComposer<"@beep/repo-workspaces"> = composers.$RepoWorkspacesId;

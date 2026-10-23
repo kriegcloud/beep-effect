@@ -2137,11 +2137,6 @@
   "@beep/markdown/internal/*": [
     "./packages/foundation/modeling/markdown/src/internal/*"
   ],
-  "@beep/lockfiles": ["./packages/foundation/modeling/lockfiles/src/index.ts"],
-  "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
-  "@beep/lockfiles/internal/*": [
-    "./packages/foundation/modeling/lockfiles/src/internal/*"
-  ],
   "@beep/github-reporting": [
     "./packages/foundation/modeling/github-reporting/src/index.ts"
   ],
@@ -2174,5 +2169,16 @@
   "@beep/config-file/*": ["./packages/foundation/capability/config-file/src/*"],
   "@beep/config-file/internal/*": [
     "./packages/foundation/capability/config-file/src/internal/*"
+  ],
+  "@beep/lockfiles": ["./packages/foundation/modeling/lockfiles/src/index.ts"],
+  "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
+  "@beep/lockfiles/internal/*": [
+    "./packages/foundation/modeling/lockfiles/src/internal/*"
+  ],
+  "@beep/repo-workspaces": [
+    "./packages/tooling/library/repo-workspaces/src/index.ts"
+  ],
+  "@beep/repo-workspaces/*": [
+    "./packages/tooling/library/repo-workspaces/src/*"
   ]
 }

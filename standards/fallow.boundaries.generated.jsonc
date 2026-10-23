@@ -858,6 +858,12 @@
         ]
       },
       {
+        "name": "@beep/repo-workspaces",
+        "patterns": [
+          "packages/tooling/library/repo-workspaces/src/**"
+        ]
+      },
+      {
         "name": "@beep/runpod",
         "patterns": [
           "packages/drivers/runpod/src/**"
@@ -4449,6 +4455,15 @@
           "@beep/test-utils",
           "@beep/utils",
           "@beep/walker"
+        ]
+      },
+      {
+        "from": "@beep/repo-workspaces",
+        "allow": [
+          "@beep/repo-workspaces"
+        ],
+        "allowTypeOnly": [
+          "@beep/repo-workspaces"
         ]
       },
       {

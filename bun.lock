@@ -3717,6 +3717,18 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/tooling/library/repo-workspaces": {
+      "name": "@beep/repo-workspaces",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/tooling/policy-pack/lint-rules": {
       "name": "@beep/lint-rules",
       "version": "0.1.0",
@@ -4818,6 +4830,8 @@
     "@beep/repo-tsconfig": ["@beep/repo-tsconfig@workspace:packages/tooling/library/repo-tsconfig"],
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:packages/tooling/library/repo-utils"],
+
+    "@beep/repo-workspaces": ["@beep/repo-workspaces@workspace:packages/tooling/library/repo-workspaces"],
 
     "@beep/runpod": ["@beep/runpod@workspace:packages/drivers/runpod"],
 
