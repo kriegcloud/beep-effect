@@ -34,9 +34,10 @@ describe("ManagedDocument", () => {
       { namespace: NS, key: KEY, text: "human\r\ntext" },
       { namespace: "", key: "invalid.name" },
     ]) {
-      const source: ManagedDocumentSource = input;
-      assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ManagedDocumentSource)(source)), source);
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ManagedDocumentSource)(source)), source);
+      const source: ManagedDocumentSource.Encoded = input;
+      const decoded = Result.getOrThrow(S.decodeResult(ManagedDocumentSource)(source));
+      assert.deepStrictEqual<ManagedDocumentSource.Encoded>(decoded, source);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ManagedDocumentSource)(decoded)), source);
     }
     assert.isFalse(S.is(ManagedDocumentSource)({ namespace: NS }));
     assert.isFalse(S.is(ManagedDocumentSource)({ namespace: NS, key: KEY, text: null }));

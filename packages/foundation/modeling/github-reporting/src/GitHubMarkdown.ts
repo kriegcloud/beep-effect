@@ -74,22 +74,32 @@ export type GitHubHeadingDepth = typeof GitHubHeadingDepth.Type;
  * @category type-level
  * @since 0.0.0
  */
-export const GitHubListOptions = S.Struct({
-  /**
-   *  Render `1.`-numbered items instead of bullets.
-   * @since 0.0.0
-   */
-  ordered: S.optional(S.Boolean).pipe(
-    $I.annoteKey("GitHubListOptions.ordered", { description: "Render numbered items instead of bullets." })
-  ),
-}).pipe($I.annoteSchema("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
+export class GitHubListOptions extends S.Opaque<GitHubListOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     *  Render `1.`-numbered items instead of bullets.
+     * @since 0.0.0
+     */
+    ordered: S.optional(S.Boolean).pipe(
+      $I.annoteKey("GitHubListOptions.ordered", { description: "Render numbered items instead of bullets." })
+    ),
+  }).pipe($I.annoteSchema("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }))
+) {}
 /**
- * Decoded list options, with an optional flag for numbered items.
+ * Companion types for {@link GitHubListOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type GitHubListOptions = typeof GitHubListOptions.Type;
+export declare namespace GitHubListOptions {
+  /**
+   * The plain options shape {@link GitHubMarkdown.list} accepts, so a caller can pass an object literal.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof GitHubListOptions.Encoded;
+}
 
 /**
  * The row-schema constraint {@link GitHubMarkdown.tableFor} accepts: a
@@ -574,11 +584,11 @@ export abstract class GitHubMarkdown {
    * @since 0.0.0
    */
   static readonly list: {
-    (items: ReadonlyArray<string>, options?: GitHubListOptions): string;
-    (options?: GitHubListOptions): (items: ReadonlyArray<string>) => string;
+    (items: ReadonlyArray<string>, options?: GitHubListOptions.Encoded): string;
+    (options?: GitHubListOptions.Encoded): (items: ReadonlyArray<string>) => string;
   } = dual(
     (args) => A.isArray(args[0]),
-    (items: ReadonlyArray<string>, options?: GitHubListOptions): string => {
+    (items: ReadonlyArray<string>, options?: GitHubListOptions.Encoded): string => {
       const ordered = options?.ordered ?? false;
       return block(
         List.make({

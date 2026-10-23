@@ -11,9 +11,10 @@ describe("GitHubMarkdown", () => {
     for (const depth of [1, 2, 3, 4, 5, 6]) assert.isTrue(S.is(GitHubHeadingDepth)(depth));
     for (const depth of [0, 7, 1.5, "2"]) assert.isFalse(S.is(GitHubHeadingDepth)(depth));
     for (const options of [{}, { ordered: undefined }, { ordered: false }, { ordered: true }]) {
-      const input: GitHubListOptions = options;
-      assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(GitHubListOptions)(input)), input);
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(GitHubListOptions)(input)), input);
+      const input: GitHubListOptions.Encoded = options;
+      const decoded = Result.getOrThrow(S.decodeResult(GitHubListOptions)(input));
+      assert.deepStrictEqual<GitHubListOptions.Encoded>(decoded, input);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(GitHubListOptions)(decoded)), input);
     }
     assert.isFalse(S.is(GitHubListOptions)({ ordered: "true" }));
   });

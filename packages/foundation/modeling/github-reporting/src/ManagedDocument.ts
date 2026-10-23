@@ -246,45 +246,55 @@ const structural = (failure: SectionParseError): ManagedDocumentError =>
  * @category models
  * @since 0.0.0
  */
-export const ManagedDocumentSource = S.Struct({
-  /**
-   * Whose document this is, e.g. your action's name.
-   *
-   * @since 0.0.0
-   */
-  namespace: S.String.pipe(
-    $I.annoteKey("ManagedDocumentSource.namespace", {
-      description: "Whose document this is, such as the action's name.",
-    })
-  ),
-  /**
-   * Which document, within that namespace.
-   *
-   * @since 0.0.0
-   */
-  key: S.String.pipe(
-    $I.annoteKey("ManagedDocumentSource.key", { description: "Which document, within the namespace." })
-  ),
-  /**
-   * The current text — a fetched comment body, a PR description — or absent
-   * when there is nothing yet. An absent text and an empty one mean the same
-   * thing: a fresh document.
-   *
-   * @since 0.0.0
-   */
-  text: S.optional(S.String).pipe(
-    $I.annoteKey("ManagedDocumentSource.text", {
-      description: "The current text; absent and empty text both start a fresh document.",
-    })
-  ),
-}).pipe($I.annoteSchema("ManagedDocumentSource", { description: "Source text and identity of a managed document." }));
+export class ManagedDocumentSource extends S.Opaque<ManagedDocumentSource, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Whose document this is, e.g. your action's name.
+     *
+     * @since 0.0.0
+     */
+    namespace: S.String.pipe(
+      $I.annoteKey("ManagedDocumentSource.namespace", {
+        description: "Whose document this is, such as the action's name.",
+      })
+    ),
+    /**
+     * Which document, within that namespace.
+     *
+     * @since 0.0.0
+     */
+    key: S.String.pipe(
+      $I.annoteKey("ManagedDocumentSource.key", { description: "Which document, within the namespace." })
+    ),
+    /**
+     * The current text — a fetched comment body, a PR description — or absent
+     * when there is nothing yet. An absent text and an empty one mean the same
+     * thing: a fresh document.
+     *
+     * @since 0.0.0
+     */
+    text: S.optional(S.String).pipe(
+      $I.annoteKey("ManagedDocumentSource.text", {
+        description: "The current text; absent and empty text both start a fresh document.",
+      })
+    ),
+  }).pipe($I.annoteSchema("ManagedDocumentSource", { description: "Source text and identity of a managed document." }))
+) {}
 /**
- * Decoded document identity and optional source text accepted by ManagedDocument.
+ * Companion types for {@link ManagedDocumentSource}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ManagedDocumentSource = typeof ManagedDocumentSource.Type;
+export declare namespace ManagedDocumentSource {
+  /**
+   * The plain source shape {@link ManagedDocument.parseResult} accepts, so a caller can pass an object literal.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ManagedDocumentSource.Encoded;
+}
 
 /**
  * A marker-delimited document: named regions a tool owns, inside text a human
@@ -382,7 +392,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * @category parsing
    * @since 0.0.0
    */
-  static parseResult(source: ManagedDocumentSource): Result.Result<ManagedDocument, ManagedDocumentError> {
+  static parseResult(source: ManagedDocumentSource.Encoded): Result.Result<ManagedDocument, ManagedDocumentError> {
     const document = ManagedDocument.make({ namespace: source.namespace, key: source.key, text: source.text ?? "" });
     return Result.map(Result.mapError(document.scan(), structural), () => document);
   }
@@ -408,7 +418,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * @category parsing
    * @since 0.0.0
    */
-  static readonly parse = Effect.fn("ManagedDocument.parse")((source: ManagedDocumentSource) =>
+  static readonly parse = Effect.fn("ManagedDocument.parse")((source: ManagedDocumentSource.Encoded) =>
     Effect.fromResult(ManagedDocument.parseResult(source))
   );
 

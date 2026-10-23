@@ -1,6 +1,7 @@
 import {
   CheckDocument,
   CheckDocumentError,
+  CheckDocumentSnapshot,
   CheckDocumentStamp,
   CheckFlushOutcome,
   CheckReport,
@@ -20,7 +21,6 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
-import type { CheckDocumentSnapshot } from "@beep/github-reporting/CheckDocument";
 import type * as Duration from "effect/Duration";
 
 const NS = "savvy-web";
@@ -717,6 +717,39 @@ describe("CheckFlushOutcome schema contract", () => {
       assert.strictEqual(CheckFlushOutcome.literals.length, 3);
       assert.isFalse(S.is(CheckFlushOutcome)("failed"));
       assert.isFalse(S.is(CheckFlushOutcome)(undefined));
+    })
+  );
+});
+
+describe("Opaque conformance (W3-b)", () => {
+  // Conformance shift: CheckReport, CheckDocumentSnapshot and
+  // CheckDocumentStamp were S.Class. As branded S.Opaque structs, `make`
+  // copies its input and `S.is` is structural, so a plain record passes.
+  it("make copies plain records and S.is accepts them structurally", () => {
+    const input = { state: "pass", outcome: "clean" } as const;
+    const report = CheckReport.make(input);
+    assert.notStrictEqual<object>(report, input);
+    assert.deepStrictEqual<object>(report, input);
+    assert.isTrue(S.is(CheckReport)({ state: "pass" }));
+    assert.isTrue(S.is(CheckDocumentStamp)({ at: "2026-01-01T00:00:00Z", runId: "1" }));
+    assert.isTrue(
+      S.is(CheckDocumentSnapshot)({ checks: HashMap.make(["build", { state: "pass" }]), order: ["build"] })
+    );
+    assert.isFalse(S.is(CheckReport)({ state: "cancelled" }));
+  });
+
+  it.effect("each checks read admits a fresh snapshot from plain registry state", () =>
+    Effect.gen(function* () {
+      const { layer } = yield* harness();
+      yield* Effect.gen(function* () {
+        const doc = yield* CheckDocument;
+        yield* doc.report("build", CheckReport.make({ state: "pass" }));
+        const first = yield* doc.checks;
+        const second = yield* doc.checks;
+        assert.notStrictEqual(first, second);
+        assert.deepStrictEqual(first.order, second.order);
+        assert.isTrue(S.is(CheckDocumentSnapshot)(first));
+      }).pipe(withLayer(layer));
     })
   );
 });

@@ -133,6 +133,70 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe(
 );
 
 /**
+ * An in-progress check run on GitHub's wire: a status and no conclusion.
+ *
+ * **Example** (Construct an in-progress projection)
+ *
+ * ```ts
+ * import { CheckRunInProgress } from "@beep/github-reporting/CheckState";
+ *
+ * console.log(JSON.stringify(CheckRunInProgress.make({}))) // {"status":"in_progress"}
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class CheckRunInProgress extends S.Opaque<CheckRunInProgress, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Always `in_progress`: an active check without a conclusion.
+     *
+     * @since 0.0.0
+     */
+    status: S.tag(CheckRunStatus.Enum.in_progress).pipe(
+      $I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })
+    ),
+  }).pipe($I.annoteSchema("CheckRunInProgress", { description: "An in-progress check run, carrying no conclusion." }))
+) {}
+
+/**
+ * A completed check run on GitHub's wire: a status and its conclusion.
+ *
+ * **Example** (Construct a completed projection)
+ *
+ * ```ts
+ * import { CheckRunCompleted } from "@beep/github-reporting/CheckState";
+ *
+ * console.log(CheckRunCompleted.make({ conclusion: "success" }).status) // completed
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class CheckRunCompleted extends S.Opaque<CheckRunCompleted, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Always `completed`: a finished check carrying its conclusion.
+     *
+     * @since 0.0.0
+     */
+    status: S.tag(CheckRunStatus.Enum.completed).pipe(
+      $I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })
+    ),
+    /**
+     * The completed check's wire conclusion.
+     *
+     * @since 0.0.0
+     */
+    conclusion: CheckRunConclusion.pipe(
+      $I.annoteKey("CheckRunProjection.completed.conclusion", { description: "The completed check's wire conclusion." })
+    ),
+  }).pipe($I.annoteSchema("CheckRunCompleted", { description: "A completed check run and its conclusion." }))
+) {}
+
+/**
  * A `CheckState` on GitHub's check-run wire: a status, and a conclusion
  * exactly when the status is `completed`.
  *
@@ -140,7 +204,9 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe(
  *
  * A discriminated union rather than two optional fields, because the wire
  * protocol's own invariant is conditional: an in-progress check run *has* no
- * conclusion, and a completed one always does.
+ * conclusion, and a completed one always does. Both members are branded
+ * `S.Opaque` structs, so values are plain objects; build them with
+ * `CheckRunInProgress.make` and `CheckRunCompleted.make`, or decode them.
  *
  * **Example** (Validate a CheckRunProjection value)
  *
@@ -155,21 +221,7 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const CheckRunProjection = S.Union([
-  S.Struct({
-    status: S.tag(CheckRunStatus.Enum.in_progress).pipe(
-      $I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })
-    ),
-  }),
-  S.Struct({
-    status: S.tag(CheckRunStatus.Enum.completed).pipe(
-      $I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })
-    ),
-    conclusion: CheckRunConclusion.pipe(
-      $I.annoteKey("CheckRunProjection.completed.conclusion", { description: "The completed check's wire conclusion." })
-    ),
-  }),
-]).pipe(
+export const CheckRunProjection = S.Union([CheckRunInProgress, CheckRunCompleted]).pipe(
   S.toTaggedUnion("status"),
   $I.annoteSchema("CheckRunProjection", {
     description: "A plain-object wire projection with a conclusion exactly for completed checks.",
@@ -184,6 +236,8 @@ export const CheckRunProjection = S.Union([
  * @since 0.0.0
  */
 export type CheckRunProjection = typeof CheckRunProjection.Type;
+
+const completed = (conclusion: CheckRunConclusion): CheckRunProjection => CheckRunCompleted.make({ conclusion });
 
 /**
  * Project a kit check state onto GitHub's check-run wire vocabulary.
@@ -210,15 +264,12 @@ export type CheckRunProjection = typeof CheckRunProjection.Type;
  */
 export const projectCheckState = (state: CheckState): CheckRunProjection =>
   Match.value(state).pipe(
-    Match.when("running", (): CheckRunProjection => ({ status: "in_progress" })),
-    Match.when("pass", (): CheckRunProjection => ({ status: "completed", conclusion: "success" })),
-    Match.when("fail", (): CheckRunProjection => ({ status: "completed", conclusion: "failure" })),
-    Match.when("warn", (): CheckRunProjection => ({ status: "completed", conclusion: "neutral" })),
-    Match.when(
-      "user_interaction_required",
-      (): CheckRunProjection => ({ status: "completed", conclusion: "action_required" })
-    ),
-    Match.when("skipped", (): CheckRunProjection => ({ status: "completed", conclusion: "skipped" })),
-    Match.when("timeout", (): CheckRunProjection => ({ status: "completed", conclusion: "timed_out" })),
+    Match.when("running", (): CheckRunProjection => CheckRunInProgress.make({})),
+    Match.when("pass", () => completed("success")),
+    Match.when("fail", () => completed("failure")),
+    Match.when("warn", () => completed("neutral")),
+    Match.when("user_interaction_required", () => completed("action_required")),
+    Match.when("skipped", () => completed("skipped")),
+    Match.when("timeout", () => completed("timed_out")),
     Match.exhaustive
   );

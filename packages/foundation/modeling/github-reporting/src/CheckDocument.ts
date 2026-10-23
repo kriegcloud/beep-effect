@@ -50,8 +50,8 @@ const $I = $GithubReportingId.create("CheckDocument");
  * @category models
  * @since 0.0.0
  */
-export class CheckReport extends S.Class<CheckReport, { readonly brand: unique symbol }>($I`CheckReport`)(
-  {
+export class CheckReport extends S.Opaque<CheckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Where the check is now. The last reported state is the authoritative one. */
     state: CheckState.pipe(
       $I.annoteKey("CheckReport.state", {
@@ -76,11 +76,12 @@ export class CheckReport extends S.Class<CheckReport, { readonly brand: unique s
     url: S.optionalKey(S.String).pipe(
       $I.annoteKey("CheckReport.url", { description: "Where the check's name should link." })
     ),
-  },
-  $I.annote("CheckReport", {
-    description:
-      "What a run knows about one of its checks: the authoritative state, and the presentation facts a renderer projects into the document.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckReport", {
+      description:
+        "What a run knows about one of its checks: the authoritative state, and the presentation facts a renderer projects into the document.",
+    })
+  )
 ) {}
 
 /**
@@ -108,21 +109,23 @@ export class CheckReport extends S.Class<CheckReport, { readonly brand: unique s
  * @category models
  * @since 0.0.0
  */
-export class CheckDocumentSnapshot extends S.Class<CheckDocumentSnapshot, { readonly brand: unique symbol }>(
-  $I`CheckDocumentSnapshot`
-)(
-  {
+export class CheckDocumentSnapshot extends S.Opaque<CheckDocumentSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     checks: S.HashMap(S.String, CheckReport).pipe(
       $I.annoteKey("CheckDocumentSnapshot.checks", { description: "The latest report for each check." })
     ),
     order: S.Array(S.String).pipe(
       $I.annoteKey("CheckDocumentSnapshot.order", { description: "Check keys in first-report order." })
     ),
-  },
-  $I.annote("CheckDocumentSnapshot", {
-    description: "An immutable check registry and its explicit first-report order.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckDocumentSnapshot", {
+      description: "An immutable check registry and its explicit first-report order.",
+    })
+  )
 ) {}
+
+/** The layer's registry state: the snapshot's fields before admission. */
+type RegistryState = Parameters<typeof CheckDocumentSnapshot.make>[0];
 
 /** What each {@link CheckDocumentError} kind reads as. */
 const KIND_PROSE = {
@@ -223,10 +226,8 @@ export class CheckDocumentError extends S.TaggedError<CheckDocumentError, { read
  * @category models
  * @since 0.0.0
  */
-export class CheckDocumentStamp extends S.Class<CheckDocumentStamp, { readonly brand: unique symbol }>(
-  $I`CheckDocumentStamp`
-)(
-  {
+export class CheckDocumentStamp extends S.Opaque<CheckDocumentStamp, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** When the run started — ideally an ISO-8601 instant. */
     at: S.String.pipe(
       $I.annoteKey("CheckDocumentStamp.at", { description: "When the run started — ideally an ISO-8601 instant." })
@@ -235,10 +236,11 @@ export class CheckDocumentStamp extends S.Class<CheckDocumentStamp, { readonly b
     runId: S.String.pipe(
       $I.annoteKey("CheckDocumentStamp.runId", { description: "The run's identifier — on GitHub, `GITHUB_RUN_ID`." })
     ),
-  },
-  $I.annote("CheckDocumentStamp", {
-    description: "A run's identity for staleness ordering: when it started and which run it is.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckDocumentStamp", {
+      description: "A run's identity for staleness ordering: when it started and which run it is.",
+    })
+  )
 ) {
   /**
    * Is `incoming` allowed to overwrite regions stamped `existing`?
@@ -657,7 +659,10 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
       Effect.gen(function* () {
         const quietMillis = Duration.toMillis(options.debounce?.quiet ?? "500 millis");
         const maxWaitMillis = Num.max(Duration.toMillis(options.debounce?.maxWait ?? "3 seconds"), quietMillis);
-        const checksRef = yield* Ref.make(CheckDocumentSnapshot.make({ checks: HashMap.empty(), order: [] }));
+        // Plain registry state: the snapshot schema is admitted once per read
+        // (`checks`, and each reconcile pass), never once per report.
+        const checksRef = yield* Ref.make<RegistryState>({ checks: HashMap.empty(), order: [] });
+        const snapshot = Effect.map(Ref.get(checksRef), CheckDocumentSnapshot.make);
         const writtenRef = yield* Ref.make(options.initial ?? "");
         const versionRef = yield* Ref.make(0);
         const signal = yield* Latch.make(false);
@@ -670,7 +675,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
         const staleLoggedRef = yield* Ref.make(false);
 
         const reconcile = Effect.fn("CheckDocument.reconcile")(function* () {
-          const checks = yield* Ref.get(checksRef);
+          const checks = yield* snapshot;
           // With a readable sink each pass reconciles against the LIVE
           // document — what another run wrote, not this process's shadow.
           // `undefined` is "nothing there yet": a fresh document. The same
@@ -786,18 +791,16 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
         const report: CheckDocumentShape["report"] = dual(
           2,
           Effect.fn("CheckDocument.report")(function* (check: string, entry: CheckReport) {
-            yield* Ref.update(checksRef, (current) =>
-              CheckDocumentSnapshot.make({
-                checks: HashMap.set(current.checks, check, entry),
-                order: HashMap.has(current.checks, check) ? current.order : A.append(current.order, check),
-              })
-            );
+            yield* Ref.update(checksRef, (current) => ({
+              checks: HashMap.set(current.checks, check, entry),
+              order: HashMap.has(current.checks, check) ? current.order : A.append(current.order, check),
+            }));
             yield* Ref.update(versionRef, (count) => count + 1);
             yield* signal.open;
           })
         );
 
-        return { report, checks: Ref.get(checksRef), flush } satisfies CheckDocumentShape;
+        return { report, checks: snapshot, flush } satisfies CheckDocumentShape;
       })
     );
   }
