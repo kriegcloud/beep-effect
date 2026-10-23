@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46), with 2d-2, 2d-A and 2d-3 queued behind it; wave 3 started with 3-Y (the `@beep/yaml` plain-scalar continuation fix, W3-d) in progress, and 3-1..3-5 and 3-A1..3-A9 queued per `research/wave-3-plan-2026-10-23.md`.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46), with 2d-2, 2d-A and 2d-3 queued behind it; wave 3 started with 3-Y merged (#2116, the `@beep/yaml` plain-scalar continuation fix, W3-d) and 3-3 in progress (`@beep/config-file`, W3-e, with the docgen and repo-cli adopters), and the other sub-waves of `research/wave-3-plan-2026-10-23.md` queued or in their own lanes.
 
 ## Phases
 
@@ -36,8 +36,8 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 2d-later | adoption, one PR each | D-46 deferred sites, tracked in `history/reuse-ledger.md`. |
 | 3-1 (queued) | `@beep/github-reporting` | W3-b. Lab adopters only (github-actions `index.ts`, `package.json`, `Exports.test.ts`, `reachability.test.ts`, the layering PROMOTED map). Fixes the GitHubMarkdown and ManagedDocument rows of "Inherited failures". From main; parallel with 3-2, 3-Y, 3-3, 3-4, 3-5. |
 | 3-2 (queued) | `@beep/repo-tsconfig` + the `get-tsconfig` drop | W3-c. Adopters: repo-cli `EffectDiagnostics.ts` (2 sites), `test-tsgo-turbo-inputs.test.ts`, `TestTypecheckCoverage.ts`; the root catalog; the runbook line; plus the realpath fix. From main; serializes with 3-3 on the repo-cli manifest. |
-| 3-Y (in progress, this PR) | `@beep/yaml` continuation fix | W3-d. No adopters. From main; parallel with all. Repro tests, an oracle property, yaml-test-suite at zero failures, the lockfiles suite re-run. |
-| 3-3 (queued) | `@beep/config-file` | W3-e. Adopters: docgen `Configuration.ts` `readJsoncFile`, repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli. Cut after 3-Y merges; serializes with 3-2 on the repo-cli manifest. |
+| 3-Y (merged, #2116) | `@beep/yaml` continuation fix | W3-d. No adopters. From main; parallel with all. Repro tests, an oracle property, yaml-test-suite at zero failures, the lockfiles suite re-run. |
+| 3-3 (in progress, this PR) | `@beep/config-file` | W3-e, W3-h (3-3). Adopters: docgen `Configuration.ts` `readJsoncFile` (docgen drops `jsonc-parser`), repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli (the lab cli renderer no longer imports the package). Codec-corpus conformance suite and `ops/config-file-codec-differential.ts`; coverage 100/100/100/100. Cut after 3-Y merged; serializes with 3-2 on the repo-cli manifest. |
 | 3-4 (queued) | `@beep/package-json` | W3-f. Lab adopters only (sbom re-export dropped, workspaces, both PROMOTED maps). From main; 3-5 takes main first on `WorkspacePackage.ts`. |
 | 3-5 (queued) | `@beep/lockfiles` | W3-g. Lab adopters only (workspaces, both PROMOTED maps). From main; 3-4 takes main first on `WorkspacePackage.ts`. |
 | 3-A1 (queued) | lockfiles adoption + `ResolvedPackage.installName` | repo-cli `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half). After 3-5. |
