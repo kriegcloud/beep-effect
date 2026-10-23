@@ -606,6 +606,19 @@ export const n = LiteralKit(Status.pick(["draft"]).literals);
     assert.strictEqual(plan(text)._tag, "Unchanged");
   });
 
+  it("leaves an unresolved LiteralKit call alone", () => {
+    const text = `${kitTyped}export const n = LiteralKit(Status.pick(["draft"]).literals);
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
+  it("leaves a LiteralKit call without exactly one argument alone", () => {
+    const text = `${kitImport}${kitTyped}export const none = LiteralKit();
+export const two = LiteralKit(Status.pick(["draft"]).literals, Status.pick(["live"]).literals);
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
   it("reports a re-wrap with explicit type arguments and a $match element read as residue", () => {
     const text = `${kitImport}${kitTyped}export const Open = LiteralKit<readonly ["draft"]>(Status.pick(["draft"]).literals);
 export const m = Status["$match"];

@@ -99,6 +99,9 @@ const declaresOwnerProperty = (type: Type, name: string): boolean =>
  * not resolved: its declaration no longer exists once the kit has been
  * renamed. Matching only on the `Enum` and `is` names would also rename an
  * unrelated object such as `{ Enum: {}, is: {}, $match }`.
+ *
+ * @param node - The receiver expression of a `$match` read.
+ * @returns Whether the receiver is a LiteralKit, a mapped kit direction or a decorated schema.
  */
 const isKitTyped = (node: Node): boolean => {
   const type = node.getType();
@@ -121,6 +124,9 @@ const planMatchElementAccess = (access: ElementAccessExpression): O.Option<Decis
 /**
  * `X.pick([...])` where `X` is kit-typed: the call whose `.literals` the
  * re-wrap reads.
+ *
+ * @param argument - The single argument of a `LiteralKit(...)` call.
+ * @returns The kit `pick` call, when the argument reads `.literals` off one.
  */
 const pickCallOf = (argument: Node): O.Option<CallExpression> =>
   pipe(
@@ -139,6 +145,9 @@ const pickCallOf = (argument: Node): O.Option<CallExpression> =>
  * The name alone can be shadowed, so the binding must be an import of
  * `LiteralKit` from `@beep/schema`, one of its subpaths, or (inside the schema
  * package) a relative path to the `LiteralKit` module.
+ *
+ * @param callee - The `LiteralKit` identifier being called.
+ * @returns Whether the identifier is bound to the schema package's `LiteralKit`.
  */
 const isSchemaLiteralKitBinding = (callee: Node): boolean =>
   A.some(callee.getSymbol()?.getDeclarations() ?? [], (declaration) =>

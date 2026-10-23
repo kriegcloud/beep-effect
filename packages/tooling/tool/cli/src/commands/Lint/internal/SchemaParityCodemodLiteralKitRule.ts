@@ -153,6 +153,8 @@ const insertAt = (offset: number, text: string): SchemaParityCodemodEdit =>
  * console.log(typeof isLiteralKitOwnerDeclaration) // "function"
  * ```
  *
+ * @param declaration - A declaration node of a resolved symbol.
+ * @returns Whether its source file ends with a LiteralKit owner module path.
  * @category predicates
  * @since 0.0.0
  */

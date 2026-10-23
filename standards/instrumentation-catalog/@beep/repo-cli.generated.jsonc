@@ -2453,6 +2453,7 @@
     {"name":"QaJudgeContract.evaluateDeclaredRoundCoherent","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"QaJudgeContract.evaluateEvidenceCrossCheckClean","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"QaJudgeContract.evaluateJudgeOutputInventoryDecodes","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"QaJudgeIngest.decodeJudgeInventory","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"QaJudgeIngest.parseJudgeOutput","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"QaJudgeIngest.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"QaJudgeLint.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
