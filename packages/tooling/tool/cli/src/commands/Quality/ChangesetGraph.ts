@@ -196,32 +196,36 @@ const packageJsonPathspecForWorkspacePattern = (pattern: string): string =>
   `:(glob)${pipe(pattern, normalizePath, stripTrailingSlashes)}/package.json`;
 
 /**
- * The frontmatter pattern of `@changesets/parse` 1.0.0, which is what
- * `changeset version` reads: its `mdRegex`
- * `/\s*---([^]*?)\r?\n\s*---(\s*(?:\n|$)[^]*)/` with the trailing summary
- * group turned into the equivalent lookahead, so a match ends at the closing
- * fence (`[^]` is spelled `[\s\S]`). It is wider than the shared
- * `@beep/markdown` fence grammar: it skips leading whitespace before the
- * opening fence, allows indentation before the closing fence, and does not
- * anchor at offset 0. The guard reads references through
- * `FrontmatterSource.split`; this pattern only decides whether a source the
- * shared grammar finds no YAML block in would still be read as frontmatter,
- * so that divergence fails loudly instead of reading as an empty changeset.
- */
-const changesetsParseFrontmatterPattern = /\s*---[\s\S]*?\r?\n\s*---(?=\s*(?:\n|$))/;
-
-/**
- * The 1-based line of the closing fence `@changesets/parse` would read, when
- * it reads one: the line holding the `---` that ends the match.
+ * Find the closing fence accepted by `@changesets/parse` in one forward line scan.
+ * The opening `---` can appear anywhere on its line; a later closing fence
+ * permits indentation and trailing whitespace. Each line is visited once,
+ * including malformed files with many opening candidates and no closing fence.
  *
- * @param content - The raw changeset file contents.
- * @returns The closing fence line, or `None` when no frontmatter matches.
+ * **Example** (Find an indented closing fence)
+ *
+ * ```ts
+ * import { changesetsParseClosingFenceLine } from "@beep/repo-cli/test/Quality"
+ *
+ * console.log(changesetsParseClosingFenceLine(["---", "  ---"]))
+ * ```
+ *
+ * @param lines - Source lines split on newline, including any carriage returns.
+ * @returns The 1-based closing fence line, if a frontmatter pair exists.
+ * @category parsing
+ * @since 0.0.0
  */
-const changesetsParseClosingFenceLine = (content: string): O.Option<number> =>
-  pipe(
-    O.fromNullishOr(changesetsParseFrontmatterPattern.exec(content)),
-    O.map((match) => A.length(Str.split(Str.slice(0, match.index + match[0].length)(content), "\n")))
-  );
+export const changesetsParseClosingFenceLine = (lines: Iterable<string>): O.Option<number> => {
+  let opened = false;
+  let lineNumber = 0;
+  for (const line of lines) {
+    lineNumber += 1;
+    if (opened && Str.trim(line) === "---") {
+      return O.some(lineNumber);
+    }
+    opened ||= Str.includes("---")(line);
+  }
+  return O.none();
+};
 
 const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* (
   repoRoot: string,
@@ -433,7 +437,7 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     );
 
     if (O.isNone(frontmatter)) {
-      const closingFenceLine = changesetsParseClosingFenceLine(content);
+      const closingFenceLine = changesetsParseClosingFenceLine(Str.split(content, "\n"));
       if (O.isSome(closingFenceLine)) {
         return yield* ChangesetGraphError.make({
           message: `Changeset frontmatter in ${file} closes on line ${closingFenceLine.value} for @changesets/parse, but the shared frontmatter grammar reads no YAML block; open the file with a --- line at offset 0 and close the block with an unindented --- line.`,

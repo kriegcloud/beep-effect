@@ -139,7 +139,7 @@ interface PublicationLedgerPrimitives {
  * **Example** (Build the primitives)
  *
  * ```ts
- * import { makePublicationLedger } from "@beep/repo-cli/internal/publication/PublicationLedger"
+ * import { makePublicationLedger } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.isEffect(makePublicationLedger())) // true
@@ -296,7 +296,7 @@ type SettledResult = Exclude<ModelsRecoveryResult, { readonly _tag: "skipped" }>
  *
  * ```ts
  * import { ModelsRecoveryResult } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
- * import { publicationTerminalState } from "@beep/repo-cli/internal/publication/PublicationLedger"
+ * import { publicationTerminalState } from "@beep/repo-cli/test/SharedInternals"
  *
  * const refused = ModelsRecoveryResult.cases.refused.make({ reason: "competing-writer", detail: "Changed." })
  * console.log(publicationTerminalState("staged", refused)._tag) // "refused"
@@ -325,7 +325,7 @@ export const publicationTerminalState: {
  * **Example** (Make a suffix)
  *
  * ```ts
- * import { publicationSuffix } from "@beep/repo-cli/internal/publication/PublicationLedger"
+ * import { publicationSuffix } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.isEffect(publicationSuffix)) // true
@@ -351,7 +351,7 @@ export const publicationSuffix: Effect.Effect<string> = Effect.gen(function* () 
  * **Example** (Read a record)
  *
  * ```ts
- * import { readPublicationRecord } from "@beep/repo-cli/internal/publication/PublicationLedger"
+ * import { readPublicationRecord } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -382,7 +382,7 @@ export const readPublicationRecord = Effect.fn("PublicationLedger.readRecord")(f
  * **Example** (Drop stale partials)
  *
  * ```ts
- * import { dropStalePublicationPartials } from "@beep/repo-cli/internal/publication/PublicationLedger"
+ * import { dropStalePublicationPartials } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.isEffect(dropStalePublicationPartials("/repo/journals", "skills-1"))) // true

@@ -1430,7 +1430,11 @@ const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
     "--disable-version-check",
     "--timeout",
     "20",
-    ...semgrepFiles,
+    // Explicit targets bypass .semgrepignore. Traverse the root so Semgrep
+    // applies its ignore rules, then restrict that traversal to literal, root-anchored
+    // changed paths rather than interpreting filenames as gitignore patterns.
+    ...A.flatMap(semgrepFiles, (file) => ["--include", `/${Str.replace(/[\\[\]*?!#]/g, "\\$&")(file)}`]),
+    ".",
   ]);
 });
 

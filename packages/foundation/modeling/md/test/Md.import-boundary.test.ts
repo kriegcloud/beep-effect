@@ -14,15 +14,34 @@ import * as MdModel from "@beep/md/Md.model";
 import * as MdRender from "@beep/md/Md.render";
 import * as MdSafe from "@beep/md/Md.safe";
 import { it } from "@beep/test-runner";
+import * as ImportGraph from "@beep/test-utils/ImportGraph";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import manifest from "../package.json" with { type: "json" };
-import { runtimeClosure, runtimeImportsOf, SOURCES } from "./support/importBoundary.ts";
+
+declare global {
+  interface ImportMeta {
+    glob<T>(
+      pattern: string,
+      options: { readonly query: "?raw"; readonly import: "default"; readonly eager: true }
+    ): Readonly<Record<string, T>>;
+  }
+}
+
+// Every package source module's text, keyed by its path under `src/`. Vite
+// inlines the raw text at transform time, so the walk needs no filesystem.
+const SOURCES = ImportGraph.fromGlob(
+  import.meta.glob<string>("../src/**/*.ts", { query: "?raw", import: "default", eager: true }),
+  { prefix: "../src/" }
+);
+
+const runtimeClosure = (entry: string) => ImportGraph.closure({ sources: SOURCES, entry });
 
 const ROOT_MODULES = [
   "./Md.behavior.ts",
@@ -59,43 +78,51 @@ const isParserSpecifier = (specifier: string): boolean =>
 const sorted = (values: Iterable<string>): ReadonlyArray<string> => A.sort(A.fromIterable(values), Order.String);
 
 describe("@beep/md import boundary", () => {
-  it("keeps the bridge and every parser package out of the non-bridge entries' runtime closures", () => {
-    for (const entry of NON_BRIDGE_ENTRIES) {
-      const closure = runtimeClosure(entry);
-      expect([entry, A.filter(sorted(closure.modules), isBridgeModule)]).toStrictEqual([entry, []]);
-      expect([entry, A.filter(sorted(closure.packages), isParserSpecifier)]).toStrictEqual([entry, []]);
-    }
-  });
+  it.effect("keeps the bridge and every parser package out of the non-bridge entries' runtime closures", () =>
+    Effect.gen(function* () {
+      for (const entry of NON_BRIDGE_ENTRIES) {
+        const closure = yield* runtimeClosure(entry);
+        expect([entry, A.filter(closure.modules, isBridgeModule)]).toStrictEqual([entry, []]);
+        expect([entry, A.filter(closure.packages, isParserSpecifier)]).toStrictEqual([entry, []]);
+      }
+    })
+  );
 
-  it("sees the parser packages in the bridge's own closure", () => {
-    const closure = runtimeClosure("Md.parse.ts");
-    expect(HashSet.has(closure.modules, "Md.syntax.ts")).toBe(true);
-    expect(A.some(sorted(closure.packages), isParserSpecifier)).toBe(true);
-  });
+  it.effect("sees the parser packages in the bridge's own closure", () =>
+    Effect.gen(function* () {
+      const closure = yield* runtimeClosure("Md.parse.ts");
+      expect(A.contains(closure.modules, "Md.syntax.ts")).toBe(true);
+      expect(A.some(closure.packages, isParserSpecifier)).toBe(true);
+    })
+  );
 
   it("imports @beep/markdown only from the bridge modules", () => {
-    const importers = A.filter(SOURCES.pipe(HashMap.keys, sorted), (module) =>
-      A.some(runtimeImportsOf(module), isParserSpecifier)
+    const importers = SOURCES.pipe(
+      HashMap.filter((source) => A.some(ImportGraph.runtimeImportsOf(source), isParserSpecifier)),
+      HashMap.keys,
+      sorted
     );
     expect(importers.length).toBeGreaterThan(0);
     expect(A.filter(importers, (module) => !isBridgeModule(module))).toStrictEqual([]);
   });
 
-  it("re-exports exactly the eight pre-bridge modules from the package root", () => {
-    expect(sorted(runtimeImportsOf("index.ts"))).toStrictEqual(ROOT_MODULES);
-    const modules: ReadonlyArray<Readonly<Record<string, unknown>>> = [
-      MdBehavior,
-      MdConformance,
-      MdEscape,
-      MdHtml,
-      MdModel,
-      MdRender,
-      MdSafe,
-      MdNamespace,
-    ];
-    const moduleExports = HashSet.fromIterable(A.flatMap(modules, (module) => R.keys(module)));
-    expect(sorted(R.keys(MdRoot))).toStrictEqual(sorted(moduleExports));
-  });
+  it.effect("re-exports exactly the eight pre-bridge modules from the package root", () =>
+    Effect.gen(function* () {
+      expect(sorted(yield* ImportGraph.moduleImportsOf(SOURCES, "index.ts"))).toStrictEqual(ROOT_MODULES);
+      const modules: ReadonlyArray<Readonly<Record<string, unknown>>> = [
+        MdBehavior,
+        MdConformance,
+        MdEscape,
+        MdHtml,
+        MdModel,
+        MdRender,
+        MdSafe,
+        MdNamespace,
+      ];
+      const moduleExports = HashSet.fromIterable(A.flatMap(modules, (module) => R.keys(module)));
+      expect(sorted(R.keys(MdRoot))).toStrictEqual(sorted(moduleExports));
+    })
+  );
 
   it("publishes the bridge as side-effect-free subpaths with @beep/markdown as a dependency", () => {
     expect(manifest.exports["./Md.syntax"]).toBe("./src/Md.syntax.ts");

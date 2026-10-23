@@ -2483,6 +2483,7 @@
           "@beep/managed-section",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -2493,6 +2494,7 @@
           "@beep/managed-section",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -3059,6 +3061,7 @@
           "@beep/jsonc",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/toml",
           "@beep/utils",
           "@beep/yaml"
@@ -3069,6 +3072,7 @@
           "@beep/jsonc",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/toml",
           "@beep/utils",
           "@beep/yaml"
@@ -3648,7 +3652,8 @@
           "@beep/npm-spec",
           "@beep/package-json",
           "@beep/semver",
-          "@beep/spdx"
+          "@beep/spdx",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
           "@beep/fc-runs",
@@ -3658,7 +3663,8 @@
           "@beep/npm-spec",
           "@beep/package-json",
           "@beep/semver",
-          "@beep/spdx"
+          "@beep/spdx",
+          "@beep/test-utils"
         ]
       },
       {

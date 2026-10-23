@@ -45,7 +45,7 @@ const $I = $RepoCliId.create("internal/quality/SchemaFirstPolicyFinding");
  * **Example** (Prefix match on finding line)
  *
  * ```ts
- * import { SchemaFirstPolicyIssuePrefix } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { SchemaFirstPolicyIssuePrefix } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log("line".startsWith(SchemaFirstPolicyIssuePrefix))
  * ```
@@ -68,7 +68,7 @@ export const SchemaFirstPolicyIssuePrefix = "[schema-first:issue] " as const;
  * **Example** (Check warn and warning spellings)
  *
  * ```ts
- * import { SchemaFirstPolicySeverity } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { SchemaFirstPolicySeverity } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(SchemaFirstPolicySeverity.is.warn("warn"))
  * console.log(SchemaFirstPolicySeverity.is.warning("warning"))
@@ -98,7 +98,7 @@ export const SchemaFirstPolicySeverity = LiteralKit(["warn", "warning", "error"]
  * **Example** (Make finding with remediation)
  *
  * ```ts
- * import { SchemaFirstPolicyFinding } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { SchemaFirstPolicyFinding } from "@beep/repo-cli/test/SharedInternals"
  *
  * const finding = SchemaFirstPolicyFinding.make({
  *   category: "schema-first-policy",
@@ -141,7 +141,7 @@ const codec = JsonStringCodec(SchemaFirstPolicyFinding);
  * **Example** (Decode finding JSON payload)
  *
  * ```ts
- * import { decodeSchemaFirstPolicyFinding } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { decodeSchemaFirstPolicyFinding } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * const json = '{"category":"schema-first-policy","ruleId":"SFV4-defaults","file":"a.ts","message":"m"}'
  * console.log(Effect.runSync(decodeSchemaFirstPolicyFinding(json)).ruleId)
@@ -159,7 +159,7 @@ export const decodeSchemaFirstPolicyFinding: (text: string) => Effect.Effect<Sch
  * **Example** (Encode finding to JSON)
  *
  * ```ts
- * import { encodeSchemaFirstPolicyFinding, SchemaFirstPolicyFinding } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { encodeSchemaFirstPolicyFinding, SchemaFirstPolicyFinding } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * const finding = SchemaFirstPolicyFinding.make({
  *   category: "schema-first-policy",
@@ -188,7 +188,7 @@ export const encodeSchemaFirstPolicyFinding: (
  * **Example** (Render prefixed stdout finding line)
  *
  * ```ts
- * import { renderSchemaFirstPolicyFindingLine, SchemaFirstPolicyFinding } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { renderSchemaFirstPolicyFindingLine, SchemaFirstPolicyFinding } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * const finding = SchemaFirstPolicyFinding.make({
  *   category: "schema-first-policy",
@@ -221,7 +221,7 @@ export const renderSchemaFirstPolicyFindingLine = (
  * **Example** (Parse issue line or noise)
  *
  * ```ts
- * import { decodeSchemaFirstPolicyFindingLine } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { decodeSchemaFirstPolicyFindingLine } from "@beep/repo-cli/test/SharedInternals"
  * import * as O from "effect/Option"
  *
  * const line = '[schema-first:issue] {"category":"schema-first-policy","ruleId":"r","file":"a.ts","message":"m"}'
@@ -246,7 +246,7 @@ export const decodeSchemaFirstPolicyFindingLine = (line: string): O.Option<Schem
  * **Example** (Prefix match on scanned-files line)
  *
  * ```ts
- * import { SchemaFirstScannedFilesPrefix } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { SchemaFirstScannedFilesPrefix } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log('[schema-first:scanned] ["a.ts"]'.startsWith(SchemaFirstScannedFilesPrefix)) // true
  * ```
@@ -271,7 +271,7 @@ const scannedFilesCodec = S.String.pipe(S.Array, JsonStringCodec);
  * **Example** (Render scanned-files line)
  *
  * ```ts
- * import { renderSchemaFirstScannedFilesLine } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { renderSchemaFirstScannedFilesLine } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(renderSchemaFirstScannedFilesLine(["packages/a/src/a.ts"])))
@@ -293,7 +293,7 @@ export const renderSchemaFirstScannedFilesLine = (files: ReadonlyArray<string>):
  * **Example** (Parse scanned-files line or noise)
  *
  * ```ts
- * import { decodeSchemaFirstScannedFilesLine } from "@beep/repo-cli/internal/quality/SchemaFirstPolicyFinding"
+ * import { decodeSchemaFirstScannedFilesLine } from "@beep/repo-cli/test/SharedInternals"
  * import * as O from "effect/Option"
  *
  * console.log(decodeSchemaFirstScannedFilesLine('[schema-first:scanned] ["a.ts"]')) // Option.some(["a.ts"])
