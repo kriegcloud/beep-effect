@@ -47,6 +47,19 @@ export * from "./AnswerRow/index.ts";
  */
 export * from "./ApplicationNumber/index.ts";
 /**
+ * Calendar-date value-object exports.
+ *
+ * **Example** (Import the calendar-date schema)
+ *
+ * ```ts
+ * import { CalendarDate } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./CalendarDate/index.ts";
+/**
  * Canon-citation value-object exports.
  *
  * **Example** (Import the canon-citation value objects)
