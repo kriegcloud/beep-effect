@@ -32,7 +32,7 @@ describe("EdgeVersion endpoint projections", () => {
   for (const { endpoint: input, references } of cases) {
     it.effect(`places the ${input.kind} reference in exactly one source and target column`, () =>
       Effect.gen(function* () {
-        const endpoint = yield* S.decodeUnknownEffect(EdgeEndpoint)(input);
+        const endpoint = yield* S.decodeEffect(EdgeEndpoint)(input);
         const [claimId, entityRef, evidenceId, observationRef] = references;
 
         expect(flattenEdgeSource(endpoint)).toStrictEqual({
@@ -54,7 +54,7 @@ describe("EdgeVersion endpoint projections", () => {
 
     it.effect(`reconstructs the ${input.kind} endpoint from either side's stored columns`, () =>
       Effect.gen(function* () {
-        const endpoint = yield* S.decodeUnknownEffect(EdgeEndpoint)(input);
+        const endpoint = yield* S.decodeEffect(EdgeEndpoint)(input);
 
         assertSome(unflattenEdgeSource(flattenEdgeSource(endpoint)), endpoint);
         assertSome(unflattenEdgeTarget(flattenEdgeTarget(endpoint)), endpoint);

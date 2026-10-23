@@ -4,14 +4,17 @@ import { it } from "@beep/test-runner";
 import { FileSystem, Path } from "@beep/utils";
 import { AppendFileSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
-import { expect } from "@effect/vitest";
-import { assertSome, assertTrue } from "@effect/vitest/utils";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { expect, vi } from "@effect/vitest";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
+import * as PlatformFileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Stream from "effect/Stream";
 
 const NFS: typeof import("node:fs") = NodeModule.createRequire(import.meta.url)("node:fs");
 
@@ -27,6 +30,33 @@ const makeTempDir = Effect.fn("FileSystemTest.makeTempDir")(function* () {
     (directory) => Effect.sync(() => NFS.rmSync(directory, { recursive: true, force: true }))
   );
 });
+
+it.layer(NodePath.layer)("FileSystem watch wrapper", (it) =>
+  it.effect(
+    "makeWaitForFile ignores other basenames and supports both call forms",
+    Effect.fnUntraced(function* () {
+      const directory = "/watched";
+      const event: PlatformFileSystem.WatchEvent = { _tag: "Create", path: "/watched/target.txt" };
+      const fs = PlatformFileSystem.makeNoop({
+        watch: (path) => {
+          expect(path).toBe(directory);
+          return Stream.fromIterable([
+            { _tag: "Update", path: "/watched/other.txt" },
+            event,
+            { _tag: "Remove", path: "/watched/target.txt" },
+          ] satisfies ReadonlyArray<PlatformFileSystem.WatchEvent>);
+        },
+      });
+      const waitForFile = yield* FileSystem.makeWaitForFile.pipe(
+        Effect.provideService(PlatformFileSystem.FileSystem, fs)
+      );
+
+      assertSome(yield* waitForFile(directory, "target.txt"), event);
+      assertSome(yield* pipe(directory, waitForFile("target.txt")), event);
+      assertNone(yield* waitForFile(directory, "missing.txt"));
+    })
+  )
+);
 
 it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers", (it) => {
   it.effect(
@@ -131,6 +161,42 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       expect(error.reason._tag).toBe("NotFound");
       expect(error.reason.module).toBe("FileSystem");
       expect(error.reason.method).toBe("statSync");
+    })
+  );
+
+  it.effect(
+    "statSync classifies socket metadata from the Node backend",
+    Effect.fnUntraced(function* () {
+      const dir = yield* makeTempDir();
+      const stats = NFS.statSync(dir);
+      const directory = vi.spyOn(stats, "isDirectory").mockReturnValue(false);
+      const socket = vi.spyOn(stats, "isSocket").mockReturnValue(true);
+      const stat = vi.spyOn(NFS, "statSync").mockReturnValue(stats);
+      try {
+        expect((yield* FileSystem.statSync("socket")).type).toBe("Socket");
+      } finally {
+        stat.mockRestore();
+        socket.mockRestore();
+        directory.mockRestore();
+      }
+    })
+  );
+
+  it.effect(
+    "maps failures without an errno code to Unknown and preserves their cause",
+    Effect.fnUntraced(function* () {
+      const cause = new Error("File-system backend unavailable");
+      const stat = vi.spyOn(NFS, "statSync").mockImplementation(() => {
+        throw cause;
+      });
+      try {
+        const error = yield* Effect.flip(FileSystem.statSync("unavailable.txt"));
+        expect(error.reason._tag).toBe("Unknown");
+        expect(error.reason.method).toBe("statSync");
+        expect(error.reason.cause).toBe(cause);
+      } finally {
+        stat.mockRestore();
+      }
     })
   );
 });
