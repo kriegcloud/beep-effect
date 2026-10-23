@@ -5,10 +5,16 @@ Lambdas (`infra/src/CiTurboCache.ts`). The deployment is deliberately
 asymmetric — either token may **read**, only the trusted token may **write**,
 and the writer is a separate function behind a signed invocation.
 
-Workstations, agent checkouts, and same-repository pull-request jobs are
-**readers only**. Fork pull requests stay local-only. No local checkout ever
-holds the trusted write token; remote writes belong to main-push CI and the
-protected cache-warm workflow.
+Workstations and agent checkouts are **readers by default**. Explicitly enrolled
+trusted R2 hosts may write with separate bucket-scoped credentials. The initial
+R2 cohort is the operator's Linux workstation and protected AWS CI. Same-repository
+pull-request jobs remain readers only; forks stay local-only. The existing AWS
+trusted-write token is never distributed to workstations.
+
+The opted-in R2 path uses a checksum-pinned upstream loopback adapter and an
+Alchemy-managed private bucket; see [the R2 runbook](../infra/r2-cache/README.md).
+AWS remains the fallback and comparison baseline until retirement is separately
+qualified. The R2 enable flag does not change task cacheability.
 
 ## The per-checkout contract
 
@@ -87,7 +93,8 @@ covered by `packages/tooling/tool/cli/test/turbo-cache.test.ts`:
 | Caller passed `--cache=…`, `--force`, `--no-cache`, `--remote-only`, `--remote-cache-read-only` | none — the caller owns it |
 | Complete quad, `TURBO_CACHE=local:rw,remote:r` | `--cache=local:rw,remote:r` |
 | Any quad member missing or blank | `--cache=local:rw` |
-| Quad complete, any other posture (including `remote:rw`) | `--cache=local:rw` |
+| Complete quad, `local:rw,remote:rw`, `BEEP_TURBO_TRUSTED_WRITER=true` | `--cache=local:rw,remote:rw` |
+| Quad complete, any other posture or remote writes without enrollment | `--cache=local:rw` |
 
 A remote-read plan whose values are still `op://` references probes the cache
 credential references once per CLI process and runs the lane under `op run`
@@ -247,14 +254,16 @@ existing `--collect-all` compatibility spelling.
 - every hosted script lane except labs is a Turbo task (C3 target contract; the
   Stage D consumer migration completes root-task routing).
 
-- Never put the trusted write token on a workstation. A read token that leaks
-  permits downloads, not cache poisoning; a write token permits poisoning every
-  checkout and every CI job.
+- Keep the existing AWS trusted-write token and R2 provisioning authority out
+  of workstation cache consumers. Enrolled hosts use independently revocable R2
+  object-write credentials. A writer can publish results accepted by other
+  consumers; enroll only explicitly trusted hosts.
 - Never commit a resolved secret. `op://` references are references — keep them
   that way in `.env`, scripts, and docs.
-- `TURBO_CACHE=local:rw,remote:rw` is refused locally by design, not by
-  accident. If you think a workstation needs to write, that is the `beep cache
-  warm` conversation (ship-velocity C3), not a `.env` edit.
+- Remote writes are refused locally unless a complete quad and
+  `BEEP_TURBO_TRUSTED_WRITER=true` explicitly enroll the host. The opt-in selects
+  client behavior; it cannot grant storage rights that the credential lacks.
+  Forks and read-only CI jobs never receive the writer credential.
 - Yeet still forces dependency-sensitive proof steps with `TURBO_FORCE=true`
   when `bun.lock` differs from base. Those runs cannot read from any cache;
   that is a deliberate false-green control, not a misconfiguration.

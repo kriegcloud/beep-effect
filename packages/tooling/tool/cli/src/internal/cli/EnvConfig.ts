@@ -704,9 +704,9 @@ export const turboEnvOverrides = Effect.fn("EnvConfig.turboEnvOverrides")(functi
   };
 });
 
-// The two ambient values behind the shared workstation cache directory; they sit
-// outside the remote-read quad so a missing one never downgrades the plan.
-const TURBO_CACHE_DIR_ENV_NAMES: ReadonlyArray<string> = ["TURBO_CACHE_DIR", "HOME"];
+// Optional cache-directory inputs and the explicit trusted-writer enrollment flag;
+// they sit outside the four required remote-cache values.
+const TURBO_CACHE_OPTION_ENV_NAMES: ReadonlyArray<string> = ["TURBO_CACHE_DIR", "HOME", "BEEP_TURBO_TRUSTED_WRITER"];
 
 const configuredValue = (value: string | undefined): O.Option<string> =>
   pipe(O.fromUndefinedOr(value), O.map(Str.trim), O.filter(Str.isNonEmpty));
@@ -757,6 +757,7 @@ export const readTurboCacheEnvironment = (
       token: turboCacheValueSource(environment.TURBO_TOKEN),
       team: turboCacheValueSource(environment.TURBO_TEAM),
       cache: configuredValue(environment.TURBO_CACHE),
+      trustedWriter: configuredValue(environment.BEEP_TURBO_TRUSTED_WRITER).pipe(O.map((value) => value === "true")),
       cacheDir: configuredValue(environment.TURBO_CACHE_DIR),
       home: configuredValue(environment.HOME),
     })
@@ -769,9 +770,9 @@ export const readTurboCacheEnvironment = (
  * **Details**
  *
  * Evaluated at call time, like every other reader here: the four
- * {@link TurboCacheEnvName} values plus `TURBO_CACHE_DIR` and `HOME` are read
+ * {@link TurboCacheEnvName} values plus the cache-directory inputs and trusted-writer flag are read
  * through the ambient provider and handed to {@link readTurboCacheEnvironment}.
- * The cache-directory inputs are optional and do not determine remote-read eligibility.
+ * The cache-directory inputs are optional. The trusted-writer opt-in controls only uploads.
  *
  * **Example** (Read the ambient cache configuration)
  *
@@ -787,7 +788,7 @@ export const readTurboCacheEnvironment = (
  */
 export const readTurboCacheEnvironmentSync = (): TurboCacheEnvironment =>
   readTurboCacheEnvironment(
-    R.fromIterableWith([...TurboCacheEnvName.literals, ...TURBO_CACHE_DIR_ENV_NAMES], (name) => [
+    R.fromIterableWith([...TurboCacheEnvName.literals, ...TURBO_CACHE_OPTION_ENV_NAMES], (name) => [
       name,
       O.getOrUndefined(configStringOptionSync(name)),
     ])

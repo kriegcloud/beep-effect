@@ -2,6 +2,19 @@ name: Cache Warm
 
 on:
   workflow_dispatch:
+    inputs:
+      r2_probe:
+        description: Run the bounded bidirectional R2 qualification instead of full warming.
+        type: boolean
+        default: false
+      r2_marker:
+        description: Nonsecret sixteen-hex marker written by the workstation seed.
+        type: string
+        default: ""
+      r2_source_sha:
+        description: Reviewed main ancestor used for an exact-input qualification.
+        type: string
+        default: ""
   schedule:
     # The backing bucket expires artifacts after 30 days. A twice-monthly
     # recovery pass prevents quiet periods from turning every next PR cold.
@@ -17,6 +30,7 @@ permissions:
 jobs:
   warm:
     name: Warm Turbo cache
+    if: github.ref == 'refs/heads/main'
     runs-on: beep-ec2-heavy
     timeout-minutes: 60
     environment: turbo-cache-write
@@ -32,7 +46,14 @@ jobs:
           fetch-depth: 0
           filter: blob:none
           persist-credentials: false
-          ref: main
+          ref: ${{ inputs.r2_probe && inputs.r2_source_sha || 'main' }}
+
+      - name: Require reviewed main ancestry for the probe
+        if: inputs.r2_probe
+        shell: bash
+        run: |
+          git fetch --quiet --no-tags origin refs/heads/main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD origin/main
 
       - name: Setup pinned toolchain
         uses: ./.github/actions/setup-monorepo-ci
@@ -40,11 +61,34 @@ jobs:
           cache-turbo: "false"
           cache-write: "false"
 
+      - name: Start optional R2 cache adapter
+        if: vars.TURBO_R2_ENABLED == 'true' || inputs.r2_probe
+        shell: bash
+        env:
+          R2_ENDPOINT: ${{ vars.TURBO_R2_ENDPOINT }}
+          R2_BUCKET: ${{ vars.TURBO_R2_BUCKET }}
+          R2_ACCESS_KEY_ID: ${{ secrets.TURBO_R2_WRITE_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.TURBO_R2_WRITE_SECRET_ACCESS_KEY }}
+          R2_CACHE_MODE: local:rw,remote:rw
+        run: infra/r2-cache/adapter.sh start-ci
+
+      - name: Qualify R2 credentials and exact-hash reuse
+        if: inputs.r2_probe
+        shell: bash
+        env:
+          R2_MARKER: ${{ inputs.r2_marker }}
+          R2_ENDPOINT: ${{ vars.TURBO_R2_ENDPOINT }}
+          R2_BUCKET: ${{ vars.TURBO_R2_BUCKET }}
+          R2_READ_ACCESS_KEY_ID: ${{ secrets.TURBO_R2_READ_ACCESS_KEY_ID }}
+          R2_READ_SECRET_ACCESS_KEY: ${{ secrets.TURBO_R2_READ_SECRET_ACCESS_KEY }}
+        run: python3 infra/r2-cache/probe.py ci --marker "$R2_MARKER"
+
       - name: Warm cache and write receipt
+        if: ${{ !inputs.r2_probe }}
         run: bun run beep cache warm --output .beep/cache-warm.json
 
       - name: Upload warm receipt and Turbo summaries
-        if: always()
+        if: always() && !inputs.r2_probe
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: cache-warm-${{ github.run_id }}
@@ -53,3 +97,17 @@ jobs:
             .turbo/runs/*.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Upload sanitized R2 qualification receipt
+        if: always() && inputs.r2_probe
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: r2-qualification-${{ github.run_id }}
+          path: .beep/r2-cache/ci-proof.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Stop R2 cache adapter
+        if: always()
+        shell: bash
+        run: infra/r2-cache/adapter.sh stop-ci
