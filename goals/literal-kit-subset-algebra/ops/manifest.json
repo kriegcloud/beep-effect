@@ -18,7 +18,7 @@
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "PR #2080 merged as 7055b05c88 on 2026-10-23 through a ruleset bypass while five required Heavy checks were still pending at the accepted head 2991c0ac62; the merge cancelled them, and the Lint and Test Unit aggregators then failed on the cancelled shards. There were zero required reds at the accepted head. Merge-time completion evidence stays unsatisfied; the S44 orchestrator ruled the closeout on 2026-10-23 (SPEC decision log).",
+    "statement": "PR #2080 merged as 7055b05c88 on 2026-10-23 through a ruleset bypass while five required Heavy checks were still pending at the accepted head 2991c0ac62; the merge cancelled them, and the Lint and Test Unit aggregators then failed on the cancelled shards. There were zero required reds at the accepted head. Merge-time completion evidence stays unsatisfied; the S44 orchestrator ruled the closeout on 2026-10-23 (SPEC decision log). The final-head readiness monitor was yeet job feb79008-dbee-40ab-9834-6bd1915eb075; the lane's verdict file was archived when the lane retired.",
     "grandfathered": false,
     "pullRequests": [
       {
@@ -29,7 +29,7 @@
     "acceptanceEvidence": [
       {
         "kind": "yeet-verdict",
-        "ref": "yeet monitor --until-ready job feb79008-dbee-40ab-9834-6bd1915eb075 (PR #2080)",
+        "ref": ".beep/yeet/runs/feat_literal-kit-subset-algebra-7e9acdd5e458/verdict.json",
         "gating": true
       }
     ]

@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `complete`
+Status: `completed-retained` (operator-ruled closeout via the S44 orchestrator, 2026-10-23; SPEC decision log)
 
 ## Phases
 
@@ -12,7 +12,7 @@ Status: `complete`
 | P1 Implement | done | Kit surface, builders, errors, codemod rule and migration, doctrine rows, typeperf fixtures. | Dependents type-check green. |
 | P2 Verify | done | Run required checks and capture evidence. | Verification is green or blockers are documented. |
 | P3 Yeet: PR to mergeable | done (#2080 merged `7055b05c88`) | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
-| P4 Close | done (reflection; proposedCloseout) | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
+| P4 Close | done (reflection; completed-retained by ruling, SPEC decision log 2026-10-23) | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## Closeout Checklist
 
