@@ -59,7 +59,6 @@ import {
   TransactionPhase,
 } from "./transaction.ts";
 import type {
-  DuckDBAppender,
   DuckDBConnection,
   DuckDBPreparedStatement,
   DuckDBResult,
@@ -514,7 +513,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
             () => native.createAppender(request.table, request.schema),
             (late) => late.closeSync()
           ),
-          Effect.fnUntraced(function* (appender: DuckDBAppender) {
+          Effect.fnUntraced(function* (appender) {
             const types = yield* gate.runUnlocked("appendRows", () =>
               Promise.resolve(A.makeBy(appender.columnCount, (i) => appender.columnType(i)))
             );

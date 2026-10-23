@@ -1861,7 +1861,7 @@ describe("practice KG projections", () => {
       { timeout: "120 seconds" }
     )((it) => {
       it.effect(
-        "resolves standalone and injected claims with an independent cached read-only connection",
+        "resolves standalone claims while an independent cached read-only connection remains open",
         Effect.fnUntraced(function* () {
           const reader = yield* ConcurrentClaimsReader;
           const options = yield* ConcurrentClaimsOptions;
@@ -1874,23 +1874,51 @@ describe("practice KG projections", () => {
           expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
           expect(rows.length).toBeGreaterThan(0);
           expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
+        }),
+        { timeout: 120_000 }
+      );
 
-          // Reuse the supplied reader even when opening the fallback store would fail.
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleOut = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-injected-claims-" });
-          yield* fs.writeFileString(path.join(bundleOut, "practice.duckdb"), "invalid fallback store");
-          const snapshot = '{"claimText":"x","docket":"20001US01","evidenceFixtureKey":"e1","family":"20001"}';
-          const carry = yield* decodeClaimsCarry({
-            candidates: [carriedCandidate("claim_injected", snapshot, "1_Response OA - 20001US01.txt")],
-            evidence: [],
+      it.effect(
+        "resolves claims through a DuckDb connection the caller already holds",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+
+          // No catalogued document has the `20001US05-patent` stem: the lookup takes its not-found path.
+          const summary = yield* runPracticeKgClaimsBatch(options).pipe(Effect.provideService(DuckDb, reader));
+
+          expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
+        }),
+        { timeout: 120_000 }
+      );
+
+      it.effect(
+        "resolves a catalogued source document through a DuckDb connection the caller already holds",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+          const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
+          // The docket fixture is catalogued as `Response OA - 20001US01.txt`.
+          const matched = PracticeKgClaimsOptions.make({
+            bundleOut: options.bundleOut,
+            inputs: options.inputs,
+            patentDocuments: [
+              PracticeKgPatentDocumentInput.make({
+                docket: "20001US01",
+                document,
+                sourceFile: "Response OA - 20001US01.txt",
+              }),
+            ],
           });
 
-          const carried = yield* writePracticeKgClaimsCarry(PracticeKgClaimsCarryWrite.make({ bundleOut, carry })).pipe(
-            Effect.provideService(DuckDb, reader)
+          const summary = yield* runPracticeKgClaimsBatch(matched).pipe(Effect.provideService(DuckDb, reader));
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const rows = yield* decodeCandidateClaimRows(
+            yield* sql.unsafe(PracticeKgQueries.candidateClaims, [null, `${fixtureClients.alpha}.20001`, null])
           );
 
-          expect([carried.claims, carried.withSourceDocument]).toStrictEqual([1, 1]);
+          expect(summary).toMatchObject({ failedFiles: 0, files: 1 });
+          expect(A.map(rows, (row) => row.sourceDocumentDigest)).toContain(fixtureDigests.docket);
         }),
         { timeout: 120_000 }
       );

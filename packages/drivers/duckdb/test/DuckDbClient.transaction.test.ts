@@ -8,6 +8,7 @@ import * as Fiber from "effect/Fiber";
 import * as Ref from "effect/Ref";
 import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
 import type { DuckDBConnection } from "@duckdb/node-api";
@@ -525,6 +526,29 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
   });
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "fails reader setup when the writer session snapshot does not decode",
+      Effect.fnUntraced(function* () {
+        const instance = yield* acquireInstance;
+        // The writer answers the session-settings query with a row DuckDB never produces.
+        const connect = (): Promise<DuckDBConnection> =>
+          instance.connect().then((connection) => {
+            const runAndReadAll = connection.runAndReadAll.bind(connection);
+            return Object.assign(connection, {
+              runAndReadAll: (sqlText: string) =>
+                Str.includes("current_setting('TimeZone') AS timeZone")(sqlText)
+                  ? Promise.resolve({ getRowObjects: () => [{ database: 1 }] })
+                  : runAndReadAll(sqlText),
+            }) as unknown as DuckDBConnection;
+          });
+        const patched = Object.assign(Object.create(instance), { connect }) as DuckDBInstance;
+
+        const error = yield* DuckDbClient.fromInstance({ instance: patched, readerConnections: 1 }).pipe(Effect.flip);
+
+        expect(error._tag).toBe("SqlError");
+      })
+    );
+
     it.effect(
       "maps a commit-time conflict to SerializationError and keeps the client usable",
       Effect.fnUntraced(function* () {
