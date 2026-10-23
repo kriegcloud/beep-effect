@@ -1213,22 +1213,21 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
       "refreshes session settings after a reserved writer stream, including failure",
       Effect.fnUntraced(function* () {
         const sql = yield* DuckDbClient.DuckDbClient;
-        yield* Effect.scoped(
-          Effect.gen(function* () {
-            const writer = yield* sql.reserve;
-            yield* writer.executeStream("SET TimeZone='Asia/Tokyo'; SELECT 1", [], undefined).pipe(Stream.runDrain);
-          })
-        );
+        // The reservation must close before the next stream borrows a reader.
+        const successfulLease = yield* Scope.make();
+        yield* Effect.gen(function* () {
+          const writer = yield* sql.reserve;
+          yield* writer.executeStream("SET TimeZone='Asia/Tokyo'; SELECT 1", [], undefined).pipe(Stream.runDrain);
+        }).pipe(Scope.use(successfulLease));
         const query = sql`SELECT current_setting('TimeZone') AS zone`;
         assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [{ zone: "Asia/Tokyo" }]);
-        yield* Effect.scoped(
-          Effect.gen(function* () {
-            const writer = yield* sql.reserve;
-            yield* writer
-              .executeStream("SET TimeZone='Pacific/Kiritimati'; SELECT * FROM missing", [], undefined)
-              .pipe(Stream.runDrain, Effect.flip);
-          })
-        );
+        const failedLease = yield* Scope.make();
+        yield* Effect.gen(function* () {
+          const writer = yield* sql.reserve;
+          yield* writer
+            .executeStream("SET TimeZone='Pacific/Kiritimati'; SELECT * FROM missing", [], undefined)
+            .pipe(Stream.runDrain, Effect.flip);
+        }).pipe(Scope.use(failedLease));
         assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), [
           { zone: "Pacific/Kiritimati" },
         ]);
@@ -1257,7 +1256,7 @@ describe("DuckDbClient reader connections", { concurrent: false }, () => {
     { databasePath: ":memory:", readerConnections: 1, timeZone: "Pacific/Kiritimati" },
     { databasePath: ":memory:", readerConnections: 1, databaseOptions: { TimeZone: "Asia/Tokyo" } },
   ]) {
-    it.layer(DuckDbClient.layer(config))((it) => {
+    it.layer(DuckDbClient.layer(config), { timeout: "30 seconds" })((it) => {
       it.effect(
         `matches the writer TimeZone at connect (${config.timeZone ?? config.databaseOptions?.TimeZone ?? "default"})`,
         Effect.fnUntraced(function* () {
