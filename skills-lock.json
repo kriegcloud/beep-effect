@@ -730,6 +730,14 @@
         ".agents/skills/yeet"
       ],
       "installedTreeHash": "0bd71a05776b7afb7bfe9ce86791cb8e69f2d419a93a402edccb18291f0be535"
+    },
+    "plasma-sensitive-entry": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/plasma-sensitive-entry",
+        ".agents/skills/plasma-sensitive-entry"
+      ],
+      "installedTreeHash": "18ff016785c79c2bb2d3d1708d89e9c46061c7acade2dd8813d1721732997974"
     }
   }
 }
