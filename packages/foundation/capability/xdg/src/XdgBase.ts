@@ -111,15 +111,26 @@ const lenient = (name: string): Config.Config<string | undefined> =>
 const dir = (kind: XdgBaseKind): Config.Config<O.Option<string>> =>
   Config.all({ value: lenient(variableOf(kind)), home: lenient("HOME") }).pipe(Config.map((env) => resolve(kind, env)));
 
-/** The strict read a failed lookup falls back to, so the error names the variable that was missing or relative. */
-const strictFallback = (kind: XdgBaseKind): Config.Config<string> =>
+/**
+ * The same answer as {@link dir}, failing instead of answering none. The runtime
+ * directory is a strict read of its own variable; the other kinds take a valid
+ * variable, else a strict read of `HOME`, so the `ConfigError` names the
+ * variable that was missing or relative.
+ */
+const require = (kind: XdgBaseKind): Config.Config<string> =>
   O.match(defaultUnderHome(kind), {
     onNone: () => Config.schema(AbsolutePath, variableOf(kind)),
-    onSome: (suffix) => Config.schema(AbsolutePath, "HOME").pipe(Config.map((home) => underHome(home, suffix))),
+    onSome: (suffix) =>
+      lenient(variableOf(kind)).pipe(
+        Config.map(absolute),
+        Config.flatMap(
+          O.match({
+            onNone: () => Config.schema(AbsolutePath, "HOME").pipe(Config.map((home) => underHome(home, suffix))),
+            onSome: Config.succeed,
+          })
+        )
+      ),
   });
-
-const require = (kind: XdgBaseKind): Config.Config<string> =>
-  dir(kind).pipe(Config.flatMap(O.match({ onNone: () => strictFallback(kind), onSome: Config.succeed })));
 
 /**
  * One XDG base directory, resolved the way the spec says.

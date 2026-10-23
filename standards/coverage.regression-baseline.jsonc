@@ -51118,6 +51118,105 @@
         }
       }
     },
+    "@beep/xdg": {
+      "path": "packages/foundation/capability/xdg",
+      "lines": 100,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "uncovered": {
+        "lines": 0,
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
+      },
+      "files": {
+        "packages/foundation/capability/xdg/src/AppDirs.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/capability/xdg/src/NativeDirs.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/capability/xdg/src/Xdg.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/capability/xdg/src/XdgBase.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/capability/xdg/src/XdgConfig.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/capability/xdg/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/capability/xdg/src/internal/absolute.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
     "@beep/xstate": {
       "path": "packages/drivers/xstate",
       "lines": 93.51,
