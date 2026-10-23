@@ -1,5 +1,6 @@
 import { Doc, Status, Token } from "@beep/cli-kit";
 import * as DocModel from "@beep/cli-kit/Doc";
+import { LinkTarget } from "@beep/cli-kit/LinkTarget";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
@@ -10,7 +11,12 @@ const isInlines = S.is(S.Array(DocModel.Inline));
 
 const isDocumentData = S.is(S.Union([DocModel.Inline, DocModel.Block, DocModel.Counter]));
 
-const counter = (key: string, n: number, name: "success" | "failure" | "skip", showZero?: boolean): Counter => ({
+const counter = (
+  key: string,
+  n: number,
+  name: "success" | "failure" | "skip",
+  showZero?: boolean
+): Counter.Encoded => ({
   key,
   label: key,
   n,
@@ -25,7 +31,7 @@ describe("Doc inline constructors", () => {
     assert.notProperty(plain, "token", "an absent token is an absent key, not undefined");
     assert.deepStrictEqual(Doc.text("hi", "failure"), { _tag: "Text", value: "hi", token: "failure" });
     const style = Token.style({ bold: true });
-    assert.deepStrictEqual(Doc.text("hi", style), { _tag: "Text", value: "hi", token: style });
+    assert.deepStrictEqual<unknown>(Doc.text("hi", style), { _tag: "Text", value: "hi", token: style });
     assert.isTrue(S.is(DocModel.Inline)(plain));
   });
 
@@ -36,12 +42,12 @@ describe("Doc inline constructors", () => {
   });
 
   it("link takes a url or a file target and labels itself with the target when no label is given", () => {
-    assert.deepStrictEqual(Doc.link({ url: "https://x.test" }), {
+    assert.deepStrictEqual<unknown>(Doc.link({ url: "https://x.test" }), {
       _tag: "Link",
       target: { url: "https://x.test" },
       label: [{ _tag: "Text", value: "https://x.test" }],
     });
-    assert.deepStrictEqual(Doc.link({ file: "src/a.ts", line: 3, col: 5 }, "a.ts"), {
+    assert.deepStrictEqual<unknown>(Doc.link({ file: "src/a.ts", line: 3, col: 5 }, "a.ts"), {
       _tag: "Link",
       target: { file: "src/a.ts", line: 3, col: 5 },
       label: [{ _tag: "Text", value: "a.ts" }],
@@ -155,9 +161,9 @@ describe("Doc block constructors", () => {
       ],
       { cap: 2, overflow: () => "more" }
     );
-    assert.deepStrictEqual(t.columns, [
-      { header: [{ _tag: "Text", value: "Name" }] },
-      { header: [{ _tag: "Code", value: "n" }], align: "right" },
+    assert.deepStrictEqual<unknown>(t.columns, [
+      { _tag: "Column", header: [{ _tag: "Text", value: "Name" }] },
+      { _tag: "Column", header: [{ _tag: "Code", value: "n" }], align: "right" },
     ]);
     assert.notProperty(t.columns[0], "align");
     assert.deepStrictEqual(t.rows[0], [
@@ -226,11 +232,11 @@ describe("Doc.counts", () => {
 
   it("builds a readonly plain node carrying its counters, layout and optional parts", () => {
     const node = Doc.counts({ counters, layout: "row" });
-    assert.deepStrictEqual(node, { _tag: "Counts", counters, layout: "row" });
+    assert.deepStrictEqual<unknown>(node, { _tag: "Counts", counters, layout: "row" });
     for (const key of ["label", "total", "qualifier", "durationMs"]) assert.notProperty(node, key);
     assert.isTrue(S.is(DocModel.Block)(node));
     const full = Doc.counts({ label: "Tests", counters, qualifier: "(1 flaky)", durationMs: 1200, layout: "inline" });
-    assert.deepStrictEqual(full, {
+    assert.deepStrictEqual<unknown>(full, {
       _tag: "Counts",
       label: [{ _tag: "Text", value: "Tests" }],
       counters,
@@ -320,7 +326,7 @@ describe("Doc.counts", () => {
 describe("Doc.counter", () => {
   it("resolves the status definition and carries the key, label and count", () => {
     const c = Doc.counter(Status.core, "failure", { key: "failed", label: "failed", n: 2 });
-    assert.deepStrictEqual(c, {
+    assert.deepStrictEqual<unknown>(c, {
       key: "failed",
       label: "failed",
       n: 2,
@@ -432,7 +438,7 @@ describe("Doc: the reporter blocks are readonly schema-valid plain data", () => 
 
 it("a schema-valid file target with url undefined uses its file as the default label", () => {
   const target = { url: undefined, file: "src/a.ts", line: 3, col: 4 };
-  assert.isTrue(S.is(DocModel.LinkTarget)(target));
+  assert.isTrue(S.is(LinkTarget)(target));
   assert.deepStrictEqual(Doc.link(target).label, [Doc.text("src/a.ts")]);
   const both = { url: "https://example.test", file: "src/a.ts" };
   assert.deepStrictEqual(Doc.link(both).label, [Doc.text("https://example.test")]);

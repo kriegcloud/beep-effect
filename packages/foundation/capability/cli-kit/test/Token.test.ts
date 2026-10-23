@@ -59,7 +59,7 @@ describe("Token.defaults and Token.resolve", () => {
 
   it("a token name resolves to its default, and an explicit style resolves to itself", () => {
     for (const token of TOKENS) assert.deepStrictEqual(Token.resolve(token), Token.defaults[token]);
-    const style: Style = { fg: "#e09a4e", underline: true };
+    const style: Style.Encoded = { fg: "#e09a4e", underline: true };
     assert.strictEqual(Token.resolve(style), style);
   });
 

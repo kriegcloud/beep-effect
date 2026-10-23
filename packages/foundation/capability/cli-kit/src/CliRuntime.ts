@@ -19,6 +19,7 @@ import { CliExit } from "./CliExit.ts";
 import { CliLog, envBuildLogLayer, platformLogLayer } from "./CliLog.ts";
 import { CliLogger, makeCliLogger } from "./CliLogger.ts";
 import { sanitize } from "./Fmt.ts";
+import { AnyNumber } from "./internal/declared.ts";
 import { ExitRequested } from "./internal/ExitRequested.ts";
 import {
   currentTarget,
@@ -44,6 +45,36 @@ import type { CliLogFileOptions, CliLogOptions } from "./CliLog.ts";
 import type { FailureTarget } from "./internal/failureTarget.ts";
 
 const $I = $CliKitId.create("CliRuntime");
+
+const FailureDetailsCause = S.declare<Cause.Cause<unknown>>((value): value is Cause.Cause<unknown> =>
+  Cause.isCause(value)
+).pipe($I.annoteSchema("FailureDetailsCause", { description: "The cause the program failed with." }));
+const FailureDetailsLines = S.declare<
+  (options?: {
+    readonly status?: boolean | undefined;
+    readonly spans?: "app" | "all" | "off" | undefined;
+  }) => ReadonlyArray<string>
+>(
+  (
+    value
+  ): value is (options?: {
+    readonly status?: boolean | undefined;
+    readonly spans?: "app" | "all" | "off" | undefined;
+  }) => ReadonlyArray<string> => P.isFunction(value)
+).pipe(
+  $I.annoteSchema("FailureDetailsLines", {
+    description: "Renders the default report lines with status and span overrides.",
+  })
+);
+const ReportFailuresOptionsRender = S.declare<
+  (error: unknown, details: FailureDetails.Encoded) => string | ReadonlyArray<string>
+>((value): value is (error: unknown, details: FailureDetails.Encoded) => string | ReadonlyArray<string> =>
+  P.isFunction(value)
+).pipe(
+  $I.annoteSchema("ReportFailuresOptionsRender", {
+    description: "A custom renderer for a failure report: a string or lines.",
+  })
+);
 
 /** A runtime invariant failure or a non-Error value wrapped for teardown. */
 class CliRuntimeError extends S.TaggedError<CliRuntimeError, { readonly brand: unique symbol }>($I`CliRuntimeError`)(
@@ -76,146 +107,229 @@ const isRenderedUserError = (u: unknown): u is CliError.UserError =>
 /**
  * What `render` is told about a failure beyond the squashed error.
  *
- * @public
- * @category models
- * @since 0.0.0
- */
-export interface FailureDetails {
-  /** The whole cause the program failed with, before squashing. */
-  readonly cause: Cause.Cause<unknown>;
-  /**
-   * The report the kit writes for this failure when there is no `render`: for this run, in this audience, with its
-   * colour, links and `displayPath`. A `render` that hands a failure back returns these lines unchanged, and the
-   * output is then exactly the default report. It equals `lines()`; to drop the leading status and keep the run's
-   * settings, use {@link FailureDetails.lines} with `status: false`.
-   */
-  readonly defaultLines: ReadonlyArray<string>;
-  /**
-   * `true` when the squashed `error` is the kit's {@link Cancelled}: the person quit a prompt or screen (Esc, Ctrl-C).
-   * It is not a bug and there is nothing to report, whichever channel it arrived through.
-   *
-   * **Gotchas**
-   *
-   * A cancel from `CliPrompt.fallback` is a defect (`isDefect` is `true`) and one from `CliUi.run` is a typed failure
-   * (`isDefect` is `false`), so a `render` that gives a defect the "please report this" treatment must test this flag
-   * first, or Esc prints an issue-report request. `isDefect` keeps its plain meaning, the absence of a typed failure,
-   * and the exit code is unchanged (`130` for the `interrupt` reason). `defaultLines` and `lines()` already draw it as
-   * its one fixed line.
-   */
-  readonly isCancelled: boolean;
-  /**
-   * `true` when the cause carries no typed failure, so `error` is a defect:
-   * a `die`, a thrown exception, a bug. `false` when `error` is a typed
-   * failure from the error channel.
-   */
-  readonly isDefect: boolean;
-  /**
-   * `true` when the squashed `error` is the kit's {@link NotInteractive}: the program asked for a prompt or a screen in
-   * a run that cannot show one (a pipe, an agent, a CI). It is a usage problem, not a bug, whichever channel it
-   * arrived through; `isDefect` is as for {@link FailureDetails.isCancelled}.
-   */
-  readonly isNotInteractive: boolean;
-  /**
-   * The report the kit would write for this failure, rendered for this run: its audience, colour, links and
-   * `displayPath`.
-   *
-   * **Details**
-   * `lines()` is {@link FailureDetails.defaultLines}. With `status: false` the leading status glyph, or the `[FAIL]`
-   * tag in plain text, is left off, so a render that puts its own prefix in front (the program's name, say) reads
-   * cleanly and still gets the run's colour and paths. `CliRuntime.defaultRender` with `status: false` drops the
-   * status too, but it has no run to read and renders plain with absolute paths.
-   *
-   * `spans` chooses the `in:` trail for these lines alone, as `CliFailureOptions.spans` does (`app`, `all` or
-   * `off`); without it the run's own setting (`env.spans`, `app` by default) applies.
-   *
-   * **Example** (Prefix the first rendered failure line)
-   *
-   * ```ts
-   * import type { FailureDetails } from "@beep/cli-kit/CliRuntime"
-   * import * as Cause from "effect/Cause"
-   *
-   * const render = (_error: unknown, details: FailureDetails) =>
-   *   details.lines({ status: false }).map((line, i) => (i === 0 ? `prog: ${line}` : line))
-   * const details: FailureDetails = {
-   *   cause: Cause.fail(new Error("invalid configuration")),
-   *   isDefect: false,
-   *   isCancelled: false,
-   *   isNotInteractive: false,
-   *   defaultLines: ["[FAIL] invalid configuration"],
-   *   lines: () => ["invalid configuration"],
-   * }
-   * console.log(render(new Error("invalid configuration"), details)[0]) // prog: invalid configuration
-   * ```
-   *
-   * @param options - `status: false` leaves off the leading status; `spans` chooses the span trail
-   * @category utilities
-   * @since 0.0.0
-   */
-  readonly lines: (options?: {
-    readonly status?: boolean | undefined;
-    readonly spans?: "app" | "all" | "off" | undefined;
-  }) => ReadonlyArray<string>;
-}
-
-/**
- * How a failure is turned into output and an exit code.
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { FailureDetails } from "@beep/cli-kit/CliRuntime"
+ *
+ * console.log(typeof FailureDetails.make) // function
+ * ```
  *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface ReportFailuresOptions {
-  /**
-   * The exit code to use when the error does not carry one.
-   *
-   * **Gotchas**
-   *
-   * An error carrying `Runtime.errorExitCode` keeps its own; this is only the
-   * fallback, and it defaults to `1`. Pass an integer in `0..255`, the range a
-   * POSIX exit status can carry — `256` wraps to `0` and passes a failed run.
+export class FailureDetails extends S.Opaque<FailureDetails, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The whole cause the program failed with, before squashing. */
+    cause: FailureDetailsCause.pipe(
+      $I.annoteKey("FailureDetails.cause", { description: "The cause field of FailureDetails." })
+    ),
+    /**
+     * The report the kit writes for this failure when there is no `render`: for this run, in this audience, with its
+     * colour, links and `displayPath`. A `render` that hands a failure back returns these lines unchanged, and the
+     * output is then exactly the default report. It equals `lines()`; to drop the leading status and keep the run's
+     * settings, use {@link FailureDetails.lines} with `status: false`.
+     */
+    defaultLines: S.Array(S.String).pipe(
+      $I.annoteKey("FailureDetails.defaultLines", { description: "The defaultLines field of FailureDetails." })
+    ),
+    /**
+     * `true` when the squashed `error` is the kit's {@link Cancelled}: the person quit a prompt or screen (Esc, Ctrl-C).
+     * It is not a bug and there is nothing to report, whichever channel it arrived through.
+     *
+     * **Gotchas**
+     *
+     * A cancel from `CliPrompt.fallback` is a defect (`isDefect` is `true`) and one from `CliUi.run` is a typed failure
+     * (`isDefect` is `false`), so a `render` that gives a defect the "please report this" treatment must test this flag
+     * first, or Esc prints an issue-report request. `isDefect` keeps its plain meaning, the absence of a typed failure,
+     * and the exit code is unchanged (`130` for the `interrupt` reason). `defaultLines` and `lines()` already draw it as
+     * its one fixed line.
+     */
+    isCancelled: S.Boolean.pipe(
+      $I.annoteKey("FailureDetails.isCancelled", { description: "The isCancelled field of FailureDetails." })
+    ),
+    /**
+     * `true` when the cause carries no typed failure, so `error` is a defect:
+     * a `die`, a thrown exception, a bug. `false` when `error` is a typed
+     * failure from the error channel.
+     */
+    isDefect: S.Boolean.pipe(
+      $I.annoteKey("FailureDetails.isDefect", { description: "The isDefect field of FailureDetails." })
+    ),
+    /**
+     * `true` when the squashed `error` is the kit's {@link NotInteractive}: the program asked for a prompt or a screen in
+     * a run that cannot show one (a pipe, an agent, a CI). It is a usage problem, not a bug, whichever channel it
+     * arrived through; `isDefect` is as for {@link FailureDetails.isCancelled}.
+     */
+    isNotInteractive: S.Boolean.pipe(
+      $I.annoteKey("FailureDetails.isNotInteractive", { description: "The isNotInteractive field of FailureDetails." })
+    ),
+    /**
+     * The report the kit would write for this failure, rendered for this run: its audience, colour, links and
+     * `displayPath`.
+     *
+     * **Details**
+     * `lines()` is {@link FailureDetails.defaultLines}. With `status: false` the leading status glyph, or the `[FAIL]`
+     * tag in plain text, is left off, so a render that puts its own prefix in front (the program's name, say) reads
+     * cleanly and still gets the run's colour and paths. `CliRuntime.defaultRender` with `status: false` drops the
+     * status too, but it has no run to read and renders plain with absolute paths.
+     *
+     * `spans` chooses the `in:` trail for these lines alone, as `CliFailureOptions.spans` does (`app`, `all` or
+     * `off`); without it the run's own setting (`env.spans`, `app` by default) applies.
+     *
+     * **Example** (Prefix the first rendered failure line)
+     *
+     * ```ts
+     * import type { FailureDetails } from "@beep/cli-kit/CliRuntime"
+     * import * as Cause from "effect/Cause"
+     *
+     * const render = (_error: unknown, details: FailureDetails.Encoded) =>
+     *   details.lines({ status: false }).map((line, i) => (i === 0 ? `prog: ${line}` : line))
+     * const details: FailureDetails.Encoded = {
+     *   cause: Cause.fail(new Error("invalid configuration")),
+     *   isDefect: false,
+     *   isCancelled: false,
+     *   isNotInteractive: false,
+     *   defaultLines: ["[FAIL] invalid configuration"],
+     *   lines: () => ["invalid configuration"],
+     * }
+     * console.log(render(new Error("invalid configuration"), details)[0]) // prog: invalid configuration
+     * ```
+     *
+     * @param options - `status: false` leaves off the leading status; `spans` chooses the span trail
+     * @category utilities
+     * @since 0.0.0
+     */
+    lines: FailureDetailsLines.pipe(
+      $I.annoteKey("FailureDetails.lines", { description: "The lines field of FailureDetails." })
+    ),
+  }).pipe($I.annoteSchema("FailureDetails", { description: "Plain FailureDetails data." }))
+) {}
+/**
+ * Companion types for {@link FailureDetails}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { FailureDetails } from "@beep/cli-kit/CliRuntime"
+ *
+ * const accepts = (_value: FailureDetails.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace FailureDetails {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly exitCode?: number | undefined;
-  /**
-   * Render the failure. Defaults to the failure's document, `CliFailure.toDoc(cause)`, rendered for the
-   * audience: a failure status line, a tree for a schema failure, a defect's message with its cleaned stack, and
-   * the one fixed line each for `Cancelled` and `NotInteractive`. Under `CliRuntime.main` with `env` it is painted for
-   * a person and plain for an agent or a CI; elsewhere it is plain. It is still written through the logger.
-   *
-   * **Details**
-   *
-   * Return several lines to print several: a config error's own message
-   * followed by the rendered issue lines, say.
-   *
-   * `error` is the squashed cause: the first typed failure when there is
-   * one, otherwise the first defect. `details` says which it is, so a typed
-   * failure can render as one line and a defect as a full report, without
-   * guessing from the error's shape. A renderer that takes only `error`
-   * still fits.
-   *
-   * What it returns is text the kit did not build, so the report applies the output policy to it: under GitHub
-   * Actions a line the runner would read as a workflow command is neutralized (with no environment services at all,
-   * always), and for an agent or a CI audience escape sequences are removed (GitHub Actions detects as `ci`). For a person the escapes you return are kept,
-   * since the kit cannot tell your own colour from an injected sequence: a `render` must sanitise the data it
-   * interpolates (an error message, a file name) itself.
+  export type Encoded = typeof FailureDetails.Encoded;
+}
+
+/**
+ * How a failure is turned into output and an exit code.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { ReportFailuresOptions } from "@beep/cli-kit/CliRuntime"
+ *
+ * console.log(typeof ReportFailuresOptions.make) // function
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class ReportFailuresOptions extends S.Opaque<ReportFailuresOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The exit code to use when the error does not carry one.
+     *
+     * **Gotchas**
+     *
+     * An error carrying `Runtime.errorExitCode` keeps its own; this is only the
+     * fallback, and it defaults to `1`. Pass an integer in `0..255`, the range a
+     * POSIX exit status can carry — `256` wraps to `0` and passes a failed run.
+     */
+    exitCode: S.optional(AnyNumber).pipe(
+      $I.annoteKey("ReportFailuresOptions.exitCode", { description: "The exitCode field of ReportFailuresOptions." })
+    ),
+    /**
+     * Render the failure. Defaults to the failure's document, `CliFailure.toDoc(cause)`, rendered for the
+     * audience: a failure status line, a tree for a schema failure, a defect's message with its cleaned stack, and
+     * the one fixed line each for `Cancelled` and `NotInteractive`. Under `CliRuntime.main` with `env` it is painted for
+     * a person and plain for an agent or a CI; elsewhere it is plain. It is still written through the logger.
+     *
+     * **Details**
+     *
+     * Return several lines to print several: a config error's own message
+     * followed by the rendered issue lines, say.
+     *
+     * `error` is the squashed cause: the first typed failure when there is
+     * one, otherwise the first defect. `details` says which it is, so a typed
+     * failure can render as one line and a defect as a full report, without
+     * guessing from the error's shape. A renderer that takes only `error`
+     * still fits.
+     *
+     * What it returns is text the kit did not build, so the report applies the output policy to it: under GitHub
+     * Actions a line the runner would read as a workflow command is neutralized (with no environment services at all,
+     * always), and for an agent or a CI audience escape sequences are removed (GitHub Actions detects as `ci`). For a person the escapes you return are kept,
+     * since the kit cannot tell your own colour from an injected sequence: a `render` must sanitise the data it
+     * interpolates (an error message, a file name) itself.
+     */
+    render: S.optional(ReportFailuresOptionsRender).pipe(
+      $I.annoteKey("ReportFailuresOptions.render", { description: "The render field of ReportFailuresOptions." })
+    ),
+    /**
+     * The exit code for a usage error: a `ShowHelp` carrying parse errors, or a
+     * `CliError.UserError` `Command.runWith` already printed.
+     *
+     * **Details**
+     *
+     * Defaults to `64` (BSD `EX_USAGE`); pass an integer in `0..255`. A
+     * `ShowHelp` with no errors — a bare root invocation, or `--help` — always
+     * exits `0`. A `UserError` that carries its own `Runtime.errorExitCode` —
+     * one marked with `CliRuntime.reported(error, 3)` — keeps that code instead.
+     *
+     * Keep `Command.runWith`'s default `renderErrors`: with `renderErrors: false`
+     * runWith prints no parse errors and `reportFailures` never renders a
+     * `ShowHelp`, so a parse error would exit with this code having printed
+     * nothing on stderr.
+     */
+    usageExitCode: S.optional(AnyNumber).pipe(
+      $I.annoteKey("ReportFailuresOptions.usageExitCode", {
+        description: "The usageExitCode field of ReportFailuresOptions.",
+      })
+    ),
+  }).pipe($I.annoteSchema("ReportFailuresOptions", { description: "Plain ReportFailuresOptions data." }))
+) {}
+/**
+ * Companion types for {@link ReportFailuresOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { ReportFailuresOptions } from "@beep/cli-kit/CliRuntime"
+ *
+ * const accepts = (_value: ReportFailuresOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ReportFailuresOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly render?: ((error: unknown, details: FailureDetails) => string | ReadonlyArray<string>) | undefined;
-  /**
-   * The exit code for a usage error: a `ShowHelp` carrying parse errors, or a
-   * `CliError.UserError` `Command.runWith` already printed.
-   *
-   * **Details**
-   *
-   * Defaults to `64` (BSD `EX_USAGE`); pass an integer in `0..255`. A
-   * `ShowHelp` with no errors — a bare root invocation, or `--help` — always
-   * exits `0`. A `UserError` that carries its own `Runtime.errorExitCode` —
-   * one marked with `CliRuntime.reported(error, 3)` — keeps that code instead.
-   *
-   * Keep `Command.runWith`'s default `renderErrors`: with `renderErrors: false`
-   * runWith prints no parse errors and `reportFailures` never renders a
-   * `ShowHelp`, so a parse error would exit with this code having printed
-   * nothing on stderr.
-   */
-  readonly usageExitCode?: number | undefined;
+  export type Encoded = typeof ReportFailuresOptions.Encoded;
 }
 
 /**
@@ -225,7 +339,7 @@ export interface ReportFailuresOptions {
  * @category models
  * @since 0.0.0
  */
-export interface MainOptions<RP, EP> extends ReportFailuresOptions {
+export interface MainOptions<RP, EP> extends ReportFailuresOptions.Encoded {
   /**
    * Provide the environment services, built by {@link CliEnv.layer}, inside failure reporting, where the platform
    * sits, together with `CliColor.formatterLayer` so help text follows the same colour decision.
@@ -249,7 +363,7 @@ export interface MainOptions<RP, EP> extends ReportFailuresOptions {
    * stdout (upstream Effect-TS/effect#8639); once core has a stderr check, this option reads it and the bin passes
    * nothing.
    */
-  readonly env?: CliEnvOptions | undefined;
+  readonly env?: CliEnvOptions.Encoded | undefined;
   /**
    * Where the help document goes when it is printed with a usage error:
    * `"stdout"` (the default, core's behaviour) or `"stderr"`, beside the
@@ -321,6 +435,57 @@ const renderedExitCode = (error: unknown, usageCode: number): number | undefined
   if (isShowHelp(error)) return error.errors.length > 0 ? usageCode : 0;
   return isRenderedUserError(error) ? chooseExitCode(error, usageCode) : undefined;
 };
+
+/** Build diagnostics over the same environment instance used for the program. */
+const mainLogger = <RP, EP>(options: MainOptions<RP, EP>, env: ReturnType<typeof CliEnv.layer> | undefined) => {
+  const envLog = options.env?.log;
+  return (
+    options.logger ??
+    (env === undefined || envLog === undefined
+      ? CliLogger.layer()
+      : // The logger needs Audience and TerminalEnv, so it is built over the env layer; the same layer is provided
+        // again inside failure reporting, where a failure to build it is reported. If it cannot be built here, fall
+        // back to the plain CliLogger so that report has a logger.
+        ("file" in envLog ? CliLog.layer(envLog) : CliLog.layer(envLog)).pipe(
+          Layer.provide(env),
+          // The platform and env builds log too (an invalid audience override warns, a platform may log while it
+          // builds): build them UNDER a CliLogger, never beside it, or those lines go through Effect's default
+          // logger to STDOUT, before any logger exists. `provideMerge` hands the same logger set on to the env build.
+          // The platform alone is built under the run's log level and format (`platformLogLayer`): provided to it
+          // only, so its lowered MinimumLogLevel never reaches this CliLog's own build, which reads the ambient one.
+          Layer.provide(
+            Layer.provideMerge(
+              options.platform.pipe(Layer.provide(platformLogLayer(envLog, options.env?.audienceEnvVar))),
+              // The env build logs too (an invalid override value warns, interpolating it): once, in the build-time
+              // format and neutralized, never silenced by plainLogger, and without lowering MinimumLogLevel, which this
+              // CliLog's own build reads.
+              envBuildLogLayer(envLog, options.env?.audienceEnvVar)
+            )
+          ),
+          Layer.catchCause((cause) =>
+            Cause.hasInterrupts(cause)
+              ? // Cause.map, not Effect.mapError: mapping the error channel drops the interrupt of a mixed cause.
+                cause.pipe(Cause.map(CliRuntime.reported), Effect.failCause, Layer.effectDiscard)
+              : CliLogger.layer(envLog.logger)
+          )
+        ))
+  );
+};
+
+/** Validate the public exit-code cell before the runtime hands it to a host. */
+const validateRunExit = Effect.gen(function* () {
+  const exit = yield* CliExit;
+  const code = MutableRef.get(exit.code);
+  // CliExit.set validates, but the cell is a public MutableRef a program
+  // can write directly; 256 would wrap to exit 0, 1.5 would throw in
+  // process.exit.
+  if (!isExitCode(code)) {
+    return yield* Effect.die(
+      CliRuntimeError.make({ message: `CliRuntime.main: CliExit code must be an integer 0..255, received ${code}` })
+    );
+  }
+  if (code !== 0) return yield* ExitRequested.make({ code });
+});
 
 /**
  * Report a CLI program's failures through the program's own logger.
@@ -447,11 +612,11 @@ export abstract class CliRuntime {
   static readonly defaultRender: {
     (
       error: unknown,
-      details: Pick<FailureDetails, "cause" | "isDefect">,
+      details: Pick<FailureDetails.Encoded, "cause" | "isDefect">,
       options?: { readonly status?: boolean | undefined }
     ): string | ReadonlyArray<string>;
     (
-      details: Pick<FailureDetails, "cause" | "isDefect">,
+      details: Pick<FailureDetails.Encoded, "cause" | "isDefect">,
       options?: { readonly status?: boolean | undefined }
     ): (error: unknown) => string | ReadonlyArray<string>;
   } = dual(
@@ -460,7 +625,7 @@ export abstract class CliRuntime {
     (args) => P.hasProperty(args[1], "isDefect"),
     (
       error: unknown,
-      details: Pick<FailureDetails, "cause" | "isDefect">,
+      details: Pick<FailureDetails.Encoded, "cause" | "isDefect">,
       options?: { readonly status?: boolean | undefined }
     ): string | ReadonlyArray<string> =>
       // `details.cause` is what a report is told; a hand-built `details` with an empty cause renders the error itself.
@@ -486,7 +651,7 @@ export abstract class CliRuntime {
    * @since 0.0.0
    */
   static readonly reportFailures =
-    (options: ReportFailuresOptions = {}) =>
+    (options: ReportFailuresOptions.Encoded = {}) =>
     <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, Error, R> =>
       effect.pipe(
         Effect.catchCause(
@@ -533,7 +698,7 @@ export abstract class CliRuntime {
             );
             const defaultLines = reportLines(true);
             // Cause.squash prefers a Fail over a Die, so `error` is a defect exactly when there is no Fail.
-            const details: FailureDetails = {
+            const details: FailureDetails.Encoded = {
               cause,
               isDefect: !Cause.hasFails(cause),
               isCancelled: S.is(Cancelled)(error),
@@ -603,7 +768,7 @@ export abstract class CliRuntime {
   ): Effect.Effect<void, Error, Exclude<Exclude<R, CliExit>, RP>>;
   static main<A, E, R, RP, EP>(
     program: Effect.Effect<A, E, R>,
-    options: MainOptions<RP, EP> & { readonly env: CliEnvOptions & { readonly log: CliLogFileOptions } }
+    options: MainOptions<RP, EP> & { readonly env: CliEnvOptions.Encoded & { readonly log: CliLogFileOptions.Encoded } }
   ): Effect.Effect<
     void,
     Error,
@@ -613,7 +778,7 @@ export abstract class CliRuntime {
   static main<A, E, R, RP, EP>(
     program: Effect.Effect<A, E, R>,
     options: MainOptions<RP, EP> & {
-      readonly env: CliEnvOptions & { readonly log?: CliLogOptions & { readonly file?: undefined } };
+      readonly env: CliEnvOptions.Encoded & { readonly log?: CliLogOptions.Encoded & { readonly file?: undefined } };
     }
   ): Effect.Effect<
     void,
@@ -624,7 +789,7 @@ export abstract class CliRuntime {
   // `FileSystem | Path` required: dropping them here would let a file sink silently disappear at runtime.
   static main<A, E, R, RP, EP>(
     program: Effect.Effect<A, E, R>,
-    options: MainOptions<RP, EP> & { readonly env: CliEnvOptions }
+    options: MainOptions<RP, EP> & { readonly env: CliEnvOptions.Encoded }
   ): Effect.Effect<
     void,
     Error,
@@ -642,36 +807,7 @@ export abstract class CliRuntime {
     // Bound once, so the logger and the program below share one build of it (layers memoize by reference).
     const env = options.env === undefined ? undefined : CliEnv.layer(options.env);
     const envLog = options.env?.log;
-    const logger =
-      options.logger ??
-      (env === undefined || envLog === undefined
-        ? CliLogger.layer()
-        : // The logger needs Audience and TerminalEnv, so it is built over the env layer; the same layer is provided
-          // again inside failure reporting, where a failure to build it is reported. If it cannot be built here, fall
-          // back to the plain CliLogger so that report has a logger.
-          ("file" in envLog ? CliLog.layer(envLog) : CliLog.layer(envLog)).pipe(
-            Layer.provide(env),
-            // The platform and env builds log too (an invalid audience override warns, a platform may log while it
-            // builds): build them UNDER a CliLogger, never beside it, or those lines go through Effect's default
-            // logger to STDOUT, before any logger exists. `provideMerge` hands the same logger set on to the env build.
-            // The platform alone is built under the run's log level and format (`platformLogLayer`): provided to it
-            // only, so its lowered MinimumLogLevel never reaches this CliLog's own build, which reads the ambient one.
-            Layer.provide(
-              Layer.provideMerge(
-                options.platform.pipe(Layer.provide(platformLogLayer(envLog, options.env?.audienceEnvVar))),
-                // The env build logs too (an invalid override value warns, interpolating it): once, in the build-time
-                // format and neutralized, never silenced by plainLogger, and without lowering MinimumLogLevel, which this
-                // CliLog's own build reads.
-                envBuildLogLayer(envLog, options.env?.audienceEnvVar)
-              )
-            ),
-            Layer.catchCause((cause) =>
-              Cause.hasInterrupts(cause)
-                ? // Cause.map, not Effect.mapError: mapping the error channel drops the interrupt of a mixed cause.
-                  cause.pipe(Cause.map(CliRuntime.reported), Effect.failCause, Layer.effectDiscard)
-                : CliLogger.layer(envLog.logger)
-            )
-          ));
+    const logger = mainLogger(options, env);
     const inside =
       env === undefined
         ? Layer.empty
@@ -705,17 +841,7 @@ export abstract class CliRuntime {
     const run = Effect.gen(function* () {
       // Inside the platform provide, so the rerouting sees the platform's own Formatter.
       yield* options.helpOnUsageError === "stderr" ? routeHelpOnUsageError(program) : program;
-      const exit = yield* CliExit;
-      const code = MutableRef.get(exit.code);
-      // CliExit.set validates, but the cell is a public MutableRef a program
-      // can write directly; 256 would wrap to exit 0, 1.5 would throw in
-      // process.exit.
-      if (!isExitCode(code)) {
-        return yield* Effect.die(
-          CliRuntimeError.make({ message: `CliRuntime.main: CliExit code must be an integer 0..255, received ${code}` })
-        );
-      }
-      if (code !== 0) return yield* ExitRequested.make({ code });
+      yield* validateRunExit;
     }).pipe(
       provideBuilt(CliExit.layer),
       provideBuilt(inside),
@@ -725,7 +851,7 @@ export abstract class CliRuntime {
     );
     // One cell per run, outside failure reporting, which the environment layer fills from inside it.
     return Effect.suspend(() =>
-      Effect.provideService(run, FailureTargetCell, MutableRef.make<FailureTarget | undefined>(undefined))
+      Effect.provideService(run, FailureTargetCell, MutableRef.make<FailureTarget.Encoded | undefined>(undefined))
     );
   }
 

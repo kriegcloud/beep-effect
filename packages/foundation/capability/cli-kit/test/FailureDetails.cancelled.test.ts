@@ -15,8 +15,8 @@ import type { FailureDetails } from "@beep/cli-kit";
 
 /** What a renderer that gives a defect the issue-report treatment prints, once it has checked the kit's flags. */
 const renderer =
-  (seen: Array<FailureDetails>) =>
-  (error: unknown, details: FailureDetails): ReadonlyArray<string> => {
+  (seen: Array<FailureDetails.Encoded>) =>
+  (error: unknown, details: FailureDetails.Encoded): ReadonlyArray<string> => {
     seen.push(details);
     if (details.isCancelled || details.isNotInteractive) return details.defaultLines;
     return details.isDefect
@@ -25,7 +25,7 @@ const renderer =
   };
 
 const run = Effect.fn("run")(function* <A, E>(program: Effect.Effect<A, E>) {
-  const seen: Array<FailureDetails> = [];
+  const seen: Array<FailureDetails.Encoded> = [];
   const err: string[] = [];
   const double: Console.Console = Object.assign(Object.create(console), {
     log: () => undefined,

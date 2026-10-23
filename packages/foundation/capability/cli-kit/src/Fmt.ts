@@ -1,35 +1,112 @@
+import { $CliKitId } from "@beep/identity/packages";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { AnyNumber } from "./internal/declared.ts";
 import { displayWidth, graphemes, stripAnsi } from "./internal/displayWidth.ts";
+
+const $I = $CliKitId.create("Fmt");
 
 /**
  * Options for {@link Fmt.truncate}.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { TruncateOptions } from "@beep/cli-kit/Fmt"
+ *
+ * console.log(typeof TruncateOptions.make) // function
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface TruncateOptions {
-  /** Marks the cut; `…` by default. Counted by display width. */
-  readonly ellipsis?: string | undefined;
+export class TruncateOptions extends S.Opaque<TruncateOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Marks the cut; `…` by default. Counted by display width. */
+    ellipsis: S.optional(S.String).pipe(
+      $I.annoteKey("TruncateOptions.ellipsis", { description: "The ellipsis field of TruncateOptions." })
+    ),
+  }).pipe($I.annoteSchema("TruncateOptions", { description: "Plain TruncateOptions data." }))
+) {}
+/**
+ * Companion types for {@link TruncateOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { TruncateOptions } from "@beep/cli-kit/Fmt"
+ *
+ * const accepts = (_value: TruncateOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace TruncateOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TruncateOptions.Encoded;
 }
 
 /**
  * Options for {@link Fmt.percent}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { PercentOptions } from "@beep/cli-kit/Fmt"
+ *
+ * console.log(typeof PercentOptions.make) // function
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface PercentOptions {
-  /** Decimal places to round to; `1` by default. A trailing zero decimal is dropped. */
-  readonly digits?: number | undefined;
-  /**
-   * What the input is scaled to: `1` (the default) is a ratio from 0 to 1, `100` is already a percentage from 0
-   * to 100, as istanbul's coverage numbers are.
+export class PercentOptions extends S.Opaque<PercentOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Decimal places to round to; `1` by default. A trailing zero decimal is dropped. */
+    digits: S.optional(AnyNumber).pipe(
+      $I.annoteKey("PercentOptions.digits", { description: "The digits field of PercentOptions." })
+    ),
+    /**
+     * What the input is scaled to: `1` (the default) is a ratio from 0 to 1, `100` is already a percentage from 0
+     * to 100, as istanbul's coverage numbers are.
+     */
+    scale: S.optional(S.Union([S.Literal(1), S.Literal(100)])).pipe(
+      $I.annoteKey("PercentOptions.scale", { description: "The scale field of PercentOptions." })
+    ),
+  }).pipe($I.annoteSchema("PercentOptions", { description: "Plain PercentOptions data." }))
+) {}
+/**
+ * Companion types for {@link PercentOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { PercentOptions } from "@beep/cli-kit/Fmt"
+ *
+ * const accepts = (_value: PercentOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PercentOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly scale?: 1 | 100 | undefined;
+  export type Encoded = typeof PercentOptions.Encoded;
 }
 
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
@@ -160,11 +237,11 @@ export abstract class Fmt {
    * @since 0.0.0
    */
   static readonly truncate: {
-    (text: string, width: number, options?: TruncateOptions): string;
-    (width: number, options?: TruncateOptions): (text: string) => string;
+    (text: string, width: number, options?: TruncateOptions.Encoded): string;
+    (width: number, options?: TruncateOptions.Encoded): (text: string) => string;
   } = dual(
     (args) => P.isString(args[0]),
-    (text: string, width: number, options?: TruncateOptions): string => {
+    (text: string, width: number, options?: TruncateOptions.Encoded): string => {
       const limit = truncationLimit(width);
       if (limit <= 0) return "";
       if (displayWidth(text) <= limit) return text;
@@ -243,11 +320,11 @@ export abstract class Fmt {
    * @since 0.0.0
    */
   static readonly percent: {
-    (n: number, options?: PercentOptions): string;
-    (options?: PercentOptions): (n: number) => string;
+    (n: number, options?: PercentOptions.Encoded): string;
+    (options?: PercentOptions.Encoded): (n: number) => string;
   } = dual(
     (args) => P.isNumber(args[0]),
-    (n: number, options?: PercentOptions): string => {
+    (n: number, options?: PercentOptions.Encoded): string => {
       const digits = Math.min(10, Math.max(0, Math.floor(options?.digits ?? 1)));
       const percent = options?.scale === 100 ? n : n * 100;
       return `${Number(percent.toFixed(digits))}%`;

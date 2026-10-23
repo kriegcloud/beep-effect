@@ -1,7 +1,7 @@
 // @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { dual } from "effect/Function";
 import * as Effect from "effect/Effect";
-import type { LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
+import type { LinkTargetInput, RenderContext, Style, TokenName } from "@beep/cli-kit";
 import { CliTheme } from "@beep/cli-kit";
 import { stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 
@@ -16,15 +16,15 @@ export const link: {
 	`\u001B]8;;${"url" in target ? target.url : `file://${target.file}`}\u0007${label}\u001B]8;;\u0007`);
 
 /** A paint that writes the text unpainted, in the dual shape `RenderContext.paint` has. */
-export const plainPaint: RenderContext["paint"] = dual(2, (_token: TokenName | Style, text: string): string => text);
+export const plainPaint: RenderContext.Encoded["paint"] = dual(2, (_token: TokenName | Style.Encoded, text: string): string => text);
 
 /** A link that leaves the label unlinked, in the dual shape `RenderContext.link` has. */
-export const labelLink: RenderContext["link"] = dual(2, (_target: LinkTarget, label: string): string => label);
+export const labelLink: RenderContext.Encoded["link"] = dual(2, (_target: LinkTargetInput, label: string): string => label);
 
-export const contextOf = (overrides: Partial<RenderContext> = {}): Effect.Effect<RenderContext> =>
+export const contextOf = (overrides: Partial<RenderContext.Encoded> = {}): Effect.Effect<RenderContext.Encoded> =>
 	Effect.gen(function* () {
 		const theme = yield* CliTheme;
-		const ctx: RenderContext = {
+		const ctx: RenderContext.Encoded = {
 			width: 80,
 			audience: "human",
 			color: theme.color,

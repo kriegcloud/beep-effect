@@ -1,6 +1,6 @@
 import { CommandNeutralizer } from "@beep/github-commands";
 import { $CliKitId } from "@beep/identity/packages";
-import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
+import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -18,7 +18,7 @@ import * as R from "effect/Record";
 import * as References from "effect/References";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { makeCliLogger } from "./CliLogger.ts";
+import { CliLoggerOptions, makeCliLogger } from "./CliLogger.ts";
 import { CliTheme } from "./CliTheme.ts";
 import { sanitize } from "./Fmt.ts";
 import { paintStyle } from "./internal/ansi.ts";
@@ -27,14 +27,20 @@ import { makeFileSink } from "./internal/fileSink.ts";
 import { neutralizeJson, TrustedLine } from "./internal/logSafety.ts";
 import { provideBuilt } from "./internal/provideBuilt.ts";
 import { scanAudience } from "./internal/scanAudience.ts";
-import type { AudienceKind, RuntimeEnv } from "@beep/runtime-env";
+import type { AudienceKind } from "@beep/runtime-env";
 import type * as Fiber from "effect/Fiber";
 import type * as FileSystem from "effect/FileSystem";
-import type { CliLoggerOptions } from "./CliLogger.ts";
 import type { Status } from "./Status.ts";
 import type { Style } from "./Token.ts";
 
 const $I = $CliKitId.create("CliLog");
+const CliLogOptionsExtraLoggersItem = S.declare<Logger.Logger<unknown, unknown>>(
+  (value): value is Logger.Logger<unknown, unknown> => Logger.isLogger(value)
+).pipe(
+  $I.annoteSchema("CliLogOptionsExtraLoggersItem", {
+    description: "A logger that also receives the diagnostics records.",
+  })
+);
 
 /**
  * Options for `CliLog.status`.
@@ -51,48 +57,66 @@ const $I = $CliKitId.create("CliLog");
  * @category models
  * @since 0.0.0
  */
-export const CliLogStatusOptions = S.Struct({
-  /**
-   * The level the line is logged at. By default it follows the status's rank in its vocabulary: `Error` at or above
-   * `failure`'s rank, `Warn` at or above `warning`'s, and `Info` below that.
-   */
-  level: S.optional(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).pipe(
-    $I.annoteKey("CliLogStatusOptions.level", {
-      description: "The message severity overriding the status vocabulary's rank.",
+export class CliLogStatusOptions extends S.Opaque<CliLogStatusOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The level the line is logged at. By default it follows the status's rank in its vocabulary: `Error` at or above
+     * `failure`'s rank, `Warn` at or above `warning`'s, and `Info` below that.
+     */
+    level: S.optional(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).pipe(
+      $I.annoteKey("CliLogStatusOptions.level", {
+        description: "The message severity overriding the status vocabulary's rank.",
+      })
+    ),
+    /**
+     * What the line starts with, before the glyph, so an indented report line keeps its place in a block: a number of
+     * spaces (floored, at most 64; zero, a negative or a non-finite number is none), or a string. A string is sanitised as text is (escapes and controls removed, a tab a space) and its line
+     * breaks dropped, so the indent can never carry an escape onto the trusted line. None by default.
+     */
+    indent: S.optional(
+      S.Union([
+        S.declare(P.isNumber).pipe(
+          $I.annoteSchema("CliLogStatusOptions.NumericIndent", {
+            description:
+              "Every JavaScript number, including non-finite values that the status renderer treats as no indent.",
+          })
+        ),
+        S.String,
+      ])
+    ).pipe(
+      $I.annoteKey("CliLogStatusOptions.indent", {
+        description: "Spaces or sanitized text before the glyph; non-finite numbers produce no indent.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("CliLogStatusOptions", {
+      description: "Plain optional severity and indentation settings for a status log line.",
     })
-  ),
-  /**
-   * What the line starts with, before the glyph, so an indented report line keeps its place in a block: a number of
-   * spaces (floored, at most 64; zero, a negative or a non-finite number is none), or a string. A string is sanitised as text is (escapes and controls removed, a tab a space) and its line
-   * breaks dropped, so the indent can never carry an escape onto the trusted line. None by default.
-   */
-  indent: S.optional(
-    S.Union([
-      S.declare(P.isNumber).pipe(
-        $I.annoteSchema("CliLogStatusOptions.NumericIndent", {
-          description:
-            "Every JavaScript number, including non-finite values that the status renderer treats as no indent.",
-        })
-      ),
-      S.String,
-    ])
-  ).pipe(
-    $I.annoteKey("CliLogStatusOptions.indent", {
-      description: "Spaces or sanitized text before the glyph; non-finite numbers produce no indent.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("CliLogStatusOptions", {
-    description: "Plain optional severity and indentation settings for a status log line.",
-  })
-);
+  )
+) {}
 
 /**
- * Plain options validated by {@link CliLogStatusOptions}.
+ * Companion types for {@link CliLogStatusOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliLogStatusOptions } from "@beep/cli-kit/CliLog"
+ *
+ * const accepts = (_value: CliLogStatusOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type CliLogStatusOptions = typeof CliLogStatusOptions.Type;
+export declare namespace CliLogStatusOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CliLogStatusOptions.Encoded;
+}
 
 /** The most spaces a numeric `indent` writes. */
 const MAX_INDENT = 64;
@@ -109,109 +133,166 @@ const indentOf = (indent: number | string | undefined): string => {
 /**
  * Options for `CliLog.layer`.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CliLogOptions } from "@beep/cli-kit/CliLog"
+ *
+ * console.log(typeof CliLogOptions.make) // function
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface CliLogOptions {
-  /**
-   * The program's arguments, for the format of what the platform logs while it builds under `CliRuntime.main` with
-   * `format: "auto"`: an audience flag (`--agent`, `--ci`, `--human`, `--audience <kind>`) in them decides those
-   * lines as it decides the run's. Only `CliRuntime.main` reads this.
-   *
-   * **Details**
-   *
-   * The arguments core parses come from the platform's `Stdio`, which does not exist until the platform is built, and
-   * this package never reads `process`. A Node host passes `process.argv.slice(2)`; without it the build-time lines
-   * follow the environment alone, so `--agent` with no agent detected gets plain lines until the platform is built.
+export class CliLogOptions extends S.Opaque<CliLogOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The program's arguments, for the format of what the platform logs while it builds under `CliRuntime.main` with
+     * `format: "auto"`: an audience flag (`--agent`, `--ci`, `--human`, `--audience <kind>`) in them decides those
+     * lines as it decides the run's. Only `CliRuntime.main` reads this.
+     *
+     * **Details**
+     *
+     * The arguments core parses come from the platform's `Stdio`, which does not exist until the platform is built, and
+     * this package never reads `process`. A Node host passes `process.argv.slice(2)`; without it the build-time lines
+     * follow the environment alone, so `--agent` with no agent detected gets plain lines until the platform is built.
+     */
+    argv: S.String.pipe(
+      S.Array,
+      S.optional,
+      $I.annoteKey("CliLogOptions.argv", { description: "The argv field of CliLogOptions." })
+    ),
+    /**
+     * The environment variable that sets the diagnostics level, for example `MYTOOL_LOG_LEVEL`. Read through
+     * `Config`, never `process`. Unset or empty means `None`. Ignored when `level` is given.
+     */
+    envVar: S.optional(S.String).pipe(
+      $I.annoteKey("CliLogOptions.envVar", { description: "The envVar field of CliLogOptions." })
+    ),
+    /**
+     * Loggers to keep beside the `CliLogger` and the sink, for example a telemetry logger: the layer owns the
+     * whole set, so anything not listed here is dropped.
+     *
+     * **Details**
+     *
+     * Each is floored at the `MinimumLogLevel` it had, like the `CliLogger`, so lowering the level for the
+     * diagnostics sink never makes it see records it would not have seen otherwise.
+     */
+    extraLoggers: CliLogOptionsExtraLoggersItem.pipe(
+      S.Array,
+      S.optional,
+      $I.annoteKey("CliLogOptions.extraLoggers", { description: "The extraLoggers field of CliLogOptions." })
+    ),
+    /**
+     * `json` is NDJSON, `pretty` a human line, `auto` (the default) decides by the audience alone: NDJSON for an agent
+     * or a CI, the pretty `CliLogger` line for a human, at build time and at runtime alike.
+     *
+     * **Details**
+     *
+     * Stderr's terminal state is never consulted, so a human piping stderr to a file gets plain lines, never a mix of
+     * plain and NDJSON; colour still follows `stderr.color`, so those lines carry no escapes when stderr is not a colour
+     * terminal. Pass `format: "json"` for machine-readable logs whoever runs the program.
+     *
+     * Under `CliRuntime.main` with `env.log`, what the platform logs while it builds is written before the platform
+     * provides the terminal or the arguments, so `auto` decides those lines from what needs no platform: an audience
+     * flag in {@link CliLogOptions.argv}, else the audience override variable (`env.audienceEnvVar`), else agent and
+     * CI detection from the environment. An agent or a CI gets NDJSON, as its runtime lines are; anything else gets
+     * a plain line, the same choice the runtime lines make. `json` is NDJSON and `pretty` plain throughout.
+     */
+    format: S.optional(S.Union([S.Literal("auto"), S.Literal("json"), S.Literal("pretty")])).pipe(
+      $I.annoteKey("CliLogOptions.format", { description: "The format field of CliLogOptions." })
+    ),
+    /**
+     * The diagnostics level, for a host that has already decided it.
+     *
+     * **Details**
+     *
+     * Beats `envVar`, which is then not read at all (so a bad value there neither warns nor overrides this), and
+     * loses to core's `--log-level` flag like every diagnostics level: the sink follows the flag while it is set.
+     */
+    level: S.optional(S.Literals(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"])).pipe(
+      $I.annoteKey("CliLogOptions.level", { description: "The level field of CliLogOptions." })
+    ),
+    /** Options for the `CliLogger` this layer builds for ordinary log lines; see {@link CliLoggerOptions}. */
+    logger: S.optional(CliLoggerOptions).pipe(
+      $I.annoteKey("CliLogOptions.logger", { description: "The logger field of CliLogOptions." })
+    ),
+    /**
+     * Whether a line the GitHub Actions runner would read as a workflow command is neutralized. `auto`, the default,
+     * follows the `CurrentRuntimeEnv` of the fiber that logs, and where that fiber has none, `runtimeEnv`, else the one
+     * the layer was built with: a host that builds this layer over its environment covers records logged outside it
+     * too. `true` always neutralizes, `false` never does.
+     */
+    neutralize: S.optional(S.Union([S.Boolean, S.Literal("auto")])).pipe(
+      $I.annoteKey("CliLogOptions.neutralize", { description: "The neutralize field of CliLogOptions." })
+    ),
+    /**
+     * Whether to install the plain `CliLogger` for ordinary lines. `true` by default.
+     *
+     * **Details**
+     *
+     * `false` is the diagnostics-only mode for a library host (an MCP server, a test reporter): the layer installs
+     * only the diagnostics sink, the file sink if any, and `extraLoggers`. With no level set as well, stderr gets
+     * no output. An invalid level in `envVar` still prints its one warning line, through a private `CliLogger`,
+     * since that is a configuration error the host should see.
+     *
+     * Only `CliLog`'s own records are silenced. Under `CliRuntime.main`, what the platform logs while it builds follows
+     * the build-time format: in NDJSON (`json`, or `auto` for an agent or a CI) it goes through this layer, so `false`
+     * silences it there as at runtime; otherwise it goes through a plain `CliLogger`, routed by `logger.stderrFrom` as the
+     * host set it. The audience-override warning is a
+     * configuration error and is never silenced: it is written exactly once, as NDJSON when the build-time format is
+     * NDJSON and as a plain line otherwise, whatever this option says, to stderr alone (never stdout, whatever
+     * `logger.stderrFrom` says) and never to `extraLoggers` or the file sink. The failure report and the `CliMessage` lines
+     * always go through a plain `CliLogger`.
+     */
+    plainLogger: S.optional(S.Boolean).pipe(
+      $I.annoteKey("CliLogOptions.plainLogger", { description: "The plainLogger field of CliLogOptions." })
+    ),
+    /**
+     * The runtime environment `neutralize: "auto"` falls back to for a record whose fiber has no `CurrentRuntimeEnv`.
+     *
+     * **Gotchas**
+     *
+     * Given, it is used in place of the `CurrentRuntimeEnv` the layer captured when it was built, and beats it; the
+     * logging fiber's own `CurrentRuntimeEnv` still comes first. The capture is invisible in the layer's type (it is read
+     * if present, never required), so a host that builds this layer outside its environment either passes the snapshot
+     * here, for example `RuntimeEnv.fromRecord(process.env)`, or provides `CurrentRuntimeEnv` around the layer.
+     *
+     * Neutralization under `"auto"` reads the logging fiber's `CurrentRuntimeEnv`, then this option, then the
+     * `CurrentRuntimeEnv` captured when the layer was built. With none of the three, a record is not neutralized: set
+     * this option, provide `CurrentRuntimeEnv` around the layer, or pass `neutralize: true`. Every `CliLog.layer`
+     * overload points here.
+     */
+    runtimeEnv: RuntimeEnv.pipe(
+      S.toType,
+      S.optional,
+      $I.annoteKey("CliLogOptions.runtimeEnv", { description: "The runtimeEnv field of CliLogOptions." })
+    ),
+  }).pipe($I.annoteSchema("CliLogOptions", { description: "Plain CliLogOptions data." }))
+) {}
+/**
+ * Companion types for {@link CliLogOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliLogOptions } from "@beep/cli-kit/CliLog"
+ *
+ * const accepts = (_value: CliLogOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliLogOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly argv?: ReadonlyArray<string> | undefined;
-  /**
-   * The environment variable that sets the diagnostics level, for example `MYTOOL_LOG_LEVEL`. Read through
-   * `Config`, never `process`. Unset or empty means `None`. Ignored when `level` is given.
-   */
-  readonly envVar?: string | undefined;
-  /**
-   * Loggers to keep beside the `CliLogger` and the sink, for example a telemetry logger: the layer owns the
-   * whole set, so anything not listed here is dropped.
-   *
-   * **Details**
-   *
-   * Each is floored at the `MinimumLogLevel` it had, like the `CliLogger`, so lowering the level for the
-   * diagnostics sink never makes it see records it would not have seen otherwise.
-   */
-  readonly extraLoggers?: ReadonlyArray<Logger.Logger<unknown, unknown>> | undefined;
-  /**
-   * `json` is NDJSON, `pretty` a human line, `auto` (the default) decides by the audience alone: NDJSON for an agent
-   * or a CI, the pretty `CliLogger` line for a human, at build time and at runtime alike.
-   *
-   * **Details**
-   *
-   * Stderr's terminal state is never consulted, so a human piping stderr to a file gets plain lines, never a mix of
-   * plain and NDJSON; colour still follows `stderr.color`, so those lines carry no escapes when stderr is not a colour
-   * terminal. Pass `format: "json"` for machine-readable logs whoever runs the program.
-   *
-   * Under `CliRuntime.main` with `env.log`, what the platform logs while it builds is written before the platform
-   * provides the terminal or the arguments, so `auto` decides those lines from what needs no platform: an audience
-   * flag in {@link CliLogOptions.argv}, else the audience override variable (`env.audienceEnvVar`), else agent and
-   * CI detection from the environment. An agent or a CI gets NDJSON, as its runtime lines are; anything else gets
-   * a plain line, the same choice the runtime lines make. `json` is NDJSON and `pretty` plain throughout.
-   */
-  readonly format?: "auto" | "json" | "pretty" | undefined;
-  /**
-   * The diagnostics level, for a host that has already decided it.
-   *
-   * **Details**
-   *
-   * Beats `envVar`, which is then not read at all (so a bad value there neither warns nor overrides this), and
-   * loses to core's `--log-level` flag like every diagnostics level: the sink follows the flag while it is set.
-   */
-  readonly level?: LogLevel.LogLevel | undefined;
-  /** Options for the `CliLogger` this layer builds for ordinary log lines; see {@link CliLoggerOptions}. */
-  readonly logger?: CliLoggerOptions | undefined;
-  /**
-   * Whether a line the GitHub Actions runner would read as a workflow command is neutralized. `auto`, the default,
-   * follows the `CurrentRuntimeEnv` of the fiber that logs, and where that fiber has none, `runtimeEnv`, else the one
-   * the layer was built with: a host that builds this layer over its environment covers records logged outside it
-   * too. `true` always neutralizes, `false` never does.
-   */
-  readonly neutralize?: boolean | "auto" | undefined;
-  /**
-   * Whether to install the plain `CliLogger` for ordinary lines. `true` by default.
-   *
-   * **Details**
-   *
-   * `false` is the diagnostics-only mode for a library host (an MCP server, a test reporter): the layer installs
-   * only the diagnostics sink, the file sink if any, and `extraLoggers`. With no level set as well, stderr gets
-   * no output. An invalid level in `envVar` still prints its one warning line, through a private `CliLogger`,
-   * since that is a configuration error the host should see.
-   *
-   * Only `CliLog`'s own records are silenced. Under `CliRuntime.main`, what the platform logs while it builds follows
-   * the build-time format: in NDJSON (`json`, or `auto` for an agent or a CI) it goes through this layer, so `false`
-   * silences it there as at runtime; otherwise it goes through a plain `CliLogger`, routed by `logger.stderrFrom` as the
-   * host set it. The audience-override warning is a
-   * configuration error and is never silenced: it is written exactly once, as NDJSON when the build-time format is
-   * NDJSON and as a plain line otherwise, whatever this option says, to stderr alone (never stdout, whatever
-   * `logger.stderrFrom` says) and never to `extraLoggers` or the file sink. The failure report and the `CliMessage` lines
-   * always go through a plain `CliLogger`.
-   */
-  readonly plainLogger?: boolean | undefined;
-  /**
-   * The runtime environment `neutralize: "auto"` falls back to for a record whose fiber has no `CurrentRuntimeEnv`.
-   *
-   * **Gotchas**
-   *
-   * Given, it is used in place of the `CurrentRuntimeEnv` the layer captured when it was built, and beats it; the
-   * logging fiber's own `CurrentRuntimeEnv` still comes first. The capture is invisible in the layer's type (it is read
-   * if present, never required), so a host that builds this layer outside its environment either passes the snapshot
-   * here, for example `RuntimeEnv.fromRecord(process.env)`, or provides `CurrentRuntimeEnv` around the layer.
-   *
-   * Neutralization under `"auto"` reads the logging fiber's `CurrentRuntimeEnv`, then this option, then the
-   * `CurrentRuntimeEnv` captured when the layer was built. With none of the three, a record is not neutralized: set
-   * this option, provide `CurrentRuntimeEnv` around the layer, or pass `neutralize: true`. Every `CliLog.layer`
-   * overload points here.
-   */
-  readonly runtimeEnv?: RuntimeEnv | undefined;
+  export type Encoded = typeof CliLogOptions.Encoded;
 }
 
 const CliLogFilePath = S.Struct({
@@ -262,31 +343,67 @@ export type CliLogFile = typeof CliLogFile.Type;
 /**
  * {@link CliLogOptions} with a file sink, which is what makes the layer require `FileSystem` and `Path`.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CliLogFileOptions } from "@beep/cli-kit/CliLog"
+ *
+ * console.log(typeof CliLogFileOptions.make) // function
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface CliLogFileOptions extends CliLogOptions {
-  /**
-   * Also write every record the sink accepts to a file as NDJSON, asynchronously.
-   *
-   * **Details**
-   *
-   * The line is identical to the stderr NDJSON line for the same log call and is filtered by the same
-   * {@link CliLog.Level}. Lines are queued and appended by a fiber scoped to the layer, so logging never waits
-   * on the disk, and the parent directory is created. The first write error prints exactly one stderr line,
-   * `diagnostics log file <path> failed: <message>; further file logging disabled`, and the program keeps
-   * running with its normal exit code: from then on lines, including any still queued, are discarded silently.
-   * Closing the layer's scope flushes the lines queued before it, unless the sink had already disabled itself.
-   * `{ envVar }` names the variable that holds the path; unset or empty, no file is written.
-   *
-   * `undefined` writes no file but keeps the requirements of a file sink (`FileSystem` and `Path`) in `R`, so a
-   * host whose sink is optional has one stable layer type either way.
-   *
-   * Under `CliRuntime.main` with `env.log`, what the platform logs while it builds, before it provides
-   * `FileSystem`, reaches stderr but not the file; the file starts with the program's own records.
+export class CliLogFileOptions extends S.Opaque<CliLogFileOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...CliLogOptions.fields,
+    /**
+     * Also write every record the sink accepts to a file as NDJSON, asynchronously.
+     *
+     * **Details**
+     *
+     * The line is identical to the stderr NDJSON line for the same log call and is filtered by the same
+     * {@link CliLog.Level}. Lines are queued and appended by a fiber scoped to the layer, so logging never waits
+     * on the disk, and the parent directory is created. The first write error prints exactly one stderr line,
+     * `diagnostics log file <path> failed: <message>; further file logging disabled`, and the program keeps
+     * running with its normal exit code: from then on lines, including any still queued, are discarded silently.
+     * Closing the layer's scope flushes the lines queued before it, unless the sink had already disabled itself.
+     * `{ envVar }` names the variable that holds the path; unset or empty, no file is written.
+     *
+     * `undefined` writes no file but keeps the requirements of a file sink (`FileSystem` and `Path`) in `R`, so a
+     * host whose sink is optional has one stable layer type either way.
+     *
+     * Under `CliRuntime.main` with `env.log`, what the platform logs while it builds, before it provides
+     * `FileSystem`, reaches stderr but not the file; the file starts with the program's own records.
+     */
+    file: S.UndefinedOr(CliLogFile).pipe(
+      $I.annoteKey("CliLogFileOptions.file", { description: "The file field of CliLogFileOptions." })
+    ),
+  }).pipe($I.annoteSchema("CliLogFileOptions", { description: "Plain CliLogFileOptions data." }))
+) {}
+/**
+ * Companion types for {@link CliLogFileOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliLogFileOptions } from "@beep/cli-kit/CliLog"
+ *
+ * const accepts = (_value: CliLogFileOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliLogFileOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly file: CliLogFile | undefined;
+  export type Encoded = typeof CliLogFileOptions.Encoded;
 }
 
 /** The accepted spellings of a level, lower-cased, to the level they mean. */
@@ -302,7 +419,7 @@ const LEVELS: Readonly<Record<string, LogLevel.LogLevel>> = {
   none: "None",
 };
 
-const LEVEL_STYLES: Readonly<Record<string, Style>> = {
+const LEVEL_STYLES: Readonly<Record<string, Style.Encoded>> = {
   FATAL: { fg: "red", bold: true },
   ERROR: { fg: "red" },
   WARN: { fg: "yellow" },
@@ -501,7 +618,7 @@ export class CliLog {
    * @since 0.0.0
    */
   static layer(
-    options: CliLogOptions & { readonly format: "json"; readonly file?: undefined }
+    options: CliLogOptions.Encoded & { readonly format: "json"; readonly file?: undefined }
   ): Layer.Layer<never, never, never>;
   /**
    * The logger set with NDJSON diagnostics and a file sink; see the first overload.
@@ -525,7 +642,7 @@ export class CliLog {
    * @since 0.0.0
    */
   static layer(
-    options: CliLogFileOptions & { readonly format: "json" }
+    options: CliLogFileOptions.Encoded & { readonly format: "json" }
   ): Layer.Layer<never, never, FileSystem.FileSystem | PathModule.Path>;
   /**
    * The logger set with pretty diagnostics; see the first overload.
@@ -549,7 +666,7 @@ export class CliLog {
    * @since 0.0.0
    */
   static layer(
-    options: CliLogOptions & { readonly format: "pretty"; readonly file?: undefined }
+    options: CliLogOptions.Encoded & { readonly format: "pretty"; readonly file?: undefined }
   ): Layer.Layer<never, never, TerminalEnv>;
   /**
    * The logger set with pretty diagnostics and a file sink; see the first overload.
@@ -573,7 +690,7 @@ export class CliLog {
    * @since 0.0.0
    */
   static layer(
-    options: CliLogFileOptions & { readonly format: "pretty" }
+    options: CliLogFileOptions.Encoded & { readonly format: "pretty" }
   ): Layer.Layer<never, never, TerminalEnv | FileSystem.FileSystem | PathModule.Path>;
   /**
    * The logger set with the format decided by the audience; see the first overload.
@@ -597,7 +714,7 @@ export class CliLog {
    * @since 0.0.0
    */
   static layer(
-    options?: CliLogOptions & { readonly file?: undefined }
+    options?: CliLogOptions.Encoded & { readonly file?: undefined }
   ): Layer.Layer<never, never, Audience | TerminalEnv>;
   /**
    * The logger set with the format decided by the audience, and a file sink; see the first overload.
@@ -621,10 +738,10 @@ export class CliLog {
    * @since 0.0.0
    */
   static layer(
-    options: CliLogFileOptions
+    options: CliLogFileOptions.Encoded
   ): Layer.Layer<never, never, Audience | TerminalEnv | FileSystem.FileSystem | PathModule.Path>;
   static layer(
-    options: CliLogOptions | CliLogFileOptions = {}
+    options: CliLogOptions.Encoded | CliLogFileOptions.Encoded = {}
   ): Layer.Layer<never, never, Audience | TerminalEnv | FileSystem.FileSystem | PathModule.Path> {
     const file = "file" in options ? options.file : undefined;
     const format = options.format ?? "auto";
@@ -783,12 +900,12 @@ export class CliLog {
       vocab: Status<N>,
       name: N,
       text: string,
-      options?: CliLogStatusOptions
+      options?: CliLogStatusOptions.Encoded
     ): Effect.Effect<void, never, CliTheme>;
     <N extends string>(
       name: N,
       text: string,
-      options?: CliLogStatusOptions
+      options?: CliLogStatusOptions.Encoded
     ): (vocab: Status<N>) => Effect.Effect<void, never, CliTheme>;
   } = dual(
     (args) => P.isObjectKeyword(args[0]),
@@ -796,7 +913,7 @@ export class CliLog {
       vocab: Status<N>,
       name: N,
       text: string,
-      options?: CliLogStatusOptions
+      options?: CliLogStatusOptions.Encoded
     ): Effect.fn.Return<void, never, CliTheme> {
       const audience = yield* Effect.serviceOption(Audience);
       const theme = CliTheme.forAudience(
@@ -880,18 +997,18 @@ const buildTimeAudience: {
 /** What the build-time loggers decide from, read once: the format and the runtime environment to neutralize by. */
 const buildTimeDecision: {
   (
-    options: CliLogOptions | CliLogFileOptions,
+    options: CliLogOptions.Encoded | CliLogFileOptions.Encoded,
     audienceEnvVar: string | undefined
   ): Effect.Effect<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }>;
   (
     audienceEnvVar: string | undefined
   ): (
-    options: CliLogOptions | CliLogFileOptions
+    options: CliLogOptions.Encoded | CliLogFileOptions.Encoded
   ) => Effect.Effect<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }>;
 } = dual(
   2,
   Effect.fn("buildTimeDecision")(function* (
-    options: CliLogOptions | CliLogFileOptions,
+    options: CliLogOptions.Encoded | CliLogFileOptions.Encoded,
     audienceEnvVar: string | undefined
   ): Effect.fn.Return<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }> {
     // No CurrentRuntimeEnv exists while the platform builds: detect it here, from the environment alone, so the
@@ -910,20 +1027,24 @@ const buildTimeDecision: {
 );
 
 type BuildLogLayer = {
-  (audienceEnvVar?: string | undefined): (options: CliLogOptions | CliLogFileOptions) => Layer.Layer<never>;
-  (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never>;
+  (
+    audienceEnvVar?: string | undefined
+  ): (options: CliLogOptions.Encoded | CliLogFileOptions.Encoded) => Layer.Layer<never>;
+  (options: CliLogOptions.Encoded | CliLogFileOptions.Encoded, audienceEnvVar?: string | undefined): Layer.Layer<never>;
 };
 
 const makeBuildLogLayer = (
   build: (
-    options: CliLogOptions | CliLogFileOptions,
+    options: CliLogOptions.Encoded | CliLogFileOptions.Encoded,
     audienceEnvVar?: string | undefined
   ) => Effect.Effect<Layer.Layer<never>>
 ): BuildLogLayer =>
   dual(
     (args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]),
-    (options: CliLogOptions | CliLogFileOptions, audienceEnvVar?: string | undefined): Layer.Layer<never> =>
-      Layer.unwrap(build(options, audienceEnvVar))
+    (
+      options: CliLogOptions.Encoded | CliLogFileOptions.Encoded,
+      audienceEnvVar?: string | undefined
+    ): Layer.Layer<never> => Layer.unwrap(build(options, audienceEnvVar))
   );
 
 /**

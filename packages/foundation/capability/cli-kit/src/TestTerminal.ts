@@ -32,36 +32,57 @@ const $I = $CliKitId.create("TestTerminal");
  * @category schemas
  * @since 0.0.0
  */
-export const KeyInput = S.Struct({
-  /** The key name the prompts switch on: `down`, `up`, `enter`, `space`, `escape`, or a character. */
-  name: S.String.pipe(
-    $I.annoteKey("KeyInput.name", {
-      description:
-        "The key name the prompts switch on, such as down, up, enter, space, escape or a single character; any string is accepted.",
-    })
-  ),
-  /** Whether Ctrl is held. */
-  ctrl: S.optional(S.Boolean).pipe(
-    $I.annoteKey("KeyInput.ctrl", { description: "Whether Ctrl is held; omitted or undefined is queued as not held." })
-  ),
-  /** Whether Meta is held. */
-  meta: S.optional(S.Boolean).pipe(
-    $I.annoteKey("KeyInput.meta", { description: "Whether Meta is held; omitted or undefined is queued as not held." })
-  ),
-  /** Whether Shift is held. */
-  shift: S.optional(S.Boolean).pipe(
-    $I.annoteKey("KeyInput.shift", {
-      description: "Whether Shift is held; omitted or undefined is queued as not held.",
-    })
-  ),
-}).pipe($I.annoteSchema("KeyInput", { description: "One scripted key press queued into a TestTerminal." }));
+export class KeyInput extends S.Opaque<KeyInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The key name the prompts switch on: `down`, `up`, `enter`, `space`, `escape`, or a character. */
+    name: S.String.pipe(
+      $I.annoteKey("KeyInput.name", {
+        description:
+          "The key name the prompts switch on, such as down, up, enter, space, escape or a single character; any string is accepted.",
+      })
+    ),
+    /** Whether Ctrl is held. */
+    ctrl: S.optional(S.Boolean).pipe(
+      $I.annoteKey("KeyInput.ctrl", {
+        description: "Whether Ctrl is held; omitted or undefined is queued as not held.",
+      })
+    ),
+    /** Whether Meta is held. */
+    meta: S.optional(S.Boolean).pipe(
+      $I.annoteKey("KeyInput.meta", {
+        description: "Whether Meta is held; omitted or undefined is queued as not held.",
+      })
+    ),
+    /** Whether Shift is held. */
+    shift: S.optional(S.Boolean).pipe(
+      $I.annoteKey("KeyInput.shift", {
+        description: "Whether Shift is held; omitted or undefined is queued as not held.",
+      })
+    ),
+  }).pipe($I.annoteSchema("KeyInput", { description: "One scripted key press queued into a TestTerminal." }))
+) {}
 /**
- * One key press for {@link TestTerminal}.
+ * Companion types for {@link KeyInput}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { KeyInput } from "@beep/cli-kit/TestTerminal"
+ *
+ * const accepts = (_value: KeyInput.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type KeyInput = typeof KeyInput.Type;
+export declare namespace KeyInput {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof KeyInput.Encoded;
+}
 
 /**
  * What {@link TestTerminal.make} builds: the `Terminal` layer and the means to drive and inspect it.
@@ -82,7 +103,7 @@ export interface TestTerminalHandle {
    *
    * @since 0.0.0
    */
-  readonly input: (keys: ReadonlyArray<KeyInput>) => Effect.Effect<void>;
+  readonly input: (keys: ReadonlyArray<KeyInput.Encoded>) => Effect.Effect<void>;
   /**
    * Provides `Terminal` backed by this double.
    *

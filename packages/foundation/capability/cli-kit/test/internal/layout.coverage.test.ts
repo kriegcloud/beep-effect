@@ -1,3 +1,4 @@
+import { Doc } from "@beep/cli-kit/Doc";
 import { flatten, paintSpans, truncateSpans, wrapSpans } from "@beep/cli-kit/internal/layout";
 import { Render } from "@beep/cli-kit/Render";
 import { assert, it } from "@effect/vitest";
@@ -26,10 +27,9 @@ it.effect("numeric edge widths and forced line endings preserve layout progress"
     assert.deepStrictEqual(wrapSpans([{ text: "a\n" }], 10), [[{ text: "a" }]]);
     assert.deepStrictEqual(wrapSpans([{ text: "a   " }], 10), [[{ text: "a" }]]);
     const ctx = Render.contextOf({ audience: "human", color: "none" });
-    assert.deepStrictEqual(
-      flatten([{ _tag: "Link", target: { file: "a\nb" }, label: [{ _tag: "Text", value: "x" }], suffix: false }], ctx),
-      [{ text: "x", link: { file: "ab" }, suffix: false }]
-    );
+    assert.deepStrictEqual<unknown>(flatten([Doc.link({ file: "a\nb" }, "x", { suffix: false })], ctx), [
+      { text: "x", link: { file: "ab" }, suffix: false },
+    ]);
     assert.strictEqual(
       paintSpans(
         [

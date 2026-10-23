@@ -217,7 +217,7 @@ describe("flatten under hostile input: nothing can reassemble into a live sequen
   };
   const CONTROL = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/;
 
-  const problems = (ctx: RenderContext, inlines: ReadonlyArray<Inline>): ReadonlyArray<string> => {
+  const problems = (ctx: RenderContext.Encoded, inlines: ReadonlyArray<Inline>): ReadonlyArray<string> => {
     const spans = flatten(inlines, ctx);
     const out = paintSpans(spans, ctx);
     const found: Array<string> = [];
@@ -350,7 +350,7 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
   );
 
   it("marks the cut with the ellipsis inside the last kept span, and omits one that cannot fit", () => {
-    const spans: ReadonlyArray<Span> = [{ text: "world", token: "info" }];
+    const spans: ReadonlyArray<Span.Encoded> = [{ text: "world", token: "info" }];
     assert.deepStrictEqual(truncateSpans(spans, 4, "…"), [{ text: "wor…", token: "info" }]);
     assert.deepStrictEqual(truncateSpans(spans, 4, "..."), [{ text: "w...", token: "info" }]);
     assert.deepStrictEqual(truncateSpans(spans, 2, "..."), [{ text: "wo", token: "info" }], "the marker cannot fit");
@@ -359,7 +359,7 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
   });
 
   it("a wide character that would straddle the edge is dropped whole", () => {
-    const spans: ReadonlyArray<Span> = [{ text: "日本語" }];
+    const spans: ReadonlyArray<Span.Encoded> = [{ text: "日本語" }];
     const cut = (width: number, ellipsis: string) =>
       pipe(
         truncateSpans(spans, width, ellipsis),
@@ -374,7 +374,7 @@ describe("truncateSpans: a coloured, linked label wider than the width", () => {
 
   it("an ellipsis after a Code span is not inside the code, and keeps the link", () => {
     const target = { url: "u" };
-    const spans: ReadonlyArray<Span> = [{ text: "codecode", code: true, link: target }];
+    const spans: ReadonlyArray<Span.Encoded> = [{ text: "codecode", code: true, link: target }];
     const out = truncateSpans(spans, 5, "…");
     assert.deepStrictEqual(out, [
       { text: "code", code: true, link: target },
@@ -438,13 +438,13 @@ describe("paintSpans", () => {
 });
 
 describe("wrapSpans", () => {
-  const textOf = (line: ReadonlyArray<Span>): string =>
+  const textOf = (line: ReadonlyArray<Span.Encoded>): string =>
     pipe(
       line,
       A.map((s) => s.text),
       A.join("")
     );
-  const lines = (spans: ReadonlyArray<Span>, width: number): ReadonlyArray<string> =>
+  const lines = (spans: ReadonlyArray<Span.Encoded>, width: number): ReadonlyArray<string> =>
     A.map(wrapSpans(spans, width), textOf);
 
   it("breaks at spaces and drops the space at the break", () => {
@@ -478,13 +478,13 @@ describe("wrapSpans", () => {
   });
 
   it("keeps every span's style on the characters that carry it, across lines", () => {
-    const spans: ReadonlyArray<Span> = [
+    const spans: ReadonlyArray<Span.Encoded> = [
       { text: "red words ", token: "failure" },
       { text: "and plain ones" },
       { text: " linked", link: { url: "u" } },
     ];
     const wrapped = wrapSpans(spans, 7);
-    const pairs = (list: ReadonlyArray<Span>) =>
+    const pairs = (list: ReadonlyArray<Span.Encoded>) =>
       A.flatMap(list, (span) =>
         pipe(
           graphemes(span.text),

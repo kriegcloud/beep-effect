@@ -54,7 +54,10 @@ it.effect.prop(
 );
 const path = S.Array(S.Literals(["group", "item", "value"]));
 const entry = S.Struct({ message: S.String, path });
-const readTree = (nodes: ReadonlyArray<IssueTreeNode>, path: ReadonlyArray<string> = []): ReadonlyArray<IssueEntry> =>
+const readTree = (
+  nodes: ReadonlyArray<IssueTreeNode.Encoded>,
+  path: ReadonlyArray<string> = []
+): ReadonlyArray<IssueEntry.Encoded> =>
   A.flatMap(nodes, (node) => {
     if (node.children !== undefined) return readTree(node.children, [...path, node.label]);
     // Collapsed single leaves have the last segment followed by ': '.
@@ -80,7 +83,7 @@ it.effect.prop(
     Effect.sync(() => {
       const tree = issueTreeChildren(input);
       const parsed = readTree(tree);
-      const ordered = (values: ReadonlyArray<IssueEntry>) =>
+      const ordered = (values: ReadonlyArray<IssueEntry.Encoded>) =>
         A.map(values, (value) => JSON.stringify([value.path, value.message])).sort();
       assert.deepStrictEqual(ordered(parsed), ordered(input));
       assert.deepStrictEqual(issueTreeChildren(parsed), tree);

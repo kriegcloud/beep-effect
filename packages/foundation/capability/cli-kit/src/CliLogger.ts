@@ -1,4 +1,5 @@
 import { CommandNeutralizer } from "@beep/github-commands";
+import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import { dual, pipe } from "effect/Function";
@@ -6,50 +7,95 @@ import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import * as P from "effect/Predicate";
 import * as References from "effect/References";
+import * as S from "effect/Schema";
 import { sanitize } from "./Fmt.ts";
 import { sanitizeParts, TrustedLine, underActionsIn } from "./internal/logSafety.ts";
 import type * as Fiber from "effect/Fiber";
 import type * as Layer from "effect/Layer";
 
+const $I = $CliKitId.create("CliLogger");
+const CliLoggerOptionsRender = S.declare<(message: unknown) => string>((value): value is (message: unknown) => string =>
+  P.isFunction(value)
+).pipe(
+  $I.annoteSchema("CliLoggerOptionsRender", { description: "A callback that renders one log message to its line." })
+);
+
 /**
  * How a log record is turned into a line.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CliLoggerOptions } from "@beep/cli-kit/CliLogger"
+ *
+ * console.log(typeof CliLoggerOptions.make) // function
+ * ```
  *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface CliLoggerOptions {
-  /**
-   * Render one message. Defaults to joining an array with spaces and
-   * `String`-ing anything else.
-   *
-   * **Details**
-   *
-   * An array arrives because `Effect.log("synced", 3, "repos")` is variadic.
-   *
-   * The text is sanitised, because it is whatever the program logged: with the default render, the line has its
-   * escape sequences and control characters removed (a line break stays one, a tab becomes a space); with yours, you
-   * receive the string parts already sanitised and own what you add, a colour included. Under GitHub Actions, where
-   * `CurrentRuntimeEnv` says so, a line the runner would read as a workflow command is neutralized either way.
-   *
-   * The logger reads `CurrentRuntimeEnv` from the logging fiber's context, so a line logged outside its scope
-   * (`CliLogger.layer()` provided alone, with no `CurrentRuntimeEnv`, or the warnings logged while `CliRuntime.main`
-   * builds its environment) is sanitised but not neutralized. Provide the environment around the program, as `main`
-   * does, for the neutralizing to apply.
+export class CliLoggerOptions extends S.Opaque<CliLoggerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Render one message. Defaults to joining an array with spaces and
+     * `String`-ing anything else.
+     *
+     * **Details**
+     *
+     * An array arrives because `Effect.log("synced", 3, "repos")` is variadic.
+     *
+     * The text is sanitised, because it is whatever the program logged: with the default render, the line has its
+     * escape sequences and control characters removed (a line break stays one, a tab becomes a space); with yours, you
+     * receive the string parts already sanitised and own what you add, a colour included. Under GitHub Actions, where
+     * `CurrentRuntimeEnv` says so, a line the runner would read as a workflow command is neutralized either way.
+     *
+     * The logger reads `CurrentRuntimeEnv` from the logging fiber's context, so a line logged outside its scope
+     * (`CliLogger.layer()` provided alone, with no `CurrentRuntimeEnv`, or the warnings logged while `CliRuntime.main`
+     * builds its environment) is sanitised but not neutralized. Provide the environment around the program, as `main`
+     * does, for the neutralizing to apply.
+     */
+    render: S.optional(CliLoggerOptionsRender).pipe(
+      $I.annoteKey("CliLoggerOptions.render", { description: "The render field of CliLoggerOptions." })
+    ),
+    /**
+     * The level at and above which output goes to stderr. Defaults to `"All"`,
+     * so every log level is a diagnostic and stdout carries only what the
+     * program writes with `Console.log`.
+     *
+     * **Details**
+     *
+     * Pass `"Error"` to send only errors to stderr, for a tool whose output *is*
+     * its log lines rather than a separate document written with
+     * `Console.log`.
+     */
+    stderrFrom: S.optional(S.Literals(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"])).pipe(
+      $I.annoteKey("CliLoggerOptions.stderrFrom", { description: "The stderrFrom field of CliLoggerOptions." })
+    ),
+  }).pipe($I.annoteSchema("CliLoggerOptions", { description: "Plain CliLoggerOptions data." }))
+) {}
+/**
+ * Companion types for {@link CliLoggerOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliLoggerOptions } from "@beep/cli-kit/CliLogger"
+ *
+ * const accepts = (_value: CliLoggerOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliLoggerOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly render?: ((message: unknown) => string) | undefined;
-  /**
-   * The level at and above which output goes to stderr. Defaults to `"All"`,
-   * so every log level is a diagnostic and stdout carries only what the
-   * program writes with `Console.log`.
-   *
-   * **Details**
-   *
-   * Pass `"Error"` to send only errors to stderr, for a tool whose output *is*
-   * its log lines rather than a separate document written with
-   * `Console.log`.
-   */
-  readonly stderrFrom?: LogLevel.LogLevel | undefined;
+  export type Encoded = typeof CliLoggerOptions.Encoded;
 }
 
 const defaultRender = (message: unknown): string =>
@@ -124,7 +170,8 @@ export abstract class CliLogger {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly make = (options: CliLoggerOptions = {}): Logger.Logger<unknown, void> => makeCliLogger(options);
+  static readonly make = (options: CliLoggerOptions.Encoded = {}): Logger.Logger<unknown, void> =>
+    makeCliLogger(options);
 
   /**
    * Replace the default logger with this one.
@@ -150,7 +197,7 @@ export abstract class CliLogger {
    * @category layers
    * @since 0.0.0
    */
-  static readonly layer = (options: CliLoggerOptions = {}): Layer.Layer<never> =>
+  static readonly layer = (options: CliLoggerOptions.Encoded = {}): Layer.Layer<never> =>
     Logger.layer([CliLogger.make(options)]);
 }
 
@@ -175,18 +222,18 @@ export abstract class CliLogger {
  * @since 0.0.0
  */
 export const makeCliLogger: {
-  (options?: CliLoggerOptions): Logger.Logger<unknown, void>;
+  (options?: CliLoggerOptions.Encoded): Logger.Logger<unknown, void>;
   (
-    options: CliLoggerOptions | undefined,
+    options: CliLoggerOptions.Encoded | undefined,
     underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean
   ): Logger.Logger<unknown, void>;
   (
     underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean
-  ): (options?: CliLoggerOptions) => Logger.Logger<unknown, void>;
+  ): (options?: CliLoggerOptions.Encoded) => Logger.Logger<unknown, void>;
 } = dual(
   (args) => !P.isFunction(args[0]),
   (
-    options: CliLoggerOptions = {},
+    options: CliLoggerOptions.Encoded = {},
     underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean = underActionsIn
   ): Logger.Logger<unknown, void> => {
     const custom = options.render;

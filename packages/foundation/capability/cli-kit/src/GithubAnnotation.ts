@@ -48,47 +48,69 @@ export type AnnotationLevel = typeof AnnotationLevel.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const GithubAnnotationProperties = S.Struct({
-  /** `error`, `warning` or `notice`. */
-  level: AnnotationLevel.pipe(
-    $I.annoteKey("GithubAnnotationProperties.level", { description: "The level field of a GitHub annotation." })
-  ),
-  /** The repository-relative path of the annotated file. */
-  file: S.optionalKey(S.String).pipe(
-    $I.annoteKey("GithubAnnotationProperties.file", { description: "The file field of a GitHub annotation." })
-  ),
-  /** The first annotated line, 1-based. */
-  line: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("GithubAnnotationProperties.line", { description: "The line field of a GitHub annotation." })
-  ),
-  /** The first annotated column, 1-based. */
-  col: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("GithubAnnotationProperties.col", { description: "The col field of a GitHub annotation." })
-  ),
-  /** The last annotated line. */
-  endLine: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("GithubAnnotationProperties.endLine", { description: "The endLine field of a GitHub annotation." })
-  ),
-  /** The last annotated column. */
-  endColumn: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("GithubAnnotationProperties.endColumn", { description: "The endColumn field of a GitHub annotation." })
-  ),
-  /** A short title shown above the annotation. */
-  title: S.optionalKey(S.String).pipe(
-    $I.annoteKey("GithubAnnotationProperties.title", { description: "The title field of a GitHub annotation." })
-  ),
-}).pipe(
-  $I.annoteSchema("GithubAnnotationProperties", {
-    description: "A GitHub annotation level and optional source position and title.",
-  })
-);
+export class GithubAnnotationProperties extends S.Opaque<
+  GithubAnnotationProperties,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    /** `error`, `warning` or `notice`. */
+    level: AnnotationLevel.pipe(
+      $I.annoteKey("GithubAnnotationProperties.level", { description: "The level field of a GitHub annotation." })
+    ),
+    /** The repository-relative path of the annotated file. */
+    file: S.optionalKey(S.String).pipe(
+      $I.annoteKey("GithubAnnotationProperties.file", { description: "The file field of a GitHub annotation." })
+    ),
+    /** The first annotated line, 1-based. */
+    line: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("GithubAnnotationProperties.line", { description: "The line field of a GitHub annotation." })
+    ),
+    /** The first annotated column, 1-based. */
+    col: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("GithubAnnotationProperties.col", { description: "The col field of a GitHub annotation." })
+    ),
+    /** The last annotated line. */
+    endLine: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("GithubAnnotationProperties.endLine", { description: "The endLine field of a GitHub annotation." })
+    ),
+    /** The last annotated column. */
+    endColumn: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("GithubAnnotationProperties.endColumn", {
+        description: "The endColumn field of a GitHub annotation.",
+      })
+    ),
+    /** A short title shown above the annotation. */
+    title: S.optionalKey(S.String).pipe(
+      $I.annoteKey("GithubAnnotationProperties.title", { description: "The title field of a GitHub annotation." })
+    ),
+  }).pipe(
+    $I.annoteSchema("GithubAnnotationProperties", {
+      description: "A GitHub annotation level and optional source position and title.",
+    })
+  )
+) {}
 /**
- * The plain metadata of a GitHub Actions annotation.
+ * Companion types for {@link GithubAnnotationProperties}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { GithubAnnotationProperties } from "@beep/cli-kit/GithubAnnotation"
+ *
+ * const accepts = (_value: GithubAnnotationProperties.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type GithubAnnotationProperties = typeof GithubAnnotationProperties.Type;
+export declare namespace GithubAnnotationProperties {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof GithubAnnotationProperties.Encoded;
+}
 
 /**
  * GitHub Actions annotations, as workflow commands.
@@ -135,9 +157,9 @@ export abstract class GithubAnnotation {
    */
   // One escaping: this renders through `WorkflowCommand`, not a copy of it.
   static readonly format: {
-    (annotation: GithubAnnotationProperties, message: string): string;
-    (message: string): (annotation: GithubAnnotationProperties) => string;
-  } = dual(2, (annotation: GithubAnnotationProperties, message: string): string =>
+    (annotation: GithubAnnotationProperties.Encoded, message: string): string;
+    (message: string): (annotation: GithubAnnotationProperties.Encoded) => string;
+  } = dual(2, (annotation: GithubAnnotationProperties.Encoded, message: string): string =>
     WorkflowCommand.render(
       annotation.level,
       {

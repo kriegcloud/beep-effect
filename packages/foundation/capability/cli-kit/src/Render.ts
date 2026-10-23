@@ -1,24 +1,43 @@
 import { CommandNeutralizer } from "@beep/github-commands";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
+import { AudienceKind } from "@beep/runtime-env/Audience";
+import { ColorLevel } from "@beep/runtime-env/ColorLevel";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { CliLinks } from "./CliLinks.ts";
-import { CliTheme } from "./CliTheme.ts";
-import { Glyphs } from "./Glyphs.ts";
+import { CliTheme, StreamTheme } from "./CliTheme.ts";
+import { GlyphSet, Glyphs } from "./Glyphs.ts";
 import { paintStyle } from "./internal/ansi.ts";
 import { underGithubActions } from "./internal/autoFormat.ts";
+import { AnyNumber, DisplayPath, LinksService } from "./internal/declared.ts";
 import { renderAnsi } from "./internal/renderAnsi.ts";
 import { renderGithubLog } from "./internal/renderGithubLog.ts";
 import { renderMarkdown } from "./internal/renderMarkdown.ts";
 import { renderPlain } from "./internal/renderPlain.ts";
 import { Token } from "./Token.ts";
-import type { AudienceKind, ColorLevel } from "@beep/runtime-env";
-import type { CliLinksShape } from "./CliLinks.ts";
-import type { Document, LinkTarget } from "./Doc.ts";
-import type { GlyphSet } from "./Glyphs.ts";
+import type { Document } from "./Doc.ts";
+import type { LinkTargetInput } from "./LinkTarget.ts";
 import type { Style, TokenName } from "./Token.ts";
+
+const $I = $CliKitId.create("Render");
+
+const RenderContextLink = S.declare<{
+  (target: LinkTargetInput, label: string): string;
+  (label: string): (target: LinkTargetInput) => string;
+}>(
+  (
+    value
+  ): value is {
+    (target: LinkTargetInput, label: string): string;
+    (label: string): (target: LinkTargetInput) => string;
+  } => P.isFunction(value)
+).pipe(
+  $I.annoteSchema("RenderContextLink", { description: "Wraps a label in a link to a target where the context links." })
+);
 
 /**
  * Everything a renderer needs to know about where its output is going.
@@ -29,136 +48,273 @@ import type { Style, TokenName } from "./Token.ts";
  * same document. `paint` and `link` are plain functions: a context for a stream with no colour passes the
  * identity, and one whose hyperlinks are off passes a `link` that returns its label unchanged.
  *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export interface RenderContext {
-  /** Who the output is for. */
-  readonly audience: AudienceKind;
-  /** The colour level of the stream being written. */
-  readonly color: ColorLevel;
-  /** Turns an absolute path into its display form; the identity by default. */
-  readonly displayPath: (absolute: string) => string;
-  /** The glyph set: status glyphs, separators, the ellipsis. */
-  readonly glyphs: GlyphSet;
-  /**
-   * Wraps a label as a link to a target; returns the label unchanged when links are off.
-   *
-   * **Gotchas**
-   *
-   * It must be pure and cheap: a renderer may call it more than once for one link. `Render.ansi` calls it once with
-   * the plain label to learn whether links are on (an unchanged label means off, and the target is then written
-   * after the label), and again when it paints, with the painted label. So it must decide on whether links are
-   * allowed, not on the label's content, and it must not count or record its calls.
-   */
-  readonly link: {
-    (target: LinkTarget, label: string): string;
-    (label: string): (target: LinkTarget) => string;
-  };
-  /**
-   * A base URL for file links in markdown, such as `https://github.com/<owner>/<repo>/blob/<sha>/`. When set,
-   * `Render.markdown` links a `{ file }` target to the base followed by its display path (`displayPath`, URL-encoded,
-   * without a leading `/`) and `#L<line>` when it has a line, in place of a `file://` URL a step summary's reader
-   * cannot open. The other renderers do not read it.
-   */
-  readonly linkBase?: string | undefined;
-  /**
-   * Whether the output will be read by the GitHub Actions runner, which has two command parsers: a line is a command
-   * if, after .NET whitespace, it starts with `::`, or if `##[` occurs ANYWHERE in it (a bare `##` is not one). When
-   * `true`, `plain`, `ansi` and `markdown` put a zero-width space in front of such a `::` line and between `##` and
-   * `[` at each `##[`, so a document's text, an error message, say, can never inject a command. Unset or `false`
-   * leaves their text alone. `Render.githubLog` ignores it and always neutralizes: its output is for the runner by
-   * definition.
-   *
-   * **Details**
-   *
-   * The trigger is the runner, not the audience: a person or an agent whose output lands in an Actions log is read
-   * by it just the same. `Render.context` sets it when `CurrentRuntimeEnv` says GitHub Actions.
-   */
-  readonly neutralizeWorkflowCommands?: boolean | undefined;
-  /** Paints text in a token or a style; the identity at colour `none`. */
-  readonly paint: {
-    (token: TokenName | Style, text: string): string;
-    (text: string): (token: TokenName | Style) => string;
-  };
-  /**
-   * The display columns available.
-   *
-   * **Details**
-   *
-   * `Infinity` is no limit. A renderer clamps what it is given: zero or a negative width is 1, and `NaN` is 80.
-   * `Render.context` gives a human writing to a terminal `TerminalEnv.width()`, which is the terminal's columns as
-   * stdout reports them, even for a context built for `"stderr"` (core's `Terminal` has one width), and gives no limit
-   * when the stream is not a terminal; pass `width` to override it.
-   */
-  readonly width: number;
-}
-
-/**
- * Options for {@link Render.contextOf}.
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { RenderContext } from "@beep/cli-kit/Render"
+ *
+ * console.log(typeof RenderContext.make) // function
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface RenderContextOfOptions {
-  /** Who the output is for. An `agent` gets no escape of any kind, whatever the other options say. */
-  readonly audience: AudienceKind;
-  /** The colour level; `none` by default, which paints nothing. */
-  readonly color?: ColorLevel | undefined;
-  /** Turns an absolute path into its display form; the identity by default. */
-  readonly displayPath?: ((absolute: string) => string) | undefined;
-  /** The glyph set; Unicode by default. */
-  readonly glyphs?: GlyphSet | undefined;
-  /** See {@link RenderContext.linkBase}; unset by default. */
-  readonly linkBase?: string | undefined;
-  /**
-   * Hyperlinks: `off` (the default) leaves every label unlinked; a `CliLinksShape`, such as a `CliLinks` service's
-   * value, makes OSC 8 hyperlinks through {@link CliLinks.linker}, for any audience but an agent.
+export class RenderContext extends S.Opaque<RenderContext, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Who the output is for. */
+    audience: AudienceKind.pipe(
+      $I.annoteKey("RenderContext.audience", { description: "The audience field of RenderContext." })
+    ),
+    /** The colour level of the stream being written. */
+    color: ColorLevel.pipe($I.annoteKey("RenderContext.color", { description: "The color field of RenderContext." })),
+    /** Turns an absolute path into its display form; the identity by default. */
+    displayPath: DisplayPath.pipe(
+      $I.annoteKey("RenderContext.displayPath", { description: "The displayPath field of RenderContext." })
+    ),
+    /** The glyph set: status glyphs, separators, the ellipsis. */
+    glyphs: GlyphSet.pipe($I.annoteKey("RenderContext.glyphs", { description: "The glyphs field of RenderContext." })),
+    /**
+     * Wraps a label as a link to a target; returns the label unchanged when links are off.
+     *
+     * **Gotchas**
+     *
+     * It must be pure and cheap: a renderer may call it more than once for one link. `Render.ansi` calls it once with
+     * the plain label to learn whether links are on (an unchanged label means off, and the target is then written
+     * after the label), and again when it paints, with the painted label. So it must decide on whether links are
+     * allowed, not on the label's content, and it must not count or record its calls.
+     */
+    link: RenderContextLink.pipe(
+      $I.annoteKey("RenderContext.link", { description: "The link field of RenderContext." })
+    ),
+    /**
+     * A base URL for file links in markdown, such as `https://github.com/<owner>/<repo>/blob/<sha>/`. When set,
+     * `Render.markdown` links a `{ file }` target to the base followed by its display path (`displayPath`, URL-encoded,
+     * without a leading `/`) and `#L<line>` when it has a line, in place of a `file://` URL a step summary's reader
+     * cannot open. The other renderers do not read it.
+     */
+    linkBase: S.optional(S.String).pipe(
+      $I.annoteKey("RenderContext.linkBase", { description: "The linkBase field of RenderContext." })
+    ),
+    /**
+     * Whether the output will be read by the GitHub Actions runner, which has two command parsers: a line is a command
+     * if, after .NET whitespace, it starts with `::`, or if `##[` occurs ANYWHERE in it (a bare `##` is not one). When
+     * `true`, `plain`, `ansi` and `markdown` put a zero-width space in front of such a `::` line and between `##` and
+     * `[` at each `##[`, so a document's text, an error message, say, can never inject a command. Unset or `false`
+     * leaves their text alone. `Render.githubLog` ignores it and always neutralizes: its output is for the runner by
+     * definition.
+     *
+     * **Details**
+     *
+     * The trigger is the runner, not the audience: a person or an agent whose output lands in an Actions log is read
+     * by it just the same. `Render.context` sets it when `CurrentRuntimeEnv` says GitHub Actions.
+     */
+    neutralizeWorkflowCommands: S.optional(S.Boolean).pipe(
+      $I.annoteKey("RenderContext.neutralizeWorkflowCommands", {
+        description: "The neutralizeWorkflowCommands field of RenderContext.",
+      })
+    ),
+    /** Paints text in a token or a style; the identity at colour `none`. */
+    paint: StreamTheme.fields.paint.pipe(
+      $I.annoteKey("RenderContext.paint", { description: "The paint field of RenderContext." })
+    ),
+    /**
+     * The display columns available.
+     *
+     * **Details**
+     *
+     * `Infinity` is no limit. A renderer clamps what it is given: zero or a negative width is 1, and `NaN` is 80.
+     * `Render.context` gives a human writing to a terminal `TerminalEnv.width()`, which is the terminal's columns as
+     * stdout reports them, even for a context built for `"stderr"` (core's `Terminal` has one width), and gives no limit
+     * when the stream is not a terminal; pass `width` to override it.
+     */
+    width: AnyNumber.pipe($I.annoteKey("RenderContext.width", { description: "The width field of RenderContext." })),
+  }).pipe($I.annoteSchema("RenderContext", { description: "Plain RenderContext data." }))
+) {}
+/**
+ * Companion types for {@link RenderContext}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { RenderContext } from "@beep/cli-kit/Render"
+ *
+ * const accepts = (_value: RenderContext.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace RenderContext {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly links?: "off" | CliLinksShape | undefined;
-  /**
-   * See {@link RenderContext.neutralizeWorkflowCommands}. `true` by default for a `ci` audience, whose output the
-   * Actions runner may read (it is harmless elsewhere), and unset for the others; an explicit `false` always wins.
+  export type Encoded = typeof RenderContext.Encoded;
+}
+
+/**
+ * Options for {@link Render.contextOf}.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { RenderContextOfOptions } from "@beep/cli-kit/Render"
+ *
+ * console.log(typeof RenderContextOfOptions.make) // function
+ * ```
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export class RenderContextOfOptions extends S.Opaque<RenderContextOfOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Who the output is for. An `agent` gets no escape of any kind, whatever the other options say. */
+    audience: AudienceKind.pipe(
+      $I.annoteKey("RenderContextOfOptions.audience", { description: "The audience field of RenderContextOfOptions." })
+    ),
+    /** The colour level; `none` by default, which paints nothing. */
+    color: S.optional(ColorLevel).pipe(
+      $I.annoteKey("RenderContextOfOptions.color", { description: "The color field of RenderContextOfOptions." })
+    ),
+    /** Turns an absolute path into its display form; the identity by default. */
+    displayPath: S.optional(DisplayPath).pipe(
+      $I.annoteKey("RenderContextOfOptions.displayPath", {
+        description: "The displayPath field of RenderContextOfOptions.",
+      })
+    ),
+    /** The glyph set; Unicode by default. */
+    glyphs: S.optional(GlyphSet).pipe(
+      $I.annoteKey("RenderContextOfOptions.glyphs", { description: "The glyphs field of RenderContextOfOptions." })
+    ),
+    /** See {@link RenderContext.linkBase}; unset by default. */
+    linkBase: S.optional(S.String).pipe(
+      $I.annoteKey("RenderContextOfOptions.linkBase", { description: "The linkBase field of RenderContextOfOptions." })
+    ),
+    /**
+     * Hyperlinks: `off` (the default) leaves every label unlinked; a `CliLinksShape`, such as a `CliLinks` service's
+     * value, makes OSC 8 hyperlinks through {@link CliLinks.linker}, for any audience but an agent.
+     */
+    links: S.optional(S.Union([S.Literal("off"), LinksService])).pipe(
+      $I.annoteKey("RenderContextOfOptions.links", { description: "The links field of RenderContextOfOptions." })
+    ),
+    /**
+     * See {@link RenderContext.neutralizeWorkflowCommands}. `true` by default for a `ci` audience, whose output the
+     * Actions runner may read (it is harmless elsewhere), and unset for the others; an explicit `false` always wins.
+     */
+    neutralizeWorkflowCommands: S.optional(S.Boolean).pipe(
+      $I.annoteKey("RenderContextOfOptions.neutralizeWorkflowCommands", {
+        description: "The neutralizeWorkflowCommands field of RenderContextOfOptions.",
+      })
+    ),
+    /** The display columns; unbounded (`Infinity`) by default. */
+    width: S.optional(AnyNumber).pipe(
+      $I.annoteKey("RenderContextOfOptions.width", { description: "The width field of RenderContextOfOptions." })
+    ),
+  }).pipe($I.annoteSchema("RenderContextOfOptions", { description: "Plain RenderContextOfOptions data." }))
+) {}
+/**
+ * Companion types for {@link RenderContextOfOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { RenderContextOfOptions } from "@beep/cli-kit/Render"
+ *
+ * const accepts = (_value: RenderContextOfOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace RenderContextOfOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly neutralizeWorkflowCommands?: boolean | undefined;
-  /** The display columns; unbounded (`Infinity`) by default. */
-  readonly width?: number | undefined;
+  export type Encoded = typeof RenderContextOfOptions.Encoded;
 }
 
 /** A renderer's text, with workflow commands neutralized when the context says the runner is reading it. */
 const guarded: {
-  (text: string, ctx: RenderContext): string;
-  (ctx: RenderContext): (text: string) => string;
-} = dual(2, (text: string, ctx: RenderContext): string =>
+  (text: string, ctx: RenderContext.Encoded): string;
+  (ctx: RenderContext.Encoded): (text: string) => string;
+} = dual(2, (text: string, ctx: RenderContext.Encoded): string =>
   ctx.neutralizeWorkflowCommands === true ? CommandNeutralizer.text(text) : text
 );
 
 /**
  * Options for {@link Render.context}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { RenderContextOptions } from "@beep/cli-kit/Render"
+ *
+ * console.log(typeof RenderContextOptions.make) // function
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface RenderContextOptions {
-  /** Turns an absolute path into its display form, for example relative to the working directory; the identity by default. */
-  readonly displayPath?: ((absolute: string) => string) | undefined;
-  /**
-   * The display columns to lay out at. By default a human writing to a terminal gets `TerminalEnv.width()`, the
-   * terminal's columns as stdout reports them even when the stream is `"stderr"`; a human whose stream is not a
-   * terminal (a pipe, a file), an agent and a CI get no limit at all.
+export class RenderContextOptions extends S.Opaque<RenderContextOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Turns an absolute path into its display form, for example relative to the working directory; the identity by default. */
+    displayPath: S.optional(DisplayPath).pipe(
+      $I.annoteKey("RenderContextOptions.displayPath", {
+        description: "The displayPath field of RenderContextOptions.",
+      })
+    ),
+    /**
+     * The display columns to lay out at. By default a human writing to a terminal gets `TerminalEnv.width()`, the
+     * terminal's columns as stdout reports them even when the stream is `"stderr"`; a human whose stream is not a
+     * terminal (a pipe, a file), an agent and a CI get no limit at all.
+     */
+    width: S.optional(AnyNumber).pipe(
+      $I.annoteKey("RenderContextOptions.width", { description: "The width field of RenderContextOptions." })
+    ),
+  }).pipe($I.annoteSchema("RenderContextOptions", { description: "Plain RenderContextOptions data." }))
+) {}
+/**
+ * Companion types for {@link RenderContextOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { RenderContextOptions } from "@beep/cli-kit/Render"
+ *
+ * const accepts = (_value: RenderContextOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace RenderContextOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly width?: number | undefined;
+  export type Encoded = typeof RenderContextOptions.Encoded;
 }
 
-const contextPaint = (color: ColorLevel): RenderContext["paint"] =>
+const contextPaint = (color: ColorLevel): RenderContext.Encoded["paint"] =>
   color === "none"
-    ? dual(2, (_token: TokenName | Style, text: string): string => text)
-    : dual(2, (token: TokenName | Style, text: string): string => paintStyle(Token.resolve(token), color, text));
+    ? dual(2, (_token: TokenName | Style.Encoded, text: string): string => text)
+    : dual(2, (token: TokenName | Style.Encoded, text: string): string =>
+        paintStyle(Token.resolve(token), color, text)
+      );
 
-const neutralizeOptions = (options: RenderContextOfOptions): { readonly neutralizeWorkflowCommands?: boolean } => {
+const neutralizeOptions = (
+  options: RenderContextOfOptions.Encoded
+): { readonly neutralizeWorkflowCommands?: boolean } => {
   if (options.neutralizeWorkflowCommands ?? options.audience === "ci") return { neutralizeWorkflowCommands: true };
   return options.neutralizeWorkflowCommands === false ? { neutralizeWorkflowCommands: false } : {};
 };
@@ -227,19 +383,19 @@ export class Render {
   static readonly context: {
     (
       stream: "stdout" | "stderr",
-      options?: RenderContextOptions
-    ): Effect.Effect<RenderContext, never, CliTheme | TerminalEnv | Audience | CliLinks>;
+      options?: RenderContextOptions.Encoded
+    ): Effect.Effect<RenderContext.Encoded, never, CliTheme | TerminalEnv | Audience | CliLinks>;
     (
-      options?: RenderContextOptions
+      options?: RenderContextOptions.Encoded
     ): (
       stream: "stdout" | "stderr"
-    ) => Effect.Effect<RenderContext, never, CliTheme | TerminalEnv | Audience | CliLinks>;
+    ) => Effect.Effect<RenderContext.Encoded, never, CliTheme | TerminalEnv | Audience | CliLinks>;
   } = dual(
     (args) => P.isString(args[0]),
     Effect.fn("context")(function* (
       stream: "stdout" | "stderr",
-      options?: RenderContextOptions
-    ): Effect.fn.Return<RenderContext, never, CliTheme | TerminalEnv | Audience | CliLinks> {
+      options?: RenderContextOptions.Encoded
+    ): Effect.fn.Return<RenderContext.Encoded, never, CliTheme | TerminalEnv | Audience | CliLinks> {
       const terminal = yield* TerminalEnv;
       const { kind } = yield* Audience;
       const theme = (yield* CliTheme).forStream(stream);
@@ -289,7 +445,7 @@ export class Render {
    * @category formatting
    * @since 0.0.0
    */
-  static readonly contextOf = (options: RenderContextOfOptions): RenderContext => {
+  static readonly contextOf = (options: RenderContextOfOptions.Encoded): RenderContext.Encoded => {
     const agent = options.audience === "agent";
     const color: ColorLevel = agent ? "none" : (options.color ?? "none");
     const links = agent ? "off" : (options.links ?? "off");
@@ -301,7 +457,7 @@ export class Render {
       glyphs: options.glyphs ?? Glyphs.unicode,
       link:
         links === "off"
-          ? dual(2, (_target: LinkTarget, label: string): string => label)
+          ? dual(2, (_target: LinkTargetInput, label: string): string => label)
           : CliLinks.linker({ links, hyperlinks: true, audience: options.audience }),
       displayPath: options.displayPath ?? ((absolute: string) => absolute),
       // A ci audience may be read by the Actions runner, and neutralizing is harmless anywhere else.
@@ -358,9 +514,9 @@ export class Render {
    * @since 0.0.0
    */
   static readonly plain: {
-    (doc: Document, ctx: RenderContext): string;
-    (ctx: RenderContext): (doc: Document) => string;
-  } = dual(2, (doc: Document, ctx: RenderContext): string => guarded(renderPlain(doc, ctx), ctx));
+    (doc: Document, ctx: RenderContext.Encoded): string;
+    (ctx: RenderContext.Encoded): (doc: Document) => string;
+  } = dual(2, (doc: Document, ctx: RenderContext.Encoded): string => guarded(renderPlain(doc, ctx), ctx));
 
   /**
    * Render a document for a person: the same layout as {@link Render.plain}, painted and linked.
@@ -405,9 +561,9 @@ export class Render {
    * @since 0.0.0
    */
   static readonly ansi: {
-    (doc: Document, ctx: RenderContext): string;
-    (ctx: RenderContext): (doc: Document) => string;
-  } = dual(2, (doc: Document, ctx: RenderContext): string => guarded(renderAnsi(doc, ctx), ctx));
+    (doc: Document, ctx: RenderContext.Encoded): string;
+    (ctx: RenderContext.Encoded): (doc: Document) => string;
+  } = dual(2, (doc: Document, ctx: RenderContext.Encoded): string => guarded(renderAnsi(doc, ctx), ctx));
 
   /**
    * Render a document as GitHub-flavoured markdown, for a step summary or a file.
@@ -473,9 +629,9 @@ export class Render {
    * @since 0.0.0
    */
   static readonly markdown: {
-    (doc: Document, ctx: RenderContext): string;
-    (ctx: RenderContext): (doc: Document) => string;
-  } = dual(2, (doc: Document, ctx: RenderContext): string => guarded(renderMarkdown(doc, ctx), ctx));
+    (doc: Document, ctx: RenderContext.Encoded): string;
+    (ctx: RenderContext.Encoded): (doc: Document) => string;
+  } = dual(2, (doc: Document, ctx: RenderContext.Encoded): string => guarded(renderMarkdown(doc, ctx), ctx));
 
   /**
    * Render a document for a GitHub Actions log.
@@ -517,7 +673,7 @@ export class Render {
    * @since 0.0.0
    */
   static readonly githubLog: {
-    (doc: Document, ctx: RenderContext): string;
-    (ctx: RenderContext): (doc: Document) => string;
-  } = dual(2, (doc: Document, ctx: RenderContext): string => renderGithubLog(doc, ctx));
+    (doc: Document, ctx: RenderContext.Encoded): string;
+    (ctx: RenderContext.Encoded): (doc: Document) => string;
+  } = dual(2, (doc: Document, ctx: RenderContext.Encoded): string => renderGithubLog(doc, ctx));
 }

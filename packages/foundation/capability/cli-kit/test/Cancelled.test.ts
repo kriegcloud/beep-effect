@@ -1,5 +1,7 @@
 import { Cancelled, CliRuntime, NotInteractive } from "@beep/cli-kit";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
@@ -207,3 +209,15 @@ describe("CliRuntime.defaultRender", () => {
     })
   );
 });
+
+it.effect.prop(
+  "generated Cancelled values survive codec round trips",
+  [Arbitrary.schema(Cancelled)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const encoded = yield* S.encodeEffect(Cancelled)(value);
+      const decoded = yield* S.decodeEffect(Cancelled)(encoded);
+      assert.deepStrictEqual(decoded, value);
+    }),
+  { arbitrary: fcRuns(100) }
+);

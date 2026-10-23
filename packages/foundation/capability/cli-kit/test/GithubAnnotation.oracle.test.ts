@@ -11,7 +11,7 @@ type Level = "error" | "warning" | "notice";
 const LEVELS: ReadonlyArray<Level> = ["error", "warning", "notice"];
 
 /** The same annotation through the oracle: its readable names for what the wire calls `line` and `col`. */
-const oracle = (annotation: GithubAnnotationProperties, message: string): string => {
+const oracle = (annotation: GithubAnnotationProperties.Encoded, message: string): string => {
   const properties = {
     ...(annotation.title === undefined ? {} : { title: annotation.title }),
     ...(annotation.file === undefined ? {} : { file: annotation.file }),
@@ -89,14 +89,14 @@ describe("GithubAnnotation.format against the WorkflowCommand oracle", () => {
     for (const level of LEVELS) {
       for (const value of values) {
         for (const key of ["title", "file"] as const) {
-          const annotation: GithubAnnotationProperties = { level, [key]: value };
+          const annotation: GithubAnnotationProperties.Encoded = { level, [key]: value };
           assert.strictEqual(
             GithubAnnotation.format(annotation, "m"),
             oracle(annotation, "m"),
             `${level} ${key} ${JSON.stringify(value)}`
           );
         }
-        const all: GithubAnnotationProperties = {
+        const all: GithubAnnotationProperties.Encoded = {
           level,
           title: value,
           file: value,
@@ -115,12 +115,12 @@ describe("GithubAnnotation.format against the WorkflowCommand oracle", () => {
   });
 
   it("the numeric properties, and the order they are written in", () => {
-    const a: GithubAnnotationProperties = { level: "error", line: 1, endLine: 2, col: 3, endColumn: 4 };
+    const a: GithubAnnotationProperties.Encoded = { level: "error", line: 1, endLine: 2, col: 3, endColumn: 4 };
     assert.strictEqual(GithubAnnotation.format(a, "m"), oracle(a, "m"));
     assert.strictEqual(GithubAnnotation.format(a, "m"), "::error line=1,endLine=2,col=3,endColumn=4::m");
-    const partial: GithubAnnotationProperties = { level: "warning", file: "a.ts", col: 5 };
+    const partial: GithubAnnotationProperties.Encoded = { level: "warning", file: "a.ts", col: 5 };
     assert.strictEqual(GithubAnnotation.format(partial, "m"), oracle(partial, "m"));
-    const zero: GithubAnnotationProperties = { level: "notice", line: 0, col: 0 };
+    const zero: GithubAnnotationProperties.Encoded = { level: "notice", line: 0, col: 0 };
     assert.strictEqual(
       GithubAnnotation.format(zero, "m"),
       oracle(zero, "m"),
@@ -141,7 +141,7 @@ describe("GithubAnnotation.format against the WorkflowCommand oracle", () => {
     const short = upTo(2);
     for (const title of short) {
       for (const file of ["", "x", ":", ",", "%", "\n"]) {
-        const annotation: GithubAnnotationProperties = { level: "warning", title, file, line: 7 };
+        const annotation: GithubAnnotationProperties.Encoded = { level: "warning", title, file, line: 7 };
         assert.strictEqual(
           GithubAnnotation.format(annotation, "m"),
           oracle(annotation, "m"),
@@ -158,7 +158,13 @@ describe("GithubAnnotation.format against the WorkflowCommand oracle", () => {
     const titles = ["", "t", "a:b,c", "%3A%2C", "a\r\nb", "x=y", "::"];
     for (const message of messages) {
       for (const title of titles) {
-        const annotation: GithubAnnotationProperties = { level: "error", title, file: `f${title}`, line: 3, col: 4 };
+        const annotation: GithubAnnotationProperties.Encoded = {
+          level: "error",
+          title,
+          file: `f${title}`,
+          line: 3,
+          col: 4,
+        };
         const decoded = decode(GithubAnnotation.format(annotation, message));
         assert.deepStrictEqual(
           decoded,

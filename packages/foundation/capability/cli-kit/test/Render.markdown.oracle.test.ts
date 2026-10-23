@@ -10,7 +10,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { composite, ESC } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
-import type { Block, LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
+import type { Block, LinkTargetInput, RenderContext, Style, TokenName } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -26,13 +26,13 @@ interface N {
   readonly value?: string;
 }
 
-const render = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const render = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(contextOf(overrides), (ctx) => Render.markdown(doc, ctx));
 
 const parse = (markdown: string) => Effect.map(Markdown.parse(markdown), (root) => root);
 
 /** Render then parse: the tree of what a GFM reader sees. */
-const treeOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const treeOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.flatMap(render(doc, overrides), parse);
 
 const kids = (n: N | undefined): ReadonlyArray<N> => n?.children ?? [];
@@ -1146,11 +1146,11 @@ describe("Render.markdown: no ANSI, and a hostile document stays inside its own 
     Effect.gen(function* () {
       const calls: Array<string> = [];
       const out = yield* render(composite({ codeAndPath: true }), {
-        paint: dual(2, (_t: TokenName | Style, text: string): string => {
+        paint: dual(2, (_t: TokenName | Style.Encoded, text: string): string => {
           calls.push("paint");
           return `${ESC}[1m${text}${ESC}[0m`;
         }),
-        link: dual(2, (_t: LinkTarget, label: string): string => {
+        link: dual(2, (_t: LinkTargetInput, label: string): string => {
           calls.push("link");
           return `${ESC}]8;;u\u0007${label}${ESC}]8;;\u0007`;
         }),

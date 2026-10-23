@@ -1,9 +1,13 @@
+import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
+
+const $I = $CliKitId.create("internal/format");
 
 /**
  * Core's structured formatter, with one phrasing override.
@@ -64,13 +68,48 @@ export const formatIssue = (issue: unknown): ReadonlyArray<string> =>
 /**
  * One rejected value: what is wrong and where.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { IssueEntry } from "@beep/cli-kit/internal/format"
+ *
+ * console.log(typeof IssueEntry.make) // function
+ * ```
+ *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export interface IssueEntry {
-  readonly message: string;
-  readonly path: ReadonlyArray<string>;
+export class IssueEntry extends S.Opaque<IssueEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The message field. */
+    message: S.String.pipe($I.annoteKey("IssueEntry.message", { description: "The message field of IssueEntry." })),
+    /** The path field. */
+    path: S.Array(S.String).pipe($I.annoteKey("IssueEntry.path", { description: "The path field of IssueEntry." })),
+  }).pipe($I.annoteSchema("IssueEntry", { description: "Plain IssueEntry data." }))
+) {}
+/**
+ * Companion types for {@link IssueEntry}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { IssueEntry } from "@beep/cli-kit/internal/format"
+ *
+ * const accepts = (_value: IssueEntry.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace IssueEntry {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof IssueEntry.Encoded;
 }
 
 /**
@@ -95,14 +134,14 @@ export interface IssueEntry {
  * @category parsing
  * @since 0.0.0
  */
-export const issueEntries = (issue: unknown): ReadonlyArray<IssueEntry> => {
+export const issueEntries = (issue: unknown): ReadonlyArray<IssueEntry.Encoded> => {
   if (!SchemaIssue.isIssue(issue)) return [];
   const seen = MutableHashSet.empty<IssueEntry>();
-  const entries: Array<IssueEntry> = [];
+  const entries: Array<IssueEntry.Encoded> = [];
   for (const entry of formatter(issue).issues) {
     // The core formatter always emits a path, including [] for a root issue.
     const path = O.fromUndefinedOr(entry.path).pipe(O.getOrThrow, A.map(String));
-    const key: IssueEntry = { message: entry.message, path };
+    const key: IssueEntry.Encoded = { message: entry.message, path };
     if (MutableHashSet.has(seen, key)) continue;
     MutableHashSet.add(seen, key);
     entries.push(key);
@@ -136,7 +175,7 @@ const emptyNode = (): PathNode => ({ messages: [], children: MutableHashMap.empt
  * @category formatting
  * @since 0.0.0
  */
-export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry>): ReadonlyArray<IssueTreeNode> => {
+export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry.Encoded>): ReadonlyArray<IssueTreeNode.Encoded> => {
   const root = emptyNode();
   for (const entry of entries) {
     let node = root;
@@ -150,12 +189,12 @@ export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry>): ReadonlyA
     }
     node.messages.push(entry.message);
   }
-  const leaves = (node: PathNode): ReadonlyArray<IssueTreeNode> =>
+  const leaves = (node: PathNode): ReadonlyArray<IssueTreeNode.Encoded> =>
     A.map(node.messages, (message) => ({ label: message }));
   const named: {
-    (segment: string, node: PathNode): IssueTreeNode;
-    (node: PathNode): (segment: string) => IssueTreeNode;
-  } = dual(2, (segment: string, node: PathNode): IssueTreeNode => {
+    (segment: string, node: PathNode): IssueTreeNode.Encoded;
+    (node: PathNode): (segment: string) => IssueTreeNode.Encoded;
+  } = dual(2, (segment: string, node: PathNode): IssueTreeNode.Encoded => {
     if (MutableHashMap.size(node.children) === 0 && node.messages.length === 1)
       return { label: `${segment}: ${node.messages[0]}` };
     return {
@@ -170,11 +209,51 @@ export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry>): ReadonlyA
  * The shape `issueTreeChildren` returns: a `TreeInput` without the dependency on `Doc`, which this module must not
  * import at runtime.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { IssueTreeNode } from "@beep/cli-kit/internal/format"
+ *
+ * console.log(typeof IssueTreeNode.make) // function
+ * ```
+ *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export interface IssueTreeNode {
-  readonly children?: ReadonlyArray<IssueTreeNode>;
-  readonly label: string;
+export class IssueTreeNode extends S.Opaque<IssueTreeNode, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The children field. */
+    children: S.optionalKey(
+      S.suspend((): S.Codec<IssueTreeNode.Encoded> => S.toEncoded(IssueTreeNode)).pipe(S.Array)
+    ).pipe($I.annoteKey("IssueTreeNode.children", { description: "The children field of IssueTreeNode." })),
+    /** The label field. */
+    label: S.String.pipe($I.annoteKey("IssueTreeNode.label", { description: "The label field of IssueTreeNode." })),
+  }).pipe($I.annoteSchema("IssueTreeNode", { description: "Plain IssueTreeNode data." }))
+) {}
+/**
+ * Companion types for {@link IssueTreeNode}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { IssueTreeNode } from "@beep/cli-kit/internal/format"
+ *
+ * const accepts = (_value: IssueTreeNode.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace IssueTreeNode {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly children?: ReadonlyArray<Encoded>;
+    readonly label: string;
+  }
 }

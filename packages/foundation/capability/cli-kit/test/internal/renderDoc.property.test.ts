@@ -3,6 +3,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -19,7 +20,7 @@ import type { RenderContext } from "@beep/cli-kit/Render";
 const ctx = Render.contextOf({ audience: "agent" });
 const flavour: Flavour = {
   inline: plainInline,
-  finish: dual(2, (line: Line, _ctx: RenderContext): string =>
+  finish: dual(2, (line: Line, _ctx: RenderContext.Encoded): string =>
     A.join(
       A.map(line, (span) => span.text),
       ""
@@ -77,7 +78,7 @@ it.effect.prop(
   [Arbitrary.schema(S.Int)],
   ([n]) =>
     Effect.sync(() => {
-      assert.strictEqual(capOf(capOf(n)), capOf(n));
+      assert.strictEqual<unknown>(capOf(n).pipe(O.flatMap(capOf), O.getOrUndefined), O.getOrUndefined(capOf(n)));
       const rendered = targetText({ file: "source.ts", line: n, col: 2 }, ctx);
       const parts = Str.split(rendered, ":");
       assert.deepStrictEqual(parts, ["source.ts", String(n), "2"]);

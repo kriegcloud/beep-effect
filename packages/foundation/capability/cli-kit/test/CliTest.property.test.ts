@@ -26,7 +26,9 @@ it.effect.prop(
   [Arbitrary.schema(RunOptions)],
   ([value]) =>
     Effect.gen(function* () {
-      const encoded = yield* S.encodeEffect(RunOptions)(value);
+      const encoded = yield* S.encodeEffect(RunOptions)(
+        RunOptions.make({ ...value, sandbox: Sandbox.make(value.sandbox) })
+      );
       const decoded = yield* S.decodeEffect(RunOptions)(encoded);
       assert.deepStrictEqual(decoded, value);
       assert.deepStrictEqual(yield* S.encodeEffect(RunOptions)(decoded), encoded);
@@ -58,7 +60,9 @@ it.effect("RunOptions retains absent, undefined and empty overrides as distinct 
       { ...required, cwd: undefined, env: undefined, stdin: undefined },
       { ...required, cwd: "", env: {}, stdin: "" },
     ]) {
-      const encoded = yield* S.encodeEffect(RunOptions)(value);
+      const encoded = yield* S.encodeEffect(RunOptions)(
+        RunOptions.make({ ...value, sandbox: Sandbox.make(value.sandbox) })
+      );
       assert.deepStrictEqual(yield* S.decodeEffect(RunOptions)(encoded), value);
     }
   })

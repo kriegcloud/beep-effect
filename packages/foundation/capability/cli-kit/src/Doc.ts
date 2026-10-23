@@ -12,15 +12,29 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import { GithubAnnotationProperties } from "./GithubAnnotation.ts";
 import { autoFormat } from "./internal/autoFormat.ts";
 import { totalOf, visibleCountersOf } from "./internal/counts.ts";
+import { AnyNumber, DisplayPath } from "./internal/declared.ts";
+import { admitLinkTarget, LinkTarget } from "./LinkTarget.ts";
 import { Render } from "./Render.ts";
 import { StatusDef } from "./Status.ts";
 import { Style, TokenName } from "./Token.ts";
 import type { Audience, TerminalEnv } from "@beep/runtime-env";
 import type { CliLinks } from "./CliLinks.ts";
 import type { CliTheme } from "./CliTheme.ts";
+import type { LinkTargetInput } from "./LinkTarget.ts";
 import type { Status } from "./Status.ts";
 
 const $I = $CliKitId.create("Doc");
+
+const OverflowOptionsOverflow = S.declare<(hidden: number) => InlineInput>(
+  (value): value is (hidden: number) => InlineInput => P.isFunction(value)
+).pipe(
+  $I.annoteSchema("OverflowOptionsOverflow", {
+    description: "Content shown in place of the hidden items, given their count.",
+  })
+);
+const CountsOptionsTotal = S.declare<(counters: ReadonlyArray<Counter.Encoded>) => number>(
+  (value): value is (counters: ReadonlyArray<Counter.Encoded>) => number => P.isFunction(value)
+).pipe($I.annoteSchema("CountsOptionsTotal", { description: "Computes the total a counts block shows." }));
 
 /**
  * A status as a document stores it: its name and its resolved definition.
@@ -43,53 +57,36 @@ const $I = $CliKitId.create("Doc");
  * @category schemas
  * @since 0.0.0
  */
-export const StatusRef = S.Struct({
-  /** The name in the vocabulary it was resolved from. */
-  name: S.String.pipe($I.annoteKey("StatusRef.name", { description: "The name field of StatusRef." })),
-  /** The resolved definition. */
-  def: StatusDef.pipe($I.annoteKey("StatusRef.def", { description: "The def field of StatusRef." })),
-}).pipe($I.annoteSchema("StatusRef", { description: "A status name and its resolved definition." }));
+export class StatusRef extends S.Opaque<StatusRef, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The name in the vocabulary it was resolved from. */
+    name: S.String.pipe($I.annoteKey("StatusRef.name", { description: "The name field of StatusRef." })),
+    /** The resolved definition. */
+    def: StatusDef.pipe($I.annoteKey("StatusRef.def", { description: "The def field of StatusRef." })),
+  }).pipe($I.annoteSchema("StatusRef", { description: "A status name and its resolved definition." }))
+) {}
 /**
- * A resolved status name and definition stored in a document.
+ * Companion types for {@link StatusRef}.
  *
- * @category type-level
- * @since 0.0.0
- */
-export type StatusRef = typeof StatusRef.Type;
-
-/**
- * Where a link points: a URL, or a file with an optional position.
- *
- * **Example** (Validate a file position)
+ * **Example** (Refer to the plain input)
  *
  * ```ts
- * import { LinkTarget } from "@beep/cli-kit/Doc"
- * import * as S from "effect/Schema"
+ * import type { StatusRef } from "@beep/cli-kit/Doc"
  *
- * console.log(S.is(LinkTarget)({ file: "src/main.ts", line: 12, col: 3 })) // true
+ * const accepts = (_value: StatusRef.Encoded) => true
+ * console.log(typeof accepts) // function
  * ```
- *
- * @public
- * @category schemas
- * @since 0.0.0
- */
-export const LinkTarget = S.Union([
-  S.Struct({ url: S.String.pipe($I.annoteKey("LinkTarget.url", { description: "The url field of LinkTarget." })) }),
-  S.Struct({
-    file: S.String.pipe($I.annoteKey("LinkTarget.file", { description: "The file field of LinkTarget." })),
-    line: S.optionalKey(S.Finite).pipe(
-      $I.annoteKey("LinkTarget.line", { description: "The line field of LinkTarget." })
-    ),
-    col: S.optionalKey(S.Finite).pipe($I.annoteKey("LinkTarget.col", { description: "The col field of LinkTarget." })),
-  }),
-]).pipe($I.annoteSchema("LinkTarget", { description: "A URL or file with an optional position." }));
-/**
- * A URL or file position accepted by a document link.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type LinkTarget = typeof LinkTarget.Type;
+export declare namespace StatusRef {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof StatusRef.Encoded;
+}
 
 const inlineShape = <Children extends S.Constraint>(children: Children) =>
   S.Union([
@@ -140,13 +137,15 @@ const inlineShape = <Children extends S.Constraint>(children: Children) =>
 
 // Array interfaces break recursive inference without duplicating any variant's fields.
 interface InlineChildren extends ReadonlyArray<Inline> {}
+interface InlineEncodedChildren extends ReadonlyArray<InlineEncoded> {}
+type InlineEncoded = ReturnType<typeof inlineShape<S.Codec<InlineEncodedChildren>>>["Encoded"];
 /**
  * The decoded inline content flowing inside a document line.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type Inline = ReturnType<typeof inlineShape<S.Codec<InlineChildren>>>["Type"];
+export type Inline = ReturnType<typeof inlineShape<S.Codec<InlineChildren, InlineEncodedChildren>>>["Type"];
 /**
  * Content that flows inside a line.
  *
@@ -173,7 +172,7 @@ export type Inline = ReturnType<typeof inlineShape<S.Codec<InlineChildren>>>["Ty
  * @category schemas
  * @since 0.0.0
  */
-export const Inline = S.suspend((): S.Codec<Inline> => Inline).pipe(S.Array, inlineShape);
+export const Inline = S.suspend((): S.Codec<Inline, InlineEncoded> => Inline).pipe(S.Array, inlineShape);
 
 const treeNodeShape = <Children extends S.Constraint>(children: Children) =>
   S.Struct({
@@ -187,13 +186,15 @@ const treeNodeShape = <Children extends S.Constraint>(children: Children) =>
     ),
   }).pipe($I.annoteSchema("TreeNode", { description: "A tree label and its ordered children." }));
 interface TreeChildren extends ReadonlyArray<TreeNode> {}
+interface TreeNodeEncodedChildren extends ReadonlyArray<TreeNodeEncoded> {}
+type TreeNodeEncoded = ReturnType<typeof treeNodeShape<S.Codec<TreeNodeEncodedChildren>>>["Encoded"];
 /**
  * The decoded tree label and its ordered child nodes.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type TreeNode = ReturnType<typeof treeNodeShape<S.Codec<TreeChildren>>>["Type"];
+export type TreeNode = ReturnType<typeof treeNodeShape<S.Codec<TreeChildren, TreeNodeEncodedChildren>>>["Type"];
 /**
  * A node of a {@link TreeNode} tree: a label and its children.
  *
@@ -210,10 +211,11 @@ export type TreeNode = ReturnType<typeof treeNodeShape<S.Codec<TreeChildren>>>["
  * @category schemas
  * @since 0.0.0
  */
-export const TreeNode = S.suspend((): S.Codec<TreeNode> => TreeNode).pipe(S.Array, treeNodeShape);
+export const TreeNode = S.suspend((): S.Codec<TreeNode, TreeNodeEncoded> => TreeNode).pipe(S.Array, treeNodeShape);
 
 /**
- * Describes a table header and its optional cell alignment.
+ * A table column: its header cell and optional alignment. A tagged node, so a renderer that builds a table from
+ * another block (a counts table) makes one with a plain object and no import of this module.
  *
  * **Example** (Validate an aligned column)
  *
@@ -221,23 +223,24 @@ export const TreeNode = S.suspend((): S.Codec<TreeNode> => TreeNode).pipe(S.Arra
  * import { Column, Doc } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
- * console.log(S.is(Column)({ header: [Doc.text("Time")], align: "right" })) // true
+ * console.log(S.is(Column)({ _tag: "Column", header: [Doc.text("Time")], align: "right" })) // true
  * ```
  *
  * @public
  * @category schemas
  * @since 0.0.0
  */
-export const Column = S.Struct({
+export const Column = S.TaggedStruct("Column", {
   /** The header cell. */
-  header: S.Array(Inline).pipe($I.annoteKey("Column.header", { description: "The header field of Column." })),
+  header: S.Array(Inline).pipe($I.annoteKey("Column.header", { description: "The header cell of the column." })),
   /** How the column's cells align; left when unset. */
   align: S.optionalKey(S.Literals(["left", "right", "center"])).pipe(
-    $I.annoteKey("Column.align", { description: "The align field of Column." })
+    $I.annoteKey("Column.align", { description: "How the column's cells align; left when unset." })
   ),
 }).pipe($I.annoteSchema("Column", { description: "A table header and optional alignment." }));
+
 /**
- * The decoded table header and optional cell alignment.
+ * A table column node.
  *
  * @category type-level
  * @since 0.0.0
@@ -262,40 +265,57 @@ export type Column = typeof Column.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Counter = S.Struct({
-  /** A stable identifier, for a caller's total rule. */
-  key: S.String.pipe($I.annoteKey("Counter.key", { description: "The key field of Counter." })),
-  /**
-   * What the counter is called when shown: one label, or a singular and a plural form, `one` for a count of exactly 1
-   * and `other` for every other, 0 included. The count is the counter's own `n`, except in a share headline
-   * (`1/3 repos`), which reads by the total. A `CountsTable` heads its column with `other`, since the column holds
-   * every row's count.
-   */
-  label: S.Union([
-    S.String,
-    S.Struct({
-      one: S.String.pipe($I.annoteKey("Counter.one", { description: "The one field of Counter." })),
-      other: S.String.pipe($I.annoteKey("Counter.other", { description: "The other field of Counter." })),
-    }),
-  ]).pipe($I.annoteKey("Counter.label", { description: "The label field of Counter." })),
-  /** The count. */
-  n: S.Finite.pipe($I.annoteKey("Counter.n", { description: "The n field of Counter." })),
-  /** The status the count is painted with. */
-  status: StatusRef.pipe($I.annoteKey("Counter.status", { description: "The status field of Counter." })),
-  /** Show the counter when `n` is zero; by default a zero counter is hidden. */
-  showZero: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("Counter.showZero", { description: "The showZero field of Counter." })
-  ),
-}).pipe(
-  $I.annoteSchema("Counter", { description: "A labeled count with its resolved status and zero-display policy." })
-);
+export class Counter extends S.Opaque<Counter, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** A stable identifier, for a caller's total rule. */
+    key: S.String.pipe($I.annoteKey("Counter.key", { description: "The key field of Counter." })),
+    /**
+     * What the counter is called when shown: one label, or a singular and a plural form, `one` for a count of exactly 1
+     * and `other` for every other, 0 included. The count is the counter's own `n`, except in a share headline
+     * (`1/3 repos`), which reads by the total. A `CountsTable` heads its column with `other`, since the column holds
+     * every row's count.
+     */
+    label: S.Union([
+      S.String,
+      S.Struct({
+        one: S.String.pipe($I.annoteKey("Counter.one", { description: "The one field of Counter." })),
+        other: S.String.pipe($I.annoteKey("Counter.other", { description: "The other field of Counter." })),
+      }),
+    ]).pipe($I.annoteKey("Counter.label", { description: "The label field of Counter." })),
+    /** The count. */
+    n: S.Finite.pipe($I.annoteKey("Counter.n", { description: "The n field of Counter." })),
+    /** The status the count is painted with. */
+    status: StatusRef.pipe($I.annoteKey("Counter.status", { description: "The status field of Counter." })),
+    /** Show the counter when `n` is zero; by default a zero counter is hidden. */
+    showZero: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Counter.showZero", { description: "The showZero field of Counter." })
+    ),
+  }).pipe(
+    $I.annoteSchema("Counter", { description: "A labeled count with its resolved status and zero-display policy." })
+  )
+) {}
 /**
- * The decoded count, label and resolved status used in summaries.
+ * Companion types for {@link Counter}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { Counter } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: Counter.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type Counter = typeof Counter.Type;
+export declare namespace Counter {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Counter.Encoded;
+}
 
 const Overflow = S.declare<(hidden: number) => ReadonlyArray<Inline>>(
   (value): value is (hidden: number) => ReadonlyArray<Inline> => P.isFunction(value)
@@ -312,8 +332,8 @@ const Overflow = S.declare<(hidden: number) => ReadonlyArray<Inline>>(
       ),
   })
 );
-const Total = S.declare<(counters: ReadonlyArray<Counter>) => number>(
-  (value): value is (counters: ReadonlyArray<Counter>) => number => P.isFunction(value)
+const Total = S.declare<(counters: ReadonlyArray<Counter.Encoded>) => number>(
+  (value): value is (counters: ReadonlyArray<Counter.Encoded>) => number => P.isFunction(value)
 ).pipe(
   $I.annoteSchema("Total", {
     description: "An opaque callback computing a counter total.",
@@ -525,13 +545,15 @@ const blockShape = <Children extends S.Constraint>(children: Children) =>
     })
   );
 interface BlockChildren extends ReadonlyArray<Block> {}
+interface BlockEncodedChildren extends ReadonlyArray<BlockEncoded> {}
+type BlockEncoded = ReturnType<typeof blockShape<S.Codec<BlockEncodedChildren>>>["Encoded"];
 /**
  * The decoded document block, including recursive containers.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type Block = ReturnType<typeof blockShape<S.Codec<BlockChildren>>>["Type"];
+export type Block = ReturnType<typeof blockShape<S.Codec<BlockChildren, BlockEncodedChildren>>>["Type"];
 /**
  * Describes the block variants that compose a document.
  *
@@ -574,8 +596,8 @@ export type Block = ReturnType<typeof blockShape<S.Codec<BlockChildren>>>["Type"
  * @category schemas
  * @since 0.0.0
  */
-export const Block: S.Codec<Block> = S.suspend(() =>
-  S.suspend((): S.Codec<Block> => Block).pipe(S.Array, blockShape)
+export const Block: S.Codec<Block, BlockEncoded> = S.suspend(() =>
+  S.suspend((): S.Codec<Block, BlockEncoded> => Block).pipe(S.Array, blockShape)
 ).pipe(
   $I.annoteSchema("Block", { description: "Plain tagged document blocks with recursive containers and callbacks." })
 );
@@ -625,85 +647,305 @@ export type AnnotationOptions = typeof AnnotationOptions.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CountsRow = S.Struct({
-  /** What the row is, such as a project name. */
-  label: S.Array(Inline).pipe($I.annoteKey("CountsRow.label", { description: "The label field of CountsRow." })),
-  /** Its counters; their keys pick the column each lands in. */
-  counters: S.Array(Counter).pipe(
-    $I.annoteKey("CountsRow.counters", { description: "The counters field of CountsRow." })
-  ),
-  /** How long it took, in milliseconds, shown with `Fmt.duration` in the duration column. */
-  durationMs: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("CountsRow.durationMs", { description: "The durationMs field of CountsRow." })
-  ),
-}).pipe(
-  $I.annoteSchema("CountsRow", { description: "A counts-table row with label, counters and optional duration." })
-);
+export class CountsRow extends S.Opaque<CountsRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** What the row is, such as a project name. */
+    label: S.Array(Inline).pipe($I.annoteKey("CountsRow.label", { description: "The label field of CountsRow." })),
+    /** Its counters; their keys pick the column each lands in. */
+    counters: S.Array(Counter).pipe(
+      $I.annoteKey("CountsRow.counters", { description: "The counters field of CountsRow." })
+    ),
+    /** How long it took, in milliseconds, shown with `Fmt.duration` in the duration column. */
+    durationMs: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("CountsRow.durationMs", { description: "The durationMs field of CountsRow." })
+    ),
+  }).pipe(
+    $I.annoteSchema("CountsRow", { description: "A counts-table row with label, counters and optional duration." })
+  )
+) {}
 /**
- * The decoded label, counters and optional duration of a summary-table row.
+ * Companion types for {@link CountsRow}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CountsRow } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: CountsRow.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type CountsRow = typeof CountsRow.Type;
+export declare namespace CountsRow {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CountsRow.Encoded;
+}
 
 /**
  * The options of {@link Doc.countsTable}.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CountsTableOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof CountsTableOptions.make) // function
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface CountsTableOptions {
-  /** The header of the duration column, shown only when some row has a `durationMs`; `duration` when unset. */
-  readonly durationHeader?: InlineInput;
-  /** The header of the label column, such as `Project`; empty when unset. */
-  readonly labelHeader?: InlineInput;
-  /** A last row summing each column: labelled with a plain `Total` when `true`, or with the content given (`Doc.strong("Total")` for a bold one). */
-  readonly totalRow?: boolean | InlineInput;
+export class CountsTableOptions extends S.Opaque<CountsTableOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The header of the duration column, shown only when some row has a `durationMs`; `duration` when unset. */
+    durationHeader: S.optionalKey(
+      S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))])
+    ).pipe(
+      $I.annoteKey("CountsTableOptions.durationHeader", {
+        description: "The durationHeader field of CountsTableOptions.",
+      })
+    ),
+    /** The header of the label column, such as `Project`; empty when unset. */
+    labelHeader: S.optionalKey(
+      S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))])
+    ).pipe(
+      $I.annoteKey("CountsTableOptions.labelHeader", { description: "The labelHeader field of CountsTableOptions." })
+    ),
+    /** A last row summing each column: labelled with a plain `Total` when `true`, or with the content given (`Doc.strong("Total")` for a bold one). */
+    totalRow: S.optionalKey(
+      S.Union([S.Boolean, S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))])])
+    ).pipe($I.annoteKey("CountsTableOptions.totalRow", { description: "The totalRow field of CountsTableOptions." })),
+  }).pipe($I.annoteSchema("CountsTableOptions", { description: "Plain CountsTableOptions data." }))
+) {}
+/**
+ * Companion types for {@link CountsTableOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CountsTableOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: CountsTableOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CountsTableOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CountsTableOptions.Encoded;
+}
+
+/**
+ * The cap and overflow options of a list or table.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { OverflowOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof OverflowOptions.make) // function
+ * ```
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export class OverflowOptions extends S.Opaque<OverflowOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The most rows to show; the renderer hides the rest. */
+    cap: S.optionalKey(AnyNumber).pipe(
+      $I.annoteKey("OverflowOptions.cap", { description: "The cap field of OverflowOptions." })
+    ),
+    /** Says what the hidden rows amount to, given how many there are; it is a function and is never serialised. */
+    overflow: S.optionalKey(OverflowOptionsOverflow).pipe(
+      $I.annoteKey("OverflowOptions.overflow", { description: "The overflow field of OverflowOptions." })
+    ),
+  }).pipe($I.annoteSchema("OverflowOptions", { description: "Plain OverflowOptions data." }))
+) {}
+/**
+ * Companion types for {@link OverflowOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { OverflowOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: OverflowOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace OverflowOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof OverflowOptions.Encoded;
 }
 
 /**
  * Options for {@link Doc.list}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { ListOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof ListOptions.make) // function
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface ListOptions extends OverflowOptions {
-  /** No blank lines between the children of an item, such as a section's title and body. */
-  readonly compact?: boolean;
+export class ListOptions extends S.Opaque<ListOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...OverflowOptions.fields,
+    /** No blank lines between the children of an item, such as a section's title and body. */
+    compact: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("ListOptions.compact", { description: "The compact field of ListOptions." })
+    ),
+  }).pipe($I.annoteSchema("ListOptions", { description: "Plain ListOptions data." }))
+) {}
+/**
+ * Companion types for {@link ListOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { ListOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: ListOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ListOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ListOptions.Encoded;
 }
 
 /**
  * Options for {@link Doc.table}.
  *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export interface TableOptions extends OverflowOptions {
-  /**
-   * `pipe` gives plain and `ansi` istanbul's shape: rules above and below the header and at the end, cells joined
-   * with ` | `. Markdown's table is a pipe table either way. Unset, the columns are space-aligned.
-   */
-  readonly style?: "pipe";
-}
-
-/**
- * Options for `Doc.link`.
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { TableOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof TableOptions.make) // function
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface LinkOptions {
-  /**
-   * Whether the target follows the label in parentheses where a link cannot be followed: plain text, `ansi` with
-   * links off, markdown with no URL. `true` always, `false` never; unset, only when the label does not already show
-   * the target's display form (`displayPath(file)`, then `:line` and `:col` when present).
+export class TableOptions extends S.Opaque<TableOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...OverflowOptions.fields,
+    /**
+     * `pipe` gives plain and `ansi` istanbul's shape: rules above and below the header and at the end, cells joined
+     * with ` | `. Markdown's table is a pipe table either way. Unset, the columns are space-aligned.
+     */
+    style: S.optionalKey(S.Literal("pipe")).pipe(
+      $I.annoteKey("TableOptions.style", { description: "The style field of TableOptions." })
+    ),
+  }).pipe($I.annoteSchema("TableOptions", { description: "Plain TableOptions data." }))
+) {}
+/**
+ * Companion types for {@link TableOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { TableOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: TableOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace TableOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly suffix?: boolean;
+  export type Encoded = typeof TableOptions.Encoded;
+}
+
+/**
+ * Options for `Doc.link`.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { LinkOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof LinkOptions.make) // function
+ * ```
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export class LinkOptions extends S.Opaque<LinkOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Whether the target follows the label in parentheses where a link cannot be followed: plain text, `ansi` with
+     * links off, markdown with no URL. `true` always, `false` never; unset, only when the label does not already show
+     * the target's display form (`displayPath(file)`, then `:line` and `:col` when present).
+     */
+    suffix: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("LinkOptions.suffix", { description: "The suffix field of LinkOptions." })
+    ),
+  }).pipe($I.annoteSchema("LinkOptions", { description: "Plain LinkOptions data." }))
+) {}
+/**
+ * Companion types for {@link LinkOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { LinkOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: LinkOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace LinkOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LinkOptions.Encoded;
 }
 
 /**
@@ -731,15 +973,55 @@ export type InlineInput = string | Inline | ReadonlyArray<string | Inline>;
 /**
  * A tree node as a constructor accepts it: the label may be a string and `children` may be left out.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { TreeInput } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof TreeInput.make) // function
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface TreeInput {
-  /** Its children; none when omitted. */
-  readonly children?: ReadonlyArray<TreeInput>;
-  /** What the node says. */
-  readonly label: InlineInput;
+export class TreeInput extends S.Opaque<TreeInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Its children; none when omitted. */
+    children: S.optionalKey(S.suspend((): S.Codec<TreeInput.Encoded> => S.toEncoded(TreeInput)).pipe(S.Array)).pipe(
+      $I.annoteKey("TreeInput.children", { description: "The children field of TreeInput." })
+    ),
+    /** What the node says. */
+    label: S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))]).pipe(
+      $I.annoteKey("TreeInput.label", { description: "The label field of TreeInput." })
+    ),
+  }).pipe($I.annoteSchema("TreeInput", { description: "Plain TreeInput data." }))
+) {}
+/**
+ * Companion types for {@link TreeInput}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { TreeInput } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: TreeInput.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace TreeInput {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly children?: ReadonlyArray<Encoded>;
+    readonly label: InlineInput;
+  }
 }
 
 /**
@@ -761,48 +1043,85 @@ export type InlineOf<Tag extends Inline["_tag"]> = Extract<Inline, { readonly _t
 export type BlockOf<Tag extends Block["_tag"]> = Extract<Block, { readonly _tag: Tag }>;
 
 /**
- * The cap and overflow options of a list or table.
- *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export interface OverflowOptions {
-  /** The most rows to show; the renderer hides the rest. */
-  readonly cap?: number;
-  /** Says what the hidden rows amount to, given how many there are; it is a function and is never serialised. */
-  readonly overflow?: (hidden: number) => InlineInput;
-}
-
-/**
  * The options of {@link Doc.counts}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CountsOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof CountsOptions.make) // function
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface CountsOptions {
-  /** The counters, in the order they are shown. */
-  readonly counters: ReadonlyArray<Counter>;
-  /** How long it took, in milliseconds. */
-  readonly durationMs?: number;
-  /** A leading label. */
-  readonly label?: InlineInput;
-  /** How the counters are laid out. */
-  readonly layout: "inline" | "columns" | "row";
-  /**
-   * What is painted: `all` (the default) paints the counters, the label, the qualifier and the duration; `glyph`
-   * paints only a status glyph, if one is shown; `none` paints nothing.
+export class CountsOptions extends S.Opaque<CountsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The counters, in the order they are shown. */
+    counters: S.Array(Counter).pipe(
+      $I.annoteKey("CountsOptions.counters", { description: "The counters field of CountsOptions." })
+    ),
+    /** How long it took, in milliseconds. */
+    durationMs: S.optionalKey(AnyNumber).pipe(
+      $I.annoteKey("CountsOptions.durationMs", { description: "The durationMs field of CountsOptions." })
+    ),
+    /** A leading label. */
+    label: S.optionalKey(S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))])).pipe(
+      $I.annoteKey("CountsOptions.label", { description: "The label field of CountsOptions." })
+    ),
+    /** How the counters are laid out. */
+    layout: S.Union([S.Literal("inline"), S.Literal("columns"), S.Literal("row")]).pipe(
+      $I.annoteKey("CountsOptions.layout", { description: "The layout field of CountsOptions." })
+    ),
+    /**
+     * What is painted: `all` (the default) paints the counters, the label, the qualifier and the duration; `glyph`
+     * paints only a status glyph, if one is shown; `none` paints nothing.
+     */
+    paint: S.optionalKey(S.Union([S.Literal("all"), S.Literal("glyph"), S.Literal("none")])).pipe(
+      $I.annoteKey("CountsOptions.paint", { description: "The paint field of CountsOptions." })
+    ),
+    /** Text after the counters, such as `(1 flaky)`. */
+    qualifier: S.optionalKey(
+      S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))])
+    ).pipe($I.annoteKey("CountsOptions.qualifier", { description: "The qualifier field of CountsOptions." })),
+    /** Whether the first counter shows its share of the total, `n/total`; `true` by default. `false` shows `n label`. */
+    share: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("CountsOptions.share", { description: "The share field of CountsOptions." })
+    ),
+    /** Text after the duration, such as `across 3 files`. */
+    suffix: S.optionalKey(S.Union([S.String, S.toType(Inline), S.Array(S.Union([S.String, S.toType(Inline)]))])).pipe(
+      $I.annoteKey("CountsOptions.suffix", { description: "The suffix field of CountsOptions." })
+    ),
+    /** Replaces the default total, the sum of `n` over every counter, for example to fold timed-out runs in. */
+    total: S.optionalKey(CountsOptionsTotal).pipe(
+      $I.annoteKey("CountsOptions.total", { description: "The total field of CountsOptions." })
+    ),
+  }).pipe($I.annoteSchema("CountsOptions", { description: "Plain CountsOptions data." }))
+) {}
+/**
+ * Companion types for {@link CountsOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CountsOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: CountsOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CountsOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly paint?: "all" | "glyph" | "none";
-  /** Text after the counters, such as `(1 flaky)`. */
-  readonly qualifier?: InlineInput;
-  /** Whether the first counter shows its share of the total, `n/total`; `true` by default. `false` shows `n label`. */
-  readonly share?: boolean;
-  /** Text after the duration, such as `across 3 files`. */
-  readonly suffix?: InlineInput;
-  /** Replaces the default total, the sum of `n` over every counter, for example to fold timed-out runs in. */
-  readonly total?: (counters: ReadonlyArray<Counter>) => number;
+  export type Encoded = typeof CountsOptions.Encoded;
 }
 
 /** What {@link Doc.counter} counts: the counter's key, label, number and zero policy. */
@@ -816,7 +1135,7 @@ type CounterOptions = {
 /** One row of a {@link Doc.countsTable}: its label, its counters and an optional duration. */
 type CountsTableRowInput = {
   readonly label: InlineInput;
-  readonly counters: ReadonlyArray<Counter>;
+  readonly counters: ReadonlyArray<Counter.Encoded>;
   readonly durationMs?: number;
 };
 
@@ -828,10 +1147,16 @@ type LineOptions = { readonly truncate?: boolean; readonly wrap?: boolean };
 
 const isList = (input: InlineInput): input is ReadonlyArray<string | Inline> => A.isArray(input);
 
-const text = (value: string, token?: TokenName | Style): InlineOf<"Text"> => ({
+/** Write a rendered document only when it has content. */
+const writeRendered = (text: string, stream: "stdout" | "stderr") =>
+  text === "" ? Effect.void : stream === "stderr" ? Console.error(text) : Console.log(text);
+
+const text = (value: string, token?: TokenName | Style.Encoded): InlineOf<"Text"> => ({
   _tag: "Text",
   value,
-  ...O.getSomesStruct({ token: O.fromUndefinedOr(token) }),
+  ...O.getSomesStruct({
+    token: O.map(O.fromUndefinedOr(token), (value) => (P.isString(value) ? value : Style.make(value))),
+  }),
 });
 
 const inlineOne = (part: string | Inline): Inline => (P.isString(part) ? text(part) : part);
@@ -844,41 +1169,89 @@ const overflowOf =
   (hidden) =>
     inlines(overflow(hidden));
 
-const overflowFields = (options: OverflowOptions | undefined) => ({
+const overflowFields = (options: OverflowOptions.Encoded | undefined) => ({
   ...O.getSomesStruct({ cap: O.fromUndefinedOr(options?.cap) }),
   ...O.getSomesStruct({ overflow: O.map(O.fromUndefinedOr(options?.overflow), overflowOf) }),
 });
 
-const treeNode = (input: TreeInput): TreeNode => ({
+const treeNode = (input: TreeInput.Encoded): TreeNode => ({
   label: inlines(input.label),
   children: A.copy(A.map(input.children ?? [], treeNode)),
 });
 
-const counterOf = (counter: Counter): Counter => ({
-  ...counter,
-  label: P.isString(counter.label) ? counter.label : { one: counter.label.one, other: counter.label.other },
-  status: { name: counter.status.name, def: { ...counter.status.def } },
-});
+const statusDef = (def: StatusDef.Encoded): StatusDef =>
+  StatusDef.make({
+    ...def,
+    token: P.isString(def.token) ? def.token : Style.make(def.token),
+  });
+
+const counterOf = (counter: Counter.Encoded): Counter =>
+  Counter.make({
+    ...counter,
+    label: P.isString(counter.label) ? counter.label : { one: counter.label.one, other: counter.label.other },
+    status: StatusRef.make({ name: counter.status.name, def: statusDef(counter.status.def) }),
+  });
 
 /**
  * Options for {@link Doc.print}.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { DocPrintOptions } from "@beep/cli-kit/Doc"
+ *
+ * console.log(typeof DocPrintOptions.make) // function
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface DocPrintOptions {
-  /** Turns an absolute path into its display form, for example relative to the workspace; see `Render.context`. */
-  readonly displayPath?: ((absolute: string) => string) | undefined;
-  /**
-   * The renderer. `auto`, the default, is chosen from the audience: `plain` for an agent, `githubLog` for a CI
-   * that `CurrentRuntimeEnv` says is GitHub Actions and `plain` for every other, and `ansi` for a human.
+export class DocPrintOptions extends S.Opaque<DocPrintOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Turns an absolute path into its display form, for example relative to the workspace; see `Render.context`. */
+    displayPath: S.optional(DisplayPath).pipe(
+      $I.annoteKey("DocPrintOptions.displayPath", { description: "The displayPath field of DocPrintOptions." })
+    ),
+    /**
+     * The renderer. `auto`, the default, is chosen from the audience: `plain` for an agent, `githubLog` for a CI
+     * that `CurrentRuntimeEnv` says is GitHub Actions and `plain` for every other, and `ansi` for a human.
+     */
+    format: S.optional(
+      S.Union([S.Literal("auto"), S.Literal("plain"), S.Literal("ansi"), S.Literal("markdown"), S.Literal("githubLog")])
+    ).pipe($I.annoteKey("DocPrintOptions.format", { description: "The format field of DocPrintOptions." })),
+    /** The stream to write to; `stdout` by default. */
+    stream: S.optional(S.Union([S.Literal("stdout"), S.Literal("stderr")])).pipe(
+      $I.annoteKey("DocPrintOptions.stream", { description: "The stream field of DocPrintOptions." })
+    ),
+    /** The display columns to lay out at, replacing the audience's default; see `Render.context`. */
+    width: S.optional(AnyNumber).pipe(
+      $I.annoteKey("DocPrintOptions.width", { description: "The width field of DocPrintOptions." })
+    ),
+  }).pipe($I.annoteSchema("DocPrintOptions", { description: "Plain DocPrintOptions data." }))
+) {}
+/**
+ * Companion types for {@link DocPrintOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { DocPrintOptions } from "@beep/cli-kit/Doc"
+ *
+ * const accepts = (_value: DocPrintOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DocPrintOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly format?: "auto" | "plain" | "ansi" | "markdown" | "githubLog" | undefined;
-  /** The stream to write to; `stdout` by default. */
-  readonly stream?: "stdout" | "stderr" | undefined;
-  /** The display columns to lay out at, replacing the audience's default; see `Render.context`. */
-  readonly width?: number | undefined;
+  export type Encoded = typeof DocPrintOptions.Encoded;
 }
 
 /**
@@ -932,7 +1305,7 @@ export abstract class Doc {
    * @category constructors
    * @since 0.0.0
    */
-  static text(value: string, token?: TokenName | Style): InlineOf<"Text"> {
+  static text(value: string, token?: TokenName | Style.Encoded): InlineOf<"Text"> {
     return text(value, token);
   }
 
@@ -972,7 +1345,7 @@ export abstract class Doc {
    * @category constructors
    * @since 0.0.0
    */
-  static link(target: LinkTarget, label?: InlineInput, options?: LinkOptions): InlineOf<"Link">;
+  static link(target: LinkTargetInput, label?: InlineInput, options?: LinkOptions.Encoded): InlineOf<"Link">;
   /**
    * A link when there is a target, and its label alone when there is none: a string label as a `Text`, every other
    * inline as itself.
@@ -991,13 +1364,18 @@ export abstract class Doc {
    * @category constructors
    * @since 0.0.0
    */
-  static link(target: LinkTarget | undefined, label: string | Inline, options?: LinkOptions): Inline;
-  static link(target: LinkTarget | undefined, label?: InlineInput, options?: LinkOptions): InlineInput | undefined {
+  static link(target: LinkTargetInput | undefined, label: string | Inline, options?: LinkOptions.Encoded): Inline;
+  static link(
+    target: LinkTargetInput | undefined,
+    label?: InlineInput,
+    options?: LinkOptions.Encoded
+  ): InlineInput | undefined {
     if (target === undefined) return P.isString(label) ? text(label) : label;
-    const fallback = S.is(LinkTarget.members[0])(target) ? target.url : target.file;
+    const admitted = admitLinkTarget(target);
+    const fallback = "url" in admitted ? admitted.url : admitted.file;
     return {
       _tag: "Link",
-      target: { ...target },
+      target: admitted,
       label: inlines(label ?? fallback),
       ...O.getSomesStruct({ suffix: O.fromUndefinedOr(options?.suffix) }),
     };
@@ -1032,7 +1410,7 @@ export abstract class Doc {
     <N extends string>(vocab: Status<N>, name: NoInfer<N>): InlineOf<"StatusMark"> => ({
       _tag: "StatusMark",
       name,
-      def: vocab.resolve(name),
+      def: statusDef(vocab.resolve(name)),
     })
   );
 
@@ -1177,11 +1555,11 @@ export abstract class Doc {
    * @since 0.0.0
    */
   static readonly list: {
-    (items: ReadonlyArray<Block>, options?: ListOptions): BlockOf<"List">;
-    (options?: ListOptions): (items: ReadonlyArray<Block>) => BlockOf<"List">;
+    (items: ReadonlyArray<Block>, options?: ListOptions.Encoded): BlockOf<"List">;
+    (options?: ListOptions.Encoded): (items: ReadonlyArray<Block>) => BlockOf<"List">;
   } = dual(
     (args) => A.isArray(args[0]),
-    (items: ReadonlyArray<Block>, options?: ListOptions): BlockOf<"List"> => ({
+    (items: ReadonlyArray<Block>, options?: ListOptions.Encoded): BlockOf<"List"> => ({
       _tag: "List",
       items: A.copy(items),
       ...overflowFields(options),
@@ -1211,11 +1589,11 @@ export abstract class Doc {
     (
       columns: ReadonlyArray<TableColumnInput>,
       rows: ReadonlyArray<ReadonlyArray<InlineInput>>,
-      options?: TableOptions
+      options?: TableOptions.Encoded
     ): BlockOf<"Table">;
     (
       rows: ReadonlyArray<ReadonlyArray<InlineInput>>,
-      options?: TableOptions
+      options?: TableOptions.Encoded
     ): (columns: ReadonlyArray<TableColumnInput>) => BlockOf<"Table">;
   } = dual(
     // The data-first form always has the rows, an array, second; the data-last form has the options there, or nothing.
@@ -1223,11 +1601,12 @@ export abstract class Doc {
     (
       columns: ReadonlyArray<TableColumnInput>,
       rows: ReadonlyArray<ReadonlyArray<InlineInput>>,
-      options?: TableOptions
+      options?: TableOptions.Encoded
     ): BlockOf<"Table"> => ({
       _tag: "Table",
       columns: A.copy(
         A.map(columns, (column) => ({
+          _tag: "Column" as const,
           header: inlines(column.header),
           ...O.getSomesStruct({ align: O.fromUndefinedOr(column.align) }),
         }))
@@ -1253,7 +1632,7 @@ export abstract class Doc {
    * @category constructors
    * @since 0.0.0
    */
-  static tree(root: TreeInput): BlockOf<"Tree"> {
+  static tree(root: TreeInput.Encoded): BlockOf<"Tree"> {
     return { _tag: "Tree", root: treeNode(root) };
   }
 
@@ -1444,7 +1823,7 @@ export abstract class Doc {
         key: options.key,
         label: options.label,
         n: options.n,
-        status: { name, def: vocab.resolve(name) },
+        status: StatusRef.make({ name, def: statusDef(vocab.resolve(name)) }),
         ...O.getSomesStruct({ showZero: O.fromUndefinedOr(options.showZero) }),
       })
   );
@@ -1464,7 +1843,7 @@ export abstract class Doc {
    * @category constructors
    * @since 0.0.0
    */
-  static counts(options: CountsOptions): BlockOf<"Counts"> {
+  static counts(options: CountsOptions.Encoded): BlockOf<"Counts"> {
     return {
       _tag: "Counts",
       ...O.getSomesStruct({ label: O.map(O.fromUndefinedOr(options.label), inlines) }),
@@ -1509,20 +1888,22 @@ export abstract class Doc {
    * @since 0.0.0
    */
   static readonly countsTable: {
-    (rows: ReadonlyArray<CountsTableRowInput>, options?: CountsTableOptions): BlockOf<"CountsTable">;
-    (options?: CountsTableOptions): (rows: ReadonlyArray<CountsTableRowInput>) => BlockOf<"CountsTable">;
+    (rows: ReadonlyArray<CountsTableRowInput>, options?: CountsTableOptions.Encoded): BlockOf<"CountsTable">;
+    (options?: CountsTableOptions.Encoded): (rows: ReadonlyArray<CountsTableRowInput>) => BlockOf<"CountsTable">;
   } = dual(
     (args) => A.isArray(args[0]),
-    (rows: ReadonlyArray<CountsTableRowInput>, options?: CountsTableOptions): BlockOf<"CountsTable"> => {
+    (rows: ReadonlyArray<CountsTableRowInput>, options?: CountsTableOptions.Encoded): BlockOf<"CountsTable"> => {
       const totalRow = options?.totalRow;
       return {
         _tag: "CountsTable",
         rows: A.copy(
-          A.map(rows, (row) => ({
-            label: inlines(row.label),
-            counters: A.copy(A.map(row.counters, counterOf)),
-            ...O.getSomesStruct({ durationMs: O.fromUndefinedOr(row.durationMs) }),
-          }))
+          A.map(rows, (row) =>
+            CountsRow.make({
+              label: inlines(row.label),
+              counters: A.copy(A.map(row.counters, counterOf)),
+              ...O.getSomesStruct({ durationMs: O.fromUndefinedOr(row.durationMs) }),
+            })
+          )
         ),
         ...O.getSomesStruct({
           totalRow: O.map(O.fromUndefinedOr(totalRow), (row) => (P.isBoolean(row) ? row : inlines(row))),
@@ -1747,7 +2128,7 @@ export abstract class Doc {
    * @category getters
    * @since 0.0.0
    */
-  static visibleCounters(block: BlockOf<"Counts">): ReadonlyArray<Counter> {
+  static visibleCounters(block: BlockOf<"Counts">): ReadonlyArray<Counter.Encoded> {
     return visibleCountersOf(block);
   }
 
@@ -1790,14 +2171,14 @@ export abstract class Doc {
   static readonly print: {
     (
       doc: Document,
-      options?: DocPrintOptions
+      options?: DocPrintOptions.Encoded
     ): Effect.Effect<void, never, CliTheme | TerminalEnv | Audience | CliLinks>;
     (
-      options?: DocPrintOptions
+      options?: DocPrintOptions.Encoded
     ): (doc: Document) => Effect.Effect<void, never, CliTheme | TerminalEnv | Audience | CliLinks>;
   } = dual(
     (args) => A.isArray(args[0]),
-    Effect.fn("print")(function* (doc: Document, options?: DocPrintOptions) {
+    Effect.fn("print")(function* (doc: Document, options?: DocPrintOptions.Encoded) {
       const stream = options?.stream ?? "stdout";
       const ctx = yield* Render.context(stream, {
         ...O.getSomesStruct({ displayPath: O.fromUndefinedOr(options?.displayPath) }),
@@ -1807,8 +2188,7 @@ export abstract class Doc {
       const format = requested === "auto" ? yield* autoFormat(ctx.audience) : requested;
       const text = Render[format](doc, ctx);
       // An empty document prints nothing, not a blank line.
-      if (text === "") return;
-      yield* stream === "stderr" ? Console.error(text) : Console.log(text);
+      yield* writeRendered(text, stream);
     })
   );
 }

@@ -76,38 +76,55 @@ export type NamedColor = typeof NamedColor.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Style = S.Struct({
-  /** The foreground: a named colour or a hex spelling, including invalid hex handled by the renderer. */
-  fg: S.optionalKey(S.Union([NamedColor, S.TemplateLiteral(["#", S.String])])).pipe(
-    $I.annoteKey("Style.fg", {
-      description:
-        "The foreground colour: a named ANSI colour or a `#`-prefixed hex spelling; a hex that is not `#rgb` or `#rrggbb` is accepted and ignored when rendered.",
-    })
-  ),
-  /** Bold. */
-  bold: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("Style.bold", { description: "Renders the text bold (SGR 1) when true." })
-  ),
-  /** Dim, or faint. */
-  dim: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("Style.dim", { description: "Renders the text dim, or faint (SGR 2), when true." })
-  ),
-  /** Italic. */
-  italic: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("Style.italic", { description: "Renders the text italic (SGR 3) when true." })
-  ),
-  /** Underline. */
-  underline: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("Style.underline", { description: "Renders the text underlined (SGR 4) when true." })
-  ),
-}).pipe($I.annoteSchema("Style", { description: "A readonly terminal foreground and text attributes." }));
+export class Style extends S.Opaque<Style, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The foreground: a named colour or a hex spelling, including invalid hex handled by the renderer. */
+    fg: S.optionalKey(S.Union([NamedColor, S.TemplateLiteral(["#", S.String])])).pipe(
+      $I.annoteKey("Style.fg", {
+        description:
+          "The foreground colour: a named ANSI colour or a `#`-prefixed hex spelling; a hex that is not `#rgb` or `#rrggbb` is accepted and ignored when rendered.",
+      })
+    ),
+    /** Bold. */
+    bold: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Style.bold", { description: "Renders the text bold (SGR 1) when true." })
+    ),
+    /** Dim, or faint. */
+    dim: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Style.dim", { description: "Renders the text dim, or faint (SGR 2), when true." })
+    ),
+    /** Italic. */
+    italic: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Style.italic", { description: "Renders the text italic (SGR 3) when true." })
+    ),
+    /** Underline. */
+    underline: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Style.underline", { description: "Renders the text underlined (SGR 4) when true." })
+    ),
+  }).pipe($I.annoteSchema("Style", { description: "A readonly terminal foreground and text attributes." }))
+) {}
 /**
- * The decoded foreground and text attributes accepted by {@link Style}.
+ * Companion types for {@link Style}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { Style } from "@beep/cli-kit/Token"
+ *
+ * const accepts = (_value: Style.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type Style = typeof Style.Type;
+export declare namespace Style {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Style.Encoded;
+}
 
 /**
  * The semantic tokens a theme resolves to a {@link Style}.
@@ -144,7 +161,7 @@ export const TokenName = LiteralKit([
 export type TokenName = typeof TokenName.Type;
 
 /** The default style of every token. Readonly data: the record is shared. */
-const DEFAULTS: Readonly<Record<TokenName, Style>> = {
+const DEFAULTS: Readonly<Record<TokenName, Style.Encoded>> = {
   success: { fg: "green" },
   failure: { fg: "red" },
   error: { fg: "red", bold: true },
@@ -192,7 +209,7 @@ export class Token {
    * @category constants
    * @since 0.0.0
    */
-  static readonly defaults: Readonly<Record<TokenName, Style>> = DEFAULTS;
+  static readonly defaults: Readonly<Record<TokenName, Style.Encoded>> = DEFAULTS;
 
   /**
    * The style a token or style resolves to, as a pure function: no service, no terminal.
@@ -217,10 +234,15 @@ export class Token {
    * @category getters
    * @since 0.0.0
    */
-  static readonly resolve = (token: TokenName | Style, overrides?: Partial<Record<TokenName, Style>>): Style => {
+  static readonly resolve = (
+    token: TokenName | Style.Encoded,
+    overrides?: Partial<Record<TokenName, Style.Encoded>>
+  ): Style.Encoded => {
     if (!P.isString(token)) return token;
     const own =
-      overrides !== undefined && R.has<string, Style | undefined>(overrides, token) ? overrides[token] : undefined;
+      overrides !== undefined && R.has<string, Style.Encoded | undefined>(overrides, token)
+        ? overrides[token]
+        : undefined;
     if (own !== undefined) return own;
     return R.has(DEFAULTS, token) ? DEFAULTS[token] : {};
   };
@@ -240,7 +262,7 @@ export class Token {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly hex = (hex: `#${string}`): Style => ({ fg: hex });
+  static readonly hex = (hex: `#${string}`): Style.Encoded => ({ fg: hex });
 
   /**
    * A foreground from a named colour.
@@ -257,7 +279,7 @@ export class Token {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly named = (color: NamedColor): Style => ({ fg: color });
+  static readonly named = (color: NamedColor): Style.Encoded => ({ fg: color });
 
   /**
    * A style, as written. Exists so a style reads as a token at a call site.
@@ -275,5 +297,5 @@ export class Token {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly style = (style: Style): Style => style;
+  static readonly style = (style: Style.Encoded): Style.Encoded => style;
 }

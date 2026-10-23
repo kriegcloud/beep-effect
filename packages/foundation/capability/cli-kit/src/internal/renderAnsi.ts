@@ -18,11 +18,11 @@ import type { Flavour } from "./renderDoc.ts";
  * widths and wrapping count it.
  */
 const inline: {
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
-  (ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded>;
+  (ctx: RenderContext.Encoded): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span.Encoded>;
 } = dual(
   2,
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded> =>
     inlineSpans(
       inlines,
       ctx,
@@ -56,6 +56,6 @@ const ansi: Flavour = {
  * @since 0.0.0
  */
 export const renderAnsi: {
-  (ctx: RenderContext): (doc: Document) => string;
-  (doc: Document, ctx: RenderContext): string;
-} = dual(2, (doc: Document, ctx: RenderContext): string => renderDoc(doc, ctx, ansi));
+  (ctx: RenderContext.Encoded): (doc: Document) => string;
+  (doc: Document, ctx: RenderContext.Encoded): string;
+} = dual(2, (doc: Document, ctx: RenderContext.Encoded): string => renderDoc(doc, ctx, ansi));

@@ -25,32 +25,49 @@ const $I = $CliKitId.create("internal/scanAudience");
  * @category type-level
  * @since 0.0.0
  */
-export const AudienceFlagValues = S.Struct({
-  audience: S.Array(AudienceKind).pipe(
-    $I.annoteKey("AudienceFlagValues.audience", { description: "Every explicit audience occurrence." })
-  ),
-  human: S.Array(S.Boolean).pipe(
-    $I.annoteKey("AudienceFlagValues.human", { description: "Every parsed human flag occurrence." })
-  ),
-  agent: S.Array(S.Boolean).pipe(
-    $I.annoteKey("AudienceFlagValues.agent", { description: "Every parsed agent flag occurrence." })
-  ),
-  ci: S.Array(S.Boolean).pipe(
-    $I.annoteKey("AudienceFlagValues.ci", { description: "Every parsed CI flag occurrence." })
-  ),
-}).pipe(
-  $I.annoteSchema("AudienceFlagValues", {
-    description: "The four parsed audience flag arrays, including disabled occurrences.",
-  })
-);
+export class AudienceFlagValues extends S.Opaque<AudienceFlagValues, { readonly brand: unique symbol }>()(
+  S.Struct({
+    audience: S.Array(AudienceKind).pipe(
+      $I.annoteKey("AudienceFlagValues.audience", { description: "Every explicit audience occurrence." })
+    ),
+    human: S.Array(S.Boolean).pipe(
+      $I.annoteKey("AudienceFlagValues.human", { description: "Every parsed human flag occurrence." })
+    ),
+    agent: S.Array(S.Boolean).pipe(
+      $I.annoteKey("AudienceFlagValues.agent", { description: "Every parsed agent flag occurrence." })
+    ),
+    ci: S.Array(S.Boolean).pipe(
+      $I.annoteKey("AudienceFlagValues.ci", { description: "Every parsed CI flag occurrence." })
+    ),
+  }).pipe(
+    $I.annoteSchema("AudienceFlagValues", {
+      description: "The four parsed audience flag arrays, including disabled occurrences.",
+    })
+  )
+) {}
 
 /**
- * The plain parsed audience flags.
+ * Companion types for {@link AudienceFlagValues}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { AudienceFlagValues } from "@beep/cli-kit/internal/scanAudience"
+ *
+ * const accepts = (_value: AudienceFlagValues.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type AudienceFlagValues = typeof AudienceFlagValues.Type;
+export declare namespace AudienceFlagValues {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AudienceFlagValues.Encoded;
+}
 
 /**
  * What the flags named: one entry per TRUE occurrence, and whether that is more than one.
@@ -67,22 +84,39 @@ export type AudienceFlagValues = typeof AudienceFlagValues.Type;
  * @category type-level
  * @since 0.0.0
  */
-export const AudienceTally = S.Struct({
-  given: S.Array(AudienceKind).pipe(
-    $I.annoteKey("AudienceTally.given", { description: "Enabled audience occurrences in tally order." })
-  ),
-  conflict: S.Boolean.pipe(
-    $I.annoteKey("AudienceTally.conflict", { description: "Whether more than one audience occurrence was enabled." })
-  ),
-}).pipe($I.annoteSchema("AudienceTally", { description: "Plain audience occurrences and their conflict result." }));
+export class AudienceTally extends S.Opaque<AudienceTally, { readonly brand: unique symbol }>()(
+  S.Struct({
+    given: S.Array(AudienceKind).pipe(
+      $I.annoteKey("AudienceTally.given", { description: "Enabled audience occurrences in tally order." })
+    ),
+    conflict: S.Boolean.pipe(
+      $I.annoteKey("AudienceTally.conflict", { description: "Whether more than one audience occurrence was enabled." })
+    ),
+  }).pipe($I.annoteSchema("AudienceTally", { description: "Plain audience occurrences and their conflict result." }))
+) {}
 
 /**
- * The plain result shared by parsed flags and argv scanning.
+ * Companion types for {@link AudienceTally}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { AudienceTally } from "@beep/cli-kit/internal/scanAudience"
+ *
+ * const accepts = (_value: AudienceTally.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type AudienceTally = typeof AudienceTally.Type;
+export declare namespace AudienceTally {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AudienceTally.Encoded;
+}
 
 /**
  * The one counting rule, shared by the resolver that runs on parsed flags and by {@link scanAudience}, so the two
@@ -102,7 +136,7 @@ export type AudienceTally = typeof AudienceTally.Type;
  * @category parsing
  * @since 0.0.0
  */
-export const tallyAudience = (input: AudienceFlagValues): AudienceTally => {
+export const tallyAudience = (input: AudienceFlagValues.Encoded): AudienceTally.Encoded => {
   const given: ReadonlyArray<AudienceKind> = [
     ...input.audience,
     ...pipe(
@@ -208,7 +242,7 @@ const scanFlag = (
  * @category parsing
  * @since 0.0.0
  */
-export const scanAudience = (argv: ReadonlyArray<string>): AudienceTally => {
+export const scanAudience = (argv: ReadonlyArray<string>): AudienceTally.Encoded => {
   const audience: AudienceKind[] = [];
   const booleans: Record<AudienceKind, boolean[]> = { human: [], agent: [], ci: [] };
   for (let index = 0; index < argv.length; index++) {

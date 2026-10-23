@@ -1,6 +1,7 @@
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { Fmt, sanitize } from "../Fmt.ts";
@@ -9,7 +10,8 @@ import { flatten } from "./layout.ts";
 import { isAllowedLinkUrl } from "./linkScheme.ts";
 import { DRIVE, encodePath, fileUrlPath } from "./linkTarget.ts";
 import { capOf, isAnnotation, showsSuffix, tableWindow, targetText, textLines, textWindow } from "./renderDoc.ts";
-import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
+import type { Block, Document, Inline } from "../Doc.ts";
+import type { LinkTargetInput } from "../LinkTarget.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
 
@@ -118,8 +120,8 @@ const textPiece: {
  * destination escapes `&`, so what a reader decodes is the text that was checked here.
  */
 const repositoryUrl = (
-  target: Extract<LinkTarget, { readonly file: string }>,
-  ctx: RenderContext,
+  target: Extract<LinkTargetInput, { readonly file: string }>,
+  ctx: RenderContext.Encoded,
   base: string
 ): string | undefined => {
   // A repository URL in place of `file://`: the display path under the base, with the line as GitHub's anchor. A
@@ -132,9 +134,9 @@ const repositoryUrl = (
 };
 
 const linkUrl: {
-  (target: LinkTarget, ctx: RenderContext): string | undefined;
-  (ctx: RenderContext): (target: LinkTarget) => string | undefined;
-} = dual(2, (target: LinkTarget, ctx: RenderContext): string | undefined => {
+  (target: LinkTargetInput, ctx: RenderContext.Encoded): string | undefined;
+  (ctx: RenderContext.Encoded): (target: LinkTargetInput) => string | undefined;
+} = dual(2, (target: LinkTargetInput, ctx: RenderContext.Encoded): string | undefined => {
   if ("url" in target) {
     const url = Str.trim(target.url);
     return isAllowedLinkUrl(url) ? url : undefined;
@@ -145,7 +147,7 @@ const linkUrl: {
   // The same builder as `CliLinks`, so a drive path links the same way here; a UNC or relative path has no link.
   if (!Str.startsWith("/")(target.file) && !DRIVE.test(target.file)) return undefined;
   const path = fileUrlPath(target.file);
-  return path === undefined ? undefined : `file://${path}`;
+  return O.getOrUndefined(O.map(path, (value) => `file://${value}`));
 });
 
 /**
@@ -175,13 +177,13 @@ const emphasizeBody = (body: string, strong: boolean, em: boolean): string => {
   return `${lead}${strong ? "**" : ""}${em ? "*" : ""}${core}${em ? "*" : ""}${strong ? "**" : ""}${trail}`;
 };
 
-const sameEmphasis = (spans: ReadonlyArray<Span>, i: number, strong: boolean, em: boolean): boolean =>
+const sameEmphasis = (spans: ReadonlyArray<Span.Encoded>, i: number, strong: boolean, em: boolean): boolean =>
   i < spans.length && (A.getUnsafe(spans, i).strong === true) === strong && (A.getUnsafe(spans, i).em === true) === em;
 
 const emphasized: {
-  (spans: ReadonlyArray<Span>, mode: Mode): string;
-  (mode: Mode): (spans: ReadonlyArray<Span>) => string;
-} = dual(2, (spans: ReadonlyArray<Span>, mode: Mode): string => {
+  (spans: ReadonlyArray<Span.Encoded>, mode: Mode): string;
+  (mode: Mode): (spans: ReadonlyArray<Span.Encoded>) => string;
+} = dual(2, (spans: ReadonlyArray<Span.Encoded>, mode: Mode): string => {
   let out = "";
   let i = 0;
   while (i < spans.length) {
@@ -200,10 +202,10 @@ const emphasized: {
 
 /** Inline nodes as markdown: text escaped, code fenced, a link as `[label](url)` or, with no URL form, label and path. */
 const linkedMarkdown = (
-  run: ReadonlyArray<Span>,
-  link: LinkTarget,
+  run: ReadonlyArray<Span.Encoded>,
+  link: LinkTargetInput,
   label: string,
-  ctx: RenderContext,
+  ctx: RenderContext.Encoded,
   mode: Mode
 ): string => {
   const raw = pipe(
@@ -220,9 +222,9 @@ const linkedMarkdown = (
 };
 
 const inlineMd: {
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext, mode: Mode): string;
-  (ctx: RenderContext, mode: Mode): (inlines: ReadonlyArray<Inline>) => string;
-} = dual(3, (inlines: ReadonlyArray<Inline>, ctx: RenderContext, mode: Mode): string => {
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded, mode: Mode): string;
+  (ctx: RenderContext.Encoded, mode: Mode): (inlines: ReadonlyArray<Inline>) => string;
+} = dual(3, (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded, mode: Mode): string => {
   const flat = flatten(inlines, ctx);
   let out = "";
   let i = 0;
@@ -293,11 +295,15 @@ const hang: {
 );
 
 const overflowMd: {
-  (overflow: Overflow, hidden: number, ctx: RenderContext): Lines;
-  (hidden: number, ctx: RenderContext): (overflow: Overflow) => Lines;
+  (overflow: Overflow, hidden: number, ctx: RenderContext.Encoded): Lines;
+  (hidden: number, ctx: RenderContext.Encoded): (overflow: Overflow) => Lines;
 } = dual(
   3,
-  (overflow: ((hidden: number) => ReadonlyArray<Inline>) | undefined, hidden: number, ctx: RenderContext): Lines =>
+  (
+    overflow: ((hidden: number) => ReadonlyArray<Inline>) | undefined,
+    hidden: number,
+    ctx: RenderContext.Encoded
+  ): Lines =>
     flowLines(
       overflow === undefined
         ? escapeText(`${ctx.glyphs.ellipsis} ${hidden} more`)
@@ -335,7 +341,7 @@ const tableMd: {
 );
 
 interface Walk {
-  readonly ctx: RenderContext;
+  readonly ctx: RenderContext.Encoded;
 }
 
 type CountsParts = {
@@ -522,7 +528,7 @@ const blockMd: {
       ],
       Paragraph: (block): Lines => flowLines(inlineMd(block.content, ctx, "flow")),
       List: (block): Lines => {
-        const cap = capOf(block.cap);
+        const cap = O.getOrUndefined(capOf(block.cap));
         // Annotations are skipped before the cap, so it counts what is shown, as in the other renderers.
         const listed = A.filter(block.items, (item) => !isAnnotation(item));
         const shown = cap === undefined ? listed : listed.slice(0, cap);
@@ -598,7 +604,7 @@ const blockMd: {
         return fenced(block.text === "" ? [] : textLines(block.text), info);
       },
       Diff: (block): Lines => {
-        const cap = capOf(block.cap);
+        const cap = O.getOrUndefined(capOf(block.cap));
         const side: {
           (marker: string, text: string): Lines;
           (text: string): (marker: string) => Lines;
@@ -641,7 +647,7 @@ const blockMd: {
       },
       Line: (block): Lines => flowLines(inlineMd(block.content, ctx, "line")),
       DiffText: (block): Lines => {
-        const cap = capOf(block.cap);
+        const cap = O.getOrUndefined(capOf(block.cap));
         const lines = block.text === "" ? [] : textLines(block.text);
         const shown = cap === undefined ? lines : lines.slice(0, cap);
         const hidden = lines.length - shown.length;
@@ -669,8 +675,8 @@ const blockMd: {
  * @since 0.0.0
  */
 export const renderMarkdown: {
-  (ctx: RenderContext): (doc: Document) => string;
-  (doc: Document, ctx: RenderContext): string;
-} = dual(2, (doc: Document, ctx: RenderContext): string =>
+  (ctx: RenderContext.Encoded): (doc: Document) => string;
+  (doc: Document, ctx: RenderContext.Encoded): string;
+} = dual(2, (doc: Document, ctx: RenderContext.Encoded): string =>
   A.join(joinBlocks(A.map(doc, (block) => blockMd({ ctx }, block, 0))), "\n")
 );

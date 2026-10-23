@@ -25,11 +25,11 @@ import type { Flavour, Line } from "./renderDoc.ts";
  * @since 0.0.0
  */
 export const plainInline: {
-  (ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
+  (ctx: RenderContext.Encoded): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span.Encoded>;
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded>;
 } = dual(
   2,
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded> =>
     inlineSpans(
       inlines,
       ctx,
@@ -41,7 +41,7 @@ export const plainInline: {
 
 const plain: Flavour = {
   inline: plainInline,
-  finish: dual(2, (line: Line, _ctx: RenderContext): string =>
+  finish: dual(2, (line: Line, _ctx: RenderContext.Encoded): string =>
     pipe(
       line,
       A.map((span) => span.text),
@@ -68,11 +68,11 @@ const plain: Flavour = {
  * @since 0.0.0
  */
 export const renderPlainLines: {
-  (ctx: RenderContext): (doc: Document) => ReadonlyArray<string>;
-  (doc: Document, ctx: RenderContext): ReadonlyArray<string>;
+  (ctx: RenderContext.Encoded): (doc: Document) => ReadonlyArray<string>;
+  (doc: Document, ctx: RenderContext.Encoded): ReadonlyArray<string>;
 } = dual(
   2,
-  (doc: Document, ctx: RenderContext): ReadonlyArray<string> =>
+  (doc: Document, ctx: RenderContext.Encoded): ReadonlyArray<string> =>
     // Plain text is for agents whatever the context says, so the path separator is always the agent one, and the
     // context's paint and link are never reached: a span's token and link are dropped when its line is finished.
     renderDocLines(doc, { ...ctx, audience: "agent" }, plain)
@@ -96,6 +96,6 @@ export const renderPlainLines: {
  * @since 0.0.0
  */
 export const renderPlain: {
-  (ctx: RenderContext): (doc: Document) => string;
-  (doc: Document, ctx: RenderContext): string;
-} = dual(2, (doc: Document, ctx: RenderContext): string => A.join(renderPlainLines(doc, ctx), "\n"));
+  (ctx: RenderContext.Encoded): (doc: Document) => string;
+  (doc: Document, ctx: RenderContext.Encoded): string;
+} = dual(2, (doc: Document, ctx: RenderContext.Encoded): string => A.join(renderPlainLines(doc, ctx), "\n"));

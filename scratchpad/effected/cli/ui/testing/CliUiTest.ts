@@ -377,8 +377,8 @@ const TOKENS: ReadonlyArray<TokenName> = [
 ];
 
 /** The marker palette: token N (1-based) paints in `#0000NN`, so a frame decodes back to the token. */
-const MARKER_STYLES: Record<TokenName, Style> = R.fromEntries(
-	A.map(TOKENS, (token, index): [TokenName, Style] => [token, { fg: `#0000${(index + 1).toString(16).padStart(2, "0")}` }]),
+const MARKER_STYLES: Record<TokenName, Style.Encoded> = R.fromEntries(
+	A.map(TOKENS, (token, index): [TokenName, Style.Encoded] => [token, { fg: `#0000${(index + 1).toString(16).padStart(2, "0")}` }]),
 );
 
 const TOKEN_BY_BLUE = HashMap.fromIterable(A.map(TOKENS, (token, index) => [index + 1, token] as const));

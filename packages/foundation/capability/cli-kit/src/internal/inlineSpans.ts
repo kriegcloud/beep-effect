@@ -2,11 +2,12 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { flatten } from "./layout.ts";
 import { showsSuffix, targetText } from "./renderDoc.ts";
-import type { Inline, LinkTarget } from "../Doc.ts";
+import type { Inline } from "../Doc.ts";
+import type { LinkTargetInput } from "../LinkTarget.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Span } from "./layout.ts";
 
-const linkRunEnd = (flat: ReadonlyArray<Span>, start: number): number => {
+const linkRunEnd = (flat: ReadonlyArray<Span.Encoded>, start: number): number => {
   const link = A.getUnsafe(flat, start).link;
   let end = start + 1;
   if (link === undefined) return end;
@@ -22,28 +23,28 @@ const linkRunEnd = (flat: ReadonlyArray<Span>, start: number): number => {
 export const inlineSpans: {
   (
     inlines: ReadonlyArray<Inline>,
-    ctx: RenderContext,
-    render: (span: Span) => Span,
-    showTarget: (link: LinkTarget, label: string) => boolean,
-    suffix: (target: string) => Span
-  ): ReadonlyArray<Span>;
+    ctx: RenderContext.Encoded,
+    render: (span: Span.Encoded) => Span.Encoded,
+    showTarget: (link: LinkTargetInput, label: string) => boolean,
+    suffix: (target: string) => Span.Encoded
+  ): ReadonlyArray<Span.Encoded>;
   (
-    ctx: RenderContext,
-    render: (span: Span) => Span,
-    showTarget: (link: LinkTarget, label: string) => boolean,
-    suffix: (target: string) => Span
-  ): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
+    ctx: RenderContext.Encoded,
+    render: (span: Span.Encoded) => Span.Encoded,
+    showTarget: (link: LinkTargetInput, label: string) => boolean,
+    suffix: (target: string) => Span.Encoded
+  ): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span.Encoded>;
 } = dual(
   5,
   (
     inlines: ReadonlyArray<Inline>,
-    ctx: RenderContext,
-    render: (span: Span) => Span,
-    showTarget: (link: LinkTarget, label: string) => boolean,
-    suffix: (target: string) => Span
-  ): ReadonlyArray<Span> => {
+    ctx: RenderContext.Encoded,
+    render: (span: Span.Encoded) => Span.Encoded,
+    showTarget: (link: LinkTargetInput, label: string) => boolean,
+    suffix: (target: string) => Span.Encoded
+  ): ReadonlyArray<Span.Encoded> => {
     const flat = flatten(inlines, ctx);
-    const out: Array<Span> = [];
+    const out: Array<Span.Encoded> = [];
     let i = 0;
     while (i < flat.length) {
       const link = A.getUnsafe(flat, i).link;

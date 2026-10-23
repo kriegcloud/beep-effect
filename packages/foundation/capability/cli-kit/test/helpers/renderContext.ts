@@ -8,7 +8,7 @@ import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import type { LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
+import type { LinkTargetInput, RenderContext, Style, TokenName } from "@beep/cli-kit";
 
 const OSC8 = /\u001B\]8;[^;\u0007\u001B]*;([^\u0007\u001B]*)(?:\u0007|\u001B\\)/g;
 const SGR = /\u001B\[([0-9;]*)m/g;
@@ -24,15 +24,21 @@ export const link: {
 );
 
 /** A paint that writes the text unpainted, in the dual shape `RenderContext.paint` has. */
-export const plainPaint: RenderContext["paint"] = dual(2, (_token: TokenName | Style, text: string): string => text);
+export const plainPaint: RenderContext.Encoded["paint"] = dual(
+  2,
+  (_token: TokenName | Style.Encoded, text: string): string => text
+);
 
 /** A link that leaves the label unlinked, in the dual shape `RenderContext.link` has. */
-export const labelLink: RenderContext["link"] = dual(2, (_target: LinkTarget, label: string): string => label);
+export const labelLink: RenderContext.Encoded["link"] = dual(
+  2,
+  (_target: LinkTargetInput, label: string): string => label
+);
 
-export const contextOf = (overrides: Partial<RenderContext> = {}): Effect.Effect<RenderContext> =>
+export const contextOf = (overrides: Partial<RenderContext.Encoded> = {}): Effect.Effect<RenderContext.Encoded> =>
   Effect.gen(function* () {
     const theme = yield* CliTheme;
-    const ctx: RenderContext = {
+    const ctx: RenderContext.Encoded = {
       width: 80,
       audience: "human",
       color: theme.color,

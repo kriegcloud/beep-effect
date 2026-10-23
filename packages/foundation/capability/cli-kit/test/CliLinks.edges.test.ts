@@ -17,7 +17,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { contextOf } from "./helpers/renderContext.ts";
-import type { CliLinksShape, EditorLinks, LinkTarget } from "@beep/cli-kit";
+import type { CliLinksShape, EditorLinks, LinkTargetInput } from "@beep/cli-kit";
 
 /** A message part as `Array#join` writes it: a nullish part is empty. */
 const joinPart = (part: unknown): string => (P.isNullish(part) ? "" : String(part));
@@ -146,7 +146,7 @@ describe("CliLinks.linker writes a URL as OSC 8 wants it: bytes outside 32 to 12
   const write = (url: string): string => {
     const l: CliLinksShape = {
       mode: "file",
-      target: (target: LinkTarget) => ("url" in target ? O.some(target.url) : O.none()),
+      target: (target: LinkTargetInput) => ("url" in target ? O.some(target.url) : O.none()),
     };
     return CliLinks.linker({ links: l, hyperlinks: true, audience: "human" })({ url }, "label");
   };

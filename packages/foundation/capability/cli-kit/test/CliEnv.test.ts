@@ -601,7 +601,7 @@ describe("CliRuntime.main with the env option", () => {
   }
 
   it("a CliEnvOptions-typed env, which may carry a file sink, requires FileSystem and Path from the platform", () => {
-    const env: CliEnvOptions = { log: { envVar: "TOOL_LOG", file: { path: "/x" } } };
+    const env: CliEnvOptions.Encoded = { log: { envVar: "TOOL_LOG", file: { path: "/x" } } };
     const program = CliRuntime.main(Effect.void, { platform: TTY, env });
     const assignable: typeof program extends Effect.Effect<void, Error, Stdio.Stdio | Terminal.Terminal>
       ? true

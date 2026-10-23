@@ -31,10 +31,7 @@ class InvalidExitCodeError extends S.TaggedError<InvalidExitCodeError, { readonl
  * @category models
  * @since 0.0.0
  */
-export interface CliExitShape {
-  /** The highest exit code recorded during the run; `0` until one is set. */
-  readonly code: MutableRef.MutableRef<number>;
-}
+export type CliExitShape = (typeof CliExit)["Service"];
 
 /**
  * The exit code a successful run wants, for commands whose findings are a
@@ -73,7 +70,13 @@ export interface CliExitShape {
  * @category services
  * @since 0.0.0
  */
-export class CliExit extends Context.Service<CliExit, CliExitShape>()($I`CliExit`) {
+export class CliExit extends Context.Service<
+  CliExit,
+  {
+    /** The highest exit code recorded during the run; `0` until one is set. */
+    readonly code: MutableRef.MutableRef<number>;
+  }
+>()($I`CliExit`) {
   /**
    * A fresh cell at `0`; `CliRuntime.main` provides it, and tests provide it
    * directly.

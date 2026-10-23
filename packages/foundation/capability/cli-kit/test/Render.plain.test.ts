@@ -10,14 +10,14 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { composite, ESC } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
-import type { Block, LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
+import type { Block, LinkTargetInput, RenderContext, Style, TokenName } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 
-const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(contextOf(overrides), (ctx) => Render.plain(doc, ctx));
 
-const linesOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const linesOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(plain(doc, overrides), (out) => Str.split(out, "\n"));
 
 const BOX = /[─│┌┐└┘├┤┬┴┼═║╔╗╚╝]/;
@@ -56,11 +56,11 @@ describe("Render.plain: no escapes of any kind", () => {
     Effect.gen(function* () {
       const calls: Array<string> = [];
       const out = yield* plain(composite({ codeAndPath: true }), {
-        paint: dual(2, (_token: TokenName | Style, text: string): string => {
+        paint: dual(2, (_token: TokenName | Style.Encoded, text: string): string => {
           calls.push("paint");
           return `${ESC}[1m${text}${ESC}[0m`;
         }),
-        link: dual(2, (_target: LinkTarget, label: string): string => {
+        link: dual(2, (_target: LinkTargetInput, label: string): string => {
           calls.push("link");
           return `${ESC}]8;;u\u0007${label}${ESC}]8;;\u0007`;
         }),

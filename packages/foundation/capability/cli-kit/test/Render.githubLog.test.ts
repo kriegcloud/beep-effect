@@ -15,11 +15,11 @@ import type { Block, RenderContext } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 
-const log = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const log = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(contextOf(overrides), (ctx) => Render.githubLog(doc, ctx));
-const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(contextOf(overrides), (ctx) => Render.plain(doc, ctx));
-const linesOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const linesOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(log(doc, overrides), (out) => Str.split(out, LINE_BREAK));
 
 describe("Render.githubLog: verbatim whitespace fidelity", () => {

@@ -29,9 +29,9 @@ export interface ScreenContextValue {
 	 */
 	readonly die?: (error: unknown) => void;
 	/** The theme of the stream the tree draws on. */
-	readonly theme: Cli.StreamTheme;
+	readonly theme: Cli.StreamTheme.Encoded;
 	/** The glyph set in use. */
-	readonly glyphs: Cli.GlyphSet;
+	readonly glyphs: Cli.GlyphSet.Encoded;
 	/** The terminal size the tree is laid out at, read by `useTerminalSize` in place of the stdout's. */
 	readonly size?: { readonly columns: number; readonly rows: number };
 	/**

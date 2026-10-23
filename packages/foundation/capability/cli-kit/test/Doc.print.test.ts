@@ -81,7 +81,7 @@ const doc: Document = [
   Doc.collapsible("Details", [Doc.paragraph("inside")]),
 ];
 
-const print = (setup: Setup, options?: DocPrintOptions) => under(setup, Doc.print(doc, options));
+const print = (setup: Setup, options?: DocPrintOptions.Encoded) => under(setup, Doc.print(doc, options));
 
 describe("Doc.print: each audience picks its renderer", () => {
   it.effect("an agent gets plain text: no escape of any kind, no group, wherever the terminal could do more", () =>

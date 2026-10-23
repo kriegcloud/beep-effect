@@ -516,7 +516,7 @@ export const live = Effect.fn("live")(function* <E, S>(
 	/**
 	 * The context `final`'s document is rendered with: `Doc.print`'s when the environment is there.
 	 */
-	const finalContext: Effect.Effect<RenderContext> = Effect.gen(function* () {
+	const finalContext: Effect.Effect<RenderContext.Encoded> = Effect.gen(function* () {
 		const terminal = yield* Effect.serviceOption(TerminalEnv);
 		const links = yield* Effect.serviceOption(CliLinks);
 		if (O.isSome(terminal) && O.isSome(links) && O.isSome(audience)) {

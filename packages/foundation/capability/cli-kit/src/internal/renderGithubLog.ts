@@ -10,11 +10,11 @@ import type { RenderContext } from "../Render.ts";
 
 /** Plain lines, neutralized; a block that draws nothing, such as an empty table, gives no line at all. */
 const plainLines: {
-  (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string>;
-  (ctx: RenderContext): (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>;
+  (blocks: ReadonlyArray<Block>, ctx: RenderContext.Encoded): ReadonlyArray<string>;
+  (ctx: RenderContext.Encoded): (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>;
 } = dual(
   2,
-  (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string> =>
+  (blocks: ReadonlyArray<Block>, ctx: RenderContext.Encoded): ReadonlyArray<string> =>
     A.flatMap(renderPlainLines(blocks, ctx), (line) => CommandNeutralizer.lines(line))
 );
 
@@ -31,20 +31,20 @@ const annotationLine = (block: Extract<Block, { readonly _tag: "Annotation" }>):
 
 /** A group's body: plain text, except an annotation, which is still a command inside a group. */
 const bodyLines: {
-  (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string>;
-  (ctx: RenderContext): (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>;
+  (blocks: ReadonlyArray<Block>, ctx: RenderContext.Encoded): ReadonlyArray<string>;
+  (ctx: RenderContext.Encoded): (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>;
 } = dual(
   2,
-  (blocks: ReadonlyArray<Block>, ctx: RenderContext): ReadonlyArray<string> =>
+  (blocks: ReadonlyArray<Block>, ctx: RenderContext.Encoded): ReadonlyArray<string> =>
     A.flatMap(blocks, (block) => (block._tag === "Annotation" ? [annotationLine(block)] : plainLines([block], ctx)))
 );
 
 const blockLines: {
-  (block: Block, ctx: RenderContext): ReadonlyArray<string>;
-  (ctx: RenderContext): (block: Block) => ReadonlyArray<string>;
+  (block: Block, ctx: RenderContext.Encoded): ReadonlyArray<string>;
+  (ctx: RenderContext.Encoded): (block: Block) => ReadonlyArray<string>;
 } = dual(
   2,
-  (block: Block, ctx: RenderContext): ReadonlyArray<string> =>
+  (block: Block, ctx: RenderContext.Encoded): ReadonlyArray<string> =>
     Match.value(block).pipe(
       Match.tag("Annotation", (block): ReadonlyArray<string> => [annotationLine(block)]),
       Match.tag("Collapsible", (block): ReadonlyArray<string> => {
@@ -89,9 +89,9 @@ const blockLines: {
  * @since 0.0.0
  */
 export const renderGithubLog: {
-  (ctx: RenderContext): (doc: Document) => string;
-  (doc: Document, ctx: RenderContext): string;
-} = dual(2, (doc: Document, ctx: RenderContext): string =>
+  (ctx: RenderContext.Encoded): (doc: Document) => string;
+  (doc: Document, ctx: RenderContext.Encoded): string;
+} = dual(2, (doc: Document, ctx: RenderContext.Encoded): string =>
   pipe(
     doc,
     A.flatMap((block) => blockLines(block, ctx)),

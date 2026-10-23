@@ -29,26 +29,44 @@ const $I = $CliKitId.create("CliTest");
  * @category models
  * @since 0.0.0
  */
-export const Sandbox = S.Struct({
-  /** The temp directory itself; the default working directory of {@link CliTest.run}. */
-  root: S.String.pipe($I.annoteKey("Sandbox.root", { description: "The scoped temporary working directory." })),
-  /** The fresh `HOME` inside `root`; the XDG base directories live under it. */
-  home: S.String.pipe($I.annoteKey("Sandbox.home", { description: "The fresh child HOME inside the sandbox root." })),
-  /**
-   * The complete child environment: `HOME`, the four `XDG_*_HOME` variables,
-   * the injected `PATH` and `NO_COLOR=1`. Nothing is inherited from the host.
-   */
-  env: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("Sandbox.env", { description: "The complete child environment, without inherited host variables." })
-  ),
-}).pipe($I.annoteSchema("Sandbox", { description: "A hermetic scoped directory and its child environment." }));
+export class Sandbox extends S.Opaque<Sandbox, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The temp directory itself; the default working directory of {@link CliTest.run}. */
+    root: S.String.pipe($I.annoteKey("Sandbox.root", { description: "The scoped temporary working directory." })),
+    /** The fresh `HOME` inside `root`; the XDG base directories live under it. */
+    home: S.String.pipe($I.annoteKey("Sandbox.home", { description: "The fresh child HOME inside the sandbox root." })),
+    /**
+     * The complete child environment: `HOME`, the four `XDG_*_HOME` variables,
+     * the injected `PATH` and `NO_COLOR=1`. Nothing is inherited from the host.
+     */
+    env: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("Sandbox.env", { description: "The complete child environment, without inherited host variables." })
+    ),
+  }).pipe($I.annoteSchema("Sandbox", { description: "A hermetic scoped directory and its child environment." }))
+) {}
 
 /**
- * The plain sandbox data validated by {@link Sandbox}.
- * @category models
+ * Companion types for {@link Sandbox}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { Sandbox } from "@beep/cli-kit/CliTest"
+ *
+ * const accepts = (_value: Sandbox.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
-export type Sandbox = typeof Sandbox.Type;
+export declare namespace Sandbox {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Sandbox.Encoded;
+}
 
 /**
  * How {@link CliTest.run} spawns a bin.
@@ -65,47 +83,65 @@ export type Sandbox = typeof Sandbox.Type;
  * @category models
  * @since 0.0.0
  */
-export const RunOptions = S.Struct({
-  /** The sandbox whose environment and root the child runs in. */
-  sandbox: Sandbox.pipe(
-    $I.annoteKey("RunOptions.sandbox", { description: "The sandbox whose environment and root the child runs in." })
-  ),
-  /** The node binary — pass `process.execPath` from the test file, never a PATH lookup. */
-  execPath: S.String.pipe(
-    $I.annoteKey("RunOptions.execPath", { description: "The explicitly selected runtime executable." })
-  ),
-  /** The child's working directory. Defaults to the sandbox `root`. */
-  cwd: S.optional(S.String).pipe(
-    $I.annoteKey("RunOptions.cwd", {
-      description: "An optional working-directory override; otherwise the sandbox root.",
-    })
-  ),
-  /**
-   * Extra environment variables, merged over the sandbox environment — the
-   * way to override `PATH` for one run.
-   */
-  env: S.optional(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("RunOptions.env", {
-      description: "Optional environment overrides merged over the sandbox environment.",
-    })
-  ),
-  /**
-   * Text written to the child's stdin, which is then closed. Omitted or `""`,
-   * the child gets an already-ended empty input, never an open pipe.
-   */
-  stdin: S.optional(S.String).pipe(
-    $I.annoteKey("RunOptions.stdin", {
-      description: "Optional child input; omitted, undefined or empty means an already-ended stream.",
-    })
-  ),
-}).pipe($I.annoteSchema("RunOptions", { description: "Plain subprocess spawn options with optional overrides." }));
+export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The sandbox whose environment and root the child runs in. */
+    sandbox: Sandbox.pipe(
+      $I.annoteKey("RunOptions.sandbox", { description: "The sandbox whose environment and root the child runs in." })
+    ),
+    /** The node binary — pass `process.execPath` from the test file, never a PATH lookup. */
+    execPath: S.String.pipe(
+      $I.annoteKey("RunOptions.execPath", { description: "The explicitly selected runtime executable." })
+    ),
+    /** The child's working directory. Defaults to the sandbox `root`. */
+    cwd: S.optional(S.String).pipe(
+      $I.annoteKey("RunOptions.cwd", {
+        description: "An optional working-directory override; otherwise the sandbox root.",
+      })
+    ),
+    /**
+     * Extra environment variables, merged over the sandbox environment — the
+     * way to override `PATH` for one run.
+     */
+    env: S.optional(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("RunOptions.env", {
+        description: "Optional environment overrides merged over the sandbox environment.",
+      })
+    ),
+    /**
+     * Text written to the child's stdin, which is then closed. Omitted or `""`,
+     * the child gets an already-ended empty input, never an open pipe.
+     */
+    stdin: S.optional(S.String).pipe(
+      $I.annoteKey("RunOptions.stdin", {
+        description: "Optional child input; omitted, undefined or empty means an already-ended stream.",
+      })
+    ),
+  }).pipe($I.annoteSchema("RunOptions", { description: "Plain subprocess spawn options with optional overrides." }))
+) {}
 
 /**
- * The subprocess options validated by {@link RunOptions}.
- * @category models
+ * Companion types for {@link RunOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { RunOptions } from "@beep/cli-kit/CliTest"
+ *
+ * const accepts = (_value: RunOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
-export type RunOptions = typeof RunOptions.Type;
+export declare namespace RunOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RunOptions.Encoded;
+}
 
 /**
  * What a spawned bin did, as data: a non-zero exit is a result, not a failure.
@@ -122,29 +158,49 @@ export type RunOptions = typeof RunOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export const RunResult = S.Struct({
-  /** The child's exit code. */
-  exitCode: S.Finite.pipe(
-    $I.annoteKey("RunResult.exitCode", {
-      description: "The child's finite numeric exit code, including non-zero results.",
-    })
-  ),
-  /** Everything the child wrote to stdout, decoded as UTF-8. */
-  stdout: S.String.pipe(
-    $I.annoteKey("RunResult.stdout", { description: "All child standard output decoded as UTF-8." })
-  ),
-  /** Everything the child wrote to stderr, decoded as UTF-8. */
-  stderr: S.String.pipe(
-    $I.annoteKey("RunResult.stderr", { description: "All child standard error decoded as UTF-8." })
-  ),
-}).pipe($I.annoteSchema("RunResult", { description: "A plain subprocess exit code and its captured output streams." }));
+export class RunResult extends S.Opaque<RunResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The child's exit code. */
+    exitCode: S.Finite.pipe(
+      $I.annoteKey("RunResult.exitCode", {
+        description: "The child's finite numeric exit code, including non-zero results.",
+      })
+    ),
+    /** Everything the child wrote to stdout, decoded as UTF-8. */
+    stdout: S.String.pipe(
+      $I.annoteKey("RunResult.stdout", { description: "All child standard output decoded as UTF-8." })
+    ),
+    /** Everything the child wrote to stderr, decoded as UTF-8. */
+    stderr: S.String.pipe(
+      $I.annoteKey("RunResult.stderr", { description: "All child standard error decoded as UTF-8." })
+    ),
+  }).pipe(
+    $I.annoteSchema("RunResult", { description: "A plain subprocess exit code and its captured output streams." })
+  )
+) {}
 
 /**
- * The captured subprocess data validated by {@link RunResult}.
- * @category models
+ * Companion types for {@link RunResult}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { RunResult } from "@beep/cli-kit/CliTest"
+ *
+ * const accepts = (_value: RunResult.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
-export type RunResult = typeof RunResult.Type;
+export declare namespace RunResult {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RunResult.Encoded;
+}
 
 const text = <E, R>(stream: Stream.Stream<Uint8Array, E, R>): Effect.Effect<string, E, R> =>
   stream.pipe(Stream.decodeText, Stream.mkString);
@@ -200,7 +256,7 @@ export abstract class CliTest {
      * a narrower list to prove it does not.
      */
     readonly path: string;
-  }): Effect.fn.Return<Sandbox, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path | Scope.Scope> {
+  }): Effect.fn.Return<Sandbox.Encoded, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path | Scope.Scope> {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const root = yield* fs.makeTempDirectoryScoped({ prefix: "effected-cli-test-" });
@@ -246,19 +302,21 @@ export abstract class CliTest {
     (
       bin: string,
       args: ReadonlyArray<string>,
-      options: RunOptions
-    ): Effect.Effect<RunResult, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
+      options: RunOptions.Encoded
+    ): Effect.Effect<RunResult.Encoded, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
     (
       args: ReadonlyArray<string>,
-      options: RunOptions
-    ): (bin: string) => Effect.Effect<RunResult, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
+      options: RunOptions.Encoded
+    ): (
+      bin: string
+    ) => Effect.Effect<RunResult.Encoded, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
   } = dual(
     3,
     (
       bin: string,
       args: ReadonlyArray<string>,
-      options: RunOptions
-    ): Effect.Effect<RunResult, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner> =>
+      options: RunOptions.Encoded
+    ): Effect.Effect<RunResult.Encoded, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner> =>
       Effect.scoped(
         Effect.gen(function* () {
           const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;

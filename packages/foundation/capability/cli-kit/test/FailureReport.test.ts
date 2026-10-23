@@ -134,7 +134,7 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
       ),
     ];
 
-    const print = Effect.fn("print")(function* (audience: AudienceKind, options: DocPrintOptions | undefined) {
+    const print = Effect.fn("print")(function* (audience: AudienceKind, options: DocPrintOptions.Encoded | undefined) {
       const { double, out } = capturing();
       yield* Doc.print(doc, options).pipe(
         Effect.provideService(Audience, AudienceShape.make({ kind: audience, source: "override" })),
@@ -343,7 +343,7 @@ describe("a consumer render's output is untrusted text", () => {
 
 describe("a delegating render gets the default report", () => {
   const human = ConfigProvider.fromUnknown({ TERM: "xterm-256color", FORCE_COLOR: "3" });
-  const report = Effect.fn("report")(function* (render?: NonNullable<ReportFailuresOptions["render"]>) {
+  const report = Effect.fn("report")(function* (render?: NonNullable<ReportFailuresOptions.Encoded["render"]>) {
     const { double, err } = capturing();
     yield* CliRuntime.main(dying("kaboom"), {
       platform,
@@ -385,7 +385,7 @@ describe("a delegating render gets the default report", () => {
 describe("details.lines: the run's report, with or without its status (A2)", () => {
   const run = Effect.fn("run")(function* (
     env: Record<string, string>,
-    render: NonNullable<ReportFailuresOptions["render"]>
+    render: NonNullable<ReportFailuresOptions.Encoded["render"]>
   ) {
     const { double, err } = capturing();
     yield* CliRuntime.main(dying("kaboom"), {
@@ -452,7 +452,7 @@ describe("main's env.stackFrames (A3)", () => {
   });
   const run = Effect.fn("run")(function* (
     stackFrames: "app" | "all" | undefined,
-    render?: NonNullable<ReportFailuresOptions["render"]>
+    render?: NonNullable<ReportFailuresOptions.Encoded["render"]>
   ) {
     const { double, err } = capturing();
     yield* CliRuntime.main(dyingThroughVendor, {
@@ -480,8 +480,8 @@ describe("main's env.stackFrames (A3)", () => {
     Effect.gen(function* () {
       for (const render of [
         undefined,
-        (_e: unknown, d: FailureDetails) => d.defaultLines,
-        (_e: unknown, d: FailureDetails) => d.lines({ status: false }),
+        (_e: unknown, d: FailureDetails.Encoded) => d.defaultLines,
+        (_e: unknown, d: FailureDetails.Encoded) => d.lines({ status: false }),
       ]) {
         const text = yield* run("all", render);
         assert.include(text, "node_modules/vendor/dist/run.js:7:8");

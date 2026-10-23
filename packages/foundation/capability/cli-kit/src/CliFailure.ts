@@ -1,3 +1,4 @@
+import { $CliKitId } from "@beep/identity/packages";
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as Cause from "effect/Cause";
@@ -12,12 +13,22 @@ import * as Str from "effect/String";
 import { Cancelled } from "./Cancelled.ts";
 import { Doc } from "./Doc.ts";
 import { Fmt } from "./Fmt.ts";
+import { DisplayPath } from "./internal/declared.ts";
 import { issueEntries, issueTreeChildren } from "./internal/format.ts";
 import { splitFrame } from "./internal/splitFrame.ts";
 import { NotInteractive } from "./NotInteractive.ts";
 import { Status } from "./Status.ts";
 import type * as CauseType from "effect/Cause";
 import type { Block, Document, InlineOf, TreeInput } from "./Doc.ts";
+
+const $I = $CliKitId.create("CliFailure");
+const CliFailureOptionsRenderValue = S.declare<(error: unknown) => Document>(
+  (value): value is (error: unknown) => Document => P.isFunction(value)
+).pipe(
+  $I.annoteSchema("CliFailureOptionsRenderValue", {
+    description: "A renderer turning one tagged failure into a document.",
+  })
+);
 
 /**
  * The protocol an error class implements to say how a failure is shown: a method under this key that returns the
@@ -60,53 +71,96 @@ export interface CliDocSource {
 /**
  * Options for {@link CliFailure.toDoc}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CliFailureOptions } from "@beep/cli-kit/CliFailure"
+ *
+ * console.log(typeof CliFailureOptions.make) // function
+ * ```
+ *
  * @public
  * @category configuration
  * @since 0.0.0
  */
-export interface CliFailureOptions {
-  /**
-   * A module of the running program itself, as a `file:` URL or an absolute path: its bin's `import.meta.url`. With
-   * `spans: "app"`, a span defined in the installed package that holds this module is the program's, kept even under
-   * `node_modules/@effected/`, while the packages it depends on (beside it, or nested in its own `node_modules`) are
-   * still left out. The package is the path through the last `node_modules/<name>` (or `node_modules/@scope/name`)
-   * in it, read from the path alone with no file system. A module not under `node_modules` changes nothing: the rule
-   * already keeps its spans. Unset by default.
+export class CliFailureOptions extends S.Opaque<CliFailureOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * A module of the running program itself, as a `file:` URL or an absolute path: its bin's `import.meta.url`. With
+     * `spans: "app"`, a span defined in the installed package that holds this module is the program's, kept even under
+     * `node_modules/@effected/`, while the packages it depends on (beside it, or nested in its own `node_modules`) are
+     * still left out. The package is the path through the last `node_modules/<name>` (or `node_modules/@scope/name`)
+     * in it, read from the path alone with no file system. A module not under `node_modules` changes nothing: the rule
+     * already keeps its spans. Unset by default.
+     */
+    appModule: S.optional(S.String).pipe(
+      $I.annoteKey("CliFailureOptions.appModule", { description: "The appModule field of CliFailureOptions." })
+    ),
+    /** Turns an absolute path into its display form, for the stack frames; the identity by default. */
+    displayPath: S.optional(DisplayPath).pipe(
+      $I.annoteKey("CliFailureOptions.displayPath", { description: "The displayPath field of CliFailureOptions." })
+    ),
+    /**
+     * A document per error `_tag`, for errors that do not implement {@link CliDoc}. A tag with no entry is shown by
+     * the default rules.
+     */
+    render: S.optional(S.Record(S.String, CliFailureOptionsRenderValue)).pipe(
+      $I.annoteKey("CliFailureOptions.render", { description: "The render field of CliFailureOptions." })
+    ),
+    /**
+     * Which spans the `in: outer › inner` trail after a failure names. `app`, the default, leaves out the spans the kit
+     * and Effect define themselves: a span whose definition site (an `Effect.fn`'s, or where the span was opened) is a
+     * file under `node_modules/@effected/` or `node_modules/effect/`. A config that fails to decode under
+     * `@effected/config-file` then reports no `ConfigFile.loadFrom` trail, while the program's own spans stay. `all`
+     * shows every span, and `off` drops the trail. Under either, an `Effect.fn` call and its definition are one entry,
+     * `name`, never `name (definition) › name`.
+     *
+     * **Gotchas**
+     *
+     * The rule reads file paths, never span names, and it fails open: when it cannot tell, it shows the span. A span
+     * with no captured stack is kept. A kit package linked into a workspace (`link:`, `workspace:`) runs from its own
+     * checkout rather than from `node_modules`, so its spans show as the program's. A bundled program is one file, so
+     * `app` shows what `all` does, unless the bundle is itself installed under `node_modules/@effected/`. A program that
+     * is installed under `node_modules/@effected/` (a kit companion's bin) names itself with `appModule`, or its own
+     * spans are left out with the kit's.
+     */
+    spans: S.optional(S.Union([S.Literal("app"), S.Literal("all"), S.Literal("off")])).pipe(
+      $I.annoteKey("CliFailureOptions.spans", { description: "The spans field of CliFailureOptions." })
+    ),
+    /**
+     * Which frames of a defect's stack are shown. `app`, the default, shows the program's own: every `node_modules`
+     * frame (Effect's and any other dependency's), `node:internal` and the runtime's generator frames are left out and
+     * counted. When that leaves no frame, as for a program run from its install under `node_modules` (a global
+     * install, `npx`, a pnpm store), only the runtime's and Effect's are left out, so its own frames still show. `all`
+     * shows every frame, unfiltered.
+     */
+    stackFrames: S.optional(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
+      $I.annoteKey("CliFailureOptions.stackFrames", { description: "The stackFrames field of CliFailureOptions." })
+    ),
+  }).pipe($I.annoteSchema("CliFailureOptions", { description: "Plain CliFailureOptions data." }))
+) {}
+/**
+ * Companion types for {@link CliFailureOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliFailureOptions } from "@beep/cli-kit/CliFailure"
+ *
+ * const accepts = (_value: CliFailureOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliFailureOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly appModule?: string | undefined;
-  /** Turns an absolute path into its display form, for the stack frames; the identity by default. */
-  readonly displayPath?: ((absolute: string) => string) | undefined;
-  /**
-   * A document per error `_tag`, for errors that do not implement {@link CliDoc}. A tag with no entry is shown by
-   * the default rules.
-   */
-  readonly render?: Readonly<Record<string, (error: unknown) => Document>> | undefined;
-  /**
-   * Which spans the `in: outer › inner` trail after a failure names. `app`, the default, leaves out the spans the kit
-   * and Effect define themselves: a span whose definition site (an `Effect.fn`'s, or where the span was opened) is a
-   * file under `node_modules/@effected/` or `node_modules/effect/`. A config that fails to decode under
-   * `@effected/config-file` then reports no `ConfigFile.loadFrom` trail, while the program's own spans stay. `all`
-   * shows every span, and `off` drops the trail. Under either, an `Effect.fn` call and its definition are one entry,
-   * `name`, never `name (definition) › name`.
-   *
-   * **Gotchas**
-   *
-   * The rule reads file paths, never span names, and it fails open: when it cannot tell, it shows the span. A span
-   * with no captured stack is kept. A kit package linked into a workspace (`link:`, `workspace:`) runs from its own
-   * checkout rather than from `node_modules`, so its spans show as the program's. A bundled program is one file, so
-   * `app` shows what `all` does, unless the bundle is itself installed under `node_modules/@effected/`. A program that
-   * is installed under `node_modules/@effected/` (a kit companion's bin) names itself with `appModule`, or its own
-   * spans are left out with the kit's.
-   */
-  readonly spans?: "app" | "all" | "off" | undefined;
-  /**
-   * Which frames of a defect's stack are shown. `app`, the default, shows the program's own: every `node_modules`
-   * frame (Effect's and any other dependency's), `node:internal` and the runtime's generator frames are left out and
-   * counted. When that leaves no frame, as for a program run from its install under `node_modules` (a global
-   * install, `npx`, a pnpm store), only the runtime's and Effect's are left out, so its own frames still show. `all`
-   * shows every frame, unfiltered.
-   */
-  readonly stackFrames?: "app" | "all" | undefined;
+  export type Encoded = typeof CliFailureOptions.Encoded;
 }
 
 /** The deepest an `Error.cause` chain, or a stack, is followed. */
@@ -169,7 +223,7 @@ const schemaBlocks = (error: unknown): ReadonlyArray<Block> | undefined => {
     " ",
     header === "" ? `invalid value (${Fmt.plural(entries.length, "problem")})` : header,
   ];
-  const root: TreeInput = { label, children: issueTreeChildren(entries) };
+  const root: TreeInput.Encoded = { label, children: issueTreeChildren(entries) };
   return [Doc.tree(root)];
 };
 
@@ -312,7 +366,7 @@ const causeTree = (defect: Error): Block | undefined => {
   if (chain.length === 0) {
     return undefined;
   }
-  const nest = (index: number): TreeInput =>
+  const nest = (index: number): TreeInput.Encoded =>
     index === chain.length - 1
       ? { label: A.getUnsafe(chain, index) }
       : { label: A.getUnsafe(chain, index), children: [nest(index + 1)] };
@@ -351,7 +405,7 @@ const dieBlocks: {
   }
 );
 
-const customFailureRenderer = (error: unknown, options: CliFailureOptions | undefined) => {
+const customFailureRenderer = (error: unknown, options: CliFailureOptions.Encoded | undefined) => {
   const tag = tagOf(error);
   if (tag === undefined || options?.render === undefined) return undefined;
   return R.has(options.render, tag) ? options.render[tag] : undefined;
@@ -360,7 +414,7 @@ const customFailureRenderer = (error: unknown, options: CliFailureOptions | unde
 const renderFailureOverride = (
   error: unknown,
   spans: ReadonlyArray<Block>,
-  options: CliFailureOptions | undefined
+  options: CliFailureOptions.Encoded | undefined
 ): ReadonlyArray<Block> | undefined => {
   if (hasCliDoc(error)) {
     const rendered = Result.try(() => [...error[CliDoc](), ...spans]);
@@ -377,11 +431,18 @@ const renderFailureOverride = (
 };
 
 const failBlocks: {
-  (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): ReadonlyArray<Block>;
-  (spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): (error: unknown) => ReadonlyArray<Block>;
+  (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions.Encoded | undefined): ReadonlyArray<Block>;
+  (
+    spans: ReadonlyArray<Block>,
+    options: CliFailureOptions.Encoded | undefined
+  ): (error: unknown) => ReadonlyArray<Block>;
 } = dual(
   3,
-  (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): ReadonlyArray<Block> => {
+  (
+    error: unknown,
+    spans: ReadonlyArray<Block>,
+    options: CliFailureOptions.Encoded | undefined
+  ): ReadonlyArray<Block> => {
     const rendered = renderFailureOverride(error, spans, options);
     if (rendered !== undefined) return rendered;
     if (S.is(Cancelled)(error) || S.is(NotInteractive)(error)) return [Doc.paragraph(error.message)];
@@ -555,11 +616,11 @@ export class CliFailure {
    * @since 0.0.0
    */
   static readonly toDoc: {
-    (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document;
-    (options?: CliFailureOptions): (cause: CauseType.Cause<unknown>) => Document;
+    (cause: CauseType.Cause<unknown>, options?: CliFailureOptions.Encoded): Document;
+    (options?: CliFailureOptions.Encoded): (cause: CauseType.Cause<unknown>) => Document;
   } = dual(
     (args) => Cause.isCause(args[0]),
-    (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document => {
+    (cause: CauseType.Cause<unknown>, options?: CliFailureOptions.Encoded): Document => {
       const reasons = cause.reasons;
       if (reasons.length > 0 && A.every(reasons, Cause.isInterruptReason)) return [Doc.paragraph("interrupted")];
       const displayPath = options?.displayPath ?? ((absolute: string) => absolute);

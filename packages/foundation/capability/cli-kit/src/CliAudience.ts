@@ -105,25 +105,44 @@ export type AudienceFlagInput = typeof AudienceFlagInput.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const CliAudienceFlagsOptions = S.Struct({
-  /**
-   * Hide all four flags from every help screen. They still parse and resolve; describe them in the root
-   * command's description instead.
-   */
-  hidden: S.optional(S.Boolean).pipe(
-    $I.annoteKey("CliAudienceFlagsOptions.hidden", {
-      description: "Hide the audience flags without changing parsing or resolution.",
-    })
-  ),
-}).pipe($I.annoteSchema("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." }));
+export class CliAudienceFlagsOptions extends S.Opaque<CliAudienceFlagsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Hide all four flags from every help screen. They still parse and resolve; describe them in the root
+     * command's description instead.
+     */
+    hidden: S.optional(S.Boolean).pipe(
+      $I.annoteKey("CliAudienceFlagsOptions.hidden", {
+        description: "Hide the audience flags without changing parsing or resolution.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." })
+  )
+) {}
 
 /**
- * The plain audience flag presentation options.
+ * Companion types for {@link CliAudienceFlagsOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliAudienceFlagsOptions } from "@beep/cli-kit/CliAudience"
+ *
+ * const accepts = (_value: CliAudienceFlagsOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type CliAudienceFlagsOptions = typeof CliAudienceFlagsOptions.Type;
+export declare namespace CliAudienceFlagsOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CliAudienceFlagsOptions.Encoded;
+}
 
 /**
  * Resolves to nothing for a command that carries the four audience flags, and to an unsatisfiable marker otherwise,
@@ -251,7 +270,7 @@ export class CliAudience {
    * @since 0.0.0
    */
   static readonly flags = (
-    options?: CliAudienceFlagsOptions
+    options?: CliAudienceFlagsOptions.Encoded
   ): {
     readonly audience: Flag.Flag<ReadonlyArray<AudienceKind>>;
     readonly human: Flag.Flag<ReadonlyArray<boolean>>;

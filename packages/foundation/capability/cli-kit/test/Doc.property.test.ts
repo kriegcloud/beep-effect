@@ -6,11 +6,11 @@ import {
   CountsRow,
   Doc,
   Inline,
-  LinkTarget,
   StatusRef,
   TreeNode,
 } from "@beep/cli-kit/Doc";
 import { Fmt } from "@beep/cli-kit/Fmt";
+import { LinkTarget } from "@beep/cli-kit/LinkTarget";
 import { Render } from "@beep/cli-kit/Render";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";

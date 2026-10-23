@@ -23,7 +23,7 @@ const Json = S.fromJsonString(S.Unknown);
 
 /** Parse `argv` with core and return the audience flags it saw, or `undefined` when core rejects the argv. */
 const parsedBy = Effect.fn("parsedBy")(function* (argv: ReadonlyArray<string>) {
-  let seen: AudienceFlagValues | undefined;
+  let seen: AudienceFlagValues.Encoded | undefined;
   const sub = Command.make("init", { rest: Argument.String("rest").pipe(Argument.atLeast(0)) }, () => Effect.void);
   const root = Command.make("tool").pipe(
     Command.withSharedFlags(CliAudience.flags()),

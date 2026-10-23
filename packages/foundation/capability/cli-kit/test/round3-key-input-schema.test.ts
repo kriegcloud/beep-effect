@@ -1,6 +1,8 @@
 import { KeyInput, TestTerminal } from "@beep/cli-kit/TestTerminal";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertFalse } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
@@ -13,20 +15,20 @@ const encode = S.encodeUnknownExit(KeyInput);
 
 describe("KeyInput schema", () => {
   it("decodes arbitrary key names with no modifiers", () => {
-    assert.deepStrictEqual(decode({ name: "not-a-known-key" }), Exit.succeed({ name: "not-a-known-key" }));
-    assert.deepStrictEqual(decode({ name: "" }), Exit.succeed({ name: "" }));
+    assert.deepStrictEqual<unknown>(decode({ name: "not-a-known-key" }), Exit.succeed({ name: "not-a-known-key" }));
+    assert.deepStrictEqual<unknown>(decode({ name: "" }), Exit.succeed({ name: "" }));
   });
 
   it("keeps every modifier when present", () => {
     const key = { name: "c", ctrl: true, meta: false, shift: true };
-    assert.deepStrictEqual(decode(key), Exit.succeed(key));
+    assert.deepStrictEqual<unknown>(decode(key), Exit.succeed(key));
     assert.deepStrictEqual(encode(key), Exit.succeed(key));
   });
 
   it("accepts and preserves explicit undefined modifiers", () => {
     const key = { name: "enter", ctrl: undefined, meta: undefined, shift: undefined };
     const decoded = decode(key);
-    assertExitSuccess(decoded, key);
+    assertExitSuccess(decoded, KeyInput.make(key));
     assert.isTrue("ctrl" in decoded.value);
     assert.isTrue(S.is(KeyInput)(key));
   });
@@ -58,3 +60,15 @@ describe("KeyInput schema", () => {
     })
   );
 });
+
+it.effect.prop(
+  "generated KeyInput values survive codec round trips",
+  [Arbitrary.schema(KeyInput)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const encoded = yield* S.encodeEffect(KeyInput)(value);
+      const decoded = yield* S.decodeEffect(KeyInput)(encoded);
+      assert.deepStrictEqual(decoded, value);
+    }),
+  { arbitrary: fcRuns(100) }
+);

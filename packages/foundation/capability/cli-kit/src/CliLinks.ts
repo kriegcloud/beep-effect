@@ -1,5 +1,6 @@
 import { $CliKitId } from "@beep/identity/packages";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
+import { AudienceKind } from "@beep/runtime-env/Audience";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { Walker } from "@beep/walker/Walker";
 import * as A from "effect/Array";
@@ -14,11 +15,11 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { sanitize } from "./Fmt.ts";
+import { LinksService } from "./internal/declared.ts";
 import { isAllowedLinkUrl } from "./internal/linkScheme.ts";
 import { DRIVE, encodeForOsc8, fileUrlPath, UNC } from "./internal/linkTarget.ts";
-import type { AudienceKind } from "@beep/runtime-env";
 import type * as LayerType from "effect/Layer";
-import type { LinkTarget } from "./Doc.ts";
+import type { LinkTargetInput } from "./LinkTarget.ts";
 
 const $I = $CliKitId.create("CliLinks");
 
@@ -62,51 +63,118 @@ export type EditorLinks = typeof EditorLinks.Type;
  * @category models
  * @since 0.0.0
  */
-export interface CliLinksShape {
-  /** The mode `auto` resolved to, or the one that was asked for. */
-  readonly mode: "vscode" | "file" | "off";
-  /**
-   * The URL a target opens, or `None` when it has none.
-   *
-   * **Details**
-   *
-   * A `{ url }` target is its URL, whatever the mode. A `{ file }` target is `vscode://file/<path>:<line>:<col>` or
-   * `file://<path>`, with the path URL-encoded; `off` gives it none, and so does a relative path when the layer
-   * has no working directory to resolve it against. A column needs a line.
-   */
-  readonly target: (target: LinkTarget) => O.Option<string>;
-}
+export type CliLinksShape = (typeof CliLinks)["Service"];
 
 /**
  * Options for {@link CliLinks.layer}.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CliLinksOptions } from "@beep/cli-kit/CliLinks"
+ *
+ * console.log(typeof CliLinksOptions.make) // function
+ * ```
  *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface CliLinksOptions {
-  /** The working directory; `PWD` through `Config`, then `Path.resolve(".")`, when omitted. */
-  readonly cwd?: string | undefined;
-  /** The setting, `auto` by default. An environment variable the consumer names beats it. */
-  readonly editorLinks?: EditorLinks | undefined;
-  /** The environment variable that overrides the setting, read through `Config`. Not read unless named. */
-  readonly envVar?: string | undefined;
+export class CliLinksOptions extends S.Opaque<CliLinksOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The working directory; `PWD` through `Config`, then `Path.resolve(".")`, when omitted. */
+    cwd: S.optional(S.String).pipe(
+      $I.annoteKey("CliLinksOptions.cwd", { description: "The cwd field of CliLinksOptions." })
+    ),
+    /** The setting, `auto` by default. An environment variable the consumer names beats it. */
+    editorLinks: S.optional(EditorLinks).pipe(
+      $I.annoteKey("CliLinksOptions.editorLinks", { description: "The editorLinks field of CliLinksOptions." })
+    ),
+    /** The environment variable that overrides the setting, read through `Config`. Not read unless named. */
+    envVar: S.optional(S.String).pipe(
+      $I.annoteKey("CliLinksOptions.envVar", { description: "The envVar field of CliLinksOptions." })
+    ),
+  }).pipe($I.annoteSchema("CliLinksOptions", { description: "Plain CliLinksOptions data." }))
+) {}
+/**
+ * Companion types for {@link CliLinksOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliLinksOptions } from "@beep/cli-kit/CliLinks"
+ *
+ * const accepts = (_value: CliLinksOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliLinksOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CliLinksOptions.Encoded;
 }
 
 /**
  * The options of {@link CliLinks.linker}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { CliLinksLinkerOptions } from "@beep/cli-kit/CliLinks"
+ *
+ * console.log(typeof CliLinksLinkerOptions.make) // function
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface CliLinksLinkerOptions {
-  /** Who the output is for. */
-  readonly audience: AudienceKind;
-  /** Whether the stream's terminal renders OSC 8 hyperlinks. */
-  readonly hyperlinks: boolean;
-  /** The service that turns a target into a URL. */
-  readonly links: CliLinksShape;
+export class CliLinksLinkerOptions extends S.Opaque<CliLinksLinkerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Who the output is for. */
+    audience: AudienceKind.pipe(
+      $I.annoteKey("CliLinksLinkerOptions.audience", { description: "The audience field of CliLinksLinkerOptions." })
+    ),
+    /** Whether the stream's terminal renders OSC 8 hyperlinks. */
+    hyperlinks: S.Boolean.pipe(
+      $I.annoteKey("CliLinksLinkerOptions.hyperlinks", {
+        description: "The hyperlinks field of CliLinksLinkerOptions.",
+      })
+    ),
+    /** The service that turns a target into a URL. */
+    links: LinksService.pipe(
+      $I.annoteKey("CliLinksLinkerOptions.links", { description: "The links field of CliLinksLinkerOptions." })
+    ),
+  }).pipe($I.annoteSchema("CliLinksLinkerOptions", { description: "Plain CliLinksLinkerOptions data." }))
+) {}
+/**
+ * Companion types for {@link CliLinksLinkerOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliLinksLinkerOptions } from "@beep/cli-kit/CliLinks"
+ *
+ * const accepts = (_value: CliLinksLinkerOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliLinksLinkerOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CliLinksLinkerOptions.Encoded;
 }
 
 /** The most directories the ascent climbs above the working directory, so it looks at most at 65. */
@@ -125,19 +193,19 @@ const cleanUrl = (url: string): string => Str.replace(/[\r\n]/g, "")(sanitize(ur
 type LinkMode = "vscode" | "file" | "off";
 type Absolute = (file: string) => string | undefined;
 
-const editorUrl = (path: string, target: Extract<LinkTarget, { readonly file: string }>): string => {
+const editorUrl = (path: string, target: Extract<LinkTargetInput, { readonly file: string }>): string => {
   const position =
     target.line === undefined ? "" : target.col === undefined ? `:${target.line}` : `:${target.line}:${target.col}`;
   return `vscode://file${path}${position}`;
 };
 
 const makeTarget: {
-  (mode: LinkMode, absolute: Absolute): (target: LinkTarget) => O.Option<string>;
-  (absolute: Absolute): (mode: LinkMode) => (target: LinkTarget) => O.Option<string>;
+  (mode: LinkMode, absolute: Absolute): (target: LinkTargetInput) => O.Option<string>;
+  (absolute: Absolute): (mode: LinkMode) => (target: LinkTargetInput) => O.Option<string>;
 } = dual(
   2,
-  (mode: LinkMode, absolute: Absolute): ((target: LinkTarget) => O.Option<string>) =>
-    (target: LinkTarget): O.Option<string> => {
+  (mode: LinkMode, absolute: Absolute): ((target: LinkTargetInput) => O.Option<string>) =>
+    (target: LinkTargetInput): O.Option<string> => {
       if ("url" in target) {
         const url = cleanUrl(target.url);
         return url === "" || !isAllowedLinkUrl(url) ? O.none() : O.some(url);
@@ -146,9 +214,9 @@ const makeTarget: {
       const resolved = absolute(target.file);
       if (resolved === undefined) return O.none();
       const path = fileUrlPath(resolved);
-      if (path === undefined) return O.none();
-      if (mode === "file") return O.some(`file://${path}`);
-      return O.some(editorUrl(path, target));
+      if (O.isNone(path)) return O.none();
+      if (mode === "file") return O.some(`file://${path.value}`);
+      return O.some(editorUrl(path.value, target));
     }
 );
 
@@ -240,25 +308,29 @@ const selectMode = Effect.fnUntraced(function* (
   }
 });
 
+/** Read one configured mode and warn once for an invalid override. */
+const configuredSetting = Effect.fn("configuredSetting")(function* (options: CliLinksOptions.Encoded) {
+  const raw = options.envVar === undefined ? "" : Str.trim(O.getOrElse(yield* readOption(options.envVar), () => ""));
+  const fromEnv = parseSetting(raw);
+  if (options.envVar !== undefined && raw !== "" && fromEnv === undefined) {
+    yield* Effect.logWarning(
+      `${options.envVar}=${raw} is not one of ${A.join(EditorLinks.literals, "|")}; ignoring it`
+    );
+  }
+  return fromEnv ?? options.editorLinks ?? "auto";
+});
+
 const build: {
-  (options: CliLinksOptions, ambient: Ambient): Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
-  (ambient: Ambient): (options: CliLinksOptions) => Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
+  (options: CliLinksOptions.Encoded, ambient: Ambient): Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
+  (ambient: Ambient): (options: CliLinksOptions.Encoded) => Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
 } = dual(
   2,
   Effect.fn("build")(function* (
-    options: CliLinksOptions,
+    options: CliLinksOptions.Encoded,
     ambient: Ambient
   ): Effect.fn.Return<CliLinksShape, never, CurrentRuntimeEnv> {
     const runtime = yield* CurrentRuntimeEnv;
-    const raw = options.envVar === undefined ? "" : Str.trim(O.getOrElse(yield* readOption(options.envVar), () => ""));
-    const fromEnv = parseSetting(raw);
-    // A value that is not a mode warns once, as the audience override does, and the option is used.
-    if (options.envVar !== undefined && raw !== "" && fromEnv === undefined) {
-      yield* Effect.logWarning(
-        `${options.envVar}=${raw} is not one of ${A.join(EditorLinks.literals, "|")}; ignoring it`
-      );
-    }
-    const setting = fromEnv ?? options.editorLinks ?? "auto";
+    const setting = yield* configuredSetting(options);
 
     // The working directory: the option, else PWD, else where the path service resolves ".".
     const pwd = options.cwd === undefined ? yield* readOption("PWD") : O.none<string>();
@@ -299,7 +371,23 @@ const build: {
  * @category services
  * @since 0.0.0
  */
-export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliLinks`) {
+export class CliLinks extends Context.Service<
+  CliLinks,
+  {
+    /** The mode `auto` resolved to, or the one that was asked for. */
+    readonly mode: "vscode" | "file" | "off";
+    /**
+     * The URL a target opens, or `None` when it has none.
+     *
+     * **Details**
+     *
+     * A `{ url }` target is its URL, whatever the mode. A `{ file }` target is `vscode://file/<path>:<line>:<col>` or
+     * `file://<path>`, with the path URL-encoded; `off` gives it none, and so does a relative path when the layer
+     * has no working directory to resolve it against. A column needs a line.
+     */
+    readonly target: (target: LinkTargetInput) => O.Option<string>;
+  }
+>()($I`CliLinks`) {
   /**
    * The links for the working directory, reading the filesystem for a `.vscode/` directory.
    *
@@ -322,7 +410,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
    * @since 0.0.0
    */
   static readonly layer = (
-    options: CliLinksOptions = {}
+    options: CliLinksOptions.Encoded = {}
   ): LayerType.Layer<CliLinks, never, FileSystem.FileSystem | Path.Path | CurrentRuntimeEnv> =>
     Layer.effect(
       CliLinks,
@@ -391,12 +479,12 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
    * @since 0.0.0
    */
   static readonly linker = (
-    options: CliLinksLinkerOptions
+    options: CliLinksLinkerOptions.Encoded
   ): {
-    (target: LinkTarget, label: string): string;
-    (label: string): (target: LinkTarget) => string;
+    (target: LinkTargetInput, label: string): string;
+    (label: string): (target: LinkTargetInput) => string;
   } =>
-    dual(2, (target: LinkTarget, label: string): string => {
+    dual(2, (target: LinkTargetInput, label: string): string => {
       if (!options.hyperlinks || options.audience === "agent") return label;
       const url = options.links.target(target);
       if (O.isNone(url)) return label;
@@ -430,7 +518,9 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
  * @category layers
  * @since 0.0.0
  */
-export const ambientLinksLayer = (options: CliLinksOptions = {}): LayerType.Layer<CliLinks, never, CurrentRuntimeEnv> =>
+export const ambientLinksLayer = (
+  options: CliLinksOptions.Encoded = {}
+): LayerType.Layer<CliLinks, never, CurrentRuntimeEnv> =>
   Layer.effect(
     CliLinks,
     Effect.gen(function* () {

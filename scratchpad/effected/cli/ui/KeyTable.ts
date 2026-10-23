@@ -152,9 +152,9 @@ const WORDS: Record<KeyName, string> = {
 };
 
 const labelOf: {
-	(key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string;
-	(glyphs: Cli.GlyphSet): (key: KeyName | { readonly char: string }) => string;
-} = dual(2, (key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string => {
+	(key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet.Encoded): string;
+	(glyphs: Cli.GlyphSet.Encoded): (key: KeyName | { readonly char: string }) => string;
+} = dual(2, (key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet.Encoded): string => {
 	if (!P.isString(key)) return key.char;
 	return (glyphs.kind === "unicode" ? ARROWS[key] : undefined) ?? WORDS[key];
 });
@@ -312,7 +312,7 @@ export class KeyTable<Action> {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	readonly help = (glyphs: Cli.GlyphSet): ReadonlyArray<KeyHelpRow> => {
+	readonly help = (glyphs: Cli.GlyphSet.Encoded): ReadonlyArray<KeyHelpRow> => {
 		const taken = MutableHashSet.empty<string>();
 		const rows: Array<KeyHelpRow> = [];
 		for (const binding of this.bindings) {

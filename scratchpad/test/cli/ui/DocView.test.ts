@@ -56,7 +56,7 @@ const trimmed = (text: string): string =>
 		.replace(/\n+$/, "");
 
 /** The context `DocView` should build from a screen's theme, written out from the public `RenderContext` shape. */
-const contextFrom = (theme: StreamTheme, width: number): RenderContext => ({
+const contextFrom = (theme: StreamTheme.Encoded, width: number): RenderContext.Encoded => ({
 	width,
 	audience: "human",
 	color: theme.color,
@@ -84,7 +84,7 @@ describe("DocView", () => {
 
 	it.effect("in colour, its token markers are exactly Render.ansi's with the screen's own theme paint", () =>
 		Effect.gen(function* () {
-			let seen: { readonly theme: StreamTheme; readonly columns: number } | undefined;
+			let seen: { readonly theme: StreamTheme.Encoded; readonly columns: number } | undefined;
 			const Probe = (): ReactElement => {
 				seen = { theme: useTheme(), columns: useTerminalSize().columns };
 				return createElement(DocView, { doc: sample });

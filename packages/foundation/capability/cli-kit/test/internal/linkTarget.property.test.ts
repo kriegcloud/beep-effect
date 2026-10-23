@@ -2,6 +2,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -39,7 +40,7 @@ it.effect.prop(
       assert.strictEqual(decodeURIComponent(encodeForOsc8(parsed)), parsed);
       assert.strictEqual(encodeForOsc8("%C3%A9"), "%C3%A9");
       const absolute = `/root/${input}`;
-      const target = fileUrlPath(absolute);
+      const target = O.getOrUndefined(fileUrlPath(absolute));
       assert.strictEqual(target, encodePath(absolute));
     }),
   runs

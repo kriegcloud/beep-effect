@@ -26,10 +26,10 @@ it.effect.prop(
   ([value]) =>
     Effect.sync(() => {
       const text = hexOf(value);
-      const parsed = parseHex(text);
+      const parsed = O.getOrUndefined(parseHex(text));
       assert.deepStrictEqual(parsed, value);
       if (parsed === undefined) return assert.fail("valid RGB did not parse");
-      assert.deepStrictEqual(parseHex(hexOf(parsed)), parsed);
+      assert.deepStrictEqual(O.getOrUndefined(parseHex(hexOf(parsed))), parsed);
       assert.strictEqual(hexOf(parsed), text);
       const index = nearest256(parsed);
       assert.isAtLeast(index, 16);
@@ -97,12 +97,12 @@ it.effect.prop(
         A.map((n) => n.toString(16)),
         A.join("")
       )}`;
-      const parsed = parseHex(short);
+      const parsed = O.getOrUndefined(parseHex(short));
       assert.deepStrictEqual(parsed, [value[0] * 17, value[1] * 17, value[2] * 17]);
       if (parsed === undefined) return assert.fail("valid short hex did not parse");
       const canonical = hexOf(parsed);
-      assert.deepStrictEqual(parseHex(canonical), parsed);
-      assert.deepStrictEqual(parseHex(Str.toUpperCase(canonical)), parsed);
+      assert.deepStrictEqual(O.getOrUndefined(parseHex(canonical)), parsed);
+      assert.deepStrictEqual(O.getOrUndefined(parseHex(Str.toUpperCase(canonical))), parsed);
     }),
   runs
 );

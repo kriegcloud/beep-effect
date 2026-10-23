@@ -29,7 +29,7 @@ it.effect("refresh overloads dispatch omitted and undefined audiences to Effects
   Effect.gen(function* () {
     const omitted: Effect.Effect<void> = refreshFailureTarget();
     const explicitUndefined: Effect.Effect<void> = refreshFailureTarget(undefined);
-    const curry: (settings: FailureSettings) => (audience?: AudienceShape) => Effect.Effect<void> =
+    const curry: (settings: FailureSettings.Encoded) => (audience?: AudienceShape) => Effect.Effect<void> =
       refreshFailureTarget;
     const curried = curry({ spans: "off" });
     assert.isTrue(Effect.isEffect(omitted));

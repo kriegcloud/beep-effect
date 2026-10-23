@@ -88,7 +88,7 @@ export interface StyledProps {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly token: Cli.TokenName | Cli.Style;
+	readonly token: Cli.TokenName | Cli.Style.Encoded;
 	/**
 	 * The text.
 	 *
@@ -154,11 +154,11 @@ const useScreen = (): ScreenContextValue => {
  * @since 0.0.0
  */
 export const inkProps: {
-	(color?: ColorLevel): (style: Cli.Style) => InkTextProps;
-	(style: Cli.Style, color?: ColorLevel): InkTextProps;
+	(color?: ColorLevel): (style: Cli.Style.Encoded) => InkTextProps;
+	(style: Cli.Style.Encoded, color?: ColorLevel): InkTextProps;
 } = dual(
 	(args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]),
-	(style: Cli.Style, color?: ColorLevel): InkTextProps =>
+	(style: Cli.Style.Encoded, color?: ColorLevel): InkTextProps =>
 		color === "none"
 			? {}
 			: {
@@ -195,7 +195,7 @@ export const inkProps: {
  * @category hooks
  * @since 0.0.0
  */
-export const useTheme = (): Cli.StreamTheme => useScreen().theme;
+export const useTheme = (): Cli.StreamTheme.Encoded => useScreen().theme;
 
 /**
  * The glyph set of the mounted screen, so a component draws Unicode or ASCII glyphs to match the rest of the output.
@@ -222,7 +222,7 @@ export const useTheme = (): Cli.StreamTheme => useScreen().theme;
  * @category hooks
  * @since 0.0.0
  */
-export const useGlyphs = (): Cli.GlyphSet => useScreen().glyphs;
+export const useGlyphs = (): Cli.GlyphSet.Encoded => useScreen().glyphs;
 
 /**
  * Text painted with a theme token or style, through the mounted screen's theme.

@@ -18,7 +18,7 @@ import type { BlockOf, Counter, Inline } from "../Doc.ts";
  * import { counterLabel } from "@beep/cli-kit/internal/counts"
  * import type { Counter } from "@beep/cli-kit/Doc"
  *
- * const counter: Counter = {
+ * const counter: Counter.Encoded = {
  *   key: "repos", label: { one: "repo", other: "repos" }, n: 1,
  *   status: { name: "ok", def: { glyph: "+", ascii: "+", token: "success", rank: 0 } },
  * }
@@ -31,11 +31,11 @@ import type { BlockOf, Counter, Inline } from "../Doc.ts";
  * @since 0.0.0
  */
 export const counterLabel: {
-  (count?: number): (counter: Counter) => string;
-  (counter: Counter, count?: number): string;
+  (count?: number): (counter: Counter.Encoded) => string;
+  (counter: Counter.Encoded, count?: number): string;
 } = dual(
   (args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]),
-  (counter: Counter, count: number = counter.n): string =>
+  (counter: Counter.Encoded, count: number = counter.n): string =>
     P.isString(counter.label) ? counter.label : count === 1 ? counter.label.one : counter.label.other
 );
 
@@ -49,7 +49,7 @@ export const counterLabel: {
  * import { columnLabel } from "@beep/cli-kit/internal/counts"
  * import type { Counter } from "@beep/cli-kit/Doc"
  *
- * const counter: Counter = {
+ * const counter: Counter.Encoded = {
  *   key: "repos", label: { one: "repo", other: "repos" }, n: 1,
  *   status: { name: "ok", def: { glyph: "+", ascii: "+", token: "success", rank: 0 } },
  * }
@@ -60,7 +60,7 @@ export const counterLabel: {
  * @category formatting
  * @since 0.0.0
  */
-export const columnLabel = (counter: Counter): string =>
+export const columnLabel = (counter: Counter.Encoded): string =>
   P.isString(counter.label) ? counter.label : counter.label.other;
 
 /**
@@ -99,7 +99,7 @@ export const totalOf = (block: BlockOf<"Counts">): number =>
  * import type { Counter } from "@beep/cli-kit/Doc"
  * import type { BlockOf } from "@beep/cli-kit/Doc"
  *
- * const counter: Counter = {
+ * const counter: Counter.Encoded = {
  *   key: "repos", label: { one: "repo", other: "repos" }, n: 1,
  *   status: { name: "ok", def: { glyph: "+", ascii: "+", token: "success", rank: 0 } },
  * }
@@ -114,7 +114,7 @@ export const totalOf = (block: BlockOf<"Counts">): number =>
  * @category filtering
  * @since 0.0.0
  */
-export const visibleCountersOf = (block: BlockOf<"Counts">): ReadonlyArray<Counter> =>
+export const visibleCountersOf = (block: BlockOf<"Counts">): ReadonlyArray<Counter.Encoded> =>
   A.filter(block.counters, (counter) => counter.n !== 0 || counter.showZero === true);
 
 /**
@@ -141,7 +141,7 @@ export const visibleCountersOf = (block: BlockOf<"Counts">): ReadonlyArray<Count
  * @since 0.0.0
  */
 export const countsTableOf = (block: BlockOf<"CountsTable">): BlockOf<"Table"> => {
-  const keys: Array<Counter> = [];
+  const keys: Array<Counter.Encoded> = [];
   const seen = MutableHashSet.empty<string>();
   const indexed = A.map(block.rows, (row) => {
     const counters = MutableHashMap.empty<string, Counter>();
@@ -196,9 +196,9 @@ export const countsTableOf = (block: BlockOf<"CountsTable">): BlockOf<"Table"> =
   return {
     _tag: "Table",
     columns: [
-      { header: block.labelHeader ?? [] },
-      ...A.map(keys, (key) => ({ header: [text(columnLabel(key))] })),
-      ...(timed ? [{ header: block.durationHeader ?? [text("duration")] }] : []),
+      { _tag: "Column", header: block.labelHeader ?? [] },
+      ...A.map(keys, (key) => ({ _tag: "Column" as const, header: [text(columnLabel(key))] })),
+      ...(timed ? [{ _tag: "Column" as const, header: block.durationHeader ?? [text("duration")] }] : []),
     ],
     rows: [...rows, ...total],
   };

@@ -1,14 +1,20 @@
+import { $CliKitId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { sanitize } from "../Fmt.ts";
+import { LinkTarget } from "../LinkTarget.ts";
+import { Style, TokenName } from "../Token.ts";
 import { displayWidth, graphemes } from "./displayWidth.ts";
-import type { Inline, LinkTarget } from "../Doc.ts";
+import type { Inline } from "../Doc.ts";
+import type { LinkTargetInput } from "../LinkTarget.ts";
 import type { RenderContext } from "../Render.ts";
-import type { Style, TokenName } from "../Token.ts";
+
+const $I = $CliKitId.create("internal/layout");
 
 /**
  * A run of text with one style and one link: the unit a renderer lays out.
@@ -18,44 +24,83 @@ import type { Style, TokenName } from "../Token.ts";
  * `text` is plain: flattening removes any escape sequence it carried. Spans that came from one `Link` inline share
  * the same `link` object, which is how painting wraps them in a single hyperlink.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { Span } from "@beep/cli-kit/internal/layout"
+ *
+ * console.log(typeof Span.make) // function
+ * ```
+ *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export interface Span {
-  /**
-   * It came from a `Code` inline. A renderer adds its own code markers, and `truncateSpans` reads the flag too:
-   * an ellipsis after a code span is plain text beside it, not inside it.
+export class Span extends S.Opaque<Span, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * It came from a `Code` inline. A renderer adds its own code markers, and `truncateSpans` reads the flag too:
+     * an ellipsis after a code span is plain text beside it, not inside it.
+     */
+    code: S.optionalKey(S.Literal(true)).pipe($I.annoteKey("Span.code", { description: "The code field of Span." })),
+    /** It came from inside an `Emphasis`: italic in `ansi`, `_` in markdown. */
+    em: S.optionalKey(S.Literal(true)).pipe($I.annoteKey("Span.em", { description: "The em field of Span." })),
+    /** It came from a `StatusMark`: a glyph, which `Counts` with `paint: "glyph"` keeps painted. */
+    glyph: S.optionalKey(S.Literal(true)).pipe($I.annoteKey("Span.glyph", { description: "The glyph field of Span." })),
+    /**
+     * Whitespace kept at the end of a line, never trimmed: the indent of a blank line inside a compact list item, so
+     * the item's lines read as one indented block (a test runner's diff has blank lines).
+     */
+    hold: S.optionalKey(S.Literal(true)).pipe($I.annoteKey("Span.hold", { description: "The hold field of Span." })),
+    /** The link it belongs to. */
+    link: S.optionalKey(S.suspend(() => LinkTarget)).pipe(
+      $I.annoteKey("Span.link", { description: "The link field of Span." })
+    ),
+    /** It came from inside a `Strong`: bold in `ansi`, `**` in markdown. */
+    strong: S.optionalKey(S.Literal(true)).pipe(
+      $I.annoteKey("Span.strong", { description: "The strong field of Span." })
+    ),
+    /** The `suffix` option of the link it belongs to, when the `Link` set one. */
+    suffix: S.optionalKey(S.Boolean).pipe($I.annoteKey("Span.suffix", { description: "The suffix field of Span." })),
+    /** The plain text. */
+    text: S.String.pipe($I.annoteKey("Span.text", { description: "The text field of Span." })),
+    /** The token or style it is painted with. */
+    token: S.optionalKey(S.Union([TokenName, Style])).pipe(
+      $I.annoteKey("Span.token", { description: "The token field of Span." })
+    ),
+  }).pipe($I.annoteSchema("Span", { description: "Plain Span data." }))
+) {}
+/**
+ * Companion types for {@link Span}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { Span } from "@beep/cli-kit/internal/layout"
+ *
+ * const accepts = (_value: Span.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace Span {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly code?: true;
-  /** It came from inside an `Emphasis`: italic in `ansi`, `_` in markdown. */
-  readonly em?: true;
-  /** It came from a `StatusMark`: a glyph, which `Counts` with `paint: "glyph"` keeps painted. */
-  readonly glyph?: true;
-  /**
-   * Whitespace kept at the end of a line, never trimmed: the indent of a blank line inside a compact list item, so
-   * the item's lines read as one indented block (a test runner's diff has blank lines).
-   */
-  readonly hold?: true;
-  /** The link it belongs to. */
-  readonly link?: LinkTarget;
-  /** It came from inside a `Strong`: bold in `ansi`, `**` in markdown. */
-  readonly strong?: true;
-  /** The `suffix` option of the link it belongs to, when the `Link` set one. */
-  readonly suffix?: boolean;
-  /** The plain text. */
-  readonly text: string;
-  /** The token or style it is painted with. */
-  readonly token?: TokenName | Style;
+  export type Encoded = typeof Span.Encoded;
 }
 
-const pathSeparator = (ctx: RenderContext): string =>
+const pathSeparator = (ctx: RenderContext.Encoded): string =>
   ctx.audience === "agent" ? ctx.glyphs.pathSeparator.agent : ` ${ctx.glyphs.pathSeparator.human} `;
 
 /** A link target is sanitized like content, and loses its line breaks, which no URL or path holds. */
 const safeTargetText = (text: string): string => Str.replace(/[\r\n]/g, "")(sanitize(text));
 
-const safeTarget = (target: LinkTarget): LinkTarget =>
+const safeTarget = (target: LinkTargetInput): LinkTargetInput =>
   // A structural test, so this module needs no runtime edge to Doc.ts (which imports Render, which imports this). A
   // file target may carry `url: undefined` and stays a file target, as the schema decides.
   Match.value(target).pipe(
@@ -67,16 +112,16 @@ const safeTarget = (target: LinkTarget): LinkTarget =>
   );
 
 const spansOf: {
-  (inline: Inline, ctx: RenderContext): ReadonlyArray<Span>;
-  (ctx: RenderContext): (inline: Inline) => ReadonlyArray<Span>;
+  (inline: Inline, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded>;
+  (ctx: RenderContext.Encoded): (inline: Inline) => ReadonlyArray<Span.Encoded>;
 } = dual(
   2,
-  (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
+  (inline: Inline, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded> =>
     Match.valueTags(inline, {
       Text: (inline) => [
         { text: sanitize(inline.value), ...O.getSomesStruct({ token: O.fromUndefinedOr(inline.token) }) },
       ],
-      Code: (inline): ReadonlyArray<Span> => [{ text: sanitize(inline.value), code: true }],
+      Code: (inline): ReadonlyArray<Span.Encoded> => [{ text: sanitize(inline.value), code: true }],
       Link: (inline) => {
         // Links do not nest: the outer target wins over one inside the label. The target is sanitized like content,
         // since a control character in a URL ends an OSC 8 early; one copy is shared by every span of the link.
@@ -88,7 +133,7 @@ const spansOf: {
           A.map((span) => ({ ...span, link, ...suffix }))
         );
       },
-      StatusMark: (inline): ReadonlyArray<Span> => [
+      StatusMark: (inline): ReadonlyArray<Span.Encoded> => [
         {
           text: sanitize(ctx.glyphs.kind === "ascii" ? inline.def.ascii : inline.def.glyph),
           token: inline.def.token,
@@ -137,11 +182,11 @@ const spansOf: {
  * @since 0.0.0
  */
 export const flatten: {
-  (ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
+  (ctx: RenderContext.Encoded): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span.Encoded>;
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded>;
 } = dual(
   2,
-  (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
+  (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded> =>
     pipe(
       inlines,
       A.flatMap(spansOf(ctx)),
@@ -170,24 +215,24 @@ export const flatten: {
  * @category formatting
  * @since 0.0.0
  */
-export const widthOf = (spans: ReadonlyArray<Span>): number =>
+export const widthOf = (spans: ReadonlyArray<Span.Encoded>): number =>
   A.reduce(spans, 0, (sum, span) => sum + displayWidth(span.text));
 
 /** One grapheme with its width and the span it came from. */
 interface Cell {
   readonly grapheme: string;
-  readonly span: Span;
+  readonly span: Span.Encoded;
   readonly width: number;
 }
 
-const cellsOf = (spans: ReadonlyArray<Span>): ReadonlyArray<Cell> =>
+const cellsOf = (spans: ReadonlyArray<Span.Encoded>): ReadonlyArray<Cell> =>
   A.flatMap(spans, (span) =>
     A.map(graphemes(span.text), (grapheme) => ({ grapheme, width: displayWidth(grapheme), span }))
   );
 
 /** Rebuild spans from cells, merging a run that came from the same span. */
-const spansFromCells = (cells: ReadonlyArray<Cell>): ReadonlyArray<Span> => {
-  const out: Array<Span> = [];
+const spansFromCells = (cells: ReadonlyArray<Cell>): ReadonlyArray<Span.Encoded> => {
+  const out: Array<Span.Encoded> = [];
   let current: Cell["span"] | undefined;
   for (const cell of cells) {
     if (cell.span === current) {
@@ -201,7 +246,7 @@ const spansFromCells = (cells: ReadonlyArray<Cell>): ReadonlyArray<Span> => {
   return out;
 };
 
-const takeCells = (spans: ReadonlyArray<Span>, budget: number): ReadonlyArray<Span> => {
+const takeCells = (spans: ReadonlyArray<Span.Encoded>, budget: number): ReadonlyArray<Span.Encoded> => {
   const kept: Array<Cell> = [];
   let used = 0;
   for (const cell of cellsOf(spans)) {
@@ -213,10 +258,10 @@ const takeCells = (spans: ReadonlyArray<Span>, budget: number): ReadonlyArray<Sp
 };
 
 const appendEllipsis = (
-  out: ReadonlyArray<Span>,
-  spans: ReadonlyArray<Span>,
+  out: ReadonlyArray<Span.Encoded>,
+  spans: ReadonlyArray<Span.Encoded>,
   ellipsis: string
-): ReadonlyArray<Span> => {
+): ReadonlyArray<Span.Encoded> => {
   const last = out[out.length - 1];
   if (last === undefined) {
     // Nothing but the marker fits: it stands for the whole label, so it keeps the first span's style and link.
@@ -259,9 +304,9 @@ const appendEllipsis = (
  * @since 0.0.0
  */
 export const truncateSpans: {
-  (width: number, ellipsis: string): (spans: ReadonlyArray<Span>) => ReadonlyArray<Span>;
-  (spans: ReadonlyArray<Span>, width: number, ellipsis: string): ReadonlyArray<Span>;
-} = dual(3, (spans: ReadonlyArray<Span>, width: number, ellipsis: string): ReadonlyArray<Span> => {
+  (width: number, ellipsis: string): (spans: ReadonlyArray<Span.Encoded>) => ReadonlyArray<Span.Encoded>;
+  (spans: ReadonlyArray<Span.Encoded>, width: number, ellipsis: string): ReadonlyArray<Span.Encoded>;
+} = dual(3, (spans: ReadonlyArray<Span.Encoded>, width: number, ellipsis: string): ReadonlyArray<Span.Encoded> => {
   const limit = Number.isNaN(width) ? 0 : Math.floor(width);
   if (limit <= 0) return [];
   if (widthOf(spans) <= limit) return spans;
@@ -298,10 +343,10 @@ export const truncateSpans: {
  * @since 0.0.0
  */
 export const paintSpans: {
-  (ctx: RenderContext): (spans: ReadonlyArray<Span>) => string;
-  (spans: ReadonlyArray<Span>, ctx: RenderContext): string;
-} = dual(2, (spans: ReadonlyArray<Span>, ctx: RenderContext): string => {
-  const paint = (span: Span): string => {
+  (ctx: RenderContext.Encoded): (spans: ReadonlyArray<Span.Encoded>) => string;
+  (spans: ReadonlyArray<Span.Encoded>, ctx: RenderContext.Encoded): string;
+} = dual(2, (spans: ReadonlyArray<Span.Encoded>, ctx: RenderContext.Encoded): string => {
+  const paint = (span: Span.Encoded): string => {
     const toned = span.token === undefined ? span.text : ctx.paint(span.token, span.text);
     const bold = span.strong === true ? ctx.paint({ bold: true }, toned) : toned;
     return span.em === true ? ctx.paint({ italic: true }, bold) : bold;
@@ -345,13 +390,48 @@ const wordRun = (cells: ReadonlyArray<Cell>, start: number) => {
 /**
  * Options for {@link wrapSpans}.
  *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { WrapOptions } from "@beep/cli-kit/internal/layout"
+ *
+ * console.log(typeof WrapOptions.make) // function
+ * ```
+ *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export interface WrapOptions {
-  /** Break a word longer than the width at the edge; `true` by default. When `false` it stays whole on its own line. */
-  readonly hardBreak?: boolean;
+export class WrapOptions extends S.Opaque<WrapOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Break a word longer than the width at the edge; `true` by default. When `false` it stays whole on its own line. */
+    hardBreak: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("WrapOptions.hardBreak", { description: "The hardBreak field of WrapOptions." })
+    ),
+  }).pipe($I.annoteSchema("WrapOptions", { description: "Plain WrapOptions data." }))
+) {}
+/**
+ * Companion types for {@link WrapOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { WrapOptions } from "@beep/cli-kit/internal/layout"
+ *
+ * const accepts = (_value: WrapOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace WrapOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WrapOptions.Encoded;
 }
 
 /**
@@ -381,11 +461,22 @@ export interface WrapOptions {
  * @since 0.0.0
  */
 export const wrapSpans: {
-  (width: number, options?: WrapOptions): (spans: ReadonlyArray<Span>) => ReadonlyArray<ReadonlyArray<Span>>;
-  (spans: ReadonlyArray<Span>, width: number, options?: WrapOptions): ReadonlyArray<ReadonlyArray<Span>>;
+  (
+    width: number,
+    options?: WrapOptions.Encoded
+  ): (spans: ReadonlyArray<Span.Encoded>) => ReadonlyArray<ReadonlyArray<Span.Encoded>>;
+  (
+    spans: ReadonlyArray<Span.Encoded>,
+    width: number,
+    options?: WrapOptions.Encoded
+  ): ReadonlyArray<ReadonlyArray<Span.Encoded>>;
 } = dual(
   (args) => A.isArray(args[0]),
-  (spans: ReadonlyArray<Span>, width: number, options?: WrapOptions): ReadonlyArray<ReadonlyArray<Span>> => {
+  (
+    spans: ReadonlyArray<Span.Encoded>,
+    width: number,
+    options?: WrapOptions.Encoded
+  ): ReadonlyArray<ReadonlyArray<Span.Encoded>> => {
     const limit = Number.isNaN(width) ? 1 : Math.max(1, Math.floor(width));
     const cells = cellsOf(spans);
     const lines: Array<ReadonlyArray<Cell>> = [];

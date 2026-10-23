@@ -21,13 +21,13 @@ import {
   tokenPaint,
 } from "./helpers/renderContext.ts";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
-import type { Block, CliLinksShape, LinkTarget, RenderContext } from "@beep/cli-kit";
+import type { Block, CliLinksShape, LinkTargetInput, RenderContext } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 
-const ansi = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const ansi = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(contextOf(overrides), (ctx) => Render.ansi(doc, ctx));
-const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(contextOf(overrides), (ctx) => Render.plain(doc, ctx));
 
 /** A context whose paint marks tokens, so a test decodes them; hyperlinks are off unless a test turns them on. */
@@ -38,7 +38,7 @@ const OFF = {
   link: labelLink,
 } as const;
 
-const tokensOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
+const tokensOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext.Encoded> = {}) =>
   Effect.map(ansi(doc, { ...TOKENS, ...overrides }), (out) => pipe(out, Str.split("\n"), A.map(decodeTokens)));
 
 const CONTROL = /[\u0000-\u0009\u000B-\u001F\u007F-\u009F]/;
@@ -434,7 +434,7 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
       const seen: Array<string> = [];
       const out = yield* ansi([Doc.paragraph(Doc.link({ url: "https://example.test/a\nb" }, "docs"))], {
         paint: plainPaint,
-        link: dual(2, (target: LinkTarget, label: string): string => {
+        link: dual(2, (target: LinkTargetInput, label: string): string => {
           seen.push("url" in target ? target.url : target.file);
           return label;
         }),

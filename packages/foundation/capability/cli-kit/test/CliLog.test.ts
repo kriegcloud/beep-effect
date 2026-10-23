@@ -67,7 +67,7 @@ interface Setup {
   readonly color?: "none" | "basic";
   readonly env?: Record<string, string>;
   readonly format?: "auto" | "json" | "pretty";
-  readonly logger?: CliLoggerOptions;
+  readonly logger?: CliLoggerOptions.Encoded;
   readonly stderrTty?: boolean;
 }
 

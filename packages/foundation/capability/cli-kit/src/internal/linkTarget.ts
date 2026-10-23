@@ -1,5 +1,6 @@
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 // A lone surrogate makes `encodeURIComponent` throw, so it becomes U+FFFD first.
@@ -85,7 +86,7 @@ export const encodePath = (path: string): string =>
   );
 
 /**
- * The encoded path part of a `file:` URL for an absolute path (the part after `file://`), or `undefined` for a UNC
+ * The encoded path part of a `file:` URL for an absolute path (the part after `file://`), or `None` for a UNC
  * path. One builder, so `CliLinks` and `Render.markdown` link a file the same way.
  *
  * **Details**
@@ -96,20 +97,21 @@ export const encodePath = (path: string): string =>
  *
  * ```ts
  * import { fileUrlPath } from "@beep/cli-kit/internal/linkTarget"
+ * import * as O from "effect/Option"
  *
- * console.log(fileUrlPath("C:/my project/main.ts")) // /C:/my%20project/main.ts
- * console.log(fileUrlPath("//server/share/main.ts")) // undefined
+ * console.log(O.getOrUndefined(fileUrlPath("C:/my project/main.ts"))) // /C:/my%20project/main.ts
+ * console.log(O.getOrUndefined(fileUrlPath("//server/share/main.ts"))) // undefined
  * ```
  *
  * @internal
  * @category encoding
  * @since 0.0.0
  */
-export const fileUrlPath = (absolute: string): string | undefined => {
-  if (UNC.test(absolute)) return undefined;
+export const fileUrlPath = (absolute: string): O.Option<string> => {
+  if (UNC.test(absolute)) return O.none();
   if (DRIVE.test(absolute))
-    return `/${Str.slice(0, 2)(absolute)}${encodePath(pipe(absolute, Str.slice(2), Str.replace(/\\/g, "/")))}`;
-  return encodePath(Str.startsWith("/")(absolute) ? absolute : `/${Str.replace(/\\/g, "/")(absolute)}`);
+    return O.some(`/${Str.slice(0, 2)(absolute)}${encodePath(pipe(absolute, Str.slice(2), Str.replace(/\\/g, "/")))}`);
+  return O.some(encodePath(Str.startsWith("/")(absolute) ? absolute : `/${Str.replace(/\\/g, "/")(absolute)}`));
 };
 
 /**

@@ -289,7 +289,7 @@ const NAMES: Readonly<Record<number, NamedColor | undefined>> = {
 
 const ESC = String.fromCharCode(0x1b);
 
-type MutableStyle = { -readonly [K in keyof Style]: Style[K] };
+type MutableStyle = { -readonly [K in keyof Style.Encoded]: Style.Encoded[K] };
 
 const applyCode = (style: MutableStyle, code: number): void => {
   if (code === 1) style.bold = true;
@@ -308,8 +308,8 @@ const applyParams = (style: MutableStyle, parts: ReadonlyArray<number>): void =>
   }
 };
 
-const decode = (painted: string): Style => {
-  const style: { -readonly [K in keyof Style]: Style[K] } = {};
+const decode = (painted: string): Style.Encoded => {
+  const style: { -readonly [K in keyof Style.Encoded]: Style.Encoded[K] } = {};
   const opens = A.map([...Str.matchAll(new RegExp(`${ESC}\\[([0-9;]+)m`, "g"))(painted)], (match) => match[1] ?? "");
   for (const params of opens) {
     const parts = pipe(params, Str.split(";"), A.map(Number));
@@ -366,7 +366,7 @@ describe("Token.resolve agrees with what CliTheme.paint renders", () => {
             assert.deepStrictEqual(decode(view.paint(token, "x")), { ...resolved }, `${stream} ${token}`);
           }
         }
-        const explicit: Style = { fg: "#abcdef", italic: true };
+        const explicit: Style.Encoded = { fg: "#abcdef", italic: true };
         assert.deepStrictEqual(theme.style(explicit), explicit);
         assert.deepStrictEqual(decode(theme.paint(explicit, "x")), explicit);
       })

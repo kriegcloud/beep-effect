@@ -57,6 +57,16 @@ it.layer(Platform, { timeout: "30 seconds" })("CliTest", (it) => {
     })
   );
 
+  it.effect("without a cwd the child runs in the sandbox root", () =>
+    Effect.gen(function* () {
+      const made = yield* CliTest.sandbox({ path: yield* HOST_PATH });
+      // A sandbox whose root is a real directory: the fixtures, which the child can run in.
+      const sandbox = { ...made, root: FIXTURES };
+      const result = yield* CliTest.run(BIN, [], { sandbox, execPath: process.execPath, stdin: "" });
+      assert.strictEqual(result.exitCode, 3);
+    })
+  );
+
   it.effect(
     "omitted stdin completes rather than hanging on an open pipe",
     () =>

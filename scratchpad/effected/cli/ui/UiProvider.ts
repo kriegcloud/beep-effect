@@ -31,13 +31,13 @@ export interface UiContextValue {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly theme: Cli.StreamTheme;
+	readonly theme: Cli.StreamTheme.Encoded;
 	/**
 	 * The glyph set in use.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly glyphs: Cli.GlyphSet;
+	readonly glyphs: Cli.GlyphSet.Encoded;
 	/**
 	 * The terminal size the tree is laid out at, which `useTerminalSize` reads in place of the stdout's.
 	 *

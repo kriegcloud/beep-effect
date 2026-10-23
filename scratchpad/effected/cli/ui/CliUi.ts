@@ -148,7 +148,7 @@ export type CliUiFallbackOptions<A> = Cli.CliPromptFallbackOptions<A> & {
  * `useTheme`, `Styled` and the widgets' colour-none markers never carry an escape for one. `Audience` is read only when
  * provided, so it stays out of the requirements.
  */
-const audienceTheme: Effect.Effect<Cli.StreamTheme, never, Cli.CliTheme> = Effect.gen(function* () {
+const audienceTheme: Effect.Effect<Cli.StreamTheme.Encoded, never, Cli.CliTheme> = Effect.gen(function* () {
 	const audience = yield* Effect.serviceOption(Audience);
 	return CliTheme.forAudience(
 		(yield* CliTheme).forStream("stdout"),
@@ -178,11 +178,11 @@ interface CrashCell {
 }
 
 const mount: {
-	<A>(screen: Screen<A>, theme: Cli.StreamTheme, clear: boolean, crash: CrashCell, neutralize: boolean): Effect.Effect<A, Cli.Cancelled, Scope.Scope>;
-	<A>(theme: Cli.StreamTheme, clear: boolean, crash: CrashCell, neutralize: boolean): (screen: Screen<A>) => Effect.Effect<A, Cli.Cancelled, Scope.Scope>;
+	<A>(screen: Screen<A>, theme: Cli.StreamTheme.Encoded, clear: boolean, crash: CrashCell, neutralize: boolean): Effect.Effect<A, Cli.Cancelled, Scope.Scope>;
+	<A>(theme: Cli.StreamTheme.Encoded, clear: boolean, crash: CrashCell, neutralize: boolean): (screen: Screen<A>) => Effect.Effect<A, Cli.Cancelled, Scope.Scope>;
 } = dual(5, Effect.fn("mount")(function* <A>(
 	screen: Screen<A>,
-	theme: Cli.StreamTheme,
+	theme: Cli.StreamTheme.Encoded,
 	clear: boolean,
 	crash: CrashCell,
 	neutralize: boolean,

@@ -56,7 +56,7 @@ export interface DocViewProps {
 	 * it replaces that context entirely, neutralizing included (set `neutralizeWorkflowCommands` on it when the runner
 	 * reads the output), and the view needs no provider.
 	 */
-	readonly ctx?: Cli.RenderContext;
+	readonly ctx?: Cli.RenderContext.Encoded;
 }
 
 const OUTSIDE =
@@ -66,9 +66,9 @@ const OUTSIDE =
  * The context a `DocView` builds from its tree's theme: the theme's own paint, so token overrides hold.
  */
 const contextOf: {
-	(theme: Cli.StreamTheme, width: number, neutralize: boolean): Cli.RenderContext;
-	(width: number, neutralize: boolean): (theme: Cli.StreamTheme) => Cli.RenderContext;
-} = dual(3, (theme: Cli.StreamTheme, width: number, neutralize: boolean): Cli.RenderContext => ({
+	(theme: Cli.StreamTheme.Encoded, width: number, neutralize: boolean): Cli.RenderContext.Encoded;
+	(width: number, neutralize: boolean): (theme: Cli.StreamTheme.Encoded) => Cli.RenderContext.Encoded;
+} = dual(3, (theme: Cli.StreamTheme.Encoded, width: number, neutralize: boolean): Cli.RenderContext.Encoded => ({
 	...(neutralize ? { neutralizeWorkflowCommands: true } : {}),
 	width,
 	audience: "human",
@@ -83,9 +83,9 @@ const contextOf: {
  * The document's lines as the kit's own renderer lays them out: plain at colour `none`, painted otherwise.
  */
 const linesOf: {
-	(doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext): ReadonlyArray<string>;
-	(ctx: Cli.RenderContext): (doc: Cli.Document | Cli.Block) => ReadonlyArray<string>;
-} = dual(2, (doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext): ReadonlyArray<string> => {
+	(doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext.Encoded): ReadonlyArray<string>;
+	(ctx: Cli.RenderContext.Encoded): (doc: Cli.Document | Cli.Block) => ReadonlyArray<string>;
+} = dual(2, (doc: Cli.Document | Cli.Block, ctx: Cli.RenderContext.Encoded): ReadonlyArray<string> => {
 	const isDocument = (value: Cli.Document | Cli.Block): value is Cli.Document => A.isArray(value);
 	const document: Cli.Document = isDocument(doc) ? doc : [doc];
 	const text = ctx.color === "none" ? Render.plain(document, ctx) : Render.ansi(document, ctx);

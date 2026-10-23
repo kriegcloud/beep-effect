@@ -100,7 +100,6 @@ export {
   type InlineInput,
   type InlineOf,
   type LinkOptions,
-  type LinkTarget,
   type ListOptions,
   type OverflowOptions,
   type StatusRef,
@@ -116,3 +115,4 @@ export { Render, type RenderContext, type RenderContextOfOptions, type RenderCon
 export { SchemaIssueRenderer } from "./SchemaIssueRenderer.ts";
 export { type CoreStatusName, Status, type StatusDef } from "./Status.ts";
 export { type NamedColor, type Style, Token, type TokenName } from "./Token.ts";
+export type { LinkTarget, LinkTargetInput } from "./LinkTarget.ts";

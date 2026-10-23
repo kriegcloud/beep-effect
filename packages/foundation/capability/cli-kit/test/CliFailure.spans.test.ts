@@ -74,7 +74,7 @@ const chain = (sites: { readonly app: string; readonly kit: string }): Frame => 
 const failedUnder = (frame: Frame) =>
   Cause.annotate(Cause.fail(new Error("Config validation failed")), Context.make(Cause.StackTrace, frame));
 
-const trail = (frame: Frame, options?: CliFailureOptions): string =>
+const trail = (frame: Frame, options?: CliFailureOptions.Encoded): string =>
   pipe(
     Render.plain(CliFailure.toDoc(failedUnder(frame), options), Render.contextOf({ audience: "agent" })),
     Str.split("\n"),
@@ -310,10 +310,10 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
     const runTool = Effect.fn("runTool")(function* (
       spans: "app" | "all" | "off" | undefined,
-      render?: (error: unknown, details: FailureDetails) => ReadonlyArray<string>,
+      render?: (error: unknown, details: FailureDetails.Encoded) => ReadonlyArray<string>,
       appModule?: string,
       variable?: { readonly spansEnvVar: string; readonly value?: string },
-      log?: CliLogOptions,
+      log?: CliLogOptions.Encoded,
       extraEnv: Record<string, string> = {}
     ) {
       const err: Array<string> = [];

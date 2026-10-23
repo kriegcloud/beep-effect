@@ -20,6 +20,78 @@ import type * as Param from "effect/cli/Param";
 const $I = $CliKitId.create("CliPrompt");
 
 /**
+ * A missing flag targeted by a prompt fallback.
+ *
+ * **Example** (Inspect the target schema)
+ *
+ * ```ts
+ * import { FlagTarget } from "@beep/cli-kit/CliPrompt"
+ * console.log(typeof FlagTarget.make) // function
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class FlagTarget extends S.Opaque<FlagTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
+    flag: S.String.pipe(
+      $I.annoteKey("CliPromptTarget.Flag.flag", { description: "The missing flag's name without leading dashes." })
+    ),
+  }).pipe($I.annoteSchema("CliPromptTarget.Flag", { description: "A fallback target naming a missing flag." }))
+) {}
+/** Companion types for {@link FlagTarget}.
+ * **Example** (Inspect the plain input)
+ * ```ts
+ * import type { FlagTarget } from "@beep/cli-kit/CliPrompt"
+ * const accepts = (_value: FlagTarget.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace FlagTarget {
+  /** The plain target input. @category type-level @since 0.0.0 */
+  export type Encoded = typeof FlagTarget.Encoded;
+}
+/**
+ * A missing argument targeted by a prompt fallback.
+ *
+ * **Example** (Inspect the target schema)
+ *
+ * ```ts
+ * import { ArgumentTarget } from "@beep/cli-kit/CliPrompt"
+ * console.log(typeof ArgumentTarget.make) // function
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ArgumentTarget extends S.Opaque<ArgumentTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
+    argument: S.String.pipe(
+      $I.annoteKey("CliPromptTarget.Argument.argument", { description: "The missing positional argument's name." })
+    ),
+  }).pipe(
+    $I.annoteSchema("CliPromptTarget.Argument", {
+      description: "A fallback target naming a missing positional argument.",
+    })
+  )
+) {}
+/** Companion types for {@link ArgumentTarget}.
+ * **Example** (Inspect the plain input)
+ * ```ts
+ * import type { ArgumentTarget } from "@beep/cli-kit/CliPrompt"
+ * const accepts = (_value: ArgumentTarget.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ArgumentTarget {
+  /** The plain target input. @category type-level @since 0.0.0 */
+  export type Encoded = typeof ArgumentTarget.Encoded;
+}
+/**
  * Which missing parameter a fallback stands in for, so a non-interactive run can fail with core's own error.
  *
  * **Example** (Validate the parameter named by a fallback)
@@ -35,22 +107,9 @@ const $I = $CliKitId.create("CliPrompt");
  * @category type-level
  * @since 0.0.0
  */
-export const CliPromptTarget = S.Union([
-  S.Struct({
-    flag: S.String.pipe(
-      $I.annoteKey("CliPromptTarget.Flag.flag", { description: "The missing flag's name without leading dashes." })
-    ),
-  }).pipe($I.annoteSchema("CliPromptTarget.Flag", { description: "A fallback target naming a missing flag." })),
-  S.Struct({
-    argument: S.String.pipe(
-      $I.annoteKey("CliPromptTarget.Argument.argument", { description: "The missing positional argument's name." })
-    ),
-  }).pipe(
-    $I.annoteSchema("CliPromptTarget.Argument", {
-      description: "A fallback target naming a missing positional argument.",
-    })
-  ),
-]).pipe($I.annoteSchema("CliPromptTarget", { description: "A plain flag or argument target for a prompt fallback." }));
+export const CliPromptTarget = S.Union([FlagTarget, ArgumentTarget]).pipe(
+  $I.annoteSchema("CliPromptTarget", { description: "A plain flag or argument target for a prompt fallback." })
+);
 
 /**
  * The plain missing-parameter cases validated by {@link CliPromptTarget}.
@@ -58,6 +117,20 @@ export const CliPromptTarget = S.Union([
  * @since 0.0.0
  */
 export type CliPromptTarget = typeof CliPromptTarget.Type;
+/** Companion types for {@link CliPromptTarget}.
+ * **Example** (Inspect plain target input)
+ * ```ts
+ * import type { CliPromptTarget } from "@beep/cli-kit/CliPrompt"
+ * const accepts = (_value: CliPromptTarget.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CliPromptTarget {
+  /** Plain missing-parameter input. @category type-level @since 0.0.0 */
+  export type Encoded = typeof CliPromptTarget.Encoded;
+}
 
 /**
  * Options for {@link CliPrompt.fallback}.
@@ -66,7 +139,7 @@ export type CliPromptTarget = typeof CliPromptTarget.Type;
  * @category type-level
  * @since 0.0.0
  */
-export type CliPromptFallbackOptions<A> = CliPromptTarget & {
+export type CliPromptFallbackOptions<A> = CliPromptTarget.Encoded & {
   /** The value to use when the run is not interactive. Without it a non-interactive run fails as missing. */
   readonly otherwise?: A;
 };

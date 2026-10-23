@@ -22,7 +22,7 @@ it.effect.prop(
 it.effect("built-in glyph sets round trip as plain objects with their exact frames and values", () =>
   Effect.gen(function* () {
     for (const glyphs of [Glyphs.unicode, Glyphs.ascii]) {
-      const encoded = yield* S.encodeEffect(GlyphSet)(glyphs);
+      const encoded = yield* S.encodeEffect(GlyphSet)(GlyphSet.make(glyphs));
       const decoded = yield* S.decodeEffect(GlyphSet)(encoded);
       assert.deepStrictEqual(decoded, glyphs);
       assert.notProperty(decoded, "_tag");

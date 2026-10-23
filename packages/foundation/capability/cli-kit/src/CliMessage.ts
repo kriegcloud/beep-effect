@@ -28,23 +28,40 @@ const $I = $CliKitId.create("CliMessage");
  * @category models
  * @since 0.0.0
  */
-export const CliMessageOptions = S.Struct({
-  /**
-   * Where the line goes. Defaults to stderr for a status whose rank is at or above `warning`'s in its
-   * vocabulary, stdout otherwise.
-   */
-  stream: S.optional(S.Literals(["stdout", "stderr"])).pipe(
-    $I.annoteKey("CliMessageOptions.stream", { description: "The output stream override for a status line." })
-  ),
-}).pipe($I.annoteSchema("CliMessageOptions", { description: "Plain output routing options for a status message." }));
+export class CliMessageOptions extends S.Opaque<CliMessageOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Where the line goes. Defaults to stderr for a status whose rank is at or above `warning`'s in its
+     * vocabulary, stdout otherwise.
+     */
+    stream: S.optional(S.Literals(["stdout", "stderr"])).pipe(
+      $I.annoteKey("CliMessageOptions.stream", { description: "The output stream override for a status line." })
+    ),
+  }).pipe($I.annoteSchema("CliMessageOptions", { description: "Plain output routing options for a status message." }))
+) {}
 
 /**
- * The plain stream override accepted by status messages.
+ * Companion types for {@link CliMessageOptions}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { CliMessageOptions } from "@beep/cli-kit/CliMessage"
+ *
+ * const accepts = (_value: CliMessageOptions.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type CliMessageOptions = typeof CliMessageOptions.Type;
+export declare namespace CliMessageOptions {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CliMessageOptions.Encoded;
+}
 
 /**
  * One-line status messages: a glyph and some text, themed for a person and plain for an agent.
@@ -106,12 +123,12 @@ export abstract class CliMessage {
       vocab: Status<N>,
       name: N,
       text: string,
-      options?: CliMessageOptions
+      options?: CliMessageOptions.Encoded
     ): Effect.Effect<void, never, CliTheme | Audience>;
     <N extends string>(
       name: N,
       text: string,
-      options?: CliMessageOptions
+      options?: CliMessageOptions.Encoded
     ): (vocab: Status<N>) => Effect.fn.Return<void, never, CliTheme | Audience>;
   } = dual(
     // The options are optional, so the arity cannot tell `status(vocab, name, text)` from the data-last
@@ -121,7 +138,7 @@ export abstract class CliMessage {
       vocab: Status<N>,
       name: N,
       text: string,
-      options?: CliMessageOptions
+      options?: CliMessageOptions.Encoded
     ): Effect.fn.Return<void, never, CliTheme | Audience> {
       const theme = yield* CliTheme;
       const audience = yield* Audience;

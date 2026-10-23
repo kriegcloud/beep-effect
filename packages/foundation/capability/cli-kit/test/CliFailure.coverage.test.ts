@@ -15,7 +15,7 @@ import * as Context from "effect/Context";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
-const plain = (cause: Cause.Cause<unknown>, options?: CliFailureOptions) =>
+const plain = (cause: Cause.Cause<unknown>, options?: CliFailureOptions.Encoded) =>
   Render.plain(CliFailure.toDoc(cause, options), Render.contextOf({ audience: "agent" }));
 
 it.effect("plain object failures use a string message and otherwise describe the object", () =>

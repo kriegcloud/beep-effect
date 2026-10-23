@@ -1,5 +1,6 @@
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { ColorLevel } from "@beep/runtime-env";
@@ -60,29 +61,30 @@ type Rgb = readonly [number, number, number];
  *
  * ```ts
  * import { parseHex } from "@beep/cli-kit/internal/ansi"
+ * import * as O from "effect/Option"
  *
- * console.log(JSON.stringify(parseHex("#f80"))) // [255,136,0]
+ * console.log(JSON.stringify(O.getOrUndefined(parseHex("#f80")))) // [255,136,0]
  * ```
  *
  * @category parsing
  * @since 0.0.0
  */
-export const parseHex = (hex: string): Rgb | undefined => {
+export const parseHex = (hex: string): O.Option<Rgb> => {
   const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(hex);
   if (short !== null) {
-    return [
+    return O.some([
       Number.parseInt(Str.repeat(2)(Str.slice(1, 2)(hex)), 16),
       Number.parseInt(Str.repeat(2)(Str.slice(2, 3)(hex)), 16),
       Number.parseInt(Str.repeat(2)(Str.slice(3, 4)(hex)), 16),
-    ];
+    ]);
   }
   const long = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
-  if (long === null) return undefined;
-  return [
+  if (long === null) return O.none();
+  return O.some([
     Number.parseInt(Str.slice(1, 3)(hex), 16),
     Number.parseInt(Str.slice(3, 5)(hex), 16),
     Number.parseInt(Str.slice(5, 7)(hex), 16),
-  ];
+  ]);
 };
 
 const distance: {
@@ -143,13 +145,14 @@ const nearest16 = (rgb: Rgb): number => {
 
 /** The foreground SGR parameters for a colour at a level, or `undefined` for none. */
 const foreground: {
-  (fg: NonNullable<Style["fg"]>, level: ColorLevel): string | undefined;
-  (level: ColorLevel): (fg: NonNullable<Style["fg"]>) => string | undefined;
-} = dual(2, (fg: NonNullable<Style["fg"]>, level: ColorLevel): string | undefined => {
+  (fg: NonNullable<Style.Encoded["fg"]>, level: ColorLevel): string | undefined;
+  (level: ColorLevel): (fg: NonNullable<Style.Encoded["fg"]>) => string | undefined;
+} = dual(2, (fg: NonNullable<Style.Encoded["fg"]>, level: ColorLevel): string | undefined => {
   // A name that is not a colour is ignored, as a malformed hex is, rather than printing `undefined` into an escape.
   if (!Str.startsWith("#")(fg)) return R.has(NAMED, fg) ? String(NAMED[fg]) : undefined;
-  const rgb = parseHex(fg);
-  if (rgb === undefined) return undefined;
+  const parsed = parseHex(fg);
+  if (O.isNone(parsed)) return undefined;
+  const rgb = parsed.value;
   if (level === "truecolor") return `38;2;${rgb[0]};${rgb[1]};${rgb[2]}`;
   if (level === "256") return `38;5;${nearest256(rgb)}`;
   return String(nearest16(rgb));
@@ -163,9 +166,9 @@ interface Wrap {
 
 /** The wraps for a style, innermost first: foreground, then dim, bold, italic and underline outward. */
 const wraps: {
-  (style: Style, level: ColorLevel): ReadonlyArray<Wrap>;
-  (level: ColorLevel): (style: Style) => ReadonlyArray<Wrap>;
-} = dual(2, (style: Style, level: ColorLevel): ReadonlyArray<Wrap> => {
+  (style: Style.Encoded, level: ColorLevel): ReadonlyArray<Wrap>;
+  (level: ColorLevel): (style: Style.Encoded) => ReadonlyArray<Wrap>;
+} = dual(2, (style: Style.Encoded, level: ColorLevel): ReadonlyArray<Wrap> => {
   const result: Wrap[] = [];
   const fg = style.fg === undefined ? undefined : foreground(style.fg, level);
   if (fg !== undefined) result.push({ open: `${ESC}${fg}m`, close: `${ESC}39m` });
@@ -197,9 +200,9 @@ const wraps: {
  * @since 0.0.0
  */
 export const paintStyle: {
-  (level: ColorLevel, text: string): (style: Style) => string;
-  (style: Style, level: ColorLevel, text: string): string;
-} = dual(3, (style: Style, level: ColorLevel, text: string): string => {
+  (level: ColorLevel, text: string): (style: Style.Encoded) => string;
+  (style: Style.Encoded, level: ColorLevel, text: string): string;
+} = dual(3, (style: Style.Encoded, level: ColorLevel, text: string): string => {
   if (level === "none" || text === "") return text;
   let out = text;
   for (const { open, close } of wraps(style, level)) {
@@ -223,9 +226,9 @@ export const paintStyle: {
  * @since 0.0.0
  */
 export const openSequence: {
-  (level: ColorLevel): (style: Style) => string;
-  (style: Style, level: ColorLevel): string;
-} = dual(2, (style: Style, level: ColorLevel): string =>
+  (level: ColorLevel): (style: Style.Encoded) => string;
+  (style: Style.Encoded, level: ColorLevel): string;
+} = dual(2, (style: Style.Encoded, level: ColorLevel): string =>
   level === "none"
     ? ""
     : pipe(

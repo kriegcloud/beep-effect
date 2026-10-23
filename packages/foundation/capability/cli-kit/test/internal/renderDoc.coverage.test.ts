@@ -4,6 +4,7 @@ import { renderPlain } from "@beep/cli-kit/internal/renderPlain";
 import { Render } from "@beep/cli-kit/Render";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 const ctx = Render.contextOf({ audience: "agent", width: 80 });
 describe("renderDoc branch boundaries", () => {
@@ -12,8 +13,8 @@ describe("renderDoc branch boundaries", () => {
       assert.deepStrictEqual(trimLine([{ text: "x " }, { text: " " }]), [{ text: "x" }]);
       assert.deepStrictEqual(trimLine([{ text: "  ", hold: true }]), [{ text: "  ", hold: true }]);
       assert.deepStrictEqual(textLines("x\r\ny\r"), ["x", "y"]);
-      assert.strictEqual(capOf(Number.NaN), undefined);
-      assert.strictEqual(capOf(-1), 0);
+      assert.strictEqual(O.getOrUndefined(capOf(Number.NaN)), undefined);
+      assert.strictEqual(O.getOrUndefined(capOf(-1)), 0);
     })
   );
   it.effect("renders empty lines and lists whose items draw nothing", () =>

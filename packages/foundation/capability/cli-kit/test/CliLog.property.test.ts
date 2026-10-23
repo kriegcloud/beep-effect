@@ -21,9 +21,9 @@ const runs = { arbitrary: fcRuns(100) };
 it.effect("CliLogStatusOptions preserves optional keys, undefined and plain construction", () =>
   Effect.gen(function* () {
     const omitted = CliLogStatusOptions.make({});
-    assert.deepStrictEqual(omitted, {});
+    assert.deepStrictEqual<unknown>(omitted, {});
     const undefinedOptions = CliLogStatusOptions.make({ level: undefined, indent: undefined });
-    assert.deepStrictEqual(undefinedOptions, { level: undefined, indent: undefined });
+    assert.deepStrictEqual<unknown>(undefinedOptions, { level: undefined, indent: undefined });
     // Own keys: both explicit-undefined keys are kept, and no tag is added.
     assert.deepStrictEqual(A.sort(Struct.keys(undefinedOptions), Str.Order), ["indent", "level"]);
     for (const value of [

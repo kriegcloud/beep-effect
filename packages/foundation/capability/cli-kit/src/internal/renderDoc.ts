@@ -7,7 +7,8 @@ import * as Str from "effect/String";
 import { Fmt, sanitize } from "../Fmt.ts";
 import { counterLabel, countsTableOf, totalOf, visibleCountersOf } from "./counts.ts";
 import { truncateSpans, widthOf, wrapSpans } from "./layout.ts";
-import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
+import type { Block, Document, Inline } from "../Doc.ts";
+import type { LinkTargetInput } from "../LinkTarget.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Style, TokenName } from "../Token.ts";
 import type { Span } from "./layout.ts";
@@ -18,7 +19,7 @@ import type { Span } from "./layout.ts";
  * @category type-level
  * @since 0.0.0
  */
-export type Line = ReadonlyArray<Span>;
+export type Line = ReadonlyArray<Span.Encoded>;
 
 /**
  * What differs between the text renderers. The walk, the layout and every width rule are shared; a renderer only
@@ -31,19 +32,19 @@ export type Line = ReadonlyArray<Span>;
 export interface Flavour {
   /** A finished line as the string that is printed. */
   readonly finish: {
-    (line: Line, ctx: RenderContext): string;
-    (ctx: RenderContext): (line: Line) => string;
+    (line: Line, ctx: RenderContext.Encoded): string;
+    (ctx: RenderContext.Encoded): (line: Line) => string;
   };
   /** Inline nodes as spans: code markers, the link policy, and whether tokens are kept. */
   readonly inline: {
-    (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
-    (ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
+    (inlines: ReadonlyArray<Inline>, ctx: RenderContext.Encoded): ReadonlyArray<Span.Encoded>;
+    (ctx: RenderContext.Encoded): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span.Encoded>;
   };
 }
 
-type Tone = TokenName | Style;
+type Tone = TokenName | Style.Encoded;
 
-const span = (text: string, token?: Tone): Span => (token === undefined ? { text } : { text, token });
+const span = (text: string, token?: Tone): Span.Encoded => (token === undefined ? { text } : { text, token });
 
 const textOf = (line: Line): string =>
   pipe(
@@ -68,9 +69,9 @@ const textOf = (line: Line): string =>
  * @since 0.0.0
  */
 export const targetText: {
-  (ctx: RenderContext): (target: LinkTarget) => string;
-  (target: LinkTarget, ctx: RenderContext): string;
-} = dual(2, (target: LinkTarget, ctx: RenderContext): string => {
+  (ctx: RenderContext.Encoded): (target: LinkTargetInput) => string;
+  (target: LinkTargetInput, ctx: RenderContext.Encoded): string;
+} = dual(2, (target: LinkTargetInput, ctx: RenderContext.Encoded): string => {
   if ("url" in target) return sanitize(target.url);
   const path = sanitize(ctx.displayPath(target.file));
   if (target.line === undefined) return path;
@@ -126,24 +127,24 @@ export const trimLine = (line: Line): Line => {
   return out;
 };
 
-const oneLine = (spans: ReadonlyArray<Span>): ReadonlyArray<Span> =>
+const oneLine = (spans: ReadonlyArray<Span.Encoded>): ReadonlyArray<Span.Encoded> =>
   A.map(spans, (s) => ({ ...s, text: Str.replace(/\r\n|\r|\n/g, " ")(s.text) }));
 
 /** Give every span without a token of its own this one. */
 const toned: {
-  (spans: ReadonlyArray<Span>, token: Tone): ReadonlyArray<Span>;
-  (token: Tone): (spans: ReadonlyArray<Span>) => ReadonlyArray<Span>;
+  (spans: ReadonlyArray<Span.Encoded>, token: Tone): ReadonlyArray<Span.Encoded>;
+  (token: Tone): (spans: ReadonlyArray<Span.Encoded>) => ReadonlyArray<Span.Encoded>;
 } = dual(
   2,
-  (spans: ReadonlyArray<Span>, token: Tone): ReadonlyArray<Span> =>
+  (spans: ReadonlyArray<Span.Encoded>, token: Tone): ReadonlyArray<Span.Encoded> =>
     A.map(spans, (s) => (s.token === undefined ? { ...s, token } : s))
 );
 
 const sliceSpans: {
-  (spans: ReadonlyArray<Span>, end: number): ReadonlyArray<Span>;
-  (end: number): (spans: ReadonlyArray<Span>) => ReadonlyArray<Span>;
-} = dual(2, (spans: ReadonlyArray<Span>, end: number): ReadonlyArray<Span> => {
-  const out: Array<Span> = [];
+  (spans: ReadonlyArray<Span.Encoded>, end: number): ReadonlyArray<Span.Encoded>;
+  (end: number): (spans: ReadonlyArray<Span.Encoded>) => ReadonlyArray<Span.Encoded>;
+} = dual(2, (spans: ReadonlyArray<Span.Encoded>, end: number): ReadonlyArray<Span.Encoded> => {
+  const out: Array<Span.Encoded> = [];
   let left = end;
   for (const s of spans) {
     if (left <= 0) break;
@@ -173,11 +174,11 @@ export const textLines = (text: string): ReadonlyArray<string> => {
 
 /** Join chunks with a separator, skipping empty ones. */
 const joinChunks: {
-  (chunks: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line;
-  (separator: string): (chunks: ReadonlyArray<ReadonlyArray<Span>>) => Line;
+  (chunks: ReadonlyArray<ReadonlyArray<Span.Encoded>>, separator: string): Line;
+  (separator: string): (chunks: ReadonlyArray<ReadonlyArray<Span.Encoded>>) => Line;
 } = dual(
   2,
-  (chunks: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line =>
+  (chunks: ReadonlyArray<ReadonlyArray<Span.Encoded>>, separator: string): Line =>
     pipe(
       chunks,
       A.filter((chunk) => chunk.length > 0),
@@ -187,22 +188,22 @@ const joinChunks: {
 
 /** Join table cells with a separator, keeping an empty one: a column that is empty in every row still takes its place. */
 const joinCells: {
-  (cells: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line;
-  (separator: string): (cells: ReadonlyArray<ReadonlyArray<Span>>) => Line;
+  (cells: ReadonlyArray<ReadonlyArray<Span.Encoded>>, separator: string): Line;
+  (separator: string): (cells: ReadonlyArray<ReadonlyArray<Span.Encoded>>) => Line;
 } = dual(
   2,
-  (cells: ReadonlyArray<ReadonlyArray<Span>>, separator: string): Line =>
+  (cells: ReadonlyArray<ReadonlyArray<Span.Encoded>>, separator: string): Line =>
     A.flatMap(cells, (cell, index) => (index === 0 ? cell : [span(separator), ...cell]))
 );
 
-const blank = (width: number): Span => span(Str.repeat(width)(" "));
+const blank = (width: number): Span.Encoded => span(Str.repeat(width)(" "));
 
 type Align = "left" | "right" | "center";
 
 const pad: {
-  (spans: ReadonlyArray<Span>, width: number, align: Align): Line;
-  (width: number, align: Align): (spans: ReadonlyArray<Span>) => Line;
-} = dual(3, (spans: ReadonlyArray<Span>, width: number, align: Align): Line => {
+  (spans: ReadonlyArray<Span.Encoded>, width: number, align: Align): Line;
+  (width: number, align: Align): (spans: ReadonlyArray<Span.Encoded>) => Line;
+} = dual(3, (spans: ReadonlyArray<Span.Encoded>, width: number, align: Align): Line => {
   const gap = Math.max(0, width - widthOf(spans));
   const before = align === "right" ? gap : align === "center" ? Math.floor(gap / 2) : 0;
   const after = gap - before;
@@ -228,16 +229,17 @@ const hang: {
  *
  * ```ts
  * import { capOf } from "@beep/cli-kit/internal/renderDoc"
- * console.log(capOf(2.9)) // 2
- * console.log(capOf(-1)) // 0
- * console.log(capOf(undefined)) // undefined
+ * import * as O from "effect/Option"
+ * console.log(O.getOrUndefined(capOf(2.9))) // 2
+ * console.log(O.getOrUndefined(capOf(-1))) // 0
+ * console.log(O.getOrUndefined(capOf(undefined))) // undefined
  * ```
  *
  * @category normalization
  * @since 0.0.0
  */
-export const capOf = (cap: number | undefined): number | undefined =>
-  cap === undefined || Number.isNaN(cap) ? undefined : Math.max(0, Math.floor(cap));
+export const capOf = (cap: number | undefined): O.Option<number> =>
+  cap === undefined || Number.isNaN(cap) ? O.none() : O.some(Math.max(0, Math.floor(cap)));
 
 const shrink: {
   (widths: Array<number>, limit: number): void;
@@ -262,16 +264,16 @@ const callouts = {
 } as const satisfies Record<string, TokenName>;
 
 interface Walk {
-  readonly ctx: RenderContext;
+  readonly ctx: RenderContext.Encoded;
   readonly flavour: Flavour;
 }
 
 const inline: {
-  (walk: Walk, inlines: ReadonlyArray<Inline>): ReadonlyArray<Span>;
-  (inlines: ReadonlyArray<Inline>): (walk: Walk) => ReadonlyArray<Span>;
+  (walk: Walk, inlines: ReadonlyArray<Inline>): ReadonlyArray<Span.Encoded>;
+  (inlines: ReadonlyArray<Inline>): (walk: Walk) => ReadonlyArray<Span.Encoded>;
 } = dual(
   2,
-  (walk: Walk, inlines: ReadonlyArray<Inline>): ReadonlyArray<Span> => walk.flavour.inline(inlines, walk.ctx)
+  (walk: Walk, inlines: ReadonlyArray<Inline>): ReadonlyArray<Span.Encoded> => walk.flavour.inline(inlines, walk.ctx)
 );
 
 type Overflow = ((hidden: number) => ReadonlyArray<Inline>) | undefined;
@@ -314,9 +316,15 @@ const cellOf: {
  * @category formatting
  * @since 0.0.0
  */
-export const tableWindow = (block: Extract<Block, { readonly _tag: "Table" }>) => {
+export const tableWindow = (
+  block: Extract<Block, { readonly _tag: "Table" }>
+): {
+  readonly columns: number;
+  readonly shown: Extract<Block, { readonly _tag: "Table" }>["rows"];
+  readonly hidden: number;
+} => {
   const columns = Math.max(block.columns.length, ...A.map(block.rows, (row) => row.length));
-  const cap = capOf(block.cap);
+  const cap = O.getOrUndefined(capOf(block.cap));
   const shown = cap === undefined ? block.rows : A.take(block.rows, cap);
   return { columns, shown, hidden: block.rows.length - shown.length };
 };
@@ -440,7 +448,7 @@ const keepPaint: {
   (lines: ReadonlyArray<Line>): (paint: KeptPaint) => ReadonlyArray<Line>;
 } = dual(2, (paint: KeptPaint, lines: ReadonlyArray<Line>): ReadonlyArray<Line> => {
   if (paint === undefined || paint === "all") return lines;
-  const unpainted = (s: Span): Span => {
+  const unpainted = (s: Span.Encoded): Span.Encoded => {
     const { token: _token, ...rest } = s;
     return rest;
   };
@@ -565,7 +573,7 @@ const blockLines: {
         return A.map(wrapSpans(spans, width, { hardBreak: false }), trimLine);
       },
       List: (block): ReadonlyArray<Line> => {
-        const cap = capOf(block.cap);
+        const cap = O.getOrUndefined(capOf(block.cap));
         const items = A.filter(block.items, (item) => !isAnnotation(item));
         const shown = cap === undefined ? items : items.slice(0, cap);
         const compactItems = block.compact === true;
@@ -599,7 +607,7 @@ const blockLines: {
       CodeBlock: (block): ReadonlyArray<Line> =>
         A.map(textLines(block.text), (line) => trimLine([span(`    ${line}`)])),
       Diff: (block): ReadonlyArray<Line> => {
-        const cap = capOf(block.cap);
+        const cap = O.getOrUndefined(capOf(block.cap));
         return [
           ...diffSide(walk, "-", "failure", block.expected, cap),
           ...diffSide(walk, "+", "success", block.received, cap),
@@ -637,7 +645,7 @@ const blockLines: {
         return spans.length === 0 ? [[]] : A.map(wrapSpans(spans, width, { hardBreak: false }), trimLine);
       },
       DiffText: (block): ReadonlyArray<Line> => {
-        const cap = capOf(block.cap);
+        const cap = O.getOrUndefined(capOf(block.cap));
         const lines = textLines(block.text);
         const shown = cap === undefined ? lines : lines.slice(0, cap);
         const hidden = lines.length - shown.length;
@@ -669,7 +677,7 @@ const blockLines: {
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * const flavour: Flavour = {
  *   inline: plainInline,
- *   finish: dual(2, (line: Line, _ctx: RenderContext): string => line.map((span) => span.text).join("")),
+ *   finish: dual(2, (line: Line, _ctx: RenderContext.Encoded): string => line.map((span) => span.text).join("")),
  * }
  * console.log(JSON.stringify(renderDocLines([Doc.paragraph("Ready")], ctx, flavour))) // ["Ready"]
  * ```
@@ -679,9 +687,9 @@ const blockLines: {
  * @since 0.0.0
  */
 export const renderDocLines: {
-  (ctx: RenderContext, flavour: Flavour): (doc: Document) => ReadonlyArray<string>;
-  (doc: Document, ctx: RenderContext, flavour: Flavour): ReadonlyArray<string>;
-} = dual(3, (doc: Document, ctx: RenderContext, flavour: Flavour): ReadonlyArray<string> => {
+  (ctx: RenderContext.Encoded, flavour: Flavour): (doc: Document) => ReadonlyArray<string>;
+  (doc: Document, ctx: RenderContext.Encoded, flavour: Flavour): ReadonlyArray<string>;
+} = dual(3, (doc: Document, ctx: RenderContext.Encoded, flavour: Flavour): ReadonlyArray<string> => {
   const width = Number.isNaN(ctx.width) ? 80 : Math.max(1, ctx.width);
   const walk: Walk = { ctx, flavour };
   return pipe(
@@ -706,7 +714,7 @@ export const renderDocLines: {
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * const flavour: Flavour = {
  *   inline: plainInline,
- *   finish: dual(2, (line: Line, _ctx: RenderContext): string => line.map((span) => span.text).join("")),
+ *   finish: dual(2, (line: Line, _ctx: RenderContext.Encoded): string => line.map((span) => span.text).join("")),
  * }
  * console.log(renderDoc([Doc.paragraph("Ready")], ctx, flavour)) // Ready
  * ```
@@ -716,8 +724,8 @@ export const renderDocLines: {
  * @since 0.0.0
  */
 export const renderDoc: {
-  (ctx: RenderContext, flavour: Flavour): (doc: Document) => string;
-  (doc: Document, ctx: RenderContext, flavour: Flavour): string;
-} = dual(3, (doc: Document, ctx: RenderContext, flavour: Flavour): string =>
+  (ctx: RenderContext.Encoded, flavour: Flavour): (doc: Document) => string;
+  (doc: Document, ctx: RenderContext.Encoded, flavour: Flavour): string;
+} = dual(3, (doc: Document, ctx: RenderContext.Encoded, flavour: Flavour): string =>
   A.join(renderDocLines(doc, ctx, flavour), "\n")
 );

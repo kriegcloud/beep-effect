@@ -17,11 +17,12 @@ import { CliLinks } from "../CliLinks.ts";
 import { CliTheme } from "../CliTheme.ts";
 import { sanitize } from "../Fmt.ts";
 import { Glyphs } from "../Glyphs.ts";
-import { Render } from "../Render.ts";
+import { Render, RenderContext } from "../Render.ts";
 import { autoFormat } from "./autoFormat.ts";
+import { DisplayPath } from "./declared.ts";
 import type { AudienceShape } from "@beep/runtime-env";
-import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
-import type { RenderContext } from "../Render.ts";
+import type { Block, Document, Inline } from "../Doc.ts";
+import type { LinkTargetInput } from "../LinkTarget.ts";
 import type { Style, TokenName } from "../Token.ts";
 
 const $I = $CliKitId.create("internal/failureTarget");
@@ -29,35 +30,125 @@ const $I = $CliKitId.create("internal/failureTarget");
 /**
  * Where a failure report is written to: the context the renderer lays out for, and which renderer.
  *
- * @internal
- * @category type-level
- * @since 0.0.0
- */
-export interface FailureTarget {
-  /** A module of the running program, whose package `spans: "app"` keeps. */
-  readonly appModule?: string;
-  /** `true` for the fallback: nothing is known of the audience or the runner, so it is assumed, not read. */
-  readonly assumed?: boolean;
-  readonly ctx: RenderContext;
-  readonly format: "plain" | "ansi" | "githubLog";
-  /** Which spans the report's `in:` trail names; `app` when absent. */
-  readonly spans?: SpanSetting;
-  /** Which stack frames a defect's report shows; `app` when absent. */
-  readonly stackFrames?: "app" | "all";
-}
-
-/**
- * The run's report settings `CliRuntime.main` takes from `env`, recorded with the target.
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { FailureTarget } from "@beep/cli-kit/internal/failureTarget"
+ *
+ * console.log(typeof FailureTarget.make) // function
+ * ```
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export interface FailureSettings {
-  readonly appModule?: string | undefined;
-  readonly displayPath?: ((absolute: string) => string) | undefined;
-  readonly spans?: SpanSetting | undefined;
-  readonly stackFrames?: "app" | "all" | undefined;
+export class FailureTarget extends S.Opaque<FailureTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** A module of the running program, whose package `spans: "app"` keeps. */
+    appModule: S.optionalKey(S.String).pipe(
+      $I.annoteKey("FailureTarget.appModule", { description: "The appModule field of FailureTarget." })
+    ),
+    /** `true` for the fallback: nothing is known of the audience or the runner, so it is assumed, not read. */
+    assumed: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("FailureTarget.assumed", { description: "The assumed field of FailureTarget." })
+    ),
+    /** The ctx field. */
+    ctx: RenderContext.pipe($I.annoteKey("FailureTarget.ctx", { description: "The ctx field of FailureTarget." })),
+    /** The format field. */
+    format: S.Union([S.Literal("plain"), S.Literal("ansi"), S.Literal("githubLog")]).pipe(
+      $I.annoteKey("FailureTarget.format", { description: "The format field of FailureTarget." })
+    ),
+    /** Which spans the report's `in:` trail names; `app` when absent. */
+    spans: S.optionalKey(S.suspend(() => SpanSetting)).pipe(
+      $I.annoteKey("FailureTarget.spans", { description: "The spans field of FailureTarget." })
+    ),
+    /** Which stack frames a defect's report shows; `app` when absent. */
+    stackFrames: S.optionalKey(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
+      $I.annoteKey("FailureTarget.stackFrames", { description: "The stackFrames field of FailureTarget." })
+    ),
+  }).pipe($I.annoteSchema("FailureTarget", { description: "Plain FailureTarget data." }))
+) {}
+/**
+ * Companion types for {@link FailureTarget}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { FailureTarget } from "@beep/cli-kit/internal/failureTarget"
+ *
+ * const accepts = (_value: FailureTarget.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace FailureTarget {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FailureTarget.Encoded;
+}
+
+/**
+ * The run's report settings `CliRuntime.main` takes from `env`, recorded with the target.
+ *
+ *
+ * **Example** (Inspect the schema)
+ *
+ * ```ts
+ * import { FailureSettings } from "@beep/cli-kit/internal/failureTarget"
+ *
+ * console.log(typeof FailureSettings.make) // function
+ * ```
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export class FailureSettings extends S.Opaque<FailureSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The appModule field. */
+    appModule: S.optional(S.String).pipe(
+      $I.annoteKey("FailureSettings.appModule", { description: "The appModule field of FailureSettings." })
+    ),
+    /** The displayPath field. */
+    displayPath: S.optional(DisplayPath).pipe(
+      $I.annoteKey("FailureSettings.displayPath", { description: "The displayPath field of FailureSettings." })
+    ),
+    /** The spans field. */
+    spans: S.optional(S.suspend(() => SpanSetting)).pipe(
+      $I.annoteKey("FailureSettings.spans", { description: "The spans field of FailureSettings." })
+    ),
+    /** The stackFrames field. */
+    stackFrames: S.optional(S.Union([S.Literal("app"), S.Literal("all")])).pipe(
+      $I.annoteKey("FailureSettings.stackFrames", { description: "The stackFrames field of FailureSettings." })
+    ),
+  }).pipe($I.annoteSchema("FailureSettings", { description: "Plain FailureSettings data." }))
+) {}
+/**
+ * Companion types for {@link FailureSettings}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { FailureSettings } from "@beep/cli-kit/internal/failureTarget"
+ *
+ * const accepts = (_value: FailureSettings.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace FailureSettings {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FailureSettings.Encoded;
 }
 
 /**
@@ -83,10 +174,9 @@ export interface FailureSettings {
  * @category configuration
  * @since 0.0.0
  */
-export const FailureTargetCell = Context.Reference<MutableRef.MutableRef<FailureTarget | undefined> | undefined>(
-  $I`FailureTargetCell`,
-  { defaultValue: () => undefined }
-);
+export const FailureTargetCell = Context.Reference<
+  MutableRef.MutableRef<FailureTarget.Encoded | undefined> | undefined
+>($I`FailureTargetCell`, { defaultValue: () => undefined });
 
 /**
  * What a report is rendered with when nothing is known about the terminal: plain text, no limit, no escapes.
@@ -103,14 +193,14 @@ export const FailureTargetCell = Context.Reference<MutableRef.MutableRef<Failure
  * @category constants
  * @since 0.0.0
  */
-export const fallbackTarget: FailureTarget = {
+export const fallbackTarget: FailureTarget.Encoded = {
   ctx: {
     width: Number.POSITIVE_INFINITY,
     audience: "agent",
     color: "none",
-    paint: dual(2, (_token: TokenName | Style, text: string): string => text),
+    paint: dual(2, (_token: TokenName | Style.Encoded, text: string): string => text),
     glyphs: Glyphs.ascii,
-    link: dual(2, (_target: LinkTarget, label: string): string => label),
+    link: dual(2, (_target: LinkTargetInput, label: string): string => label),
     displayPath: (absolute) => absolute,
     // Nothing is known about the runner here, so the report refuses to emit a workflow command: a zero-width space
     // in front of a line that starts with `::` or `##` costs nothing anywhere else.
@@ -130,8 +220,8 @@ export const fallbackTarget: FailureTarget = {
  */
 const build = Effect.fn("build")(function* (
   audience?: AudienceShape,
-  settings: FailureSettings = {}
-): Effect.fn.Return<FailureTarget | undefined> {
+  settings: FailureSettings.Encoded = {}
+): Effect.fn.Return<FailureTarget.Encoded | undefined> {
   const theme = yield* Effect.serviceOption(CliTheme);
   const terminal = yield* Effect.serviceOption(TerminalEnv);
   const current = yield* Effect.serviceOption(Audience);
@@ -174,11 +264,11 @@ const build = Effect.fn("build")(function* (
  */
 export const refreshFailureTarget: {
   (audience?: AudienceShape): Effect.Effect<void>;
-  (audience: AudienceShape | undefined, settings: FailureSettings): Effect.Effect<void>;
-  (settings: FailureSettings): (audience?: AudienceShape) => Effect.Effect<void>;
+  (audience: AudienceShape | undefined, settings: FailureSettings.Encoded): Effect.Effect<void>;
+  (settings: FailureSettings.Encoded): (audience?: AudienceShape) => Effect.Effect<void>;
 } = dual(
   (args) => args.length === 0 || args.length >= 2 || args[0] === undefined || "kind" in args[0],
-  Effect.fnUntraced(function* (audience?: AudienceShape, settings?: FailureSettings) {
+  Effect.fnUntraced(function* (audience?: AudienceShape, settings?: FailureSettings.Encoded) {
     const cell = yield* FailureTargetCell;
     if (cell === undefined) return;
     // A rewrite for an audience flag keeps the settings the environment layer recorded.
@@ -212,7 +302,7 @@ export const refreshFailureTarget: {
  * @category getters
  * @since 0.0.0
  */
-export const currentTarget: Effect.Effect<FailureTarget> = Effect.gen(function* () {
+export const currentTarget: Effect.Effect<FailureTarget.Encoded> = Effect.gen(function* () {
   const cell = yield* FailureTargetCell;
   const recorded = cell === undefined ? undefined : MutableRef.get(cell);
   if (recorded !== undefined) return recorded;
@@ -256,13 +346,13 @@ const withoutStatus = (doc: Document): Document =>
  */
 export const linesOf: {
   (
-    target: FailureTarget,
+    target: FailureTarget.Encoded,
     status?: boolean,
     spans?: SpanSetting | undefined
   ): (cause: Cause.Cause<unknown>) => ReadonlyArray<string>;
   (
     cause: Cause.Cause<unknown>,
-    target: FailureTarget,
+    target: FailureTarget.Encoded,
     status?: boolean,
     spans?: SpanSetting | undefined
   ): ReadonlyArray<string>;
@@ -270,7 +360,7 @@ export const linesOf: {
   (args) => Cause.isCause(args[0]),
   (
     cause: Cause.Cause<unknown>,
-    target: FailureTarget,
+    target: FailureTarget.Encoded,
     status?: boolean,
     spans: SpanSetting | undefined = target.spans
   ): ReadonlyArray<string> => {

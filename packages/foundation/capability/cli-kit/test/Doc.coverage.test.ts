@@ -81,7 +81,7 @@ it.effect("Block's generated total callback survives encoding and controls the o
         )
       : O.none();
     if (O.isNone(field)) return yield* Effect.die("Block must declare its total callback");
-    const schema = S.make<S.Codec<(counters: ReadonlyArray<Counter>) => number>>(field.value.type);
+    const schema = S.make<S.Codec<(counters: ReadonlyArray<Counter.Encoded>) => number>>(field.value.type);
     const [total] = yield* Arbitrary.sampleEffect(Arbitrary.schema(schema), { count: 1, seed: 0 });
     assertDefined(total);
     const expected = total([]);

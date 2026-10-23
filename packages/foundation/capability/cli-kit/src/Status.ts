@@ -42,41 +42,58 @@ class UnknownStatusError extends S.TaggedError<UnknownStatusError, { readonly br
  * @category schemas
  * @since 0.0.0
  */
-export const StatusDef = S.Struct({
-  /**
-   * The Unicode glyph.
-   *
-   * @since 0.0.0
-   */
-  glyph: S.String.pipe($I.annoteKey("StatusDef.glyph", { description: "The glyph field of StatusDef." })),
-  /**
-   * The ASCII fallback, used when the theme's glyphs are ASCII.
-   *
-   * @since 0.0.0
-   */
-  ascii: S.String.pipe($I.annoteKey("StatusDef.ascii", { description: "The ascii field of StatusDef." })),
-  /**
-   * The semantic token, or an explicit style, the glyph is painted with.
-   *
-   * @since 0.0.0
-   */
-  token: S.Union([TokenName, Style]).pipe(
-    $I.annoteKey("StatusDef.token", { description: "The token field of StatusDef." })
-  ),
-  /**
-   * Severity for {@link Status.worst}: the highest rank wins.
-   *
-   * @since 0.0.0
-   */
-  rank: S.Finite.pipe($I.annoteKey("StatusDef.rank", { description: "The rank field of StatusDef." })),
-}).pipe($I.annoteSchema("StatusDef", { description: "The resolved appearance and rank of a status." }));
+export class StatusDef extends S.Opaque<StatusDef, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The Unicode glyph.
+     *
+     * @since 0.0.0
+     */
+    glyph: S.String.pipe($I.annoteKey("StatusDef.glyph", { description: "The glyph field of StatusDef." })),
+    /**
+     * The ASCII fallback, used when the theme's glyphs are ASCII.
+     *
+     * @since 0.0.0
+     */
+    ascii: S.String.pipe($I.annoteKey("StatusDef.ascii", { description: "The ascii field of StatusDef." })),
+    /**
+     * The semantic token, or an explicit style, the glyph is painted with.
+     *
+     * @since 0.0.0
+     */
+    token: S.Union([TokenName, Style]).pipe(
+      $I.annoteKey("StatusDef.token", { description: "The token field of StatusDef." })
+    ),
+    /**
+     * Severity for {@link Status.worst}: the highest rank wins.
+     *
+     * @since 0.0.0
+     */
+    rank: S.Finite.pipe($I.annoteKey("StatusDef.rank", { description: "The rank field of StatusDef." })),
+  }).pipe($I.annoteSchema("StatusDef", { description: "The resolved appearance and rank of a status." }))
+) {}
 /**
- * The plain resolved appearance and severity of a status.
+ * Companion types for {@link StatusDef}.
+ *
+ * **Example** (Refer to the plain input)
+ *
+ * ```ts
+ * import type { StatusDef } from "@beep/cli-kit/Status"
+ *
+ * const accepts = (_value: StatusDef.Encoded) => true
+ * console.log(typeof accepts) // function
+ * ```
  *
  * @category type-level
  * @since 0.0.0
  */
-export type StatusDef = typeof StatusDef.Type;
+export declare namespace StatusDef {
+  /** The plain, unbranded shape callers pass, so an object literal works.
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof StatusDef.Encoded;
+}
 
 /**
  * The names of the core vocabulary.
@@ -130,10 +147,10 @@ export type CoreStatusName = typeof CoreStatusName.Type;
  * @since 0.0.0
  */
 export class Status<Names extends string> {
-  private readonly defs: Readonly<Record<Names | CoreStatusName, StatusDef>>;
+  private readonly defs: Readonly<Record<Names | CoreStatusName, StatusDef.Encoded>>;
 
   // An explicit field, not a parameter property, so the source runs under Node's plain type stripping.
-  private constructor(defs: Readonly<Record<Names | CoreStatusName, StatusDef>>) {
+  private constructor(defs: Readonly<Record<Names | CoreStatusName, StatusDef.Encoded>>) {
     this.defs = defs;
   }
 
@@ -176,7 +193,7 @@ export class Status<Names extends string> {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly extend = <const Extra extends Record<string, StatusDef>>(
+  static readonly extend = <const Extra extends Record<string, StatusDef.Encoded>>(
     extra: Extra
   ): Status<CoreStatusName | (keyof Extra & string)> => Status.core.extend(extra);
 
@@ -202,7 +219,7 @@ export class Status<Names extends string> {
    * @category combinators
    * @since 0.0.0
    */
-  extend<const Extra extends Record<string, StatusDef>>(extra: Extra): Status<Names | (keyof Extra & string)> {
+  extend<const Extra extends Record<string, StatusDef.Encoded>>(extra: Extra): Status<Names | (keyof Extra & string)> {
     return new Status<Names | (keyof Extra & string)>({ ...this.defs, ...extra });
   }
 
@@ -226,7 +243,7 @@ export class Status<Names extends string> {
    * @category getters
    * @since 0.0.0
    */
-  def(name: Names | CoreStatusName): StatusDef {
+  def(name: Names | CoreStatusName): StatusDef.Encoded {
     if (!R.has(this.defs, name)) {
       throw UnknownStatusError.make({
         message: `Unknown status "${name}"; this vocabulary has: ${Arr.join(R.keys(this.defs), ", ")}`,
@@ -258,7 +275,7 @@ export class Status<Names extends string> {
    * @category getters
    * @since 0.0.0
    */
-  resolve(name: Names): StatusDef {
+  resolve(name: Names): StatusDef.Encoded {
     return { ...this.def(name) };
   }
 
@@ -287,7 +304,7 @@ export class Status<Names extends string> {
    * @category formatting
    * @since 0.0.0
    */
-  glyph(name: Names, glyphs: GlyphSet): string {
+  glyph(name: Names, glyphs: GlyphSet.Encoded): string {
     const def = this.def(name);
     // A vocabulary is configuration, but one built from data must not paint the terminal: every path that draws a
     // status glyph (a theme's `status`, `CliMessage`, `CliLog.status`, a document) takes it sanitised, from here.
