@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Conformance against the CycloneDX 1.6 specification itself.
 //
 // This package declines the CycloneDX library (6.6 MB, seven optional peers)
@@ -14,15 +13,13 @@
 // devDependency to check output we entirely control is the weight this package
 // exists to avoid. The subset IS everything the emitter produces.
 
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Component, Contact, ExternalReference, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
 import { isValidExpression, License } from "@beep/spdx";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import VENDORED_SCHEMA from "./fixtures/bom-1.6.SNAPSHOT.schema.json" with { type: "json" };
 
 const RequiredProperties = S.Struct({ required: S.String.pipe(S.Array, S.optionalKey) });
 const RequiredPropertyItems = S.Array(RequiredProperties);
@@ -36,9 +33,7 @@ const JsonDefinition = S.Struct({
   }).pipe(S.Array, S.optionalKey),
 });
 
-const SCHEMA: unknown = JSON.parse(
-  readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "fixtures", "bom-1.6.SNAPSHOT.schema.json"), "utf8")
-);
+const SCHEMA: unknown = VENDORED_SCHEMA;
 assertTrue(
   S.is(
     S.Struct({

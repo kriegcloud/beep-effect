@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file processEnv:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load; processEnv because it sets and restores GITHUB_SERVER_URL to prove the ambient value is ignored. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // SLSA Provenance v1 — typed, total, and byte-compatible with @actions/attest.
 //
 // The compatibility claim is the reason this file reads a fixture rather than
@@ -7,15 +6,9 @@
 // deep-equal against the shape upstream emits fails as loudly on an EXTRA field
 // as on a missing one. Field-by-field assertions cannot do that.
 
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { GITHUB_BUILD_TYPE, SLSA_PROVENANCE_V1, SlsaProvenance } from "@beep/sbom";
-import { assert, describe, it } from "@effect/vitest";
-
-const FIXTURE: unknown = JSON.parse(
-  readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "fixtures", "actions-attest-provenance.json"), "utf8")
-);
+import { assert, describe, it, vi } from "@effect/vitest";
+import FIXTURE from "./fixtures/actions-attest-provenance.json" with { type: "json" };
 
 /** The claims the vendored fixture was transcribed for. */
 const claims = {
@@ -75,13 +68,11 @@ describe("SlsaProvenance.forGitHubWorkflow", () => {
     // The discriminating test for the no-ambient-env rule: upstream reads
     // `process.env.GITHUB_SERVER_URL` (and writes the literal `undefined` when
     // it is unset). Setting it here must change nothing.
-    const before = process.env.GITHUB_SERVER_URL;
-    process.env.GITHUB_SERVER_URL = "https://ambient.example";
+    vi.stubEnv("GITHUB_SERVER_URL", "https://ambient.example");
     try {
       assert.deepStrictEqual(asJson(SlsaProvenance.forGitHubWorkflow(claims)), FIXTURE);
     } finally {
-      if (before === undefined) delete process.env.GITHUB_SERVER_URL;
-      else process.env.GITHUB_SERVER_URL = before;
+      vi.unstubAllEnvs();
     }
   });
 
