@@ -74,7 +74,9 @@ Higher sources outrank lower sources when they conflict.
 - An answer that is a note, or any state other than `decided`, never produces a write.
 - Every applied write is journaled with the prior state and has a tested undo.
 - Fixtures are synthetic. Nothing in the repo names the attorney, a client, a matter or a machine.
-- The notice is one email a day at most. It says only how many questions are waiting.
+- The notice is one email a day at most. It says how many questions are waiting and, when
+  configured, carries the Claude Code answer link (2026-10-22 Decision Log row); never question
+  text.
 
 ## Acceptance Criteria
 
@@ -162,7 +164,7 @@ Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explor
 | 2026-10-21 | Hub auth amended by the security remediation (#1930): every request also needs a bearer token, `PRACTICE_REVIEW_HUB_API_TOKEN` from 1Password through `op run`, checked in constant time before the login allow-list. This replaces the "no bearer token" part of the 2026-10-14 P3b hub auth row. | Other local OS users could reach the loopback port and forge `Tailscale-User-Login`. | None that is safe: a revision without the token check must stay stopped (runbook, section 9). |
 | 2026-10-21 | Client token delivery: the attorney's Claude Code sends the bearer token through a `headersHelper` that reads a DPAPI (CurrentUser) file, filled over a user-only named pipe from SSH standard input (`docs/runbooks/practice-review-hub.md`, section 8), instead of a static `headers` entry. | It keeps the token out of `.claude.json`, shell history and command lines, and rotation needs no client configuration change. | Remove the user-scope registration and `api-token.dpapi`, then register the hub another way: static `headers`, or the practice gateway extension once it includes the hub. |
 | 2026-10-21 | Daily notice on (operator ruling): `practice-review-notice.timer` runs at 08:30 America/Chicago from 2026-10-21, sending from the attorney's mailbox to the same mailbox as the 2026-10-15 P3c notice-mailbox row decided. | The attorney's Claude Code reaches the queue now (2026-10-21 operations evidence), so the notice points at something the attorney can open. | `systemctl --user disable --now practice-review-notice.timer`. |
-| 2026-10-22 | Notice answer link: the daily notice gains an optional "Answer them in Claude Code" link from deployment config (`PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER` or `--claude-folder`, an absolute Windows folder on the attorney's PC). The M365 notice adapter renders it as HTML (`claude-cli://open` with the folder and a typed-in request); the use case's `NoticeMessage` and the printed outcome stay count-only. | The email pointed at a review queue the attorney had no way to open from it. | Unset `PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER`; the next notice is plain text again. |
+| 2026-10-22 | Notice answer link: the daily notice gains an optional "Answer them in Claude Code" link from deployment config (`PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER` or `--claude-folder`, an absolute Windows folder on the attorney's PC). The M365 notice adapter renders it as HTML (`claude-cli://open` with the folder and a typed-in request); the use case's `NoticeMessage` and the printed outcome stay count-only. This amends the Constraints line "It says only how many questions are waiting". | The email pointed at a review queue the attorney had no way to open from it. | Unset `PRACTICE_REVIEW_NOTICE_CLAUDE_FOLDER`; the next notice is plain text again. |
 
 ## Exception Ledger
 

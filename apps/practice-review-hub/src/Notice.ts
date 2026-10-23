@@ -10,14 +10,16 @@ import { ReviewItem } from "@beep/law-practice-domain";
 import { docketDayInZone } from "@beep/law-practice-server/DocketIntake";
 import { makeNoticeMailboxLayer, NoticeClaudeLink, NoticeMailboxConfig } from "@beep/law-practice-server/NoticeMailbox";
 import { makeReviewFilesLayer, ReviewFilesConfig } from "@beep/law-practice-server/ReviewFiles";
-import { DailyNotice, DailyNoticeLive } from "@beep/law-practice-use-cases/DailyNotice";
+import { DailyNotice, DailyNoticeLive, DailyNoticeOutcome } from "@beep/law-practice-use-cases/DailyNotice";
 import { DigestSelection, QuestionQueue, QuestionQueueLive } from "@beep/law-practice-use-cases/QuestionQueue";
 import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { NoticeClaudeFolder } from "@beep/law-practice-server/NoticeMailbox";
 import type { M365, M365MailAddress } from "@beep/m365";
 import type * as FileSystem from "effect/FileSystem";
@@ -77,7 +79,7 @@ export const REVIEW_QUESTIONS_PROMPT = "Walk me through my waiting review questi
  * console.log(Effect.isEffect(sendDailyNotice(DateTime.zoneMakeNamedUnsafe("America/Chicago")))) // true
  * ```
  *
- * @category programs
+ * @category workflows
  * @since 0.0.0
  */
 export const sendDailyNotice = Effect.fn("ReviewNotice.send")(function* (timeZone: DateTime.TimeZone) {
@@ -86,6 +88,35 @@ export const sendDailyNotice = Effect.fn("ReviewNotice.send")(function* (timeZon
   const digest = yield* (yield* QuestionQueue).digest(DigestSelection.make({ today, items: questions }));
   return yield* (yield* DailyNotice).sendIfDue({ digest, today });
 });
+
+// The outcome as one JSON line.
+const encodeOutcomeLine = S.encodeEffect(S.fromJsonString(DailyNoticeOutcome));
+
+/**
+ * Send today's notice if one is due, and return its outcome as the one JSON
+ * line `notice` prints to the journal.
+ *
+ * **Details**
+ *
+ * The line is the encoded `DailyNoticeOutcome`: a status, the day, and for a
+ * sent notice the count it said. It never carries a question, the Claude Code
+ * folder or the link, which go only into the email. `notice` prints exactly
+ * this line and nothing else.
+ *
+ * **Example** (Reference the outcome line)
+ *
+ * ```ts
+ * import * as DateTime from "effect/DateTime"
+ * import * as Effect from "effect/Effect"
+ * import { noticeOutcomeLine } from "@/Notice"
+ *
+ * console.log(Effect.isEffect(noticeOutcomeLine(DateTime.zoneMakeNamedUnsafe("America/Chicago")))) // true
+ * ```
+ *
+ * @category workflows
+ * @since 0.0.0
+ */
+export const noticeOutcomeLine = flow(sendDailyNotice, Effect.flatMap(encodeOutcomeLine));
 
 /**
  * The services `sendDailyNotice` needs, over the hub's files in

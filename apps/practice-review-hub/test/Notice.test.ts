@@ -7,7 +7,6 @@
 import { QuestionOption } from "@beep/law-practice-domain/values/Question";
 import { ReviewItem } from "@beep/law-practice-domain/values/ReviewItem";
 import { NoticeClaudeFolder } from "@beep/law-practice-server/NoticeMailbox";
-import { DailyNoticeOutcome } from "@beep/law-practice-use-cases/DailyNotice";
 import { QuestionQueue, RecordAnswerInput } from "@beep/law-practice-use-cases/QuestionQueue";
 import { ReviewItemStore } from "@beep/law-practice-use-cases/ReviewItemStore";
 import { GraphMessage, M365 } from "@beep/m365";
@@ -21,8 +20,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
-import * as S from "effect/Schema";
-import { makeNoticeLayer, sendDailyNotice } from "@/Notice";
+import { makeNoticeLayer, noticeOutcomeLine, sendDailyNotice } from "@/Notice";
 import { Platform } from "./Hub.fixture.ts";
 
 const MAILBOX = "attorney@example.test";
@@ -76,9 +74,6 @@ const noticeTest = (claudeFolder: O.Option<NoticeClaudeFolder>) =>
   ).pipe(Layer.provideMerge(Layer.merge(Platform, Layer.effect(SentMail, Ref.make<ReadonlyArray<Sent>>([])))));
 
 const NoticeTest = noticeTest(O.none());
-
-// The outcome as the one JSON line `notice` prints to the journal.
-const encodeOutcomeLine = S.encodeEffect(S.fromJsonString(DailyNoticeOutcome));
 
 // A synthetic review folder, written with / as the runbook recommends for the environment file.
 const ReviewFolderTest = noticeTest(O.some(NoticeClaudeFolder.make("C:/Users/attorney/Review")));
@@ -137,8 +132,8 @@ describe("@beep/practice-review-hub daily notice", () => {
       Effect.fnUntraced(function* () {
         yield* (yield* ReviewItemStore).upsert([question("question:notice-link-1")]);
 
-        const outcome = yield* sendDailyNotice(UTC);
-        const printed = yield* encodeOutcomeLine(outcome);
+        // The exact line `notice` prints to the journal.
+        const printed = yield* noticeOutcomeLine(UTC);
         const sent = yield* Ref.get(yield* SentMail);
 
         expect(summaries(sent)).toStrictEqual(["Claude: 1 question waiting -> attorney@example.test (html)"]);

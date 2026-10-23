@@ -274,18 +274,32 @@ attorney's PC, in a review folder, with this request typed in:
    `--claude-folder` on the unit's `ExecStart=` instead, systemd treats a
    backslash as the start of an escape. The email shows and links the folder
    with backslashes either way. The notice fails at start-up, before it claims
-   the day, if the folder is not an absolute Windows path.
-3. Send one notice and click the link on the PC. If today's notice already
-   went out, release the day's claim first (the steps above). The first click
-   asks once whether Outlook or the browser may open Claude Code: allow it.
-   The first time Claude Code opens in the folder, it asks whether to trust
-   the folder: trust it.
+   the day, if the folder is not one the link can open: it must be an absolute
+   Windows path, with no `.` or `..` segment and no invisible or control
+   characters.
+3. Send one notice and click the link on the PC. A notice goes out only when
+   at least one question waits; if the run prints `nothing-waiting`, there is
+   no email and nothing to click. If today's notice already went out, release
+   the claim with the `rm` command above and start the service again. Skip
+   the Sent Items check in that procedure: this second email is intentional.
+   The first click asks once whether Outlook or the browser may open Claude
+   Code: allow it. The first time Claude Code opens in the folder, it asks
+   whether to trust the folder: trust it.
+
+   If clicking the link does nothing, Claude Code has not registered its
+   link handler on the PC yet. It registers the handler
+   (`HKEY_CURRENT_USER\Software\Classes\claude-cli`) only after the first
+   prompt is sent in an interactive session; the `claude mcp` commands in
+   section 8 do not register it. On the PC, start `claude` in a terminal,
+   send any prompt, exit, and click the link again. If it still does nothing,
+   check that `disableDeepLinkRegistration` is not set in the user's
+   `settings.json` or in managed settings, because it blocks the handler.
 
 The link types the request into Claude Code but does not send it. The
 attorney reads it and presses Enter to start, as the email says. If the link
 does not open, for example because the mail client blocks links that are not
-web addresses, the email's last sentence names the folder to open Claude Code
-in and the request to type.
+web addresses or the handler is not registered yet (step 3), the email's last
+sentence names the folder to open Claude Code in and the request to type.
 
 The journal line stays count-only: the folder and the link appear only in the
 email. To turn the link off, delete the line from the environment file. The

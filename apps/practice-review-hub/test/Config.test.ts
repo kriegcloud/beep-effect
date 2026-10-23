@@ -116,13 +116,19 @@ describe("review hub configuration", () => {
     })
   );
 
-  it.effect("rejects a relative, drive-relative or POSIX review folder", () =>
+  it.effect("rejects a relative, drive-relative, POSIX, dot-segment or invisible-character review folder", () =>
     Effect.gen(function* () {
-      const results = yield* Effect.forEach(
-        ["Review", "Users\\attorney\\Review", "C:Review", "/srv/review"],
-        (folder) => O.some(folder).pipe(noticeConfig, Effect.result)
-      );
-      expect(A.map(results, ({ _tag }) => _tag)).toStrictEqual(["Failure", "Failure", "Failure", "Failure"]);
+      const folders = [
+        "Review",
+        "Users\\attorney\\Review",
+        "C:Review",
+        "/srv/review",
+        "C:/Users/attorney/../Review",
+        "C:/Users/./Review",
+        "C:/Users/attorney/Review\u202E",
+      ];
+      const results = yield* Effect.forEach(folders, (folder) => O.some(folder).pipe(noticeConfig, Effect.result));
+      expect(A.map(results, ({ _tag }) => _tag)).toStrictEqual(A.map(folders, () => "Failure"));
     })
   );
 

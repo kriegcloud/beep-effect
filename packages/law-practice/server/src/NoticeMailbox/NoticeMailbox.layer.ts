@@ -17,11 +17,12 @@ import {
   M365MailDraft,
   M365SendDraftMessageRequest,
 } from "@beep/m365";
-import { WindowsDrivePath } from "@beep/schema/FilePath";
+import { WindowsDotSegment, WindowsDrivePath } from "@beep/schema/FilePath";
 import { escapeHtml } from "@beep/utils/Html";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -35,6 +36,9 @@ import type { PlatformError } from "effect/PlatformError";
 
 const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
 
+// A folder segment of . or .., whichever separator the folder is written with.
+const hasDotSegment = flow(Str.split(/[\\/]+/u), A.some(S.is(WindowsDotSegment)));
+
 /**
  * An absolute Windows folder on the attorney's PC, written with `\` or `/`
  * separators.
@@ -42,7 +46,10 @@ const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
  * **Details**
  *
  * It is a `WindowsDrivePath` that also starts at the drive's root, so a
- * drive-relative path such as `C:Review` is refused.
+ * drive-relative path such as `C:Review` is refused. It also refuses what the
+ * Claude Code link's `cwd` refuses: a `.` or `..` segment, and invisible,
+ * control or bidirectional characters, so a folder the link could not open
+ * fails when the config is decoded instead of in the attorney's inbox.
  *
  * **Example** (Check a review folder)
  *
@@ -52,18 +59,44 @@ const $I = $LawPracticeServerId.create("NoticeMailbox/NoticeMailbox.layer");
  *
  * console.log(S.is(NoticeClaudeFolder)("C:/Users/attorney/Review")) // true
  * console.log(S.is(NoticeClaudeFolder)("C:Review")) // false
+ * console.log(S.is(NoticeClaudeFolder)("C:/Users/attorney/../Review")) // false
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export const NoticeClaudeFolder = WindowsDrivePath.check(
-  S.isPattern(
-    /^[A-Za-z]:[\\/]/u,
-    $I.annote("NoticeClaudeFolderAbsoluteCheck", {
-      title: "Notice Claude Folder Absolute",
-      description: "A Windows drive path that starts at the drive's root, such as C:\\ or C:/.",
-      message: "The Claude Code folder must be an absolute Windows path, such as C:/Users/attorney/Review.",
+  S.makeFilterGroup(
+    [
+      S.isPattern(
+        /^[A-Za-z]:[\\/]/u,
+        $I.annote("NoticeClaudeFolderAbsoluteCheck", {
+          title: "Notice Claude Folder Absolute",
+          description: "A Windows drive path that starts at the drive's root, such as C:\\ or C:/.",
+          message: "The Claude Code folder must be an absolute Windows path, such as C:/Users/attorney/Review.",
+        })
+      ),
+      S.makeFilter(
+        P.not(hasDotSegment),
+        $I.annote("NoticeClaudeFolderNoDotSegmentCheck", {
+          title: "Notice Claude Folder Without Dot Segments",
+          description: "A Windows drive path with no . or .. segment, which the Claude Code link refuses.",
+          message: "The Claude Code folder must not contain a . or .. segment.",
+        })
+      ),
+      S.isPattern(
+        /^[^\p{C}\p{Zl}\p{Zp}]*$/u,
+        $I.annote("NoticeClaudeFolderVisibleCharactersCheck", {
+          title: "Notice Claude Folder Visible Characters",
+          description:
+            "A Windows drive path without control, format (bidirectional or zero-width), private-use or unassigned characters, or line separators.",
+          message: "The Claude Code folder must not contain invisible, control or bidirectional characters.",
+        })
+      ),
+    ],
+    $I.annote("NoticeClaudeFolderChecks", {
+      title: "Notice Claude Folder",
+      description: "Checks for an absolute Windows folder the Claude Code link can open.",
     })
   )
 ).pipe(
@@ -89,6 +122,9 @@ export const NoticeClaudeFolder = WindowsDrivePath.check(
  * @since 0.0.0
  */
 export type NoticeClaudeFolder = typeof NoticeClaudeFolder.Type;
+
+// The longest request the Claude Code link's q parameter carries.
+const CLAUDE_LINK_PROMPT_MAX_LENGTH = 5_000;
 
 /**
  * The Claude Code link a notice can carry: the folder on the attorney's PC
@@ -121,7 +157,16 @@ export class NoticeClaudeLink extends S.Opaque<NoticeClaudeLink, { readonly bran
     folder: NoticeClaudeFolder.annotateKey({
       description: "Folder on the attorney's PC that Claude Code opens in; \\ or / separators.",
     }),
-    prompt: S.NonEmptyString.annotateKey({
+    prompt: S.NonEmptyString.check(
+      S.isMaxLength(
+        CLAUDE_LINK_PROMPT_MAX_LENGTH,
+        $I.annote("NoticeClaudeLinkPromptMaxLengthCheck", {
+          title: "Notice Claude Link Prompt Max Length",
+          description: "A request of at most 5,000 characters, the most the Claude Code link's q parameter carries.",
+          message: "The Claude Code request must be at most 5,000 characters.",
+        })
+      )
+    ).annotateKey({
       description: "Request Claude Code types in that folder; the attorney presses Enter to send it.",
     }),
   }).pipe(

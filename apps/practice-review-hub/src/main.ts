@@ -1,4 +1,3 @@
-import { DailyNoticeOutcome } from "@beep/law-practice-use-cases/DailyNotice";
 import { loadM365AppOnlyEnv, M365, M365AppOnlyConfigInput, M365MailAddress } from "@beep/m365";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BunServices from "@effect/platform-bun/BunServices";
@@ -9,14 +8,11 @@ import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { decodeReviewHubConfig, ReviewNoticeConfig, reviewHubFlags, reviewNoticeFlags } from "./Config.ts";
-import { makeNoticeLayer, NOTICE_ENV_PREFIX, sendDailyNotice } from "./Notice.ts";
+import { makeNoticeLayer, NOTICE_ENV_PREFIX, noticeOutcomeLine } from "./Notice.ts";
 import { makeReviewHubServer } from "./runtime/Layer.ts";
 
-const printOutcome = flow(
-  sendDailyNotice,
-  Effect.flatMap(S.encodeEffect(S.fromJsonString(DailyNoticeOutcome))),
-  Effect.flatMap(Console.log)
-);
+// Prints only the outcome line, which Notice.test.ts checks exactly.
+const printOutcome = flow(noticeOutcomeLine, Effect.flatMap(Console.log));
 
 // Serve until interrupted. Portless injects PORT for practice-review-hub.beep.localhost.
 const serve = Command.make("serve", reviewHubFlags, (flags) =>
