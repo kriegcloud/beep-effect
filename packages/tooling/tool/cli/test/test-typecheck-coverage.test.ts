@@ -111,7 +111,7 @@ describe("test-typecheck coverage", () => {
         yield* fs.writeFileString(config, `${encodeJson({ extends: "./missing.json", include: ["test"] })}\n`);
         const broken = yield* checkScriptTestTypecheckCoverage(fixture.packageDir, blindScripts, [fixture.testFile]);
         expect(broken.uncoveredSources).toEqual([fixture.testFile]);
-      }, Effect.scoped)
+      })
     );
   });
 
