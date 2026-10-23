@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { APIReference } from "@beep/schema-org/APIReference";
 import { CreativeWork, CreativeWorkFields } from "@beep/schema-org/CreativeWork";
 import { JsonLdDocument } from "@beep/schema-org/JsonLdDocument";
@@ -8,8 +9,11 @@ import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { TechArticle, TechArticleFields } from "@beep/schema-org/TechArticle";
 import { ThingFields } from "@beep/schema-org/Thing";
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -32,13 +36,21 @@ describe("node classes", () => {
     }
   });
 
-  it("rejects an explicit undefined for any optional field", () => {
-    // Optional fields are exact keys (EF-40): absence is spelled by omitting
-    // the key, so a present key holding undefined never decodes.
-    for (const key of ["headline", "description", "datePublished", "author", "mainEntity", "additional"]) {
-      assert.isTrue(Result.isFailure(S.decodeUnknownResult(TechArticle)({ "@id": ID, [key]: undefined })), key);
-    }
-  });
+  // Optional fields are exact keys (EF-40): absence is spelled by omitting the
+  // key, so a present key holding undefined never decodes.
+  it.effect.prop(
+    "rejects an explicit undefined for any optional field",
+    [Arbitrary.schema(TechArticle)],
+    ([node]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(TechArticle)(node);
+        for (const key of ["headline", "description", "datePublished", "author", "mainEntity", "additional"]) {
+          const explicit = yield* Effect.exit(S.decodeUnknownEffect(TechArticle)({ ...encoded, [key]: undefined }));
+          assertTrue(Exit.isFailure(explicit));
+        }
+      }),
+    { arbitrary: fcRuns(25) }
+  );
 
   it("requires @id and nothing else", () => {
     assert.strictEqual(Person.make({ "@id": ID })["@id"], ID);

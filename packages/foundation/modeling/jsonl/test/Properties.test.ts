@@ -41,6 +41,7 @@ import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -329,13 +330,13 @@ describe("jsonl schema round trips", () => {
       Effect.gen(function* () {
         const encodedConfig = yield* encodeConfig(config);
         for (const key of ["directory", "capacity", "shutdownPublishTimeout"] as const) {
-          const explicit = yield* Effect.result(decodeConfig({ ...encodedConfig, [key]: undefined }));
-          assertTrue(Result.isFailure(explicit));
+          const explicit = yield* Effect.exit(decodeConfig({ ...encodedConfig, [key]: undefined }));
+          assertTrue(Exit.isFailure(explicit));
         }
         const encodedSlice = yield* encodeCursoredSlice(slice);
         for (const key of ["events", "scopes", "from", "to", "cursor"] as const) {
-          const explicit = yield* Effect.result(decodeCursoredSlice({ ...encodedSlice, [key]: undefined }));
-          assertTrue(Result.isFailure(explicit));
+          const explicit = yield* Effect.exit(decodeCursoredSlice({ ...encodedSlice, [key]: undefined }));
+          assertTrue(Exit.isFailure(explicit));
         }
       }),
     runs

@@ -3,6 +3,7 @@ import { CodeScanning, CodeScanningSetup } from "@beep/github/CodeScanning";
 import { GitHubClient, RecordedCall } from "@beep/github/GitHubClient";
 import { Repo, RepoRef } from "@beep/github/Repo";
 import { assert, describe, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -157,7 +158,7 @@ describe("CodeScanningSetup", () => {
       assert.deepStrictEqual<CodeScanningSetup.Encoded>(omitted, {});
       assert.deepStrictEqual(yield* S.encodeEffect(CodeScanningSetup)(omitted), {});
       const explicit = yield* Effect.exit(S.decodeUnknownEffect(CodeScanningSetup)({ runner_label: undefined }));
-      assert.isTrue(Exit.isFailure(explicit));
+      assertTrue(Exit.isFailure(explicit));
     })
   );
 
