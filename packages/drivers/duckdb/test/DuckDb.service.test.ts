@@ -1399,6 +1399,7 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
               yield* sql`CREATE TABLE base (id INTEGER DEFAULT nextval('serial'), mood mood)`;
               yield* sql`CREATE MACRO from_base() AS TABLE SELECT * FROM base`;
               yield* sql`CREATE MACRO plus_one(x) AS x + 1`;
+              yield* sql`CREATE MACRO typed(a INTEGER) AS 'int', (a VARCHAR) AS 'str'`;
               yield* sql`CREATE MACRO overloaded(x) AS x + 1, (x, y) AS x + y`;
               yield* sql`CREATE MACRO overloaded_table(x) AS TABLE (SELECT x AS n),
                 (x, y) AS TABLE (SELECT x + y AS n)`;
@@ -1419,6 +1420,7 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
         const target = yield* DuckDbClient.make({ databasePath: ":memory:" });
         yield* target.unsafe(text);
         expect(yield* target`SELECT * FROM nested_view`).toEqual([{ n: 42 }]);
+        expect(yield* target`SELECT typed(42) AS a, typed('hello') AS b`).toEqual([{ a: "int", b: "str" }]);
         expect(yield* target`SELECT overloaded(41) AS a, overloaded(20, 22) AS b`).toEqual([{ a: 42, b: 42 }]);
         expect(yield* target`SELECT * FROM overloaded_table(42)`).toEqual([{ n: 42 }]);
         expect(yield* target`SELECT * FROM overloaded_table(20, 22)`).toEqual([{ n: 42 }]);

@@ -185,7 +185,7 @@ process through `FileSystem` and `Path` (provide platform services, such as
 The dump includes the current database's user enums, sequences, scalar and table
 macros, tables and views in one stream sorted by creation OID, followed by indexes
 and migration history rows. Scalar and table macro overloads are grouped into
-one CREATE statement per catalog macro, preserving every signature.
+one CREATE statement per catalog macro, preserving every signature and its catalog parameter types.
 This order handles eager table-macro binding and
 views that call macros; a fixed category order cannot handle both. Custom schemas
 are created first; attached databases and temporary/internal objects are excluded.

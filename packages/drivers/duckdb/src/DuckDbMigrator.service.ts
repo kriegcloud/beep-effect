@@ -24,6 +24,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
@@ -42,6 +43,7 @@ const CatalogMacro = S.Struct({
   function_name: S.String,
   function_type: S.String,
   parameters: S.Array(S.String),
+  parameter_types: S.String.pipe(S.NullOr, S.Array),
   macro_definition: S.String,
 }).pipe($I.annoteSchema("CatalogMacro", { description: "User macro catalog definition." }));
 const CatalogEnum = S.Struct({
@@ -67,7 +69,7 @@ const dumpSchema = Effect.fn("DuckDbMigrator.dumpSchema")(
     UNION ALL SELECT sequence_oid AS oid, schema_name, sql FROM duckdb_sequences()
       WHERE database_name = current_database() AND NOT temporary`.withoutTransform;
     const macros = yield* sql<typeof CatalogMacro.Type>`SELECT function_oid AS oid, schema_name, function_name,
-      function_type, parameters, macro_definition FROM duckdb_functions()
+      function_type, parameters, parameter_types, macro_definition FROM duckdb_functions()
       WHERE database_name = current_database() AND NOT internal AND function_type IN ('macro', 'table_macro')`
       .withoutTransform;
     const enums = yield* sql<typeof CatalogEnum.Type>`SELECT type_oid AS oid, schema_name, type_name, labels
@@ -85,7 +87,15 @@ const dumpSchema = Effect.fn("DuckDbMigrator.dumpSchema")(
               A.map(
                 [m, ...overloads],
                 (overload) =>
-                  `(${A.join(A.map(overload.parameters, quotedIdentifier), ", ")}) AS ${overload.function_type === "table_macro" ? `TABLE (${overload.macro_definition})` : overload.macro_definition}`
+                  `(${A.join(
+                    A.map(overload.parameters, (parameter, index) =>
+                      O.fromNullishOr(overload.parameter_types[index]).pipe(
+                        O.map((type) => `${quotedIdentifier(parameter)} ${type}`),
+                        O.getOrElse(() => quotedIdentifier(parameter))
+                      )
+                    ),
+                    ", "
+                  )}) AS ${overload.function_type === "table_macro" ? `TABLE (${overload.macro_definition})` : overload.macro_definition}`
               ),
               ", "
             )};`,
