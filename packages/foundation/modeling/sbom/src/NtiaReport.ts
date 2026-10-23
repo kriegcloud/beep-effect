@@ -1,18 +1,23 @@
-// The NTIA minimum elements, as a report.
-//
-// Three design choices, each with a reason:
-//
-// - `id` is a stable literal, not a display string. Consumers branch on the
-//   identifier; rendering a display name is presentation and belongs at the
-//   edge.
-// - No `suggestion` field. A library cannot know a consumer's config format,
-//   so remediation advice naming a particular file would couple a kit package
-//   to one repository.
-// - A REPORT, not a failure. Compliance is a question: a caller may
-//   legitimately emit a non-compliant SBOM and warn. `compliant` is a derived
-//   getter, so a caller wanting a hard gate writes its own `Effect.fail`.
-//
-// @see https://www.ntia.gov/files/ntia/publications/sbom_minimum_elements_report.pdf
+/**
+ * The NTIA minimum elements, as a report.
+ *
+ * Three design choices, each with a reason:
+ *
+ * - `id` is a stable literal, not a display string. Consumers branch on the
+ *   identifier; rendering a display name is presentation and belongs at the
+ *   edge.
+ * - No `suggestion` field. A library cannot know a consumer's config format,
+ *   so remediation advice naming a particular file would couple a kit package
+ *   to one repository.
+ * - A REPORT, not a failure. Compliance is a question: a caller may
+ *   legitimately emit a non-compliant SBOM and warn. `compliant` is a derived
+ *   getter, so a caller wanting a hard gate writes its own `Effect.fail`.
+ *
+ * The NTIA minimum elements report: https://www.ntia.gov/files/ntia/publications/sbom_minimum_elements_report.pdf
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

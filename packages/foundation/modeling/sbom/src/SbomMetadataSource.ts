@@ -1,19 +1,24 @@
-// Manifest → CycloneDX derivation.
-//
-// Author parsing and repository-URL normalization are not done here: they are
-// `@beep/package-json`'s `Person.FromValue` and `Repository.browseUrl`,
-// which serve consumers with no SBOM interest at all. What lives here is the
-// part that is genuinely CycloneDX vocabulary: which manifest field becomes
-// which external-reference type, how a supplier and publisher resolve, and
-// what a purl looks like.
-//
-// Layering an explicit config file over inferred values is NOT here.
-// Precedence is release policy and the config file is the consumer's; this
-// module offers derivation and `merge`, and which side wins is the caller's
-// call.
-//
-// Everything is total. Nothing reads an ambient clock or environment: a
-// timestamp is an argument, and so is the copyright year.
+/**
+ * Manifest → CycloneDX derivation.
+ *
+ * Author parsing and repository-URL normalization are not done here: they are
+ * `@beep/package-json`'s `Person.FromValue` and `Repository.browseUrl`,
+ * which serve consumers with no SBOM interest at all. What lives here is the
+ * part that is genuinely CycloneDX vocabulary: which manifest field becomes
+ * which external-reference type, how a supplier and publisher resolve, and
+ * what a purl looks like.
+ *
+ * Layering an explicit config file over inferred values is NOT here.
+ * Precedence is release policy and the config file is the consumer's; this
+ * module offers derivation and `merge`, and which side wins is the caller's
+ * call.
+ *
+ * Everything is total. Nothing reads an ambient clock or environment: a
+ * timestamp is an argument, and so is the copyright year.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import * as A from "effect/Array";
@@ -180,8 +185,8 @@ export class ComponentInput extends S.Opaque<ComponentInput, { readonly brand: u
     /**
      * Its resolved version. Absent produces a component with no version and no
      * purl version segment. Typed `string | undefined` so a caller forwarding a
-     * statically optional version (e.g. `WorkspacePackage.version` from
-     * `@effected/workspaces`) compiles under `exactOptionalPropertyTypes`.
+     * statically optional version (e.g. `WorkspacePackage.version` from the
+     * effected `workspaces` module) compiles under `exactOptionalPropertyTypes`.
      */
     version: S.optional(S.String).pipe(
       $I.annoteKey("ComponentInput.version", {
@@ -347,17 +352,19 @@ const manifestFields = (pkg: Package) => ({
 /** The root component's attribution: links, authors, publisher and copyright. */
 const attributionFields = (pkg: Package, options: SbomMetadataOptions.Encoded | undefined) => {
   const references = referenceRecords(pkg, options);
+  const authors = O.getOrUndefined(authorsOf(pkg));
+  const publisher = publisherOf(pkg, options);
   return {
     ...(A.isReadonlyArrayNonEmpty(references) && { externalReferences: references }),
-    ...O.match(authorsOf(pkg), { onNone: () => ({}), onSome: (authors) => ({ authors }) }),
-    ...O.match(publisherOf(pkg, options), { onNone: () => ({}), onSome: (publisher) => ({ publisher }) }),
+    ...(authors !== undefined && { authors }),
+    ...(publisher !== undefined && { publisher }),
     ...(options?.copyright !== undefined && { copyright: options.copyright }),
   };
 };
 
 /** The publisher: explicit, then the supplier's name, then the manifest's author. */
-const publisherOf = (pkg: Package, options: SbomMetadataOptions.Encoded | undefined): O.Option<string> =>
-  O.fromUndefinedOr(options?.publisher ?? options?.supplier?.name ?? pkg.author?.name);
+const publisherOf = (pkg: Package, options: SbomMetadataOptions.Encoded | undefined): string | undefined =>
+  options?.publisher ?? options?.supplier?.name ?? pkg.author?.name;
 
 // Implementation of SbomMetadataSource.rootComponent; the public contract lives on the static.
 const rootComponent: {
@@ -378,11 +385,11 @@ const rootComponent: {
 
 /** The caller's supplier, with the manifest's authors filling its contacts when it names none. */
 const supplierRecord = (supplier: Supplier.Encoded, pkg: Package): Supplier.Encoded => {
-  const contacts = O.orElse(O.fromUndefinedOr(supplier.contact), () => authorsOf(pkg));
+  const contact = supplier.contact ?? O.getOrUndefined(authorsOf(pkg));
   return {
     name: supplier.name,
     ...(supplier.url !== undefined && { url: supplier.url }),
-    ...O.match(contacts, { onNone: () => ({}), onSome: (contact) => ({ contact }) }),
+    ...(contact !== undefined && { contact }),
   };
 };
 
@@ -485,8 +492,8 @@ export class SbomMetadataSource {
    *
    * The caller assembles the component list — the kit has no second merge
    * rule for sibling packages released in the same wave, because which
-   * versions are in flight is release planning and `@effected/workspaces`
-   * already knows it. This is the mapping that would otherwise be
+   * versions are in flight is release planning and the effected `workspaces`
+   * module already knows it. This is the mapping that would otherwise be
    * re-derived at every call site.
    *
    * **Example** (Derive an unversioned dependency component)

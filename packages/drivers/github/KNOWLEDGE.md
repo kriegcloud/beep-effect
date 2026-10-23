@@ -1057,7 +1057,8 @@ comparison returns the extras and the caller decides what to log.
 ## Attestation and artifact metadata
 
 Attestation upload and listing are the REST half of a three-way split —
-signing and SBOM assembly are `@effected/sbom`'s, and the mint-sign-build-attest
+SBOM and statement assembly are `@beep/sbom`'s, signing is the effected lab
+signer's, and the mint-sign-build-attest
 pipeline is consumer composition. Two behaviours are deliberate: the pinned
 API version, which is why this surface uses the decoding request with an
 owned schema rather than a generated response type, and two distinct

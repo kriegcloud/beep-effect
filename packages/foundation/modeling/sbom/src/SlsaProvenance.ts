@@ -1,19 +1,24 @@
-// SLSA Provenance v1 for a GitHub Actions `workflow/v1` build.
-//
-// Design notes:
-//
-// 1. TYPED, not `Record<string, unknown>`: a verifier reading a malformed
-//    predicate fails far from the mistake.
-// 2. TOTAL, no error channel: string interpolation over already-present claims
-//    cannot throw.
-// 3. NO ambient `process.env`: `serverUrl` is a field. Reading
-//    `GITHUB_SERVER_URL` with no default would put the literal string
-//    `undefined` into every URL built from an unset variable; a required field
-//    cannot do that.
-//
-// The emitted shape is byte-compatible with `@actions/attest`'s
-// `attestProvenance`, because a verifier must see the same structure whichever
-// path produced the attestation.
+/**
+ * SLSA Provenance v1 for a GitHub Actions `workflow/v1` build.
+ *
+ * Design notes:
+ *
+ * 1. TYPED, not `Record<string, unknown>`: a verifier reading a malformed
+ *    predicate fails far from the mistake.
+ * 2. TOTAL, no error channel: string interpolation over already-present claims
+ *    cannot throw.
+ * 3. NO ambient `process.env`: `serverUrl` is a field. Reading
+ *    `GITHUB_SERVER_URL` with no default would put the literal string
+ *    `undefined` into every URL built from an unset variable; a required field
+ *    cannot do that.
+ *
+ * The emitted shape is byte-compatible with `@actions/attest`'s
+ * `attestProvenance`, because a verifier must see the same structure whichever
+ * path produced the attestation.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -46,7 +51,7 @@ export const SLSA_PROVENANCE_V1 = "https://slsa.dev/provenance/v1" as const;
  *
  * A published **SLSA build-type identifier** — it names a provenance shape, not
  * an Actions runtime detail — which is why it lives with the provenance model
- * rather than in `@effected/github-actions`.
+ * rather than in the effected `github-actions` driver module.
  *
  * **Example** (Identify a GitHub Actions workflow build)
  *

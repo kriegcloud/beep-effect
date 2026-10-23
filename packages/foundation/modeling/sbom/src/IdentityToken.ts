@@ -1,17 +1,22 @@
-// The inverted OIDC contract.
-//
-// Signing needs a workload identity token. Issuing one needs the Actions
-// runtime — `ACTIONS_ID_TOKEN_REQUEST_URL`, the runner's token service, a
-// platform HTTP client — which lives in `@effected/github-actions`, an
-// integrated package with a required `@effect/platform-node` peer. Taking that
-// edge would drag a platform peer into every consumer that only wanted to emit
-// an SBOM.
-//
-// So the dependency is inverted, as with `@effected/npm`'s `CatalogResolver`
-// and `@effected/commands`' `LocalExec`: this package declares the narrow
-// contract it needs, github-actions ships the layer that implements it
-// (`ActionsIdentityToken.layer`, over its `OidcTokenIssuer`), and a consumer
-// already holding a token uses `IdentityToken.layerStatic`.
+/**
+ * The inverted OIDC contract.
+ *
+ * Signing needs a workload identity token. Issuing one needs the Actions
+ * runtime — `ACTIONS_ID_TOKEN_REQUEST_URL`, the runner's token service, a
+ * platform HTTP client — which lives in the effected `github-actions` module, a
+ * driver with a required `@effect/platform-node` peer. Taking that
+ * edge would drag a platform peer into every consumer that only wanted to emit
+ * an SBOM.
+ *
+ * So the dependency is inverted, as with `@beep/npm-spec`'s `CatalogResolver`
+ * and `@beep/commands`' `LocalExec`: this package declares the narrow
+ * contract it needs, github-actions ships the layer that implements it
+ * (`ActionsIdentityToken.layer`, over its `OidcTokenIssuer`), and a consumer
+ * already holding a token uses `IdentityToken.layerStatic`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
@@ -119,13 +124,13 @@ export interface IdentityTokenShape {
 const TEST_TOKEN = "test-identity-token";
 
 /**
- * A source of workload identity tokens (OIDC), the input `SigstoreSigner` needs
- * to obtain a signing certificate.
+ * A source of workload identity tokens (OIDC), the input a Sigstore signer
+ * needs to obtain a signing certificate.
  *
  * **Details**
  *
- * In GitHub Actions, provide `ActionsIdentityToken.layer` from
- * `@effected/github-actions`. A consumer that already holds a token uses
+ * In GitHub Actions, provide `ActionsIdentityToken.layer` from the effected
+ * `github-actions` module. A consumer that already holds a token uses
  * {@link (IdentityToken:class).layerStatic}; tests use
  * {@link (IdentityToken:class).layerTest}.
  *
@@ -181,8 +186,8 @@ export class IdentityToken extends Context.Service<IdentityToken, IdentityTokenS
    *
    * **Details**
    *
-   * Unlike {@link (SigstoreSigner:class).makeTest}, this one **answers** rather than
-   * dying: a fabricated OIDC token is a real answer to "give me a token" in a
+   * Unlike the lab signer's `SigstoreSigner.makeTest`, this one **answers** rather
+   * than dying: a fabricated OIDC token is a real answer to "give me a token" in a
    * test, where a fabricated signature would be a lie about cryptography.
    *
    * **Example** (Inspect the default token double)

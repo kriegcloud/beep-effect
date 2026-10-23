@@ -1,8 +1,13 @@
-// The emitter facade.
-//
-// `generate` and `toJson` are plain total functions: the model is owned, so
-// there is no third-party serializer whose failure they would need to surface.
-// Only `write` has an error channel, and it is the filesystem's.
+/**
+ * The emitter facade.
+ *
+ * `generate` and `toJson` are plain total functions: the model is owned, so
+ * there is no third-party serializer whose failure they would need to surface.
+ * Only `write` has an error channel, and it is the filesystem's.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import * as A from "effect/Array";

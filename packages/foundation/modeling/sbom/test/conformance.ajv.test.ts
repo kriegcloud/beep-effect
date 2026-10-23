@@ -61,6 +61,8 @@ const EpochMillis = S.Int.check(S.isGreaterThanOrEqualTo(0), S.isLessThan(4_102_
 
 const sameComponent = S.toEquivalence(Component);
 
+const isComponentsDocument = S.is(S.Struct({ components: S.Array(S.Record(S.String, S.Unknown)) }));
+
 /**
  * A seeded input made valid where the model is deliberately lenient: its
  * timestamp, when it has metadata, is a real RFC 3339 instant, and exact
@@ -96,7 +98,7 @@ describe("CycloneDX 1.6 conformance — the whole vendored schema", () => {
   it("the validator is live: a document without a component name fails", () => {
     // The control. A validator that accepts everything would pass the property.
     const document = emitted(full);
-    assertTrue(S.is(S.Struct({ components: S.Array(S.Record(S.String, S.Unknown)) }))(document));
+    assertTrue(isComponentsDocument(document));
     const broken = { ...document, components: A.map(document.components, ({ name: _name, ...rest }) => rest) };
     assert.include(cycloneDxViolations(broken), "/components/0 required");
   });

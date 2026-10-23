@@ -1,10 +1,15 @@
-// in-toto Statement v1: the value that gets signed.
-//
-// This module reaches nothing — no `@sigstore/*`, no filesystem, no clock. That
-// is deliberate: a statement, a subject and a digest are exactly what a
-// VERIFIER needs, and a verifier must be able to depend on the shapes without
-// loading Fulcio's transport. It is also what lets a caller build, inspect and
-// serialize a statement in a test with no layers at all.
+/**
+ * in-toto Statement v1: the value that gets signed.
+ *
+ * This module reaches nothing — no `@sigstore/*`, no filesystem, no clock. That
+ * is deliberate: a statement, a subject and a digest are exactly what a
+ * VERIFIER needs, and a verifier must be able to depend on the shapes without
+ * loading Fulcio's transport. It is also what lets a caller build, inspect and
+ * serialize a statement in a test with no layers at all.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import * as A from "effect/Array";
@@ -206,7 +211,7 @@ const Sha256DigestBase: Omit<S.Opaque<Sha256Digest, typeof sha256Digest, {}>, ne
  *
  * **Details**
  *
- * A deliberate small duplication rather than a shared package: `@effected/github`
+ * A deliberate small duplication rather than a shared package: `@beep/github`
  * types the same value structurally on its attestation surface, and dragging a
  * package across that seam to share one branded string would cost more than the
  * duplication does.

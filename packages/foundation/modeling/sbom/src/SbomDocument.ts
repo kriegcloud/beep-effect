@@ -1,12 +1,17 @@
-// The CycloneDX 1.6 model, owned.
-//
-// A general-purpose CycloneDX library carries XML serialization, schema
-// validation and SPDX expression parsing, which an emitter never calls. What an
-// emitter needs is an object model and a JSON normalizer, which is what this
-// module is.
-//
-// 1.6 ONLY. There is no 1.5 path, no dual-emission branch and no version
-// option.
+/**
+ * The CycloneDX 1.6 model, owned.
+ *
+ * A general-purpose CycloneDX library carries XML serialization, schema
+ * validation and SPDX expression parsing, which an emitter never calls. What an
+ * emitter needs is an object model and a JSON normalizer, which is what this
+ * module is.
+ *
+ * 1.6 ONLY. There is no 1.5 path, no dual-emission branch and no version
+ * option.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $SbomId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -526,7 +531,7 @@ const compact = (value: Readonly<Record<string, unknown>>): Record<string, unkno
  * `{ expression }` tuple, and anything else is a named license. Emitting every
  * value as an id produces a document that looks right and validates wrong.
  *
- * The identifier-versus-expression question is `@effected/spdx`'s to answer:
+ * The identifier-versus-expression question is `@beep/spdx`'s to answer:
  * the kit's one SPDX engine, never a local regex.
  */
 const licensesJson = (licenses: ReadonlyArray<string>): ReadonlyArray<Record<string, unknown>> => {
