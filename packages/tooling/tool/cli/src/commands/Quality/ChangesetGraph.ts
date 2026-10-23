@@ -6,6 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
+import { FrontmatterFormat } from "@beep/markdown/MarkdownNode";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
@@ -34,7 +36,6 @@ export { ChangesetGraphError } from "./Quality.errors.ts";
 
 const $I = $RepoCliId.create("commands/Quality/ChangesetGraph");
 
-const changesetFrontmatterPattern = /^---\r?\n([\s\S]*?)\r?\n---/;
 const nulSeparator = "\u0000";
 const gitWorkspacePackageJsonPathspecs = ["package.json"] as const;
 const retiredChangesetPackagesPath = "standards/changesets.retired-packages.json";
@@ -193,12 +194,6 @@ const workspacePatternsFrom = (document: ChangesetGraphPackageJson): ReadonlyArr
 
 const packageJsonPathspecForWorkspacePattern = (pattern: string): string =>
   `:(glob)${pipe(pattern, normalizePath, stripTrailingSlashes)}/package.json`;
-
-const extractFrontmatter = (content: string): O.Option<string> =>
-  pipe(
-    O.fromNullishOr(changesetFrontmatterPattern.exec(content)),
-    O.flatMap((match) => O.fromNullishOr(match[1]))
-  );
 
 const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* (
   repoRoot: string,
@@ -403,7 +398,11 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     file: string,
     content: string
   ): Effect.fn.Return<ReadonlyArray<ChangesetGraphPackageReference>, ChangesetGraphError> {
-    const frontmatter = extractFrontmatter(content);
+    const frontmatter = pipe(
+      O.fromUndefinedOr(FrontmatterSource.split(content).frontmatter),
+      O.filter((block) => FrontmatterFormat.is.yaml(block.format)),
+      O.map((block) => block.value)
+    );
 
     if (O.isNone(frontmatter)) {
       return A.empty<ChangesetGraphPackageReference>();

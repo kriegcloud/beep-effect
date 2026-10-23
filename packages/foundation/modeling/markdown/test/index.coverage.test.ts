@@ -55,6 +55,17 @@ describe("root barrel", () => {
     })
   );
 
+  it.effect("keeps FrontmatterSource string-level: its runtime closure never reaches the parsers", () =>
+    Effect.sync(() => {
+      const closure = importClosure("FrontmatterSource.ts");
+      // The walk really ran: the splitter reaches the raw offset-0 scanner.
+      assert.include(closure.modules, "internal/blocks/frontmatter.ts");
+      assert.notInclude(closure.modules, "internal/blockParser.ts");
+      assert.notInclude(closure.modules, "internal/inlineParser.ts");
+      assert.notInclude(closure.modules, "index.ts");
+    })
+  );
+
   it.effect("keeps the codecs reachable from their own subpaths", () =>
     Effect.sync(() => {
       assert.include(importClosure("YamlFrontmatter.ts").packages, "@beep/yaml/Yaml");

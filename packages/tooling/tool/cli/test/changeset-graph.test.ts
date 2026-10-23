@@ -126,6 +126,40 @@ Record a private workspace change.
     })
   );
 
+  it.effect("reads CRLF-fenced changeset frontmatter", () =>
+    Effect.gen(function* () {
+      const references = yield* changesetPackageReferencesFromText(
+        ".changeset/crlf.md",
+        '---\r\n"@beep/schema": patch\r\n---\r\n\r\nPatch schema.\r\n'
+      );
+
+      expect(references).toEqual([
+        ChangesetGraphPackageReference.make({ file: ".changeset/crlf.md", packageName: "@beep/schema" }),
+      ]);
+    })
+  );
+
+  it.effect("reads no references from a block that is not a closed YAML frontmatter fence", () =>
+    Effect.gen(function* () {
+      const notYaml = yield* changesetPackageReferencesFromText(
+        ".changeset/json.md",
+        '---json\n{"@beep/schema": "patch"}\n---\n\nJSON fence.\n'
+      );
+      const unclosed = yield* changesetPackageReferencesFromText(
+        ".changeset/unclosed.md",
+        '---\n"@beep/schema": patch\n\nNo closing fence.\n'
+      );
+      const inexactClose = yield* changesetPackageReferencesFromText(
+        ".changeset/inexact.md",
+        '---\n"@beep/schema": patch\n----\n\nFour dashes do not close the fence.\n'
+      );
+
+      expect(notYaml).toEqual([]);
+      expect(unclosed).toEqual([]);
+      expect(inexactClose).toEqual([]);
+    })
+  );
+
   it.effect(
     "rejects frontmatter whose bump value is outside the major | minor | patch domain",
     Effect.fnUntraced(function* () {

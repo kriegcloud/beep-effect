@@ -200,6 +200,7 @@
     "@beep/identity": "workspace:^",
     "@beep/libpff": "workspace:^",
     "@beep/m365": "workspace:^",
+    "@beep/markdown": "workspace:^",
     "@beep/mcp-kit": "workspace:^",
     "@beep/md": "workspace:^",
     "@beep/obs": "workspace:^",
