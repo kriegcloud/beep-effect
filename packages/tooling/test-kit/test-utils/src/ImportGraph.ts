@@ -46,7 +46,7 @@ const $I = $TestUtilsId.create("ImportGraph");
  * ```
  *
  * @param source - Module text to clean.
- * @returns The text with line and block comments removed.
+ * @returns The text with whole-line `//` comments and all block comments removed (trailing `//` comments are kept).
  * @category testing
  * @since 0.0.0
  */
