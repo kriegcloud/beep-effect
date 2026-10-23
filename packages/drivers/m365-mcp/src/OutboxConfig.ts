@@ -25,6 +25,7 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { OutboxAttachmentPolicy } from "./OutboxAttachmentSource.ts";
+import type { XdgBaseKind } from "@beep/xdg/XdgBase";
 
 const $I = $M365McpId.create("OutboxConfig");
 
@@ -171,7 +172,7 @@ const optionalInt = (name: string): Effect.Effect<O.Option<number>, OutboxConfig
   );
 
 // The XDG base directory with its spec default; a relative value or HOME is ignored (@beep/xdg).
-const stateRoot = (kind: "data" | "state"): Effect.Effect<string, OutboxConfigError> =>
+const stateRoot = (kind: XdgBaseKind): Effect.Effect<string, OutboxConfigError> =>
   XdgBase.dir(kind).pipe(
     Effect.mapError(() => OutboxConfigError.make({ message: `${XdgBase.variable(kind)} could not be read.` })),
     Effect.flatMap(

@@ -45,7 +45,9 @@ const resolved: ReadonlyArray<Resolved> = [
 /**
  * Inverted rows: before @beep/xdg a relative XDG_STATE_HOME became a relative audit
  * directory, a space-padded one was trimmed, and HOME was joined unnormalized.
- * The spec ignores a relative value, and the padded value is relative.
+ * The spec ignores a relative value, and the padded value is relative. A value
+ * with only trailing whitespace is absolute, so it is now used verbatim instead
+ * of trimmed.
  */
 const divergent: ReadonlyArray<Resolved> = [
   [
@@ -60,6 +62,19 @@ const divergent: ReadonlyArray<Resolved> = [
     `/h/.local/share/${STAGING}`,
     `/h/.local/state/${AUDIT}`,
   ],
+  [
+    "a trailing-space XDG_STATE_HOME",
+    { HOME: "/h", XDG_STATE_HOME: "/s " },
+    `/h/.local/share/${STAGING}`,
+    `/s /${AUDIT}`,
+  ],
+  [
+    "a trailing-space XDG_DATA_HOME",
+    { HOME: "/h", XDG_DATA_HOME: "/d " },
+    `/d /${STAGING}`,
+    `/h/.local/state/${AUDIT}`,
+  ],
+  ["a trailing-space HOME", { HOME: "/h " }, `/h /.local/share/${STAGING}`, `/h /.local/state/${AUDIT}`],
   ["a HOME with a trailing slash", { HOME: "/h/" }, `/h/.local/share/${STAGING}`, `/h/.local/state/${AUDIT}`],
   [
     "a relative XDG_DATA_HOME",
