@@ -714,11 +714,11 @@
       }
     },
     "@beep/md": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2d-2, feat/effected-promotion-w2d2)",
+      "reason": "Record the wave-2d-2 @beep/md manifest edit that adds the @beep/markdown workspace dependency and the ./Md.syntax and ./Md.parse subpath exports for the syntax bridge, and the regenerated root policy-fingerprint inputs it implies; the turbo coupling is measured in the review; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2d2.md",
+        "sha256": "5b7fbbb0cae33019cbf7c564bf46e2587ad81b29bf65966e76fa078fea36e1f5"
       }
     },
     "@beep/memfs": {
@@ -62475,6 +62475,7 @@
         "dependencies": [
           "@beep/html#audit",
           "@beep/identity#audit",
+          "@beep/markdown#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
           "@beep/test-utils#audit",
@@ -62542,6 +62543,7 @@
         "dependencies": [
           "@beep/html#build",
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -62598,6 +62600,7 @@
         "dependencies": [
           "@beep/html#build",
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -62641,6 +62644,7 @@
         "dependencies": [
           "@beep/html#build",
           "@beep/identity#build",
+          "@beep/markdown#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
@@ -62733,6 +62737,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -62821,6 +62826,7 @@
           "//#lint:policy-fingerprint",
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -63027,6 +63033,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -63073,6 +63080,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
@@ -63125,6 +63133,7 @@
         "dependencies": [
           "@beep/html#transit",
           "@beep/identity#transit",
+          "@beep/markdown#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",

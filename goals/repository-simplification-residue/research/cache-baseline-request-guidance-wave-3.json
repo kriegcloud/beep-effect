@@ -1,5 +1,5 @@
 {
-  "previous": "63d1bd06826aa8ab779db201b100a6e24fccddeb78b4e769ce8fab965c248415",
+  "previous": "8c018c9b5a963e45c3db1780956d6c44d766ab92ba8972aa5ab9e5bafb011d54",
   "review": {
     "reviewer": "Claude Opus 5.5 (rsc residue #1856 wave 3, feat/residue-guidance-wave3)",
     "reason": "Record the new root lint:markdown-fences script and its uncached //#lint:markdown-fences Turbo task; no existing command, input or cache setting changes and no qualification is granted.",
