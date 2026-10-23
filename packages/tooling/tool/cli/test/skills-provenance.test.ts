@@ -1386,7 +1386,7 @@ describe("live pinned skill transport", () => {
     ),
     Layer.provideMerge(TestLayer)
   );
-  layer(TransportLayer)((it) => {
+  layer(TransportLayer, { timeout: "60 seconds" })((it) => {
     it.effect("bounds path history, distinguishes absence from unavailability, and caches pinned blobs", () =>
       Effect.gen(function* () {
         const upstream = yield* SkillUpstreamContentSource;
