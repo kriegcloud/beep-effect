@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-23T22:55:23.618Z",
+  "generatedAt": "2026-10-23T23:30:00.172Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -553244,8 +553244,8 @@
           "exportKind": "class",
           "filePath": "src/ConfigDependencyHooks.ts",
           "repoPath": "packages/tooling/library/repo-workspaces/src/ConfigDependencyHooks.ts",
-          "line": 1017,
-          "anchor": "packages-tooling-library-repo-workspaces-src-configdependencyhooks-ts-1017-configdependencyhooks",
+          "line": 1026,
+          "anchor": "packages-tooling-library-repo-workspaces-src-configdependencyhooks-ts-1026-configdependencyhooks",
           "currentTags": [
             "@public",
             "@category",
