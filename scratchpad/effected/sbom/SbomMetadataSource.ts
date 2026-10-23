@@ -326,7 +326,7 @@ const merge: {
  * **Example** (Generate an SBOM from package metadata and an explicit supplier)
  *
  * ```ts
- * import { Package } from "@beep/package-json";
+ * import { Package } from "@beep/package-json/Package";
  * import { Sbom } from "@beep/scratchpad/effected/sbom/index";
  * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
  * import { Supplier } from "@beep/scratchpad/effected/sbom/SbomDocument";
@@ -407,7 +407,7 @@ export class SbomMetadataSource {
 	 *
 	 * ```ts
 	 * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
-	 * import { Package } from "@beep/package-json";
+	 * import { Package } from "@beep/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const pkg = Effect.runSync(Package.decode({ name: "@acme/app", version: "1.0.0", license: "MIT", homepage: "https://example.com/docs" }));
@@ -437,7 +437,7 @@ export class SbomMetadataSource {
 	 *
 	 * ```ts
 	 * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
-	 * import { Package } from "@beep/package-json";
+	 * import { Package } from "@beep/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const pkg = Effect.runSync(Package.decode({ name: "@acme/app", version: "1.0.0", license: "MIT", homepage: "https://example.com/docs" }));
@@ -471,7 +471,7 @@ export class SbomMetadataSource {
 	 *
 	 * ```ts
 	 * import { SbomMetadataSource } from "@beep/scratchpad/effected/sbom/SbomMetadataSource";
-	 * import { Package } from "@beep/package-json";
+	 * import { Package } from "@beep/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const pkg = Effect.runSync(Package.decode({ name: "@acme/app", version: "1.0.0", license: "MIT", homepage: "https://example.com/docs" }));

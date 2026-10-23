@@ -5,8 +5,7 @@
  * @category utilities
  * @since 0.0.0
  */
-// cspell:ignore tsmorph
-// biome-ignore-all assist/source/organizeImports: docgen requires individually documented re-export declarations.
+// biome-ignore-all assist/source/organizeImports: docgen requires individually documented re-export declarations. Owner: @beep/repo-utils. Exit: docgen accepts sorted re-export declarations.
 
 /**
  * @category utilities

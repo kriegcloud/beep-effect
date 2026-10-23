@@ -233,6 +233,7 @@ const generatedComposers = $I.compose(
   "runtime-env",
   "epistemics",
   "markdown",
+  "github-reporting",
   "package-json"
 );
 
@@ -3371,6 +3372,23 @@ export const $EpistemicsId: Identity.IdentityComposer<"@beep/epistemics"> = comp
  * @since 0.0.0
  */
 export const $MarkdownId: Identity.IdentityComposer<"@beep/markdown"> = composers.$MarkdownId;
+
+/**
+ * Identity composer for `@beep/github-reporting`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GithubReportingId } from "@beep/identity/packages"
+ *
+ * const id = $GithubReportingId.make("GithubReporting")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GithubReportingId: Identity.IdentityComposer<"@beep/github-reporting"> = composers.$GithubReportingId;
 
 /**
  * Identity composer for `@beep/package-json`.

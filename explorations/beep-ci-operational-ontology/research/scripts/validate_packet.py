@@ -219,7 +219,7 @@ if _args.s6:
     for label, path in graph_paths.items():
         try:
             parsed_graphs[label] = Graph().parse(path, format="turtle")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             blocker(f"{label} fails Turtle parse: {exc}")
     if blockers:
         print(f"RESULT: {len(blockers)} blockers, {len(warns)} warns")
@@ -900,7 +900,7 @@ for f in sparql_files:
     text = f.read_text()
     try:
         prepareQuery(text)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         blocker(f"{f.name} fails to parse: {exc}")
         continue
     m = prefix_re.search(text)
@@ -913,7 +913,7 @@ for f in sparql_files:
     if c and "sparql" in c:
         try:
             prepareQuery(c["sparql"])
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             blocker(f"{cid} inline YAML sparql fails to parse: {exc}")
         if strip_query(c["sparql"]) != strip_query(text):
             warn(f"{f.name} drifts from {cid}'s inline YAML sparql")

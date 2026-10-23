@@ -83,7 +83,6 @@ const isForeignBreakoutElementName = S.is(
   ])
 );
 const isFontBreakoutAttributeName = S.is(LiteralKit(["color", "face", "size"]));
-// cspell:words mglyph mtext
 const isMathMlTextIntegrationPointName = S.is(LiteralKit(["mi", "mo", "mn", "ms", "mtext"]));
 const isMathMlTextForeignChildName = S.is(LiteralKit(["malignmark", "mglyph"]));
 const isSvgHtmlIntegrationPointName = S.is(LiteralKit(["desc", "foreignObject", "title"]));

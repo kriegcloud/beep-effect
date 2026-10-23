@@ -1,4 +1,3 @@
-/* cspell:words gboolean gchar Referer REFERER */
 #include <webkit2/webkit-web-extension.h>
 #include <string.h>
 

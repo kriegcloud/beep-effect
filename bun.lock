@@ -2492,6 +2492,27 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/github-reporting": {
+      "name": "@beep/github-reporting",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/managed-section": "workspace:^",
+        "@beep/markdown": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/github": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "micromark": "catalog:",
+        "micromark-extension-gfm": "catalog:",
+      },
+    },
     "packages/foundation/modeling/glob": {
       "name": "@beep/glob",
       "version": "0.0.0",
@@ -3970,6 +3991,7 @@
         "@beep/github": "workspace:^",
         "@beep/github-commands": "workspace:^",
         "@beep/github-references": "workspace:^",
+        "@beep/github-reporting": "workspace:^",
         "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
@@ -4566,6 +4588,8 @@
     "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
 
     "@beep/github-references": ["@beep/github-references@workspace:packages/foundation/modeling/github-references"],
+
+    "@beep/github-reporting": ["@beep/github-reporting@workspace:packages/foundation/modeling/github-reporting"],
 
     "@beep/glob": ["@beep/glob@workspace:packages/foundation/modeling/glob"],
 

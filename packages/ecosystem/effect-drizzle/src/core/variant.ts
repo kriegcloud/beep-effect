@@ -147,7 +147,7 @@ export const FieldOnly = factory.FieldOnly;
  */
 export const FieldExcept = factory.FieldExcept;
 
-// biome-ignore lint/suspicious/noExplicitAny: Effect uses Field<any> as its invariant variant-field existential.
+// biome-ignore lint/suspicious/noExplicitAny: Effect uses Field<any> as its invariant variant-field existential. Owner: @beep/effect-drizzle. Exit: effect/Schema exports a variant-field existential type.
 type FieldEvolveInput = VariantSchema.Field<any> | Top;
 
 type FieldEvolveTransforms = { readonly [Key in Variant]?: (variant: never) => Top };

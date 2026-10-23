@@ -4,6 +4,17 @@ Reuse sites from `research/promotion-map-2026-10-20.md` ("Reuse sites") and
 the wave plans, with their adoption status. `#n` is the map's site id. A site
 leaves the open list in the PR that migrates it, or carries its reason here.
 
+## `@beep/github-reporting` (wave 3-1, W3-b)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| lab `scratchpad/effected/github-actions` (index re-exports, `Exports.test.ts`, reachability and layering maps) | - | 3-1 | Retargeted in the promotion PR; no lab module imports the suite any more. |
+| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`; fixes its unescaped `\|` cells. |
+| repo-cli `Ci/CiOperational.service.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`. |
+| repo-cli `LaneTimings` and `Ci.command` tables | - | excluded | Need column alignment, which the writer does not offer. |
+| repo-cli Reviewer and CI summary bodies | - | deferred | Named by D-10; adopt with the wave-5 GitHub Actions driver, which composes `CheckDocument` with a real sink. |
+| Marker-splice family (Provenance, GhOps, Quality, Findings.refresh, Atlas, Observability, Models) | - | excluded | File-backed managed sections go to `@beep/managed-section` directly, not through `ManagedDocument`'s comment dialect. |
+
 ## `@beep/markdown` (wave 2d, SPEC D-46)
 
 | Site | Map id | Status | Notes |
