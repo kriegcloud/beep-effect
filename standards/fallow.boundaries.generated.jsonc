@@ -666,6 +666,12 @@
         ]
       },
       {
+        "name": "@beep/package-json",
+        "patterns": [
+          "packages/foundation/modeling/package-json/src/**"
+        ]
+      },
+      {
         "name": "@beep/palantiri",
         "patterns": [
           "packages/tooling/library/palantiri/src/**"
@@ -3529,6 +3535,15 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/package-json",
+        "allow": [
+          "@beep/package-json"
+        ],
+        "allowTypeOnly": [
+          "@beep/package-json"
         ]
       },
       {

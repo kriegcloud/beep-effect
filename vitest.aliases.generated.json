@@ -2136,5 +2136,9 @@
   "@beep/markdown/*": ["./packages/foundation/modeling/markdown/src/*"],
   "@beep/markdown/internal/*": [
     "./packages/foundation/modeling/markdown/src/internal/*"
-  ]
+  ],
+  "@beep/package-json": [
+    "./packages/foundation/modeling/package-json/src/index.ts"
+  ],
+  "@beep/package-json/*": ["./packages/foundation/modeling/package-json/src/*"]
 }
