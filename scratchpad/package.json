@@ -57,6 +57,7 @@
     "@beep/pretext": "workspace:^",
     "@beep/provenance": "workspace:^",
     "@beep/rdf": "workspace:^",
+    "@beep/repo-tsconfig": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/runtime-env": "workspace:^",
     "@beep/schema": "workspace:^",
