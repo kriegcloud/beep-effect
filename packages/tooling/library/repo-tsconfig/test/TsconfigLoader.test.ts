@@ -277,6 +277,33 @@ layer(
 
 layer(
   fixtureLayer(
+    tree(
+      ["/proj/node_modules/src-exp/package.json", '{"exports":{"./*":"./src/*.ts"}}'],
+      ["/proj/node_modules/src-exp/tsconfig.json", "NEVER-PROBED"],
+      ["/proj/node_modules/root-exp/package.json", '{"exports":{"./*":"./*.ts"}}'],
+      ["/proj/node_modules/root-exp/tsconfig.json", EMPTY]
+    )
+  ),
+  { timeout: "30 seconds" }
+)("resolveExtendsTarget, a .ts export target is read as its .json sibling", (it) => {
+  it.effect("a source-only pattern blocks the tsconfig.json fallback, as tsc does", () =>
+    Effect.gen(function* () {
+      // `./src/tsconfig.json` does not exist; tsc lets exports block the fallback (W3-c).
+      assertNone(yield* resolveExtendsTarget("src-exp/tsconfig", "/proj/tsconfig.json"));
+      assertNone(yield* resolveExtendsTarget("src-exp/tsconfig.json", "/proj/tsconfig.json"));
+    })
+  );
+
+  it.effect("a root pattern reaches the package's tsconfig.json through the .ts target", () =>
+    Effect.gen(function* () {
+      const result = yield* resolveExtendsTarget("root-exp/tsconfig", "/proj/tsconfig.json");
+      assertSome(result, "/proj/node_modules/root-exp/tsconfig.json");
+    })
+  );
+});
+
+layer(
+  fixtureLayer(
     tree(["/proj/node_modules/bad/package.json", "{ not json"], ["/proj/node_modules/bad/tsconfig.json", EMPTY])
   ),
   { timeout: "30 seconds" }
@@ -408,6 +435,13 @@ describe("resolveExports", () => {
 
   it("rejects a non-.json target", () => {
     assertNone(resolveExports({ ".": "./tsconfig" }, "."));
+    assertNone(resolveExports({ ".": "./tsconfig.mjs" }, "."));
+  });
+
+  it("reads a .d.ts, .ts or .js target as its .json sibling, as tsc's config lookup does", () => {
+    assertSome(resolveExports({ ".": "./base.d.ts" }, "."), "./base.json");
+    assertSome(resolveExports({ "./*": "./*.ts" }, "./tsconfig"), "./tsconfig.json");
+    assertSome(resolveExports({ ".": { types: "./base.js" } }, "."), "./base.json");
   });
 
   it("reads a top-level fallback array as the root target", () => {

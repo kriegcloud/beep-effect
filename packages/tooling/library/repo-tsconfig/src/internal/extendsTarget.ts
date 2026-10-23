@@ -217,8 +217,32 @@ const matchExportKey = (exports: unknown, subpath: string): O.Option<unknown> =>
 };
 
 /**
+ * The extensions tsc's config lookup reads as their `.json` sibling, longest first so `.d.ts` wins over
+ * `.ts` (tsc `removeFileExtension` then `tryAddingExtensions`, which ends in
+ * `state.isConfigLookup && tryExtension(".json")` for exactly these).
+ */
+const JSON_SIBLING_EXTENSIONS = [".d.ts", ".ts", ".js"];
+
+/**
+ * Read one string export target the way tsc's config lookup does: a `.json` target as written, and a
+ * `.d.ts`, `.ts` or `.js` target as its `.json` sibling (`"./*": "./*.ts"` reaches `./tsconfig.json`).
+ * Any other target is not a config.
+ *
+ * @param target - The string export target.
+ * @returns The `.json` target to probe, or `Option.none()`.
+ */
+const jsonTarget = (target: string): O.Option<string> =>
+  Str.endsWith(".json")(target)
+    ? O.some(target)
+    : O.map(
+        A.findFirst(JSON_SIBLING_EXTENSIONS, (extension) => Str.endsWith(extension)(target)),
+        (extension) => `${Str.slice(0, target.length - extension.length)(target)}.json`
+      );
+
+/**
  * Resolve an export value to a `.json` string target: strings gate on the
- * `.json` suffix, fallback arrays yield the first resolvable entry, and
+ * `.json` suffix (or a `.d.ts`/`.ts`/`.js` target's `.json` sibling, as tsc's config lookup reads it),
+ * fallback arrays yield the first resolvable entry, and
  * condition objects are matched in map insertion order (Node semantics) against
  * the honored conditions plus `default`, under the depth guard.
  *
@@ -228,7 +252,7 @@ const matchExportKey = (exports: unknown, subpath: string): O.Option<unknown> =>
  */
 const resolveConditionValue = (value: unknown, depth: number): O.Option<string> => {
   if (depth > MAX_EXPORTS_DEPTH) return O.none();
-  if (P.isString(value)) return Str.endsWith(".json")(value) ? O.some(value) : O.none();
+  if (P.isString(value)) return jsonTarget(value);
   if (A.isArray(value)) return A.findFirst(value, (entry) => resolveConditionValue(entry, depth + 1));
   return P.isObject(value) ? resolveConditions(value, depth + 1) : O.none();
 };
