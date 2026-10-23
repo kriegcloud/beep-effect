@@ -1,15 +1,16 @@
 // `Lockfile#rootPackage` per format, and the alias-aware
-// `ResolvedPackage#installName` the bun parser records. The repo-cli
+// `ResolvedPackage#installName` the bun and npm parsers record. The repo-cli
 // consumers (`RootCatalog`, `CatalogUsage`) read the root bun.lock through
 // these two members.
 
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { describe, it } from "@effect/vitest";
-import { assertFalse, assertNone, assertSome, assertTrue, strictEqual } from "@effect/vitest/utils";
+import { assertFalse, assertNone, assertSome, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { fixture } from "./support/fixtures.ts";
 import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
@@ -24,6 +25,45 @@ const ALIASED_BUN = `{
     "string-width": ["string-width@5.1.2", "", {}],
     "string-width-cjs": ["string-width@4.2.3", "", {}],
     "string-width-cjs/@scope/inner": ["@scope/real@1.0.0", "", {}],
+  }
+}`;
+
+// The shape npm 10 writes for `"string-width-cjs": "npm:string-width@^4.2.0"`:
+// the install-position entry records the real `name`, a plain entry records none.
+const ALIASED_NPM = `{
+  "name": "alias-root",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "alias-root",
+      "version": "1.0.0",
+      "dependencies": { "string-width": "^5.1.2", "string-width-cjs": "npm:string-width@^4.2.0" }
+    },
+    "node_modules/string-width": {
+      "version": "5.1.2",
+      "resolved": "https://registry.npmjs.org/string-width/-/string-width-5.1.2.tgz",
+      "integrity": "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA==",
+      "license": "MIT"
+    },
+    "node_modules/string-width-cjs": {
+      "name": "string-width",
+      "version": "4.2.3",
+      "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+      "integrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",
+      "license": "MIT"
+    }
+  }
+}`;
+
+// A bun key ending in "/" names no install position.
+const MALFORMED_KEY_BUN = `{
+  "lockfileVersion": 1,
+  "workspaces": { "": { "name": "malformed-root", "dependencies": { "string-width": "^5.1.2" } } },
+  "packages": {
+    "string-width": ["string-width@5.1.2", "", {}],
+    "string-width/": ["string-width@4.2.3", "", {}],
   }
 }`;
 
@@ -166,6 +206,54 @@ describe("ResolvedPackage#installName", () => {
       // A nested scoped install keeps both scope segments of its install name.
       strictEqual(byInstance("string-width-cjs/@scope/inner").installName, "@scope/inner");
       strictEqual(byInstance("string-width-cjs/@scope/inner").name, "@scope/real");
+    })
+  );
+
+  it.effect("bun skips a row whose key ends in a slash instead of failing the parse", () =>
+    Effect.gen(function* () {
+      const lockfile = yield* Lockfile.parse(MALFORMED_KEY_BUN, { format: "bun" });
+      deepStrictEqual(
+        A.map(lockfile.packages, (pkg) => pkg.instanceId),
+        ["string-width"]
+      );
+      assertNone(lockfile.packageByInstanceId("string-width/"));
+      strictEqual(O.getOrThrow(lockfile.rootPackage("string-width")).installName, "string-width");
+    })
+  );
+
+  it.effect("npm records an alias where the entry's recorded name differs from its install position", () =>
+    Effect.gen(function* () {
+      const lockfile = yield* Lockfile.parse(ALIASED_NPM, { format: "npm" });
+      const plain = O.getOrThrow(lockfile.rootPackage("string-width"));
+      strictEqual(plain.alias, undefined);
+      strictEqual(plain.installName, "string-width");
+      const aliased = O.getOrThrow(lockfile.rootPackage("string-width-cjs"));
+      strictEqual(aliased.name, "string-width");
+      strictEqual(aliased.version, "4.2.3");
+      strictEqual(aliased.alias, "string-width-cjs");
+      strictEqual(aliased.installName, "string-width-cjs");
+      deepStrictEqual(
+        A.map(lockfile.packagesNamed("string-width"), (pkg) => pkg.version),
+        ["5.1.2", "4.2.3"]
+      );
+    })
+  );
+
+  it.effect("pnpm keys an aliased instance by its real name, so it carries no alias", () =>
+    Effect.gen(function* () {
+      const lockfile = yield* parseFixture("pnpm/alias/pnpm-lock.yaml", "pnpm");
+      const aliased = O.getOrThrow(lockfile.rootPackage("semver-classic"));
+      strictEqual(aliased.instanceId, "semver@7.6.3");
+      strictEqual(aliased.alias, undefined);
+      strictEqual(aliased.installName, "semver");
+      // `@isaacs/cliui` reaches string-width@4.2.3 as `string-width-cjs` and
+      // wrap-ansi reaches the same instance as `string-width`: one instance,
+      // two install names, so the alias lives on the edge.
+      const cliui = O.getOrThrow(lockfile.packageByInstanceId("@isaacs/cliui@8.0.2"));
+      assertSome(R.get(cliui.resolved, "string-width-cjs"), "string-width@4.2.3");
+      const wrapAnsi = O.getOrThrow(lockfile.packageByInstanceId("wrap-ansi@7.0.0"));
+      assertSome(R.get(wrapAnsi.resolved, "string-width"), "string-width@4.2.3");
+      strictEqual(O.getOrThrow(lockfile.packageByInstanceId("string-width@4.2.3")).installName, "string-width");
     })
   );
 
