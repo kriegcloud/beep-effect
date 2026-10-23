@@ -1,13 +1,13 @@
 /**
  * Parse Markdown text straight into an `Md.Document`.
  *
+ * **Details**
+ *
  * `parseResult` runs the `@beep/markdown` parser with frontmatter capture on
  * and folds the result through `Md.syntax.fromMarkdownDocument`.
  * `parseSafeResult` then narrows the document to a `SafeDocument`. Each has an
  * `Effect` twin. The synchronous `Result` forms are primary because the known
  * callers are synchronous string builders.
- *
- * **Details**
  *
  * There is no `Context.Service` here. Parsing is a pure, total, synchronous
  * function of the text and options-as-data: there is no environment, no

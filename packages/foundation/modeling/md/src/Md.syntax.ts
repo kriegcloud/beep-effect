@@ -1,14 +1,14 @@
 /**
  * Bridge from the `@beep/markdown` syntax tree to the semantic `Md.Document`.
  *
+ * **Details**
+ *
  * `@beep/markdown` owns parsing: positioned nodes, trivia and edits.
  * `@beep/md` owns the persisted semantic model. This module folds a parsed
  * `MarkdownDocument` into an `Md.Document` and reports, as data, everything
  * the fold could not carry: each `MdLoss` names the source node kind, the
  * reason, the source position, and where the content landed in the Md tree.
  * A pre-order source map points every Md node back at its source span.
- *
- * **Details**
  *
  * The fold is pure, total and synchronous. It builds the whole document as
  * plain data and admits it once, through `MdFromSyntax.make`, so construction
