@@ -58,3 +58,16 @@ The `.iml` (239 `excludeFolder` and 8 `excludePattern` entries) was compared wit
 ## Left open
 
 - Stately discovery and visual workflow qualification: the authorized Stately owner completes the OAuth login and the selected visual workflow fixture (#1852 operator step).
+
+## CI-pinned spelling re-witness (S44)
+
+Refs #1852. At lane base `6f25dd7c4d44dc6a765cdfd0068cda2dddef22e1`,
+the Linux x64 musl binary from the upstream
+[typos-cli 1.50.3 release](https://github.com/crate-ci/typos/releases/tag/v1.50.3)
+reported `typos-cli 1.50.3`. Its SHA-256 was
+`2cc30c49b25423c9c5599bbc72e1189b86c08a2ba38d73d210d37ed631486ff3`.
+Running that binary without arguments at the repository root, equivalent to
+the `lint:typos` script, exited 0 with no findings using `_typos.toml`.
+This supplies the CI-pinned version/vocabulary witness missing above.
+It does not qualify Stately OAuth or the selected visual workflow fixture;
+those remain with the authorized Stately owner.
