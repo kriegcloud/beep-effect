@@ -2137,6 +2137,15 @@
   "@beep/markdown/internal/*": [
     "./packages/foundation/modeling/markdown/src/internal/*"
   ],
+  "@beep/github-reporting": [
+    "./packages/foundation/modeling/github-reporting/src/index.ts"
+  ],
+  "@beep/github-reporting/*": [
+    "./packages/foundation/modeling/github-reporting/src/*"
+  ],
+  "@beep/github-reporting/internal/*": [
+    "./packages/foundation/modeling/github-reporting/src/internal/*"
+  ],
   "@beep/md/Md.parse": ["./packages/foundation/modeling/md/src/Md.parse.ts"],
   "@beep/md/Md.syntax": ["./packages/foundation/modeling/md/src/Md.syntax.ts"]
 }
