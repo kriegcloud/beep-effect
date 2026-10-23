@@ -233,7 +233,8 @@ const generatedComposers = $I.compose(
   "runtime-env",
   "epistemics",
   "markdown",
-  "lockfiles", "github-reporting"
+  "lockfiles",
+  "github-reporting"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
