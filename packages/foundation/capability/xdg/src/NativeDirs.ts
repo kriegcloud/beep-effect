@@ -1,10 +1,10 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $XdgId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as Path from "effect/Path";
 import type { XdgPaths, XdgPlatform } from "./Xdg.ts";
 
-const $I = $ScratchpadId.create("effected/xdg/NativeDirs");
+const $I = $XdgId.create("NativeDirs");
 
 /**
  * The OS-native application directories for one namespace.
@@ -18,7 +18,7 @@ const $I = $ScratchpadId.create("effected/xdg/NativeDirs");
  * **Example** (Inspect shared support directories)
  *
  * ```ts
- * import { NativeDirs } from "@beep/scratchpad/effected/xdg/NativeDirs";
+ * import { NativeDirs } from "@beep/xdg/NativeDirs";
  *
  * const dirs = NativeDirs.make({ config: "/app/support", data: "/app/support", cache: "/app/cache", state: "/app/support" });
  * console.log(dirs.config === dirs.state); // true
@@ -67,8 +67,8 @@ export class NativeDirs extends S.Class<NativeDirs, { readonly brand: unique sym
    * **Example** (Resolve macOS directories without filesystem access)
    *
    * ```ts
-   * import { NativeDirs } from "@beep/scratchpad/effected/xdg/NativeDirs";
-   * import { XdgPaths } from "@beep/scratchpad/effected/xdg/Xdg";
+   * import { NativeDirs } from "@beep/xdg/NativeDirs";
+   * import { XdgPaths } from "@beep/xdg/Xdg";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import * as Path from "effect/Path";

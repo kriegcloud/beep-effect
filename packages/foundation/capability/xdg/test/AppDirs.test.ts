@@ -1,4 +1,6 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { AppDirKind, AppDirs, AppDirsError, CurrentPlatform, Xdg, XdgPaths } from "@beep/xdg";
+import { AppDirOverrides, AppDirsNamespaceError, AppDirsOptions } from "@beep/xdg/AppDirs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -11,9 +13,7 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { AppDirOverrides, AppDirsNamespaceError, AppDirsOptions } from "../../effected/xdg/AppDirs.ts";
-import { AppDirKind, AppDirs, AppDirsError, CurrentPlatform, Xdg, XdgPaths } from "../../effected/xdg/index.ts";
-import type { XdgPlatform } from "../../effected/xdg/index.ts";
+import type { XdgPlatform } from "@beep/xdg";
 
 /** Build the fixture graph in a scope that owns its acquired resources. */
 const provideLayer =

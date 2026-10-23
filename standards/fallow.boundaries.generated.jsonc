@@ -5277,9 +5277,21 @@
       {
         "from": "@beep/xdg",
         "allow": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker",
           "@beep/xdg"
         ],
         "allowTypeOnly": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker",
           "@beep/xdg"
         ]
       },

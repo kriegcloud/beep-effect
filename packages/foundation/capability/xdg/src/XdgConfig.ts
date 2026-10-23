@@ -56,12 +56,12 @@ const savePath = Effect.fn("savePath")(function* (
 });
 
 /**
- * The bridge from XDG directories into `@effected/config-file`.
+ * The bridge from XDG directories into `@beep/config-file`.
  *
  * **Example** (Construct a config discovery resolver)
  *
  * ```ts
- * import { XdgConfig } from "@beep/scratchpad/effected/xdg/XdgConfig";
+ * import { XdgConfig } from "@beep/xdg/XdgConfig";
  *
  * const resolver = XdgConfig.resolver({ filename: "config.json" });
  * console.log(resolver.name); // xdg
@@ -92,7 +92,7 @@ export abstract class XdgConfig {
    * **Example** (Construct an ordered XDG search)
    *
    * ```ts
-   * import { XdgConfig } from "@beep/scratchpad/effected/xdg/XdgConfig";
+   * import { XdgConfig } from "@beep/xdg/XdgConfig";
    *
    * const resolver = XdgConfig.resolver({ filename: "config.json" });
    * console.log(resolver.name); // xdg
@@ -123,7 +123,7 @@ export abstract class XdgConfig {
    * **Example** (Construct native configuration discovery)
    *
    * ```ts
-   * import { XdgConfig } from "@beep/scratchpad/effected/xdg/XdgConfig";
+   * import { XdgConfig } from "@beep/xdg/XdgConfig";
    *
    * const resolver = XdgConfig.nativeResolver({ namespace: "myapp", filename: "config.json" });
    * console.log(resolver.name); // native
@@ -150,7 +150,7 @@ export abstract class XdgConfig {
    * **Example** (Construct the default config save path)
    *
    * ```ts
-   * import { XdgConfig } from "@beep/scratchpad/effected/xdg/XdgConfig";
+   * import { XdgConfig } from "@beep/xdg/XdgConfig";
    * import * as Effect from "effect/Effect";
    *
    * const defaultPath = XdgConfig.savePath("config.json");

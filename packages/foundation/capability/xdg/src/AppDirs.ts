@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $XdgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
@@ -14,7 +14,7 @@ import { NativeDirs } from "./NativeDirs.ts";
 import { CurrentPlatform, Xdg } from "./Xdg.ts";
 import type { XdgPaths, XdgPlatform } from "./Xdg.ts";
 
-const $I = $ScratchpadId.create("effected/xdg/AppDirs");
+const $I = $XdgId.create("AppDirs");
 
 /**
  * Indicates that an application namespace is not a single non-empty path component.
@@ -26,7 +26,7 @@ const $I = $ScratchpadId.create("effected/xdg/AppDirs");
  * **Example** (Describe an invalid namespace)
  *
  * ```ts
- * import { AppDirsNamespaceError } from "@beep/scratchpad/effected/xdg/AppDirs";
+ * import { AppDirsNamespaceError } from "@beep/xdg/AppDirs";
  *
  * const error = AppDirsNamespaceError.make({ message: "AppDirs.layer: `namespace` must not be empty" });
  * console.log(error.message); // AppDirs.layer: `namespace` must not be empty
@@ -57,7 +57,7 @@ export class AppDirsNamespaceError extends S.TaggedError<AppDirsNamespaceError, 
  * **Example** (Validate directory kinds)
  *
  * ```ts
- * import { AppDirKind } from "@beep/scratchpad/effected/xdg/AppDirs";
+ * import { AppDirKind } from "@beep/xdg/AppDirs";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(AppDirKind)("runtime")); // true
@@ -94,7 +94,7 @@ export type AppDirKind = typeof AppDirKind.Type;
  * **Example** (Inspect a directory creation failure)
  *
  * ```ts
- * import { AppDirsError } from "@beep/scratchpad/effected/xdg/AppDirs";
+ * import { AppDirsError } from "@beep/xdg/AppDirs";
  *
  * const error = AppDirsError.make({ directory: "config", path: "/app/config", cause: "permission denied" });
  * console.log(error.message); // Failed to create the config directory at "/app/config"
@@ -126,7 +126,7 @@ export class AppDirsError extends S.TaggedError<AppDirsError, { readonly brand: 
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { AppDirsError } from "@beep/scratchpad/effected/xdg/AppDirs";
+   * import { AppDirsError } from "@beep/xdg/AppDirs";
    *
    * const error = AppDirsError.make({ directory: "config", path: "/app/config", cause: "permission denied" });
    * console.log(error.message); // Failed to create the config directory at "/app/config"
@@ -145,7 +145,7 @@ export class AppDirsError extends S.TaggedError<AppDirsError, { readonly brand: 
  * **Example** (Inspect ordered configuration candidates)
  *
  * ```ts
- * import { ResolvedAppDirs } from "@beep/scratchpad/effected/xdg/AppDirs";
+ * import { ResolvedAppDirs } from "@beep/xdg/AppDirs";
  *
  * const dirs = ResolvedAppDirs.make({
  *   config: "/app/config", data: "/app/data", cache: "/app/cache", state: "/app/state",
@@ -213,7 +213,7 @@ export class ResolvedAppDirs extends S.Class<ResolvedAppDirs, { readonly brand: 
  * **Example** (Decode directory overrides)
  *
  * ```ts
- * import { AppDirOverrides } from "@beep/scratchpad/effected/xdg/AppDirs";
+ * import { AppDirOverrides } from "@beep/xdg/AppDirs";
  * import * as S from "effect/Schema";
  *
  * const decoded = S.decodeSync(AppDirOverrides)({ config: "/app/config" });
@@ -270,7 +270,7 @@ export type AppDirOverrides = typeof AppDirOverrides.Type;
  * **Example** (Decode application directory options)
  *
  * ```ts
- * import { AppDirsOptions } from "@beep/scratchpad/effected/xdg/AppDirs";
+ * import { AppDirsOptions } from "@beep/xdg/AppDirs";
  * import * as S from "effect/Schema";
  *
  * const decoded = S.decodeSync(AppDirsOptions)({ namespace: "myapp", native: true });
@@ -529,8 +529,8 @@ const badNamespace = (namespace: string): AppDirsNamespaceError | undefined => {
  * **Example** (Construct a directory creation program)
  *
  * ```ts
- * import { AppDirs } from "@beep/scratchpad/effected/xdg/AppDirs";
- * import { Xdg } from "@beep/scratchpad/effected/xdg/Xdg";
+ * import { AppDirs } from "@beep/xdg/AppDirs";
+ * import { Xdg } from "@beep/xdg/Xdg";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  *
@@ -562,7 +562,7 @@ export class AppDirs extends Context.Service<AppDirs, AppDirsShape>()($I`AppDirs
    * **Example** (Construct an application directory layer)
    *
    * ```ts
-   * import { AppDirs } from "@beep/scratchpad/effected/xdg/AppDirs";
+   * import { AppDirs } from "@beep/xdg/AppDirs";
    * import * as Layer from "effect/Layer";
    *
    * const live = AppDirs.layer({ namespace: "myapp" });

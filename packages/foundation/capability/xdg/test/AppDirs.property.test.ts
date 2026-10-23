@@ -1,9 +1,4 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   AppDirKind,
   AppDirOverrides,
@@ -11,7 +6,12 @@ import {
   AppDirsNamespaceError,
   AppDirsOptions,
   ResolvedAppDirs,
-} from "../../effected/xdg/AppDirs.ts";
+} from "@beep/xdg/AppDirs";
+import { assert, describe, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 

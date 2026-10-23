@@ -1,8 +1,8 @@
+import { CurrentPlatform, Xdg } from "@beep/xdg/Xdg";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { CurrentPlatform, Xdg } from "../../effected/xdg/Xdg.ts";
 
 describe("Xdg fallback coverage", () => {
   it.effect("defaults colon-only search paths instead of returning an empty list", () =>

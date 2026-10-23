@@ -1,3 +1,4 @@
+import { Xdg, XdgEnvError, XdgPaths, XdgPlatform } from "@beep/xdg";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -8,7 +9,6 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Xdg, XdgEnvError, XdgPaths, XdgPlatform } from "../../effected/xdg/index.ts";
 
 /** Build the fixture graph in a scope that owns its acquired resources. */
 const provideLayer =

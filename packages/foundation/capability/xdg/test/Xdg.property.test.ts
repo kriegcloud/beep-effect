@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { Xdg, XdgEnvError, XdgPaths, XdgPlatform } from "@beep/xdg/Xdg";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
@@ -8,7 +9,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Xdg, XdgEnvError, XdgPaths, XdgPlatform } from "../../effected/xdg/Xdg.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

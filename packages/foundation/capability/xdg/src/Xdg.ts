@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $XdgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
@@ -10,7 +10,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/xdg/Xdg");
+const $I = $XdgId.create("Xdg");
 
 /**
  * The operating system the path decisions are taken against.
@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/xdg/Xdg");
  * **Example** (Validate an operating system)
  *
  * ```ts
- * import { XdgPlatform } from "@beep/scratchpad/effected/xdg/Xdg";
+ * import { XdgPlatform } from "@beep/xdg/Xdg";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(XdgPlatform)("win32")); // true
@@ -78,7 +78,7 @@ const detectPlatform = (): XdgPlatform => {
  * **Example** (Pin Windows semantics)
  *
  * ```ts
- * import { CurrentPlatform } from "@beep/scratchpad/effected/xdg/Xdg";
+ * import { CurrentPlatform } from "@beep/xdg/Xdg";
  * import * as Effect from "effect/Effect";
  *
  * const platform = Effect.runSync(CurrentPlatform.pipe(Effect.provideService(CurrentPlatform, "win32")));
@@ -105,7 +105,7 @@ export const CurrentPlatform: Context.Reference<XdgPlatform> = Context.Reference
  * **Example** (Inspect the missing HOME failure)
  *
  * ```ts
- * import { XdgEnvError } from "@beep/scratchpad/effected/xdg/Xdg";
+ * import { XdgEnvError } from "@beep/xdg/Xdg";
  *
  * const error = XdgEnvError.make({ variable: "HOME", cause: "missing environment value" });
  * console.log(error.message); // The HOME environment variable is not set
@@ -137,7 +137,7 @@ export class XdgEnvError extends S.TaggedError<XdgEnvError, { readonly brand: un
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { XdgEnvError } from "@beep/scratchpad/effected/xdg/Xdg";
+   * import { XdgEnvError } from "@beep/xdg/Xdg";
    *
    * const error = XdgEnvError.make({ variable: "HOME", cause: "missing environment value" });
    * console.log(error.message); // The HOME environment variable is not set
@@ -167,7 +167,7 @@ export class XdgEnvError extends S.TaggedError<XdgEnvError, { readonly brand: un
  * **Example** (Inspect resolved system search paths)
  *
  * ```ts
- * import { XdgPaths } from "@beep/scratchpad/effected/xdg/Xdg";
+ * import { XdgPaths } from "@beep/xdg/Xdg";
  *
  * const paths = XdgPaths.make({ home: "/home/ada", configDirs: ["/etc/xdg"], dataDirs: ["/usr/share"] });
  * console.log(paths.configDirs.join(":")); // /etc/xdg
@@ -249,7 +249,7 @@ const splitDirs: {
  * **Example** (Read a fixed XDG environment)
  *
  * ```ts
- * import { Xdg, XdgPaths } from "@beep/scratchpad/effected/xdg/Xdg";
+ * import { Xdg, XdgPaths } from "@beep/xdg/Xdg";
  * import * as Effect from "effect/Effect";
  *
  * const fixed = Xdg.layerFrom(XdgPaths.make({
@@ -277,7 +277,7 @@ export class Xdg extends Context.Service<Xdg, XdgPaths>()($I`Xdg`) {
    * **Example** (Construct the environment-reading layer)
    *
    * ```ts
-   * import { Xdg } from "@beep/scratchpad/effected/xdg/Xdg";
+   * import { Xdg } from "@beep/xdg/Xdg";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(Xdg.layer)); // true
@@ -353,7 +353,7 @@ export class Xdg extends Context.Service<Xdg, XdgPaths>()($I`Xdg`) {
    * **Example** (Provide fixed XDG paths for tests)
    *
    * ```ts
-   * import { Xdg, XdgPaths } from "@beep/scratchpad/effected/xdg/Xdg";
+   * import { Xdg, XdgPaths } from "@beep/xdg/Xdg";
    * import * as Effect from "effect/Effect";
    *
    * const fixed = Xdg.layerFrom(XdgPaths.make({

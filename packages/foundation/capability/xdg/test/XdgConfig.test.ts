@@ -1,5 +1,6 @@
 import { ConfigFile, JsonCodec, MergeStrategy } from "@beep/config-file";
 import { MemoryFileSystem } from "@beep/memfs";
+import { AppDirs, CurrentPlatform, Xdg, XdgConfig, XdgPaths } from "@beep/xdg";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -7,9 +8,8 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
-import { AppDirs, CurrentPlatform, Xdg, XdgConfig, XdgPaths } from "../../effected/xdg/index.ts";
+import type { XdgPlatform } from "@beep/xdg";
 import type * as O from "effect/Option";
-import type { XdgPlatform } from "../../effected/xdg/index.ts";
 
 /** Build the fixture graph in a scope that owns its acquired resources. */
 const provideLayer =

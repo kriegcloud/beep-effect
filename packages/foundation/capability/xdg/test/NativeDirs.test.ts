@@ -1,10 +1,10 @@
+import { NativeDirs, XdgPaths } from "@beep/xdg";
 import { assert, describe, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { NativeDirs, XdgPaths } from "../../effected/xdg/index.ts";
-import type { XdgPlatform } from "../../effected/xdg/index.ts";
+import type { XdgPlatform } from "@beep/xdg";
 
 const paths = (overrides?: { readonly appData?: string; readonly localAppData?: string }) =>
   XdgPaths.make({
