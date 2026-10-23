@@ -1,7 +1,7 @@
 import { ConfigFile } from "@beep/config-file/ConfigFile";
 import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
-import { NodeFileSystem } from "@effect/platform-node";
+import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -13,7 +13,10 @@ import * as Scope from "effect/Scope";
 class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("test/SeededConfig") {}
 
-const Platform = Layer.mergeAll(NodeFileSystem.layer, Path.layer);
+// The in-memory filesystem implements the scoped temp-directory lifecycle the
+// test layer relies on, so the suite exercises the real pipeline without
+// touching the host disk (EV010).
+const Platform = Layer.mergeAll(MemoryFileSystem.layer, Path.layer);
 
 describe("ConfigFile.testLayer", () => {
   it.layer(Platform, { timeout: "30 seconds" })((it) => {

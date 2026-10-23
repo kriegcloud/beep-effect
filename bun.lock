@@ -2290,7 +2290,6 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/memfs": "workspace:^",
-        "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
