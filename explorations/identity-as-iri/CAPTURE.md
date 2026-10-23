@@ -71,8 +71,7 @@ elpresidank's rulings from the report review session (verbatim intent):
 
 Plus, from the same session:
 
-- Authority host: keep `https://ns[.]beep[.]sh/` as placeholder now (superseded
-  2026-10-20 by `https://beep-effect.com/ns/`); decide before
+- Authority host: keep `https://ns[.]beep[.]sh/` as placeholder now; decide before
   the composer-binding phase merges.
 - Fibered placement: "I think everything needs to be in `@beep/identity` no?
   Otherwise we have some circular issues. I would prefer everything is pure
@@ -88,3 +87,9 @@ Known repo touchpoints surfaced by the report (for research stage): `$I` /
 `goals/ontology-modeling-foundation` encodes the DEAD `Ontology.create`
 design and needs superseding; EntityId (branded integers) is orthogonal —
 identity-as-IRI is definition-level identity only.
+
+## 2026-10-20 — Authority supersession
+
+The public-origin authority decision supersedes the placeholder host preserved
+in defanged form in the July 1 capture. The current namespace authority is
+`https://beep-effect.com/ns/`; the original capture wording records provenance only.

@@ -125,7 +125,7 @@ doors because it was refused the front door. Resolution: platform ships as
 projections/operator tooling; the law practice is the product-authority
 instance; the dogfood transfers laws, not pipelines. Missing piece (small,
 not zero): lane 09's seven steps (schemaVersion catalog as T-Box; mint
-instance IRIs under `https://ns[.]beep[.]sh/` (superseded 2026-10-20 by `https://beep-effect.com/ns/`); map producers onto PROV beside
+instance IRIs under `https://ns[.]beep[.]sh/`; map producers onto PROV beside
 their JSON; JSON-LD off existing folds — packet Amendment I, acceptance = one
 concrete cross-graph join; public-projection-only ingest; join keys
 (`configSnapshotId`, `attemptId`, QA `sessionId` as IRI); human-token-only
@@ -260,3 +260,9 @@ already queued in existing packets: Amendments H/I/J
 four-ring substrate/instance partition, and the cold-agent eval. Operator
 verdict: "damn cool," no project-direction pivot — captured here so nothing
 is lost.
+
+## 2026-10-20 — Authority supersession
+
+The public-origin authority decision supersedes the placeholder host preserved
+in defanged form in the August 25 capture. The current namespace authority is
+`https://beep-effect.com/ns/`; the original capture wording records provenance only.
