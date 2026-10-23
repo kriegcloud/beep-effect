@@ -172,7 +172,7 @@ alone through `beep-heavy` with stdin from `/dev/null`.
 | `bun run lint:schema-first` | introduced=0 |
 | `jsdoc:inventory:check` + `jsdoc:ratchet:check` | increased=0 |
 | `bun run beep lint schema-catalog` | current |
-| `bun run beep laws retired-effect-paths` | findings=0 (a first run caught `effect/unstable/cli` in a new reason; corrected to `effect/cli`) |
+| `bun run beep laws retired-effect-paths` | findings=0 (a first run caught a retired `unstable` CLI module path in a new reason; corrected to `effect/cli`) |
 | `bun run beep knowledge refs --check` | 0 live gated observations |
 | `bun run beep quality fallow audit --base origin/main --check` | exit 0; introduced 0, inherited-adjacent 4 |
 | `bun run beep quality package-verify` | full for `@beep/ui` (audit, docgen), `@beep/repo-cli` (audit 1,350 s, docgen) and `@beep/scratchpad` (audit skipped by the package, docgen); `--quick` (lint, check) for the 9 comment-only packages; all pass |
