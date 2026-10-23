@@ -325,6 +325,9 @@
       "path": "packages/foundation/capability/walker"
     },
     {
+      "path": "packages/foundation/capability/xdg"
+    },
+    {
       "path": "packages/foundation/modeling/epistemics"
     },
     {

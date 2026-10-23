@@ -20,6 +20,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { JsoncNode, makeNodeUnsafe } from "../JsoncNode.ts";
+import { accumulation } from "./accumulation.ts";
 import { MAX_NESTING_DEPTH } from "./limits.ts";
 import { createScanner, SyntaxKind } from "./scanner.ts";
 import { skipBalancedValue } from "./skip.ts";
@@ -257,7 +258,8 @@ const run: {
   const tokenEnd = (): number => scanner.getTokenOffset() + scanner.getTokenLength();
 
   const record = (code: ParseCode): void => {
-    errors.push(
+    accumulation.append(
+      errors,
       RawParseError.make({
         code,
         offset: scanner.getTokenOffset(),
@@ -405,7 +407,7 @@ const run: {
     while (token() !== "CloseBracket" && token() !== "EOF" && separator("CloseBracket", "ValueExpected", needsComma)) {
       const item = parse();
       if (O.isSome(item)) {
-        items.push(item.value);
+        accumulation.append(items, item.value);
       } else {
         pushError("ValueExpected", ["CloseBracket", "Comma"]);
       }
@@ -530,7 +532,8 @@ const run: {
     const keyNode = leafTree("string", scanner.getTokenValue());
     if (token() !== "Colon") {
       pushError("ColonExpected", ["CloseBrace", "Comma"]);
-      children.push(
+      accumulation.append(
+        children,
         makeNodeUnsafe({
           type: "property",
           offset: propOffset,
@@ -544,7 +547,8 @@ const run: {
     scanNext();
     const valueNode = parseValueTree();
     if (O.isSome(valueNode)) {
-      children.push(
+      accumulation.append(
+        children,
         makeNodeUnsafe({
           type: "property",
           offset: propOffset,
@@ -555,7 +559,8 @@ const run: {
       );
     } else {
       pushError("ValueExpected", ["CloseBrace", "Comma"]);
-      children.push(
+      accumulation.append(
+        children,
         makeNodeUnsafe({
           type: "property",
           offset: propOffset,
