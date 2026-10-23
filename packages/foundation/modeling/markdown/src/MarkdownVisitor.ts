@@ -3,6 +3,8 @@
  * a parsed markdown tree, enabling early termination (`Stream.take`) without
  * materializing the full event sequence.
  *
+ * **Details**
+ *
  * Sibling contract (jsonc precedent): the event union is an `S.TaggedUnion`
  * of three tagged structs, and the statics class exposes a single `visit`.
  * The walk builds events as plain values of the union's type: a case `make`

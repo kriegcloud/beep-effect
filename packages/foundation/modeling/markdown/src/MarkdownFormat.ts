@@ -5,6 +5,8 @@
  * the spliced spans survives byte-for-byte — the offset-splice editing model
  * chosen over a lossless CST.
  *
+ * **Details**
+ *
  * `format` is conservative by construction: an edit is emitted only when the
  * rewrite is provably safe against re-parse hazards, and every hazard is
  * guarded by SKIPPING the rewrite, never by attempting a cleverer one. The

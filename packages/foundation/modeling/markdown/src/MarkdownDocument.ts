@@ -2,6 +2,8 @@
  * The lossless unit: source text plus the parsed tree, the materialized
  * diagnostics and the link-reference definition index, in one Schema class.
  *
+ * **Details**
+ *
  * Cycle firewall: this module never touches raw carriers directly — it shares
  * `Markdown.ts`'s single carrier-catching helper, so the document and the
  * bare-tree entry points agree exactly on what is a typed failure and what is

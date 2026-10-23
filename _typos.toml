@@ -82,6 +82,7 @@ AKS = "AKS"
 mis = "mis"
 
 # MIME/file-extension tokens and generated doc anchors.
+validat = "validat" # jsdoc inventory anchor for the epistemics export validAt
 aas = "aas"
 anser = "anser"
 aso = "aso"

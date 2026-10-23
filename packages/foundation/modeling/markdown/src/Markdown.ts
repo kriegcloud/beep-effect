@@ -3,6 +3,8 @@
  * `parse` defined in terms of it, the parse options and the
  * `MarkdownFromString` schema codec.
  *
+ * **Details**
+ *
  * Cycle firewall: the internal engine throws raw carriers (`GuardExceeded`
  * from a hardening cap, `RawMarkdownError` for a fatal engine condition);
  * this module materializes `MarkdownDiagnostic` instances (deriving
@@ -32,6 +34,7 @@ import { stringifyTree } from "./internal/stringify.ts";
 import { MarkdownDiagnostic } from "./MarkdownDiagnostic.ts";
 import { PhrasingContent, Root } from "./MarkdownNode.ts";
 import type { BlockPassResult } from "./internal/blockParser.ts";
+import type { GuardExceeded } from "./internal/carriers.ts";
 
 const $I = $MarkdownId.create("Markdown");
 
@@ -314,6 +317,21 @@ const dialectOf = (options?: MarkdownParseOptions.Encoded): MarkdownDialect => o
 const frontmatterOf = (options?: MarkdownParseOptions.Encoded): boolean => options?.frontmatter ?? false;
 
 /**
+ * Materialize a hardening-cap trip as a typed {@link MarkdownParseError}.
+ * Shared by the block and phrasing parsers, which locate the trip against the
+ * same source text.
+ */
+const guardParseError = (text: string, caught: GuardExceeded): MarkdownParseError =>
+  MarkdownParseError.make({
+    diagnostic: MarkdownDiagnostic.fromRaw(text, {
+      code: caught.reason,
+      message: caught.message,
+      offset: caught.offset,
+      length: 0,
+    }),
+  });
+
+/**
  * Run the block pass, converting the engine's raw carriers into a typed
  * {@link MarkdownParseError} and letting everything else through as a defect.
  *
@@ -357,14 +375,7 @@ export const parsePassResult: {
       try: () => parseBlocks(text, { dialect: dialectOf(options), frontmatter: frontmatterOf(options) }),
       catch: (caught) => {
         if (isGuardExceeded(caught)) {
-          return MarkdownParseError.make({
-            diagnostic: MarkdownDiagnostic.fromRaw(text, {
-              code: caught.reason,
-              message: caught.message,
-              offset: caught.offset,
-              length: 0,
-            }),
-          });
+          return guardParseError(text, caught);
         }
         if (isRawMarkdownError(caught)) {
           return MarkdownParseError.make({ diagnostic: MarkdownDiagnostic.fromRaw(text, caught.diagnostic) });
@@ -548,14 +559,7 @@ export class Markdown {
         try: () => PhrasingChildren.make(parsePhrasingText(text, dialectOf(options))),
         catch: (caught) => {
           if (isGuardExceeded(caught)) {
-            return MarkdownParseError.make({
-              diagnostic: MarkdownDiagnostic.fromRaw(text, {
-                code: caught.reason,
-                message: caught.message,
-                offset: caught.offset,
-                length: 0,
-              }),
-            });
+            return guardParseError(text, caught);
           }
           throw caught;
         },

@@ -2,6 +2,8 @@
  * The structured diagnostic concept: MarkdownDiagnostic and the
  * error-code literal union.
  *
+ * **Details**
+ *
  * Cycle firewall: the internal engine emits raw `RawDiagnostic` records
  * (`code`, `message`, `offset`, `length`; src/internal/carriers.ts); this
  * module materializes them into MarkdownDiagnostic, deriving

@@ -7,8 +7,11 @@ decisions live in README.md → Port notes, not here.
 Upstream paths map onto this package as follows: `packages/markdown/` is
 `packages/foundation/modeling/markdown/`, `packages/markdown/src/` is `src/` here,
 `packages/markdown/__test__/` is `test/` here, with `__test__/e2e/support/` at
-`test/support/`, `__test__/fixtures/` at `data/conformance/` and `__test__/tools/` at
-`scripts/`. `@effected/markdown` is `@beep/markdown`, and `@effected/yaml`,
+`test/support/`, `__test__/fixtures/` at `data/conformance/` (shipped with the
+package and exported as the `@beep/markdown/conformance/*` JSON subpaths; each
+corpus directory's `VENDORED.md` is the pin file the Testing section mentions,
+and the pathological cases stay test-only at `test/support/pathological/`) and
+`__test__/tools/` at `scripts/`. `@effected/markdown` is `@beep/markdown`, and `@effected/yaml`,
 `@effected/toml` and `@effected/jsonc` are `@beep/yaml`, `@beep/toml` and
 `@beep/jsonc`.
 The upstream `pnpm` commands below do not apply; run `bun run test` and
@@ -355,6 +358,14 @@ machinery. The three frontmatter codecs (`YamlFrontmatter.ts`,
 tree-shaking reason. `src/internal/` never imports a public module — the
 raw-carrier cycle firewall, with the facade materializing diagnostics.
 
+> Port note (`@beep/markdown`): the node schemas live in
+> `src/internal/nodes.ts` as branded `S.Opaque` schemas (still keyed by a
+> `type` tag, not `_tag`). `MarkdownNode.ts` and `MarkdownMdx.ts` are curated
+> leaves over it, the MDX nodes are exported from `MarkdownMdx.ts` only, and
+> `src/index.ts` re-exports the core leaves only: `Frontmatter.ts`,
+> `FrontmatterResolver.ts` and the three codecs are subpath-only, and the
+> engine carriers are `S.TaggedError` schemas.
+
 House schema conventions apply throughout: `make` rather than `new` in the
 public surface, bare `optionalKey` fields with implementation-level
 defaults, and the Effect-wrapping policy — pure sync where total, `Effect`
@@ -432,6 +443,12 @@ every element on `make`, but an array field typed as a real one-member union
 passes through by identity — which is why the category type aliases for
 table, row and list children (`TableContent`, `RowContent`, `ListContent`)
 are real one-member unions rather than aliases of their single member.
+
+> Port note (`@beep/markdown`): an `S.Opaque` struct `make` re-walks every
+> descendant, so per-node construction would cost O(n·depth). The parser
+> instead builds plain trees through the internal `trustedNode` cast, and
+> each public entry point admits the finished tree once with `Root.make`.
+> That single `make` is the checked admission boundary, and it is linear.
 
 ## Observability
 
@@ -813,6 +830,13 @@ required, not optional — the codecs stay field-identical, pinned by a
 contract-shape test. Encoding serializes data to the body text that belongs
 between the fences and never the fences themselves, which are
 format-determined and rendered by the write seam.
+
+> Port note (`@beep/markdown`): `FrontmatterCodec` is a class rather than
+> upstream's interface. A codec is built with
+> `FrontmatterCodec.make(format, parse, stringify)` from the engine's
+> synchronous `Result` parse and stringify functions, and it carries
+> `decodeResult` and `encodeResult` beside `decode` and `encode`; the
+> `Effect` forms are defined through the `Result` forms.
 
 The write seam normalizes the trailing terminator, because the engines
 genuinely disagree: `@effected/yaml` and `@effected/toml` emit a final

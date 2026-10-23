@@ -2,6 +2,8 @@
  * The non-mutating text-edit vocabulary shared by the formatter and the
  * modifier: MarkdownEdit, MarkdownRange, MarkdownPath and MarkdownSegment.
  *
+ * **Details**
+ *
  * Edits describe replacements as `offset`/`length`/`content`; applying them in
  * reverse-offset order is byte-minimal and preserves everything outside the
  * spliced spans — the offset-splice editing model chosen over a

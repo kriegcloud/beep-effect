@@ -1,22 +1,26 @@
 # @beep/markdown
 
-Zero-dependency CommonMark 0.31.2 and GFM parsing, editing and transformation expressed as Effect schemas and pure functions. Parse markdown into mdast-shaped nodes carrying byte offsets, navigate headings, sections and links, compute surgical offset-splice edits, normalize markers, decode frontmatter into a validated domain schema, project to and from plain mdast for the remark ecosystem, and walk a document as a `Stream`.
+CommonMark 0.31.2 and GFM parsing, editing and formatting as Effect schemas and pure functions. Parse markdown into mdast-shaped nodes that carry byte offsets, query headings, sections and links, compute offset-splice edits that leave untouched bytes alone, normalize markers, decode frontmatter into a validated schema, project to and from plain mdast for the remark ecosystem, and walk a document as a `Stream`.
 
-## Why @beep/markdown
+## Why this package
 
-Markdown is where documentation, changelogs, knowledge bases and AI-agent context files actually live — files people edit by hand and expect to survive a tool touching them. The remark ecosystem is the JavaScript default, but its serializer reformats by design: read a document and write it back and you get remark's idea of markdown, not yours. Nobody in the ecosystem ships a lossless markdown CST, and the remark maintainers themselves point at positional splicing instead.
+Markdown is where documentation, changelogs, knowledge bases and agent context files live, and people edit those files by hand. They expect a tool that touches one heading to leave the rest of the file alone. The remark ecosystem is the JavaScript default, but its serializer reformats by design: read a document, write it back, and you get remark's idea of markdown rather than the author's. Nobody ships a lossless markdown CST, and the remark maintainers recommend positional splicing instead.
 
-This package takes that advice as the architecture. Every node carries byte offsets alongside unist line/column positions, so an edit is a splice against the original source rather than a re-serialization of a tree: change a heading and the blank lines, HTML comments and hand-tuned spacing everywhere else come through byte-identical. `MarkdownEdit` is field-identical to `JsoncEdit`, `YamlEdit` and `TomlEdit`, so the same editing vocabulary spans every format in the kit.
+This package is built on that advice. Every node carries byte offsets next to its unist line and column positions, so an edit is a splice against the original source, not a re-serialization of the tree. Change a heading and the blank lines, HTML comments and hand-tuned spacing everywhere else come through byte-identical. `MarkdownEdit` has the same fields as `JsoncEdit`, `YamlEdit` and `TomlEdit`, so one editing vocabulary covers every format package.
 
-The engine is a vendored, hardened port of commonmark.js — the reference parser maintained by the spec author — restructured as one module per construct behind dialect-keyed registries. That means no runtime parser dependency and no plugin surface to reason about: `commonmark` and `gfm` are the two dialects, `gfm` is the default, and both are pinned by the upstream conformance corpora. Parse is near-total, because CommonMark has no syntax errors: the typed error channel carries hardening-guard trips only, never "malformed markdown".
+The engine is a vendored, hardened port of commonmark.js, the reference parser maintained by the spec author, restructured as one module per construct behind dialect-keyed registries. There is no runtime parser dependency and no plugin surface: `commonmark` and `gfm` are the two dialects, `gfm` is the default, and the upstream conformance corpora pin both. CommonMark has no syntax errors, so the typed parse error carries hardening-guard trips (nesting depth, input size), never "malformed markdown".
 
-Nodes are shaped to mdast's exact type names and field shapes, so the tree is already the shape the remark ecosystem speaks, and `Mdast.toMdast` strips this package's fidelity fields to hand you plain spec-valid mdast JSON. Frontmatter — which mdast has no parsing story for at all — is captured behind a parse toggle and decoded through free-standing per-format codecs, giving typed gray-matter parity without dragging three format engines into a bundle that needs one.
+Nodes use mdast's type names and field shapes, so the tree is already what the remark ecosystem reads, and `Mdast.toMdast` strips this package's fidelity fields to give you plain mdast JSON. Frontmatter, which mdast cannot parse, is captured behind a parse option and decoded through per-format codecs that live on their own subpaths, so a bundle that needs the JSON codec never pulls in the yaml engine.
 
-Markdown to HTML is deliberately out of scope. This package parses, edits and transforms markdown; rendering belongs to whatever renderer you already have, reached through the mdast projection.
+Rendering markdown to HTML is out of scope. Reach your existing renderer through the mdast projection.
 
-## Quick start
+The package is ESM-only. Its runtime dependencies are `effect` v4 and the workspace packages `@beep/identity`, `@beep/schema` and `@beep/utils`; the frontmatter codecs add `@beep/yaml`, `@beep/toml` and `@beep/jsonc`, and only the codec you import reaches your bundle. Import from the leaf modules (`@beep/markdown/MarkdownDocument`, `@beep/markdown/Markdown`, and so on). The root barrel re-exports the core leaves only.
 
-`MarkdownDocument.parse` gives you the source, the tree, the definition index and the navigation accessors in one value:
+## Usage
+
+### Parse a document
+
+`MarkdownDocument.parse` returns the source, the tree, the definition index and the query accessors in one value:
 
 ```ts
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
@@ -38,13 +42,98 @@ Effect.runPromise(program).then(console.log);
 // [ "# Release notes", "## Fixed" ]
 ```
 
-The dialect defaults to `gfm`, so the strikethrough above parses as a `delete` node with no configuration. Pass `MarkdownParseOptions.make({ dialect: "commonmark" })` for strict CommonMark.
+The dialect defaults to `gfm`, so the strikethrough parses as a `delete` node with no configuration. Pass `{ dialect: "commonmark" }` as the second argument for strict CommonMark.
 
-Every parse has a synchronous twin — `MarkdownDocument.parseResult` and `Markdown.parseResult` return a `Result` — so a build script, a Vite plugin or a language-server tick can call in without an Effect runtime.
+Every parse has a synchronous twin. `MarkdownDocument.parseResult` and `Markdown.parseResult` return a `Result`, so a build script, a Vite plugin or a language-server tick can call in without an Effect runtime. `Markdown.parse` and `Markdown.stringify` work on the bare `Root` when you do not need the document wrapper, and `Markdown.MarkdownFromString` is the same pair as a two-way `Schema` codec.
 
-## Editing without reformatting the document
+### Query headings, sections and links
 
-`MarkdownFormat.modify` computes a `MarkdownEdit` array against the parsed document; `modifyToString` applies it in one step. The target is a node from the document's own tree, matched by identity, and everything the edit does not cover survives byte-for-byte:
+The accessors on `MarkdownDocument` are derived from the tree, so they cannot disagree with it. `headings` lists every heading, including those inside blockquotes and list items. `DocumentHeading.text` is a plain-text projection; `headingSource` returns the heading content exactly as written, inline HTML and code-span backticks included:
+
+```ts
+import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import * as Effect from "effect/Effect";
+
+const doc = Effect.runSync(MarkdownDocument.parse("# Use `Effect.gen` <b>now</b> #\n"));
+const [heading] = doc.headings;
+
+console.log(heading?.text); // Use Effect.gen now
+console.log(heading === undefined ? "" : doc.headingSource(heading.node)); // Use `Effect.gen` <b>now</b>
+```
+
+`sections` are delimited by root-level headings only, and each section's range spans its subsections, so one edit can splice a whole section out. `firstSection` and `sectionByHeading` find a single `DocumentSection`. `sectionByHeading` matches an exact trimmed heading string, a `RegExp` or a predicate, and both accept `{ depth }` to restrict the match to one heading level:
+
+```ts
+import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import * as Effect from "effect/Effect";
+
+const source = `# Changelog
+
+## 1.2.3
+
+Fixed a bug.
+
+## 1.2.2
+
+Initial release.
+`;
+
+const program = Effect.gen(function* () {
+  const doc = yield* MarkdownDocument.parse(source);
+  return doc.sectionByHeading("1.2.3", { depth: 2 })?.body.trim();
+});
+
+Effect.runPromise(program).then(console.log);
+// Fixed a bug.
+```
+
+`DocumentSection.body` is the section without its heading. It is not trimmed: it is exactly the bytes `bodyRange` describes.
+
+`links` collects every URL-bearing node and passes `url` through as written, so bundle-relative hrefs are never normalized:
+
+```ts
+import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import * as Effect from "effect/Effect";
+
+const source = `See the [changelog](./CHANGELOG.md) and the [docs](https://example.com/docs).
+`;
+
+const program = Effect.gen(function* () {
+  const doc = yield* MarkdownDocument.parse(source);
+  return doc.links.map((link) => link.url);
+});
+
+Effect.runPromise(program).then(console.log);
+// [ "./CHANGELOG.md", "https://example.com/docs" ]
+```
+
+For anything else, `find` and `findAll` walk the tree in document pre-order. A string selector matches the node's `type` and narrows the result: `doc.findAll("heading")` is `ReadonlyArray<Heading>` and `doc.find("table")` is `Table | undefined`. A type-guard predicate narrows the same way. The nodes come back by identity, so `doc.findAll("heading")[1]` can be handed straight to `MarkdownFormat.modify`.
+
+### Walk a tree as a stream
+
+`MarkdownVisitor.visit` streams the same pre-order walk as `Enter` and `Exit` events carrying the node, its child-index path and its depth. The event type is a schema tagged union; a tree nested past the depth guard ends the stream with an `Error` event:
+
+```ts
+import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import { MarkdownVisitor } from "@beep/markdown/MarkdownVisitor";
+import * as Effect from "effect/Effect";
+import * as Stream from "effect/Stream";
+
+const program = Effect.gen(function* () {
+  const doc = yield* MarkdownDocument.parse("# Title\n\nA *b* c\n");
+  const events = yield* Stream.runCollect(MarkdownVisitor.visit(doc.root));
+  return Array.from(events).map((event) => `${event._tag}:${"node" in event ? event.node.type : "?"}`);
+});
+
+Effect.runPromise(program).then(console.log);
+// [ "Enter:root", "Enter:heading", "Enter:text", "Exit:text", "Exit:heading",
+//   "Enter:paragraph", "Enter:text", "Exit:text", "Enter:emphasis", "Enter:text",
+//   "Exit:text", "Exit:emphasis", "Enter:text", "Exit:text", "Exit:paragraph", "Exit:root" ]
+```
+
+### Edit without reformatting
+
+`MarkdownFormat.modify` computes a `MarkdownEdit` array against a parsed document, and `modifyToString` applies it in one step. The target is a node from the document's own tree, matched by identity, and everything the edit does not cover survives byte for byte:
 
 ```ts
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
@@ -71,13 +160,16 @@ Effect.runPromise(program).then(console.log);
 // See the [changelog](./CHANGELOG.md).
 ```
 
-`find` walks the tree in document pre-order and returns the document's own node, so the match feeds `modify` by identity. Replacements are literal strings or node fragments, and both render through the canonical stringifier, so a modified document re-parses cleanly by construction — you cannot splice in raw markdown that reopens a fence or breaks a table.
+A replacement is a literal string or a node fragment, and both render through the canonical stringifier. A modified document therefore re-parses cleanly: you cannot splice in raw markdown that reopens a fence or breaks a table. A target the edit cannot represent safely fails with a typed `MarkdownModificationError`.
 
-`MarkdownFormat.format` handles the other half: conservative marker normalization, never content rewriting. It converts heading style, bullet character, emphasis marker, fence character, thematic-break character and code-block style, and skips any conversion that would not be safe rather than attempting it cleverly:
+The edits are plain data. `MarkdownEdit.applyAll(text, edits)` applies an array, and an editor can take the same array as a text-edit payload.
+
+### Normalize markers
+
+`MarkdownFormat.format` normalizes markers and never rewrites content. It converts heading style, bullet character, emphasis marker, fence character, thematic-break character and code-block style, and it skips any conversion that would not re-parse the same:
 
 ```ts
 import { MarkdownFormat } from "@beep/markdown/MarkdownFormat";
-import { MarkdownFormattingOptions } from "@beep/markdown/MarkdownFormat";
 
 const source = `Setext heading
 ==============
@@ -86,7 +178,7 @@ const source = `Setext heading
 * two
 `;
 
-const options = MarkdownFormattingOptions.make({ headingStyle: "atx", bulletChar: "-" });
+const options = { headingStyle: "atx", bulletChar: "-" } as const;
 
 console.log(MarkdownFormat.formatToString(source, undefined, options));
 // # Setext heading
@@ -98,18 +190,17 @@ console.log(JSON.stringify(MarkdownFormat.format(source, undefined, options)));
 // [{"offset":0,"length":29,"content":"# Setext heading"},{"offset":31,"length":1,"content":"-"},{"offset":37,"length":1,"content":"-"}]
 ```
 
-`format` is pure and total, and the edits are non-mutating data — hand them to `MarkdownEdit.applyAll`, or send them to an editor as a text-edit payload.
+`format` is pure and total: a document that fails to parse yields no edits.
 
-`codeBlockStyle` is the option to know about before you hit its default: absent it, a language-less code block keeps whichever spelling it already has, and a language-less `Code` node with no `fenceChar` serializes as an *indented* block. `"fenced"` rewrites indented blocks to fences, `"indented"` goes the other way where the result provably re-parses the same, and both directions apply to root-level flush-left blocks only. A block with a language has no indented spelling and is never touched.
+Know the `codeBlockStyle` default before you rely on it. Without the option, a language-less code block keeps its current spelling, and a language-less `Code` node with no `fenceChar` serializes as an indented block. `"fenced"` rewrites indented blocks as fences, and `"indented"` goes the other way where the result provably re-parses the same. Both apply to root-level, flush-left blocks only. A block with a language has no indented spelling and is never touched.
 
-## Frontmatter
+### Typed frontmatter
 
-Frontmatter capture is opt-in, because enabling it changes how a document opening with `---` parses: CommonMark reads `---\ntitle: x\n---` as a thematic break and a setext heading, and that spec-conformant reading holds unless you ask for something else. Turn it on and compose your schema with a codec for typed gray-matter parity:
+Frontmatter capture is opt-in, because it changes how a document that opens with `---` parses: CommonMark reads `---\ntitle: x\n---` as a thematic break and a setext heading, and that reading holds unless you ask for capture. Turn it on and pair your schema with a codec:
 
 ```ts
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { MarkdownFrontmatter } from "@beep/markdown/Frontmatter";
-import { MarkdownParseOptions } from "@beep/markdown/Markdown";
+import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { YamlFrontmatter } from "@beep/markdown/YamlFrontmatter";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -126,7 +217,7 @@ const Post = S.Struct({ title: S.String, draft: S.Boolean });
 const decodePost = MarkdownFrontmatter.schema(Post, YamlFrontmatter);
 
 const program = Effect.gen(function* () {
-  const doc = yield* MarkdownDocument.parse(source, MarkdownParseOptions.make({ frontmatter: true }));
+  const doc = yield* MarkdownDocument.parse(source, { frontmatter: true });
   return yield* decodePost(doc);
 });
 
@@ -134,91 +225,48 @@ Effect.runPromise(program).then(console.log);
 // { title: "Release notes", draft: false }
 ```
 
-Each stage fails typed and separately: no capture is a `FrontmatterMissingError` (catch the tag for optional semantics), a codec handed the wrong fence is a `FrontmatterFormatMismatchError`, unparseable content is a `FrontmatterDecodeError` carrying the format package's own positioned failure structurally, and schema-invalid data is a `FrontmatterValidationError` carrying the structured issue tree rather than a stringified rendering.
+Each stage fails with its own tagged error. No capture is a `FrontmatterMissingError`; catch the tag for optional semantics. A codec handed the wrong fence fails with `FrontmatterFormatMismatchError`. Content the format engine cannot parse fails with `FrontmatterDecodeError`, which keeps the engine's positioned failure as its `cause`. Data the schema rejects fails with `FrontmatterValidationError`, which carries the structured issue tree.
 
-Because capture is opt-in, "there is no frontmatter" has two meanings, and `FrontmatterMissingError.reason` tells them apart: `"absent"` when the source genuinely has no block, `"captureDisabled"` when it opens with one but was parsed with the toggle off — where the fix is a parse option, not a document edit. `MarkdownDocument.hasFrontmatterBlock` answers the same question directly, by re-running the parser's own pre-scan, so the accessor and the error can never disagree.
+Because capture is opt-in, "no frontmatter" can mean two things, and `FrontmatterMissingError.reason` separates them: `"absent"` when the source has no block, and `"captureDisabled"` when it opens with one but was parsed with capture off, which a parse option fixes. `MarkdownDocument.hasFrontmatterBlock` answers the same question by re-running the parser's own pre-scan, so the accessor and the error always agree. `MarkdownFrontmatter.set` and `setToString` write the block back: they re-serialize the whole block from data (gray-matter parity), so comments inside a yaml block do not survive a write.
 
-The three codecs — `YamlFrontmatter` (`---`), `TomlFrontmatter` (`+++`) and `JsonFrontmatter` (`---json`) — are free-standing named exports, one module each, deliberately never collected into a namespace object. Naming one codec is what pulls in its format engine, so a JSON-frontmatter consumer never pays for the yaml parser.
-
-Frontmatter blocks can also describe their own schema. `SchemaResolver.classify` sorts a `$schema` value into a tagged union — `ByUrl`, `ByPath`, `Inline` and `ByName` — and `SchemaResolver.fromRegistry` resolves `ByName` declarations like `skill@2.1.0` against schemas you register. URLs, paths and inline documents are carried as data and never fetched: this is a pure package and it performs no IO.
-
-When the body should not go through the CommonMark engine at all — an MDX page, a template, a snapshot-hash contract that needs byte-exact boundaries — `FrontmatterSource.split` runs the same closed fence grammar over the raw string and nothing else. It is total: it returns the block's format, the exact bytes between the fence lines and the body remainder (`body` is always exactly `source.slice(bodyOffset)`), with absence a representable result rather than an error. `FrontmatterSource.join` serializes the parts back, reproducing the original bytes for an unmodified round-trip. Two edges normalize instead of reproducing: a closing fence that ends the document without a line terminator gains one, and fence lines with mismatched terminators (say `---\r\n … ---\n`) re-emit both with the opening fence's. The value and body bytes survive verbatim in every case, and neither is ever parsed at this level — decoding stays the codec modules' business.
-
-## Working with the tree
-
-`MarkdownDocument` derives its navigation accessors from the tree, so they can never disagree with it. `links` collects every URL-bearing node and passes `url` through exactly as written — bundle-relative hrefs are never normalized:
+The codecs are `YamlFrontmatter` (`---`), `TomlFrontmatter` (`+++`) and `JsonFrontmatter` (`---json`), one subpath module each and never grouped into a namespace object, because importing a codec is what pulls in its format engine. `Frontmatter`, `FrontmatterResolver` and the three codec modules are subpath-only; the root barrel does not export them. A codec is a `FrontmatterCodec` built with `FrontmatterCodec.make(format, parse, stringify)` from an engine's synchronous `Result` functions, and it exposes `decodeResult` and `encodeResult` next to the `Effect` forms `decode` and `encode`, which are defined through them:
 
 ```ts
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-import * as Effect from "effect/Effect";
+import { FrontmatterCodec } from "@beep/markdown/Frontmatter";
+import { Frontmatter } from "@beep/markdown/MarkdownNode";
+import * as Result from "effect/Result";
 
-const source = `# Release notes
+const codec = FrontmatterCodec.make(
+  "json",
+  (text) => Result.try({ try: (): unknown => JSON.parse(text), catch: (cause) => cause }),
+  (data) => Result.succeed(JSON.stringify(data))
+);
 
-See the [changelog](./CHANGELOG.md) and the [docs](https://example.com/docs).
-`;
-
-const program = Effect.gen(function* () {
-  const doc = yield* MarkdownDocument.parse(source);
-  return doc.links.map((link) => link.url);
-});
-
-Effect.runPromise(program).then(console.log);
-// [ "./CHANGELOG.md", "https://example.com/docs" ]
+const decoded = codec.decodeResult(Frontmatter.make({ format: "json", value: '{"a":1}' }));
+console.log(Result.isSuccess(decoded)); // true
 ```
 
-`headings` lists every heading wherever it sits, including inside blockquotes and list items. `sections` are delimited by root-level headings only, and each section's range spans its subsections, so the edit layer can splice a whole section out in one edit. `firstSection` and `sectionByHeading` find one `DocumentSection` without scanning `sections` yourself — the second matches on an exact trimmed heading string, a `RegExp`, or a predicate, and both accept `{ depth }` to restrict to one heading level:
+A frontmatter block can also declare its own schema. `SchemaResolver.classify` (from `@beep/markdown/FrontmatterResolver`) sorts a `$schema` value into the tagged union `ByUrl`, `ByPath`, `Inline` or `ByName`, and `SchemaResolver.fromRegistry` resolves `ByName` declarations such as `skill@2.1.0` against schemas you register. URLs, paths and inline documents are carried as data and never fetched; the package performs no IO.
+
+### Split frontmatter without parsing the body
+
+When the body should not go through the CommonMark engine at all (an MDX page, a template, a hash over byte-exact boundaries), `FrontmatterSource.split` runs the same closed fence grammar over the raw string and nothing else:
 
 ```ts
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-import * as Effect from "effect/Effect";
+import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
 
-const source = `# Changelog
+const split = FrontmatterSource.split("---\ntitle: x\n---\nBody\n");
 
-## 1.2.3
-
-Fixed a bug.
-
-## 1.2.2
-
-Initial release.
-`;
-
-const program = Effect.gen(function* () {
-  const doc = yield* MarkdownDocument.parse(source);
-  return doc.sectionByHeading("1.2.3", { depth: 2 })?.body.trim();
-});
-
-Effect.runPromise(program).then(console.log);
-// Fixed a bug.
+console.log(split.frontmatter?.format); // yaml
+console.log(JSON.stringify(split.body)); // "Body\n"
+console.log(FrontmatterSource.join(split) === "---\ntitle: x\n---\nBody\n"); // true
 ```
 
-`DocumentSection.body` is the section without its heading, and it is deliberately untrimmed — exactly the bytes `bodyRange` describes — so callers write `.body.trim()` when they want the tidy form.
+`split` is total. It returns the block's format, the exact bytes between the fence lines and the body, with `body` always equal to `source.slice(bodyOffset)`; a missing block is a representable result, not an error. `join` reproduces the original bytes for an unmodified round trip, with two normalizations: a closing fence that ends the document without a line terminator gains one, and fence lines with mismatched terminators are both re-emitted with the opening fence's. The value and body bytes are never parsed at this level.
 
-For anything the accessors do not cover, `find` and `findAll` walk the whole tree in document pre-order. A string selector matches the node's `type` and narrows the result — `doc.findAll("heading")` is `ReadonlyArray<Heading>`, `doc.find("table")` is `Table | undefined` — and a type-guard predicate narrows the same way. The nodes come back by identity, so `doc.findAll("heading")[1]` addresses the second heading for `MarkdownFormat.modify` without raw child indexing.
+### mdast interop
 
-`MarkdownVisitor.visit` streams the same walk as `Enter`/`Exit` events carrying the node, its child-index path and its depth:
-
-```ts
-import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-import { MarkdownVisitor } from "@beep/markdown/MarkdownVisitor";
-import * as Effect from "effect/Effect";
-import * as Stream from "effect/Stream";
-
-const program = Effect.gen(function* () {
-  const doc = yield* MarkdownDocument.parse("# Title\n\nA *b* c\n");
-  const events = yield* Stream.runCollect(MarkdownVisitor.visit(doc.root));
-  return Array.from(events).map((event) => `${event._tag}:${"node" in event ? event.node.type : "?"}`);
-});
-
-Effect.runPromise(program).then(console.log);
-// [ "Enter:root", "Enter:heading", "Enter:text", "Exit:text", "Exit:heading",
-//   "Enter:paragraph", "Enter:text", "Exit:text", "Enter:emphasis", "Enter:text",
-//   "Exit:text", "Exit:emphasis", "Enter:text", "Exit:text", "Exit:paragraph", "Exit:root" ]
-```
-
-## mdast interop
-
-The node classes already use mdast's type names and field shapes; `Mdast.toMdast` strips the fidelity fields this package adds — bullet characters, fence style, ATX-versus-setext spelling — (keeping only a `Text` node's `escapeStyle` when set, see [Literal text](#literal-text)) and emits plain spec-valid mdast JSON that the remark ecosystem consumes directly, including `mdast-util-to-hast` if you want hast:
+The nodes already use mdast's type names and field shapes. `Mdast.toMdast` strips the fidelity fields this package adds (bullet characters, fence style, ATX versus setext spelling; a `Text` node keeps `escapeStyle` when set) and emits plain mdast JSON that the remark ecosystem, `mdast-util-to-hast` included, consumes directly:
 
 ```ts
 import { Markdown } from "@beep/markdown/Markdown";
@@ -232,17 +280,15 @@ if (Result.isSuccess(parsed)) {
 }
 ```
 
-`Mdast.fromMdast` goes the other way as a checked admission boundary: it validates a foreign tree and synthesizes zero-width sentinel positions where one is absent or incomplete. Trees admitted that way serve tree-level workflows and canonical `stringify`; offset-splice editing needs the real positions only a parse produces.
+`Mdast.fromMdast` and `fromMdastResult` go the other way as a checked admission boundary: they validate a foreign tree and fill in zero-width sentinel positions where a position is missing or incomplete. Trees admitted that way serve tree-level work and canonical `stringify`; offset-splice editing needs the real positions only a parse produces.
 
-## MDX trees
+### MDX trees
 
-The MDX node vocabulary — `MdxJsxFlowElement` and `MdxJsxTextElement` (with `MdxJsxAttribute`, `MdxJsxExpressionAttribute` and `MdxJsxAttributeValueExpression` as their attribute carriers), `MdxFlowExpression`, `MdxTextExpression` and `MdxjsEsm` — is shaped exactly to the `mdast-util-mdx` contracts and constructs like every other node class. The parser does not read MDX syntax; these nodes exist so a **synthesized** tree can carry JSX and serialize to valid MDX instead of joining strings:
+The MDX node vocabulary lives on its own subpath, `@beep/markdown/MarkdownMdx`: `MdxJsxFlowElement` and `MdxJsxTextElement` (with `MdxJsxAttribute`, `MdxJsxExpressionAttribute` and `MdxJsxAttributeValueExpression` as attribute carriers), `MdxFlowExpression`, `MdxTextExpression` and `MdxjsEsm`, shaped to the `mdast-util-mdx` contracts. The parser does not read MDX syntax. These nodes exist so a synthesized tree can carry JSX and serialize to valid MDX instead of joining strings:
 
 ```ts
 import { Markdown } from "@beep/markdown/Markdown";
-import { MdxJsxAttribute } from "@beep/markdown/MarkdownNode";
-import { MdxJsxAttributeValueExpression } from "@beep/markdown/MarkdownNode";
-import { MdxJsxFlowElement } from "@beep/markdown/MarkdownNode";
+import { MdxJsxAttribute, MdxJsxAttributeValueExpression, MdxJsxFlowElement } from "@beep/markdown/MarkdownMdx";
 import { Root } from "@beep/markdown/MarkdownNode";
 import * as Result from "effect/Result";
 
@@ -267,13 +313,15 @@ if (Result.isSuccess(mdx)) {
 }
 ```
 
-Serialization matches `mdxJsxToMarkdown`'s defaults — `"` quotes, spaced self-closing `<a />`, `<></>` fragments, flow children indented two spaces per JSX ancestor, `{expr}` expressions, ESM values verbatim — and a tree containing any MDX node escapes `{` in text the way MDX requires, while a tree with none serializes byte-identically to the table below. The shapes that have no MDX spelling are unconstructible rather than serialization errors: a fragment cannot carry attributes and an attribute requires a non-empty name, refused at `make` and at decode.
+Serialization matches `mdxJsxToMarkdown`'s defaults: `"` quotes, spaced self-closing `<a />`, `<></>` fragments, flow children indented two spaces per JSX ancestor, `{expr}` expressions and ESM values verbatim. A tree that contains any MDX node escapes `{` in text the way MDX requires; a tree with none serializes byte-identically to the table below. Shapes with no MDX spelling cannot be constructed: a fragment cannot carry attributes and an attribute needs a non-empty name, and both are refused at `make` and at decode.
 
-## The canonical form is stable
+The subpath changes only where the names are exported. The MDX schemas are still members of the core `FlowContent` and `PhrasingContent` unions, so they stay in the closure of `@beep/markdown/MarkdownNode`.
 
-`Markdown.stringify` takes no options. It emits one canonical form, that form is pinned by byte-level tests, the engine behind it is cross-checked against commonmark.js over the full CommonMark 0.31.2 corpus, and **changing any of it is a breaking change to this package rather than a patch**. So a test may assert on these bytes, and a pipeline that needs stable rendered markdown should serialize through here instead of a third-party stringifier whose defaults are free to move between releases.
+### The canonical form is stable
 
-For a node carrying no fidelity field:
+`Markdown.stringify` takes no options. It emits one canonical form, byte-level tests pin that form, and the engine behind it is cross-checked against commonmark.js over the full CommonMark 0.31.2 corpus. Changing any of it is a breaking change to this package, not a patch. A test may assert on these bytes, and a pipeline that needs stable rendered markdown can serialize through here instead of a third-party stringifier whose defaults may move between releases.
+
+For a node that carries no fidelity field:
 
 | Construct | Canonical form |
 | --- | --- |
@@ -282,23 +330,19 @@ For a node carrying no fidelity field:
 | Bullet list marker | `-` |
 | Ordered list delimiter | `.`, flipping to `)` to separate an immediately adjacent sibling list |
 | Emphasis / strong | `*` / `**` |
-| Code block | fenced when the node carries a `lang` or a `fenceChar`, with the fence grown past any interior backtick run; otherwise indented — except where indenting would not re-parse as a code block, which forces a fence |
+| Code block | fenced when the node carries a `lang` or a `fenceChar`, with the fence grown past any interior backtick run; otherwise indented, except where indenting would not re-parse as a code block, which forces a fence |
 | Block separation | exactly one blank line |
 | Document | a single trailing newline |
 
-MDX nodes are part of the same commitment: the serialization choices listed under [MDX trees](#mdx-trees) are pinned the same way, and only trees that actually carry an MDX node pay the extra `{` escape.
+The MDX serialization choices above are pinned the same way, and only trees that carry an MDX node pay for the extra `{` escape.
 
-**Representability wins over the table.** The canonical form never emits text that would re-parse as something else, so a row yields where the two conflict. The case that reaches a consumer is the indented code block: an indented block directly after a list is absorbed as list content, so a `Code` node with neither `lang` nor `fenceChar` emits fenced in that position and indented everywhere else. A byte-level assertion over synthesized code blocks therefore depends on the preceding sibling.
+The canonical form never emits text that would re-parse as something else, so a table row gives way when the two conflict. The case a consumer meets is the indented code block: an indented block directly after a list is absorbed as list content, so a `Code` node with neither `lang` nor `fenceChar` is emitted fenced in that position and indented everywhere else. A byte-level assertion over synthesized code blocks therefore depends on the preceding sibling. If you build trees and assert on their bytes, set `fenceChar` on every `Code` node that has neither a `lang` nor a `fenceChar`, in a walk that reaches nested nodes; then no output depends on a node's neighbours.
 
-The posture that makes this a non-issue — and the one to adopt if you build trees and assert on their bytes — is to set `fenceChar` on every `Code` node carrying neither a `lang` nor one already, in a post-decode walk that reaches nested nodes. The choice then leaves the emitter entirely and no output depends on a node's neighbours.
+Set fidelity fields on the decoded tree. `Mdast.fromMdast` admits spec mdast and strips everything outside it, so a `fenceChar` placed on a plain mdast tree before admission is dropped. The one exception is `escapeStyle` on a `text` node, described next. A node that carries a fidelity field (`headingStyle`, `markerChar`, `fenceChar`, `delimiter`) overrides the matching row, which is how a parsed document re-serializes in its author's spelling.
 
-Fidelity fields must be set on the **decoded** tree: `Mdast.fromMdast` admits spec mdast and strips everything outside it, so a `fenceChar` placed on a plain mdast tree before admission is silently dropped. The one exception is `escapeStyle` on a `text` node, described next.
+#### Literal text
 
-A node that carries a fidelity field overrides the matching row — `headingStyle`, `markerChar`, `fenceChar`, `delimiter` — which is how a parsed document re-serializes in its author's spelling. The table describes a synthesized node, which is what a test asserting on generated markdown actually holds.
-
-### Literal text
-
-Text escaping is canonical by default: `~0.2.1` in a table cell emits as `\~0.2.1`. A `Text` node carrying `escapeStyle: "literal"` opts out — the caller vouches that the value is already safe markdown, and the emitter writes it verbatim with none of the escaping aimed at inline syntax. That suits generated content such as a dependency table, where `~0.2.1`, `^1.0.0` and `@scope/pkg` should read as written:
+Text escaping is canonical by default: `~0.2.1` in a table cell is emitted as `\~0.2.1`. A `Text` node with `escapeStyle: "literal"` opts out. The caller vouches that the value is already safe markdown, and the emitter writes it without the escaping aimed at inline syntax. That suits generated content such as a dependency table, where `~0.2.1`, `^1.0.0` and `@scope/pkg` should read as written:
 
 ```ts
 import { Markdown } from "@beep/markdown/Markdown";
@@ -317,186 +361,98 @@ if (Result.isSuccess(tree)) {
 }
 ```
 
-Escapes that protect the surrounding **block** still apply, because dropping them would corrupt the document rather than add formatting:
+Escapes that protect the surrounding block still apply, because dropping them would corrupt the document rather than add formatting:
 
 - in a table cell, every `|` not already backslash-escaped becomes `\|`;
 - in any container, a value-final `\` is doubled when more content follows it, so it cannot escape that content's first character;
 - in a table cell or heading, a newline becomes a space;
 - in a heading, a trailing `#` run that would read as the closing sequence is escaped;
-- elsewhere, a newline that would form a blank line becomes `&#10;`, leading whitespace at a line start becomes a character reference, and a line start that can open a block is escaped — a `-`, `+` or `*` bullet or an ordered-list marker followed by a space, tab or line end, one to six `#` followed by the same, `>`, a run of three backticks or tildes, a thematic-break or setext run, a `---` or `+++` frontmatter fence, a line of only `-`, `:`, `|` and whitespace, and conservatively any `<`, `[`, `|` or `:` — while text that cannot, such as `~0.2.1`, `1.0.0`, `-x` or `#x`, is written as is;
-- in a tree carrying MDX nodes, `{` and `<` stay escaped.
+- elsewhere, a newline that would form a blank line becomes `&#10;`, leading whitespace at a line start becomes a character reference, and a line start that can open a block is escaped. That covers a `-`, `+` or `*` bullet or an ordered-list marker followed by a space, tab or line end; one to six `#` followed by the same; `>`; a run of three backticks or tildes; a thematic-break or setext run; a `---` or `+++` frontmatter fence; a line of only `-`, `:`, `|` and whitespace; and, conservatively, any `<`, `[`, `|` or `:`. Text that cannot open a block, such as `~0.2.1`, `1.0.0`, `-x` or `#x`, is written as is;
+- in a tree that carries MDX nodes, `{` and `<` stay escaped.
 
-**A literal value that parses as markdown does not round-trip**: `*a*` emits verbatim and re-parses as emphasis. Keeping the value free of inline syntax is the caller's promise; the emitter does not check it. The parser never sets `escapeStyle`, and `Mdast.fromMdast` admits it on a `text` node — the one fidelity field that crosses that boundary, because it is an instruction to the emitter rather than a record of source spelling — so a plain mdast tree can carry it straight in. The opt-out is additive: a tree that never sets it serializes byte-identically to the canonical form above.
+A literal value that parses as markdown does not round-trip: `*a*` is emitted verbatim and re-parses as emphasis. Keeping the value free of inline syntax is the caller's job; the emitter does not check it. The parser never sets `escapeStyle`, and `Mdast.fromMdast` admits it on a `text` node, the one fidelity field that crosses that boundary, because it instructs the emitter rather than recording source spelling. A tree that never sets it serializes byte-identically to the canonical form.
 
-To *normalize* an existing document to different choices, use `MarkdownFormat` with `MarkdownFormattingOptions`. That is the configurable surface; this one deliberately is not.
+To normalize an existing document to different choices, use `MarkdownFormat` with `MarkdownFormattingOptions`. That surface is configurable; this one is not.
+
+### Conformance corpora
+
+The vendored conformance data ships with the package under `data/conformance/` and is importable as JSON through the `@beep/markdown/conformance/*` subpath: `conformance/commonmark/spec` (the 652 CommonMark 0.31.2 examples), `conformance/gfm/spec-extensions` and `conformance/gfm/extensions` (the cmark-gfm corpora), and `conformance/mdast/<name>` (the `mdast-util-from-markdown` trees). Each corpus directory has a `VENDORED.md` with its upstream, pinned ref, licence and regeneration command. Nothing under `src/` reads these files.
 
 ## Features
 
-- `Markdown` — `parse`/`stringify` as `Effect`s with typed `MarkdownParseError`/`MarkdownStringifyError` channels, the pure `parseResult`/`stringifyResult` twins for synchronous callers, and the `MarkdownFromString` two-way codec.
-- `Markdown.parsePhrasing`/`parsePhrasingResult` — parse a prose fragment as a single paragraph's inline content, without a full document parse and a paragraph splice: blank lines stay inline, references never form (no reference context), and positions are correct relative to the input string.
-- `MarkdownDocument` — source, tree, diagnostics and the link-definition index, plus the derived `headings`, `sections` and `links` accessors, the `firstSection`/`sectionByHeading` finders over a `DocumentSection` (heading, depth, range, body), the `find`/`findAll` tree queries over type-narrowed selectors, and the `frontmatter` capture with `hasFrontmatterBlock` to tell an absent block from an uncaptured one.
-- The mdast-shaped node classes — the CommonMark types plus GFM's `delete`, `table`, `tableRow`, `tableCell`, `footnoteDefinition`, `footnoteReference` and task-list `checked`, each carrying unist positions with byte offsets and this package's fidelity fields. `position` defaults to the zero-width synthetic sentinel, so a replacement fragment constructs in one line — `Text.make({ value: "shipped" })`.
-- The MDX node vocabulary — `MdxJsxFlowElement`/`MdxJsxTextElement` with their attribute carriers, `MdxFlowExpression`/`MdxTextExpression` and `MdxjsEsm`, shaped to the `mdast-util-mdx` contracts for construction and serialization (the parser reads no MDX syntax).
-- `FrontmatterSource` — string-level frontmatter `split`/`join` over the same closed fence grammar, byte-exact boundaries, no parsing of value or body; for bodies the CommonMark engine should not touch.
-- `MarkdownEdit` / `MarkdownRange` (with `applyAll`) — the non-mutating text-edit vocabulary, field-identical to `@effected/jsonc`'s, `@effected/yaml`'s and `@effected/toml`'s.
-- `MarkdownFormat` — `format`/`formatToString` compute conservative marker-normalization edits; `modify`/`modifyToString` replace a node by identity through the canonical stringifier.
-- `MarkdownVisitor` — walk a parsed tree as a lazy `Stream` of `Enter`/`Exit` events with child-index paths and depth.
-- `Mdast` — `toMdast` projects to plain mdast JSON; `fromMdast`/`fromMdastResult` admit a foreign mdast tree with validation.
-- `MarkdownFrontmatter.schema` plus the `YamlFrontmatter`, `TomlFrontmatter` and `JsonFrontmatter` codecs — typed frontmatter decoding over optional per-format peers, with four separately catchable failure modes and a `FrontmatterMissingReason` on the absent one.
-- `SchemaResolver` — classify a frontmatter `$schema` declaration into `ByUrl`/`ByPath`/`Inline`/`ByName` and resolve names against a registry, with no IO and no dependencies.
-- `MarkdownDiagnostic` — the structured diagnostic (`code`, `message`, `offset`, `length`, `line`, `character`) every typed error carries, shaped identically to the sibling packages'.
+- `Markdown`: `parse` and `stringify` as `Effect`s with typed `MarkdownParseError` and `MarkdownStringifyError` channels, the synchronous `parseResult` and `stringifyResult`, `parsePhrasing` and `parsePhrasingResult` for a prose fragment parsed as one paragraph's inline content (no reference context, positions relative to the input), and the `MarkdownFromString` / `fromString(options)` two-way codecs. `MarkdownParseOptions` selects the dialect (`commonmark` or `gfm`, default `gfm`) and the frontmatter toggle.
+- `MarkdownDocument`: source, tree, diagnostics and the link-definition index, plus the derived `headings`, `sections` and `links`, `headingSource` for a heading's content as written, the `firstSection` and `sectionByHeading` finders, type-narrowed `find` and `findAll`, and the `frontmatter` capture with `hasFrontmatterBlock`.
+- `MarkdownNode`: `Point`, `Position` and the mdast-shaped core nodes (the CommonMark types plus GFM's `delete`, `table`, `tableRow`, `tableCell`, `footnoteDefinition`, `footnoteReference` and task-list `checked`), the content unions, the fidelity literal domains and `MarkdownNodeKind`, a `LiteralKit` over every node tag. Nodes are branded `S.Opaque` schemas built with `X.make`; `position` defaults to a zero-width synthetic sentinel, so `Text.make({ value: "shipped" })` is a complete replacement fragment.
+- `MarkdownMdx` (subpath only): the MDX node vocabulary and `MdxJsxAttributeContent`, for constructing and serializing MDX trees.
+- `MarkdownEdit` and `MarkdownRange` (with `applyAll`): the non-mutating text-edit vocabulary shared with `@beep/jsonc`, `@beep/yaml` and `@beep/toml`.
+- `MarkdownFormat`: `format` and `formatToString` compute conservative marker-normalization edits from `MarkdownFormattingOptions`; `modify` and `modifyToString` replace a node by identity through the canonical stringifier and fail with `MarkdownModificationError`.
+- `MarkdownVisitor`: a lazy `Stream` of `MarkdownVisitorEvent` values (`Enter`, `Exit`, `Error`) with child-index paths and depth.
+- `Mdast`: `toMdast` projects to plain mdast JSON; `fromMdast` and `fromMdastResult` admit a foreign mdast tree with validation, failing with `MdastDecodeError`.
+- `FrontmatterSource`: string-level `split` and `join` over the closed fence grammar, with byte-exact boundaries and no parsing of value or body.
+- `Frontmatter` (subpath only): `MarkdownFrontmatter.schema`, `set` and `setToString`, the `FrontmatterCodec` class, and the error family (`FrontmatterMissingError` with its `FrontmatterMissingReason`, `FrontmatterFormatMismatchError`, `FrontmatterDecodeError`, `FrontmatterEncodeError`, `FrontmatterValidationError`).
+- `YamlFrontmatter`, `TomlFrontmatter`, `JsonFrontmatter` (subpath only): one codec per module over `@beep/yaml`, `@beep/toml` and `@beep/jsonc`.
+- `FrontmatterResolver` (subpath only): `SchemaResolver.classify`, `declarationOf` and `fromRegistry` for `$schema` declarations, with no IO.
+- `MarkdownDiagnostic`: the structured diagnostic (`code`, `message`, `offset`, `length`, `line`, `character`) every typed error carries, shaped like the sibling packages' diagnostics.
+- Positions: every node carries unist line and column positions plus byte offsets, which is what makes offset-splice edits possible.
+- Hardening: recursive surfaces share a 256-deep nesting cap, so a nesting bomb fails through the typed error channel instead of overflowing the stack.
 
-## Conformance
+### Conformance
 
-All 652 CommonMark 0.31.2 spec examples run with an empty skip map, and the whole corpus runs again under both dialects with an explicitly asserted divergence list. The GFM extension corpora from cmark-gfm — the spec extension sections and `extensions.txt`, the only official footnote corpus — run complete, as does the 27-fixture `mdast-util-from-markdown` corpus, which asserts AST **and** position equality through the `Mdast` projection rather than just matching rendered output.
+All 652 CommonMark 0.31.2 spec examples pass with an empty skip map, and the whole corpus runs again under both dialects against an asserted divergence list. The GFM extension corpora from cmark-gfm (the spec's extension sections and `extensions.txt`, the only official footnote corpus) pass in full, as does the 27-fixture `mdast-util-from-markdown` corpus, which asserts AST and position equality through the `Mdast` projection rather than comparing rendered HTML.
 
-Two independent checks back that up. A differential property suite cross-checks the parser against the `commonmark` npm package across the corpus plus tens of thousands of generated documents, and cmark's pathological suite pins the linear-time guarantee with calibrated budgets — markdown's DoS vector is quadratic emphasis and link blowup, and the delimiter-stack algorithm is what defeats it. Recursive surfaces carry a 256-deep nesting cap, so a nesting bomb fails through the typed error channel instead of overflowing the stack. Every oracle and corpus is devDependency-only; none reaches your runtime.
+Two further checks back that up. A differential property suite cross-checks the parser against the `commonmark` npm package over the corpus and tens of thousands of generated documents, and the cmark-gfm pathological suite pins linear time with calibrated budgets: markdown's denial-of-service vector is quadratic emphasis and link blowup, and the delimiter-stack algorithm is what defeats it. Every oracle is a devDependency; none reaches your runtime.
 
-## License
+## Development
 
-[MIT](LICENSE)
+```bash
+# from the repository root
+bun run beep quality package-verify @beep/markdown
 
+# from packages/foundation/modeling/markdown
+bun run check
+bun run lint
+bun run test
+bun run docgen
+```
 
-## Port notes
+Tests live in `test/` and import package source through `@beep/markdown/<Module>` aliases. The end-to-end conformance suites are in `test/e2e/`, the shared harness (corpus loader, test-only HTML writer, the commonmark.js oracle, the pathological cases) is in `test/support/`, and the corpora they read are the shipped `data/conformance/` files. `scripts/generate-entities.ts` regenerates `src/internal/entityMap.ts` (`bun run generate:entities`), and `scripts/extract-gfm-corpora.py` regenerates the GFM corpora. `KNOWLEDGE.md` carries the upstream design notes verbatim.
+
+## Provenance
+
+Ported from upstream `@effected/markdown` (MIT, C. Spencer Beggs) through the effected port, which landed it as the scratchpad module `scratchpad/effected/markdown`, then promoted into this workspace package by `goals/effected-promotion` (wave 2d-1). The promotion moved the sources to `src/`, the tests to `test/` and the conformance corpora to `data/conformance/`, renamed the schema identities from `@beep/scratchpad/effected/markdown/<Name>` to `@beep/markdown/<Name>`, and changed the node construction model and the export surface as listed under Deviations. A differential over 150,674 inputs shows no parse or stringify behaviour change from the promotion.
 
 ### Attribution
 
 - Upstream package: `@effected/markdown` 0.15.1
-- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
-- License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- src/internal/blockParser.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blockParser.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blockParser.ts:3 // License: BSD-2-Clause
-- src/internal/blockRegistry.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blockRegistry.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blockRegistry.ts:3 // License: BSD-2-Clause
-- src/internal/blockTypes.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blockTypes.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blockTypes.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/atxHeading.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/atxHeading.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/atxHeading.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/blockquote.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/blockquote.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/blockquote.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/code.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/code.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/code.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/document.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/document.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/document.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/fencedCode.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/fencedCode.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/fencedCode.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/footnoteDefinition.ts:1 // Ported from cmark-gfm 0.29.0.gfm.13 (https://github.com/github/cmark-gfm)
-- src/internal/blocks/footnoteDefinition.ts:2 // Copyright (c) 2014 GitHub Inc.
-- src/internal/blocks/footnoteDefinition.ts:3 // License: BSD-style (see the cmark-gfm COPYING file)
-- src/internal/blocks/htmlBlock.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/htmlBlock.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/htmlBlock.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/indentedCode.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/indentedCode.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/indentedCode.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/linkReferenceDefinition.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/linkReferenceDefinition.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/linkReferenceDefinition.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/list.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/list.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/list.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/paragraph.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/paragraph.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/paragraph.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/setextHeading.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/setextHeading.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/setextHeading.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/table.ts:1 // Ported from cmark-gfm@0.29.0.gfm.13 (https://github.com/github/cmark-gfm)
-- src/internal/blocks/table.ts:2 // Copyright (c) 2014, John MacFarlane; Copyright (c) 2015, GitHub, Inc.
-- src/internal/blocks/table.ts:3 // License: BSD-2-Clause
-- src/internal/blocks/taskListItem.ts:1 // Ported from cmark-gfm 0.29.0.gfm.13 (https://github.com/github/cmark-gfm)
-- src/internal/blocks/taskListItem.ts:2 // Copyright (c) 2014 GitHub, Inc.
-- src/internal/blocks/taskListItem.ts:3 // License: BSD-2-Clause (see `.repos/cmark-gfm/COPYING`)
-- src/internal/blocks/thematicBreak.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/blocks/thematicBreak.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/blocks/thematicBreak.ts:3 // License: BSD-2-Clause
-- src/internal/entities.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/entities.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/entities.ts:3 // License: BSD-2-Clause
-- src/internal/htmlTags.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/htmlTags.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/htmlTags.ts:3 // License: BSD-2-Clause
-- src/internal/inlineNode.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlineNode.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlineNode.ts:3 // License: BSD-2-Clause
-- src/internal/inlineParser.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlineParser.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlineParser.ts:3 // License: BSD-2-Clause
-- src/internal/inlineRegistry.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlineRegistry.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlineRegistry.ts:3 // License: BSD-2-Clause
-- src/internal/inlineTypes.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlineTypes.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlineTypes.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/autolink.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/autolink.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/autolink.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/autolinkLiteral.ts:1 // Ported from cmark-gfm@0.29.0.gfm.13 (https://github.com/github/cmark-gfm)
-- src/internal/inlines/autolinkLiteral.ts:2 // Copyright (c) 2014, John MacFarlane; Copyright (c) 2015, GitHub, Inc.
-- src/internal/inlines/autolinkLiteral.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/autolinkLiteral.ts:34 // email only, but the vendored C at this pin also linkifies `ftp://`
-- src/internal/inlines/autolinkLiteral.ts:36 // (`postprocess_text`). `extensions.txt` — the other vendored corpus —
-- src/internal/inlines/codeSpan.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/codeSpan.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/codeSpan.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/codeSpan.ts:33 // is quadratic on a document of many distinct-length runs (the vendored
-- src/internal/inlines/emphasis.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/emphasis.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/emphasis.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/entity.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/entity.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/entity.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/escape.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/escape.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/escape.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/footnoteReference.ts:1 // Ported from cmark-gfm 0.29.0.gfm.13 (https://github.com/github/cmark-gfm)
-- src/internal/inlines/footnoteReference.ts:2 // Copyright (c) 2014 GitHub Inc.
-- src/internal/inlines/footnoteReference.ts:3 // License: BSD-style (see the cmark-gfm COPYING file)
-- src/internal/inlines/lineBreak.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/lineBreak.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/lineBreak.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/link.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/link.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/link.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/rawHtml.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/rawHtml.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/rawHtml.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/rawHtml.ts:34 // 300k unclosed `<!--` is one of the vendored pathological cases. Asking
-- src/internal/inlines/strikethrough.ts:1 // Ported from cmark-gfm@0.29.0.gfm.13 (https://github.com/github/cmark-gfm)
-- src/internal/inlines/strikethrough.ts:2 // Copyright (c) 2014, John MacFarlane; Copyright (c) 2015, GitHub, Inc.
-- src/internal/inlines/strikethrough.ts:3 // License: BSD-2-Clause
-- src/internal/inlines/text.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/inlines/text.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/inlines/text.ts:3 // License: BSD-2-Clause
-- src/internal/preprocess.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/preprocess.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/preprocess.ts:3 // License: BSD-2-Clause
-- src/internal/references.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/references.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/references.ts:3 // License: BSD-2-Clause
-- src/internal/unescape.ts:1 // Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
-- src/internal/unescape.ts:2 // Copyright (c) 2014-2023 John MacFarlane
-- src/internal/unescape.ts:3 // License: BSD-2-Clause
+- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (`~/YeeBois/references/effect/effected`)
+- License: [LICENSE](./LICENSE) (MIT; beep-effect and upstream notices)
+- Vendored engine: 33 files under `src/internal/` are ported from commonmark.js 0.31.2 (Copyright (c) 2014-2023 John MacFarlane, BSD-2-Clause), and 6 (`blocks/footnoteDefinition`, `blocks/table`, `blocks/taskListItem`, `inlines/autolinkLiteral`, `inlines/footnoteReference`, `inlines/strikethrough`) from cmark-gfm 0.29.0.gfm.13 (Copyright (c) 2014 John MacFarlane and GitHub, Inc.; BSD-2-Clause, per the cmark-gfm `COPYING` file). Each file keeps its upstream notice in a three-line header.
+- Vendored data: `data/conformance/commonmark` (commonmark-spec 0.31.2, CC-BY-SA 4.0), `data/conformance/gfm` (cmark-gfm 0.29.0.gfm.13, CC-BY-SA 4.0 spec text and the cmark-gfm licence), `data/conformance/mdast` (mdast-util-from-markdown 2.0.3, MIT) and the test-only `test/support/pathological/cases.ts` (cmark-gfm `pathological_tests.py`, BSD-2-Clause). Each directory's `VENDORED.md` records the upstream, pinned commit and licence.
 
 ### Added exports
 
-None.
+- `MarkdownNodeKind`: a `LiteralKit` over all 34 node tags (25 core, 9 MDX).
+- `MarkdownDocument.headingSource`: a heading's content as written in the source.
+- `FrontmatterCodec.make`, `decodeResult` and `encodeResult`: upstream's `FrontmatterCodec` is an interface with `decode` and `encode` only.
+- `@beep/markdown/MarkdownMdx`: the MDX leaf (the names were exported from `MarkdownNode` upstream).
+- `@beep/markdown/conformance/*`: the vendored conformance corpora as JSON subpaths.
 
 ### Deviations
 
-One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
+One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row. Test paths are relative to `test/`.
+
+Promotion (wave 2d-1):
+
+- **node-construction**: Nodes are branded `S.Opaque` schemas instead of classes. The parser builds plain trees through an internal `trustedNode` cast, and each public entry point admits the finished tree once with `Root.make`, so construction stays linear in nesting depth; a `make` per node would cost O(n·depth). Public construction with `X.make` and decoding are unchanged.
+- **export-surface**: The MDX nodes moved to the `@beep/markdown/MarkdownMdx` leaf. They remain members of `FlowContent` and `PhrasingContent`, so only the export surface changed. The root barrel is core-only and codec-free: `Frontmatter`, `FrontmatterResolver` and the three codecs are subpath-only, and a closure test asserts that no root-barrel module reaches `@beep/yaml`, `@beep/toml` or `@beep/jsonc`.
+- **tagged-errors**: The engine carriers `RawMarkdownError` and `GuardExceeded` are `S.TaggedError` schemas (upstream and the lab used `Data.TaggedError`), and `MarkdownVisitorEvent` is an `S.TaggedUnion` (upstream used `Data.TaggedEnum`).
+- **conformance-data**: The conformance corpora live under `data/conformance/`, ship with the package and are exported as `./conformance/*`; the test harness loads them with `import.meta.glob` instead of `node:fs`.
+
+Port:
 
 - **native-runtime** — Effect hash collections and explicit definitionOrder replace upstream native Map/Set indexes, while A.sort replaces native edit sorting and DateTime replaces the generator timestamp (test/block-pass.test.ts:510; document.test.ts:406; inline-dispatch.test.ts:23; hardening.test.ts:193; edit.test.ts:74).
 - **identity-keys** — Operation-owned regex clones and a primitive-offset definition index replace upstream global identity-keyed WeakMaps and the BlockNode-keyed Map (test/pattern-clones.test.ts:5,26,71; document.test.ts:406).
-- **tagged-errors** — Schema tagged errors replace upstream native Error/TypeError failure sites, while the engine carriers currently use Data.TaggedError and still await their required schema migration (test/hardening.test.ts:193; edit.test.ts:59; frontmatter-resolver.test.ts:380; document.test.ts:382; diagnostic.test.ts:95,102).
+- **tagged-errors** — Schema tagged errors replace upstream native Error/TypeError failure sites (the engine carriers followed at promotion; see above) (test/hardening.test.ts:193; edit.test.ts:59; frontmatter-resolver.test.ts:380; document.test.ts:382; diagnostic.test.ts:95,102).
 - **schema-first** — LiteralKit domains, navigation/options/delimiter schemas, derived guards and JSON codecs replace upstream literal/interface duplication, manual guards and asserted JSON parsing (test/node.test.ts:87; delimiter-run.test.ts:62; table-align-types.test.ts:7; module suite test/**).
 - **numeric-domains** — S.Finite rejects non-finite values that upstream numeric schemas admitted across diagnostics, edits, positions, code/list fields, frontmatter offsets and the delimiter model (test/delimiter-run.test.ts:62; module suite test/**).
 - **type-safety** — Guarded narrowing, typed projection, commonmark declarations and the approved deliberatelyInvalid helper replace upstream source/test assertions (module suite test/**).
@@ -568,3 +524,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 ### Dependency backlog
 
 None.
+
+## License
+
+[MIT](LICENSE). The package `LICENSE` carries both copyright notices: beep-effect and the upstream author, C. Spencer Beggs. The vendored engine files and conformance data keep their own notices, listed under Attribution.

@@ -286,7 +286,7 @@ const block = (node: Root["children"][number]): string => render(Root.make({ chi
  * caller's fragments pass through verbatim) and returns a `string`, so
  * compositions read as plain string assembly. What the writer owns is the
  * *structure*: wherever a fragment could break the construct around it, the
- * output goes through `@beep/markdown`'s node classes and serializer
+ * output goes through `@beep/markdown`'s `S.Opaque` node schemas and serializer
  * rather than string joining. A table cell carrying `>=1 || <2` renders with
  * its pipes escaped instead of shifting every column after it; a code block
  * whose content contains a fence gets a longer fence; inline code containing
