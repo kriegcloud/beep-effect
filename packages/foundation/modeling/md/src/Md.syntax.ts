@@ -1268,6 +1268,9 @@ const mapTextRun = (
   ]);
 };
 
+const escapedInlineHtml = (state: BridgeState, kid: Kit.PhrasingContent): boolean =>
+  kid.type === "html" && headHtmlKept(state, kid.value) && !(state.options.breakTag && isBreakTag(kid.value));
+
 const mapPhrasingChildren = (
   state: BridgeState,
   kids: ReadonlyArray<Kit.PhrasingContent>,
@@ -1276,10 +1279,39 @@ const mapPhrasingChildren = (
 ): Array<Model.Inline> => {
   const out: Array<Model.Inline> = [];
   let run: Array<Kit.Text> = [];
+  let mergeableText = false;
+  const nextPath = (merging: boolean): SlotPath => new SlotPath(parent, offset + out.length - (merging ? 1 : 0));
+  const append = (inline: Model.Inline, mergeable: boolean): void => {
+    const previous = A.last(out);
+    if (mergeable && mergeableText && inline._tag === "text" && O.isSome(previous) && previous.value._tag === "text") {
+      const currentSlot = state.slots.pop();
+      const previousSlot = state.slots.pop();
+      if (currentSlot !== undefined && previousSlot !== undefined) {
+        state.slots.push(
+          new SourceSlot(
+            Kit.Position.make({ start: previousSlot.position.start, end: currentSlot.position.end }),
+            MdSourceOrigin.Enum.merged
+          )
+        );
+      }
+      out[out.length - 1] = textNode(previous.value.value + inline.value);
+    } else {
+      out.push(inline);
+    }
+    mergeableText = mergeable && inline._tag === "text";
+  };
   const flush = (): void => {
     if (A.isArrayNonEmpty(run)) {
-      for (const inline of mapTextRun(state, run, new SlotPath(parent, offset + out.length))) {
-        out.push(inline);
+      const start = state.slots.length;
+      const inlines = mapTextRun(state, run, nextPath(mergeableText));
+      const slots = A.drop(state.slots, start);
+      rollback(state, start);
+      for (const [index, inline] of A.zip(A.range(0, inlines.length - 1), inlines)) {
+        const slot = slots[index];
+        if (slot !== undefined) {
+          state.slots.push(slot);
+        }
+        append(inline, true);
       }
       run = [];
     }
@@ -1290,8 +1322,10 @@ const mapPhrasingChildren = (
       continue;
     }
     flush();
-    for (const inline of phrasingStep(kid)(state, new SlotPath(parent, offset + out.length))) {
-      out.push(inline);
+    const mergesHtml = mergeableText && escapedInlineHtml(state, kid);
+    const path = nextPath(mergesHtml);
+    for (const inline of phrasingStep(kid)(state, path)) {
+      append(inline, escapedInlineHtml(state, kid));
     }
   }
   flush();
