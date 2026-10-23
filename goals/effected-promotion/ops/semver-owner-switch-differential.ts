@@ -21,23 +21,30 @@
  *    `MAJOR.MINOR` and inner-whitespace normalization, which the kit does not do). Ordering is compared on
  *    every pair of versions both accept; `old-locale-compare` classifies pairs whose first differing
  *    prerelease identifiers are both alphanumeric and order differently under `String.localeCompare` (the
- *    old module) than under ASCII order (SemVer 2.0.0 §11.4.2, the kit). This section needs the old module,
- *    which R1 deletes: after the deletion commit it reports `skipped` and the committed report is the record.
+ *    old module) than under ASCII order (SemVer 2.0.0 §11.4.2, the kit). R1 deletes the old module, so this
+ *    section is opt-in: pass `--old-module <path>` naming a copy of `schema/src/Semver.ts` from 6c0bb54d55
+ *    placed back at `packages/foundation/modeling/schema/src/Semver.ts` (its relative imports must resolve).
+ *    Without the flag it reports `skipped`, and a run proves nothing for this section: the committed report
+ *    `research/semver-owner-switch-differential-r1.json` is the record.
  * 2. `bunLocal`: the pre-R1 `BunResolver` pattern and comparator (copied below as `oldBun*`, from
  *    `BunResolver.ts:158-322` at 6c0bb54d55) against the shipped `buildBunReport` target selection, over
  *    every ordered pair of Bun-shaped corpus strings.
  * 3. `docker`: the pre-R1 `DockerResolver` strategies (copied as `oldDocker*`, `DockerResolver.ts:182-319`)
  *    against the shipped `selectLatestDockerTag`, over seeded tag lists built from the corpus, for `redis`,
- *    `pgvector/pgvector` (current tag `pg17`) and `grafana/otel-lgtm`.
+ *    `pgvector/pgvector` (current tag `pg17`) and `grafana/otel-lgtm`. A difference is classified only when
+ *    it is caused by a non-SemVer core: the old strategy, re-run on the list without the tags whose core the
+ *    kit rejects, must pick what the kit picks. Any other difference is unclassified.
  * 4. `cachePin`: the old `CacheClientPin.version` regex against `SemVer.PinnableVersionString`; the gate also
  *    requires every committed pin to pass both.
  *
  * Usage (from the repo root):
  *
  *   bun goals/effected-promotion/ops/semver-owner-switch-differential.ts [--out <report.json>]
+ *     [--old-module packages/foundation/modeling/schema/src/Semver.ts]
  *
  * Exit code 1 when any gate fails.
  */
+import * as NodeURL from "node:url";
 import { SemVer } from "@beep/semver/SemVer";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as Arbitrary from "effect/Arbitrary";
@@ -303,17 +310,18 @@ interface OldSchemaSemverModule {
 
 // --- sections ---------------------------------------------------------------------------------------------
 
-const schemaSemverSection = Effect.fnUntraced(function* (strings: ReadonlyArray<string>) {
-  const loaded: O.Option<OldSchemaSemverModule> = yield* Effect.tryPromise(
-    () => import("@beep/schema/Semver" as string) as Promise<OldSchemaSemverModule>
-  ).pipe(Effect.option);
-  if (O.isNone(loaded)) {
+const schemaSemverSection = Effect.fnUntraced(function* (strings: ReadonlyArray<string>, oldModule: O.Option<string>) {
+  if (O.isNone(oldModule)) {
     return {
       status: "skipped",
-      reason: "@beep/schema/Semver is gone (deleted by R1); the committed report is the record",
+      reason: "no --old-module: R1 deleted the old module, so the committed report is the only record",
     };
   }
-  const { Semver } = loaded.value;
+  const modulePath = `${repoRoot}/${oldModule.value}`;
+  const loaded: OldSchemaSemverModule = yield* Effect.tryPromise(
+    () => import(NodeURL.pathToFileURL(modulePath).href) as Promise<OldSchemaSemverModule>
+  );
+  const { Semver } = loaded;
   const parse: Record<string, Bucket> = {};
   const accepted: Array<{ readonly input: string; readonly old: unknown; readonly kit: SemVer }> = [];
   for (const input of strings) {
@@ -422,6 +430,11 @@ const bunSection = (strings: ReadonlyArray<string>) => {
   return { strings: shaped.length, pairs, same: sameCount, differences: buckets, unclassified };
 };
 
+const hasKitValidCore = (tag: string): boolean => {
+  const match = tag.match(OLD_DOCKER_VERSION);
+  return match === null || O.isSome(kitParse(`${match[1]}.${match[2]}.${match[3]}`));
+};
+
 const dockerSection = (strings: ReadonlyArray<string>) => {
   const random = lcg(SEED);
   const pool = A.flatMap(strings, (version) => [
@@ -455,12 +468,10 @@ const dockerSection = (strings: ReadonlyArray<string>) => {
         same++;
         continue;
       }
-      // The kit rejects non-SemVer cores the old `Number(...)` triple accepted (leading zeros, unsafe
-      // integers); every other difference is unclassified.
-      const nonSemverCore = A.some(tags, (tag) => {
-        const match = tag.match(OLD_DOCKER_VERSION);
-        return match !== null && O.isNone(kitParse(`${match[1]}.${match[2]}.${match[3]}`));
-      });
+      // Causal check: the kit rejects non-SemVer cores the old `Number(...)` triple accepted (leading zeros,
+      // unsafe integers). The difference is classified only if the old strategy agrees with the kit once those
+      // tags are removed; every other difference is unclassified.
+      const nonSemverCore = oldDockerSelect(image.repository, image.tag, A.filter(tags, hasKitValidCore)) === newPick;
       bump(buckets, nonSemverCore ? "non-semver-core (old triple accepted, kit rejects)" : "UNCLASSIFIED", {
         repository: image.repository,
         old: oldPick ?? null,
@@ -505,13 +516,19 @@ const program = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const commit = Str.trim(yield* spawner.string(ChildProcess.make("git", ["rev-parse", "HEAD"], { cwd: repoRoot })));
+  const oldModule = flagValue("--old-module");
+  // The restored old module is the only tolerated untracked file: it is the oracle, not a change.
+  const statusArgs = O.match(oldModule, {
+    onNone: () => ["status", "--porcelain"],
+    onSome: (path) => ["status", "--porcelain", "--", ".", `:(exclude)${path}`],
+  });
   const dirty = Str.isNonEmpty(
-    Str.trim(yield* spawner.string(ChildProcess.make("git", ["status", "--porcelain"], { cwd: repoRoot })))
+    Str.trim(yield* spawner.string(ChildProcess.make("git", statusArgs, { cwd: repoRoot })))
   );
   const corpus = yield* collectCorpus();
   const real = A.dedupe([...corpus.lockVersions, ...corpus.manifestVersions, ...corpus.pins]);
   const all = A.dedupe([...real, ...corpus.generated, ...PROBES]);
-  const schemaSemver = yield* schemaSemverSection(all);
+  const schemaSemver = yield* schemaSemverSection(all, oldModule);
   // The Bun and Docker sections are quadratic; they take the real corpus plus the probes.
   const bunLocal = bunSection(A.dedupe([...real, ...PROBES]));
   const docker = dockerSection(A.dedupe([...corpus.lockVersions.slice(0, 400), ...PROBES]));
@@ -526,6 +543,7 @@ const program = Effect.gen(function* () {
     tool: "goals/effected-promotion/ops/semver-owner-switch-differential.ts",
     commit,
     dirty,
+    oldModule: O.getOrNull(oldModule),
     seed: SEED,
     corpus: {
       bunLockVersions: corpus.lockVersions.length,
