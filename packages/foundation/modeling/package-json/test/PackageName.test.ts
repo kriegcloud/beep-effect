@@ -9,6 +9,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $PackageJsonId.create("PackageName");
 
@@ -27,7 +28,7 @@ describe("PackageName.isValid", () => {
       "my package",
       "my~package",
       "my!package",
-      "a".repeat(215),
+      Str.repeat(215)("a"),
       "",
     ]) {
       assert.isFalse(PackageName.isValid(name), name);

@@ -5,7 +5,9 @@ import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 
@@ -302,9 +304,9 @@ describe("Package.toJsonString", () => {
     Effect.gen(function* () {
       const pkg = yield* Package.decode(full);
       const json = pkg.toJsonString();
-      assert.isTrue(json.endsWith("\n"));
+      assert.isTrue(Str.endsWith("\n")(json));
       const parsed = yield* S.decodeEffect(Json)(json);
-      const keys = Object.keys(parsed);
+      const keys = R.keys(parsed);
       assert.isTrue(keys.indexOf("name") < keys.indexOf("version"));
       assert.isTrue(keys.indexOf("version") < keys.indexOf("description"));
       assert.isTrue(keys.indexOf("scripts") < keys.indexOf("dependencies"));

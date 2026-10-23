@@ -121,7 +121,7 @@ describe("Person wire-form preservation", () => {
     Effect.gen(function* () {
       const encoded = yield* roundTrip({ email: "e@x.dev", name: "Eve" });
       assertTrue(P.isObject(encoded));
-      assert.deepStrictEqual(Object.keys(encoded), ["email", "name"]);
+      assert.deepStrictEqual(R.keys(encoded), ["email", "name"]);
     })
   );
 

@@ -4,6 +4,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -65,7 +66,7 @@ describe("formatting property floor", () => {
     ([value]) =>
       Effect.gen(function* () {
         const source = '{\r\n\t"private": true,\r\n\t"custom": null\r\n}\r\n';
-        const expected = source.replace("null", yield* S.encodeEffect(Json)(value));
+        const expected = Str.replace("null", yield* S.encodeEffect(Json)(value))(source);
         const edits = yield* PackageJsonFormat.modify(source, ["custom"], value);
         const text = yield* PackageJsonFormat.modifyToString(source, ["custom"], value);
         assert.strictEqual(text, JsoncEdit.applyAll(source, edits));
@@ -87,8 +88,8 @@ describe("formatting property floor", () => {
         const prefix = '{\n    "private" : true,\n    "custom": ';
         const suffix = ',\n    "tail" : "kept"\n}\n';
         const text = yield* PackageJsonFormat.modifyToString(`${prefix}null${suffix}`, ["custom"], value);
-        assertTrue(text.startsWith(prefix));
-        assertTrue(text.endsWith(suffix));
+        assertTrue(Str.startsWith(prefix)(text));
+        assertTrue(Str.endsWith(suffix)(text));
         const parsed = yield* S.decodeEffect(CustomTailJson)(text);
         assert.deepStrictEqual(parsed, {
           private: true,

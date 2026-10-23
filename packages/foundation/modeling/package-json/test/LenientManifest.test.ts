@@ -13,6 +13,7 @@ import { LenientManifest } from "@beep/package-json/LenientManifest";
 import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -81,7 +82,7 @@ describe("LenientManifest.decodeResult", () => {
     assert.strictEqual(manifest.private, undefined);
     // A non-boolean `private` degrades rather than coercing: isPrivate false.
     assert.isFalse(manifest.isPrivate);
-    assert.deepStrictEqual(manifest.issues.map((issue) => issue.field).sort(), [
+    assert.deepStrictEqual(A.map(manifest.issues, (issue) => issue.field).sort(), [
       "author",
       "keywords",
       "name",
@@ -108,7 +109,7 @@ describe("LenientManifest.decodeResult", () => {
     assert.deepStrictEqual(manifest.devDependencies, { vitest: "^4.0.0" });
     assert.deepStrictEqual(manifest.rest?.dependencies, { effect: "^4.0.0", broken: 7 });
     assert.deepStrictEqual(
-      manifest.issues.map((issue) => issue.field),
+      A.map(manifest.issues, (issue) => issue.field),
       ["dependencies"]
     );
   });
@@ -207,7 +208,7 @@ describe("LenientManifest.parseResult", () => {
     assert.strictEqual(manifest.version, undefined);
     assert.strictEqual(manifest.license, "SEE LICENSE");
     assert.deepStrictEqual(
-      manifest.issues.map((issue) => issue.field),
+      A.map(manifest.issues, (issue) => issue.field),
       ["version"]
     );
   });

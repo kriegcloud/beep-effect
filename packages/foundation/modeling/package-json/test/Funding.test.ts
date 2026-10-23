@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `funding` — the manifest field a consumer reaches for when it wants to put a
 // sponsor link beside a maintainer's name.
 //
@@ -16,7 +15,6 @@
 //           re-encodes bare, NOT as a one-element array, and a string entry
 //           re-encodes as that exact string.
 
-import { readFileSync } from "node:fs";
 import { Funding, LenientManifest, Package, PackageManifest } from "@beep/package-json";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertTrue } from "@effect/vitest/utils";
@@ -26,6 +24,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { fixtureText } from "./support/fixtureText.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 const JsonObject = S.fromJsonString(S.Record(S.String, S.Unknown));
@@ -154,7 +153,7 @@ describe("Funding.FromField — every encoding decodes to an array", () => {
     Effect.gen(function* () {
       const entries = yield* decode(field, ["https://a.example", "https://b.example"]);
       assert.deepStrictEqual(
-        entries.map((entry) => entry.url),
+        A.map(entries, (entry) => entry.url),
         ["https://a.example", "https://b.example"]
       );
     })
@@ -167,7 +166,7 @@ describe("Funding.FromField — every encoding decodes to an array", () => {
         { type: "patreon", url: "https://patreon.com/dee" },
       ]);
       assert.deepStrictEqual(
-        entries.map((entry) => entry.type),
+        A.map(entries, (entry) => entry.type),
         ["github", "patreon"]
       );
     })
@@ -334,9 +333,7 @@ describe("Funding — `url` is required", () => {
 });
 
 describe("funding — the manifest tiers", () => {
-  const fixture: unknown = JSON.parse(
-    readFileSync(new URL("./fixtures/package-json.input.json.txt", import.meta.url), "utf8")
-  );
+  const fixture: unknown = JSON.parse(fixtureText("package-json.input.json"));
   assertTrue(P.isObject(fixture));
 
   it.effect("Package decodes and round-trips a real manifest's funding field", () =>
@@ -389,7 +386,7 @@ describe("funding — the manifest tiers", () => {
         license: "MIT",
         repository: "dee/pkg",
       })).toJsonString();
-      const keys = Object.keys(yield* S.decodeEffect(JsonObject)(json));
+      const keys = R.keys(yield* S.decodeEffect(JsonObject)(json));
       assert.isTrue(keys.indexOf("funding") > keys.indexOf("repository"));
       assert.isTrue(keys.indexOf("funding") < keys.indexOf("license"));
     })

@@ -8,7 +8,9 @@ import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import boilerplate from "./fixtures/boilerplate/package.fixture.json" with { type: "json" };
 import full from "./fixtures/full/package.fixture.json" with { type: "json" };
 import minimal from "./fixtures/minimal/package.fixture.json" with { type: "json" };
@@ -144,7 +146,7 @@ describe("PackageJsonFile round-trip", () => {
         assert.strictEqual(result.version, "2.1.0");
         assert.strictEqual(result.description, "A full package with all typed fields");
         assert.deepStrictEqual(result.dependencies, { effect: "^3.0.0", lodash: "^4.0.0" });
-        const keys = Object.keys(result);
+        const keys = R.keys(result);
         assert.isTrue(keys.indexOf("name") < keys.indexOf("version"));
         assert.isTrue(keys.indexOf("scripts") < keys.indexOf("dependencies"));
       })
@@ -205,8 +207,8 @@ describe("PackageJsonFile round-trip", () => {
         yield* file.write(outPath, pkg, { indent: "preserve" });
         const written = yield* fs.readFileString(outPath);
 
-        assert.isTrue(written.includes('\n\t"name"'));
-        assert.isTrue(written.includes('"version": "2.0.0"'));
+        assert.isTrue(Str.includes('\n\t"name"')(written));
+        assert.isTrue(Str.includes('"version": "2.0.0"')(written));
       })
     );
 
@@ -221,8 +223,8 @@ describe("PackageJsonFile round-trip", () => {
         yield* file.write(outPath, pkg, { indent: "preserve" });
         const written = yield* fs.readFileString(outPath);
 
-        assert.isTrue(written.includes('\n  "name"'));
-        assert.isFalse(written.includes("\t"));
+        assert.isTrue(Str.includes('\n  "name"')(written));
+        assert.isFalse(Str.includes("\t")(written));
       })
     );
 
@@ -294,7 +296,7 @@ describe("PackageJsonFile manifest and modify", () => {
         assert.isFalse("name" in written);
         assert.isFalse("version" in written);
         assert.strictEqual(written.packageManager, "pnpm@11.2.0");
-        assert.isTrue(raw.includes('\n\t"private"'));
+        assert.isTrue(Str.includes('\n\t"private"')(raw));
       })
     );
 
@@ -309,7 +311,7 @@ describe("PackageJsonFile manifest and modify", () => {
         const returned = yield* file.modify(path, [{ path: ["packageManager"], value: "pnpm@11.3.0" }]);
         const written = yield* fs.readFileString(path);
 
-        const expected = PRIVATE_ROOT_TEXT.replace('"pnpm@11.2.0"', '"pnpm@11.3.0"');
+        const expected = Str.replace('"pnpm@11.2.0"', '"pnpm@11.3.0"')(PRIVATE_ROOT_TEXT);
         assert.strictEqual(written, expected);
         assert.strictEqual(returned, expected);
       })
@@ -331,7 +333,7 @@ describe("PackageJsonFile manifest and modify", () => {
 
         assert.strictEqual(
           written,
-          PRIVATE_ROOT_TEXT.replace('"pnpm@11.2.0"', '"pnpm@11.3.0"').replace('"24.9.1"', '"24.10.0"')
+          Str.replace('"24.9.1"', '"24.10.0"')(Str.replace('"pnpm@11.2.0"', '"pnpm@11.3.0"')(PRIVATE_ROOT_TEXT))
         );
       })
     );

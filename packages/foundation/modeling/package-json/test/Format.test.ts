@@ -1,17 +1,18 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Formatting surface: indent modes (spaces / "tab" / "preserve"), the
 // sort-package-json@4.0.0 canonical top-level key order, map alphabetization,
 // and byte parity against frozen sort-package-json output for real manifests
 // from this repository (see fixtures/README.md for provenance).
 
-import { readFileSync } from "node:fs";
 import { renderJson, resolveFormatOptions, resolveIndent } from "@beep/package-json/internal/format";
 import { Package } from "@beep/package-json/Package";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { fixtureText } from "./support/fixtureText.ts";
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 const StringRecord = S.Record(S.String, S.String);
@@ -48,15 +49,15 @@ describe("PackageFormatOptions.indent", () => {
   it.effect("a number indents with that many spaces", () =>
     Effect.gen(function* () {
       const json = yield* decodeAndRender(minimal, { indent: 4 });
-      assert.isTrue(json.includes('\n    "name"'));
+      assert.isTrue(Str.includes('\n    "name"')(json));
     })
   );
 
   it.effect('"tab" indents with real tabs', () =>
     Effect.gen(function* () {
       const json = yield* decodeAndRender(minimal, { indent: "tab" });
-      assert.isTrue(json.includes('\n\t"name"'));
-      assert.isFalse(json.includes("  "));
+      assert.isTrue(Str.includes('\n\t"name"')(json));
+      assert.isFalse(Str.includes("  ")(json));
     })
   );
 
@@ -64,7 +65,7 @@ describe("PackageFormatOptions.indent", () => {
     Effect.gen(function* () {
       const source = '{\n\t"name": "my-pkg",\n\t"version": "1.0.0"\n}\n';
       const json = yield* decodeAndRender(minimal, { indent: "preserve", sourceText: source });
-      assert.isTrue(json.includes('\n\t"name"'));
+      assert.isTrue(Str.includes('\n\t"name"')(json));
     })
   );
 
@@ -72,15 +73,15 @@ describe("PackageFormatOptions.indent", () => {
     Effect.gen(function* () {
       const source = '{\n    "name": "my-pkg",\n    "version": "1.0.0"\n}\n';
       const json = yield* decodeAndRender(minimal, { indent: "preserve", sourceText: source });
-      assert.isTrue(json.includes('\n    "name"'));
-      assert.isFalse(json.includes("\t"));
+      assert.isTrue(Str.includes('\n    "name"')(json));
+      assert.isFalse(Str.includes("\t")(json));
     })
   );
 
   it.effect('"preserve" without sourceText falls back to the two-space default', () =>
     Effect.gen(function* () {
       const json = yield* decodeAndRender(minimal, { indent: "preserve" });
-      assert.isTrue(json.includes('\n  "name"'));
+      assert.isTrue(Str.includes('\n  "name"')(json));
     })
   );
 
@@ -90,7 +91,7 @@ describe("PackageFormatOptions.indent", () => {
         indent: "preserve",
         sourceText: '{"name":"my-pkg","version":"1.0.0"}',
       });
-      assert.isTrue(json.includes('\n  "name"'));
+      assert.isTrue(Str.includes('\n  "name"')(json));
     })
   );
 
@@ -98,8 +99,8 @@ describe("PackageFormatOptions.indent", () => {
     Effect.gen(function* () {
       const source = '{\n\t"name": "my-pkg",\n\t"version": "1.0.0"\n}\n';
       const json = yield* decodeAndRender(minimal, { indent: 2, sourceText: source });
-      assert.isTrue(json.includes('\n  "name"'));
-      assert.isFalse(json.includes("\t"));
+      assert.isTrue(Str.includes('\n  "name"')(json));
+      assert.isFalse(Str.includes("\t")(json));
     })
   );
 });
@@ -113,7 +114,7 @@ describe("canonical top-level key order (sort-package-json@4.0.0)", () => {
         engines: { node: ">=24" },
         packageManager: "pnpm@10.0.0",
       });
-      const keys = Object.keys(yield* S.decodeEffect(Json)(json));
+      const keys = R.keys(yield* S.decodeEffect(Json)(json));
       assert.isBelow(keys.indexOf("packageManager"), keys.indexOf("engines"));
       assert.isBelow(keys.indexOf("engines"), keys.indexOf("devEngines"));
     })
@@ -127,7 +128,7 @@ describe("canonical top-level key order (sort-package-json@4.0.0)", () => {
         sideEffects: false,
         author: "C. Spencer Beggs",
       });
-      const keys = Object.keys(yield* S.decodeEffect(Json)(json));
+      const keys = R.keys(yield* S.decodeEffect(Json)(json));
       assert.isBelow(keys.indexOf("author"), keys.indexOf("sideEffects"));
       assert.isBelow(keys.indexOf("sideEffects"), keys.indexOf("type"));
     })
@@ -141,7 +142,7 @@ describe("canonical top-level key order (sort-package-json@4.0.0)", () => {
         cpu: ["arm64"],
         os: ["darwin"],
       });
-      const keys = Object.keys(yield* S.decodeEffect(Json)(json));
+      const keys = R.keys(yield* S.decodeEffect(Json)(json));
       assert.isBelow(keys.indexOf("os"), keys.indexOf("cpu"));
       assert.isBelow(keys.indexOf("cpu"), keys.indexOf("publishConfig"));
     })
@@ -156,7 +157,7 @@ describe("canonical top-level key order (sort-package-json@4.0.0)", () => {
         _meta: 3,
         pnpm: { overrides: {} },
       });
-      const keys = Object.keys(yield* S.decodeEffect(Json)(json));
+      const keys = R.keys(yield* S.decodeEffect(Json)(json));
       // `pnpm` is a known key; the unknowns follow it: public sorted, then private.
       assert.isBelow(keys.indexOf("pnpm"), keys.indexOf("aardvark"));
       assert.isBelow(keys.indexOf("aardvark"), keys.indexOf("zebra"));
@@ -176,9 +177,9 @@ describe("canonical top-level key order (sort-package-json@4.0.0)", () => {
       assertTrue(S.is(StringRecord)(parsed.scripts));
       assertTrue(S.is(StringRecord)(parsed.engines));
       assertTrue(S.is(StringRecord)(parsed.bin));
-      assert.deepStrictEqual(Object.keys(parsed.scripts), ["build", "lint", "test"]);
-      assert.deepStrictEqual(Object.keys(parsed.engines), ["node", "pnpm"]);
-      assert.deepStrictEqual(Object.keys(parsed.bin), ["aaa", "zzz"]);
+      assert.deepStrictEqual(R.keys(parsed.scripts), ["build", "lint", "test"]);
+      assert.deepStrictEqual(R.keys(parsed.engines), ["node", "pnpm"]);
+      assert.deepStrictEqual(R.keys(parsed.bin), ["aaa", "zzz"]);
     })
   );
 
@@ -190,7 +191,7 @@ describe("canonical top-level key order (sort-package-json@4.0.0)", () => {
       const json = yield* decodeAndRender(raw);
       const parsed = yield* S.decodeEffect(Json)(json);
       assertTrue(S.is(StringRecord)(parsed.scripts));
-      assert.deepStrictEqual(Object.keys(parsed.scripts), ["__proto__", "a", "z"]);
+      assert.deepStrictEqual(R.keys(parsed.scripts), ["__proto__", "a", "z"]);
       assert.strictEqual(Object.getOwnPropertyDescriptor(parsed.scripts, "__proto__")?.value, "kept");
       assert.strictEqual(
         json,
@@ -266,13 +267,11 @@ describe("people-field wire form survives the strict format path", () => {
 describe("byte parity with sort-package-json@4.0.0 on real manifests", () => {
   const fixtures = ["root", "package-json", "semver", "toml", "workspaces"] as const;
 
-  const read = (name: string): string => readFileSync(new URL(`./fixtures/${name}.txt`, import.meta.url), "utf8");
-
   for (const name of fixtures) {
     it.effect(`${name}.input.json round-trips byte-identically with indent: "preserve"`, () =>
       Effect.gen(function* () {
-        const input = read(`${name}.input.json`);
-        const expected = read(`${name}.expected.json`);
+        const input = fixtureText(`${name}.input.json`);
+        const expected = fixtureText(`${name}.expected.json`);
         const raw = yield* S.decodeEffect(Json)(input);
         const output = yield* decodeAndRender(raw, { indent: "preserve", sourceText: input });
         assert.strictEqual(output, expected);
@@ -282,7 +281,7 @@ describe("byte parity with sort-package-json@4.0.0 on real manifests", () => {
 
   it.effect('tab-indented sources produce identical output via indent: "tab"', () =>
     Effect.gen(function* () {
-      const input = read("root.input.json");
+      const input = fixtureText("root.input.json");
       const raw = yield* S.decodeEffect(Json)(input);
       const viaPreserve = yield* decodeAndRender(raw, { indent: "preserve", sourceText: input });
       const viaTab = yield* decodeAndRender(raw, { indent: "tab" });

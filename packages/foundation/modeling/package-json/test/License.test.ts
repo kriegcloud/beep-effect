@@ -4,6 +4,7 @@ import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 
 describe("isValidSpdx", () => {
@@ -112,7 +113,7 @@ describe("licenseExpressionOf — the brand/grammar seam", () => {
     ]) {
       assert.isTrue(isValidSpdx(value), `isValidSpdx should admit ${value}`);
       const expr = licenseExpressionOf(brand(value));
-      const isSpecial = value === "UNLICENSED" || value.startsWith("SEE LICENSE IN ");
+      const isSpecial = value === "UNLICENSED" || Str.startsWith("SEE LICENSE IN ")(value);
       assert.strictEqual(O.isNone(expr), isSpecial, `${value}: none iff a non-SPDX spelling`);
     }
   });

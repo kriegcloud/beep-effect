@@ -2,7 +2,9 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -36,7 +38,7 @@ describe("internal format property floor", () => {
         const stripped = stripEmptyDependencyMaps(value);
         assert.deepStrictEqual(stripEmptyDependencyMaps(stripped), stripped);
         assert.deepStrictEqual(stripped.custom, value.custom);
-        assert.deepStrictEqual(stripped.scripts, Object.keys(value.scripts).length === 0 ? undefined : value.scripts);
+        assert.deepStrictEqual(stripped.scripts, R.keys(value.scripts).length === 0 ? undefined : value.scripts);
       }),
     runs
   );
@@ -62,9 +64,9 @@ describe("internal format property floor", () => {
     ([size]) =>
       Effect.sync(() => {
         const source = renderJson({ name: "p" }, resolveFormatOptions({ indent: size }));
-        assert.strictEqual(detectIndent(source), " ".repeat(size));
-        assert.strictEqual(resolveIndent("preserve", source), " ".repeat(size));
-        assert.strictEqual(resolveIndent(source)("preserve"), " ".repeat(size));
+        assert.strictEqual(detectIndent(source), Str.repeat(size)(" "));
+        assert.strictEqual(resolveIndent("preserve", source), Str.repeat(size)(" "));
+        assert.strictEqual(resolveIndent(source)("preserve"), Str.repeat(size)(" "));
       }),
     runs
   );

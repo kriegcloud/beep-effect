@@ -8,6 +8,7 @@ import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
@@ -30,7 +31,7 @@ const failure = (source: string): PackageJsonSyntaxError => {
 describe("PackageJsonFormat.sortValue (value in, value out)", () => {
   it("orders keys canonically without a decode (call-site shape: sortPackageJson(pkg))", () => {
     const sorted = PackageJsonFormat.sortValue({ version: "1.0.0", private: true, name: "p" });
-    assert.deepStrictEqual(Object.keys(sorted), ["name", "version", "private"]);
+    assert.deepStrictEqual(R.keys(sorted), ["name", "version", "private"]);
     assert.deepStrictEqual(sorted, { name: "p", version: "1.0.0", private: true });
   });
 
@@ -40,8 +41,8 @@ describe("PackageJsonFormat.sortValue (value in, value out)", () => {
       scripts: { test: "vitest", build: "tsc" },
       dependencies: { zod: "1", axios: "2" },
     });
-    assert.deepStrictEqual(Object.keys(sorted.scripts), ["build", "test"]);
-    assert.deepStrictEqual(Object.keys(sorted.dependencies), ["axios", "zod"]);
+    assert.deepStrictEqual(R.keys(sorted.scripts), ["build", "test"]);
+    assert.deepStrictEqual(R.keys(sorted.dependencies), ["axios", "zod"]);
   });
 
   it("accepts a version-less root and a private-only root", () => {
@@ -70,7 +71,7 @@ describe("PackageJsonFormat.sortValue (value in, value out)", () => {
   it("does not mutate its input", () => {
     const input = { version: "1.0.0", name: "p" };
     const sorted = PackageJsonFormat.sortValue(input);
-    assert.deepStrictEqual(Object.keys(input), ["version", "name"]);
+    assert.deepStrictEqual(R.keys(input), ["version", "name"]);
     assert.notStrictEqual(sorted, input);
   });
 

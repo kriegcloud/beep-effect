@@ -18,6 +18,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // Keys deliberately out of canonical order: dependencies before name,
 // devEngines before version, scripts unsorted.
@@ -46,14 +47,14 @@ describe("PackageJsonFormat.modifyToString", () => {
   it.effect("replaces one top-level value and preserves every other byte", () =>
     Effect.gen(function* () {
       const output = yield* PackageJsonFormat.modifyToString(UNSORTED, ["packageManager"], "pnpm@11.3.0");
-      assert.strictEqual(output, UNSORTED.replace('"pnpm@11.2.0"', '"pnpm@11.3.0"'));
+      assert.strictEqual(output, Str.replace('"pnpm@11.2.0"', '"pnpm@11.3.0"')(UNSORTED));
     })
   );
 
   it.effect("replaces a nested value and preserves every other byte", () =>
     Effect.gen(function* () {
       const output = yield* PackageJsonFormat.modifyToString(UNSORTED, ["devEngines", "runtime", "version"], "24.10.0");
-      assert.strictEqual(output, UNSORTED.replace('"version": "24.9.1"', '"version": "24.10.0"'));
+      assert.strictEqual(output, Str.replace('"version": "24.9.1"', '"version": "24.10.0"')(UNSORTED));
     })
   );
 
@@ -161,7 +162,7 @@ describe("PackageJsonFormat.modify", () => {
         return assert.fail("expected exactly one edit");
       }
       assert.strictEqual(edit.content, '"pnpm@11.3.0"');
-      assert.strictEqual(UNSORTED.slice(edit.offset, edit.offset + edit.length), '"pnpm@11.2.0"');
+      assert.strictEqual(Str.slice(edit.offset, edit.offset + edit.length)(UNSORTED), '"pnpm@11.2.0"');
     })
   );
 });

@@ -4,6 +4,7 @@ import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>, sample: S.Codec<T, unknown> = schema): void => {
@@ -47,7 +48,7 @@ it.effect.prop(
           assert.deepStrictEqual(reparsed.value, expression.value);
         }
       } else {
-        assert.isTrue(license === "UNLICENSED" || license.startsWith("SEE LICENSE IN "));
+        assert.isTrue(license === "UNLICENSED" || Str.startsWith("SEE LICENSE IN ")(license));
       }
     }),
   runs

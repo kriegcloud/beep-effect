@@ -11,9 +11,11 @@
 import { Package } from "@beep/package-json/Package";
 import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 
@@ -35,7 +37,7 @@ describe("PackageManifest.decode", () => {
       assert.strictEqual(manifest.packageManager?.range, "11.2.0");
       assert.isTrue(manifest.packageManager?.isExact);
       const runtime = manifest.devEngines?.runtime;
-      assert.isTrue(runtime !== undefined && !Array.isArray(runtime));
+      assert.isTrue(runtime !== undefined && !A.isArray(runtime));
     })
   );
 
@@ -162,7 +164,7 @@ describe("PackageManifest wire fidelity", () => {
       assert.strictEqual(parsed.packageManager, "pnpm@11.2.0");
       assert.isFalse("name" in parsed);
       assert.isFalse("dependencies" in parsed);
-      assert.isTrue(text.endsWith("\n"));
+      assert.isTrue(Str.endsWith("\n")(text));
     })
   );
 });
