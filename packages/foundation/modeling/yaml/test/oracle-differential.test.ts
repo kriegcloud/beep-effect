@@ -15,6 +15,8 @@
 // - Authored: 2026-08-12, offline, in a scratch script outside the test run
 // - Plain-scalar continuation group: authored 2026-10-23 against `yaml@2.9.1`
 //   the same way (effected-promotion wave 3, W3-d)
+// - Compact-sequence and block-scalar-item groups: authored 2026-10-23
+//   against `yaml@2.9.1` the same way (#2131)
 // - Case matrix extended from the savvy-web-systems dogfood sweep of the same
 //   date (51 cases, double-oracle: yaml@2.9.0 + js-yaml@4.3.1, a case counted
 //   only where both agreed)
@@ -356,6 +358,80 @@ const plainContinuationCases: ReadonlyArray<OracleCase> = [
   },
 ];
 
+// YAML 1.2 lets a block mapping value be a block sequence at the mapping's
+// own indent (l+block-sequence(n-1), "compact" indentation). Inside a
+// sequence item the mapping's keys sit past the dash, and the lexer opens the
+// scope only for the first such sequence, so a second key with a compact
+// sequence value failed with InvalidIndentation (#2131).
+const compactSequenceInItemCases: ReadonlyArray<OracleCase> = [
+  { name: "the #2131 repro", input: "- a:\n  - 0\n  b:\n  - false\n", expected: [{ a: [0], b: [false] }] },
+  {
+    name: "a third key with a compact sequence",
+    input: "- a:\n  - 0\n  b:\n  - false\n  c:\n  - x\n  - y\n",
+    expected: [{ a: [0], b: [false], c: ["x", "y"] }],
+  },
+  {
+    name: "a comment between the keys",
+    input: "- a:\n  - 0\n  # note\n  b:\n  - false\n",
+    expected: [{ a: [0], b: [false] }],
+  },
+  {
+    name: "flow values beside compact sequences",
+    input: "- a:\n  - 0\n  b: [1, 2]\n  c:\n  - {x: 1}\n",
+    expected: [{ a: [0], b: [1, 2], c: [{ x: 1 }] }],
+  },
+  { name: "under a top-level mapping", input: "p:\n  - a:\n    - 0\n    b: 1\n", expected: { p: [{ a: [0], b: 1 }] } },
+  {
+    name: "under a top-level mapping, two compact sequences",
+    input: "p:\n  - a:\n    - 0\n    b:\n    - 1\n",
+    expected: { p: [{ a: [0], b: [1] }] },
+  },
+  { name: "inside a nested sequence", input: "- - a:\n    - 0\n    b:\n    - 1\n", expected: [[{ a: [0], b: [1] }]] },
+  {
+    name: "mapping items inside the compact sequence",
+    input: "- a:\n  - x: 1\n    y: 2\n  b:\n  - 3\n",
+    expected: [{ a: [{ x: 1, y: 2 }], b: [3] }],
+  },
+  {
+    name: "a deeper sequence after a compact one",
+    input: "- a:\n  - 0\n  b:\n   - 1\n",
+    expected: [{ a: [0], b: [1] }],
+  },
+  {
+    name: "two sequence items",
+    input: "- a:\n  - 0\n  b:\n  - 1\n- c:\n  - 2\n  d:\n  - 3\n",
+    expected: [
+      { a: [0], b: [1] },
+      { c: [2], d: [3] },
+    ],
+  },
+  { name: "wide entry indentation", input: "-   a:\n    - 0\n    b:\n    - 1\n", expected: [{ a: [0], b: [1] }] },
+];
+
+// A block scalar's token swallows the line breaks of its body, so the
+// implicit-mapping lookahead for a sequence item ran past it and took the
+// next line's `key:` for the item's own value indicator: `a:\n- >-\n  x\nb: 1`
+// parsed as `{a: [{x: null, b: 1}]}` with no diagnostic, and the indented
+// spelling failed (found by the #2131 corpus differential).
+const blockScalarItemCases: ReadonlyArray<OracleCase> = [
+  { name: "folded strip item before a sibling", input: "a:\n- >-\n  x\nb: 1\n", expected: { a: ["x"], b: 1 } },
+  { name: "literal item before a flow sibling", input: "a:\n- |\n  x\nb: []\n", expected: { a: ["x\n"], b: [] } },
+  {
+    name: "two folded items before a sibling",
+    input: "a:\n- >-\n  x\n- >-\n  y\nb: 1\n",
+    expected: { a: ["x", "y"], b: 1 },
+  },
+  { name: "indented sequence before a sibling", input: "a:\n  - >-\n    x\nb: 1\n", expected: { a: ["x"], b: 1 } },
+  { name: "tagged item before a sibling", input: "a:\n- !!str >-\n  x\nb: 1\n", expected: { a: ["x"], b: 1 } },
+  { name: "anchored item before a sibling", input: "a:\n- &k |\n  x\nb: 1\n", expected: { a: ["x\n"], b: 1 } },
+  { name: "key-shaped body line stays scalar text", input: "- |\n  x\n  y: 1\n", expected: ["x\ny: 1\n"] },
+  {
+    name: "keep-chomp item in an indented sequence",
+    input: "m:\n  - |+\n    text\n\nb: 1\n",
+    expected: { m: ["text\n\n"], b: 1 },
+  },
+];
+
 const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["controls", controlCases],
   ["dedent after a trailing comment", dedentCases],
@@ -365,6 +441,8 @@ const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["empty values before a sibling key", emptyValueCases],
   ["real-world shapes", realWorldCases],
   ["plain-scalar continuation lines", plainContinuationCases],
+  ["compact sequence values in sequence-item mappings", compactSequenceInItemCases],
+  ["block scalar sequence items before a sibling", blockScalarItemCases],
 ];
 
 describe("oracle-differential (yaml@2.9.0 semantic expectations)", () => {
