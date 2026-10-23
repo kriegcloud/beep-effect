@@ -17,13 +17,13 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { BunExtension } from "../BunExtension.ts";
-import { ImporterDependency } from "../ImporterDependency.ts";
 import { LockfileImporter } from "../LockfileImporter.ts";
 import { PnpmExtension } from "../PnpmExtension.ts";
 import { ResolvedPackage } from "../ResolvedPackage.ts";
 import { WorkspaceDependency } from "../WorkspaceDependency.ts";
 import type { DependencyField } from "@beep/npm-spec/DependencySection";
 import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
+import type { ImporterDependency } from "../ImporterDependency.ts";
 import type { UnsupportedLockfileVersion } from "../UnsupportedLockfileVersion.ts";
 
 const $I = $LockfilesId.create("internal/shared");
@@ -304,6 +304,10 @@ const recordedVersion = (version: string | undefined): { readonly version?: stri
     : { version: resolved.plain, ...O.getSomesStruct({ peerSuffix: O.fromUndefinedOr(resolved.peerSuffix) }) };
 };
 
+// The plain constructor input of an `ImporterDependency`, admitted once by
+// `LockfileImporter.make`.
+type ImporterDependencyInput = (typeof ImporterDependency)["~type.make.in"];
+
 /**
  * Build one {@link ImporterDependency}, decoding the raw specifier string into
  * the `@effected/npm` `ClassifiedSpecifier` tagged union. Returns
@@ -317,6 +321,10 @@ const recordedVersion = (version: string | undefined): { readonly version?: stri
  * in `peerSuffix`. A version that is *only* a peer chain (empty plain part) is
  * treated as no concrete version — a skip of both fields, never a throw.
  *
+ * The entry is a plain constructor input, not an admitted record:
+ * `LockfileImporter.make` validates it once, so a dependency is never walked
+ * twice on the parse path (W3-g).
+ *
  * @internal
  */
 const buildImporterDependency: {
@@ -325,12 +333,12 @@ const buildImporterDependency: {
     specifier: string,
     depType: DependencyField,
     version: string | undefined
-  ): O.Option<ImporterDependency>;
+  ): O.Option<ImporterDependencyInput>;
   (
     specifier: string,
     depType: DependencyField,
     version: string | undefined
-  ): (name: string) => O.Option<ImporterDependency>;
+  ): (name: string) => O.Option<ImporterDependencyInput>;
 } = dual(
   4,
   (
@@ -338,11 +346,17 @@ const buildImporterDependency: {
     specifier: string,
     depType: DependencyField,
     version: string | undefined
-  ): O.Option<ImporterDependency> =>
+  ): O.Option<ImporterDependencyInput> =>
     name === ""
       ? O.none()
-      : O.map(Exit.getSuccess(decodeSpecifier(specifier)), (classified) =>
-          ImporterDependency.make({ name, specifier: classified, depType, ...recordedVersion(version) })
+      : O.map(
+          Exit.getSuccess(decodeSpecifier(specifier)),
+          (classified): ImporterDependencyInput => ({
+            name,
+            specifier: classified,
+            depType,
+            ...recordedVersion(version),
+          })
         )
 );
 
@@ -381,17 +395,17 @@ export type ImporterSections<V> = { readonly [K in DependencyField]?: Readonly<R
 export const importerDependencies: {
   <V>(
     read: (value: V) => { readonly specifier: string; readonly version?: string }
-  ): (entry: ImporterSections<V>) => ReadonlyArray<ImporterDependency>;
+  ): (entry: ImporterSections<V>) => ReadonlyArray<ImporterDependencyInput>;
   <V>(
     entry: ImporterSections<V>,
     read: (value: V) => { readonly specifier: string; readonly version?: string }
-  ): ReadonlyArray<ImporterDependency>;
+  ): ReadonlyArray<ImporterDependencyInput>;
 } = dual(
   2,
   <V>(
     entry: ImporterSections<V>,
     read: (value: V) => { readonly specifier: string; readonly version?: string }
-  ): ReadonlyArray<ImporterDependency> =>
+  ): ReadonlyArray<ImporterDependencyInput> =>
     A.flatMap(DEP_TYPES, (field) =>
       A.flatMap(R.toEntries(entry[field] ?? {}), ([name, value]) => {
         const { specifier, version } = read(value);
