@@ -116,7 +116,7 @@ export type YeetCheckRegistration = typeof YeetCheckRegistration.Type;
  * **Example** (Classify an unregistered head)
  *
  * ```ts
- * import { RepoStepRunResult } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoStepRunResult } from "@beep/repo-cli/test/RepoRun"
  * import { yeetCheckRegistration } from "@beep/repo-cli/test/Yeet"
  *
  * const result = RepoStepRunResult.make({

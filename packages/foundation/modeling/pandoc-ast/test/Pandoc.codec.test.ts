@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   decodePandocJson,
   decodePandocJsonLossless,
@@ -176,7 +177,7 @@ const pinnedPandocConstructorNames = [
 const fixture = Effect.fn("PandocCodecTest.fixture")((name: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    return yield* fs.readFileString(new URL(`./fixtures/${name}`, import.meta.url).pathname);
+    return yield* fs.readFileString(NodeURL.fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)));
   })
 );
 

@@ -237,6 +237,7 @@ const generatedComposers = $I.compose(
   "repo-tsconfig",
   "package-json",
   "config-file",
+  "lockfiles",
   "xdg"
 );
 
@@ -3443,6 +3444,23 @@ export const $PackageJsonId: Identity.IdentityComposer<"@beep/package-json"> = c
  * @since 0.0.0
  */
 export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = composers.$ConfigFileId;
+
+/**
+ * Identity composer for `@beep/lockfiles`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $LockfilesId } from "@beep/identity/packages"
+ *
+ * const id = $LockfilesId.make("Lockfiles")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
 
 /**
  * Identity composer for `@beep/xdg`.

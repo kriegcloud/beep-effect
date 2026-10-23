@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import {
   decodeSkillEffective,
   decodeSkillLicense,
@@ -68,7 +69,7 @@ import type { SkillMigrationRow, VendoredMigrationRow } from "@beep/repo-cli/com
 
 const PINNED_SHADCN_REVISION = "91f21dfe1328585670275781b4525fff2507f917";
 
-const fixtureRoot = new URL("./fixtures/skills-provenance", import.meta.url).pathname;
+const fixtureRoot = NodeURL.fileURLToPath(new URL("./fixtures/skills-provenance", import.meta.url));
 const textEncoder = new TextEncoder();
 const emptyDigest = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const hashBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
@@ -1386,7 +1387,7 @@ describe("live pinned skill transport", () => {
     ),
     Layer.provideMerge(TestLayer)
   );
-  layer(TransportLayer)((it) => {
+  layer(TransportLayer, { timeout: "60 seconds" })((it) => {
     it.effect("bounds path history, distinguishes absence from unavailability, and caches pinned blobs", () =>
       Effect.gen(function* () {
         const upstream = yield* SkillUpstreamContentSource;

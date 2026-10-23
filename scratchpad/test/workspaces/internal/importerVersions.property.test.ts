@@ -3,7 +3,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { importerVersionsOf, unanimousVersionOf } from "../../../effected/workspaces/internal/importerVersions.ts";
 
 const runs = { arbitrary: fcRuns(100) };

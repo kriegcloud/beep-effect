@@ -1,7 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { PnpmEnvLockfile } from "../../effected/lockfiles/index.ts";
+import { PnpmEnvLockfile } from "@beep/lockfiles";
 import { expectedIntegrity } from "../../effected/workspaces/internal/configDependencyFetch.ts";
 
 const integrity = "sha512-YWJj";

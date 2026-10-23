@@ -129,7 +129,7 @@ const attempt = <A>(
  * **Example** (Try to remove a directory that may hold files)
  *
  * ```ts
- * import { removeEmptyDirectory } from "@beep/repo-cli/internal/repo-run/DirectoryHandle"
+ * import { removeEmptyDirectory } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.isEffect(removeEmptyDirectory("goals/abandoned-claim"))) // true
