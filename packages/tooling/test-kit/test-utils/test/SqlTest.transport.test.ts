@@ -79,7 +79,7 @@ describe("SqlTest transport lifecycle", () => {
           expect(yield* sql`SELECT value FROM transport_probe`).toEqual([{ value: 42 }]);
           const info = yield* TestDatabaseInfo;
           expect(info.driver).toBe("bun-sqlite");
-          expect(O.getOrThrow(info.databasePath)).toMatch(/sqlite/);
+          expect(O.getOrThrow(info.databasePath)).toMatch(/\/test\.db$/);
         })
       );
     }
