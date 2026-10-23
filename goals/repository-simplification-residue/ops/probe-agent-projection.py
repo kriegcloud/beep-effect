@@ -19,6 +19,21 @@ def canonical(body):
                      '(`.repos/effect`, Effect `main` is v4) — never training-data priors.'))
 
 
+def validate_response(parsed, expected_role, source):
+    """Require the source-declared identity and three distinct source excerpts."""
+    if parsed.get('role') != expected_role:
+        raise ValueError('Specialist role does not match the parsed source name')
+    constraints = parsed.get('constraints')
+    if (not isinstance(constraints, list) or len(constraints) != 3
+            or not all(isinstance(item, str) and item.strip() for item in constraints)):
+        raise ValueError('Expected three nonempty string constraints')
+    # Canonical discovery aliases and whitespace wrapping are not semantic changes.
+    normalized = [' '.join(canonical(item).split()) for item in constraints]
+    source_body = ' '.join(canonical(source).split())
+    if len(set(normalized)) != 3 or not all(item in source_body for item in normalized):
+        raise ValueError('Constraints must be distinct verbatim excerpts of the parsed source')
+
+
 results = []
 assert (ROOT / 'CLAUDE.md').resolve() == ROOT / 'AGENTS.md'
 assert (ROOT / '.agents/skills').resolve() == (ROOT / '.claude/skills').resolve()
@@ -43,7 +58,9 @@ for path in native_paths:
             '-c', 'developer_instructions=' + json.dumps(native['developer_instructions']),
             '--json', '-o', str(OUT / (path.stem + '.txt')),
             'Instruction activation probe only. Do not use tools, edit files, delegate, or perform a review. '
-            'State your specialist role and three binding constraints from your developer instructions. '
+            f'Set role to exactly {native["name"]!r}. Copy three distinct complete binding constraints '
+            'verbatim from the specialist definition in developer_instructions (preserve wording and Markdown). '
+            'Exclude harness-level rules and repository-wide instructions outside that specialist definition. '
             'Return a short JSON object with role and constraints.']
     run = subprocess.run(argv, cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True, text=True)
     (OUT / (path.stem + '.jsonl')).write_text(run.stdout)
@@ -52,12 +69,26 @@ for path in native_paths:
     response = response_path.read_text() if response_path.exists() else ''
     if run.returncode == 0:
         parsed = json.loads(response)
-        assert isinstance(parsed['role'], str) and len(parsed['constraints']) == 3
+        validate_response(parsed, metadata['name'], source)
+        negative_checks = {}
+        for label, invalid in {
+                'mismatched_role': {**parsed, 'role': metadata['name'] + '-wrong'},
+                'invented_constraint': {**parsed, 'constraints': [
+                    *parsed['constraints'][:2], 'Invented constraint absent from the source.']},
+        }.items():
+            try:
+                validate_response(invalid, metadata['name'], source)
+            except ValueError:
+                negative_checks[label] = 'rejected'
+            else:
+                raise AssertionError(f'Negative check unexpectedly passed: {label}')
     result = {'role': path.stem, 'source': str(source_path.relative_to(ROOT)),
               'native': str(path.relative_to(ROOT)), 'native_sha256': before,
               'fields': sorted(native), 'canonical_body_equal': True,
               'exit': run.returncode,
-              'response': response}
+              'response': response,
+              'identity_and_source_constraints_valid': run.returncode == 0,
+              'negative_checks': negative_checks if run.returncode == 0 else {}}
     assert hashlib.sha256(path.read_bytes()).hexdigest() == before
     results.append(result)
     (OUT / 'results.json').write_text(json.dumps(results, indent=2) + '\n')

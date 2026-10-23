@@ -7,7 +7,12 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"Architecture guardian for the beep-effect repo\",\n  \"constraints\": [\n    \"Review only; do not edit files.\",\n    \"Treat architecture docs as binding target doctrine and report conflicting code as drift unless the rule is explicitly transitional.\",\n    \"Rank findings by severity and include the path, cited rule, substantive violation, smallest compliant remedy, and classification.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"architecture-guardian\",\n  \"constraints\": [\n    \"You review; you do\\nnot edit.\",\n    \"Treat the architecture docs as target doctrine: when code disagrees\\nwith docs, report it as drift unless the docs mark the rule transitional.\",\n    \"Never propose remedies that themselves violate\\nrouting (e.g. new grab-bag packages).\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   },
   {
     "role": "code-patterns-strategist",
@@ -17,7 +22,12 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"Read-only code-patterns strategist for the beep-effect repo\",\n  \"constraints\": [\n    \"Search live source, package barrels, and existing internal modules before proposing a new shared helper, schema, service, or utility.\",\n    \"Design consolidations that preserve every call site's behavior; flag behavior unification as an explicit caller decision.\",\n    \"Provide source-grounded findings with file-and-line evidence, consumer counts, and estimated LOC savings without modifying files.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"code-patterns-strategist\",\n  \"constraints\": [\n    \"You are read-only.\",\n    \"State LOC\\nsaved and consumer count so the caller can judge leverage.\",\n    \"If nothing suitable\\nexists and new code is justified, say so explicitly and route its home via the\\narchitecture docs.\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   },
   {
     "role": "crispener",
@@ -27,7 +37,12 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"crispener for the beep-effect repo\",\n  \"constraints\": [\n    \"Read and follow .agents/skills/crispen/SKILL.md for each task, including its scope limits and required references.\",\n    \"Preserve behavior: keep the same accepted inputs, rejections, and outputs; report observable behavior changes as decisions instead of applying them.\",\n    \"Work only on caller-scoped code, respecting AGENTS.md code laws and keeping surviving exports' JSDoc compliant.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"crispener\",\n  \"constraints\": [\n    \"- Behavior-preserving: same accepted inputs, same rejections, same outputs.\\n  When absorbing an invariant changes observable behavior (e.g. a previously\\n  silent coercion becomes a parse error), stop and report it as a decision\\n  instead of applying it.\",\n    \"- Work only on code the caller scoped you to; crispening is opportunistic on\\n  touched code, not a license for repo-wide sweeps.\",\n    \"- Keep JSDoc on surviving exports rubric-compliant\\n  (`.patterns/jsdoc-documentation.md`); deleting code may not orphan its docs.\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   },
   {
     "role": "effect-first-developer",
@@ -37,7 +52,12 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"Effect-first implementer for the beep-effect repo\",\n  \"constraints\": [\n    \"Read the canonical Effect-first development skill and AGENTS.md before repo work.\",\n    \"Prefer Effect helper modules, typed errors, tagged unions, and explicit service boundaries; validate v4 APIs against the local Effect source.\",\n    \"Before handing back package changes, run the owning package's check and tests, plus docgen:local when exports change, and report failures honestly.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"effect-first-developer\",\n  \"constraints\": [\n    \"- Search for existing helpers before writing new ones (`AGENTS.md`\\n  \\\"Discovery & Reuse\\\"); prefer extending an existing owner module.\",\n    \"- Match the surrounding file's idiom, import aliases (`A`, `O`, `S`, `Str`,\\n  `F.pipe`), and comment density.\",\n    \"- When splitting or moving code, preserve behavior exactly: same error\\n  channels, same emitted strings, same ordering. Consolidations parameterize\\n  divergences; they never silently unify behavior.\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   },
   {
     "role": "jsdoc-annotation-specialist",
@@ -47,7 +67,12 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"JSDoc annotation specialist for the beep-effect repo\",\n  \"constraints\": [\n    \"Read .patterns/jsdoc-documentation.md and .agents/skills/jsdoc-annotation-specialist/SKILL.md before each task.\",\n    \"Every export must have a meaningful, compilable, titled **Example** (Title) section; @example and @remarks tags are forbidden.\",\n    \"Do not change runtime code; verify documentation changes with bun run docgen:local and the owning package check before returning.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"jsdoc-annotation-specialist\",\n  \"constraints\": [\n    \"- Every export: at least one **compilable, meaningful** titled\\n  `**Example** (Title)` section that shows the symbol doing its actual job with\\n  realistic inputs. `@example` and `@remarks` are forbidden repo-wide and fail\\n  the `jsdoc-ratchet` zero-legacy gate. Placeholder examples \u2014\\n  `import { fn } from \\\"...\\\"; console.log(fn)` \u2014 are defects: replace them on\\n  sight, never write them.\",\n    \"- Do not change runtime code. If a symbol is undocumentable because its\\n  behavior is unclear, report that instead of writing vague prose.\",\n    \"- When a file mixes upgraded and placeholder docs, upgrade the whole file \u2014\\n  a touched file returns fully rubric-compliant.\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   },
   {
     "role": "modularization-analyst",
@@ -57,7 +82,12 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"Modularization analyst for the beep-effect repo\",\n  \"constraints\": [\n    \"Remain strictly read-only: design file splits, never perform them.\",\n    \"Read the entire target file and required architecture anchors before analyzing a split.\",\n    \"Ground split plans in actual symbol coupling and canonical or earned semantic role files; never propose *.utils.ts targets.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"modularization-analyst\",\n  \"constraints\": [\n    \"You are strictly read-only.\",\n    \"1. Read the ENTIRE target file (in chunks for large files) plus the signatures\\n   of its imports where needed. Never design a split from a skim.\",\n    \"2. Cluster symbols into concerns by coupling: which symbols call/reference each\\n   other, which share state, which share only types. Natural seams are the\\n   low-coupling boundaries between clusters \u2014 never split mid-cluster to hit a\\n   line count.\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   },
   {
     "role": "schema-first-developer",
@@ -67,6 +97,11 @@
     "fields": ["description", "developer_instructions", "name"],
     "canonical_body_equal": true,
     "exit": 0,
-    "response": "{\n  \"role\": \"Schema-first developer for the beep-effect repo\",\n  \"constraints\": [\n    \"Design in order: schema/data model, then service contract, then implementation.\",\n    \"Before authoring a schema, search upstream effect/Schema, @beep/schema concepts, package-local schemas, and sibling internal areas; reuse or extend the existing owner.\",\n    \"Every exported schema must carry JSDoc that follows .patterns/jsdoc-documentation.md.\"\n  ]\n}"
+    "response": "{\n  \"role\": \"schema-first-developer\",\n  \"constraints\": [\n    \"- Design order is schema/data-model -> service contract -> implementation;\\n  never helpers-first.\",\n    \"- Wire contracts consumed by more than one module get ONE shared schema module\\n  so format drift becomes a type error.\",\n    \"- Every exported schema carries JSDoc per `.patterns/jsdoc-documentation.md`.\"\n  ]\n}",
+    "identity_and_source_constraints_valid": true,
+    "negative_checks": {
+      "mismatched_role": "rejected",
+      "invented_constraint": "rejected"
+    }
   }
 ]
