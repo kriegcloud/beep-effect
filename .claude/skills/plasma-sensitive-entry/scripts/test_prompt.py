@@ -65,9 +65,6 @@ class PromptTests(unittest.TestCase):
         self.assert_no_delivery()
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 class ProcessTests(unittest.TestCase):
     """Exercise real child cleanup and pipe delivery with synthetic executables."""
     def test_direct_askpass_invocation_refuses_without_output(self):
@@ -103,13 +100,49 @@ class InstallTests(unittest.TestCase):
             instructions = home / ".codex/AGENTS.md"
             instructions.parent.mkdir()
             instructions.write_text("Existing human instructions.\n")
+            instructions.chmod(0o640)
             install.install(home, source)
             first = instructions.read_text()
             install.install(home, source)
             self.assertEqual(instructions.read_text(), first)
             self.assertTrue(first.startswith("Existing human instructions.\n"))
             self.assertEqual(first.count(install.START), 1)
+            self.assertEqual(instructions.stat().st_mode & 0o777, 0o640)
             self.assertEqual((home / ".agents/skills/plasma-sensitive-entry").resolve(), source)
+
+    def test_existing_instructions_symlink_refuses_before_mutation(self):
+        from pathlib import Path
+        import tempfile
+        import install
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            original = home / "owned-instructions"
+            original.write_text("Human instructions.\n")
+            instructions = home / ".codex/AGENTS.md"
+            instructions.parent.mkdir()
+            instructions.symlink_to(original)
+            with self.assertRaises(RuntimeError):
+                install.install(home, home / "source")
+            self.assertEqual(original.read_text(), "Human instructions.\n")
+            self.assertTrue(instructions.is_symlink())
+            self.assertFalse((home / ".agents/skills/plasma-sensitive-entry").exists())
+
+    def test_failed_replace_preserves_existing_instructions(self):
+        from pathlib import Path
+        import tempfile
+        import install
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            source = home / "source"
+            source.mkdir()
+            instructions = home / ".codex/AGENTS.md"
+            instructions.parent.mkdir()
+            instructions.write_text("Human instructions.\n")
+            with patch.object(install.os, "replace", side_effect=OSError("synthetic replace failure")):
+                with self.assertRaises(OSError):
+                    install.install(home, source)
+            self.assertEqual(instructions.read_text(), "Human instructions.\n")
+            self.assertEqual(list(instructions.parent.glob(".AGENTS.md.*")), [])
 
     def test_competing_install_refuses_before_mutation(self):
         from pathlib import Path
@@ -260,3 +293,7 @@ class RefusalLifecycleTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 adapter.main()
             kill.assert_called_once_with(424242, signal.SIGTERM)
+
+
+if __name__ == "__main__":
+    unittest.main()

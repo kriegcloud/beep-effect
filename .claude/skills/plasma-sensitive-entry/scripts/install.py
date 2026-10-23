@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Install global discovery links and a small Codex default rule, preserving content."""
-from pathlib import Path
+import os
+import stat
 import sys
+import tempfile
+from pathlib import Path
 
 START = "<!-- plasma-sensitive-entry:begin -->"
 END = "<!-- plasma-sensitive-entry:end -->"
@@ -21,7 +24,10 @@ precedence. If secure GUI delivery is unavailable, stop sensitive collection.
 def install(home, source):
     targets = [home / ".agents/skills/plasma-sensitive-entry", home / ".claude/skills/plasma-sensitive-entry"]
     instructions = home / ".codex/AGENTS.md"
+    if instructions.is_symlink():
+        raise RuntimeError("Existing Codex instructions symlink requires reconciliation.")
     original = instructions.read_text() if instructions.exists() else ""
+    existing_mode = stat.S_IMODE(instructions.stat().st_mode) if instructions.exists() else None
     # Preflight every target before writing anything; never replace another skill.
     for target in targets:
         if target.is_symlink():
@@ -42,7 +48,19 @@ def install(home, source):
         if not target.is_symlink():
             target.symlink_to(source, target_is_directory=True)
     instructions.parent.mkdir(parents=True, exist_ok=True)
-    instructions.write_text(updated)
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", dir=instructions.parent, prefix=f".{instructions.name}.", delete=False) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(updated)
+            temporary.flush()
+            os.fsync(temporary.fileno())
+        if existing_mode is not None:
+            temporary_path.chmod(existing_mode)
+        os.replace(temporary_path, instructions)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
