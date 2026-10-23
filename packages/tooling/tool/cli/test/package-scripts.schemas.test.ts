@@ -162,12 +162,9 @@ describe("canonical package scripts schemas", () => {
       false,
     ]);
     expect(NonCanonicalChecker.literals).toEqual(["tsgo", "tsc"]);
-    const decodeExemption = S.decodeUnknownResult(CheckerEngineExemption);
     const row = { manifest: "packages/a/package.json", script: "beep:check", engine: "tsgo", reason: "tsc-rs defect" };
-    expect(Result.isSuccess(decodeExemption(row))).toBe(true);
-    expect(Result.isFailure(decodeExemption({ ...row, engine: "tsc-rs" }))).toBe(true);
-    expect(Result.isFailure(decodeExemption({ ...row, reason: "" }))).toBe(true);
-    expect(Result.isFailure(decodeExemption({ ...row, script: "beep:lint" }))).toBe(true);
+    const rows = [row, { ...row, engine: "tsc-rs" }, { ...row, reason: "" }, { ...row, script: "beep:lint" }];
+    expect(A.map(rows, S.is(CheckerEngineExemption))).toEqual([true, false, false, false]);
     expect(checkerEngineExemptions).toEqual([]);
   });
 });
