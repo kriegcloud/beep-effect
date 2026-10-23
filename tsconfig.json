@@ -2321,6 +2321,9 @@
       ],
       "@beep/github-reporting/*": [
         "./packages/foundation/modeling/github-reporting/src/*"
+      ],
+      "@beep/github-reporting/internal/*": [
+        "./packages/foundation/modeling/github-reporting/src/internal/*"
       ]
     }
   }

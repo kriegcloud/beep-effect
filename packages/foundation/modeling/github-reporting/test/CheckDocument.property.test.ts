@@ -1,14 +1,14 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   CheckDocumentError,
   CheckDocumentSnapshot,
   CheckDocumentStamp,
   CheckReport,
-} from "../../effected/github-actions/CheckDocument.ts";
+} from "@beep/github-reporting/CheckDocument";
+import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -35,9 +35,9 @@ describe("CheckDocument property floor", () => {
   roundTrips("CheckDocumentStamp", CheckDocumentStamp);
 });
 
+import { CheckDocument } from "@beep/github-reporting/CheckDocument";
 import * as Layer from "effect/Layer";
 import * as Ref from "effect/Ref";
-import { CheckDocument } from "../../effected/github-actions/CheckDocument.ts";
 
 it.effect.prop(
   "the same run and report reproduce identical document bytes and suppress the second write",

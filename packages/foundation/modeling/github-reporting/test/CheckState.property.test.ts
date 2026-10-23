@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { CheckState, UnhandledCheckStateError } from "@beep/github-reporting/CheckState";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { CheckState, UnhandledCheckStateError } from "../../effected/github-actions/CheckState.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {

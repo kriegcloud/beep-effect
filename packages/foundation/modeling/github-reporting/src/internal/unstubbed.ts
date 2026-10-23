@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubReportingId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 // The one way an unstubbed test-double member dies, for every `makeTest` in
 // this package.
@@ -10,7 +10,7 @@ import * as S from "effect/Schema";
 
 import * as Effect from "effect/Effect";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/unstubbed");
+const $I = $GithubReportingId.create("internal/unstubbed");
 
 /**
  * A test-double member was called without an override.
@@ -18,7 +18,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/unstubbed");
  * **Example** (Construct an unstubbed-member error)
  *
  * ```ts
- * import { UnstubbedMemberError } from "@beep/scratchpad/effected/github-actions/internal/unstubbed"
+ * import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed"
  *
  * const error = UnstubbedMemberError.make({ message: "Cache: save() needs an override." })
  * console.log(error.message) // Cache: save() needs an override.
@@ -47,7 +47,7 @@ export class UnstubbedMemberError extends S.TaggedError<UnstubbedMemberError, { 
  * **Example** (Construct a failing test-double member)
  *
  * ```ts
- * import { unstubbed } from "@beep/scratchpad/effected/github-actions/internal/unstubbed"
+ * import { unstubbed } from "@beep/github-reporting/internal/unstubbed"
  * import * as Effect from "effect/Effect"
  *
  * const dies = unstubbed("Cache")

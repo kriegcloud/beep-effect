@@ -13,10 +13,10 @@
  * {@link ActionCache}, {@link Artifact}, {@link BlobStore}, {@link ToolInstaller},
  * {@link PackageManagerInstaller}, {@link OidcTokenIssuer} and the GitHub App
  * token bridge {@link GitHubToken}. {@link Secret} is the one place a `Redacted`
- * value becomes plaintext, and always masks first. A reporting suite
- * ({@link GitHubMarkdown}, {@link ManagedDocument}, {@link CheckState} and
- * {@link CheckDocument}) renders what a run did onto a pull request comment, a
- * check run or the job summary.
+ * value becomes plaintext, and always masks first. The reporting suite
+ * (`GitHubMarkdown`, `ManagedDocument`, `CheckState` and `CheckDocument`), which
+ * renders what a run did onto a pull request comment, a check run or the job
+ * summary, now ships as `@beep/github-reporting`.
  *
  * The cache, artifact and tool-cache protocols are implemented directly against
  * their HTTP APIs, with no `@actions/*` dependency.
@@ -88,23 +88,6 @@ export { GitHubCacheBlobStore } from "./BlobStore.githubCache.ts";
 export { BlobStore, BlobStoreError, type BlobStoreShape, type S3Config, type StoredBlob } from "./BlobStore.ts";
 export { BlobTransferError, type DataBlobTransfer, type FileBlobTransfer } from "./BlobTransfer.ts";
 export { CacheKey, CacheKeyBadPatternError, type CacheKeyError, CacheKeyReadError, InvalidDigestLengthError } from "./CacheKey.ts";
-export {
-	CheckDocument,
-	CheckDocumentError,
-	type CheckDocumentOptions,
-	type CheckDocumentShape,
-	type CheckDocumentSink,
-	CheckDocumentStamp,
-	type CheckFlushOutcome,
-	CheckReport,
-} from "./CheckDocument.ts";
-export {
-	type CheckRunConclusion,
-	type CheckRunProjection,
-	CheckState,
-	projectCheckState,
-	UnhandledCheckStateError,
-} from "./CheckState.ts";
 export { ChildEnv, type PathPrependEnv, type PathPrependOptions } from "./ChildEnv.ts";
 export {
 	DetachedLogUnavailableError,
@@ -122,25 +105,12 @@ export {
 } from "./DetachedProcess.ts";
 export { DryRun, type DryRunShape } from "./DryRun.ts";
 export {
-	type GitHubHeadingDepth,
-	type GitHubListOptions,
-	GitHubMarkdown,
-	type GitHubRowSchema,
-	type GitHubSchemaTable,
-	type GitHubSchemaTableColumn,
-	type GitHubSchemaTableColumns,
-	type GitHubSchemaTableFormatRequiredKeys,
-	type GitHubSchemaTableFormattedColumn,
-	type GitHubSchemaTableOptions,
-} from "./GitHubMarkdown.ts";
-export {
 	type ClientLayerOptions,
 	GitHubToken,
 	GitHubTokenError,
 	type ProvisionOptions,
 	type ReadOptions,
 } from "./GitHubToken.ts";
-export { ManagedDocument, ManagedDocumentError, type ManagedDocumentSource, RejectedRegionDialectError } from "./ManagedDocument.ts";
 export { OidcClaims, OidcTokenError, OidcTokenIssuer, type OidcTokenIssuerShape } from "./OidcTokenIssuer.ts";
 export {
 	AmbientPackageManager,

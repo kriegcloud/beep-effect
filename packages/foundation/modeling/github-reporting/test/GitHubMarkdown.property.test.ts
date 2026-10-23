@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
 import { Markdown } from "@beep/markdown/Markdown";
 import { Root } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
@@ -8,7 +9,6 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { GitHubMarkdown } from "../../effected/github-actions/GitHubMarkdown.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Word = S.String.check(S.isPattern(/^[a-z]{1,20}$/u));

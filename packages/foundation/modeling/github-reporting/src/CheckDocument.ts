@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubReportingId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as BigInt from "effect/BigInt";
@@ -23,7 +23,7 @@ import { CheckState } from "./CheckState.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import { ManagedDocument } from "./ManagedDocument.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/CheckDocument");
+const $I = $GithubReportingId.create("CheckDocument");
 
 /**
  * What a run knows about one of its checks: the authoritative state, and the
@@ -40,7 +40,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckDocument");
  * **Example** (Construct a successful check report)
  *
  * ```ts
- * import { CheckReport } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+ * import { CheckReport } from "@beep/github-reporting/CheckDocument";
  *
  * const report = CheckReport.make({ state: "pass", outcome: "clean" });
  * console.log(report.outcome) // clean
@@ -94,7 +94,7 @@ export class CheckReport extends S.Class<CheckReport, { readonly brand: unique s
  * ```ts
  * import * as A from "effect/Array";
  * import * as HashMap from "effect/HashMap";
- * import { CheckDocumentSnapshot, CheckReport } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+ * import { CheckDocumentSnapshot, CheckReport } from "@beep/github-reporting/CheckDocument";
  *
  * const snapshot = CheckDocumentSnapshot.make({
  *   checks: HashMap.make(["build", CheckReport.make({ state: "pass" })]),
@@ -147,7 +147,7 @@ const KIND_PROSE = {
  * **Example** (Describe a failed document read)
  *
  * ```ts
- * import { CheckDocumentError } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+ * import { CheckDocumentError } from "@beep/github-reporting/CheckDocument";
  *
  * const error = CheckDocumentError.make({ kind: "read" });
  * console.log(error.message) // Reading the check document's current text failed
@@ -183,7 +183,7 @@ export class CheckDocumentError extends S.TaggedError<CheckDocumentError, { read
    * **Example** (Read the sink failure message)
    *
    * ```ts
-   * import { CheckDocumentError } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+   * import { CheckDocumentError } from "@beep/github-reporting/CheckDocument";
    *
    * const error = CheckDocumentError.make({ kind: "sink" });
    * console.log(error.message) // Writing the check document failed
@@ -213,7 +213,7 @@ export class CheckDocumentError extends S.TaggedError<CheckDocumentError, { read
  * **Example** (Construct a stable run identity)
  *
  * ```ts
- * import { CheckDocumentStamp } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+ * import { CheckDocumentStamp } from "@beep/github-reporting/CheckDocument";
  *
  * const stamp = CheckDocumentStamp.make({ at: "2026-01-01T00:00:00Z", runId: "42" });
  * console.log(stamp.runId) // 42
@@ -252,7 +252,7 @@ export class CheckDocumentStamp extends S.Class<CheckDocumentStamp, { readonly b
    * **Example** (Break timestamp ties by run identifier)
    *
    * ```ts
-   * import { CheckDocumentStamp } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+   * import { CheckDocumentStamp } from "@beep/github-reporting/CheckDocument";
    *
    * const existing = { at: "2026-01-01T00:00:00Z", runId: "41" };
    * const incoming = { at: existing.at, runId: "42" };
@@ -385,7 +385,7 @@ const maxStampOf = (
  * **Example** (Validate a reconciliation outcome)
  *
  * ```ts
- * import { CheckFlushOutcome } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+ * import { CheckFlushOutcome } from "@beep/github-reporting/CheckDocument";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CheckFlushOutcome)("stale")) // true
@@ -582,8 +582,8 @@ export interface CheckDocumentShape {
  *
  * **Example** (Rendering a check status table)
  * ```ts
- * import { CheckDocument, CheckReport } from "@beep/scratchpad/effected/github-actions/CheckDocument";
- * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+ * import { CheckDocument, CheckReport } from "@beep/github-reporting/CheckDocument";
+ * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
  * import * as Effect from "effect/Effect";
  * import * as A from "effect/Array";
  * import * as HashMap from "effect/HashMap";
@@ -635,7 +635,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
    * **Example** (Construct a document reconciler layer)
    *
    * ```ts
-   * import { CheckDocument } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+   * import { CheckDocument } from "@beep/github-reporting/CheckDocument";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    *
@@ -808,7 +808,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
    * **Example** (Stub an immediate flush)
    *
    * ```ts
-   * import { CheckDocument } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+   * import { CheckDocument } from "@beep/github-reporting/CheckDocument";
    * import * as Effect from "effect/Effect";
    *
    * const double = CheckDocument.makeTest({ flush: Effect.succeed("unchanged") });
@@ -831,7 +831,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
    * **Example** (Provide a test document service)
    *
    * ```ts
-   * import { CheckDocument } from "@beep/scratchpad/effected/github-actions/CheckDocument";
+   * import { CheckDocument } from "@beep/github-reporting/CheckDocument";
    * import * as Effect from "effect/Effect";
    *
    * const layer = CheckDocument.layerTest({ flush: Effect.succeed("unchanged") });

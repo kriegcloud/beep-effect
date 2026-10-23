@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubReportingId } from "@beep/identity/packages";
 import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "@beep/managed-section";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { SectionParseError } from "@beep/managed-section";
 
-const $I = $ScratchpadId.create("effected/github-actions/ManagedDocument");
+const $I = $GithubReportingId.create("ManagedDocument");
 
 /**
  * The region dialect rejected its own comment style.
@@ -17,7 +17,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ManagedDocument");
  * **Example** (Inspect a rejected region dialect)
  *
  * ```ts
- * import { RejectedRegionDialectError } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+ * import { RejectedRegionDialectError } from "@beep/github-reporting/ManagedDocument";
  *
  * const error = RejectedRegionDialectError.make({ message: "Unsupported region style" });
  * console.log(error.message) // Unsupported region style
@@ -65,7 +65,7 @@ const NamePart = S.String.check(
 /**
  * The marker vocabulary every managed document is written with: HTML comments
  * — the one comment style GitHub renders invisibly — and a phrase distinct
- * from `@effected/templates`' default, so a document that also carries
+ * from `@beep/managed-section`' default, so a document that also carries
  * ordinary `MANAGED SECTION` blocks never has them mistaken for regions.
  *
  * @since 0.0.0
@@ -98,7 +98,7 @@ const REGION_DIALECT: SectionDialect = SectionDialect.make({
  * **Example** (Describe an ambiguous region)
  *
  * ```ts
- * import { ManagedDocumentError } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+ * import { ManagedDocumentError } from "@beep/github-reporting/ManagedDocument";
  *
  * const error = ManagedDocumentError.make({ kind: "duplicateRegion", key: "header", line: 3 });
  * console.log(error.message) // Managed region appears twice for region "header" at line 3
@@ -167,7 +167,7 @@ export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError, { 
    * **Example** (Format invalid metadata)
    *
    * ```ts
-   * import { ManagedDocumentError } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocumentError } from "@beep/github-reporting/ManagedDocument";
    *
    * const error = ManagedDocumentError.make({ kind: "invalidAttribute", key: "header", attribute: "status", line: 4 });
    * console.log(error.message) // Region metadata has an invalid attribute name or value for region "header" (attribute "status") at line 4
@@ -229,7 +229,7 @@ const structural = (failure: SectionParseError): ManagedDocumentError =>
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { ManagedDocumentSource } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+ * import { ManagedDocumentSource } from "@beep/github-reporting/ManagedDocument";
  *
  * const input = { namespace: "release", key: "summary", text: "human text" };
  * Effect.runSync(Console.log(S.is(ManagedDocumentSource)(input))) // true
@@ -294,11 +294,11 @@ export type ManagedDocumentSource = typeof ManagedDocumentSource.Type;
  * region carrying the latest content, which is what makes a check that
  * resolves many times safe to re-render.
  *
- * The region engine is `@effected/templates`' pure `SectionDocument`, fixed to
+ * The region engine is `@beep/managed-section`' pure `SectionDocument`, fixed to
  * the HTML comment style and a region-specific phrase. Everything here is string → string; the GitHub
  * write path composes this with `PullRequestComment` (whose `CommentMarker`
  * renders the *same* sentinel for the same namespace and key) or a PR-body
- * update in `@effected/github`.
+ * update in `@beep/github`.
  *
  * Construct with {@link ManagedDocument.parseResult} — create-or-update in
  * one call, so the consumer never branches on whether the document exists
@@ -308,7 +308,7 @@ export type ManagedDocumentSource = typeof ManagedDocumentSource.Type;
  * **Example** (Parse a managed document and replace its regions)
  *
  * ```ts
- * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+ * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
  * import * as Result from "effect/Result";
  *
  * const doc = ManagedDocument.parseResult({ namespace: "my-action", key: "release", text: "Human notes" });
@@ -365,7 +365,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Begin a fresh document)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const result = ManagedDocument.parseResult({ namespace: "my-action", key: "release" });
@@ -391,7 +391,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Parse without external services)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Effect from "effect/Effect";
    *
    * const doc = Effect.runSync(ManagedDocument.parse({ namespace: "my-action", key: "release" }));
@@ -411,7 +411,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Render the identity sentinel)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
    * console.log(doc.sentinel) // <!-- my-action:release -->
@@ -430,7 +430,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Match the identity sentinel)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
    * console.log(doc.matches("<!-- my-action:release -->")) // true
@@ -449,7 +449,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Look up an absent region)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as O from "effect/Option";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
@@ -476,7 +476,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Read region metadata)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as O from "effect/Option";
    * import * as Result from "effect/Result";
    *
@@ -510,7 +510,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Read regions in document order)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
@@ -561,7 +561,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Replace a region in place)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    * import * as O from "effect/Option";
    *
@@ -616,7 +616,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Update a document in Effect)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *
@@ -643,7 +643,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Reuse an immutable document layout)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const doc = Result.getOrThrow(ManagedDocument.parseResult({ namespace: "my-action", key: "release" }));
@@ -661,7 +661,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Validate a fresh region layout)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * console.log(Result.isSuccess(ManagedDocument.parseResult({ namespace: "my-action", key: "release" }))) // true
@@ -681,7 +681,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Qualify a region marker)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
@@ -702,7 +702,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Write a fully qualified region key)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
@@ -723,7 +723,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Report the local key of a duplicate declaration)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });
@@ -755,7 +755,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Read only this document regions)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    *
    * const doc = ManagedDocument.make({
    *   namespace: "my-action",
@@ -801,7 +801,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
    * **Example** (Append the document identity once)
    *
    * ```ts
-   * import { ManagedDocument } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+   * import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
    * import * as Result from "effect/Result";
    *
    * const doc = ManagedDocument.make({ namespace: "my-action", key: "release", text: "" });

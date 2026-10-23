@@ -2496,9 +2496,16 @@
       "name": "@beep/github-reporting",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/managed-section": "workspace:^",
+        "@beep/markdown": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/github": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",

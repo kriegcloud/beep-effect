@@ -1,3 +1,11 @@
+import {
+  CheckDocument,
+  CheckDocumentError,
+  CheckDocumentStamp,
+  CheckFlushOutcome,
+  CheckReport,
+} from "@beep/github-reporting/CheckDocument";
+import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -12,16 +20,8 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
-import {
-  CheckDocument,
-  CheckDocumentError,
-  CheckDocumentStamp,
-  CheckFlushOutcome,
-  CheckReport,
-} from "../../effected/github-actions/CheckDocument.ts";
-import { ManagedDocument } from "../../effected/github-actions/ManagedDocument.ts";
+import type { CheckDocumentSnapshot } from "@beep/github-reporting/CheckDocument";
 import type * as Duration from "effect/Duration";
-import type { CheckDocumentSnapshot } from "../../effected/github-actions/CheckDocument.ts";
 
 const NS = "savvy-web";
 const KEY = "release-validation";

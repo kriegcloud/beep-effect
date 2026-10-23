@@ -1,8 +1,8 @@
+import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
-import { GitHubMarkdown } from "../../effected/github-actions/GitHubMarkdown.ts";
 
 it.effect("raw preserves bytes and an encoder yielding undefined renders an empty cell", () =>
   Effect.sync(() => {

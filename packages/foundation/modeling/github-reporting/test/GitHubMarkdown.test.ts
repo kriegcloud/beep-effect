@@ -1,10 +1,10 @@
+import { GitHubHeadingDepth, GitHubListOptions, GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { GitHubHeadingDepth, GitHubListOptions, GitHubMarkdown } from "../../effected/github-actions/GitHubMarkdown.ts";
-import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 
 describe("GitHubMarkdown", () => {
   it("heading and list schemas preserve literal depths and optional undefined options", () => {

@@ -2425,10 +2425,24 @@
       {
         "from": "@beep/github-reporting",
         "allow": [
-          "@beep/github-reporting"
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/github-reporting",
+          "@beep/identity",
+          "@beep/managed-section",
+          "@beep/markdown",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/github-reporting"
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/github-reporting",
+          "@beep/identity",
+          "@beep/managed-section",
+          "@beep/markdown",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {

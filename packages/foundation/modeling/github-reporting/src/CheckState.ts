@@ -1,9 +1,9 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubReportingId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/github-actions/CheckState");
+const $I = $GithubReportingId.create("CheckState");
 
 /**
  * A check state outside the vocabulary was projected.
@@ -11,7 +11,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckState");
  * **Example** (Construct a vocabulary projection error)
  *
  * ```ts
- * import { UnhandledCheckStateError } from "@beep/scratchpad/effected/github-actions/CheckState";
+ * import { UnhandledCheckStateError } from "@beep/github-reporting/CheckState";
  *
  * const error = UnhandledCheckStateError.make({ message: "Unhandled check state" });
  * console.log(error.message) // Unhandled check state
@@ -53,7 +53,7 @@ export class UnhandledCheckStateError extends S.TaggedError<
  * **Example** (Decode a running check state)
  *
  * ```ts
- * import { CheckState } from "@beep/scratchpad/effected/github-actions/CheckState";
+ * import { CheckState } from "@beep/github-reporting/CheckState";
  * import * as S from "effect/Schema";
  *
  * console.log(S.decodeUnknownSync(CheckState)("running")) // running
@@ -88,15 +88,15 @@ export type CheckState = typeof CheckState.Type;
  * **Details**
  *
  * A subset of GitHub's conclusion set, spelled structurally so a pure
- * vocabulary module does not put `@effected/github` — and through it the
+ * vocabulary module does not put `@beep/github` — and through it the
  * octokit runtime — on its import graph. A structural assertion in the test
- * suite pins these literals against `CheckConclusion` in `@effected/github`,
+ * suite pins these literals against `CheckConclusion` in `@beep/github`,
  * so drift between the two spellings fails a test rather than a consumer.
  *
  * **Example** (Validate a CheckRunConclusion value)
  *
  * ```ts
- * import { CheckRunConclusion } from "@beep/scratchpad/effected/github-actions/CheckState";
+ * import { CheckRunConclusion } from "@beep/github-reporting/CheckState";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CheckRunConclusion)("success")) // true
@@ -145,7 +145,7 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe(
  * **Example** (Validate a CheckRunProjection value)
  *
  * ```ts
- * import { CheckRunProjection } from "@beep/scratchpad/effected/github-actions/CheckState";
+ * import { CheckRunProjection } from "@beep/github-reporting/CheckState";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CheckRunProjection)({ status: "completed", conclusion: "success" })) // true
@@ -199,7 +199,7 @@ export type CheckRunProjection = typeof CheckRunProjection.Type;
  * **Example** (Project a warning onto GitHub conclusions)
  *
  * ```ts
- * import { projectCheckState } from "@beep/scratchpad/effected/github-actions/CheckState";
+ * import { projectCheckState } from "@beep/github-reporting/CheckState";
  *
  * console.log(JSON.stringify(projectCheckState("warn"))) // {"status":"completed","conclusion":"neutral"}
  * ```

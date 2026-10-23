@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubReportingId } from "@beep/identity/packages";
 import { Markdown } from "@beep/markdown/Markdown";
 import {
   Code,
@@ -23,7 +23,7 @@ import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/github-actions/GitHubMarkdown");
+const $I = $GithubReportingId.create("GitHubMarkdown");
 
 /**
  * A heading level GitHub renders, `1` through `6`.
@@ -34,7 +34,7 @@ const $I = $ScratchpadId.create("effected/github-actions/GitHubMarkdown");
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { GitHubHeadingDepth } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+ * import { GitHubHeadingDepth } from "@beep/github-reporting/GitHubMarkdown";
  *
  * const input = 2;
  * Effect.runSync(Console.log(S.is(GitHubHeadingDepth)(input))) // true
@@ -64,7 +64,7 @@ export type GitHubHeadingDepth = typeof GitHubHeadingDepth.Type;
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { GitHubListOptions } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+ * import { GitHubListOptions } from "@beep/github-reporting/GitHubMarkdown";
  *
  * const input = { ordered: true };
  * Effect.runSync(Console.log(S.is(GitHubListOptions)(input))) // true
@@ -207,7 +207,7 @@ export interface GitHubSchemaTable<Row> {
    * **Example** (Render rows repeatedly)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * import * as S from "effect/Schema";
    *
@@ -317,7 +317,7 @@ const block = (node: Root["children"][number]): string => render(Root.make({ chi
  * **Example** (Compose a release validation report)
  *
  * ```ts
- * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+ * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
  *
  * const log = "build passed";
  * const body = [
@@ -345,7 +345,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Escape pipes in table cells)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * const table = GitHubMarkdown.table(["Range"], [[">=1 || <2"]]);
    * console.log(table.includes("\\|")) // true
@@ -417,7 +417,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Render check rows using schema-defined columns)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    * import * as S from "effect/Schema";
    *
    * const CheckRow = S.Struct({
@@ -474,7 +474,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Render the default heading level)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * console.log(GitHubMarkdown.heading("Checks")) // ## Checks
    * ```
@@ -496,7 +496,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Render a repository link)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * console.log(GitHubMarkdown.link("Repo", "https://github.com/acme/repo")) // [Repo](https://github.com/acme/repo)
    * ```
@@ -516,7 +516,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Render inline command text)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * console.log(GitHubMarkdown.code("bun test")) // `bun test`
    * ```
@@ -533,7 +533,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Fence a text log)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * const block = GitHubMarkdown.codeBlock("build passed", "text");
    * console.log(block.includes("build passed")) // true
@@ -565,7 +565,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Render numbered checks)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * const list = GitHubMarkdown.list(["build", "test"], { ordered: true });
    * console.log(list.startsWith("1.")) // true
@@ -605,7 +605,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Wrap logs in a collapsible block)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * const details = GitHubMarkdown.details("Logs", GitHubMarkdown.code("build passed"));
    * console.log(details.startsWith("<details>")) // true
@@ -636,7 +636,7 @@ export abstract class GitHubMarkdown {
    * **Example** (Mark an existing markdown fragment)
    *
    * ```ts
-   * import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+   * import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
    *
    * console.log(GitHubMarkdown.raw("**passed**")) // **passed**
    * ```

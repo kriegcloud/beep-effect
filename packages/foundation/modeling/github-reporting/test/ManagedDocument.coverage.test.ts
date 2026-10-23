@@ -1,11 +1,11 @@
-import { assert, describe, it, vi } from "@effect/vitest";
-import { assertFailure, assertNone } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
 import {
   ManagedDocument,
   ManagedDocumentError,
   RejectedRegionDialectError,
-} from "../../effected/github-actions/ManagedDocument.ts";
+} from "@beep/github-reporting/ManagedDocument";
+import { assert, describe, it, vi } from "@effect/vitest";
+import { assertFailure, assertNone } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
 
 describe("ManagedDocument coverage", () => {
   it.effect("raw corrupt documents expose no regions and refuse writes with the structural error", () =>

@@ -149,11 +149,7 @@ const LIGHT_MODULES = [
 	"BlobTransfer.ts",
 	"CacheKey.ts",
 	"ChildEnv.ts",
-	"CheckDocument.ts",
-	"CheckState.ts",
-	"GitHubMarkdown.ts",
 	"GitHubToken.ts",
-	"ManagedDocument.ts",
 	"ActionsIdentityToken.ts",
 	"ActionsProvenance.ts",
 	"DetachedProcess.ts",
@@ -352,82 +348,18 @@ describe("bundle reachability", () => {
 		]);
 	});
 
-	it("the markdown engine is confined to the writer, on Azure's terms", () => {
-		// `@beep/markdown` is the second-heaviest engine this package can
-		// reach, and only the fluent writer earns it. The control comes first:
-		// a blinded walker must fail here, not pass everything below.
-		assert.isTrue(
-			[...reachableRuntimeImports("GitHubMarkdown.ts")].some(reachesMarkdown),
-			"GitHubMarkdown does not reach the engine — the walker is blind",
-		);
-		for (const entry of LIGHT_MODULES.filter((module) => module !== "GitHubMarkdown.ts")) {
+	it("no lab module reaches the markdown engine", () => {
+		// The reporting suite (`GitHubMarkdown`, `ManagedDocument`, `CheckState` and
+		// `CheckDocument`) ships as `@beep/github-reporting` since wave 3-1, and that
+		// package's own reachability test pins the writer's exact edge set. What stays
+		// here is the confinement half: no module left in the lab reaches
+		// `@beep/markdown`.
+		for (const entry of LIGHT_MODULES) {
 			assert.isFalse(
 				[...reachableRuntimeImports(entry)].some(reachesMarkdown),
 				`${entry} reaches @beep/markdown — the writer confinement has leaked`,
 			);
 		}
-		// Exact edge sets for the new modules, same discipline as the light half:
-		// the vocabulary reaches nothing but effect (in particular NOT
-		// `@effected/github`, whose conclusion set it mirrors structurally), and
-		// the document modules reach the managed-section region engine and no more.
-		assert.deepStrictEqual([...reachableRuntimeImports("CheckState.ts")].sort(), [
-			"@beep/identity/packages",
-			"@beep/schema/LiteralKit",
-			"effect/Match",
-			"effect/Schema",
-		]);
-		assert.deepStrictEqual([...reachableRuntimeImports("ManagedDocument.ts")].sort(), [
-			"@beep/identity/packages",
-			"@beep/managed-section",
-			"@beep/utils/Option",
-			"effect/Array",
-			"effect/Effect",
-			"effect/Function",
-			"effect/Result",
-			"effect/Schema",
-			"effect/String",
-		]);
-		assert.deepStrictEqual([...reachableRuntimeImports("CheckDocument.ts")].sort(), [
-			"@beep/identity/packages",
-			"@beep/managed-section",
-			"@beep/schema/LiteralKit",
-			"@beep/utils/Option",
-			"effect/Array",
-			"effect/BigInt",
-			"effect/Boolean",
-			"effect/Clock",
-			"effect/Context",
-			"effect/DateTime",
-			"effect/Duration",
-			"effect/Effect",
-			"effect/Function",
-			"effect/HashMap",
-			"effect/Latch",
-			"effect/Layer",
-			"effect/Match",
-			"effect/Number",
-			"effect/Option",
-			"effect/Predicate",
-			"effect/Ref",
-			"effect/Result",
-			"effect/Schema",
-			"effect/Semaphore",
-			"effect/String",
-		]);
-		assert.deepStrictEqual([...reachableRuntimeImports("GitHubMarkdown.ts")].sort(), [
-			"@beep/identity/packages",
-			"@beep/markdown/Markdown",
-			"@beep/markdown/MarkdownNode",
-			"@beep/schema/LiteralKit",
-			"effect/Array",
-			"effect/Function",
-			"effect/Predicate",
-			"effect/Record",
-			"effect/Result",
-			"effect/Schema",
-			"effect/SchemaAST",
-			"effect/String",
-		]);
 	});
 
 	it("the @beep/npm-spec edge is confined to the installer, on Azure's terms", () => {

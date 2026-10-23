@@ -25,7 +25,7 @@ import {
   ManagedDocument,
   ManagedDocumentError,
   RejectedRegionDialectError,
-} from "../../effected/github-actions/ManagedDocument.ts";
+} from "@beep/github-reporting/ManagedDocument";
 
 describe("ManagedDocument schema property floor", () => {
   roundTrips("RejectedRegionDialectError", RejectedRegionDialectError);

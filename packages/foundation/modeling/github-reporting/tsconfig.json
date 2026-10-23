@@ -6,5 +6,28 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
-  }
+  },
+  "references": [
+    {
+      "path": "../../../drivers/github/tsconfig.json"
+    },
+    {
+      "path": "../identity/tsconfig.json"
+    },
+    {
+      "path": "../managed-section/tsconfig.json"
+    },
+    {
+      "path": "../markdown/tsconfig.json"
+    },
+    {
+      "path": "../schema/tsconfig.json"
+    },
+    {
+      "path": "../utils/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-kit/fc-runs/tsconfig.json"
+    }
+  ]
 }

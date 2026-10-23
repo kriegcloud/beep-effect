@@ -1,15 +1,15 @@
 import { CheckConclusion } from "@beep/github/CheckRun";
-import { assert, describe, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import { flow } from "effect/Function";
-import * as Result from "effect/Result";
-import * as S from "effect/Schema";
 import {
   CheckRunConclusion,
   CheckRunProjection,
   CheckState,
   projectCheckState,
-} from "../../effected/github-actions/CheckState.ts";
+} from "@beep/github-reporting/CheckState";
+import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import { flow } from "effect/Function";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 
 describe("CheckState", () => {
   it("decodes every state in the vocabulary", () => {
@@ -50,7 +50,7 @@ describe("CheckState", () => {
     assert.strictEqual(CheckState.literals.length, 7, "a state was added without extending this table");
   });
 
-  it("every completed projection lands inside @effected/github's conclusion set", () => {
+  it("every completed projection lands inside @beep/github's conclusion set", () => {
     // The projection spells its conclusions structurally so this pure module
     // never imports the octokit-owning package at runtime. This is the drift
     // pin: a conclusion GitHub's wire vocabulary does not carry fails here,

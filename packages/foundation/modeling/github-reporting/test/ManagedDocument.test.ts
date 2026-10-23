@@ -1,13 +1,9 @@
+import { ManagedDocument, ManagedDocumentError, ManagedDocumentSource } from "@beep/github-reporting/ManagedDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import {
-  ManagedDocument,
-  ManagedDocumentError,
-  ManagedDocumentSource,
-} from "../../effected/github-actions/ManagedDocument.ts";
 
 const NS = "savvy-web";
 const KEY = "release-validation";
@@ -354,7 +350,7 @@ describe("ManagedDocument", () => {
         assert.nestedPropertyVal(
           field,
           "ast.checks.0.annotations.identifier",
-          "@beep/scratchpad/effected/github-actions/ManagedDocument/NamePart"
+          "@beep/github-reporting/ManagedDocument/NamePart"
         );
         assert.nestedPropertyVal(field, "ast.checks.0.annotations.title", "NamePart");
         assert.nestedPropertyVal(
@@ -379,14 +375,14 @@ describe("ManagedDocument", () => {
       const document = S.toJsonSchemaDocument(ManagedDocument);
       assert.nestedPropertyVal(
         document,
-        "definitions.@beep/scratchpad/effected/github-actions/ManagedDocument/NamePart.pattern",
+        "definitions.@beep/github-reporting/ManagedDocument/NamePart.pattern",
         "^[A-Za-z0-9][A-Za-z0-9_-]*$"
       );
       for (const field of ["namespace", "key"]) {
         assert.nestedPropertyVal(
           document,
-          `definitions.@beep/scratchpad/effected/github-actions/ManagedDocument/ManagedDocumentEncoded.properties.${field}.allOf.0.$ref`,
-          "#/$defs/@beep~1scratchpad~1effected~1github-actions~1ManagedDocument~1NamePart"
+          `definitions.@beep/github-reporting/ManagedDocument/ManagedDocumentEncoded.properties.${field}.allOf.0.$ref`,
+          "#/$defs/@beep~1github-reporting~1ManagedDocument~1NamePart"
         );
       }
     });

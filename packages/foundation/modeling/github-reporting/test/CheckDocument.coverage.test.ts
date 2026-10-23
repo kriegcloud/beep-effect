@@ -1,8 +1,8 @@
+import { CheckDocument, CheckDocumentError, CheckDocumentStamp } from "@beep/github-reporting/CheckDocument";
+import { ManagedDocument } from "@beep/github-reporting/ManagedDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { CheckDocument, CheckDocumentError, CheckDocumentStamp } from "../../effected/github-actions/CheckDocument.ts";
-import { ManagedDocument } from "../../effected/github-actions/ManagedDocument.ts";
 
 const withLayer = <ROut, EIn, RIn>(layer: Layer.Layer<ROut, EIn, RIn>) =>
   Effect.fn("CheckDocument.coverage.withLayer")(<A, E, R>(self: Effect.Effect<A, E, R>) =>
