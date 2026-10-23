@@ -176,7 +176,7 @@ export class ReplyDraft extends S.Class<ReplyDraft, { readonly brand: unique sym
     body: S.NonEmptyString,
     resolve: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefault(Effect.succeed(true))
+      S.withDecodingDefaultKey(Effect.succeed(true))
     ),
   }).pipe(S.check(ReplyTargetPresenceCheck)),
   $I.annote("ReplyDraft", {

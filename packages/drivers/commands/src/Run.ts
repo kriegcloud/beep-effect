@@ -199,7 +199,7 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
      * {@link CommandFailedError} of kind `"timeout"` rather than core's
      * `TimeoutError`, so a caller's error channel stays this package's taxonomy.
      */
-    timeout: S.optional(DurationInput).pipe(
+    timeout: S.optionalKey(DurationInput).pipe(
       $I.annoteKey("RunOptions.timeout", { description: "Optional ceiling for the whole run." })
     ),
     /**
@@ -214,11 +214,11 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
     redact: S.String.pipe(
       S.Redacted,
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("RunOptions.redact", { description: "Secret values scrubbed from output and errors." })
     ),
     /** Per-stream captured-byte ceiling. Defaults to {@link DEFAULT_MAX_OUTPUT_BYTES}. */
-    maxOutputBytes: S.optional(PolicyNumber).pipe(
+    maxOutputBytes: S.optionalKey(PolicyNumber).pipe(
       $I.annoteKey("RunOptions.maxOutputBytes", { description: "Optional per-stream byte ceiling." })
     ),
   }).pipe($I.annoteSchema("RunOptions", { description: "Timeout, redaction and byte-budget policy for a run." }))

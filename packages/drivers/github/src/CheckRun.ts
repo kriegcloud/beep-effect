@@ -708,7 +708,7 @@ const concludeFor: {
 const CheckRunResponse = S.Struct({
   id: S.Union([S.Finite, S.BigInt]),
   name: S.String,
-  html_url: S.String.pipe(S.NullOr, S.optional),
+  html_url: S.String.pipe(S.NullOr, S.optionalKey),
   status: S.String,
 }).pipe($I.annoteSchema("CheckRunResponse", { description: "The selected fields of a check-run response." }));
 

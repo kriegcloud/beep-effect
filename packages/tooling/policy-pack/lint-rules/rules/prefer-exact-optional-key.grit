@@ -1,0 +1,58 @@
+language js
+
+// EF-40 (standards/effect-first-development.md): schema fields use exact optional
+// keys. `S.optional(X)` is `S.optionalKey(S.UndefinedOr(X))`: under
+// `exactOptionalPropertyTypes` it puts `| undefined` back into the field type,
+// admits a present key holding `undefined`, and its JSON Schema advertises a
+// `null` the decoder rejects. `S.withDecodingDefault` and `S.OptionFromOptional`
+// are built on it. Every reference is flagged, wherever the field object lives
+// (inline, hoisted constant, `.pipe(S.optional)`, `Struct.map(S.optional)`, a
+// type position, a named import or re-export). A field whose decoder really
+// receives `undefined` from third-party code spells it explicitly:
+// `S.optionalKey(S.UndefinedOr(X))`, which never matches.
+//
+//   S.optional(X)               ->  S.optionalKey(X)
+//   S.withDecodingDefault(d)    ->  S.withDecodingDefaultKey(d)
+//   S.OptionFromOptional(X)     ->  S.OptionFromOptionalKey(X)
+//
+// Mechanical migration: `bun run beep lint schema-parity-codemod --rule exact-optional-keys --write`.
+
+pattern retired_member() {
+  or {
+    `optional`,
+    `withDecodingDefault`,
+    `OptionFromOptional`
+  }
+}
+
+pattern schema_namespace() {
+  or {
+    `S`,
+    `Schema`
+  }
+}
+
+or {
+  `$ns.$member` as $ref where {
+    $ns <: schema_namespace(),
+    $member <: retired_member(),
+    register_diagnostic(span=$ref, message="Rule: schema fields use exact optional keys (EF-40). Why: `S.optional`, `S.withDecodingDefault` and `S.OptionFromOptional` admit a present key holding `undefined`, put `| undefined` back into the field type under exactOptionalPropertyTypes, and `S.optional`'s JSON Schema advertises a `null` the decoder rejects. Fix: use `S.optionalKey`, `S.withDecodingDefaultKey` or `S.OptionFromOptionalKey` (codemod: `bun run beep lint schema-parity-codemod --rule exact-optional-keys --write`); a field whose decoder really receives `undefined` from third-party code is `S.optionalKey(S.UndefinedOr(X))`.", severity="error")
+  },
+  TsQualifiedName() as $ref where {
+    $ref <: r"^(?:S|Schema)\s*\.\s*(?:optional|withDecodingDefault|OptionFromOptional)$",
+    register_diagnostic(span=$ref, message="Rule: schema fields use exact optional keys (EF-40). Why: this type mirrors `S.optional`, `S.withDecodingDefault` or `S.OptionFromOptional`, which admit a present key holding `undefined`. Fix: reference `S.optionalKey`, `S.withDecodingDefaultKey` or `S.OptionFromOptionalKey`.", severity="error")
+  },
+  `$ns[$key]` as $ref where {
+    $ns <: schema_namespace(),
+    $key <: r"^[\"'](?:optional|withDecodingDefault|OptionFromOptional)[\"']$",
+    register_diagnostic(span=$ref, message="Rule: schema fields use exact optional keys (EF-40). Why: computed access to an undefined-admitting optionality member. Fix: use `S.optionalKey`, `S.withDecodingDefaultKey` or `S.OptionFromOptionalKey`.", severity="error")
+  },
+  JsImport() as $decl where {
+    $decl <: r"(?s)import\s+(?:type\s+)?\{[^}]*\b(?:optional|withDecodingDefault|OptionFromOptional)\b[^}]*\}\s*from\s*[\"']effect/Schema[\"'].*",
+    register_diagnostic(span=$decl, message="Rule: schema fields use exact optional keys (EF-40). Why: this imports an undefined-admitting optionality member of effect/Schema. Fix: import the namespace (`import * as S from \"effect/Schema\"`) and use `S.optionalKey`, `S.withDecodingDefaultKey` or `S.OptionFromOptionalKey`.", severity="error")
+  },
+  JsExportNamedFromClause() as $decl where {
+    $decl <: r"(?s)\{[^}]*\b(?:optional|withDecodingDefault|OptionFromOptional)\b[^}]*\}\s*from\s*[\"']effect/Schema[\"'].*",
+    register_diagnostic(span=$decl, message="Rule: schema fields use exact optional keys (EF-40). Why: this re-exports an undefined-admitting optionality member of effect/Schema. Fix: re-export `optionalKey`, `withDecodingDefaultKey` or `OptionFromOptionalKey` instead.", severity="error")
+  }
+}

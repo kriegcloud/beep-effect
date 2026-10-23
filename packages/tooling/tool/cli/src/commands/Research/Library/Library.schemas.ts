@@ -172,17 +172,20 @@ export class LibraryDocument extends S.Opaque<LibraryDocument, { readonly brand:
     title: S.String,
     topicDerivation: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     topics: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed([])),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     reportDate: S.String,
-    headingDate: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    headingDate: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefaultKey(Effect.succeed(""))
+    ),
     filenameDate: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
 
     expectedOccurrences: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
@@ -206,27 +209,27 @@ export class LibraryReference extends S.Opaque<LibraryReference, { readonly bran
     locator: S.String,
     citationText: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     referenceKey: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     definitionLine: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     definitionColumn: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     definitionEndLine: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     definitionEndColumn: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
 
     label: S.String,
@@ -281,19 +284,19 @@ export class LibrarySource extends S.Opaque<LibrarySource, { readonly brand: uni
     ownership: LibraryOwnership,
     aliasIds: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed([])),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     versions: S.Array(LibraryVersion).pipe(
       S.withConstructorDefault(Effect.succeed([])),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     topicDerivation: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     topics: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed([])),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     locators: S.Array(S.String),
   }).pipe($I.annoteSchema("LibrarySource", { description: "Source record for persisted research provenance." }))
@@ -315,35 +318,38 @@ export class LibraryOccurrence extends S.Opaque<LibraryOccurrence, { readonly br
   S.Struct({
     id: S.String,
     documentId: S.String,
-    revision: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    findingId: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    context: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    revision: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+    findingId: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefaultKey(Effect.succeed(""))
+    ),
+    context: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
 
     sourceId: S.String,
     locator: S.String,
     citationText: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     referenceKey: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     definitionLine: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     definitionColumn: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     definitionEndLine: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     definitionEndColumn: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
-      S.withDecodingDefault(Effect.succeed(0))
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
 
     line: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1)),
@@ -377,7 +383,7 @@ export class LibraryCapture extends S.Opaque<LibraryCapture, { readonly brand: u
     capturedRevision: S.String,
     requestedRevision: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefaultKey(Effect.succeed(""))
     ),
 
     complete: S.Boolean,
@@ -520,11 +526,11 @@ export class LibraryCatalog extends S.Opaque<LibraryCatalog, { readonly brand: u
     documents: S.Array(LibraryDocument),
     artifacts: S.Array(LibraryArtifact).pipe(
       S.withConstructorDefault(Effect.succeed([])),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     intakes: S.Array(LibraryIntake).pipe(
       S.withConstructorDefault(Effect.succeed([])),
-      S.withDecodingDefault(Effect.succeed([]))
+      S.withDecodingDefaultKey(Effect.succeed([]))
     ),
     sources: S.Array(LibrarySource),
     occurrences: S.Array(LibraryOccurrence),

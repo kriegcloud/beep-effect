@@ -249,7 +249,7 @@ export class SchemaCatalogOptions extends S.Opaque<SchemaCatalogOptions, { reado
   S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
   }).pipe(
     $I.annoteSchema("SchemaCatalogOptions", {

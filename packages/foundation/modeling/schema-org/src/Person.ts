@@ -57,7 +57,7 @@ export class Person extends S.Opaque<Person, { readonly brand: unique symbol }>(
      *
      * @since 0.0.0
      */
-    email: S.optional(S.String).pipe(
+    email: S.optionalKey(S.String).pipe(
       $I.annoteKey("Person.email", { description: "An email address for the person. Single-valued." })
     ),
     /**
@@ -67,7 +67,7 @@ export class Person extends S.Opaque<Person, { readonly brand: unique symbol }>(
      */
     affiliation: NodeRef.pipe(
       S.Array,
-      S.optional,
+      S.optionalKey,
       $I.annoteKey("Person.affiliation", {
         description: "Organizations the person is affiliated with, by reference. Repeatable.",
       })
