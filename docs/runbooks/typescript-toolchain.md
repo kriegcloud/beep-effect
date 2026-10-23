@@ -63,6 +63,33 @@ exception was upstream 7.1-dev behaviour, fixed in #1670). Rules of the road:
   binary; `EffectTsgoEffectFnPolicy.test.ts` independently verifies the tsc-rs
   identity and that both shared Effect rules and type errors still fail Check.
 
+### Updating tsc-rs
+
+`tsc-rs` is not in syncpack's held-back update group, so
+`bun run deps:update` (`syncpack update --target=latest
+--dependency-types=catalog`) moves its root catalog entry to the latest npm
+release. To bump only `tsc-rs`, edit that one catalog entry (or run
+`bunx syncpack update --target=latest --dependency-types=catalog --dependencies 'tsc-rs'`),
+then run `bun install`. The six `@tsc-rs/<platform>` packages are exact
+optional dependencies of `tsc-rs`, so `bun.lock` moves them with it; check that
+all seven entries show the new version. `bunx syncpack update --check
+--target=latest --dependency-types=catalog --dependencies 'tsc-rs'` exits 1
+while a newer release exists.
+
+After a bump:
+
+1. Read the new `node_modules/tsc-rs/README.md` and ts-rust's `UPSTREAM.json`
+   at the release tag. Update the table row above: the version, the TypeScript
+   snapshot (`7.1.0-dev.<date>` from the current pin) and the effect-tsgo
+   version its Effect rules port. Recheck these rules of the road and the known
+   problems.
+2. If the ported effect-tsgo version moved, revisit the standalone Effect
+   diagnostics profile (below): rules tsc-rs now knows can fold into the
+   compiler maps.
+3. Run `bun run check` and `bun run check:configs` across the repo, and fix new
+   TypeScript errors at their source. Effect-rule (377xxx) findings do not fail
+   these gates.
+
 ## Binary paths (Linux x64)
 
 Verified at 0.55.0. Substitute the platform triple on other machines.
@@ -175,7 +202,8 @@ loader, when tsc-rs ports those rules. The empty-project policy canary keeps
 proving that the root map produces no unknown-rule warnings.
 
 The eight Effect packages stay synchronized, but they no longer move with
-`tsc-rs`. Both remain independently held for reviewed upgrades. The tsc-rs 0.8.0
+`tsc-rs`. The Effect packages remain held for reviewed upgrades; `tsc-rs`
+follows `deps:update` (see Updating tsc-rs). The tsc-rs 0.8.0
 embedded rules are still 0.51.1 and may lag. Re-couple only after tsc-rs ports
 the newest rules and parity is proved, then remove the separate lane. A bump
 must update the complete root severity map and explicit disabled-rule ledger,
