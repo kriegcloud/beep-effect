@@ -67,6 +67,15 @@ export class DevEngine extends S.Opaque<DevEngine, { readonly brand: unique symb
     /**
      * The optional behavior when the constraint is unmet.
      *
+     * **Details**
+     *
+     * npm documents `warn`, `error` and `ignore`, treating an absent value as
+     * `error`. `download` comes from the OpenJS package-metadata
+     * interoperability `devEngines` proposal, which pnpm implements for
+     * `runtime` and `packageManager`: the tool remedies the mismatch by
+     * downloading a satisfying version. Tools without it, npm included,
+     * treat it as a failure.
+     *
      * **Example** (Read the failure policy)
      *
      * ```ts
@@ -79,8 +88,11 @@ export class DevEngine extends S.Opaque<DevEngine, { readonly brand: unique symb
      * @category getters
      * @since 0.0.0
      */
-    onFail: S.optionalKey(S.Literals(["warn", "error", "ignore"])).pipe(
-      $I.annoteKey("DevEngine.onFail", { description: "The optional behavior when the constraint is unmet." })
+    onFail: S.optionalKey(S.Literals(["warn", "error", "ignore", "download"])).pipe(
+      $I.annoteKey("DevEngine.onFail", {
+        description:
+          "The optional behavior when the constraint is unmet: `warn`, `error` or `ignore` (npm), or `download` (pnpm, per the OpenJS devEngines proposal).",
+      })
     ),
   }).pipe(
     $I.annoteSchema("DevEngine", {
