@@ -1,11 +1,15 @@
-// Git-based change detection: changedFiles → changedPackages →
-// affectedPackages, three depths of analysis on one service.
-//
-// It runs git through `@effected/git`'s `Git` service rather than a raw
-// subprocess seam, so a test provides `Layer.succeed(Git, …)` and needs no
-// repository on disk. `Git` requires core's `ChildProcessSpawner` in `R`, which
-// the consumer's platform layer discharges at the edge.
-
+/**
+ * Git-based change detection: changedFiles → changedPackages →
+ * affectedPackages, three depths of analysis on one service.
+ *
+ * It runs git through `@beep/git`'s `Git` service rather than a raw
+ * subprocess seam, so a test provides `Layer.succeed(Git, …)` and needs no
+ * repository on disk. `Git` requires core's `ChildProcessSpawner` in `R`, which
+ * the consumer's platform layer discharges at the edge.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Git } from "@beep/git";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
@@ -111,7 +115,7 @@ export declare namespace ChangeDetectionOptions {
  *
  * **Details**
  *
- * A git command that merely *fails* surfaces as one of `@effected/git`'s typed
+ * A git command that merely *fails* surfaces as one of `@beep/git`'s typed
  * errors ({@link ChangeDetectionFailure} carries `GitCommandError`,
  * `NotARepositoryError` and `UnknownRefError`) rather than being flattened into
  * this wrapper — a caller branches on git's taxonomy directly.
@@ -160,6 +164,7 @@ export class ChangeDetectionError extends S.TaggedError<ChangeDetectionError, { 
    * console.log(error.message) // Change detection failed during compare
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category getters
    * @since 0.0.0
    */
@@ -173,7 +178,7 @@ export class ChangeDetectionError extends S.TaggedError<ChangeDetectionError, { 
  *
  * **Details**
  *
- * `@effected/git`'s typed errors surface directly alongside
+ * `@beep/git`'s typed errors surface directly alongside
  * {@link ChangeDetectionError} and the discovery failures — a git command that
  * fails is reported as git classified it (`NotARepositoryError` for a
  * non-repository, `UnknownRefError` for a bad ref, `GitCommandError`
@@ -306,6 +311,8 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
      * discovery indexes by. That holds whether or not the workspace root and
      * the git root coincide, which is the point: a workspace nested inside a
      * larger repository is legitimate.
+     *
+     * @returns The workspace root.
      */
     const rootOf = (): Effect.Effect<string, WorkspaceDiscoveryFailure> =>
       discovery.info.pipe(Effect.map((info) => info.root));

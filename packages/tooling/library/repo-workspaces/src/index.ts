@@ -6,10 +6,10 @@
  *
  * **Details**
  *
- * The pure halves live in siblings — `@effected/lockfiles` parses lockfile
- * text, `@effected/glob` matches patterns, `@effected/walker` ascends
+ * The pure halves live in siblings — `@beep/lockfiles` parses lockfile
+ * text, `@beep/glob` matches patterns, `@beep/walker` ascends
  * directories. This package is the part that needs a filesystem and a package
- * manager under it, and it is where `@effected/npm`'s `CatalogResolver` and
+ * manager under it, and it is where `@beep/npm-spec`'s `CatalogResolver` and
  * `WorkspaceResolver` contracts are implemented.
  *
  * **Example** (List workspace package names with Effect services)
@@ -30,6 +30,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export {

@@ -1,16 +1,21 @@
-// The opt-in pnpmfile `configDependencies` hook-replay seam.
-//
-// pnpm's config dependencies (declared under `configDependencies:` in
-// `pnpm-workspace.yaml`) install to `node_modules/.pnpm-config/<name>` and may
-// ship a `pnpmfile.cjs` whose `updateConfig` hook mutates the resolved config —
-// catalogs included. This service replays those hooks over an inline-catalog
-// seed so hook-injected catalogs land in assembly.
-//
-// This executes arbitrary code loaded from a config dependency, so it is **never**
-// wired by the default `WorkspaceCatalogs.layer`. It is loaded IN PROCESS via a
-// dynamic `import()` — no subprocess is spawned — and lives behind an opt-in,
-// Node-coupled layer, the same shape as the other Node-only overlays in this
-// package. `layerNoop` returns the seed untouched and is the safe default for
+/**
+ * The opt-in pnpmfile `configDependencies` hook-replay seam.
+ *
+ * pnpm's config dependencies (declared under `configDependencies:` in
+ * `pnpm-workspace.yaml`) install to `node_modules/.pnpm-config/<name>` and may
+ * ship a `pnpmfile.cjs` whose `updateConfig` hook mutates the resolved config —
+ * catalogs included. This service replays those hooks over an inline-catalog
+ * seed so hook-injected catalogs land in assembly.
+ *
+ * This executes arbitrary code loaded from a config dependency, so it is **never**
+ * wired by the default `WorkspaceCatalogs.layer`. It is loaded IN PROCESS via a
+ * dynamic `import()` — no subprocess is spawned — and lives behind an opt-in,
+ * Node-coupled layer, the same shape as the other Node-only overlays in this
+ * package. `layerNoop` returns the seed untouched and is the safe default for
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
@@ -409,6 +414,9 @@ interface ReplayRequest {
  * without resolving or replaying anything; any other call runs `replay` over
  * the services the layer captured.
  *
+ * @param services - The services the layer captured.
+ * @param replay - What the layer does with a non-empty request.
+ * @returns The service's `inject`.
  * @internal
  */
 const replayingInject = <Services>(
@@ -554,6 +562,10 @@ const peerRulesOr: {
 /**
  * A rules block's axes threaded over `fallback`; `fallback` itself when no
  * axis is usable.
+ *
+ * @param value - The rules block a hook returned.
+ * @param fallback - The rules threaded so far.
+ * @returns The threaded rules, or `fallback` when no axis is usable.
  */
 const threadedPeerRules = (
   value: { readonly [key: string]: unknown },
@@ -571,7 +583,14 @@ const threadedPeerRules = (
   return rulesWithEmptyAxes(allowed, ignoreMissing, allowAny);
 };
 
-/** Rules from the threaded axes, an unset axis empty. */
+/**
+ * Rules from the threaded axes, an unset axis empty.
+ *
+ * @param allowed - The `allowedVersions` axis, when set.
+ * @param ignoreMissing - The `ignoreMissing` axis, when set.
+ * @param allowAny - The `allowAny` axis, when set.
+ * @returns The rules, each unset axis empty.
+ */
 const rulesWithEmptyAxes = (
   allowed: Readonly<Record<string, string>> | undefined,
   ignoreMissing: ReadonlyArray<string> | undefined,
@@ -583,13 +602,21 @@ const rulesWithEmptyAxes = (
     allowAny: allowAny ?? [],
   });
 
-/** Project the threaded config's rules into the slice, defaulting every axis to empty. */
+/**
+ * Project the threaded config's rules into the slice, defaulting every axis to empty.
+ *
+ * @param config - The threaded hook config.
+ * @returns The config's rules, or the empty rules.
+ */
 const peerRulesOf = (config: HookConfig): PeerDependencyRules => config.peerDependencyRules ?? NO_PEER_RULES;
 
 /**
  * Project the threaded config's release-age keys into a partial gate
  * contribution, omitting a key the hooks never set (never an explicit
  * `undefined` — the fields are `optionalKey`).
+ *
+ * @param config - The threaded hook config.
+ * @returns The partial gate the config's release-age keys contribute.
  */
 const releaseAgeOf = (config: HookConfig): PartialReleaseAgeGate =>
   PartialReleaseAgeGate.make({
@@ -597,7 +624,12 @@ const releaseAgeOf = (config: HookConfig): PartialReleaseAgeGate =>
     ...O.getSomesStruct({ exclude: O.fromUndefinedOr(config.minimumReleaseAgeExclude) }),
   });
 
-/** Fold the hook config back into the normalized `catalog name → dependency → range` record. */
+/**
+ * Fold the hook config back into the normalized `catalog name → dependency → range` record.
+ *
+ * @param config - The threaded hook config.
+ * @returns The config's catalogs, the default catalog under `default`.
+ */
 const configToEntries = (config: HookConfig): CatalogEntries => {
   const raw = R.fromEntries(R.toEntries(config.catalogs));
   if (R.keys(config.catalog).length === 0) return normalize(raw);
@@ -613,7 +645,12 @@ const configToEntries = (config: HookConfig): CatalogEntries => {
 /** The `updateConfig` hook a loaded `pnpmfile.cjs` exposes, however it is exported. */
 type UpdateConfig = (config: HookConfig) => unknown;
 
-/** Locate the `updateConfig` hook across the CJS/ESM export shapes a `pnpmfile.cjs` can present. */
+/**
+ * Locate the `updateConfig` hook across the CJS/ESM export shapes a `pnpmfile.cjs` can present.
+ *
+ * @param mod - The imported pnpmfile module.
+ * @returns The module's `hooks.updateConfig`, or `undefined` when it exports none.
+ */
 const updateConfigOf = (mod: Readonly<Record<string, unknown>>): UpdateConfig | undefined => {
   for (const candidate of [mod, mod.default]) {
     if (!P.isObject(candidate)) continue;
@@ -656,7 +693,12 @@ const untouched: {
     HookInjection.make({ catalogs: seed, releaseAge: {}, peerDependencyRules: rules ?? NO_PEER_RULES, replays })
 );
 
-/** The per-name replay record of a resolved set — every resolved dependency, pnpmfile or not. */
+/**
+ * The per-name replay record of a resolved set — every resolved dependency, pnpmfile or not.
+ *
+ * @param pnpmfiles - The resolved pnpmfiles.
+ * @returns Each dependency's replay record, by name.
+ */
 const replaysOf = (pnpmfiles: ReadonlyArray<ResolvedPnpmfile>): Readonly<Record<string, HookReplay>> =>
   R.fromEntries(A.map(pnpmfiles, ({ name, version, source }) => [name, HookReplay.make({ version, source })] as const));
 
@@ -915,7 +957,12 @@ const ReplayPayload = S.Union([
   })
 );
 
-/** Rebuild the subprocess's serialized failure as an `Error`, preserving the child-side stack when it carried one. */
+/**
+ * Rebuild the subprocess's serialized failure as an `Error`, preserving the child-side stack when it carried one.
+ *
+ * @param payload - The child's failure payload.
+ * @returns The failure as an error carrying the child's message and stack.
+ */
 const replayFailureCause = (payload: { readonly message?: string; readonly stack?: string }): Error => {
   const error = ConfigDependencyReplayError.make({
     message: payload.message ?? "config dependency hook replay failed",
@@ -1077,7 +1124,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    * `"<name>@<version>"` → absolute path, with **no resolution** — it consults
    * neither `node_modules/.pnpm-config` nor the pnpm store, and never the
    * effect `FileSystem` service, so it works unchanged under an
-   * `@effected/memfs` volume.
+   * `@beep/memfs` volume.
    *
    * **Details**
    *
@@ -1211,7 +1258,7 @@ export class ConfigDependencyHooks extends Context.Service<ConfigDependencyHooks
    *
    * Requires core's `ChildProcessSpawner`, resolved when the layer is built —
    * the consumer provides it once at the edge (`@effect/platform-node`'s
-   * `NodeServices.layer`), the same discharge `@effected/git` uses. Wired by
+   * `NodeServices.layer`), the same discharge `@beep/git` uses. Wired by
    * `WorkspaceCatalogs.layerWithConfigDependenciesSubprocess` /
    * `Workspaces.layerWithConfigDependenciesSubprocess`.
    *

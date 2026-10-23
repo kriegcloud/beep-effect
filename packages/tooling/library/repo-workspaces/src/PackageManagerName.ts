@@ -1,12 +1,16 @@
-// Which package manager drives this workspace, and how we work that out.
-//
-// `PackageManagerName` is structurally identical to `@effected/lockfiles`'
-// `LockfileFormat` and assigns freely to it — which is exactly what
-// `LockfileReader` relies on. They are kept as separate names because they are
-// separate concepts (which PM runs the repo vs. which lockfile grammar to
-// parse), and because `@beep/package-json` already exports a
-// `PackageManager` class for the corepack `pnpm@10.33.0` field.
-
+/**
+ * Which package manager drives this workspace, and how we work that out.
+ *
+ * `PackageManagerName` is structurally identical to `@beep/lockfiles`'
+ * `LockfileFormat` and assigns freely to it — which is exactly what
+ * `LockfileReader` relies on. They are kept as separate names because they are
+ * separate concepts (which PM runs the repo vs. which lockfile grammar to
+ * parse), and because `@beep/package-json` already exports a
+ * `PackageManager` class for the corepack `pnpm@10.33.0` field.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { PackageManager } from "@beep/package-json";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -317,6 +321,9 @@ const exactVersionOf: {
  * arrays in this slot and falls back), a missing or non-string `name`, and a
  * `name` containing `@`. A version that is not an exact version is dropped on its
  * own, keeping the name — the name is still a valid disambiguator.
+ *
+ * @param manifest - The parsed root manifest.
+ * @returns The declared manager name and exact version, or none.
  */
 const devEnginesHint = (manifest: Record<string, unknown>): O.Option<ManagerHint> => {
   const devEngines = manifest.devEngines;
@@ -337,7 +344,12 @@ const devEnginesHint = (manifest: Record<string, unknown>): O.Option<ManagerHint
   );
 };
 
-/** The corepack top-level `packageManager` hint, or none when absent or malformed. */
+/**
+ * The corepack top-level `packageManager` hint, or none when absent or malformed.
+ *
+ * @param manifest - The parsed root manifest.
+ * @returns The `packageManager` field's name and exact version, or none.
+ */
 const corepackHint = (manifest: Record<string, unknown>): O.Option<ManagerHint> => {
   const raw = manifest.packageManager;
   if (!P.isString(raw)) return O.none();
@@ -405,6 +417,7 @@ export class PackageManagerDetectionError extends S.TaggedError<
    * console.log(error.message) // No package manager detected at /repo (checked pnpm-workspace.yaml)
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category getters
    * @since 0.0.0
    */
@@ -602,6 +615,9 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
      *
      * `devEngines` first — it is authoritative for the name, and corepack errors
      * when the top-level field contradicts it.
+     *
+     * @param hints - The manifest's manager hints.
+     * @returns The declared manager name, or none.
      */
     const declaredName = (hints: Hints): O.Option<string> =>
       O.map(
@@ -634,7 +650,14 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
       return O.orElse(fromCorepack, () => O.flatMap(hints.devEngines, (hint) => hint.version));
     });
 
-    /** A detection of `name`, with the version a field naming it carries. */
+    /**
+     * A detection of `name`, with the version a field naming it carries.
+     *
+     * @param hints - The manifest's manager hints.
+     * @param name - The manager that was detected.
+     * @param evidence - The marker or field that decided the name.
+     * @returns The detection.
+     */
     const detected = (hints: Hints, name: PackageManagerName, evidence: PackageManagerEvidence) =>
       DetectedPackageManager.make({
         name,
@@ -647,6 +670,13 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
      * A marker-file rung: `marker` at the root decides `name`. A lockfile a
      * stray copy of which is common (yarn, bun) also needs the manifest to name
      * its manager, and that cheaper check runs first.
+     *
+     * @param root - The workspace root.
+     * @param hints - The manifest's manager hints.
+     * @param marker - The marker file the rung probes.
+     * @param name - The manager the marker decides.
+     * @param needsDeclaration - Whether the manifest must also name the manager.
+     * @returns The detection when the rung decides, or none.
      */
     const markerRung = (
       root: string,
@@ -659,7 +689,13 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
         ? Effect.succeedNone
         : Effect.map(has(root, marker), (present) => (present ? O.some(detected(hints, name, marker)) : O.none()));
 
-    /** The npm workspace rung: a root manifest with a `workspaces` field. */
+    /**
+     * The npm workspace rung: a root manifest with a `workspaces` field.
+     *
+     * @param manifest - The parsed root manifest, when one exists.
+     * @param hints - The manifest's manager hints.
+     * @returns An npm detection when the manifest has a `workspaces` field, or none.
+     */
     const workspacesRung = (
       manifest: O.Option<Record<string, unknown>>,
       hints: Hints
@@ -674,6 +710,9 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
      * known manager. The evidence is the field that supplied the name —
      * `declaredName` believes devEngines first, so the evidence mirrors that
      * precedence.
+     *
+     * @param hints - The manifest's manager hints.
+     * @returns The detection the declaration supports, or none.
      */
     const declarationRung = (hints: Hints): O.Option<DetectedPackageManager> =>
       O.map(O.filter(declaredName(hints), S.is(PackageManagerName)), (name) =>

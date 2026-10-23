@@ -9,7 +9,7 @@ import { dual, flow, identity } from "effect/Function";
 //
 // Only `ConfigDependencyHooks.layerSubprocess` wires this rung; every other
 // replaying layer fails typed with `reason: "notInstalled"` instead. The
-// subprocess goes through `@effected/commands`' `Run` over core's
+// subprocess goes through `@beep/commands`' `Run` over core's
 // `ChildProcessSpawner`, the same seam the replay itself uses.
 //
 import * as ChildProcess from "effect/process/ChildProcess";

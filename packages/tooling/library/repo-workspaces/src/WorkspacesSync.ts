@@ -1,32 +1,36 @@
-import * as A from "effect/Array";
-import { dual } from "effect/Function";
-import * as Order from "effect/Order";
-import * as Str from "effect/String";
-
-// The synchronous escape hatch — over CONSUMER-SUPPLIED operations.
-//
-// Vitest's config-time project discovery cannot await, and it is the reason
-// this module exists — a Vitest plugin building its project list has nowhere to
-// run an Effect. It imports NOTHING platform-shaped: the caller passes the file and path
-// operations (`node:fs` / `node:path` satisfy them one-liner each), so the kit
-// source never touches `node:*` and never assumes posix. Windows correctness is
-// the consumer passing a win32-appropriate `path` (`node:path` on Windows, or
-// `node:path/win32` explicitly) — the `@beep/repo-tsconfig` `TsconfigLoaderSync` convention.
-//
-// It does not keep a second pattern semantic: it compiles through the same
-// `GlobSet` and walks the same worklist as the Effect enumerator, so
-// `packages/**` means the same thing in both worlds.
+/**
+ * The synchronous escape hatch — over CONSUMER-SUPPLIED operations.
+ *
+ * Vitest's config-time project discovery cannot await, and it is the reason
+ * this module exists — a Vitest plugin building its project list has nowhere to
+ * run an Effect. It imports NOTHING platform-shaped: the caller passes the file and path
+ * operations (`node:fs` / `node:path` satisfy them one-liner each), so the kit
+ * source never touches `node:*` and never assumes posix. Windows correctness is
+ * the consumer passing a win32-appropriate `path` (`node:path` on Windows, or
+ * `node:path/win32` explicitly) — the `@beep/repo-tsconfig` `TsconfigLoaderSync` convention.
+ *
+ * It does not keep a second pattern semantic: it compiles through the same
+ * `GlobSet` and walks the same worklist as the Effect enumerator, so
+ * `packages/**` means the same thing in both worlds.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { GlobSet } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import { Yaml } from "@beep/yaml";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { MAX_ENUMERATION_DEPTH } from "./internal/limits.ts";
 import { manifestVersionOf } from "./internal/manifestFields.ts";
 import { manifestPatternsOf, pnpmPatternsOf } from "./internal/patterns.ts";
@@ -45,7 +49,12 @@ import type { TraversalFrame } from "./internal/traverse.ts";
 
 const isDependencyMap = S.is(WorkspacePackage.fields.dependencies);
 
-/** A manifest dependency block, or the empty block when it is not a name-to-range record. */
+/**
+ * A manifest dependency block, or the empty block when it is not a name-to-range record.
+ *
+ * @param value - A manifest field that should map names to ranges.
+ * @returns The block, or `{}` when it has another shape.
+ */
 const dependencyMapOf = (value: unknown): Readonly<Record<string, string>> => (isDependencyMap(value) ? value : {});
 
 const $I = $RepoWorkspacesId.create("WorkspacesSync");
@@ -354,7 +363,12 @@ export const WorkspaceDiscoverySkipKind = WorkspaceDiscoveryError.fields.kind
  */
 export type WorkspaceDiscoverySkipKind = typeof WorkspaceDiscoverySkipKind.Type;
 
-/** Builds one existing plain failure case without a constructor default. */
+/**
+ * Builds one existing plain failure case without a constructor default.
+ *
+ * @param kind - The skip kind the case carries.
+ * @returns The skip schema for that kind.
+ */
 const workspaceDiscoverySkipCase = <const Kind extends WorkspaceDiscoverySkipKind>(kind: S.Literal<Kind>) => {
   const identifier: string = `WorkspaceDiscoverySkip.${kind.literal}`;
   return S.Struct({
@@ -733,6 +747,11 @@ export const findWorkspaceRootSync: {
 /**
  * Whether `directory` declares a workspace: a `pnpm-workspace.yaml`, or a
  * `package.json` with a `workspaces` field.
+ *
+ * @param fileSystem - The consumer's file operations.
+ * @param path - The consumer's path operations.
+ * @param directory - The directory to probe.
+ * @returns `true` when the directory declares a workspace.
  */
 const declaresWorkspace = (fileSystem: SyncFileSystem, path: SyncPath, directory: string): boolean => {
   if (fileSystem.exists(path.join(directory, "pnpm-workspace.yaml"))) return true;
@@ -748,6 +767,11 @@ const declaresWorkspace = (fileSystem: SyncFileSystem, path: SyncPath, directory
  * Inclusive: the ceiling itself was just probed. A ceiling naming no ancestor
  * never matches and the ascent runs to the filesystem root — walker's rule,
  * which the Effect surface inherits.
+ *
+ * @param path - The consumer's path operations.
+ * @param current - The directory just probed.
+ * @param ceiling - The resolved `stopAt` ceiling, when one was given.
+ * @returns The parent directory, or `undefined` at the ceiling or the filesystem root.
  */
 const ascentFrom = (path: SyncPath, current: string, ceiling: string | undefined): string | undefined => {
   if (current === ceiling) return undefined;
@@ -1049,6 +1073,10 @@ interface SyncScope {
 
 /**
  * The packages among `reads`, reporting every skip to `onSkip` in order.
+ *
+ * @param options - The caller's options, for `onSkip`.
+ * @param reads - The manifest reads, in order.
+ * @returns The packages, in order.
  */
 const admitted = (
   options: GetWorkspacePackagesSyncOptions,
@@ -1064,6 +1092,9 @@ const admitted = (
 
 /**
  * A literal include: an exact lookup, no directory read at all.
+ *
+ * @param scope - The enumeration's shared state.
+ * @param literal - A `packages:` entry with no wildcard, relative to the root.
  */
 const includeLiteralSync = (scope: SyncScope, literal: string): void => {
   if (scope.isExcluded(literal)) return;
@@ -1081,6 +1112,9 @@ const includeLiteralSync = (scope: SyncScope, literal: string): void => {
  * `TraversalStop`: the Effect path fails typed, this one truncates, because a
  * Vitest config has nowhere to put an error. Depth, budget, prune and dequeue
  * are not re-decided here.
+ *
+ * @param scope - The enumeration's shared state.
+ * @param wildcard - A compiled `packages:` pattern with a wildcard.
  */
 const enumerateWildcardSync = (scope: SyncScope, wildcard: GlobPattern): void => {
   const base = Str.replace(/\/$/, "")(wildcard.enumerationPrefix);
@@ -1104,6 +1138,13 @@ const enumerateWildcardSync = (scope: SyncScope, wildcard: GlobPattern): void =>
  * only the descent is what made this function return a package one level
  * beyond the cap that the Effect API rejected on the same tree — the drift
  * that motivated the shared traversal.
+ *
+ * @param scope - The enumeration's shared state.
+ * @param wildcard - The wildcard being walked.
+ * @param traversal - The shared traversal.
+ * @param frame - The directory the entry was listed in.
+ * @param entry - The listed entry.
+ * @returns `false` when the depth cap stops the walk, `true` otherwise.
  */
 const visitEntrySync = (
   scope: SyncScope,

@@ -1,12 +1,16 @@
-// The IO half of `@effected/lockfiles`.
-//
-// The seam is `content: string`: lockfiles is pure and parses text,
-// workspaces finds the root, detects the manager, reads the file
-// and — for pnpm — supplies the importer-path → name map that the pure
-// `Lockfile.withImporterNames` second stage needs. That map is built here
-// because building it requires reading every workspace `package.json`, which is
-// IO, which is precisely what a pure package cannot do.
-
+/**
+ * The IO half of `@beep/lockfiles`.
+ *
+ * The seam is `content: string`: lockfiles is pure and parses text,
+ * workspaces finds the root, detects the manager, reads the file
+ * and — for pnpm — supplies the importer-path → name map that the pure
+ * `Lockfile.withImporterNames` second stage needs. That map is built here
+ * because building it requires reading every workspace `package.json`, which is
+ * IO, which is precisely what a pure package cannot do.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { filenameFor, LockfileFormat, LockfileIntegrity, Lockfile as LockfileModel } from "@beep/lockfiles";
 import * as A from "effect/Array";
@@ -40,7 +44,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  *
  * **Details**
  *
- * Parse failures are `@effected/lockfiles`' `LockfileParseError`, not this —
+ * Parse failures are `@beep/lockfiles`' `LockfileParseError`, not this —
  * this is strictly the IO half.
  *
  * **Example** (Describe an unreadable lockfile)
@@ -69,7 +73,7 @@ export class LockfileReadError extends S.TaggedError<LockfileReadError, { readon
         description: "Absolute path to the lockfile that could not be read.",
       })
     ),
-    // `LockfileFormat` is @effected/lockfiles' own schema, not a re-spelling of it.
+    // `LockfileFormat` is @beep/lockfiles' own schema, not a re-spelling of it.
     // Hand-rolling `Schema.Literals([...])` here duplicates the source of truth and
     // would silently disagree the day upstream adds a format.
     /** The format the detected package manager implies. */
@@ -99,6 +103,7 @@ export class LockfileReadError extends S.TaggedError<LockfileReadError, { readon
    * console.log(error.message) // Cannot read pnpm lockfile at /repo/pnpm-lock.yaml
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category formatting
    * @since 0.0.0
    */
@@ -246,7 +251,12 @@ class LockfileReaderTestDoubleError extends S.TaggedError<
   })
 ) {}
 
-/** A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure. */
+/**
+ * A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure.
+ *
+ * @param method - The unstubbed method's name.
+ * @returns An effect that dies naming the method.
+ */
 const unstubbed = (method: string): Effect.Effect<never> =>
   Effect.die(
     LockfileReaderTestDoubleError.make({

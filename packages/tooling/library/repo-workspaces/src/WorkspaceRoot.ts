@@ -1,10 +1,14 @@
-// Workspace-root discovery, expressed over `@effected/walker`.
-//
-// The markers, in priority order: a `pnpm-workspace.yaml`, then a
-// `package.json` carrying a `workspaces` field. Walker's per-probe error
-// absorption is load-bearing — one unreadable ancestor must not hide a valid
-// root above it.
-
+/**
+ * Workspace-root discovery, expressed over `@beep/walker`.
+ *
+ * The markers, in priority order: a `pnpm-workspace.yaml`, then a
+ * `package.json` carrying a `workspaces` field. Walker's per-probe error
+ * absorption is load-bearing — one unreadable ancestor must not hide a valid
+ * root above it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import { Walker } from "@beep/walker/Walker";
@@ -50,7 +54,7 @@ const PACKAGE_JSON_MARKER_PROSE = 'package.json with a "workspaces" field';
  *
  * **Details**
  *
- * Both bounds are passed straight through to `@effected/walker`'s
+ * Both bounds are passed straight through to `@beep/walker`'s
  * `Walker.ascend`; this package does not re-decide either.
  *
  * **Example** (Read optional ascent bounds)
@@ -217,6 +221,7 @@ export class WorkspaceRootNotFoundError extends S.TaggedError<
    * console.log(error.message) // No workspace root above /repo (looked for pnpm-workspace.yaml, package.json with a "workspaces" field)
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category getters
    * @since 0.0.0
    */
@@ -532,7 +537,7 @@ export class WorkspaceRoot extends Context.Service<WorkspaceRoot, WorkspaceRootS
    *
    * Pair it with `WorkspaceDiscovery.layerTest` to stand up the whole discovery
    * path without a filesystem; between them there is nothing left for a
-   * module-level mock of `@effected/workspaces` to do, and a provided layer
+   * module-level mock of `@beep/repo-workspaces` to do, and a provided layer
    * keeps the service graph — and its typed errors — intact.
    *
    * **Example** (Provide root and discovery test layers)

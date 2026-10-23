@@ -2,7 +2,7 @@
 //
 // pnpm records it in `pnpm-workspace.yaml`; npm, yarn and bun record it in the
 // root package.json `workspaces` field (array form, or the legacy
-// `{ packages: [...] }` object form). The YAML is parsed with `@effected/yaml`.
+// `{ packages: [...] }` object form). The YAML is parsed with `@beep/yaml`.
 
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

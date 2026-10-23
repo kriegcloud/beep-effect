@@ -1,13 +1,17 @@
-// How a workspace assigns versions across its publishable packages, and what
-// that implies for tagging.
-//
-// This is a value class with statics, not a service. Classification is a pure
-// total fold over (publishable names, fixed groups) — there is nothing to swap
-// and nothing to configure — and the kit-wide rule that a service shape carries
-// only effectful members settles it. The one genuinely effectful
-// entry point, `detect`, is a static over two services that already exist and
-// already have their own test doubles.
-
+/**
+ * How a workspace assigns versions across its publishable packages, and what
+ * that implies for tagging.
+ *
+ * This is a value class with statics, not a service. Classification is a pure
+ * total fold over (publishable names, fixed groups) — there is nothing to swap
+ * and nothing to configure — and the kit-wide rule that a service shape carries
+ * only effectful members settles it. The one genuinely effectful
+ * entry point, `detect`, is a static over two services that already exist and
+ * already have their own test doubles.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
@@ -269,6 +273,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * console.log(VersioningStrategy.classify({ packages: ["a", "b"] }).perPackageTags) // true
    * ```
    *
+   * @returns `true` for the independent strategy.
    * @category getters
    * @since 0.0.0
    */
@@ -287,6 +292,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    * console.log(VersioningStrategy.classify({ packages: ["a"] }).tagStyle) // single
    * ```
    *
+   * @returns `"scoped"` when every package is tagged, `"single"` otherwise.
    * @category getters
    * @since 0.0.0
    */
@@ -417,6 +423,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
    *
    * @param releases - The packages released and their versions.
    * @param options - Tag formatting overrides, such as `versionPrefix`.
+   * @returns One tag per package for the independent strategy, one shared tag otherwise.
    * @category formatting
    * @since 0.0.0
    */

@@ -1,15 +1,19 @@
-// What a release's git tag is called.
-//
-// A pure leaf: this module imports nothing from the rest of the package, and
-// nothing about git or GitHub. A tag NAME is a string-formatting concern, and
-// keeping it here rather than on a git-shaped service is what lets a release
-// planner compute its tags before it has decided to talk to anything.
-//
-// The default version prefix is "" uniformly, for scoped and unscoped tags
-// alike — strict SemVer. A tool that needs GitHub's `v<semver>` release-tag
-// convention passes `versionPrefix: "v"` explicitly. Git tag history is not an
-// API, so changing a default here would not rewrite a consumer's existing tags.
-
+/**
+ * What a release's git tag is called.
+ *
+ * A pure leaf: this module imports nothing from the rest of the package, and
+ * nothing about git or GitHub. A tag NAME is a string-formatting concern, and
+ * keeping it here rather than on a git-shaped service is what lets a release
+ * planner compute its tags before it has decided to talk to anything.
+ *
+ * The default version prefix is "" uniformly, for scoped and unscoped tags
+ * alike — strict SemVer. A tool that needs GitHub's `v<semver>` release-tag
+ * convention passes `versionPrefix: "v"` explicitly. Git tag history is not an
+ * API, so changing a default here would not rewrite a consumer's existing tags.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
@@ -116,7 +120,7 @@ export declare namespace TagFormatOptions {
 
 // The numeric core of a SemVer version, plus whether it carries a prerelease.
 //
-// Parsed here rather than through `@effected/semver` on purpose: the
+// Parsed here rather than through `@beep/semver` on purpose: the
 // tracking-tag grammar is deliberately NOT SemVer (a truncated `v1` is not a
 // version at all), and the only facts the derivation needs are the major and
 // minor segments and the presence of a prerelease. A dependency edge for that
@@ -167,6 +171,9 @@ const isVersionText = S.is(VersionText);
  * no precedence meaning in SemVer, so `1.2.3+sha.abc` is the stable `1.2.3`,
  * and treating any `-`-or-`+` suffix as a prerelease is the obvious wrong
  * reading.
+ *
+ * @param version - The version text to read.
+ * @returns The major, minor and prerelease flag, or `undefined` for any other shape.
  */
 const versionCore = (version: string): VersionCore | undefined => {
   if (!isVersionText(version)) return undefined;
@@ -327,6 +334,8 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
    * const tag = TrackingTag.make({ value: "v1.2", major: 1, minor: 2 });
    * console.log(tag.precision) // minor
    * ```
+   *
+   * @returns `"major"` for a `v1` alias, `"minor"` for a `v1.2` alias.
    * @category getters
    * @since 0.0.0
    */
@@ -396,12 +405,20 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
 
 /**
  * The package prefix a tag carries: `""` for a single-style tag.
+ *
+ * @param packageName - The package a scoped tag names, or `undefined` for a single-style tag.
+ * @returns The package name and the `<name>@` text to prefix.
  */
 const tagPrefix = (packageName: string | undefined): { readonly packageName?: string; readonly text: string } =>
   packageName === undefined ? { text: "" } : { packageName, text: `${packageName}@` };
 
 /**
  * A tracking alias `<prefix>v<suffix>` with its fields.
+ *
+ * @param prefix - The package prefix, from `tagPrefix`.
+ * @param suffix - The version text after the `v`.
+ * @param fields - The alias's major and optional minor.
+ * @returns The tracking alias.
  */
 const trackingTagOf = (
   prefix: { readonly packageName?: string; readonly text: string },
@@ -418,6 +435,10 @@ const trackingTagOf = (
  * The `X.Y.Z` core a version derives aliases from: none for a version that is
  * not `X.Y.Z`, whose segments no alias can carry, or that is a prerelease the
  * caller did not opt into.
+ *
+ * @param version - The version being released.
+ * @param includePrerelease - Whether a prerelease may derive aliases.
+ * @returns The core to derive aliases from, or none.
  */
 const aliasableCore = (version: string, includePrerelease: boolean): O.Option<VersionCore> =>
   O.filter(
@@ -430,6 +451,9 @@ const aliasableCore = (version: string, includePrerelease: boolean): O.Option<Ve
 
 /**
  * A tag string split into an optional package prefix and the version part.
+ *
+ * @param tag - Any tag string.
+ * @returns The optional package name and the version part, or `undefined` for a scope with no version.
  */
 const splitTag = (tag: string): { readonly packageName?: string; readonly rest: string } | undefined => {
   const found = Str.lastIndexOf("@")(tag);
@@ -510,6 +534,9 @@ export const classifyTag = (tag: string): TagClassification => {
 /**
  * The fields of a `v`-less alias body: one or two numeric segments within the
  * alias bounds.
+ *
+ * @param alias - The alias text after its `v`.
+ * @returns The alias's major and optional minor, or none.
  */
 const aliasFields = (alias: string): O.Option<{ readonly major: number; readonly minor?: number }> => {
   const segments = Str.split(alias, ".");

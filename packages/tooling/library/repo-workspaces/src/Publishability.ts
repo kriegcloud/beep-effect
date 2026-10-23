@@ -1,9 +1,13 @@
-// Whether a workspace package is publishable, and where to.
-//
-// A service rather than a function precisely so it is swappable: standard npm
-// semantics are the default, and an organization with its own publish rules
-// replaces the layer with `Layer.succeed` instead of forking the package.
-
+/**
+ * Whether a workspace package is publishable, and where to.
+ *
+ * A service rather than a function precisely so it is swappable: standard npm
+ * semantics are the default, and an organization with its own publish rules
+ * replaces the layer with `Layer.succeed` instead of forking the package.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

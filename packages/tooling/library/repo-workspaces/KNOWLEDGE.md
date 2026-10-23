@@ -1,13 +1,23 @@
-# workspaces — upstream knowledge bundle (verbatim)
+# repo-workspaces — upstream knowledge bundle (verbatim)
 
 Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
-decisions live in README.md → Port notes, not here.
+decisions live in README.md → Provenance, not here.
 
-The `lockfiles` sibling ships as `@beep/lockfiles` (`packages/foundation/modeling/lockfiles`) since
-wave 3-5 of `goals/effected-promotion`, and this module imports it from there. Its own knowledge
-bundle moved with it to `packages/foundation/modeling/lockfiles/KNOWLEDGE.md`. The mentions of
-`@effected/lockfiles` below are upstream text and still describe the upstream package.
+Upstream paths map onto this package as follows: `packages/workspaces/` is
+`packages/tooling/library/repo-workspaces/`, `packages/workspaces/src/` is `src/` here and
+`packages/workspaces/__test__/` is `test/` here, with the fixtures at `test/fixtures/`.
+`@effected/workspaces` is `@beep/repo-workspaces`; `@effected/lockfiles`, `@effected/git`,
+`@effected/commands`, `@effected/glob`, `@effected/walker`, `@effected/yaml`,
+`@effected/semver`, `@effected/memfs` and `@effected/package-json` are the `@beep/*` package of
+the same name, and `@effected/npm` is `@beep/npm-spec`. The `@effected/workspaces/testing`
+subpath (`WorkspaceLayering`, `LayerPolicy`, `SourceBoundary`, `PackedInstall`) did not move:
+it stays in the lab module `scratchpad/effected/workspaces` and imports this package's leaves.
+Where the text names a record's shape or a layer's requirements, read README.md → Provenance:
+the plain records and option bags are branded `S.Opaque` structs, and the config-dependency
+layers read through `FileSystem` and `Path`. The upstream `pnpm` commands below do not apply;
+run `bun run test`, `bun run test:integration` and `bun run check` in this directory, or
+`bun run beep quality package-verify @beep/repo-workspaces` from the repo root.
 
 ---
 <!-- packages/workspaces/CLAUDE.md -->

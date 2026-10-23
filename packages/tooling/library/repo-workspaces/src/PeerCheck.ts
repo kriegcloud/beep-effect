@@ -1,24 +1,29 @@
-import { LiteralKit } from "@beep/schema/LiteralKit";
-import { dual } from "effect/Function";
-// Unsatisfied peer-dependency detection over a parsed lockfile — a pure
-// VALUE, not a service. No IO, nothing in `R`, no error channel.
-//
-// The computation is FORMAT-FREE. `@effected/lockfiles` normalizes every
-// manager's lockfile into package *instances* carrying `instanceId`,
-// `peerDependencies`, `peerDependenciesMeta` and `resolved` (name → the
-// instanceId that name actually resolved to), so this module never learns
-// which manager wrote the file. That is the whole point of the model work
-// behind it: shelling out to each package manager's own peer command cannot
-// deliver bun (which reports nothing on a no-op install and never records the
-// wanted range), so the answer has to come from the graph.
-//
-// `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on "@"
-// or "(" would re-introduce the format knowledge this module exists without.
+/**
+ * Unsatisfied peer-dependency detection over a parsed lockfile — a pure
+ * VALUE, not a service. No IO, nothing in `R`, no error channel.
+ *
+ * The computation is FORMAT-FREE. `@beep/lockfiles` normalizes every
+ * manager's lockfile into package *instances* carrying `instanceId`,
+ * `peerDependencies`, `peerDependenciesMeta` and `resolved` (name → the
+ * instanceId that name actually resolved to), so this module never learns
+ * which manager wrote the file. That is the whole point of the model work
+ * behind it: shelling out to each package manager's own peer command cannot
+ * deliver bun (which reports nothing on a no-op install and never records the
+ * wanted range), so the answer has to come from the graph.
+ *
+ * `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on `@`
+ * or "(" would re-introduce the format knowledge this module exists without.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { Lockfile, ResolvedPackage } from "@beep/lockfiles";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import { Range, SemVer } from "@beep/semver";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -429,6 +434,8 @@ const PEER_RESOLVING_FORMATS: MutableHashSet.MutableHashSet<Lockfile["format"]> 
 >(["npm", "pnpm", "bun"]);
 
 /**
+ * @param format - The lockfile's format.
+ * @returns `true` when the format records peer resolutions.
  * @internal
  */
 const supportsPeerResolution = (format: Lockfile["format"]): boolean =>
@@ -436,7 +443,7 @@ const supportsPeerResolution = (format: Lockfile["format"]): boolean =>
 
 /**
  * The protocol pnpm records a workspace-directory resolution under, passed
- * through verbatim on `ImporterDependency.version` by `@effected/lockfiles`.
+ * through verbatim on `ImporterDependency.version` by `@beep/lockfiles`.
  *
  * @internal
  */
@@ -484,6 +491,9 @@ const linkTargetPath: {
  * Empty and `.` segments vanish; `..` pops the last segment unless there is
  * none, or it is itself a `..` that climbs above the start.
  *
+ * @param resolved - The segments resolved so far.
+ * @param segment - The next segment.
+ * @returns The segments with `segment` applied.
  * @internal
  */
 const resolveSegment = (resolved: ReadonlyArray<string>, segment: string): ReadonlyArray<string> => {
@@ -721,6 +731,8 @@ const joinedManifest: {
  * peers, which is the stricter answer: an unsatisfied peer is reported rather
  * than silently excused.
  *
+ * @param manifest - The joined manifest.
+ * @returns The names of its optional peers.
  * @internal
  */
 const optionalPeers = (manifest: WorkspacePackage): MutableHashSet.MutableHashSet<string> => {
@@ -780,9 +792,11 @@ const PROTOCOL_SPECIFIER = /^[A-Za-z][A-Za-z0-9+.-]*:/;
  *
  * The one test both halves of a comparison use: a range that is one yields
  * `"peerRangeUnresolved"`, a provider version that is one (`file:vendor/x`,
- * which `@effected/lockfiles` passes through for a `file:` provider) yields
+ * which `@beep/lockfiles` passes through for a `file:` provider) yields
  * `"peerVersionUnresolved"`.
  *
+ * @param value - A declared range or a resolved version.
+ * @returns `true` when it starts with a `<scheme>:` protocol.
  * @internal
  */
 const isProtocolSpecifier = (value: string): boolean => PROTOCOL_SPECIFIER.test(value);
@@ -1000,6 +1014,9 @@ const judgeJoined: {
  * Why a joined peer with a non-workspace provider cannot be compared: its
  * range, its provider's version, or both are protocol specifiers.
  *
+ * @param resolvedRange - The peer's resolved range, when it has one.
+ * @param version - The provider's version.
+ * @returns The reasons, in a fixed order.
  * @internal
  */
 const unjudgedReasons = (resolvedRange: string | undefined, version: string): ReadonlyArray<UnverifiedReason> => [
@@ -1122,6 +1139,8 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
    * const report = PeerCheck.make({ supported: true, unsatisfied: [], unresolvedImporters: [], unverified: [] });
    * console.log(report.required.length) // 0
    * ```
+   *
+   * @returns The non-optional unsatisfied peers.
    * @category getters
    * @since 0.0.0
    */
@@ -1136,7 +1155,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
    *
    * Pure, total and format-free: no IO, no error channel, and no knowledge of
    * which package manager wrote the file. Range satisfaction is
-   * `@effected/semver`'s, never hand-rolled.
+   * `@beep/semver`'s, never hand-rolled.
    *
    * The walk starts at each importer's resolved dependencies and follows
    * `resolved` edges, so a peer declared by a *transitive* dependency is
@@ -1223,7 +1242,7 @@ export class PeerCheck extends S.Class<PeerCheck, { readonly brand: unique symbo
    * console.log(Effect.isEffect(program)) // true
    * ```
    *
-   * @param lockfile - a lockfile parsed by `@effected/lockfiles`
+   * @param lockfile - a lockfile parsed by `@beep/lockfiles`
    * @param options - the workspace's effective rules, manifests and catalogs; see
    *   {@link PeerCheckOptions}
    * @returns the report; never fails
@@ -1360,6 +1379,9 @@ interface ManifestIndex {
  * Sets `key` unless it is already present: the first manifest to claim a
  * directory keeps it.
  *
+ * @param map - The index to fill.
+ * @param key - The directory.
+ * @param value - The manifest.
  * @internal
  */
 const setFirst = <V>(map: MutableHashMap.MutableHashMap<string, V>, key: string, value: V): void => {
@@ -1369,6 +1391,8 @@ const setFirst = <V>(map: MutableHashMap.MutableHashMap<string, V>, key: string,
 /**
  * Index the caller's manifests; see {@link ManifestIndex}.
  *
+ * @param packages - The caller's manifests.
+ * @returns The manifests by package directory and by link target.
  * @internal
  */
 const manifestIndexOf = (packages: ReadonlyArray<WorkspacePackage>): ManifestIndex => {
@@ -1391,6 +1415,8 @@ const manifestIndexOf = (packages: ReadonlyArray<WorkspacePackage>): ManifestInd
  * list axis compiles to a name predicate ONCE here rather than per row; both
  * are `() => false` when the axis is empty.
  *
+ * @param rules - The effective rules, when supplied.
+ * @returns Both list axes compiled to name predicates, beside the allowed ranges.
  * @internal
  */
 const policyOf = (rules: PeerDependencyRules.Encoded | undefined): Policy => ({
@@ -1438,6 +1464,8 @@ interface LinkScan {
 /**
  * The target a dependency's `link:` version names, when it is one.
  *
+ * @param version - An importer dependency's recorded version.
+ * @returns The link target, or none.
  * @internal
  */
 const linkVersionOf = (version: string | undefined): O.Option<string> =>
@@ -1454,6 +1482,11 @@ const linkVersionOf = (version: string | undefined): O.Option<string> =>
  * publish-directory target (`packages/a/dist`) stands for the package
  * directory's row, which is what the lockfile model resolves the same edge to.
  *
+ * @param lookup - Where link targets are looked up.
+ * @param importerPath - The importer that recorded the edge.
+ * @param name - A dependency's package name, matched exactly.
+ * @param version - The link target, relative to the importer.
+ * @returns The classified edge.
  * @internal
  */
 const linkEdgeAt = (lookup: LinkLookup, importerPath: string, name: string, version: string): LinkEdge => {
@@ -1478,6 +1511,9 @@ const linkEdgeAt = (lookup: LinkLookup, importerPath: string, name: string, vers
  * spelled relative to the importer that recorded it — so they are computed in
  * one pass rather than twice.
  *
+ * @param lockfile - The parsed lockfile.
+ * @param lookup - Where link targets are looked up.
+ * @returns The classified edges.
  * @internal
  */
 const scanLinks = (lockfile: Lockfile, lookup: LinkLookup): LinkScan => {
@@ -1548,6 +1584,9 @@ interface RunScope {
  * target with no lockfile row, or one the walk never reached, is still
  * invisible, and the report says so.
  *
+ * @param scope - The run's shared state.
+ * @param importer - The importer to walk.
+ * @returns `true` when a link edge it recorded stayed unjudged.
  * @internal
  */
 const walkImporter = (scope: RunScope, importer: Lockfile["importers"][number]): boolean => {
@@ -1617,6 +1656,9 @@ const UNJUDGED_ORDER: ReadonlyArray<UnverifiedReason> = ["peerRangeUnresolved", 
  * its silence as clean. The order is fixed so the array does not depend on
  * which importer the walk met first.
  *
+ * @param scope - The run's shared state.
+ * @param unjoinedLink - Whether some link edge stayed unjudged.
+ * @returns The markers, in a fixed order.
  * @internal
  */
 const trailingReasons = (scope: RunScope, unjoinedLink: boolean): ReadonlyArray<UnverifiedReason> => {
@@ -1773,6 +1815,11 @@ const declarationOf: {
  * and this is what still collapses the diamond, which is mutation-checked in
  * both directions.
  *
+ * @param scope - The walk's shared state.
+ * @param current - The node declaring the peer.
+ * @param declaration - The node's declared peers.
+ * @param peer - The peer the row is about.
+ * @param wanted - The declared range.
  * @internal
  */
 const judgePeer = (scope: WalkScope, current: Walk, declaration: Declaration, peer: string, wanted: string): void => {
@@ -1814,6 +1861,10 @@ const judgePeer = (scope: WalkScope, current: Walk, declaration: Declaration, pe
  * (`linkchain-registry/`). Walking on would judge a deeper package's peers
  * against the wrong importer's dependencies.
  *
+ * @param scope - The walk's shared state.
+ * @param current - The node just judged.
+ * @param visited - The nodes already admitted.
+ * @returns The next nodes, in edge order.
  * @internal
  */
 const nextWalks = (
@@ -1859,6 +1910,8 @@ const nextWalks = (
  * function: {@link suppressedByRule} matches it against every parent, which is
  * what pnpm does with it.
  *
+ * @param parent - The parent half of a rule key.
+ * @returns The text before the parent's version separator, or all of it when unversioned.
  * @internal
  */
 const ruleParentName = (parent: string): string =>
@@ -1878,8 +1931,13 @@ const ruleParentName = (parent: string): string =>
  * reports `react-dom>react` for — and still reports the row when the bare
  * key's range does not cover the found version. Skipping bare keys therefore
  * reports rows pnpm suppresses, while the report claims the policy was
- * applied. A key starting with ">" names no parent at all — malformed, and a
+ * applied. A key starting with `>` names no parent at all — malformed, and a
  * malformed rule suppresses nothing.
+ *
+ * @param key - An `allowedVersions` key such as `react-dom>react` or `react`.
+ * @param parentName - The package that declares the peer, its version stripped.
+ * @param peer - The peer the row is about.
+ * @returns `true` when the key applies.
  */
 const ruleKeyApplies = (key: string, parentName: string, peer: string): boolean =>
   O.match(Str.indexOf(">")(key), {
@@ -1894,6 +1952,10 @@ const ruleKeyApplies = (key: string, parentName: string, peer: string): boolean 
  * Whether a rule's range covers the found version. A rule whose own value is
  * unparseable suppresses nothing — it cannot be evaluated, and treating it as
  * a wildcard would hide real findings.
+ *
+ * @param permitted - The rule's range.
+ * @param version - The found version.
+ * @returns `true` when the range parses and covers the version.
  */
 const rangeCovers = (permitted: string, version: SemVer): boolean =>
   Result.match(Range.parseResult(permitted), {
@@ -2007,7 +2069,7 @@ const judge: {
     // A provider resolved through a protocol — a `file:` dependency or
     // override, or a git or remote tarball pnpm keys by its URL — carries the
     // specifier where a version belongs:
-    // `@effected/lockfiles` passes it through, and for a `file:` DIRECTORY the
+    // `@beep/lockfiles` passes it through, and for a `file:` DIRECTORY the
     // lockfile records no version at all. `pnpm peers check` reports such a
     // peer `bad`, with the specifier as `foundVersion`, even when the
     // directory's own manifest satisfies the range (`filedep/`,

@@ -1,19 +1,23 @@
-// Duplicate-resolution detection over a parsed lockfile — a pure VALUE, not a
-// service. No IO, nothing in `R`, no error channel. PeerCheck's sibling, on
-// the same posture: format-free, over `@effected/lockfiles`' normalized
-// instances, walking `resolved` edges from each importer's roots.
-//
-// The question it answers is the one issue #298 could not get from a type
-// error and issue #603 could not get without looping `pnpm why` by hand:
-// "which names resolve at more than one version, and who pulls each copy?"
-// The answer is provenance plus a diff-able version list, not a boolean — a
-// duplicate is harmless while the copies' shapes agree, and what makes them
-// disagree is a stale transitive inside one copy, so the dependent that holds
-// each copy is the actionable part.
-//
-// `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on "@"
-// or "(" would re-introduce the format knowledge this module exists without.
-
+/**
+ * Duplicate-resolution detection over a parsed lockfile — a pure VALUE, not a
+ * service. No IO, nothing in `R`, no error channel. PeerCheck's sibling, on
+ * the same posture: format-free, over `@beep/lockfiles`' normalized
+ * instances, walking `resolved` edges from each importer's roots.
+ *
+ * The question it answers is the one issue #298 could not get from a type
+ * error and issue #603 could not get without looping `pnpm why` by hand:
+ * "which names resolve at more than one version, and who pulls each copy?"
+ * The answer is provenance plus a diff-able version list, not a boolean — a
+ * duplicate is harmless while the copies' shapes agree, and what makes them
+ * disagree is a stale transitive inside one copy, so the dependent that holds
+ * each copy is the actionable part.
+ *
+ * `instanceId` is OPAQUE here — looked up, never parsed. Splitting one on `@`
+ * or "(" would re-introduce the format knowledge this module exists without.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { Lockfile } from "@beep/lockfiles";
 import * as A from "effect/Array";
@@ -135,10 +139,10 @@ const encodeRelationshipKey = S.encodeResult(RelationshipKey);
  */
 export class DuplicateInstance extends S.Opaque<DuplicateInstance, { readonly brand: unique symbol }>()(
   S.Struct({
-    /** The opaque instance id, as `@effected/lockfiles` records it. */
+    /** The opaque instance id, as `@beep/lockfiles` records it. */
     instanceId: S.NonEmptyString.pipe(
       $I.annoteKey("DuplicateInstance.instanceId", {
-        description: "The opaque instance id, as `@effected/lockfiles` records it.",
+        description: "The opaque instance id, as `@beep/lockfiles` records it.",
       })
     ),
     /** Every importer and package that pulls THIS copy. */
@@ -372,6 +376,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * console.log(report.isClean) // true
    * ```
    *
+   * @returns `true` when the report lists no duplicate.
    * @category predicates
    * @since 0.0.0
    */
@@ -396,7 +401,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * import { DuplicateCheck } from "@beep/repo-workspaces/DuplicateCheck";
    *
    * console.log(DuplicateCheck.kit("effect")) // true
-   * console.log(DuplicateCheck.kit("@effected/workspaces")) // true
+   * console.log(DuplicateCheck.kit("@beep/repo-workspaces")) // true
    * console.log(DuplicateCheck.kit("@effect/platform")) // false
    * ```
    *
@@ -447,7 +452,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: un
    * console.log(report.duplicates.length) // 0
    * ```
    *
-   * @param lockfile - a lockfile parsed by `@effected/lockfiles`
+   * @param lockfile - a lockfile parsed by `@beep/lockfiles`
    * @param options - see {@link DuplicateCheckOptions}
    * @returns the report; never fails
    * @category utilities
@@ -499,6 +504,9 @@ interface Seeds {
 /**
  * Every importer's roots; see {@link Seeds}.
  *
+ * @param lockfile - The parsed lockfile.
+ * @param index - The lockfile's instance index.
+ * @returns The walk's seeds.
  * @internal
  */
 const seedRoots = (lockfile: Lockfile, index: InstanceIndex): Seeds => {
@@ -525,6 +533,9 @@ const seedRoots = (lockfile: Lockfile, index: InstanceIndex): Seeds => {
  * One global walk: reachability is a property of the graph, not of any single
  * importer, and every reached edge is a dependent to record.
  *
+ * @param roots - The starting instances.
+ * @param byId - Every instance, by id.
+ * @returns The reached instance ids.
  * @internal
  */
 const reachFrom = (
@@ -552,6 +563,11 @@ const reachFrom = (
  * walk so the order never depends on which importer happened to reach an
  * instance first.
  *
+ * @param lockfile - The parsed lockfile.
+ * @param byId - Every instance, by id.
+ * @param reached - The reached instance ids.
+ * @param importerRoots - The importer-entry roots, in importer order.
+ * @returns Each reached instance's dependents.
  * @internal
  */
 const dependentsOf = (
@@ -584,6 +600,9 @@ const dependentsOf = (
  * Reached instances grouped by name, then by version, keeping lockfile order
  * on both axes.
  *
+ * @param lockfile - The parsed lockfile.
+ * @param reached - The reached instance ids.
+ * @returns The reached instances, by name and version.
  * @internal
  */
 const versionsByName = (
@@ -611,6 +630,11 @@ const versionsByName = (
  * Two or more DISTINCT VERSIONS is the rule. Instance count is not:
  * peer-suffix variants of one version are the same code.
  *
+ * @param name - A captured package's `name` field.
+ * @param versions - The name's reached instances, by version.
+ * @param dependents - Each instance's dependents.
+ * @param names - The caller's name filter.
+ * @returns The duplicate, or none.
  * @internal
  */
 const duplicateOf = (
@@ -648,6 +672,8 @@ const duplicateOf = (
  * the lockfile records without a path (npm can) falls back to the package
  * form, which is at least truthful about the name.
  *
+ * @param from - The instance the edge leaves.
+ * @returns The importer or package the edge is attributed to.
  * @internal
  */
 const dependentOf = (from: ResolvedPackage): Dependent =>

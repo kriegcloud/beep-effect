@@ -1,14 +1,18 @@
-// The point-in-time value: what a workspace looked like at one moment (a git
-// ref, or the live worktree). Serializable by construction — every field is a
-// plain scalar, record, or another value class — with the resolution machinery
-// living in lazily-built `#private` indexes OUTSIDE the schema, the same
-// precedent `DependencyGraph`'s edge index and `Lockfile.packagesNamed` cite.
-//
-// A snapshot answers "what did this specifier mean HERE" against ITS OWN state:
-// `workspace:` against the versions it captured, `catalog:` against the catalog
-// set it captured. It also hands back `@effected/npm` resolver layers bound to
-// itself, so code written to those contracts can run "as of" a ref.
-
+/**
+ * The point-in-time value: what a workspace looked like at one moment (a git
+ * ref, or the live worktree). Serializable by construction — every field is a
+ * plain scalar, record, or another value class — with the resolution machinery
+ * living in lazily-built `#private` indexes OUTSIDE the schema, the same
+ * precedent `DependencyGraph`'s edge index and `Lockfile.packagesNamed` cite.
+ *
+ * A snapshot answers "what did this specifier mean HERE" against ITS OWN state:
+ * `workspace:` against the versions it captured, `catalog:` against the catalog
+ * set it captured. It also hands back `@beep/npm-spec` resolver layers bound to
+ * itself, so code written to those contracts can run "as of" a ref.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
@@ -61,7 +65,7 @@ const SnapshotVersion = S.optionalKey(S.String).pipe(
  * Deliberately narrower than {@link WorkspacePackage}: a snapshot is a value to
  * store and diff, not a located member to act on, so it carries no absolute
  * paths, `publishConfig`, or `private` flag. The four records are keyed by the
- * standard manifest field names, which are exactly `@effected/npm`'s
+ * standard manifest field names, which are exactly `@beep/npm-spec`'s
  * `DependencyField` values.
  *
  * **Example** (Capture a versionless member)
@@ -157,6 +161,7 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
    * console.log(member.allDependencies.effect) // ^4.0.0
    * ```
    *
+   * @returns The merged dependencies.
    * @since 0.0.0
    */
   get allDependencies(): Record<string, string> {
@@ -167,6 +172,9 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
 /**
  * The name-to-version index over the versioned packages, a later duplicate
  * name overwriting an earlier one, and the names in first-seen order.
+ *
+ * @param packages - The captured packages.
+ * @returns The index and the names in first-seen order.
  */
 const versionIndexOf = (
   packages: ReadonlyArray<PackageStateSnapshot>
@@ -415,6 +423,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(snapshot.versions === snapshot.versions) // true
    * ```
    *
+   * @returns The name-to-version index.
    * @since 0.0.0
    */
   #versions(): HashMap.HashMap<string, string> {
@@ -440,6 +449,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(O.isNone(snapshot.package("missing"))) // true
    * ```
    *
+   * @returns The name-to-member index.
    * @since 0.0.0
    */
   #packages(): HashMap.HashMap<string, PackageStateSnapshot> {
@@ -470,6 +480,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(HashMap.size(snapshot.versions)) // 0
    * ```
    *
+   * @returns Each versioned package's version, by name.
    * @since 0.0.0
    */
   get versions(): HashMap.HashMap<string, string> {
@@ -489,6 +500,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(snapshot.versionNames.length) // 0
    * ```
    *
+   * @returns The versioned names, in first-insertion order.
    * @since 0.0.0
    */
   get versionNames(): ReadonlyArray<string> {
@@ -510,6 +522,8 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(O.isNone(snapshot.package("missing"))) // true
    * ```
    *
+   * @param name - A captured package's `name` field.
+   * @returns The captured package, or none.
    * @since 0.0.0
    */
   package(name: string): O.Option<PackageStateSnapshot> {
@@ -521,7 +535,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *
    * **Details**
    *
-   * The specifier is classified through `@effected/npm`'s
+   * The specifier is classified through `@beep/npm-spec`'s
    * `DependencySpecifier.FromString` — never by prefix-sniffing.
    * A `workspace:` specifier resolves to the captured version of `dependency`; a
    * `catalog:` specifier resolves against the captured catalog set. Every other
@@ -562,6 +576,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * @param dependency - The dependency's package name (what `workspace:` /
    *   `catalog:` resolve for).
    * @param specifier - The raw specifier string.
+   * @returns The resolved range or version, or none.
    * @since 0.0.0
    */
   resolve(dependency: string, specifier: string): O.Option<string> {
@@ -605,6 +620,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    *   `"."` for the root package — `PackageStateSnapshot.relativePath`.
    * @param dependency - The dependency's package name.
    * @param specifier - The raw specifier string.
+   * @returns The resolved range or version, or none.
    * @since 0.0.0
    */
   resolveIn(importerPath: string, dependency: string, specifier: string): O.Option<string> {
@@ -630,6 +646,10 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(O.isNone(snapshot.resolve("effect", "^4.0.0"))) // true
    * ```
    *
+   * @param dependency - The dependency name.
+   * @param specifier - The declared specifier.
+   * @param onUnresolvedCatalog - The fallback when no catalog answers.
+   * @returns The resolved range or version, or none.
    * @since 0.0.0
    */
   #resolveWith(dependency: string, specifier: string, onUnresolvedCatalog: () => O.Option<string>): O.Option<string> {
@@ -671,6 +691,9 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(O.isNone(snapshot.resolve("effect", "catalog:"))) // true
    * ```
    *
+   * @param dependency - The dependency name.
+   * @param catalog - The catalog name; the default catalog when none.
+   * @returns The range, or none.
    * @since 0.0.0
    */
   #catalogRange(dependency: string, catalog: O.Option<string>): O.Option<string> {
@@ -717,6 +740,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * ```
    *
    * @param seed - The catalogs to consult as a fallback.
+   * @returns A snapshot equal to this one but for `seededCatalogs`.
    * @since 0.0.0
    */
   withSeededCatalogs(seed: CatalogSet): WorkspaceStateSnapshot {
@@ -831,7 +855,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
   );
 
   /**
-   * A `CatalogResolver` layer implementing `@effected/npm`'s contract against
+   * A `CatalogResolver` layer implementing `@beep/npm-spec`'s contract against
    * THIS snapshot's catalog set — so code written to the contract resolves
    * `catalog:` specifiers as of this ref. Built once per instance and cached, so
    * it memoizes by reference.
@@ -860,6 +884,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(O.isNone(Effect.runSync(program))) // true
    * ```
    *
+   * @returns The cached catalog resolver layer.
    * @since 0.0.0
    */
   get catalogResolver(): Layer.Layer<CatalogResolver> {
@@ -877,7 +902,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
   }
 
   /**
-   * A `WorkspaceResolver` layer implementing `@effected/npm`'s contract against
+   * A `WorkspaceResolver` layer implementing `@beep/npm-spec`'s contract against
    * THIS snapshot's captured versions — so code written to the contract resolves
    * `workspace:` specifiers as of this ref. Built once per instance and cached.
    *
@@ -898,6 +923,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(O.isNone(Effect.runSync(program))) // true
    * ```
    *
+   * @returns The cached workspace resolver layer.
    * @since 0.0.0
    */
   get workspaceResolver(): Layer.Layer<WorkspaceResolver> {
@@ -941,6 +967,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
    * console.log(snapshot.resolvers === snapshot.resolvers) // true
    * ```
    *
+   * @returns The cached merged resolver layer.
    * @since 0.0.0
    */
   get resolvers(): Layer.Layer<CatalogResolver | WorkspaceResolver> {

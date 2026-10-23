@@ -1,17 +1,21 @@
-// The `configDependencies` value model: a `ConfigDependencySpec` class parsing
-// a `pnpm-workspace.yaml` config-dependency spec — `0.11.1` (the bare form
-// pnpm 11+ writes) or `0.11.1+sha512-<base64>` (the legacy inline-integrity
-// form) — into a strict `version` and an optional SRI `integrity`.
-//
-// pnpm 11 moved config-dependency integrity into the lockfile and
-// `pnpm add --config` writes the bare version, so a tool that touches the
-// field normalizes to `bare`; `toString()` keeps the spelling it read for a
-// tool that must not rewrite it.
-//
-// The split itself lives in `internal/configDependencySpecGrammar.ts`, shared
-// with the hook-replay ladder, which keeps its lenient (unvalidated) reading of
-// the version half — see that module for why.
-
+/**
+ * The `configDependencies` value model: a `ConfigDependencySpec` class parsing
+ * a `pnpm-workspace.yaml` config-dependency spec — `0.11.1` (the bare form
+ * pnpm 11+ writes) or `0.11.1+sha512-<base64>` (the legacy inline-integrity
+ * form) — into a strict `version` and an optional SRI `integrity`.
+ *
+ * pnpm 11 moved config-dependency integrity into the lockfile and
+ * `pnpm add --config` writes the bare version, so a tool that touches the
+ * field normalizes to `bare`; `toString()` keeps the spelling it read for a
+ * tool that must not rewrite it.
+ *
+ * The split itself lives in `internal/configDependencySpecGrammar.ts`, shared
+ * with the hook-replay ladder, which keeps its lenient (unvalidated) reading of
+ * the version half — see that module for why.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { SriIntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { SemVer } from "@beep/semver";
@@ -93,6 +97,7 @@ export class InvalidConfigDependencySpecError extends S.TaggedError<
    * console.log(error.message) // Invalid config dependency spec "0.11.1+": integrity must be an SRI <algo>-<base64> hash
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @since 0.0.0
    */
   override get message(): string {
@@ -106,7 +111,7 @@ export class InvalidConfigDependencySpecError extends S.TaggedError<
 // spec grammar cannot express it (the first `+` always begins the integrity),
 // so a constructed version with build identifiers would encode to a string
 // that re-parses differently. Rejecting it at the field keeps decode/encode
-// sound — the same rule `@effected/npm`'s `PackageManagerPin` applies.
+// sound — the same rule `@beep/npm-spec`'s `PackageManagerPin` applies.
 const specVersion = SemVer.pipe(
   S.check(
     S.makeFilter(
@@ -139,7 +144,7 @@ const specVersion = SemVer.pipe(
  * is not an SRI hash fails with `reason: "integrity"` rather than falling back
  * to build-metadata parsing.
  *
- * `version` is `@effected/semver`'s `SemVer`: prerelease versions are
+ * `version` is `@beep/semver`'s `SemVer`: prerelease versions are
  * accepted, ranges (`^0.11.1`), partial versions, dist-tags, a `v` prefix and
  * padded values are not.
  *
@@ -176,7 +181,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
       })
     ),
     /**
-     * The inline integrity (e.g. `sha512-m35m…==`): `@effected/npm`'s
+     * The inline integrity (e.g. `sha512-m35m…==`): `@beep/npm-spec`'s
      * `SriIntegrityHash`, the shared restriction of the `IntegrityHash` brand
      * to the SRI `<algo>-<base64>` form. `None` on the bare form pnpm 11+
      * writes.
@@ -184,7 +189,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
     integrity: S.Option(SriIntegrityHash).pipe(
       $I.annoteKey("ConfigDependencySpec.integrity", {
         description:
-          "The inline integrity (e.g. `sha512-m35m…==`): `@effected/npm`'s `SriIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the SRI `<algo>-<base64>` form. `None` on the bare form pnpm 11+ writes.",
+          "The inline integrity (e.g. `sha512-m35m…==`): `@beep/npm-spec`'s `SriIntegrityHash`, the shared restriction of the `IntegrityHash` brand to the SRI `<algo>-<base64>` form. `None` on the bare form pnpm 11+ writes.",
       })
     ),
   },
@@ -318,6 +323,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * console.log(spec.hasIntegrity) // false
    * ```
    *
+   * @returns `true` when the spec is `<version>+<integrity>`.
    * @category predicates
    * @since 0.0.0
    */
@@ -339,6 +345,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * console.log(spec.bare) // 0.11.1
    * ```
    *
+   * @returns The exact version, without any integrity.
    * @category formatting
    * @since 0.0.0
    */
@@ -360,6 +367,7 @@ export class ConfigDependencySpec extends S.Class<ConfigDependencySpec, { readon
    * console.log(spec.toString()) // 0.11.1+sha512-YWJj
    * ```
    *
+   * @returns The spec in the spelling it was parsed from.
    * @category formatting
    * @since 0.0.0
    */

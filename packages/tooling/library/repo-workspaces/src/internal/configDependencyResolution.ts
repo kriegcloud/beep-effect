@@ -336,7 +336,7 @@ const environmentValue = (name: string): Effect.Effect<O.Option<string>> =>
 /**
  * The conventional store roots the environment names: `$PNPM_HOME/store`,
  * `$XDG_DATA_HOME/pnpm/store`, `%LOCALAPPDATA%\pnpm\store` on Windows, the
- * platform default from `@effected/npm`'s cache table, and the XDG default
+ * platform default from `@beep/npm-spec`'s cache table, and the XDG default
  * under the home directory off Windows.
  */
 const environmentStoreRoots = Effect.fnUntraced(function* (): Effect.fn.Return<
@@ -376,7 +376,7 @@ const NewestStoreFormatFirst: Order.Order<string> = Order.mapInput(Order.flip(Or
 /**
  * Rung 3 of store discovery: the conventional store roots — `$PNPM_HOME/store`,
  * `$XDG_DATA_HOME/pnpm/store`, `%LOCALAPPDATA%\pnpm\store` on Windows, then
- * the platform default from `@effected/npm`'s cache table — each expanded to
+ * the platform default from `@beep/npm-spec`'s cache table — each expanded to
  * its `v*` subdirectories (a store root holds one directory per store
  * version, `v11` today).
  */

@@ -1,13 +1,15 @@
+/**
+ * pnpm catalogs: the `CatalogSet` value, the service that assembles it for a
+ * workspace, and the real implementation of `@beep/npm-spec`'s `CatalogResolver`
+ * contract.
+ *
+ * Assembly precedence follows pnpm: lockfile-recorded catalogs first, then the
+ * inline `pnpm-workspace.yaml` catalogs, which win.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
-import { dual } from "effect/Function";
-
-// pnpm catalogs: the `CatalogSet` value, the service that assembles it for a
-// workspace, and the real implementation of `@beep/npm-spec`'s `CatalogResolver`
-// contract.
-//
-// Assembly precedence follows pnpm: lockfile-recorded catalogs first, then the
-// inline `pnpm-workspace.yaml` catalogs, which win.
-
 import { filenameFor } from "@beep/lockfiles";
 import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
@@ -21,6 +23,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
@@ -154,6 +157,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(CatalogSet.empty().isEmpty) // true
    * ```
    *
+   * @returns A set with no catalogs, on which every `catalog:` lookup misses.
    * @category constructors
    * @since 0.0.0
    */
@@ -173,6 +177,8 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(catalogs.entries.build?.typescript) // ^6.0.0
    * ```
    *
+   * @param catalogs - A pnpm `Catalogs` map of any shape.
+   * @returns The usable entries, wrapped for lookup.
    * @category constructors
    * @since 0.0.0
    */
@@ -217,6 +223,8 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(catalogs.entries.default?.effect) // ^4.0.0
    * ```
    *
+   * @param raw - The lockfile's `catalogs:` section.
+   * @returns The usable entries, wrapped for lookup.
    * @category constructors
    * @since 0.0.0
    */
@@ -246,7 +254,8 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(Effect.isEffect(program)) // true
    * ```
    *
-   * @param lockfile - A parsed lockfile from `@effected/lockfiles`.
+   * @param lockfile - A parsed lockfile from `@beep/lockfiles`.
+   * @returns The catalogs the lockfile records.
    * @category constructors
    * @since 0.0.0
    */
@@ -275,6 +284,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * ```
    *
    * @param blocks - The `catalog` (default) and `catalogs` (named) blocks.
+   * @returns The usable entries, wrapped for lookup.
    * @category constructors
    * @since 0.0.0
    */
@@ -349,6 +359,8 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(CatalogSet.merge(before, after).entries.default?.effect) // ^4.1.0
    * ```
    *
+   * @param sets - The sets, lowest precedence first.
+   * @returns The merged set.
    * @category combinators
    * @since 0.0.0
    */
@@ -367,6 +379,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(CatalogSet.fromCatalogs({ default: { effect: "^4.0.0" } }).isEmpty) // false
    * ```
    *
+   * @returns `true` when no catalog has an entry.
    * @category getters
    * @since 0.0.0
    */
@@ -396,6 +409,7 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    *
    * @param dependency - The package name being resolved.
    * @param specifier - The declared specifier, e.g. `catalog:` or `catalog:build`.
+   * @returns The resolved range, or none on a miss or a misconfigured catalog.
    * @category getters
    * @since 0.0.0
    */
@@ -422,6 +436,9 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
    * console.log(O.getOrElse(catalogs.rangeOf("typescript", O.some("build")), () => "missing")) // ^6.0.0
    * ```
    *
+   * @param dependency - The dependency name.
+   * @param catalog - The catalog name; the default catalog when none.
+   * @returns The declared range, or none.
    * @category getters
    * @since 0.0.0
    */
@@ -431,18 +448,34 @@ export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique sym
   }
 }
 
-/** Whether `value` is a non-null, non-array object. */
+/**
+ * Whether `value` is a non-null, non-array object.
+ *
+ * @param value - Any value.
+ * @returns `true` for a non-null, non-array object.
+ */
 const isObject = (value: unknown): value is Record<string, unknown> =>
   P.isObjectKeyword(value) && !P.isFunction(value) && !A.isArray(value);
 
 /** Whether every value in an object is a string — a usable `dependency → range` catalog. */
 const isStringRecord = S.is(CatalogRecord);
 
-/** Whether a `catalog` block and a non-null `catalogs.default` both declare the default catalog. */
+/**
+ * Whether a `catalog` block and a non-null `catalogs.default` both declare the default catalog.
+ *
+ * @param catalog - The document's `catalog` block.
+ * @param catalogs - The document's `catalogs` block.
+ * @returns `true` when both declare the default catalog.
+ */
 const declaresDefaultTwice = (catalog: unknown, catalogs: unknown): boolean =>
   P.isNotNullish(catalog) && P.isObjectKeyword(catalogs) && "default" in catalogs && catalogs.default !== null;
 
-/** The `catalog` / `catalogs` blocks of a parsed pnpm-workspace document. */
+/**
+ * The `catalog` / `catalogs` blocks of a parsed pnpm-workspace document.
+ *
+ * @param document - A parsed `pnpm-workspace.yaml` document.
+ * @returns The usable blocks, or none when the default catalog is declared twice.
+ */
 const catalogBlocksOf = (
   document: unknown
 ): {
@@ -481,6 +514,9 @@ const catalogBlocksOf = (
  * `PartialReleaseAgeGate` accepts every finite `ageMinutes` (negatives and
  * fractions included) — `ReleaseAgeGate.combine` is the single clamping
  * authority, exactly as on the hook path.
+ *
+ * @param document - A parsed `pnpm-workspace.yaml` document.
+ * @returns The gate contribution, failing typed on a malformed value.
  */
 const inlineReleaseAge = (document: unknown): Effect.Effect<PartialReleaseAgeGate, CatalogAssemblyError> => {
   if (!isObject(document)) return Effect.succeed(PartialReleaseAgeGate.make({}));
@@ -570,7 +606,13 @@ const validatedCatalogBlocks: {
     )
 );
 
-/** A present `catalog` block, which must map dependency names to version strings. */
+/**
+ * A present `catalog` block, which must map dependency names to version strings.
+ *
+ * @param catalog - The `catalog` block.
+ * @param label - The block's name in the caller's vocabulary.
+ * @returns The block when present, failing typed when malformed.
+ */
 const validCatalogOf = (
   catalog: unknown,
   label: string
@@ -580,7 +622,13 @@ const validCatalogOf = (
   return Effect.fail(malformed("catalog", label, `"${label}" must map dependency names to version strings`));
 };
 
-/** A present `catalogs` block, which must map catalog names to catalogs. */
+/**
+ * A present `catalogs` block, which must map catalog names to catalogs.
+ *
+ * @param catalogs - The `catalogs` block.
+ * @param label - The block's name in the caller's vocabulary.
+ * @returns The block when present, failing typed when malformed.
+ */
 const validCatalogsOf = (
   catalogs: unknown,
   label: string
@@ -604,6 +652,9 @@ const validCatalogsOf = (
 /**
  * The `catalog` / `catalogs` blocks of a root `package.json` `workspaces` field,
  * hard-failing on a malformed shape or the default catalog declared twice.
+ *
+ * @param workspaces - The root manifest's `workspaces` field.
+ * @returns The blocks, failing typed on a malformed shape.
  */
 const manifestCatalogBlocks = (
   workspaces: unknown
@@ -645,6 +696,9 @@ const manifestCatalogBlocks = (
  * or one with no catalog blocks, validates to `{}` — absent/empty still yields
  * empty. The return is discarded; normalization stays on the shared
  * `inlineCatalogs` path.
+ *
+ * @param document - A parsed `pnpm-workspace.yaml` document.
+ * @returns Nothing, failing typed on a malformed block.
  */
 const validatePnpmWorkspaceCatalogs = (document: unknown): Effect.Effect<void, CatalogAssemblyError> => {
   if (!isObject(document)) return Effect.void;
@@ -662,7 +716,12 @@ const validatePnpmWorkspaceCatalogs = (document: unknown): Effect.Effect<void, C
  */
 export type CatalogAssemblyFailure = CatalogAssemblyError | WorkspaceRootNotFoundError;
 
-/** A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure. */
+/**
+ * A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure.
+ *
+ * @param method - The unstubbed method's name.
+ * @returns An effect that dies naming the method.
+ */
 const unstubbed = (method: string): Effect.Effect<never> =>
   Effect.die(
     WorkspaceCatalogsDefect.make({

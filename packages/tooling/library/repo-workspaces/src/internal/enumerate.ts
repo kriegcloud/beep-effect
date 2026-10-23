@@ -8,7 +8,7 @@ import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-// The `packages:` enumerator. `@effected/glob` classifies the pattern set and
+// The `packages:` enumerator. `@beep/glob` classifies the pattern set and
 // tells us, per wildcard, whether it can cross a segment boundary; when it can,
 // a trailing `/**` earns a real descent rather than a one-level read.
 //
@@ -280,7 +280,7 @@ const includeLiterals = Effect.fnUntraced(function* (scope: EnumerationScope, li
  * answering with "no packages there" would be a WRONG ANSWER dressed as an
  * empty one.
  *
- * This is deliberately NOT `@effected/walker`'s per-probe absorption. Walker
+ * This is deliberately NOT `@beep/walker`'s per-probe absorption. Walker
  * absorbs because one unreadable ANCESTOR must not hide a valid root above it
  * — the walk continues upward and can still succeed. This is DOWNWARD
  * enumeration: a swallowed subtree is silently missing membership, which is

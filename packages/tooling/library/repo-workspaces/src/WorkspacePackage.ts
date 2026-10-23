@@ -1,12 +1,16 @@
-// The located workspace member: a package.json projection plus where it lives.
-//
-// Deliberately a TOLERANT projection rather than `@effected/package-json`'s
-// `Package` — that model requires a `PackageName` and a strict `SemVer`, so a
-// single member with a non-semver version would fail discovery for the whole
-// repo. The strict model is one method away (`manifest()`), so nothing is
-// duplicated semantically: `WorkspacePackage` is a *located member*, `Package`
-// is a *decoded manifest*.
-
+/**
+ * The located workspace member: a package.json projection plus where it lives.
+ *
+ * Deliberately a TOLERANT projection rather than `@beep/package-json`'s
+ * `Package` — that model requires a `PackageName` and a strict `SemVer`, so a
+ * single member with a non-semver version would fail discovery for the whole
+ * repo. The strict model is one method away (`manifest()`), so nothing is
+ * duplicated semantically: `WorkspacePackage` is a *located member*, `Package`
+ * is a *decoded manifest*.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { GlobPattern } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { WorkspaceManifest } from "@beep/lockfiles";
@@ -37,7 +41,7 @@ const EMPTY_MANIFEST: Readonly<Record<string, unknown>> = R.fromEntries([]);
  *
  * **Details**
  *
- * Deliberately narrow. `@effected/package-json` models `publishConfig` as an
+ * Deliberately narrow. `@beep/package-json` models `publishConfig` as an
  * open `Record<string, unknown>` for round-trip fidelity, which preserves every
  * key but types none of them; this is the typed projection of the handful that
  * decide *where, whether and as what* a package publishes. Unknown keys are
@@ -179,7 +183,7 @@ export declare namespace DependencyDiff {
 
 /**
  * Raised when a workspace member's `package.json` cannot be read or decoded
- * into the strict `@effected/package-json` `Package` model.
+ * into the strict `@beep/package-json` `Package` model.
  *
  * **Details**
  *
@@ -230,7 +234,7 @@ export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError
   },
   $I.annoteError<WorkspaceManifestError>("WorkspaceManifestError", {
     description:
-      "Raised when a workspace member's `package.json` cannot be read or decoded into the strict `@effected/package-json` `Package` model.",
+      "Raised when a workspace member's `package.json` cannot be read or decoded into the strict `@beep/package-json` `Package` model.",
   })
 ) {
   /**
@@ -249,6 +253,7 @@ export class WorkspaceManifestError extends S.TaggedError<WorkspaceManifestError
    * console.log(error.message); // Failed to read package.json at /repo/packages/utils/package.json
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category getters
    * @since 0.0.0
    */
@@ -420,6 +425,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.isRootWorkspace); // true
    * ```
    *
+   * @returns `true` when `relativePath` is `.`.
    * @category predicates
    * @since 0.0.0
    */
@@ -446,6 +452,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.isPublic); // false
    * ```
    *
+   * @returns `true` unless the manifest is marked private.
    * @category predicates
    * @since 0.0.0
    */
@@ -472,6 +479,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(O.getOrElse(pkg.scope, () => "unscoped")); // @my-org
    * ```
    *
+   * @returns The scope, or none.
    * @category getters
    * @since 0.0.0
    */
@@ -498,6 +506,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.unscopedName); // utils
    * ```
    *
+   * @returns The text after the scope's `/`, or the whole name when it has no scope.
    * @category getters
    * @since 0.0.0
    */
@@ -535,6 +544,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.allDependencies.shared); // ^2.0.0
    * ```
    *
+   * @returns The merged dependencies.
    * @category getters
    * @since 0.0.0
    */
@@ -561,6 +571,8 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.hasDependency("shared"), pkg.hasDependency("missing")); // true false
    * ```
    *
+   * @param name - A dependency's package name, matched exactly.
+   * @returns `true` when `dependencies` declares it.
    * @category predicates
    * @since 0.0.0
    */
@@ -587,6 +599,8 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.hasDevDependency("shared"), pkg.hasDevDependency("missing")); // true false
    * ```
    *
+   * @param name - A dependency's package name, matched exactly.
+   * @returns `true` when `devDependencies` declares it.
    * @category predicates
    * @since 0.0.0
    */
@@ -613,6 +627,8 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.hasPeerDependency("shared"), pkg.hasPeerDependency("missing")); // true false
    * ```
    *
+   * @param name - A dependency's package name, matched exactly.
+   * @returns `true` when `peerDependencies` declares it.
    * @category predicates
    * @since 0.0.0
    */
@@ -639,6 +655,8 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.hasOptionalDependency("shared"), pkg.hasOptionalDependency("missing")); // true false
    * ```
    *
+   * @param name - A dependency's package name, matched exactly.
+   * @returns `true` when `optionalDependencies` declares it.
    * @category predicates
    * @since 0.0.0
    */
@@ -665,6 +683,8 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(pkg.hasAnyDependencyOn("shared"), pkg.hasAnyDependencyOn("missing")); // true false
    * ```
    *
+   * @param name - A dependency's package name, matched exactly.
+   * @returns `true` when any kind declares it.
    * @category predicates
    * @since 0.0.0
    */
@@ -697,6 +717,8 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(O.getOrElse(pkg.dependencyVersion("native"), () => "missing")); // ^1.0.0
    * ```
    *
+   * @param name - A dependency's package name, matched exactly.
+   * @returns The specifier, or none.
    * @category getters
    * @since 0.0.0
    */
@@ -710,7 +732,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
 
   /**
    * Whether any dependency name (across all four kinds) matches the glob
-   * `pattern`, using `@effected/glob`.
+   * `pattern`, using `@beep/glob`.
    *
    * **Gotchas**
    *
@@ -738,6 +760,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * ```
    *
    * @param pattern - A compiled pattern, or a source string to compile.
+   * @returns `true` when some dependency name matches.
    * @category predicates
    * @since 0.0.0
    */
@@ -776,6 +799,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * ```
    *
    * @param other - The package to compare against.
+   * @returns The added, removed and changed dependencies.
    * @category utilities
    * @since 0.0.0
    */
@@ -799,7 +823,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
   }
 
   /**
-   * Project to `@effected/lockfiles`' `WorkspaceManifest` — the input shape of
+   * Project to `@beep/lockfiles`' `WorkspaceManifest` — the input shape of
    * `LockfileIntegrity.compare`. Total.
    *
    * **Example** (Project dependencies for lockfile comparison)
@@ -819,6 +843,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(manifest.name, manifest.dependencies?.shared); // @my-org/utils ^2.0.0
    * ```
    *
+   * @returns The lockfile workspace manifest.
    * @category mapping
    * @since 0.0.0
    */
@@ -834,7 +859,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
 
   /**
    * Read and decode this package's `package.json` into the strict
-   * `@effected/package-json` `Package` model — the bridge from the
+   * `@beep/package-json` `Package` model — the bridge from the
    * tolerant discovery projection to the fully typed manifest.
    *
    * **Details**
@@ -904,6 +929,7 @@ export class WorkspacePackage extends S.Class<WorkspacePackage, { readonly brand
    * console.log(Effect.isEffect(program)); // true
    * ```
    *
+   * @returns The strict manifest read.
    * @category parsing
    * @since 0.0.0
    */

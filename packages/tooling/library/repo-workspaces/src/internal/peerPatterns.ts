@@ -17,7 +17,7 @@
 // - A lone `*` matches everything. Otherwise `*` is a wildcard within the
 //   name spanning any run of characters, `/` included, and a pattern without
 //   `*` is plain equality. That single-pattern grammar is exactly the one
-//   `@effected/npm`'s `ReleaseAgeGate.matchesExclude` implements for pnpm's
+//   `@beep/npm-spec`'s `ReleaseAgeGate.matchesExclude` implements for pnpm's
 //   `minimumReleaseAgeExclude` (same `@pnpm/matcher` source), as a
 //   backtracking-safe linear scan — a RegExp built from a config-supplied
 //   pattern is the hazard — so the per-pattern primitive delegates there.

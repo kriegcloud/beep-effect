@@ -42,7 +42,7 @@ type VersionIndex = Readonly<Record<string, Readonly<Record<string, string>>>>;
  *
  * pnpm records an importer version as the resolved version followed by the peer
  * context it was resolved under — `4.0.0(effect@4.0.0)(ioredis@5.11.1(supports-color@8.1.1))`.
- * `@effected/lockfiles` stores that string verbatim (its `packages:` key parser
+ * `@beep/lockfiles` stores that string verbatim (its `packages:` key parser
  * strips the suffix; the importer entries deliberately keep it), so the raw
  * value must never reach a consumer's dependency table — it would render the
  * whole parenthesized chain as the "version" a dependency moved to.

@@ -1,18 +1,23 @@
-import { $RepoWorkspacesId } from "@beep/identity/packages";
-import { dual } from "effect/Function";
-import * as S from "effect/Schema";
-// The composite layers.
-//
-// The composites split on PLATFORM REQUIREMENTS, not on a feature flag:
-// `layer` needs a filesystem, `layerWithGit` additionally needs core's
-// `ChildProcessSpawner` (behind `@effected/git`'s `Git` service) to run git.
+/**
+ * The composite layers.
+ *
+ * The composites split on PLATFORM REQUIREMENTS, not on a feature flag:
+ * `layer` needs a filesystem, `layerWithGit` additionally needs core's
+ * `ChildProcessSpawner` (behind `@beep/git`'s `Git` service) to run git.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { ExecContext, LocalExec, LocalExecError } from "@beep/commands";
 import { Git } from "@beep/git";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { Manifest } from "@beep/npm-spec/Manifest";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { ChangeDetector } from "./ChangeDetector.ts";
 import { ConfigDependencyHooks } from "./ConfigDependencyHooks.ts";
 import { LockfileReader, LockfileReaderOptions } from "./LockfileReader.ts";
@@ -435,7 +440,7 @@ export class Workspaces {
    *
    * Requires core `FileSystem` and `Path`, which the consumer provides at the
    * edge (`@effect/platform-node`, `@effect/platform-bun`, or a test's
-   * `@effected/memfs` volume).
+   * `@beep/memfs` volume).
    *
    * **`PublishabilityDetector` is neither provided nor required here.** The
    * composite supplies no default policy, and — because nothing inside it asks
@@ -534,7 +539,7 @@ export class Workspaces {
 
   /**
    * The git-free composite plus {@link ChangeDetector} and
-   * {@link WorkspaceSnapshots}, over `@effected/git`'s `Git` service.
+   * {@link WorkspaceSnapshots}, over `@beep/git`'s `Git` service.
    *
    * **Details**
    *
@@ -680,14 +685,14 @@ export class Workspaces {
   static readonly layerWithGitAndHooks = withGit;
 
   /**
-   * This package's implementation of `@effected/commands`' `LocalExec`
+   * This package's implementation of `@beep/commands`' `LocalExec`
    * contract: how to run a project-local binary here.
    *
    * **Details**
    *
-   * **An inverted contract, like `@effected/npm`'s `CatalogResolver`.** Tool
+   * **An inverted contract, like `@beep/npm-spec`'s `CatalogResolver`.** Tool
    * discovery needs package-manager detection and workspace-root resolution,
-   * both of which live here, but `@effected/commands` must not depend on this
+   * both of which live here, but `@beep/commands` must not depend on this
    * package. So `commands` declares the narrow `LocalExec` contract and this
    * package ships the layer.
    *
@@ -716,7 +721,7 @@ export class Workspaces {
    *
    * A consumer with no monorepo never needs this layer, and therefore never
    * installs this package — `LocalExec.layerNone` and `LocalExec.layerFor`
-   * are one-liners in `@effected/commands`.
+   * are one-liners in `@beep/commands`.
    *
    * **Bind the result to a `const`** — a parameterized layer factory mints a
    * fresh reference per call and layers memoize by reference.
@@ -748,7 +753,7 @@ export class Workspaces {
    * Resolve every `catalog:` and `workspace:` specifier in one `Manifest`
    * against the real workspace, in one call — the 90% path. Decode stays at
    * the consumer's edge: build the `Manifest` with `Manifest.decode` (from
-   * `@effected/npm`), hand it here, and get a new `Manifest` back with
+   * `@beep/npm-spec`), hand it here, and get a new `Manifest` back with
    * concrete ranges; `toRecord()` returns to the wire shape.
    *
    * **Details**
@@ -787,7 +792,7 @@ export class Workspaces {
   /**
    * The one-call resolver factory: {@link Workspaces.resolvers} pre-wired
    * over {@link Workspaces.layerWithConfigDependencies}, so the two
-   * `@effected/npm` contracts (`CatalogResolver`, `WorkspaceResolver`) need
+   * `@beep/npm-spec` contracts (`CatalogResolver`, `WorkspaceResolver`) need
    * only a platform (`FileSystem` + `Path`) from the consumer.
    *
    * **Details**
@@ -824,7 +829,7 @@ export class Workspaces {
   static readonly resolverLayer = resolverLayer;
 
   /**
-   * The two `@effected/npm` resolver contracts, implemented for real.
+   * The two `@beep/npm-spec` resolver contracts, implemented for real.
    *
    * **Details**
    *

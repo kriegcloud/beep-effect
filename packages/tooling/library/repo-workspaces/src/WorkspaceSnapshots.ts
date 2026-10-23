@@ -1,17 +1,21 @@
-// "What did this workspace look like at that moment": `at(ref)` reads workspace
-// state at a git ref with NO checkout, `worktree()` reads the live tree.
-//
-// `at(ref)` runs entirely through `@effected/git`'s `Git` service — no
-// filesystem enumeration, only the live root walk (the one place it touches the
-// working tree, because you need a repository to run git against). Package
-// discovery reuses the compiled `@effected/glob` set, matched against
-// `Git.lsTree` output rather than a directory descent. Catalogs assemble from the inline
-// config source at the ref plus the detected manager's own lockfile at the ref,
-// and BOTH pnpm and bun carry catalogs, so the lockfile read is PM-aware.
-//
-// `worktree()` reuses `WorkspaceDiscovery` and `WorkspaceCatalogs` — the ONE
-// shared read path, never a second manifest/lockfile read.
-
+/**
+ * "What did this workspace look like at that moment": `at(ref)` reads workspace
+ * state at a git ref with NO checkout, `worktree()` reads the live tree.
+ *
+ * `at(ref)` runs entirely through `@beep/git`'s `Git` service — no
+ * filesystem enumeration, only the live root walk (the one place it touches the
+ * working tree, because you need a repository to run git against). Package
+ * discovery reuses the compiled `@beep/glob` set, matched against
+ * `Git.lsTree` output rather than a directory descent. Catalogs assemble from the inline
+ * config source at the ref plus the detected manager's own lockfile at the ref,
+ * and BOTH pnpm and bun carry catalogs, so the lockfile read is PM-aware.
+ *
+ * `worktree()` reuses `WorkspaceDiscovery` and `WorkspaceCatalogs` — the ONE
+ * shared read path, never a second manifest/lockfile read.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Git } from "@beep/git";
 import { GlobSet } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
@@ -248,6 +252,9 @@ export interface WorkspaceSnapshotsShape {
  * a snapshot is "what the workspace looked like then", and WHERE this machine
  * found each pnpmfile is machine-local provenance that does not belong on a
  * serializable value.
+ *
+ * @param replays - The live replay record.
+ * @returns Each replayed dependency's version, by name.
  */
 const hookVersionsOf = (replays: Readonly<Record<string, HookReplay>>): Record<string, string> =>
   R.fromEntries(A.map(R.toEntries(replays), ([name, replay]) => [name, replay.version]));
@@ -255,7 +262,12 @@ const hookVersionsOf = (replays: Readonly<Record<string, HookReplay>>): Record<s
 /** Whether `value` is a non-null, non-array object. */
 const isObject = S.is(JsonObject);
 
-/** Parse a manifest tolerantly, retaining the empty-object fallback. */
+/**
+ * Parse a manifest tolerantly, retaining the empty-object fallback.
+ *
+ * @param text - The manifest text.
+ * @returns The parsed object, or `{}`.
+ */
 const parseJsonObject = (text: string): Record<string, unknown> =>
   Result.match(S.decodeResult(JsonValue)(text), {
     onFailure: () => ({}),
@@ -298,7 +310,12 @@ interface RefDeclarations {
   readonly recorded: LockfileRecord;
 }
 
-/** The workspace-relative directory a member `package.json` path names. */
+/**
+ * The workspace-relative directory a member `package.json` path names.
+ *
+ * @param path - A tree entry's path.
+ * @returns The member directory, or none.
+ */
 const manifestDirOf = (path: string): O.Option<string> =>
   Str.endsWith("/package.json")(path) ? O.some(Str.slice(0, path.length - "/package.json".length)(path)) : O.none();
 
@@ -306,6 +323,10 @@ const manifestDirOf = (path: string): O.Option<string> =>
  * The member directories a tree listing holds — every blob `package.json`
  * below the root whose directory the globs match, sorted — and whether the
  * root has a manifest of its own.
+ *
+ * @param entries - The tree listing.
+ * @param globs - The compiled workspace globs.
+ * @returns The sorted member directories and whether the root has a manifest.
  */
 const memberDirsOf = (
   entries: ReadonlyArray<{ readonly path: string; readonly type: string }>,
@@ -327,6 +348,9 @@ const memberDirsOf = (
  * malformed block degrades rather than failing the snapshot. (The live
  * {@link WorkspaceCatalogs} reader hard-fails the same shape; the difference is
  * deliberate.) Normalization is the shared {@link CatalogSet.fromBunBlocks}.
+ *
+ * @param manifest - The parsed root manifest.
+ * @returns The top-level and `workspaces` catalogs, merged.
  */
 const bunInlineCatalogs = (manifest: Record<string, unknown>): CatalogSet => {
   const topLevel = CatalogSet.fromBunBlocks({ catalog: manifest.catalog, catalogs: manifest.catalogs });
@@ -379,7 +403,12 @@ class WorkspaceSnapshotsTestDoubleError extends S.TaggedError<
   })
 ) {}
 
-/** A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure. */
+/**
+ * A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure.
+ *
+ * @param method - The unstubbed method's name.
+ * @returns An effect that dies naming the method.
+ */
 const unstubbed = (method: string): Effect.Effect<never> =>
   Effect.die(
     WorkspaceSnapshotsTestDoubleError.make({

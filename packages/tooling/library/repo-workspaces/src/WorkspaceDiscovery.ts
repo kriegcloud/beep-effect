@@ -1,12 +1,16 @@
-// Workspace discovery: read the `packages:` patterns, enumerate them, decode a
-// WorkspacePackage per directory.
-//
-// It also owns file → owning-package resolution (longest-prefix), which is a
-// lookup over discovery output rather than a concern of its own.
-//
-// It is also where `@beep/npm-spec`'s `WorkspaceResolver` contract is
-// implemented: `versionOf` is a lookup over the discovered package list.
-
+/**
+ * Workspace discovery: read the `packages:` patterns, enumerate them, decode a
+ * WorkspacePackage per directory.
+ *
+ * It also owns file → owning-package resolution (longest-prefix), which is a
+ * lookup over discovery output rather than a concern of its own.
+ *
+ * It is also where `@beep/npm-spec`'s `WorkspaceResolver` contract is
+ * implemented: `versionOf` is a lookup over the discovered package list.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { GlobSet } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { DependencyResolutionError, WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
@@ -73,6 +77,10 @@ const JsonValue = S.fromJsonString(S.Unknown);
  * First-write-wins, matching the `all.find` the indexes built on it replaced:
  * discovery does not reject duplicate names, and a plain
  * `new Map(all.map(...))` would keep the last.
+ *
+ * @param all - The discovered packages.
+ * @param value - What to index for each package.
+ * @returns The index, the first package of each name winning.
  */
 const firstByName = <V>(
   all: ReadonlyArray<WorkspacePackage>,
@@ -85,7 +93,13 @@ const firstByName = <V>(
   return index;
 };
 
-/** The distinct packages owning `filePaths`, sorted by name; a path no package owns contributes nothing. */
+/**
+ * The distinct packages owning `filePaths`, sorted by name; a path no package owns contributes nothing.
+ *
+ * @param filePaths - The paths to attribute.
+ * @param ownerOf - The owner lookup.
+ * @returns The owning packages, sorted by name.
+ */
 const ownersOf = (
   filePaths: ReadonlyArray<string>,
   ownerOf: (filePath: string) => O.Option<WorkspacePackage>
@@ -172,6 +186,7 @@ export class WorkspaceDiscoveryError extends S.TaggedError<WorkspaceDiscoveryErr
    * console.log(error.message) // Workspace discovery failed at /repo/package.json (missingName)
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category formatting
    * @since 0.0.0
    */
@@ -241,6 +256,7 @@ export class WorkspacePatternError extends S.TaggedError<WorkspacePatternError, 
    * console.log(error.message) // Workspace pattern "packages/*" could not be enumerated (missingBaseDir: packages)
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category formatting
    * @since 0.0.0
    */
@@ -300,6 +316,7 @@ export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError, { 
    * console.log(error.message) // No workspace package named "@app/missing"
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category formatting
    * @since 0.0.0
    */
@@ -730,6 +747,9 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
      * honest: re-rooting an already-discovered package list onto a different
      * directory rewrites paths but keeps the ORIGINAL root's manifests, so a
      * branch that adds or removes a package stays invisible. This re-reads.
+     *
+     * @param root - The resolved workspace root.
+     * @returns The root's discovery state.
      */
     const discoverAt = (
       root: string
@@ -1260,6 +1280,9 @@ export class WorkspaceDiscovery extends Context.Service<WorkspaceDiscovery, Work
  * The manifest fields discovery carries only when they have the expected
  * shape: `private` as a boolean, each dependency block as a name-to-range
  * record, and `publishConfig` when present at all.
+ *
+ * @param raw - The parsed manifest.
+ * @returns The usable optional fields.
  */
 const tolerantFieldsOf = (raw: { readonly [key: string]: unknown }) => ({
   ...(P.isBoolean(raw.private) ? { private: raw.private } : {}),

@@ -1,9 +1,13 @@
-// The inter-workspace dependency graph — a pure VALUE, not a service. Sorting
-// is a pure function of the graph, so it lives here as a method.
-//
-// Cycle detection is ITERATIVE, so a long dependency chain cannot overflow the
-// stack.
-
+/**
+ * The inter-workspace dependency graph — a pure VALUE, not a service. Sorting
+ * is a pure function of the graph, so it lives here as a method.
+ *
+ * Cycle detection is ITERATIVE, so a long dependency chain cannot overflow the
+ * stack.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -73,6 +77,7 @@ export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError, 
    * console.log(error.message) // Cyclic workspace dependencies among: a, b
    * ```
    *
+   * @returns The one-line sentence a log or a thrown error shows.
    * @category formatting
    * @since 0.0.0
    */
@@ -210,6 +215,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * console.log(graph.adjacency === graph.adjacency) // true
    * ```
    *
+   * @returns The edge indexes.
    * @category utilities
    * @since 0.0.0
    */
@@ -250,6 +256,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * console.log(graph.names.join(", ")) // app, core
    * ```
    *
+   * @returns The package names, sorted.
    * @category getters
    * @since 0.0.0
    */
@@ -279,6 +286,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * console.log(HashMap.size(graph.adjacency)) // 2
    * ```
    *
+   * @returns The forward adjacency map.
    * @category getters
    * @since 0.0.0
    */
@@ -312,6 +320,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * console.log(graph.hasCycle) // false
    * ```
    *
+   * @returns `true` when some package depends on itself through others.
    * @category predicates
    * @since 0.0.0
    */
@@ -593,6 +602,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
    * console.log(graph.toMermaid().split("\n")[0]) // flowchart TD
    * ```
    *
+   * @returns The Mermaid source.
    * @category formatting
    * @since 0.0.0
    */
@@ -606,6 +616,9 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
  * sorted-name order (so `NodeIndex` *i* is `names[i]`) and each node's edges
  * in sorted-target order, making the graph — and everything derived from it —
  * deterministic for a given edge index.
+ *
+ * @param edges - The graph's indexes.
+ * @returns The graph and its node names, in index order.
  */
 const materialize = (
   edges: Edges
@@ -633,6 +646,9 @@ const materialize = (
  * strongly connected component with more than one member, via core's
  * `Graph.stronglyConnectedComponents`. Self-edges are dropped at index time,
  * so a single-member component is never cyclic here.
+ *
+ * @param edges - The graph's indexes.
+ * @returns The cycle members, sorted.
  */
 const cycleMembers = (edges: Edges): ReadonlyArray<string> => {
   const { graph, names } = materialize(edges);
@@ -647,13 +663,25 @@ const cycleMembers = (edges: Edges): ReadonlyArray<string> => {
   return A.sort(A.fromIterable(members), Str.Order);
 };
 
-/** The dependencies recorded for `name` so far; none when it has no entry. */
+/**
+ * The dependencies recorded for `name` so far; none when it has no entry.
+ *
+ * @param declared - The dependencies recorded so far.
+ * @param name - A captured package's `name` field.
+ * @returns The recorded dependencies.
+ */
 const dependenciesIn = (
   declared: MutableHashMap.MutableHashMap<string, ReadonlyArray<string>>,
   name: string
 ): ReadonlyArray<string> => O.getOrElse(MutableHashMap.get(declared, name), (): ReadonlyArray<string> => []);
 
-/** A node's direct dependencies in the forward index; none for an unknown node. */
+/**
+ * A node's direct dependencies in the forward index; none for an unknown node.
+ *
+ * @param forward - The forward index.
+ * @param node - The package name.
+ * @returns The node's direct dependencies.
+ */
 const dependenciesOf = (forward: Edges["forward"], node: string): Array<string> => [
   ...O.getOrElse(HashMap.get(forward, node), HashSet.empty<string>),
 ];
@@ -661,6 +689,10 @@ const dependenciesOf = (forward: Edges["forward"], node: string): Array<string> 
 /**
  * The forward and reverse indexes over `order`, from each node's dependencies,
  * every one of which is itself in `order`.
+ *
+ * @param order - The vertices, in order.
+ * @param dependenciesOfNode - Each vertex's dependencies.
+ * @returns The indexes.
  */
 const edgesOver = (order: ReadonlyArray<string>, dependenciesOfNode: (node: string) => Iterable<string>): Edges => {
   let forward = HashMap.empty<string, HashSet.HashSet<string>>();
@@ -673,7 +705,13 @@ const edgesOver = (order: ReadonlyArray<string>, dependenciesOfNode: (node: stri
   return { order, forward, reverse };
 };
 
-/** Every node `roots` reach through the forward index, the roots included. */
+/**
+ * Every node `roots` reach through the forward index, the roots included.
+ *
+ * @param forward - The forward index.
+ * @param roots - The starting packages.
+ * @returns The roots and everything they reach.
+ */
 const closureOf = (forward: Edges["forward"], roots: ReadonlyArray<string>): MutableHashSet.MutableHashSet<string> => {
   const needed = MutableHashSet.empty<string>();
   const queue = [...roots];
@@ -693,6 +731,11 @@ const closureOf = (forward: Edges["forward"], roots: ReadonlyArray<string>): Mut
  * Each frame is a node plus the iterator position into its dependencies. The
  * `visited` and `onStack` sets are shared across starts, so a node finished by
  * an earlier start is never walked again.
+ *
+ * @param forward - The forward index.
+ * @param start - The node the walk starts from.
+ * @param marks - The visited and on-stack sets shared across starts.
+ * @returns `true` when the walk meets a cycle.
  */
 const reachesCycle = (
   forward: Edges["forward"],
@@ -729,6 +772,11 @@ const reachesCycle = (
 /**
  * Retire one completed level, returning the next: every dependent whose last
  * outstanding dependency the level held, sorted.
+ *
+ * @param edges - The graph's indexes.
+ * @param remaining - Each unprocessed node's outstanding dependency count.
+ * @param level - The level just completed.
+ * @returns The next level, sorted.
  */
 const completeLevel = (
   edges: Edges,
@@ -757,6 +805,9 @@ const completeLevel = (
  * A non-empty `stalled` only signals *that* a cycle exists — it holds every
  * unprocessed node, including ones merely downstream of a cycle. The error
  * payload names the actual members via `cycleMembers`.
+ *
+ * @param edges - The graph's indexes.
+ * @returns The levels in build order, and every node left unprocessed.
  */
 const kahn = (
   edges: Edges
