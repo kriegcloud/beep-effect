@@ -1,9 +1,9 @@
+import { CliTest } from "@beep/cli-kit/testing";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { CliTest } from "../../effected/cli/testing.ts";
 
 const HOST_PATH = Config.String("PATH").pipe(Config.withDefault(""));
 const HOST_HOME = Config.option(Config.String("HOME"));

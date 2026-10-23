@@ -1,3 +1,4 @@
+import { CliAudience, CliInteractive, CliRuntime } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
@@ -15,7 +16,6 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Runtime from "effect/Runtime";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliAudience, CliInteractive, CliRuntime } from "../../effected/cli/index.ts";
 
 const memoryPlatform = (fs: FileSystem.FileSystem) =>
   Layer.mergeAll(

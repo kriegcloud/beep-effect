@@ -1,5 +1,5 @@
+import { scanAudience, tallyAudience } from "@beep/cli-kit/internal/scanAudience";
 import { assert, describe, it } from "@effect/vitest";
-import { scanAudience, tallyAudience } from "../../effected/cli/internal/scanAudience.ts";
 
 const scan = (...argv: ReadonlyArray<string>) => scanAudience(argv);
 

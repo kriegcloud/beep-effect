@@ -1,3 +1,5 @@
+import { CliEnv, CliInteractive, CliLinks, CliRuntime, CliTheme } from "@beep/cli-kit";
+import { TestTerminal } from "@beep/cli-kit/testing";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
@@ -22,9 +24,7 @@ import * as Queue from "effect/Queue";
 import * as Runtime from "effect/Runtime";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliEnv, CliInteractive, CliLinks, CliRuntime, CliTheme } from "../../effected/cli/index.ts";
-import { TestTerminal } from "../../effected/cli/testing.ts";
-import type { CliEnvOptions } from "../../effected/cli/index.ts";
+import type { CliEnvOptions } from "@beep/cli-kit";
 
 class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
   override readonly name = "Error";
@@ -499,7 +499,7 @@ describe("CliRuntime.main with the env option", () => {
   );
 
   {
-    class Mode0 extends Context.Service<Mode0, string>()("@beep/scratchpad/test/cli/CliEnv.test/Mode0") {}
+    class Mode0 extends Context.Service<Mode0, string>()("@beep/cli-kit/test/CliEnv.test/Mode0") {}
     const layerMode0 = Layer.effect(
       Mode0,
       Effect.map(CliLinks, (links) => links.mode)
@@ -508,7 +508,7 @@ describe("CliRuntime.main with the env option", () => {
       Layer.provide(TTY),
       Layer.provide(ConfigProvider.layer(withEnv({})))
     );
-    class Mode1 extends Context.Service<Mode1, string>()("@beep/scratchpad/test/cli/CliEnv.test/Mode1") {}
+    class Mode1 extends Context.Service<Mode1, string>()("@beep/cli-kit/test/CliEnv.test/Mode1") {}
     const layerMode1 = Layer.effect(
       Mode1,
       Effect.map(CliLinks, (links) => links.mode)
@@ -517,7 +517,7 @@ describe("CliRuntime.main with the env option", () => {
       Layer.provide(TTY),
       Layer.provide(ConfigProvider.layer(withEnv({ TERM_PROGRAM: "vscode" })))
     );
-    class Mode2 extends Context.Service<Mode2, string>()("@beep/scratchpad/test/cli/CliEnv.test/Mode2") {}
+    class Mode2 extends Context.Service<Mode2, string>()("@beep/cli-kit/test/CliEnv.test/Mode2") {}
     const layerMode2 = Layer.effect(
       Mode2,
       Effect.map(CliLinks, (links) => links.mode)
@@ -526,7 +526,7 @@ describe("CliRuntime.main with the env option", () => {
       Layer.provide(TTY),
       Layer.provide(ConfigProvider.layer(withEnv({ TERM_PROGRAM: "vscode" })))
     );
-    class Mode3 extends Context.Service<Mode3, string>()("@beep/scratchpad/test/cli/CliEnv.test/Mode3") {}
+    class Mode3 extends Context.Service<Mode3, string>()("@beep/cli-kit/test/CliEnv.test/Mode3") {}
     const layerMode3 = Layer.effect(
       Mode3,
       Effect.map(CliLinks, (links) => links.mode)
@@ -535,7 +535,7 @@ describe("CliRuntime.main with the env option", () => {
       Layer.provide(TTY),
       Layer.provide(ConfigProvider.layer(withEnv({})))
     );
-    class Mode4 extends Context.Service<Mode4, string>()("@beep/scratchpad/test/cli/CliEnv.test/Mode4") {}
+    class Mode4 extends Context.Service<Mode4, string>()("@beep/cli-kit/test/CliEnv.test/Mode4") {}
     const layerMode4 = Layer.effect(
       Mode4,
       Effect.map(CliLinks, (links) => links.mode)
@@ -562,8 +562,8 @@ describe("CliRuntime.main with the env option", () => {
   }
 
   {
-    class WithFs extends Context.Service<WithFs, string>()("@beep/scratchpad/test/cli/CliEnv.test/WithFs") {}
-    class WithoutFs extends Context.Service<WithoutFs, string>()("@beep/scratchpad/test/cli/CliEnv.test/WithoutFs") {}
+    class WithFs extends Context.Service<WithFs, string>()("@beep/cli-kit/test/CliEnv.test/WithFs") {}
+    class WithoutFs extends Context.Service<WithoutFs, string>()("@beep/cli-kit/test/CliEnv.test/WithoutFs") {}
     const seed = { "/repo/.git": MemoryFileSystem.directory(), "/repo/.vscode": MemoryFileSystem.directory() };
     const modeLayer = <Key>(key: Context.Service<Key, string>) =>
       Layer.effect(

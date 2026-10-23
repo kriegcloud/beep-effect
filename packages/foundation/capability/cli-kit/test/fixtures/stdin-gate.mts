@@ -9,7 +9,7 @@ import * as Prompt from "effect/cli/Prompt";
 import * as Effect from "effect/Effect";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
-import { CliPrompt, CliRuntime } from "../../../effected/cli/index.ts";
+import { CliPrompt, CliRuntime } from "@beep/cli-kit";
 
 const profile = Flag.String("profile").pipe(
   Flag.withFallbackPrompt(

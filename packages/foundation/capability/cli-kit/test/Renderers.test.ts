@@ -1,8 +1,8 @@
+import { ConfigIssueRenderer } from "@beep/cli-kit/ConfigIssueRenderer";
+import { SchemaIssueRenderer } from "@beep/cli-kit/SchemaIssueRenderer";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { ConfigIssueRenderer } from "../../effected/cli/ConfigIssueRenderer.ts";
-import { SchemaIssueRenderer } from "../../effected/cli/SchemaIssueRenderer.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 /** Decode strictly and hand back the raw issue tree. */

@@ -1,5 +1,5 @@
 import { CommandNeutralizer } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -33,7 +33,7 @@ import type { CliLoggerOptions } from "./CliLogger.ts";
 import type { Status } from "./Status.ts";
 import type { Style } from "./Token.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliLog");
+const $I = $CliKitId.create("CliLog");
 
 /**
  * Options for `CliLog.status`.
@@ -41,7 +41,7 @@ const $I = $ScratchpadId.create("effected/cli/CliLog");
  * **Example** (Validate plain status options)
  *
  * ```ts
- * import { CliLogStatusOptions } from "@beep/scratchpad/effected/cli/CliLog"
+ * import { CliLogStatusOptions } from "@beep/cli-kit/CliLog"
  * import * as S from "effect/Schema"
  * console.log(S.is(CliLogStatusOptions)({ level: "Warn", indent: 2 })) // true
  * ```
@@ -235,7 +235,7 @@ const CliLogFileEnvironment = S.Struct({
  * **Example** (Validate either file-sink configuration)
  *
  * ```ts
- * import { CliLogFile } from "@beep/scratchpad/effected/cli/CliLog"
+ * import { CliLogFile } from "@beep/cli-kit/CliLog"
  * import * as S from "effect/Schema"
  * console.log(S.is(CliLogFile)({ path: "logs/run.ndjson" })) // true
  * console.log(S.is(CliLogFile)({ envVar: "TOOL_LOG_FILE" })) // true
@@ -412,7 +412,7 @@ const actionsDecision: {
  * **Example** (Enable diagnostics with an environment variable)
  *
  * ```ts
- * import { CliRuntime } from "@beep/scratchpad/effected/cli/CliRuntime"
+ * import { CliRuntime } from "@beep/cli-kit/CliRuntime"
  * import * as Effect from "effect/Effect"
  * import * as Layer from "effect/Layer"
  *
@@ -442,7 +442,7 @@ export class CliLog {
    * **Example** (Inspect the default diagnostics threshold)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Effect from "effect/Effect"
    *
    * console.log(Effect.runSync(CliLog.Level)) // None
@@ -486,7 +486,7 @@ export class CliLog {
    * **Example** (Construct json diagnostics)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLog.layer({ format: "json", level: "Debug" })
@@ -510,7 +510,7 @@ export class CliLog {
    * **Example** (Construct json diagnostics with a file sink)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLog.layer({ format: "json", level: "Debug", file: { path: "/tmp/tool.ndjson" } })
@@ -534,7 +534,7 @@ export class CliLog {
    * **Example** (Construct pretty diagnostics)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLog.layer({ format: "pretty", level: "Debug" })
@@ -558,7 +558,7 @@ export class CliLog {
    * **Example** (Construct pretty diagnostics with a file sink)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLog.layer({ format: "pretty", level: "Debug", file: { path: "/tmp/tool.ndjson" } })
@@ -582,7 +582,7 @@ export class CliLog {
    * **Example** (Construct auto diagnostics)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLog.layer({ format: "auto", level: "Debug" })
@@ -606,7 +606,7 @@ export class CliLog {
    * **Example** (Construct auto diagnostics with a file sink)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLog.layer({ format: "auto", level: "Debug", file: { path: "/tmp/tool.ndjson" } })
@@ -757,9 +757,9 @@ export class CliLog {
    * **Example** (Log a themed failure status)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Effect from "effect/Effect"
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * // The failure glyph and message go to stderr, filtered by the log level.
    * const reportError = (resource: string, message: string) =>
@@ -820,7 +820,7 @@ export class CliLog {
    * **Example** (Annotate a synchronization log)
    *
    * ```ts
-   * import { CliLog } from "@beep/scratchpad/effected/cli/CliLog"
+   * import { CliLog } from "@beep/cli-kit/CliLog"
    * import * as Effect from "effect/Effect"
    *
    * const program = Effect.log("synced").pipe(CliLog.component("sync"))
@@ -934,7 +934,7 @@ const buildTimeDecision: {
  * **Example** (Construct the build-time logger)
  *
  * ```ts
- * import { platformLogLayer } from "@beep/scratchpad/effected/cli/CliLog"
+ * import { platformLogLayer } from "@beep/cli-kit/CliLog"
  * import * as Layer from "effect/Layer"
  *
  * const live = platformLogLayer({ format: "json", level: "Debug" })
@@ -993,7 +993,7 @@ export const platformLogLayer: {
  * **Example** (Construct the build-time logger)
  *
  * ```ts
- * import { envBuildLogLayer } from "@beep/scratchpad/effected/cli/CliLog"
+ * import { envBuildLogLayer } from "@beep/cli-kit/CliLog"
  * import * as Layer from "effect/Layer"
  *
  * const live = envBuildLogLayer({ format: "json", level: "Debug" })

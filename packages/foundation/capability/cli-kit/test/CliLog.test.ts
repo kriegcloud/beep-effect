@@ -1,3 +1,4 @@
+import { CliLog, CliLogger, CliRuntime } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
@@ -6,7 +7,7 @@ import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -18,11 +19,10 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Runtime from "effect/Runtime";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliLog, CliLogger, CliRuntime } from "../../effected/cli/index.ts";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
+import type { CliLogFile, CliLoggerOptions } from "@beep/cli-kit";
 import type { AudienceKind } from "@beep/runtime-env";
 import type * as FileSystem from "effect/FileSystem";
-import type { CliLogFile, CliLoggerOptions } from "../../effected/cli/index.ts";
 
 const platformServices = Layer.mergeAll(
   Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),

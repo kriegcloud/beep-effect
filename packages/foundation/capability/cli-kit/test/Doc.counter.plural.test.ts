@@ -1,5 +1,5 @@
+import { Doc, Render, Status } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
-import { Doc, Render, Status } from "../../effected/cli/index.ts";
 
 const changes = (n: number) =>
   Doc.counter(Status.core, "success", {

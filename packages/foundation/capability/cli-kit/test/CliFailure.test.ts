@@ -1,23 +1,3 @@
-import { MemoryFileSystem } from "@beep/memfs";
-import { Audience, TerminalEnv } from "@beep/runtime-env";
-import { assert, describe, it } from "@effect/vitest";
-import * as A from "effect/Array";
-import * as Cause from "effect/Cause";
-import * as ConfigProvider from "effect/ConfigProvider";
-import * as Console from "effect/Console";
-import * as Context from "effect/Context";
-import * as Command from "effect/cli/Command";
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import * as Data from "effect/Data";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
-import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import * as Runtime from "effect/Runtime";
-import * as S from "effect/Schema";
-import * as Stdio from "effect/Stdio";
-import * as Terminal from "effect/Terminal";
 import {
   Cancelled,
   CliAudience,
@@ -30,9 +10,29 @@ import {
   NotInteractive,
   Render,
   SchemaIssueRenderer,
-} from "../../effected/cli/index.ts";
+} from "@beep/cli-kit";
+import { MemoryFileSystem } from "@beep/memfs";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
+import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
+import * as ConfigProvider from "effect/ConfigProvider";
+import * as Console from "effect/Console";
+import * as Context from "effect/Context";
+import * as Command from "effect/cli/Command";
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Runtime from "effect/Runtime";
+import * as S from "effect/Schema";
+import * as Stdio from "effect/Stdio";
+import * as Terminal from "effect/Terminal";
+import type { Block, Document } from "@beep/cli-kit";
 import type { AudienceKind, StreamEnv } from "@beep/runtime-env";
-import type { Block, Document } from "../../effected/cli/index.ts";
 
 const platformServices = Layer.mergeAll(
   Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),

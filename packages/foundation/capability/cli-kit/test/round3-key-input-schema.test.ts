@@ -1,3 +1,4 @@
+import { KeyInput, TestTerminal } from "@beep/cli-kit/TestTerminal";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -6,7 +7,6 @@ import * as Layer from "effect/Layer";
 import * as Queue from "effect/Queue";
 import * as S from "effect/Schema";
 import * as Terminal from "effect/Terminal";
-import { KeyInput, TestTerminal } from "../../effected/cli/TestTerminal.ts";
 
 const decode = S.decodeUnknownExit(KeyInput);
 const encode = S.encodeUnknownExit(KeyInput);

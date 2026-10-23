@@ -25,7 +25,7 @@ All `@effected/*` packages are ESM-only: the exports maps publish only `import` 
 One wiring serves every program: share the audience flags on the root command, run it through `CliAudience.run`, and hand that to `CliRuntime.main` with an `env`.
 
 ```ts
-import { CliAudience, CliExit, CliMessage, CliRuntime, Doc } from "@beep/scratchpad/effected/cli";
+import { CliAudience, CliExit, CliMessage, CliRuntime, Doc } from "@beep/cli-kit";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
 import * as Command from "effect/cli/Command";
@@ -118,7 +118,7 @@ Every string that enters a document or a message is sanitised: escape sequences 
 A prompt fires only when `CliInteractive` is true: a human audience, a terminal on stdin and stdout, and `TERM` not `dumb`. Otherwise it answers a default you supply, or fails cleanly.
 
 ```ts
-import { CliPrompt } from "@beep/scratchpad/effected/cli";
+import { CliPrompt } from "@beep/cli-kit";
 import * as Flag from "effect/cli/Flag";
 import * as Prompt from "effect/cli/Prompt";
 // Core's prompt as a flag fallback: asks at a terminal, uses "library" in a pipe.

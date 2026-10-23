@@ -1,14 +1,14 @@
+import { TestTerminal } from "@beep/cli-kit/TestTerminal";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Terminal from "effect/Terminal";
-import { TestTerminal } from "../../effected/cli/TestTerminal.ts";
-import type { TestTerminalHandle } from "../../effected/cli/TestTerminal.ts";
+import type { TestTerminalHandle } from "@beep/cli-kit/TestTerminal";
 
 class Harness extends Context.Service<Harness, TestTerminalHandle>()(
-  "@beep/scratchpad/test/cli/TestTerminal.coverage.test/Harness"
+  "@beep/cli-kit/test/TestTerminal.coverage.test/Harness"
 ) {}
 const layer = Layer.unwrap(
   Effect.gen(function* () {

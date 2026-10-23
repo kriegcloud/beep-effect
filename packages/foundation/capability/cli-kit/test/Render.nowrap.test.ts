@@ -1,3 +1,4 @@
+import { CliLinks, CliTheme, Doc, Render, Status } from "@beep/cli-kit";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
 import { assert, describe, it } from "@effect/vitest";
@@ -5,9 +6,8 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { CliLinks, CliTheme, Doc, Render, Status } from "../../effected/cli/index.ts";
+import type { Document } from "@beep/cli-kit";
 import type { AudienceKind } from "@beep/runtime-env";
-import type { Document } from "../../effected/cli/index.ts";
 
 const ESC = String.fromCharCode(0x1b);
 const strip = (text: string): string => text.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "");

@@ -1,8 +1,9 @@
 // The differential test for the package's own display width, against `string-width`. This is the ONLY file in the
 // package that imports `string-width` (a devDependency); see okf/decisions/own-display-width.md.
+
+import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
 import stringWidth from "string-width";
-import { displayWidth } from "../../effected/cli/internal/displayWidth.ts";
 
 const OSC8 = "\u001b]8;;https://example.com\u0007link\u001b]8;;\u0007";
 

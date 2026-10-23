@@ -15,8 +15,8 @@ import type { BlockOf, Counter, Inline } from "../Doc.ts";
  * **Example** (Read singular and denominator labels)
  *
  * ```ts
- * import { counterLabel } from "@beep/scratchpad/effected/cli/internal/counts"
- * import type { Counter } from "@beep/scratchpad/effected/cli/Doc"
+ * import { counterLabel } from "@beep/cli-kit/internal/counts"
+ * import type { Counter } from "@beep/cli-kit/Doc"
  *
  * const counter: Counter = {
  *   key: "repos", label: { one: "repo", other: "repos" }, n: 1,
@@ -46,8 +46,8 @@ export const counterLabel: {
  * **Example** (Head a column with the plural label)
  *
  * ```ts
- * import { columnLabel } from "@beep/scratchpad/effected/cli/internal/counts"
- * import type { Counter } from "@beep/scratchpad/effected/cli/Doc"
+ * import { columnLabel } from "@beep/cli-kit/internal/counts"
+ * import type { Counter } from "@beep/cli-kit/Doc"
  *
  * const counter: Counter = {
  *   key: "repos", label: { one: "repo", other: "repos" }, n: 1,
@@ -74,7 +74,7 @@ export const columnLabel = (counter: Counter): string =>
  * **Example** (Sum counter values)
  *
  * ```ts
- * import { totalOf } from "@beep/scratchpad/effected/cli/internal/counts"
+ * import { totalOf } from "@beep/cli-kit/internal/counts"
  *
  * console.log(totalOf({ _tag: "Counts", layout: "inline", counters: [] })) // 0
  * ```
@@ -95,9 +95,9 @@ export const totalOf = (block: BlockOf<"Counts">): number =>
  * **Example** (Hide a zero count unless requested)
  *
  * ```ts
- * import { visibleCountersOf } from "@beep/scratchpad/effected/cli/internal/counts"
- * import type { Counter } from "@beep/scratchpad/effected/cli/Doc"
- * import type { BlockOf } from "@beep/scratchpad/effected/cli/Doc"
+ * import { visibleCountersOf } from "@beep/cli-kit/internal/counts"
+ * import type { Counter } from "@beep/cli-kit/Doc"
+ * import type { BlockOf } from "@beep/cli-kit/Doc"
  *
  * const counter: Counter = {
  *   key: "repos", label: { one: "repo", other: "repos" }, n: 1,
@@ -130,7 +130,7 @@ export const visibleCountersOf = (block: BlockOf<"Counts">): ReadonlyArray<Count
  * **Example** (Build the columns of an empty table)
  *
  * ```ts
- * import { countsTableOf } from "@beep/scratchpad/effected/cli/internal/counts"
+ * import { countsTableOf } from "@beep/cli-kit/internal/counts"
  *
  * const table = countsTableOf({ _tag: "CountsTable", rows: [] })
  * console.log(table.columns.length) // 1

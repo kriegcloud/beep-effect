@@ -1,10 +1,10 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { AudienceKind } from "@beep/runtime-env/Audience";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/internal/scanAudience");
+const $I = $CliKitId.create("internal/scanAudience");
 
 /**
  * The four parsed audience flags, as core hands them to a shared-flag command.
@@ -12,7 +12,7 @@ const $I = $ScratchpadId.create("effected/cli/internal/scanAudience");
  * **Example** (Decode one explicit agent audience)
  *
  * ```ts
- * import { AudienceFlagValues } from "@beep/scratchpad/effected/cli/internal/scanAudience"
+ * import { AudienceFlagValues } from "@beep/cli-kit/internal/scanAudience"
  * import * as S from "effect/Schema"
  *
  * const flags = S.decodeUnknownSync(AudienceFlagValues)({ audience: ["agent"], human: [], agent: [true], ci: [] })
@@ -56,7 +56,7 @@ export type AudienceFlagValues = typeof AudienceFlagValues.Type;
  * **Example** (Validate a single audience tally)
  *
  * ```ts
- * import { AudienceTally } from "@beep/scratchpad/effected/cli/internal/scanAudience";
+ * import { AudienceTally } from "@beep/cli-kit/internal/scanAudience";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(AudienceTally)({ given: ["agent"], conflict: false })) // true
@@ -90,7 +90,7 @@ export type AudienceTally = typeof AudienceTally.Type;
  * **Example** (Count only enabled boolean flags)
  *
  * ```ts
- * import { tallyAudience } from "@beep/scratchpad/effected/cli/internal/scanAudience"
+ * import { tallyAudience } from "@beep/cli-kit/internal/scanAudience"
  * const tally = tallyAudience({ audience: [], human: [false], agent: [true], ci: [] })
  * console.log(tally.given.join(",")) // agent
  * console.log(tally.conflict) // false
@@ -143,7 +143,7 @@ const isKind = S.is(AudienceKind);
  * **Example** (Ignore disabled flags and stop at the delimiter)
  *
  * ```ts
- * import { scanAudience } from "@beep/scratchpad/effected/cli/internal/scanAudience"
+ * import { scanAudience } from "@beep/cli-kit/internal/scanAudience"
  * const tally = scanAudience(["--agent", "--human=false", "--", "--ci"])
  * console.log(tally.given.join(",")) // agent
  * console.log(tally.conflict) // false

@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { isExitCode } from "../../../effected/cli/internal/isExitCode.ts";
+import { isExitCode } from "@beep/cli-kit/internal/isExitCode";
 
 it.effect.prop(
   "POSIX exit validation accepts exactly the finite byte integers",

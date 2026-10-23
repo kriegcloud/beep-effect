@@ -6,8 +6,8 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { formatIssue, issueEntries, issueTreeChildren } from "../../../effected/cli/internal/format.ts";
-import type { IssueEntry, IssueTreeNode } from "../../../effected/cli/internal/format.ts";
+import { formatIssue, issueEntries, issueTreeChildren } from "@beep/cli-kit/internal/format";
+import type { IssueEntry, IssueTreeNode } from "@beep/cli-kit/internal/format";
 
 const sample = S.Struct({ key: S.String, value: S.Json });
 it.effect("issue deduplication distinguishes a dotted key from the same displayed nested path", () =>

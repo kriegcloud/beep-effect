@@ -1,10 +1,10 @@
+import { routeHelpOnUsageError } from "@beep/cli-kit/internal/HelpRouting";
 import { assert, it } from "@effect/vitest";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as CliError from "effect/cli/CliError";
 import * as CliOutput from "effect/cli/CliOutput";
 import * as Effect from "effect/Effect";
-import { routeHelpOnUsageError } from "../../../effected/cli/internal/HelpRouting.ts";
 
 it.effect("all console delegates release held help before forwarding their exact arguments", () =>
   Effect.gen(function* () {

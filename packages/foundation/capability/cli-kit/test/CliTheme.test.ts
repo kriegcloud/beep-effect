@@ -1,3 +1,4 @@
+import { CliTheme, Status, Token } from "@beep/cli-kit";
 import { TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -7,8 +8,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { CliTheme, Status, Token } from "../../effected/cli/index.ts";
-import type { NamedColor, Style, TokenName } from "../../effected/cli/index.ts";
+import type { NamedColor, Style, TokenName } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -87,14 +87,10 @@ describe("CliTheme.layer", () => {
     );
   });
 
-  class DumbGlyphs extends Context.Service<DumbGlyphs, string>()(
-    "@beep/scratchpad/test/cli/CliTheme.test/DumbGlyphs"
-  ) {}
-  class XtermGlyphs extends Context.Service<XtermGlyphs, string>()(
-    "@beep/scratchpad/test/cli/CliTheme.test/XtermGlyphs"
-  ) {}
+  class DumbGlyphs extends Context.Service<DumbGlyphs, string>()("@beep/cli-kit/test/CliTheme.test/DumbGlyphs") {}
+  class XtermGlyphs extends Context.Service<XtermGlyphs, string>()("@beep/cli-kit/test/CliTheme.test/XtermGlyphs") {}
   class MissingGlyphs extends Context.Service<MissingGlyphs, string>()(
-    "@beep/scratchpad/test/cli/CliTheme.test/MissingGlyphs"
+    "@beep/cli-kit/test/CliTheme.test/MissingGlyphs"
   ) {}
   const glyphsLayer = <Id>(service: Context.Service<Id, string>, term: Record<string, string>) =>
     Layer.effect(
@@ -141,10 +137,10 @@ describe("CliTheme.layer", () => {
 });
 
 class UnicodeTheme extends Context.Service<UnicodeTheme, Context.Service.Shape<typeof CliTheme>>()(
-  "@beep/scratchpad/test/cli/CliTheme.test/UnicodeTheme"
+  "@beep/cli-kit/test/CliTheme.test/UnicodeTheme"
 ) {}
 class AsciiTheme extends Context.Service<AsciiTheme, Context.Service.Shape<typeof CliTheme>>()(
-  "@beep/scratchpad/test/cli/CliTheme.test/AsciiTheme"
+  "@beep/cli-kit/test/CliTheme.test/AsciiTheme"
 ) {}
 it.layer(
   Layer.mergeAll(
@@ -177,14 +173,12 @@ it.layer(
   });
 });
 
-class NonePrompt extends Context.Service<NonePrompt, Prompt.Theme>()(
-  "@beep/scratchpad/test/cli/CliTheme.test/NonePrompt"
-) {}
+class NonePrompt extends Context.Service<NonePrompt, Prompt.Theme>()("@beep/cli-kit/test/CliTheme.test/NonePrompt") {}
 class BasicPrompt extends Context.Service<BasicPrompt, Prompt.Theme>()(
-  "@beep/scratchpad/test/cli/CliTheme.test/BasicPrompt"
+  "@beep/cli-kit/test/CliTheme.test/BasicPrompt"
 ) {}
 class AsciiPrompt extends Context.Service<AsciiPrompt, Prompt.Theme>()(
-  "@beep/scratchpad/test/cli/CliTheme.test/AsciiPrompt"
+  "@beep/cli-kit/test/CliTheme.test/AsciiPrompt"
 ) {}
 const promptLayer = <Id>(
   service: Context.Service<Id, Prompt.Theme>,

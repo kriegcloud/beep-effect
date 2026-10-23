@@ -1,3 +1,5 @@
+import { CliDoc } from "@beep/cli-kit/CliFailure";
+import { CliRuntime } from "@beep/cli-kit/CliRuntime";
 import { assert, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -8,8 +10,6 @@ import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
-import { CliDoc } from "../../effected/cli/CliFailure.ts";
-import { CliRuntime } from "../../effected/cli/CliRuntime.ts";
 
 it.effect("an unprintable failure still produces a safe last-resort diagnostic", () =>
   Effect.gen(function* () {

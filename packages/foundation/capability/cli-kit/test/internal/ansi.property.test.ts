@@ -1,11 +1,11 @@
+import { nearest256, openSequence, paintStyle, parseHex } from "@beep/cli-kit/internal/ansi";
+import { stripAnsi } from "@beep/cli-kit/internal/displayWidth";
+import { Style } from "@beep/cli-kit/Token";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { nearest256, openSequence, paintStyle, parseHex } from "../../../effected/cli/internal/ansi.ts";
-import { stripAnsi } from "../../../effected/cli/internal/displayWidth.ts";
-import { Style } from "../../../effected/cli/Token.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const channel = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 }));

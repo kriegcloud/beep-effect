@@ -1,10 +1,10 @@
 import { WorkflowCommand } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/GithubAnnotation");
+const $I = $CliKitId.create("GithubAnnotation");
 
 /**
  * The severity of a GitHub annotation.
@@ -12,7 +12,7 @@ const $I = $ScratchpadId.create("effected/cli/GithubAnnotation");
  * **Example** (Read the annotation severity vocabulary)
  *
  * ```ts
- * import { AnnotationLevel } from "@beep/scratchpad/effected/cli/GithubAnnotation"
+ * import { AnnotationLevel } from "@beep/cli-kit/GithubAnnotation"
  *
  * console.log(AnnotationLevel.literals) // ["error", "warning", "notice"]
  * ```
@@ -38,7 +38,7 @@ export type AnnotationLevel = typeof AnnotationLevel.Type;
  * **Example** (Validate annotation properties)
  *
  * ```ts
- * import { GithubAnnotationProperties } from "@beep/scratchpad/effected/cli/GithubAnnotation"
+ * import { GithubAnnotationProperties } from "@beep/cli-kit/GithubAnnotation"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(GithubAnnotationProperties)({ level: "notice", title: "Build" })) // true
@@ -96,7 +96,7 @@ export type GithubAnnotationProperties = typeof GithubAnnotationProperties.Type;
  * **Example** (Build a GitHub error annotation)
  *
  * ```ts
- * import { GithubAnnotation } from "@beep/scratchpad/effected/cli/GithubAnnotation"
+ * import { GithubAnnotation } from "@beep/cli-kit/GithubAnnotation"
  *
  * console.log(GithubAnnotation.format({ level: "error", file: "src/main.ts", line: 1 }, "Invalid input")) // ::error file=src/main.ts,line=1::Invalid input
  * ```
@@ -123,7 +123,7 @@ export abstract class GithubAnnotation {
    * **Example** (Escape annotation message line breaks)
    *
    * ```ts
-   * import { GithubAnnotation } from "@beep/scratchpad/effected/cli/GithubAnnotation"
+   * import { GithubAnnotation } from "@beep/cli-kit/GithubAnnotation"
    *
    * console.log(GithubAnnotation.format({ level: "warning", title: "Check" }, "first\nsecond")) // ::warning title=Check::first%0Asecond
    * ```

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
@@ -11,7 +11,7 @@ import * as Stream from "effect/Stream";
 import type * as PlatformError from "effect/PlatformError";
 import type * as Scope from "effect/Scope";
 
-const $I = $ScratchpadId.create("effected/cli/CliTest");
+const $I = $CliKitId.create("CliTest");
 
 /**
  * A hermetic temp directory minted by {@link CliTest.sandbox}, removed when its
@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/cli/CliTest");
  * **Example** (Validate a plain sandbox)
  *
  * ```ts
- * import { Sandbox } from "@beep/scratchpad/effected/cli/CliTest"
+ * import { Sandbox } from "@beep/cli-kit/CliTest"
  * import * as S from "effect/Schema"
  * console.log(S.is(Sandbox)({ root: "/tmp/cli", home: "/tmp/cli/home", env: {} })) // true
  * ```
@@ -56,7 +56,7 @@ export type Sandbox = typeof Sandbox.Type;
  * **Example** (Validate spawn options with omitted overrides)
  *
  * ```ts
- * import { RunOptions } from "@beep/scratchpad/effected/cli/CliTest"
+ * import { RunOptions } from "@beep/cli-kit/CliTest"
  * import * as S from "effect/Schema"
  * console.log(S.is(RunOptions)({ sandbox: { root: "/tmp/cli", home: "/tmp/cli/home", env: {} }, execPath: "/usr/bin/node" })) // true
  * ```
@@ -113,7 +113,7 @@ export type RunOptions = typeof RunOptions.Type;
  * **Example** (Validate a non-zero exit as data)
  *
  * ```ts
- * import { RunResult } from "@beep/scratchpad/effected/cli/CliTest"
+ * import { RunResult } from "@beep/cli-kit/CliTest"
  * import * as S from "effect/Schema"
  * console.log(S.is(RunResult)({ exitCode: 3, stdout: "", stderr: "failed" })) // true
  * ```
@@ -155,7 +155,7 @@ const text = <E, R>(stream: Stream.Stream<Uint8Array, E, R>): Effect.Effect<stri
  * **Example** (Test a built CLI version command in a sandbox)
  *
  * ```ts
- * import { CliTest } from "@beep/scratchpad/effected/cli/CliTest"
+ * import { CliTest } from "@beep/cli-kit/CliTest"
  * import * as Effect from "effect/Effect"
  *
  * const program = Effect.gen(function* () {
@@ -183,7 +183,7 @@ export abstract class CliTest {
    * **Example** (Construct a hermetic sandbox)
    *
    * ```ts
-   * import { CliTest } from "@beep/scratchpad/effected/cli/CliTest"
+   * import { CliTest } from "@beep/cli-kit/CliTest"
    * import * as Effect from "effect/Effect"
    *
    * const program = CliTest.sandbox({ path: "/usr/bin" })
@@ -229,7 +229,7 @@ export abstract class CliTest {
    * **Example** (Construct a version command with closed stdin)
    *
    * ```ts
-   * import { CliTest } from "@beep/scratchpad/effected/cli/CliTest"
+   * import { CliTest } from "@beep/cli-kit/CliTest"
    * import * as Effect from "effect/Effect"
    *
    * const program = CliTest.run("dist/bin.js", ["--version"], {

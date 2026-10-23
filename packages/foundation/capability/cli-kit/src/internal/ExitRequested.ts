@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/internal/ExitRequested");
+const $I = $CliKitId.create("internal/ExitRequested");
 
 /**
  * The failure `CliRuntime.main` raises when a successful program recorded a
@@ -12,7 +12,7 @@ const $I = $ScratchpadId.create("effected/cli/internal/ExitRequested");
  * **Example** (Represent a requested process exit)
  *
  * ```ts
- * import { ExitRequested } from "@beep/scratchpad/effected/cli/internal/ExitRequested"
+ * import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested"
  *
  * const exit = ExitRequested.make({ code: 2 })
  * console.log(exit.message) // exit 2
@@ -44,7 +44,7 @@ export class ExitRequested extends S.TaggedError<ExitRequested, { readonly brand
    * **Example** (Read the exit message)
    *
    * ```ts
-   * import { ExitRequested } from "@beep/scratchpad/effected/cli/internal/ExitRequested"
+   * import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested"
    *
    * console.log(ExitRequested.make({ code: 3 }).message) // exit 3
    * ```
@@ -62,7 +62,7 @@ export class ExitRequested extends S.TaggedError<ExitRequested, { readonly brand
    * **Example** (Read the runtime exit code)
    *
    * ```ts
-   * import { ExitRequested } from "@beep/scratchpad/effected/cli/internal/ExitRequested"
+   * import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested"
    *
    * import * as Runtime from "effect/Runtime"
    *

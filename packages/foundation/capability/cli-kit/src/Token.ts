@@ -1,10 +1,10 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/Token");
+const $I = $CliKitId.create("Token");
 
 /**
  * A named terminal colour: the eight ANSI colours and their bright variants.
@@ -17,7 +17,7 @@ const $I = $ScratchpadId.create("effected/cli/Token");
  * **Example** (Validate a bright colour)
  *
  * ```ts
- * import { NamedColor } from "@beep/scratchpad/effected/cli/Token"
+ * import { NamedColor } from "@beep/cli-kit/Token"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(NamedColor)("redBright")) // true
@@ -66,7 +66,7 @@ export type NamedColor = typeof NamedColor.Type;
  * **Example** (Validate a foreground and text attribute)
  *
  * ```ts
- * import { Style } from "@beep/scratchpad/effected/cli/Token"
+ * import { Style } from "@beep/cli-kit/Token"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(Style)({ fg: "#abc", bold: true })) // true
@@ -115,7 +115,7 @@ export type Style = typeof Style.Type;
  * **Example** (Validate a semantic token)
  *
  * ```ts
- * import { TokenName } from "@beep/scratchpad/effected/cli/Token"
+ * import { TokenName } from "@beep/cli-kit/Token"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(TokenName)("warning")) // true
@@ -161,7 +161,7 @@ const DEFAULTS: Readonly<Record<TokenName, Style>> = {
  * **Example** (Construct and resolve a style)
  *
  * ```ts
- * import { Token } from "@beep/scratchpad/effected/cli/Token"
+ * import { Token } from "@beep/cli-kit/Token"
  *
  * console.log(Token.resolve(Token.hex("#abc")).fg) // #abc
  * ```
@@ -184,7 +184,7 @@ export class Token {
    * **Example** (Inspect the shared success style)
    *
    * ```ts
-   * import { Token } from "@beep/scratchpad/effected/cli/Token"
+   * import { Token } from "@beep/cli-kit/Token"
    *
    * console.log(Token.defaults.success.fg) // green
    * ```
@@ -206,7 +206,7 @@ export class Token {
    * **Example** (Resolve defaults and overrides)
    *
    * ```ts
-   * import { Token } from "@beep/scratchpad/effected/cli/Token"
+   * import { Token } from "@beep/cli-kit/Token"
    *
    * console.log(Token.resolve("success").fg) // green
    * console.log(Token.resolve("success", { success: { fg: "blue" } }).fg) // blue
@@ -231,7 +231,7 @@ export class Token {
    * **Example** (Construct a hex foreground)
    *
    * ```ts
-   * import { Token } from "@beep/scratchpad/effected/cli/Token"
+   * import { Token } from "@beep/cli-kit/Token"
    *
    * console.log(Token.hex("#123456").fg) // #123456
    * ```
@@ -248,7 +248,7 @@ export class Token {
    * **Example** (Construct a named foreground)
    *
    * ```ts
-   * import { Token } from "@beep/scratchpad/effected/cli/Token"
+   * import { Token } from "@beep/cli-kit/Token"
    *
    * console.log(Token.named("redBright").fg) // redBright
    * ```
@@ -265,7 +265,7 @@ export class Token {
    * **Example** (Keep an explicit style identity)
    *
    * ```ts
-   * import { Token } from "@beep/scratchpad/effected/cli/Token"
+   * import { Token } from "@beep/cli-kit/Token"
    *
    * const style = { bold: true }
    * console.log(Token.style(style) === style) // true

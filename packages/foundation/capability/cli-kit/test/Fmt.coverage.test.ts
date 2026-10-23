@@ -1,6 +1,6 @@
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Fmt } from "../../effected/cli/Fmt.ts";
 
 it.effect("non-finite limits and zero-width graphemes keep truncation bounded", () =>
   Effect.sync(() => {

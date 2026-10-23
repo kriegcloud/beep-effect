@@ -1,8 +1,8 @@
+import { Doc, Render } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Doc, Render } from "../../effected/cli/index.ts";
 import { contextOf } from "./helpers/renderContext.ts";
-import type { Block } from "../../effected/cli/index.ts";
+import type { Block } from "@beep/cli-kit";
 
 /** A table with no header text and no row: zero projects in a counts table is the everyday case. */
 const EMPTY: ReadonlyArray<readonly [string, Block]> = [

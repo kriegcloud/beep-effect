@@ -1,3 +1,5 @@
+import { Block, Doc, Inline } from "@beep/cli-kit/Doc";
+import { Status } from "@beep/cli-kit/Status";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import { assertDefined } from "@effect/vitest/utils";
@@ -7,9 +9,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
-import { Block, Doc, Inline } from "../../effected/cli/Doc.ts";
-import { Status } from "../../effected/cli/Status.ts";
-import type { Counter } from "../../effected/cli/Doc.ts";
+import type { Counter } from "@beep/cli-kit/Doc";
 
 // Target the optional callback directly so union-member selection cannot omit it.
 const blockAst = SchemaAST.isSuspend(Block.ast) ? Block.ast.thunk() : Block.ast;

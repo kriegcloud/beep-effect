@@ -7,20 +7,13 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
+import { Doc } from "@beep/cli-kit/Doc";
+import { capOf, renderDoc, renderDocLines, targetText, textLines, trimLine } from "@beep/cli-kit/internal/renderDoc";
+import { plainInline } from "@beep/cli-kit/internal/renderPlain";
+import { Render } from "@beep/cli-kit/Render";
 import { dual } from "effect/Function";
-import { Doc } from "../../../effected/cli/Doc.ts";
-import {
-  capOf,
-  renderDoc,
-  renderDocLines,
-  targetText,
-  textLines,
-  trimLine,
-} from "../../../effected/cli/internal/renderDoc.ts";
-import { plainInline } from "../../../effected/cli/internal/renderPlain.ts";
-import { Render } from "../../../effected/cli/Render.ts";
-import type { Flavour, Line } from "../../../effected/cli/internal/renderDoc.ts";
-import type { RenderContext } from "../../../effected/cli/Render.ts";
+import type { Flavour, Line } from "@beep/cli-kit/internal/renderDoc";
+import type { RenderContext } from "@beep/cli-kit/Render";
 
 const ctx = Render.contextOf({ audience: "agent" });
 const flavour: Flavour = {

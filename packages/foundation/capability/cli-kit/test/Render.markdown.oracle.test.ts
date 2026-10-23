@@ -1,3 +1,4 @@
+import { Doc, Glyphs, Render, Status } from "@beep/cli-kit";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -5,10 +6,9 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Doc, Glyphs, Render, Status } from "../../effected/cli/index.ts";
 import { composite, ESC } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
-import type { Block, LinkTarget, RenderContext, Style, TokenName } from "../../effected/cli/index.ts";
+import type { Block, LinkTarget, RenderContext, Style, TokenName } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 

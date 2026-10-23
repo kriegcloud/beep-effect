@@ -1,10 +1,10 @@
+import { RunOptions, RunResult, Sandbox } from "@beep/cli-kit/CliTest";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { RunOptions, RunResult, Sandbox } from "../../effected/cli/CliTest.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

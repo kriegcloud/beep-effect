@@ -1,10 +1,3 @@
-import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
-import * as Arbitrary from "effect/Arbitrary";
-import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   AnnotationOptions,
   Block,
@@ -16,9 +9,16 @@ import {
   LinkTarget,
   StatusRef,
   TreeNode,
-} from "../../effected/cli/Doc.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
-import { Render } from "../../effected/cli/Render.ts";
+} from "@beep/cli-kit/Doc";
+import { Fmt } from "@beep/cli-kit/Fmt";
+import { Render } from "@beep/cli-kit/Render";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { assert, describe, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 import { contextOf } from "./helpers/renderContext.ts";
 
 const runs = { arbitrary: fcRuns(100) };

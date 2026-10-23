@@ -56,8 +56,8 @@ const textOf = (line: Line): string =>
  * **Example** (Display a file location)
  *
  * ```ts
- * import { targetText } from "@beep/scratchpad/effected/cli/internal/renderDoc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { targetText } from "@beep/cli-kit/internal/renderDoc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * console.log(targetText({ file: "src/main.ts", line: 4, col: 2 }, ctx)) // src/main.ts:4:2
  * ```
@@ -82,7 +82,7 @@ export const targetText: {
  * **Example** (Choose a link target suffix)
  *
  * ```ts
- * import { showsSuffix } from "@beep/scratchpad/effected/cli/internal/renderDoc"
+ * import { showsSuffix } from "@beep/cli-kit/internal/renderDoc"
  * console.log(showsSuffix(undefined, "Guide", "https://example.com")) // true
  * console.log(showsSuffix(undefined, "https://example.com", "https://example.com")) // false
  * ```
@@ -101,7 +101,7 @@ export const showsSuffix: {
  * **Example** (Remove trailing padding)
  *
  * ```ts
- * import { trimLine } from "@beep/scratchpad/effected/cli/internal/renderDoc"
+ * import { trimLine } from "@beep/cli-kit/internal/renderDoc"
  * console.log(JSON.stringify(trimLine([{ text: "Ready  " }, { text: " " }]))) // [{"text":"Ready"}]
  * ```
  *
@@ -157,7 +157,7 @@ const sliceSpans: {
  * **Example** (Drop the trailing empty line)
  *
  * ```ts
- * import { textLines } from "@beep/scratchpad/effected/cli/internal/renderDoc"
+ * import { textLines } from "@beep/cli-kit/internal/renderDoc"
  * console.log(JSON.stringify(textLines("first\nsecond\n"))) // ["first","second"]
  * ```
  *
@@ -225,7 +225,7 @@ const hang: {
  * **Example** (Normalize a row cap)
  *
  * ```ts
- * import { capOf } from "@beep/scratchpad/effected/cli/internal/renderDoc"
+ * import { capOf } from "@beep/cli-kit/internal/renderDoc"
  * console.log(capOf(2.9)) // 2
  * console.log(capOf(-1)) // 0
  * console.log(capOf(undefined)) // undefined
@@ -435,8 +435,8 @@ const keepPaint: {
  * **Example** (Recognize a workflow annotation)
  *
  * ```ts
- * import { isAnnotation } from "@beep/scratchpad/effected/cli/internal/renderDoc"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+ * import { isAnnotation } from "@beep/cli-kit/internal/renderDoc"
+ * import { Doc } from "@beep/cli-kit/Doc"
  * console.log(isAnnotation(Doc.annotation({ level: "warning" }, "Check this"))) // true
  * console.log(isAnnotation(Doc.paragraph("Ready"))) // false
  * ```
@@ -627,12 +627,12 @@ const blockLines: {
  * **Example** (Finish a paragraph with a plain flavour)
  *
  * ```ts
- * import { renderDocLines, type Flavour, type Line } from "@beep/scratchpad/effected/cli/internal/renderDoc"
- * import type { RenderContext } from "@beep/scratchpad/effected/cli/Render"
+ * import { renderDocLines, type Flavour, type Line } from "@beep/cli-kit/internal/renderDoc"
+ * import type { RenderContext } from "@beep/cli-kit/Render"
  * import { dual } from "effect/Function"
- * import { plainInline } from "@beep/scratchpad/effected/cli/internal/renderPlain"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { plainInline } from "@beep/cli-kit/internal/renderPlain"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * const flavour: Flavour = {
  *   inline: plainInline,
@@ -664,12 +664,12 @@ export const renderDocLines: {
  * **Example** (Finish a paragraph with a plain flavour)
  *
  * ```ts
- * import { renderDoc, type Flavour, type Line } from "@beep/scratchpad/effected/cli/internal/renderDoc"
- * import type { RenderContext } from "@beep/scratchpad/effected/cli/Render"
+ * import { renderDoc, type Flavour, type Line } from "@beep/cli-kit/internal/renderDoc"
+ * import type { RenderContext } from "@beep/cli-kit/Render"
  * import { dual } from "effect/Function"
- * import { plainInline } from "@beep/scratchpad/effected/cli/internal/renderPlain"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { plainInline } from "@beep/cli-kit/internal/renderPlain"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * const flavour: Flavour = {
  *   inline: plainInline,

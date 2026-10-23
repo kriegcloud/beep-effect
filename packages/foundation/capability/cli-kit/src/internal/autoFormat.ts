@@ -14,7 +14,7 @@ import type { AudienceKind } from "@beep/runtime-env";
  * **Example** (Detect a run without environment services)
  *
  * ```ts
- * import { underGithubActions } from "@beep/scratchpad/effected/cli/internal/autoFormat"
+ * import { underGithubActions } from "@beep/cli-kit/internal/autoFormat"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(underGithubActions)) // false
@@ -43,7 +43,7 @@ export const underGithubActions: Effect.Effect<boolean> = Effect.gen(function* (
  * **Example** (Choose plain output for an agent)
  *
  * ```ts
- * import { autoFormat } from "@beep/scratchpad/effected/cli/internal/autoFormat"
+ * import { autoFormat } from "@beep/cli-kit/internal/autoFormat"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(autoFormat("agent"))) // plain

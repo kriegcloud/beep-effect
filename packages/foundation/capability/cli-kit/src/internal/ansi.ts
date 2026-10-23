@@ -58,7 +58,7 @@ type Rgb = readonly [number, number, number];
  * **Example** (Decode a short hexadecimal colour)
  *
  * ```ts
- * import { parseHex } from "@beep/scratchpad/effected/cli/internal/ansi"
+ * import { parseHex } from "@beep/cli-kit/internal/ansi"
  *
  * console.log(JSON.stringify(parseHex("#f80"))) // [255,136,0]
  * ```
@@ -105,7 +105,7 @@ const nearestLevel = (value: number): readonly [number, number] => {
  * **Example** (Find the bright red palette index)
  *
  * ```ts
- * import { nearest256 } from "@beep/scratchpad/effected/cli/internal/ansi"
+ * import { nearest256 } from "@beep/cli-kit/internal/ansi"
  *
  * console.log(nearest256([255, 0, 0])) // 196
  * ```
@@ -187,7 +187,7 @@ const wraps: {
  * **Example** (Inspect bold terminal escapes)
  *
  * ```ts
- * import { paintStyle } from "@beep/scratchpad/effected/cli/internal/ansi"
+ * import { paintStyle } from "@beep/cli-kit/internal/ansi"
  *
  * console.log(JSON.stringify(paintStyle({ bold: true }, "basic", "ready"))) // "\u001b[1mready\u001b[22m"
  * ```
@@ -213,7 +213,7 @@ export const paintStyle: {
  * **Example** (Inspect the foreground opener)
  *
  * ```ts
- * import { openSequence } from "@beep/scratchpad/effected/cli/internal/ansi"
+ * import { openSequence } from "@beep/cli-kit/internal/ansi"
  *
  * console.log(JSON.stringify(openSequence({ fg: "red" }, "basic"))) // "\u001b[31m"
  * ```

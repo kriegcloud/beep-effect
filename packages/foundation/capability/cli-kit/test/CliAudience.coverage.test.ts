@@ -1,6 +1,6 @@
+import { CliAudience } from "@beep/cli-kit/CliAudience";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CliAudience } from "../../effected/cli/CliAudience.ts";
 
 it.effect("CliAudience retains its runtime class identity", () =>
   Effect.sync(() => {
@@ -8,6 +8,7 @@ it.effect("CliAudience retains its runtime class identity", () =>
   })
 );
 
+import { TestTerminal } from "@beep/cli-kit/testing";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience } from "@beep/runtime-env";
 import * as Command from "effect/cli/Command";
@@ -15,7 +16,6 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Stdio from "effect/Stdio";
-import { TestTerminal } from "../../effected/cli/testing.ts";
 
 it.layer(
   Layer.mergeAll(

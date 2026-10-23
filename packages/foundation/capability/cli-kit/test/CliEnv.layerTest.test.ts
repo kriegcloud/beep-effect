@@ -1,6 +1,7 @@
 // CliEnv.layerTest: the env services a CliEnv.layer would build, from fixed answers, needing nothing and reading no
 // host environment.
 
+import { CliEnv, CliInteractive, CliTheme } from "@beep/cli-kit";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -9,7 +10,6 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { CliEnv, CliInteractive, CliTheme } from "../../effected/cli/index.ts";
 
 /** What a program under the layer observes. */
 const observe = Effect.gen(function* () {
@@ -32,7 +32,7 @@ const observe = Effect.gen(function* () {
 describe("CliEnv.layerTest", () => {
   {
     class Observed0 extends Context.Service<Observed0, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed0"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed0"
     ) {}
     const layerSeen0 = Layer.effect(Observed0, observe).pipe(Layer.provide(Layer.fresh(CliEnv.layerTest())));
     it.layer(Layer.mergeAll(layerSeen0), { timeout: "30 seconds" })((it) => {
@@ -56,7 +56,7 @@ describe("CliEnv.layerTest", () => {
 
   {
     class Observed1 extends Context.Service<Observed1, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed1"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed1"
     ) {}
     const layerSeen0 = Layer.effect(Observed1, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ tty: true })))
@@ -77,13 +77,13 @@ describe("CliEnv.layerTest", () => {
 
   {
     class Observed2 extends Context.Service<Observed2, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed2"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed2"
     ) {}
     const layerSeen0 = Layer.effect(Observed2, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ tty: true, term: "dumb" })))
     );
     class Observed3 extends Context.Service<Observed3, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed3"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed3"
     ) {}
     const layerSeen1 = Layer.effect(Observed3, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ tty: true, term: "xterm-256color" })))
@@ -104,7 +104,7 @@ describe("CliEnv.layerTest", () => {
 
   {
     class Observed4 extends Context.Service<Observed4, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed4"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed4"
     ) {}
     const layerSeen0 = Layer.effect(Observed4, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ tty: true }))),
@@ -134,13 +134,13 @@ describe("CliEnv.layerTest", () => {
 
   {
     class Observed5 extends Context.Service<Observed5, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed5"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed5"
     ) {}
     const layerSeen0 = Layer.effect(Observed5, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ tty: true, audience: "agent" })))
     );
     class Observed6 extends Context.Service<Observed6, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed6"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed6"
     ) {}
     const layerSeen1 = Layer.effect(Observed6, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ tty: true, audience: "ci" })))
@@ -159,7 +159,7 @@ describe("CliEnv.layerTest", () => {
 
   {
     class Observed7 extends Context.Service<Observed7, Effect.Success<typeof observe>>()(
-      "@beep/scratchpad/test/cli/CliEnv.layerTest.test/Observed7"
+      "@beep/cli-kit/test/CliEnv.layerTest.test/Observed7"
     ) {}
     const layerSeen0 = Layer.effect(Observed7, observe).pipe(
       Layer.provide(Layer.fresh(CliEnv.layerTest({ columns: 60, color: "truecolor" })))

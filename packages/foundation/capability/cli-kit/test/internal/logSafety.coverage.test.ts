@@ -1,9 +1,9 @@
+import { sanitizeParts, TrustedLine, underActionsIn } from "@beep/cli-kit/internal/logSafety";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { sanitizeParts, TrustedLine, underActionsIn } from "../../../effected/cli/internal/logSafety.ts";
 
 it.effect("message scalars stay intact and actions detection follows the logging fiber context", () =>
   Effect.gen(function* () {

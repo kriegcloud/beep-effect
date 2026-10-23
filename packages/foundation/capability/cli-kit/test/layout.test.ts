@@ -1,14 +1,14 @@
+import { Doc, Glyphs, Status } from "@beep/cli-kit";
+import { sanitize } from "@beep/cli-kit/Fmt";
+import { displayWidth, graphemes, stripAnsi } from "@beep/cli-kit/internal/displayWidth";
+import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "@beep/cli-kit/internal/layout";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { sanitize } from "../../effected/cli/Fmt.ts";
-import { Doc, Glyphs, Status } from "../../effected/cli/index.ts";
-import { displayWidth, graphemes, stripAnsi } from "../../effected/cli/internal/displayWidth.ts";
-import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "../../effected/cli/internal/layout.ts";
 import { contextOf, labelLink, linksOf, plainPaint, sgrProblems } from "./helpers/renderContext.ts";
-import type { Inline, RenderContext } from "../../effected/cli/index.ts";
-import type { Span } from "../../effected/cli/internal/layout.ts";
+import type { Inline, RenderContext } from "@beep/cli-kit";
+import type { Span } from "@beep/cli-kit/internal/layout";
 
 const Json = S.fromJsonString(S.Unknown);
 

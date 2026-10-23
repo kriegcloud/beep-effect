@@ -1,11 +1,11 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { canPrompt } from "./internal/canPrompt.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliInteractive");
+const $I = $CliKitId.create("CliInteractive");
 
 /**
  * Whether this run may prompt a person: a human audience, with a terminal on
@@ -29,7 +29,7 @@ const $I = $ScratchpadId.create("effected/cli/CliInteractive");
  * **Example** (Read the safe interactivity default)
  *
  * ```ts
- * import { CliInteractive } from "@beep/scratchpad/effected/cli/CliInteractive";
+ * import { CliInteractive } from "@beep/cli-kit/CliInteractive";
  * import * as Effect from "effect/Effect";
  *
  * console.log(Effect.runSync(CliInteractive)); // false
@@ -58,7 +58,7 @@ export class CliInteractive extends Context.Reference<boolean>($I`CliInteractive
    * **Example** (Inspect the audience and terminal decision layer)
    *
    * ```ts
-   * import { CliInteractive } from "@beep/scratchpad/effected/cli/CliInteractive";
+   * import { CliInteractive } from "@beep/cli-kit/CliInteractive";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(CliInteractive.layer)); // true
@@ -82,7 +82,7 @@ export class CliInteractive extends Context.Reference<boolean>($I`CliInteractive
    * **Example** (Enable prompting within a test scope)
    *
    * ```ts
-   * import { CliInteractive } from "@beep/scratchpad/effected/cli/CliInteractive";
+   * import { CliInteractive } from "@beep/cli-kit/CliInteractive";
    * import * as Effect from "effect/Effect";
    *
    * const program = CliInteractive.pipe(Effect.provide(CliInteractive.layerTest(true)));
@@ -111,7 +111,7 @@ export class CliInteractive extends Context.Reference<boolean>($I`CliInteractive
    * **Example** (Disable prompting for one subtree)
    *
    * ```ts
-   * import { CliInteractive } from "@beep/scratchpad/effected/cli/CliInteractive";
+   * import { CliInteractive } from "@beep/cli-kit/CliInteractive";
    * import * as Effect from "effect/Effect";
    *
    * const program = CliInteractive.pipe(

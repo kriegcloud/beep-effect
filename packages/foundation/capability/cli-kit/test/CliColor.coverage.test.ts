@@ -1,6 +1,6 @@
+import { CliColor } from "@beep/cli-kit/CliColor";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CliColor } from "../../effected/cli/CliColor.ts";
 
 it.effect("CliColor retains its runtime class identity", () =>
   Effect.sync(() => {

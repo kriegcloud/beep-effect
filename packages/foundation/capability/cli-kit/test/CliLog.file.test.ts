@@ -1,3 +1,5 @@
+import { CliLog } from "@beep/cli-kit";
+import { CliLogFile } from "@beep/cli-kit/CliLog";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
@@ -16,8 +18,6 @@ import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Tracer from "effect/Tracer";
 import * as TestClock from "effect/testing/TestClock";
-import { CliLogFile } from "../../effected/cli/CliLog.ts";
-import { CliLog } from "../../effected/cli/index.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 

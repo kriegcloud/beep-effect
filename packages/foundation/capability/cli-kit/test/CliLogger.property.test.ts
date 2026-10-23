@@ -1,3 +1,5 @@
+import { CliLogger } from "@beep/cli-kit/CliLogger";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -5,8 +7,6 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { CliLogger } from "../../effected/cli/CliLogger.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

@@ -2364,7 +2364,13 @@
       "@beep/cli-kit": [
         "./packages/foundation/capability/cli-kit/src/index.ts"
       ],
-      "@beep/cli-kit/*": ["./packages/foundation/capability/cli-kit/src/*"]
+      "@beep/cli-kit/*": ["./packages/foundation/capability/cli-kit/src/*"],
+      "@beep/cli-kit/internal/*": [
+        "./packages/foundation/capability/cli-kit/src/internal/*"
+      ],
+      "@beep/cli-kit/testing": [
+        "./packages/foundation/capability/cli-kit/src/testing.ts"
+      ]
     }
   }
 }

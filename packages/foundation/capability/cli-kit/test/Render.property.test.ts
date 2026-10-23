@@ -1,11 +1,11 @@
+import { Doc } from "@beep/cli-kit/Doc";
+import { Fmt } from "@beep/cli-kit/Fmt";
+import { Render } from "@beep/cli-kit/Render";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Doc } from "../../effected/cli/Doc.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
-import { Render } from "../../effected/cli/Render.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const context = Render.contextOf({ audience: "agent", neutralizeWorkflowCommands: false });

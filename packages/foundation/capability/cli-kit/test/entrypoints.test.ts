@@ -1,11 +1,11 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 
-const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../../effected/cli");
+const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
 
 /** Every relative import specifier in a module, resolved to a source path. */
 const importsOf = (file: string): ReadonlyArray<string> => {
@@ -30,25 +30,25 @@ const reachableFrom = (entry: string): ReadonlySet<string> => {
 describe("entrypoint boundary", () => {
   it("nothing reachable from `.` imports CliTest", () => {
     const reachable = reachableFrom(resolve(SRC, "index.ts"));
-    const offenders = [...reachable].filter((file) => /effected\/cli\/(CliTest|testing|TestTerminal)\.ts$/.test(file));
+    const offenders = [...reachable].filter((file) => /cli-kit\/src\/(CliTest|testing|TestTerminal)\.ts$/.test(file));
     assert.deepStrictEqual(offenders, [], "test utilities belong behind ./testing");
   });
 
   it("positive control: ./testing DOES reach CliTest", () => {
     const reachable = reachableFrom(resolve(SRC, "testing.ts"));
     assert.isAbove(reachable.size, 1, "the walker must actually resolve imports");
-    assert.isTrue([...reachable].some((file) => /effected\/cli\/CliTest\.ts$/.test(file)));
+    assert.isTrue([...reachable].some((file) => /cli-kit\/src\/CliTest\.ts$/.test(file)));
   });
 
   it("the walker resolves the main entry's modules, or it proves nothing", () => {
     const reachable = reachableFrom(resolve(SRC, "index.ts"));
-    assert.isTrue([...reachable].some((file) => /effected\/cli\/CliRuntime\.ts$/.test(file)));
+    assert.isTrue([...reachable].some((file) => /cli-kit\/src\/CliRuntime\.ts$/.test(file)));
   });
 
   it.effect("the main entry exports the whole presentation layer, and only testing exports the test doubles", () =>
     Effect.gen(function* () {
-      const main = yield* Effect.promise(() => import("../../effected/cli/index.ts"));
-      const testing = yield* Effect.promise(() => import("../../effected/cli/testing.ts"));
+      const main = yield* Effect.promise(() => import("@beep/cli-kit"));
+      const testing = yield* Effect.promise(() => import("@beep/cli-kit/testing"));
       assert.deepStrictEqual(Object.keys(main).sort(), [
         "Cancelled",
         "CliAudience",

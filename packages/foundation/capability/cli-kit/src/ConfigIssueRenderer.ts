@@ -20,7 +20,7 @@ import { formatIssue } from "./internal/format.ts";
  * **Example** (Log diagnostics for rejected configuration values)
  *
  * ```ts
- * import { ConfigIssueRenderer } from "@beep/scratchpad/effected/cli/ConfigIssueRenderer";
+ * import { ConfigIssueRenderer } from "@beep/cli-kit/ConfigIssueRenderer";
  * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
@@ -62,7 +62,7 @@ export abstract class ConfigIssueRenderer {
    * **Example** (Ignore an unstructured validation issue)
    *
    * ```ts
-   * import { ConfigIssueRenderer } from "@beep/scratchpad/effected/cli/ConfigIssueRenderer";
+   * import { ConfigIssueRenderer } from "@beep/cli-kit/ConfigIssueRenderer";
    * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
    * import * as O from "effect/Option";
    *

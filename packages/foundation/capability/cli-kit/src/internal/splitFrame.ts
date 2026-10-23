@@ -49,7 +49,7 @@ const wrappedFrame = (text: string): { readonly fn: string; readonly location: s
  * **Example** (Extract a stack frame location)
  *
  * ```ts
- * import { splitFrame } from "@beep/scratchpad/effected/cli/internal/splitFrame"
+ * import { splitFrame } from "@beep/cli-kit/internal/splitFrame"
  * const frame = splitFrame("  at main (src/main.ts:4:2)  ")
  * console.log(frame.fn) // main
  * console.log(frame.location) // src/main.ts:4:2

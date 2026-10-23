@@ -1,10 +1,10 @@
+import { GlyphSet, Glyphs } from "@beep/cli-kit/Glyphs";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { GlyphSet, Glyphs } from "../../effected/cli/Glyphs.ts";
 
 it.effect.prop(
   "GlyphSet encodes and decodes without failure or loss",

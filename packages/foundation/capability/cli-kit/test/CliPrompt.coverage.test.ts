@@ -1,11 +1,11 @@
+import { CliInteractive } from "@beep/cli-kit/CliInteractive";
+import { CliPrompt } from "@beep/cli-kit/CliPrompt";
 import { assert, it } from "@effect/vitest";
 import * as CliConfig from "effect/cli/CliConfig";
 import * as GlobalFlag from "effect/cli/GlobalFlag";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Terminal from "effect/Terminal";
-import { CliInteractive } from "../../effected/cli/CliInteractive.ts";
-import { CliPrompt } from "../../effected/cli/CliPrompt.ts";
 
 it.effect("the wizard gate leaves a consumer config without Wizard untouched", () =>
   Effect.gen(function* () {

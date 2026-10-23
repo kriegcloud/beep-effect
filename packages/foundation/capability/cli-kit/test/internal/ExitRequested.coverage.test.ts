@@ -1,7 +1,7 @@
+import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Runtime from "effect/Runtime";
-import { ExitRequested } from "../../../effected/cli/internal/ExitRequested.ts";
 
 it.effect("exit requests expose their message and runtime code without claiming to be reported", () =>
   Effect.sync(() => {

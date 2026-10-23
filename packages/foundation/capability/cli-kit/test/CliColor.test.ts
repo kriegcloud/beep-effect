@@ -1,3 +1,4 @@
+import { CliColor } from "@beep/cli-kit";
 import { TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -6,7 +7,6 @@ import * as CliOutput from "effect/cli/CliOutput";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stdio from "effect/Stdio";
-import { CliColor } from "../../effected/cli/index.ts";
 
 describe("CliColor.enabled", () => {
   const cases: ReadonlyArray<readonly [string, boolean, Record<string, string>, boolean]> = [

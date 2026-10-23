@@ -1,3 +1,7 @@
+import { CliMessage } from "@beep/cli-kit/CliMessage";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import { Fmt } from "@beep/cli-kit/Fmt";
+import { Status } from "@beep/cli-kit/Status";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Audience } from "@beep/runtime-env";
 import { assert, it } from "@effect/vitest";
@@ -6,10 +10,6 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { CliMessage } from "../../effected/cli/CliMessage.ts";
-import { CliTheme } from "../../effected/cli/CliTheme.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
-import { Status } from "../../effected/cli/Status.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.layer(Layer.merge(CliTheme.layerTest({ color: "truecolor" }), Audience.layerTest("agent")), {

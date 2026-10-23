@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceKind } from "@beep/runtime-env/Audience";
 import { ColorLevel } from "@beep/runtime-env/ColorLevel";
@@ -20,7 +20,7 @@ import type * as Terminal from "effect/Terminal";
 import type { CliLinks, EditorLinks } from "./CliLinks.ts";
 import type { CliLogFileOptions, CliLogOptions } from "./CliLog.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliEnv");
+const $I = $CliKitId.create("CliEnv");
 
 /**
  * Options for {@link CliEnv.layer} and for `CliRuntime.main`'s `env` option.
@@ -131,7 +131,7 @@ export type CliEnvServices = CurrentRuntimeEnv | TerminalEnv | Audience | CliThe
  * **Example** (Fix terminal answers for a test)
  *
  * ```ts
- * import { CliEnvTestOptions } from "@beep/scratchpad/effected/cli/CliEnv";
+ * import { CliEnvTestOptions } from "@beep/cli-kit/CliEnv";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CliEnvTestOptions)({ tty: true, columns: 80, audience: "human" })) // true
@@ -221,7 +221,7 @@ export type CliEnvTestServices = TerminalEnv | Audience | CliTheme;
  * **Example** (Build the CLI environment once)
  *
  * ```ts
- * import { CliEnv } from "@beep/scratchpad/effected/cli/CliEnv";
+ * import { CliEnv } from "@beep/cli-kit/CliEnv";
  * import * as Layer from "effect/Layer";
  *
  * const environment = CliEnv.layer({ audienceEnvVar: "TOOL_AUDIENCE" });
@@ -245,7 +245,7 @@ export class CliEnv {
    * **Example** (Construct the terminal environment layer)
    *
    * ```ts
-   * import { CliEnv } from "@beep/scratchpad/effected/cli/CliEnv";
+   * import { CliEnv } from "@beep/cli-kit/CliEnv";
    * import * as Layer from "effect/Layer";
    *
    * const environment = CliEnv.layer();
@@ -303,8 +303,8 @@ export class CliEnv {
    * **Example** (Fix a noninteractive test environment)
    *
    * ```ts
-   * import { CliEnv } from "@beep/scratchpad/effected/cli/CliEnv";
-   * import { CliInteractive } from "@beep/scratchpad/effected/cli/CliInteractive";
+   * import { CliEnv } from "@beep/cli-kit/CliEnv";
+   * import { CliInteractive } from "@beep/cli-kit/CliInteractive";
    * import * as Effect from "effect/Effect";
    *
    * const environment = CliEnv.layerTest();

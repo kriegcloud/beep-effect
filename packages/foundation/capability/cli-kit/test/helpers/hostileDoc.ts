@@ -1,5 +1,5 @@
-import { Doc, Status, Token } from "../../../effected/cli/index.ts";
-import type { Block } from "../../../effected/cli/index.ts";
+import { Doc, Status, Token } from "@beep/cli-kit";
+import type { Block } from "@beep/cli-kit";
 
 export const ESC = "\u001B";
 // User text that CONTAINS escape bytes in every place a string can enter a document.

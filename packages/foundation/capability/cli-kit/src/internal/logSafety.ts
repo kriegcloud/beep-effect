@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -7,7 +7,7 @@ import * as P from "effect/Predicate";
 import { sanitize } from "../Fmt.ts";
 import type * as Fiber from "effect/Fiber";
 
-const $I = $ScratchpadId.create("effected/cli/internal/logSafety");
+const $I = $CliKitId.create("internal/logSafety");
 
 /**
  * Marks a log line the kit has already rendered, so the logger does not strip the escapes the kit painted into it.
@@ -21,7 +21,7 @@ const $I = $ScratchpadId.create("effected/cli/internal/logSafety");
  * **Example** (Read the default log trust flag)
  *
  * ```ts
- * import { TrustedLine } from "@beep/scratchpad/effected/cli/internal/logSafety"
+ * import { TrustedLine } from "@beep/cli-kit/internal/logSafety"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(TrustedLine)) // false
@@ -40,7 +40,7 @@ export const TrustedLine = Context.Reference<boolean>($I`TrustedLine`, { default
  * **Example** (Inspect a fiber without environment services)
  *
  * ```ts
- * import { underActionsIn } from "@beep/scratchpad/effected/cli/internal/logSafety"
+ * import { underActionsIn } from "@beep/cli-kit/internal/logSafety"
  * import * as Effect from "effect/Effect"
  *
  * const program = Effect.withFiber((fiber) => Effect.succeed(underActionsIn(fiber)))
@@ -65,7 +65,7 @@ export const underActionsIn = (fiber: Fiber.Fiber<unknown, unknown>): boolean =>
  * **Example** (Remove escapes from string message parts)
  *
  * ```ts
- * import { sanitizeParts } from "@beep/scratchpad/effected/cli/internal/logSafety"
+ * import { sanitizeParts } from "@beep/cli-kit/internal/logSafety"
  *
  * console.log(JSON.stringify(sanitizeParts(["\u001b[31mred\u001b[39m", 42]))) // ["red",42]
  * ```
@@ -87,7 +87,7 @@ export const sanitizeParts = (message: unknown): unknown => {
  * **Example** (Preserve decoded text while escaping a runner command)
  *
  * ```ts
- * import { neutralizeJson } from "@beep/scratchpad/effected/cli/internal/logSafety"
+ * import { neutralizeJson } from "@beep/cli-kit/internal/logSafety"
  *
  * const line = neutralizeJson('{"message":"##[warning]"}')
  * console.log(line.includes("##[")) // false

@@ -1,17 +1,11 @@
+import { columnLabel, counterLabel, countsTableOf, totalOf, visibleCountersOf } from "@beep/cli-kit/internal/counts";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import {
-  columnLabel,
-  counterLabel,
-  countsTableOf,
-  totalOf,
-  visibleCountersOf,
-} from "../../../effected/cli/internal/counts.ts";
-import type { Counter, Inline } from "../../../effected/cli/Doc.ts";
+import type { Counter, Inline } from "@beep/cli-kit/Doc";
 
 const runs = { arbitrary: fcRuns(100) };
 const count = S.Int.check(S.isBetween({ minimum: 0, maximum: 100000 }));

@@ -1,10 +1,10 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as CliError from "effect/cli/CliError";
 import * as Prompt from "effect/cli/Prompt";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/internal/fallbackAnswer");
+const $I = $CliKitId.create("internal/fallbackAnswer");
 
 const FlagTarget = S.Struct({
   flag: S.String.pipe(
@@ -33,7 +33,7 @@ export type FallbackTarget<A> = ({ readonly flag: string } | { readonly argument
  * **Example** (Construct a prompt from a fallback answer)
  *
  * ```ts
- * import { answerWithoutPerson } from "@beep/scratchpad/effected/cli/internal/fallbackAnswer"
+ * import { answerWithoutPerson } from "@beep/cli-kit/internal/fallbackAnswer"
  * import * as Effect from "effect/Effect"
  *
  * const prompt = Effect.runSync(answerWithoutPerson({ flag: "name", otherwise: "Ada" }))

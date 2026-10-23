@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/NotInteractive");
+const $I = $CliKitId.create("NotInteractive");
 
 /**
  * A command needed to prompt, but there is no terminal to prompt on.
@@ -18,7 +18,7 @@ const $I = $ScratchpadId.create("effected/cli/NotInteractive");
  * **Example** (Construct a missing-terminal error)
  *
  * ```ts
- * import { NotInteractive } from "@beep/scratchpad/effected/cli/NotInteractive"
+ * import { NotInteractive } from "@beep/cli-kit/NotInteractive"
  *
  * console.log(NotInteractive.make({})._tag) // NotInteractive
  * ```
@@ -48,7 +48,7 @@ export class NotInteractive extends S.TaggedError<NotInteractive, { readonly bra
    * **Example** (Read the fixed guidance)
    *
    * ```ts
-   * import { NotInteractive } from "@beep/scratchpad/effected/cli/NotInteractive"
+   * import { NotInteractive } from "@beep/cli-kit/NotInteractive"
    *
    * console.log(NotInteractive.make({}).message) // not interactive: run in a terminal or pass the flag
    * ```
@@ -75,7 +75,7 @@ export class NotInteractive extends S.TaggedError<NotInteractive, { readonly bra
    * **Example** (Read the usage exit code)
    *
    * ```ts
-   * import { NotInteractive } from "@beep/scratchpad/effected/cli/NotInteractive"
+   * import { NotInteractive } from "@beep/cli-kit/NotInteractive"
    * import * as Runtime from "effect/Runtime"
    *
    * console.log(NotInteractive.make({})[Runtime.errorExitCode]) // 64

@@ -1,6 +1,6 @@
+import { CliLog } from "@beep/cli-kit/CliLog";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CliLog } from "../../effected/cli/CliLog.ts";
 
 it.effect("CliLog retains its runtime class identity", () =>
   Effect.sync(() => {
@@ -8,14 +8,14 @@ it.effect("CliLog retains its runtime class identity", () =>
   })
 );
 
+import { CliEnv } from "@beep/cli-kit/CliEnv";
+import { envBuildLogLayer } from "@beep/cli-kit/CliLog";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as References from "effect/References";
-import { CliEnv } from "../../effected/cli/CliEnv.ts";
-import { envBuildLogLayer } from "../../effected/cli/CliLog.ts";
 
 const recordDate = DateTime.toDateUtc(DateTime.makeUnsafe("2026-01-01T01:02:03.000Z"));
 it.layer(

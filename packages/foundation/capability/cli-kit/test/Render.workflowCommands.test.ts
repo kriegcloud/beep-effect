@@ -1,3 +1,4 @@
+import { CliFailure, CliLinks, CliRuntime, CliTheme, Doc, Render } from "@beep/cli-kit";
 import { Markdown } from "@beep/markdown/Markdown";
 import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
@@ -13,10 +14,9 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliFailure, CliLinks, CliRuntime, CliTheme, Doc, Render } from "../../effected/cli/index.ts";
 import { commandLines } from "./helpers/runnerCommands.ts";
+import type { Document } from "@beep/cli-kit";
 import type { AudienceKind } from "@beep/runtime-env";
-import type { Document } from "../../effected/cli/index.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 

@@ -1,8 +1,8 @@
+import { GithubAnnotation } from "@beep/cli-kit";
 import { WorkflowCommand } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
-import { GithubAnnotation } from "../../effected/cli/index.ts";
-import type { GithubAnnotationProperties } from "../../effected/cli/index.ts";
+import type { GithubAnnotationProperties } from "@beep/cli-kit";
 
 type Level = "error" | "warning" | "notice";
 const LEVELS: ReadonlyArray<Level> = ["error", "warning", "notice"];

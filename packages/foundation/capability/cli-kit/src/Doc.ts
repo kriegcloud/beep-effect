@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
@@ -20,7 +20,7 @@ import type { CliLinks } from "./CliLinks.ts";
 import type { CliTheme } from "./CliTheme.ts";
 import type { Status } from "./Status.ts";
 
-const $I = $ScratchpadId.create("effected/cli/Doc");
+const $I = $CliKitId.create("Doc");
 
 /**
  * A status as a document stores it: its name and its resolved definition.
@@ -32,8 +32,8 @@ const $I = $ScratchpadId.create("effected/cli/Doc");
  * **Example** (Validate a resolved status)
  *
  * ```ts
- * import { StatusRef } from "@beep/scratchpad/effected/cli/Doc"
- * import { Status } from "@beep/scratchpad/effected/cli/Status"
+ * import { StatusRef } from "@beep/cli-kit/Doc"
+ * import { Status } from "@beep/cli-kit/Status"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(StatusRef)({ name: "success", def: Status.core.resolve("success") })) // true
@@ -63,7 +63,7 @@ export type StatusRef = typeof StatusRef.Type;
  * **Example** (Validate a file position)
  *
  * ```ts
- * import { LinkTarget } from "@beep/scratchpad/effected/cli/Doc"
+ * import { LinkTarget } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(LinkTarget)({ file: "src/main.ts", line: 12, col: 3 })) // true
@@ -163,7 +163,7 @@ export type Inline = ReturnType<typeof inlineShape<S.Codec<InlineChildren>>>["Ty
  * **Example** (Validate inline text)
  *
  * ```ts
- * import { Doc, Inline } from "@beep/scratchpad/effected/cli/Doc"
+ * import { Doc, Inline } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(Inline)(Doc.text("Ready"))) // true
@@ -200,7 +200,7 @@ export type TreeNode = ReturnType<typeof treeNodeShape<S.Codec<TreeChildren>>>["
  * **Example** (Validate a tree root)
  *
  * ```ts
- * import { Doc, TreeNode } from "@beep/scratchpad/effected/cli/Doc"
+ * import { Doc, TreeNode } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(TreeNode)(Doc.tree({ label: "src" }).root)) // true
@@ -218,7 +218,7 @@ export const TreeNode = S.suspend((): S.Codec<TreeNode> => TreeNode).pipe(S.Arra
  * **Example** (Validate an aligned column)
  *
  * ```ts
- * import { Column, Doc } from "@beep/scratchpad/effected/cli/Doc"
+ * import { Column, Doc } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(Column)({ header: [Doc.text("Time")], align: "right" })) // true
@@ -250,8 +250,8 @@ export type Column = typeof Column.Type;
  * **Example** (Validate a resolved counter)
  *
  * ```ts
- * import { Counter, Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Status } from "@beep/scratchpad/effected/cli/Status"
+ * import { Counter, Doc } from "@beep/cli-kit/Doc"
+ * import { Status } from "@beep/cli-kit/Status"
  * import * as S from "effect/Schema"
  *
  * const counter = Doc.counter(Status.core, "success", { key: "passed", label: "passed", n: 3 })
@@ -564,7 +564,7 @@ export type Block = ReturnType<typeof blockShape<S.Codec<BlockChildren>>>["Type"
  * **Example** (Validate a paragraph block)
  *
  * ```ts
- * import { Block, Doc } from "@beep/scratchpad/effected/cli/Doc"
+ * import { Block, Doc } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(Block)(Doc.paragraph("Ready"))) // true
@@ -586,7 +586,7 @@ export const Block: S.Codec<Block> = S.suspend(() =>
  * **Example** (Validate annotation metadata)
  *
  * ```ts
- * import { AnnotationOptions } from "@beep/scratchpad/effected/cli/Doc"
+ * import { AnnotationOptions } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(AnnotationOptions)({ level: "warning", file: "src/main.ts", line: 12 })) // true
@@ -615,7 +615,7 @@ export type AnnotationOptions = typeof AnnotationOptions.Type;
  * **Example** (Validate a timing row)
  *
  * ```ts
- * import { CountsRow, Doc } from "@beep/scratchpad/effected/cli/Doc"
+ * import { CountsRow, Doc } from "@beep/cli-kit/Doc"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(CountsRow)({ label: [Doc.text("lint")], counters: [], durationMs: 1200 })) // true
@@ -899,8 +899,8 @@ export interface DocPrintOptions {
  * **Example** (Build a results report with a status and timing table)
  *
  * ```ts
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Status } from "@beep/scratchpad/effected/cli/Status"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Status } from "@beep/cli-kit/Status"
  *
  * const report = [
  * 	Doc.heading(2, "Results"),
@@ -922,7 +922,7 @@ export abstract class Doc {
    * **Example** (Preserve text content)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.text("Ready").value) // Ready
    * ```
@@ -942,7 +942,7 @@ export abstract class Doc {
    * **Example** (Preserve inline code)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.code("bun check").value) // bun check
    * ```
@@ -961,7 +961,7 @@ export abstract class Doc {
    * **Example** (Build a labelled URL)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.link({ url: "https://example.com" }, "Docs")._tag) // Link
    * ```
@@ -980,7 +980,7 @@ export abstract class Doc {
    * **Example** (Keep an unlinked label)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.link(undefined, "Offline")._tag) // Text
    * ```
@@ -1013,8 +1013,8 @@ export abstract class Doc {
    * **Example** (Resolve a success glyph)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * console.log(Doc.status(Status.core, "success").name) // success
    * ```
@@ -1042,7 +1042,7 @@ export abstract class Doc {
    * **Example** (Group bold content)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.strong("3", " passed").content.length) // 2
    * ```
@@ -1062,7 +1062,7 @@ export abstract class Doc {
    * **Example** (Group italic content)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.em("Retry", " later").content.length) // 2
    * ```
@@ -1081,7 +1081,7 @@ export abstract class Doc {
    * **Example** (Preserve a display path)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.file("/workspace/src/main.ts").path) // /workspace/src/main.ts
    * ```
@@ -1100,7 +1100,7 @@ export abstract class Doc {
    * **Example** (Build breadcrumb segments)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.path("src", "main.ts").segments.join("/")) // src/main.ts
    * ```
@@ -1119,7 +1119,7 @@ export abstract class Doc {
    * **Example** (Build a report heading)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.heading(2, "Results").level) // 2
    * ```
@@ -1147,7 +1147,7 @@ export abstract class Doc {
    * **Example** (Normalize paragraph content)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.paragraph("Ready", Doc.code("bun check")).content.length) // 2
    * ```
@@ -1166,7 +1166,7 @@ export abstract class Doc {
    * **Example** (Cap a list)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.list([Doc.paragraph("first"), Doc.paragraph("second")], { cap: 1 }).cap) // 1
    * ```
@@ -1195,7 +1195,7 @@ export abstract class Doc {
    * **Example** (Build an aligned table)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * const table = Doc.table([{ header: "Time", align: "right" }], [["1.2s"]])
    * console.log(table.rows.length) // 1
@@ -1244,7 +1244,7 @@ export abstract class Doc {
    * **Example** (Normalize a child tree)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.tree({ label: "src", children: [{ label: "main.ts" }] }).root.children.length) // 1
    * ```
@@ -1263,7 +1263,7 @@ export abstract class Doc {
    * **Example** (Start a body unfolded)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.collapsible("Details", [Doc.paragraph("Ready")], { open: true }).open) // true
    * ```
@@ -1298,7 +1298,7 @@ export abstract class Doc {
    * **Example** (Build a warning body)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.callout("warning", [Doc.paragraph("Retry later")]).kind) // warning
    * ```
@@ -1326,7 +1326,7 @@ export abstract class Doc {
    * **Example** (Select a code language)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.codeBlock("const ready = true", "ts").lang) // ts
    * ```
@@ -1346,7 +1346,7 @@ export abstract class Doc {
    * **Example** (Cap an expected versus received diff)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.diff("expected", "received", { cap: 5 }).cap) // 5
    * ```
@@ -1383,7 +1383,7 @@ export abstract class Doc {
    * **Example** (Group spaced top-level blocks)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.section(undefined, [Doc.paragraph("first"), Doc.paragraph("second")]).children.length) // 2
    * ```
@@ -1420,8 +1420,8 @@ export abstract class Doc {
    * **Example** (Resolve a named count)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * const counter = Doc.counter(Status.core, "success", { key: "passed", label: { one: "check", other: "checks" }, n: 3 })
    * console.log(counter.n) // 3
@@ -1455,7 +1455,7 @@ export abstract class Doc {
    * **Example** (Choose a counter layout)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.counts({ counters: [], layout: "inline" }).layout) // inline
    * ```
@@ -1498,7 +1498,7 @@ export abstract class Doc {
    * **Example** (Request a summed table row)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.countsTable([{ label: "lint", counters: [] }], { totalRow: true }).totalRow) // true
    * ```
@@ -1539,7 +1539,7 @@ export abstract class Doc {
    * **Example** (Keep two separate lines)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.lines(["first", "second"]).lines.length) // 2
    * ```
@@ -1567,7 +1567,7 @@ export abstract class Doc {
    * **Example** (Keep a finding on one line)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.line("src/main.ts:12 rule message", { wrap: false }).wrap) // false
    * ```
@@ -1606,7 +1606,7 @@ export abstract class Doc {
    * **Example** (Keep a unified diff whole)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.diffText("-old\n+new\n", { truncate: true }).truncate) // true
    * ```
@@ -1642,7 +1642,7 @@ export abstract class Doc {
    * **Example** (Indent preformatted output)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.verbatim("fixed output", { indent: 2 }).indent) // 2
    * ```
@@ -1677,7 +1677,7 @@ export abstract class Doc {
    * **Example** (Build a workflow error)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    *
    * console.log(Doc.annotation({ level: "error", file: "src/main.ts", line: 12 }, "Invalid input").message) // Invalid input
    * ```
@@ -1715,8 +1715,8 @@ export abstract class Doc {
    * **Example** (Sum counter values)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * const block = Doc.counts({ counters: [Doc.counter(Status.core, "success", { key: "passed", label: "passed", n: 3 })], layout: "inline" })
    * console.log(Doc.total(block)) // 3
@@ -1736,8 +1736,8 @@ export abstract class Doc {
    * **Example** (Hide a zero counter)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * const block = Doc.counts({ counters: [Doc.counter(Status.core, "success", { key: "passed", label: "passed", n: 0 })], layout: "inline" })
    * console.log(Doc.visibleCounters(block).length) // 0
@@ -1775,7 +1775,7 @@ export abstract class Doc {
    * **Example** (Construct a report printing effect)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
+   * import { Doc } from "@beep/cli-kit/Doc"
    * import * as Effect from "effect/Effect"
    *
    * const program = Doc.print([Doc.paragraph("Ready")], { format: "plain" })

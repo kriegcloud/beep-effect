@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { AudienceKind, AudienceShape } from "@beep/runtime-env/Audience";
 import * as A from "effect/Array";
@@ -20,7 +20,7 @@ import { WizardDropped } from "./internal/wizardGate.ts";
 import type * as Command from "effect/cli/Command";
 import type * as Terminal from "effect/Terminal";
 
-const $I = $ScratchpadId.create("effected/cli/CliAudience");
+const $I = $CliKitId.create("CliAudience");
 
 class AudienceConflictError extends S.TaggedError<AudienceConflictError, { readonly brand: unique symbol }>(
   $I`AudienceConflictError`
@@ -67,7 +67,7 @@ const interactiveWhenFlagged: {
  * **Example** (Validate shared audience flags)
  *
  * ```ts
- * import { AudienceFlagInput } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import { AudienceFlagInput } from "@beep/cli-kit/CliAudience";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(AudienceFlagInput)({ audience: [], human: [], agent: [true], ci: [] })) // true
@@ -95,7 +95,7 @@ export type AudienceFlagInput = typeof AudienceFlagInput.Type;
  * **Example** (Hide shared flags from help)
  *
  * ```ts
- * import { CliAudienceFlagsOptions } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import { CliAudienceFlagsOptions } from "@beep/cli-kit/CliAudience";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CliAudienceFlagsOptions)({ hidden: true })) // true
@@ -192,7 +192,7 @@ const resolve = (input: AudienceFlagInput): Effect.Effect<AudienceShape, CliErro
  * **Example** (Wire audience flags into a command)
  *
  * ```ts
- * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import { CliAudience } from "@beep/cli-kit/CliAudience";
  * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect";
  *
@@ -224,7 +224,7 @@ export class CliAudience {
    * **Example** (Create the four shared audience flags)
    *
    * ```ts
-   * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+   * import { CliAudience } from "@beep/cli-kit/CliAudience";
    *
    * const flags = CliAudience.flags({ hidden: true });
    * console.log(Object.keys(flags).join(", ")); // audience, human, agent, ci
@@ -282,7 +282,7 @@ export class CliAudience {
    * **Example** (Provide the audience to a bare command)
    *
    * ```ts
-   * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+   * import { CliAudience } from "@beep/cli-kit/CliAudience";
    * import * as Command from "effect/cli/Command";
    * const root = Command.make("tool").pipe(Command.withSharedFlags(CliAudience.flags()));
    * const provided = CliAudience.provide(root);
@@ -325,7 +325,7 @@ export class CliAudience {
    * **Example** (Construct a run with explicit arguments)
    *
    * ```ts
-   * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+   * import { CliAudience } from "@beep/cli-kit/CliAudience";
    * import * as Command from "effect/cli/Command";
    * import * as Effect from "effect/Effect";
    *
@@ -418,7 +418,7 @@ export class CliAudience {
    * **Example** (Construct a run that reads standard arguments)
    *
    * ```ts
-   * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+   * import { CliAudience } from "@beep/cli-kit/CliAudience";
    * import * as Command from "effect/cli/Command";
    * import * as Effect from "effect/Effect";
    *

@@ -6,11 +6,11 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { Doc } from "../../../effected/cli/Doc.ts";
-import { sanitize } from "../../../effected/cli/Fmt.ts";
-import { displayWidth } from "../../../effected/cli/internal/displayWidth.ts";
-import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "../../../effected/cli/internal/layout.ts";
-import { Render } from "../../../effected/cli/Render.ts";
+import { Doc } from "@beep/cli-kit/Doc";
+import { sanitize } from "@beep/cli-kit/Fmt";
+import { displayWidth } from "@beep/cli-kit/internal/displayWidth";
+import { flatten, paintSpans, truncateSpans, widthOf, wrapSpans } from "@beep/cli-kit/internal/layout";
+import { Render } from "@beep/cli-kit/Render";
 
 const ctx = Render.contextOf({ audience: "agent" });
 const width = S.Int.check(S.isBetween({ minimum: 1, maximum: 40 }));

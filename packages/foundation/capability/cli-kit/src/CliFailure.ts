@@ -31,8 +31,8 @@ import type { Block, Document, InlineOf, TreeInput } from "./Doc.ts";
  * **Example** (Let an error supply its own document)
  *
  * ```ts
- * import { CliDoc, CliFailure } from "@beep/scratchpad/effected/cli/CliFailure";
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc";
+ * import { CliDoc, CliFailure } from "@beep/cli-kit/CliFailure";
+ * import { Doc } from "@beep/cli-kit/Doc";
  * import * as Cause from "effect/Cause";
  *
  * const failure = { [CliDoc]: () => [Doc.paragraph("custom failure")] };
@@ -492,7 +492,7 @@ const spanBlocks: {
  * **Example** (Build a typed failure document)
  *
  * ```ts
- * import { CliFailure } from "@beep/scratchpad/effected/cli/CliFailure";
+ * import { CliFailure } from "@beep/cli-kit/CliFailure";
  * import * as Cause from "effect/Cause";
  *
  * const document = CliFailure.toDoc(Cause.fail("could not save"));
@@ -512,7 +512,7 @@ export class CliFailure {
    * **Example** (Render a typed failure as document blocks)
    *
    * ```ts
-   * import { CliFailure } from "@beep/scratchpad/effected/cli/CliFailure";
+   * import { CliFailure } from "@beep/cli-kit/CliFailure";
    * import * as Cause from "effect/Cause";
    *
    * const document = CliFailure.toDoc(Cause.fail("could not save"));

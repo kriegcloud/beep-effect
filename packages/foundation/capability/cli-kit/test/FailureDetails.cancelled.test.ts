@@ -1,5 +1,6 @@
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 
+import { Cancelled, CliLogger, CliRuntime, NotInteractive } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
@@ -7,8 +8,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
 import * as Runtime from "effect/Runtime";
-import { Cancelled, CliLogger, CliRuntime, NotInteractive } from "../../effected/cli/index.ts";
-import type { FailureDetails } from "../../effected/cli/index.ts";
+import type { FailureDetails } from "@beep/cli-kit";
 
 /** What a renderer that gives a defect the issue-report treatment prints, once it has checked the kit's flags. */
 const renderer =

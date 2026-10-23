@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -6,7 +6,7 @@ import * as MutableRef from "effect/MutableRef";
 import * as S from "effect/Schema";
 import { isExitCode } from "./internal/isExitCode.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliExit");
+const $I = $CliKitId.create("CliExit");
 
 class InvalidExitCodeError extends S.TaggedError<InvalidExitCodeError, { readonly brand: unique symbol }>(
   $I`InvalidExitCodeError`
@@ -56,7 +56,7 @@ export interface CliExitShape {
  * **Example** (Keep the highest findings exit code)
  *
  * ```ts
- * import { CliExit } from "@beep/scratchpad/effected/cli/CliExit";
+ * import { CliExit } from "@beep/cli-kit/CliExit";
  * import * as Effect from "effect/Effect";
  * import * as MutableRef from "effect/MutableRef";
  *
@@ -93,7 +93,7 @@ export class CliExit extends Context.Service<CliExit, CliExitShape>()($I`CliExit
    * **Example** (Start a test with a clean exit cell)
    *
    * ```ts
-   * import { CliExit } from "@beep/scratchpad/effected/cli/CliExit";
+   * import { CliExit } from "@beep/cli-kit/CliExit";
    * import * as Effect from "effect/Effect";
    * import * as MutableRef from "effect/MutableRef";
    *
@@ -127,7 +127,7 @@ export class CliExit extends Context.Service<CliExit, CliExitShape>()($I`CliExit
    * **Example** (Preserve an earlier findings code)
    *
    * ```ts
-   * import { CliExit } from "@beep/scratchpad/effected/cli/CliExit";
+   * import { CliExit } from "@beep/cli-kit/CliExit";
    * import * as Effect from "effect/Effect";
    * import * as MutableRef from "effect/MutableRef";
    *

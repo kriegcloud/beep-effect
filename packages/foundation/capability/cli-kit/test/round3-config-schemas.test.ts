@@ -1,16 +1,11 @@
+import { AudienceFlagInput, CliAudienceFlagsOptions } from "@beep/cli-kit/CliAudience";
+import { CliEnvTestOptions } from "@beep/cli-kit/CliEnv";
+import { CliMessageOptions } from "@beep/cli-kit/CliMessage";
+import { CliThemeOptions, CliThemeTestOptions } from "@beep/cli-kit/CliTheme";
+import { AudienceFlagValues, AudienceTally, scanAudience, tallyAudience } from "@beep/cli-kit/internal/scanAudience";
 import { assert, describe, it } from "@effect/vitest";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
-import { AudienceFlagInput, CliAudienceFlagsOptions } from "../../effected/cli/CliAudience.ts";
-import { CliEnvTestOptions } from "../../effected/cli/CliEnv.ts";
-import { CliMessageOptions } from "../../effected/cli/CliMessage.ts";
-import { CliThemeOptions, CliThemeTestOptions } from "../../effected/cli/CliTheme.ts";
-import {
-  AudienceFlagValues,
-  AudienceTally,
-  scanAudience,
-  tallyAudience,
-} from "../../effected/cli/internal/scanAudience.ts";
 
 const roundTrips = <A, I>(schema: S.Codec<A, I>, value: unknown) => {
   const decoded = S.decodeUnknownExit(schema)(value);

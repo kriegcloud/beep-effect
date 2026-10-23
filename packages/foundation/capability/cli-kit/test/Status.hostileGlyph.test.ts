@@ -1,12 +1,12 @@
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 
+import { CliLog, CliLogger, CliMessage, CliTheme, Doc, Glyphs, Render, Status } from "@beep/cli-kit";
 import { Audience } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
-import { CliLog, CliLogger, CliMessage, CliTheme, Doc, Glyphs, Render, Status } from "../../effected/cli/index.ts";
 import type { AudienceKind } from "@beep/runtime-env";
 
 const ESC = String.fromCharCode(0x1b);

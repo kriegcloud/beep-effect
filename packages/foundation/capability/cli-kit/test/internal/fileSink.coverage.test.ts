@@ -1,3 +1,5 @@
+import { Level } from "@beep/cli-kit/internal/diagnostics";
+import { makeFileSink } from "@beep/cli-kit/internal/fileSink";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertExitSuccess } from "@effect/vitest/utils";
@@ -7,8 +9,6 @@ import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as Scope from "effect/Scope";
-import { Level } from "../../../effected/cli/internal/diagnostics.ts";
-import { makeFileSink } from "../../../effected/cli/internal/fileSink.ts";
 
 const unprintableDefects = [
   {

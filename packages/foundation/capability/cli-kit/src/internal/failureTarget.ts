@@ -1,5 +1,5 @@
 import { CommandNeutralizer } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
@@ -24,7 +24,7 @@ import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
 import type { RenderContext } from "../Render.ts";
 import type { Style, TokenName } from "../Token.ts";
 
-const $I = $ScratchpadId.create("effected/cli/internal/failureTarget");
+const $I = $CliKitId.create("internal/failureTarget");
 
 /**
  * Where a failure report is written to: the context the renderer lays out for, and which renderer.
@@ -73,7 +73,7 @@ export interface FailureSettings {
  * **Example** (Read a missing failure target cell)
  *
  * ```ts
- * import { FailureTargetCell } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { FailureTargetCell } from "@beep/cli-kit/internal/failureTarget"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(FailureTargetCell)) // undefined
@@ -94,7 +94,7 @@ export const FailureTargetCell = Context.Reference<MutableRef.MutableRef<Failure
  * **Example** (Inspect the plain fallback policy)
  *
  * ```ts
- * import { fallbackTarget } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { fallbackTarget } from "@beep/cli-kit/internal/failureTarget"
  *
  * console.log(fallbackTarget.format) // plain
  * console.log(fallbackTarget.ctx.neutralizeWorkflowCommands) // true
@@ -162,7 +162,7 @@ const build = Effect.fn("build")(function* (
  * **Example** (Refresh without a reporting cell)
  *
  * ```ts
- * import { refreshFailureTarget } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { refreshFailureTarget } from "@beep/cli-kit/internal/failureTarget"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(refreshFailureTarget())) // undefined
@@ -202,7 +202,7 @@ export const refreshFailureTarget: {
  * **Example** (Read the fallback without services)
  *
  * ```ts
- * import { currentTarget } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { currentTarget } from "@beep/cli-kit/internal/failureTarget"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(currentTarget).format) // plain
@@ -243,9 +243,9 @@ const withoutStatus = (doc: Document): Document =>
  * **Example** (Render an empty cause)
  *
  * ```ts
- * import { linesOf } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { linesOf } from "@beep/cli-kit/internal/failureTarget"
  * import * as Cause from "effect/Cause"
- * import { fallbackTarget } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { fallbackTarget } from "@beep/cli-kit/internal/failureTarget"
  *
  * console.log(JSON.stringify(linesOf(Cause.empty, fallbackTarget))) // []
  * ```
@@ -301,7 +301,7 @@ export const linesOf: {
  * **Example** (Split consumer output into safe lines)
  *
  * ```ts
- * import { guardConsumerLines } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { guardConsumerLines } from "@beep/cli-kit/internal/failureTarget"
  * import * as Effect from "effect/Effect"
  *
  * console.log(JSON.stringify(Effect.runSync(guardConsumerLines(["first\nsecond"])))) // ["first","second"]
@@ -328,7 +328,7 @@ export const guardConsumerLines = (lines: ReadonlyArray<string>): Effect.Effect<
  * **Example** (Render an empty cause without services)
  *
  * ```ts
- * import { plainFailureLines } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { plainFailureLines } from "@beep/cli-kit/internal/failureTarget"
  * import * as Cause from "effect/Cause"
  *
  * console.log(JSON.stringify(plainFailureLines(Cause.empty))) // []
@@ -361,7 +361,7 @@ const isSpanSetting = S.is(SpanSetting);
  * **Example** (Prefer the explicit span setting)
  *
  * ```ts
- * import { readSpans } from "@beep/scratchpad/effected/cli/internal/failureTarget"
+ * import { readSpans } from "@beep/cli-kit/internal/failureTarget"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(readSpans("off", undefined)).spans) // off

@@ -1,3 +1,4 @@
+import { canPrompt } from "@beep/cli-kit/internal/canPrompt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { StreamEnv, TerminalSnapshot } from "@beep/runtime-env/TerminalEnv";
 import { assert, it } from "@effect/vitest";
@@ -6,7 +7,6 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { canPrompt } from "../../../effected/cli/internal/canPrompt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

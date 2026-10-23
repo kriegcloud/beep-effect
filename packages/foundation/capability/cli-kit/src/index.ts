@@ -15,7 +15,7 @@
  * **Example** (Run a CLI with audience flags and runtime services)
  *
  * ```ts
- * import { CliAudience, CliRuntime } from "@beep/scratchpad/effected/cli/index"
+ * import { CliAudience, CliRuntime } from "@beep/cli-kit"
  * import { NodeRuntime, NodeServices } from "@effect/platform-node"
  * import * as Command from "effect/cli/Command";
  * const init = Command.make("init")

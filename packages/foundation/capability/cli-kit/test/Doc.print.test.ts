@@ -1,14 +1,14 @@
+import { CliLinks, CliTheme, Doc, Glyphs, Render } from "@beep/cli-kit";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { assert, describe, it } from "@effect/vitest";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { CliLinks, CliTheme, Doc, Glyphs, Render } from "../../effected/cli/index.ts";
 import { composite } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
+import type { DocPrintOptions, Document } from "@beep/cli-kit";
 import type { AudienceKind, StreamEnv } from "@beep/runtime-env";
-import type { DocPrintOptions, Document } from "../../effected/cli/index.ts";
 
 const ESC = String.fromCharCode(0x1b);
 

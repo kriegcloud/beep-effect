@@ -1,6 +1,6 @@
+import { CliEnv } from "@beep/cli-kit/CliEnv";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CliEnv } from "../../effected/cli/CliEnv.ts";
 
 it.effect("CliEnv retains its runtime class identity", () =>
   Effect.sync(() => {
@@ -8,9 +8,9 @@ it.effect("CliEnv retains its runtime class identity", () =>
   })
 );
 
+import { CliInteractive } from "@beep/cli-kit/CliInteractive";
 import { TerminalEnv } from "@beep/runtime-env";
 import { assertSome } from "@effect/vitest/utils";
-import { CliInteractive } from "../../effected/cli/CliInteractive.ts";
 
 it.layer(CliEnv.layerTest({ columns: 123, tty: true }), { timeout: "30 seconds" })((it) => {
   it.effect("a test environment preserves an explicitly supplied width", () =>
@@ -23,10 +23,10 @@ it.layer(CliEnv.layerTest({ columns: 123, tty: true }), { timeout: "30 seconds" 
   );
 });
 
+import { TestTerminal } from "@beep/cli-kit/testing";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Layer from "effect/Layer";
 import * as Stdio from "effect/Stdio";
-import { TestTerminal } from "../../effected/cli/testing.ts";
 
 it.layer(
   CliEnv.layer({ stderrIsTerminal: Effect.succeed(true) }).pipe(

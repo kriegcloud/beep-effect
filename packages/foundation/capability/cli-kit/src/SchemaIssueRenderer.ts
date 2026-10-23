@@ -17,7 +17,7 @@ import { formatIssue } from "./internal/format.ts";
  * **Example** (Log schema decode issues as actionable lines)
  *
  * ```ts
- * import { SchemaIssueRenderer } from "@beep/scratchpad/effected/cli/SchemaIssueRenderer"
+ * import { SchemaIssueRenderer } from "@beep/cli-kit/SchemaIssueRenderer"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -49,7 +49,7 @@ export class SchemaIssueRenderer {
    * **Example** (Reject a value that is not an issue tree)
    *
    * ```ts
-   * import { SchemaIssueRenderer } from "@beep/scratchpad/effected/cli/SchemaIssueRenderer"
+   * import { SchemaIssueRenderer } from "@beep/cli-kit/SchemaIssueRenderer"
    *
    * console.log(SchemaIssueRenderer.render(null).length) // 0
    * ```

@@ -1,10 +1,10 @@
+import { ExitRequested } from "@beep/cli-kit/internal/ExitRequested";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { ExitRequested } from "../../../effected/cli/internal/ExitRequested.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

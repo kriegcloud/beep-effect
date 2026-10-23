@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { splitFrame } from "../../../effected/cli/internal/splitFrame.ts";
+import { splitFrame } from "@beep/cli-kit/internal/splitFrame";
 
 const words = S.Literals(["a", "b", "/", ":", "1", "(", ")"]).pipe(
   S.Array,

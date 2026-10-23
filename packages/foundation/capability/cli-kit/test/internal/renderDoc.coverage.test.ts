@@ -1,9 +1,9 @@
+import { Doc } from "@beep/cli-kit/Doc";
+import { capOf, textLines, trimLine } from "@beep/cli-kit/internal/renderDoc";
+import { renderPlain } from "@beep/cli-kit/internal/renderPlain";
+import { Render } from "@beep/cli-kit/Render";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Doc } from "../../../effected/cli/Doc.ts";
-import { capOf, textLines, trimLine } from "../../../effected/cli/internal/renderDoc.ts";
-import { renderPlain } from "../../../effected/cli/internal/renderPlain.ts";
-import { Render } from "../../../effected/cli/Render.ts";
 
 const ctx = Render.contextOf({ audience: "agent", width: 80 });
 describe("renderDoc branch boundaries", () => {

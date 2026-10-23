@@ -1,3 +1,4 @@
+import { Cancelled, CliRuntime, NotInteractive } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
@@ -9,7 +10,6 @@ import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-import { Cancelled, CliRuntime, NotInteractive } from "../../effected/cli/index.ts";
 
 const capturing = () => {
   const out: string[] = [];

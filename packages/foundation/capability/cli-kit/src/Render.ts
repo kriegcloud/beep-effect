@@ -164,8 +164,8 @@ export interface RenderContextOptions {
  * **Example** (Render check results as plain text)
  *
  * ```ts
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  *
  * const doc = [Doc.heading(2, "Results"), Doc.paragraph("3 checks passed")]
  * const ctx = Render.contextOf({ audience: "agent" })
@@ -202,7 +202,7 @@ export class Render {
    * **Example** (Construct a stream context effect)
    *
    * ```ts
-   * import { Render } from "@beep/scratchpad/effected/cli/Render"
+   * import { Render } from "@beep/cli-kit/Render"
    * import * as Effect from "effect/Effect"
    *
    * const program = Render.context("stderr", { width: 80 })
@@ -269,7 +269,7 @@ export class Render {
    * **Example** (Build an escape-free agent context)
    *
    * ```ts
-   * import { Render } from "@beep/scratchpad/effected/cli/Render"
+   * import { Render } from "@beep/cli-kit/Render"
    *
    * const ctx = Render.contextOf({ audience: "agent", color: "basic" })
    * console.log(ctx.color) // none
@@ -341,8 +341,8 @@ export class Render {
    * **Example** (Render an agent paragraph)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Render } from "@beep/scratchpad/effected/cli/Render"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Render } from "@beep/cli-kit/Render"
    *
    * const doc = [Doc.paragraph("Ready")]
    * const ctx = Render.contextOf({ audience: "agent" })
@@ -388,8 +388,8 @@ export class Render {
    * **Example** (Render without color or links)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Render } from "@beep/scratchpad/effected/cli/Render"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Render } from "@beep/cli-kit/Render"
    *
    * const doc = [Doc.paragraph("Ready")]
    * const ctx = Render.contextOf({ audience: "agent" })
@@ -456,8 +456,8 @@ export class Render {
    * **Example** (Render a Markdown heading)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Render } from "@beep/scratchpad/effected/cli/Render"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Render } from "@beep/cli-kit/Render"
    *
    * const doc = [Doc.heading(2, "Results")]
    * const ctx = Render.contextOf({ audience: "agent" })
@@ -500,8 +500,8 @@ export class Render {
    * **Example** (Render a workflow annotation)
    *
    * ```ts
-   * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
-   * import { Render } from "@beep/scratchpad/effected/cli/Render"
+   * import { Doc } from "@beep/cli-kit/Doc"
+   * import { Render } from "@beep/cli-kit/Render"
    *
    * const doc = [Doc.annotation({ level: "error", file: "src/main.ts", line: 1 }, "Invalid input")]
    * const ctx = Render.contextOf({ audience: "agent" })

@@ -1,3 +1,5 @@
+import { answerWithoutPerson } from "@beep/cli-kit/internal/fallbackAnswer";
+import { TestTerminal } from "@beep/cli-kit/testing";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
@@ -5,8 +7,6 @@ import * as CliError from "effect/cli/CliError";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { answerWithoutPerson } from "../../../effected/cli/internal/fallbackAnswer.ts";
-import { TestTerminal } from "../../../effected/cli/testing.ts";
 
 it.effect("an explicitly undefined default still reports the missing argument or flag", () =>
   Effect.gen(function* () {

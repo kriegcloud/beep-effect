@@ -1,3 +1,6 @@
+import { Doc } from "@beep/cli-kit/Doc";
+import { renderMarkdown } from "@beep/cli-kit/internal/renderMarkdown";
+import { Render } from "@beep/cli-kit/Render";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Markdown } from "@beep/markdown/Markdown";
 import { assert, it } from "@effect/vitest";
@@ -5,9 +8,6 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Doc } from "../../../effected/cli/Doc.ts";
-import { renderMarkdown } from "../../../effected/cli/internal/renderMarkdown.ts";
-import { Render } from "../../../effected/cli/Render.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const text = S.Literals(["x", "*", "_", "[", "]", "<", ">", "&", "|", "`", "\\", "#", "-", "+", "=", " "]).pipe(

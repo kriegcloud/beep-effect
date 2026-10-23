@@ -1,7 +1,7 @@
+import { formatIssue, issueEntries, issueTreeChildren } from "@beep/cli-kit/internal/format";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { formatIssue, issueEntries, issueTreeChildren } from "../../../effected/cli/internal/format.ts";
 
 it.effect("root issues keep core phrasing and a trie retains root, repeated-path and parent messages", () =>
   Effect.gen(function* () {

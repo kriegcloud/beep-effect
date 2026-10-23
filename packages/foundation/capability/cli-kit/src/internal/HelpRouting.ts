@@ -26,7 +26,7 @@ import * as P from "effect/Predicate";
  * **Example** (Construct a help-routing program)
  *
  * ```ts
- * import { routeHelpOnUsageError } from "@beep/scratchpad/effected/cli/internal/HelpRouting"
+ * import { routeHelpOnUsageError } from "@beep/cli-kit/internal/HelpRouting"
  * import * as Effect from "effect/Effect"
  *
  * const program = routeHelpOnUsageError(Effect.succeed("done"))

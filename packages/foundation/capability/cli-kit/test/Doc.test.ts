@@ -1,8 +1,8 @@
+import { Doc, Status, Token } from "@beep/cli-kit";
+import * as DocModel from "@beep/cli-kit/Doc";
 import { assert, describe, it } from "@effect/vitest";
 import * as S from "effect/Schema";
-import * as DocModel from "../../effected/cli/Doc.ts";
-import { Doc, Status, Token } from "../../effected/cli/index.ts";
-import type { Block, Counter, Inline } from "../../effected/cli/index.ts";
+import type { Block, Counter, Inline } from "@beep/cli-kit";
 
 const isInlines = S.is(S.Array(DocModel.Inline));
 
@@ -69,7 +69,7 @@ describe("Doc inline constructors", () => {
 
   it("status rejects a misspelt name at compile time", () => {
     const bad = () =>
-      // @ts-expect-error -- "unknown-status" is not a status name in the core vocabulary. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
+      // @ts-expect-error -- "unknown-status" is not a status name in the core vocabulary. Owner: @beep/cli-kit. Exit: remove if the API is meant to accept this.
       Doc.status(Status.core, "unknown-status");
     assert.isFunction(bad);
   });
@@ -338,7 +338,7 @@ describe("Doc.counter", () => {
 
   it("rejects a misspelt status name at compile time", () => {
     const bad = () =>
-      // @ts-expect-error -- "unknown-status" is not a status name in the core vocabulary. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
+      // @ts-expect-error -- "unknown-status" is not a status name in the core vocabulary. Owner: @beep/cli-kit. Exit: remove if the API is meant to accept this.
       Doc.counter(Status.core, "unknown-status", { key: "k", label: "l", n: 1 });
     assert.isFunction(bad);
   });

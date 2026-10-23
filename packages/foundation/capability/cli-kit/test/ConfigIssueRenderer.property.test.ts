@@ -1,3 +1,4 @@
+import { ConfigIssueRenderer } from "@beep/cli-kit/ConfigIssueRenderer";
 import { ConfigValidationError } from "@beep/config-file";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
@@ -5,7 +6,6 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ConfigIssueRenderer } from "../../effected/cli/ConfigIssueRenderer.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const target = S.Struct({ port: S.Finite });

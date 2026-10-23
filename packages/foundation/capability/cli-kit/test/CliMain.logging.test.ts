@@ -1,3 +1,4 @@
+import { CliRuntime } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -13,7 +14,6 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliRuntime } from "../../effected/cli/index.ts";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
 
 const platformServices = Layer.mergeAll(

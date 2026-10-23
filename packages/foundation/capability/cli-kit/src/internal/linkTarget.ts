@@ -17,7 +17,7 @@ const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[
  * **Example** (Recognize a Windows drive path)
  *
  * ```ts
- * import { DRIVE } from "@beep/scratchpad/effected/cli/internal/linkTarget"
+ * import { DRIVE } from "@beep/cli-kit/internal/linkTarget"
  *
  * console.log(DRIVE.test("C:/src/main.ts")) // true
  * console.log(DRIVE.test("./src/main.ts")) // false
@@ -36,7 +36,7 @@ export const DRIVE = /^[A-Za-z]:[\\/]/;
  * **Example** (Recognize a network share path)
  *
  * ```ts
- * import { UNC } from "@beep/scratchpad/effected/cli/internal/linkTarget"
+ * import { UNC } from "@beep/cli-kit/internal/linkTarget"
  *
  * console.log(UNC.test("//server/share/main.ts")) // true
  * ```
@@ -53,7 +53,7 @@ export const UNC = /^(?:\\\\|\/\/)/;
  * **Example** (Encode spaces while keeping separators)
  *
  * ```ts
- * import { encodePath } from "@beep/scratchpad/effected/cli/internal/linkTarget"
+ * import { encodePath } from "@beep/cli-kit/internal/linkTarget"
  *
  * console.log(encodePath("/my project/main.ts")) // /my%20project/main.ts
  * ```
@@ -82,7 +82,7 @@ export const encodePath = (path: string): string =>
  * **Example** (Keep a Windows drive colon in a file URL)
  *
  * ```ts
- * import { fileUrlPath } from "@beep/scratchpad/effected/cli/internal/linkTarget"
+ * import { fileUrlPath } from "@beep/cli-kit/internal/linkTarget"
  *
  * console.log(fileUrlPath("C:/my project/main.ts")) // /C:/my%20project/main.ts
  * console.log(fileUrlPath("//server/share/main.ts")) // undefined
@@ -105,7 +105,7 @@ export const fileUrlPath = (absolute: string): string | undefined => {
  * **Example** (Encode non ASCII characters once)
  *
  * ```ts
- * import { encodeForOsc8 } from "@beep/scratchpad/effected/cli/internal/linkTarget"
+ * import { encodeForOsc8 } from "@beep/cli-kit/internal/linkTarget"
  *
  * console.log(encodeForOsc8("https://example.com/café")) // https://example.com/caf%C3%A9
  * ```

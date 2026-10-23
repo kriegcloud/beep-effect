@@ -1,7 +1,7 @@
+import { WizardDropped } from "@beep/cli-kit/internal/wizardGate";
 import { assert, it } from "@effect/vitest";
 import * as CliConfig from "effect/cli/CliConfig";
 import * as Effect from "effect/Effect";
-import { WizardDropped } from "../../../effected/cli/internal/wizardGate.ts";
 
 it.effect("wizard dropped reference defaults to absence and retains the provided config identity", () =>
   Effect.gen(function* () {

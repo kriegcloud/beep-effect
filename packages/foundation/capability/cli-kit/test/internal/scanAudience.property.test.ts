@@ -7,8 +7,8 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
+import { scanAudience, tallyAudience } from "@beep/cli-kit/internal/scanAudience";
 import { AudienceKind } from "@beep/runtime-env/Audience";
-import { scanAudience, tallyAudience } from "../../../effected/cli/internal/scanAudience.ts";
 
 it.effect.prop(
   "audience scanner: canonical argv is idempotent and parse/stringify preserves tally and conflicts",

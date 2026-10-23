@@ -14,9 +14,9 @@ import type { Flavour, Line } from "./renderDoc.ts";
  * **Example** (Flatten text to unstyled spans)
  *
  * ```ts
- * import { plainInline } from "@beep/scratchpad/effected/cli/internal/renderPlain"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { plainInline } from "@beep/cli-kit/internal/renderPlain"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * console.log(JSON.stringify(plainInline([Doc.text("Ready")], ctx))) // [{"text":"Ready"}]
  * ```
@@ -65,9 +65,9 @@ const plain: Flavour = {
  * **Example** (Inspect individual output lines)
  *
  * ```ts
- * import { renderPlainLines } from "@beep/scratchpad/effected/cli/internal/renderPlain"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { renderPlainLines } from "@beep/cli-kit/internal/renderPlain"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * console.log(JSON.stringify(renderPlainLines([Doc.paragraph("Ready")], ctx))) // ["Ready"]
  * ```
@@ -93,9 +93,9 @@ export const renderPlainLines: {
  * **Example** (Render a paragraph)
  *
  * ```ts
- * import { renderPlain } from "@beep/scratchpad/effected/cli/internal/renderPlain"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { renderPlain } from "@beep/cli-kit/internal/renderPlain"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * console.log(renderPlain([Doc.paragraph("Ready")], ctx)) // Ready
  * ```

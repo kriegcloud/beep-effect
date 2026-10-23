@@ -1,5 +1,5 @@
 import { CommandNeutralizer } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { Audience } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -10,7 +10,7 @@ import { sanitize } from "./Fmt.ts";
 import { underGithubActions } from "./internal/autoFormat.ts";
 import { Status } from "./Status.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliMessage");
+const $I = $CliKitId.create("CliMessage");
 
 /**
  * Options for {@link CliMessage.status}.
@@ -18,7 +18,7 @@ const $I = $ScratchpadId.create("effected/cli/CliMessage");
  * **Example** (Send a status line to stderr)
  *
  * ```ts
- * import { CliMessageOptions } from "@beep/scratchpad/effected/cli/CliMessage";
+ * import { CliMessageOptions } from "@beep/cli-kit/CliMessage";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CliMessageOptions)({ stream: "stderr" })) // true
@@ -64,7 +64,7 @@ export type CliMessageOptions = typeof CliMessageOptions.Type;
  * **Example** (Construct a success message)
  *
  * ```ts
- * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+ * import { CliMessage } from "@beep/cli-kit/CliMessage"
  * import * as Effect from "effect/Effect"
  *
  * const program = CliMessage.success("saved")
@@ -87,9 +87,9 @@ export abstract class CliMessage {
    * **Example** (Construct a vocabulary status message)
    *
    * ```ts
-   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import { CliMessage } from "@beep/cli-kit/CliMessage"
    * import * as Effect from "effect/Effect"
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    * const program = CliMessage.status(Status.core, "warning", "retrying")
    * console.log(Effect.isEffect(program)) // true
    * ```
@@ -148,7 +148,7 @@ export abstract class CliMessage {
    * **Example** (Construct a success line)
    *
    * ```ts
-   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import { CliMessage } from "@beep/cli-kit/CliMessage"
    * import * as Effect from "effect/Effect"
    *
    * const program = CliMessage.success("configuration checked")
@@ -168,7 +168,7 @@ export abstract class CliMessage {
    * **Example** (Construct a info line)
    *
    * ```ts
-   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import { CliMessage } from "@beep/cli-kit/CliMessage"
    * import * as Effect from "effect/Effect"
    *
    * const program = CliMessage.info("configuration checked")
@@ -188,7 +188,7 @@ export abstract class CliMessage {
    * **Example** (Construct a warning line)
    *
    * ```ts
-   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import { CliMessage } from "@beep/cli-kit/CliMessage"
    * import * as Effect from "effect/Effect"
    *
    * const program = CliMessage.warning("configuration checked")
@@ -208,7 +208,7 @@ export abstract class CliMessage {
    * **Example** (Construct a failure line)
    *
    * ```ts
-   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import { CliMessage } from "@beep/cli-kit/CliMessage"
    * import * as Effect from "effect/Effect"
    *
    * const program = CliMessage.failure("configuration checked")

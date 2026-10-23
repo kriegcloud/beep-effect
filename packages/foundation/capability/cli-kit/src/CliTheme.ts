@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { TerminalEnv } from "@beep/runtime-env";
 import { ColorLevel } from "@beep/runtime-env/ColorLevel";
 import * as O from "@beep/utils/Option";
@@ -17,7 +17,7 @@ import type { AudienceKind } from "@beep/runtime-env";
 import type { GlyphSet } from "./Glyphs.ts";
 import type { Status } from "./Status.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliTheme");
+const $I = $CliKitId.create("CliTheme");
 
 /**
  * The shape of the {@link CliTheme} service: a colour level, a glyph set and the functions that use them.
@@ -88,7 +88,7 @@ export interface StreamTheme {
  * **Example** (Choose ASCII glyphs)
  *
  * ```ts
- * import { CliThemeOptions } from "@beep/scratchpad/effected/cli/CliTheme";
+ * import { CliThemeOptions } from "@beep/cli-kit/CliTheme";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CliThemeOptions)({ glyphs: "ascii" })) // true
@@ -125,7 +125,7 @@ export type CliThemeOptions = typeof CliThemeOptions.Type;
  * **Example** (Fix test colour support)
  *
  * ```ts
- * import { CliThemeTestOptions } from "@beep/scratchpad/effected/cli/CliTheme";
+ * import { CliThemeTestOptions } from "@beep/cli-kit/CliTheme";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CliThemeTestOptions)({ color: "none", stderrColor: "none" })) // true
@@ -168,9 +168,9 @@ export type CliThemeTestOptions = typeof CliThemeTestOptions.Type;
  * **Example** (Build a colourless ASCII stream)
  *
  * ```ts
- * import { streamThemeAt } from "@beep/scratchpad/effected/cli/CliTheme";
- * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs";
- * import { Token } from "@beep/scratchpad/effected/cli/Token";
+ * import { streamThemeAt } from "@beep/cli-kit/CliTheme";
+ * import { Glyphs } from "@beep/cli-kit/Glyphs";
+ * import { Token } from "@beep/cli-kit/Token";
  *
  * const theme = streamThemeAt(Token.resolve, Glyphs.ascii, "none");
  * console.log(theme.paint("success", "Done")) // Done
@@ -252,7 +252,7 @@ const ASCII_PROMPT_GLYPHS = {
  * **Example** (Paint with a provided fixed theme)
  *
  * ```ts
- * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme";
+ * import { CliTheme } from "@beep/cli-kit/CliTheme";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -278,7 +278,7 @@ export class CliTheme extends Context.Service<CliTheme, CliThemeShape>()($I`CliT
    * **Example** (Construct a terminal-dependent theme layer)
    *
    * ```ts
-   * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme";
+   * import { CliTheme } from "@beep/cli-kit/CliTheme";
    * import * as Layer from "effect/Layer";
    *
    * const themeLayer = CliTheme.layer({ glyphs: "ascii" });
@@ -325,9 +325,9 @@ export class CliTheme extends Context.Service<CliTheme, CliThemeShape>()($I`CliT
    * **Example** (Construct a line for the current audience)
    *
    * ```ts
-   * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme";
-   * import { Status } from "@beep/scratchpad/effected/cli/Status";
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt";
+   * import { CliTheme } from "@beep/cli-kit/CliTheme";
+   * import { Status } from "@beep/cli-kit/Status";
+   * import { Fmt } from "@beep/cli-kit/Fmt";
    * import { Audience } from "@beep/runtime-env/Audience";
    * import * as Effect from "effect/Effect";
    *
@@ -355,7 +355,7 @@ export class CliTheme extends Context.Service<CliTheme, CliThemeShape>()($I`CliT
    * **Example** (Keep stderr colour independent from stdout)
    *
    * ```ts
-   * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme";
+   * import { CliTheme } from "@beep/cli-kit/CliTheme";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -392,7 +392,7 @@ export class CliTheme extends Context.Service<CliTheme, CliThemeShape>()($I`CliT
    * **Example** (Provide prompt styling from a fixed theme)
    *
    * ```ts
-   * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme";
+   * import { CliTheme } from "@beep/cli-kit/CliTheme";
    * import * as Layer from "effect/Layer";
    *
    * const promptLayer = Layer.provide(CliTheme.promptTheme, CliTheme.layerTest({ glyphs: "ascii" }));

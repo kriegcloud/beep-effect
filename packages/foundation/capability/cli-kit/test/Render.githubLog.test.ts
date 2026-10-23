@@ -1,14 +1,14 @@
+import { Doc, Render, Status } from "@beep/cli-kit";
 import { CommandNeutralizer } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Doc, Render, Status } from "../../effected/cli/index.ts";
 import { composite, ESC } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
-import type { Block, RenderContext } from "../../effected/cli/index.ts";
+import type { Block, RenderContext } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 

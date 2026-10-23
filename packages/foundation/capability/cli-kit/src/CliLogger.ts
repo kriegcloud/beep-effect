@@ -85,7 +85,7 @@ const defaultRender = (message: unknown): string =>
  * **Example** (Separate diagnostics from program output)
  *
  * ```ts
- * import { CliLogger } from "@beep/scratchpad/effected/cli/CliLogger"
+ * import { CliLogger } from "@beep/cli-kit/CliLogger"
  * import * as Console from "effect/Console"
  * import * as Effect from "effect/Effect"
  *
@@ -113,7 +113,7 @@ export abstract class CliLogger {
    * **Example** (Compose a CLI logger into a logger set)
    *
    * ```ts
-   * import { CliLogger } from "@beep/scratchpad/effected/cli/CliLogger"
+   * import { CliLogger } from "@beep/cli-kit/CliLogger"
    * import * as Layer from "effect/Layer"
    * import * as Logger from "effect/Logger"
    *
@@ -140,7 +140,7 @@ export abstract class CliLogger {
    * **Example** (Install plain CLI logging)
    *
    * ```ts
-   * import { CliLogger } from "@beep/scratchpad/effected/cli/CliLogger"
+   * import { CliLogger } from "@beep/cli-kit/CliLogger"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLogger.layer()
@@ -162,7 +162,7 @@ export abstract class CliLogger {
  * **Example** (Compose a neutralized CLI logger)
  *
  * ```ts
- * import { makeCliLogger } from "@beep/scratchpad/effected/cli/CliLogger"
+ * import { makeCliLogger } from "@beep/cli-kit/CliLogger"
  * import * as Layer from "effect/Layer"
  * import * as Logger from "effect/Logger"
  *

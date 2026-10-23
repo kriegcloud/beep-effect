@@ -1,3 +1,17 @@
+import { CliDoc } from "@beep/cli-kit/CliFailure";
+import { CliLinks } from "@beep/cli-kit/CliLinks";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import { Doc } from "@beep/cli-kit/Doc";
+import {
+  currentTarget,
+  FailureTargetCell,
+  fallbackTarget,
+  linesOf,
+  plainFailureLines,
+  readSpans,
+  refreshFailureTarget,
+} from "@beep/cli-kit/internal/failureTarget";
+import { Status } from "@beep/cli-kit/Status";
 import { TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
 import { assert, it } from "@effect/vitest";
@@ -7,22 +21,8 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
 import * as S from "effect/Schema";
-import { CliDoc } from "../../../effected/cli/CliFailure.ts";
-import { CliLinks } from "../../../effected/cli/CliLinks.ts";
-import { CliTheme } from "../../../effected/cli/CliTheme.ts";
-import { Doc } from "../../../effected/cli/Doc.ts";
-import {
-  currentTarget,
-  FailureTargetCell,
-  fallbackTarget,
-  linesOf,
-  plainFailureLines,
-  readSpans,
-  refreshFailureTarget,
-} from "../../../effected/cli/internal/failureTarget.ts";
-import { Status } from "../../../effected/cli/Status.ts";
-import type { Document } from "../../../effected/cli/Doc.ts";
-import type { FailureSettings } from "../../../effected/cli/internal/failureTarget.ts";
+import type { Document } from "@beep/cli-kit/Doc";
+import type { FailureSettings } from "@beep/cli-kit/internal/failureTarget";
 
 it.effect("refresh overloads dispatch omitted and undefined audiences to Effects and settings to a callable", () =>
   Effect.gen(function* () {

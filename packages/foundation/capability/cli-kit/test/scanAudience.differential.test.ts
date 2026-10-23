@@ -1,3 +1,5 @@
+import { CliAudience } from "@beep/cli-kit";
+import { scanAudience, tallyAudience } from "@beep/cli-kit/internal/scanAudience";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import * as Console from "effect/Console";
@@ -14,9 +16,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliAudience } from "../../effected/cli/index.ts";
-import { scanAudience, tallyAudience } from "../../effected/cli/internal/scanAudience.ts";
-import type { AudienceFlagValues } from "../../effected/cli/internal/scanAudience.ts";
+import type { AudienceFlagValues } from "@beep/cli-kit/internal/scanAudience";
 
 const Json = S.fromJsonString(S.Unknown);
 

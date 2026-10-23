@@ -1,6 +1,6 @@
+import { nearest256, openSequence, paintStyle, parseHex } from "@beep/cli-kit/internal/ansi";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { nearest256, openSequence, paintStyle, parseHex } from "../../../effected/cli/internal/ansi.ts";
 
 it.effect("hex parsing, palette ties and foreground levels retain their documented output", () =>
   Effect.sync(() => {

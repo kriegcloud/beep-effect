@@ -1,3 +1,4 @@
+import { Fmt, sanitize } from "@beep/cli-kit/Fmt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -5,7 +6,6 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Fmt, sanitize } from "../../effected/cli/Fmt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const limit = S.Int.check(S.isBetween({ minimum: 0, maximum: 100 }));

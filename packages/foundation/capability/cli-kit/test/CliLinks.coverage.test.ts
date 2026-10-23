@@ -1,3 +1,4 @@
+import { ambientLinksLayer, CliLinks } from "@beep/cli-kit/CliLinks";
 import { MemoryFileSystem } from "@beep/memfs";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, it } from "@effect/vitest";
@@ -8,7 +9,6 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { ambientLinksLayer, CliLinks } from "../../effected/cli/CliLinks.ts";
 
 it.layer(
   ambientLinksLayer({ editorLinks: "file" }).pipe(

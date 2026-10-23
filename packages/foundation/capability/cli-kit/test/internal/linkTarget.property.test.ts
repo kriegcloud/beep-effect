@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { encodeForOsc8, encodePath, fileUrlPath } from "../../../effected/cli/internal/linkTarget.ts";
+import { encodeForOsc8, encodePath, fileUrlPath } from "@beep/cli-kit/internal/linkTarget";
 
 it.effect.prop(
   "path segment encoding round-trips normalized Unicode, preserves separators, and stabilizes after decoding",

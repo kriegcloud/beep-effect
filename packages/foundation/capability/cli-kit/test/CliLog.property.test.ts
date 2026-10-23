@@ -1,3 +1,6 @@
+import { CliEnv } from "@beep/cli-kit/CliEnv";
+import { CliLog, CliLogFile, CliLogStatusOptions } from "@beep/cli-kit/CliLog";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -8,9 +11,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as S from "effect/Schema";
-import { CliEnv } from "../../effected/cli/CliEnv.ts";
-import { CliLog, CliLogFile, CliLogStatusOptions } from "../../effected/cli/CliLog.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

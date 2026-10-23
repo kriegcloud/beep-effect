@@ -1,11 +1,11 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import { dual } from "effect/Function";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import * as References from "effect/References";
 
-const $I = $ScratchpadId.create("effected/cli/internal/diagnostics");
+const $I = $CliKitId.create("internal/diagnostics");
 
 /**
  * The diagnostics threshold reference behind `CliLog.Level`. Lives here so the stderr sink and the file sink share
@@ -14,7 +14,7 @@ const $I = $ScratchpadId.create("effected/cli/internal/diagnostics");
  * **Example** (Read the default diagnostics threshold)
  *
  * ```ts
- * import { Level } from "@beep/scratchpad/effected/cli/internal/diagnostics"
+ * import { Level } from "@beep/cli-kit/internal/diagnostics"
  * import * as Effect from "effect/Effect"
  *
  * console.log(Effect.runSync(Level)) // None
@@ -37,7 +37,7 @@ export const Level: Context.Reference<LogLevel.LogLevel> = Context.Reference<Log
  * **Example** (Filter an informational record at the default level)
  *
  * ```ts
- * import { passes } from "@beep/scratchpad/effected/cli/internal/diagnostics"
+ * import { passes } from "@beep/cli-kit/internal/diagnostics"
  * import * as Effect from "effect/Effect"
  * import * as Cause from "effect/Cause"
  * import type * as Logger from "effect/Logger"
@@ -71,7 +71,7 @@ export const passes: {
  * **Example** (Serialize the diagnostic message)
  *
  * ```ts
- * import { formatNdjson } from "@beep/scratchpad/effected/cli/internal/diagnostics"
+ * import { formatNdjson } from "@beep/cli-kit/internal/diagnostics"
  * import * as Effect from "effect/Effect"
  * import * as Cause from "effect/Cause"
  * import type * as Logger from "effect/Logger"

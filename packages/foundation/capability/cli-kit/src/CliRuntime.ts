@@ -1,5 +1,5 @@
 import { CommandNeutralizer } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as CliError from "effect/cli/CliError";
@@ -42,7 +42,7 @@ import type { CliEnvOptions, CliEnvServices } from "./CliEnv.ts";
 import type { CliLogFileOptions, CliLogOptions } from "./CliLog.ts";
 import type { FailureTarget } from "./internal/failureTarget.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliRuntime");
+const $I = $CliKitId.create("CliRuntime");
 
 /** A runtime invariant failure or a non-Error value wrapped for teardown. */
 class CliRuntimeError extends S.TaggedError<CliRuntimeError, { readonly brand: unique symbol }>($I`CliRuntimeError`)(
@@ -130,7 +130,7 @@ export interface FailureDetails {
    * **Example** (Prefix the first rendered failure line)
    *
    * ```ts
-   * import type { FailureDetails } from "@beep/scratchpad/effected/cli/CliRuntime"
+   * import type { FailureDetails } from "@beep/cli-kit/CliRuntime"
    * import * as Cause from "effect/Cause"
    *
    * const render = (_error: unknown, details: FailureDetails) =>
@@ -384,9 +384,9 @@ const chooseExitCode: {
  * **Example** (Report program failures through the configured logger)
  *
  * ```ts
- * import { CliRuntime } from "@beep/scratchpad/effected/cli/CliRuntime"
+ * import { CliRuntime } from "@beep/cli-kit/CliRuntime"
  * import * as Effect from "effect/Effect"
- * import { CliLogger } from "@beep/scratchpad/effected/cli/CliLogger"
+ * import { CliLogger } from "@beep/cli-kit/CliLogger"
  * const program = Effect.fail(new Error("invalid configuration")).pipe(
  *   CliRuntime.reportFailures(),
  *   Effect.provide(CliLogger.layer()),
@@ -416,8 +416,8 @@ export abstract class CliRuntime {
    * **Example** (Delegate failures outside a custom error type)
    *
    * ```ts
-   * import { CliRuntime } from "@beep/scratchpad/effected/cli/CliRuntime"
-   * import type { FailureDetails } from "@beep/scratchpad/effected/cli/CliRuntime"
+   * import { CliRuntime } from "@beep/cli-kit/CliRuntime"
+   * import type { FailureDetails } from "@beep/cli-kit/CliRuntime"
    * import * as Cause from "effect/Cause"
    *
    * class MyError extends Error {}
@@ -468,7 +468,7 @@ export abstract class CliRuntime {
    * **Example** (Construct a failure-reporting program)
    *
    * ```ts
-   * import { CliRuntime } from "@beep/scratchpad/effected/cli/CliRuntime"
+   * import { CliRuntime } from "@beep/cli-kit/CliRuntime"
    * import * as Effect from "effect/Effect"
    *
    * const program = Effect.fail(new Error("invalid configuration")).pipe(CliRuntime.reportFailures({ exitCode: 3 }))
@@ -588,7 +588,7 @@ export abstract class CliRuntime {
    * **Example** (Run a CLI with a custom failure exit code)
    *
    * ```ts
-   * import { CliRuntime } from "@beep/scratchpad/effected/cli/CliRuntime"
+   * import { CliRuntime } from "@beep/cli-kit/CliRuntime"
    * import * as Effect from "effect/Effect"
    * import * as Layer from "effect/Layer"
    * import * as Command from "effect/cli/Command"
@@ -787,7 +787,7 @@ export abstract class CliRuntime {
    * **Example** (Preserve a reported error instance)
    *
    * ```ts
-   * import { CliRuntime } from "@beep/scratchpad/effected/cli/CliRuntime"
+   * import { CliRuntime } from "@beep/cli-kit/CliRuntime"
    *
    * const error = new Error("invalid configuration")
    * console.log(CliRuntime.reported(error, 3) === error) // true

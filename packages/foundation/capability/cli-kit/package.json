@@ -42,8 +42,9 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./testing": "./src/testing.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -59,17 +60,30 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
+      "./testing": "./dist/testing.js",
       "./*": "./dist/*.js",
-      "./internal/*": null,
+      "./internal/*": "./dist/internal/*.js",
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/github-commands": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/runtime-env": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/walker": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/config-file": "workspace:^",
+    "@beep/fc-runs": "workspace:^",
+    "@beep/markdown": "workspace:^",
+    "@beep/memfs": "workspace:^",
+    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "bun-types": "catalog:"
+    "bun-types": "catalog:",
+    "string-width": "catalog:"
   }
 }

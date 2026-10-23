@@ -1,3 +1,5 @@
+import { AnnotationOptions } from "@beep/cli-kit/Doc";
+import { AnnotationLevel, GithubAnnotation, GithubAnnotationProperties } from "@beep/cli-kit/GithubAnnotation";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -6,8 +8,6 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AnnotationOptions } from "../../effected/cli/Doc.ts";
-import { AnnotationLevel, GithubAnnotation, GithubAnnotationProperties } from "../../effected/cli/GithubAnnotation.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const unescape = (text: string) =>

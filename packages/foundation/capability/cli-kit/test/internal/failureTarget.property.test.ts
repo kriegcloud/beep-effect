@@ -6,11 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { CommandNeutralizer } from "@beep/github-commands";
-import * as Cause from "effect/Cause";
-import * as ConfigProvider from "effect/ConfigProvider";
-import * as MutableRef from "effect/MutableRef";
-import { sanitize } from "../../../effected/cli/Fmt.ts";
+import { sanitize } from "@beep/cli-kit/Fmt";
 import {
   FailureTargetCell,
   fallbackTarget,
@@ -18,8 +14,12 @@ import {
   linesOf,
   plainFailureLines,
   readSpans,
-} from "../../../effected/cli/internal/failureTarget.ts";
-import { Render } from "../../../effected/cli/Render.ts";
+} from "@beep/cli-kit/internal/failureTarget";
+import { Render } from "@beep/cli-kit/Render";
+import { CommandNeutralizer } from "@beep/github-commands";
+import * as Cause from "effect/Cause";
+import * as ConfigProvider from "effect/ConfigProvider";
+import * as MutableRef from "effect/MutableRef";
 
 it.effect.prop(
   "guarding agent consumer lines is idempotent and preserves text after sanitization and command neutralization",

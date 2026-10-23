@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Arr from "effect/Array";
 import * as O from "effect/Option";
@@ -8,7 +8,7 @@ import { sanitize } from "./Fmt.ts";
 import { Style, TokenName } from "./Token.ts";
 import type { GlyphSet } from "./Glyphs.ts";
 
-const $I = $ScratchpadId.create("effected/cli/Status");
+const $I = $CliKitId.create("Status");
 
 class UnknownStatusError extends S.TaggedError<UnknownStatusError, { readonly brand: unique symbol }>(
   $I`UnknownStatusError`
@@ -32,7 +32,7 @@ class UnknownStatusError extends S.TaggedError<UnknownStatusError, { readonly br
  * **Example** (Validate a status definition)
  *
  * ```ts
- * import { StatusDef, Status } from "@beep/scratchpad/effected/cli/Status"
+ * import { StatusDef, Status } from "@beep/cli-kit/Status"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(StatusDef)(Status.core.def("success"))) // true
@@ -84,7 +84,7 @@ export type StatusDef = typeof StatusDef.Type;
  * **Example** (Validate a built-in status)
  *
  * ```ts
- * import { CoreStatusName } from "@beep/scratchpad/effected/cli/Status"
+ * import { CoreStatusName } from "@beep/cli-kit/Status"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(CoreStatusName)("success")) // true
@@ -116,7 +116,7 @@ export type CoreStatusName = typeof CoreStatusName.Type;
  * **Example** (Extend statuses and select the most severe)
  *
  * ```ts
- * import { Status } from "@beep/scratchpad/effected/cli/Status"
+ * import { Status } from "@beep/cli-kit/Status"
  *
  * const vocab = Status.extend({
  * 	timeout: { glyph: "⏱", ascii: "[time]", token: "warning", rank: 85 },
@@ -143,7 +143,7 @@ export class Status<Names extends string> {
    * **Example** (Inspect the built-in failure rank)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * console.log(Status.core.def("failure").rank) // 90
    * ```
@@ -166,7 +166,7 @@ export class Status<Names extends string> {
    * **Example** (Extend the core vocabulary)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * const vocab = Status.extend({ timeout: { glyph: "⏱", ascii: "[time]", token: "warning", rank: 85 } })
    * console.log(vocab.worst(["success", "timeout"])) // timeout
@@ -192,7 +192,7 @@ export class Status<Names extends string> {
    * **Example** (Override a vocabulary entry)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * const vocab = Status.core.extend({ warning: { glyph: "?", ascii: "[warn]", token: "warning", rank: 5 } })
    * console.log(vocab.def("warning").rank) // 5
@@ -217,7 +217,7 @@ export class Status<Names extends string> {
    * **Example** (Read a status definition)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * console.log(Status.core.def("success").ascii) // [ok]
    * ```
@@ -248,7 +248,7 @@ export class Status<Names extends string> {
    * **Example** (Store a copied definition)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * const snapshot = Status.core.resolve("success")
    * console.log(snapshot === Status.core.def("success")) // false
@@ -275,9 +275,9 @@ export class Status<Names extends string> {
    * **Example** (Choose an ASCII status glyph)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
-   * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+   * import { Glyphs } from "@beep/cli-kit/Glyphs"
    *
    * console.log(Status.core.glyph("success", Glyphs.ascii)) // [ok]
    * ```
@@ -310,7 +310,7 @@ export class Status<Names extends string> {
    * **Example** (Compare severity and preserve tie order)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * console.log(Status.core.worst(["success", "skip"])) // skip
    * console.log(Status.core.worst(["warning", "warning"])) // warning
@@ -336,7 +336,7 @@ export class Status<Names extends string> {
    * **Example** (Handle an empty status list)
    *
    * ```ts
-   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * import { Status } from "@beep/cli-kit/Status"
    *
    * import * as O from "effect/Option"
    *

@@ -1,6 +1,6 @@
+import { Doc, Render } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Doc, Render } from "../../effected/cli/index.ts";
 import { contextOf } from "./helpers/renderContext.ts";
 
 describe("a table cell's trailing line breaks", () => {

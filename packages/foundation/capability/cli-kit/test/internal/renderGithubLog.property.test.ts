@@ -7,11 +7,11 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
+import { Doc } from "@beep/cli-kit/Doc";
+import { sanitize } from "@beep/cli-kit/Fmt";
+import { renderGithubLog } from "@beep/cli-kit/internal/renderGithubLog";
+import { Render } from "@beep/cli-kit/Render";
 import { CommandNeutralizer } from "@beep/github-commands";
-import { Doc } from "../../../effected/cli/Doc.ts";
-import { sanitize } from "../../../effected/cli/Fmt.ts";
-import { renderGithubLog } from "../../../effected/cli/internal/renderGithubLog.ts";
-import { Render } from "../../../effected/cli/Render.ts";
 
 const ctx = Render.contextOf({ audience: "agent" });
 it.effect.prop(

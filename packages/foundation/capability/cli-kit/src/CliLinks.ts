@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { Walker } from "@beep/walker/Walker";
@@ -20,7 +20,7 @@ import type { AudienceKind } from "@beep/runtime-env";
 import type * as LayerType from "effect/Layer";
 import type { LinkTarget } from "./Doc.ts";
 
-const $I = $ScratchpadId.create("effected/cli/CliLinks");
+const $I = $CliKitId.create("CliLinks");
 
 /**
  * Whether file links open in an editor.
@@ -33,7 +33,7 @@ const $I = $ScratchpadId.create("effected/cli/CliLinks");
  * **Example** (Validate an editor link setting)
  *
  * ```ts
- * import { EditorLinks } from "@beep/scratchpad/effected/cli/CliLinks";
+ * import { EditorLinks } from "@beep/cli-kit/CliLinks";
  * import * as S from "effect/Schema";
  * console.log(S.is(EditorLinks)("vscode")) // true
  * ```
@@ -271,7 +271,7 @@ const build: {
  * **Example** (Fix file links for a test)
  *
  * ```ts
- * import { CliLinks } from "@beep/scratchpad/effected/cli/CliLinks"
+ * import { CliLinks } from "@beep/cli-kit/CliLinks"
  * import * as Layer from "effect/Layer"
  *
  * const live = CliLinks.layerTest("file")
@@ -293,7 +293,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
    * **Example** (Build editor-aware links once)
    *
    * ```ts
-   * import { CliLinks } from "@beep/scratchpad/effected/cli/CliLinks"
+   * import { CliLinks } from "@beep/cli-kit/CliLinks"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliLinks.layer({ editorLinks: "auto", cwd: "/project" })
@@ -322,7 +322,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
    * **Example** (Resolve an absolute file without a filesystem)
    *
    * ```ts
-   * import { CliLinks } from "@beep/scratchpad/effected/cli/CliLinks"
+   * import { CliLinks } from "@beep/cli-kit/CliLinks"
    * import * as Effect from "effect/Effect"
    * import * as O from "effect/Option"
    *
@@ -358,7 +358,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
    * **Example** (Keep agent labels free of escapes)
    *
    * ```ts
-   * import { CliLinks } from "@beep/scratchpad/effected/cli/CliLinks"
+   * import { CliLinks } from "@beep/cli-kit/CliLinks"
    * import * as O from "effect/Option"
    *
    * const link = CliLinks.linker({
@@ -402,7 +402,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
  * **Example** (Construct links with optional platform services)
  *
  * ```ts
- * import { ambientLinksLayer } from "@beep/scratchpad/effected/cli/CliLinks"
+ * import { ambientLinksLayer } from "@beep/cli-kit/CliLinks"
  * import * as Layer from "effect/Layer"
  *
  * const live = ambientLinksLayer({ editorLinks: "file" })

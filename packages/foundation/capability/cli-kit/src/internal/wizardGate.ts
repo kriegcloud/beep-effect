@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import type * as CliConfig from "effect/cli/CliConfig";
 
-const $I = $ScratchpadId.create("effected/cli/internal/wizardGate");
+const $I = $CliKitId.create("internal/wizardGate");
 
 /** The shape of the ambient config, as `CliConfig.make` returns it. */
 type Config = ReturnType<typeof CliConfig.make>;
@@ -20,7 +20,7 @@ type Config = ReturnType<typeof CliConfig.make>;
  * **Example** (Read the absence of a dropped wizard config)
  *
  * ```ts
- * import { WizardDropped } from "@beep/scratchpad/effected/cli/internal/wizardGate"
+ * import { WizardDropped } from "@beep/cli-kit/internal/wizardGate"
  * import * as Effect from "effect/Effect"
  * console.log(Effect.runSync(WizardDropped)) // undefined
  * ```

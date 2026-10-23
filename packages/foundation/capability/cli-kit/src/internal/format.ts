@@ -47,7 +47,7 @@ const formatter = SchemaIssue.makeFormatterStandardSchemaV1({
  * **Example** (Ignore a value that is not a schema issue)
  *
  * ```ts
- * import { formatIssue } from "@beep/scratchpad/effected/cli/internal/format"
+ * import { formatIssue } from "@beep/cli-kit/internal/format"
  *
  * console.log(JSON.stringify(formatIssue("unstructured failure"))) // []
  * ```
@@ -86,7 +86,7 @@ export interface IssueEntry {
  * **Example** (Ignore a missing issue tree)
  *
  * ```ts
- * import { issueEntries } from "@beep/scratchpad/effected/cli/internal/format"
+ * import { issueEntries } from "@beep/cli-kit/internal/format"
  *
  * console.log(JSON.stringify(issueEntries(undefined))) // []
  * ```
@@ -126,7 +126,7 @@ const emptyNode = (): PathNode => ({ messages: [], children: MutableHashMap.empt
  * **Example** (Group a rejected key under its path)
  *
  * ```ts
- * import { issueTreeChildren } from "@beep/scratchpad/effected/cli/internal/format"
+ * import { issueTreeChildren } from "@beep/cli-kit/internal/format"
  *
  * const children = issueTreeChildren([{ message: "unknown key", path: ["config", "extra"] }])
  * console.log(JSON.stringify(children)) // [{"label":"config","children":[{"label":"extra: unknown key"}]}]

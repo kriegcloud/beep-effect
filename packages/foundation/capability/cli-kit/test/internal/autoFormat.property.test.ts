@@ -1,10 +1,10 @@
+import { autoFormat, underGithubActions } from "@beep/cli-kit/internal/autoFormat";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { CurrentRuntimeEnv, RuntimeEnv } from "@beep/runtime-env/RuntimeEnv";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { autoFormat, underGithubActions } from "../../../effected/cli/internal/autoFormat.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

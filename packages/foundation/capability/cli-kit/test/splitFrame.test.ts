@@ -1,7 +1,7 @@
+import { CliFailure } from "@beep/cli-kit";
+import { splitFrame } from "@beep/cli-kit/internal/splitFrame";
 import { assert, describe, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";
-import { CliFailure } from "../../effected/cli/index.ts";
-import { splitFrame } from "../../effected/cli/internal/splitFrame.ts";
 
 /** The regular expression `splitFrame` replaced, kept here as the oracle for its exact behaviour. */
 const legacy = (raw: string): ReturnType<typeof splitFrame> => {

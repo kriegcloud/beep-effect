@@ -1,3 +1,5 @@
+import { Doc, Glyphs, Render, Status } from "@beep/cli-kit";
+import { displayWidth, stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -5,8 +7,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Doc, Glyphs, Render, Status } from "../../effected/cli/index.ts";
-import { displayWidth, stripAnsi } from "../../effected/cli/internal/displayWidth.ts";
 import { composite } from "./helpers/hostileDoc.ts";
 import {
   contextOf,
@@ -19,7 +19,7 @@ import {
   tokenPaint,
 } from "./helpers/renderContext.ts";
 import { isCommand, LINE_BREAK } from "./helpers/runnerCommands.ts";
-import type { Block, CliLinksShape, LinkTarget, RenderContext } from "../../effected/cli/index.ts";
+import type { Block, CliLinksShape, LinkTarget, RenderContext } from "@beep/cli-kit";
 
 const Json = S.fromJsonString(S.Unknown);
 

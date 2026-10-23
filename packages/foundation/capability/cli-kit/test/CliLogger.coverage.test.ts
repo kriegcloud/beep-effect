@@ -1,9 +1,9 @@
+import { CliLogger } from "@beep/cli-kit/CliLogger";
 import { assert, it } from "@effect/vitest";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
-import { CliLogger } from "../../effected/cli/CliLogger.ts";
 
 it.effect("the logger accepts a scalar message from another logger", () =>
   Effect.gen(function* () {

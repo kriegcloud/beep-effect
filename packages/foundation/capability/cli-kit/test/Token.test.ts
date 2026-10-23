@@ -1,10 +1,10 @@
+import { Token } from "@beep/cli-kit";
+import { nearest256, paintStyle } from "@beep/cli-kit/internal/ansi";
+import { Style as StyleSchema } from "@beep/cli-kit/Token";
 import { assert, describe, it } from "@effect/vitest";
 import * as S from "effect/Schema";
-import { Token } from "../../effected/cli/index.ts";
-import { nearest256, paintStyle } from "../../effected/cli/internal/ansi.ts";
-import { Style as StyleSchema } from "../../effected/cli/Token.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type { NamedColor, Style, TokenName } from "../../effected/cli/index.ts";
+import type { NamedColor, Style, TokenName } from "@beep/cli-kit";
 
 describe("Token", () => {
   it("builds styles as data", () => {
@@ -100,7 +100,7 @@ describe("NamedColor spells the bright variants as chalk and Ink do", () => {
   }
 
   it("the old brightX spellings are gone", () => {
-    // @ts-expect-error -- renamed to cyanBright. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
+    // @ts-expect-error -- renamed to cyanBright. Owner: @beep/cli-kit. Exit: remove if the API is meant to accept this.
     const old: NamedColor = "brightCyan";
     // Rendered as an unknown name, it is ignored rather than guessed at.
     assert.strictEqual(paintStyle({ fg: old }, "basic", "x"), "x");

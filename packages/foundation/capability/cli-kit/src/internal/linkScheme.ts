@@ -18,7 +18,7 @@ const ALLOWED = HashSet.make("http", "https", "mailto", "file", "vscode", "vscod
  * **Example** (Accept HTTPS and refuse executable schemes)
  *
  * ```ts
- * import { isAllowedLinkUrl } from "@beep/scratchpad/effected/cli/internal/linkScheme"
+ * import { isAllowedLinkUrl } from "@beep/cli-kit/internal/linkScheme"
  *
  * console.log(isAllowedLinkUrl("https://example.com")) // true
  * console.log(isAllowedLinkUrl("javascript:alert(1)")) // false

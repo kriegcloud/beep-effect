@@ -1,3 +1,5 @@
+import { CliRuntime } from "@beep/cli-kit/CliRuntime";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -6,8 +8,6 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { CliRuntime } from "../../effected/cli/CliRuntime.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const text = S.Array(S.Literals(["a", "b", "界", "%", " "])).pipe(Arbitrary.schema, Arbitrary.map(A.join("")));

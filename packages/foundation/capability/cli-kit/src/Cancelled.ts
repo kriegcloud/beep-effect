@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/Cancelled");
+const $I = $CliKitId.create("Cancelled");
 
 /**
  * A person backed out of an interactive prompt: they pressed escape, or the
@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/cli/Cancelled");
  * **Example** (Inspect a cancelled prompt)
  *
  * ```ts
- * import { Cancelled } from "@beep/scratchpad/effected/cli/Cancelled";
+ * import { Cancelled } from "@beep/cli-kit/Cancelled";
  *
  * console.log(Cancelled.make({ reason: "escape" }).message); // cancelled; nothing written
  * ```
@@ -54,7 +54,7 @@ export class Cancelled extends S.TaggedError<Cancelled, { readonly brand: unique
    * **Example** (Read the fixed cancellation message)
    *
    * ```ts
-   * import { Cancelled } from "@beep/scratchpad/effected/cli/Cancelled";
+   * import { Cancelled } from "@beep/cli-kit/Cancelled";
    *
    * console.log(Cancelled.make({ reason: "interrupt" }).message); // cancelled; nothing written
    * ```
@@ -81,7 +81,7 @@ export class Cancelled extends S.TaggedError<Cancelled, { readonly brand: unique
    * **Example** (Read the cancellation exit code)
    *
    * ```ts
-   * import { Cancelled } from "@beep/scratchpad/effected/cli/Cancelled";
+   * import { Cancelled } from "@beep/cli-kit/Cancelled";
    * import * as Runtime from "effect/Runtime";
    *
    * console.log(Cancelled.make({ reason: "escape" })[Runtime.errorExitCode]); // 130

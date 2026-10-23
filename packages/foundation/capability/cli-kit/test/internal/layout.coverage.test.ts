@@ -1,7 +1,7 @@
+import { flatten, paintSpans, truncateSpans, wrapSpans } from "@beep/cli-kit/internal/layout";
+import { Render } from "@beep/cli-kit/Render";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { flatten, paintSpans, truncateSpans, wrapSpans } from "../../../effected/cli/internal/layout.ts";
-import { Render } from "../../../effected/cli/Render.ts";
 
 it.effect("numeric edge widths and forced line endings preserve layout progress", () =>
   Effect.sync(() => {

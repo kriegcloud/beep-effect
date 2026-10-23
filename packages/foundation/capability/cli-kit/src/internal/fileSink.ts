@@ -38,7 +38,7 @@ const CLOSE_TIMEOUT = "2 seconds";
  * **Example** (Construct a scoped diagnostics file sink)
  *
  * ```ts
- * import { makeFileSink } from "@beep/scratchpad/effected/cli/internal/fileSink"
+ * import { makeFileSink } from "@beep/cli-kit/internal/fileSink"
  * import * as Effect from "effect/Effect"
  *
  * const program = makeFileSink("logs/diagnostics.ndjson", "Info", () => false)

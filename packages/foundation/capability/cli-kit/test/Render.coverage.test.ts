@@ -1,10 +1,10 @@
+import { CliLinks } from "@beep/cli-kit/CliLinks";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import { Render } from "@beep/cli-kit/Render";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { CliLinks } from "../../effected/cli/CliLinks.ts";
-import { CliTheme } from "../../effected/cli/CliTheme.ts";
-import { Render } from "../../effected/cli/Render.ts";
 
 it.effect("Render retains its runtime class identity", () =>
   Effect.sync(() => {

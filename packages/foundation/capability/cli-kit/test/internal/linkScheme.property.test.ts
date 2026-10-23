@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { isAllowedLinkUrl } from "../../../effected/cli/internal/linkScheme.ts";
+import { isAllowedLinkUrl } from "@beep/cli-kit/internal/linkScheme";
 
 it.effect.prop(
   "URL scheme parsing is stable under case folding and refuses obfuscated executable schemes",

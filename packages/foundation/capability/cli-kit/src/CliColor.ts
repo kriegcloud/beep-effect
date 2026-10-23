@@ -25,7 +25,7 @@ import type * as Stdio from "effect/Stdio";
  * **Example** (Construct the shared color decision)
  *
  * ```ts
- * import { CliColor } from "@beep/scratchpad/effected/cli/CliColor";
+ * import { CliColor } from "@beep/cli-kit/CliColor";
  * import * as Effect from "effect/Effect";
  *
  * console.log(Effect.isEffect(CliColor.enabled)); // true
@@ -44,7 +44,7 @@ export class CliColor {
    * **Example** (Inspect the deferred color decision)
    *
    * ```ts
-   * import { CliColor } from "@beep/scratchpad/effected/cli/CliColor";
+   * import { CliColor } from "@beep/cli-kit/CliColor";
    * import * as Effect from "effect/Effect";
    *
    * console.log(Effect.isEffect(CliColor.enabled)); // true
@@ -81,7 +81,7 @@ export class CliColor {
    * **Example** (Build a formatter with a custom version line)
    *
    * ```ts
-   * import { CliColor } from "@beep/scratchpad/effected/cli/CliColor";
+   * import { CliColor } from "@beep/cli-kit/CliColor";
    * import * as Layer from "effect/Layer";
    *
    * const formatter = CliColor.formatterLayer({ formatVersion: (version) => `tool ${version}` });

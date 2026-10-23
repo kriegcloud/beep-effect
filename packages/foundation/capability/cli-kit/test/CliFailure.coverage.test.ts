@@ -1,7 +1,7 @@
+import { CliFailure } from "@beep/cli-kit/CliFailure";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CliFailure } from "../../effected/cli/CliFailure.ts";
-import type { CliFailureOptions } from "../../effected/cli/CliFailure.ts";
+import type { CliFailureOptions } from "@beep/cli-kit/CliFailure";
 
 it.effect("CliFailure retains its runtime class identity", () =>
   Effect.sync(() => {
@@ -9,11 +9,11 @@ it.effect("CliFailure retains its runtime class identity", () =>
   })
 );
 
+import { Render } from "@beep/cli-kit/Render";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Render } from "../../effected/cli/Render.ts";
 
 const plain = (cause: Cause.Cause<unknown>, options?: CliFailureOptions) =>
   Render.plain(CliFailure.toDoc(cause, options), Render.contextOf({ audience: "agent" }));
@@ -71,7 +71,7 @@ it.effect("a non-file app module leaves application spans visible", () =>
   })
 );
 
-import { Cancelled } from "../../effected/cli/Cancelled.ts";
+import { Cancelled } from "@beep/cli-kit/Cancelled";
 
 it.effect("cancellation failures keep the fixed line and empty failures retain a status", () =>
   Effect.sync(() => {

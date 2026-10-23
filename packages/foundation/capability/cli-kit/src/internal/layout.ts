@@ -122,8 +122,8 @@ const spansOf: {
  * **Example** (Remove escapes while flattening text)
  *
  * ```ts
- * import { flatten } from "@beep/scratchpad/effected/cli/internal/layout"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { flatten } from "@beep/cli-kit/internal/layout"
+ * import { Render } from "@beep/cli-kit/Render"
  *
  * const spans = flatten([{ _tag: "Text", value: "\u001b[31mready\u001b[39m" }], Render.contextOf({ audience: "agent" }))
  * console.log(JSON.stringify(spans)) // [{"text":"ready"}]
@@ -158,7 +158,7 @@ export const flatten: {
  * **Example** (Measure adjacent plain spans)
  *
  * ```ts
- * import { widthOf } from "@beep/scratchpad/effected/cli/internal/layout"
+ * import { widthOf } from "@beep/cli-kit/internal/layout"
  *
  * console.log(widthOf([{ text: "界" }, { text: "ok" }])) // 4
  * ```
@@ -212,7 +212,7 @@ const spansFromCells = (cells: ReadonlyArray<Cell>): ReadonlyArray<Span> => {
  * **Example** (Reserve columns for the truncation marker)
  *
  * ```ts
- * import { truncateSpans } from "@beep/scratchpad/effected/cli/internal/layout"
+ * import { truncateSpans } from "@beep/cli-kit/internal/layout"
  *
  * console.log(JSON.stringify(truncateSpans([{ text: "world" }], 4, "…"))) // [{"text":"wor…"}]
  * ```
@@ -272,8 +272,8 @@ export const truncateSpans: {
  * **Example** (Render spans without terminal colour)
  *
  * ```ts
- * import { paintSpans } from "@beep/scratchpad/effected/cli/internal/layout"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { paintSpans } from "@beep/cli-kit/internal/layout"
+ * import { Render } from "@beep/cli-kit/Render"
  *
  * console.log(paintSpans([{ text: "ready" }], Render.contextOf({ audience: "agent" }))) // ready
  * ```
@@ -342,7 +342,7 @@ export interface WrapOptions {
  * **Example** (Wrap at the space between words)
  *
  * ```ts
- * import { wrapSpans } from "@beep/scratchpad/effected/cli/internal/layout"
+ * import { wrapSpans } from "@beep/cli-kit/internal/layout"
  *
  * const lines = wrapSpans([{ text: "hello world" }], 5)
  * console.log(JSON.stringify(lines)) // [[{"text":"hello"}],[{"text":"world"}]]

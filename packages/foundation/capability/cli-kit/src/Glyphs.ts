@@ -1,7 +1,7 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/Glyphs");
+const $I = $CliKitId.create("Glyphs");
 
 /**
  * The symbols a theme draws with.
@@ -9,7 +9,7 @@ const $I = $ScratchpadId.create("effected/cli/Glyphs");
  * **Example** (Validate a built-in glyph set)
  *
  * ```ts
- * import { GlyphSet, Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+ * import { GlyphSet, Glyphs } from "@beep/cli-kit/Glyphs"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(GlyphSet)(Glyphs.ascii)) // true
@@ -96,7 +96,7 @@ export interface GlyphSelectOptions {
  * **Example** (Select the terminal fallback)
  *
  * ```ts
- * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+ * import { Glyphs } from "@beep/cli-kit/Glyphs"
  *
  * console.log(Glyphs.select({ term: "dumb" }).kind) // ascii
  * ```
@@ -112,7 +112,7 @@ export abstract class Glyphs {
    * **Example** (Inspect the Unicode arrow)
    *
    * ```ts
-   * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+   * import { Glyphs } from "@beep/cli-kit/Glyphs"
    *
    * console.log(Glyphs.unicode.arrow) // →
    * ```
@@ -143,7 +143,7 @@ export abstract class Glyphs {
    * **Example** (Force Unicode on a dumb terminal)
    *
    * ```ts
-   * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+   * import { Glyphs } from "@beep/cli-kit/Glyphs"
    *
    * console.log(Glyphs.select({ ascii: false, term: "dumb" }).kind) // unicode
    * ```
@@ -163,7 +163,7 @@ export abstract class Glyphs {
    * **Example** (Inspect the ASCII arrow)
    *
    * ```ts
-   * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+   * import { Glyphs } from "@beep/cli-kit/Glyphs"
    *
    * console.log(Glyphs.ascii.arrow) // ->
    * ```

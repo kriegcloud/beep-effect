@@ -1,7 +1,7 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/cli/internal/isExitCode");
+const $I = $CliKitId.create("internal/isExitCode");
 
 const ExitCode = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 })).pipe(
   $I.annoteSchema("ExitCode", { description: "A POSIX process exit status: an integer from 0 through 255." })
@@ -15,7 +15,7 @@ const ExitCode = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 })).pipe(
  * **Example** (Validate POSIX exit status bounds)
  *
  * ```ts
- * import { isExitCode } from "@beep/scratchpad/effected/cli/internal/isExitCode"
+ * import { isExitCode } from "@beep/cli-kit/internal/isExitCode"
  *
  * console.log(isExitCode(255)) // true
  * console.log(isExitCode(256)) // false

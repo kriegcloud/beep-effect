@@ -1646,10 +1646,30 @@
       {
         "from": "@beep/cli-kit",
         "allow": [
-          "@beep/cli-kit"
+          "@beep/cli-kit",
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity",
+          "@beep/markdown",
+          "@beep/memfs",
+          "@beep/runtime-env",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
-          "@beep/cli-kit"
+          "@beep/cli-kit",
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity",
+          "@beep/markdown",
+          "@beep/memfs",
+          "@beep/runtime-env",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {

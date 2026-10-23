@@ -1,9 +1,9 @@
+import { Doc } from "@beep/cli-kit/Doc";
+import { renderMarkdown } from "@beep/cli-kit/internal/renderMarkdown";
+import { Render } from "@beep/cli-kit/Render";
+import { Status } from "@beep/cli-kit/Status";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Doc } from "../../../effected/cli/Doc.ts";
-import { renderMarkdown } from "../../../effected/cli/internal/renderMarkdown.ts";
-import { Render } from "../../../effected/cli/Render.ts";
-import { Status } from "../../../effected/cli/Status.ts";
 
 const ctx = Render.contextOf({ audience: "agent" });
 describe("renderMarkdown boundary branches", () => {

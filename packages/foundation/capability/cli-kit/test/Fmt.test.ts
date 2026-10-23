@@ -1,5 +1,5 @@
+import { Doc, Fmt, Render } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
-import { Doc, Fmt, Render } from "../../effected/cli/index.ts";
 
 describe("Fmt.duration", () => {
   const cases: ReadonlyArray<readonly [number, string]> = [

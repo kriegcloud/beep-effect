@@ -17,7 +17,7 @@ const ZERO2 = /^[\p{Mn}\p{Me}\p{Cf}\p{Cc}\u115F\u1160\u3164\uFFA0]+$/u;
  * **Example** (Remove a painted foreground)
  *
  * ```ts
- * import { stripAnsi } from "@beep/scratchpad/effected/cli/internal/displayWidth"
+ * import { stripAnsi } from "@beep/cli-kit/internal/displayWidth"
  *
  * console.log(stripAnsi("\u001b[31mready\u001b[39m")) // ready
  * ```
@@ -35,7 +35,7 @@ export const stripAnsi = (input: string): string => input.replace(ANSI, "");
  * **Example** (Measure wide and combining characters)
  *
  * ```ts
- * import { displayWidth } from "@beep/scratchpad/effected/cli/internal/displayWidth"
+ * import { displayWidth } from "@beep/cli-kit/internal/displayWidth"
  *
  * console.log(displayWidth("界e\u0301")) // 3
  * ```
@@ -59,7 +59,7 @@ export const displayWidth = (input: string): number => {
  * **Example** (Keep a combining sequence together)
  *
  * ```ts
- * import { graphemes } from "@beep/scratchpad/effected/cli/internal/displayWidth"
+ * import { graphemes } from "@beep/cli-kit/internal/displayWidth"
  *
  * console.log(JSON.stringify(graphemes("e\u0301x"))) // ["é","x"]
  * ```

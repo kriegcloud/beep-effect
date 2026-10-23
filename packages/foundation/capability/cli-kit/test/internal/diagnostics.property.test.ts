@@ -1,3 +1,4 @@
+import { formatNdjson } from "@beep/cli-kit/internal/diagnostics";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -5,7 +6,6 @@ import * as Cause from "effect/Cause";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { formatNdjson } from "../../../effected/cli/internal/diagnostics.ts";
 
 const date = DateTime.toDateUtc(DateTime.makeUnsafe("2026-01-01T00:00:00Z"));
 const runs = { arbitrary: fcRuns(100) };

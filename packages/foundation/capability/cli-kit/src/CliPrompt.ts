@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as CliConfig from "effect/cli/CliConfig";
@@ -17,7 +17,7 @@ import { WizardDropped } from "./internal/wizardGate.ts";
 import type * as Cause from "effect/Cause";
 import type * as Param from "effect/cli/Param";
 
-const $I = $ScratchpadId.create("effected/cli/CliPrompt");
+const $I = $CliKitId.create("CliPrompt");
 
 /**
  * Which missing parameter a fallback stands in for, so a non-interactive run can fail with core's own error.
@@ -25,7 +25,7 @@ const $I = $ScratchpadId.create("effected/cli/CliPrompt");
  * **Example** (Validate the parameter named by a fallback)
  *
  * ```ts
- * import { CliPromptTarget } from "@beep/scratchpad/effected/cli/CliPrompt"
+ * import { CliPromptTarget } from "@beep/cli-kit/CliPrompt"
  * import * as S from "effect/Schema"
  * console.log(S.is(CliPromptTarget)({ flag: "name" })) // true
  * console.log(S.is(CliPromptTarget)({ argument: "file" })) // true
@@ -77,7 +77,7 @@ export type CliPromptFallbackOptions<A> = CliPromptTarget & {
  * **Example** (Construct a non-interactive prompt fallback)
  *
  * ```ts
- * import { CliPrompt } from "@beep/scratchpad/effected/cli/CliPrompt"
+ * import { CliPrompt } from "@beep/cli-kit/CliPrompt"
  * import * as Effect from "effect/Effect"
  * import * as Prompt from "effect/cli/Prompt"
  * const program = CliPrompt.fallback(Prompt.succeed("Ada"), { flag: "name", otherwise: "guest" })
@@ -117,7 +117,7 @@ export abstract class CliPrompt {
    * **Example** (Construct a non-interactive prompt fallback)
    *
    * ```ts
-   * import { CliPrompt } from "@beep/scratchpad/effected/cli/CliPrompt"
+   * import { CliPrompt } from "@beep/cli-kit/CliPrompt"
    * import * as Effect from "effect/Effect"
    * import * as Prompt from "effect/cli/Prompt"
    * const program = CliPrompt.fallback(Prompt.succeed("Ada"), { flag: "name", otherwise: "guest" })
@@ -166,7 +166,7 @@ export abstract class CliPrompt {
    * **Example** (Construct the terminal input gate)
    *
    * ```ts
-   * import { CliPrompt } from "@beep/scratchpad/effected/cli/CliPrompt"
+   * import { CliPrompt } from "@beep/cli-kit/CliPrompt"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliPrompt.gateTerminal
@@ -214,7 +214,7 @@ export abstract class CliPrompt {
    * **Example** (Construct the wizard flag gate)
    *
    * ```ts
-   * import { CliPrompt } from "@beep/scratchpad/effected/cli/CliPrompt"
+   * import { CliPrompt } from "@beep/cli-kit/CliPrompt"
    * import * as Layer from "effect/Layer"
    *
    * const live = CliPrompt.gateWizard

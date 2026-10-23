@@ -1,3 +1,4 @@
+import { CliExit } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -6,10 +7,9 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
-import { CliExit } from "../../effected/cli/index.ts";
 
 class OtherExit extends Context.Service<OtherExit, Context.Service.Shape<typeof CliExit>>()(
-  "@beep/scratchpad/test/cli/CliExit.test/OtherExit"
+  "@beep/cli-kit/test/CliExit.test/OtherExit"
 ) {}
 
 describe("CliExit", () => {

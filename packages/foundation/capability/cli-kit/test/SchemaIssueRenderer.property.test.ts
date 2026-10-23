@@ -1,9 +1,9 @@
+import { SchemaIssueRenderer } from "@beep/cli-kit/SchemaIssueRenderer";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { SchemaIssueRenderer } from "../../effected/cli/SchemaIssueRenderer.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const target = S.Struct({ port: S.Finite });

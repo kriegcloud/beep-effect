@@ -1,11 +1,11 @@
+import { CliPromptTarget } from "@beep/cli-kit/CliPrompt";
+import { answerWithoutPerson } from "@beep/cli-kit/internal/fallbackAnswer";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { CliPromptTarget } from "../../effected/cli/CliPrompt.ts";
-import { answerWithoutPerson } from "../../effected/cli/internal/fallbackAnswer.ts";
-import type { CliPromptFallbackOptions } from "../../effected/cli/CliPrompt.ts";
+import type { CliPromptFallbackOptions } from "@beep/cli-kit/CliPrompt";
 
 const runs = { arbitrary: fcRuns(100) };
 

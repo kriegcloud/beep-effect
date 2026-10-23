@@ -7,10 +7,10 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { Doc } from "../../../effected/cli/Doc.ts";
-import { sanitize } from "../../../effected/cli/Fmt.ts";
-import { plainInline, renderPlain, renderPlainLines } from "../../../effected/cli/internal/renderPlain.ts";
-import { Render } from "../../../effected/cli/Render.ts";
+import { Doc } from "@beep/cli-kit/Doc";
+import { sanitize } from "@beep/cli-kit/Fmt";
+import { plainInline, renderPlain, renderPlainLines } from "@beep/cli-kit/internal/renderPlain";
+import { Render } from "@beep/cli-kit/Render";
 
 const ctx = Render.contextOf({ audience: "agent" });
 it.effect.prop(

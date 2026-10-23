@@ -6,8 +6,8 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { sanitize } from "../../../effected/cli/Fmt.ts";
-import { neutralizeJson, sanitizeParts } from "../../../effected/cli/internal/logSafety.ts";
+import { sanitize } from "@beep/cli-kit/Fmt";
+import { neutralizeJson, sanitizeParts } from "@beep/cli-kit/internal/logSafety";
 
 const Json = S.fromJsonString(S.Json);
 it.effect.prop(

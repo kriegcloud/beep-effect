@@ -54,9 +54,9 @@ const ansi: Flavour = {
  * **Example** (Render a paragraph)
  *
  * ```ts
- * import { renderAnsi } from "@beep/scratchpad/effected/cli/internal/renderAnsi"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { renderAnsi } from "@beep/cli-kit/internal/renderAnsi"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * console.log(renderAnsi([Doc.paragraph("Ready")], ctx)) // Ready
  * ```

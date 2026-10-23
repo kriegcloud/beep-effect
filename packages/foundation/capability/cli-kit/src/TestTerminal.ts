@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $CliKitId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import * as Terminal from "effect/Terminal";
 import type * as Cause from "effect/Cause";
 
-const $I = $ScratchpadId.create("effected/cli/TestTerminal");
+const $I = $CliKitId.create("TestTerminal");
 
 /**
  * One key press for {@link TestTerminal}.
@@ -22,7 +22,7 @@ const $I = $ScratchpadId.create("effected/cli/TestTerminal");
  * **Example** (Check a key press)
  *
  * ```ts
- * import { KeyInput } from "@beep/scratchpad/effected/cli/TestTerminal"
+ * import { KeyInput } from "@beep/cli-kit/TestTerminal"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(KeyInput)({ name: "c", ctrl: true })) // true
@@ -130,12 +130,12 @@ export interface TestTerminalHandle {
  * Queue keys with `input` or `type`, run the program under `layer`, then read `output`. To assert that a code path
  * did NOT touch the terminal, queue some keys first and check `reads` is all zero (no subscription, no key, no
  * line) and `pending` is unchanged afterwards. Only
- * available from the testing entry point `@beep/scratchpad/effected/cli/testing`.
+ * available from the testing entry point `@beep/cli-kit/testing`.
  *
  * **Example** (Inspect untouched queued input)
  *
  * ```ts
- * import { TestTerminal } from "@beep/scratchpad/effected/cli/TestTerminal"
+ * import { TestTerminal } from "@beep/cli-kit/TestTerminal"
  * import * as Effect from "effect/Effect"
  *
  * const program = Effect.gen(function* () {
@@ -161,7 +161,7 @@ export class TestTerminal {
    * **Example** (Create a terminal with a custom size)
    *
    * ```ts
-   * import { TestTerminal } from "@beep/scratchpad/effected/cli/TestTerminal"
+   * import { TestTerminal } from "@beep/cli-kit/TestTerminal"
    * import * as Effect from "effect/Effect"
    *
    * import * as Terminal from "effect/Terminal"

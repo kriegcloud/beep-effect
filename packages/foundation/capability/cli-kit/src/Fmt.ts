@@ -48,7 +48,7 @@ const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
  * **Example** (Remove terminal controls)
  *
  * ```ts
- * import { sanitize } from "@beep/scratchpad/effected/cli/Fmt"
+ * import { sanitize } from "@beep/cli-kit/Fmt"
  *
  * console.log(sanitize("hello\tworld")) // hello world
  * ```
@@ -65,7 +65,7 @@ export const sanitize = (input: string): string => stripAnsi(input).replace(/\t/
  * **Example** (Format a test count)
  *
  * ```ts
- * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+ * import { Fmt } from "@beep/cli-kit/Fmt"
  *
  * console.log(Fmt.plural(2, "test")) // 2 tests
  * ```
@@ -88,7 +88,7 @@ export abstract class Fmt {
    * **Example** (Sanitize untrusted output)
    *
    * ```ts
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+   * import { Fmt } from "@beep/cli-kit/Fmt"
    *
    * console.log(Fmt.sanitize("hello\tworld")) // hello world
    * ```
@@ -106,7 +106,7 @@ export abstract class Fmt {
    * **Example** (Measure wide characters)
    *
    * ```ts
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+   * import { Fmt } from "@beep/cli-kit/Fmt"
    *
    * console.log(Fmt.width("界")) // 2
    * ```
@@ -131,7 +131,7 @@ export abstract class Fmt {
    * **Example** (Fit text to three columns)
    *
    * ```ts
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+   * import { Fmt } from "@beep/cli-kit/Fmt"
    *
    * console.log(Fmt.truncate("hello", 3)) // he…
    * ```
@@ -188,7 +188,7 @@ export abstract class Fmt {
    * **Example** (Format minutes and seconds)
    *
    * ```ts
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+   * import { Fmt } from "@beep/cli-kit/Fmt"
    *
    * console.log(Fmt.duration(63000)) // 1m 3s
    * ```
@@ -226,7 +226,7 @@ export abstract class Fmt {
    * **Example** (Format a ratio)
    *
    * ```ts
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+   * import { Fmt } from "@beep/cli-kit/Fmt"
    *
    * console.log(Fmt.percent(0.833)) // 83.3%
    * ```
@@ -254,7 +254,7 @@ export abstract class Fmt {
    * **Example** (Choose an irregular plural)
    *
    * ```ts
-   * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt"
+   * import { Fmt } from "@beep/cli-kit/Fmt"
    *
    * console.log(Fmt.plural(2, "child", "children")) // 2 children
    * ```

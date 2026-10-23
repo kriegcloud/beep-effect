@@ -1,10 +1,10 @@
+import { NotInteractive } from "@beep/cli-kit/NotInteractive";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { NotInteractive } from "../../effected/cli/NotInteractive.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

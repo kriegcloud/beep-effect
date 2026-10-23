@@ -1,6 +1,6 @@
+import { displayWidth, graphemes, stripAnsi } from "@beep/cli-kit/internal/displayWidth";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { displayWidth, graphemes, stripAnsi } from "../../../effected/cli/internal/displayWidth.ts";
 
 it.effect("counts first Unicode scalars, grapheme clusters and escape-free terminal columns", () =>
   Effect.sync(() => {

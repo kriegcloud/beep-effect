@@ -1,6 +1,6 @@
+import { TestTerminal } from "@beep/cli-kit/TestTerminal";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { TestTerminal } from "../../effected/cli/TestTerminal.ts";
 
 describe("TestTerminal regressions", () => {
   it.effect("input offered after end is never counted as read without a reader", () =>

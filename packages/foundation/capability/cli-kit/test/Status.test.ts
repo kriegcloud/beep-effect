@@ -1,8 +1,8 @@
+import { Glyphs, Status, Token } from "@beep/cli-kit";
 import { assert, describe, it } from "@effect/vitest";
 import * as O from "effect/Option";
-import { Glyphs, Status, Token } from "../../effected/cli/index.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type { CoreStatusName } from "../../effected/cli/index.ts";
+import type { CoreStatusName } from "@beep/cli-kit";
 
 describe("Status.core", () => {
   it("holds the six core statuses with their ranks", () => {
@@ -67,7 +67,7 @@ describe("Status.extend", () => {
   });
 
   it("rejects a name the vocabulary does not have at compile time", () => {
-    // @ts-expect-error -- "unknown-status" is not a status name. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
+    // @ts-expect-error -- "unknown-status" is not a status name. Owner: @beep/cli-kit. Exit: remove if the API is meant to accept this.
     assert.throws(() => assert.isUndefined(vocab.def("unknown-status").rank));
   });
 });

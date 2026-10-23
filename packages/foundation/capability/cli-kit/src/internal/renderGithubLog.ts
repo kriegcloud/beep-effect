@@ -77,9 +77,9 @@ const blockLines: {
  * **Example** (Render a paragraph)
  *
  * ```ts
- * import { renderGithubLog } from "@beep/scratchpad/effected/cli/internal/renderGithubLog"
- * import { Doc } from "@beep/scratchpad/effected/cli/Doc"
- * import { Render } from "@beep/scratchpad/effected/cli/Render"
+ * import { renderGithubLog } from "@beep/cli-kit/internal/renderGithubLog"
+ * import { Doc } from "@beep/cli-kit/Doc"
+ * import { Render } from "@beep/cli-kit/Render"
  * const ctx = Render.contextOf({ audience: "human", color: "none" })
  * console.log(renderGithubLog([Doc.paragraph("Ready")], ctx)) // Ready
  * ```

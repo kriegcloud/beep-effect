@@ -1,11 +1,11 @@
+import { CliTheme } from "@beep/cli-kit/CliTheme";
+import { Fmt } from "@beep/cli-kit/Fmt";
+import { Status } from "@beep/cli-kit/Status";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { CliTheme } from "../../effected/cli/CliTheme.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
-import { Status } from "../../effected/cli/Status.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

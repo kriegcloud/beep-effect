@@ -1,10 +1,10 @@
+import { Cancelled } from "@beep/cli-kit/Cancelled";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-import { Cancelled } from "../../effected/cli/Cancelled.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

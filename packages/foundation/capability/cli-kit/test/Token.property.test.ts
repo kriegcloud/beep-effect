@@ -1,10 +1,10 @@
+import { NamedColor, Style, Token, TokenName } from "@beep/cli-kit/Token";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { NamedColor, Style, Token, TokenName } from "../../effected/cli/Token.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

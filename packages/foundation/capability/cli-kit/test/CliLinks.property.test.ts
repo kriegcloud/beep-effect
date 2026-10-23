@@ -1,3 +1,5 @@
+import { ambientLinksLayer, CliLinks } from "@beep/cli-kit/CliLinks";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { assert, it } from "@effect/vitest";
@@ -7,8 +9,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ambientLinksLayer, CliLinks } from "../../effected/cli/CliLinks.ts";
-import { Fmt } from "../../effected/cli/Fmt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.layer(CliLinks.layerTest("file"), { timeout: "30 seconds" })((it) => {

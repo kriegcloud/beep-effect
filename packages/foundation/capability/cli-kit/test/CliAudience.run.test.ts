@@ -1,3 +1,5 @@
+import { CliAudience, CliInteractive, CliPrompt, CliRuntime } from "@beep/cli-kit";
+import { TestTerminal } from "@beep/cli-kit/testing";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { AudienceShape } from "@beep/runtime-env/Audience";
@@ -26,8 +28,6 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliAudience, CliInteractive, CliPrompt, CliRuntime } from "../../effected/cli/index.ts";
-import { TestTerminal } from "../../effected/cli/testing.ts";
 
 const gateLayer = (interactive: boolean, builtIns: ReadonlyArray<GlobalFlag.BuiltIn> = GlobalFlag.BuiltIns) =>
   CliPrompt.gateWizard.pipe(
@@ -53,7 +53,7 @@ const makeFixtures = Effect.gen(function* () {
   };
 });
 class Fixtures extends Context.Service<Fixtures, Effect.Success<typeof makeFixtures>>()(
-  "@beep/scratchpad/test/cli/CliAudience.run.test/Fixtures"
+  "@beep/cli-kit/test/CliAudience.run.test/Fixtures"
 ) {}
 const fixturesLayer = Layer.effect(Fixtures, makeFixtures);
 

@@ -12,7 +12,7 @@ import type { TerminalEnvShape } from "@beep/runtime-env";
  * **Example** (Refuse a prompt with redirected input)
  *
  * ```ts
- * import { canPrompt } from "@beep/scratchpad/effected/cli/internal/canPrompt"
+ * import { canPrompt } from "@beep/cli-kit/internal/canPrompt"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
  * import { StreamEnv, TerminalSnapshot } from "@beep/runtime-env/TerminalEnv"

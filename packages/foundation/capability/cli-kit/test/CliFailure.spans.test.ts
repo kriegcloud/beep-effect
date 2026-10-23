@@ -1,3 +1,4 @@
+import { CliAudience, CliFailure, CliRuntime, Render } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";
@@ -13,8 +14,7 @@ import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliAudience, CliFailure, CliRuntime, Render } from "../../effected/cli/index.ts";
-import type { CliFailureOptions, CliLogOptions, FailureDetails } from "../../effected/cli/index.ts";
+import type { CliFailureOptions, CliLogOptions, FailureDetails } from "@beep/cli-kit";
 
 const platformServices = Layer.mergeAll(
   Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),

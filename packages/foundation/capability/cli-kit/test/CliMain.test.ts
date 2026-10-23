@@ -1,3 +1,4 @@
+import { CliExit, CliRuntime } from "@beep/cli-kit";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess } from "@effect/vitest/utils";
@@ -18,7 +19,6 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliExit, CliRuntime } from "../../effected/cli/index.ts";
 
 const platformServices = Layer.mergeAll(
   Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),
@@ -47,7 +47,7 @@ class TestError extends Data.TaggedError("TestError")<{ readonly message: string
 }
 
 class Platform extends Context.Service<Platform, { readonly name: string }>()(
-  "@beep/scratchpad/test/cli/CliMain.test/Platform"
+  "@beep/cli-kit/test/CliMain.test/Platform"
 ) {}
 
 const capturing = () => {

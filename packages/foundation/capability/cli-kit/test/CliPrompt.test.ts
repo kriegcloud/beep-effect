@@ -1,6 +1,9 @@
+import { CliInteractive, CliPrompt, CliRuntime } from "@beep/cli-kit";
+import { CliPromptTarget } from "@beep/cli-kit/CliPrompt";
+import { TestTerminal } from "@beep/cli-kit/testing";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, TerminalEnv } from "@beep/runtime-env";
-// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+// @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); multipleEffectProvide because the sequential provides keep the layer order the assertions depend on. Owner: @beep/cli-kit. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -19,11 +22,8 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { CliPromptTarget } from "../../effected/cli/CliPrompt.ts";
-import { CliInteractive, CliPrompt, CliRuntime } from "../../effected/cli/index.ts";
-import { TestTerminal } from "../../effected/cli/testing.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type { TestTerminalHandle } from "../../effected/cli/testing.ts";
+import type { TestTerminalHandle } from "@beep/cli-kit/testing";
 
 const platformServices = Layer.mergeAll(
   Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),
