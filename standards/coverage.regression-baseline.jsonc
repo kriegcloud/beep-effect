@@ -7728,15 +7728,15 @@
     },
     "@beep/epistemic-domain": {
       "path": "packages/epistemic/domain",
-      "lines": 92.36,
-      "statements": 90.07,
+      "lines": 100,
+      "statements": 100,
       "branches": 100,
-      "functions": 61.64,
+      "functions": 100,
       "uncovered": {
-        "lines": 20,
-        "statements": 28,
+        "lines": 0,
+        "statements": 0,
         "branches": 0,
-        "functions": 28
+        "functions": 0
       },
       "files": {
         "packages/epistemic/domain/src/entities/Activity/Activity.model.ts": {
