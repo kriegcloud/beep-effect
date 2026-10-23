@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "commit": "4d7a18f37f3051d3d1632d1823d07caa981cf05b",
+  "commit": "700ced315ab9d56761354c0f3f9d556cb58cd5c2",
   "tool": "goals/effected-promotion/ops/lockfiles-adoption-parity.ts",
-  "generatedAt": "2026-10-23T21:34:04.102Z",
+  "generatedAt": "2026-10-23T21:34:37.226Z",
   "lockfile": "bun.lock",
   "packagesKeys": 3347,
   "names": {
@@ -207,8 +207,8 @@
   },
   "timing": {
     "runs": 15,
-    "legacyMedianMs": 10.2,
-    "kitMedianMs": 160.2
+    "legacyMedianMs": 16.8,
+    "kitMedianMs": 316.4
   },
   "ok": true
 }
