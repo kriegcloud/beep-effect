@@ -6,7 +6,7 @@ import { AppendFileSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { expect, vi } from "@effect/vitest";
-import { assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
@@ -53,7 +53,7 @@ it.layer(NodePath.layer)("FileSystem watch wrapper", (it) =>
 
       assertSome(yield* waitForFile(directory, "target.txt"), event);
       assertSome(yield* pipe(directory, waitForFile("target.txt")), event);
-      expect(yield* waitForFile(directory, "missing.txt")).toEqual(Option.none());
+      assertNone(yield* waitForFile(directory, "missing.txt"));
     })
   )
 );
