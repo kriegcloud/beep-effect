@@ -20,6 +20,7 @@ import {
   ManField,
   OpenRecordField,
   OverridesField,
+  OverrideValue,
   StringListField,
   StringRecordField,
   TypesVersionsField,
@@ -27,6 +28,7 @@ import {
   WorkspacesField,
 } from "@beep/package-json/ManifestFields";
 import { Package } from "@beep/package-json/Package";
+import { PackageJsonFormat } from "@beep/package-json/PackageJsonFormat";
 import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFalse, assertTrue, assertUndefined, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
@@ -284,4 +286,104 @@ describe("ManifestFields property", () => {
       }),
     { arbitrary: fcRuns(25) }
   );
+});
+
+const Json = S.fromJsonString(S.Unknown);
+
+// Typing a field moves it out of `rest`, which changes the RAW schema-encode
+// key order (`{ ...rest, ...known }`). That order is not a contract: the
+// formatted output is, and `toJsonString` sorts by the canonical key order
+// whatever the typing. Pin it byte-for-byte against the decode-free
+// `PackageJsonFormat` text path, which never types a field.
+describe("ManifestFields formatted output", () => {
+  const shuffled = JSON.stringify({
+    trustedDependencies: ["esbuild"],
+    catalog: { effect: "4.0.0" },
+    workspaces: ["packages/*"],
+    readme: "README.md",
+    overrides: { foo: { ".": "1.0.0" } },
+    types: "./dist/index.d.ts",
+    name: "@scope/pkg",
+    patchedDependencies: { "foo@1.0.0": "patches/foo.patch" },
+    libc: ["glibc"],
+    os: ["linux"],
+    version: "1.0.0",
+    files: ["dist"],
+    sideEffects: false,
+    typesVersions: { "*": { "*": ["dist/*"] } },
+    "x-tool": true,
+  });
+  const canonical = [
+    "{",
+    '  "name": "@scope/pkg",',
+    '  "version": "1.0.0",',
+    '  "sideEffects": false,',
+    '  "types": "./dist/index.d.ts",',
+    '  "typesVersions": {',
+    '    "*": {',
+    '      "*": [',
+    '        "dist/*"',
+    "      ]",
+    "    }",
+    "  },",
+    '  "files": [',
+    '    "dist"',
+    "  ],",
+    '  "workspaces": [',
+    '    "packages/*"',
+    "  ],",
+    '  "overrides": {',
+    '    "foo": {',
+    '      ".": "1.0.0"',
+    "    }",
+    "  },",
+    '  "os": [',
+    '    "linux"',
+    "  ],",
+    '  "catalog": {',
+    '    "effect": "4.0.0"',
+    "  },",
+    '  "libc": [',
+    '    "glibc"',
+    "  ],",
+    '  "patchedDependencies": {',
+    '    "foo@1.0.0": "patches/foo.patch"',
+    "  },",
+    '  "readme": "README.md",',
+    '  "trustedDependencies": [',
+    '    "esbuild"',
+    "  ],",
+    '  "x-tool": true',
+    "}",
+    "",
+  ].join("\n");
+
+  it.effect("the decode-free text path yields the canonical text", () =>
+    Effect.gen(function* () {
+      strictEqual(yield* Effect.fromResult(PackageJsonFormat.formatToString(shuffled)), canonical);
+    })
+  );
+
+  it.effect("Package.toJsonString matches the decode-free text path byte-for-byte", () =>
+    Effect.gen(function* () {
+      const pkg = yield* Package.decode(yield* S.decodeEffect(Json)(shuffled));
+      strictEqual(pkg.toJsonString(), canonical);
+    })
+  );
+
+  it.effect("PackageManifest.toJsonString matches the decode-free text path byte-for-byte", () =>
+    Effect.gen(function* () {
+      const manifest = yield* PackageManifest.decode(yield* S.decodeEffect(Json)(shuffled));
+      strictEqual(manifest.toJsonString(), canonical);
+    })
+  );
+});
+
+describe("OverrideValue", () => {
+  it("guards a specifier and a nested override object, and rejects a non-string leaf", () => {
+    const is = S.is(OverrideValue);
+    assertTrue(is("1.0.0"));
+    assertTrue(is({ ".": "1.0.0", bar: { baz: "2.0.0" } }));
+    assertFalse(is({ bar: 1 }));
+  });
 });

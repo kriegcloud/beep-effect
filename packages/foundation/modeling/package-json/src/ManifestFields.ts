@@ -215,19 +215,35 @@ export type BooleanOrStringListField = typeof BooleanOrStringListField.Type;
  * overrides scoped under a dependency (where the `"."` key overrides the
  * dependency itself).
  *
+ * **Example** (Guard a nested override value)
+ *
+ * ```ts
+ * import { OverrideValue } from "@beep/package-json/ManifestFields";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(OverrideValue)({ ".": "1.0.0", bar: "2.0.0" })); // true
+ * ```
+ *
  * @public
- * @category type-level
+ * @category schemas
  * @since 0.0.0
  */
-export type OverrideValue = string | { readonly [key: string]: OverrideValue };
-
-const OverrideValueSchema = S.suspend(
-  (): S.Codec<OverrideValue> => S.Union([S.String, S.Record(S.String, OverrideValueSchema)])
+export const OverrideValue = S.suspend(
+  (): S.Codec<OverrideValue> => S.Union([S.String, S.Record(S.String, OverrideValue)])
 ).pipe(
   $I.annoteSchema("OverrideValue", {
     description: "An npm overrides value: a replacement specifier or a nested object of scoped overrides.",
   })
 );
+
+/**
+ * Decoded value produced by {@link OverrideValue}: a replacement specifier or
+ * a nested object of scoped overrides.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type OverrideValue = string | { readonly [key: string]: OverrideValue };
 
 /**
  * The npm `overrides` field: dependency names mapped to a replacement
@@ -246,7 +262,7 @@ const OverrideValueSchema = S.suspend(
  * @category schemas
  * @since 0.0.0
  */
-export const OverridesField = S.Record(S.String, OverrideValueSchema).pipe(
+export const OverridesField = S.Record(S.String, OverrideValue).pipe(
   $I.annoteSchema("OverridesField", {
     description: "Dependency names mapped to a replacement specifier or a nested object of scoped overrides.",
   })

@@ -32,6 +32,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { BooleanOrStringListField, ManField, StringListField } from "./ManifestFields.ts";
 import { ExportsField, PackageDecodeError, PublishConfigField } from "./Package.ts";
 import { PackageJsonSyntaxError } from "./PackageJsonFormat.ts";
 
@@ -105,8 +106,6 @@ export declare namespace LenientFieldIssue {
 const StringRecord = S.Record(S.String, S.String);
 const UnknownRecord = S.Record(S.String, S.Unknown);
 const StringOrRecord = S.Union([S.String, UnknownRecord]);
-const StringList = S.Array(S.String);
-const BooleanOrStringList = S.Union([S.Boolean, StringList]);
 
 // ── The permissive-shape guards backing the sift ────────────────────────────
 
@@ -115,7 +114,7 @@ const isBoolean = P.isBoolean;
 const isPlainRecord: (value: unknown) => value is Record<string, unknown> = P.isObject;
 const isStringRecord = (value: unknown): value is Record<string, string> =>
   isPlainRecord(value) && A.every(R.values(value), isString);
-const isStringArray = (value: unknown): value is ReadonlyArray<string> => A.isArray(value) && A.every(value, isString);
+const isStringArray = S.is(StringListField);
 const isStringOrRecord = (value: unknown): value is string | Record<string, unknown> =>
   isString(value) || isPlainRecord(value);
 const isStringOrRecordArray = (value: unknown): value is ReadonlyArray<string | Record<string, unknown>> =>
@@ -134,7 +133,7 @@ const booleanGuard: FieldGuard = { expected: "a boolean", test: isBoolean };
 const stringArrayGuard: FieldGuard = { expected: "an array of strings", test: isStringArray };
 const booleanOrStringArrayGuard: FieldGuard = {
   expected: "a boolean or an array of strings",
-  test: (value) => isBoolean(value) || isStringArray(value),
+  test: S.is(BooleanOrStringListField),
 };
 
 // A Map, not a plain object: a manifest key like `"toString"` or
@@ -177,7 +176,7 @@ const FIELD_GUARDS = HashMap.fromIterable<string, FieldGuard>([
   ["imports", recordGuard],
   ["module", stringGuard],
   ["browser", stringOrRecordGuard],
-  ["man", { expected: "a string or an array of strings", test: (v) => isString(v) || isStringArray(v) }],
+  ["man", { expected: "a string or an array of strings", test: S.is(ManField) }],
   ["directories", stringRecordGuard],
   ["config", recordGuard],
   ["bundleDependencies", booleanOrStringArrayGuard],
@@ -188,7 +187,7 @@ const FIELD_GUARDS = HashMap.fromIterable<string, FieldGuard>([
   ["cpu", stringArrayGuard],
   ["libc", stringArrayGuard],
   ["preferGlobal", booleanGuard],
-  ["workspaces", { expected: "an array of strings or an object", test: (v) => isStringArray(v) || isPlainRecord(v) }],
+  ["workspaces", { expected: "an array of strings or an object", test: P.or(isStringArray, isPlainRecord) }],
   ["sideEffects", booleanOrStringArrayGuard],
   ["types", stringGuard],
   ["typings", stringGuard],
@@ -445,7 +444,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
           "Development environment constraints from the manifest, preserved without validating individual engine entries",
       })
     ),
-    files: S.optionalKey(StringList).pipe(
+    files: S.optionalKey(StringListField).pipe(
       $I.annoteKey("LenientManifest.files", {
         description: "File globs included when the package is packed, preserved without glob validation",
       })
@@ -465,7 +464,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
         description: "The browser entry point or module replacement map, preserved without validating targets",
       })
     ),
-    man: S.optionalKey(S.Union([S.String, StringList])).pipe(
+    man: S.optionalKey(ManField).pipe(
       $I.annoteKey("LenientManifest.man", { description: "Man page paths, declared as one path or a list of paths" })
     ),
     directories: S.optionalKey(StringRecord).pipe(
@@ -478,12 +477,12 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
         description: "Script configuration values, preserved without validating their contents",
       })
     ),
-    bundleDependencies: S.optionalKey(BooleanOrStringList).pipe(
+    bundleDependencies: S.optionalKey(BooleanOrStringListField).pipe(
       $I.annoteKey("LenientManifest.bundleDependencies", {
         description: "Bundled dependency names, or a flag bundling every dependency",
       })
     ),
-    bundledDependencies: S.optionalKey(BooleanOrStringList).pipe(
+    bundledDependencies: S.optionalKey(BooleanOrStringListField).pipe(
       $I.annoteKey("LenientManifest.bundledDependencies", {
         description: "The `bundledDependencies` alias for bundled dependency names or the bundle-everything flag",
       })
@@ -498,17 +497,17 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
         description: "The deprecated npm flag making engine mismatches fatal",
       })
     ),
-    os: S.optionalKey(StringList).pipe(
+    os: S.optionalKey(StringListField).pipe(
       $I.annoteKey("LenientManifest.os", {
         description: "Operating systems the package declares support for, preserved without validating names",
       })
     ),
-    cpu: S.optionalKey(StringList).pipe(
+    cpu: S.optionalKey(StringListField).pipe(
       $I.annoteKey("LenientManifest.cpu", {
         description: "CPU architectures the package declares support for, preserved without validating names",
       })
     ),
-    libc: S.optionalKey(StringList).pipe(
+    libc: S.optionalKey(StringListField).pipe(
       $I.annoteKey("LenientManifest.libc", {
         description: "C standard libraries the package declares support for, preserved without validating names",
       })
@@ -518,12 +517,12 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
         description: "The deprecated npm hint that the package prefers a global install",
       })
     ),
-    workspaces: S.optionalKey(S.Union([StringList, UnknownRecord])).pipe(
+    workspaces: S.optionalKey(S.Union([StringListField, UnknownRecord])).pipe(
       $I.annoteKey("LenientManifest.workspaces", {
         description: "Workspace globs as a list, or the workspaces object preserved without validating its keys",
       })
     ),
-    sideEffects: S.optionalKey(BooleanOrStringList).pipe(
+    sideEffects: S.optionalKey(BooleanOrStringListField).pipe(
       $I.annoteKey("LenientManifest.sideEffects", {
         description: "The bundler side-effect flag or the side-effectful file globs",
       })
@@ -553,7 +552,7 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
         description: "Patched package specifiers mapped to patch file paths",
       })
     ),
-    trustedDependencies: S.optionalKey(StringList).pipe(
+    trustedDependencies: S.optionalKey(StringListField).pipe(
       $I.annoteKey("LenientManifest.trustedDependencies", {
         description: "Package names allowed to run lifecycle scripts at install",
       })

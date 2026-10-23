@@ -71,7 +71,7 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-5 (#2159, in review) | `@beep/lockfiles`; lab workspaces retargets | main |
 | 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
 | R0 | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
-| 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
+| 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, checked against the npm docs: absent there, sourced from the OpenJS proposal and pnpm) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
 | 3-A8 | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |

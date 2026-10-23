@@ -52,7 +52,7 @@ export {
   ManField,
   OpenRecordField,
   OverridesField,
-  type OverrideValue,
+  OverrideValue,
   StringListField,
   StringRecordField,
   TypesVersionsField,
