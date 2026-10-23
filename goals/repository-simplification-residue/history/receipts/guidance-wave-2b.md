@@ -451,3 +451,12 @@ reasons are quoted without their `Owner`/`Exit` tail, which is in the source lin
 | `vitest.setup.ts` | 24 | `@effect-diagnostics` `globalRandom:skip-file` | kept | admitted exemption (globalRandom:skip-file); reason in the comment block above, as `beep quality tsgo-rules` compares the line exactly |
 | `vitest.setup.ts` | 24 (base) | `@effect-diagnostics` `processEnv:skip-file` | stale, deleted | no processEnv finding in the file (`env: process.env` passes the object and is not flagged); the exemption rule left the `Quality.command.ts` table and its test |
 | `vitest.shared.ts` | 4 | `@effect-diagnostics` `nodeBuiltinImport:skip-file` | kept | admitted exemption (nodeBuiltinImport:skip-file); reason in the comment block above, as `beep quality tsgo-rules` compares the line exactly |
+
+## Main merge note (2026-10-23)
+
+Main deleted three scratchpad files whose directives this wave had annotated:
+`scratchpad/test/markdown/e2e/support/corpus.ts`, `e2e/support/span.ts` and
+`tools/generate-entities.ts`. Effected promotion graduated the markdown module into
+`@beep/markdown` (`packages/foundation/modeling/markdown`). That meets the stated exit
+condition, so the three directives leave with the files, and the merge keeps main's
+deletion.
