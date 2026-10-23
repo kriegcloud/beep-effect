@@ -11,12 +11,13 @@
 // value so the json codec fails typed on an empty capture.
 
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { JsoncParseError } from "@beep/jsonc/Jsonc";
+import { Jsonc, JsoncParseError } from "@beep/jsonc/Jsonc";
 import {
   FrontmatterCodec,
   FrontmatterDecodeError,
   FrontmatterEncodeError,
   FrontmatterFormatMismatchError,
+  FrontmatterKeyError,
 } from "@beep/markdown/Frontmatter";
 import { JsonFrontmatter } from "@beep/markdown/JsonFrontmatter";
 import { Markdown, MarkdownParseOptions } from "@beep/markdown/Markdown";
@@ -24,7 +25,7 @@ import { Frontmatter, Point, Position } from "@beep/markdown/MarkdownNode";
 import { TomlFrontmatter } from "@beep/markdown/TomlFrontmatter";
 import { YamlFrontmatter } from "@beep/markdown/YamlFrontmatter";
 import { TomlParseError } from "@beep/toml/Toml";
-import { YamlParseError } from "@beep/yaml/Yaml";
+import { Yaml, YamlParseError } from "@beep/yaml/Yaml";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -56,6 +57,17 @@ const parsedCapture = (source: string) =>
     }
     return head;
   });
+
+/** The FrontmatterKeyError a codec's synchronous decode fails with. */
+const keyFailure = (codec: FrontmatterCodec, value: string): FrontmatterKeyError => {
+  const failure = codec.decodeResult(capture(codec.format, value)).pipe(Result.flip, Result.getOrThrow);
+  assert.instanceOf(failure, FrontmatterDecodeError);
+  assert.strictEqual(failure.format, codec.format);
+  const cause = S.is(FrontmatterDecodeError)(failure) ? failure.cause : undefined;
+  assert.instanceOf(cause, FrontmatterKeyError);
+  if (!S.is(FrontmatterKeyError)(cause)) throw new TypeError("unreachable: asserted the cause above");
+  return cause;
+};
 
 describe("frontmatter codecs", () => {
   describe("YamlFrontmatter", () => {
@@ -94,6 +106,66 @@ describe("frontmatter codecs", () => {
         assert.strictEqual(error.actual, "toml");
       })
     );
+
+    // #2138: a frontmatter value is a JSON-compatible object, so keys and
+    // collections yaml can express but a JSON object cannot fail typed
+    // instead of being rewritten (`{"": "c"}`, `{"a b": null}`).
+    it("rejects a complex sequence key instead of rewriting it to the empty key", () => {
+      const cause = keyFailure(YamlFrontmatter, "? [a, b]\n: c\n");
+      assert.strictEqual(cause.reason, "ComplexKey");
+      assert.strictEqual(cause.offset, 2);
+      assert.strictEqual(cause.length, 6);
+    });
+
+    it("rejects a complex mapping key nested below the root", () => {
+      const cause = keyFailure(YamlFrontmatter, "outer:\n  ? {x: 1}\n  : c\n");
+      assert.strictEqual(cause.reason, "ComplexKey");
+    });
+
+    it("rejects an alias key whose anchor is a collection", () => {
+      const cause = keyFailure(YamlFrontmatter, "base: &b [1]\n*b : x\n");
+      assert.strictEqual(cause.reason, "ComplexKey");
+    });
+
+    it("rejects a !!set collection, flow or block, verbatim tag included", () => {
+      for (const text of [
+        "tags: !!set {a, b}\n",
+        "tags: !!set\n  ? a\n  ? b\n",
+        "tags: !<tag:yaml.org,2002:set> {a}\n",
+      ]) {
+        assert.strictEqual(keyFailure(YamlFrontmatter, text).reason, "SetCollection");
+      }
+    });
+
+    it("still decodes scalar keys, scalar alias keys and merge keys", () => {
+      assert.deepStrictEqual(Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", "x: &k name\n*k : 2\n"))), {
+        x: "name",
+        name: 2,
+      });
+      assert.deepStrictEqual(
+        Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", "base: &b {a: 1}\nown:\n  <<: *b\n  c: 2\n"))),
+        { base: { a: 1 }, own: { "<<": { a: 1 }, c: 2 } }
+      );
+      assert.deepStrictEqual(Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", "1: one\ntrue: yes\n"))), {
+        1: "one",
+        true: "yes",
+      });
+    });
+
+    it("still decodes an explicit key with no value", () => {
+      assert.deepStrictEqual(Result.getOrThrow(YamlFrontmatter.decodeResult(capture("yaml", "? a\nb: 1\n"))), {
+        a: null,
+        b: 1,
+      });
+    });
+
+    it("keeps the engine's parse failure ahead of the key check", () => {
+      const failure = YamlFrontmatter.decodeResult(capture("yaml", "? [a]\n: 1\nb: [\n")).pipe(
+        Result.flip,
+        Result.getOrThrow
+      );
+      assert.isTrue(S.is(FrontmatterDecodeError)(failure) && S.is(YamlParseError)(failure.cause));
+    });
   });
 
   describe("TomlFrontmatter", () => {
@@ -181,6 +253,66 @@ describe("frontmatter codecs", () => {
         assert.strictEqual(error.actual, "yaml");
       })
     );
+
+    // #2138: duplicate keys fail typed, as they do for the yaml and toml
+    // codecs, instead of resolving last-wins.
+    it("rejects a duplicate key instead of resolving it last-wins", () => {
+      const cause = keyFailure(JsonFrontmatter, '{"a": 1, "a": 2}');
+      assert.strictEqual(cause.reason, "DuplicateKey");
+      assert.strictEqual(cause.offset, 9);
+      assert.strictEqual(cause.length, 3);
+    });
+
+    it("rejects a duplicate key in a nested object, escaped spellings included", () => {
+      const cause = keyFailure(JsonFrontmatter, '{"outer": {"b": 1, "\\u0062": 2}}');
+      assert.strictEqual(cause.reason, "DuplicateKey");
+    });
+
+    it("still decodes the same key in sibling objects", () => {
+      assert.deepStrictEqual(
+        Result.getOrThrow(
+          JsonFrontmatter.decodeResult(capture("json", '{"x": {"a": 1}, "y": {"a": 2}, "z": [{"a": 3}]}'))
+        ),
+        { x: { a: 1 }, y: { a: 2 }, z: [{ a: 3 }] }
+      );
+    });
+
+    it("rejects duplicates alike in all three codecs", () => {
+      const yaml = YamlFrontmatter.decodeResult(capture("yaml", "a: 1\na: 2\n")).pipe(Result.flip, Result.getOrThrow);
+      const toml = TomlFrontmatter.decodeResult(capture("toml", "a = 1\na = 2\n")).pipe(Result.flip, Result.getOrThrow);
+      const json = JsonFrontmatter.decodeResult(capture("json", '{"a": 1, "a": 2}')).pipe(
+        Result.flip,
+        Result.getOrThrow
+      );
+      for (const failure of [yaml, toml, json]) {
+        assert.instanceOf(failure, FrontmatterDecodeError);
+      }
+    });
+  });
+
+  // The #2138 shift lives in the frontmatter layer only: the engines keep
+  // their general-purpose projections for every other consumer. These pin the
+  // inverted pairs — the engine result the codec used to return, next to the
+  // codec rejection that replaces it.
+  describe("behaviour shift pins (#2138)", () => {
+    it("Yaml.parseResult still projects complex keys and sets; the codec rejects them", () => {
+      assert.deepStrictEqual(Result.getOrThrow(Yaml.parseResult("? [a, b]\n: c\n")), { "": "c" });
+      assert.deepStrictEqual(Result.getOrThrow(Yaml.parseResult("tags: !!set\n  ? a\n")), { tags: { a: null } });
+      assert.strictEqual(keyFailure(YamlFrontmatter, "? [a, b]\n: c\n").reason, "ComplexKey");
+      assert.strictEqual(keyFailure(YamlFrontmatter, "tags: !!set\n  ? a\n").reason, "SetCollection");
+    });
+
+    it("Jsonc.parseResult still resolves duplicates last-wins; the codec rejects them", () => {
+      assert.deepStrictEqual(Result.getOrThrow(Jsonc.parseResult('{"a": 1, "a": 2}')), { a: 2 });
+      assert.strictEqual(keyFailure(JsonFrontmatter, '{"a": 1, "a": 2}').reason, "DuplicateKey");
+    });
+
+    it("renders the key error message with its reason and offset", () => {
+      assert.strictEqual(
+        FrontmatterKeyError.make({ reason: "DuplicateKey", offset: 9, length: 3 }).message,
+        "frontmatter key rejected: DuplicateKey at offset 9"
+      );
+    });
   });
 
   describe("end to end over Markdown.parse", () => {
