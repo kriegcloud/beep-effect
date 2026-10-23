@@ -13,11 +13,11 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import boilerplate from "./fixtures/boilerplate/package.fixture.json" with { type: "json" };
-import full from "./fixtures/full/package.fixture.json" with { type: "json" };
-import minimal from "./fixtures/minimal/package.fixture.json" with { type: "json" };
-import scoped from "./fixtures/scoped/package.fixture.json" with { type: "json" };
-import customFields from "./fixtures/with-custom-fields/package.fixture.json" with { type: "json" };
+import boilerplate from "./fixtures/manifests/boilerplate/package.fixture.json" with { type: "json" };
+import full from "./fixtures/manifests/full/package.fixture.json" with { type: "json" };
+import minimal from "./fixtures/manifests/minimal/package.fixture.json" with { type: "json" };
+import scoped from "./fixtures/manifests/scoped/package.fixture.json" with { type: "json" };
+import customFields from "./fixtures/manifests/with-custom-fields/package.fixture.json" with { type: "json" };
 
 const Json = S.fromJsonString(S.Record(S.String, S.Unknown));
 

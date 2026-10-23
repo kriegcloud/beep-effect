@@ -211,8 +211,7 @@ const PackageNameBase: Omit<S.Opaque<PackageName, typeof PackageNameUnion, {}>, 
  *
  * ```ts
  * import { PackageName } from "@beep/package-json/PackageName";
- * import * as HashSet from "effect/HashSet";
-import * as O from "effect/Option";
+ * import * as O from "effect/Option";
  *
  * console.log(PackageName.isValid("@beep/semver")) // true
  * console.log(O.getOrElse(PackageName.scope("@beep/semver"), () => "no scope")) // beep
@@ -246,8 +245,7 @@ export const PackageName = class extends PackageNameBase {
    *
    * ```ts
    * import { PackageName } from "@beep/package-json/PackageName";
-   * import * as HashSet from "effect/HashSet";
-import * as O from "effect/Option";
+   * import * as O from "effect/Option";
    *
    * console.log(O.getOrElse(PackageName.scope("@scope/x"), () => "no scope")) // scope
    * console.log(O.isNone(PackageName.scope("x"))) // true

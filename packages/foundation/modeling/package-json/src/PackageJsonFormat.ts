@@ -4,6 +4,8 @@
  * `sortValue` for value→value hosts and `formatToString` for bytes→bytes
  * hosts, mirroring the two shapes `sort-package-json` offers.
  *
+ * **Details**
+ *
  * The class shape and the `formatToString` name are the kit formatter
  * convention, already spelled the same way by `JsoncFormatter`, `YamlFormat`
  * and `TomlFormat` — a consumer who has met one kit formatter has met all

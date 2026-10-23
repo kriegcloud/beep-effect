@@ -4,6 +4,8 @@
  * and `packageManager` accepts the range spelling — while every field that IS
  * present still decodes through the same typed codecs.
  *
+ * **Details**
+ *
  * npm itself draws this line: `name` and `version` are required only for a
  * package that will be PUBLISHED. The idiomatic monorepo root manifest —
  * `{ "private": true, "packageManager": "pnpm@11.2.0", "devEngines": {...} }` —

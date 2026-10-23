@@ -4,6 +4,8 @@
  * `Option` — absence is computed on by `PackageManager.hasIntegrity`), with a
  * `PackageManager.FromString` string codec.
  *
+ * **Details**
+ *
  * The field carries the corepack pin triple, and this module shares BOTH of the
  * strict pieces with `@beep/npm-spec`'s `PackageManagerPin` rather than
  * re-deriving them: the integrity half is npm's `CorepackIntegrityHash`, and

@@ -1,19 +1,21 @@
 import * as PackageJson from "@beep/package-json";
+import { Package } from "@beep/package-json/Package";
 import * as PackageJsonFileExports from "@beep/package-json/PackageJsonFile";
+import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import { runtimeClosureOf } from "./support/rootClosure.ts";
+import { dependencyModulesImporting, runtimeClosureOf } from "./support/rootClosure.ts";
 
 const IO_MODULES = ["effect/FileSystem", "effect/Path"] as const;
 
 describe("@beep/package-json root barrel", () => {
   it.effect("exposes the manifest models by identity", () =>
     Effect.sync(() => {
-      assert.isFunction(PackageJson.Package.decode);
-      assert.isFunction(PackageJson.PackageManifest.decode);
+      assert.strictEqual(PackageJson.Package, Package);
+      assert.strictEqual(PackageJson.PackageManifest, PackageManifest);
     })
   );
 
@@ -55,6 +57,17 @@ describe("@beep/package-json root barrel", () => {
         A.filter(closure.packages, (specifier) => A.some(IO_MODULES, (io) => Str.startsWith(io)(specifier))),
         []
       );
+    })
+  );
+
+  it.effect("depends only on packages whose sources never import the IO surface", () =>
+    Effect.sync(() => {
+      const { scanned, offending } = dependencyModulesImporting(IO_MODULES);
+      // The glob really matched: every runtime dependency contributed sources.
+      for (const name of ["identity", "jsonc", "npm-spec", "semver", "spdx"]) {
+        assert.isTrue(A.some(scanned, Str.startsWith(`${name}/src/`)), name);
+      }
+      assert.deepStrictEqual(offending, []);
     })
   );
 

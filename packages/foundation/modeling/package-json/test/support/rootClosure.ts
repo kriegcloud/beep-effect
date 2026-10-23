@@ -57,3 +57,24 @@ export const runtimeClosureOf = (
   while (A.isReadonlyArrayNonEmpty(pending)) pending = A.flatMap(pending, visit);
   return { modules: A.fromIterable(modules), packages: A.fromIterable(packages) };
 };
+
+// The barrel's runtime dependency packages, siblings under modeling/. The root
+// closure stops at their bare specifiers, so their own sources are checked here.
+const dependencySources = import.meta.glob<string>("../../../{identity,jsonc,npm-spec,semver,spdx}/src/**/*.ts", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+
+/** The dependency source files (keyed `<package>/src/...`) with a runtime edge into one of `specifiers`. */
+export const dependencyModulesImporting = (
+  specifiers: ReadonlyArray<string>
+): { readonly scanned: ReadonlyArray<string>; readonly offending: ReadonlyArray<string> } => {
+  const scanned = A.map(R.keys(dependencySources), (key) => Str.replace("../../../", "")(key));
+  const offending = A.filterMap(R.toEntries(dependencySources), ([key, source]) =>
+    A.some(A.fromIterable(Str.matchAll(RUNTIME_EDGE)(source)), (match) => A.contains(specifiers, match[1] ?? ""))
+      ? Result.succeed(Str.replace("../../../", "")(key))
+      : Result.failVoid
+  );
+  return { scanned, offending };
+};

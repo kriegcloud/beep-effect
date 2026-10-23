@@ -2,6 +2,8 @@
  * The `repository` and `bugs` field models: where a package lives, and where
  * to report problems with it.
  *
+ * **Details**
+ *
  * Both accept npm's two encodings — a shorthand string or an object — and both
  * hold the same wire-fidelity requirement the `Person` model does: a formatter
  * must not rewrite one legal encoding into another, so a value read from the

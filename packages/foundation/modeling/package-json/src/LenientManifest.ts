@@ -8,6 +8,8 @@
  * is reported on `issues`. Leniency is per-field, never per-syntax: input
  * that is not a JSON object at all stays a typed error.
  *
+ * **Details**
+ *
  * The kit's tolerance ladder (see PackageManifest.ts for the full comment):
  * Package         — strict, publishable.
  * PackageManifest — presence-lenient, shape-on-presence strict.

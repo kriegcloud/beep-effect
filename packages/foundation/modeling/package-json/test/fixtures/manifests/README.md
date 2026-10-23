@@ -1,7 +1,7 @@
 # Package manifest parser inputs
 
 Each `package.fixture.json` is JSON data imported by
-`../PackageJsonFile.int.test.ts`. That test serializes the objects into its
+`../../PackageJsonFile.memfs.test.ts`. That test serializes the objects into its
 `MemoryFileSystem` at virtual `package.json` paths and exercises the package
 manifest parser. The fixture directories are not installation roots; their
 scripts and dependency ranges are examples to parse, not commands to execute.

@@ -1,6 +1,8 @@
 /**
  * The `funding` field model: where to send money for a package.
  *
+ * **Details**
+ *
  * npm accepts three encodings — a bare URL string, an object with `url` and an
  * optional `type`, or an array mixing either — and this model normalizes the
  * READ side of that: `Funding.FromField` always decodes to an array, so a

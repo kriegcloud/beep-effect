@@ -5,6 +5,8 @@
  * accepting either the object or the shorthand string. Wired into
  * `Package.author` / `Package.contributors`.
  *
+ * **Details**
+ *
  * Wire-form fidelity is a hard requirement here: a formatter must not rewrite
  * legal input into a different-but-equivalent encoding. Two mechanisms carry
  * it. (1) A person decoded from the shorthand string re-encodes to that exact
@@ -131,6 +133,24 @@ export const ManifestEmail = S.String.pipe(
     description: "A manifest person or bugs email: an external-protocol string npm does not validate, kept verbatim.",
   })
 );
+
+/**
+ * The decoded type of {@link ManifestEmail}: a plain string kept verbatim.
+ *
+ * **Example** (Type a manifest email)
+ *
+ * ```ts
+ * import type { ManifestEmail } from "@beep/package-json/Person";
+ *
+ * const email: ManifestEmail = "ann at example dot com";
+ * console.log(email); // ann at example dot com
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export type ManifestEmail = typeof ManifestEmail.Type;
 
 // The modeled fields alone, used to validate the object wire form. Decoding
 // through this rather than the class keeps the issue tree identical to what a

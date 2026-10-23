@@ -4,6 +4,8 @@
  * `name` / `range` / `integrity`, with a `PackageManagerRange.FromString`
  * string codec.
  *
+ * **Details**
+ *
  * The strict `PackageManager` models what corepack provisions — an exact,
  * pinnable version. pnpm's own reading of the field is wider: with
  * `manage-package-manager-versions` it accepts a semver *range* and resolves
