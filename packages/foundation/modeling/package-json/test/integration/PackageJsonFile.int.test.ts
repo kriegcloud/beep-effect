@@ -370,19 +370,17 @@ describe("PackageJsonFile write/read property", () => {
       "a written package with a generated name reads back with that name and version",
       [UnscopedPackageName],
       ([name]) =>
-        Effect.scoped(
-          Effect.gen(function* () {
-            const file = yield* PackageJsonFile;
-            const fs = yield* FileSystem.FileSystem;
-            const pathService = yield* Path.Path;
-            const dir = yield* fs.makeTempDirectoryScoped({ prefix: "pkg-json-prop-" });
-            const path = pathService.join(dir, "package.json");
-            yield* file.write(path, yield* Package.decode({ name, version: "1.0.0" }));
-            const read = yield* file.read(path);
-            assert.strictEqual(read.name, name);
-            assert.strictEqual(read.version.toString(), "1.0.0");
-          })
-        ),
+        Effect.gen(function* () {
+          const file = yield* PackageJsonFile;
+          const fs = yield* FileSystem.FileSystem;
+          const pathService = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped({ prefix: "pkg-json-prop-" });
+          const path = pathService.join(dir, "package.json");
+          yield* file.write(path, yield* Package.decode({ name, version: "1.0.0" }));
+          const read = yield* file.read(path);
+          assert.strictEqual(read.name, name);
+          assert.strictEqual(read.version.toString(), "1.0.0");
+        }),
       { arbitrary: fcRuns(20) }
     );
   });
