@@ -33,6 +33,7 @@ import * as Reactivity from "effect/reactivity/Reactivity";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
 import type { DuckDBConnection } from "@duckdb/node-api";
@@ -1472,7 +1473,9 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
           loader: DuckDbMigrator.fromRecord({ "1_noop": Effect.void }),
         }).pipe(Effect.provideService(SqlClient.SqlClient, source));
         const text = yield* fs.readFileString(path.join(tmpDir, "alter", "_schema.sql"));
-        expect(text.indexOf("CREATE TABLE early")).toBeLessThan(text.indexOf("CREATE SEQUENCE late"));
+        const tableIndex = Str.indexOf("CREATE TABLE early")(text);
+        const sequenceIndex = Str.indexOf("CREATE SEQUENCE late")(text);
+        expect(O.getOrThrow(tableIndex)).toBeLessThan(O.getOrThrow(sequenceIndex));
         const target = yield* DuckDbClient.make({ databasePath: ":memory:" });
         const error = yield* target.unsafe(text).pipe(Effect.flip);
         expect(error.reason._tag).toBe("SqlSyntaxError");
