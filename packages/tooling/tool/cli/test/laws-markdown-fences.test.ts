@@ -314,6 +314,42 @@ describe("Markdown fence typecheck law", () => {
       );
 
       it.effect(
+        "retains unattributed errors before more than 20 mapped fence diagnostics with a bounded sample and total",
+        Effect.fnUntraced(function* () {
+          const repoRoot = yield* findRepoRoot();
+          const fences = [checkedFence("docs/a.md", 1, "export const a = 1\n")];
+          const mapped = A.map(
+            A.range(1, 25),
+            (index) => `fence-0.ts(1,1): error TS2304: Cannot find name 'missing${index}'.`
+          );
+          for (const total of [1, 25]) {
+            const outside = A.map(
+              A.range(1, total),
+              (index) =>
+                `packages/source.ts(${index},1): error TS2322: Type 'string' is not assignable to type 'number'.`
+            );
+            const error = yield* Effect.gen(function* () {
+              const typechecker = yield* MarkdownFenceTypechecker;
+              return yield* typechecker.typecheck(repoRoot, fences);
+            }).pipe(
+              Effect.provideServiceEffect(MarkdownFenceTypechecker, MarkdownFenceTypechecker.make),
+              withStubCompiler(markdownOf(...outside, ...mapped), 2),
+              Effect.catchTag("MarkdownFencesExecutionError", Effect.die),
+              Effect.flip
+            );
+
+            expect(error.reason).toBe("unattributed-diagnostics");
+            expect(error.unattributedDiagnostics).toEqual(A.take(outside, 20));
+            expect(error.unattributedDiagnosticCount).toBe(total);
+            expect(error.message).toContain(outside[0]);
+            expect(error.message).toContain(`${total} unattributed error TS lines`);
+            expect(error.outputTail).not.toContain("packages/source.ts");
+            expect(A.length(Str.split("\n")(error.outputTail))).toBe(20);
+          }
+        })
+      );
+
+      it.effect(
         "passes a compiling fence and fails a broken one with its Markdown path and line",
         Effect.fnUntraced(function* () {
           const repoRoot = yield* findRepoRoot();
