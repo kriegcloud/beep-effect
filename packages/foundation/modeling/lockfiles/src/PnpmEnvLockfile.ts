@@ -1,8 +1,8 @@
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 import { readPnpmConfigDependencies, readPnpmPackageManager } from "./internal/pnpmEnv.ts";
 import { materializeFailure } from "./Lockfile.ts";
 import type * as HashMap from "effect/HashMap";
+import type * as O from "effect/Option";
 import type { ConfigDependencyLock } from "./ConfigDependencyLock.ts";
 import type { ParseFailure } from "./internal/shared.ts";
 import type { LockfileFramingError, LockfileParseError } from "./Lockfile.ts";
@@ -12,7 +12,7 @@ import type { PackageManagerLock } from "./PackageManagerLock.ts";
 const materialize = Effect.mapError((failure: ParseFailure) => materializeFailure("pnpm", failure));
 
 const packageManager = Effect.fn("PnpmEnvLockfile.packageManager")((content: string) =>
-  readPnpmPackageManager(content).pipe(materialize, Effect.map(O.fromUndefinedOr))
+  readPnpmPackageManager(content).pipe(materialize)
 );
 
 const configDependencies = Effect.fn("PnpmEnvLockfile.configDependencies")((content: string) =>

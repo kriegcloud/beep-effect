@@ -6,9 +6,11 @@ import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
-import { dual } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -55,8 +57,8 @@ export const DEP_TYPES = ["dependencies", "devDependencies", "peerDependencies",
  * **Details**
  *
  * Absence and corruption are treated differently, and the distinction is the
- * point. An *absent* integrity (input `undefined`) succeeds with `undefined`,
- * so the caller omits the field — a lockfile that records no integrity is
+ * point. An *absent* integrity (input `undefined`) succeeds with
+ * `Option.none()`, so the caller omits the field — a lockfile that records no integrity is
  * legitimate. A *present but unparseable* integrity fails through the same
  * validation channel the shape checks use ({@link validationFailure}), so
  * `Lockfile.parse` surfaces it as a `LockfileParseError` with
@@ -70,19 +72,24 @@ export const DEP_TYPES = ["dependencies", "devDependencies", "peerDependencies",
  * import * as Effect from "effect/Effect";
  * import { toIntegrityHash } from "@beep/lockfiles/internal/shared";
  *
- * console.log(Effect.runSync(toIntegrityHash(undefined))) // undefined
+ * import * as O from "effect/Option";
+ *
+ * console.log(O.isNone(Effect.runSync(toIntegrityHash(undefined)))) // true
  * ```
  *
  * @internal
  * @category decoding
  * @since 0.0.0
  */
-export const toIntegrityHash = (
-  raw: string | undefined
-): Effect.Effect<IntegrityHashBrand | undefined, ParseFailure> => {
-  if (raw === undefined) return Effect.as(Effect.void, undefined);
-  return S.decodeEffect(IntegrityHash)(raw).pipe(Effect.mapError(validationFailure));
-};
+export const toIntegrityHash = (raw: string | undefined): Effect.Effect<O.Option<IntegrityHashBrand>, ParseFailure> =>
+  raw === undefined
+    ? Effect.succeedNone
+    : Result.match(decodeIntegrityHash(raw), {
+        onFailure: flow(validationFailure, Effect.fail),
+        onSuccess: Effect.succeedSome,
+      });
+
+const decodeIntegrityHash = S.decodeResult(IntegrityHash);
 
 const decodeSpecifier = S.decodeUnknownExit(DependencySpecifier.FromString);
 
@@ -284,9 +291,23 @@ export const splitNameVersion = (key: string): O.Option<NameVersion.Encoded> =>
   }));
 
 /**
+ * The `version` and `peerSuffix` fields a recorded pnpm importer version
+ * contributes: none for an absent or empty version, and none for a version
+ * that is *only* a peer chain (no concrete version).
+ *
+ * @internal
+ */
+const recordedVersion = (version: string | undefined): { readonly version?: string; readonly peerSuffix?: string } => {
+  const resolved = splitPeerSuffix(version ?? "");
+  return resolved.plain === ""
+    ? {}
+    : { version: resolved.plain, ...O.getSomesStruct({ peerSuffix: O.fromUndefinedOr(resolved.peerSuffix) }) };
+};
+
+/**
  * Build one {@link ImporterDependency}, decoding the raw specifier string into
- * the `@effected/npm` `ClassifiedSpecifier` tagged union. Returns `undefined`
- * — a skip, never a throw — when the name is empty or the specifier does not
+ * the `@effected/npm` `ClassifiedSpecifier` tagged union. Returns
+ * `Option.none()` — a skip, never a throw — when the name is empty or the specifier does not
  * classify (e.g. an empty specifier), per the total-string-surgery discipline.
  *
  * **Details**
@@ -304,12 +325,12 @@ const buildImporterDependency: {
     specifier: string,
     depType: DependencyField,
     version: string | undefined
-  ): ImporterDependency | undefined;
+  ): O.Option<ImporterDependency>;
   (
     specifier: string,
     depType: DependencyField,
     version: string | undefined
-  ): (name: string) => ImporterDependency | undefined;
+  ): (name: string) => O.Option<ImporterDependency>;
 } = dual(
   4,
   (
@@ -317,23 +338,12 @@ const buildImporterDependency: {
     specifier: string,
     depType: DependencyField,
     version: string | undefined
-  ): ImporterDependency | undefined => {
-    if (name === "") return undefined;
-    const exit = decodeSpecifier(specifier);
-    if (Exit.isFailure(exit)) return undefined;
-    const resolved = version !== undefined && version !== "" ? splitPeerSuffix(version) : undefined;
-    return ImporterDependency.make({
-      name,
-      specifier: exit.value,
-      depType,
-      ...(resolved !== undefined && resolved.plain !== ""
-        ? {
-            version: resolved.plain,
-            ...O.getSomesStruct({ peerSuffix: O.fromUndefinedOr(resolved.peerSuffix) }),
-          }
-        : {}),
-    });
-  }
+  ): O.Option<ImporterDependency> =>
+    name === ""
+      ? O.none()
+      : O.map(Exit.getSuccess(decodeSpecifier(specifier)), (classified) =>
+          ImporterDependency.make({ name, specifier: classified, depType, ...recordedVersion(version) })
+        )
 );
 
 /**
@@ -381,19 +391,13 @@ export const importerDependencies: {
   <V>(
     entry: ImporterSections<V>,
     read: (value: V) => { readonly specifier: string; readonly version?: string }
-  ): ReadonlyArray<ImporterDependency> => {
-    const deps: Array<ImporterDependency> = [];
-    for (const field of DEP_TYPES) {
-      const section = entry[field];
-      if (section === undefined) continue;
-      for (const [name, value] of R.toEntries(section)) {
+  ): ReadonlyArray<ImporterDependency> =>
+    A.flatMap(DEP_TYPES, (field) =>
+      A.flatMap(R.toEntries(entry[field] ?? {}), ([name, value]) => {
         const { specifier, version } = read(value);
-        const dep = buildImporterDependency(name, specifier, field, version);
-        if (dep !== undefined) deps.push(dep);
-      }
-    }
-    return deps;
-  }
+        return O.toArray(buildImporterDependency(name, specifier, field, version));
+      })
+    )
 );
 
 /**
@@ -462,6 +466,29 @@ export declare namespace PeerDeclarations {
 const EMPTY_PEERS: PeerDeclarations.Encoded = { peerDependencies: {}, peerDependenciesMeta: {} };
 
 /**
+ * Collapse both optional-peer spellings into one `{ optional }` flag per peer:
+ * meta entries first, then bun's `optionalPeers` names, which always mark a
+ * peer optional. Map-backed until the last step, so a `__proto__` peer name
+ * neither pollutes nor drops.
+ *
+ * @internal
+ */
+const optionalFlags = (
+  meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined,
+  optionalPeers: ReadonlyArray<string> | undefined
+): Readonly<Record<string, { readonly optional: boolean }>> => {
+  const flags = MutableHashMap.fromIterable<string, boolean>(
+    A.map(R.toEntries(meta ?? {}), ([name, value]) => [name, value?.optional === true] as const)
+  );
+  for (const name of optionalPeers ?? []) MutableHashMap.set(flags, name, true);
+  return flags.pipe(
+    A.fromIterable,
+    A.map(([name, optional]) => [name, { optional }] as const),
+    R.fromEntries
+  );
+};
+
+/**
  * Normalize one format's peer declarations into the unified pair.
  *
  * **Details**
@@ -513,22 +540,13 @@ export const peerDeclarations: {
     peers: Readonly<Record<string, string>> | undefined,
     meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined,
     optionalPeers: ReadonlyArray<string> | undefined
-  ): PeerDeclarations.Encoded => {
-    if (peers === undefined && meta === undefined && optionalPeers === undefined) return EMPTY_PEERS;
-    const flags = MutableHashMap.empty<string, boolean>();
-    if (meta !== undefined) {
-      for (const [name, value] of R.toEntries(meta)) {
-        MutableHashMap.set(flags, name, value?.optional === true);
-      }
-    }
-    if (optionalPeers !== undefined) {
-      for (const name of optionalPeers) MutableHashMap.set(flags, name, true);
-    }
-    return {
-      peerDependencies: peers === undefined ? {} : R.fromEntries(R.toEntries(peers)),
-      peerDependenciesMeta: R.fromEntries(A.map([...flags], ([name, optional]) => [name, { optional }] as const)),
-    };
-  }
+  ): PeerDeclarations.Encoded =>
+    peers === undefined && meta === undefined && optionalPeers === undefined
+      ? EMPTY_PEERS
+      : {
+          peerDependencies: R.fromEntries(R.toEntries(peers ?? {})),
+          peerDependenciesMeta: optionalFlags(meta, optionalPeers),
+        }
 );
 
 /**
@@ -1126,7 +1144,9 @@ export declare namespace WorkspaceEntry {
  * @since 0.0.0
  */
 export const isWorkspaceSpecifier = (specifier: string): boolean =>
-  specifier.startsWith("workspace:") || specifier.startsWith("link:") || specifier.startsWith("file:");
+  A.some(LOCAL_PROTOCOLS, (protocol) => Str.startsWith(protocol)(specifier));
+
+const LOCAL_PROTOCOLS = ["workspace:", "link:", "file:"] as const;
 
 /**
  * Extract inter-workspace dependency edges: for every workspace entry and
@@ -1170,19 +1190,278 @@ export const extractWorkspaceDeps: {
   (
     workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry.Encoded>,
     workspaceNames: HashSet.HashSet<string>
-  ): ReadonlyArray<WorkspaceDependency> => {
-    const deps: Array<WorkspaceDependency> = [];
-    for (const [from, entry] of workspaces) {
-      for (const depType of DEP_TYPES) {
-        const depMap = entry[depType];
-        if (depMap === undefined) continue;
-        for (const [name, constraint] of R.toEntries(depMap)) {
-          if (HashSet.has(workspaceNames, name)) {
-            deps.push(WorkspaceDependency.make({ from, to: name, depType, constraint }));
-          }
+  ): ReadonlyArray<WorkspaceDependency> =>
+    A.flatMap(A.fromIterable(workspaces), ([from, entry]) =>
+      A.flatMap(DEP_TYPES, (depType) =>
+        A.flatMap(R.toEntries(entry[depType] ?? {}), ([name, constraint]) =>
+          HashSet.has(workspaceNames, name) ? [WorkspaceDependency.make({ from, to: name, depType, constraint })] : []
+        )
+      )
+    )
+);
+
+/**
+ * One lockfile dependency section: dependency name to recorded string.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export type DependencyMap = Readonly<Record<string, string>>;
+
+/**
+ * The non-empty dependency names recorded across `sections`, in section and
+ * key order, each once.
+ *
+ * **Example** (Collect edge names across sections)
+ *
+ * ```ts
+ * import { sectionNames } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log([...sectionNames([{ a: "1", "": "2" }, undefined, { a: "3", b: "4" }])]) // ["a", "b"]
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const sectionNames = (
+  sections: ReadonlyArray<DependencyMap | undefined>
+): MutableHashSet.MutableHashSet<string> => {
+  const names = MutableHashSet.empty<string>();
+  for (const section of sections) if (section !== undefined) addSectionNames(names, section);
+  return names;
+};
+
+const addSectionNames = (names: MutableHashSet.MutableHashSet<string>, section: DependencyMap): void => {
+  for (const name of R.keys(section)) if (name !== "") MutableHashSet.add(names, name);
+};
+
+/**
+ * Resolve each name to the first instance id the lockfile actually records,
+ * composing one candidate per prefix in order — the compose-then-verify step
+ * the npm and bun walks share. A name with no recorded candidate is omitted,
+ * never guessed.
+ *
+ * **Details**
+ *
+ * Map-backed until the last step: `R.fromEntries` defines own data
+ * properties, so a `__proto__` dependency name neither pollutes nor drops.
+ *
+ * **Example** (Take the deepest recorded candidate)
+ *
+ * ```ts
+ * import * as MutableHashSet from "effect/MutableHashSet";
+ * import { resolveByCandidates } from "@beep/lockfiles/internal/shared";
+ *
+ * const known = MutableHashSet.fromIterable(["a/x", "x"]);
+ * const compose = (prefix: string, name: string) => (prefix === "" ? name : `${prefix}/${name}`);
+ * console.log(resolveByCandidates(["x", "y"], ["a", ""], compose, known)) // { x: "a/x" }
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const resolveByCandidates: {
+  (
+    names: Iterable<string>,
+    prefixes: ReadonlyArray<string>,
+    compose: (prefix: string, name: string) => string,
+    known: MutableHashSet.MutableHashSet<string>
+  ): Record<string, string>;
+  (
+    prefixes: ReadonlyArray<string>,
+    compose: (prefix: string, name: string) => string,
+    known: MutableHashSet.MutableHashSet<string>
+  ): (names: Iterable<string>) => Record<string, string>;
+} = dual(
+  4,
+  (
+    names: Iterable<string>,
+    prefixes: ReadonlyArray<string>,
+    compose: (prefix: string, name: string) => string,
+    known: MutableHashSet.MutableHashSet<string>
+  ): Record<string, string> => {
+    const edges = MutableHashMap.empty<string, string>();
+    for (const name of names) {
+      for (const prefix of prefixes) {
+        const candidate = compose(prefix, name);
+        if (MutableHashSet.has(known, candidate)) {
+          MutableHashMap.set(edges, name, candidate);
+          break;
         }
       }
     }
-    return deps;
+    return R.fromEntries(edges);
   }
 );
+
+/**
+ * Every proper prefix of a slash-separated path that ends just before one of
+ * its slashes, shortest first: `"a/b/c"` yields `["a", "a/b"]`. The key
+ * splitting both the bun parent-key walk and the npm directory walk read
+ * their ancestors from.
+ *
+ * **Example** (List a path's ancestors)
+ *
+ * ```ts
+ * import { slashPrefixes } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(slashPrefixes("@acme/lib/react")) // ["@acme", "@acme/lib"]
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const slashPrefixes = (path: string): ReadonlyArray<string> => {
+  const segments = Str.split("/")(path);
+  const prefixes: Array<string> = [];
+  let prefix = A.headNonEmpty(segments);
+  for (const segment of A.tailNonEmpty(segments)) {
+    prefixes.push(prefix);
+    prefix = `${prefix}/${segment}`;
+  }
+  return prefixes;
+};
+
+/**
+ * The workspace entry a dependency-section bundle contributes: each of the
+ * four sections that is present, the rest omitted.
+ *
+ * **Example** (Keep only the recorded sections)
+ *
+ * ```ts
+ * import { workspaceEntryOf } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(workspaceEntryOf({ dependencies: { lib: "workspace:*" } })) // { dependencies: { lib: "workspace:*" } }
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const workspaceEntryOf = (sections: WorkspaceEntry.Encoded): WorkspaceEntry.Encoded =>
+  O.getSomesStruct({
+    dependencies: O.fromUndefinedOr(sections.dependencies),
+    devDependencies: O.fromUndefinedOr(sections.devDependencies),
+    peerDependencies: O.fromUndefinedOr(sections.peerDependencies),
+    optionalDependencies: O.fromUndefinedOr(sections.optionalDependencies),
+  });
+
+/**
+ * One instance's outgoing edges, split: those that could be named, and those
+ * the lockfile records but this model could not name.
+ *
+ * **Example** (Validate split edges)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { ResolvedEdges } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(S.is(ResolvedEdges)({ resolved: { react: "react@18.3.1" }, unresolvedEdges: [] })) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ResolvedEdges extends S.Opaque<ResolvedEdges, { readonly brand: unique symbol }>()(
+  S.Struct({
+    resolved: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("ResolvedEdges.resolved", {
+        description: "Resolved instance ids keyed by dependency name",
+      })
+    ),
+    unresolvedEdges: S.Array(S.String).pipe(
+      $I.annoteKey("ResolvedEdges.unresolvedEdges", {
+        description: "Unresolved dependency names in ascending UTF-16 order",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ResolvedEdges", {
+      description: "Resolved instance ids by dependency name and the sorted names of edges that could not be resolved",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link ResolvedEdges}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ResolvedEdges {
+  /**
+   * The plain, unbranded encoded shape of a {@link ResolvedEdges}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ResolvedEdges.Encoded;
+}
+
+/**
+ * Split per-edge resolutions into {@link ResolvedEdges}: a named edge lands in
+ * `resolved` (a later section's answer for the same name wins), an unnamed
+ * one in the sorted, de-duplicated `unresolvedEdges`. Empty names are
+ * skipped, never thrown on.
+ *
+ * **Example** (Partition two recorded edges)
+ *
+ * ```ts
+ * import * as O from "effect/Option";
+ * import { partitionEdges } from "@beep/lockfiles/internal/shared";
+ *
+ * const edges = partitionEdges([["a", O.some("a@1")], ["b", O.none()]]);
+ * console.log(edges.unresolvedEdges) // ["b"]
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const partitionEdges = (
+  resolutions: ReadonlyArray<readonly [string, O.Option<string>]>
+): ResolvedEdges.Encoded => {
+  const edges = MutableHashMap.empty<string, string>();
+  const unnameable = MutableHashSet.empty<string>();
+  for (const [name, target] of resolutions) {
+    if (name === "") continue;
+    if (O.isSome(target)) MutableHashMap.set(edges, name, target.value);
+    else MutableHashSet.add(unnameable, name);
+  }
+  return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
+};
+
+/**
+ * A package entry's resolution metadata as pnpm records it, permissive: only
+ * the optional `integrity` text is read.
+ *
+ * **Example** (Validate a resolution record)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { PackageResolution } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(S.is(PackageResolution)({ integrity: "sha512-AAAA" })) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export class PackageResolution extends S.Opaque<PackageResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
+    integrity: S.optionalKey(S.String).pipe(
+      $I.annoteKey("PackageResolution.integrity", { description: "Recorded subresource integrity hash" })
+    ),
+  }).pipe(
+    $I.annoteSchema("PackageResolution", {
+      description: "A permissive package resolution carrying its optional recorded integrity",
+    })
+  )
+) {}

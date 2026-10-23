@@ -51,7 +51,7 @@ it.effect.prop(
       assert.deepStrictEqual(yield* readPnpmPackageManager(canonical), manager);
       assert.deepStrictEqual(yield* readPnpmConfigDependencies(canonical), configs);
       const expected = yield* S.decodeEffect(PackageManagerLock)({ name: "pnpm", ...sample, nativeIntegrity: {} });
-      assert.deepStrictEqual(manager, expected);
+      assertSome(manager, expected);
       const config = yield* S.decodeEffect(ConfigDependencyLock)({ name: "config", ...sample });
       assertSome(HashMap.get(configs, "config"), config);
     }),

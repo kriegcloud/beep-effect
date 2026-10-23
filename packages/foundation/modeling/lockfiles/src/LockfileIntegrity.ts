@@ -3,7 +3,7 @@ import { DependencyField } from "@beep/npm-spec/DependencySection";
 import { Range, SemVer } from "@beep/semver";
 import * as A from "effect/Array";
 import * as Exit from "effect/Exit";
-import { dual, pipe } from "effect/Function";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -200,64 +200,14 @@ export class LockfileIntegrity extends S.Opaque<LockfileIntegrity, { readonly br
     (lockfile: Lockfile, manifests: ReadonlyArray<WorkspaceManifest>): LockfileIntegrity;
     (manifests: ReadonlyArray<WorkspaceManifest>): (lockfile: Lockfile) => LockfileIntegrity;
   } = dual(2, (lockfile: Lockfile, manifests: ReadonlyArray<WorkspaceManifest>): LockfileIntegrity => {
-    const workspacePackages = A.filter(lockfile.packages, (p) => p.isWorkspace && p.relativePath !== undefined);
-
-    const lockfileWsNames = MutableHashSet.fromIterable(A.map(workspacePackages, (p) => p.name));
+    const lockfileWsNames = MutableHashSet.fromIterable(
+      A.flatMap(lockfile.packages, (p) => (p.isWorkspace && p.relativePath !== undefined ? [p.name] : []))
+    );
     const manifestNames = MutableHashSet.fromIterable(A.map(manifests, (m) => m.name));
     const missingWorkspaces = A.filter(A.fromIterable(manifestNames), (n) => !MutableHashSet.has(lockfileWsNames, n));
     const extraWorkspaces = A.filter(A.fromIterable(lockfileWsNames), (n) => !MutableHashSet.has(manifestNames, n));
-
-    // A lockfile can resolve the same name at several versions; keep them all
-    // so the verdict never depends on entry order.
-    const resolvedIndex = MutableHashMap.empty<string, Array<string>>();
-    for (const p of lockfile.packages) {
-      const versions = MutableHashMap.get(resolvedIndex, p.name);
-      if (O.isNone(versions)) MutableHashMap.set(resolvedIndex, p.name, [p.version]);
-      else versions.value.push(p.version);
-    }
-
-    const unsatisfiedConstraints: Array<{
-      workspace: string;
-      dependency: string;
-      constraint: string;
-      resolved: string;
-      depType: DependencyField;
-    }> = [];
-
-    for (const manifest of manifests) {
-      for (const depType of DEP_TYPES) {
-        const depMap = manifest[depType];
-        if (depMap === undefined) continue;
-
-        for (const [dependency, constraint] of R.toEntries(depMap)) {
-          if (isWorkspaceSpecifier(constraint)) continue;
-
-          const candidates = MutableHashMap.get(resolvedIndex, dependency);
-          if (O.isNone(candidates)) continue;
-
-          const rangeExit = decodeRange(constraint);
-          if (Exit.isFailure(rangeExit)) continue; // unparseable rows are skipped
-
-          const versions = pipe(
-            candidates.value,
-            A.map((candidate) => decodeSemVer(candidate)),
-            A.filter(Exit.isSuccess)
-          );
-          if (versions.length === 0) continue; // unparseable rows are skipped
-
-          if (!A.some(versions, (v) => rangeExit.value.test(v.value))) {
-            unsatisfiedConstraints.push({
-              workspace: manifest.name,
-              dependency,
-              constraint,
-              resolved: A.join(candidates.value, ", "),
-              depType,
-            });
-          }
-        }
-      }
-    }
-
+    const resolvedIndex = resolvedVersions(lockfile);
+    const unsatisfiedConstraints = A.flatMap(manifests, (manifest) => unsatisfiedRows(manifest, resolvedIndex));
     return LockfileIntegrity.make({
       valid: missingWorkspaces.length === 0 && extraWorkspaces.length === 0 && unsatisfiedConstraints.length === 0,
       missingWorkspaces,
@@ -266,6 +216,57 @@ export class LockfileIntegrity extends S.Opaque<LockfileIntegrity, { readonly br
     });
   });
 }
+
+// A lockfile can resolve the same name at several versions; keep them all so
+// the verdict never depends on entry order.
+const resolvedVersions = (lockfile: Lockfile): MutableHashMap.MutableHashMap<string, Array<string>> => {
+  const index = MutableHashMap.empty<string, Array<string>>();
+  for (const p of lockfile.packages) {
+    const versions = MutableHashMap.get(index, p.name);
+    if (O.isNone(versions)) MutableHashMap.set(index, p.name, [p.version]);
+    else versions.value.push(p.version);
+  }
+  return index;
+};
+
+type UnsatisfiedConstraint = (typeof LockfileIntegrity.Encoded)["unsatisfiedConstraints"][number];
+
+// Every declared constraint of one manifest that no parseable resolved
+// candidate satisfies. `workspace:`/`link:`/`file:` specifiers, names the
+// lockfile never resolved and unparseable rows are skipped.
+const unsatisfiedRows = (
+  manifest: WorkspaceManifest,
+  resolvedIndex: MutableHashMap.MutableHashMap<string, Array<string>>
+): ReadonlyArray<UnsatisfiedConstraint> =>
+  A.flatMap(DEP_TYPES, (depType) =>
+    A.flatMap(R.toEntries(manifest[depType] ?? {}), ([dependency, constraint]) =>
+      isWorkspaceSpecifier(constraint)
+        ? []
+        : O.toArray(
+            O.flatMap(MutableHashMap.get(resolvedIndex, dependency), (candidates) =>
+              isUnsatisfied(constraint, candidates)
+                ? O.some({
+                    workspace: manifest.name,
+                    dependency,
+                    constraint,
+                    resolved: A.join(candidates, ", "),
+                    depType,
+                  })
+                : O.none()
+            )
+          )
+    )
+  );
+
+// True only when the range parses, some candidate parses, and no parsed
+// candidate satisfies the range.
+const isUnsatisfied = (constraint: string, candidates: ReadonlyArray<string>): boolean => {
+  const range = Exit.getSuccess(decodeRange(constraint));
+  const versions = A.getSomes(A.map(candidates, (candidate) => Exit.getSuccess(decodeSemVer(candidate))));
+  return (
+    O.isSome(range) && A.isReadonlyArrayNonEmpty(versions) && !A.some(versions, (version) => range.value.test(version))
+  );
+};
 
 /**
  * Companion types for {@link LockfileIntegrity}.

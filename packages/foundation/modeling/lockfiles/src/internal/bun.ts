@@ -20,12 +20,16 @@ import {
   importerDependencies,
   LockfileFields,
   peerDeclarations,
+  resolveByCandidates,
+  sectionNames,
+  slashPrefixes,
   splitNameVersion,
   syntaxFailure,
   toIntegrityHash,
   validationFailure,
+  workspaceEntryOf,
 } from "./shared.ts";
-import type { ParseFailure, WorkspaceEntry } from "./shared.ts";
+import type { DependencyMap, ParseFailure } from "./shared.ts";
 
 const $I = $LockfilesId.create("internal/bun");
 
@@ -119,10 +123,10 @@ const BunPackageInfo = S.Struct({
 
 const decodeBunPackageInfo = S.decodeUnknownExit(BunPackageInfo);
 
-const readBunPackageInfo = (value: unknown): typeof BunPackageInfo.Type | undefined => {
-  const exit = decodeBunPackageInfo(value);
-  return Exit.isSuccess(exit) ? exit.value : undefined;
-};
+type BunPackageInfoType = typeof BunPackageInfo.Type;
+
+const readBunPackageInfo = (value: unknown): O.Option<BunPackageInfoType> =>
+  Exit.getSuccess(decodeBunPackageInfo(value));
 
 const BunLockfileRaw = S.Struct({
   // This ungated format preserves non-finite version numbers by stringifying them upstream.
@@ -158,6 +162,9 @@ const BunLockfileRaw = S.Struct({
 );
 
 type BunLockfileRawType = typeof BunLockfileRaw.Type;
+type BunWorkspaceEntryType = typeof BunWorkspaceEntry.Type;
+
+const decodeBunLockfileRaw = S.decodeUnknownEffect(BunLockfileRaw);
 
 /**
  * Parse bun `bun.lock` (JSONC) content into the unified field bundle.
@@ -183,7 +190,7 @@ export const parseBun = Effect.fn("parseBun")(function* (
   content: string
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   const parsed = yield* Jsonc.parse(content).pipe(Effect.mapError(syntaxFailure));
-  const validated = yield* S.decodeUnknownEffect(BunLockfileRaw)(parsed).pipe(Effect.mapError(validationFailure));
+  const validated = yield* decodeBunLockfileRaw(parsed).pipe(Effect.mapError(validationFailure));
   return yield* toFields(validated);
 });
 
@@ -209,12 +216,12 @@ export const parseBun = Effect.fn("parseBun")(function* (
 const resolveBunEdges: {
   (
     key: string,
-    sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
+    sections: ReadonlyArray<DependencyMap | undefined>,
     positionKeys: MutableHashSet.MutableHashSet<string>,
     instanceIds: MutableHashSet.MutableHashSet<string>
   ): Record<string, string>;
   (
-    sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
+    sections: ReadonlyArray<DependencyMap | undefined>,
     positionKeys: MutableHashSet.MutableHashSet<string>,
     instanceIds: MutableHashSet.MutableHashSet<string>
   ): (key: string) => Record<string, string>;
@@ -222,175 +229,166 @@ const resolveBunEdges: {
   4,
   (
     key: string,
-    sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
+    sections: ReadonlyArray<DependencyMap | undefined>,
     positionKeys: MutableHashSet.MutableHashSet<string>,
     instanceIds: MutableHashSet.MutableHashSet<string>
   ): Record<string, string> => {
-    const names = MutableHashSet.empty<string>();
-    for (const section of sections) {
-      if (section === undefined) continue;
-      for (const name of R.keys(section)) if (name !== "") MutableHashSet.add(names, name);
-    }
-    if (MutableHashSet.size(names) === 0) return {};
-
     // The entry's own position first, then each ancestor key, then the root.
-    const prefixes: Array<string> = [key];
-    for (let i = key.indexOf("/"); i !== -1; i = key.indexOf("/", i + 1)) {
-      const candidate = key.slice(0, i);
-      if (MutableHashSet.has(positionKeys, candidate)) prefixes.push(candidate);
-    }
-    const orderedPrefixes = A.append(
-      A.sort(
-        prefixes,
-        Order.mapInput(Order.flip(Order.Number), (prefix: string) => prefix.length)
-      ),
-      ""
-    );
-
-    const edges = MutableHashMap.empty<string, string>();
-    for (const name of names) {
-      for (const prefix of orderedPrefixes) {
-        const candidate = prefix === "" ? name : `${prefix}/${name}`;
-        if (MutableHashSet.has(instanceIds, candidate)) {
-          MutableHashMap.set(edges, name, candidate);
-          break;
-        }
-      }
-    }
-    // Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
-    // properties, so a "__proto__" dependency name neither pollutes nor drops.
-    return R.fromEntries(edges);
+    const names = sectionNames(sections);
+    if (MutableHashSet.size(names) === 0) return {};
+    const ancestors = A.filter(slashPrefixes(key), (prefix) => MutableHashSet.has(positionKeys, prefix));
+    const prefixes = A.append(A.sort(A.prepend(ancestors, key), LONGEST_FIRST), "");
+    return resolveByCandidates(names, prefixes, nestedKey, instanceIds);
   }
 );
 
-const infoSections = (info: typeof BunPackageInfo.Type | undefined) =>
-  [info?.dependencies, info?.devDependencies, info?.optionalDependencies, info?.peerDependencies] as const;
+const nestedKey = (prefix: string, name: string): string => (prefix === "" ? name : `${prefix}/${name}`);
 
-const workspaceSections = (entry: typeof BunWorkspaceEntry.Type) =>
-  [entry.dependencies, entry.devDependencies, entry.optionalDependencies, entry.peerDependencies] as const;
+const LONGEST_FIRST = Order.mapInput(Order.flip(Order.Number), (prefix: string) => prefix.length);
+
+const infoSections = (info: O.Option<BunPackageInfoType>): ReadonlyArray<DependencyMap | undefined> =>
+  O.match(info, {
+    onNone: A.empty,
+    onSome: (value) => [value.dependencies, value.devDependencies, value.optionalDependencies, value.peerDependencies],
+  });
+
+const workspaceSections = (entry: BunWorkspaceEntryType): ReadonlyArray<DependencyMap | undefined> => [
+  entry.dependencies,
+  entry.devDependencies,
+  entry.optionalDependencies,
+  entry.peerDependencies,
+];
+
+/** One non-root workspace entry with the name it is known by: its own, or its path. */
+type BunWorkspaceRow = { readonly path: string; readonly entry: BunWorkspaceEntryType; readonly name: string };
+
+/** One `packages` tuple whose first element splits as `name@version`. */
+type BunPackageRow = {
+  readonly key: string;
+  readonly tuple: ReadonlyArray<unknown>;
+  readonly name: string;
+  readonly version: string;
+};
+
+const workspaceRows = (raw: BunLockfileRawType): ReadonlyArray<BunWorkspaceRow> =>
+  A.flatMap(R.toEntries(raw.workspaces ?? {}), ([path, entry]) =>
+    path === "" ? [] : [{ path, entry, name: entry.name === undefined || entry.name === "" ? path : entry.name }]
+  );
+
+// Malformed tuples are skipped, never thrown on: the first element must be a
+// string that splits as `name@version` at the first "@" after a scoped name's
+// own — never the last, since a version part may hold one (`file:../@scope/lib`).
+const packageRows = (raw: BunLockfileRawType): ReadonlyArray<BunPackageRow> =>
+  A.flatMap(R.toEntries(raw.packages ?? {}), ([key, tuple]) =>
+    key === ""
+      ? []
+      : O.toArray(
+          O.map(O.flatMap(O.filter(A.get(tuple, 0), P.isString), splitNameVersion), ({ name, version }) => ({
+            key,
+            tuple,
+            name,
+            version,
+          }))
+        )
+  );
 
 const toFields = Effect.fn("toFields")(function* (
   raw: BunLockfileRawType
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
-  const packages: Array<ResolvedPackage> = [];
   // bun's own instance identities: the `packages` keys.
-  const keys = MutableHashSet.fromIterable(raw.packages !== undefined ? R.keys(raw.packages) : []);
-  let workspaceNames = HashSet.fromIterable<string>([]);
-  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry.Encoded>();
-  const importers: Array<LockfileImporter> = [];
-  const instanceIds = MutableHashSet.empty<string>();
-
+  const keys = MutableHashSet.fromIterable(R.keys(raw.packages ?? {}));
+  const workspaces = workspaceRows(raw);
+  const workspaceNames = HashSet.fromIterable(A.map(workspaces, (row) => row.name));
+  // A workspace package's identity is its `packages` key — the bare name —
+  // because that is what nested keys prefix themselves with. The path is the
+  // fallback for a lockfile that records no such entry.
+  const workspaceIdOf = (row: BunWorkspaceRow): string => (MutableHashSet.has(keys, row.name) ? row.name : row.path);
+  // Workspace packages come from the workspaces map, so their tuples emit no row.
+  const externals = A.filter(packageRows(raw), (row) => !HashSet.has(workspaceNames, row.name));
   // Preserve workspace identities from the raw position keys, even when the
   // corresponding tuple is malformed: the workspace itself emits that row.
-  if (raw.workspaces !== undefined) {
-    for (const [wsPath, wsEntry] of R.toEntries(raw.workspaces)) {
-      if (wsPath === "") continue;
-      const name = wsEntry.name === undefined || wsEntry.name === "" ? wsPath : wsEntry.name;
-      workspaceNames = HashSet.add(workspaceNames, name);
-      MutableHashSet.add(instanceIds, MutableHashSet.has(keys, name) ? name : wsPath);
-    }
-  }
-  if (raw.packages !== undefined) {
-    for (const [key, tuple] of R.toEntries(raw.packages)) {
-      if (key === "") continue;
-      const first = tuple[0];
-      if (P.isString(first)) {
-        const split = O.getOrUndefined(splitNameVersion(first));
-        if (split !== undefined && HashSet.has(workspaceNames, split.name) === false) {
-          MutableHashSet.add(instanceIds, key);
-        }
-      }
-    }
-  }
-
-  if (raw.workspaces !== undefined) {
-    // Bun records concrete versions on the package tuples, not per importer,
-    // so every importer dependency carries a specifier and no version. The
-    // root workspace is the `""` entry — the `"."` importer.
-    for (const [wsPath, wsEntry] of R.toEntries(raw.workspaces)) {
-      importers.push(
-        LockfileImporter.make({
-          path: wsPath === "" ? "." : wsPath,
-          dependencies: importerDependencies(wsEntry, (specifier) => ({ specifier })),
-        })
-      );
-    }
-
-    for (const [wsPath, wsEntry] of R.toEntries(raw.workspaces)) {
-      if (wsPath === "") continue; // root entry
-      const name = wsEntry.name === undefined || wsEntry.name === "" ? wsPath : wsEntry.name;
-      // A workspace package's identity is its `packages` key — the bare
-      // name — because that is what nested keys prefix themselves with. The
-      // path is the fallback for a lockfile that records no such entry.
-      const instanceId = MutableHashSet.has(keys, name) ? name : wsPath;
-      packages.push(
-        ResolvedPackage.make({
-          name,
-          version: wsEntry.version ?? "0.0.0",
-          instanceId,
-          isWorkspace: true,
-          relativePath: wsPath,
-          ...peerDeclarations(wsEntry.peerDependencies, undefined, wsEntry.optionalPeers),
-          resolved: resolveBunEdges(instanceId, workspaceSections(wsEntry), keys, instanceIds),
-        })
-      );
-      MutableHashMap.set(workspaceEntries, name, {
-        ...O.getSomesStruct({ dependencies: O.fromUndefinedOr(wsEntry.dependencies) }),
-        ...O.getSomesStruct({ devDependencies: O.fromUndefinedOr(wsEntry.devDependencies) }),
-        ...O.getSomesStruct({ peerDependencies: O.fromUndefinedOr(wsEntry.peerDependencies) }),
-        ...O.getSomesStruct({ optionalDependencies: O.fromUndefinedOr(wsEntry.optionalDependencies) }),
-      });
-    }
-  }
-
-  if (raw.packages !== undefined) {
-    for (const [key, tuple] of R.toEntries(raw.packages)) {
-      if (key === "") continue; // no identity, no row; skip, never throw
-      if (tuple.length < 1) continue;
-      const first = tuple[0];
-      if (!P.isString(first)) continue; // malformed tuples are skipped, never thrown on
-      // The first "@" after a scoped name's own, never the last: a version
-      // part may hold one (`file:../@scope/lib`).
-      const split = O.getOrUndefined(splitNameVersion(first));
-      if (split === undefined) continue; // handles "@", "@scope/", bare names
-      const { name, version } = split;
-
-      // Workspace packages were already added from the workspaces map.
-      if (HashSet.has(workspaceNames, name)) continue;
-
-      const integrity = yield* toIntegrityHash(tuple.length >= 4 && P.isString(tuple[3]) ? tuple[3] : undefined);
-      // Tuple index 2 is the info object carrying the entry's own
-      // dependency and peer declarations.
-      const info = tuple.length >= 3 ? readBunPackageInfo(tuple[2]) : undefined;
-      packages.push(
-        ResolvedPackage.make({
-          name,
-          version,
-          instanceId: key,
-          ...O.getSomesStruct({ integrity: O.fromUndefinedOr(integrity) }),
-          isWorkspace: false,
-          ...peerDeclarations(info?.peerDependencies, undefined, info?.optionalPeers),
-          resolved: resolveBunEdges(key, infoSections(info), keys, instanceIds),
-        })
-      );
-    }
-  }
-
-  const workspaceDependencies = extractWorkspaceDeps(workspaceEntries, workspaceNames);
-
-  const extension: BunExtension.Encoded = {
-    _tag: "bun",
-    ...O.getSomesStruct({ catalog: O.fromUndefinedOr(raw.catalog) }),
-    ...O.getSomesStruct({ catalogs: O.fromUndefinedOr(raw.catalogs) }),
-    ...O.getSomesStruct({ overrides: O.fromUndefinedOr(raw.overrides) }),
-    ...O.getSomesStruct({ trustedDependencies: O.fromUndefinedOr(raw.trustedDependencies) }),
-  };
-
+  const instanceIds = MutableHashSet.fromIterable(
+    A.appendAll(
+      A.map(workspaces, workspaceIdOf),
+      A.map(externals, (row) => row.key)
+    )
+  );
+  const workspacePackages = A.map(workspaces, (row) => {
+    const instanceId = workspaceIdOf(row);
+    return ResolvedPackage.make({
+      name: row.name,
+      version: row.entry.version ?? "0.0.0",
+      instanceId,
+      isWorkspace: true,
+      relativePath: row.path,
+      ...peerDeclarations(row.entry.peerDependencies, undefined, row.entry.optionalPeers),
+      resolved: resolveBunEdges(instanceId, workspaceSections(row.entry), keys, instanceIds),
+    });
+  });
+  const externalPackages = yield* Effect.forEach(externals, (row) => externalPackage(row, keys, instanceIds));
   return LockfileFields.make({
     lockfileVersion: String(raw.lockfileVersion),
-    packages,
-    workspaceDependencies,
-    importers,
-    extension,
+    packages: A.appendAll(workspacePackages, externalPackages),
+    workspaceDependencies: extractWorkspaceDeps(
+      MutableHashMap.fromIterable(A.map(workspaces, (row) => [row.name, workspaceEntryOf(row.entry)] as const)),
+      workspaceNames
+    ),
+    importers: bunImporters(raw),
+    extension: bunExtension(raw),
   });
 });
+
+// Bun records concrete versions on the package tuples, not per importer, so
+// every importer dependency carries a specifier and no version. The root
+// workspace is the `""` entry — the `"."` importer.
+const bunImporters = (raw: BunLockfileRawType): ReadonlyArray<LockfileImporter> =>
+  A.map(R.toEntries(raw.workspaces ?? {}), ([path, entry]) =>
+    LockfileImporter.make({
+      path: path === "" ? "." : path,
+      dependencies: importerDependencies(entry, (specifier) => ({ specifier })),
+    })
+  );
+
+const bunExtension = (raw: BunLockfileRawType): BunExtension.Encoded => ({
+  _tag: "bun",
+  ...O.getSomesStruct({
+    catalog: O.fromUndefinedOr(raw.catalog),
+    catalogs: O.fromUndefinedOr(raw.catalogs),
+    overrides: O.fromUndefinedOr(raw.overrides),
+    trustedDependencies: O.fromUndefinedOr(raw.trustedDependencies),
+  }),
+});
+
+const externalPackage: {
+  (
+    row: BunPackageRow,
+    keys: MutableHashSet.MutableHashSet<string>,
+    instanceIds: MutableHashSet.MutableHashSet<string>
+  ): Effect.Effect<ResolvedPackage, ParseFailure>;
+  (
+    keys: MutableHashSet.MutableHashSet<string>,
+    instanceIds: MutableHashSet.MutableHashSet<string>
+  ): (row: BunPackageRow) => Effect.Effect<ResolvedPackage, ParseFailure>;
+} = dual(
+  3,
+  Effect.fnUntraced(function* (
+    row: BunPackageRow,
+    keys: MutableHashSet.MutableHashSet<string>,
+    instanceIds: MutableHashSet.MutableHashSet<string>
+  ) {
+    // The integrity hash is assumed at tuple index 3, and index 2 is the info
+    // object carrying the entry's own dependency and peer declarations.
+    const integrity = yield* toIntegrityHash(A.get(row.tuple, 3).pipe(O.filter(P.isString), O.getOrUndefined));
+    const info = O.flatMap(A.get(row.tuple, 2), readBunPackageInfo);
+    const peers = O.getOrUndefined(info);
+    return ResolvedPackage.make({
+      name: row.name,
+      version: row.version,
+      instanceId: row.key,
+      ...O.getSomesStruct({ integrity }),
+      isWorkspace: false,
+      ...peerDeclarations(peers?.peerDependencies, undefined, peers?.optionalPeers),
+      resolved: resolveBunEdges(row.key, infoSections(info), keys, instanceIds),
+    });
+  })
+);
