@@ -12,6 +12,7 @@ import {
   planGoalPacketMigration,
   readmeLifecycleToken,
   readmeMissionLine,
+  readmeTitle,
   renderPortfolioIndex,
   rewriteReadmeLifecycleToken,
 } from "@beep/repo-cli/test/Goals";
@@ -260,6 +261,26 @@ describe("README helpers", () => {
     const long = `# T\n\n## Mission\n\n${Str.repeat(301)("x")}\n`;
     readmeMissionLine(long).pipe(assertNone);
     readmeMissionLine("# T\n\n## Overview\n\nNo mission.\n").pipe(assertNone);
+  });
+
+  it("reads the mission paragraph as a CommonMark block", () => {
+    expect(O.getOrNull(readmeMissionLine("# T\n\n## Mission ##\n\nShip it.\n"))).toBe("Ship it.");
+    expect(
+      O.getOrNull(readmeMissionLine("# T\n\n## Mission\n\nAgents ask the attorney:\n- a question;\n- an answer.\n"))
+    ).toBe("Agents ask the attorney:");
+    readmeMissionLine("# <Goal Title>\n\n## Mission\n\n<One or two sentences about the outcome.>\n").pipe(assertNone);
+    readmeMissionLine("# T\n\n## Mission\n\n- a list is not a mission line\n").pipe(assertNone);
+  });
+
+  it("reads the H1 title as written through the heading source", () => {
+    expect(O.getOrNull(readmeTitle("# Goals Doctor\n"))).toBe("Goals Doctor");
+    expect(O.getOrNull(readmeTitle("# <Goal Title>\n\n## Mission\n"))).toBe("<Goal Title>");
+    expect(O.getOrNull(readmeTitle("# Use `Effect.gen` <b>now</b> #\n"))).toBe("Use `Effect.gen` <b>now</b>");
+    expect(O.getOrNull(readmeTitle("```sh\n# not a title\n```\n\n# Real Title\n"))).toBe("Real Title");
+    expect(O.getOrNull(readmeTitle("Setext Title\n============\n"))).toBe("Setext Title");
+    expect(O.getOrNull(readmeTitle("> # Quoted\n\n- # Listed\n\n# Root Title\n"))).toBe("Root Title");
+    readmeTitle("## Only a subsection\n").pipe(assertNone);
+    readmeTitle("#\n").pipe(assertNone);
   });
 });
 

@@ -41,6 +41,8 @@ export * from "./PracticeKg.correspondents.ts";
  */
 export * from "./PracticeKg.errors.ts";
 export * from "./PracticeKg.families.ts";
+/** DuckDB projection builder. @category use-cases @since 0.0.0 */
+export { buildDuckDb } from "./PracticeKg.fts.ts";
 /**
  * @category services
  * @since 0.0.0

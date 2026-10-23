@@ -267,8 +267,8 @@ const provideScopedLayer =
  * **Gotchas**
  *
  * The connection opens when the wrapped effect starts and closes when it
- * settles, so each build step owns its handle rather than sharing one across the
- * whole projection. Writes are therefore committed per step, not per build.
+ * settles. The projection build wraps all DuckDB steps together so they share
+ * one read-write connection. Statements still commit individually.
  *
  * **Example** (Run effect with DuckDB)
  *

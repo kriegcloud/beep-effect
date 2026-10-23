@@ -666,12 +666,6 @@
         ]
       },
       {
-        "name": "@beep/package-json",
-        "patterns": [
-          "packages/foundation/modeling/package-json/src/**"
-        ]
-      },
-      {
         "name": "@beep/palantiri",
         "patterns": [
           "packages/tooling/library/palantiri/src/**"
@@ -3538,29 +3532,6 @@
         ]
       },
       {
-        "from": "@beep/package-json",
-        "allow": [
-          "@beep/fc-runs",
-          "@beep/identity",
-          "@beep/jsonc",
-          "@beep/memfs",
-          "@beep/npm-spec",
-          "@beep/package-json",
-          "@beep/semver",
-          "@beep/spdx"
-        ],
-        "allowTypeOnly": [
-          "@beep/fc-runs",
-          "@beep/identity",
-          "@beep/jsonc",
-          "@beep/memfs",
-          "@beep/npm-spec",
-          "@beep/package-json",
-          "@beep/semver",
-          "@beep/spdx"
-        ]
-      },
-      {
         "from": "@beep/palantiri",
         "allow": [
           "@beep/fc-runs",
@@ -4174,6 +4145,7 @@
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
+          "@beep/markdown",
           "@beep/mcp-kit",
           "@beep/md",
           "@beep/memfs",
@@ -4219,6 +4191,7 @@
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
+          "@beep/markdown",
           "@beep/mcp-kit",
           "@beep/md",
           "@beep/memfs",
@@ -4437,7 +4410,6 @@
           "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
-          "@beep/package-json",
           "@beep/pglite",
           "@beep/postgres",
           "@beep/pretext",
@@ -4489,7 +4461,6 @@
           "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
-          "@beep/package-json",
           "@beep/pglite",
           "@beep/postgres",
           "@beep/pretext",
@@ -4676,6 +4647,7 @@
         "from": "@beep/skill-contract",
         "allow": [
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/skill-contract",
@@ -4684,6 +4656,7 @@
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/skill-contract",

@@ -113,6 +113,34 @@ describe("@beep/law-practice-use-cases docket questions", () => {
     );
 
     it.effect(
+      "names the email in every reason's question and states each matter flag",
+      Effect.fnUntraced(function* () {
+        const questions = yield* Effect.forEach(DocketNeedsReviewReason.literals, (reason) =>
+          Effect.flatMap(
+            raise(
+              identified(
+                DocketNeedsReview.make({
+                  entry: DocketWrittenEntry.make({ eventId: NEEDS_REVIEW_EVENT }),
+                  flags: ["matter-not-found", "matter-lookup-failed"],
+                  messageId: "AAMkAGsynthetic-message-1=",
+                  reason,
+                })
+              )
+            ),
+            Effect.fromOption
+          )
+        );
+
+        for (const question of questions) {
+          assertTrue(Str.includes(`the email "${SUBJECT}"`)(question.text));
+          expect(factTexts(question)).toEqual(
+            expect.arrayContaining(["No matter matches the message.", "The matter lookup failed."])
+          );
+        }
+      })
+    );
+
+    it.effect(
       "offers one calendar option per distinct candidate date, earliest first",
       Effect.fnUntraced(function* () {
         const question = yield* Effect.fromOption(
