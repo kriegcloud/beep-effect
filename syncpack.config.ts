@@ -157,7 +157,7 @@ const config = {
       // (goals/effect-string-migration) cleared its 2,992 sites.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
-      // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is
+      // tsc-rs (pingdotgg/ts-rust) 0.8.0 stays independently held. Its port is
       // effect-tsgo 0.51.1 and its TypeScript pin is 7.1.0-dev.20261008.1.
       // Re-couple only after tsc-rs ports the newest rules and parity is proved,
       // then remove the standalone diagnostics lane. See the toolchain runbook.
