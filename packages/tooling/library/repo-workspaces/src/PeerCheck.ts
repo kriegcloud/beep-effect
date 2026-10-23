@@ -2,6 +2,8 @@
  * Unsatisfied peer-dependency detection over a parsed lockfile — a pure
  * VALUE, not a service. No IO, nothing in `R`, no error channel.
  *
+ * **Details**
+ *
  * The computation is FORMAT-FREE. `@beep/lockfiles` normalizes every
  * manager's lockfile into package *instances* carrying `instanceId`,
  * `peerDependencies`, `peerDependenciesMeta` and `resolved` (name → the

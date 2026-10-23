@@ -1,6 +1,8 @@
 /**
  * Whether a workspace package is publishable, and where to.
  *
+ * **Details**
+ *
  * A service rather than a function precisely so it is swappable: standard npm
  * semantics are the default, and an organization with its own publish rules
  * replaces the layer with `Layer.succeed` instead of forking the package.

@@ -1,6 +1,8 @@
 /**
  * Workspace-root discovery, expressed over `@beep/walker`.
  *
+ * **Details**
+ *
  * The markers, in priority order: a `pnpm-workspace.yaml`, then a
  * `package.json` carrying a `workspaces` field. Walker's per-probe error
  * absorption is load-bearing — one unreadable ancestor must not hide a valid

@@ -4,6 +4,8 @@
  * the same posture: format-free, over `@beep/lockfiles`' normalized
  * instances, walking `resolved` edges from each importer's roots.
  *
+ * **Details**
+ *
  * The question it answers is the one issue #298 could not get from a type
  * error and issue #603 could not get without looping `pnpm why` by hand:
  * "which names resolve at more than one version, and who pulls each copy?"

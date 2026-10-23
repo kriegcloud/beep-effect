@@ -2,6 +2,8 @@
  * How a workspace assigns versions across its publishable packages, and what
  * that implies for tagging.
  *
+ * **Details**
+ *
  * This is a value class with statics, not a service. Classification is a pure
  * total fold over (publishable names, fixed groups) — there is nothing to swap
  * and nothing to configure — and the kit-wide rule that a service shape carries

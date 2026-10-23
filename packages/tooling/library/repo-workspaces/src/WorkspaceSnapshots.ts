@@ -2,6 +2,8 @@
  * "What did this workspace look like at that moment": `at(ref)` reads workspace
  * state at a git ref with NO checkout, `worktree()` reads the live tree.
  *
+ * **Details**
+ *
  * `at(ref)` runs entirely through `@beep/git`'s `Git` service — no
  * filesystem enumeration, only the live root walk (the one place it touches the
  * working tree, because you need a repository to run git against). Package

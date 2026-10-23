@@ -1,6 +1,8 @@
 /**
  * The opt-in pnpmfile `configDependencies` hook-replay seam.
  *
+ * **Details**
+ *
  * pnpm's config dependencies (declared under `configDependencies:` in
  * `pnpm-workspace.yaml`) install to `node_modules/.pnpm-config/<name>` and may
  * ship a `pnpmfile.cjs` whose `updateConfig` hook mutates the resolved config —

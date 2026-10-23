@@ -2,6 +2,8 @@
  * Workspace discovery: read the `packages:` patterns, enumerate them, decode a
  * WorkspacePackage per directory.
  *
+ * **Details**
+ *
  * It also owns file → owning-package resolution (longest-prefix), which is a
  * lookup over discovery output rather than a concern of its own.
  *

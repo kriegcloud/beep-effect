@@ -1,6 +1,8 @@
 /**
  * Which package manager drives this workspace, and how we work that out.
  *
+ * **Details**
+ *
  * `PackageManagerName` is structurally identical to `@beep/lockfiles`'
  * `LockfileFormat` and assigns freely to it — which is exactly what
  * `LockfileReader` relies on. They are kept as separate names because they are

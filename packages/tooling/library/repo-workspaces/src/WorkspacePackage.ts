@@ -1,6 +1,8 @@
 /**
  * The located workspace member: a package.json projection plus where it lives.
  *
+ * **Details**
+ *
  * Deliberately a TOLERANT projection rather than `@beep/package-json`'s
  * `Package` — that model requires a `PackageName` and a strict `SemVer`, so a
  * single member with a non-semver version would fail discovery for the whole

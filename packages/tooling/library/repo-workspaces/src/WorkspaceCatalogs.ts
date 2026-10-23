@@ -3,6 +3,8 @@
  * workspace, and the real implementation of `@beep/npm-spec`'s `CatalogResolver`
  * contract.
  *
+ * **Details**
+ *
  * Assembly precedence follows pnpm: lockfile-recorded catalogs first, then the
  * inline `pnpm-workspace.yaml` catalogs, which win.
  *

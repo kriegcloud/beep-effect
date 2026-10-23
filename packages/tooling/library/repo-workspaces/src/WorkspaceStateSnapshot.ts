@@ -5,6 +5,8 @@
  * living in lazily-built `#private` indexes OUTSIDE the schema, the same
  * precedent `DependencyGraph`'s edge index and `Lockfile.packagesNamed` cite.
  *
+ * **Details**
+ *
  * A snapshot answers "what did this specifier mean HERE" against ITS OWN state:
  * `workspace:` against the versions it captured, `catalog:` against the catalog
  * set it captured. It also hands back `@beep/npm-spec` resolver layers bound to

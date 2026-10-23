@@ -1,6 +1,8 @@
 /**
  * What a release's git tag is called.
  *
+ * **Details**
+ *
  * A pure leaf: this module imports nothing from the rest of the package, and
  * nothing about git or GitHub. A tag NAME is a string-formatting concern, and
  * keeping it here rather than on a git-shaped service is what lets a release

@@ -4,6 +4,8 @@
  * pnpm 11+ writes) or `0.11.1+sha512-<base64>` (the legacy inline-integrity
  * form) — into a strict `version` and an optional SRI `integrity`.
  *
+ * **Details**
+ *
  * pnpm 11 moved config-dependency integrity into the lockfile and
  * `pnpm add --config` writes the bare version, so a tool that touches the
  * field normalizes to `bare`; `toString()` keeps the spelling it read for a

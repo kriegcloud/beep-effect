@@ -2,6 +2,8 @@
  * The inter-workspace dependency graph — a pure VALUE, not a service. Sorting
  * is a pure function of the graph, so it lives here as a method.
  *
+ * **Details**
+ *
  * Cycle detection is ITERATIVE, so a long dependency chain cannot overflow the
  * stack.
  *

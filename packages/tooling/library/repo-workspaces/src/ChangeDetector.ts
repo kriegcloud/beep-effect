@@ -2,6 +2,8 @@
  * Git-based change detection: changedFiles → changedPackages →
  * affectedPackages, three depths of analysis on one service.
  *
+ * **Details**
+ *
  * It runs git through `@beep/git`'s `Git` service rather than a raw
  * subprocess seam, so a test provides `Layer.succeed(Git, …)` and needs no
  * repository on disk. `Git` requires core's `ChildProcessSpawner` in `R`, which

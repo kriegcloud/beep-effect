@@ -1,6 +1,8 @@
 /**
  * The synchronous escape hatch — over CONSUMER-SUPPLIED operations.
  *
+ * **Details**
+ *
  * Vitest's config-time project discovery cannot await, and it is the reason
  * this module exists — a Vitest plugin building its project list has nowhere to
  * run an Effect. It imports NOTHING platform-shaped: the caller passes the file and path

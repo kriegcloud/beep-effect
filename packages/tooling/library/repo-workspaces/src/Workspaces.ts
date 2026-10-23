@@ -1,6 +1,8 @@
 /**
  * The composite layers.
  *
+ * **Details**
+ *
  * The composites split on PLATFORM REQUIREMENTS, not on a feature flag:
  * `layer` needs a filesystem, `layerWithGit` additionally needs core's
  * `ChildProcessSpawner` (behind `@beep/git`'s `Git` service) to run git.

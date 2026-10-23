@@ -1,6 +1,8 @@
 /**
  * The IO half of `@beep/lockfiles`.
  *
+ * **Details**
+ *
  * The seam is `content: string`: lockfiles is pure and parses text,
  * workspaces finds the root, detects the manager, reads the file
  * and — for pnpm — supplies the importer-path → name map that the pure
