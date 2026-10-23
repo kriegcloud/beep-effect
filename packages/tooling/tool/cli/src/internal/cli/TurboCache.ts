@@ -474,7 +474,7 @@ export class RemoteReadTurboCache extends S.Opaque<RemoteReadTurboCache, { reado
  * **Example** (Describe an enrolled writer)
  *
  * ```ts
- * import { RemoteWriteTurboCache } from "@beep/repo-cli/internal/cli/TurboCache"
+ * import { RemoteWriteTurboCache } from "@beep/repo-cli/test/SharedInternals"
  *
  * const plan = RemoteWriteTurboCache.make({ requiresSecretSession: true })
  * console.log(plan.mode)

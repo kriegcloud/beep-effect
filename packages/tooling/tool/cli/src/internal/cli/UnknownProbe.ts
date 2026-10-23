@@ -27,7 +27,7 @@ const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unk
  *
  * ```ts
  * import * as O from "effect/Option"
- * import { asRecord } from "@beep/repo-cli/internal/cli/UnknownProbe"
+ * import { asRecord } from "@beep/repo-cli/test/Cli"
  *
  * console.log(O.isSome(asRecord({ a: 1 })))
  * console.log(O.isSome(asRecord([1, 2])))
@@ -46,7 +46,7 @@ export const asRecord: (value: unknown) => O.Option<Record<string, unknown>> = O
  * **Example** (Object true array false)
  *
  * ```ts
- * import { isUnknownRecord } from "@beep/repo-cli/internal/cli/UnknownProbe"
+ * import { isUnknownRecord } from "@beep/repo-cli/test/Cli"
  *
  * console.log(isUnknownRecord({ a: 1 }))
  * console.log(isUnknownRecord([1, 2]))
@@ -67,7 +67,7 @@ export const isUnknownRecord = (value: unknown): value is Readonly<Record<string
  *
  * ```ts
  * import * as O from "effect/Option"
- * import { unknownRecordProperty } from "@beep/repo-cli/internal/cli/UnknownProbe"
+ * import { unknownRecordProperty } from "@beep/repo-cli/test/Cli"
  *
  * console.log(unknownRecordProperty({ name: "beep" }, "name"))
  * console.log(O.isNone(unknownRecordProperty([1, 2], "name")))
@@ -97,7 +97,7 @@ export const unknownRecordProperty: {
  * **Example** (Sorted keys empty arrays)
  *
  * ```ts
- * import { unknownRecordKeys } from "@beep/repo-cli/internal/cli/UnknownProbe"
+ * import { unknownRecordKeys } from "@beep/repo-cli/test/Cli"
  *
  * console.log(unknownRecordKeys({ b: 1, a: 2 }))
  * console.log(unknownRecordKeys([1, 2]))

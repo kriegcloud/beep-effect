@@ -24,7 +24,7 @@ import * as A from "effect/Array";
  * **Example** (Prepare bytes for a digest call)
  *
  * ```ts
- * import { asArrayBufferView } from "@beep/repo-cli/internal/cli/Bytes"
+ * import { asArrayBufferView } from "@beep/repo-cli/test/Cli"
  *
  * const view = asArrayBufferView(new Uint8Array([1, 2, 3]))
  *
@@ -47,7 +47,7 @@ export const asArrayBufferView = (bytes: Uint8Array): Uint8Array<ArrayBuffer> =>
  * **Example** (Frame two chunks into one buffer)
  *
  * ```ts
- * import { concatBytes } from "@beep/repo-cli/internal/cli/Bytes"
+ * import { concatBytes } from "@beep/repo-cli/test/Cli"
  *
  * const joined = concatBytes([new Uint8Array([1, 2]), new Uint8Array([3])])
  *

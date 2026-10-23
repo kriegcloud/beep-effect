@@ -401,7 +401,7 @@ export const readYeetRulesetRequiredContexts = Effect.fn("Yeet.readYeetRulesetRe
  * **Example** (Build the strict capture effect)
  *
  * ```ts
- * import { runRepoCommandCapture } from "@beep/repo-cli/internal/repo-run"
+ * import { runRepoCommandCapture } from "@beep/repo-cli/test/RepoRun"
  * import { captureRepoCommandStrict } from "@beep/repo-cli/test/Yeet"
  * import * as Effect from "effect/Effect";
  * const read = captureRepoCommandStrict({

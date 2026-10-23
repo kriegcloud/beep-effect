@@ -21,7 +21,7 @@ const $I = $RepoCliId.create("internal/cli/Stdin");
  * **Example** (Make StdinDocumentError instance)
  *
  * ```ts
- * import { StdinDocumentError } from "@beep/repo-cli/internal/cli/Stdin"
+ * import { StdinDocumentError } from "@beep/repo-cli/test/Cli"
  *
  * const error = StdinDocumentError.make({ message: "no stdin" })
  * console.log(error.message)
@@ -65,7 +65,7 @@ interface CommandStdinShape {
  * **Example** (Read the reference key)
  *
  * ```ts
- * import { CommandStdinSource } from "@beep/repo-cli/internal/cli/Stdin"
+ * import { CommandStdinSource } from "@beep/repo-cli/test/Cli"
  *
  * console.log(typeof CommandStdinSource.key) // "string"
  * ```
@@ -99,7 +99,7 @@ interface StdinDocumentMessages {
  * **Example** (Refuse without the flag)
  *
  * ```ts
- * import { readStdinDocument } from "@beep/repo-cli/internal/cli/Stdin"
+ * import { readStdinDocument } from "@beep/repo-cli/test/Cli"
  * import * as Effect from "effect/Effect";
  * const read = readStdinDocument(false, {
  *   missingFlag: "requires --from-stdin",
