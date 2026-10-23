@@ -6,19 +6,27 @@
 
 import { QuestionOption } from "@beep/law-practice-domain/values/Question";
 import { ReviewItem } from "@beep/law-practice-domain/values/ReviewItem";
-import { makeNoticeMailboxLayer, NoticeMailboxConfig } from "@beep/law-practice-server/NoticeMailbox";
+import {
+  makeNoticeMailboxLayer,
+  NoticeClaudeFolder,
+  NoticeClaudeLink,
+  NoticeMailboxConfig,
+} from "@beep/law-practice-server/NoticeMailbox";
 import { DailyNotice, DailyNoticeLive, NoticeMailbox, NoticeMessage } from "@beep/law-practice-use-cases/DailyNotice";
 import { GraphMessage } from "@beep/m365";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { makeM365Stub, oneRun, Platform, serviceOf, temporaryDirectory } from "./MailTagging.adapters.fixture.ts";
 import type { M365CreateDraftMessageRequest, M365SendDraftMessageRequest } from "@beep/m365";
@@ -43,10 +51,40 @@ const fakeMailbox = (calls: Ref.Ref<Calls>) =>
       Ref.update(calls, (current) => ({ ...current, sends: A.append(current.sends, request) })),
   });
 
-const mailboxLayer = (dataDirectory: string, calls: Ref.Ref<Calls>) =>
-  makeNoticeMailboxLayer(NoticeMailboxConfig.make({ mailbox: MAILBOX, dataDirectory })).pipe(
-    Layer.provide(fakeMailbox(calls))
-  );
+// Without a link the config is made with no claudeLink key at all, as configs written before the link are.
+const mailboxConfig = (dataDirectory: string, claudeLink: O.Option<NoticeClaudeLink>) =>
+  O.match(claudeLink, {
+    onNone: () => NoticeMailboxConfig.make({ mailbox: MAILBOX, dataDirectory }),
+    onSome: (link) => NoticeMailboxConfig.make({ mailbox: MAILBOX, dataDirectory, claudeLink: O.some(link) }),
+  });
+
+const mailboxLayer = (dataDirectory: string, calls: Ref.Ref<Calls>, claudeLink = O.none<NoticeClaudeLink>()) =>
+  makeNoticeMailboxLayer(mailboxConfig(dataDirectory, claudeLink)).pipe(Layer.provide(fakeMailbox(calls)));
+
+// A folder and a request with every character the HTML body must escape: &, ', < and >.
+const LINK_FOLDER = "C:/Users/attorney/Review & Notes";
+const LINK_PROMPT = "Walk me through the examiner's <b>office action</b> & dates.";
+
+// The exact HTML body for LINK_FOLDER and LINK_PROMPT. In the href, & between the parameters and the ' that
+// encodeURIComponent leaves alone are escaped; the folder is shown and linked with \ separators.
+const LINK_HTML = A.join(
+  [
+    "<p>2 questions are waiting in Claude.</p>",
+    '<p><a href="claude-cli://open?cwd=C%3A%5CUsers%5Cattorney%5CReview%20%26%20Notes&amp;q=Walk%20me%20through%20the%20examiner&#39;s%20%3Cb%3Eoffice%20action%3C%2Fb%3E%20%26%20dates.">Answer them in Claude Code</a></p>',
+    "<p>The link opens Claude Code with the request typed in. Check that it reads exactly: Walk me through the examiner&#39;s &lt;b&gt;office action&lt;/b&gt; &amp; dates. Then press Enter. If it reads anything else, close Claude Code without pressing Enter.</p>",
+    "<p>If the link does not open, open Claude Code in C:\\Users\\attorney\\Review &amp; Notes and type: Walk me through the examiner&#39;s &lt;b&gt;office action&lt;/b&gt; &amp; dates.</p>",
+  ],
+  "\n"
+);
+
+// Reverses escapeHtml, so the href can be read back the way a mail client reads the attribute.
+const unescapeHtml = flow(
+  Str.replaceAll("&#39;", "'"),
+  Str.replaceAll("&quot;", '"'),
+  Str.replaceAll("&gt;", ">"),
+  Str.replaceAll("&lt;", "<"),
+  Str.replaceAll("&amp;", "&")
+);
 
 const noCalls = () => Ref.make<Calls>({ drafts: [], sends: [] });
 
@@ -90,6 +128,85 @@ describe("@beep/law-practice-server NoticeMailbox", () => {
           expect(A.map(sends, ({ messageId }) => messageId)).toStrictEqual(["draft-1"]);
         })
       )
+    );
+
+    it.effect("sends HTML with an Answer them in Claude Code link when the config has one", () =>
+      oneRun(
+        Effect.gen(function* () {
+          const calls = yield* noCalls();
+          const link = NoticeClaudeLink.make({ folder: NoticeClaudeFolder.make(LINK_FOLDER), prompt: LINK_PROMPT });
+          const mailbox = yield* serviceOf(NoticeMailbox)(mailboxLayer(yield* temporaryDirectory, calls, O.some(link)));
+
+          yield* mailbox.send(
+            NoticeMessage.make({ subject: "Claude: 2 questions waiting", body: "2 questions are waiting in Claude." })
+          );
+
+          const { drafts, sends } = yield* Ref.get(calls);
+          const draft = O.getOrThrow(A.head(drafts)).draft;
+          const href = O.getOrThrow(O.flatMap(Str.match(/href="([^"]*)"/u)(draft.body.content), A.get(1)));
+          const url = new URL(unescapeHtml(href));
+
+          expect([A.length(drafts), draft.subject, draft.body.contentType, draft.toRecipients]).toStrictEqual([
+            1,
+            "Claude: 2 questions waiting",
+            "html",
+            [MAILBOX],
+          ]);
+          expect(draft.body.content).toBe(LINK_HTML);
+          expect(Str.includes("<b>")(draft.body.content)).toBe(false);
+          expect([url.protocol, url.host, url.searchParams.get("cwd"), url.searchParams.get("q")]).toStrictEqual([
+            "claude-cli:",
+            "open",
+            "C:\\Users\\attorney\\Review & Notes",
+            LINK_PROMPT,
+          ]);
+          expect(A.map(sends, ({ messageId }) => messageId)).toStrictEqual(["draft-1"]);
+        })
+      )
+    );
+
+    it.effect("refuses a Claude Code folder the link's cwd cannot open", () =>
+      Effect.sync(() => {
+        expect(
+          A.map(
+            [
+              "C:\\Users\\attorney\\Review",
+              "C:/Users/attorney/Review",
+              "C:Review",
+              "Review",
+              "/srv/review",
+              "C:/Users/attorney/../Review",
+              "C:\\Users\\attorney\\..\\Review",
+              "C:/Users/./Review",
+              "C:/Users/attorney/Review\u202E",
+              "C:/Users/attorney/Re\u200Bview",
+              "C:/Users/attorney/Re\tview",
+            ],
+            S.is(NoticeClaudeFolder)
+          )
+        ).toStrictEqual([true, true, false, false, false, false, false, false, false, false, false]);
+      })
+    );
+
+    it.effect("refuses a Claude Code request longer than the link carries", () =>
+      Effect.sync(() => {
+        const linkOf = (prompt: string) => ({ folder: "C:/Users/attorney/Review", prompt });
+        expect(
+          A.map([linkOf(Str.repeat(5_000)("a")), linkOf(Str.repeat(5_001)("a"))], S.is(NoticeClaudeLink))
+        ).toStrictEqual([true, false]);
+      })
+    );
+
+    it.effect("defaults claudeLink to none and leaves the key out when encoding", () =>
+      Effect.gen(function* () {
+        const plain = { mailbox: MAILBOX, dataDirectory: "/synthetic/review-hub" };
+        const made = NoticeMailboxConfig.make(plain);
+        const decoded = yield* S.decodeEffect(NoticeMailboxConfig)(plain);
+
+        assertNone(made.claudeLink);
+        assertNone(decoded.claudeLink);
+        expect({ ...(yield* S.encodeEffect(NoticeMailboxConfig)(decoded)) }).toStrictEqual(plain);
+      })
     );
 
     it.effect("claims each day once, as one file under notice-sent", () =>
