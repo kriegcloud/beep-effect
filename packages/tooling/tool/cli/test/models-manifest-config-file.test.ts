@@ -1,0 +1,116 @@
+// The models manifest store reads through `@beep/config-file` (`ConfigFile.read`
+// with `YamlCodec`, effected-promotion wave 3, W3-e). These cases pin the
+// adoption:
+//
+// - parity: every manifest fixture loads to the manifest the previous reader
+//   produced (`yaml` `parseDocument(...).toJS()`, then the schema decode);
+// - round trip: what the writers emit (the npm `yaml` stringifier, kept) loads
+//   back to the same manifest, for every fixture and for the seed;
+// - failures stay typed and keep their messages: a YAML syntax error is a
+//   parse failure, a well-formed document of the wrong shape a decode failure.
+
+import {
+  ModelsManifest,
+  ModelsManifestStore,
+  ModelsManifestStoreLive,
+  seedModelsManifest,
+} from "@beep/repo-cli/commands/Models";
+import { NodeServices } from "@effect/platform-node";
+import { expect, layer } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
+import * as S from "effect/Schema";
+import { parseDocument } from "yaml";
+import { readFixtureText } from "./helpers/models-fixtures.ts";
+
+const manifestFixtures = [
+  "manifest.yaml",
+  "manifest-codex-current.yaml",
+  "manifest-junie.yaml",
+  "manifest-proxy.yaml",
+  "manifest-retired-effort.yaml",
+];
+
+const decodeManifest = S.decodeUnknownEffect(ModelsManifest);
+const encodeManifest = S.encodeUnknownEffect(ModelsManifest);
+
+// The reader the store used before the adoption.
+const legacyLoad = (text: string) => decodeManifest(parseDocument(text).toJS());
+
+const writeTemp = Effect.fnUntraced(function* (name: string, content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const home = yield* fs.makeTempDirectoryScoped({ prefix: "models-config-file-" });
+  const file = path.join(home, name);
+  yield* fs.writeFileString(file, content);
+  return file;
+});
+
+const freshTarget = Effect.fnUntraced(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const home = yield* fs.makeTempDirectoryScoped({ prefix: "models-config-file-" });
+  return path.join(home, "models.yaml");
+});
+
+const storeLayer = Layer.provide(ModelsManifestStoreLive, NodeServices.layer);
+
+layer(Layer.mergeAll(storeLayer, NodeServices.layer), { timeout: "30 seconds" })(
+  "models manifest store on config-file",
+  (it) => {
+    for (const fixture of manifestFixtures) {
+      it.effect(`loads ${fixture} to the manifest the previous reader produced`, () =>
+        Effect.gen(function* () {
+          const store = yield* ModelsManifestStore;
+          const text = yield* readFixtureText(fixture);
+          const file = yield* writeTemp("models.yaml", text);
+          const loaded = yield* store.load(file);
+          const legacy = yield* legacyLoad(text);
+          expect(yield* encodeManifest(loaded)).toEqual(yield* encodeManifest(legacy));
+        })
+      );
+
+      it.effect(`round-trips ${fixture} through the writer and the reader`, () =>
+        Effect.gen(function* () {
+          const store = yield* ModelsManifestStore;
+          const loaded = yield* store.load(yield* writeTemp("models.yaml", yield* readFixtureText(fixture)));
+          const target = yield* freshTarget();
+          yield* store.init(target, loaded);
+          expect(yield* encodeManifest(yield* store.load(target))).toEqual(yield* encodeManifest(loaded));
+        })
+      );
+    }
+
+    it.effect("round-trips the seed manifest through the writer and the reader", () =>
+      Effect.gen(function* () {
+        const store = yield* ModelsManifestStore;
+        const target = yield* freshTarget();
+        yield* store.init(target, seedModelsManifest);
+        expect(yield* encodeManifest(yield* store.load(target))).toEqual(yield* encodeManifest(seedModelsManifest));
+      })
+    );
+
+    it.effect("reports a YAML syntax error as a typed parse failure", () =>
+      Effect.gen(function* () {
+        const store = yield* ModelsManifestStore;
+        const file = yield* writeTemp("models.yaml", "version: beep-models/v1\nbindings: [unclosed\n");
+        const error = yield* Effect.flip(store.load(file));
+        expect(error).toMatchObject({ _tag: "ModelsManifestError", path: file });
+        expect(error.message).toBe(`Failed to parse YAML in ${file}.`);
+      })
+    );
+
+    it.effect("reports a well-formed manifest of the wrong shape as a decode failure", () =>
+      Effect.gen(function* () {
+        const store = yield* ModelsManifestStore;
+        const file = yield* writeTemp("models.yaml", "version: beep-models/v1\nbindings: 3\n");
+        const error = yield* Effect.flip(store.load(file));
+        expect(error).toMatchObject({ _tag: "ModelsManifestError", path: file });
+        expect(error.message).toContain(`Failed to decode the models manifest at ${file}`);
+        expect(error.message).toContain("bindings");
+      })
+    );
+  }
+);

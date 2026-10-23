@@ -295,6 +295,9 @@
       "path": "packages/foundation/capability/colors"
     },
     {
+      "path": "packages/foundation/capability/config-file"
+    },
+    {
       "path": "packages/foundation/capability/file-processing"
     },
     {
@@ -368,6 +371,9 @@
     },
     {
       "path": "packages/foundation/modeling/ontology"
+    },
+    {
+      "path": "packages/foundation/modeling/package-json"
     },
     {
       "path": "packages/foundation/modeling/pandoc-ast"
