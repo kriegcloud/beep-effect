@@ -650,7 +650,10 @@ describe("proof job launcher", () => {
         expect(yield* fs.readFileString(`${root}/systemctl.argv`)).toContain(`--user\nstop\n${finished.unit.unitName}`);
         const saved = O.getOrThrow(yield* launcher.read(finished.jobId));
         assertNone(saved.cancelRequestedAt);
-        expect(O.map(saved.outcome, (outcome) => outcome.verdictOutcome)).toStrictEqual(O.some("success"));
+        assertSome(
+          O.map(saved.outcome, (outcome) => outcome.verdictOutcome),
+          "success"
+        );
       })
     )
   );
