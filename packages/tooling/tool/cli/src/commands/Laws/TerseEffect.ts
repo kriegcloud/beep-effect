@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
+import { ArrayKeyDefaultEmpty, BoolKeyDefaultFalse } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, thunkEmptyStr } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -37,18 +38,9 @@ const $I = $RepoCliId.create("commands/Laws/TerseEffect");
  */
 export class TerseEffectRulesOptions extends S.Opaque<TerseEffectRulesOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    write: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    strictCheck: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    excludePaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    write: BoolKeyDefaultFalse,
+    strictCheck: BoolKeyDefaultFalse,
+    excludePaths: ArrayKeyDefaultEmpty(S.String),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
   }).pipe(
     $I.annoteSchema("TerseEffectRulesOptions", {
@@ -81,34 +73,13 @@ export class TerseEffectRulesSummary extends S.Opaque<TerseEffectRulesSummary, {
     nestedBoolMatchCandidatesDetected: S.Finite,
     dualOverloadCandidatesDetected: S.Finite,
     strictFailure: S.Boolean,
-    changedFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    blockingFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    informationalFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    rewritableFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    blockingFindings: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    informationalFindings: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    rewritableFindings: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    changedFiles: ArrayKeyDefaultEmpty(S.String),
+    blockingFiles: ArrayKeyDefaultEmpty(S.String),
+    informationalFiles: ArrayKeyDefaultEmpty(S.String),
+    rewritableFiles: ArrayKeyDefaultEmpty(S.String),
+    blockingFindings: ArrayKeyDefaultEmpty(S.String),
+    informationalFindings: ArrayKeyDefaultEmpty(S.String),
+    rewritableFindings: ArrayKeyDefaultEmpty(S.String),
   }).pipe(
     $I.annoteSchema("TerseEffectRulesSummary", {
       description: "Summary of terse Effect style migration results.",
