@@ -37,6 +37,7 @@
  * Exit status is non-zero when any difference is undocumented.
  */
 
+import * as NodeURL from "node:url";
 import { Xdg } from "@beep/xdg/Xdg";
 import { XdgBase, XdgBaseKind } from "@beep/xdg/XdgBase";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
@@ -57,7 +58,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const TOOL = "goals/effected-promotion/ops/xdg-systemd-differential.ts";
-const repoRoot = new URL("../../../", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../", import.meta.url));
 
 // --- matrix -----------------------------------------------------------------
 
