@@ -37,7 +37,7 @@ import * as P from "effect/Predicate";
  * @category utilities
  * @since 0.0.0
  */
-export const routeHelpOnUsageError = Effect.fn("routeHelpOnUsageError")(function* <A, E, R>(
+export const routeHelpOnUsageError = Effect.fn("HelpRouting.routeHelpOnUsageError")(function* <A, E, R>(
   program: Effect.Effect<A, E, R>
 ): Effect.fn.Return<A, E, R> {
   const formatter = yield* CliOutput.Formatter;

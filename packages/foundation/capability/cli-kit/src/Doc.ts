@@ -2178,7 +2178,7 @@ export abstract class Doc {
     ): (doc: Document) => Effect.Effect<void, never, CliTheme | TerminalEnv | Audience | CliLinks>;
   } = dual(
     (args) => A.isArray(args[0]),
-    Effect.fn("print")(function* (doc: Document, options?: DocPrintOptions.Encoded) {
+    Effect.fn("Doc.print")(function* (doc: Document, options?: DocPrintOptions.Encoded) {
       const stream = options?.stream ?? "stdout";
       const ctx = yield* Render.context(stream, {
         ...O.getSomesStruct({ displayPath: O.fromUndefinedOr(options?.displayPath) }),

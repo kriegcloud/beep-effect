@@ -134,7 +134,7 @@ export abstract class CliMessage {
     // The options are optional, so the arity cannot tell `status(vocab, name, text)` from the data-last
     // `status(name, text, options)`: a vocabulary in first position is the data-first call.
     (args) => args[0] instanceof Status,
-    Effect.fn("status")(function* <N extends string>(
+    Effect.fn("CliMessage.status")(function* <N extends string>(
       vocab: Status<N>,
       name: N,
       text: string,

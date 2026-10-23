@@ -218,7 +218,7 @@ export const fallbackTarget: FailureTarget.Encoded = {
  * Each is read with `serviceOption`, so this never adds a requirement. `audience` overrides the one in context: an
  * audience flag is provided deeper than the environment layer, where the report cannot see it.
  */
-const build = Effect.fn("build")(function* (
+const build = Effect.fn("FailureTarget.build")(function* (
   audience?: AudienceShape,
   settings: FailureSettings.Encoded = {}
 ): Effect.fn.Return<FailureTarget.Encoded | undefined> {

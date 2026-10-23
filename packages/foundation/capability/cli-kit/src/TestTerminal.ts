@@ -201,7 +201,7 @@ export class TestTerminal {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly make = Effect.fn("make")(function* (options?: {
+  static readonly make = Effect.fn("TestTerminal.make")(function* (options?: {
     readonly columns?: number | undefined;
     readonly rows?: number | undefined;
   }): Effect.fn.Return<TestTerminalHandle> {

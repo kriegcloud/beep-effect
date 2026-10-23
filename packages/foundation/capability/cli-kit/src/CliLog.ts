@@ -441,7 +441,7 @@ const readLevel: {
   ) => Effect.Effect<{ readonly level: LogLevel.LogLevel; readonly invalid: string | undefined }>;
 } = dual(
   2,
-  Effect.fn("readLevel")(function* (
+  Effect.fn("CliLog.readLevel")(function* (
     explicit: LogLevel.LogLevel | undefined,
     envVar: string | undefined
   ): Effect.fn.Return<{ readonly level: LogLevel.LogLevel; readonly invalid: string | undefined }> {
@@ -909,7 +909,7 @@ export class CliLog {
     ): (vocab: Status<N>) => Effect.Effect<void, never, CliTheme>;
   } = dual(
     (args) => P.isObjectKeyword(args[0]),
-    Effect.fn("status")(function* <N extends string>(
+    Effect.fn("CliLog.status")(function* <N extends string>(
       vocab: Status<N>,
       name: N,
       text: string,
@@ -1007,7 +1007,7 @@ const buildTimeDecision: {
   ) => Effect.Effect<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }>;
 } = dual(
   2,
-  Effect.fn("buildTimeDecision")(function* (
+  Effect.fn("CliLog.buildTimeDecision")(function* (
     options: CliLogOptions.Encoded | CliLogFileOptions.Encoded,
     audienceEnvVar: string | undefined
   ): Effect.fn.Return<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }> {

@@ -249,7 +249,7 @@ export abstract class CliTest {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly sandbox = Effect.fn("sandbox")(function* (options: {
+  static readonly sandbox = Effect.fn("CliTest.sandbox")(function* (options: {
     /**
      * The `PATH` the child sees, passed explicitly because nothing else is
      * inherited — `process.env.PATH` when the bin shells out to host tools,

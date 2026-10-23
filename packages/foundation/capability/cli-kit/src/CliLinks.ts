@@ -309,7 +309,7 @@ const selectMode = Effect.fnUntraced(function* (
 });
 
 /** Read one configured mode and warn once for an invalid override. */
-const configuredSetting = Effect.fn("configuredSetting")(function* (options: CliLinksOptions.Encoded) {
+const configuredSetting = Effect.fn("CliLinks.configuredSetting")(function* (options: CliLinksOptions.Encoded) {
   const raw = options.envVar === undefined ? "" : Str.trim(O.getOrElse(yield* readOption(options.envVar), () => ""));
   const fromEnv = parseSetting(raw);
   if (options.envVar !== undefined && raw !== "" && fromEnv === undefined) {
@@ -325,7 +325,7 @@ const build: {
   (ambient: Ambient): (options: CliLinksOptions.Encoded) => Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
 } = dual(
   2,
-  Effect.fn("build")(function* (
+  Effect.fn("CliLinks.build")(function* (
     options: CliLinksOptions.Encoded,
     ambient: Ambient
   ): Effect.fn.Return<CliLinksShape, never, CurrentRuntimeEnv> {

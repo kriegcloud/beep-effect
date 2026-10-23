@@ -136,7 +136,7 @@ describe("CliLog.layer file option", () => {
     })
   );
 
-  it.effect("traces sink construction as makeFileSink and file writes as append", () => {
+  it.effect("traces sink construction as FileSink.make and file writes as FileSink.append", () => {
     let spans: ReadonlyArray<string> = [];
     const tracer = Tracer.make({
       span(options) {
@@ -144,14 +144,14 @@ describe("CliLog.layer file option", () => {
         return Tracer.nativeTracer.span(options);
       },
     });
-    const sinkSpans = () => A.filter(spans, (name) => name === "makeFileSink" || name === "append");
+    const sinkSpans = () => A.filter(spans, (name) => name === "FileSink.make" || name === "FileSink.append");
     return Effect.gen(function* () {
       const h = yield* harness({ file: { path: PATH }, env: { [LEVEL_ENV]: "error" } });
       yield* Effect.gen(function* () {
-        assert.deepStrictEqual(sinkSpans(), ["makeFileSink"]);
+        assert.deepStrictEqual(sinkSpans(), ["FileSink.make"]);
         yield* h.log(Effect.logError("boom"));
       }).pipe(Effect.ensuring(h.close));
-      assert.deepStrictEqual(sinkSpans(), ["makeFileSink", "append"]);
+      assert.deepStrictEqual(sinkSpans(), ["FileSink.make", "FileSink.append"]);
       assert.isDefined(h.file(), "the append span belongs to a file write");
     }).pipe(Effect.withTracer(tracer));
   });

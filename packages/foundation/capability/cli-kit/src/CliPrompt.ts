@@ -207,7 +207,7 @@ export abstract class CliPrompt {
     <A>(options: CliPromptFallbackOptions<A>): (prompt: Prompt.Prompt<A>) => Param.FallbackPrompt<A>;
   } = dual(
     2,
-    Effect.fn("fallback")(function* <A>(prompt: Prompt.Prompt<A>, options: CliPromptFallbackOptions<A>) {
+    Effect.fn("CliPrompt.fallback")(function* <A>(prompt: Prompt.Prompt<A>, options: CliPromptFallbackOptions<A>) {
       if (yield* CliInteractive) {
         const answer = yield* Prompt.run(prompt).pipe(
           Effect.catchTag("QuitError", () => Effect.die(Cancelled.make({ reason: "interrupt" })))

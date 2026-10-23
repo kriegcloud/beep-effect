@@ -63,7 +63,7 @@ export const makeFileSink: {
   ) => Effect.Effect<Logger.Logger<unknown, void>, never, FileSystem.FileSystem | Path.Path | Scope.Scope>;
 } = dual(
   3,
-  Effect.fn("makeFileSink")(function* (
+  Effect.fn("FileSink.make")(function* (
     path: string,
     installed: LogLevel.LogLevel,
     underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean
@@ -75,7 +75,7 @@ export const makeFileSink: {
 
     // The parent directory is made once, before the first append; a failure there disables the sink like any other.
     let directoryMade = false;
-    const append = Effect.fn("append")(function* (lines: ReadonlyArray<string>) {
+    const append = Effect.fn("FileSink.append")(function* (lines: ReadonlyArray<string>) {
       if (!directoryMade) {
         yield* fs.makeDirectory(location.dirname(path), { recursive: true });
         directoryMade = true;

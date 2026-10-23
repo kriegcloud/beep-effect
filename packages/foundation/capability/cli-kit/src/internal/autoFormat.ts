@@ -53,7 +53,7 @@ export const underGithubActions: Effect.Effect<boolean> = Effect.gen(function* (
  * @category formatting
  * @since 0.0.0
  */
-export const autoFormat = Effect.fn("autoFormat")(function* (
+export const autoFormat = Effect.fn("AutoFormat.autoFormat")(function* (
   audience: AudienceKind
 ): Effect.fn.Return<"plain" | "ansi" | "githubLog"> {
   if (audience === "human") return "ansi";

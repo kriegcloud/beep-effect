@@ -392,7 +392,7 @@ export class Render {
     ) => Effect.Effect<RenderContext.Encoded, never, CliTheme | TerminalEnv | Audience | CliLinks>;
   } = dual(
     (args) => P.isString(args[0]),
-    Effect.fn("context")(function* (
+    Effect.fn("Render.context")(function* (
       stream: "stdout" | "stderr",
       options?: RenderContextOptions.Encoded
     ): Effect.fn.Return<RenderContext.Encoded, never, CliTheme | TerminalEnv | Audience | CliLinks> {

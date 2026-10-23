@@ -146,7 +146,7 @@ export class CliExit extends Context.Service<
    * @category commands
    * @since 0.0.0
    */
-  static readonly set = Effect.fn("set")(function* (code: number): Effect.fn.Return<void, never, CliExit> {
+  static readonly set = Effect.fn("CliExit.set")(function* (code: number): Effect.fn.Return<void, never, CliExit> {
     if (!isExitCode(code)) {
       return yield* Effect.die(
         InvalidExitCodeError.make({
