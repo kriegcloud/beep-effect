@@ -372,6 +372,12 @@
         ]
       },
       {
+        "name": "@beep/github-reporting",
+        "patterns": [
+          "packages/foundation/modeling/github-reporting/src/**"
+        ]
+      },
+      {
         "name": "@beep/glob",
         "patterns": [
           "packages/foundation/modeling/glob/src/**"
@@ -2414,6 +2420,15 @@
           "@beep/github-references",
           "@beep/identity",
           "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/github-reporting",
+        "allow": [
+          "@beep/github-reporting"
+        ],
+        "allowTypeOnly": [
+          "@beep/github-reporting"
         ]
       },
       {
