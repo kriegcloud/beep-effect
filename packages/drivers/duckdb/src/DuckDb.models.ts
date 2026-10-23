@@ -239,3 +239,65 @@ export class DuckDbClientConfigData extends S.Opaque<DuckDbClientConfigData, { r
     })
   )
 ) {}
+
+/**
+ * Rows for a native Appender, in complete table column order.
+ *
+ * **Example** (Load two rows)
+ *
+ * ```ts
+ * import { DuckDbAppendRows } from "@beep/duckdb"
+ * const request = DuckDbAppendRows.make({ table: "people", rows: [[1, "Ada"], [2, "Bob"]] })
+ * console.log(request.rows.length) // 2
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DuckDbAppendRows extends S.Opaque<DuckDbAppendRows, { readonly brand: unique symbol }>()(
+  S.Struct({
+    table: S.NonEmptyString,
+    schema: S.optionalKey(S.NonEmptyString),
+    rows: S.Unknown.pipe(S.Array, S.Array),
+  }).pipe($I.annoteSchema("DuckDbAppendRows", { description: "Complete rows to append to a DuckDB table." }))
+) {}
+
+/**
+ * Directory artifact for EXPORT DATABASE.
+ *
+ * **Example** (Choose an artifact directory)
+ *
+ * ```ts
+ * import { DuckDbDatabaseExport } from "@beep/duckdb"
+ * const request = DuckDbDatabaseExport.make({ directory: "exports/database", format: "parquet" })
+ * console.log(request.directory) // "exports/database"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DuckDbDatabaseExport extends S.Opaque<DuckDbDatabaseExport, { readonly brand: unique symbol }>()(
+  S.Struct({ directory: S.NonEmptyString, format: S.optionalKey(S.Literals(["csv", "parquet"])) }).pipe(
+    $I.annoteSchema("DuckDbDatabaseExport", { description: "Directory artifact for EXPORT DATABASE." })
+  )
+) {}
+
+/**
+ * Directory artifact to restore into an empty database.
+ *
+ * **Example** (Choose an artifact directory)
+ *
+ * ```ts
+ * import { DuckDbDatabaseImport } from "@beep/duckdb"
+ * const request = DuckDbDatabaseImport.make({ directory: "exports/database" })
+ * console.log(request.directory) // "exports/database"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DuckDbDatabaseImport extends S.Opaque<DuckDbDatabaseImport, { readonly brand: unique symbol }>()(
+  S.Struct({ directory: S.NonEmptyString }).pipe(
+    $I.annoteSchema("DuckDbDatabaseImport", { description: "Directory artifact to restore into an empty database." })
+  )
+) {}

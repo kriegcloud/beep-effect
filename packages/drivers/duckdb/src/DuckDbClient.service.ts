@@ -58,7 +58,13 @@ import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 import type * as Scope from "effect/Scope";
 import type { SqlError } from "effect/sql/SqlError";
 import type * as Statement from "effect/sql/Statement";
-import type { DuckDbClientConfigData, DuckDbParquetExport } from "./DuckDb.models.ts";
+import type {
+  DuckDbAppendRows,
+  DuckDbClientConfigData,
+  DuckDbDatabaseExport,
+  DuckDbDatabaseImport,
+  DuckDbParquetExport,
+} from "./DuckDb.models.ts";
 
 const $I = $DuckdbId.create("DuckDbClient.service");
 
@@ -209,7 +215,7 @@ export type DuckDbClientFromConnectionOptions = Omit<
  *
  * `updateValues` is supported (`(values ...) AS alias(cols)`). The extras run
  * on the transaction connection inside `withTransaction`, except
- * `copyTableToParquet` and `checkpoint`, which refuse there.
+ * `copyTableToParquet`, `exportDatabase` and `checkpoint`, which refuse there.
  *
  * **Example** (Read the client configuration)
  *
@@ -231,6 +237,9 @@ export type DuckDbClientFromConnectionOptions = Omit<
 export type DuckDbClientValue = SqlClient.SqlClient & {
   readonly [TypeId]: TypeId;
   readonly config: DuckDbClientConfig;
+  readonly exportDatabase: (request: typeof DuckDbDatabaseExport.Encoded) => Effect.Effect<void, SqlError>;
+  readonly importDatabase: (request: typeof DuckDbDatabaseImport.Encoded) => Effect.Effect<void, SqlError>;
+  readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly copyTableToParquet: (request: DuckDbParquetExport) => Effect.Effect<void, SqlError>;
   readonly checkpoint: (
     options?: { readonly force?: boolean | undefined } | undefined

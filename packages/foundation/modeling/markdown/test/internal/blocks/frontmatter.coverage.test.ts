@@ -16,7 +16,10 @@ describe("frontmatter scanner boundary coverage", () => {
     Effect.sync(() => {
       assert.strictEqual(scanFrontmatter([], ""), null);
       assert.strictEqual(scanFrontmatter([{ text: "---", start: 1 }], " ---"), null);
-      assert.strictEqual(scanFrontmatter(preprocessLines("--- \n---"), "--- \n---"), null);
+      assert.strictEqual(scanFrontmatter(preprocessLines("--- x\n---"), "--- x\n---"), null);
+      assert.strictEqual(scanFrontmatter(preprocessLines("--- \n---\t"), "--- \n---\t")?.endOffset, 9);
+      assertNone(scanRawFrontmatter("--- x\n---"));
+      assert.strictEqual(O.getOrThrow(scanRawFrontmatter("--- \n---\t")).bodyOffset, 9);
       assert.deepStrictEqual(
         scanFrontmatter(preprocessLines("---\n---"), "---\n---"),
         FrontmatterCapture.make({

@@ -164,7 +164,7 @@ const assertWarmEnvironment = Effect.fn("Cache.assertWarmEnvironment")(function*
       return yield* CacheCommandError.new(`cache warm requires ephemeral ${name} injection.`);
     }
   }
-  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv.
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Declared in turbo.json global.passThroughEnv, which Biome cannot read. Owner: @beep/repo-cli. Exit: Biome reads turbo global.* declarations, or the name joins allowedEnvVars (#1855).
   if (Str.startsWith("op://")(Bun.env.TURBO_TOKEN ?? "")) {
     return yield* CacheCommandError.new(
       "Resolve the write token through `op run`; cache warm never stores references."

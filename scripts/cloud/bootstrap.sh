@@ -237,7 +237,6 @@ if [ "${need_node}" = "1" ] && [ "${node_ok}" = "1" ]; then
     nvm)
       export NVM_DIR="${NVM_DIR:-${HOME}/.nvm}"
       set +e
-      # shellcheck disable=SC1091
       . "${NVM_DIR}/nvm.sh"
       nvm install "${NODE_VERSION}" >/dev/null
       nvm alias default "${NODE_VERSION}" >/dev/null

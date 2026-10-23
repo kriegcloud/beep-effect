@@ -6,6 +6,7 @@
  */
 
 import { $SkillContractId } from "@beep/identity/packages";
+import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
 import { Md } from "@beep/md";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
@@ -40,8 +41,6 @@ const artifactCheckOutcome = LiteralKit(["passed", "failed"]).pipe(
     description: "Pass or failure outcome of one skill artifact verification check.",
   })
 );
-const frontmatterOpen = "---json\n";
-const frontmatterClose = "\n---";
 const contractEquivalence = S.toEquivalence(SkillContract);
 
 /**
@@ -426,8 +425,10 @@ const frontmatterDenied = (
  *
  * **Details**
  *
- * The decoder requires the exact `---json` leading delimiter and closing
- * delimiter emitted by the renderer. It JSON-decodes through
+ * The decoder requires a closed leading `---json` block as
+ * `@beep/markdown/FrontmatterSource` splits it: an opening line exactly
+ * `---json` and a closing line exactly `---`, each ending in LF, CRLF or CR.
+ * An unclosed or non-JSON block counts as missing. It JSON-decodes through
  * `@beep/schema` Unknown and then schema-decodes the projection. It does not
  * parse or reconstruct the Markdown body.
  *
@@ -447,22 +448,14 @@ const frontmatterDenied = (
 export const decodeSkillFrontmatter = (
   markdown: string
 ): Result.Result<SkillMarkdownProjection, SkillArtifactDenied> => {
-  if (!Str.startsWith(frontmatterOpen)(markdown)) {
+  const block = FrontmatterSource.split(markdown).frontmatter;
+  if (block === undefined || block.format !== "json") {
     return Result.fail(
       frontmatterDenied("frontmatter-missing", "The committed artifact has no leading ---json block.")
     );
   }
 
-  const afterOpen = Str.slice(Str.length(frontmatterOpen))(markdown);
-  const closeIndex = Str.indexOf(frontmatterClose)(afterOpen);
-  if (O.isNone(closeIndex)) {
-    return Result.fail(
-      frontmatterDenied("frontmatter-missing", "The committed artifact has no closing frontmatter delimiter.")
-    );
-  }
-
-  const frontmatter = Str.slice(0, closeIndex.value)(afterOpen);
-  return decodeUnknownJsonResult(frontmatter).pipe(
+  return decodeUnknownJsonResult(block.value).pipe(
     Result.flatMap(decodeUnknownSkillMarkdownProjectionResult),
     Result.mapError((error) =>
       frontmatterDenied("frontmatter-decode-failed", `The leading frontmatter failed schema decode: ${error.message}`)
@@ -476,7 +469,7 @@ const checkForRender = (
 ): readonly [SkillArtifactCheck, O.Option<SkillArtifactDenialReason>] =>
   Result.match(rendered, {
     onFailure:
-      /* istanbul ignore next -- Md.render fails only when an adapter throws; a well-typed projection cannot reach it, the arm stays for adapter defects */
+      /* istanbul ignore next -- Md.render fails only when an adapter throws; a well-typed projection cannot reach it, the arm stays for adapter defects. Owner: @beep/skill-contract. Exit: Md.render has no failure channel for well-typed documents. */
       (error) => [
         SkillArtifactCheck.make({
           check: "rerender-byte-equality",

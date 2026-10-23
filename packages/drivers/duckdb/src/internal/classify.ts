@@ -59,6 +59,7 @@ const OPERATION_MESSAGES: Readonly<Record<string, string>> = {
   commitTransaction: "Failed to commit transaction",
   rollbackTransaction: "Failed to roll back transaction",
   copyTableToParquet: "Failed to export table to Parquet",
+  appendRows: "Failed to append rows",
   checkpoint: "Failed to checkpoint database",
   loadExtension: "Failed to load extension",
   installExtension: "Failed to install extension",
@@ -101,6 +102,8 @@ const uniqueViolation = always((match, base) =>
 
 const RULES: ReadonlyArray<ClassifyRule> = [
   [/^INTERRUPT Error:/, always((_, base) => StatementTimeoutError.make(base))],
+  [/^Failed to append: Duplicate key "(.+)" violates (?:primary key|unique) constraint/, uniqueViolation],
+  [/^Failed to append:/, always((_, base) => ConstraintError.make(base))],
   [/^Constraint Error: Duplicate key "(.+)" violates (?:primary key|unique) constraint/, uniqueViolation],
   [/^Constraint Error: PRIMARY KEY or UNIQUE constraint violation: duplicate key "(.+)"/, uniqueViolation],
   [/^Constraint Error:/, always((_, base) => ConstraintError.make(base))],

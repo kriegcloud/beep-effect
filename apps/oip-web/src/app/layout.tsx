@@ -263,7 +263,7 @@ export default function RootLayout({
             <script
               nonce={nonce}
               suppressHydrationWarning
-              // biome-ignore lint/security/noDangerouslySetInnerHtml: static theme controller without user input
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: static theme controller without user input. Owner: @beep/oip-web. Exit: the theme controller loads as a nonce-bound external script.
               dangerouslySetInnerHTML={{ __html: oipThemeToggleScript }}
             />
             {shouldLoadReactGrab && (

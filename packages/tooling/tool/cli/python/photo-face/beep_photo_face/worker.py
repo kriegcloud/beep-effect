@@ -21,6 +21,8 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, BinaryIO, Iterator
 
+import numpy as np
+
 from .backends.base import WorkerArguments, WorkerError
 from .pipeline import load_selected_backend, parameters_payload
 from .quality import (
@@ -55,8 +57,7 @@ __all__ = [
 # image headers before allocating the full decoded pixel buffer.
 MAX_DECODED_PIXELS = 100_000_000
 os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = str(MAX_DECODED_PIXELS)
-import cv2  # noqa: E402 - pixel limit must be configured before OpenCV import
-import numpy as np  # noqa: E402 - imported with OpenCV after its process configuration
+import cv2  # noqa: E402 - OpenCV reads its pixel limit at import time. Owner: @beep/repo-cli. Exit: OpenCV accepts the limit through a runtime call.
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -487,7 +488,7 @@ def download_model_archive(destination: Path) -> None:
         headers={"User-Agent": "beep-photo-face/1"},
     )
     try:
-        with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
+        with urllib.request.urlopen(request, timeout=60) as response:
             content_length = response.headers.get("Content-Length")
             if (
                 content_length is not None
@@ -1136,7 +1137,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"[photo-face] {error.code}: {error.message}", file=sys.stderr)
             payload = failure_payload(error, started_at)
             exit_code = 2
-        except Exception as error:  # noqa: BLE001  # pragma: no cover - process boundary
+        except Exception as error:  # pragma: no cover - process boundary
             print("[photo-face] unexpected worker failure", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
             payload = failure_payload(

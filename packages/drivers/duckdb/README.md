@@ -112,6 +112,9 @@ The client value carries these on top of `SqlClient`:
 
 | Extra | SQL | Inside `withTransaction` |
 | --- | --- | --- |
+| `exportDatabase({ directory, format? })` | `EXPORT DATABASE`; CSV by default, or Parquet | refused: files survive rollback |
+| `importDatabase({ directory })` | `IMPORT DATABASE`; requires an empty target | runs on the transaction connection |
+| `appendRows({ table, schema?, rows })` | Native Appender; complete rows in table column order | participates; a failed flush poisons commit |
 | `copyTableToParquet({ tableName, filePath })` | `COPY "t" TO 'file' (FORMAT parquet)` | refused: file writes are not rolled back |
 | `checkpoint()` / `checkpoint({ force: true })` | `CHECKPOINT` / `FORCE CHECKPOINT` | refused: database-level operation |
 | `loadExtension(name)` | `LOAD 'name'` | runs on the transaction connection, not rolled back |
@@ -119,10 +122,18 @@ The client value carries these on top of `SqlClient`:
 | `attach(path, alias, { readOnly })` | `ATTACH 'path' AS "alias" [(READ_ONLY)]` | runs on the transaction connection; DuckDB rolls the attach back with the transaction |
 | `detach(alias)` | `DETACH "alias"` | runs on the transaction connection |
 
+`exportDatabase` writes a restorable directory with schema and FK-ordered data.
+`importDatabase` requires an empty target and restores sequence state. Export
+also works from a read-only client. There is no single-file `backup` extra.
+
+On failure or interruption, `appendRows` clears buffered rows before closing the
+appender, so cleanup does not commit an earlier row outside a transaction.
+`appendRows` normalizes values like statement binds, then uses each table column's
+native type. Every row must include every column; use explicit values for defaults.
+Append and flush calls are synchronous and can block the event loop. The appender
+is always closed, including after interruption or a failed flush.
 Extras always use the writer, including when reader connections are enabled.
 
-There is no `backup` extra and no Appender yet: `exportDatabase` is #2082 and
-Appender bulk loads are #2081 (backlog: #2088).
 
 ## DuckDbMigrator
 
@@ -133,6 +144,7 @@ Appender bulk loads are #2081 (backlog: #2088).
 
 ```ts
 import { DuckDbClient, DuckDbMigrator } from "@beep/duckdb"
+import { NodeServices } from "@effect/platform-node"
 import * as Effect from "effect/Effect"
 import * as SqlClient from "effect/sql/SqlClient"
 
@@ -141,7 +153,8 @@ const loader = DuckDbMigrator.fromRecord({
 })
 
 const program = DuckDbMigrator.run({ loader }).pipe(
-  Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" }))
+  Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" })),
+  Effect.provide(NodeServices.layer)
 )
 
 Effect.runPromise(program).then(console.log) // [[1, "create"]]
@@ -152,6 +165,7 @@ provides it, so hand the DuckDB client over explicitly:
 
 ```ts
 import { DuckDbClient, DuckDbMigrator } from "@beep/duckdb"
+import { NodeServices } from "@effect/platform-node"
 import * as Effect from "effect/Effect"
 import * as SqlClient from "effect/sql/SqlClient"
 
@@ -159,14 +173,31 @@ declare const loader: DuckDbMigrator.Loader
 
 const migrate = DuckDbMigrator.run({ loader }).pipe(
   Effect.provideServiceEffect(SqlClient.SqlClient, Effect.service(DuckDbClient.DuckDbClient)),
-  Effect.provide(DuckDbClient.layerClient({ databasePath: "analytics.duckdb" }))
+  Effect.provide(DuckDbClient.layerClient({ databasePath: "analytics.duckdb" })),
+  Effect.provide(NodeServices.layer)
 )
 ```
 
 At effect 4.0.5 a failing migration is a defect (`MigrationError` through
 `Effect.die`), and every migration of that run is rolled back, earlier ones
-included. `dumpSchema` is not implemented (#2085), so `schemaDirectory`
-writes nothing.
+included.
+
+With `schemaDirectory`, a run that applies migrations writes `_schema.sql` in
+process through `FileSystem` and `Path` (provide platform services, such as
+`NodeServices.layer`). A run with no pending migrations leaves the file alone.
+The dump includes the current database's user enums, sequences, scalar and table
+macros, tables and views in one stream sorted by creation OID, followed by indexes
+and migration history rows. Scalar and table macro overloads are grouped into
+one CREATE statement per catalog macro, preserving every signature and its catalog parameter types.
+This order handles eager table-macro binding and
+views that call macros; a fixed category order cannot handle both. Custom schemas
+are created first; attached databases and temporary/internal objects are excluded.
+
+Limitation: `ALTER` can add a dependency on a newer object without renewing an
+older table's OID (for example a DEFAULT using a later sequence). Such dumps can
+fail to restore; use export/import for a restorable database artifact in that
+case. `CREATE OR REPLACE` renews view and macro OIDs on DuckDB 1.5.6. Macro default
+argument expressions are not exposed by the catalog and are not preserved.
 
 ## The legacy `DuckDb` service
 
@@ -425,8 +456,8 @@ DDL for it.
 | SqlEventJournal | unsupported (INT32 `timestamp` overflow); DuckDB-native layer designed in #2084 |
 | Persistence (both layers), PersistedQueue, cluster SqlMessageStorage/SqlRunnerStorage, SqlEventLogServerEncrypted | unsupported (`AUTOINCREMENT`, `datetime()`, partial index, INT32 columns); DuckDB-native layers designed in #2084, built when a consumer needs one |
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
+| `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); use `exportDatabase` / `importDatabase` |
 | Streams with one writer statement per row outside a transaction | supported with `readerConnections > 0`; streams on `reserve` still deadlock |
-| `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); `exportDatabase` is #2082 |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
 | READ_ONLY beside read-write of the same file in one process, in either open order (client and legacy) | later open refused: client `ConnectionError`, legacy first statement `DuckDbError`; share the read-write service |
 

@@ -13,7 +13,7 @@ import { WorkbenchThemeProvider } from "./theme/WorkbenchThemeProvider.tsx";
 
 // react-grab is a dev-only element picker; `VITE_REACT_GRAB=0` keeps its
 // pointer-capturing overlay out of recorded browser-QA runs.
-// biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV and VITE_* on import.meta.env.
+// biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV and VITE_* on import.meta.env. Owner: @beep/professional-desktop. Exit: Biome recognizes Vite's built-in import.meta.env keys (#1855).
 if (import.meta.env.DEV && import.meta.env.VITE_REACT_GRAB !== "0") {
   void import("react-grab");
 }

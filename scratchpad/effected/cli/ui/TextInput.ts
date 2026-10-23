@@ -154,10 +154,8 @@ const insert: {
 	submitted: false,
 }));
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: the point is to split typed text at control characters
 const CONTROLS = /([\u0000-\u001f\u007f])/;
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: a paste's control characters are dropped
 const PASTE_CONTROLS = /[\u0000-\u001f\u007f]/g;
 
 /**

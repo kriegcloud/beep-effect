@@ -59,8 +59,6 @@ import type {
   ImageCurationOptions,
 } from "./ImageCuration.schemas.ts";
 
-// cspell:ignore Iptc iptc
-
 type SharpInstance = ReturnType<typeof sharp>;
 type SharpMetadata = Awaited<ReturnType<SharpInstance["metadata"]>>;
 
