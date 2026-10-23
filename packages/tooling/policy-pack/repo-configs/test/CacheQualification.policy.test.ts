@@ -222,17 +222,13 @@ describe("cache qualification policy", () => {
     const pin = (version: string) => ({ version, sha256: digest(1), namespace: "fixture-stable" });
     assertTrue(isPin(pin("2.10.12")));
     assertTrue(isPin(pin("2.11.5-canary.2")));
-    // The previous inline regex accepted these; SemVer forbids leading zeros and empty identifiers, and
-    // build metadata has no place in an exact client pin.
-    for (const version of [
-      "02.10.12",
-      "2.10.012",
-      "2.10.12-01",
-      "2.10.12-a..b",
-      "2.10.12+build",
-      "v2.10.12",
-      "latest",
-    ]) {
+    // Intended shift: the previous inline regex accepted these, but SemVer forbids leading zeros, empty
+    // prerelease identifiers and integers past Number.MAX_SAFE_INTEGER.
+    for (const version of ["02.10.12", "2.10.012", "2.10.12-01", "2.10.12-a..b", "9007199254740992.0.0"]) {
+      expect(isPin(pin(version)), version).toBe(false);
+    }
+    // Unchanged: the previous regex rejected these too (no build metadata, no `v` prefix, no dist-tags).
+    for (const version of ["2.10.12+build", "v2.10.12", "latest"]) {
       expect(isPin(pin(version)), version).toBe(false);
     }
   });

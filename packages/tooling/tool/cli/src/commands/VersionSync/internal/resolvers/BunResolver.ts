@@ -164,8 +164,9 @@ export const extractBunArchiveChecksum = (manifest: string): O.Option<string> =>
  */
 const parseBunVersion: (value: string) => O.Option<SemVer> = flow(
   Str.replace(/^v/, ""),
-  O.liftPredicate(SemVer.isPinnable),
-  O.flatMap(flow(SemVer.parseResult, Result.getSuccess))
+  O.liftPredicate((text) => text === Str.trim(text)),
+  O.flatMap(flow(SemVer.parseResult, Result.getSuccess)),
+  O.filter((version) => A.isReadonlyArrayEmpty(version.build))
 );
 
 const selectLatestLocalBunVersion = (

@@ -32,7 +32,9 @@ import {
   VersionSyncResolution,
 } from "@beep/repo-cli/test/VersionSync";
 import { FsUtilsLive } from "@beep/repo-utils";
+import { SemVer } from "@beep/semver/SemVer";
 import { it } from "@beep/test-runner";
+import { fcRuns } from "@beep/test-utils";
 import { A, R } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
@@ -47,6 +49,13 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
+
+const coreText = (version: SemVer): string => `${version.major}.${version.minor}.${version.patch}`;
+// A strict pin: the version without build metadata, which a Bun pin never carries.
+const pinText = (version: SemVer): string =>
+  A.isReadonlyArrayEmpty(version.prerelease)
+    ? coreText(version)
+    : `${coreText(version)}-${A.join(A.map(version.prerelease, String), ".")}`;
 const decodeJsonEffect = S.decodeEffect(UnknownJson);
 
 const encodeJson = S.encodeUnknownEffect(UnknownJson);
@@ -510,6 +519,26 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
       expect(localTarget("1.4.0", "1.5.0+sha256.abc")).toEqual([["package.json", "bun@1.4.0"]]);
       expect(localTarget("not-a-version", "also-not")).toEqual([["package.json", "bun@not-a-version"]]);
     });
+
+    // The target `buildBunReport` writes: the package.json pin when `.bun-version` wins, else `.bun-version`.
+    const selectedLocal = (bunVersionFile: string, packageManagerField: string): string =>
+      O.match(A.head(localTarget(bunVersionFile, packageManagerField)), {
+        onNone: () => bunVersionFile,
+        onSome: ([file, expected]) => (file === "package.json" ? Str.replace(/^bun@/, "")(expected) : expected),
+      });
+
+    it.prop(
+      "picks the SemVer.gte winner of two strict local Bun pins",
+      { left: Arbitrary.schema(SemVer), right: Arbitrary.schema(SemVer) },
+      ({ left, right }) => {
+        const leftPin = pinText(left);
+        const rightPin = pinText(right);
+        // SemVer ordering ignores build metadata, so the generated values order as their pins do.
+        const winner = SemVer.gte(left, right) ? leftPin : rightPin;
+        expect(selectedLocal(leftPin, rightPin)).toBe(winner);
+      },
+      { arbitrary: fcRuns(100) }
+    );
   });
 
   describe("selectLatestDockerTag", () => {
@@ -552,6 +581,23 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
       assertSome(selectLatestDockerTag(redis, ["8.10.2", "8.10.03", "9007199254740992.0.0"]), "8.10.2");
       assertNone(selectLatestDockerTag(pgvector, ["pg17-v0.08.0"]));
     });
+
+    it.prop(
+      "selects the first tag holding the maximum stable version under SemVer.compare",
+      { versions: Arbitrary.schema(S.Array(S.Tuple([SemVer, S.Boolean]))) },
+      ({ versions }) => {
+        const tags = A.map(versions, ([version, prefixed]) => `${prefixed ? "v" : ""}${coreText(version)}`);
+        const cores = A.map(versions, ([version]) => SemVer.of(version.major, version.minor, version.patch));
+        const expected = O.flatMap(SemVer.max(cores), (max) =>
+          O.flatMap(
+            A.findFirstIndex(cores, (core) => SemVer.equal(core, max)),
+            (index) => A.get(tags, index)
+          )
+        );
+        expect(selectLatestDockerTag(redis, tags)).toEqual(expected);
+      },
+      { arbitrary: fcRuns(100) }
+    );
   });
 
   describe("updateVercelBunVersion", () => {

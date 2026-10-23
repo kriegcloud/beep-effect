@@ -186,9 +186,9 @@ const dockerImageValueToString = (value: unknown): string =>
  */
 const parseStableVersion: (text: string) => O.Option<SemVer> = flow(
   Str.replace(/^v/, ""),
-  O.liftPredicate(SemVer.isPinnable),
+  O.liftPredicate((value) => value === Str.trim(value)),
   O.flatMap(flow(SemVer.parseResult, Result.getSuccess)),
-  O.filter((version) => version.isStable)
+  O.filter((version) => version.isStable && A.isReadonlyArrayEmpty(version.build))
 );
 
 // The first tag holding the highest version; a later tag replaces it only when strictly newer.
