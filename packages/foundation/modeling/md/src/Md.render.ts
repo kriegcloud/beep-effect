@@ -48,11 +48,13 @@ import type { Markdown } from "@beep/schema";
 import type {
   Block,
   Document,
+  Em,
   Heading,
   Inline,
   Li,
   ListItemChild,
   Ol,
+  Strong,
   Table,
   TaskItem,
   TaskList,
@@ -66,7 +68,10 @@ const lineSeparatorGlobalPattern = /\r\n?|\n/g;
 const markdownTitleEscapePattern = /["\\]/g;
 const jsonStringEscapePattern = /["\\\u0000-\u001f]/g;
 const mathFencePattern = /\$\$/g;
-const mathDelimiterPattern = /\$/g;
+// A `$` that no backslash escapes yet: an inline-math value is raw TeX, where
+// `\$` already is a literal dollar, so escaping only the bare ones keeps
+// render(parse(render(x))) equal to render(x).
+const unescapedDollarPattern = /(?<!\\)((?:\\\\)*)\$/g;
 // An `&` that opens something shaped like a character reference (`&amp;`,
 // `&#38;`, `&#x26;`), which a parser would decode. Md carries no entity
 // table, so an unknown name such as `&foo;` is escaped too; a bare `&` is not.
@@ -261,24 +266,84 @@ const guardImageBang = (rendered: string, inline: Inline, next: O.Option<Inline>
     ? `${Str.slice(0, -1)(rendered)}\\!`
     : rendered;
 
-const renderMarkdownInlines = (children: ReadonlyArray<Inline>): string =>
-  joinEmpty(
-    A.map(children, (inline, index) => guardImageBang(renderMarkdownInline(inline), inline, A.get(children, index + 1)))
-  );
+const wordCharacterPattern = /[\p{L}\p{N}\p{M}]/u;
 
-const renderMarkdownLinkLabelInlines: (children: ReadonlyArray<Inline>) => string = flow(
-  A.map(renderMarkdownInlineForLinkLabel),
-  joinEmpty
-);
+const isWordCharacter = (char: string): boolean => wordCharacterPattern.test(char);
+
+// `_` delimiters cannot open after, or close before, a letter or digit, so an
+// emphasis that took them falls back to `*` when a neighbour touches it there.
+const touchesWord = (rendered: ReadonlyArray<string>, index: number): boolean =>
+  O.exists(A.get(rendered, index - 1), flow(Str.slice(-1), isWordCharacter)) ||
+  O.exists(A.get(rendered, index + 1), flow(Str.slice(0, 1), isWordCharacter));
+
+const starDelimiter = (inline: Em | Strong): string => (inline._tag === "em" ? "*" : "**");
+
+const isEmphasis = (inline: Inline): inline is Em | Strong => inline._tag === "em" || inline._tag === "strong";
+
+const fitEmphasisDelimiters = (
+  inline: Inline,
+  rendered: ReadonlyArray<string>,
+  index: number,
+  renderChildren: (children: ReadonlyArray<Inline>) => string
+): string => {
+  const own = A.get(rendered, index).pipe(O.getOrElse(thunkEmptyStr));
+  return isEmphasis(inline) && Str.startsWith("_")(own) && touchesWord(rendered, index)
+    ? `${starDelimiter(inline)}${renderChildren(inline.children)}${starDelimiter(inline)}`
+    : own;
+};
+
+// Renders an inline sequence, then adjusts each node for its neighbours:
+// emphasis delimiters that would not flank and a `!` that would form an image.
+const renderInlineSequence = (
+  children: ReadonlyArray<Inline>,
+  renderInline: (inline: Inline) => string,
+  renderChildren: (children: ReadonlyArray<Inline>) => string
+): string => {
+  const rendered = A.map(children, renderInline);
+  return joinEmpty(
+    A.map(children, (inline, index) =>
+      guardImageBang(fitEmphasisDelimiters(inline, rendered, index, renderChildren), inline, A.get(children, index + 1))
+    )
+  );
+};
+
+const renderMarkdownInlines = (children: ReadonlyArray<Inline>): string =>
+  renderInlineSequence(children, renderMarkdownInline, renderMarkdownInlines);
+
+const renderMarkdownLinkLabelInlines = (children: ReadonlyArray<Inline>): string =>
+  renderInlineSequence(children, renderMarkdownInlineForLinkLabel, renderMarkdownLinkLabelInlines);
 
 const renderHtmlInlines: (children: ReadonlyArray<Inline>) => string = flow(A.map(renderHtmlInline), joinEmpty);
 
-const renderMarkdownListItemSegments = (children: ReadonlyArray<ListItemChild>): ReadonlyArray<string> =>
-  segmentInlineRuns(children, {
-    isInline: S.is(InlineSchema),
-    renderInlineRun: flow(renderMarkdownInlines, protectBlockEdgeWhitespace),
-    renderBlock: renderMarkdownBlock,
+const isInlineChild = S.is(InlineSchema);
+
+const isBlockChild = S.is(BlockSchema);
+
+// One segment per inline run and per block of a list item. A run of blocks
+// is a sibling sequence, so adjacent lists in an item alternate markers too.
+const renderListItemSegments = (
+  children: ReadonlyArray<ListItemChild>,
+  renderInlineRun: (run: ReadonlyArray<Inline>) => string,
+  renderBlocks: (blocks: ReadonlyArray<Block>) => ReadonlyArray<string>
+): ReadonlyArray<string> =>
+  A.match(children, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: flow(
+      A.groupWith((left, right) => isInlineChild(left) === isInlineChild(right)),
+      A.flatMap((run) =>
+        A.every(run, isInlineChild)
+          ? [renderInlineRun(A.filter(run, isInlineChild))]
+          : renderBlocks(A.filter(run, isBlockChild))
+      )
+    ),
   });
+
+const renderMarkdownListItemSegments = (children: ReadonlyArray<ListItemChild>): ReadonlyArray<string> =>
+  renderListItemSegments(children, flow(renderMarkdownInlines, protectBlockEdgeWhitespace), (blocks) =>
+    renderSiblingBlocks(blocks, renderMarkdownBlock, (list, markers) =>
+      renderMarkdownList(list, markers, renderMarkdownListItemSegments)
+    )
+  );
 
 const renderHtmlListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
   (items: ReadonlyArray<ListItemChild>) =>
@@ -459,7 +524,10 @@ const renderHtmlHeading = (block: Heading): string => {
   return `<${tag}>${renderHtmlInlines(block.children)}</${tag}>`;
 };
 
-const escapeInlineMath = flow(Str.replace(lineSeparatorGlobalPattern, " "), Str.replace(mathDelimiterPattern, "\\$"));
+const escapeInlineMath = flow(
+  Str.replace(lineSeparatorGlobalPattern, " "),
+  Str.replace(unescapedDollarPattern, "$1\\$")
+);
 
 const escapeBlockMath = Str.replace(mathFencePattern, "\\$\\$");
 
@@ -660,16 +728,20 @@ const isMarkdownList = (block: Block): block is MarkdownList =>
 
 // Renders a sibling sequence, giving each list the markers that keep it apart
 // from an adjacent list of the same family.
+const renderSiblingBlocks = (
+  blocks: ReadonlyArray<Block>,
+  renderBlock: (block: Block) => string,
+  renderList: (list: MarkdownList, markers: ListMarkers) => string
+): ReadonlyArray<string> =>
+  A.zipWith(blocks, listMarkersOf(blocks), (block, markers) =>
+    isMarkdownList(block) ? renderList(block, markers) : renderBlock(block)
+  );
+
 const renderMarkdownSiblings = (
   blocks: ReadonlyArray<Block>,
   renderBlock: (block: Block) => string,
   renderList: (list: MarkdownList, markers: ListMarkers) => string
-): Markdown =>
-  joinBlocks(
-    A.zipWith(blocks, listMarkersOf(blocks), (block, markers) =>
-      isMarkdownList(block) ? renderList(block, markers) : renderBlock(block)
-    )
-  );
+): Markdown => joinBlocks(renderSiblingBlocks(blocks, renderBlock, renderList));
 
 // An emphasis that opens or closes on another emphasis takes `_` delimiters:
 // `**foo**` would read `*` + `*foo*` + `*` as strong, and `***foo***` as
@@ -1203,10 +1275,10 @@ const renderMarkdownInlinesWithPolicy = (
   children: ReadonlyArray<Inline>,
   linkLabel = false
 ): string =>
-  joinEmpty(
-    A.map(children, (inline, index) =>
-      guardImageBang(renderMarkdownInlineWithPolicy(policy, inline, linkLabel), inline, A.get(children, index + 1))
-    )
+  renderInlineSequence(
+    children,
+    (inline) => renderMarkdownInlineWithPolicy(policy, inline, linkLabel),
+    (inlines) => renderMarkdownInlinesWithPolicy(policy, inlines, linkLabel)
   );
 
 const renderMarkdownInlineWithPolicy = (policy: UrlPolicySpec, inline: Inline, linkLabel = false): string =>
@@ -1279,11 +1351,16 @@ const renderHtmlInlineWithPolicy = (policy: UrlPolicySpec, inline: Inline): stri
 const renderMarkdownListItemSegmentsWithPolicy =
   (policy: UrlPolicySpec) =>
   (children: ReadonlyArray<ListItemChild>): ReadonlyArray<string> =>
-    segmentInlineRuns<Inline, Block>(children, {
-      isInline: S.is(InlineSchema),
-      renderInlineRun: (inlines) => protectBlockEdgeWhitespace(renderMarkdownInlinesWithPolicy(policy, inlines)),
-      renderBlock: (block: Block) => renderMarkdownBlockWithPolicy(policy, block),
-    });
+    renderListItemSegments(
+      children,
+      (inlines) => protectBlockEdgeWhitespace(renderMarkdownInlinesWithPolicy(policy, inlines)),
+      (blocks) =>
+        renderSiblingBlocks(
+          blocks,
+          (block) => renderMarkdownBlockWithPolicy(policy, block),
+          (list, markers) => renderMarkdownList(list, markers, renderMarkdownListItemSegmentsWithPolicy(policy))
+        )
+    );
 
 const renderHtmlListItemChildrenWithPolicy = (policy: UrlPolicySpec, children: ReadonlyArray<ListItemChild>): string =>
   pipe(

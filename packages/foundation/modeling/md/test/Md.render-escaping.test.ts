@@ -8,9 +8,12 @@ import { BrowserSafeUrlPolicySpec } from "@beep/md/Md.escape";
 import {
   Admonition,
   A as Anchor,
+  BlockQuote,
   Code,
   Document,
   Em,
+  FootnoteDefinition,
+  FootnoteReference,
   Hr,
   Img,
   InlineMath,
@@ -27,7 +30,13 @@ import {
   Ul,
 } from "@beep/md/Md.model";
 import { parseResult } from "@beep/md/Md.parse";
-import { makeMarkdownAdapter, renderUnsafe, renderWithUnsafe, UrlRenderOptions } from "@beep/md/Md.render";
+import {
+  makeMarkdownAdapter,
+  renderMarkdownBlock,
+  renderUnsafe,
+  renderWithUnsafe,
+  UrlRenderOptions,
+} from "@beep/md/Md.render";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as O from "effect/Option";
@@ -67,6 +76,16 @@ describe("@beep/md/Md.render writer escapes", () => {
   it("escapes a `$` only where it could open inline math", () => {
     expectWriter([p(text("cost $5, $ 6 and a$b$"))], "cost \\$5, $ 6 and a\\$b\\$");
     expectWriter([p(text("pay $5 for "), InlineMath.make({ value: "x^2" }))], "pay \\$5 for $x^2$");
+  });
+
+  it("escapes a math `$` once, so raw TeX re-renders to the same text", () => {
+    const math = (value: string): Document => Document.make({ children: [p(InlineMath.make({ value }))] });
+    expectWriter([p(InlineMath.make({ value: "a\\$b" }))], "$a\\$b$");
+    expectWriter([p(InlineMath.make({ value: "\\\\\\$" }))], "$\\\\\\$$");
+    for (const value of ["a\\$b", "\\\\$", "$x", "x$", "a$b\\$c"]) {
+      const once = renderUnsafe(math(value));
+      expect(renderUnsafe(Result.getOrThrow(parseResult(once)).document)).toBe(once);
+    }
   });
 
   it("keeps a bare URL in text from becoming a link", () => {
@@ -116,6 +135,16 @@ describe("@beep/md/Md.render writer escapes", () => {
     );
   });
 
+  it("keeps `*` delimiters on intraword emphasis that opens or closes on emphasis", () => {
+    const em = Em.make({ children: [text("bar")] });
+    expectWriter([p(text("foo"), Strong.make({ children: [em, text("baz")] }), text("qux"))], "foo***bar*baz**qux");
+    expectWriter([p(text("foo "), Strong.make({ children: [text("baz"), em] }), text("qux"))], "foo **baz*bar***qux");
+    expectWriter([p(text("foo "), Strong.make({ children: [em] }), text(" qux"))], "foo __*bar*__ qux");
+    // Intraword emphasis directly around emphasis has no Markdown spelling:
+    // `_` cannot flank there and `**` reads as strong. The writer keeps `*`.
+    expect(renderMarkdownBlock(p(text("foo"), Em.make({ children: [em] }), text("qux")))).toBe("foo**bar**qux");
+  });
+
   it("delimits emphasis that opens on emphasis with underscores", () => {
     const em = Em.make({ children: [text("foo")] });
     expectWriter([p(Em.make({ children: [em] }))], "_*foo*_");
@@ -146,6 +175,43 @@ describe("@beep/md/Md.render writer blocks", () => {
         TaskList.make({ children: [TaskItem.make({ checked: false, children: [text("b")] })] }),
       ],
       "- a\n\n+ [ ] b"
+    );
+  });
+
+  it("alternates adjacent list markers inside every container", () => {
+    const lists: ReadonlyArray<Block> = [
+      Ul.make({ children: [item(text("b"))] }),
+      Ul.make({ children: [item(text("c"))] }),
+    ];
+    expectWriter([Ul.make({ children: [Li.make({ children: [text("a"), ...lists] })] })], "- a\n  - b\n  + c");
+    expectWriter(
+      [
+        Ol.make({
+          start: 1,
+          children: [
+            Li.make({
+              children: [
+                text("a"),
+                Ol.make({ start: 1, children: [item(text("b"))] }),
+                Ol.make({ start: 1, children: [item(text("c"))] }),
+              ],
+            }),
+          ],
+        }),
+      ],
+      "1. a\n   1. b\n   1) c"
+    );
+    expectWriter([BlockQuote.make({ children: lists })], "> - b\n> \n> + c");
+    expectWriter([Admonition.make({ kind: "tip", title: O.none(), children: lists })], "> [!TIP]\n>\n> - b\n> \n> + c");
+    expect(renderMarkdownBlock(FootnoteDefinition.make({ identifier: "n", children: lists }))).toBe(
+      "[^n]: - b\n\n    + c"
+    );
+    expectWriter(
+      [
+        p(text("See"), FootnoteReference.make({ identifier: "n" })),
+        FootnoteDefinition.make({ identifier: "n", children: lists }),
+      ],
+      "See[^n]\n\n[^n]: - b\n\n    + c"
     );
   });
 

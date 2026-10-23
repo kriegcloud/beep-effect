@@ -39,7 +39,7 @@
     {
       "id": "mathValueSyntax",
       "owner": "@beep/md bridge",
-      "description": "An inline-math value keeps its raw TeX, so a `$` or a backslash escape inside it reads back with the backslash; generated math values hold no Markdown punctuation."
+      "description": "The kit parses inline syntax before the math recognizer runs, so a math value holding emphasis, code, link or HTML markers, edge whitespace or a trailing lone backslash does not read back; generated math values hold none of them."
     }
   ],
   "rows": [

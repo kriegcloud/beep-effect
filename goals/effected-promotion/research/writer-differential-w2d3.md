@@ -103,3 +103,32 @@ are unchanged, row for row. Regenerating the ledger with `math` off and with
 - Kit gaps found on the way, owned by `@beep/markdown`: GFM email autolinks
   are recognized on decoded text, so `a\@b\.co` still links; a literal
   `http://x\.y` autolink keeps the backslash in its href.
+
+## Review round 1 (PR #2141)
+
+Three round-trip bugs the review found are fixed. Each one was pinned by a test in
+`test/Md.render-escaping.test.ts` that failed before its fix.
+
+- Intraword emphasis: an emphasis that opens or closes on emphasis took
+  `_` delimiters even next to a letter or digit, where `_` cannot flank
+  (`foo` + strong[em `bar`, `baz`] + `qux`). It now falls back to `*`
+  when a neighbour touches a word character, and the fallback reads back
+  (`foo***bar*baz**qux`). Emphasis directly inside emphasis within a word
+  still has no Markdown spelling (`foo**bar**qux` reads as strong).
+- Adjacent lists inside a list item: marker alternation ran only for
+  sibling blocks at document, blockquote, admonition and footnote level,
+  not for the blocks of a list item. A list item's block runs now
+  alternate too. The blockquote, admonition and footnote-definition paths
+  were already covered and are now pinned by tests.
+- Inline math holding `\$`: the writer escaped an already escaped dollar,
+  so each round trip added a backslash. It now escapes only a `$` behind
+  an even run of backslashes, so `render(parse(render(x)))` equals
+  `render(x)`. The round-trip property now generates math values holding
+  `\$`, `\\$`, a backslash escape (`\_`) and bare `$` at either edge, and
+  canonicalizes a bare `$` to `\$`. `mathValueSyntax` stays, narrowed to
+  math values that hold Markdown inline syntax, edge whitespace or a
+  trailing lone backslash, which the kit parses before the recognizer runs.
+
+The writer differential is unchanged by these fixes (1 / 651 / 79, no row
+newly divergent), since no corpus example holds these constructs. The
+ledger's only change is the narrowed `mathValueSyntax` description.

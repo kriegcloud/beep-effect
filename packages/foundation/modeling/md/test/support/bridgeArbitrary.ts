@@ -80,7 +80,7 @@ export const ROUND_TRIP_GAPS: ReadonlyArray<RoundTripGap> = [
     id: "mathValueSyntax",
     owner: "@beep/md bridge",
     description:
-      "An inline-math value keeps its raw TeX, so a `$` or a backslash escape inside it reads back with the backslash; generated math values hold no Markdown punctuation.",
+      "The kit parses inline syntax before the math recognizer runs, so a math value holding emphasis, code, link or HTML markers, edge whitespace or a trailing lone backslash does not read back; generated math values hold none of them.",
   }),
 ];
 
@@ -93,7 +93,12 @@ const PlainWords = ["alpha", "beta", "gamma", "delta", "omega", "kappa", "zeta",
 const PlainWord = Arbitrary.schema(S.Literals(PlainWords));
 const Word = Arbitrary.schema(S.Literals([...PlainWords, "a$b$c", "x$y", "p&amp;q", "q&#38;r", "AT&T"]));
 
-const MathValue = Arbitrary.schema(S.Literals(["x", "y^2", "a+b", "e=mc^2"]));
+// Raw TeX, including escaped dollars (`\\$`), an escaped backslash before a
+// dollar (`\\\\$`), backslash escapes of Markdown punctuation and bare
+// dollars at either edge, which the writer canonicalizes to `\\$`.
+const MathValue = Arbitrary.schema(
+  S.Literals(["x", "y^2", "a+b", "e=mc^2", "a\\$b", "\\\\$x", "a\\_b", "$x", "x$", "\\$y$"])
+);
 
 const Words = pipe(
   Arbitrary.array(Word, { minLength: 1, maxLength: 3 }),
@@ -291,6 +296,10 @@ export const BridgeDocumentArbitrary: Arbitrary.Arbitrary<Document> = pipe(
   )
 );
 
+// A bare `$` inside an inline-math value would end the span, so the writer
+// writes it as TeX's literal dollar `\\$`; an already escaped one is kept.
+const canonicalMathValue = Str.replace(/(?<!\\)((?:\\\\)*)\$/g, "$1\\$");
+
 const mergeText = (inlines: ReadonlyArray<Inline>): ReadonlyArray<Inline> =>
   A.reduce(A.map(inlines, normalizeInline), A.empty<Inline>(), (merged, inline) => {
     const last = A.last(merged);
@@ -313,6 +322,8 @@ const normalizeInline = (inline: Inline): Inline => {
       return Text.make({ value: inline.value });
     case "footnoteReference":
       return FootnoteReference.make({ identifier: Str.toLowerCase(inline.identifier) });
+    case "inlineMath":
+      return InlineMath.make({ value: canonicalMathValue(inline.value) });
     default:
       return inline;
   }
