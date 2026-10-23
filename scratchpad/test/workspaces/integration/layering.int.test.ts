@@ -56,6 +56,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/markdown": "markdown",
 	"@beep/memfs": "memfs",
 	"@beep/npm-spec": "npm",
+	"@beep/package-json": "package-json",
 	"@beep/repo-tsconfig": "tsconfig-json",
 	"@beep/runtime-env": "env",
 	"@beep/schema-org": "schema-org",

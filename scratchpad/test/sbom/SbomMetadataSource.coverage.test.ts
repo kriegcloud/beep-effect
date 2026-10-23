@@ -4,7 +4,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Package } from "../../effected/package-json/Package.ts";
+import { Package } from "@beep/package-json/Package";
 import { Contact, Supplier } from "../../effected/sbom/SbomDocument.ts";
 import { SbomMetadataSource } from "../../effected/sbom/SbomMetadataSource.ts";
 
