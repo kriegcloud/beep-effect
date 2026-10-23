@@ -249,6 +249,8 @@
         "packages/foundation/capability/technical-drawing/src/**",
         "packages/foundation/capability/walker/package.json",
         "packages/foundation/capability/walker/src/**",
+        "packages/foundation/capability/xdg/package.json",
+        "packages/foundation/capability/xdg/src/**",
         "packages/foundation/modeling/glob/package.json",
         "packages/foundation/modeling/glob/src/**",
         "packages/foundation/modeling/html/package.json",

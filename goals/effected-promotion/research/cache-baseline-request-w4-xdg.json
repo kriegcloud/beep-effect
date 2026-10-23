@@ -1,0 +1,20 @@
+{
+  "previous": "32c3576f7d376cef6e7594c646600e3e3b4369a2d5f4b0f67ed17a8ea40a4ea4",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (effected-promotion wave 4, PR 4-X, feat/effected-promotion-w4-xdg)",
+    "reason": "Record the new wave-4 workspace @beep/xdg scaffolded by create-package with the generated task set, the dependency-only drift of its two named importers (W4-c), and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
+    "basis": {
+      "path": "goals/effected-promotion/research/cache-baseline-review-w4-xdg.md",
+      "sha256": "a9777b8d9b80837eb7dcdc0b0c7441cd406918b0848332c684a02150ce4816e5"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": ["@beep/xdg", "@beep/m365-mcp", "@beep/repo-cli", "//"]
+}
