@@ -407,7 +407,6 @@ const KEY_BYTES: Readonly<Record<KeyName, string>> = {
 
 const isKeyName = S.is(KeyName);
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: SGR, other CSI and OSC sequences all start with ESC
 const ESCAPES = /\u001b\[([0-9;]*)m|\u001b\[[0-9;?]*[A-Za-z]|\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
 
 const hex: {
@@ -604,15 +603,12 @@ interface Capture {
 }
 
 /** Synchronized-update brackets and cursor show/hide: written around a frame, never a frame themselves. */
-// biome-ignore lint/suspicious/noControlCharactersInRegex: the sequences start with ESC
 const FRAME_BRACKETS = /\u001b\[\?(?:2026|25)[hl]/g;
 
 /** A chunk of nothing but control sequences: Ink erasing its frame to write a log line above it. */
-// biome-ignore lint/suspicious/noControlCharactersInRegex: the sequences start with ESC
 const CONTROLS_ONLY = /^(?:\u001b\[[0-9;?]*[A-Za-z])*$/;
 
 /** The erase and cursor moves log-update writes before a frame; colour (SGR, `m`) is part of the frame. */
-// biome-ignore lint/suspicious/noControlCharactersInRegex: the sequences start with ESC
 const LEADING_MOVES = /^(?:\u001b\[[0-9;?]*[A-Za-ln-z])+/;
 
 /**

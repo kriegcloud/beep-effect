@@ -1,4 +1,4 @@
-// biome-ignore-all format: generated table; tabs keep it inside the byte budget
+// biome-ignore-all format: generated table; tabs keep it inside the byte budget. Owner: @beep/schema-org. Exit: the table moves to a data file that Biome does not format.
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";

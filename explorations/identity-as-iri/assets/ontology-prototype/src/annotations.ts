@@ -266,10 +266,7 @@ export type OntologyObjectPredicateAnnotationInput = typeof OntologyObjectPredic
 
 export class OntologyCreateInputFields extends S.Opaque<OntologyCreateInputFields, { readonly brand: unique symbol }>()(
   S.Struct({
-    identity: S.declare(
-      /* istanbul ignore next -- create input identity is typed by callers and not decoded through this internal schema */
-      (u: unknown): u is IdentityComposer<string> => S.is(S.String)(u)
-    ),
+    identity: S.declare((u: unknown): u is IdentityComposer<string> => S.is(S.String)(u)),
     baseIri: OntologyIriInput,
     preferredPrefix: S.String,
     label: S.String,
@@ -333,10 +330,7 @@ export const keyLeafTermName = (identifier: string): OntologyTermName =>
     identifier,
     Str.split("."),
     A.last,
-    O.getOrElse(
-      /* istanbul ignore next -- splitting a string always yields at least one segment */
-      () => identifier
-    ),
+    O.getOrElse(() => identifier),
     normalizeTermNameInput
   );
 

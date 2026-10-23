@@ -369,7 +369,7 @@ const attributeHasRequiredValue = (value: unknown, expected: string, asciiCaseIn
     attributeValue(value),
     O.filter(isString),
     O.exists((candidate) => {
-      /* istanbul ignore else -- every generated equality and HTML keyword comparison is ASCII-case-insensitive */
+      /* istanbul ignore else -- every generated equality and HTML keyword comparison is ASCII-case-insensitive. Owner: @beep/html. Exit: the generated equality predicate drops its asciiCaseInsensitive flag. */
       if (asciiCaseInsensitive) return toAsciiLowerCase(candidate) === toAsciiLowerCase(expected);
       return candidate === expected;
     })
@@ -514,12 +514,12 @@ const effectiveCategories = (node: HtmlChildView, tag: HtmlTag): ReadonlyArray<s
         return Match.value(rule.condition).pipe(
           Match.when("present", () => hasAttribute(value)),
           Match.when("not-equals", () => {
-            /* istanbul ignore if -- generation rejects a missing value for every non-present predicate */
+            /* istanbul ignore if -- generation rejects a missing value for every non-present predicate. Owner: @beep/html. Exit: the generated predicate type makes value required for non-present conditions. */
             if (rule.value === undefined) return false;
             return !attributeEquals(value, rule.value);
           }),
           Match.when("tokens-subset", () => {
-            /* istanbul ignore if -- generation rejects a missing value for every non-present predicate */
+            /* istanbul ignore if -- generation rejects a missing value for every non-present predicate. Owner: @beep/html. Exit: the generated predicate type makes value required for non-present conditions. */
             if (rule.value === undefined) return false;
             return attributeTokensAreSubset(value, rule.value);
           }),
@@ -671,14 +671,14 @@ const inspectSpecialAttributeSyntaxes = (
 const inputTypeState = (node: HtmlChildView): string =>
   isInput(node)
     ? resolveInputState(node).state
-    : /* istanbul ignore next -- called only after the input tag has passed the root schema */ "text";
+    : /* istanbul ignore next -- called only after the input tag has passed the root schema. Owner: @beep/html. Exit: inputTypeState takes a narrowed Input node. */ "text";
 
 const generatedInputStateEntry = (
   registry: Readonly<Record<string, ReadonlyArray<string>>>,
   state: string
 ): ReadonlyArray<string> => {
   const entry = registry[state];
-  /* istanbul ignore next -- Input.type is closed and both generated state registries are total */
+  /* istanbul ignore next -- Input.type is closed and both generated state registries are total. Owner: @beep/html. Exit: the generated state registries are typed as total records over Input.type. */
   return entry ?? A.emptyReadonly();
 };
 
@@ -1743,7 +1743,7 @@ const inspectElementOrder = (
   path: ReadonlyArray<string>,
   ancestors: ReadonlyArray<string>
 ): ReadonlyArray<HtmlConformanceIssue> => {
-  /* istanbul ignore next -- inspectChild invokes order inspection only after deriving an HtmlTag */
+  /* istanbul ignore next -- inspectChild invokes order inspection only after deriving an HtmlTag. Owner: @beep/html. Exit: inspectElementOrder takes a narrowed HtmlTag parent. */
   if (!isHtmlTag(parent._tag)) return A.emptyReadonly();
   const elementChildren = pipe(
     children,

@@ -469,7 +469,7 @@ const checkForRender = (
 ): readonly [SkillArtifactCheck, O.Option<SkillArtifactDenialReason>] =>
   Result.match(rendered, {
     onFailure:
-      /* istanbul ignore next -- Md.render fails only when an adapter throws; a well-typed projection cannot reach it, the arm stays for adapter defects */
+      /* istanbul ignore next -- Md.render fails only when an adapter throws; a well-typed projection cannot reach it, the arm stays for adapter defects. Owner: @beep/skill-contract. Exit: Md.render has no failure channel for well-typed documents. */
       (error) => [
         SkillArtifactCheck.make({
           check: "rerender-byte-equality",

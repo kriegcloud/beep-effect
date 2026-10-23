@@ -1,8 +1,6 @@
 /**
  * In-process PGlite database provisioning for the desktop chat sidecar.
  *
- * cspell:words initdb
- *
  * Boots a file-backed {@link https://pglite.dev | PGlite} instance in-process via
  * `@beep/pglite`, then layers the repo's
  * {@link PostgresDrizzle} composition on top so every sidecar repository (the
