@@ -66,6 +66,9 @@
       "path": "../../../foundation/capability/colors/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/config-file/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/capability/file-processing/tsconfig.json"
     },
     {
@@ -115,6 +118,9 @@
     },
     {
       "path": "../../library/qa-capture/tsconfig.json"
+    },
+    {
+      "path": "../../library/repo-tsconfig/tsconfig.json"
     },
     {
       "path": "../../library/repo-utils/tsconfig.json"

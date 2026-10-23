@@ -9,18 +9,27 @@ follow [the architecture standard](../standards/ARCHITECTURE.md),
 [Effect-first development](../standards/effect-first-development.md), and the
 applicable package's `AGENTS.md`.
 
-The examples below include partial snippets and deliberately incorrect examples.
-They have not all been compiled as written. A displayed API or directory tree
-must be checked against the current Effect reference before reuse; the earlier
-guidance scan is not a current API or compilation guarantee. The local reference
-is provisioned with `bun run beep refs provision`; its own `AGENTS.md` governs
-work inside that checkout. Upstream commands and relative paths apply there.
+Every TypeScript example below is compiled by
+`bun run beep laws markdown-fences --check` against the public `effect/*`
+modules. The six fences marked `skip-type-checking` are verbatim-style excerpts
+of upstream source files: their relative imports (`./Effect.ts`,
+`./internal/core.ts`) resolve only inside the Effect source tree. A displayed
+directory tree must still be checked against the current Effect reference
+before reuse. The local reference is provisioned with
+`bun run beep refs provision`; its own `AGENTS.md` governs work inside that
+checkout. Upstream commands and relative paths apply there.
 
 Disposition recorded 2026-10-20 for #1856: keep as a labeled upstream reference.
 The local Effect checkout was inspected at
 `1b740862e3d25ec5d4b6f86b9fe792b6dabbf84c` for its source/test layout and
 validation instructions. This is provenance for that inspection, not a claim
 that every example below was revalidated at that revision.
+
+Disposition reconfirmed 2026-10-23 for #1856 wave 3: kept as a labeled
+upstream reference, because it describes the Effect library's own source tree
+and this repository's module layout is owned by the architecture standard.
+Its portable patterns (dual APIs, string TypeIds, type guards, variance,
+pipeable prototypes) now compile against the public modules.
 
 ## OVERVIEW
 
@@ -122,7 +131,7 @@ packages/effect/src/
 
 **Main index file pattern (packages/effect/src/index.ts):**
 
-```typescript
+```typescript skip-type-checking
 /**
  * @since 2.0.0
  */
@@ -179,7 +188,7 @@ export * as Effect from "./Effect.ts"
 
 ### Standard Module File Structure
 
-```typescript
+```typescript skip-type-checking
 /**
  * Module description with @since version
  *
@@ -227,7 +236,7 @@ const Proto = {
 
 **Internal organization (packages/effect/src/internal/array.ts):**
 
-```typescript
+```typescript skip-type-checking
 /** @internal */
 
 import { identity } from "../Function.ts"
@@ -266,46 +275,70 @@ export const map = <A, B>(
 
 ### Function Naming Patterns
 
-```typescript
-// Constructors - create new instances
-export const make = <A>(value: A): Effect<A>
-export const of = <A>(value: A): Effect<A>
-export const empty = (): Effect<never>
-export const fromIterable = <A>(iterable: Iterable<A>): Effect<A>
+```ts
+import type * as Chunk from "effect/Chunk"
+import type * as Effect from "effect/Effect"
+import type * as O from "effect/Option"
+import type * as Order from "effect/Order"
 
-// Combinators - transform existing instances
-export const map = dual<...>()
-export const flatMap = dual<...>()
-export const filter = dual<...>()
-export const zip = dual<...>()
+// Constructors - create new instances
+export declare const make: <A>(value: A) => Effect.Effect<A>
+export declare const of: <A>(value: A) => Effect.Effect<A>
+export declare const empty: () => Effect.Effect<never>
+export declare const fromIterable: <A>(iterable: Iterable<A>) => Effect.Effect<A>
+
+// Combinators - transform existing instances (dual: data-first and data-last)
+export declare const map: {
+  <A, B>(f: (a: A) => B): (self: Effect.Effect<A>) => Effect.Effect<B>
+  <A, B>(self: Effect.Effect<A>, f: (a: A) => B): Effect.Effect<B>
+}
 
 // Predicates - boolean-returning functions
-export const isSome = <A>(option: Option<A>): boolean
-export const isNone = <A>(option: Option<A>): boolean
-export const isEffect = (value: unknown): value is Effect<unknown>
+export declare const isSome: <A>(option: O.Option<A>) => boolean
+export declare const isNone: <A>(option: O.Option<A>) => boolean
+export declare const isEffect: (value: unknown) => value is Effect.Effect<unknown>
 
 // Destructors - extract or convert values
-export const getOrElse = dual<...>()
-export const match = dual<...>()
-export const toArray = <A>(chunk: Chunk<A>): ReadonlyArray<A>
+export declare const getOrElse: {
+  <B>(onNone: () => B): <A>(self: O.Option<A>) => A | B
+  <A, B>(self: O.Option<A>, onNone: () => B): A | B
+}
+export declare const toArray: <A>(chunk: Chunk.Chunk<A>) => ReadonlyArray<A>
 
 // Utilities - helper functions
-export const reverse = <A>(array: ReadonlyArray<A>): Array<A>
-export const sort = dual<...>()
-export const partition = dual<...>()
+export declare const reverse: <A>(array: ReadonlyArray<A>) => Array<A>
+export declare const sort: {
+  <B>(order: Order.Order<B>): <A extends B>(self: ReadonlyArray<A>) => Array<A>
+  <A extends B, B>(self: ReadonlyArray<A>, order: Order.Order<B>): Array<A>
+}
 ```
 
 ### Type Naming Patterns
 
-```typescript
+```ts
+import type { TypeLambda } from "effect/HKT"
+
 // Core types use PascalCase
-export interface Effect<A, E = never, R = never>
-export interface Option<A>
-export interface Either<E, A>
+export interface Effect<A, E = never, R = never> {
+  readonly _A: A
+  readonly _E: E
+  readonly _R: R
+}
+export interface Option<A> {
+  readonly _A: A
+}
+export interface Result<A, E = never> {
+  readonly _A: A
+  readonly _E: E
+}
 
 // Type lambdas have TypeLambda suffix
-export interface EffectTypeLambda extends TypeLambda
-export interface OptionTypeLambda extends TypeLambda
+export interface EffectTypeLambda extends TypeLambda {
+  readonly type: Effect<this["Target"], this["Out1"], this["Out2"]>
+}
+export interface OptionTypeLambda extends TypeLambda {
+  readonly type: Option<this["Target"]>
+}
 
 // Non-empty variants use NonEmpty prefix
 export type NonEmptyArray<A> = readonly [A, ...Array<A>]
@@ -320,22 +353,24 @@ export type ReadonlyRecord<K extends string | symbol, V> = { readonly [P in K]: 
 
 ### Standard Dual Implementation
 
-````typescript
+````ts
+import * as A from "effect/Array"
+import { dual } from "effect/Function"
+
 /**
  * Maps over a structure using the provided function.
  *
- * @example
- * ```typescript
+ * **Example** (Map data-first and data-last)
+ *
+ * ```ts
  * import * as A from "effect/Array"
  * import { pipe } from "effect/Function"
  *
  * // Data-first usage
- * const result1 = A.map([1, 2, 3], x => x * 2)
+ * const result1 = A.map([1, 2, 3], (x) => x * 2)
  *
  * // Data-last usage (pipeable)
- * const result2 = pipe([1, 2, 3],
- * 
- * )
+ * const result2 = pipe([1, 2, 3], A.map((x) => x * 2))
  * ```
  *
  * @since 2.0.0
@@ -344,23 +379,30 @@ export type ReadonlyRecord<K extends string | symbol, V> = { readonly [P in K]: 
 export const map = dual<
   <A, B>(f: (a: A, index: number) => B) => (self: ReadonlyArray<A>) => Array<B>,
   <A, B>(self: ReadonlyArray<A>, f: (a: A, index: number) => B) => Array<B>
->(2, (self, f) => self.map(f))
+>(2, <A, B>(self: ReadonlyArray<A>, f: (a: A, index: number) => B): Array<B> => A.map(self, f))
 ````
 
 ### Arity-Based Dual Pattern
 
-```typescript
+```ts
+import * as A from "effect/Array"
+import { dual } from "effect/Function"
+
 // When the number of parameters is fixed
 export const filter = dual<
   <A, B extends A>(predicate: (a: A) => a is B) => (self: ReadonlyArray<A>) => Array<B>,
   <A, B extends A>(self: ReadonlyArray<A>, predicate: (a: A) => a is B) => Array<B>
->(2, internalArray.filter)
+>(2, <A, B extends A>(self: ReadonlyArray<A>, predicate: (a: A) => a is B): Array<B> => A.filter(self, predicate))
 
 // When using predicate-based dual
 export const update = dual<
   <A>(index: number, f: (a: A) => A) => (self: ReadonlyArray<A>) => Array<A>,
   <A>(self: ReadonlyArray<A>, index: number, f: (a: A) => A) => Array<A>
->((args) => A.isArray(args[0]), internalArray.update)
+>(
+  (args) => A.isArray(args[0]),
+  <A>(self: ReadonlyArray<A>, index: number, f: (a: A) => A): Array<A> =>
+    A.map(self, (a, i) => (i === index ? f(a) : a))
+)
 ```
 
 ## TYPE IDENTIFICATION PATTERN
@@ -369,7 +411,7 @@ export const update = dual<
 
 The Effect library uses **string literal TypeIds** (NOT `Symbol.for`):
 
-```typescript
+```ts
 /**
  * The type identifier for this data type.
  * Uses string literal format: "~effect/ModuleName"
@@ -394,7 +436,7 @@ export interface ModuleName<A> {
 
 ### TypeId Naming Conventions
 
-```typescript
+```typescript skip-type-checking
 // Standard module TypeId
 const TypeId = "~effect/Queue"
 const TypeId = "~effect/FiberSet"
@@ -425,21 +467,36 @@ export const symbol = "~effect/interfaces/Equal"
 
 ### Type Guard Pattern
 
-````typescript
+````ts
+import * as Predicate from "effect/Predicate"
+
+const TypeId = "~effect/ModuleName"
+
+/**
+ * @category DomainModel
+ * @since 2.0.0
+ */
+export interface ModuleName<out A, out E> {
+  readonly [TypeId]: typeof TypeId
+  readonly _A: A
+  readonly _E: E
+}
+
 /**
  * Type guard to check if a value is an instance of ModuleName.
  *
- * @example
- * ```typescript
+ * **Example** (Check a FiberSet)
+ *
+ * ```ts
  * import * as Effect from "effect/Effect"
  * import * as FiberSet from "effect/FiberSet"
  *
- * Effect.gen(function*() {
- * 
- *
- * 
- * 
- * })
+ * const program = Effect.scoped(
+ *   Effect.gen(function* () {
+ *     const set = yield* FiberSet.make()
+ *     return FiberSet.isFiberSet(set) // true
+ *   })
+ * )
  * ```
  *
  * @category Validation
@@ -452,7 +509,12 @@ export const isModuleName = (u: unknown): u is ModuleName<unknown, unknown> => P
 
 ### Interface Variance
 
-```typescript
+```ts
+import type { Pipeable } from "effect/Pipeable"
+import type * as Types from "effect/Types"
+
+const TypeId = "~effect/Layer"
+
 /**
  * Represents the variance of the type parameters.
  * - `in ROut`: Contravariant (input position)
@@ -476,11 +538,13 @@ export interface Layer<in ROut, out E = never, out RIn = never> extends Variance
 
 ### Pipeable Implementation
 
-```typescript
-import type * as Inspectable from "./Inspectable.ts"
-import { PipeInspectableProto } from "./internal/core.ts"
-import { pipeArguments } from "./Pipeable.ts"
-import type { Pipeable } from "./Pipeable.ts"
+```ts
+// Upstream imports these from sibling source files ("./Pipeable.ts") and
+// attaches `pipe` through a shared prototype object (its internal
+// PipeInspectableProto, which also adds inspection methods). Outside the
+// library, the public `Pipeable.Class` base gives the same `pipe` method
+// with a checked return type and no assertion.
+import * as Pipeable from "effect/Pipeable"
 
 const TypeId = "~effect/ModuleName"
 
@@ -488,24 +552,19 @@ const TypeId = "~effect/ModuleName"
  * @category DomainModel
  * @since 2.0.0
  */
-export interface ModuleName<A> extends Pipeable, Inspectable.Inspectable {
+export interface ModuleName<A> extends Pipeable.Pipeable {
   readonly [TypeId]: typeof TypeId
-  // other properties
+  readonly value: A
 }
 
-// Prototype pattern with pipe support
-const Proto = {
-  [TypeId]: TypeId,
-  ...PipeInspectableProto
-  // other methods
+class ModuleNameImpl<A> extends Pipeable.Class implements ModuleName<A> {
+  readonly [TypeId] = TypeId
+  constructor(readonly value: A) {
+    super()
+  }
 }
 
-// Attach to prototype for pipe support
-export const make = <A>(value: A): ModuleName<A> => {
-  const instance = { value }
-  Object.setPrototypeOf(instance, Proto)
-  return instance as ModuleName<A>
-}
+export const make = <A>(value: A): ModuleName<A> => new ModuleNameImpl(value)
 ```
 
 ## IMPORT CONVENTIONS
@@ -514,7 +573,7 @@ export const make = <A>(value: A): ModuleName<A> => {
 
 **Always use `.ts` extensions in imports:**
 
-```typescript
+```typescript skip-type-checking
 // CORRECT - use .ts extensions
 import * as Array from "./Array.ts"
 import * as Effect from "./Effect.ts"
@@ -528,7 +587,7 @@ import type * as Scope from "./Scope.ts"
 
 ### Import Organization
 
-```typescript
+```typescript skip-type-checking
 // 1. External imports (if any)
 
 // 2. Effect module imports (alphabetical, .ts extension)

@@ -11,7 +11,7 @@ import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobPattern } from "@beep/glob";
 import { WorkspaceManifest } from "@beep/lockfiles";
-import { Package } from "../package-json/index.ts";
+import { Package } from "@beep/package-json";
 import type * as PlatformError from "effect/PlatformError";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

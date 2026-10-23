@@ -36,8 +36,9 @@ Use this command for execution-capable sessions:
 
 P1 Implement — waves 1a (#1956), 1b (#1981), 2a (#1988), 2b (#1992, #1994,
 #2002), 2c (#2016, D-37) and 2d-1 (#2102, `@beep/markdown`, D-38..D-46)
-merged. 2d-A (four adopter sites, D-47) is in review beside 2d-2 (`@beep/md`
-`Md.syntax`/`Md.parse`), then the evidence-gated 2d-3 writer fixes. P0
+merged. 2d-A (four adopter sites, D-47) merged in #2114. Wave 2d-2 (`@beep/md`
+`Md.syntax`/`Md.parse`, D-48..D-51) merged in #2121; the evidence-gated 2d-3
+writer fixes (D-52, `math` on by default) are in review. P0
 research is complete:
 see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md),
 [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md)
