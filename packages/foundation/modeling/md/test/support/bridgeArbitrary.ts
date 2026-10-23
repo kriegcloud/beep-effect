@@ -4,10 +4,13 @@
 // (wave-2d plan, Plan 2 section 7): no RawMarkdown or Embed, no nested
 // links, emphasis-like children with alphanumeric edges, no CR or NUL, no
 // whitespace at line edges, no newlines in headings, cells or alt text, no
-// adjacent lists of the same marker family, tight list items only, and
-// footnote references only to existing definitions. Every other exclusion
-// is a named gap in `ROUND_TRIP_GAPS`, which the bridge-corpus ledger
-// prints so the gaps stay visible in review.
+// list mixing tight and loose items, display math only at the top level,
+// and footnote references only to existing definitions. Text, code and
+// link destinations carry `$`, `&` and character-reference shapes, math is
+// generated, adjacent lists may share a marker family, and an admonition
+// may open on any block (wave 2d-3 writer fixes). Every other exclusion is
+// a named gap in `ROUND_TRIP_GAPS`, which the bridge-corpus ledger prints
+// so the gaps stay visible in review.
 //
 // `normalizeBridgeDocument` erases only writer-contract canonicalization:
 // adjacent Text runs merge (the parser reads one run where the generator
@@ -19,6 +22,7 @@ import {
   Admonition,
   A as Anchor,
   BlockQuote,
+  Block as BlockSchema,
   Br,
   Code,
   Del,
@@ -30,7 +34,9 @@ import {
   Hr,
   Img,
   Inline,
+  InlineMath,
   Li,
+  MathBlock,
   Ol,
   P,
   Pre,
@@ -65,37 +71,29 @@ export class RoundTripGap extends S.Opaque<RoundTripGap, { readonly brand: uniqu
 /** The named exclusions of {@link BridgeDocumentArbitrary}. */
 export const ROUND_TRIP_GAPS: ReadonlyArray<RoundTripGap> = [
   RoundTripGap.make({
-    id: "writerDollarAmpersand",
-    owner: "wave 2d-3 writer fixes",
-    description: "Md.render does not escape `$` or `&` in text, so generated values contain neither.",
-  }),
-  RoundTripGap.make({
-    id: "mathRecognizerOff",
-    owner: "wave 2d-3 writer fixes",
-    description:
-      "The math recognizer defaults off until the writer escapes `$`, so no MathBlock or InlineMath is generated.",
-  }),
-  RoundTripGap.make({
     id: "kitNestedTaskList",
     owner: "@beep/markdown",
     description:
       "The kit does not recognize a GFM task-list item inside a blockquote or a nested list, so task lists are top-level only.",
   }),
   RoundTripGap.make({
-    id: "writerAdmonitionBody",
-    owner: "wave 2d-3 writer fixes",
-    description:
-      "Md.render writes an admonition body directly under its marker line, so a first child of hr, table, YouTube or an ordered list starting above 1 merges into the marker paragraph.",
-  }),
-  RoundTripGap.make({
-    id: "frontmatterCapturesLeadingHr",
+    id: "mathValueSyntax",
     owner: "@beep/md bridge",
     description:
-      "Md.parse always captures frontmatter, so a document starting with a thematic break and holding a later `---` line loses the span between them without a loss.",
+      "An inline-math value keeps its raw TeX, so a `$` or a backslash escape inside it reads back with the backslash; generated math values hold no Markdown punctuation.",
   }),
 ];
 
-const Word = Arbitrary.schema(S.Literals(["alpha", "beta", "gamma", "delta", "omega", "kappa", "zeta", "Note"]));
+const PlainWords = ["alpha", "beta", "gamma", "delta", "omega", "kappa", "zeta", "Note"] as const;
+
+// Identifier-like slots (titles, code languages, footnote labels) take plain
+// words; text, code and destinations also take words a writer must escape:
+// `$` that would open inline math and `&` that would open a character
+// reference. Each keeps alphanumeric edges, so emphasis around it flanks.
+const PlainWord = Arbitrary.schema(S.Literals(PlainWords));
+const Word = Arbitrary.schema(S.Literals([...PlainWords, "a$b$c", "x$y", "p&amp;q", "q&#38;r", "AT&T"]));
+
+const MathValue = Arbitrary.schema(S.Literals(["x", "y^2", "a+b", "e=mc^2"]));
 
 const Words = pipe(
   Arbitrary.array(Word, { minLength: 1, maxLength: 3 }),
@@ -103,34 +101,33 @@ const Words = pipe(
 );
 
 const OptionalWord = pipe(
-  Arbitrary.all([Arbitrary.schema(S.Boolean), Word]),
+  Arbitrary.all([Arbitrary.schema(S.Boolean), PlainWord]),
   Arbitrary.map(([present, word]) => (present ? O.some(word) : O.none()))
 );
 
-const InlineKind = Arbitrary.schema(S.Literals(["text", "strong", "em", "del", "code", "a", "img", "rawHtml"]));
+const InlineKinds = S.Literals(["text", "strong", "em", "del", "code", "a", "img", "rawHtml", "inlineMath"]);
+type InlineKind = typeof InlineKinds.Type;
+
+const InlineSeed = Arbitrary.all({ words: Words, word: Word, title: OptionalWord, math: MathValue });
+
+type InlineSeed = typeof InlineSeed extends Arbitrary.Arbitrary<infer Seed> ? Seed : never;
+
+const inlineBuilders: { readonly [Kind in InlineKind]: (seed: InlineSeed) => Inline } = {
+  text: ({ words }) => Text.make({ value: words }),
+  strong: ({ words }) => Strong.make({ children: [Text.make({ value: words })] }),
+  em: ({ words }) => Em.make({ children: [Text.make({ value: words })] }),
+  del: ({ words }) => Del.make({ children: [Text.make({ value: words })] }),
+  code: ({ word }) => Code.make({ value: word }),
+  a: ({ title, word, words }) =>
+    Anchor.make({ href: `https://example.com/${word}`, title, children: [Text.make({ value: words })] }),
+  img: ({ title, word, words }) => Img.make({ src: `https://example.com/${word}.png`, alt: words, title }),
+  rawHtml: ({ word }) => RawHtml.make({ value: `<b>${word}</b>` }),
+  inlineMath: ({ math }) => InlineMath.make({ value: math }),
+};
 
 const InlineAtom: Arbitrary.Arbitrary<Inline> = pipe(
-  Arbitrary.all([InlineKind, Words, Word, OptionalWord]),
-  Arbitrary.map(([kind, words, word, title]): Inline => {
-    switch (kind) {
-      case "text":
-        return Text.make({ value: words });
-      case "strong":
-        return Strong.make({ children: [Text.make({ value: words })] });
-      case "em":
-        return Em.make({ children: [Text.make({ value: words })] });
-      case "del":
-        return Del.make({ children: [Text.make({ value: words })] });
-      case "code":
-        return Code.make({ value: word });
-      case "a":
-        return Anchor.make({ href: `https://example.com/${word}`, title, children: [Text.make({ value: words })] });
-      case "img":
-        return Img.make({ src: `https://example.com/${word}.png`, alt: words, title });
-      case "rawHtml":
-        return RawHtml.make({ value: `<b>${word}</b>` });
-    }
-  })
+  Arbitrary.all([Arbitrary.schema(InlineKinds), InlineSeed]),
+  Arbitrary.map(([kind, seed]) => inlineBuilders[kind](seed))
 );
 
 const Separator = pipe(
@@ -150,27 +147,10 @@ const TextRun = pipe(
   Arbitrary.map((value): ReadonlyArray<Inline> => [Text.make({ value })])
 );
 
-const listFamily = (block: Block): O.Option<string> => {
-  switch (block._tag) {
-    case "ul":
-    case "taskList":
-      return O.some("bullet");
-    case "ol":
-      return O.some("ordered");
-    default:
-      return O.none();
-  }
-};
-
-const noAdjacentListFamilies = (blocks: ReadonlyArray<Block>): boolean =>
-  A.every(A.zip(blocks, A.drop(blocks, 1)), ([left, right]) => {
-    const family = listFamily(left);
-    return O.isNone(family) || !O.contains(listFamily(right), family.value);
-  });
-
-const LeafKinds = S.Literals(["p", "heading", "hr", "pre", "ul", "ol", "taskList", "table", "youtube"]);
+const LeafKinds = S.Literals(["p", "heading", "hr", "pre", "ul", "ol", "taskList", "table", "youtube", "mathBlock"]);
 type LeafKind = typeof LeafKinds.Type;
 const LeafKind = Arbitrary.schema(LeafKinds);
+// Display math is recognized only at column 1, so containers hold none.
 const ContainedLeafKind = Arbitrary.schema(
   LeafKinds.pick(["p", "heading", "hr", "pre", "ul", "ol", "table", "youtube"])
 );
@@ -192,11 +172,20 @@ const LeafSeed = Arbitrary.all({
   cells: Arbitrary.array(TextRun, { minLength: 3, maxLength: 3 }),
   rows: Arbitrary.array(Arbitrary.array(TextRun, { minLength: 3, maxLength: 3 }), { minLength: 0, maxLength: 2 }),
   videoId: VideoId,
+  loose: Arbitrary.schema(S.Boolean),
+  math: MathValue,
 });
 
 type LeafSeed = typeof LeafSeed extends Arbitrary.Arbitrary<infer Seed> ? Seed : never;
 
-const listItems = (seed: LeafSeed): ReadonlyArray<Li> => A.map(seed.items, (children) => Li.make({ children }));
+// A tight item holds one inline run; a loose item holds paragraphs, and the
+// first one a second paragraph, so blank lines between an item's blocks and
+// between items are both exercised. A list is never half tight, half loose.
+const itemChildren = (seed: LeafSeed, run: ReadonlyArray<Inline>, index: number): Li["children"] =>
+  seed.loose ? [P.make({ children: run }), ...(index === 0 ? [P.make({ children: seed.run })] : [])] : run;
+
+const listItems = (seed: LeafSeed): ReadonlyArray<Li> =>
+  A.map(seed.items, (run, index) => Li.make({ children: itemChildren(seed, run, index) }));
 
 const tableRow =
   (width: number) =>
@@ -213,7 +202,7 @@ const leafBuilders: { readonly [Kind in LeafKind]: (seed: LeafSeed) => Block } =
   taskList: (seed) =>
     TaskList.make({
       children: A.map(seed.items, (children, index) =>
-        TaskItem.make({ checked: seed.checks[index] ?? false, children })
+        TaskItem.make({ checked: seed.checks[index] ?? false, children: itemChildren(seed, children, index) })
       ),
     }),
   table: (seed) =>
@@ -223,6 +212,7 @@ const leafBuilders: { readonly [Kind in LeafKind]: (seed: LeafSeed) => Block } =
       children: A.map([seed.cells, ...seed.rows], tableRow(seed.align.length)),
     }),
   youtube: (seed) => YouTube.make({ videoId: seed.videoId }),
+  mathBlock: (seed) => MathBlock.make({ value: seed.math }),
 };
 
 const leafBlockOf = (kinds: Arbitrary.Arbitrary<LeafKind>): Arbitrary.Arbitrary<Block> =>
@@ -239,24 +229,10 @@ const containedLeafBlock = leafBlockOf(ContainedLeafKind);
 
 const ContainerKind = Arbitrary.schema(S.Literals(["leaf", "leaf", "blockquote", "admonition"]));
 
-// Md.render writes an admonition's body directly under its `[!KIND]` line,
-// so a first child that cannot interrupt a paragraph merges into the marker
-// paragraph (gap `writerAdmonitionBody`): a thematic break turns the marker
-// into a setext heading, and an ordered list starting above 1, a table or
-// a bare YouTube URL become paragraph continuation text.
-const interruptsMarkerParagraph = (blocks: ReadonlyArray<Block>): boolean =>
-  O.match(A.head(blocks), {
-    onNone: () => true,
-    onSome: (first) =>
-      first._tag !== "hr" &&
-      first._tag !== "table" &&
-      first._tag !== "youtube" &&
-      !(first._tag === "ol" && first.start !== 1),
-  });
 const AdmonitionKindArbitrary = Arbitrary.schema(S.Literals(["note", "tip", "important", "warning", "caution"]));
 
 const blocksOf = (block: Arbitrary.Arbitrary<Block>): Arbitrary.Arbitrary<ReadonlyArray<Block>> =>
-  pipe(Arbitrary.array(block, { minLength: 1, maxLength: 3 }), Arbitrary.filter(noAdjacentListFamilies));
+  Arbitrary.array(block, { minLength: 1, maxLength: 3 });
 
 const nestedBlock = (leaf: Arbitrary.Arbitrary<Block>, inner: Arbitrary.Arbitrary<Block>): Arbitrary.Arbitrary<Block> =>
   pipe(
@@ -276,15 +252,8 @@ const nestedBlock = (leaf: Arbitrary.Arbitrary<Block>, inner: Arbitrary.Arbitrar
         case "admonition":
           return Admonition.make({ kind: g.admonition, title: g.title, children: g.children });
       }
-    }),
-    Arbitrary.filter((block) => block._tag !== "admonition" || interruptsMarkerParagraph(block.children))
+    })
   );
-
-// Md.parse always captures frontmatter, so a document whose first block is
-// a thematic break (`---`) and that holds a second `---` line later reads
-// the span between them as frontmatter (gap `frontmatterCapturesLeadingHr`).
-const startsWithoutHr = (blocks: ReadonlyArray<Block>): boolean =>
-  O.match(A.head(blocks), { onNone: () => true, onSome: (first) => first._tag !== "hr" });
 
 /**
  * Md documents inside the bridge's invertible writer contract, two
@@ -306,10 +275,7 @@ const footnoteBlocks = (identifier: string, body: string): ReadonlyArray<Block> 
 
 export const BridgeDocumentArbitrary: Arbitrary.Arbitrary<Document> = pipe(
   Arbitrary.all({
-    children: pipe(
-      blocksOf(nestedBlock(topLeafBlock, nestedBlock(containedLeafBlock, containedLeafBlock))),
-      Arbitrary.filter(startsWithoutHr)
-    ),
+    children: blocksOf(nestedBlock(topLeafBlock, nestedBlock(containedLeafBlock, containedLeafBlock))),
     frontmatter: Frontmatter,
     footnote: OptionalWord,
     body: Words,
@@ -387,9 +353,12 @@ const normalizeBlock = (block: Block): Block => {
 
 const isInline = S.is(Inline);
 
-// Generated items hold one inline run, which Md.render writes as a tight item.
+const isBlock = S.is(BlockSchema);
+
+// A tight item holds one inline run and a loose item holds paragraphs; both
+// normalize like the same content outside a list.
 const normalizeItem = (children: Li["children"]): Li["children"] =>
-  A.every(children, isInline) ? mergeText(children) : children;
+  A.every(children, isInline) ? mergeText(children) : A.map(A.filter(children, isBlock), normalizeBlock);
 
 /**
  * Erase the writer-contract canonicalization a render and re-parse applies

@@ -82,7 +82,7 @@ describe("@beep/md/Md.syntax options", () => {
       htmlComments: "drop",
       breakTag: true,
       admonitions: true,
-      math: false,
+      math: true,
       youtube: false,
       absorbEmptyTableHeader: true,
       autolinkLiterals: "link",
@@ -97,7 +97,7 @@ describe("@beep/md/Md.syntax options", () => {
   it.effect("decodes missing keys to the same defaults", () =>
     Effect.gen(function* () {
       const options = yield* S.decodeEffect(MdSyntaxOptions)({});
-      expect(options.math).toBe(false);
+      expect(options.math).toBe(true);
     })
   );
 });
@@ -667,17 +667,17 @@ describe("@beep/md/Md.syntax inline math scan", () => {
     }
   });
 
-  it("reads exactly 14 characters per unit over openers that never close", () => {
+  it("reads exactly 17 characters per unit over openers that never close", () => {
     const counts = A.map(SCAN_SIZES, (count) => linearScanSteps("$a ", count));
-    // Closer table 4n + 1 reads, scan loop 10n (6 per opener, 2 per other character).
-    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => 14 * count + 1));
+    // Escape table 3n reads, closer table 4n + 1, scan loop 10n (6 per opener, 2 per other character).
+    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => 17 * count + 1));
     expect(growsLinearly(counts)).toBe(true);
   });
 
-  it("reads exactly 13 characters per unit over many closed inline math spans", () => {
+  it("reads exactly 17 characters per unit over many closed inline math spans", () => {
     const counts = A.map(SCAN_SIZES, (count) => linearScanSteps("$a$ ", count));
-    // Closer table 7n + 1 reads, scan loop 6n (4 per opener that jumps its span, 2 per space).
-    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => 13 * count + 1));
+    // Escape table 4n reads, closer table 7n + 1, scan loop 6n (4 per opener that jumps its span, 2 per space).
+    expect(counts).toEqual(A.map(SCAN_SIZES, (count) => 17 * count + 1));
     expect(growsLinearly(counts)).toBe(true);
   });
 
@@ -690,11 +690,11 @@ describe("@beep/md/Md.syntax inline math scan", () => {
 });
 
 describe("@beep/md/Md.syntax recognizers", () => {
-  it("recognizes math only when enabled", () => {
-    const off = encoded("$$\nx^2\n$$\n\na $b$ c\n\n```math\ny\n```");
+  it("recognizes math by default and not when disabled", () => {
+    const off = encoded("$$\nx^2\n$$\n\na $b$ c\n\n```math\ny\n```", { math: false });
     expect(A.map(off.children, (block) => block._tag)).toEqual(["p", "p", "pre"]);
 
-    const on = encoded("$$\nx^2\n$$\n\na $b$ c $5 and $10\n\n```math\ny\n```", { math: true });
+    const on = encoded("$$\nx^2\n$$\n\na $b$ c $5 and $10\n\n```math\ny\n```");
     expect(on.children).toEqual([
       { _tag: "mathBlock", value: "x^2" },
       {
@@ -709,8 +709,22 @@ describe("@beep/md/Md.syntax recognizers", () => {
     ]);
   });
 
-  it("skips inline math that spans escapes and display math inside containers", () => {
-    const result = bridge("a \\* $b$\n\n> $$\n> x\n> $$", { math: true });
+  it("reads inline math across backslash escapes and never from an escaped dollar", () => {
+    expect(encoded("a \\* $b$ \\$c$", { math: true }).children).toEqual([
+      {
+        _tag: "p",
+        children: [
+          { _tag: "text", value: "a * " },
+          { _tag: "inlineMath", value: "b" },
+          { _tag: "text", value: " $c$" },
+        ],
+      },
+    ]);
+    expect(bridge("costs \\$5 and \\$6", { math: true }).losses).toEqual([]);
+  });
+
+  it("skips inline math that spans entities and display math inside containers", () => {
+    const result = bridge("a &amp; $b$\n\n> $$\n> x\n> $$\n\n> a $b\n> c$", { math: true });
     expect(A.map(result.losses, (loss) => `${loss.reason}:${loss.nodeKind}`)).toEqual([
       "recognizerSkipped:text",
       "recognizerSkipped:paragraph",
