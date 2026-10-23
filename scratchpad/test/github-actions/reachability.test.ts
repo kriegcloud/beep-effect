@@ -86,6 +86,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/markdown",
 	"@beep/memfs",
 	"@beep/npm-spec",
+	"@beep/package-json",
 	"@beep/repo-tsconfig",
 	"@beep/runtime-env",
 	"@beep/schema-org",
