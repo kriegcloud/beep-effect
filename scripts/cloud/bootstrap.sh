@@ -13,8 +13,8 @@
 #     the same file serves a cached setup script and a per-session hook.
 #   - Durable preparation only: toolchain + workspace dependencies + the tsgo
 #     patch. No dev servers, no secrets, no background processes.
-#   - Fail loud on the core toolchain (bun, dependencies, tsgo patch); best-effort
-#     on the optional tools (Node 24, portless, 1Password CLI).
+#   - Fail loud on the core toolchain (bun, pinned Node, dependencies, tsgo patch);
+#     best-effort on the optional tools (portless, 1Password CLI).
 #   - Scoped to cloud VMs: without a cloud marker the script exits 0 untouched,
 #     so a SessionStart hook can call it unconditionally. BEEP_CLOUD_FORCE=1
 #     overrides the guard for local dry runs.
@@ -60,7 +60,7 @@ die() { printf '[beep-cloud:%s] ERROR: %s\n' "${VENDOR}" "$*" >&2; exit 1; }
 [ "$(uname -m)" = "x86_64" ] || die "x86_64 only; got $(uname -m)."
 
 BUN_VERSION="$(tr -d '[:space:]' < .bun-version)"
-NODE_VERSION="$(tr -d '[:space:]' < .nvmrc 2>/dev/null || echo 24)"
+NODE_VERSION="$(tr -d '[:space:]' < .nvmrc 2>/dev/null || echo 24.22.1)"
 export BUN_INSTALL="${BUN_INSTALL:-${HOME}/.bun}"
 NODE_PREFIX="${HOME}/.local/node${NODE_VERSION}"
 # Directory holding the Node this script provisioned. The tarball path fills
@@ -122,7 +122,7 @@ if ! command -v bun >/dev/null 2>&1 || [ "$(bun --version 2>/dev/null)" != "${BU
 fi
 
 need_node=0
-if ! command -v node >/dev/null 2>&1 || [ "$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)" != "${NODE_VERSION}" ]; then
+if ! command -v node >/dev/null 2>&1 || [ "$(node --version 2>/dev/null | sed 's/^v//')" != "${NODE_VERSION}" ]; then
   need_node=1
 fi
 
@@ -149,7 +149,7 @@ fetch_node() {
   local index version work
   index="$(curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --retry 3 \
     "https://nodejs.org/dist/index.tab")" || return 1
-  version="$(printf '%s\n' "${index}" | awk -v major="v${NODE_VERSION}." 'index($1, major) == 1 { print $1; exit }')"
+  version="$(printf '%s\n' "${index}" | awk -v requested="v${NODE_VERSION}" '$1 == requested { print $1; exit }')"
   [ -n "${version}" ] || return 1
   work="${run_dir}/node"
   mkdir -p "${work}"
@@ -210,7 +210,7 @@ for entry in "${pids[@]:-}"; do
   if ! wait "${pid}"; then
     case "${name}" in
       bun) die "bun ${BUN_VERSION} download or checksum failed." ;;
-      node) node_ok=0; warn "Node ${NODE_VERSION} provisioning failed; the image's node stays on PATH (Next.js and portless want 24+)." ;;
+      node) node_ok=0; warn "Node ${NODE_VERSION} provisioning failed." ;;
       op) op_ok=0; warn "1Password CLI download or signature verification failed; skipping op (op-backed secret runs unavailable)." ;;
     esac
   fi
@@ -251,7 +251,7 @@ if [ "${need_node}" = "1" ] && [ "${node_ok}" = "1" ]; then
         NODE_BIN_DIR="$(dirname "${nvm_node}")"
       else
         node_ok=0
-        warn "nvm did not yield a Node ${NODE_VERSION} binary; the image's node stays on PATH."
+        warn "nvm did not yield a Node ${NODE_VERSION} binary."
       fi
       ;;
     tarball)
@@ -266,6 +266,10 @@ if [ "${need_node}" = "1" ] && [ "${node_ok}" = "1" ]; then
     link_global "${NODE_BIN_DIR}/npm" npm
     link_global "${NODE_BIN_DIR}/npx" npx
   fi
+fi
+
+if [ "${node_ok}" != "1" ] || ! command -v node >/dev/null 2>&1 || [ "$(node --version 2>/dev/null | sed 's/^v//')" != "${NODE_VERSION}" ]; then
+  die "Node ${NODE_VERSION} is required; refusing to continue with an unverified or older runtime."
 fi
 
 op_path=""

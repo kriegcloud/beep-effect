@@ -286,7 +286,7 @@ const lawsEffectImportsCommand = Command.make(
     include: includeFlag,
     includePrefix: includePrefixFlag,
   },
-  // fallow-ignore-next-line complexity -- the CLI adapter keeps flag validation, JSON/text rendering, and exit semantics in one command transaction covered by command fixtures
+  // fallow-ignore-next-line complexity -- CLI adapter keeps flag validation, JSON and text rendering, and exit semantics in one command transaction covered by fixtures. Owner: @beep/repo-cli. Exit: split once laws output rendering moves to a shared report renderer.
   Effect.fn(function* ({ write, check, candidate, mode, enforceDocumentation, json, exclude, include, includePrefix }) {
     const options = EffectImportsCommandOptions.make({
       write,

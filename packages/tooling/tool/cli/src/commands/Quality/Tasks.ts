@@ -1146,12 +1146,10 @@ const boundedRootTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string
 const includesTurboCoverageTask = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): boolean =>
   A.some(tasks, (task) => task === "coverage") || A.some(args, (arg) => arg === "coverage");
 
-// fallow-ignore-next-line code-duplication -- coverage detection stays beside its deterministic hosted environment
 const turboCoverageEnv = (
   tasks: ReadonlyArray<string>,
   args: ReadonlyArray<string>
 ): Record<string, string | undefined> | undefined =>
-  // fallow-ignore-next-line code-duplication -- only Turbo coverage runs receive the hosted coverage environment
   includesTurboCoverageTask(tasks, args) ? coverageEnvironment() : undefined;
 
 const collectExistingWorkingTreeChangedFiles = Effect.fn("QualityTasks.collectExistingWorkingTreeChangedFiles")(
@@ -2147,7 +2145,7 @@ const persistGithubCheckLaneProof = Effect.fn("QualityTasks.persistGithubCheckLa
  * first red, the journal artifact, and the proof-ledger writes identical to
  * the serial runner when `concurrency` is 1 and deterministic above it.
  */
-// fallow-ignore-next-line complexity -- each chunk must fold reuse, journal, red, and proof state in order
+// fallow-ignore-next-line complexity -- each chunk must fold reuse, journal, red and proof state in order (cognitive 16). Owner: @beep/repo-cli. Exit: split once the GitHub check wave state moves into a schema-backed reducer.
 const runGithubCheckWave = Effect.fn("QualityTasks.runGithubCheckWave")(function* (
   label: string,
   wave: GithubCheckLaneWaveSpec,

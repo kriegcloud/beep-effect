@@ -592,7 +592,7 @@ const blockOutcome = (
  * @category use-cases
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- the apply pipeline is the SPEC §5 order of operations (bind, rewrite, quarantine, write, format) kept as one auditable sequence
+// fallow-ignore-next-line complexity -- the apply pipeline follows the migration SPEC section 5 order (bind, rewrite, quarantine, write, format) as one sequence. Owner: @beep/repo-cli. Exit: delete with the jsdoc migrate command once the JSDoc grammar migration is retired.
 export const runJSDocMigrateApply = Effect.fn("JSDocMigrateApply.run")(function* (
   options: RunJSDocMigrateApplyOptions
 ): Effect.fn.Return<
@@ -779,7 +779,7 @@ export class RunJSDocMigrateVerifyOptions extends S.Opaque<
  * @category use-cases
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- the verify decision tree mirrors the SPEC §7 verification matrix case-by-case; splitting it would hide which row each branch proves
+// fallow-ignore-next-line complexity -- the verify decision tree mirrors the migration SPEC section 7 matrix case by case. Owner: @beep/repo-cli. Exit: delete with the jsdoc migrate command once the JSDoc grammar migration is retired.
 export const runJSDocMigrateVerify = Effect.fn("JSDocMigrateApply.runVerify")(function* (
   options: RunJSDocMigrateVerifyOptions
 ): Effect.fn.Return<

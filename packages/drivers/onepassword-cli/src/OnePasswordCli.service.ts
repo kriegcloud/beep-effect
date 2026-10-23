@@ -68,7 +68,7 @@ const runNative = (
   args: ReadonlyArray<string>
 ): Effect.Effect<OnePasswordCliProcessResult, OnePasswordCliError> => {
   const command = ChildProcess.make(commandPath, A.fromIterable(args), {
-    // fallow-ignore-next-line code-duplication -- The approved process-hardening spec keeps output ownership inside each driver boundary.
+    // fallow-ignore-next-line code-duplication -- the process-hardening spec keeps stdout/stderr ownership inside each driver, so sibling drivers repeat the spawn options. Owner: @beep/onepassword-cli. Exit: import a shared spawn helper once a foundation capability package owns process hardening.
     stdin: "ignore",
     stderr: "pipe",
     stdout: "pipe",

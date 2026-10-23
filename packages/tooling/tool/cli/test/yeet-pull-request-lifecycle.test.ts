@@ -95,7 +95,6 @@ describe("Yeet pull request lifecycle boundaries", () => {
           defaultYeetRunOptions({ mode: "publish", tier: "review-fix" }),
           defaultYeetRunOptions({ noEdit: true }),
           defaultYeetRunOptions({ mode: "verify", pushOnly: true }),
-          defaultYeetRunOptions({ pushOnly: true }),
           defaultYeetRunOptions({ pushOnly: true, reuseVerified: true, amend: true }),
           defaultYeetRunOptions({ pushOnly: true, reuseVerified: true, noEdit: true, amend: true }),
           defaultYeetRunOptions({ pushOnly: true, reuseVerified: true, message: "fix(repo): repair" }),
@@ -107,7 +106,11 @@ describe("Yeet pull request lifecycle boundaries", () => {
           const failure = yield* validateMonitorGuards(context, options).pipe(Effect.flip);
           expect(failure._tag).toBe("YeetCommandError");
           expect(failure.exitCode).toBe(1);
+          expect(failure.message).toEqual(expect.any(String));
+          expect(failure.message.length).toBeGreaterThan(0);
         }
+        // Merge-only eligibility is checked by the publish handler, after option guards.
+        yield* validateMonitorGuards(context, defaultYeetRunOptions({ pushOnly: true }));
         yield* validateMonitorGuards(context, defaultYeetRunOptions({ mode: "verify" }));
         yield* validateMonitorGuards(context, defaultYeetRunOptions({ mode: "monitor", plan: true }));
         yield* validateMonitorGuards(context, defaultYeetRunOptions({ monitor: true, pr: true }));

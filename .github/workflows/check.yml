@@ -253,7 +253,7 @@ jobs:
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
-          node-version: ${{ matrix.id == 'labs' && '22.22.3' || '' }}
+          node-version: ${{ matrix.id == 'labs' && '22.23.4' || '' }}
           cache-turbo: ${{ matrix.uses_turbo }}
           cache-write: "false"
           turbo-cache-key-suffix: -${{ matrix.id }}
@@ -556,7 +556,7 @@ jobs:
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
-          node-version: "22.22.3"
+          node-version: "22.23.4"
           cache-turbo: "true"
           cache-write: "false"
           turbo-cache-key-suffix: -${{ matrix.partition }}
@@ -705,7 +705,7 @@ jobs:
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
-          node-version: "22.22.3"
+          node-version: "22.23.4"
           cache-turbo: "false"
           cache-write: "false"
           free-disk: "true"

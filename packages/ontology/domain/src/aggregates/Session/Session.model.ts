@@ -287,7 +287,7 @@ export class SessionChangeDelta extends S.Opaque<SessionChangeDelta, { readonly 
   )
 ) {}
 
-// fallow-ignore-next-line code-duplication -- domain Session and use-cases ports both default PrefixMap empty; jsdoc-carrier migration only rewrote comment carriers and Fallow attributes the pre-existing twin as introduced
+// fallow-ignore-next-line code-duplication -- jsdoc-carrier migration rewrote only comment carriers, so the audit attributes this pre-existing twin as introduced; the domain Session and the use-cases ports both default PrefixMap to empty. Owner: @beep/ontology-domain. Exit: share one empty PrefixMap default from the domain once use-cases may import it.
 const emptyPrefixMap = (): PrefixMap => ({});
 
 const PrefixMapWithEmptyDefault = PrefixMap.pipe(

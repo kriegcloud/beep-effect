@@ -88,12 +88,24 @@ const seedWorkspaceRepository = Effect.fn("seedWorkspaceRepository")(function* (
   yield* fs.makeDirectory(packageDir, { recursive: true });
   yield* fs.writeFileString(
     path.join(repoRoot, "package.json"),
-    yield* encodeJson({ name: "verify-root", private: true, workspaces: ["packages/*"] })
+    yield* encodeJson({
+      name: "verify-root",
+      private: true,
+      workspaces: ["packages/*"],
+    })
   );
   yield* fs.writeFileString(
     path.join(packageDir, "package.json"),
     yield* encodeJson({ name: "@beep/demo", private: true, scripts })
   );
+  if ("docgen" in scripts) {
+    yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+    yield* fs.writeFileString(path.join(packageDir, "docgen.json"), yield* encodeJson({ srcDir: "src" }));
+    yield* fs.writeFileString(
+      path.join(packageDir, "src/index.ts"),
+      "/**\n * Fixture module.\n * @packageDocumentation\n * @since 0.0.0\n */\n/**\n * Fixture constant.\n * @category constants\n * @since 0.0.0\n */\nexport const demo = 1;\n"
+    );
+  }
   yield* runGit(repoRoot, ["init", "--quiet"]);
   yield* runGit(repoRoot, ["config", "user.email", "codex@example.invalid"]);
   yield* runGit(repoRoot, ["config", "user.name", "Codex"]);
@@ -301,6 +313,40 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           (cwdSpy) => Effect.sync(() => cwdSpy.mockRestore())
         )
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make), TestClock.withLive)
+    );
+
+    it.effect("rejects an invalid category before running the package docgen script", () =>
+      Effect.flatMap(temporaryDirectory, (tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const packageDir = yield* seedWorkspaceRepository(tmpDir, { docgen: "touch docgen-ran" });
+          yield* fs.writeFileString(
+            path.join(packageDir, "src/index.ts"),
+            `/**
+ * A fully documented export with a category outside the vocabulary.
+ *
+ * **Example** (Read the fixture)
+ *
+ * \`\`\`ts
+ * console.log(1)
+ * \`\`\`
+ *
+ * @category claim
+ * @since 0.0.0
+ */
+export const invalidCategory = 1;
+`
+          );
+          const report = yield* runPackageVerifyAtRootForTesting(tmpDir, {
+            packageName: O.some("@beep/demo"),
+            quick: false,
+          });
+          expect(report.results[1]).toMatchObject({ step: "docgen", skipped: false, ok: false });
+          expect(report.results[1]?.output).toContain("invalid category");
+          expect(yield* fs.exists(path.join(packageDir, "docgen-ran"))).toBe(false);
+        })
+      ).pipe(TestClock.withLive)
     );
 
     it.effect("skips the dependency build when the package has no audit script", () =>

@@ -1007,7 +1007,7 @@ it.layer(platform, { timeout: "30 seconds" })((it) =>
     temporary((root) =>
       Effect.gen(function* () {
         const checkReads = yield* Ref.make(0);
-        // fallow-ignore-next-line complexity -- Fixture routes git and GitHub command families to fixed census responses.
+        // fallow-ignore-next-line complexity -- fixture routes the git and GitHub command families to fixed census responses (cognitive 9). Owner: @beep/repo-cli. Exit: replace with a table-driven command fixture from the shared repo-run test kit once one exists.
         const runner = ChildProcessSpawner.make((command) => {
           if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
           const [first, second] = command.args;

@@ -1414,7 +1414,7 @@ export const DockWorkspace = DockWorkspaceBase.pipe(
           DockNode.findTabs(member.root, groupId),
           O.map(() =>
             pipe(
-              // fallow-ignore-next-line code-duplication -- floating-group removal rebuilds its tree while preserving its box
+              // fallow-ignore-next-line code-duplication -- floating-group removal rebuilds its tree while preserving its box, like the docking transition. Owner: @beep/dock. Exit: share one rebuild-with-box helper once a third transition needs it.
               DockNode.removeTabs(member.root, groupId),
               O.map((root) => A.of(FloatingMember.make({ anchoredBox: member.anchoredBox, root }))),
               O.getOrElse(A.empty)

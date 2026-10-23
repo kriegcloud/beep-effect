@@ -13,6 +13,7 @@ import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import { CorpusCommandError } from "./Corpus.errors.ts";
 import {
   CorpusArchiveMoveOptions,
@@ -398,7 +399,6 @@ const corpusExtractCommand = Command.make(
     tikaJar: tikaJarFlag,
     tikaTimeoutMillis: tikaTimeoutMillisFlag,
   },
-  // fallow-ignore-next-line complexity -- pre-existing extract-command flag adapter re-entered the diff through adjacent preserve subcommands; this function's control flow is unchanged
   Effect.fn(function* ({
     concurrency,
     corpusRoot,
@@ -427,16 +427,16 @@ const corpusExtractCommand = Command.make(
         ocr,
         overwrite,
         tikaJarPath: tikaJar,
-        ...(O.isNone(java) ? {} : { javaPath: java.value }),
-        ...(O.isNone(maxFiles) ? {} : { maxFiles: maxFiles.value }),
-        ...(O.isNone(outLabel) ? {} : { outLabel: outLabel.value }),
-        ...(O.isNone(pffexport) ? {} : { pffexportPath: pffexport.value }),
-        ...(O.isNone(source) ? {} : { sourceLabel: source.value }),
-        ...(O.isNone(tikaTimeoutMillis) ? {} : { tikaTimeoutMillis: tikaTimeoutMillis.value }),
-        ...(O.isNone(ocrPageTimeoutMillis) ? {} : { ocrPageTimeoutMillis: ocrPageTimeoutMillis.value }),
-        ...(O.isNone(pdfinfo) ? {} : { pdfinfoPath: pdfinfo.value }),
-        ...(O.isNone(pdftoppm) ? {} : { pdftoppmPath: pdftoppm.value }),
-        ...(O.isNone(tesseract) ? {} : { tesseractPath: tesseract.value }),
+        ...optionalProp("javaPath", java),
+        ...optionalProp("maxFiles", maxFiles),
+        ...optionalProp("outLabel", outLabel),
+        ...optionalProp("pffexportPath", pffexport),
+        ...optionalProp("sourceLabel", source),
+        ...optionalProp("tikaTimeoutMillis", tikaTimeoutMillis),
+        ...optionalProp("ocrPageTimeoutMillis", ocrPageTimeoutMillis),
+        ...optionalProp("pdfinfoPath", pdfinfo),
+        ...optionalProp("pdftoppmPath", pdftoppm),
+        ...optionalProp("tesseractPath", tesseract),
       })
     ).pipe(Effect.asVoid);
   })
@@ -516,7 +516,6 @@ const corpusSalvageCommand = Command.make(
     sampleStride: sampleStrideFlag,
     source: salvageSourceFlag,
   },
-  // fallow-ignore-next-line complexity -- pre-existing salvage-command flag adapter re-entered the diff through adjacent preserve subcommands; this function's control flow is unchanged
   Effect.fn(function* ({ corpusRoot, dedupe, runLabel, sampleStride, source }) {
     const sources = yield* Effect.forEach(source, parseSalvageSourceSpec);
     const options = CorpusSalvageOptions.make({

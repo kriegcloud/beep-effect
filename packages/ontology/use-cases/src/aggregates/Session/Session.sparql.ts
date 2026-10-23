@@ -439,7 +439,7 @@ const validateProfile = (
 // The branches are the lexical scanner's explicit states. Keeping one forward
 // pass avoids either a false positive that permits an unbounded query or a
 // multi-pass parser whose cost grows with the input.
-// fallow-ignore-next-line complexity -- lexical scan distinguishes top-level LIMIT from comments, literals, and subqueries
+// fallow-ignore-next-line complexity -- lexical scan separates a top-level LIMIT from comments, literals and subqueries (cognitive 32). Owner: @beep/ontology-use-cases. Exit: replace with a SPARQL parser once the ontology slice adopts one.
 const topLevelLimit = (query: string): O.Option<number> => {
   let depth = 0;
   let index = 0;

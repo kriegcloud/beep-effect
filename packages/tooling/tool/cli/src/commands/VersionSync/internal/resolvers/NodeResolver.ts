@@ -192,7 +192,7 @@ const isCanonicalCoverageRuntimePin = S.is(
   S.Struct({
     file: S.tag(".github/workflows/check.yml"),
     jobName: S.Literals(["test-unit-shard", "coverage-regression"]),
-    currentValue: S.tag("22.22.3"),
+    currentValue: S.tag("22.23.4"),
   })
 );
 

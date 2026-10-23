@@ -194,7 +194,7 @@ interface FooterProps {
   readonly streaming: boolean;
 }
 
-// fallow-ignore-next-line complexity -- cognitive 12 = pre-existing hook/JSX tax (five hook bindings plus the streaming/attachment conditionals); this branch's change here was a one-line shrink-0 flex class and added no branching
+// fallow-ignore-next-line complexity -- fallow's React model adds one cognitive point per hook binding; cognitive 12 comes from five hook bindings plus the streaming and attachment conditionals, so splitting would only fragment hook ownership (#1855 detector frontier). Owner: @beep/editor. Exit: remove when the component sheds bindings or fallow stops counting hook bindings as branches.
 function ComposerFooter({
   characterCount,
   attachments,
@@ -399,7 +399,7 @@ function useComposerRuntimeBindings(
   useAtomMount(maxAttachmentBytesAtom(editor));
 }
 
-// fallow-ignore-next-line complexity -- cognitive 14 = pre-existing hook/prop-fanout tax (15 props and three hook bindings); this branch did not change this function at all — its edits in this file were two one-line flex classes in ComposerFooter and ComposerSurface
+// fallow-ignore-next-line complexity -- fallow's React model adds one cognitive point per hook binding; cognitive 14 comes from 15 props and three hook bindings with cyclomatic 1, so splitting would only fragment hook ownership (#1855 detector frontier). Owner: @beep/editor. Exit: remove when the component sheds bindings or fallow stops counting hook bindings as branches.
 function ComposerBody({
   ariaLabel,
   features: initialFeatures,
@@ -556,7 +556,6 @@ function AttachmentSweep({ editor }: { readonly editor: LexicalEditor }): null {
 // This component is intentionally the declarative assembly boundary for the
 // composer plugins and their optional consumer ports. Extracting the prop
 // forwarding would obscure which mount-time values enter the atom-backed body.
-// fallow-ignore-next-line complexity -- component assembles plugins and optional consumer ports at one declarative boundary
 export function ChatComposer(props: ChatComposerProps): JSX.Element {
   const {
     ariaLabel = DEFAULT_ARIA_LABEL,

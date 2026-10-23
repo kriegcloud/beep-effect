@@ -3572,20 +3572,29 @@ const jsdocRatchetCommand = Command.make(
       Flag.withDefault(defaultJSDocInventoryPath),
       Flag.withDescription("Generated JSDoc documentation inventory JSONC path")
     ),
+    regenerate: Flag.Boolean("regenerate").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Scan current source into ignored CI artifacts before comparing totals")
+    ),
     writeBaseline: Flag.Boolean("write-baseline").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Rewrite the JSDoc totals regression baseline from the generated inventory")
     ),
   },
-  ({ baseline, inventory, writeBaseline }) =>
+  ({ baseline, inventory, regenerate, writeBaseline }) =>
     runQualityProgram(
-      runJSDocRatchet(
-        RunJSDocRatchetOptions.make({
-          baselinePath: baseline,
-          inventoryPath: inventory,
-          writeBaseline,
-        })
-      )
+      Effect.gen(function* () {
+        const inventoryPath = regenerate ? ".beep/ci/jsdoc-documentation.inventory.jsonc" : inventory;
+        if (regenerate) {
+          yield* runJSDocInventory(
+            JSDocDocumentationInventoryOptions.make({
+              outputJsonPath: inventoryPath,
+              outputMarkdownPath: ".beep/ci/jsdoc-documentation.inventory.md",
+            })
+          );
+        }
+        yield* runJSDocRatchet(RunJSDocRatchetOptions.make({ baselinePath: baseline, inventoryPath, writeBaseline }));
+      })
     )
 ).pipe(Command.withDescription("Run JSDoc inventory totals as a fail-on-growth regression-baseline gate"));
 

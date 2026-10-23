@@ -1,6 +1,13 @@
 import { YeetCommandError, yeetCommand, yeetMonitorCommandRoute } from "@beep/repo-cli/commands/Yeet";
 import { CommandJsonOutput, printCommandJson } from "@beep/repo-cli/test/Cli";
-import { MemoryStats, RepoPlanStep, RepoRunPlan } from "@beep/repo-cli/test/RepoRun";
+import {
+  MemoryStats,
+  provideRuntimeRootForTesting,
+  RepoPlanStep,
+  RepoRunPlan,
+  RuntimeRootChoice,
+  YeetAdmissionLease,
+} from "@beep/repo-cli/test/RepoRun";
 import {
   buildYeetRunPlanWithMode,
   defaultYeetRunOptions,
@@ -15,6 +22,7 @@ import {
   ProofJobSubmitter,
   ProofJobUnit,
   RepoRunContext,
+  runPlanExecutionForTesting,
   runPushFirstPublishPhasesForTesting,
   TurboPlanSnapshot,
   YeetEnsuredPullRequest,
@@ -74,6 +82,7 @@ const findSubcommand = (name: string) =>
 // Compiled once at module scope: the plan fixtures and the plan render they are compared against.
 const decodeFixture = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, S.String)));
 const decodePlan = S.decodeUnknownEffect(S.fromJsonString(RepoRunPlan));
+const decodeAdmissionLease = S.decodeUnknownEffect(S.fromJsonString(YeetAdmissionLease));
 
 describe("yeet merge-loop command wiring", () => {
   it.layer(commandTestLayer, { timeout: "30 seconds" })("foreground monitor", (it) => {
@@ -420,9 +429,19 @@ describe("yeet push-first publish plan wiring", () => {
       "publish:03-pr-provenance-stamp",
       MONITOR_READY_SUBMIT_STEP_ID,
     ]);
-    // No full proof, no CI parity, no admission-bearing step on the default path.
+    // Cheap gates acquire admission at execution time; no full proof or CI parity is planned.
     expect(stepIds(publishPlan({ pr: true }))).not.toContain("full:01-pre-push");
     expect(stepIds(publishPlan({ pr: true }))).not.toContain("full:02-ci-parity");
+  });
+
+  it("gates an unverified merge-only push with cheap gates and preflight and records no commit step", () => {
+    const plan = publishPlan({ pr: false, pushOnly: true });
+    expect(stepIds(plan)).toEqual(["full:00-cheap-gates", "publish:00-head-install-preflight", "publish:01-git-push"]);
+    const push = A.findFirst(plan.steps, (step) => step.id === "publish:01-git-push");
+    assertSome(
+      O.map(push, (step) => step.env?.BEEP_YEET_REUSE_PRE_PUSH_PROOF),
+      undefined
+    );
   });
 
   it("plans --no-pr as a bare push with no pull request or monitor steps", () => {
@@ -514,62 +533,123 @@ describe("yeet push-first publish plan wiring", () => {
   });
 });
 
-it.layer(commandTestLayer, { timeout: "30 seconds" })("push-first publish gate", (it) => {
-  it.effect(
-    "stops on a cheap-gates red before the preflight, the push, or any pull request step",
-    Effect.fnUntraced(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-push-first-" });
-      const context = RepoRunContext.make({
-        base: "origin/main",
-        branch: "feat/push-first",
-        cwd: root,
-        head: "HEAD",
-        originalArgv: [],
-        packetDir: ".beep/yeet",
-        repoRoot: root,
-        turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] }),
-      });
-      const step = (id: string, phase: RepoPlanStep["phase"], source: string) =>
-        RepoPlanStep.make({
-          id,
-          label: id,
-          phase,
-          command: "bun",
-          args: ["--eval", source],
+it.layer(commandTestLayer, { timeout: "30 seconds" })("cheap-gates admission", (it) => {
+  for (const mode of ["publish", "verify", "repair"] as const) {
+    it.effect(
+      `${mode} holds weighted admission during cheap gates and releases it on failure`,
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-push-first-" });
+        const context = RepoRunContext.make({
+          base: "origin/main",
+          branch: "feat/push-first",
           cwd: root,
-          scope: "repo",
-          mutability: "readonly",
-          resume: "never",
+          head: "HEAD",
+          originalArgv: [],
+          packetDir: ".beep/yeet",
+          repoRoot: root,
+          turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] }),
         });
-      const gate = step("full:00-cheap-gates", "full", 'console.log("fallow: 1 unused export"); process.exitCode = 23');
-      const push = step("publish:01-git-push", "publish", 'console.log("must not push")');
-      const create = step("publish:02-pr-create", "publish", 'console.log("must not open a PR")');
-      const submit = step(MONITOR_READY_SUBMIT_STEP_ID, "monitor", 'console.log("must not submit")');
-      const plan = RepoRunPlan.make({ context, steps: [gate, push, create, submit] });
-      const recorder = yield* Ref.make<ReadonlyArray<YeetExecutedStep>>([]);
-      const extras = yield* Ref.make<YeetVerdictExtrasForTesting>({
-        baseFreshness: O.none(),
-        mergeReady: O.none(),
-        stash: O.none(),
-      });
+        const step = (id: string, phase: RepoPlanStep["phase"], source: string) =>
+          RepoPlanStep.make({
+            id,
+            label: id,
+            phase,
+            command: "bun",
+            args: ["--eval", source],
+            cwd: root,
+            scope: "repo",
+            mutability: "readonly",
+            resume: "never",
+          });
+        const path = yield* Path.Path;
+        const runtimeDir = path.join(root, "runtime");
+        const leases = path.join(runtimeDir, "beep", "admit", "leases");
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        for (const args of [
+          ["init", "--initial-branch=main", root],
+          [
+            "-C",
+            root,
+            "-c",
+            "user.name=Wiring Test",
+            "-c",
+            "user.email=wiring@example.invalid",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "commit",
+            "--allow-empty",
+            "-m",
+            "test: fixture",
+          ],
+          ["-C", root, "remote", "add", "origin", "https://example.invalid/push-first.git"],
+        ]) {
+          expect(yield* spawner.exitCode(ChildProcess.make("git", args))).toBe(0);
+        }
+        const gate = RepoPlanStep.make({
+          ...step(
+            mode === "repair" ? "feedback:00-cheap-gates" : "full:00-cheap-gates",
+            mode === "repair" ? "feedback" : "full",
+            `
+          import { readdir } from "node:fs/promises";
+          const [lease] = await readdir(process.env.TEST_ADMISSION_LEASES);
+          await Bun.write("observed-lease.json", Bun.file(process.env.TEST_ADMISSION_LEASES + "/" + lease));
+          console.log("fallow: 1 unused export"); process.exitCode = 23;
+        `
+          ),
+          env: { TEST_ADMISSION_LEASES: leases },
+        });
+        const push = step("publish:01-git-push", "publish", 'console.log("must not push")');
+        const create = step("publish:02-pr-create", "publish", 'console.log("must not open a PR")');
+        const submit = step(MONITOR_READY_SUBMIT_STEP_ID, "monitor", 'console.log("must not submit")');
+        const plan = RepoRunPlan.make({ context, steps: [gate, push, create, submit] });
+        const recorder = yield* Ref.make<ReadonlyArray<YeetExecutedStep>>([]);
+        const extras = yield* Ref.make<YeetVerdictExtrasForTesting>({
+          baseFreshness: O.none(),
+          mergeReady: O.none(),
+          stash: O.none(),
+        });
 
-      const error = yield* runPushFirstPublishPhasesForTesting(
-        plan,
-        defaultYeetRunOptions({ message: "feat(repo-cli): push first", pr: true }),
-        [gate],
-        [push, create],
-        [submit],
-        recorder,
-        extras,
-        false
-      ).pipe(Effect.flip);
+        const execution =
+          mode === "publish"
+            ? runPushFirstPublishPhasesForTesting(
+                plan,
+                defaultYeetRunOptions({ message: "feat(repo-cli): push first", pr: true }),
+                [gate],
+                [push, create],
+                [submit],
+                recorder,
+                extras,
+                false
+              )
+            : runPlanExecutionForTesting(plan, defaultYeetRunOptions({ mode, tier: "cheap-gates" }), O.none());
+        const error = yield* execution.pipe(
+          provideRuntimeRootForTesting(RuntimeRootChoice.make({ kind: "test-override", root: runtimeDir })),
+          Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ BEEP_RUN_SCOPES: "0" })),
+          TestClock.withLive,
+          Effect.flip
+        );
 
-      expect(error.message).toContain("cheap-gates failed");
-      expect(error.message).toContain("nothing was pushed");
-      expect(A.map(yield* Ref.get(recorder), (entry) => entry.step.id)).toEqual(["full:00-cheap-gates"]);
-    })
-  );
+        const lease = yield* fs
+          .readFileString(path.join(root, "observed-lease.json"))
+          .pipe(Effect.flatMap(decodeAdmissionLease));
+        expect(lease.kind).toBe("full-proof");
+        expect(lease.weightTokens).toBe(3);
+        expect(lease.priority).toBe(mode === "publish" ? "publish" : "verify");
+        expect(lease.checkoutRoot).toBe(root);
+        expect(lease.command).toContain("observed-lease.json");
+        expect(yield* fs.readDirectory(leases)).toEqual([]);
+        expect(yield* fs.readDirectory(path.join(runtimeDir, "beep", "admit", "queue"))).toEqual([]);
+        if (mode === "publish") {
+          expect(error.message).toContain("cheap-gates failed");
+          expect(error.message).toContain("nothing was pushed");
+          expect(A.map(yield* Ref.get(recorder), (entry) => entry.step.id)).toEqual([gate.id]);
+        } else {
+          expect(error.message).toContain(mode === "repair" ? "feedback phase failed" : "proof failed");
+        }
+      })
+    );
+  }
 });
 
 describe("yeet monitor command routing", () => {

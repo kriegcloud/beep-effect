@@ -141,6 +141,10 @@ export class YeetRunPlanModeOptions extends S.Opaque<YeetRunPlanModeOptions, { r
     monitor: S.Boolean,
     noEdit: S.Boolean,
     pushOnly: S.Boolean,
+    reuseVerified: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
     remote: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -903,7 +907,15 @@ const publishSteps = (
   Match.value(options).pipe(
     Match.when(
       ({ pushOnly }) => pushOnly,
-      () => provenPushSteps(context, options)
+      () =>
+        options.reuseVerified
+          ? provenPushSteps(context, options)
+          : [
+              proofStep(context, "cheap-gates", true),
+              headInstallPreflightStep(context, "publish"),
+              pushStep(context, false),
+              ...pullRequestTailSteps(context, options),
+            ]
     ),
     Match.when(
       ({ proveFirst }) => proveFirst,
