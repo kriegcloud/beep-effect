@@ -28,8 +28,8 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
 | lab `scratchpad/effected/github-actions` (index re-exports, `Exports.test.ts`, reachability and layering maps) | - | 3-1 | Retargeted in the promotion PR; no lab module imports the suite any more. |
-| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`; fixes its unescaped `\|` cells. |
-| repo-cli `Ci/CiOperational.service.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`. |
+| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | adopted in 3-A8 | `GitHubMarkdown.table`; fixes its unescaped `\|` cells (red-then-green test in `ci-rerun-runner-loss.test.ts`). Parity: 16 of 18 recorded summaries byte-identical; the two that differ are the pipe fixture, now escaped. |
+| repo-cli `Ci/CiOperational.service.ts` markdown table | - | adopted in 3-A8 | `GitHubMarkdown.table` for the runner-resources table. Parity: old and new tables byte-identical over a 36-case measurement matrix (both CPU-row branches). |
 | repo-cli `LaneTimings` and `Ci.command` tables | - | excluded | Need column alignment, which the writer does not offer. |
 | repo-cli Reviewer and CI summary bodies | - | deferred | Named by D-10; adopt with the wave-5 GitHub Actions driver, which composes `CheckDocument` with a real sink. |
 | Marker-splice family (Provenance, GhOps, Quality, Findings.refresh, Atlas, Observability, Models) | - | excluded | File-backed managed sections go to `@beep/managed-section` directly, not through `ManagedDocument`'s comment dialect. |

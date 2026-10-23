@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 (`@beep/lockfiles`, W3-g) in review in this PR, 3-A1..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), the rest queued in the PR sequence below.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 (`@beep/lockfiles`, W3-g) in review in this PR, 3-A8 (`GitHubMarkdown.table` in repo-cli Ci, W4-h 3-A8 part) in review in this PR, the other 3-A rows queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), the rest queued in the PR sequence below.
 
 ## Phases
 
@@ -47,7 +47,7 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 3-A5 (queued) | CheckCensus onto `TsconfigLoader.compilerOptions` | repo-cli `Quality/CheckCensus.ts`. After 3-2. |
 | 3-A6 (queued) | `TsconfigValidator` + docgen `readTSConfig` | Deletes repo-utils `schemas/TSConfig.ts`; the `@beep/tsconfig` closed-view export. After 3-2, 3-3, 3-A3, 3-A4. |
 | 3-A7 (queued) | `TsconfigSync.schemas` onto `@beep/tsconfig` | repo-cli `TsconfigSync.schemas.ts`, with byte parity of tsconfig-sync output. After 3-2. |
-| 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
+| 3-A8 (in review, this PR) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts` (fixes the unescaped `\|` cells, pinned red-then-green) and `Ci/CiOperational.service.ts`; repo-cli gains the `@beep/github-reporting` dependency (cache baseline request `research/cache-baseline-request-w3-a8.json`). Parity: every other recorded summary byte-identical (W4-h, 3-A8 part). `LaneTimings` and `Ci.command` tables stay excluded. |
 | 3-A9 (queued, optional) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`. After 3-4. |
 | 4 (queued) | `@beep/sbom` (4-S), `@beep/xdg` (4-X), `@beep/cli-kit` (4-C), `@beep/repo-workspaces` (4-W-a, 4-W-b) | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j. |
@@ -74,7 +74,7 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
-| 3-A8 | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
+| 3-A8 (in review) | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
 | 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
 | 4-CI | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
