@@ -398,11 +398,14 @@ const rejectsInvalidCalls = (
 };
 void rejectsInvalidCalls;
 
-// Upstream parity (D15 restored to upstream): an explicitly undefined optional
-// configuration or slice key is accepted and behaves as omission.
-const acceptsExplicitUndefined: ReadonlyArray<unknown> = [
+// Kept deviation D15 (EF-40): optional configuration and slice keys are exact,
+// so an explicitly undefined key is a compile error rather than an omission.
+const rejectsExplicitUndefined: ReadonlyArray<unknown> = [
+  // @ts-expect-error An optional configuration key is omitted, never undefined.
   { path, capacity: undefined } satisfies typeof JournalConfig.Encoded,
+  // @ts-expect-error An optional slice key is omitted, never undefined.
   { events: undefined } satisfies CursoredSlice<Registry, "updated">,
+  // @ts-expect-error An undefined cursor is spelled by omitting it.
   { cursor: undefined } satisfies CursoredSlice<Registry, "updated">,
 ];
-void acceptsExplicitUndefined;
+void rejectsExplicitUndefined;

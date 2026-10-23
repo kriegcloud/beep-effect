@@ -44,7 +44,7 @@ describe("Run schema property floor", () => {
 // Generation hints are test-local: the exported codec still performs every encode/decode.
 const RunOptionsSample = RunOptions.mapFields((fields) => ({
   ...fields,
-  timeout: fields.timeout.schema.members[0]
+  timeout: fields.timeout.schema
     .annotate({
       toCodecArbitrary: () =>
         S.link<RunOptions["timeout"]>()(S.Finite, {
@@ -53,7 +53,7 @@ const RunOptionsSample = RunOptions.mapFields((fields) => ({
         }),
     })
     .pipe(S.optionalKey),
-  maxOutputBytes: fields.maxOutputBytes.schema.members[0]
+  maxOutputBytes: fields.maxOutputBytes.schema
     .annotate({
       toCodecArbitrary: () =>
         S.link<number>()(S.Finite, {

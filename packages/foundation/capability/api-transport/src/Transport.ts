@@ -211,15 +211,18 @@ const ApiTransportDurationNumber = S.declare<number>(
   })
 );
 
+// Mirrors effect's `Duration.DurationObject`, whose members are declared
+// `weeks?: number | undefined`: a value typed against `Duration.Input` may hold
+// an explicit undefined, so these keys keep it (EF-40 exception).
 const ApiTransportDurationObject = S.Struct({
-  weeks: S.optionalKey(ApiTransportDurationNumber),
-  days: S.optionalKey(ApiTransportDurationNumber),
-  hours: S.optionalKey(ApiTransportDurationNumber),
-  minutes: S.optionalKey(ApiTransportDurationNumber),
-  seconds: S.optionalKey(ApiTransportDurationNumber),
-  milliseconds: S.optionalKey(ApiTransportDurationNumber),
-  microseconds: S.optionalKey(ApiTransportDurationNumber),
-  nanoseconds: S.optionalKey(ApiTransportDurationNumber),
+  weeks: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  days: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  hours: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  minutes: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  seconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  milliseconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  microseconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  nanoseconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
 });
 
 type ApiTransportDurationString = Extract<Duration.Input, string>;

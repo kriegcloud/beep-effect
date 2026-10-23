@@ -6,6 +6,7 @@
  */
 import { $InfraId } from "@beep/identity/packages";
 import { EmailString } from "@beep/schema";
+import * as O from "@beep/utils/Option";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as A from "effect/Array";
@@ -85,8 +86,10 @@ export const loadAccountCostControlsConfig = (): AccountCostControlsConfig => {
   return Result.getOrThrowWith(
     decodeAccountCostControlsConfig({
       expectedAccountId: config.require("expectedAccountId"),
-      monthlyBudgetUsd: config.getNumber("monthlyBudgetUsd"),
-      anomalyImpactUsd: config.getNumber("anomalyImpactUsd"),
+      ...O.getSomesStruct({
+        monthlyBudgetUsd: O.fromUndefinedOr(config.getNumber("monthlyBudgetUsd")),
+        anomalyImpactUsd: O.fromUndefinedOr(config.getNumber("anomalyImpactUsd")),
+      }),
     }),
     () => new pulumi.RunError("Invalid accountCostControls account or spending threshold configuration")
   );

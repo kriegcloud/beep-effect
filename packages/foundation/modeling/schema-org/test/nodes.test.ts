@@ -32,23 +32,12 @@ describe("node classes", () => {
     }
   });
 
-  it("accepts an explicit undefined for any optional field", () => {
-    // This is the scoped `Schema.optional` exception. Under `optionalKey`
-    // every one of these would throw, and every consumer call site would
-    // need a conditional spread, because every field originates in a
-    // possibly-absent piece of upstream metadata.
-    const node = TechArticle.make({
-      "@id": ID,
-      headline: undefined,
-      description: undefined,
-      datePublished: undefined,
-      author: undefined,
-      mainEntity: undefined,
-      additional: undefined,
-    });
-
-    assert.strictEqual(node["@id"], ID);
-    assert.isUndefined(node.headline);
+  it("rejects an explicit undefined for any optional field", () => {
+    // Optional fields are exact keys (EF-40): absence is spelled by omitting
+    // the key, so a present key holding undefined never decodes.
+    for (const key of ["headline", "description", "datePublished", "author", "mainEntity", "additional"]) {
+      assert.isTrue(Result.isFailure(S.decodeUnknownResult(TechArticle)({ "@id": ID, [key]: undefined })), key);
+    }
   });
 
   it("requires @id and nothing else", () => {

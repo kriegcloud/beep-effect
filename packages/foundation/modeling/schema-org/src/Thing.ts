@@ -22,10 +22,9 @@ import * as S from "effect/Schema";
  * heritage chain, and leaves every class's emitted declaration listing its own
  * fields.
  *
- * Every field is `Schema.optional` rather than `Schema.optionalKey`, so it
- * accepts an explicit `undefined`: node fields usually come from
- * possibly-absent upstream metadata, and passing that straight through avoids a
- * wall of conditional spreads at each call site.
+ * Every field is an exact optional key (`Schema.optionalKey`, EF-40): absence
+ * is spelled by omitting the key, so a caller holding possibly-absent upstream
+ * metadata builds the node with `O.getSomesStruct({...})`.
  *
  * **Example** (Decode shared node metadata)
  *
@@ -34,7 +33,7 @@ import * as S from "effect/Schema";
  * import * as S from "effect/Schema";
  *
  * const Thing = S.Struct(ThingFields);
- * const node = S.decodeUnknownSync(Thing)({ "@id": "_:pkg", name: undefined });
+ * const node = S.decodeUnknownSync(Thing)({ "@id": "_:pkg" });
  * console.log(node["@id"]) // _:pkg
  * console.log(node.name) // undefined
  * ```

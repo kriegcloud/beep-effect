@@ -16,6 +16,7 @@
  */
 import { $GithubId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { getSomesStruct } from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -688,11 +689,13 @@ export const makeClientShape = Effect.fn("GitHubClient.makeClientShape")(functio
   options: Omit<GitHubClientOptions.Encoded, "token"> & { readonly token?: Redacted.Redacted<string> | undefined }
 ): Effect.fn.Return<GitHubClientShape> {
   const transport = yield* makeTransport({
-    token: options.token,
     retry: resolvePolicy(options.retry),
-    baseUrl: options.baseUrl,
-    userAgent: options.userAgent,
-    fetch: options.fetch,
+    ...getSomesStruct({
+      token: O.fromUndefinedOr(options.token),
+      baseUrl: O.fromUndefinedOr(options.baseUrl),
+      userAgent: O.fromUndefinedOr(options.userAgent),
+      fetch: O.fromUndefinedOr(options.fetch),
+    }),
   });
 
   const request: GitHubClientShape["request"] = dual(

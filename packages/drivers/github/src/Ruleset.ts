@@ -363,7 +363,7 @@ const make = (client: GitHubClient["Service"]): RulesetShape => {
         S.decodeEffect(RulesetInfo)({
           id: ruleset.id,
           name: ruleset.name,
-          source_type: ruleset.source_type,
+          ...O.getSomesStruct({ source_type: O.fromUndefinedOr(ruleset.source_type) }),
         }).pipe(
           Effect.mapError((error) => GitHubError.decode("Ruleset.list", "GitHub returned an unexpected ruleset", error))
         )

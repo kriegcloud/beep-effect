@@ -36,7 +36,6 @@ import {
   UnserializableData,
 } from "@beep/jsonl";
 import { SampledRange } from "@beep/jsonl/internal/tail";
-import { matchesFrame } from "@beep/jsonl/Slice";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
@@ -49,7 +48,6 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as Struct from "effect/Struct";
 import * as Tuple from "effect/Tuple";
 import { Ended, Noted, Reopened } from "./fixtures.ts";
 
@@ -322,30 +320,22 @@ describe("jsonl schema round trips", () => {
     runs
   );
 
-  // Upstream omission semantics (D15 reverted): an explicitly undefined optional
-  // key decodes, reads as undefined, and selects exactly what omitting it does.
+  // Kept deviation D15 (EF-40): optional keys are exact, so an explicitly
+  // undefined configuration or slice key never decodes.
   it.effect.prop(
-    "optional configuration and slice keys treat an explicit undefined as omission",
-    [Arbitrary.schema(JournalConfig), CursoredSlice(RegisteredTag), Arbitrary.schema(EnvelopeFrame)],
-    ([config, slice, frame]) =>
+    "optional configuration and slice keys reject an explicit undefined",
+    [Arbitrary.schema(JournalConfig), CursoredSlice(RegisteredTag)],
+    ([config, slice]) =>
       Effect.gen(function* () {
         const encodedConfig = yield* encodeConfig(config);
         for (const key of ["directory", "capacity", "shutdownPublishTimeout"] as const) {
-          const explicit = yield* decodeConfig({ ...encodedConfig, [key]: undefined });
-          const omitted = yield* decodeConfig(Struct.omit(encodedConfig, [key]));
-          assert.isUndefined(explicit[key], `JournalConfig.${key}: undefined decodes as absent`);
-          assert.isUndefined(omitted[key], `JournalConfig.${key}: omission decodes as absent`);
+          const explicit = yield* Effect.result(decodeConfig({ ...encodedConfig, [key]: undefined }));
+          assertTrue(Result.isFailure(explicit));
         }
         const encodedSlice = yield* encodeCursoredSlice(slice);
         for (const key of ["events", "scopes", "from", "to", "cursor"] as const) {
-          const explicit = yield* decodeCursoredSlice({ ...encodedSlice, [key]: undefined });
-          const omitted = yield* decodeCursoredSlice(Struct.omit(encodedSlice, [key]));
-          assert.isUndefined(explicit[key], `CursoredSlice.${key}: undefined decodes as absent`);
-          assert.strictEqual(
-            matchesFrame(frame, explicit),
-            matchesFrame(frame, omitted),
-            `CursoredSlice.${key}: undefined selects what omission selects`
-          );
+          const explicit = yield* Effect.result(decodeCursoredSlice({ ...encodedSlice, [key]: undefined }));
+          assertTrue(Result.isFailure(explicit));
         }
       }),
     runs

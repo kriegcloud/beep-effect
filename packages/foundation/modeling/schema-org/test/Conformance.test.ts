@@ -396,8 +396,17 @@ describe("Conformance catch-all references", () => {
 });
 
 describe("ConformanceOptions schema and compatible runtime input", () => {
-  it("decodes omitted and explicitly undefined policies to safe defaults", () => {
-    for (const input of [{}, { unknownTerms: undefined, deprecations: undefined, danglingReferences: undefined }]) {
+  it("decodes omitted policies to safe defaults and rejects explicit undefined ones", () => {
+    assert.isTrue(
+      Result.isFailure(
+        S.decodeUnknownResult(ConformanceOptions)({
+          unknownTerms: undefined,
+          deprecations: undefined,
+          danglingReferences: undefined,
+        })
+      )
+    );
+    for (const input of [{}]) {
       assert.deepStrictEqual(
         Result.getOrThrow(S.decodeResult(ConformanceOptions)(input)),
         ConformanceOptions.make({
@@ -418,14 +427,7 @@ describe("ConformanceOptions schema and compatible runtime input", () => {
       })
     );
     assertSuccess(
-      Result.map(
-        Conformance.validateResult(graph, {
-          unknownTerms: undefined,
-          deprecations: undefined,
-          danglingReferences: undefined,
-        }),
-        () => undefined
-      ),
+      Result.map(Conformance.validateResult(graph, {}), () => undefined),
       undefined
     );
     assertSuccess(
