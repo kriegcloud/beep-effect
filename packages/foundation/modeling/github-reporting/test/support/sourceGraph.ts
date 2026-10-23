@@ -47,17 +47,11 @@ const managedSectionSources = import.meta.glob<string>("../../../managed-section
   eager: true,
 });
 
-/** The module-id root under which `@beep/managed-section` sources are walked. */
+/**
+ * The module-id root under which `@beep/managed-section` sources are walked:
+ * `src/X.ts` there is the module `@beep/managed-section/src/X.ts`.
+ */
 const MANAGED_SECTION_ROOT = "@beep/managed-section/src/";
-
-/** Every `@beep/managed-section` source module, as a closure-walk module id. */
-export const managedSectionModules: ReadonlyArray<string> = A.sort(
-  A.map(
-    R.keys(managedSectionSources),
-    (key) => `${MANAGED_SECTION_ROOT}${Str.slice(MANAGED_SECTION_PREFIX.length)(key)}`
-  ),
-  Str.Order
-);
 
 const textOf = (module: string): string =>
   O.getOrThrowWith(
@@ -155,6 +149,7 @@ export const reachablePackages: (entry: string) => ReadonlyArray<string> = walkW
 /**
  * As {@link reachablePackages}, but a `@beep/managed-section` edge is also
  * entered, so the result holds what that package's modules reach in turn. The
- * entry may be a `src` module or a {@link managedSectionModules} id.
+ * entry may be a `src` module or a managed-section module id (for example
+ * `"@beep/managed-section/src/index.ts"`).
  */
 export const reachableClosure: (entry: string) => ReadonlyArray<string> = walkWith(closureStepFrom);
