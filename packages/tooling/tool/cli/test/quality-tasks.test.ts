@@ -8435,8 +8435,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             flakeQuarantine: "ts2589-no-location",
           });
 
-          const exit = yield* withoutCiEffect(
-            Effect.exit(runQualityTaskStreamingStepGroupForTesting("test:stream", [step]))
+          const exit = yield* runQualityTaskStreamingStepGroupForTesting("test:stream", [step]).pipe(
+            Effect.exit,
+            withoutCiEffect
           );
 
           assertTrue(exit._tag === "Failure");

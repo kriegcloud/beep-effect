@@ -87,6 +87,11 @@ const rows: ReadonlyArray<Row> = [
   { name: "CI=false", env: { CI: "false" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
   { name: "CI=0", env: { CI: "0" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
   { name: "CI empty", env: { CI: "" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: false },
+  { name: "CI=no", env: { CI: "no" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
+  { name: "CI=off", env: { CI: "off" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
+  { name: "CI=n", env: { CI: "n" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
+  { name: "CI=NO", env: { CI: "NO" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
+  { name: "CI=Off", env: { CI: "Off" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
 ];
 
 describe("the one CI rule", () => {
