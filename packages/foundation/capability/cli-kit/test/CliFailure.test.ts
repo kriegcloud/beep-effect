@@ -596,9 +596,10 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
         const { err } = yield* runMain(program, { AI_AGENT: "claude" }, true);
         const text = A.join(err, "\n");
         assert.include(text, "thrown by a thunk");
-        // V8 names the thunk's own frame by Effect's method alias; the frame is still the program's.
-        const first = /\((.*CliFailure\.test\.ts:\d+:\d+)\)/.exec(thrown?.stack ?? "")?.[1];
-        assert.isDefined(first, "control: V8 put the thunk's frame on the stack");
+        // V8 names the thunk's own frame by Effect's method alias, in parentheses; JavaScriptCore (Bun) may print an
+        // anonymous frame's location bare. Either way the frame is still the program's.
+        const first = /(?:\(|at )([^()\s]*CliFailure\.test\.ts:\d+:\d+)/.exec(thrown?.stack ?? "")?.[1];
+        assert.isDefined(first, "control: the engine put the thunk's frame on the stack");
         assert.include(text, first);
       })
     );

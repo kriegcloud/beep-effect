@@ -7,6 +7,7 @@
 
 import { NodeServices } from "@effect/platform-node";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 // - It is NOT build-free. The sources import `@effected/env`, which resolves to that package's BUILT output, so
@@ -18,8 +19,21 @@ import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
-const HOST_PATH = Config.String("PATH").pipe(Config.withDefault(""));
+/**
+ * The host PATH without the `node` shim `bun --bun` puts first (a `bun-node-*` directory), so `node` is Node under
+ * either test runner.
+ */
+const HOST_PATH = Config.String("PATH").pipe(
+  Config.withDefault(""),
+  Config.map((path) =>
+    A.join(
+      A.filter(Str.split(path, ":"), (dir) => !Str.includes("/bun-node-")(dir)),
+      ":"
+    )
+  )
+);
 
 const FIXTURES = `${import.meta.dirname}/fixtures`;
 
@@ -27,7 +41,9 @@ const run = Effect.fn("run")(function* (args: ReadonlyArray<string>, stdin: stri
   const path = yield* Path.Path;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const command = ChildProcess.make(
-    process.execPath,
+    // Node itself, under either test runner: the fixture runs the sources through Node's type stripping and its
+    // resolve hooks, and the behaviour under test is NodeTerminal's readline on a real piped stdin.
+    "node",
     ["--import", path.join(FIXTURES, "register-ts.mjs"), path.join(FIXTURES, "stdin-gate.mts"), ...args],
     { env: { PATH: yield* HOST_PATH, NO_COLOR: "1" }, stdin: Stream.make(new TextEncoder().encode(stdin)) }
   );
