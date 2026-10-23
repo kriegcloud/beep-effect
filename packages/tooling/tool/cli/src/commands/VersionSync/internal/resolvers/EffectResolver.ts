@@ -30,7 +30,8 @@ import type { VersionSyncError } from "../../VersionSync.schemas.ts";
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/EffectResolver");
 const VERSION_SPECIFIER_PATTERN = /^([~^<>=\s]*)(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/;
 const EXACT_VERSION_PATTERN = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
-const EFFECT_SMOL_SNAPSHOT_PATTERN = /^https:\/\/pkg\.pr\.new\/Effect-TS\/effect(?:-smol)?\/(.+)@([0-9a-f]+)$/i;
+// Legacy `effect-smol` snapshot URLs still match so sync rewrites them to `Effect-TS/effect`.
+const EFFECT_SNAPSHOT_PATTERN = /^https:\/\/pkg\.pr\.new\/Effect-TS\/effect(?:-smol)?\/(.+)@([0-9a-f]+)$/i;
 const LOCKSTEP_EFFECT_PACKAGE_PREFIX = "@effect/";
 const NON_LOCKSTEP_EFFECT_PACKAGES = ["@effect/markdown-toc", "@effect/tsgo"] as const;
 
@@ -86,7 +87,7 @@ const splitVersionSpecifier = (specifier: string): O.Option<VersionSpecifierPart
   );
 
 const splitSnapshotSpecifier = (specifier: string): O.Option<SnapshotSpecifierParts> =>
-  O.flatMap(Str.match(EFFECT_SMOL_SNAPSHOT_PATTERN)(Str.trim(specifier)), (match) =>
+  O.flatMap(Str.match(EFFECT_SNAPSHOT_PATTERN)(Str.trim(specifier)), (match) =>
     O.flatMap(O.fromUndefinedOr(match[1]), (packageName) =>
       O.map(O.fromUndefinedOr(match[2]), (sha) => ({ packageName, sha }))
     )

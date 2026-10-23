@@ -758,6 +758,12 @@ export class M365GetMailFolderRequest extends S.Opaque<M365GetMailFolderRequest,
 /**
  * Request for reading one Outlook mail message.
  *
+ * **Details**
+ *
+ * `select` is passed to `getMessage` as Graph's `$select`, so a caller that
+ * needs a few fields does not download the body. `getMessageAuthoredText`
+ * always uses its own projection and ignores it.
+ *
  * **Example** (Get message by id)
  *
  * ```ts
@@ -765,6 +771,16 @@ export class M365GetMailFolderRequest extends S.Opaque<M365GetMailFolderRequest,
  *
  * const request = M365GetMessageRequest.make({ messageId: "message-id" })
  * console.log(request.messageId)
+ * ```
+ *
+ * **Example** (Read only the subject and the link)
+ *
+ * ```ts
+ * import { M365GetMessageRequest } from "@beep/m365"
+ * import * as O from "effect/Option"
+ *
+ * const request = M365GetMessageRequest.make({ messageId: "message-id", select: O.some("subject,webLink") })
+ * console.log(request.select) // Some("subject,webLink")
  * ```
  *
  * @category models
@@ -776,6 +792,9 @@ export class M365GetMessageRequest extends S.Opaque<M365GetMessageRequest, { rea
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional body format to ask Graph for (`text` strips HTML)." }),
     messageId: GraphPathSegment.annotateKey({ description: "Graph message id." }),
+    select: S.OptionFromOptionalKey(S.String)
+      .pipe(S.withConstructorDefault(Effect.succeedNone))
+      .annotateKey({ description: "Optional Graph OData `$select` projection; `getMessageAuthoredText` ignores it." }),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's message.",
     }),
@@ -3281,7 +3300,9 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
   }),
   getMessage: Effect.fn("M365.getMessage")(function* (rawRequest) {
     const request = yield* decodeRequest(M365GetMessageRequest, "messages")(rawRequest);
-    const url = yield* mailboxUrl(runtime.config, request.userId, `messages/${request.messageId}`, "messages");
+    const url = yield* mailboxUrl(runtime.config, request.userId, `messages/${request.messageId}`, "messages", [
+      ["$select", request.select],
+    ]);
     return yield* executeJson(runtime, url, GraphMessage, "messages", bodyContentTypeHeaders(request.bodyContentType));
   }),
   getMessageAuthoredText: Effect.fn("M365.getMessageAuthoredText")(function* (rawRequest) {

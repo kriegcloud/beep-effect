@@ -6,7 +6,6 @@ config:
   aiMetrics:phoenixImage: arizephoenix/phoenix:15.5.0
   aiMetrics:phoenixTailnetHttpsPort: 8447
   aiMetrics:rawArchiveKeySecretRef: op://TBK/ai-metrics/raw-archive-key
-  aiMetrics:remoteConfigRoot: /absolute/path/to/ai-metrics
   aiMetrics:sshAgentSocketPath: /run/user/1000/gcr/ssh
   aiMetrics:sshHost: dankserver
   aiMetrics:sshUser: elpresidank

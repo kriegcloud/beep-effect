@@ -19,7 +19,9 @@ const $I = $LawPracticeUseCasesId.create("DailyNotice/DailyNotice.schemas");
  * **Details**
  *
  * It carries no question text and no client data: it only says how many
- * questions are waiting, so it is safe in any inbox preview.
+ * questions are waiting, so it is safe in any inbox preview. A mailbox adapter
+ * may wrap the body in HTML with a link that opens the review queue, but adds
+ * no question text.
  *
  * **Example** (Build a notice)
  *

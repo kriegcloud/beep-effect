@@ -67,9 +67,9 @@ amendment).
 ## As built (2026-10-14)
 
 - **Dates.** `dueOn` and `resurfaceOn` decode to `LocalDate` and encode as `"YYYY-MM-DD"` through
-  `LocalDateFromString`. That is the format docket-intake and `DocketDeadline` already use. A
-  package-internal check (`src/internal/CalendarDate.ts`) also rejects days that do not exist in
-  their month, such as February 30. The bare `LocalDate` class would encode as
+  `LocalDateFromString`. That is the format docket-intake and `DocketDeadline` already use. The
+  domain's `CalendarDate` check (`src/values/CalendarDate/CalendarDate.model.ts`) also rejects days
+  that do not exist in their month, such as February 30. The bare `LocalDate` class would encode as
   `{year, month, day}` and accept February 31.
 - **Defaults.** `OptionWrite.eventId` and `QuestionOption.write` also default to none, like the
   envelope's other optional fields.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active`
+Status: `completed-retained` (2026-10-23, operator ruling; final PR #1941)
 
 ## Phases
 
@@ -11,8 +11,8 @@ Status: `active`
 | P0 Research | completed | Inventory every entity UPDATE path and the version machinery. | Inventory and decisions D1–D4 recorded in `SPEC.md`. |
 | P1 Implement | completed | Schema (`RowVersion`, `version()`), migration, port errors, guarded adapters, stale-write tests. | Acceptance criteria are met. |
 | P2 Verify | completed | Run required checks and capture evidence. | Verification is green or blockers are documented. |
-| P3 Yeet: PR to mergeable | in-progress | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
-| P4 Close | in-progress | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
+| P3 Yeet: PR to mergeable | completed (2026-10-21, #1941 merged `2a42813ca1` under S43) | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
+| P4 Close | completed (2026-10-23) | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## Closeout Checklist
 

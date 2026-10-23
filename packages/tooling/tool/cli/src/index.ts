@@ -3,7 +3,7 @@
  *
  * ## Mental model
  *
- * - **Package creation** - Scaffold new packages following effect-smol patterns
+ * - **Package creation** - Scaffold new packages following Effect patterns
  * - **Code generation** - Generate barrel files and exports
  * - **Topological sort** - Output packages in dependency order
  *
