@@ -146,16 +146,16 @@ export type TmpfsReapSkipReason = typeof TmpfsReapSkipReason.Type;
  */
 export class TmpfsReapCandidate extends S.Opaque<TmpfsReapCandidate, { readonly brand: unique symbol }>()(
   S.Struct({
-    root: S.optional(S.String),
+    root: S.optionalKey(S.String),
     path: S.String,
     reapClass: TmpfsReapClass,
     ageHours: S.Finite,
     refCount: S.Int,
     action: TmpfsReapAction,
-    skipReason: S.optional(TmpfsReapSkipReason),
-    parentRepo: S.optional(S.String),
-    ownerRoot: S.optional(S.String),
-    bytes: S.optional(S.Finite),
+    skipReason: S.optionalKey(TmpfsReapSkipReason),
+    parentRepo: S.optionalKey(S.String),
+    ownerRoot: S.optionalKey(S.String),
+    bytes: S.optionalKey(S.Finite),
   }).pipe(
     $I.annoteSchema("TmpfsReapCandidate", {
       description: "One classified temporary artifact with the evidence and action chosen by the janitor.",
@@ -192,7 +192,7 @@ export class TmpfsReapReport extends S.Opaque<TmpfsReapReport, { readonly brand:
     schemaVersion: S.tag("tmpfs-reap/v1"),
     scannedAt: S.String,
     tmpRoot: TmpfsSystemRoot,
-    tmpRoots: S.String.pipe(S.Array, S.optional),
+    tmpRoots: S.String.pipe(S.Array, S.optionalKey),
     applied: S.Boolean,
     candidates: S.Array(TmpfsReapCandidate),
     reapedCount: S.Int,

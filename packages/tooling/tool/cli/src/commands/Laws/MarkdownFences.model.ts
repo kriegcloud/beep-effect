@@ -235,9 +235,12 @@ export class MarkdownFencesOptions extends S.Opaque<MarkdownFencesOptions, { rea
     cwd: S.String,
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    pathPrefix: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    pathPrefix: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefaultKey(Effect.succeed(""))
+    ),
   }).pipe(
     $I.annoteSchema("MarkdownFencesOptions", {
       description: "Repository location and strictness for the Markdown fence typecheck law.",
@@ -285,7 +288,7 @@ export class MarkdownFencesSummary extends S.Opaque<MarkdownFencesSummary, { rea
     generatedFences: S.Natural,
     failures: S.Array(MarkdownFenceVerdict.cases.failed).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<typeof MarkdownFenceVerdict.cases.failed.Type>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<typeof MarkdownFenceVerdict.cases.failed.Type>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<typeof MarkdownFenceVerdict.cases.failed.Type>()))
     ),
     strictFailure: S.Boolean,
   }).pipe(

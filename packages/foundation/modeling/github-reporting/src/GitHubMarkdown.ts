@@ -91,7 +91,7 @@ export class GitHubListOptions extends S.Opaque<GitHubListOptions, { readonly br
      *  Render `1.`-numbered items instead of bullets.
      * @since 0.0.0
      */
-    ordered: S.optional(S.Boolean).pipe(
+    ordered: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("GitHubListOptions.ordered", { description: "Render numbered items instead of bullets." })
     ),
   }).pipe($I.annoteSchema("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }))
