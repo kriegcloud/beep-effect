@@ -5,7 +5,7 @@
  * stays installed) and, with `--three-way`, against `get-tsconfig` `parseTsconfig` (run while it is still
  * installed; the drop commit removes it from the catalog).
  *
- * Corpus A is every git-tracked `*tsconfig*.json`. It compares the fields the repo-cli adopters read:
+ * Corpus A is every git-tracked `*tsconfig*.json` outside packet research output. It compares the fields the repo-cli adopters read:
  * `references` (absolute and realpathed), `include` / `exclude` / `files` (absolute against the top config),
  * the path-valued compiler options (`outDir`, `rootDir`, `declarationDir`, `tsBuildInfoFile`, `baseUrl`) and
  * `paths`. `tsc --showConfig` does not print `compilerOptions.plugins`, so plugins are compared against
@@ -243,7 +243,11 @@ const corpusA = Effect.fnUntraced(function* () {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const { project, path } = yield* projector();
   const files = A.filter(
-    yield* spawner.lines(ChildProcess.make("git", ["ls-files", "--", "*tsconfig*.json"], { cwd: repoRoot })),
+    yield* spawner.lines(
+      ChildProcess.make("git", ["ls-files", "--", "*tsconfig*.json", ":(exclude)goals/**/research/**"], {
+        cwd: repoRoot,
+      })
+    ),
     Str.isNonEmpty
   );
   const getTsconfig = threeWay ? O.some(yield* loadGetTsconfig) : O.none<GetTsconfig>();
