@@ -105,7 +105,7 @@ describe("inline emission scales linearly", () => {
       const badLarge = quadraticWork(400);
       assert.isAbove(badSmall, 0);
       assert.isAbove(badLarge - badMedium, 2 * (badMedium - badSmall));
-    }).pipe(Effect.scoped)
+    })
   );
 });
 
