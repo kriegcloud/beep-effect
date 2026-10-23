@@ -254,3 +254,38 @@ export class SchemaTagIdiomsExecutionError extends S.TaggedError<
     SchemaTagIdiomsExecutionError.new(messageWithCause(message, cause))
   );
 }
+
+/**
+ * Failure raised when the Markdown fence typecheck law cannot list, read, stage or compile the fences.
+ *
+ * **Example** (Read a Markdown fences execution error)
+ *
+ * ```ts
+ * import { MarkdownFencesExecutionError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = MarkdownFencesExecutionError.new("tsc-rs exited 1 without a fence diagnostic.")
+ * console.log(error.message) // "tsc-rs exited 1 without a fence diagnostic."
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class MarkdownFencesExecutionError extends S.TaggedError<
+  MarkdownFencesExecutionError,
+  { readonly brand: unique symbol }
+>($I`MarkdownFencesExecutionError`)(
+  "MarkdownFencesExecutionError",
+  {
+    message: S.String,
+  },
+  $I.annoteError<MarkdownFencesExecutionError>("MarkdownFencesExecutionError", {
+    description: "The Markdown fence typecheck law could not list, read, stage, or compile the guidance fences.",
+  })
+) {
+  static readonly new = (message: string): MarkdownFencesExecutionError =>
+    MarkdownFencesExecutionError.make({ message });
+
+  static readonly mapError = Err.mapCauseError<MarkdownFencesExecutionError, [message: string]>((cause, message) =>
+    MarkdownFencesExecutionError.new(messageWithCause(message, cause))
+  );
+}

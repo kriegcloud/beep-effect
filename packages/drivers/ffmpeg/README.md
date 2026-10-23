@@ -15,7 +15,7 @@ The first supported workflow extracts PNG frames from a video into a directory:
 import { ExtractFramesRequest, FFmpeg } from "@beep/ffmpeg"
 import * as O from "effect/Option"
 
-const request = new ExtractFramesRequest({
+const request = ExtractFramesRequest.make({
   fps: 1,
   manifestPath: O.none(),
   outDir: "./frames",

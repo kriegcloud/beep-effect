@@ -1,0 +1,20 @@
+{
+  "previous": "63d1bd06826aa8ab779db201b100a6e24fccddeb78b4e769ce8fab965c248415",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (rsc residue #1856 wave 3, feat/residue-guidance-wave3)",
+    "reason": "Record the new root lint:markdown-fences script and its uncached //#lint:markdown-fences Turbo task; no existing command, input or cache setting changes and no qualification is granted.",
+    "basis": {
+      "path": "goals/repository-simplification-residue/research/cache-baseline-review-guidance-wave-3.md",
+      "sha256": "e0104ca525bac3358a94b02c6ab7ec8064191a1d0c4fe2719c9631841980c9c4"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": ["//"]
+}

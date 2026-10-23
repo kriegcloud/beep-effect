@@ -10,6 +10,9 @@ classes are for errors, persisted entities, schemas with instance members, and
 `.extend` chains, and they carry a brand type argument:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 class MyEntity extends S.Class<MyEntity, { readonly brand: unique symbol }>($I`MyEntity`)(
   { /* fields */ },
   $I.annote("MyEntity", {
@@ -29,6 +32,9 @@ Plain data is a branded `S.Opaque` over a Struct. Annotate the Struct with
 plain schema without the class statics:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 class MyPayload extends S.Opaque<MyPayload, { readonly brand: unique symbol }>()(
   S.Struct({ /* fields */ }).pipe(
     $I.annoteSchema("MyPayload", {
@@ -44,6 +50,9 @@ Extend `S.TaggedError` from `effect/Schema` directly. Use the package `$I`
 composer when a distinct namespaced schema identifier is wanted:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 class MyError extends S.TaggedError<MyError, { readonly brand: unique symbol }>($I`MyError`)(
   "MyError",
   { message: S.String, cause: S.Defect({ includeStack: true }) },
@@ -63,6 +72,9 @@ equal to the tag. Cause-carrying errors declare
 Use `$I.annoteSchema` via `.pipe(...)`:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 const MySchema = S.String.pipe(
   S.check(S.isPattern(/^[a-z]+$/)),
   $I.annoteSchema("MySchema", {
@@ -77,6 +89,9 @@ Same as every non-class schema: `$I.annoteSchema` via `.pipe(...)`. The kit's
 helpers (`.Enum`, `.is`, `$match`) survive it:
 
 ```ts
+import { LiteralKit } from "@beep/schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 const Status = LiteralKit(["active", "inactive"]).pipe(
   $I.annoteSchema("Status", {
     description: "Entity lifecycle status."
@@ -97,6 +112,9 @@ Pass `$I.annote(...)` as the check's annotation argument. Never hand-build
 caller-supplied `title` wins over the derived one:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 const Slug = S.String.check(
   S.isPattern(/^[a-z][a-z0-9-]*$/, $I.annote("SlugPattern", {
     title: "Slug syntax",
@@ -119,6 +137,11 @@ expression trips TS2310 on the pipe form, apply the helper directly:
 Use `$I.annoteSchema(...)` inside `.pipe(...)`:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const SchemaA = S.TaggedStruct("A", {});
+const SchemaB = S.TaggedStruct("B", {});
+const $I = $SchemaId.create("examples");
 const MyUnion = S.Union([SchemaA, SchemaB]).pipe(
   $I.annoteSchema("MyUnion", {
     description: "Discriminated union of A and B."
@@ -132,6 +155,9 @@ Every non-class schema that is exported must also export a same-name runtime
 type alias immediately after it:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 export const MySchema = S.String.pipe(
   $I.annoteSchema("MySchema", { description: "..." })
 )
