@@ -2351,6 +2351,15 @@
       ],
       "@beep/package-json/internal/*": [
         "./packages/foundation/modeling/package-json/src/internal/*"
+      ],
+      "@beep/config-file": [
+        "./packages/foundation/capability/config-file/src/index.ts"
+      ],
+      "@beep/config-file/*": [
+        "./packages/foundation/capability/config-file/src/*"
+      ],
+      "@beep/config-file/internal/*": [
+        "./packages/foundation/capability/config-file/src/internal/*"
       ]
     }
   }
