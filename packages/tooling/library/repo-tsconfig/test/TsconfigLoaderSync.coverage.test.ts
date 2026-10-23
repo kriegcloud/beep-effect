@@ -30,6 +30,7 @@ const unsupportedOperations: ReadonlyArray<readonly [string, (service: Path.Path
   ["normalize", (service) => service.normalize("/a/../b")],
   ["parse", (service) => service.parse("/a.json")],
   ["relative", (service) => service.relative("/a", "/b")],
+  ["resolveWithin", (service) => service.resolveWithin("/a", "b")],
   ["toFileUrl", (service) => service.toFileUrl("/a")],
   ["toNamespacedPath", (service) => service.toNamespacedPath("/a")],
 ];
