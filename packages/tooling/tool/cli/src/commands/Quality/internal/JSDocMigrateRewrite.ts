@@ -91,25 +91,31 @@ const classifyFenceLines = (lines: ReadonlyArray<string>): ReadonlyArray<FenceLi
   return classes;
 };
 
-// fallow-ignore-next-line complexity -- the fence open/inside/close state machine is one auditable scan; splitting it would separate the states from their transitions
+const advanceFenceBody = (
+  kind: FenceLineClass | undefined,
+  line: string,
+  current: Array<string> | undefined,
+  bodies: Array<string>
+): Array<string> | undefined => {
+  if (kind === "open") {
+    return [];
+  }
+  if (kind === "close") {
+    A.appendInPlace(bodies, A.join(current ?? [], "\n"));
+    return undefined;
+  }
+  if (kind === "inside" && current !== undefined) {
+    A.appendInPlace(current, line);
+  }
+  return current;
+};
+
 const fenceBodies = (lines: ReadonlyArray<string>): ReadonlyArray<string> => {
   const classes = classifyFenceLines(lines);
   const bodies: Array<string> = [];
   let current: Array<string> | undefined;
   for (const [index, line] of A.entries(lines)) {
-    const kind = classes[index];
-    if (kind === "open") {
-      current = [];
-      continue;
-    }
-    if (kind === "close") {
-      A.appendInPlace(bodies, A.join(current ?? [], "\n"));
-      current = undefined;
-      continue;
-    }
-    if (kind === "inside" && current !== undefined) {
-      A.appendInPlace(current, line);
-    }
+    current = advanceFenceBody(classes[index], line, current, bodies);
   }
   if (current !== undefined) {
     A.appendInPlace(bodies, A.join(current, "\n"));
@@ -567,7 +573,7 @@ const appendSectionContent = (
 ): ReadonlyArray<string> =>
   existing.length === 0 ? addition : addition.length === 0 ? existing : [...existing, "", ...addition];
 
-// fallow-ignore-next-line complexity -- the transform is one auditable pipeline: consume carriers, split the lead, normalize tags, reassemble, then prove conservation
+// fallow-ignore-next-line complexity -- one auditable rewrite pipeline (consume carriers, split the lead, normalize tags, reassemble, prove conservation). Owner: @beep/repo-cli. Exit: delete with the jsdoc migrate command once the JSDoc grammar migration is retired.
 const rewriteBlockUnchecked = (
   blockText: string,
   data: JSDocMigrateRewriteData,

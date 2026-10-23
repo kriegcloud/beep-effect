@@ -395,6 +395,54 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("retains unresolved imported resource wrappers for judgment", () =>
+    Effect.gen(function* () {
+      const rows = yield* findings(
+        'import { withFixture } from "./fixture.ts"; it.effect("resource", () => withFixture(program));'
+      );
+      assertTrue(A.some(rows, (row) => row.ruleId === "EV003" && row.class === "unresolved-resource-wrapper"));
+    })
+  );
+
+  it.effect("permits fresh temp-root wrappers and keeps shareable resources under resource review", () =>
+    Effect.gen(function* () {
+      const fresh = [
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; return yield* fs.makeTempDirectory({ prefix: "case-" }); }), use, (root) => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.remove(root, { recursive: true, force: true }); })); it.effect("x", () => withTempDirectory((root) => program(root)));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, (fs) => fs.makeTempDirectory()), use, (dir) => Fx.flatMap(FileSystem.FileSystem, (fs) => fs.remove(dir, { recursive: true }).pipe(Fx.orDie))); it.effect("x", () => withTempCwd(program));',
+        'const inTempRepo = Fx.fn("inTempRepo")(function* (use) { const fs = yield* FileSystem.FileSystem; return yield* Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => fs.remove(root, { recursive: true }).pipe(Fx.orDie)); }); it.effect("x", () => inTempRepo(program));',
+        'const withTempRoot = (use) => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; const root = yield* Fx.acquireRelease(fs.makeTempDirectoryScoped(), (path) => fs.remove(path, { recursive: true })); return yield* use(root); }); it.effect("x", () => withTempRoot(program));',
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; return yield* fs.makeTempDirectory({ directory: safeTempRoot(), prefix: "case-" }); }), use, (root) => fs.remove(root)); it.effect("x", () => withTempDirectory(program));',
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(fs.makeTempDirectory({ prefix: "case-" }), (root) => use(root).pipe(Fx.provideService(Roots, [root])), (root) => fs.remove(root)); it.effect("x", () => withTempDirectory(program));',
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, Fx.fnUntraced(function* (tmpDir) { yield* fs.remove(tmpDir, { recursive: true }); })); it.effect("x", () => withTempDirectory(program));',
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, Fx.fn("release")(function* (tmpDir) { yield* fs.remove(tmpDir); })); it.effect("x", () => withTempDirectory(program));',
+      ];
+      for (const body of fresh) assertFalse(yield* hasRule(body, "EV003"));
+
+      const shareable = [
+        'const withCatalog = (use) => Fx.acquireUseRelease(fs.readFileString("fixtures/catalog.json"), use, () => Fx.void); it.effect("x", () => withCatalog(program));',
+        'const withTempLog = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => Fx.log(root)); it.effect("x", () => withTempLog(program));',
+        'const withTempOther = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => fs.remove(fixtureRoot, { recursive: true })); it.effect("x", () => withTempOther(program));',
+        'const withTempStore = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => Fx.acquireRelease(openStore(root), closeStore).pipe(Fx.flatMap(use)), (root) => fs.remove(root)); it.effect("x", () => withTempStore(program));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, Fx.fnUntraced(function* (tmpDir) { yield* fs.remove(otherDir); })); it.effect("x", () => withTempCwd(program));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, wrap(function* (tmpDir) { yield* fs.remove(tmpDir); })); it.effect("x", () => withTempCwd(program));',
+        'const withTempCwd = (use) => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; const root = yield* Fx.acquireRelease(fs.makeTempDirectory(), (path) => fs.remove(path)); process.chdir(root); return yield* use(root); }); it.effect("x", () => withTempCwd(program));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => fs.remove(root)).pipe(Fx.tap(() => process.chdir(fixtureRoot))); it.effect("x", () => withTempCwd(program));',
+        'const enterRoot = (root) => { process.env.BEEP_ROOT = root; }; const withTempEnv = (use) => Fx.gen(function* () { const root = yield* Fx.acquireRelease(fs.makeTempDirectory(), (path) => fs.remove(path)); enterRoot(root); return yield* use(root); }); it.effect("x", () => withTempEnv(program));',
+        'const withTempServer = (use) => Fx.acquireUseRelease(Fx.zipLeft(fs.makeTempDirectory(), startServer), use, (root) => fs.remove(root)); it.effect("x", () => withTempServer(program));',
+        'const withSeededTemp = (use) => Fx.acquireUseRelease(Fx.tap(fs.makeTempDirectory(), seedFixtures), use, (root) => fs.remove(root)); it.effect("x", () => withSeededTemp(program));',
+        'const withSeededTemp = (use) => Fx.acquireUseRelease(fs.makeTempDirectory().pipe(Fx.tap(seedFixtures)), use, (root) => fs.remove(root)); it.effect("x", () => withSeededTemp(program));',
+        'const withTempGen = (use) => Fx.acquireUseRelease(Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* startServer; return yield* fs.makeTempDirectory(); }), use, (root) => fs.remove(root)); it.effect("x", () => withTempGen(program));',
+        'const withTempFlat = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, (fs) => fs.makeTempDirectory().pipe(Fx.tap(seedFixtures))), use, (root) => fs.remove(root)); it.effect("x", () => withTempFlat(program));',
+        'const inTempCheckout = Fx.fn(function* (use) { const fs = yield* FileSystem.FileSystem; const cwd = process.cwd(); return yield* Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => Fx.sync(() => process.chdir(root)).pipe(Fx.andThen(use(root))), (root) => Fx.sync(() => process.chdir(cwd)).pipe(Fx.andThen(fs.remove(root)))); }); it.effect("x", () => inTempCheckout(program));',
+        'const inTempCheckout = Fx.fn(function* (use) { const fs = yield* FileSystem.FileSystem; const originalCwd = process.cwd; return yield* Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => Fx.gen(function* () { yield* Fx.sync(() => { process.cwd = () => root; }); return yield* use(root); }), (root) => Fx.sync(() => { process.cwd = originalCwd; }).pipe(Fx.andThen(fs.remove(root, { recursive: true }).pipe(Fx.orDie)))); }); it.effect("x", () => inTempCheckout(program));',
+        'const withTempHome = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => Fx.sync(() => { process.env["HOME"] = root; }).pipe(Fx.andThen(use(root))), (root) => fs.remove(root)); it.effect("x", () => withTempHome(program));',
+        'const restoreEnv = () => { process.env.HOME = savedHome; }; const withTempEnv = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => Fx.sync(restoreEnv).pipe(Fx.andThen(fs.remove(root)))); it.effect("x", () => withTempEnv(program));',
+        'const withTempServer = (use) => Fx.acquireUseRelease(Fx.zip(fs.makeTempDirectory(), startServer), use, ([root]) => fs.remove(root)); it.effect("x", () => withTempServer(program));',
+      ];
+      for (const body of shareable) assertTrue(yield* hasRule(body, "EV003"));
+    })
+  );
+
   it.effect("inspects Option, Result, and Exit values supplied as matcher arguments", () =>
     Effect.gen(function* () {
       assertTrue(yield* hasRule('it("o", () => expect(value).toEqual(O.none()));', "EV006"));
@@ -2126,6 +2174,107 @@ it.layer(NodeServices.layer)((it) => {
           "EV006"
         )
       );
+    })
+  );
+
+  it.effect("retains opaque aliases and dynamic runtime references in canonical harnesses", () =>
+    Effect.gen(function* () {
+      const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
+      for (const [prelude, expression] of [
+        ['import { fixtureEffect } from "./fixture.ts"; const fixture = fixtureEffect;', "fixture"],
+        ['import { buildBundleConsumer } from "./bundle.ts"; const run = Fx.tryPromise(buildBundleConsumer);', "run"],
+        ["const api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
+        ["", 'Fx.promise(() => import("./bundle-build.ts"))'],
+        ["", 'Fx.sync(() => globalThis.Bun.file("fixture"))'],
+        ["", 'Fx.sync(() => global.Bun.file("fixture"))'],
+        ["", "Fx.sync(() => global.process.cwd())"],
+        ['let helper = () => 1; helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
+        ['var helper = () => 1; helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
+        ["let api = {}; api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
+        ['let helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
+        ['const helper = Fx.fn("helper")(function* () { return 1; }, () => Bun.file("fixture"));', "helper()"],
+        [
+          'import { stage } from "./fixture.ts"; const helper = Fx.fnUntraced(function* () { return 1; }, stage);',
+          "helper()",
+        ],
+        [
+          'import { fixtureEffect } from "./fixture.ts"; const first = () => second; const second = () => first; const fixture = [first, fixtureEffect];',
+          "fixture",
+        ],
+        ["const first = second; const second = [first, Bun];", "second"],
+      ]) {
+        assertTrue(
+          yield* hasRule(
+            `${platform} ${prelude} it.layer(Services.layer)((it) => { it.effect("opaque", () => ${expression}); });`,
+            "EV010"
+          )
+        );
+      }
+    })
+  );
+
+  it.effect("clears pure aliases, recursive helpers and lexically shadowed runtime values", () =>
+    Effect.gen(function* () {
+      const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
+      for (const [prelude, expression] of [
+        ["const fixtureEffect = Fx.succeed(1); const fixture = fixtureEffect;", "fixture"],
+        ["const fixture = Fx.succeed(1);", "Fx.all([fixture, fixture])"],
+        [
+          "const buildBundleConsumer = () => Promise.resolve(1); const run = Fx.tryPromise(buildBundleConsumer);",
+          "run",
+        ],
+        ['const Bun = { file: () => "pure" }; const api = Bun;', "Fx.sync(() => api.file())"],
+        ['const globalThis = { Bun: { file: () => "pure" } };', "Fx.sync(() => globalThis.Bun.file())"],
+        ['const global = { Bun: { file: () => "pure" } };', "Fx.sync(() => global.Bun.file())"],
+        ["", "Fx.sync((global) => global.Bun.file())"],
+        ['let unused = () => 1; unused = () => Bun.file("fixture");', "Fx.succeed(1)"],
+        ['const load = () => "./bundle-build.ts";', "Fx.sync(load)"],
+        ["", "Fx.succeed(import.meta.dirname)"],
+        ["const helper = () => 1;", "Fx.sync(helper)"],
+        ["let helper = () => 1;", "Fx.sync(helper)"],
+        ["var helper = () => 1;", "Fx.sync(helper)"],
+        ['const helper = Fx.fn("helper")(function* () { return 1; }, Fx.map((value) => value));', "helper()"],
+        ["const first = () => second(); function second() { return first(); }", "Fx.sync(first)"],
+        ["const first = second; const second = first;", "second"],
+        [
+          'import { fixtureEffect } from "./fixture.ts"; const fixture = fixtureEffect;',
+          "Fx.sync((fixture) => fixture)",
+        ],
+        ["const api = Bun;", "Fx.sync((api) => api.file())"],
+        ['const unused = () => import("./bundle-build.ts");', "Fx.succeed(1)"],
+      ]) {
+        assertFalse(
+          yield* hasRule(
+            `${platform} ${prelude} it.layer(Services.layer)((it) => { it.effect("pure", () => ${expression}); });`,
+            "EV010"
+          )
+        );
+      }
+    })
+  );
+
+  it.effect("clears canonical harness loop heads, stable locals and catch bindings", () =>
+    Effect.gen(function* () {
+      const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
+      for (const body of [
+        'for (const name of ["a", "b"]) it.effect(name, () => Fx.succeed(name));',
+        "for (const name in { a: 1 }) it.effect(name, () => Fx.succeed(name));",
+        'for (let index = 0; index < 1;) { it.effect("index", () => Fx.succeed(index)); break; }',
+        'let counter = 1; it.effect("counter", () => Fx.succeed(counter));',
+        'try { it.effect("try", () => Fx.succeed(1)); } catch (error) { it.effect("catch", () => Fx.succeed(error)); }',
+      ])
+        assertFalse(yield* hasRule(`${platform} it.layer(Services.layer)((it) => { ${body} });`, "EV010"));
+      for (const body of [
+        'let helper = () => 1; helper = () => 2; it.effect("write", () => Fx.sync(helper));',
+        'function rewrite() { helper = () => 2; } let helper = () => 1; rewrite(); it.effect("write", () => Fx.sync(helper));',
+        'let counter = 0; counter++; it.effect("write", () => Fx.succeed(counter));',
+        'let counter = 0; ++counter; it.effect("write", () => Fx.succeed(counter));',
+        'let counter = 0; counter += 1; it.effect("write", () => Fx.succeed(counter));',
+        'let helper = () => 1; ({ helper } = replacement); it.effect("write", () => Fx.sync(helper));',
+        'let helper = () => 1; for (helper of helpers) {} it.effect("write", () => Fx.sync(helper));',
+        'let name = "pure"; for (name in names) {} it.effect("write", () => Fx.succeed(name));',
+      ])
+        assertTrue(yield* hasRule(`${platform} it.layer(Services.layer)((it) => { ${body} });`, "EV010"));
     })
   );
 

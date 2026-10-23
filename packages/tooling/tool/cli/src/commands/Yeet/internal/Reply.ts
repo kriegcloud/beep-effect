@@ -989,7 +989,6 @@ const collectReplyThreads = (
       }).pipe(
         Effect.flatMap((output) =>
           decodeReplyReviewThreadsDocument(output).pipe(
-            // fallow-ignore-next-line code-duplication -- reply and closeout configure the shared internal/github thread-page collector with isomorphic decode pipelines over distinct schemas; the loop itself is extracted
             Effect.mapError(YeetCommandError.new("Failed to decode the reply review threads GraphQL JSON."))
           )
         ),

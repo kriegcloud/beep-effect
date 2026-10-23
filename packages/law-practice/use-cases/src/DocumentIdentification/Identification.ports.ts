@@ -36,6 +36,7 @@ export class IdentificationError extends S.TaggedError<IdentificationError, { re
   },
   $I.annote("IdentificationError", { description: "Sanitised failure without provider responses or input text." })
 ) {
+  // fallow-ignore-next-line unused-class-member -- IdentificationError.message: Error.toString / Effect Cause.pretty reads this Error override.
   override get message(): string {
     return `${this.operation}: ${this.reason}`;
   }

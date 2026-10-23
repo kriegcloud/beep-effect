@@ -378,19 +378,16 @@ const renderSchemasFile = (): string =>
  */
 export const hashSourceText: (value: string) => Effect.Effect<AiSyncContentHash, AiSyncError> = Effect.fn(
   "AiSync.hashSourceText"
-)(
-  // fallow-ignore-next-line code-duplication -- Cross-package SHA-256 hashing maps into AiSyncContentHash and AiSyncError.
-  function* (value) {
-    return yield* Effect.tryPromise({
-      try: () => globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
-      catch: (cause) =>
-        AiSyncError.make({
-          message: "Failed to compute source content hash.",
-          cause: O.some(cause),
-        }),
-    }).pipe(Effect.map((buffer) => AiSyncContentHash.make(Hex.encode(new Uint8Array(buffer)))));
-  }
-);
+)(function* (value) {
+  return yield* Effect.tryPromise({
+    try: () => globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
+    catch: (cause) =>
+      AiSyncError.make({
+        message: "Failed to compute source content hash.",
+        cause: O.some(cause),
+      }),
+  }).pipe(Effect.map((buffer) => AiSyncContentHash.make(Hex.encode(new Uint8Array(buffer)))));
+});
 
 /**
  * Fetch an upstream source body.

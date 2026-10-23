@@ -1189,6 +1189,34 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
     );
   });
 
+  it.effect("caches the direct-run fallback when native prepare rejects multiple statements", () =>
+    Effect.gen(function* () {
+      let prepares = 0;
+      const runs: Array<ReadonlyArray<unknown>> = [];
+      const fakeConnection = {
+        interrupt: () => undefined,
+        prepare: () => {
+          prepares += 1;
+          return Promise.reject(new Error("Invalid Input Error: Cannot prepare multiple statements at once"));
+        },
+        run: (text: string, binds?: ReadonlyArray<unknown>) => {
+          if (text === "select ? as value; select 2") {
+            runs.push(binds ?? []);
+            return Promise.resolve(fakeQueryResult([{ value: binds?.[0] }]));
+          }
+          return Promise.resolve(setupResult);
+        },
+      };
+      const client = yield* DuckDbClient.fromConnection({
+        connection: fakeConnection as unknown as DuckDBConnection,
+      });
+      expect(yield* client.unsafe("select ? as value; select 2", [1])).toEqual([{ value: 1 }]);
+      expect(yield* client.unsafe("select ? as value; select 2", [3])).toEqual([{ value: 3 }]);
+      expect(prepares).toBe(1);
+      expect(runs).toEqual([[1], [3]]);
+    }).pipe(Effect.provideServiceEffect(Reactivity.Reactivity, Reactivity.make))
+  );
+
   // A private TestClock per test: advancing a clock shared through it.layer
   // would move every other test of that block (effect-vitest EV015).
   it.effect("re-prepares a cached bound statement once its prepareCacheTTL expires", () =>

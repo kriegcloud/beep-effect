@@ -170,7 +170,6 @@ export const ensureWindowsBindings = Effect.fn("McpbPackage.ensureWindowsBinding
  *
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- archive gate is deliberately explicit; exercised by package:mcpb on every build
 export const assertArchive = Effect.fn("McpbPackage.assertArchive")(function* (options: {
   readonly archivePath: string;
   readonly appName: string;

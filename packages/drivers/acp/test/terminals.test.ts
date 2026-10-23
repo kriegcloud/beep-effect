@@ -1,16 +1,22 @@
-import { AcpClientTerminalLimits, make } from "@beep/acp/terminals";
+import * as AcpClient from "@beep/acp/client";
+import * as AcpJson from "@beep/acp/json";
+import { AcpClientTerminalLimits, AcpClientTerminals, layer, make, register } from "@beep/acp/terminals";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Queue from "effect/Queue";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeInMemoryStdio } from "./helpers.ts";
 
 const node = process.execPath;
 const script = (source: string) => ({ command: node, args: ["-e", source] });
@@ -24,9 +30,44 @@ const SpawnerLayer = NodeChildProcessSpawner.layer.pipe(
 
 it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => {
   it.effect(
+    "registers every terminal handler on the ACP client",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const client = yield* AcpClient.make(stdio);
+      const terminals = yield* make({ defaultCwd: cwd });
+      yield* register.pipe(
+        Effect.provideService(AcpClient.AcpClient, client),
+        Effect.provideService(AcpClientTerminals, terminals)
+      );
+      const encode = S.encodeEffect(AcpJson.fromJsonText(S.Unknown));
+      const decode = S.decodeEffect(
+        AcpJson.fromJsonText(
+          S.Struct({
+            id: S.Finite,
+            error: S.Struct({ code: S.Finite, message: S.String }),
+          })
+        )
+      );
+      for (const [id, method] of A.make("create", "output", "wait_for_exit", "kill", "release").entries()) {
+        const params =
+          method === "create"
+            ? { sessionId: "session", command: "/nonexistent/acp-terminal-command" }
+            : { sessionId: "session", terminalId: "missing" };
+        const message = yield* encode({ jsonrpc: "2.0", id, method: `terminal/${method}`, params });
+        yield* Queue.offer(input, new TextEncoder().encode(`${message}\n`));
+        const response = yield* Queue.take(output).pipe(Effect.flatMap(decode));
+        assert.strictEqual(response.id, id);
+        assert.strictEqual(response.error.code, -32603);
+        assert.include(response.error.message, method === "create" ? "Could not start" : "unknown terminal ID");
+      }
+    })
+  );
+
+  it.effect(
     "runs a command, buffers output, and reports the exit status",
     Effect.fnUntraced(function* () {
-      const terminals = yield* make({ defaultCwd: cwd });
+      const context = yield* Layer.build(layer({ defaultCwd: cwd }));
+      const terminals = Context.get(context, AcpClientTerminals);
       const { terminalId } = yield* terminals.create({
         sessionId: "session",
         ...script("console.log('hello from acp'); process.exit(3);"),
@@ -112,6 +153,17 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
       const multiByteOutput = yield* terminals.output({ sessionId: "session", ...multiByte });
       assert.isTrue(multiByteOutput.truncated);
       assert.strictEqual(multiByteOutput.output, Str.repeat(5)("€"));
+
+      // A one-byte limit retains only the final continuation byte of the euro sign.
+      const continuationOnly = yield* terminals.create({
+        sessionId: "session",
+        outputByteLimit: 1,
+        ...script("process.stdout.write('\\u20ac');"),
+      });
+      yield* terminals.waitForExit({ sessionId: "session", ...continuationOnly });
+      const continuationOutput = yield* terminals.output({ sessionId: "session", ...continuationOnly });
+      assert.isTrue(continuationOutput.truncated);
+      assert.strictEqual(continuationOutput.output, "");
     })
   );
 

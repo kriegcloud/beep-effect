@@ -8,15 +8,13 @@
 
 import * as NodeModule from "node:module";
 import { $OcctId } from "@beep/identity/packages";
-import { A } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as replicad from "replicad";
 import opencascade from "replicad-opencascadejs";
 import { buildCompound, buildParts, compoundParts, countOverlaps, project, summarize } from "./internal/kernel.ts";
@@ -57,14 +55,7 @@ export interface OcctShape {
   readonly summarize: (solid: ModelSpec) => Effect.Effect<ModelSummary, OcctError>;
 }
 
-// shared digest idiom with @beep/technical-drawing; no in-family home, future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- shared digest idiom; no in-family home, future foundation capability candidate
-const hexOf = (bytes: ArrayBuffer): string =>
-  pipe(
-    A.fromIterable(new Uint8Array(bytes)),
-    A.map((b) => Str.padStart(2, "0")(b.toString(16))),
-    A.join("")
-  );
+const hexOf = (bytes: ArrayBuffer): string => Hex.encode(new Uint8Array(bytes));
 
 const sha256 = (bytes: Uint8Array): Effect.Effect<string> =>
   Effect.promise(() => crypto.subtle.digest("SHA-256", bytes as BufferSource)).pipe(Effect.map(hexOf));

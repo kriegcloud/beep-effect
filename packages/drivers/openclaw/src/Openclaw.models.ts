@@ -1522,7 +1522,7 @@ export class OpenclawSchemaPlaceholderFinding extends S.Opaque<
  *
  * const set = OpenclawCompatibilitySet.make({
  *   adapterVersion: 1,
- *   nodeVersion: "24.16.0",
+ *   nodeVersion: "24.22.1",
  *   npmIntegrity: "sha512-ycF3yPcbjN6bUPeaUx6Mh6vze1hQWoD3CT/wWcmD7a8xaHHHRUaAlaq+lFxMHf1ssEgODVAwjlzYqp2twkYZ7g==",
  *   npmShasum: "4583b987ea7277230ce1c7b2b8535d3e219f57ac",
  *   openclawCommit: "0790d9f",

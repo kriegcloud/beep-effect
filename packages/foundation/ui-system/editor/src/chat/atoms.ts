@@ -765,7 +765,7 @@ export const sendKeyBindingAtom = Atom.family((editor: LexicalEditor) =>
         // visible-menu/IME ownership, newline policy, then send dispatch.
         // Keeping that ordering together makes Lexical command consumption
         // auditable and avoids splitting event ownership across callbacks.
-        // fallow-ignore-next-line complexity -- Enter orders visible-menu/IME, code-block, newline, and send ownership
+        // fallow-ignore-next-line complexity -- the Enter handler orders visible-menu and IME, code-block, newline and send ownership (cognitive 11). Owner: @beep/editor. Exit: split when the composer keymap moves to a Lexical command priority table.
         (event) => {
           if (event === null) return false;
           // Confirm menu ownership against the DOM: plugin-reported open flags

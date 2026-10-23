@@ -8,11 +8,20 @@ Since 2026-10-05 (push-first-publish D1–D2) `yeet publish` gates the push on
 the cheap-gates tier and the head-install preflight only; hosted CI is the
 authoritative proof, and `bun run beep yeet verify` (full tier) is an
 on-demand tool for iterating on a red hosted lane locally, never an automatic
-publish step. The full tier's first step still runs the cheap-gates tier. This tier runs 12 deterministic gates in
-one collected wave, including config sync, tsgo rule parity, Effect imports,
+publish step. The full tier's first step still runs the cheap-gates tier. This tier runs 23 deterministic gates in
+collected waves, including config sync, tsgo rule parity, Effect imports,
 schema-first, goals checks, Fallow, publish-enabled changeset status, and the JSDoc
-ratchet against the committed inventory. It reports every failure before any
-build, lint, check, test, or docgen lane starts. `yeet repair` applies its
+ratchets against both the committed inventory and a fresh scan of current source.
+It also runs `beep lint schema-catalog` and root `lint:oxlint`, matching the
+hosted catalog and inline-schema-compilation policy checks. The fresh scan runs
+`beep quality jsdoc-ratchet --regenerate`: JSONC and Markdown go only under
+`.beep/ci/`, and generation must succeed before the ratchet compares totals.
+The tracked standards inventory and regression baseline are never rewritten.
+The schema catalog runs alone in the `heavy` scheduling wave within this
+cheap tier, after parallel preflight: a full scan needs roughly 12.6 GiB RSS
+and 24 seconds. It has no package-scoped check; use a 16 GiB runner envelope.
+The collector reports every failure before the full build, package checks,
+tests, or docgen lanes start. `yeet repair` applies its
 deterministic fixers, runs the same collected tier, and stops before heavy
 feedback if a cheap gate still fails. The fixers end by regenerating the
 git-ignored local projections (`goals/INDEX.md`, `explorations/ATLAS.md`, and

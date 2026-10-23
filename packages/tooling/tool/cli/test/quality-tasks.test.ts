@@ -1163,10 +1163,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       ]);
     });
 
-    it("plans every deterministic cheap gate in one preflight wave", () => {
+    it("plans parallel cheap preflight followed by an isolated schema catalog wave", () => {
       const lanes = githubCheckCheapGateLanes("/repo");
 
       expect(A.map(lanes, (lane) => lane.id)).toEqual([
+        "version-sync:check-runtime",
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
@@ -1182,13 +1183,27 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:effect-vitest",
         "lint:allowlist",
         "goals:doctor",
+        "lint:schema-catalog",
+        "lint:oxlint",
+        "quality:jsdoc-ratchet:regenerated",
         "quality:jsdoc-ratchet:committed",
         "fallow:audit",
         "fallow:dead-code",
         "fallow:health",
       ]);
-      expect(A.every(lanes, (lane) => lane.wave === "preflight")).toBe(true);
-      expect(A.map(githubCheckLanePlan.githubCheckLaneWaves(lanes), (wave) => wave.wave)).toEqual(["preflight"]);
+      expect(qualityLaneArgs(lanes, "version-sync:check-runtime")).toEqual([
+        "run",
+        "beep",
+        "version-sync",
+        "--check-runtime",
+      ]);
+      expect(A.every(lanes, (lane) => lane.wave === (lane.id === "lint:schema-catalog" ? "heavy" : "preflight"))).toBe(
+        true
+      );
+      expect(A.map(githubCheckLanePlan.githubCheckLaneWaves(lanes), (wave) => wave.wave)).toEqual([
+        "preflight",
+        "heavy",
+      ]);
       expect(qualityLaneArgs(lanes, "repo-sanity:tsconfig-sync")).toEqual(
         expectedTurboArgs("config-sync:check", ["--summarize"])
       );
@@ -1209,6 +1224,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(qualityLaneArgs(lanes, "lint:effect-vitest")).toEqual(["run", "beep", "lint", "effect-vitest"]);
       expect(qualityLaneArgs(lanes, "quality:catalog-usage")).toEqual(["run", "beep", "quality", "catalog-usage"]);
+      expect(qualityLaneArgs(lanes, "lint:schema-catalog")).toEqual(["run", "beep", "lint", "schema-catalog"]);
+      expect(qualityLaneArgs(lanes, "lint:oxlint")).toEqual(["run", "lint:oxlint"]);
+      expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:regenerated")).toEqual([
+        "run",
+        "beep",
+        "quality",
+        "jsdoc-ratchet",
+        "--regenerate",
+      ]);
       expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:committed")).toEqual([
         "run",
         "beep",

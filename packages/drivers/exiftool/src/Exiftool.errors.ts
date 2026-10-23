@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 const $I = $ExiftoolId.create("Exiftool.errors");
 const ExiftoolDefect = S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent));
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+// fallow-ignore-next-line code-duplication -- driver-boundary idiom repeated across sibling drivers that must not depend on each other; no foundation capability owns it yet. Owner: @beep/exiftool. Exit: import it and delete this copy once a foundation capability package exports the idiom.
 const isExiftoolDefect = S.is(ExiftoolDefect);
 
 /**
@@ -79,7 +79,7 @@ const causeFromUnknown = (cause: unknown): O.Option<typeof ExiftoolDefect.Type> 
 
 const optionsFromInput = (options: ExiftoolErrorContextInput): ExiftoolErrorFromUnknownOptions =>
   // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-  // fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+  // fallow-ignore-next-line code-duplication -- driver-boundary idiom repeated across sibling drivers that must not depend on each other; no foundation capability owns it yet. Owner: @beep/exiftool. Exit: import it and delete this copy once a foundation capability package exports the idiom.
   ExiftoolErrorFromUnknownOptions.make({
     cause: causeFromUnknown(options.cause),
     command: O.fromUndefinedOr(options.command),

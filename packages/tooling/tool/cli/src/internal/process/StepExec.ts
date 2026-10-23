@@ -632,7 +632,7 @@ const admissionWorkloadFields = (
 const sameAdmissionBinding = (left: AdmissionWorkloadBinding, right: AdmissionWorkloadBinding): boolean =>
   Str.Equivalence(left.workloadPath, right.workloadPath) && Str.Equivalence(left.leaseId, right.leaseId);
 
-// fallow-ignore-next-line complexity -- fail-closed admission binding keeps explicit and inherited identities in one check
+// fallow-ignore-next-line complexity -- CRAP finding comes from fallow's static coverage estimate; the fail-closed admission binding keeps explicit and inherited identities in one check with cognitive 7. Owner: @beep/repo-cli. Exit: remove once fallow health reads the measured coverage for this file (#1855 detector frontier) or the branches collapse.
 const resolveAdmissionWorkload = Effect.fn("StepExec.resolveAdmissionWorkload")(function* (
   options: SpawnFields
 ): Effect.fn.Return<O.Option<ResolvedAdmissionWorkload>, AdmissionWorkloadRegistrationError> {

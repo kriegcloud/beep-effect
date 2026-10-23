@@ -27,6 +27,7 @@ import {
   acquireLegacyFullProofLockForTesting,
   acquireLegacyFullProofLockOrObserveAtPathForTesting,
   appendYeetAttemptJournalEvent,
+  assertMergeOnlyPublish,
   assessBaseFreshnessForTesting,
   attemptEnvProfileForTesting,
   attemptJournalPath,
@@ -868,8 +869,14 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
       expect(findStep(plan.steps, "full:cheap-gates").waves).toEqual([
         expect.objectContaining({
           id: "preflight",
-          laneIds: expect.arrayContaining(["repo-sanity:tsconfig-sync", "lint:effect-imports"]),
+          laneIds: expect.arrayContaining([
+            "repo-sanity:tsconfig-sync",
+            "lint:effect-imports",
+            "lint:oxlint",
+            "quality:jsdoc-ratchet:regenerated",
+          ]),
         }),
+        expect.objectContaining({ id: "heavy", laneIds: ["lint:schema-catalog"] }),
       ]);
     });
 
@@ -1150,6 +1157,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
         mode: "publish",
         monitor: true,
         pushOnly: true,
+        reuseVerified: true,
       });
 
       expect(
@@ -1173,6 +1181,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
         mode: "publish",
         pr: true,
         pushOnly: true,
+        reuseVerified: true,
       });
       expect(A.map(pushOnlyPr.steps, (step) => step.label)).toEqual([
         "publish:head-install-preflight",
@@ -1237,6 +1246,44 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
 
         expect(error.message).toContain("yeet publish requires --message with a conventional commit message");
       })
+    );
+
+    it.effect("accepts a published-tip base merge and refuses non-merge or amended merge content", () =>
+      Effect.gen(function* () {
+        const { tmpDir, filePath, tempContext } = yield* trackedFileRepository;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const originDir = path.join(tmpDir, "remote.git");
+        yield* runGit(tmpDir, ["init", "--bare", originDir]);
+        yield* runGit(tmpDir, ["remote", "add", "origin", originDir]);
+        yield* runGit(tmpDir, ["branch", "-M", "main"]);
+        yield* fs.writeFileString(path.join(tmpDir, ".gitattributes"), "tracked.txt merge=fixture-registry\n");
+        yield* runGit(tmpDir, ["config", "merge.fixture-registry.driver", "printf 'regenerated\\n' > %A"]);
+        yield* runGit(tmpDir, ["add", ".gitattributes"]);
+        yield* runGit(tmpDir, ["commit", "-m", "configure deterministic registry merge"]);
+        yield* runGit(tmpDir, ["switch", "-c", "feature"]);
+        yield* fs.writeFileString(filePath, "published feature\n");
+        yield* runGit(tmpDir, ["add", "tracked.txt"]);
+        yield* runGit(tmpDir, ["commit", "-m", "published feature"]);
+        yield* runGit(tmpDir, ["push", "origin", "feature"]);
+        const mergeContext = RepoRunContext.make({ ...tempContext, branch: "feature", base: "main" });
+        const nonMerge = yield* assertMergeOnlyPublish(mergeContext).pipe(Effect.flip);
+        expect(nonMerge.message).toContain("requires --reuse-verified");
+        yield* runGit(tmpDir, ["switch", "main"]);
+        yield* fs.writeFileString(path.join(tmpDir, "base.txt"), "new base\n");
+        yield* fs.writeFileString(filePath, "base registry edits\n");
+        yield* runGit(tmpDir, ["add", "base.txt", "tracked.txt"]);
+        yield* runGit(tmpDir, ["commit", "-m", "advance base"]);
+        yield* runGit(tmpDir, ["switch", "feature"]);
+        yield* runGit(tmpDir, ["merge", "main", "--no-edit"]);
+        expect(yield* fs.readFileString(filePath)).toBe("regenerated\n");
+        yield* assertMergeOnlyPublish(mergeContext);
+        yield* fs.writeFileString(filePath, "unpublished payload\n");
+        yield* runGit(tmpDir, ["add", "tracked.txt"]);
+        yield* runGit(tmpDir, ["commit", "--amend", "--no-edit"]);
+        const amended = yield* assertMergeOnlyPublish(mergeContext).pipe(Effect.flip);
+        expect(amended.message).toContain("requires --reuse-verified");
+      }).pipe(TestClock.withLive)
     );
 
     it.effect("rejects push-only reuse when staged changes are present", () =>

@@ -30,7 +30,6 @@ import type { SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/CourtsDb");
 const targetId = "courts-db" as const;
 const outputRoot = "packages/law-practice/domain/src/internal/generated/free-law-project" as const;
-const outputPath = `${outputRoot}/courts.ts` as const;
 const canonicalPath = `${outputRoot}/courts-db.data.json` as const;
 const vocabularyOutputPath = `${outputRoot}/courts-vocabulary.ts` as const;
 const vocabularyDataPath = `${outputRoot}/courts-vocabulary.data.json` as const;
@@ -514,7 +513,6 @@ const acquireCourtsDbProjection = Effect.fn("SyncDataToTs.CourtsDb.acquire")(fun
 
   return SyncDataTargetProjection.make({
     files: [
-      outputFile(outputPath, renderUnknownJsonModule({ exportName: "CourtsData", refreshCommand, value: courts })),
       outputFile(
         vocabularyOutputPath,
         renderUnknownJsonModule({

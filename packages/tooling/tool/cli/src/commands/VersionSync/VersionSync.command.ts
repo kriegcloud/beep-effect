@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { findRepoRoot } from "@beep/repo-utils";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
@@ -11,6 +12,7 @@ import * as Effect from "effect/Effect";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { resolveRunMode } from "../../internal/cli/RunMode.ts";
 import { handleVersionSync } from "./internal/Handler.ts";
+import { checkBunRuntimeVersion } from "./VersionSync.runtime.ts";
 import { VersionSyncOptions } from "./VersionSync.schemas.ts";
 import type { VersionSyncMode } from "./VersionSync.schemas.ts";
 
@@ -51,6 +53,10 @@ const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode =>
 export const versionSyncCommand = Command.make(
   "version-sync",
   {
+    checkRuntime: Flag.Boolean("check-runtime").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Only verify that bun --version matches the repository .bun-version")
+    ),
     write: Flag.Boolean("write").pipe(
       Flag.withDefault(false),
       Flag.withAlias("w"),
@@ -86,6 +92,7 @@ export const versionSyncCommand = Command.make(
     ),
   },
   Effect.fn(function* ({
+    checkRuntime,
     write,
     dryRun,
     skipNetwork,
@@ -98,18 +105,17 @@ export const versionSyncCommand = Command.make(
   }) {
     const mode = resolveMode(write, dryRun);
 
-    yield* handleVersionSync(
-      VersionSyncOptions.make({
-        mode,
-        skipNetwork,
-        bunOnly,
-        nodeOnly,
-        dockerOnly,
-        biomeOnly,
-        effectOnly,
-        turboOnly,
-      })
-    ).pipe(
+    const program = Effect.gen(function* () {
+      if (checkRuntime) {
+        const version = yield* checkBunRuntimeVersion(yield* findRepoRoot());
+        yield* Console.log(`bun-version: .bun-version=${version}; bun --version=${version}`);
+        return;
+      }
+      yield* handleVersionSync(
+        VersionSyncOptions.make({ mode, skipNetwork, bunOnly, nodeOnly, dockerOnly, biomeOnly, effectOnly, turboOnly })
+      );
+    });
+    yield* program.pipe(
       Effect.catchTags({
         VersionSyncDriftError: Effect.fn(function* (error) {
           yield* Console.error(`version-sync: ${error.message}`);

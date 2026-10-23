@@ -374,7 +374,7 @@ const expandWorkspacePattern: {
     repoRoot: string,
     path: Path.Path
   ): Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> =>
-    // fallow-ignore-next-line complexity -- pre-existing workspace-glob walker; the segment/candidate double loop mirrors the glob grammar and predates this change
+    // fallow-ignore-next-line complexity -- the segment and candidate double loop mirrors the workspace-glob grammar (cognitive 28). Owner: @beep/repo-cli. Exit: replace with effect/FileSystem glob support or the repo-utils workspace glob helper.
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
@@ -570,7 +570,7 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
   // Path-safe recursive directory walk: every branch (canonical re-resolution,
   // symlink-cycle guard, excluded dirs, extension/suffix filtering) is a
   // security-relevant gate; flattening the traversal would risk dropping a check.
-  // fallow-ignore-next-line complexity -- path-safe walk keeps canonicalization, cycle, exclusion, and suffix gates together
+  // fallow-ignore-next-line complexity -- path-safe walk keeps canonicalization, cycle, exclusion and suffix gates together (cognitive 20). Owner: @beep/repo-cli. Exit: split when a shared path-safe walker exists in repo-utils.
   const visit = Effect.fn("QualityArtifactSupport.listSourceFiles.visit")(function* (
     current: string
   ): Effect.fn.Return<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> {

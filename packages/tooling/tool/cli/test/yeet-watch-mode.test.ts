@@ -219,7 +219,7 @@ const scriptedSpawnerLayer = (
             return Effect.die("the watch never spawns a piped command");
           }
           const line = A.join([command.command, ...command.args], " ");
-          // fallow-ignore-next-line complexity -- Scripted command router preserves independent per-family poll cursors.
+          // fallow-ignore-next-line complexity -- scripted command router keeps independent per-family poll cursors in one fixture. Owner: @beep/repo-cli. Exit: split per command family when the router gains another family.
           return Effect.gen(function* () {
             if (Str.includes("rules/branches/")(line)) return stubHandle(1, "rules unavailable");
             // The once-per-head merge-base diff owns no poll index: it answers by argv prefix.

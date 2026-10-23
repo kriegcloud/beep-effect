@@ -43,6 +43,4 @@ export class ChatActionError extends S.TaggedError<ChatActionError, { readonly b
   static readonly new = (message: string) => ChatActionError.make({ message });
 
   static readonly failEffect = flow(this.new, Effect.fail);
-
-  static readonly failEffectThunk = flow(this.failEffect, (effect) => () => effect);
 }

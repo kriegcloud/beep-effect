@@ -45,8 +45,9 @@ interface PropertyRunState {
 }
 
 interface TestExecutionState {
-  // Registration tokens use reference identity; rc.112 Effect maps compare plain objects structurally.
-  readonly propertyRuns: Map<object, PropertyRunState>;
+  // Registration tokens use reference identity (Effect maps compare plain objects structurally)
+  // and finish in registration order, so runs live in an insertion-ordered identity list.
+  readonly propertyRuns: Array<readonly [registration: object, propertyRun: PropertyRunState]>;
 }
 
 const makePropertyRunState = (): PropertyRunState => ({
@@ -270,19 +271,19 @@ const propertyRunFor = (registration: object, context: TestContext): PropertyRun
   if (execution === undefined) {
     return undefined;
   }
-  const existing = execution.propertyRuns.get(registration);
-  if (existing !== undefined) {
-    return existing;
+  const existing = Arr.findFirst(execution.propertyRuns, ([token]) => token === registration);
+  if (O.isSome(existing)) {
+    return existing.value[1];
   }
   const propertyRun = makePropertyRunState();
-  execution.propertyRuns.set(registration, propertyRun);
+  execution.propertyRuns.push([registration, propertyRun]);
   return propertyRun;
 };
 
 const finishPropertyRuns = (execution: TestExecutionState): Promise<void> =>
   Effect.forEach(
-    execution.propertyRuns.values(),
-    (propertyRun) =>
+    execution.propertyRuns,
+    ([, propertyRun]) =>
       O.match(propertyRun.finish, {
         onNone: () => Effect.void,
         onSome: (finish) => Effect.promise(finish),
@@ -305,7 +306,7 @@ const ensureExecutionContext = (): void => {
     if (testExecutions.has(context)) {
       return runTest();
     }
-    const execution: TestExecutionState = { propertyRuns: new Map() };
+    const execution: TestExecutionState = { propertyRuns: [] };
     testExecutions.set(context, execution);
     return runTest()
       .finally(() => finishPropertyRuns(execution))

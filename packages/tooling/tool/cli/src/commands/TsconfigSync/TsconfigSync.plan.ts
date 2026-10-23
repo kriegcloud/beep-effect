@@ -141,7 +141,7 @@ const readFileString = Effect.fn(function* (filePath: string) {
  * @category utilities
  * @since 0.0.0
  */
-// fallow-ignore-next-line code-duplication -- config-updater helper twins converged after the tstyche removal + JSDoc grammar migration; consolidation onto @beep/repo-utils is a recorded quality-speedup follow-up
+// fallow-ignore-next-line code-duplication -- config-updater helper twin of the CreatePackage/TsconfigSync copy, converged after the tstyche removal and the JSDoc grammar migration. Owner: @beep/repo-cli. Exit: consolidate both onto `@beep/repo-utils` (workspaceGlobsFrom/readPackageJsonFile) and delete the twins.
 const writeFileString = Effect.fn(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
   yield* fs
@@ -193,7 +193,7 @@ const relativeFromRoot = (rootDir: string, filePath: string, path: Path.Path): s
 const normalizeRelativeRef = (sourceDir: string, targetPath: string, path: Path.Path): string =>
   toPosixPath(path.relative(sourceDir, targetPath));
 
-// fallow-ignore-next-line code-duplication -- converged with CreatePackage's twin after the tstyche removal; consolidation onto @beep/repo-utils workspaceGlobsFrom/readPackageJsonFile is a recorded quality-speedup follow-up
+// fallow-ignore-next-line code-duplication -- config-updater helper twin of the CreatePackage/TsconfigSync copy, converged after the tstyche removal and the JSDoc grammar migration. Owner: @beep/repo-cli. Exit: consolidate both onto `@beep/repo-utils` (workspaceGlobsFrom/readPackageJsonFile) and delete the twins.
 const workspacePatternsFromPackageJson = (
   workspaces: O.Option<ReadonlyArray<string> | { readonly packages?: ReadonlyArray<string> }>
 ): ReadonlyArray<string> => {

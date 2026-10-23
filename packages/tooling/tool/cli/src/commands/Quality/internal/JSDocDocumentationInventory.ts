@@ -400,7 +400,7 @@ const missingRequiredExportTags = (
  * @category use-cases
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- this flat pass preserves the documented section-order state machine in one auditable rule boundary
+// fallow-ignore-next-line complexity -- flat pass keeps the documented section-order state machine in one rule boundary (cognitive 52). Owner: @beep/repo-cli. Exit: split into per-section rules when the JSDoc inventory moves to a Biome GritQL rule.
 export const documentationShapeViolations = (commentText: string): ReadonlyArray<DocumentationIssue> => {
   const findings: Array<DocumentationIssue> = [];
   const { bodyLines, sections } = parseJSDocSections(ParseJSDocSectionsOptions.make({ commentText }));

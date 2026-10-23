@@ -104,7 +104,7 @@ bun run beep yeet repair
 bun run beep yeet verify
 ```
 
-- Run the collected cheap gates without starting build, lint, check, tests, or
+- Run the collected cheap gates without starting heavy build, lint, check, tests, or
   docgen:
 
 ```bash
@@ -187,6 +187,19 @@ bun run beep yeet closeout --reply-thread <thread-id> --reply-body "Fixed in <sh
 ```bash
 bun run beep yeet publish --amend --no-edit --reuse-verified
 ```
+
+- Push a clean base-sync merge onto an already-published branch without a full
+  local proof. The first parent must equal the freshly fetched published tip,
+  the second must be on the configured base, and the tree must reproduce Git's
+  merge result. Cheap gates and the head-install preflight gate the push and a
+  normal publish verdict is recorded:
+
+```bash
+bun run beep yeet publish --push-only
+```
+
+  Unreproducible conflict resolutions or additional edits require the verified
+  reuse path below.
 
 - Push an already-verified clean commit without committing or rerunning local
   proof:

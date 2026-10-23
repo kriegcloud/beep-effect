@@ -181,7 +181,7 @@ const isObject = (value: unknown): value is object => P.isObjectKeyword(value) &
 const hasFunctionProperty = (value: unknown, key: string): boolean =>
   isObject(value) && typeof Reflect.get(value, key) === "function";
 
-// fallow-ignore-next-line complexity -- structural feature detection intentionally probes the Bun shim's required API surface
+// fallow-ignore-next-line complexity -- CRAP finding comes from fallow's static coverage estimate; the probe is a flat 13-way conjunction of function-property checks over the Bun shim API with cognitive 1. Owner: repo root (vitest.setup.ts). Exit: remove once fallow health reads the measured coverage for this file (#1855 detector frontier) or the branches collapse.
 const isBunTestShim = (value: unknown): value is BunTestShim =>
   isObject(value) &&
   hasFunctionProperty(value, "CryptoHasher") &&
@@ -216,7 +216,6 @@ const normalizeSpawnInput = (
   return { args, command, options: options ?? {} };
 };
 
-// fallow-ignore-next-line complexity -- Node adapter preserves Bun command, stdio, signal, and exit semantics
 const spawnSync = (commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>, options?: BunSpawnSyncOptions) => {
   const normalized = normalizeSpawnInput(commandOrOptions, options);
   const stdin = normalized.options.stdin;
@@ -270,7 +269,6 @@ const file = (path: string | URL): BunFileShim => ({
   text: () => NodeFSP.readFile(path, "utf8"),
 });
 
-// fallow-ignore-next-line complexity -- Bun.write compatibility accepts strings, buffers, typed views, and blobs
 const writeInput = async (input: unknown): Promise<string | Uint8Array> => {
   if (typeof input === "string") {
     return input;
@@ -308,22 +306,42 @@ const responseHeaders = (response: Response): Record<string, string> => {
   return headers;
 };
 
-// fallow-ignore-next-line complexity -- Node-to-Fetch bridge preserves repeated and optional request headers
+const appendRequestHeader = (headers: Headers, key: string, value: string | readonly string[] | undefined): void => {
+  if (P.isUndefined(value)) {
+    return;
+  }
+  if (P.isString(value)) {
+    headers.set(key, value);
+    return;
+  }
+  for (const item of value) {
+    headers.append(key, item);
+  }
+};
+
 const requestHeaders = (messageHeaders: NodeJS.Dict<string | readonly string[]>): Headers => {
   const headers = new Headers();
   for (const [key, value] of R.toEntries(messageHeaders)) {
-    if (P.isUndefined(value)) {
-      continue;
-    }
-    if (P.isString(value)) {
-      headers.set(key, value);
-    } else {
-      for (const item of value) {
-        headers.append(key, item);
-      }
-    }
+    appendRequestHeader(headers, key, value);
   }
   return headers;
+};
+
+const errorMessage = (cause: unknown): string => (cause instanceof Error ? cause.message : String(cause));
+
+const toFetchRequest = (
+  request: NodeHttp.IncomingMessage,
+  chunks: ReadonlyArray<Buffer>,
+  fallbackHost: string
+): Request => {
+  const url = `http://${request.headers.host ?? fallbackHost}${request.url ?? "/"}`;
+  const method = request.method ?? "GET";
+  const body = method === "GET" || method === "HEAD" ? undefined : Buffer.concat(chunks);
+  return new Request(url, {
+    ...(P.isUndefined(body) ? {} : { body }),
+    headers: requestHeaders(request.headers),
+    method,
+  });
 };
 
 const writeResponse = async (nodeResponse: NodeHttp.ServerResponse, response: Response): Promise<void> => {
@@ -343,21 +361,13 @@ const serve = (options: BunServeOptions): ReturnType<BunTestShim["serve"]> => {
     const chunks: Array<Buffer> = [];
     request.on("data", (chunk: Buffer) => chunks.push(chunk));
     request.on("end", () => {
-      // fallow-ignore-next-line complexity -- Node-to-Bun fetch bridge owns request body, response, and error lifecycle
       void (async () => {
         try {
-          const url = `http://${request.headers.host ?? `${hostname}:${port}`}${request.url ?? "/"}`;
-          const method = request.method ?? "GET";
-          const body = method === "GET" || method === "HEAD" ? undefined : Buffer.concat(chunks);
-          const fetchRequest = new Request(url, {
-            ...(P.isUndefined(body) ? {} : { body }),
-            headers: requestHeaders(request.headers),
-            method,
-          });
+          const fetchRequest = toFetchRequest(request, chunks, `${hostname}:${port}`);
           await writeResponse(response, await handler(fetchRequest, handle));
         } catch (error) {
           response.statusCode = 500;
-          response.end(error instanceof Error ? error.message : String(error));
+          response.end(errorMessage(error));
         }
       })();
     });
@@ -402,12 +412,11 @@ const parseToml = (content: string): unknown => {
   try {
     return normalizeTomlValue(Toml.parse(content));
   } catch (cause) {
-    const message = cause instanceof Error ? cause.message : String(cause);
+    const message = errorMessage(cause);
     throw new Error(Str.includes('"=" found')(message) ? `Unexpected = (${message})` : message);
   }
 };
 
-// fallow-ignore-next-line complexity -- Bun JSONL compatibility tracks consumed bytes and partial parse failures
 const parseJsonlChunk: BunTestShim["JSONL"]["parseChunk"] = (content) => {
   const values: Array<unknown> = [];
   let read = 0;
@@ -422,11 +431,10 @@ const parseJsonlChunk: BunTestShim["JSONL"]["parseChunk"] = (content) => {
       values.push(JSON.parse(line) as unknown);
       read += lineWithTerminatorLength;
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : String(cause);
       return {
         done: true,
         error: {
-          message: `Failed to parse JSONL (${message})`,
+          message: `Failed to parse JSONL (${errorMessage(cause)})`,
         },
         read,
         values,
@@ -491,7 +499,6 @@ class GlobShim {
     return this.matcher(normalizeFilePath(relativePath));
   }
 
-  // fallow-ignore-next-line complexity -- Bun.Glob compatibility owns scan options and recursive traversal
   scanSync(options?: BunGlobScanOptions): Iterable<string> {
     const cwd = options?.cwd ?? process.cwd();
     const entries: Array<string> = [];
@@ -503,7 +510,7 @@ class GlobShim {
     const outputPath = (relativePath: string, absolutePath: string): string =>
       options?.absolute === true ? normalizeFilePath(absolutePath) : relativePath;
 
-    // fallow-ignore-next-line complexity -- recursive walker preserves Bun's dotfile, symlink, directory, and file semantics
+    // fallow-ignore-next-line complexity -- recursive walker keeps Bun.Glob's dotfile, symlink, directory and file semantics in one traversal (cognitive 26). Owner: repo root (vitest.setup.ts). Exit: delete with the Bun shim when Vitest runs these suites on Bun natively.
     const visit = (absoluteDirectory: string, relativeDirectory: string): void => {
       const dirents = (() => {
         try {
