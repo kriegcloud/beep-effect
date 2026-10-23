@@ -1,5 +1,5 @@
 {
-  "previous": "3074db4cc7bb25079f639c6549a3396792e946258d6787ee9e6f51e588c06112",
+  "previous": "5dd9f765eda203bb1ccb59b03ba2cd293b7c90f54d366a187b99bb3b126e2c71",
   "review": {
     "reviewer": "Claude Opus 5.5 (package-scripts tsc-rs engine gate, fix/package-scripts-tsc-rs-engine-gate)",
     "reason": "Re-record the legacy cache posture of @beep/t3-code, whose beep:build, beep:check and beep:check:tests commands moved from tsc/tsgo to tsc-rs. Only manifest bytes changed; task names, inputs, outputs, cache flags and turbo.json are unchanged; no qualification is granted.",
