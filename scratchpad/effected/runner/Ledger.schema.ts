@@ -202,7 +202,7 @@ export type Stage = typeof Stage.Type;
  * @since 0.0.0
  */
 export const nextStage = (stage: Stage): O.Option<Stage> =>
-  Stage.$match(stage, {
+  Stage.match(stage, {
     number0: () => O.some<Stage>(1),
     number1: () => O.some<Stage>(2),
     number2: () => O.some<Stage>(3),
@@ -312,7 +312,7 @@ export const exportKindCovers: {
 } = dual(
   2,
   (actual: ExportKind, expected: ExportKind): boolean =>
-    ExportKind.$match(actual, {
+    ExportKind.match(actual, {
       both: () => true,
       value: () => ExportKind.is.value(expected),
       type: () => ExportKind.is.type(expected),

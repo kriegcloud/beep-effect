@@ -99,7 +99,7 @@ export type JsoncPath = typeof JsoncPath.Type;
  * ```ts
  * import { JsoncNodeType } from "@beep/jsonc/JsoncNode"
  *
- * const describe = JsoncNodeType.$match({
+ * const describe = JsoncNodeType.match({
  *   object: () => "container",
  *   array: () => "container",
  *   property: () => "pair",
@@ -472,7 +472,7 @@ const evaluateNode: {
   // Over-deep subtree (only reachable on a hand-built tree): stop descending
   // and yield a bounded placeholder rather than overflowing the stack.
   if (depth >= MAX_NESTING_DEPTH) {
-    return JsoncNodeType.$match(node.type, {
+    return JsoncNodeType.match(node.type, {
       object: R.empty,
       array: A.empty<unknown>,
       property: thunkNull,
@@ -484,7 +484,7 @@ const evaluateNode: {
   }
   const children = node.children ?? A.empty<JsoncNode>();
   const thunkNodeValue = () => node.value;
-  return JsoncNodeType.$match(node.type, {
+  return JsoncNodeType.match(node.type, {
     object: () => {
       const obj = R.empty<string, unknown>();
       for (const prop of children) {

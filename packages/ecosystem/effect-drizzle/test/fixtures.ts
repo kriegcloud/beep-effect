@@ -279,13 +279,13 @@ export const dualOrgLinkSchema = schema({
 
 // Negative matrix: each assertion names the rejected invariant.
 
-// @ts-expect-error invariant: text requires a string-encoded schema
+// @ts-expect-error -- invariant: text requires a string-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
 const _badText = Finite.pipe(pg.text());
-// @ts-expect-error invariant: integer requires a number-encoded schema
+// @ts-expect-error -- invariant: integer requires a number-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
 const _badInteger = String.pipe(pg.integer());
-// @ts-expect-error invariant: bigint number-mode requires a number-encoded schema
+// @ts-expect-error -- invariant: bigint number-mode requires a number-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
 const _badBigintNumber = BigInt.pipe(pg.bigint("number"));
-// @ts-expect-error invariant: bytea requires a Uint8Array-encoded schema
+// @ts-expect-error -- invariant: bytea requires a Uint8Array-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
 const _badBytea = String.pipe(pg.bytea());
 
 export const _runtimeStringCarrierMismatch = () => {
@@ -327,36 +327,36 @@ export const _runtimeModeCarrierMismatch = () => {
 export const _runtimeArrayCarrierMismatch = () => {
   class RuntimeArrayCarrierMismatch extends Model<RuntimeArrayCarrierMismatch>("RuntimeArrayCarrierMismatch")({
     value: Array(Finite).pipe(
-      // @ts-expect-error invariant: the array carrier must agree with its element descriptor
+      // @ts-expect-error -- invariant: the array carrier must agree with its element descriptor. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.array(String.pipe(pg.text()))
     ),
   }) {}
   return RuntimeArrayCarrierMismatch;
 };
 export const _badEnumBroadString = () =>
-  // @ts-expect-error invariant: pg.enum rejects broad string schemas
+  // @ts-expect-error -- invariant: pg.enum rejects broad string schemas. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   String.pipe(pg.enum("bad_status"));
 const _badDateString = () =>
-  // @ts-expect-error invariant: string date mode requires a string-encoded schema
+  // @ts-expect-error -- invariant: string date mode requires a string-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   DateSchema.pipe(pg.date());
 const _badJson = () =>
-  // @ts-expect-error invariant: json requires an object- or array-encoded schema
+  // @ts-expect-error -- invariant: json requires an object- or array-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   String.pipe(pg.json());
 export const _badArrayCarrier = () =>
   Array(Finite).pipe(
-    // @ts-expect-error invariant: the outer array carrier must match its element declaration
+    // @ts-expect-error -- invariant: the outer array carrier must match its element declaration. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     pg.array(String.pipe(pg.text()))
   );
 export const _badArrayDepth = () =>
   Array(String).pipe(
-    // @ts-expect-error invariant: declared dimensions must match the encoded array depth
+    // @ts-expect-error -- invariant: declared dimensions must match the encoded array depth. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     pg.array(String.pipe(pg.text()), "[][]")
   );
 export const _badArrayThenPrimaryKey = () => {
   class BadArrayThenPrimaryKey extends Model<BadArrayThenPrimaryKey>("BadArrayThenPrimaryKey")({
     value: Array(String).pipe(
       pg.array(String.pipe(pg.text())),
-      // @ts-expect-error invariant: array fields cannot be primary keys
+      // @ts-expect-error -- invariant: array fields cannot be primary keys. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.primaryKey()
     ),
   }) {}
@@ -366,7 +366,7 @@ export const _badPrimaryKeyThenArray = () => {
   class BadPrimaryKeyThenArray extends Model<BadPrimaryKeyThenArray>("BadPrimaryKeyThenArray")({
     value: Array(String).pipe(
       pg.primaryKey(),
-      // @ts-expect-error invariant: primary-key fields cannot become arrays
+      // @ts-expect-error -- invariant: primary-key fields cannot become arrays. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.array(String.pipe(pg.text()))
     ),
   }) {}
@@ -376,7 +376,7 @@ export const _badArrayThenIdentity = () => {
   class BadArrayThenIdentity extends Model<BadArrayThenIdentity>("BadArrayThenIdentity")({
     value: Array(Int).pipe(
       pg.array(Int.pipe(pg.integer())),
-      // @ts-expect-error invariant: array fields cannot use identity generation
+      // @ts-expect-error -- invariant: array fields cannot use identity generation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.identity()
     ),
   }) {}
@@ -387,7 +387,7 @@ export const _badIdentityThenArray = () => {
     value: Int.pipe(
       pg.integer(),
       pg.identity(),
-      // @ts-expect-error invariant: identity fields cannot become arrays
+      // @ts-expect-error -- invariant: identity fields cannot become arrays. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.array(Int.pipe(pg.integer()))
     ),
   }) {}
@@ -397,7 +397,7 @@ export const _badArrayThenVersion = () => {
   class BadArrayThenVersion extends Model<BadArrayThenVersion>("BadArrayThenVersion")({
     value: Array(Int).pipe(
       pg.array(Int.pipe(pg.integer())),
-      // @ts-expect-error invariant: array fields cannot be optimistic versions
+      // @ts-expect-error -- invariant: array fields cannot be optimistic versions. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.version()
     ),
   }) {}
@@ -408,7 +408,7 @@ export const _badVersionThenArray = () => {
     value: Int.pipe(
       pg.integer(),
       pg.version(),
-      // @ts-expect-error invariant: version fields cannot become arrays
+      // @ts-expect-error -- invariant: version fields cannot become arrays. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.array(Int.pipe(pg.integer()))
     ),
   }) {}
@@ -418,7 +418,7 @@ export const _badVersionColumn = () => {
   class BadVersionColumn extends Model<BadVersionColumn>("BadVersionColumn")({
     value: String.pipe(
       pg.text(),
-      // @ts-expect-error invariant: optimistic versions require integer-family columns
+      // @ts-expect-error -- invariant: optimistic versions require integer-family columns. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.version()
     ),
   }) {}
@@ -429,7 +429,7 @@ export const _badVersionThenIdentity = () => {
     value: Int.pipe(
       pg.integer(),
       pg.version(),
-      // @ts-expect-error invariant: version fields cannot use identity generation
+      // @ts-expect-error -- invariant: version fields cannot use identity generation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.identity()
     ),
   }) {}
@@ -440,7 +440,7 @@ export const _badIdentityThenVersion = () => {
     value: Int.pipe(
       pg.integer(),
       pg.identity(),
-      // @ts-expect-error invariant: identity-generated fields cannot be versions
+      // @ts-expect-error -- invariant: identity-generated fields cannot be versions. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.version()
     ),
   }) {}
@@ -451,7 +451,7 @@ export const _badVersionThenGenerated = () => {
     value: Int.pipe(
       pg.integer(),
       pg.version(),
-      // @ts-expect-error invariant: version fields cannot be generated
+      // @ts-expect-error -- invariant: version fields cannot be generated. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.unsafeGeneratedSql("1")
     ),
   }) {}
@@ -462,7 +462,7 @@ export const _badGeneratedThenVersion = () => {
     value: Int.pipe(
       pg.integer(),
       pg.unsafeGeneratedSql("1"),
-      // @ts-expect-error invariant: generated fields cannot be versions
+      // @ts-expect-error -- invariant: generated fields cannot be versions. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.version()
     ),
   }) {}
@@ -472,14 +472,14 @@ export const _badGeneratedThenVersion = () => {
 export const _badBigintVersion = () =>
   BigInt.pipe(
     pg.bigint("bigint"),
-    // @ts-expect-error invariant: optimistic versions require number-encoded integer columns
+    // @ts-expect-error -- invariant: optimistic versions require number-encoded integer columns. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     pg.version()
   );
 
 export const _badVariantVersion = () =>
   VariantField({ select: Int, update: Int }).pipe(
     pg.integer(),
-    // @ts-expect-error invariant: optimistic versions cannot override explicit variant membership
+    // @ts-expect-error -- invariant: optimistic versions cannot override explicit variant membership. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     pg.version()
   );
 export const _charWithoutMaxLength = () => String.pipe(pg.char());
@@ -489,7 +489,7 @@ export const _charWithWrongExactLength = () => String.check(isBetweenLength(3, 3
 export const _badExtrasCallback = () => {
   class BadExtrasCallback extends Model<BadExtrasCallback>("BadExtrasCallback")(
     { value: String },
-    // @ts-expect-error invariant: extras callbacks must return valid PostgreSQL extra nodes
+    // @ts-expect-error -- invariant: extras callbacks must return valid PostgreSQL extra nodes. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     () => [{ _tag: "index", name: "", columns: [] }]
   ) {}
   return toPgTable(BadExtrasCallback);
@@ -497,7 +497,7 @@ export const _badExtrasCallback = () => {
 
 export const _kitDefaultCollision = () => {
   class KitDefaultCollision extends auditKit.Entity<KitDefaultCollision>("KitDefaultCollision")({
-    // @ts-expect-error invariant: kit default columns cannot be overridden
+    // @ts-expect-error -- invariant: kit default columns cannot be overridden. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     createdAt: String.pipe(pg.timestamp()),
   }) {}
   return KitDefaultCollision;
@@ -505,7 +505,7 @@ export const _kitDefaultCollision = () => {
 
 export const _needsExplicitColumn = () => {
   class NeedsExplicitColumn extends Model<NeedsExplicitColumn>("NeedsExplicitColumn")({
-    // @ts-expect-error invariant: Date declarations require explicit pg.timestamp metadata
+    // @ts-expect-error -- invariant: Date declarations require explicit pg.timestamp metadata. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     at: DateSchema,
   }) {}
   return NeedsExplicitColumn;
@@ -513,7 +513,7 @@ export const _needsExplicitColumn = () => {
 
 export const _declarationNeedsExplicitColumn = () => {
   class DeclarationNeedsExplicitColumn extends Model<DeclarationNeedsExplicitColumn>("DeclarationNeedsExplicitColumn")({
-    // @ts-expect-error invariant: declaration-backed objects do not derive JSON storage
+    // @ts-expect-error -- invariant: declaration-backed objects do not derive JSON storage. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     value: instanceOf(RegExp),
   }) {}
   return DeclarationNeedsExplicitColumn;
@@ -532,7 +532,7 @@ export const _unrepresentedDeclaredNumber = () => {
 export const _representedDeclaredNumberTextCarrierMismatch = () => {
   class RepresentedDeclaredNumberText extends Model<RepresentedDeclaredNumberText>("RepresentedDeclaredNumberText")({
     value: RepresentedDeclaredNumber.pipe(
-      // @ts-expect-error invariant: text requires a string-encoded schema
+      // @ts-expect-error -- invariant: text requires a string-encoded schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.text()
     ),
   }) {}
@@ -553,7 +553,7 @@ class NamedRepositoryModel extends Model<NamedRepositoryModel>("NamedRepositoryM
 export const _repositoryVersionLocator = () => ({
   repository: makeRepository(User, {
     spanPrefix: "UserVersionLocator",
-    // @ts-expect-error invariant: optimistic version fields cannot locate repository rows
+    // @ts-expect-error -- invariant: optimistic version fields cannot locate repository rows. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     idColumn: "rowVersion",
   }),
 });
@@ -561,7 +561,7 @@ export const _repositoryVersionLocator = () => ({
 export const _repositoryNonUniqueLocator = () => ({
   repository: makeRepository(User, {
     spanPrefix: "UserNonUniqueLocator",
-    // @ts-expect-error invariant: repository locators must be primary-key or unique fields
+    // @ts-expect-error -- invariant: repository locators must be primary-key or unique fields. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     idColumn: "name",
   }),
 });
@@ -585,14 +585,14 @@ export const _repositoryUniqueIndexLocator = () => ({
 export const _repositoryNullableUniqueLocator = () => ({
   repository: makeRepository(NullableUniqueRepositoryModel, {
     spanPrefix: "NullableUniqueRepositoryModel",
-    // @ts-expect-error invariant: nullable unique fields cannot locate repository rows
+    // @ts-expect-error -- invariant: nullable unique fields cannot locate repository rows. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     idColumn: "email",
   }),
 });
 
 export const _repositoryColumnNameOverride = () => ({
   repository: makeRepository(
-    // @ts-expect-error invariant: repositories reject models with physical column-name overrides
+    // @ts-expect-error -- invariant: repositories reject models with physical column-name overrides. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     NamedRepositoryModel,
     { spanPrefix: "NamedRepositoryModel", idColumn: "id" }
   ),
@@ -605,7 +605,7 @@ class NamedNativeRepositoryModel extends Model<NamedNativeRepositoryModel>("Name
 
 export const _nativeRepositoryVersionedModel = () => ({
   repository: makeNativeRepository(
-    // @ts-expect-error invariant: native repositories reject models with an optimistic version field
+    // @ts-expect-error -- invariant: native repositories reject models with an optimistic version field. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     User,
     { spanPrefix: "UserNative", idColumn: "id" }
   ),
@@ -613,7 +613,7 @@ export const _nativeRepositoryVersionedModel = () => ({
 
 export const _nativeRepositoryColumnNameOverride = () => ({
   repository: makeNativeRepository(
-    // @ts-expect-error invariant: repositories reject models with physical column-name overrides
+    // @ts-expect-error -- invariant: repositories reject models with physical column-name overrides. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     NamedNativeRepositoryModel,
     { spanPrefix: "NamedNativeRepositoryModel", idColumn: "id" }
   ),
@@ -622,7 +622,7 @@ export const _nativeRepositoryColumnNameOverride = () => ({
 export const _nativeRepositoryNonUniqueLocator = () => ({
   repository: makeNativeRepository(Organization, {
     spanPrefix: "OrganizationNonUniqueLocator",
-    // @ts-expect-error invariant: repository locators must be primary-key or unique fields
+    // @ts-expect-error -- invariant: repository locators must be primary-key or unique fields. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     idColumn: "name",
   }),
 });
@@ -654,7 +654,7 @@ export const _nativeRepositoryPrimaryKeyLocator = () => ({
 });
 
 export const _twoPrimaryKeys = () => {
-  // @ts-expect-error invariant: multiple inline primary keys require a composite table node instead
+  // @ts-expect-error -- invariant: multiple inline primary keys require a composite table node instead. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   class TwoPrimaryKeys extends Model<TwoPrimaryKeys>("TwoPrimaryKeys")({
     one: Finite.pipe(pg.integer(), pg.primaryKey()),
     two: Finite.pipe(pg.integer(), pg.primaryKey()),
@@ -663,7 +663,7 @@ export const _twoPrimaryKeys = () => {
 };
 
 export const _twoVersions = () => {
-  // @ts-expect-error invariant: a model may declare at most one optimistic-version field
+  // @ts-expect-error -- invariant: a model may declare at most one optimistic-version field. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   class TwoVersions extends Model<TwoVersions>("TwoVersions")({
     leftVersion: Int.pipe(pg.integer(), pg.default(1), pg.version()),
     rightVersion: Int.pipe(pg.integer(), pg.default(1), pg.version()),
@@ -674,7 +674,7 @@ export const _twoVersions = () => {
 export const _nullablePgVersion = () =>
   NullOr(Int).pipe(
     pg.integer(),
-    // @ts-expect-error invariant: optimistic versions cannot be nullable
+    // @ts-expect-error -- invariant: optimistic versions cannot be nullable. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     pg.version()
   );
 
@@ -682,7 +682,7 @@ export const _nullablePgVersionModelMirror = _nullablePgVersion;
 
 export const _nullablePrimaryKey = () => {
   class NullablePrimaryKey extends Model<NullablePrimaryKey>("NullablePrimaryKey")({
-    // @ts-expect-error invariant: nullable schemas cannot be primary keys
+    // @ts-expect-error -- invariant: nullable schemas cannot be primary keys. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     id: NullOr(Finite).pipe(pg.integer(), pg.primaryKey()),
   }) {}
   return NullablePrimaryKey;
@@ -693,7 +693,7 @@ export const _defaultThenGenerated = () => {
     value: String.pipe(
       pg.text(),
       pg.default("x"),
-      // @ts-expect-error invariant: default and generated are mutually exclusive
+      // @ts-expect-error -- invariant: default and generated are mutually exclusive. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.unsafeGeneratedSql("lower(value)")
     ),
   }) {}
@@ -705,7 +705,7 @@ export const _generatedThenDefault = () => {
     value: String.pipe(
       pg.text(),
       pg.unsafeGeneratedSql("lower(value)"),
-      // @ts-expect-error invariant: generated and default are mutually exclusive
+      // @ts-expect-error -- invariant: generated and default are mutually exclusive. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.default("x")
     ),
   }) {}
@@ -742,7 +742,7 @@ class UuidSource extends Model<UuidSource>("UuidSource")({
 }) {}
 
 export const _uuidTextFkMismatch = () =>
-  // @ts-expect-error invariant: uuid and text SQL identities are not interchangeable
+  // @ts-expect-error -- invariant: uuid and text SQL identities are not interchangeable. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   schema({ text_target: TextTarget, uuid_source: UuidSource });
 
 class WrongEntitySource extends Model<WrongEntitySource>("WrongEntitySource")({
@@ -750,7 +750,7 @@ class WrongEntitySource extends Model<WrongEntitySource>("WrongEntitySource")({
 }) {}
 
 export const _entityFkMismatch = () =>
-  // @ts-expect-error invariant: different EntityId SQL domains are not interchangeable
+  // @ts-expect-error -- invariant: different EntityId SQL domains are not interchangeable. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   schema({
     user: User,
     organization: Organization,
@@ -763,7 +763,7 @@ class MissingSource extends Model<MissingSource>("MissingSource")({
 }) {}
 
 export const _missingTarget = () =>
-  // @ts-expect-error invariant: every reference target must be present in EffectDrizzle.schema
+  // @ts-expect-error -- invariant: every reference target must be present in EffectDrizzle.schema. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   schema({ missing_source: MissingSource });
 
 const MismatchStatusOne = Literals(["draft", "active"]).annotate({
@@ -792,7 +792,7 @@ class ScalarArraySource extends Model<ScalarArraySource>("ScalarArraySource")({
 }) {}
 
 export const _scalarArrayFkMismatch = () =>
-  // @ts-expect-error invariant: scalar and array SQL identities are incompatible
+  // @ts-expect-error -- invariant: scalar and array SQL identities are incompatible. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   schema({
     array_text_target: ArrayTextTarget,
     scalar_array_source: ScalarArraySource,
@@ -807,7 +807,7 @@ class ShallowArraySource extends Model<ShallowArraySource>("ShallowArraySource")
 }) {}
 
 export const _arrayDepthFkMismatch = () =>
-  // @ts-expect-error invariant: foreign-key array depths must match
+  // @ts-expect-error -- invariant: foreign-key array depths must match. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   schema({
     matrix_text_target: MatrixTextTarget,
     shallow_array_source: ShallowArraySource,
@@ -822,7 +822,7 @@ class NonUniqueSource extends Model<NonUniqueSource>("NonUniqueSource")({
 }) {}
 
 export const _nonUniqueForeignKey = () =>
-  // @ts-expect-error invariant: foreign keys must target an inline primary-key or unique column
+  // @ts-expect-error -- invariant: foreign keys must target an inline primary-key or unique column. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   schema({ non_unique_target: NonUniqueTarget, non_unique_source: NonUniqueSource });
 
 class AlphaUser extends Model<AlphaUser>("alpha/User")({ value: String }) {}
@@ -850,7 +850,7 @@ export const exactKeyResolutionSchema = schema({
 });
 
 export const uniquePhysicalResolutionSchema =
-  // @ts-expect-error boundary: physical-name fallback is runtime-only until model statics preserve literals
+  // @ts-expect-error -- boundary: physical-name fallback is runtime-only until model statics preserve literals. Owner: @beep/effect-drizzle. Exit: model statics preserve physical column-name literals, so the type layer resolves the fallback.
   schema({ physical_target: ResolutionTarget, resolution_source: ResolutionSource });
 
 export const _pgNulEnum = () => Literals(["safe", "nul\0value"]).pipe(pg.enum("nul_status"));
@@ -1018,7 +1018,7 @@ export const _pgDuplicateCompositeRuntime = () => {
   class DuplicateComposite extends Model<DuplicateComposite>("DuplicateComposite")(
     { one: Int, two: Int },
     (columns) => [
-      // @ts-expect-error invariant: runtime mirror survives type suppression
+      // @ts-expect-error -- invariant: runtime mirror survives type suppression. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       Table.compositeUnique("duplicate_composite", [columns.one, columns.one]),
     ]
   ) {}
@@ -1028,7 +1028,7 @@ export const _pgNullableCompositePrimaryRuntime = () => {
   class NullableCompositePrimary extends Model<NullableCompositePrimary>("NullableCompositePrimary")(
     { one: NullOr(Int), two: Int },
     (columns) => [
-      // @ts-expect-error invariant: runtime mirror survives type suppression
+      // @ts-expect-error -- invariant: runtime mirror survives type suppression. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       Table.compositePrimaryKey("nullable_composite_pk", [columns.one, columns.two]),
     ]
   ) {}
@@ -1055,22 +1055,22 @@ export const _pgSetNullNonNullable = () => {
   class SetNullSource extends Model<SetNullSource>("SetNullSource")({
     targetId: OrganizationId.pipe(
       pg.integer(),
-      // @ts-expect-error invariant: SET NULL requires nullable encoded source
+      // @ts-expect-error -- invariant: SET NULL requires nullable encoded source. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.references(OrganizationId, { onDelete: "set null" })
     ),
   }) {}
-  // @ts-expect-error invariant: runtime schema assembly mirrors SET NULL validation
+  // @ts-expect-error -- invariant: runtime schema assembly mirrors SET NULL validation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   return schema({ organization: Organization, set_null_source: SetNullSource });
 };
 export const _pgSetDefaultWithoutDefault = () => {
   class SetDefaultSource extends Model<SetDefaultSource>("SetDefaultSource")({
     targetId: OrganizationId.pipe(
       pg.integer(),
-      // @ts-expect-error invariant: SET DEFAULT requires a declared database default
+      // @ts-expect-error -- invariant: SET DEFAULT requires a declared database default. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
       pg.references(OrganizationId, { onDelete: "set default" })
     ),
   }) {}
-  // @ts-expect-error invariant: runtime schema assembly mirrors SET DEFAULT validation
+  // @ts-expect-error -- invariant: runtime schema assembly mirrors SET DEFAULT validation. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   return schema({ organization: Organization, set_default_source: SetDefaultSource });
 };
 
@@ -1082,7 +1082,7 @@ export const _pgTooManyColumns = () => {
   const fields: Record<string, typeof WaveEString> = fromEntries(
     globalThis.Array.from({ length: 1_601 }, (_, index) => [`field_${index}`, WaveEString])
   );
-  // @ts-expect-error invariant: dynamic widened keys defer to the runtime model validator
+  // @ts-expect-error -- invariant: dynamic widened keys defer to the runtime model validator. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
   class TooManyColumns extends Model<TooManyColumns>("TooManyColumns")(fields) {}
   return TooManyColumns;
 };
@@ -1091,7 +1091,7 @@ export const _pgTooManyIndexColumns = () => {
     globalThis.Array.from({ length: 33 }, (_, index) => [`field_${index}`, WaveEString])
   );
   class TooManyIndexColumns extends Model<TooManyIndexColumns>("TooManyIndexColumns")(
-    // @ts-expect-error invariant: dynamic widened keys defer to the runtime model validator
+    // @ts-expect-error -- invariant: dynamic widened keys defer to the runtime model validator. Owner: @beep/effect-drizzle. Exit: remove if the API is meant to accept this.
     fields,
     (columns) => {
       const values = Object.values(columns);

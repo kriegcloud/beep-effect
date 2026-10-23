@@ -115,7 +115,7 @@ const runStage = (
   stage: CanaryStage,
   options: CanaryOptions
 ): Effect.Effect<void, CanaryStageFailure, CanaryC0 | CanaryC1 | CanaryC2> =>
-  CanaryStage.$match(stage, {
+  CanaryStage.match(stage, {
     c0: () =>
       CanaryC0.pipe(
         Effect.flatMap((service) => service.run(options)),

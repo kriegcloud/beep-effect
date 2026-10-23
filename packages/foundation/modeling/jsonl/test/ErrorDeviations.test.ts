@@ -44,7 +44,7 @@ describe("D23: UnknownEvent.known and InvalidData.event are required, as upstrea
   it("UnknownEvent refuses construction without known", () => {
     assert.throws(
       () =>
-        // @ts-expect-error — `known` is required; upstream has no default for it.
+        // @ts-expect-error -- `known` is required; upstream has no default for it. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
         UnknownEvent.make({ line: slice, event: "ghost" }),
       /Schema validation failed/
     );
@@ -53,7 +53,7 @@ describe("D23: UnknownEvent.known and InvalidData.event are required, as upstrea
   it("InvalidData refuses construction without event", () => {
     assert.throws(
       () =>
-        // @ts-expect-error — `event` is required; upstream has no default for it.
+        // @ts-expect-error -- `event` is required; upstream has no default for it. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
         InvalidData.make({ line: slice, error: schemaError }),
       /Schema validation failed/
     );

@@ -239,6 +239,27 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       20_000
     );
 
+    it.effect(
+      "blocks a reflection whose closing fence line is not exactly ---",
+      () =>
+        Effect.andThen(
+          temporaryWorkingDirectory,
+          Effect.gen(function* () {
+            const exit = yield* runReflectionLintFixture({
+              reflection: {
+                body: Str.replace(
+                  "todos:\n  - Codify the thing.\n---\n",
+                  "todos:\n  - Codify the thing.\n----\n"
+                )(VALID_REFLECTION),
+                file: "2026-06-09-claude.md",
+              },
+            });
+            expectReportedFailure(exit);
+          })
+        ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
+      20_000
+    );
+
     // The PR #365 YAML traps hid in a completed-only gap: an invalid reflection
     // in an ACTIVE packet passed this lint while goals doctor failed it. The
     // frontmatter gate now covers every packet.

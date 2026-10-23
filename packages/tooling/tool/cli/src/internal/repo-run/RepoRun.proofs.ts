@@ -129,7 +129,7 @@ export class RepoProofStepDefinition extends S.Opaque<RepoProofStepDefinition, {
  * @since 0.0.0
  */
 export const repoProofStepDefinition = (surface: RepoProofSurface): RepoProofStepDefinition =>
-  RepoProofSurface.$match(surface, {
+  RepoProofSurface.match(surface, {
     "cheap-gates": () =>
       RepoProofStepDefinition.make({
         surface,

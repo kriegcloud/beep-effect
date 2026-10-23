@@ -29,6 +29,9 @@ source so `_tag` dispatch keeps working.
 Prefer:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 export class User extends S.Opaque<User, { readonly brand: unique symbol }>()(
   S.Struct({
     id: S.String,
@@ -80,6 +83,9 @@ Decision: `standards/architecture/DECISIONS.md` (2026-10-14).
 Avoid plain data as `S.Class`:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 // Rejects structurally valid plain objects; no brand.
 export class User extends S.Class<User>($I`User`)({
   id: S.String,
@@ -109,6 +115,9 @@ export interface User {
 Prefer:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 export const Tenant = S.String.pipe(
   $I.annoteSchema("Tenant", {
     description: "Logical tenant identifier used for partitioning.",
@@ -121,6 +130,7 @@ export type Tenant = typeof Tenant.Type
 Avoid:
 
 ```ts
+import * as S from "effect/Schema";
 export const TenantSchema = S.String
 export type Tenant = string
 ```
@@ -140,6 +150,10 @@ Use:
 Prefer:
 
 ```ts
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as O from "effect/Option";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 const Enabled = S.String.pipe(
   S.decodeTo(
     S.Boolean,
@@ -148,8 +162,8 @@ const Enabled = S.String.pipe(
       encode: (value) => (value ? "true" : "false"),
     })
   ),
-  S.withConstructorDefault(() => O.some(false)),
-  S.withDecodingDefaultKey(() => "false")
+  S.withConstructorDefault(Effect.succeed(false)),
+  S.withDecodingDefaultKey(Effect.succeed("false"))
 )
 ```
 
@@ -179,6 +193,9 @@ is `S.optionalKey(S.UndefinedOr(X))`.
 Prefer:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 export class AccountInput extends S.Opaque<AccountInput, { readonly brand: unique symbol }>()(
   S.Struct({
     nickname: S.OptionFromNullishOr(S.String),
@@ -244,6 +261,10 @@ When you do need custom reusable checks:
 Prefer:
 
 ```ts
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 S.makeFilter(Str.includes("/"), $I.annote("ContainsSlashCheck", {
   title: "Contains Slash",
   description: "A string that contains the slash character.",

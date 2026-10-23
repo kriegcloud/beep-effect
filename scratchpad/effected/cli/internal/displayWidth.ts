@@ -3,7 +3,6 @@ import * as A from "effect/Array";
 // `__test__/displayWidth.oracle.test.ts` is what catches the drift.
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-// biome-ignore lint/suspicious/noControlCharactersInRegex: an ANSI escape starts with ESC and an OSC ends with BEL
 const ANSI = /\u001B\][^\u0007\u001B]*(?:\u0007|\u001B\\)|\u001B\[[0-?]*[ -/]*[@-~]/g;
 const EMOJI = /^\p{RGI_Emoji}$/v;
 

@@ -32,7 +32,7 @@ const FixtureDeclarationFields = S.Struct({
 
 const FixtureDeclarationCheck = S.makeFilter(
   (declaration: typeof FixtureDeclarationFields.Type) =>
-    FixtureExpectation.$match(declaration.expectation, {
+    FixtureExpectation.match(declaration.expectation, {
       parses: () => Option.isNone(declaration.degradedKind),
       degraded: () => Option.isSome(declaration.degradedKind),
     }),

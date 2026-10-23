@@ -357,30 +357,30 @@ const rejectsInvalidCalls = (
   journal: JournalShape<Registry>,
   needsService: S.Codec<string, string, FileSystem.FileSystem>
 ) => {
-  // @ts-expect-error The selected tag controls the payload type.
+  // @ts-expect-error -- The selected tag controls the payload type. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid0 = journal.append("updated", { count: "wrong", label: "a" });
-  // @ts-expect-error A foreign tag is not in the registry.
+  // @ts-expect-error -- A foreign tag is not in the registry. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid1 = journal.append("foreign", null);
-  // @ts-expect-error A patch must contain fields of the selected payload.
+  // @ts-expect-error -- A patch must contain fields of the selected payload. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid2 = journal.appendPatch("updated", { count: "wrong" });
-  // @ts-expect-error Narrowing a query requires a runtime event filter.
+  // @ts-expect-error -- Narrowing a query requires a runtime event filter. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid3 = journal.query<"updated">();
-  // @ts-expect-error Scope filters cannot justify event narrowing.
+  // @ts-expect-error -- Scope filters cannot justify event narrowing. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid4 = journal.changes<"updated">({ scopes: ["a"] });
   const invalid5 = journal.projection(
     0,
-    // @ts-expect-error A projection cannot narrow through its callback alone.
+    // @ts-expect-error -- A projection cannot narrow through its callback alone. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
     (sum, envelope: EnvelopeWithTag<Registry, "updated">) => sum + envelope.data.count
   );
-  // @ts-expect-error Pure codecs must reject service-requiring schemas at registration.
+  // @ts-expect-error -- Pure codecs must reject service-requiring schemas at registration. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid6 = JsonlEvent.make("service", { data: needsService });
-  // @ts-expect-error Encoding uses the payload for the supplied event tag.
+  // @ts-expect-error -- Encoding uses the payload for the supplied event tag. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid7 = Envelope.encodeResult({ at, event: "updated", data: null }, events);
-  // @ts-expect-error Piped encoding preserves the selected tag's payload type.
+  // @ts-expect-error -- Piped encoding preserves the selected tag's payload type. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid8 = Envelope.encodeResult(events)({ at, event: "updated", data: null });
-  // @ts-expect-error Effectful piped encoding also rejects foreign tags.
+  // @ts-expect-error -- Effectful piped encoding also rejects foreign tags. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid9 = Envelope.encode(events)({ at, event: "foreign", data: null });
-  // @ts-expect-error Omission is accepted, explicit undefined is not.
+  // @ts-expect-error -- Omission is accepted, explicit undefined is not. Owner: @beep/jsonl. Exit: remove if the API is meant to accept this.
   const invalid10: typeof AppendOptions.Encoded = { scope: undefined };
   return [
     invalid0,

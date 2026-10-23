@@ -26,7 +26,7 @@ if ! command_line="$(printf '%s' "${input}" | jq -er 'if (.command | type) == "s
 fi
 normalized="$(printf '%s' "${command_line}" | tr -d '\\"'"'" | tr ';&|(){}<>$=`\n\t' ' ')"
 deny=""
-# shellcheck disable=SC2086
+# ${normalized} stays unquoted on purpose: word-splitting yields one token per command word.
 for token in ${normalized}; do
   case "${token##*/}" in
     git|sudo|pkexec) deny="${token##*/}"; break ;;

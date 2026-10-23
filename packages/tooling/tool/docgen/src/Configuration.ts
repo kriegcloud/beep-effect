@@ -37,7 +37,6 @@ const $I = $RepoDocgenId.create("Configuration");
  * @category configuration
  * @since 0.0.0
  */
-// cspell:ignore mikearnaldi
 export const DEFAULT_THEME = "mikearnaldi/just-the-docs";
 
 const PACKAGE_JSON_FILE_NAME = "package.json";

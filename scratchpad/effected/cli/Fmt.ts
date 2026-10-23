@@ -31,7 +31,6 @@ export interface PercentOptions {
 	readonly scale?: 1 | 100 | undefined;
 }
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: the point is to match control characters
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
 
 /**

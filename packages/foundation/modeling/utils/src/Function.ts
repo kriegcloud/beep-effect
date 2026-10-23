@@ -1,10 +1,6 @@
 /**
  * Function utilities built on top of `effect/Function`.
  *
- * **Details**
- *
- * cspell:words uncurry nullary
- *
  * **Example** (Tuple and reverseCurry demo)
  *
  * ```ts

@@ -11,6 +11,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import { MarkdownNodeKind } from "@beep/markdown/MarkdownNode";
 import { A, O, pipe, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -19,6 +21,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { parse } from "jsonc-parser";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
@@ -271,10 +274,12 @@ export const parseGoalManifestText = (text: string): O.Option<unknown> => {
 };
 
 const LIFECYCLE_LINE_PATTERN = /^(Lifecycle:[ \t]*`?)([A-Za-z0-9_-]+)(`?.*)$/m;
-const README_TITLE_PATTERN = /^#[ \t]+(.+)$/m;
-const MISSION_HEADING_PATTERN = /^##[ \t]+Mission[ \t]*$/;
-const HEADING_PATTERN = /^#/;
+const MISSION_HEADING = "Mission";
 const MISSION_MAX_CHARS = 300;
+const LINE_BREAK_PATTERN = /\r\n?|\n/;
+
+const parseReadme = (readme: string): O.Option<MarkdownDocument> =>
+  Result.getSuccess(MarkdownDocument.parseResult(readme));
 
 /**
  * Extracts the status token from a README `Lifecycle:` line.
@@ -343,6 +348,14 @@ export const rewriteReadmeLifecycleToken: {
 /**
  * Extracts the H1 title from a packet README.
  *
+ * **Details**
+ *
+ * The README is parsed as CommonMark/GFM and the first root-level depth-1 heading wins, read
+ * through `MarkdownDocument.headingSource`: the heading content exactly as written, so inline HTML
+ * and code-span backticks survive (a template's `# <Goal Title>` reads `<Goal Title>`), while a
+ * closing `#` sequence and a setext underline do not. A `#` line inside a fenced code block, and a
+ * heading nested in a blockquote or list item, is not the title.
+ *
  * **Example** (Read a packet title for the index)
  *
  * ```ts
@@ -354,23 +367,31 @@ export const rewriteReadmeLifecycleToken: {
  * ```
  *
  * @param readme - Raw README text.
- * @returns The first `# ` heading text, trimmed.
+ * @returns The first root-level H1's source text, trimmed.
  * @category parsing
  * @since 0.0.0
  */
-export const readmeTitle = (readme: string): O.Option<string> => {
-  const match = README_TITLE_PATTERN.exec(readme);
-  return match !== null && P.isString(match[1]) ? O.some(Str.trim(match[1])) : O.none();
-};
+export const readmeTitle = (readme: string): O.Option<string> =>
+  O.flatMap(parseReadme(readme), (document) =>
+    pipe(
+      O.fromUndefinedOr(document.firstSection({ depth: 1 })),
+      O.map((section) => Str.trim(document.headingSource(section.heading))),
+      O.filter(Str.isNonEmpty)
+    )
+  );
 
 /**
  * Extracts a one-line mission from a README `## Mission` section.
  *
  * **Details**
  *
- * The section's first paragraph is joined into a single line. A missing section, or a joined
- * paragraph longer than 300 characters, yields `None` — that bound is the "cleanly extractable"
- * rule the manifest migration relies on to avoid importing prose it cannot round-trip.
+ * The README is parsed as CommonMark/GFM and the first depth-2 section whose heading text is
+ * `Mission` is read. Its first block must be a paragraph; that paragraph's source lines are
+ * trimmed and joined into a single line. A missing section, a section that opens with another
+ * block (a template's HTML placeholder, a list), or a joined paragraph longer than 300 characters
+ * yields `None` — that bound is the "cleanly extractable" rule the manifest migration relies on to
+ * avoid importing prose it cannot round-trip. A list that interrupts the paragraph without a
+ * blank line is its own block, so it ends the paragraph.
  *
  * **Example** (Lift a mission out of a packet README)
  *
@@ -388,32 +409,25 @@ export const readmeTitle = (readme: string): O.Option<string> => {
  * @category parsing
  * @since 0.0.0
  */
-export const readmeMissionLine = (readme: string): O.Option<string> => {
-  const lines = pipe(readme, Str.replace(/\r\n/g, "\n"), Str.split("\n"));
-  let inMission = false;
-  let collected = A.empty<string>();
-  for (const line of lines) {
-    if (!inMission) {
-      if (MISSION_HEADING_PATTERN.test(line)) {
-        inMission = true;
-      }
-      continue;
-    }
-    const trimmed = Str.trim(line);
-    if (HEADING_PATTERN.test(trimmed)) {
-      break;
-    }
-    if (trimmed === "") {
-      if (A.isReadonlyArrayNonEmpty(collected)) {
-        break;
-      }
-      continue;
-    }
-    collected = A.append(collected, trimmed);
-  }
-  const mission = Str.trim(A.join(collected, " "));
-  return mission !== "" && Str.length(mission) <= MISSION_MAX_CHARS ? O.some(mission) : O.none();
-};
+export const readmeMissionLine = (readme: string): O.Option<string> =>
+  O.flatMap(parseReadme(readme), (document) =>
+    pipe(
+      O.fromUndefinedOr(document.sectionByHeading(MISSION_HEADING, { depth: 2 })),
+      O.flatMap((section) => A.head(section.children)),
+      O.filter((block) => MarkdownNodeKind.is.paragraph(block.type)),
+      O.map((paragraph) =>
+        pipe(
+          document.source,
+          Str.slice(paragraph.position.start.offset, paragraph.position.end.offset),
+          Str.split(LINE_BREAK_PATTERN),
+          A.map(Str.trim),
+          A.filter(Str.isNonEmpty),
+          A.join(" ")
+        )
+      ),
+      O.filter((mission) => Str.isNonEmpty(mission) && Str.length(mission) <= MISSION_MAX_CHARS)
+    )
+  );
 
 const isPhaseArray = (
   phases: ReadonlyArray<GoalPhase> | Readonly<Record<string, GoalPhase>>

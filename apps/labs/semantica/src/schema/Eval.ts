@@ -591,7 +591,7 @@ const hasCompleteMetrics = (report: EvalReportFields): boolean => {
 };
 
 const lossForMetricSubset = (subset: MetricSubset): Option.Option<LossDeclaration> =>
-  MetricSubset.$match(subset, {
+  MetricSubset.match(subset, {
     structure: () => Option.some<LossDeclaration>("structure-not-supported"),
     entity: () => Option.none<LossDeclaration>(),
     relation: () => Option.some<LossDeclaration>("relations-not-supported"),
@@ -602,7 +602,7 @@ const unsupportedMetricIsDeclared = (score: MetricScore): boolean =>
   score.status !== "unsupported" ||
   lossForMetricSubset(score.subset).pipe(
     Option.flatMap((loss) => {
-      const method = ExtractionLane.$match(score.lane, {
+      const method = ExtractionLane.match(score.lane, {
         hosted: () => "hosted-langextract" as const,
         pattern: () => "pattern-wink" as const,
       });
@@ -615,7 +615,7 @@ const fixtureParseIsExpected = (document: DocumentOutcome): boolean =>
   Origin.match(document.origin, {
     W1Paper: () => true,
     Fixture: (origin) =>
-      FixtureExpectation.$match(origin.declared.expectation, {
+      FixtureExpectation.match(origin.declared.expectation, {
         parses: () => Str.Equivalence(document.parse, "parsed"),
         degraded: () =>
           origin.declared.degradedKind.pipe(

@@ -232,7 +232,7 @@ const InitialSpikeSizeLabel = SpikeSizeLabel.pipe(
 );
 
 const spikeSizeFor = (label: SpikeSizeLabel): CosmosSpikeSize =>
-  SpikeSizeLabel.$match(label, {
+  SpikeSizeLabel.match(label, {
     "1k": () => CosmosSpikeSize.make({ label: "1k", elementCount: 1_000, nodeCount: 500, edgeCount: 500 }),
     "10k": () => CosmosSpikeSize.make({ label: "10k", elementCount: 10_000, nodeCount: 5_000, edgeCount: 5_000 }),
     "100k": () => CosmosSpikeSize.make({ label: "100k", elementCount: 100_000, nodeCount: 50_000, edgeCount: 50_000 }),

@@ -87,6 +87,9 @@
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {
+      "path": "../../../foundation/modeling/markdown/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/md/tsconfig.json"
     },
     {
@@ -112,6 +115,9 @@
     },
     {
       "path": "../../library/qa-capture/tsconfig.json"
+    },
+    {
+      "path": "../../library/repo-tsconfig/tsconfig.json"
     },
     {
       "path": "../../library/repo-utils/tsconfig.json"

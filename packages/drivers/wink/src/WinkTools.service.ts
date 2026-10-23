@@ -325,7 +325,7 @@ type TransformUtils = {
 };
 
 const applyTransformOperation = (utils: TransformUtils, operation: TransformOperation, text: string) =>
-  TransformOperation.$match(operation, {
+  TransformOperation.match(operation, {
     lowercase: () => utils.lowerCase(text),
     uppercase: () => utils.upperCase(text),
     trim: () => utils.trim(text),

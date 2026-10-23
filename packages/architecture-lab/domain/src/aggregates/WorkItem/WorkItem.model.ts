@@ -152,35 +152,35 @@ export const create = (input: CreateWorkItemInput): WorkItem =>
     priority: O.some(O.getOrElse(input.priority, () => defaultWorkPriority)),
   });
 
-const isArchived = WorkItemStatus.$match({
+const isArchived = WorkItemStatus.match({
   open: () => false,
   assigned: () => false,
   completed: () => false,
   archived: () => true,
 });
 
-const isCompleted = WorkItemStatus.$match({
+const isCompleted = WorkItemStatus.match({
   open: () => false,
   assigned: () => false,
   completed: () => true,
   archived: () => false,
 });
 
-const acceptsAssignment = WorkItemStatus.$match({
+const acceptsAssignment = WorkItemStatus.match({
   open: () => true,
   assigned: () => true,
   completed: () => false,
   archived: () => false,
 });
 
-const acceptsCompletion = WorkItemStatus.$match({
+const acceptsCompletion = WorkItemStatus.match({
   open: () => true,
   assigned: () => true,
   completed: () => true,
   archived: () => false,
 });
 
-const acceptsReopen = WorkItemStatus.$match({
+const acceptsReopen = WorkItemStatus.match({
   open: () => false,
   assigned: () => false,
   completed: () => true,

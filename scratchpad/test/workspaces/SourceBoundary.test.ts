@@ -1,5 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
-// biome-ignore-all lint/suspicious/noTemplateCurlyInString: these strings are source text under test
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

@@ -671,7 +671,7 @@ export const runnerLossFailedJob: {
 );
 
 const reasonForHead = (status: RunnerLossHeadStatus): RunnerLossRerunReason =>
-  RunnerLossHeadStatus.$match(status, {
+  RunnerLossHeadStatus.match(status, {
     current: () => RunnerLossRerunReason.Enum["runner-loss"],
     superseded: () => RunnerLossRerunReason.Enum["superseded-head"],
     "no-open-pull-request": () => RunnerLossRerunReason.Enum["no-open-pull-request"],
@@ -806,7 +806,7 @@ export const runnerLossRerunArgs = (decision: RunnerLossRerunDecision): O.Option
   O.map(decision.rerunJob, (job) => ["run", "rerun", "--job", `${job.id}`]);
 
 const reasonSentence = (decision: RunnerLossRerunDecision): string =>
-  RunnerLossRerunReason.$match(decision.reason, {
+  RunnerLossRerunReason.match(decision.reason, {
     "runner-loss": () => "a job lost its runner, is under its rerun bound, and the head is current",
     "run-not-completed": () => "the run has not completed",
     "run-not-failed": () => "the run did not fail",

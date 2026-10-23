@@ -15,7 +15,6 @@
  * @since 0.0.0
  */
 
-// cspell:word youtu
 import { $LexicalSchemaId } from "@beep/identity/packages";
 import * as Md from "@beep/md/Md.model";
 import { LiteralKit, MappedLiteralKit, SchemaUtils } from "@beep/schema";
@@ -1863,7 +1862,7 @@ const ListNodeFields = S.Struct({
   .check(
     S.makeFilter(
       ({ listType, tag }) =>
-        ListType.$match(listType, {
+        ListType.match(listType, {
           number: () => ListTag.is.ol(tag),
           bullet: () => ListTag.is.ul(tag),
           check: () => ListTag.is.ul(tag),

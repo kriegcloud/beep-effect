@@ -104,7 +104,7 @@ type AppRegistry = DesktopDockGraph["registry"];
 const hasTauriRuntime = (): boolean => typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 const isDevMode = (): boolean => {
-  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV on import.meta.env.
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV on import.meta.env. Owner: @beep/professional-desktop. Exit: Biome recognizes Vite's built-in import.meta.env keys (#1855).
   const value = import.meta.env.DEV;
 
   return P.isBoolean(value) ? value : value === "true";

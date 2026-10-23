@@ -58,15 +58,23 @@ integration goes through emitted events or, after a real promotion, the future
 Services should be explicit, small, and composed at the boundary:
 
 ````ts
-import { $IamUseCasesId } from "@beep/identity";
+import * as S from "effect/Schema";
+import * as Identity from "@beep/identity";
 import * as Context from "effect/Context";
-import type * as Effect from "effect/Effect";
-import {
-  MembershipNotFound,
-  MembershipRevocationDenied,
-  MembershipRevocationFailed,
-} from "./Membership.errors.ts";
-import type { RevokeMembershipCommand } from "./Membership.commands.ts";
+import * as Effect from "effect/Effect";
+
+class MembershipRevocationDenied extends S.TaggedError<MembershipRevocationDenied, { readonly brand: unique symbol }>()("MembershipRevocationDenied", { reason: S.String }) {}
+// Small local stand-ins for the illustrative slice imports.
+class MembershipNotFound extends S.TaggedError<MembershipNotFound, { readonly brand: unique symbol }>()("MembershipNotFound", {}) {}
+class MembershipRevocationFailed extends S.TaggedError<MembershipRevocationFailed, { readonly brand: unique symbol }>()("MembershipRevocationFailed", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const RevokeMembershipCommand = S.Struct({ membershipId: MembershipId });
+type RevokeMembershipCommand = typeof RevokeMembershipCommand.Type;
+// import { MembershipNotFound, MembershipRevocationDenied, MembershipRevocationFailed, } from "./Membership.errors.ts";
+// import type { RevokeMembershipCommand } from "./Membership.commands.ts";
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamUseCasesId } = Identity.make("iam-use-cases");
 
 const $I = $IamUseCasesId.create("entities/Membership/Membership.service");
 
@@ -90,18 +98,48 @@ Use-case packages stop at the contract. A server layer provides the live
 implementation from its dependencies:
 
 ````ts
+import { LiteralKit } from "@beep/schema";
+import * as Context from "effect/Context";
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import {
-  MembershipNotFound,
-  type RevokeMembershipCommand,
-} from "@beep/iam-use-cases/public";
-import {
-  MembershipAccess,
-  MembershipRepository,
-  MembershipService,
-} from "@beep/iam-use-cases/server";
+
+// Small local stand-ins for the illustrative slice imports.
+class MembershipNotFound extends S.TaggedError<MembershipNotFound, { readonly brand: unique symbol }>()("MembershipNotFound", {}) {}
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+const RevokeMembershipCommand = S.Struct({ membershipId: MembershipId });
+type RevokeMembershipCommand = typeof RevokeMembershipCommand.Type;
+class MembershipRevocationDenied extends S.TaggedError<MembershipRevocationDenied, { readonly brand: unique symbol }>()("MembershipRevocationDenied", { reason: S.String }) {}
+class MembershipRevocationFailed extends S.TaggedError<MembershipRevocationFailed, { readonly brand: unique symbol }>()("MembershipRevocationFailed", {}) {}
+class MembershipService extends Context.Service<MembershipService, {
+  readonly revoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
+}>()("example/MembershipService") {}
+class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable, { readonly brand: unique symbol }>()("MembershipRepositoryUnavailable", { operation: S.String, cause: S.Defect() }) {}
+class MembershipRepository extends Context.Service<MembershipRepository, {
+  readonly save: (model: Membership) => Effect.Effect<void, MembershipRepositoryUnavailable>;
+  readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>, MembershipRepositoryUnavailable>;
+}>()("example/MembershipRepository") {}
+class MembershipAccess extends Context.Service<MembershipAccess, {
+  readonly assertCanRevoke: (command: RevokeMembershipCommand) => Effect.Effect<void, MembershipRevocationDenied>;
+}>()("example/MembershipAccess") {}
+// import { MembershipNotFound, type RevokeMembershipCommand, } from "@beep/iam-use-cases/public";
+// import { MembershipAccess, MembershipRepository, MembershipService, } from "@beep/iam-use-cases/server";
 
 /**
  * Live `MembershipService` Layer composed from its slice-local dependencies.
@@ -126,6 +164,7 @@ export const MembershipServerLayer = Layer.effect(
       ) {
         yield* access.assertCanRevoke(command);
         const model = yield* repo.findById(command.membershipId).pipe(
+          Effect.mapError(() => new MembershipRevocationFailed()),
           Effect.flatMap(
             O.match({
               onNone: () => Effect.fail(new MembershipNotFound()),
@@ -133,7 +172,10 @@ export const MembershipServerLayer = Layer.effect(
             }),
           ),
         );
-        yield* model.revoke().pipe(Effect.flatMap(repo.save));
+        yield* model.revoke().pipe(
+          Effect.flatMap(repo.save),
+          Effect.mapError(() => new MembershipRevocationFailed())
+        );
       }),
     };
   }),
@@ -201,7 +243,8 @@ Forbidden app composition shapes include:
 
 #### Bad — God Layer reaching past canonical subpaths
 
-````ts
+````ts skip-type-checking
+// Illustrative iam/billing slice packages do not exist; operative imports teach package boundaries.
 // apps/web/src/runtime/Layer.ts
 import { MembershipRepositoryLive } from "@beep/iam-server/internal/MembershipRepository";
 import { SubscriptionRepositoryLive } from "@beep/billing-server/internal/SubscriptionRepository";
@@ -222,7 +265,8 @@ file.
 
 #### Good — App composes published slice Layers
 
-````ts
+````ts skip-type-checking
+// Illustrative iam/billing slice packages do not exist; operative imports teach package boundaries.
 // apps/web/src/runtime/Layer.ts
 import { IamLive } from "@beep/iam-server/layer";
 import * as Layer from "effect/Layer";

@@ -34,8 +34,6 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-// cspell:words gantt
-
 const $I = $AgentsServerId.create("AssistantTurn/AnthropicTurnCodec");
 
 /**

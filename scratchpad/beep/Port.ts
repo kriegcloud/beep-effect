@@ -93,7 +93,7 @@ export function toWire(schema: Renamable): Renamable {
   }
   if (R.keys(mapping).length === 0) return schema;
   // encodeKeys widens the encoded keys and still decodes to the same class.
-  // @ts-expect-error TS2345 encodeKeys' function is wider than Renamable.pipe's parameter.
+  // @ts-expect-error -- TS2345: Effect's S.encodeKeys is typed for S.Struct, and its result is wider than Renamable.pipe's parameter. Owner: @beep/scratchpad. Exit: Effect's S.encodeKeys accepts a generic struct carrier, or Port graduates with a Struct-typed toWire.
   return schema.pipe(S.encodeKeys(mapping));
 }
 
@@ -262,7 +262,7 @@ export const jsonColumn: {
   // pg.jsonb's encoded-object proof does not survive a generic schema parameter.
   // The explicit annotation keeps the field type when the overload check fails.
   const jsonb: PatchedField<Sch, { readonly column: Jsonb }> =
-    // @ts-expect-error TS2345 — callers pass object or array schemas; the column is jsonb.
+    // @ts-expect-error -- TS2345: pg.jsonb's Field.ValidateEncoded object proof stays deferred for a generic schema parameter; callers pass object or array schemas. Owner: @beep/scratchpad. Exit: @beep/effect-drizzle exposes a generic-safe pg.jsonb overload, or Port graduates with a concrete schema type.
     pg.jsonb()(schema);
   return jsonb.pipe(pg.columnName(column));
 });
@@ -313,7 +313,7 @@ export const optionalJsonColumn: {
     const wrapped = optionalNull(schema);
     // The explicit annotation keeps the field type when the overload check fails.
     const jsonb: PatchedField<typeof wrapped, { readonly column: Jsonb }> =
-      // @ts-expect-error TS2345 — optionalNull keeps an object or array carrier; the column is jsonb.
+      // @ts-expect-error -- TS2345: pg.jsonb's Field.ValidateEncoded object proof stays deferred for the generic optionalNull carrier, which keeps an object or array encoding. Owner: @beep/scratchpad. Exit: @beep/effect-drizzle exposes a generic-safe pg.jsonb overload, or Port graduates with a concrete schema type.
       pg.jsonb()(wrapped);
     return jsonb.pipe(pg.columnName(column));
   },

@@ -1,13 +1,11 @@
-// @effect-diagnostics strictEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { dual } from "effect/Function";
 import * as Effect from "effect/Effect";
 import type { LinkTarget, RenderContext, Style, TokenName } from "../../../effected/cli/index.ts";
 import { CliTheme } from "../../../effected/cli/index.ts";
 import { stripAnsi } from "../../../effected/cli/internal/displayWidth.ts";
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: an OSC 8 hyperlink starts with ESC and ends with BEL or ST
 const OSC8 = /\u001B\]8;[^;\u0007\u001B]*;([^\u0007\u001B]*)(?:\u0007|\u001B\\)/g;
-// biome-ignore lint/suspicious/noControlCharactersInRegex: an SGR sequence starts with ESC
 const SGR = /\u001B\[([0-9;]*)m/g;
 
 /** A link stub: a fixed OSC 8 wrapper. The real policy arrives with CliLinks. */
@@ -107,7 +105,6 @@ export const tokenPaint: {
 } = dual(2, (token: string | object, text: string): string =>
 	`\u001B[38;5;${typeof token === "string" ? (TOKEN_IDS[token] ?? 99) : 100}m${text}\u001B[39m`);
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: decoding SGR
 const TOKEN_RUN = /\u001B\[38;5;(\d+)m([^\u001B]*)\u001B\[39m/g;
 
 /** The tokens of a `tokenPaint` string, in order, as `[token, text]`; unpainted text is `[undefined, text]`. */

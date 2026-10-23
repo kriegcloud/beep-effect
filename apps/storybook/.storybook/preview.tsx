@@ -1,4 +1,4 @@
-/** @effect-diagnostics globalConsole:skip-file */
+/** @effect-diagnostics globalConsole:skip-file -- the one console.warn is a dev-only notice in the Storybook preview iframe, outside any Effect runtime; file-level because its biome-ignore must sit on the line above it. Owner: @beep/storybook. Exit: the preview boots through an Effect runtime with a browser Logger. */
 // `previewHead` installs this shape before hoisted imports evaluate. Keep the
 // fallback for preview consumers that evaluate this module outside Storybook.
 const globalWithProcess = globalThis as unknown as {
@@ -15,7 +15,7 @@ globalWithProcess.process ??= { env: { NODE_ENV: "development" }, platform: "bro
 // DevTools hook must be installed explicitly before react-grab initializes:
 // react-grab's bundled copy skips the install inside the preview iframe, and its
 // activation path then dies reading `hook.renderers`.
-// biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV and MODE on import.meta.env.
+// biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV and MODE on import.meta.env. Owner: @beep/storybook. Exit: Biome recognizes Vite's built-in import.meta.env keys (#1855).
 if (import.meta.env.DEV && import.meta.env.MODE !== "test") {
   void import("bippy")
     .then((bippy) => {
@@ -23,7 +23,7 @@ if (import.meta.env.DEV && import.meta.env.MODE !== "test") {
       return import("react-grab");
     })
     .catch((error: unknown) => {
-      // biome-ignore lint/suspicious/noConsole: dev-only degradation notice; the console is the intended surface.
+      // biome-ignore lint/suspicious/noConsole: dev-only degradation notice; the console is the intended surface. Owner: @beep/storybook. Exit: the preview boots through an Effect runtime with a browser Logger.
       console.warn("react-grab failed to load; component grabbing is unavailable in this session.", error);
     });
 }

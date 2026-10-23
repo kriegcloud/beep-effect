@@ -37,7 +37,11 @@ const $I = $RepoCliId.create("commands/Lint/internal/SchemaParityCodemod.schemas
  * @category models
  * @since 0.0.0
  */
-export const SchemaParityCodemodRuleId = LiteralKit(["literal-kit-facets", "exact-optional-keys"]).pipe(
+export const SchemaParityCodemodRuleId = LiteralKit([
+  "literal-kit-facets",
+  "literal-kit-match-rename",
+  "exact-optional-keys",
+]).pipe(
   $I.annoteSchema("SchemaParityCodemodRuleId", {
     description: "Identifier of a registered schema-parity codemod rule.",
   })

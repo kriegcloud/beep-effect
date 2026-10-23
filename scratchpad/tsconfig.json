@@ -80,6 +80,9 @@
       "path": "../packages/foundation/modeling/github-references/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/github-reporting/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/glob/tsconfig.json"
     },
     {
@@ -141,6 +144,9 @@
     },
     {
       "path": "../packages/law-practice/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../packages/tooling/library/repo-tsconfig/tsconfig.json"
     },
     {
       "path": "../packages/tooling/library/repo-utils/tsconfig.json"

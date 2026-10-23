@@ -73,7 +73,7 @@ const providerIntegrityError = (
   cause?: unknown
 ): ProviderRecordingIntegrityError => ProviderRecordingIntegrityError.make({ cause, issue, message });
 
-const expectedProviderCandidateText = ProviderCandidate.fields.label.$match({
+const expectedProviderCandidateText = ProviderCandidate.fields.label.match({
   project: () => "North Loop Canopy",
   delivery_date: () => "2026-09-12",
   finish: () => "MG B695 Class 55",

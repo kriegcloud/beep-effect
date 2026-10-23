@@ -1,5 +1,4 @@
-// These test fixtures are internal helpers and preserve their direct-call contract.
-// @effect-diagnostics nodeBuiltinImport:skip-file missingPipeableSignature:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file missingPipeableSignature:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { dual } from "effect/Function";
 // On-disk fixtures for the config-dependency resolution ladder: a fake
 // `node_modules/.pnpm-config/<name>` install, a fake pnpm store `links/` tree,

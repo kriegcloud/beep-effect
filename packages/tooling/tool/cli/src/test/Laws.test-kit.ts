@@ -15,3 +15,4 @@ export * from "@beep/repo-cli/commands/Laws/SchemaDiagnostics";
 export * from "@beep/repo-cli/commands/Laws/TerseEffect";
 export * from "../commands/Laws/internal/LawScan.ts";
 export * from "../commands/Laws/internal/TrackedTextFiles.ts";
+export * from "../commands/Laws/internal/TypeScriptFences.ts";

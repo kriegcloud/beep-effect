@@ -192,9 +192,11 @@ export type KnowledgeBaselineGroup = typeof KnowledgeBaselineGroup.Type;
  * @category models
  * @since 0.0.0
  */
-export const KnowledgeSealableSpanClass = LiteralKit(
-  KnowledgeSpanClass.pick(["verified", "generated-example", "historical-with-commit"]).literals
-).pipe(
+export const KnowledgeSealableSpanClass = KnowledgeSpanClass.pick([
+  "verified",
+  "generated-example",
+  "historical-with-commit",
+]).pipe(
   $I.annoteSchema("KnowledgeSealableSpanClass", {
     description: "Span classes a sealed baseline entry may carry; unclassified spans are never sealed.",
   })

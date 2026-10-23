@@ -131,7 +131,6 @@ TimeoutStartSec=0
 WantedBy=default.target
 `;
 
-// cspell:ignore DBUS
 const userSystemdEnvironment = A.join(
   [
     'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"',
@@ -450,7 +449,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   });
   const installTarget = AiMetricsInstallInput.make(O.getSomesStruct({ target: resolvedTarget })).target;
   const resolvedPublicBaseUrl = O.orElse(O.fromUndefinedOr(publicBaseUrl), () =>
-    AiMetricsDeployTarget.$match(installTarget, {
+    AiMetricsDeployTarget.match(installTarget, {
       dankserver: () => O.some(`https://${remote.tailnetFqdn}:${remote.phoenixTailnetHttpsPort}`),
       local: O.none<string>,
     })
@@ -643,7 +642,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
 
     const spec = Effect.runSync(makeAiMetricsInstallSpec(args.install));
     const defaultService = defaultServiceForSpec(spec);
-    const remoteResources = AiMetricsDeployTarget.$match(spec.target, {
+    const remoteResources = AiMetricsDeployTarget.match(spec.target, {
       dankserver: () => {
         const remoteDefaultService = remotePhoenixDefaultService(defaultService);
         const remoteDeploymentTriggers = [

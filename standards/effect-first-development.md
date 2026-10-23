@@ -51,7 +51,10 @@ Example:
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -110,9 +113,12 @@ const toDisplayName = (rawName: string | null | undefined) =>
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -227,8 +233,11 @@ const summarizeAttempts = (attempts: ReadonlyArray<number>) =>
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as Context from "effect/Context";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 export class MyService extends Context.Service<MyService, {
@@ -298,8 +307,11 @@ export class MyService extends Context.Service<MyService, {
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -318,7 +330,7 @@ export type Tenant = typeof Tenant.Type
 - Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncluding` before reaching for `S.makeFilter`.
 - Where upstream covers a `foundation/modeling` concept's intent, its covered facets retire in the same PR that migrates their consumers, with no alias; the whole concept retires unless the lines reading its uncovered members outnumber the lines using its covered facets (ADAPT, per the facet census in `standards/architecture/DECISIONS.md` "Upstream-First Foundation/Modeling").
 - Derive domain guards with `S.is(SomeSchema)`.
-- Use `LiteralKit` for a named internal literal domain, especially one that needs `.Enum`, `.is`, `$match`, `.toTaggedUnion`, or an annotation-bearing schema value; use `S.Literals` for anonymous inline unions never referenced by name.
+- Use `LiteralKit` for a named internal literal domain, especially one that needs `.Enum`, `.is`, `match`, `.toTaggedUnion`, or an annotation-bearing schema value; use `S.Literals` for anonymous inline unions never referenced by name.
 - Do not add `as const` to inline array literals passed directly to `LiteralKit(...)`; `LiteralKit` uses const type parameters already.
 - Prefer named intermediate schemas; export and document them when reusable or when they materially clarify the module’s domain model, otherwise keep them module-local.
 
@@ -350,9 +362,12 @@ Example:
 
 ```ts
 import { LiteralKit } from "@beep/schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as Tuple from "effect/Tuple";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -379,10 +394,7 @@ export class ExternalJobCompleted extends S.Opaque<ExternalJobCompleted, { reado
 
 export const ExternalJobEvent = ExternalJobKind
   .mapMembers(
-    Tuple.evolve([
-      () => ExternalJobCreated,
-      () => ExternalJobCompleted
-    ])
+    ([created, completed]) => Tuple.make(ExternalJobCreated, ExternalJobCompleted)
   )
   .pipe(
     S.toTaggedUnion("kind"),
@@ -438,21 +450,21 @@ Example:
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric"
 
-const durationMs = Metric.histogram("workflow_duration_ms", {
+const durationMs = Metric.timer("workflow_duration_ms", {
   boundaries: Metric.boundariesFromIterable([10, 50, 100, 250, 500, 1000])
 })
-const failures = Metric.counter("workflow_failures_total")
+const failures = Metric.counter("workflow_failures_total").pipe(Metric.mapInput((_: unknown) => 1))
 
 const workflow = Effect.fn("Workflow.run")(function* (requestId: string) {
   yield* Effect.annotateCurrentSpan("requestId", requestId)
   yield* Effect.logInfo("workflow started")
   return "ok"
-}).pipe(
+}, (effect) => effect.pipe(
   Effect.withLogSpan("workflow.run"),
   Effect.annotateLogs({ service: "beep-effect" }),
   Effect.trackDuration(durationMs),
   Effect.trackErrors(failures)
-)
+))
 ```
 
 ### EF-16: Durations and windows use `effect/Duration`
@@ -483,8 +495,11 @@ const program = Effect.sleep(pollInterval).pipe(Effect.timeout(timeout))
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -532,9 +547,12 @@ const b = pipe("value", addPrefix("p:"))
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -609,7 +627,10 @@ export const runJob = Effect.fn("Job.run")(function* (id: string) {
 Example:
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+
+class HttpRequestError extends S.TaggedError<HttpRequestError, { readonly brand: unique symbol }>()("HttpRequestError", { url: S.String, message: S.String }) {}
 const fetchText = (url: string) =>
   Effect.tryPromise({
     try: () => fetch(url).then((response) => response.text()),
@@ -638,7 +659,14 @@ const fetchText = (url: string) =>
 Example:
 
 ```ts
+import * as S from "effect/Schema";
+import * as Result from "effect/Result";
 import * as Effect from "effect/Effect";
+
+const CandorDisposition = S.Struct({ disposition: S.String });
+type CandorDisposition = typeof CandorDisposition.Type;
+declare const toCandorDispositionInsert: (value: CandorDisposition) => Result.Result<CandorDisposition, S.SchemaError>;
+declare const write: (row: CandorDisposition) => Effect.Effect<void>;
 const insertDisposition = Effect.fnUntraced(function* (disposition: CandorDisposition) {
   const row = yield* Effect.fromResult(toCandorDispositionInsert(disposition))
   return yield* write(row)
@@ -655,7 +683,13 @@ const insertDisposition = Effect.fnUntraced(function* (disposition: CandorDispos
 Example:
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+
+const Connection = S.Struct({ id: S.String });
+type Connection = typeof Connection.Type;
+declare const openConnection: Effect.Effect<Connection>;
+declare const closeConnection: (resource: Connection) => Effect.Effect<void>;
 const withConnection = <A, E, R>(
   use: (conn: Connection) => Effect.Effect<A, E, R>
 ) =>
@@ -678,6 +712,8 @@ Example:
 ```ts
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
+
+declare const fetchRemote: Effect.Effect<string, string>;
 const resilientFetch = fetchRemote.pipe(
   Effect.retry(Schedule.recurs(3))
 )
@@ -695,10 +731,12 @@ Example:
 ```ts
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+
+declare const slowLookup: Effect.Effect<string>;
 const lookupCachedOnTimeout = slowLookup.pipe(
   Effect.timeoutOrElse({
     duration: Duration.seconds(2),
-    onTimeout: () => Effect.succeed("cached-value")
+    orElse: () => Effect.succeed("cached-value")
   })
 )
 ```
@@ -715,6 +753,9 @@ Example:
 ```ts
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+
+declare const heartbeatLoop: Effect.Effect<void>;
+declare const doWork: Effect.Effect<string>;
 const runWithHeartbeat = Effect.fn("Worker.run")(function* () {
   const heartbeat = yield* Effect.forkChild(heartbeatLoop)
   const result = yield* doWork
@@ -734,6 +775,8 @@ Example:
 
 ```ts
 import * as Effect from "effect/Effect";
+
+declare const fetchUser: (id: string) => Effect.Effect<{ readonly id: string }>;
 const hydrateUsers = (ids: ReadonlyArray<string>) =>
   Effect.forEach(ids, fetchUser, { concurrency: 8 })
 ```
@@ -783,8 +826,12 @@ const loadApiKey = Effect.fn("Config.loadApiKey")(function* () {
 Example:
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option"
+
+class UserNotFoundError extends S.TaggedError<UserNotFoundError, { readonly brand: unique symbol }>()("UserNotFoundError", {}) {}
+declare const findUser: (id: string) => Effect.Effect<string, UserNotFoundError>;
 
 const findUserOptional = (id: string) =>
   findUser(id).pipe(
@@ -803,7 +850,10 @@ const findUserOptional = (id: string) =>
 Example:
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+
+class ValidationError extends S.TaggedError<ValidationError, { readonly brand: unique symbol }>()("ValidationError", { message: S.String }) {}
 const validateInput = Effect.fn("Input.validate")(function* (value: string) {
   if (value.length === 0) {
     return yield* Effect.fail(new ValidationError({ message: "value must be non-empty" }))
@@ -829,6 +879,11 @@ Example:
 ```ts
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+
+import * as Context from "effect/Context";
+class AppService extends Context.Service<AppService, { readonly value: string }>()("example/AppService") {}
+const program = AppService.use((service) => Effect.succeed(service.value));
+const AppLayer = Layer.effect(AppService, Effect.sync(() => ({ value: "isolated instance" })));
 const runIsolated = program.pipe(
   Effect.provide(Layer.fresh(AppLayer), { local: true })
 )
@@ -870,8 +925,11 @@ const runIsolated = program.pipe(
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -915,21 +973,25 @@ const input = CreateOrderInput.make({ orderId: "o-1", customerId: "c-1" })
 Example:
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Effect from "effect/Effect";
+import * as Identity from "@beep/identity";
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 export class VersionSyncOptions extends S.Opaque<VersionSyncOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     shouldCheck: S.Boolean.pipe(
-      S.withDecodingDefaultKey(() => true),
-      S.withConstructorDefault(() => O.some(true))
+      S.withDecodingDefaultKey(Effect.succeed(true)),
+      S.withConstructorDefault(Effect.succeed(true))
     ),
     categories: S.Array(S.String).pipe(
-      S.withDecodingDefaultKey(() => []),
-      S.withConstructorDefault(() => O.some([]))
+      S.withDecodingDefaultKey(Effect.succeed([])),
+      S.withConstructorDefault(Effect.succeed([]))
     )
   }).pipe($I.annoteSchema("VersionSyncOptions", {
     description: "Version sync options with schema-level defaults."
@@ -944,7 +1006,7 @@ export class VersionSyncOptions extends S.Opaque<VersionSyncOptions, { readonly 
 - Prefer built-in schema constructors/checks before `S.makeFilter`.
 - Keep guard intent and reusable check intent in schema annotations and check metadata.
 - Use `LiteralKit` for named internal literal domains whenever `.Enum`, `.is`,
-  `$match`, `.toTaggedUnion`, or annotation-bearing schema values are useful;
+  `match`, `.toTaggedUnion`, or annotation-bearing schema values are useful;
   use `S.Literals` for anonymous inline unions never referenced by name.
 - Use `MappedLiteralKit` when a literal protocol/code map needs helpers on both
   the encoded and decoded sides.
@@ -959,7 +1021,7 @@ Example:
 
 ```ts
 import { LiteralKit } from "@beep/schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as Match from "effect/Match";
 import { pipe } from "effect/Function";
 import * as F from "effect/Function"
@@ -967,6 +1029,9 @@ import * as A from "effect/Array"
 import * as P from "effect/Predicate"
 import * as S from "effect/Schema"
 import * as Str from "effect/String"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -1024,7 +1089,7 @@ export const TopicName = S.NonEmptyString.check(
         pipe(
           value,
           classifyTopicKind,
-          TopicKind.$match({
+          TopicKind.match({
             plain: isTopicSegment,
             scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
           })
@@ -1056,7 +1121,7 @@ Avoid this:
 - Use `S.TaggedUnion` / `S.toTaggedUnion` static APIs (`.cases`, `.guards`,
   `.isAnyOf`, `.match`) for construction, guards, grouped checks, and
   exhaustive branching.
-- Use `LiteralKit` static APIs (`.Enum`, `.is`, `.$match`, `.toTaggedUnion`)
+- Use `LiteralKit` static APIs (`.Enum`, `.is`, `.match`, `.toTaggedUnion`)
   and the `S.Literals` members it inherits (`.literals`, `.pick(...)`) instead
   of duplicate literal arrays, enum-like objects, and ad-hoc literal guards.
 - Use class-local statics for repeated `decode`, `encode`, `arbitrary`, and
@@ -1117,6 +1182,8 @@ Example:
 import * as Order from "effect/Order";
 import * as A from "effect/Array"
 
+declare const items: ReadonlyArray<{ readonly name: string }>;
+
 const byName = Order.mapInput(Order.String, (item: { readonly name: string }) => item.name)
 const sorted = A.sort(items, byName)
 ```
@@ -1167,12 +1234,13 @@ const UnknownToString = S.Unknown.pipe(
 Example:
 
 ```ts
+import * as Effect from "effect/Effect"
 import * as S from "effect/Schema"
 
 export const Draft = S.Struct({
   title: S.String,
   subtitle: S.optionalKey(S.String),
-  revision: S.Int.pipe(S.withDecodingDefaultKey(() => 1)),
+  revision: S.Int.pipe(S.withDecodingDefaultKey(Effect.succeed(1))),
   tags: S.OptionFromOptionalKey(S.Array(S.String))
 })
 ```
@@ -1183,7 +1251,10 @@ export const Draft = S.Struct({
 
 ```ts
 import * as S from "effect/Schema"
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -1221,8 +1292,11 @@ const fromNullableName = (name: string | null | undefined) =>
 ### Template: Decode unknown at API edge
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -1249,8 +1323,11 @@ export type OrderId = typeof OrderId.Type
 ### Template: Schema-first replacement for interface
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -1264,13 +1341,18 @@ export class UserProfile extends S.Opaque<UserProfile, { readonly brand: unique 
 ) {}
 ```
 
-### Template: Match, LiteralKit([/* ... */]).$match or effect/Schema TaggedUnion over switch
+### Template: Match, LiteralKit([/* ... */]).match or effect/Schema TaggedUnion over switch
 
 ```ts
+import * as Identity from "@beep/identity";
+import * as S from "effect/Schema";
+import * as Tuple from "effect/Tuple";
 import * as Match from "effect/Match";
 import * as A from "effect/Array"
 import { LiteralKit } from "@beep/schema";
 
+const { $ExampleId } = Identity.make("example");
+const $I = $ExampleId.create("matching");
 
 const Phase = LiteralKit(
   [
@@ -1280,13 +1362,14 @@ const Phase = LiteralKit(
   ]
 )
 
-const TaggedPhase = Phase.mapMembers(Tuple.evolve([
-  () => S.Struct({ phase: S.tag(Phase.Enum.draft)}),
-  () => S.Struct({ phase: S.tag(Phase.Enum.running)}),
-  () => S.Struct({ phase: S.tag(Phase.Enum.done)})
-])).pipe(S.toTaggedUnion("phase"))
+type Phase = typeof Phase.Type;
+const TaggedPhase = Phase.mapMembers(([draft, running, done]) => Tuple.make(
+  S.Struct({ phase: S.tag(Phase.Enum.draft)}),
+  S.Struct({ phase: S.tag(Phase.Enum.running)}),
+  S.Struct({ phase: S.tag(Phase.Enum.done)})
+)).pipe(S.toTaggedUnion("phase"))
 type TaggedPhase = typeof TaggedPhase.Type;
-const phaseLabel = Phase.$match({
+const phaseLabel = Phase.match({
   draft: () => "draft",
   running: () => "running",
   done: () => "done"
@@ -1296,7 +1379,7 @@ const matchPhase: (taggedPhase: TaggedPhase) => Phase = TaggedPhase.match({
   draft: ({phase}) => phase,
   running: ({ phase }) => phase,
   done: ({ phase }) => phase,
-})(taggedPhase)
+})
 
 const summarize = (items: ReadonlyArray<string>) =>
   A.match(items, {
@@ -1343,8 +1426,11 @@ export const runTask = Effect.fn("Task.run")(function* (taskId: string) {
 ### Template: Option schema from nullish/optional
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -1372,8 +1458,11 @@ export const rename: {
 ### Template: JSON boundary without native JSON APIs
 
 ```ts
-import { $PackageNameId } from "@beep/identity/packages"
+import * as Identity from "@beep/identity";
 import * as S from "effect/Schema"
+
+// Illustrative package composer; no registered workspace package is assumed.
+const { $PackageNameId } = Identity.make("package-name");
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
@@ -1406,7 +1495,13 @@ export const buildReport = Effect.fn("Report.build")(function* () {
 ### Template: Scoped resource helper
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+
+const Resource = S.Struct({ id: S.String });
+type Resource = typeof Resource.Type;
+declare const acquireResource: Effect.Effect<Resource>;
+declare const releaseResource: (resource: Resource) => Effect.Effect<void>;
 export const withResource = <A, E, R>(
   use: (resource: Resource) => Effect.Effect<A, E, R>
 ) =>
@@ -1423,6 +1518,8 @@ export const withResource = <A, E, R>(
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
+
+declare const task: Effect.Effect<string, string>;
 export const resilientTask = task.pipe(
   Effect.retry(Schedule.recurs(3)),
   Effect.timeoutOption(Duration.seconds(5))
@@ -1446,6 +1543,11 @@ export const loadConfig = Effect.fn("Config.load")(function* () {
 ```ts
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+
+import * as Context from "effect/Context";
+class AppService extends Context.Service<AppService, { readonly value: string }>()("example/AppService") {}
+const program = AppService.use((service) => Effect.succeed(service.value));
+const AppLayer = Layer.effect(AppService, Effect.sync(() => ({ value: "isolated instance" })));
 export const runIsolated = program.pipe(
   Effect.provide(Layer.fresh(AppLayer), { local: true })
 )
@@ -1486,7 +1588,7 @@ Use this before submitting code:
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
 31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.
-32. Finite variants, lifecycle states, status/result cases, and case-specific payloads are modeled as discriminated unions; literal-string discriminants and named internal literal domains use `LiteralKit` when `.Enum`, `.is`, `$match`, or `.toTaggedUnion` are needed; anonymous inline unions never referenced by name use `S.Literals`.
+=======
 33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefaultKey`, not ad-hoc fallback objects in handlers/services.
 34. Named or reused domain constraints are modeled as schemas first; built-in schema constructors/checks are preferred before `S.makeFilter`.
 35. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.

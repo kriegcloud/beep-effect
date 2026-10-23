@@ -17,6 +17,7 @@ Loaded on demand from `effect-first-development/SKILL.md`. Repository laws win o
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
+declare const task: Effect.Effect<string, string>;
 const resilient = task.pipe(
   Effect.retry(Schedule.recurs(3)),
   Effect.timeoutOption(Duration.seconds(5))
@@ -28,6 +29,9 @@ const resilient = task.pipe(
 ```ts
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+type Job = { readonly id: string };
+declare const backgroundHeartbeat: Effect.Effect<void>;
+declare const runJob: (job: Job) => Effect.Effect<string>;
 const runWorkers = Effect.fn("Workers.run")(function* (jobs: ReadonlyArray<Job>) {
   const fiber = yield* Effect.forkChild(backgroundHeartbeat)
   const results = yield* Effect.forEach(jobs, runJob, { concurrency: 8 })
@@ -55,8 +59,11 @@ const loadSettings = Effect.fn("Settings.load")(function* () {
 ### 21) Precise recovery by tag
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option"
+class UserNotFoundError extends S.TaggedError<UserNotFoundError, { readonly brand: unique symbol }>()("UserNotFoundError", { id: S.String }) {}
+declare const findUser: (id: string) => Effect.Effect<{ readonly id: string }, UserNotFoundError>;
 
 const findUserOptional = (id: string) =>
   findUser(id).pipe(
@@ -68,7 +75,10 @@ const findUserOptional = (id: string) =>
 ### 22) Expected failures vs defects
 
 ```ts
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+type Input = { readonly value: string };
+class ValidationError extends S.TaggedError<ValidationError, { readonly brand: unique symbol }>()("ValidationError", { message: S.String }) {}
 const process = Effect.fn("Process.run")(function* (input: Input) {
   if (input.value.length === 0) {
     return yield* Effect.fail(new ValidationError({ message: "value must be non-empty" }))
@@ -87,6 +97,10 @@ const process = Effect.fn("Process.run")(function* (input: Input) {
 ```ts
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Context from "effect/Context";
+class AppService extends Context.Service<AppService, { readonly value: string }>()("example/AppService") {}
+const program = AppService.use((service) => Effect.succeed(service.value));
+const AppLayer = Layer.effect(AppService, Effect.sync(() => ({ value: "isolated instance" })));
 const isolatedProgram = program.pipe(
   Effect.provide(Layer.fresh(AppLayer), { local: true })
 )

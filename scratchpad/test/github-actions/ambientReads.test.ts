@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -209,7 +209,6 @@ describe("ambient process reads", () => {
 		assert.include(files, "ActionEnvironment.ts");
 	});
 
-	// biome-ignore-start lint/suspicious/noTemplateCurlyInString: the fixtures are SOURCE TEXT holding template substitutions for the scanner to read — the `${` is the point
 	it("the scanner counts code, not comments or strings, and sees inside a template substitution", () => {
 		const fixture = [
 			'const a = "/* process.env */";', // a string literal: one token, never a read
@@ -234,7 +233,6 @@ describe("ambient process reads", () => {
 		);
 		assert.deepStrictEqual(scanAmbientReads("const t = `${1} process.env`; const u = 2;"), []);
 	});
-	// biome-ignore-end lint/suspicious/noTemplateCurlyInString: fixtures end
 
 	it("a lookalike is not a read: another object's `.env`, or `process` without the member", () => {
 		assert.deepStrictEqual(scanAmbientReads("const a = options.env; const b = process; const c = process.pid;"), []);

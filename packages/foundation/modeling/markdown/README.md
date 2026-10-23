@@ -12,7 +12,7 @@ The engine is a vendored, hardened port of commonmark.js, the reference parser m
 
 Nodes use mdast's type names and field shapes, so the tree is already what the remark ecosystem reads, and `Mdast.toMdast` strips this package's fidelity fields to give you plain mdast JSON. Frontmatter, which mdast cannot parse, is captured behind a parse option and decoded through per-format codecs that live on their own subpaths, so a bundle that needs the JSON codec never pulls in the yaml engine.
 
-Rendering markdown to HTML is out of scope. Reach your existing renderer through the mdast projection.
+Rendering markdown to HTML is out of scope. Reach your existing renderer through the mdast projection, or bridge into the repo's semantic Markdown model: `@beep/md/Md.parse` and `@beep/md/Md.syntax` fold a parsed `MarkdownDocument` into an `Md.Document`, report every construct they cannot carry as a typed loss, and keep a source map back to this package's positions. `@beep/md` then renders Markdown or safe HTML.
 
 The package is ESM-only. Its runtime dependencies are `effect` v4 and the workspace packages `@beep/identity`, `@beep/schema` and `@beep/utils`; the frontmatter codecs add `@beep/yaml`, `@beep/toml` and `@beep/jsonc`, and only the codec you import reaches your bundle. Import from the leaf modules (`@beep/markdown/MarkdownDocument`, `@beep/markdown/Markdown`, and so on). The root barrel re-exports the core leaves only.
 
@@ -262,7 +262,7 @@ console.log(JSON.stringify(split.body)); // "Body\n"
 console.log(FrontmatterSource.join(split) === "---\ntitle: x\n---\nBody\n"); // true
 ```
 
-`split` is total. It returns the block's format, the exact bytes between the fence lines and the body, with `body` always equal to `source.slice(bodyOffset)`; a missing block is a representable result, not an error. `join` reproduces the original bytes for an unmodified round trip, with two normalizations: a closing fence that ends the document without a line terminator gains one, and fence lines with mismatched terminators are both re-emitted with the opening fence's. The value and body bytes are never parsed at this level.
+`split` is total. It returns the block's format, the exact bytes between the fence lines and the body, with `body` always equal to `source.slice(bodyOffset)`; a missing block is a representable result, not an error. A fence line is the fence itself, optionally followed by spaces and tabs, on the opening and the closing line alike; an indented line is never a fence. `join` reproduces the original bytes for an unmodified round trip, with three normalizations: a closing fence that ends the document without a line terminator gains one, fence lines with mismatched terminators are both re-emitted with the opening fence's, and trailing spaces or tabs on a fence line are dropped, because `join`, like `MarkdownFrontmatter.set`, always writes the canonical fence. The value and body bytes are never parsed at this level.
 
 ### mdast interop
 
@@ -447,6 +447,10 @@ Promotion (wave 2d-1):
 - **export-surface**: The MDX nodes moved to the `@beep/markdown/MarkdownMdx` leaf. They remain members of `FlowContent` and `PhrasingContent`, so only the export surface changed. The root barrel is core-only and codec-free: `Frontmatter`, `FrontmatterResolver` and the three codecs are subpath-only, and a closure test asserts that no root-barrel module reaches `@beep/yaml`, `@beep/toml` or `@beep/jsonc`.
 - **tagged-errors**: The engine carriers `RawMarkdownError` and `GuardExceeded` are `S.TaggedError` schemas (upstream and the lab used `Data.TaggedError`), and `MarkdownVisitorEvent` is an `S.TaggedUnion` (upstream used `Data.TaggedEnum`).
 - **conformance-data**: The conformance corpora live under `data/conformance/`, ship with the package and are exported as `./conformance/*`; the test harness loads them with `import.meta.glob` instead of `node:fs`.
+
+Promotion (wave 2d-A):
+
+- **frontmatter-fence-whitespace**: A frontmatter fence line may carry trailing spaces and tabs, on the opening and the closing line, for `---`, `+++` and `---json` alike; upstream and the lab required the line to be exactly the fence. This matches micromark-extension-frontmatter 2.0.0 (and so remark-frontmatter), gray-matter's trimmed language hint, and `@changesets/parse` 1.0.0, which closes on `--- `. The parser's capture, `hasFrontmatterBlock` and `FrontmatterSource.split` share the widened grammar; `FrontmatterSource.join` and `MarkdownFrontmatter.set` still write canonical fences. Indentation is still not a fence, as in micromark and gray-matter; only `@changesets/parse` accepts it (test/frontmatter.test.ts; frontmatter-source.test.ts; frontmatter-write.test.ts; internal/blocks/frontmatter.property.test.ts).
 
 Port:
 

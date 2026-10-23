@@ -70,7 +70,7 @@ export type ExactOptionalKeysRetiredMember = typeof ExactOptionalKeysRetiredMemb
 
 const isRetiredMember = S.is(ExactOptionalKeysRetiredMember);
 
-const exactSibling = ExactOptionalKeysRetiredMember.$match({
+const exactSibling = ExactOptionalKeysRetiredMember.match({
   optional: () => "optionalKey",
   withDecodingDefault: () => "withDecodingDefaultKey",
   OptionFromOptional: () => "OptionFromOptionalKey",

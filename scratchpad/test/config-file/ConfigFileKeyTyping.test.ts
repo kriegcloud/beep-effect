@@ -41,9 +41,9 @@ describe("ConfigFile key typing", () => {
 	});
 
 	it("layer and testLayer reject a key over a wider shape", () => {
-		// @ts-expect-error a wider shape would be handed a value missing `extra`
+		// @ts-expect-error -- a wider shape would be handed a value missing `extra`. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 		const layer = () => ConfigFile.layer(WiderFile, { ...options, resolvers: [] });
-		// @ts-expect-error the same pin applies to testLayer
+		// @ts-expect-error -- the same pin applies to testLayer. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 		const testLayer = () => ConfigFile.testLayer(WiderFile, { ...options, files: {} });
 		const accepted = () => ConfigFile.testLayer(SettingsFile, { ...options, files: {} });
 		for (const build of [layer, testLayer, accepted]) assert.isFunction(build);
@@ -70,7 +70,7 @@ describe("ConfigFile key typing", () => {
 
 	it("still rejects a wider key when the strategy is a bare firstMatch()", () => {
 		const build = () =>
-			// @ts-expect-error a wider shape would be handed a value missing `extra`
+			// @ts-expect-error -- a wider shape would be handed a value missing `extra`. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 			ConfigFile.layer(WiderFile, {
 				schema: Settings,
 				codec: JsonCodec,

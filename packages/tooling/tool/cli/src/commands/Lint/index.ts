@@ -67,6 +67,13 @@ export * from "./internal/SchemaParityCodemodExactOptionalKeysRule.ts";
  * @since 0.0.0
  */
 export * from "./internal/SchemaParityCodemodImports.ts";
+/**
+ * The `literal-kit-facets` codemod rule.
+ *
+ * @category policies
+ * @since 0.0.0
+ */
+export * from "./internal/SchemaParityCodemodLiteralKitMatchRule.ts";
 export * from "./internal/SchemaParityCodemodLiteralKitRule.ts";
 /**
  * Judge-rubric lens drift lint utilities.

@@ -312,7 +312,7 @@ const ClassificationPinFields = S.Struct({
 }).check(
   S.makeFilter(
     (pin) =>
-      ClassificationSchemeKind.$match(pin.kind, {
+      ClassificationSchemeKind.match(pin.kind, {
         ipc: () => S.is(IpcEdition)(pin.edition),
         cpc: () => S.is(CpcEdition)(pin.edition),
         nice: () => S.is(NiceEdition)(pin.edition),

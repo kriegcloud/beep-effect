@@ -4,7 +4,6 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-/* cspell:ignore atrule Resizer */
 /// <reference path="../../../css.d.ts" />
 
 import type { EditorThemeClasses } from "lexical";

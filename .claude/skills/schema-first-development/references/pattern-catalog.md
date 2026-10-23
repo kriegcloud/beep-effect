@@ -13,6 +13,9 @@ Trigger:
 Preferred replacement:
 
 ```ts
+import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("examples");
 export class TaskInput extends S.Opaque<TaskInput, { readonly brand: unique symbol }>()(
   S.Struct({
     id: S.String,

@@ -441,7 +441,7 @@ export class DescendError extends S.TaggedError<DescendError, { readonly brand: 
    * @since 0.0.0
    */
   override get message(): string {
-    const failure: DescendFailure = DescendErrorReason.$match(this.reason, {
+    const failure: DescendFailure = DescendErrorReason.match(this.reason, {
       unreadableDirectory: (reason) => DescendFailure.cases.unreadableDirectory.make({ reason }),
       depthExceeded: (reason) =>
         DescendFailure.cases.depthExceeded.make({ reason, limit: O.fromNullishOr(this.limit) }),

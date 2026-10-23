@@ -1204,7 +1204,7 @@ class PinContractTests(unittest.TestCase):
         self.assertEqual((census["residue"]["keys_projected"], census["residue"]["origin_keys_replaced"]), (21, 11))
         self.assertEqual(sum(e["facts"] for e in census["origin"]), 10)
         self.assertEqual(self.run_main()["ledger"]["status"], "verified")
-        present = lambda m: next(e for e in m["ledgers"] if e["checkout"] == "beep-effect")  # noqa: E731
+        present = lambda m: next(e for e in m["ledgers"] if e["checkout"] == "beep-effect")
         self.assert_census_fails(lambda m: present(m).update(unpaired_adjacent_to_tear=0), "unpaired_adjacent_to_tear")
         self.assert_census_fails(lambda m: m["census"]["pairing"].update(unpaired_adjacent_to_tear=0),
                                  "ledger census differs: pairing")
@@ -1599,13 +1599,13 @@ class PinContractTests(unittest.TestCase):
 
     def test_absent_receipts_carry_zero_counts_bound_at_verify(self):
         self.run_main()
-        absent = lambda m: next(e for e in m["ledgers"] if e["ledger"] == "absent")  # noqa: E731
+        absent = lambda m: next(e for e in m["ledgers"] if e["ledger"] == "absent")
         self.assert_census_fails(lambda m: absent(m).update(rows=1), "absent ledger census differs: rows")
         self.assert_census_fails(lambda m: absent(m).update(first_recorded_at="2026-09-29T10:00:00.000Z"),
                                  "absent ledger census differs: first_recorded_at")
         self.assert_census_fails(lambda m: absent(m).update(path="ledgers/x/proof-ledger.ndjson"),
                                  "ledger receipt members differ")
-        present = lambda m: next(e for e in m["ledgers"] if e["checkout"] == "beep-effect")  # noqa: E731
+        present = lambda m: next(e for e in m["ledgers"] if e["checkout"] == "beep-effect")
         self.assert_census_fails(lambda m: present(m).update(source_line_ranges=[[1, 19]]), "source line ranges differ")
         self.assert_census_fails(lambda m: present(m).update(unpaired_adjacent_to_tear=1),
                                  "pairing census differs: unpaired_adjacent_to_tear")

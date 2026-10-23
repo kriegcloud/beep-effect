@@ -1,4 +1,4 @@
-/* biome-ignore-all lint/suspicious/noConsole: This CLI prints its inventory, progress, and terminal result. */
+/* biome-ignore-all lint/suspicious/noConsole: This CLI prints its inventory, progress, and terminal result. Owner: goals/lexical-playground-capability-atlas. Exit: the runner moves into a CLI command with an Effect Logger. */
 import { createHash } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -32,7 +32,7 @@ const RUN_LOCK_PATH = resolve(
   tmpdir(),
   `lexical-playground-capability-atlas-${createHash("sha256").update(EVIDENCE_ROOT).digest("hex").slice(0, 16)}.runner.lock`
 );
-// biome-ignore lint/suspicious/noUndeclaredEnvVars: This standalone runner is not a cached Turbo task.
+// biome-ignore lint/suspicious/noUndeclaredEnvVars: This standalone runner is not a cached Turbo task. Owner: goals/lexical-playground-capability-atlas. Exit: the runner becomes a Turbo task that declares its env.
 const BASE_URL = process.env.EXERCISE_BASE_URL ?? "http://localhost:3000";
 const DEFAULT_VIEWPORT = { height: 900, width: 1280 } as const;
 const BASELINE_EGRESS_HOSTS: ReadonlyArray<string> = [
@@ -758,7 +758,7 @@ const main = async (): Promise<void> => {
     if (selected.some(({ scripted }) => scripted)) {
       const browser = await chromium.launch({
         args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
-        // biome-ignore lint/suspicious/noUndeclaredEnvVars: This standalone runner is not a cached Turbo task.
+        // biome-ignore lint/suspicious/noUndeclaredEnvVars: This standalone runner is not a cached Turbo task. Owner: goals/lexical-playground-capability-atlas. Exit: the runner becomes a Turbo task that declares its env.
         headless: process.env.EXERCISE_HEADLESS !== "0",
       });
       try {

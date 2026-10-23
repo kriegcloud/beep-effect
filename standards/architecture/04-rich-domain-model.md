@@ -77,7 +77,7 @@ Tagged schema values should also own their derived helper surface. Use
 `S.TaggedUnion` / `S.toTaggedUnion` `.cases`, `.guards`, `.isAnyOf`, and
 `.match` helpers instead of duplicating discriminator switches and guard maps.
 For named internal literal domains, use `LiteralKit` helpers such as `.Enum`,
-`.is`, `.$match`, and `.toTaggedUnion`, with the inherited `S.Literals` members
+`.is`, `.match`, and `.toTaggedUnion`, with the inherited `S.Literals` members
 `.literals` and `.pick(...)` for the member tuple and subsets; use
 `MappedLiteralKit` when a protocol/code map needs helpers on both the encoded
 and decoded sides. Anonymous inline unions never referenced by name use
@@ -155,13 +155,20 @@ not, however, depend on live encoder/decoder services, provided through a
 `Membership.model.ts` can own simple behavior:
 
 ````ts
-import { $IamDomainId } from "@beep/identity"
+import * as Identity from "@beep/identity";
 import { LiteralKit } from "@beep/schema"
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema"
-import { ActorId } from "@beep/iam-domain/entities/Actor"
-import { OrganizationId } from "@beep/iam-domain/entities/Organization"
-import { MembershipAlreadyRevoked } from "./Membership.errors.ts"
+
+// Small local stand-ins for the illustrative slice imports.
+const ActorId = S.String.pipe(S.brand("ActorId"));
+const OrganizationId = S.String.pipe(S.brand("OrganizationId"));
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+// import { ActorId } from "@beep/iam-domain/entities/Actor"
+// import { OrganizationId } from "@beep/iam-domain/entities/Organization"
+// import { MembershipAlreadyRevoked } from "./Membership.errors.ts"
+// Illustrative package composer; no registered workspace package is assumed.
+const { $IamDomainId } = Identity.make("iam-domain");
 
 const $I = $IamDomainId.create("entities/Membership/Membership.model")
 
@@ -216,7 +223,7 @@ export type MembershipStatus = typeof MembershipStatus.Type
  * @invariant `status` only transitions toward `"revoked"` via `revoke`.
  * @since 0.0.0
  */
-export class Membership extends Model.Class<Membership>($I`Membership`)(
+export class Membership extends S.Class<Membership, { readonly brand: unique symbol }>($I`Membership`)(
   {
     id: MembershipId,
     organizationId: OrganizationId,
@@ -273,7 +280,19 @@ EF-33; `DECISIONS.md` 2026-10-14).
 `Membership.policy.ts` can own larger pure decisions:
 
 ````ts
-import { type Membership, MembershipRole, MembershipStatus } from "./Membership.model.ts"
+import { LiteralKit } from "@beep/schema";
+import * as O from "effect/Option";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+// Small local stand-ins for the illustrative slice imports.
+const Membership = S.Struct({ id: MembershipId, role: MembershipRole, status: MembershipStatus });
+type Membership = typeof Membership.Type;
+// import { type Membership, MembershipRole, MembershipStatus } from "./Membership.model.ts"
 
 /**
  * Pure decision rule: whether a membership may be promoted to `owner`.
@@ -291,10 +310,34 @@ export const canPromoteToOwner = (model: Membership): boolean =>
 `Membership.behavior.ts` can own pure transitions:
 
 ````ts
+import { LiteralKit } from "@beep/schema";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
-import { MembershipRoleChangeRejected } from "./Membership.errors.ts"
-import { Membership, MembershipRole } from "./Membership.model.ts"
-import { canPromoteToOwner } from "./Membership.policy.ts"
+
+// Small local stand-ins for the illustrative slice imports.
+class MembershipRoleChangeRejected extends S.TaggedError<MembershipRoleChangeRejected, { readonly brand: unique symbol }>()("MembershipRoleChangeRejected", {}) {}
+class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>()("MembershipAlreadyRevoked", {}) {}
+const MembershipId = S.String.pipe(S.brand("MembershipId"));
+type MembershipId = typeof MembershipId.Type;
+const MembershipRole = LiteralKit(["owner", "admin", "member"]);
+const MembershipStatus = LiteralKit(["active", "invited", "revoked"]);
+class Membership extends S.Class<Membership, { readonly brand: unique symbol }>("Membership")({
+  id: MembershipId, organizationId: S.String, actorId: S.String,
+  role: MembershipRole, status: MembershipStatus,
+}) {
+  canRevoke(): boolean { return !MembershipStatus.is.revoked(this.status); }
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(Membership.make({ ...this, status: MembershipStatus.Enum.revoked }))
+      : Effect.fail(new MembershipAlreadyRevoked());
+  }
+}
+const canPromoteToOwner = (model: Membership): boolean =>
+  MembershipStatus.is.active(model.status) && !MembershipRole.is.owner(model.role);
+// import { MembershipRoleChangeRejected } from "./Membership.errors.ts"
+// import { Membership, MembershipRole } from "./Membership.model.ts"
+// import { canPromoteToOwner } from "./Membership.policy.ts"
 
 /**
  * Pure transition that promotes a membership to the `owner` role when allowed.

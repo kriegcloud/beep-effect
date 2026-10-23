@@ -5,7 +5,6 @@
   "owner": "@beep/langextract",
   "entries": [
     {"file":"packages/foundation/capability/langextract/src/Alignment/Alignment.model.ts","symbol":"AlignedMatch","kind":"schema-const","owner":"@beep/langextract","identity":"AlignedMatch","description":"A successful match tagged with the alignment tier that produced it."},
-    {"file":"packages/foundation/capability/langextract/src/Alignment/Alignment.model.ts","symbol":"AlignedStatus","kind":"literal-kit","owner":"@beep/langextract","identity":"AlignedStatus","description":"Alignment status of a successfully matched candidate; absence of a match is Option.none, never a member."},
     {"file":"packages/foundation/capability/langextract/src/Alignment/Alignment.model.ts","symbol":"AlignmentSource","kind":"struct-const","owner":"@beep/langextract","identity":"AlignmentSource","description":"Source text plus resolved alignment options consumed by one deterministic alignment run."},
     {"file":"packages/foundation/capability/langextract/src/Alignment/Alignment.model.ts","symbol":"GroundedExtractionFromCandidate","kind":"codec","owner":"@beep/langextract","identity":"GroundedExtractionFromCandidate","description":"Context-aware codec from a model candidate to a source-grounded extraction."},
     {"file":"packages/foundation/capability/langextract/src/Alignment/Alignment.model.ts","symbol":"GroundedExtractionsFromCandidates","kind":"codec","owner":"@beep/langextract","identity":"GroundedExtractionsFromCandidates","description":"Context-aware codec from candidate batches to source-grounded extractions."},

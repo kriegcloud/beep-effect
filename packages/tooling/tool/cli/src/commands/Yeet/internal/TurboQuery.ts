@@ -135,7 +135,7 @@ const decodeTurboQueryAffectedDocument = S.decodeUnknownEffect(S.fromJsonString(
 const decodeTurboQueryLsDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryLsDocument));
 
 const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
-  YeetRunMode.$match(mode, {
+  YeetRunMode.match(mode, {
     closeout: () => false,
     publish: () => false,
     repair: () => true,

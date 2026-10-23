@@ -584,7 +584,7 @@ class JudgeOutputInventoryDecodesAllowed extends S.Opaque<
  * ```ts
  * import { JudgeOutputDecodeFailure } from "@beep/repo-cli/commands/Qa"
  *
- * console.log(JudgeOutputDecodeFailure.$match("malformed-json", {
+ * console.log(JudgeOutputDecodeFailure.match("malformed-json", {
  *   "inventory-schema-rejected": () => "schema",
  *   "malformed-json": () => "json"
  * })) // "json"
@@ -689,7 +689,7 @@ const outputDecodeDenial = (
       gateId: judgeOutputInventoryDecodesGateId,
       occurredAt,
       outcome: "denied",
-      reason: JudgeOutputDecodeFailure.$match(failure, {
+      reason: JudgeOutputDecodeFailure.match(failure, {
         "inventory-schema-rejected": () => "The judge output candidate does not decode as qa-inventory/v1.",
         "malformed-json": () => "The judge output candidate does not parse as JSON.",
       }),
