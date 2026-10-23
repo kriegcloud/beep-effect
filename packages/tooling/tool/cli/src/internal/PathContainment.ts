@@ -27,7 +27,7 @@ import type * as Path from "effect/Path";
  * **Example** (Check a path against a root)
  *
  * ```ts
- * import { isWithinRoot } from "@beep/repo-cli/internal/PathContainment"
+ * import { isWithinRoot } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect"
  * import * as Path from "effect/Path"
  *

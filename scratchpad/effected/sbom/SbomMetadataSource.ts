@@ -88,7 +88,7 @@ export const SbomMetadataOptions = S.Struct({
 	/** The supplying organization — NTIA minimum element 1. */
 	supplier: S.optionalKey(Supplier).pipe($I.annoteKey("SbomMetadataOptions.supplier", { description: "The supplying organization — NTIA minimum element 1." })),
 	/** Who assembled the BOM — NTIA minimum element 6. */
-	authors: Contact.pipe(S.Array, S.optional, $I.annoteKey("SbomMetadataOptions.authors", { description: "Who assembled the BOM — NTIA minimum element 6." })),
+	authors: Contact.pipe(S.Array, S.optionalKey, $I.annoteKey("SbomMetadataOptions.authors", { description: "Who assembled the BOM — NTIA minimum element 6." })),
 	/** When it was assembled — NTIA minimum element 7, as an ISO 8601 string. */
 	timestamp: S.optionalKey(S.String).pipe($I.annoteKey("SbomMetadataOptions.timestamp", { description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string." })),
 	/** The publishing entity. Falls back to the supplier, then the manifest's author. */

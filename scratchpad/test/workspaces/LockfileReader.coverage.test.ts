@@ -4,7 +4,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
-import { Lockfile } from "../../effected/lockfiles/index.ts";
+import { Lockfile } from "@beep/lockfiles";
 import { LockfileReader } from "../../effected/workspaces/LockfileReader.ts";
 import { Workspaces } from "../../effected/workspaces/Workspaces.ts";
 import { platform } from "./fixtures.ts";

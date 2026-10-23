@@ -50,7 +50,7 @@ import type { TurboCacheValueSource } from "./TurboCache.ts";
  * **Example** (Check HOME is Option)
  *
  * ```ts
- * import { configStringOptionSync } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { configStringOptionSync } from "@beep/repo-cli/test/SharedInternals"
  * import * as O from "effect/Option"
  *
  * console.log(O.isOption(configStringOptionSync("HOME")))
@@ -78,7 +78,7 @@ export const configStringOptionSync = (name: string): O.Option<string> =>
  * **Example** (Match CI equals true)
  *
  * ```ts
- * import { configStringEqualsSync } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { configStringEqualsSync } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(configStringEqualsSync("CI", "true"))
  * ```
@@ -106,7 +106,7 @@ export const configStringEqualsSync: {
  * **Example** (Run HOME option Effect)
  *
  * ```ts
- * import { configStringOption } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { configStringOption } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -185,7 +185,7 @@ export const isCiSync = (): boolean => Bun.env.CI === "true" || configStringEqua
  * **Example** (Effect for optional HOME)
  *
  * ```ts
- * import { readOptionalConfigString } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { readOptionalConfigString } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * console.log(Effect.isEffect(readOptionalConfigString("HOME")))
  * ```
@@ -205,7 +205,7 @@ export const readOptionalConfigString = (key: string) =>
  * **Example** (Effect for redacted SECRET)
  *
  * ```ts
- * import { readOptionalRedactedConfigString } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { readOptionalRedactedConfigString } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * console.log(Effect.isEffect(readOptionalRedactedConfigString("SECRET")))
  * ```
@@ -224,7 +224,7 @@ export const readOptionalRedactedConfigString = (key: string) =>
  * **Example** (Default for unset variable)
  *
  * ```ts
- * import { envValue } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { envValue } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(envValue("DEFINITELY_UNSET_VAR", "default")) // "default"
  * ```
@@ -252,7 +252,7 @@ export const envValue: {
  * **Example** (Integer default for unset)
  *
  * ```ts
- * import { intEnvValue } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { intEnvValue } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(intEnvValue("DEFINITELY_UNSET_VAR", 180))
  * ```
@@ -278,7 +278,7 @@ export const intEnvValue: {
  * **Example** (Boolean default for unset)
  *
  * ```ts
- * import { booleanEnvValue } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { booleanEnvValue } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(booleanEnvValue("DEFINITELY_UNSET_VAR", true))
  * ```
@@ -310,7 +310,7 @@ export const booleanEnvValue: {
  * **Example** (Detect unresolved op references)
  *
  * ```ts
- * import { isUnresolvedSecretReference } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { isUnresolvedSecretReference } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(isUnresolvedSecretReference("op://vault/item/field"))
  * console.log(isUnresolvedSecretReference("postgres://user:op://vault/item/password@host/db"))
@@ -356,7 +356,7 @@ const isOpRunTurbo = (command: string, args: ReadonlyArray<string>): boolean =>
  * **Example** (Recognize a planned Turbo command)
  *
  * ```ts
- * import { isPlannedTurboCommand } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { isPlannedTurboCommand } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(isPlannedTurboCommand("bunx", ["turbo", "run", "check"])) // true
  * ```
@@ -650,7 +650,7 @@ export const turboEnvExtendsAmbient: {
  * **Example** (Turbo and non-turbo overrides)
  *
  * ```ts
- * import { turboEnvOverrides } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { turboEnvOverrides } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * console.log(Effect.runSync(turboEnvOverrides("bunx", ["turbo", "run", "check"], {})).TURBO_UI)
  * console.log(Effect.runSync(turboEnvOverrides("git", ["status"], {})))
@@ -730,7 +730,7 @@ const turboCacheValueSource = (value: string | undefined): O.Option<TurboCacheVa
  * **Example** (Classify a workstation posture)
  *
  * ```ts
- * import { readTurboCacheEnvironment } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { readTurboCacheEnvironment } from "@beep/repo-cli/test/SharedInternals"
  *
  * const environment = readTurboCacheEnvironment({
  *   TURBO_API: "https://cache.example.test",
@@ -777,7 +777,7 @@ export const readTurboCacheEnvironment = (
  * **Example** (Read the ambient cache configuration)
  *
  * ```ts
- * import { readTurboCacheEnvironmentSync } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { readTurboCacheEnvironmentSync } from "@beep/repo-cli/test/SharedInternals"
  *
  * console.log(typeof readTurboCacheEnvironmentSync().cache)
  * ```
@@ -816,7 +816,7 @@ export const clearTurboCacheSecretSessionVerdictsForTesting = (): void => {
  * **Example** (Check local env Effect)
  *
  * ```ts
- * import { canUseTurboCacheSecretSession } from "@beep/repo-cli/internal/cli/EnvConfig"
+ * import { canUseTurboCacheSecretSession } from "@beep/repo-cli/test/SharedInternals"
  * import * as Effect from "effect/Effect";
  * console.log(Effect.isEffect(canUseTurboCacheSecretSession("/repo")))
  * ```

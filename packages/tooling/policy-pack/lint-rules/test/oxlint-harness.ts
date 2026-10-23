@@ -20,6 +20,7 @@
  * JSON through `effect/Schema` rather than `JSON.parse`.
  */
 
+import * as NodeURL from "node:url";
 import { DocsRuleId } from "@beep/lint-rules/oxlint-docs";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -31,12 +32,12 @@ import * as Str from "effect/String";
 import { encodeConfig, jsonReportParser, validateLinterProcess } from "./codec.ts";
 
 /** Absolute path to the package root (`.../lint-rules`). */
-const packageRoot = decodeURIComponent(new URL("../", import.meta.url).pathname);
+const packageRoot = NodeURL.fileURLToPath(new URL("../", import.meta.url));
 
 /** Absolute path to the oxlint plugin entry (`src/rules/index.ts`). */
-const docsPluginEntry = decodeURIComponent(new URL("../src/rules/docs.index.ts", import.meta.url).pathname);
+const docsPluginEntry = NodeURL.fileURLToPath(new URL("../src/rules/docs.index.ts", import.meta.url));
 
-const pluginEntry = decodeURIComponent(new URL("../src/rules/index.ts", import.meta.url).pathname);
+const pluginEntry = NodeURL.fileURLToPath(new URL("../src/rules/index.ts", import.meta.url));
 
 /** The oxlint rule ids this harness can exercise (the `beep/<slug>` plugin rules). */
 export const OXLINT_RULES = [

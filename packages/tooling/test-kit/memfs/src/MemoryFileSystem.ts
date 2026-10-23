@@ -604,7 +604,7 @@ export class MemoryFileSystemOptions extends S.Opaque<MemoryFileSystemOptions, {
      * Unicode-normalized (APFS treats NFC and NFD spellings as one name; this
      * volume does not).
      */
-    caseSensitive: S.optional(S.Boolean).pipe(
+    caseSensitive: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("MemoryFileSystemOptions.caseSensitive", {
         description: "Whether path lookups are case-sensitive (default true).",
       })
@@ -621,7 +621,7 @@ export class MemoryFileSystemOptions extends S.Opaque<MemoryFileSystemOptions, {
      * `FileSystem`-scoped: it does not reach a handle's `sync` or `promises`
      * ports. Fault those with {@link MemoryFileSystemHandle.withFaults}.
      */
-    faults: S.optional(FaultsOption).pipe(
+    faults: S.optionalKey(FaultsOption).pipe(
       $I.annoteKey("MemoryFileSystemOptions.faults", {
         description: "Faults injected into the built FileSystem service.",
       })
@@ -643,7 +643,7 @@ export class MemoryFileSystemOptions extends S.Opaque<MemoryFileSystemOptions, {
      * is a typed `BadArgument` naming the offending value (`makeSync` throws
      * `EINVAL` with it in the path slot).
      */
-    root: S.optional(S.String).pipe(
+    root: S.optionalKey(S.String).pipe(
       $I.annoteKey("MemoryFileSystemOptions.root", {
         description: "The absolute directory the seed is rooted at.",
       })

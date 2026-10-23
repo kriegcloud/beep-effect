@@ -31,7 +31,7 @@ const ClaimObjectType = S.Literals(["iri", "literal"]);
 const Sha256HexString = Sha256Hex.pipe(S.decodeTo(S.String));
 const nullableColumn = <Schema extends S.Top>(schema: Schema) => {
   const nullable = S.NullOr(schema);
-  const optional = S.optional(nullable);
+  const optional = S.optionalKey(nullable);
   return VariantField({
     select: nullable,
     insert: optional,
@@ -107,7 +107,7 @@ const EmbeddingVector768Codec = S.String.pipe(
 export const EmbeddingVector768 = EmbeddingVector768Codec.pipe(pg.unsafeCustom("vector(768)"));
 
 const NullableEmbeddingVector768Codec = EmbeddingVector768Codec.pipe(S.NullOr);
-const OptionalNullableEmbeddingVector768Codec = NullableEmbeddingVector768Codec.pipe(S.optional);
+const OptionalNullableEmbeddingVector768Codec = NullableEmbeddingVector768Codec.pipe(S.optionalKey);
 
 const NullableEmbeddingVector768 = VariantField({
   select: NullableEmbeddingVector768Codec,

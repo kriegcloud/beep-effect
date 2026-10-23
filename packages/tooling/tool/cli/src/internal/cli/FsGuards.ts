@@ -947,7 +947,7 @@ export interface RenameOrFailOptions<E> {
  * **Example** (Dual call signature equality)
  *
  * ```ts
- * import { bytesEqual } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { bytesEqual } from "@beep/repo-cli/test/Cli"
  *
  * console.log(bytesEqual(new Uint8Array([1, 2]), new Uint8Array([1, 2])))
  * console.log(bytesEqual(new Uint8Array([2]))(new Uint8Array([1])))
@@ -982,7 +982,7 @@ export const bytesEqual: {
  * **Example** (Skip duplicate digests)
  *
  * ```ts
- * import { dedupeBySha256 } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { dedupeBySha256 } from "@beep/repo-cli/test/Cli"
  *
  * const result = dedupeBySha256([{ sha256: "a" }, { sha256: "a" }, { sha256: "b" }])
  * console.log(result.duplicatesSkipped)
@@ -1015,7 +1015,7 @@ export const dedupeBySha256 = <A extends { readonly sha256: string }>(
  *
  * ```ts
  * import * as HashSet from "effect/HashSet";
- * import { allocateUniqueName } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { allocateUniqueName } from "@beep/repo-cli/test/Cli"
  *
  * const first = allocateUniqueName("photo", ".webp", HashSet.make("photo.webp"))
  * console.log(first.targetName)
@@ -1054,7 +1054,7 @@ export const allocateUniqueName: {
  * **Example** (Read the hashing chunk size)
  *
  * ```ts
- * import { hashFileChunkBytes } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { hashFileChunkBytes } from "@beep/repo-cli/test/Cli"
  *
  * console.log(hashFileChunkBytes) // 1048576
  * ```
@@ -1080,7 +1080,7 @@ export const hashFileChunkBytes = 1024 * 1024;
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { hashFileSha256 } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { hashFileSha256 } from "@beep/repo-cli/test/Cli"
  *
  * const onError = (cause: unknown) => new Error(`hash failed: ${cause}`)
  * console.log(Effect.isEffect(hashFileSha256("/tmp/example.txt", onError)))
@@ -1127,7 +1127,7 @@ export const hashFileSha256: {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { validatePathSegment } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { validatePathSegment } from "@beep/repo-cli/test/Cli"
  *
  * const options = { onInvalid: (label: string, value: string) => new Error(`${label}: ${value}`) }
  * console.log(Effect.isEffect(validatePathSegment("source", "..", options)))
@@ -1158,7 +1158,7 @@ export const validatePathSegment: {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { validateDirectory } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { validateDirectory } from "@beep/repo-cli/test/Cli"
  *
  * const errors = {
  *   onStatError: (cause: unknown) => new Error(`stat: ${cause}`),
@@ -1226,7 +1226,7 @@ export const validateDirectory: {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { preflightOverwritableFile } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { preflightOverwritableFile } from "@beep/repo-cli/test/Cli"
  *
  * const options = {
  *   overwrite: false,
@@ -1286,7 +1286,7 @@ export const preflightOverwritableFile: {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { renameOrFail } from "@beep/repo-cli/internal/cli/FsGuards"
+ * import { renameOrFail } from "@beep/repo-cli/test/Cli"
  *
  * const options = { onError: (cause: unknown) => new Error(`rename: ${cause}`) }
  * console.log(Effect.isEffect(renameOrFail("/tmp/a", "/tmp/b", options)))

@@ -212,6 +212,11 @@ export interface ProofJobLauncherShape {
   readonly markRunning: (jobId: UUID, runner: ProofJobRunner) => Effect.Effect<ProofJobRecord, YeetCommandError>;
   readonly prune: (keepTerminal: number) => Effect.Effect<ReadonlyArray<UUID>, YeetCommandError>;
   readonly read: (jobId: UUID) => Effect.Effect<O.Option<ProofJobRecord>, YeetCommandError>;
+  /**
+   * Stop a job's unit without recording a cancellation: a `finished` job's
+   * outcome stands, and the call returns once systemd has run its finalizer.
+   */
+  readonly stopUnit: (jobId: UUID) => Effect.Effect<ProofJobCancelOutcome, YeetCommandError>;
   readonly submit: (submission: ProofJobSubmission) => Effect.Effect<ProofJobRecord, YeetCommandError>;
   readonly support: Effect.Effect<RunScopeSupport>;
   readonly wait: (jobId: UUID, options: ProofJobWaitOptions) => Effect.Effect<ProofJobWaitResult, YeetCommandError>;
@@ -440,6 +445,16 @@ const makeProofJobLauncher = Effect.fn("Yeet.ProofJobLauncher.make")(function* (
       repoRoot,
       O.getOrUndefined(O.map(PATH, (value) => ({ PATH: value })))
     ).pipe(Effect.provide(context), Effect.mapError(YeetCommandError.new("Proof job command failed.")));
+  });
+  // `systemctl --user stop` blocks until the unit, its ExecStopPost finalizer
+  // included, has stopped; a unit systemd no longer knows is reported as absent.
+  const stopUnitByName = Effect.fn("ProofJob.stopUnitByName")(function* (unitName: string) {
+    const result = yield* command("systemctl", ["--user", "stop", unitName]);
+    if (result.exitCode === 0) return ProofJobCancelOutcome.Enum["stop-requested"];
+    const state = yield* command("systemctl", ["--user", "show", unitName, "-p", "LoadState", "--value"]);
+    return Str.trim(state.output) === "not-found"
+      ? ProofJobCancelOutcome.Enum["unit-absent"]
+      : ProofJobCancelOutcome.Enum["stop-failed"];
   });
   const publish = Effect.fn("ProofJob.publishResult")(function* (record: ProofJobRecord) {
     const outcome = record.outcome;
@@ -775,14 +790,18 @@ const makeProofJobLauncher = Effect.fn("Yeet.ProofJobLauncher.make")(function* (
       );
       if (O.isNone(requested)) return ProofJobCancelOutcome.Enum["already-terminal"];
       const record = requested.value;
-      const result = yield* command("systemctl", ["--user", "stop", record.unit.unitName]);
-      if (result.exitCode === 0) return ProofJobCancelOutcome.Enum["stop-requested"];
-      const state = yield* command("systemctl", ["--user", "show", record.unit.unitName, "-p", "LoadState", "--value"]);
-      if (Str.trim(state.output) === "not-found") return ProofJobCancelOutcome.Enum["unit-absent"];
-      // The unit is still running: a stamp left behind would hide the job from
-      // `isLiveReadyMonitorJob` for good, so publish would submit a second monitor.
-      yield* withRecordLock(clearCancelRequestLocked(id, record.cancelRequestedAt), id);
-      return ProofJobCancelOutcome.Enum["stop-failed"];
+      const outcome = yield* stopUnitByName(record.unit.unitName);
+      if (ProofJobCancelOutcome.is["stop-failed"](outcome)) {
+        // The unit is still running: a stamp left behind would hide the job from
+        // `isLiveReadyMonitorJob` for good, so publish would submit a second monitor.
+        yield* withRecordLock(clearCancelRequestLocked(id, record.cancelRequestedAt), id);
+      }
+      return outcome;
+    }),
+    stopUnit: Effect.fn("ProofJob.stopUnit")(function* (id: UUID) {
+      const record = yield* requireRecord(id);
+      if (isSettledProofJob(record)) return ProofJobCancelOutcome.Enum["already-terminal"];
+      return yield* stopUnitByName(record.unit.unitName);
     }),
     bindPullRequest: Effect.fn("ProofJob.bindPullRequest")(function* (id: UUID, prNumber: number) {
       const record = yield* requireRecord(id);

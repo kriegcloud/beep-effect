@@ -41,7 +41,7 @@ interface TableCaptionWireDecoders {
  * const JsonArray = S.Array(S.Json)
  * const captionPlainText = makeTableCaptionPlainTextFromPayload({
  *   decodeConstructorOption: S.decodeUnknownOption(
- *     S.Struct({ t: S.String, c: S.optional(S.Json) }),
+ *     S.Struct({ t: S.String, c: S.optionalKey(S.Json) }),
  *   ),
  *   decodeJsonArrayOption: S.decodeUnknownOption(JsonArray),
  *   decodeStringOption: S.decodeUnknownOption(S.String),

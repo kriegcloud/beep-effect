@@ -17,20 +17,10 @@
  * failing through the typed `TsconfigExtendsError` channel — never as a defect
  * (hardening-a-parser-port invariant).
  *
- * **Gotchas**
- *
- * FILE-EXISTENCE CONTRACT (a deliberate divergence from tsc). Target resolution
- * probes candidates with core `FileSystem.exists`, which on a real filesystem is
- * TRUE for a directory, whereas tsc's `host.fileExists` is file-only. A relative
- * `"./dir"` extends target pointing at a real DIRECTORY therefore resolves the
- * directory verbatim here, and the subsequent `readFileString` fails with a
- * `PlatformError` (typed, flows through) — where tsc would instead retry
- * `"./dir.json"`. The divergence is accepted as a documented file-only contract:
- * it satisfies the hardening invariant (it fails typed, never as a defect), it
- * cannot be exercised by the in-memory fixture filesystem (which is file-only by
- * construction — a directory is never a map key), and the alternative (a
- * stat-and-isFile probe) would require rewriting the tsc-cited `extendsTarget`
- * engine and its fixtures for a case no supported test can reach.
+ * Extends candidates must be files: directories count as missing, so resolution
+ * continues to a `.json` sibling, a later export target or an ancestor package.
+ * Sync consumers can supply `SyncFileSystem.isFile` for the same behavior;
+ * older adapters fall back to their `exists` operation.
  *
  * @packageDocumentation
  * @since 0.0.0

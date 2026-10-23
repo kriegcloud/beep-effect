@@ -351,7 +351,7 @@ export class ReplyLiveThread extends S.Opaque<ReplyLiveThread, { readonly brand:
     // open, never silently waved through as answered.
     state: YeetReviewThreadStateTag.pipe(
       S.withConstructorDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved")),
-      S.withDecodingDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved"))
+      S.withDecodingDefaultKey(Effect.succeed<YeetReviewThreadStateTag>("unresolved"))
     ),
   }).pipe(
     $I.annoteSchema("ReplyLiveThread", {
@@ -501,7 +501,7 @@ export class ReplyPostAction extends S.Opaque<ReplyPostAction, { readonly brand:
     // write resolves it: only an `unresolved` thread is resolved afterwards.
     state: YeetReviewThreadStateTag.pipe(
       S.withConstructorDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved")),
-      S.withDecodingDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved"))
+      S.withDecodingDefaultKey(Effect.succeed<YeetReviewThreadStateTag>("unresolved"))
     ),
   }).pipe(
     $I.annoteSchema("ReplyPostAction", {

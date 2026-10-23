@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { Html } from "@beep/html/Html";
 import { Input } from "@beep/html/Html.model";
 import { it } from "@beep/test-runner";
@@ -10,7 +11,7 @@ import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const packageRoot = new URL("..", import.meta.url).pathname;
+const packageRoot = NodeURL.fileURLToPath(new URL("..", import.meta.url));
 const PackageJson = S.Struct({
   exports: S.Record(S.String, S.NullOr(S.String)),
   publishConfig: S.Struct({

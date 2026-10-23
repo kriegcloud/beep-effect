@@ -1,4 +1,5 @@
 // fallow-ignore-file unused-file -- package script run directly with Bun, outside the import graph. Owner: @beep/semantica. Exit: remove when the generator moves into a repo-cli command or the package declares it as a fallow entry.
+import * as NodeURL from "node:url";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { sha256TextSync } from "@/schema/Digest";
@@ -70,8 +71,8 @@ const cases: ReadonlyArray<Case> = [
   },
 ];
 
-const rulesPath = new URL("../fixtures/gold/v1/g-entailment-rdfs.n3", import.meta.url).pathname;
-const childPath = new URL("../test/helpers/EyeOracleChild.ts", import.meta.url).pathname;
+const rulesPath = NodeURL.fileURLToPath(new URL("../fixtures/gold/v1/g-entailment-rdfs.n3", import.meta.url));
+const childPath = NodeURL.fileURLToPath(new URL("../test/helpers/EyeOracleChild.ts", import.meta.url));
 const n3 = (value: Triple): string => `${value.subject} ${value.predicate} ${value.object}.`;
 const inline = (value: string): string => `base64:${Buffer.from(value).toString("base64")}`;
 const normalizeProof = (proof: string): string =>

@@ -97,13 +97,13 @@ export class UnstubbedTarget extends S.Opaque<UnstubbedTarget, { readonly brand:
       $I.annoteKey("UnstubbedTarget.service", { description: "The service whose `makeTest` built the double." })
     ),
     /** What the caller should do instead; defaults to `pass an override`. */
-    hint: S.optional(S.String).pipe(
+    hint: S.optionalKey(S.String).pipe(
       $I.annoteKey("UnstubbedTarget.hint", {
         description: "What the caller should do instead; defaults to `pass an override`.",
       })
     ),
     /** How unstubbed members are used; defaults to `called`. */
-    access: S.optional(UnstubbedAccess).pipe(
+    access: S.optionalKey(UnstubbedAccess).pipe(
       $I.annoteKey("UnstubbedTarget.access", { description: "How unstubbed members are used; defaults to `called`." })
     ),
   }).pipe($I.annoteSchema("UnstubbedTarget", { description: "The test double an unstubbed thrower reports for." }))

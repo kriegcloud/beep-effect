@@ -60,11 +60,11 @@ export class FrozenGrantSetRulesOptions extends S.Opaque<
   S.Struct({
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     excludePaths: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
   }).pipe(
@@ -145,11 +145,11 @@ export class FrozenGrantSetRulesSummary extends S.Opaque<
     strictFailure: S.Boolean,
     affectedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
     ),
     diagnostics: S.Array(FrozenGrantSetDiagnostic).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>()))
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>()))
     ),
   }).pipe(
     $I.annoteSchema("FrozenGrantSetRulesSummary", {

@@ -177,7 +177,7 @@ export const S3Config = S.Struct({
 	/** The secret access key, declassified once and masked in the runner log. */
 	secretAccessKey: S.Redacted(S.String).pipe($I.annoteKey("S3Config.secretAccessKey", { description: "The secret access key, declassified once and masked in the runner log." })),
 	/** For temporary credentials. */
-	sessionToken: S.String.pipe(S.Redacted, S.optional, $I.annoteKey("S3Config.sessionToken", { description: "For temporary credentials." })),
+	sessionToken: S.String.pipe(S.Redacted, S.optionalKey, $I.annoteKey("S3Config.sessionToken", { description: "For temporary credentials." })),
 	/** Prepended to every key, so one bucket can hold several caches. */
 	prefix: S.optionalKey(S.String).pipe($I.annoteKey("S3Config.prefix", { description: "Prepended to every key, so one bucket can hold several caches." })),
 }).pipe($I.annoteSchema("S3Config", { description: "How to reach an S3-compatible object store." }));

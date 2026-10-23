@@ -93,16 +93,10 @@ layer(fixtureLayer(tree(["/proj/dir/tsconfig.json", EMPTY])), { timeout: "30 sec
   (it) => {
     it.effect("a relative path to a directory never tries <dir>/tsconfig.json", () =>
       Effect.gen(function* () {
-        // The volume creates real directories, so `/proj/dir` exists — which
-        // makes the package's documented file-only divergence OBSERVABLE here
-        // rather than hidden. `exists` is directory-true where tsc's
-        // `host.fileExists` is file-only, so the directory itself resolves; a
-        // directory hit then fails typed at `readFileString` (see the
-        // file-only contract in the loader header). What this test pins is
-        // that no `<dir>/tsconfig.json` fallback was tried — tsc would have
-        // retried `./dir.json`, and we resolve neither.
+        // The directory itself is skipped; tsc retries `./dir.json`, but never
+        // `<dir>/tsconfig.json`. Neither permitted candidate is a file here.
         const result = yield* resolveExtendsTarget("./dir", "/proj/tsconfig.json");
-        assertSome(result, "/proj/dir");
+        assertNone(result);
       })
     );
   }

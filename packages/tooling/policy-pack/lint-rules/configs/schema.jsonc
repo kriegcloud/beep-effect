@@ -7,10 +7,12 @@
   // paths below relative to this file (`configs/`), pointing at the sibling `rules/`.
   "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
   "plugins": [
+    "../rules/no-file-url-pathname.grit",
     "../rules/no-bigint-literals.grit",
     "../rules/no-empty-named-blocks.grit",
     "../rules/prefer-array-flat-map.grit",
     "../rules/prefer-identity-annote-pipe.grit",
-    "../rules/no-hand-built-identity-annotation.grit"
+    "../rules/no-hand-built-identity-annotation.grit",
+    "../rules/prefer-exact-optional-key.grit"
   ]
 }

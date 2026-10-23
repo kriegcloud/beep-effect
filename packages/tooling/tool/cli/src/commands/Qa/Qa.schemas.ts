@@ -187,7 +187,7 @@ export class QaExtractOptions extends S.Opaque<QaExtractOptions, { readonly bran
     budgetMb: S.Option(BudgetMib).pipe(S.withConstructorDefault(Effect.succeedNone)),
     dryRun: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     rules: S.Option(ExtractionRuleSet).pipe(S.withConstructorDefault(Effect.succeedNone)),
     session: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),

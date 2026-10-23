@@ -27,6 +27,25 @@ interface Row {
 }
 
 const rows: ReadonlyArray<Row> = [
+  {
+    name: "through-file",
+    exports: '{".":["./base.json/strict","./tsconfig.json"]}',
+    files: ["base.json", "tsconfig.json"],
+    expected: O.some("tsconfig.json"),
+  },
+  // A directory is a miss, even when its name ends in `.json` (#2133).
+  {
+    name: "directory-condition",
+    exports: '{".":{"types":"./directory.json","default":"./tsconfig.json"}}',
+    files: ["directory.json/child.json", "tsconfig.json"],
+    expected: O.some("tsconfig.json"),
+  },
+  {
+    name: "directory-array",
+    exports: '{".":["./directory.json","./tsconfig.json"]}',
+    files: ["directory.json/child.json", "tsconfig.json"],
+    expected: O.some("tsconfig.json"),
+  },
   // The review case and its variants.
   {
     name: "review",
@@ -262,6 +281,16 @@ const flat: FixtureTree = R.fromEntries(
 );
 
 describe("extendsTarget exports resolution matches tsc", () => {
+  it.layer(fixtureLayer({ "/p/base/child.json": "{}", "/p/base.json": "{}", "/p/directory.json/child.json": "{}" }), {
+    timeout: "10 seconds",
+  })("relative directory targets", (it) => {
+    it.effect("retries a relative directory as its .json sibling", () =>
+      Effect.gen(function* () {
+        assertSome(yield* resolveExtendsTarget("./base", "/p/tsconfig.json"), "/p/base.json");
+        assertNone(yield* resolveExtendsTarget("./directory.json", "/p/tsconfig.json"));
+      })
+    );
+  });
   it.layer(fixtureLayer(flat), { timeout: "10 seconds" })("one package directory", (it) => {
     for (const { name, spec, expected } of rows) {
       it.effect(`${name} -> ${O.getOrElse(expected, () => "TS6053")}`, () =>
@@ -278,6 +307,8 @@ describe("extendsTarget exports resolution matches tsc", () => {
 
   // A near copy under /p/sub/node_modules, a manifest-less far copy under /p/node_modules.
   const ancestorRows: ReadonlyArray<readonly [string, string, string, boolean]> = [
+    ["far-after-directory", '{".":"./directory.json"}', "far-after-directory", true],
+    ["far-after-fallback-directory", "null", "far-after-fallback-directory", true],
     ["far-after-missing", '{".":"./missing.json"}', "far-after-missing", true],
     ["far-after-capture", '{"./*":"./*.json"}', "far-after-capture/x/../tsconfig", true],
     ["null-stops-walk", '{".":{"types":null,"default":"./tsconfig.json"}}', "null-stops-walk", false],
@@ -286,7 +317,11 @@ describe("extendsTarget exports resolution matches tsc", () => {
   const ancestors: FixtureTree = R.fromEntries(
     A.flatMap(ancestorRows, ([name, exports]) => [
       [`/p/sub/node_modules/${name}/package.json`, `{"name":"${name}","exports":${exports}}`] as const,
-      [`/p/sub/node_modules/${name}/tsconfig.json`, "{}"] as const,
+      [
+        `/p/sub/node_modules/${name}/${name === "far-after-fallback-directory" ? "tsconfig.json/child.json" : "tsconfig.json"}`,
+        "{}",
+      ] as const,
+      [`/p/sub/node_modules/${name}/directory.json/child.json`, "{}"] as const,
       [`/p/node_modules/${name}/package.json`, `{"name":"${name}"}`] as const,
       [`/p/node_modules/${name}/tsconfig.json`, "{}"] as const,
     ])

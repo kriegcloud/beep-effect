@@ -401,7 +401,7 @@ export class YeetMergePreview extends S.Opaque<YeetMergePreview, { readonly bran
  * **Example** (Point a context at the preview)
  *
  * ```ts
- * import { RepoRunContext } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoRunContext } from "@beep/repo-cli/test/RepoRun"
  * import { YeetMergePreview, yeetMergedPreviewContext } from "@beep/repo-cli/test/Yeet"
  *
  * const context = RepoRunContext.make({

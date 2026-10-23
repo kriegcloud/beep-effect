@@ -4,6 +4,11 @@ Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
 decisions live in README.md → Port notes, not here.
 
+The `lockfiles` sibling ships as `@beep/lockfiles` (`packages/foundation/modeling/lockfiles`) since
+wave 3-5 of `goals/effected-promotion`, and this module imports it from there. Its own knowledge
+bundle moved with it to `packages/foundation/modeling/lockfiles/KNOWLEDGE.md`. The mentions of
+`@effected/lockfiles` below are upstream text and still describe the upstream package.
+
 ---
 <!-- packages/workspaces/CLAUDE.md -->
 # @effected/workspaces

@@ -2,6 +2,7 @@ import {
   ChangesetGraphError,
   ChangesetGraphPackageReference,
   changesetPackageReferencesFromText,
+  changesetsParseClosingFenceLine,
   findMissingChangesetPackageReferences,
   makeChangesetGraphSummary,
   runChangesetGraphCheck,
@@ -9,6 +10,7 @@ import {
 import { parseChangesetFile } from "@changesets/parse";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -128,6 +130,21 @@ Record a private workspace change.
       expect(references).toEqual([]);
     })
   );
+
+  it("visits each malformed frontmatter line once even with many opening candidates", () => {
+    const size = 50_000;
+    let steps = 0;
+    function* lines() {
+      for (let index = 0; index < size; index += 1) {
+        steps += 1;
+        yield "---not-a-closing-fence";
+      }
+    }
+    assertNone(changesetsParseClosingFenceLine(lines()));
+    expect(steps).toBe(size);
+    assertSome(changesetsParseClosingFenceLine(["prefix---yaml", "body", "  ---\t"]), 3);
+    assertNone(changesetsParseClosingFenceLine(["---"]));
+  });
 
   it.effect("reads CRLF-fenced changeset frontmatter", () =>
     Effect.gen(function* () {

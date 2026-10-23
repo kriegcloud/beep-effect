@@ -1048,11 +1048,25 @@ const emit = (run: InlineRun, text: string): void => {
   }
 };
 
+/**
+ * Internal seam for measuring the text inspected at inline output boundaries.
+ *
+ * **Example** (Read a chunk tail)
+ * ```ts import.meta.vitest name="Read a chunk tail"
+ * import { inlineOutput } from "@beep/markdown/internal/stringify";
+ * inlineOutput.tail("abc") // => "bc"
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const inlineOutput = { tail: Str.slice(-2) };
+
 /** The last two characters of a string (fewer when shorter). */
 const lastTwo = Str.slice(-2);
 
 /** The run output's last two characters, read off the last two chunks alone. */
-const runTail = (run: InlineRun): string => lastTwo(run.pending.length >= 2 ? run.pending : run.previous + run.pending);
+const runTail = (run: InlineRun): string =>
+  inlineOutput.tail(run.pending.length >= 2 ? run.pending : run.previous + run.pending);
 
 const bangGuard = (run: InlineRun): void => {
   const tail = runTail(run);

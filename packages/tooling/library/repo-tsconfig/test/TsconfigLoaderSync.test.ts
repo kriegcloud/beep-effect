@@ -75,6 +75,59 @@ describe("TsconfigLoaderSync.load", () => {
 });
 
 describe("TsconfigLoaderSync.resolve", () => {
+  const directoryFiles = tree(
+    ["/proj/tsconfig.json", '{"extends":"./base"}'],
+    ["/proj/base/child.json", "{}"],
+    ["/proj/base.json", '{"compilerOptions":{"strict":true}}']
+  );
+
+  it("skips directories when the optional isFile capability is supplied", () => {
+    const fs = MemoryFileSystem.makeSync(directoryFiles).sync;
+    const resolved = TsconfigLoaderSync.resolve("/proj/tsconfig.json", {
+      path: posixPath,
+      fileSystem: { ...fs, isFile: (path) => fs.exists(path) && fs.stat(path).isFile() },
+    });
+    assert.strictEqual(resolved.compilerOptions.strict, true);
+    assert.deepStrictEqual(resolved.extendedPaths, ["/proj/base.json", "/proj/tsconfig.json"]);
+  });
+
+  it("reports a missing extends target when stat traverses a file (ENOTDIR)", () => {
+    const fs = MemoryFileSystem.makeSync(
+      tree(["/proj/tsconfig.json", '{"extends":"./base.json/strict"}'], ["/proj/base.json", "{}"])
+    ).sync;
+    const thrown = capture(() =>
+      TsconfigLoaderSync.resolve("/proj/tsconfig.json", {
+        path: posixPath,
+        fileSystem: { ...fs, isFile: (path) => fs.stat(path).isFile() },
+      })
+    );
+    assert.instanceOf(thrown, TsconfigExtendsError);
+  });
+
+  it("retains the exists fallback for adapters without isFile", () => {
+    const thrown = capture(() => TsconfigLoaderSync.resolve("/proj/tsconfig.json", posixOptions(directoryFiles)));
+    assert.isTrue(PlatformError.isPlatformError(thrown));
+  });
+
+  it("wraps an isFile failure as a typed stat error", () => {
+    const cause = PlatformError.badArgument({ module: "fixture", method: "isFile" });
+    const thrown = capture(() =>
+      TsconfigLoaderSync.resolve("/proj/tsconfig.json", {
+        path: posixPath,
+        fileSystem: {
+          ...syncFs(directoryFiles),
+          isFile: () => {
+            throw cause;
+          },
+        },
+      })
+    );
+    assert.isTrue(PlatformError.isPlatformError(thrown));
+    if (PlatformError.isPlatformError(thrown)) {
+      assert.strictEqual(thrown.reason.method, "stat");
+      assert.strictEqual(thrown.cause, cause);
+    }
+  });
   it("resolves a single config with no extends", () => {
     const files = tree(["/proj/tsconfig.json", `{ "compilerOptions": { "strict": true } }`]);
     const resolved = TsconfigLoaderSync.resolve("/proj/tsconfig.json", posixOptions(files));

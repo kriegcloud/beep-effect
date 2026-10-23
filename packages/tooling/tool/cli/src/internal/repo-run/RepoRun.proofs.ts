@@ -17,7 +17,7 @@ const $I = $RepoCliId.create("internal/repo-run/RepoRun.proofs");
  * **Example** (Validate pre-push check mode)
  *
  * ```ts
- * import { GithubCheckMode } from "@beep/repo-cli/internal/repo-run"
+ * import { GithubCheckMode } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(GithubCheckMode.is["pre-push"]("pre-push"))
  * ```
@@ -63,7 +63,7 @@ export type GithubCheckMode = typeof GithubCheckMode.Type;
  * **Example** (Validate pre-push proof surface)
  *
  * ```ts
- * import { RepoProofSurface } from "@beep/repo-cli/internal/repo-run"
+ * import { RepoProofSurface } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(RepoProofSurface.is["pre-push"]("pre-push"))
  * ```
@@ -91,7 +91,7 @@ export type RepoProofSurface = typeof RepoProofSurface.Type;
  * **Example** (Read pre-push step args)
  *
  * ```ts
- * import { repoProofStepDefinition } from "@beep/repo-cli/internal/repo-run"
+ * import { repoProofStepDefinition } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(repoProofStepDefinition("pre-push").args)
  * ```
@@ -118,7 +118,7 @@ export class RepoProofStepDefinition extends S.Opaque<RepoProofStepDefinition, {
  * **Example** (Read quality step label)
  *
  * ```ts
- * import { repoProofStepDefinition } from "@beep/repo-cli/internal/repo-run"
+ * import { repoProofStepDefinition } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(repoProofStepDefinition("quality").label)
  * ```

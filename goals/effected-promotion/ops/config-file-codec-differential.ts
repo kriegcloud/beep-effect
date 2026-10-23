@@ -43,6 +43,7 @@
  * reported per lane.
  */
 
+import * as NodeURL from "node:url";
 import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 import { TomlCodec } from "@beep/config-file/TomlCodec";
 import { YamlCodec } from "@beep/config-file/YamlCodec";
@@ -69,7 +70,7 @@ import { parseDocument } from "yaml";
 import type { ConfigCodec } from "@beep/config-file/ConfigCodec";
 
 const TOOL = "goals/effected-promotion/ops/config-file-codec-differential.ts";
-const repoRoot = new URL("../../../", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../", import.meta.url));
 
 // --- report schema ------------------------------------------------------------
 

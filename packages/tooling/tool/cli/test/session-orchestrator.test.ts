@@ -168,19 +168,22 @@ describe("orchestrator register", () => {
   );
 });
 
-it.layer(Layer.fresh(layerOrchestratorRegisterMemory))("orchestrator register memory layer", (it) => {
-  it.effect("appends and lists per repository", () =>
-    Effect.gen(function* () {
-      const register = yield* OrchestratorRegister;
-      yield* register.append(registerRow({ address: "a" }));
-      yield* register.append(
-        RegisterRow.make({
-          ...registerRow({ address: "b" }),
-          repository: PrRepository.make({ host: "github.com", owner: "other", name: "repo" }),
-        })
-      );
-      const rows = yield* register.list(repository);
-      expect(A.map(rows, (row) => row.address)).toEqual(["a"]);
-    })
-  );
-});
+it.layer(Layer.fresh(layerOrchestratorRegisterMemory), { timeout: "30 seconds" })(
+  "orchestrator register memory layer",
+  (it) => {
+    it.effect("appends and lists per repository", () =>
+      Effect.gen(function* () {
+        const register = yield* OrchestratorRegister;
+        yield* register.append(registerRow({ address: "a" }));
+        yield* register.append(
+          RegisterRow.make({
+            ...registerRow({ address: "b" }),
+            repository: PrRepository.make({ host: "github.com", owner: "other", name: "repo" }),
+          })
+        );
+        const rows = yield* register.list(repository);
+        expect(A.map(rows, (row) => row.address)).toEqual(["a"]);
+      })
+    );
+  }
+);

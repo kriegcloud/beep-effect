@@ -33,10 +33,12 @@ import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
 import { assertFalse, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -192,6 +194,29 @@ interface WriterRun {
   readonly stderr: string;
   readonly stdout: string;
 }
+
+// Assertion messages survive TestConsole capture and include zero-row failures.
+const assertAdapterStamp = Effect.fnUntraced(function* (
+  run: WriterRun,
+  agentKind: HookPulseAgentKind,
+  stdout: string,
+  harnessHash: string
+) {
+  const refusals = yield* Effect.forEach(run.refusals, (row) => decodeHookPulseRefusalJson(row));
+  const diagnostics = yield* encodeJson({
+    agentKind,
+    exitCode: run.exitCode,
+    stderr: run.stderr,
+    refusalReasons: A.map(refusals, (refusal) => refusal.reason),
+  });
+  const message = `${agentKind} stamp diagnostics: ${diagnostics}`;
+  expect(run.stdout, message).toBe(stdout);
+  expect(run.rows, message).toHaveLength(1);
+  const decoded = yield* decodeHookPulseRow(pipe(A.head(run.rows), O.getOrThrow));
+  expect(O.isSome(decoded.harnessHash), message).toBe(true);
+  assertSome(decoded.harnessHash, harnessHash);
+  expect(decoded.agentKind, message).toBe(agentKind);
+});
 
 // Runs the real hook against an isolated evidence root so the live ledger — which
 // already holds the committed 2026-08-01 spike corpus — can never receive a
@@ -985,39 +1010,77 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
     })
   );
 
-  it.effect("Codex and Cursor SessionStart adapters preserve the shared stamp", () =>
-    Effect.gen(function* () {
-      const root = yield* makeHarnessFixtureRoot();
-      const oracle = yield* typescriptHarnessHash(root);
-      const fixtures = [
-        {
-          writerPath: codexWriterPath,
-          agentKind: HookPulseAgentKind.Enum["codex-cli"],
-          payload: { ...sessionStartPayload(root), hook_event_name: "SessionStart" },
-          registeredEvent: undefined,
-          stdout: "",
-        },
-        {
-          writerPath: cursorWriterPath,
-          agentKind: HookPulseAgentKind.Enum["cursor-cli"],
-          payload: { ...sessionStartPayload(root), hook_event_name: undefined },
-          registeredEvent: "sessionStart",
-          stdout: "{}\n",
-        },
-      ];
-      for (const fixture of fixtures) {
-        const run = yield* runWriter(yield* encodeJson(fixture.payload), {
-          writerPath: fixture.writerPath,
-          ...(fixture.registeredEvent === undefined ? {} : { registeredEvent: fixture.registeredEvent }),
-        });
-        expect(run.stdout).toBe(fixture.stdout);
+  // Keep adapters as separate cases so a hosted failure identifies its boundary.
+  // Both use the synthetic indexed harness and runWriter's empty temporary HOME.
+  for (const adapter of [
+    {
+      writerPath: codexWriterPath,
+      agentKind: HookPulseAgentKind.Enum["codex-cli"],
+      hookEvent: "SessionStart",
+      registeredEvent: undefined,
+      stdout: "",
+    },
+    {
+      writerPath: cursorWriterPath,
+      agentKind: HookPulseAgentKind.Enum["cursor-cli"],
+      hookEvent: undefined,
+      registeredEvent: "sessionStart",
+      stdout: "{}\n",
+    },
+  ]) {
+    it.effect(`${adapter.agentKind} SessionStart adapter preserves the shared stamp`, () =>
+      Effect.gen(function* () {
+        const root = yield* makeHarnessFixtureRoot();
+        const oracle = yield* typescriptHarnessHash(root);
+        const run = yield* runWriter(
+          yield* encodeJson({ ...sessionStartPayload(root), hook_event_name: adapter.hookEvent }),
+          {
+            writerPath: adapter.writerPath,
+            ...(adapter.registeredEvent === undefined ? {} : { registeredEvent: adapter.registeredEvent }),
+          }
+        );
+        yield* assertAdapterStamp(run, adapter.agentKind, adapter.stdout, oracle.harnessHash);
+      })
+    );
+
+    it.effect(`${adapter.agentKind} stamp assertion reports refusals for None stamps and missing rows`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* makeHarnessFixtureRoot();
+        const oracle = yield* typescriptHarnessHash(root);
+        // An indexed symlink loop deterministically refuses the stamp, even as root.
+        yield* fs.symlink("loop.md", path.join(root, ".claude/loop.md"));
+        const addLoop = yield* ChildProcess.make("git", ["add", ".claude/loop.md"], { cwd: root });
+        expect(yield* addLoop.exitCode).toBe(0);
+        const run = yield* runWriter(
+          yield* encodeJson({ ...sessionStartPayload(root), hook_event_name: adapter.hookEvent }),
+          {
+            writerPath: adapter.writerPath,
+            ...(adapter.registeredEvent === undefined ? {} : { registeredEvent: adapter.registeredEvent }),
+          }
+        );
         expect(run.rows).toHaveLength(1);
-        const decoded = yield* decodeHookPulseRow(pipe(A.head(run.rows), O.getOrThrow));
-        assertSome(decoded.harnessHash, oracle.harnessHash);
-        expect(decoded.agentKind).toBe(fixture.agentKind);
-      }
-    })
-  );
+        assertNone((yield* decodeHookPulseRow(pipe(A.head(run.rows), O.getOrThrow))).harnessHash);
+        for (const failedRun of [run, { ...run, rows: A.empty<string>() }]) {
+          const failure = yield* assertAdapterStamp(
+            failedRun,
+            adapter.agentKind,
+            adapter.stdout,
+            oracle.harnessHash
+          ).pipe(Effect.exit);
+          pipe(failure, Exit.isFailure, assertTrue);
+          if (Exit.isFailure(failure)) {
+            const message = Cause.pretty(failure.cause);
+            expect(message).toContain(adapter.agentKind);
+            expect(message).toContain("stamp-failed");
+            expect(message).toContain('"exitCode":0');
+            expect(message).toContain('"stderr":');
+          }
+        }
+      })
+    );
+  }
 
   it.effect("preserves git stamp parity with nested docs, symlinks and unrelated quoted names", () =>
     Effect.gen(function* () {

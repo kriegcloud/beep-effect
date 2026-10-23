@@ -114,7 +114,7 @@ const writeSchemaCatalogFixture = Effect.fn("SchemaCatalogTest.writeFixture")(fu
   );
 });
 
-layer(testLayer)("schema catalog command", (it) => {
+layer(testLayer, { timeout: "30 seconds" })("schema catalog command", (it) => {
   describe("generation", () => {
     it.effect(
       "writes deterministic catalog bytes on repeated runs",

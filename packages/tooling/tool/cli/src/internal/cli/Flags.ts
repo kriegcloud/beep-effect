@@ -26,7 +26,7 @@ import * as Flag from "effect/cli/Flag";
  * **Example** (Describing the JSON output of one command)
  *
  * ```ts
- * import { jsonFlagWith } from "@beep/repo-cli/internal/cli/Flags"
+ * import { jsonFlagWith } from "@beep/repo-cli/test/Cli"
  *
  * const flag = jsonFlagWith("Emit the doctor report as JSON")
  *
@@ -53,7 +53,7 @@ export const jsonFlagWith = (description: string) =>
  * **Example** (Adding the standard JSON switch to a command)
  *
  * ```ts
- * import { jsonFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { jsonFlag } from "@beep/repo-cli/test/Cli"
  *
  * console.log(jsonFlag.kind) // "flag"
  * console.log(jsonFlag._tag) // "Single"
@@ -77,7 +77,7 @@ export const jsonFlag = jsonFlagWith("Emit machine-readable JSON output");
  * **Example** (Naming the environment rung in help text)
  *
  * ```ts
- * import { aiMetricsDataRootEnvVar } from "@beep/repo-cli/internal/cli/Flags"
+ * import { aiMetricsDataRootEnvVar } from "@beep/repo-cli/test/Cli"
  *
  * console.log(aiMetricsDataRootEnvVar) // BEEP_AI_METRICS_DATA_ROOT
  * ```
@@ -107,7 +107,7 @@ export const aiMetricsDataRootEnvVar = "BEEP_AI_METRICS_DATA_ROOT";
  * **Example** (Wiring the flag into a command)
  *
  * ```ts
- * import { aiMetricsDataRootFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { aiMetricsDataRootFlag } from "@beep/repo-cli/test/Cli"
  *
  * console.log(aiMetricsDataRootFlag.kind) // "flag"
  * ```
@@ -129,7 +129,7 @@ export const aiMetricsDataRootFlag = Flag.String("data-root").pipe(
  * **Example** (Build a Yeet state environment)
  *
  * ```ts
- * import { yeetStateRootEnvVar } from "@beep/repo-cli/internal/cli/Flags"
+ * import { yeetStateRootEnvVar } from "@beep/repo-cli/test/Cli"
  *
  * const environment = { [yeetStateRootEnvVar]: "/var/lib/beep/yeet" }
  * console.log(environment.BEEP_YEET_STATE_ROOT) // "/var/lib/beep/yeet"
@@ -151,7 +151,7 @@ export const yeetStateRootEnvVar = "BEEP_YEET_STATE_ROOT";
  * **Example** (Wire the state-root flag)
  *
  * ```ts
- * import { yeetStateRootFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { yeetStateRootFlag } from "@beep/repo-cli/test/Cli"
  *
  * console.log(yeetStateRootFlag.kind) // "flag"
  * ```
@@ -184,7 +184,7 @@ export const yeetStateRootFlag = Flag.String("state-root").pipe(
  * **Example** (Taking the default wording and overriding it)
  *
  * ```ts
- * import { packageFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { packageFlag } from "@beep/repo-cli/test/Cli"
  *
  * const standard = packageFlag()
  * const narrowed = packageFlag("Package whose documentation should be rebuilt")
@@ -211,7 +211,7 @@ export const packageFlag = (description = "Target a workspace package by name or
  * **Example** (Naming an output path for a report command)
  *
  * ```ts
- * import { outputFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { outputFlag } from "@beep/repo-cli/test/Cli"
  *
  * const flag = outputFlag("Write the generated manifest to this path")
  *
@@ -238,7 +238,7 @@ export const outputFlag = (description = "Write output to a specific file path")
  * **Example** (Adding diagnostics to a long-running command)
  *
  * ```ts
- * import { verboseFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { verboseFlag } from "@beep/repo-cli/test/Cli"
  *
  * const flag = verboseFlag("Print each package as it is checked")
  *
@@ -269,7 +269,7 @@ export const verboseFlag = (description = "Print additional diagnostic output") 
  * **Example** (Previewing a destructive command)
  *
  * ```ts
- * import { dryRunFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { dryRunFlag } from "@beep/repo-cli/test/Cli"
  *
  * const flag = dryRunFlag("Report the files that would be rewritten")
  *
@@ -301,7 +301,7 @@ export const dryRunFlag = (description = "Preview changes without writing files"
  * **Example** (Consenting to replace an existing bundle)
  *
  * ```ts
- * import { forceFlag } from "@beep/repo-cli/internal/cli/Flags"
+ * import { forceFlag } from "@beep/repo-cli/test/Cli"
  *
  * const flag = forceFlag("Replace the existing bundle directory if one is present")
  *
@@ -333,7 +333,7 @@ export const forceFlag = (description = "Overwrite existing output") =>
  * **Example** (Parsing a list that came from an unset shell variable)
  *
  * ```ts
- * import { csvValues } from "@beep/repo-cli/internal/cli/Flags"
+ * import { csvValues } from "@beep/repo-cli/test/Cli"
  *
  * console.log(csvValues(" a , b , , c ")) // ["a", "b", "c"]
  * console.log(csvValues("")) // []
@@ -369,7 +369,7 @@ export const csvValues: (value: string) => ReadonlyArray<string> = Text.splitCom
  * **Example** (Normalizing bot names typed with inconsistent case)
  *
  * ```ts
- * import { normalizedTokens } from "@beep/repo-cli/internal/cli/Flags"
+ * import { normalizedTokens } from "@beep/repo-cli/test/Cli"
  *
  * console.log(normalizedTokens(" Renovate , DEPENDABOT ")) // ["renovate", "dependabot"]
  * console.log(normalizedTokens("renovate,,renovate")) // ["renovate", "renovate"]
@@ -405,7 +405,7 @@ export const normalizedTokens: (value: string) => ReadonlyArray<string> = flow(
  * **Example** (Narrowing a mixed variadic argument list)
  *
  * ```ts
- * import { variadicStrings } from "@beep/repo-cli/internal/cli/Flags"
+ * import { variadicStrings } from "@beep/repo-cli/test/Cli"
  *
  * const values = variadicStrings(["a", 1, "b", null])
  *

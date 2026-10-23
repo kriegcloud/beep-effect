@@ -56,16 +56,16 @@ class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { reado
  */
 export class ScriptCompletion extends S.Opaque<ScriptCompletion, { readonly brand: unique symbol }>()(
   S.Struct({
-    stdout: S.optional(S.String).pipe(
+    stdout: S.optionalKey(S.String).pipe(
       $I.annoteKey("ScriptCompletion.stdout", { description: "Scripted standard output." })
     ),
-    stderr: S.optional(S.String).pipe(
+    stderr: S.optionalKey(S.String).pipe(
       $I.annoteKey("ScriptCompletion.stderr", { description: "Scripted standard error." })
     ),
-    exit: S.optional(ExitCode).pipe(
+    exit: S.optionalKey(ExitCode).pipe(
       $I.annoteKey("ScriptCompletion.exit", { description: "Scripted integer process exit code." })
     ),
-    hang: S.optional(S.Boolean).pipe(
+    hang: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("ScriptCompletion.hang", { description: "Whether exitCode remains unresolved." })
     ),
   }).pipe(

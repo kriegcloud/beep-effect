@@ -295,10 +295,9 @@ describe("RulesetPayload open boundary", () => {
 });
 
 describe("RulesetInfo boundary", () => {
-  it("preserves plain listing fields with absent, undefined or present ownership", () => {
+  it("preserves plain listing fields with absent or present ownership", () => {
     const infos: ReadonlyArray<RulesetInfo> = [
       RulesetInfo.make({ id: 1, name: "unspecified" }),
-      RulesetInfo.make({ id: 2, name: "undefined", source_type: undefined }),
       RulesetInfo.make({ id: 3, name: "owned", source_type: "Repository" }),
       RulesetInfo.make({ id: 4, name: "inherited", source_type: "Organization" }),
     ];
@@ -336,7 +335,7 @@ describe("Ruleset.list response decoding", () => {
     );
   }
 
-  it.effect("preserves order, plain fields and an explicit undefined source_type when GitHub omits it", () =>
+  it.effect("preserves order, plain fields and an absent source_type when GitHub omits it", () =>
     Effect.scopedWith((scope) =>
       Effect.gen(function* () {
         const { base } = harness([
@@ -351,10 +350,7 @@ describe("Ruleset.list response decoding", () => {
         const context = yield* Layer.buildWithScope(Ruleset.layer.pipe(Layer.provideMerge(base)), scope);
         const value = yield* Effect.flatMap(Ruleset, (rulesets) => rulesets.list).pipe(Effect.provideContext(context));
         assert.deepStrictEqual(Result.getOrThrow(decodeRulesetInfos(value)), value);
-        assert.deepStrictEqual(value, [
-          RulesetInfo.make({ id: 2, name: "unspecified", source_type: undefined }),
-          valid,
-        ]);
+        assert.deepStrictEqual(value, [RulesetInfo.make({ id: 2, name: "unspecified" }), valid]);
       })
     )
   );

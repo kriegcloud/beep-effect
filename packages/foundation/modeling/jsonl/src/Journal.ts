@@ -357,16 +357,22 @@ const DurationNumber = S.declare(P.isNumber).pipe(
   })
 );
 
-/** The object member of `Duration.Input`; every component is optional and additive. */
+/**
+ * The object member of `Duration.Input`; every component is optional and additive.
+ *
+ * Mirrors effect's `Duration.DurationObject`, whose members are declared
+ * `weeks?: number | undefined`: a value typed against `Duration.Input` may hold
+ * an explicit undefined, so these keys keep it (EF-40 exception).
+ */
 const DurationObject = S.Struct({
-  weeks: S.optional(DurationNumber),
-  days: S.optional(DurationNumber),
-  hours: S.optional(DurationNumber),
-  minutes: S.optional(DurationNumber),
-  seconds: S.optional(DurationNumber),
-  milliseconds: S.optional(DurationNumber),
-  microseconds: S.optional(DurationNumber),
-  nanoseconds: S.optional(DurationNumber),
+  weeks: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  days: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  hours: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  minutes: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  seconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  milliseconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  microseconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  nanoseconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
 }).pipe(
   $I.annoteSchema("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
 );
@@ -419,8 +425,8 @@ const Capacity = S.Int.check(S.isGreaterThan(0)).pipe(
  *
  * **Details**
  *
- * Optional keys follow upstream omission semantics: an explicitly `undefined`
- * key behaves exactly like an omitted one. `shutdownPublishTimeout` accepts any
+ * Optional keys are exact (EF-40, kept deviation 24): omit a key rather than
+ * passing `undefined`. `shutdownPublishTimeout` accepts any
  * `Duration.Input` (a `Duration`, milliseconds or a string such as
  * `"100 millis"`); the layer decodes it into a `Duration`, and an input
  * Effect cannot convert fails construction with `InvalidJournalConfig`.
@@ -444,11 +450,11 @@ export class JournalConfig extends S.Opaque<JournalConfig, { readonly brand: uni
     /** Journal path; construction permits a missing file. */
     path: S.String,
     /** Directory to watch until creation; defaults to the parent of path. */
-    directory: S.optional(S.String),
+    directory: S.optionalKey(S.String),
     /** Backpressured subscriber capacity; defaults to 64. */
-    capacity: S.optional(Capacity),
+    capacity: S.optionalKey(Capacity),
     /** Bound on graceful shutdown publication, as any Duration.Input; defaults to five seconds. */
-    shutdownPublishTimeout: S.optional(DurationInput),
+    shutdownPublishTimeout: S.optionalKey(DurationInput),
   }).pipe($I.annoteSchema("JournalConfig", { description: "File and subscription settings for one journal layer." }))
 ) {}
 
@@ -467,7 +473,7 @@ const SHUTDOWN_PUBLISH_TIMEOUT = Duration.seconds(5);
 // default, and the shutdown bound becomes a Duration.
 const JournalSettings = S.Struct({
   ...JournalConfig.fields,
-  capacity: Capacity.pipe(S.withDecodingDefault(Effect.succeed(64))),
+  capacity: Capacity.pipe(S.withDecodingDefaultKey(Effect.succeed(64))),
   shutdownPublishTimeout: DurationFromInput.pipe(S.withDecodingDefaultType(Effect.succeed(SHUTDOWN_PUBLISH_TIMEOUT))),
 }).pipe(
   $I.annoteSchema("JournalSettings", {

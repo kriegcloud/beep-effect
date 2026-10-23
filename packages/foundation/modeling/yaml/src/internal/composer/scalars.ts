@@ -754,6 +754,13 @@ const makePlainScalarCursor = (
 type PlainScalarCursor = ReturnType<typeof makePlainScalarCursor>;
 
 /**
+ * Structural tokens that end a multi-line plain scalar: the block indicators
+ * and the `,` entry separator, which the lexer emits only in flow context. A
+ * comma ends the entry, so `{a, b}` holds two value-less keys, not `a b`.
+ */
+const plainRunTerminators: ReadonlyArray<string> = [":", "?", "-", ","];
+
+/**
  * Consumes one child of a multi-line plain scalar. Returns `false` when the
  * child ends the scalar (and is not consumed).
  */
@@ -765,8 +772,7 @@ const stepPlainContinuation = (cur: PlainScalarCursor, child: CstNode): boolean 
     return true;
   }
   if (child.type === "whitespace") {
-    // Block structure indicators terminate plain scalar continuation
-    if (child.source === ":" || child.source === "?" || child.source === "-") return false;
+    if (A.contains(plainRunTerminators, child.source)) return false;
     cur.idx++;
     return true;
   }

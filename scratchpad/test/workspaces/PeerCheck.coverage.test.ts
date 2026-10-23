@@ -1,7 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Lockfile } from "../../effected/lockfiles/Lockfile.ts";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { PeerCheck } from "../../effected/workspaces/PeerCheck.ts";
 import { WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
 

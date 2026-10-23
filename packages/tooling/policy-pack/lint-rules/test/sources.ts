@@ -18,6 +18,31 @@ export type RuleSource = {
 };
 
 export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
+  "no-file-url-pathname": {
+    invalidCount: 4,
+    messageIncludes: "NodeURL.fileURLToPath(new URL(...))",
+    invalid: A.join(
+      [
+        'const a = new URL("./space here.ts", import.meta.url).pathname;',
+        "const b = new URL(`./${name}.ts`, import.meta.url).pathname;",
+        "const c = new URL(import.meta.url).pathname;",
+        'const d = decodeURIComponent(new URL("./100%25.ts", import.meta.url).pathname);',
+      ],
+      "\n"
+    ),
+    valid: A.join(
+      [
+        'const a = NodeURL.fileURLToPath(new URL("./space here.ts", import.meta.url));',
+        'const b = new URL("https://example.com/path").pathname;',
+        "const c = new URL(request.url, baseUrl).pathname;",
+        'const url = new URL("./asset", import.meta.url);',
+        'const path = url.protocol === "file:" ? NodeURL.fileURLToPath(url) : url.pathname;',
+        'const d = "new URL(./file, import.meta.url).pathname";',
+        '// new URL("./file", import.meta.url).pathname',
+      ],
+      "\n"
+    ),
+  },
   "no-native-error": {
     invalidCount: 2,
     messageIncludes: "native Error",
@@ -42,6 +67,46 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
     invalid: "export const flattened = [[1], [2]].map((x) => x).flat();",
     valid: A.join(
       ["export const flattened = [[1], [2]].flatMap((x) => x);", "export const mapped = [1, 2].map((x) => x + 1);"],
+      "\n"
+    ),
+  },
+  "prefer-exact-optional-key": {
+    invalidCount: 16,
+    messageIncludes: "exact optional keys",
+    invalid: A.join(
+      [
+        "import { optional } from 'effect/Schema';",
+        "import { a, optional as o } from 'effect/Schema';",
+        "import type { OptionFromOptional } from 'effect/Schema';",
+        "export const Call = S.Struct({ a: S.optional(S.String) });",
+        "export const Piped = S.Struct({ b: X.pipe(S.optional) });",
+        "const fields = { c: S.optional(S.Number) };",
+        "export const Hoisted = S.Struct(fields);",
+        "export const Aliased = Schema.Struct({ d: Schema.optional(Schema.String) });",
+        "export const Siblings = S.Struct({ e: S.withDecodingDefault(() => 'x')(S.String), f: S.OptionFromOptional(S.Number) });",
+        "export const Mapped = S.Struct({ g: S.String }).mapFields(Struct.map(S.optional));",
+        "const opt = S.optional;",
+        "export type Typed = S.optional<typeof S.String>;",
+        "export type Queried = typeof S.optional;",
+        "export const Tuple = S.Tuple([S.String, S.optional(S.Number)]);",
+        "export const Computed = S['optional'];",
+        "export { withDecodingDefault } from 'effect/Schema';",
+      ],
+      "\n"
+    ),
+    valid: A.join(
+      [
+        "import { optionalKey as k } from 'effect/Schema';",
+        "import { optional as other } from 'effect/Other';",
+        "export { optionalKey } from 'effect/Schema';",
+        "export const Exact = S.Struct({ a: S.optionalKey(S.String), b: S.optionalKey(S.UndefinedOr(S.Number)) });",
+        "export const Keyed = S.Struct({ c: S.withDecodingDefaultKey(() => 'x')(S.String), d: S.OptionFromOptionalKey(S.String) });",
+        "export const Flagged = Flag.optional(1);",
+        "export const Local = { optional: 1 }.optional;",
+        "export type Exactly = S.optionalKey<typeof S.String>;",
+        "// S.optional(S.String) in a comment",
+        "export const InString = 'S.optional(S.String)';",
+      ],
       "\n"
     ),
   },

@@ -131,11 +131,11 @@ export class YeetRunPlanModeOptions extends S.Opaque<YeetRunPlanModeOptions, { r
     amend: S.Boolean,
     collectAll: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     ciParity: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     mode: YeetRunMode,
     monitor: S.Boolean,
@@ -143,21 +143,24 @@ export class YeetRunPlanModeOptions extends S.Opaque<YeetRunPlanModeOptions, { r
     pushOnly: S.Boolean,
     reuseVerified: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     remote: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     proveFirst: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     tier: YeetProofTier,
-    pr: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
+    pr: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
     forceTurbo: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
   }).pipe(
     $I.annoteSchema("YeetRunPlanModeOptions", {

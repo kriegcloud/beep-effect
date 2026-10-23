@@ -304,8 +304,8 @@ const unstubbed = unstubbedFor({ service: "GitHubRelease" });
 const ReleaseResponse = S.Struct({
   id: S.Int,
   tag_name: S.String,
-  name: S.String.pipe(S.NullOr, S.optional),
-  body: S.String.pipe(S.NullOr, S.optional),
+  name: S.String.pipe(S.NullOr, S.optionalKey),
+  body: S.String.pipe(S.NullOr, S.optionalKey),
   draft: S.Boolean,
   prerelease: S.Boolean,
   html_url: S.String,

@@ -2370,6 +2370,15 @@
       ],
       "@beep/cli-kit/testing": [
         "./packages/foundation/capability/cli-kit/src/testing.ts"
+      ],
+      "@beep/lockfiles": [
+        "./packages/foundation/modeling/lockfiles/src/index.ts"
+      ],
+      "@beep/lockfiles/*": [
+        "./packages/foundation/modeling/lockfiles/src/*"
+      ],
+      "@beep/lockfiles/internal/*": [
+        "./packages/foundation/modeling/lockfiles/src/internal/*"
       ]
     }
   }

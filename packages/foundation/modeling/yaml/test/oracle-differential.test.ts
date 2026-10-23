@@ -17,6 +17,9 @@
 //   the same way (effected-promotion wave 3, W3-d)
 // - Compact-sequence and block-scalar-item groups: authored 2026-10-23
 //   against `yaml@2.9.1` the same way (#2131)
+// - Value-less flow mapping key group: authored 2026-10-23 against
+//   `yaml@2.9.1` the same way (#2142); the `!!set` row expects this parser's
+//   plain-object projection of the oracle's two-member `Set`
 // - Case matrix extended from the savvy-web-systems dogfood sweep of the same
 //   date (51 cases, double-oracle: yaml@2.9.0 + js-yaml@4.3.1, a case counted
 //   only where both agreed)
@@ -432,6 +435,52 @@ const blockScalarItemCases: ReadonlyArray<OracleCase> = [
   },
 ];
 
+// YAML 1.2 ns-flow-map-implicit-entry: a `,` or `}` after a plain implicit
+// key ends the entry with an empty value. The plain-scalar collector ran on
+// across the comma, so `{a, b}` parsed as `{"a b": null}` and `{a: 1, b}` as
+// `{a: "1 b"}`; a `:` directly before the comma let the next key become its
+// value, so `{a: , b}` parsed as `{a: "b"}` (#2142).
+const flowValuelessKeyCases: ReadonlyArray<OracleCase> = [
+  { name: "two value-less keys (the #2142 repro)", input: "{a, b}\n", expected: { a: null, b: null } },
+  { name: "a value-less key after a pair", input: "{a: 1, b}\n", expected: { a: 1, b: null } },
+  { name: "three value-less keys", input: "{a, b, c}\n", expected: { a: null, b: null, c: null } },
+  { name: "quoted then plain key (control)", input: '{"a", b}\n', expected: { a: null, b: null } },
+  { name: "a value-less key before a pair (control)", input: "{a, b: 1}\n", expected: { a: null, b: 1 } },
+  { name: "a value-less key between pairs", input: "{a: 1, b, c: 2}\n", expected: { a: 1, b: null, c: 2 } },
+  { name: "no space after the comma", input: "{a,b}\n", expected: { a: null, b: null } },
+  { name: "space before the comma", input: "{a , b}\n", expected: { a: null, b: null } },
+  { name: "trailing comma", input: "{a, b,}\n", expected: { a: null, b: null } },
+  { name: "mixed quoting", input: "{\"a\": 1, b, 'c'}\n", expected: { a: 1, b: null, c: null } },
+  { name: "tagged key", input: "{!!str a, b}\n", expected: { a: null, b: null } },
+  { name: "explicit keys", input: "{? a, b}\n", expected: { a: null, b: null } },
+  { name: "the !!set spelling keeps both members", input: "!!set {a, b}\n", expected: { a: null, b: null } },
+  {
+    name: "nested flow map value",
+    input: "{a, b: {c, d}, e}\n",
+    expected: { a: null, b: { c: null, d: null }, e: null },
+  },
+  {
+    name: "flow sequence value before a value-less key",
+    input: "{a: [b, c], d}\n",
+    expected: { a: ["b", "c"], d: null },
+  },
+  { name: "flow maps inside a flow sequence", input: "[{a, b}, {c}]\n", expected: [{ a: null, b: null }, { c: null }] },
+  { name: "flow map as a block mapping value", input: "k: {a, b}\n", expected: { k: { a: null, b: null } } },
+  { name: "flow map as a block sequence item", input: "- {a, b}\n- c\n", expected: [{ a: null, b: null }, "c"] },
+  { name: "comma at the end of a line", input: "{a,\n b}\n", expected: { a: null, b: null } },
+  { name: "multi-line flow map", input: "{\n  a,\n  b: 1,\n  c\n}\n", expected: { a: null, b: 1, c: null } },
+  { name: "comment after the comma", input: "{a, # note\n b}\n", expected: { a: null, b: null } },
+  { name: "multi-line plain key (control)", input: "{a\n b, c}\n", expected: { "a b": null, c: null } },
+  { name: "multi-line plain value before a key", input: "{a: x\n  y, b}\n", expected: { a: "x y", b: null } },
+  { name: "empty value before a plain key", input: "{a: , b}\n", expected: { a: null, b: null } },
+  { name: "empty value before a pair", input: "{a:, b: 1}\n", expected: { a: null, b: 1 } },
+  { name: "empty value before a quoted key", input: '{a: , "b"}\n', expected: { a: null, b: null } },
+  { name: "empty value on its own line", input: "{a:\n, b}\n", expected: { a: null, b: null } },
+  { name: "two empty values", input: "{a: , b: , c}\n", expected: { a: null, b: null, c: null } },
+  { name: "empty key and empty value", input: "{: , b}\n", expected: { "": null, b: null } },
+  { name: "tagged empty value (control)", input: "{a: !!str , b}\n", expected: { a: "", b: null } },
+];
+
 const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["controls", controlCases],
   ["dedent after a trailing comment", dedentCases],
@@ -443,6 +492,7 @@ const groups: ReadonlyArray<readonly [string, ReadonlyArray<OracleCase>]> = [
   ["plain-scalar continuation lines", plainContinuationCases],
   ["compact sequence values in sequence-item mappings", compactSequenceInItemCases],
   ["block scalar sequence items before a sibling", blockScalarItemCases],
+  ["value-less flow mapping keys", flowValuelessKeyCases],
 ];
 
 describe("oracle-differential (yaml@2.9.0 semantic expectations)", () => {

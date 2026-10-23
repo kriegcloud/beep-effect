@@ -4,6 +4,8 @@
   "generatedBy": "bun run beep lint schema-catalog --write",
   "owner": "@beep/test-utils",
   "entries": [
+    {"file":"packages/tooling/test-kit/test-utils/src/ImportGraph.ts","symbol":"ImportClosure","kind":"struct-const","owner":"@beep/test-utils","identity":"ImportClosure","description":"The runtime import closure of one entry module: the modules it reaches and the packages they name."},
+    {"file":"packages/tooling/test-kit/test-utils/src/ImportGraph.ts","symbol":"ImportGraphMissingSourceError","kind":"tagged-error","owner":"@beep/test-utils","identity":"ImportGraphMissingSourceError"},
     {"file":"packages/tooling/test-kit/test-utils/src/SqlTest.ts","symbol":"PgExternalTestDriverConfig","kind":"struct-const","owner":"@beep/test-utils","identity":"PgExternalTestDriverConfig","description":"Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver."},
     {"file":"packages/tooling/test-kit/test-utils/src/SqlTest.ts","symbol":"PgliteSqlTestLayerMode","kind":"literal-kit","owner":"@beep/test-utils","identity":"PgliteSqlTestLayerMode","description":"Mode selector for the public PGLite SQL test layer helper."},
     {"file":"packages/tooling/test-kit/test-utils/src/SqlTest.ts","symbol":"PgliteTestcontainersTestDriverConfig","kind":"struct-const","owner":"@beep/test-utils","identity":"PgliteTestcontainersTestDriverConfig","description":"Runtime configuration for the PGLite Testcontainers SQL test driver."},

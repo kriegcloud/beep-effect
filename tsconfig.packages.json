@@ -358,6 +358,9 @@
       "path": "packages/foundation/modeling/lexical"
     },
     {
+      "path": "packages/foundation/modeling/lockfiles"
+    },
+    {
       "path": "packages/foundation/modeling/managed-section"
     },
     {

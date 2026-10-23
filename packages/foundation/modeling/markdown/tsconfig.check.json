@@ -23,6 +23,9 @@
     },
     {
       "path": "../../../tooling/test-kit/fc-runs/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-kit/test-utils/tsconfig.json"
     }
   ],
   "compilerOptions": {
