@@ -26,6 +26,7 @@ import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { restOf, sameRest } from "./internal/wire.ts";
+import { ManifestEmail } from "./Person.ts";
 
 const $I = $PackageJsonId.create("Repository");
 
@@ -461,7 +462,7 @@ export class Bugs extends S.Class<Bugs, { readonly brand: unique symbol }>($I`Bu
     /** The issue-tracker URL. */
     url: S.optionalKey(S.String).pipe($I.annoteKey("Bugs.url", { description: "The issue-tracker URL." })),
     /** The address to mail instead of, or alongside, filing an issue. */
-    email: S.optionalKey(S.String).pipe(
+    email: S.optionalKey(ManifestEmail).pipe(
       $I.annoteKey("Bugs.email", { description: "The address to mail instead of, or alongside, filing an issue." })
     ),
     /** Keys outside the documented set, preserved so encoding does not drop them. */

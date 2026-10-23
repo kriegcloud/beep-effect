@@ -1,5 +1,7 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Dependency } from "@beep/package-json/Dependency";
 import { Package, PackageDecodeError } from "@beep/package-json/Package";
+import { UnscopedPackageName } from "@beep/package-json/PackageName";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -313,5 +315,20 @@ describe("Package.toJsonString", () => {
       // unset dependency maps do not appear
       assert.isFalse("optionalDependencies" in parsed);
     })
+  );
+});
+
+describe("Package dependency setters property", () => {
+  it.effect.prop(
+    "addDependency then removeDependency restores the generated manifest's dependencies",
+    [UnscopedPackageName, S.NonEmptyString],
+    ([name, specifier]) =>
+      Effect.gen(function* () {
+        const pkg = yield* Package.decode({ name: "my-pkg", version: "1.0.0" });
+        const added = Package.addDependency(pkg, name, specifier);
+        assert.isTrue(added.hasDependency(name));
+        assert.isTrue(HashMap.isEmpty(Package.removeDependency(added, name).dependencies));
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

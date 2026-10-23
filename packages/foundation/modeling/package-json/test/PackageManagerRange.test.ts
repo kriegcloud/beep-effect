@@ -304,4 +304,17 @@ describe("PackageManagerRange operator, baseVersion and withVersion", () => {
   );
 });
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { $PackageJsonId } from "@beep/identity/packages";
+
+describe("PackageManagerRange.fromDevEngineResult property", () => {
+  it.effect.prop(
+    "an entry without a version names no range, whatever the generated name",
+    [S.String],
+    ([name]) =>
+      Effect.sync(() => {
+        assert.strictEqual(reasonOfEngine(DevEngine.make({ name })), "range");
+      }),
+    { arbitrary: fcRuns(50) }
+  );
+});

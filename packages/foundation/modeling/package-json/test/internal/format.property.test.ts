@@ -2,6 +2,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -64,7 +65,7 @@ describe("internal format property floor", () => {
     ([size]) =>
       Effect.sync(() => {
         const source = renderJson({ name: "p" }, resolveFormatOptions({ indent: size }));
-        assert.strictEqual(detectIndent(source), Str.repeat(size)(" "));
+        assert.deepStrictEqual(detectIndent(source), O.some(Str.repeat(size)(" ")));
         assert.strictEqual(resolveIndent("preserve", source), Str.repeat(size)(" "));
         assert.strictEqual(resolveIndent(source)("preserve"), Str.repeat(size)(" "));
       }),

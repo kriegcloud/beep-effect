@@ -87,5 +87,5 @@ export {
   RuleFailure,
   ValidationRule,
 } from "./PackageValidator.ts";
-export { Person } from "./Person.ts";
+export { ManifestEmail, Person } from "./Person.ts";
 export { Bugs, Repository } from "./Repository.ts";

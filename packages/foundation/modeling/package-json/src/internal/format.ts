@@ -260,29 +260,24 @@ const DEFAULT_INDENT = 2;
 /**
  * Detect the indentation of a JSON source text from its first indented line:
  * `"\t"` for tab indentation, otherwise the leading run of spaces. Returns
- * `undefined` when no line is indented.
+ * `Option.none()` when no line is indented.
  *
  * **Example** (Inspect a four-space indent)
  *
  * ```ts
  * import { detectIndent } from "@beep/package-json/internal/format";
+ * import * as O from "effect/Option";
  *
- * console.log(detectIndent('{\n    "name": "p"\n}')?.length); // 4
+ * console.log(O.map(detectIndent('{\n    "name": "p"\n}'), (indent) => indent.length)); // { _id: 'Option', _tag: 'Some', value: 4 }
  * ```
  *
  * @category formatting
  * @since 0.0.0
  */
-export const detectIndent = (source: string): string | undefined => {
-  for (const line of Str.split(source, "\n")) {
-    const match = /^(\t+| +)\S/.exec(line);
-    const indent = match?.[1];
-    if (indent !== undefined) {
-      return Str.startsWith("\t")(indent) ? "\t" : indent;
-    }
-  }
-  return undefined;
-};
+export const detectIndent = (source: string): O.Option<string> =>
+  A.findFirst(Str.split(source, "\n"), (line) =>
+    O.map(O.fromNullishOr(/^(\t+| +)\S/.exec(line)?.[1]), (indent) => (Str.startsWith("\t")(indent) ? "\t" : indent))
+  );
 
 /**
  * Resolve a `PackageFormatOptions.indent` value to the `JSON.stringify` indent
@@ -308,7 +303,7 @@ export const resolveIndent: {
 } = dual(2, (indent: number | "tab" | "preserve" | undefined, sourceText: string | undefined): string | number => {
   if (indent === "tab") return "\t";
   if (indent === "preserve") {
-    return sourceText === undefined ? DEFAULT_INDENT : (detectIndent(sourceText) ?? DEFAULT_INDENT);
+    return sourceText === undefined ? DEFAULT_INDENT : O.getOrElse(detectIndent(sourceText), () => DEFAULT_INDENT);
   }
   return indent ?? DEFAULT_INDENT;
 });

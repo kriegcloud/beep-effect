@@ -1,6 +1,8 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { MemoryFileSystem } from "@beep/memfs";
 import { Package } from "@beep/package-json/Package";
 import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
+import { UnscopedPackageName } from "@beep/package-json/PackageName";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -358,6 +360,30 @@ describe("PackageJsonFile manifest and modify", () => {
         const error = yield* Effect.flip(file.modify("/nonexistent/package.json", [{ path: ["a"], value: 1 }]));
         assert.strictEqual(error._tag, "PackageJsonNotFoundError");
       })
+    );
+  });
+});
+
+describe("PackageJsonFile write/read property", () => {
+  it.layer(TestLayer, { timeout: "30 seconds" })((it) => {
+    it.effect.prop(
+      "a written package with a generated name reads back with that name and version",
+      [UnscopedPackageName],
+      ([name]) =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const file = yield* PackageJsonFile;
+            const fs = yield* FileSystem.FileSystem;
+            const pathService = yield* Path.Path;
+            const dir = yield* fs.makeTempDirectoryScoped({ prefix: "pkg-json-prop-" });
+            const path = pathService.join(dir, "package.json");
+            yield* file.write(path, yield* Package.decode({ name, version: "1.0.0" }));
+            const read = yield* file.read(path);
+            assert.strictEqual(read.name, name);
+            assert.strictEqual(read.version.toString(), "1.0.0");
+          })
+        ),
+      { arbitrary: fcRuns(20) }
     );
   });
 });

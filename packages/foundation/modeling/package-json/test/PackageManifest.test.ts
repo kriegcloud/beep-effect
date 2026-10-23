@@ -8,6 +8,7 @@
 //   nonsemver version ("1.0")        PackageManifest REJECT — lenient about
 //                                    ABSENCE, strict about shape when present.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Package } from "@beep/package-json/Package";
 import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
@@ -166,5 +167,19 @@ describe("PackageManifest wire fidelity", () => {
       assert.isFalse("dependencies" in parsed);
       assert.isTrue(Str.endsWith("\n")(text));
     })
+  );
+});
+
+describe("PackageManifest property", () => {
+  it.effect.prop(
+    "isPrivate reads a generated private flag back and the manifest re-encodes it",
+    [S.Boolean],
+    ([flag]) =>
+      Effect.gen(function* () {
+        const manifest = yield* PackageManifest.decode({ private: flag });
+        assert.strictEqual(manifest.isPrivate, flag);
+        assert.strictEqual((yield* S.encodeEffect(PackageManifest.schema)(manifest)).private, flag);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

@@ -12,6 +12,7 @@
 // formatter must not rewrite one legal encoding into another, so a shorthand
 // string round-trips as that exact string.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Bugs, Person, Repository } from "@beep/package-json";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
@@ -547,5 +548,19 @@ describe("Repository and Bugs — the shorthand is replayed only while it can ca
       const bugs = yield* decode(Bugs.FromValue, input);
       assert.strictEqual(yield* encode(Bugs.FromValue, bugs), input);
     })
+  );
+});
+
+describe("Bugs shorthand property", () => {
+  it.effect.prop(
+    "a generated bugs string decodes to its url and re-encodes as the same string",
+    [S.String],
+    ([url]) =>
+      Effect.gen(function* () {
+        const bugs = yield* S.decodeEffect(Bugs.FromValue)(url);
+        assert.strictEqual(bugs.url, url);
+        assert.strictEqual(yield* S.encodeEffect(Bugs.FromValue)(bugs), url);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

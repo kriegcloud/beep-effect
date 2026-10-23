@@ -9,6 +9,7 @@
 //   - leniency is per-field, not per-syntax — invalid JSON text and a
 //     non-object document stay typed errors.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { LenientManifest } from "@beep/package-json/LenientManifest";
 import { PackageManifest } from "@beep/package-json/PackageManifest";
 import { assert, describe, it } from "@effect/vitest";
@@ -17,6 +18,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 
 const unwrap = <A, E>(result: Result.Result<A, E>): A => {
   assertTrue(Result.isSuccess(result), "expected the lenient decode to succeed");
@@ -262,4 +264,19 @@ describe("LenientManifest getters", () => {
     assert.isFalse(manifest.isESM);
     assert.isTrue(unwrap(LenientManifest.decodeResult({ type: "module" })).isESM);
   });
+});
+
+describe("LenientManifest property", () => {
+  it.effect.prop(
+    "well-typed name and version decode with no issues and nothing parked in rest",
+    [S.Struct({ name: S.String, version: S.String })],
+    ([raw]) =>
+      Effect.sync(() => {
+        const manifest = unwrap(LenientManifest.decodeResult(raw));
+        assert.strictEqual(manifest.name, raw.name);
+        assert.strictEqual(manifest.version, raw.version);
+        assert.deepStrictEqual(manifest.issues, []);
+      }),
+    { arbitrary: fcRuns(50) }
+  );
 });

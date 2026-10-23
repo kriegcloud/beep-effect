@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Funding } from "@beep/package-json/Funding";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -22,4 +23,16 @@ it.effect("FromValue preserves spelling and rebuilds remembered objects when url
     Funding.rememberWire(typeChanged, { url: "old", type: "github" });
     assert.deepStrictEqual(yield* S.encodeEffect(Funding.FromValue)(typeChanged), { url: "old", type: "other" });
   })
+);
+
+it.effect.prop(
+  "FromValue replays a generated object entry verbatim",
+  [S.Struct({ url: S.String, type: S.optionalKey(S.String) })],
+  ([wire]) =>
+    Effect.gen(function* () {
+      const funding = yield* S.decodeEffect(Funding.FromValue)(wire);
+      assert.strictEqual(funding.url, wire.url);
+      assert.deepStrictEqual(yield* S.encodeEffect(Funding.FromValue)(funding), wire);
+    }),
+  { arbitrary: fcRuns(50) }
 );

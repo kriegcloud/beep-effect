@@ -131,4 +131,19 @@ describe("licenseExpressionOf — the brand/grammar seam", () => {
   });
 });
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { $PackageJsonId } from "@beep/identity/packages";
+
+describe("SpdxLicense property", () => {
+  it.effect.prop(
+    "SEE LICENSE IN followed by any non-empty file name decodes unchanged",
+    [S.NonEmptyString],
+    ([file]) =>
+      Effect.gen(function* () {
+        const license = `SEE LICENSE IN ${file}`;
+        assert.isTrue(isValidSpdx(license));
+        assert.strictEqual(yield* S.decodeEffect(SpdxLicense)(license), license);
+      }),
+    { arbitrary: fcRuns(50) }
+  );
+});

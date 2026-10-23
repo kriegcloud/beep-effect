@@ -97,13 +97,43 @@ const isFaithful: {
   );
 });
 
+/**
+ * The `email` slot of a manifest person or `bugs` entry: an external-protocol
+ * string, deliberately not a validated address.
+ *
+ * **Details**
+ *
+ * npm does not validate these addresses (neither `npm publish` nor
+ * `normalize-package-data` checks them), and real published manifests carry
+ * values that are not RFC 5322 addresses. A stricter schema here would reject
+ * manifests npm accepts, so any string decodes and round-trips unchanged.
+ *
+ * **Example** (Decode an unvalidated manifest email)
+ *
+ * ```ts
+ * import { ManifestEmail } from "@beep/package-json/Person";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.decodeUnknownSync(ManifestEmail)("ann at example dot com")); // ann at example dot com
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ManifestEmail = S.String.pipe(
+  $I.annoteSchema("ManifestEmail", {
+    description: "A manifest person or bugs email: an external-protocol string npm does not validate, kept verbatim.",
+  })
+);
+
 // The modeled fields alone, used to validate the object wire form. Decoding
 // through this rather than the class keeps the issue tree identical to what a
 // direct class decode produced, while leaving instance construction to the
 // transform so the raw object can be remembered.
 const PersonFields = S.Struct({
   name: S.String,
-  email: S.optionalKey(S.String),
+  email: S.optionalKey(ManifestEmail),
   url: S.optionalKey(S.String),
 });
 
@@ -144,7 +174,9 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
     /** The person's name. */
     name: S.String.pipe($I.annoteKey("Person.name", { description: "The person's name." })),
     /** The optional email address. */
-    email: S.optionalKey(S.String).pipe($I.annoteKey("Person.email", { description: "The optional email address." })),
+    email: S.optionalKey(ManifestEmail).pipe(
+      $I.annoteKey("Person.email", { description: "The optional email address." })
+    ),
     /** The optional homepage URL. */
     url: S.optionalKey(S.String).pipe($I.annoteKey("Person.url", { description: "The optional homepage URL." })),
     /** Any additional keys, preserved verbatim and flattened back on encode. */

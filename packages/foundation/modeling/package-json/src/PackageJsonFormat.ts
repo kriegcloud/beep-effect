@@ -21,6 +21,7 @@ import { JsoncEdit, JsoncModifier } from "@beep/jsonc";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -468,8 +469,8 @@ export class PackageJsonFormat {
       }
       const indent = detectIndent(source);
       const formattingOptions = {
-        insertSpaces: indent !== "\t",
-        tabSize: indent === undefined || indent === "\t" ? 2 : indent.length,
+        insertSpaces: !O.contains(indent, "\t"),
+        tabSize: O.match(indent, { onNone: () => 2, onSome: (found) => (found === "\t" ? 2 : found.length) }),
         eol: Str.includes("\r\n")(source) ? "\r\n" : "\n",
       };
       return yield* JsoncModifier.modify(source, path, value, { formattingOptions }).pipe(

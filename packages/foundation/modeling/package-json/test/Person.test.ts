@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Person } from "@beep/package-json/Person";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertNone, assertTrue } from "@effect/vitest/utils";
@@ -322,5 +323,19 @@ describe("Person — stale wire provenance", () => {
         name: "Ann",
       });
     })
+  );
+});
+
+describe("Person shorthand property", () => {
+  it.effect.prop(
+    "a generated plain name round-trips through the shorthand codec unchanged",
+    [S.String.check(S.isPattern(/^[A-Za-z][A-Za-z .-]{0,12}[A-Za-z]$/))],
+    ([name]) =>
+      Effect.gen(function* () {
+        const person = yield* S.decodeEffect(Person.FromString)(name);
+        assert.strictEqual(person.name, name);
+        assert.strictEqual(yield* S.encodeEffect(Person.FromString)(person), name);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

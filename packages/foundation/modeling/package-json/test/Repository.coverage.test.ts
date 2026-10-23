@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Bugs, Repository } from "@beep/package-json/Repository";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
@@ -36,5 +37,19 @@ describe("repository permissive shapes", () => {
         tracker: { kind: "custom" },
       });
     })
+  );
+});
+
+describe("repository object property", () => {
+  it.effect.prop(
+    "a generated repository object replays verbatim",
+    [S.Struct({ type: S.String, url: S.String })],
+    ([wire]) =>
+      Effect.gen(function* () {
+        const value = yield* S.decodeEffect(Repository.FromValue)(wire);
+        assert.strictEqual(value.url, wire.url);
+        assert.deepStrictEqual(yield* S.encodeEffect(Repository.FromValue)(value), wire);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

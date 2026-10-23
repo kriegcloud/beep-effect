@@ -15,6 +15,7 @@
 //           re-encodes bare, NOT as a one-element array, and a string entry
 //           re-encodes as that exact string.
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Funding, LenientManifest, Package, PackageManifest } from "@beep/package-json";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertTrue } from "@effect/vitest/utils";
@@ -401,5 +402,19 @@ describe("funding — the manifest tiers", () => {
       assert.isUndefined(pkg.funding);
       assert.isFalse("funding" in (yield* encode(Package.schema, pkg)));
     })
+  );
+});
+
+describe("Funding — string shorthand property", () => {
+  it.effect.prop(
+    "a generated bare-string field decodes to one entry and re-encodes as the same string",
+    [S.String],
+    ([url]) =>
+      Effect.gen(function* () {
+        const entries = yield* decode(field, url);
+        assert.strictEqual(entries[0]?.url, url);
+        assert.strictEqual(yield* encode(field, entries), url);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { $PackageJsonId } from "@beep/identity/packages";
 import {
   DependencyMapField,
@@ -8,6 +9,7 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 describe("Package field schemas", () => {
@@ -57,5 +59,19 @@ describe("Package field schemas", () => {
         "SchemaError"
       );
     })
+  );
+});
+
+describe("Package field schemas property", () => {
+  it.effect.prop(
+    "a generated string map decodes to a HashMap of the same size and encodes back",
+    [S.Record(S.String, S.String)],
+    ([input]) =>
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeEffect(StringMapField)(input);
+        assert.strictEqual(HashMap.size(decoded), R.size(input));
+        assert.deepStrictEqual(yield* S.encodeEffect(StringMapField)(decoded), input);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });

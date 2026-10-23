@@ -3,6 +3,7 @@
 // and byte parity against frozen sort-package-json output for real manifests
 // from this repository (see fixtures/README.md for provenance).
 
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { renderJson, resolveFormatOptions, resolveIndent } from "@beep/package-json/internal/format";
 import { Package } from "@beep/package-json/Package";
 import { assert, describe, it } from "@effect/vitest";
@@ -287,5 +288,18 @@ describe("byte parity with sort-package-json@4.0.0 on real manifests", () => {
       const viaTab = yield* decodeAndRender(raw, { indent: "tab" });
       assert.strictEqual(viaTab, viaPreserve);
     })
+  );
+});
+
+describe("renderJson property", () => {
+  it.effect.prop(
+    "unsorted, unstripped output parses back to the generated record",
+    [S.Record(S.String, S.String)],
+    ([raw]) =>
+      Effect.gen(function* () {
+        const text = renderJson(raw, resolveFormatOptions({ sort: false, stripEmpty: false, newline: false }));
+        assert.deepStrictEqual(yield* S.decodeEffect(Json)(text), raw);
+      }),
+    { arbitrary: fcRuns(50) }
   );
 });
