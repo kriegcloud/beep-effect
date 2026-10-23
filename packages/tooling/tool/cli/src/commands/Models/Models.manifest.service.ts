@@ -24,7 +24,6 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
-import * as SchemaIssue from "effect/SchemaIssue";
 import * as Str from "effect/String";
 import { stringify as stringifyYaml } from "yaml";
 import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
@@ -34,15 +33,6 @@ import { ModelsManifest } from "./Models.manifest.schemas.ts";
 const $I = $RepoCliId.create("commands/Models/Models.manifest.service");
 
 const encodeManifest = S.encodeUnknownEffect(ModelsManifest);
-
-// `ConfigFile.read` carries a schema failure as its structured `SchemaIssue`
-// tree; a value that is not one would break its contract, so it is a defect.
-const SchemaIssueValue = S.declare(SchemaIssue.isIssue).pipe(
-  $I.annoteSchema("SchemaIssueValue", {
-    description: "The structured schema issue a config-file validation failure carries.",
-  })
-);
-const decodeIssue = S.decodeUnknownEffect(SchemaIssueValue);
 
 // ── Manifest store ──────────────────────────────────────────────────────────
 
@@ -145,7 +135,9 @@ const makeManifestStore = Effect.fnUntraced(function* () {
             ModelsManifestError.make({ message: `Failed to parse YAML in ${file}.`, path: file, cause: error.cause })
           ),
         ConfigValidationError: (error) =>
-          decodeIssue(error.issue).pipe(
+          // A schema-only read always carries a `SchemaIssue`; anything else
+          // breaks the `ConfigFile.read` contract, so it is a defect.
+          Effect.fromOption(error.schemaIssue).pipe(
             Effect.orDie,
             Effect.flatMap((issue) => Effect.fail(new S.SchemaError(issue))),
             ModelsManifestError.mapError(`Failed to decode the models manifest at ${file}`, file)
