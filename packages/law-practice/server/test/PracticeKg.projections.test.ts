@@ -85,7 +85,15 @@ import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as Tracer from "effect/Tracer";
 import { OFFICE_ACTION_FIXTURE } from "./fixture.ts";
+import type { DuckDbShape } from "@beep/duckdb";
 import type { TestContext } from "@effect/vitest";
+
+class ConcurrentClaimsReader extends Context.Service<ConcurrentClaimsReader, DuckDbShape>()(
+  "test/ConcurrentClaimsReader"
+) {}
+class ConcurrentClaimsOptions extends Context.Service<ConcurrentClaimsOptions, PracticeKgClaimsOptions>()(
+  "test/ConcurrentClaimsOptions"
+) {}
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const json = (value: unknown): Effect.Effect<string> => Effect.orDie(encodeJson(value));
@@ -1801,30 +1809,28 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.effect(
-      "resolves standalone claims while an independent cached read-only connection remains open",
-      Effect.fnUntraced(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const corpusRoot = yield* makeFixtureCorpus();
-        const bundleOut = path.join(corpusRoot, "bundle-concurrent-claims-readers");
-        yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
-        const inputs = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-concurrent-claims-" });
-        const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
-        const readers = yield* Layer.build(
-          DuckDb.makeNodeLayer(
-            DuckDbConnectionOptions.make({
-              databasePath: path.join(bundleOut, "practice.duckdb"),
-              databaseOptions: { access_mode: "READ_ONLY" },
-            })
-          )
-        );
-        const reader = Context.get(readers, DuckDb);
-        // Opening is lazy: establish the independent reader before starting the standalone lookup.
-        yield* reader.query("SELECT digest FROM documents ORDER BY digest");
-        const [summary, rows] = yield* Effect.all(
-          [
-            runPracticeKgClaimsBatch(
+    it.layer(
+      Layer.unwrap(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const corpusRoot = yield* makeFixtureCorpus();
+          const bundleOut = path.join(corpusRoot, "bundle-concurrent-claims-readers");
+          yield* runBuild(graphOptions(corpusRoot, bundleOut), bundleOut);
+          const inputs = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-concurrent-claims-" });
+          const document = yield* normalizePatentApplicationDocument(normalizedPatentFixture);
+          const readers = yield* Layer.build(
+            DuckDb.makeNodeLayer(
+              DuckDbConnectionOptions.make({
+                databasePath: path.join(bundleOut, "practice.duckdb"),
+                databaseOptions: { access_mode: "READ_ONLY" },
+              })
+            )
+          );
+          return Layer.mergeAll(
+            Layer.succeed(ConcurrentClaimsReader, Context.get(readers, DuckDb)),
+            Layer.succeed(
+              ConcurrentClaimsOptions,
               PracticeKgClaimsOptions.make({
                 bundleOut,
                 inputs,
@@ -1836,30 +1842,38 @@ describe("practice KG projections", () => {
                   }),
                 ],
               })
-            ).pipe(
-              Effect.provide(
-                Layer.mergeAll(
-                  Layer.succeed(
-                    OfficeActionReview,
-                    OfficeActionReview.of({
-                      extractCandidate: () => Effect.die("Normalized patent claims must not invoke extraction."),
-                      review: () => Effect.die("Normalized patent claims must not invoke review."),
-                    })
-                  ),
-                  Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
-                )
-              )
             ),
-            reader.query("SELECT digest FROM documents ORDER BY digest"),
-          ],
-          { concurrency: 2 }
-        );
-        expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
-        expect(rows.length).toBeGreaterThan(0);
-        expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
-      }),
-      { timeout: 120_000 }
-    );
+            Layer.succeed(
+              OfficeActionReview,
+              OfficeActionReview.of({
+                extractCandidate: () => Effect.die("Normalized patent claims must not invoke extraction."),
+                review: () => Effect.die("Normalized patent claims must not invoke review."),
+              })
+            ),
+            Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
+          );
+        })
+      ),
+      { timeout: "120 seconds" }
+    )((it) => {
+      it.effect(
+        "resolves standalone claims while an independent cached read-only connection remains open",
+        Effect.fnUntraced(function* () {
+          const reader = yield* ConcurrentClaimsReader;
+          const options = yield* ConcurrentClaimsOptions;
+          // Opening is lazy: establish the independent reader before the standalone lookup.
+          yield* reader.query("SELECT digest FROM documents ORDER BY digest");
+          const [summary, rows] = yield* Effect.all(
+            [runPracticeKgClaimsBatch(options), reader.query("SELECT digest FROM documents ORDER BY digest")],
+            { concurrency: 2 }
+          );
+          expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
+          expect(rows.length).toBeGreaterThan(0);
+          expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
+        }),
+        { timeout: 120_000 }
+      );
+    });
 
     it.effect(
       "persists docket-scoped normalized patents with exact claims-section evidence and bounded input",
