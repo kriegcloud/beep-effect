@@ -9,6 +9,8 @@ import {
   CorpusCommandServiceLive,
   CorpusExtractOcrCounts,
   CorpusExtractOptions,
+  CorpusOrganizeOptions,
+  CorpusOrganizeRecord,
   CorpusPageReadingRecordJson,
   CorpusProvenanceRecord,
   CorpusSalvageOptions,
@@ -23,6 +25,7 @@ import {
   encodeTransformationLedgerRecordJson,
   extractCorpus,
   MailOccurrenceMembership,
+  organizeCorpus,
   pairRecycleBinEntries,
   parseRecycleBinMetadata,
   preserveRestorationArchive,
@@ -82,6 +85,8 @@ import type * as PlatformError from "effect/PlatformError";
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
 const decodeRestorationVerifyOptions = S.decodeEffect(RestorationVerifyOptions);
+const CorpusOrganizeRecordJson = S.fromJsonString(CorpusOrganizeRecord);
+const decodeOrganizeRecordJson = S.decodeUnknownEffect(CorpusOrganizeRecordJson);
 const decodeUnknownCollectorManifestRecordResult = S.decodeUnknownResult(CollectorManifestRecord);
 const isTransformationLedgerRecordCasesAttachmentTypeRepair = S.is(
   TransformationLedgerRecord.cases["attachment-type-repair"]
@@ -1444,6 +1449,121 @@ const readProvenanceLines = Effect.fn("CorpusTest.readProvenanceLines")(function
 const fixtureBytes = (content: string | Uint8Array): Uint8Array =>
   typeof content === "string" ? utf8ToBytes(content) : content;
 const contentDigest = (content: string | Uint8Array): string => bytesToHex(sha256(fixtureBytes(content)));
+
+it.layer(testLayer)("corpus organize", (it) => {
+  it.effect("materializes categories, deduplicates content, versions dockets, and protects existing output", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-organize-test-" });
+      const rawRoot = path.join(corpusRoot, "raw");
+      const catalogRoot = path.join(corpusRoot, "catalog");
+      yield* fs.makeDirectory(catalogRoot, { recursive: true });
+      const sources = [
+        { label: "source-a", name: "one/Response (10109WO02-US1).docx", content: "older response" },
+        { label: "source-a", name: "two/Response (10109WO02-US1).docx", content: "newer response" },
+        { label: "source-a", name: "mail.pst", content: "mail archive" },
+        { label: "source-a", name: "Sent_Emails.export/message.eml", content: "email message" },
+        { label: "source-a", name: "$I0CB4M9.docx", content: "recycle metadata" },
+        { label: "source-a", name: "notes.txt", content: "client notes" },
+        { label: "source-b", name: "misc.txt", content: "unsorted notes" },
+        { label: "source-b", name: "duplicate.txt", content: "client notes" },
+        { label: "source-b", name: "one/Unique (10110WO02-US1).docx", content: "single docket" },
+      ];
+      const lines = yield* Effect.forEach(sources, (source, index) =>
+        Effect.gen(function* () {
+          const destPath = path.join(rawRoot, source.label, source.name);
+          yield* fs.makeDirectory(path.dirname(destPath), { recursive: true });
+          yield* fs.writeFileString(destPath, source.content);
+          return yield* encodeProvenanceLine(
+            CorpusProvenanceRecord.make({
+              ...provenanceRecord({
+                destPath,
+                originPath: `/origin/${source.label}/${source.name}`,
+                relativePath: source.name,
+                sha256: contentDigest(source.content),
+                sizeBytes: utf8ToBytes(source.content).byteLength,
+                sourceLabel: source.label,
+              }),
+              mtimeEpoch: 1_700_000_000 + index,
+            })
+          );
+        })
+      );
+      yield* fs.writeFileString(path.join(rawRoot, "provenance.jsonl"), A.join(lines, "\n"));
+      yield* fs.writeFileString(path.join(catalogRoot, "restoration-manifest.jsonl"), "");
+      const clientMapPath = path.join(corpusRoot, "clients.json");
+      yield* fs.writeFileString(clientMapPath, '{"source-a":"  Example/Client  "}');
+      const options = CorpusOrganizeOptions.make({ corpusRoot, clientMapPath, overwrite: false });
+      const summary = yield* organizeCorpus(options);
+      expect(summary).toEqual({
+        canonicalArtifacts: 8,
+        clientFiles: 1,
+        docketFamilies: 2,
+        docketFiles: 3,
+        duplicatesSkipped: 1,
+        emailArchives: 1,
+        emailExportFiles: 1,
+        restoredNames: 0,
+        unsortedFiles: 1,
+        versionGroups: 1,
+      });
+      const records = yield* Effect.forEach(
+        yield* readProvenanceLines(path.join(catalogRoot, "organize-manifest.jsonl")),
+        (line) => decodeOrganizeRecordJson(line)
+      );
+      expect(
+        A.map(
+          A.filter(records, (row) => row.docket === "10109WO02-US1"),
+          (row) => row.versionIndex
+        )
+      ).toEqual([1, 2]);
+      expect(A.filter(records, (row) => !row.materialized)).toHaveLength(2);
+      const organizedRoot = path.join(corpusRoot, "organized");
+      expect(yield* fs.readFileString(path.join(organizedRoot, "clients/Example_Client/notes.txt"))).toBe(
+        "client notes"
+      );
+      expect(yield* fs.readFileString(path.join(organizedRoot, "_unsorted/source-b/misc.txt"))).toBe("unsorted notes");
+      const archiveLink = path.join(organizedRoot, "email-archives/source-a--mail.pst");
+      expect(yield* fs.readLink(archiveLink)).toBe(path.join(rawRoot, "source-a/mail.pst"));
+      const refused = yield* organizeCorpus(options).pipe(Effect.flip);
+      expect(refused.message).toContain("is not empty; pass --overwrite");
+      expect(yield* fs.readFileString(archiveLink)).toBe("mail archive");
+      expect(yield* organizeCorpus(CorpusOrganizeOptions.make({ ...options, overwrite: true }))).toEqual(summary);
+      const withoutClients = yield* organizeCorpus(CorpusOrganizeOptions.make({ corpusRoot, overwrite: true }));
+      expect(withoutClients.clientFiles).toBe(0);
+      expect(withoutClients.unsortedFiles).toBe(2);
+    })
+  );
+
+  it.effect("reports missing and malformed inputs before materializing any artifacts", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-organize-input-test-" });
+      const options = CorpusOrganizeOptions.make({ corpusRoot, overwrite: false });
+      expect((yield* organizeCorpus(options).pipe(Effect.flip)).message).toContain("Failed reading provenance");
+      yield* fs.makeDirectory(path.join(corpusRoot, "raw"));
+      yield* fs.writeFileString(path.join(corpusRoot, "raw/provenance.jsonl"), "");
+      expect((yield* organizeCorpus(options).pipe(Effect.flip)).message).toContain("Failed reading restoration");
+      yield* fs.makeDirectory(path.join(corpusRoot, "catalog"));
+      yield* fs.writeFileString(path.join(corpusRoot, "catalog/restoration-manifest.jsonl"), "{}");
+      expect((yield* organizeCorpus(options).pipe(Effect.flip)).message).toContain(
+        "Restoration manifest line failed schema validation"
+      );
+      yield* fs.writeFileString(path.join(corpusRoot, "catalog/restoration-manifest.jsonl"), "");
+      const clientMapPath = path.join(corpusRoot, "clients.json");
+      expect(
+        (yield* organizeCorpus(CorpusOrganizeOptions.make({ ...options, clientMapPath })).pipe(Effect.flip)).message
+      ).toContain("Failed reading client map");
+      yield* fs.writeFileString(clientMapPath, '{"source-a":42}');
+      expect(
+        (yield* organizeCorpus(CorpusOrganizeOptions.make({ ...options, clientMapPath })).pipe(Effect.flip)).message
+      ).toContain("Client map failed schema validation");
+      expect(yield* fs.readDirectory(path.join(corpusRoot, "organized"))).toEqual([]);
+    })
+  );
+});
 
 const summaryCountKeys = [
   "alreadyCompleteCount",

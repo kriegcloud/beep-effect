@@ -150,6 +150,34 @@ it.layer(commandLayer, { timeout: "30 seconds" })("version-sync runtime command"
 });
 
 it.layer(runtimeLayer, { timeout: "30 seconds" })("Bun runtime preflight I/O", (it) => {
+  it.effect("rejects a failed bun version subprocess even if its stdout matches the pin", () =>
+    Effect.gen(function* () {
+      vi.stubGlobal("process", { ...process, versions: { ...process.versions, bun: undefined } });
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const root = yield* fs.makeTempDirectoryScoped();
+      yield* fs.writeFileString(path.join(root, ".bun-version"), "1.4.3\n");
+      const error = yield* checkBunRuntimeVersion(root).pipe(
+        Effect.provideService(
+          ChildProcessSpawner.ChildProcessSpawner,
+          ChildProcessSpawner.make((command) =>
+            spawner.spawn(command).pipe(
+              Effect.map((handle) =>
+                ChildProcessSpawner.makeHandle({
+                  ...handle,
+                  exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(2)),
+                })
+              )
+            )
+          )
+        ),
+        Effect.flip
+      );
+      expect(error.message).toContain("bun --version exited 2");
+    })
+  );
+
   it.effect("fails closed when the repository has no .bun-version", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
