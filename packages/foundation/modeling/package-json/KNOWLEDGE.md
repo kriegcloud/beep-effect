@@ -1,8 +1,22 @@
 # package-json — upstream knowledge bundle (verbatim)
 
 Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
-Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
+Relative `okf/...` and `../../packages/...` links refer to that checkout. Content is carried verbatim; port
 decisions live in README.md → Port notes, not here.
+
+Upstream paths map onto this package as follows: `packages/package-json/` is
+`packages/foundation/modeling/package-json/`, `packages/package-json/src/` is `src/` here (with `src/internal/`
+unchanged), and `packages/package-json/__test__/` is `test/` here, with the test helpers in `test/support/`.
+Upstream `pnpm` commands map to this repository's package scripts: `bun run test`, `bun run test:integration`,
+`bun run check` and `bun run beep quality package-verify @beep/package-json`; there is no `savvy.build.ts`.
+Upstream package names map the same way: `@effected/package-json` is `@beep/package-json`, the pure half of
+`@effected/npm` (the specifier vocabulary and the `CatalogResolver`/`WorkspaceResolver` contracts) is
+`@beep/npm-spec`, and `@effected/semver`, `@effected/spdx` and `@effected/jsonc` are `@beep/semver`,
+`@beep/spdx` and `@beep/jsonc`. Four upstream facts below no longer hold here (SPEC W3-f): `src/index.ts` no
+longer re-exports `DependencySpecifier` or `JsoncEdit`/`JsoncPath`, so import them from `@beep/npm-spec` and
+`@beep/jsonc`; `PackageJsonFile` is a leaf import (`@beep/package-json/PackageJsonFile`), not part of the root
+barrel; the deprecated `RepositoryField` union is removed; and `PackageName` rejects a leading `-`,
+`node_modules` and `favicon.ico`, as `validate-npm-package-name`'s `validForOldPackages` does.
 
 ---
 <!-- packages/package-json/CLAUDE.md -->
