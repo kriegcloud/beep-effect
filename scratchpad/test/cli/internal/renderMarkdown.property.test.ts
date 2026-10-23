@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import { Doc } from "../../../effected/cli/Doc.ts";
 import { Render } from "../../../effected/cli/Render.ts";
 import { renderMarkdown } from "../../../effected/cli/internal/renderMarkdown.ts";
-import { Markdown } from "../../../effected/markdown/Markdown.ts";
+import { Markdown } from "@beep/markdown/Markdown";
 const runs = { arbitrary: fcRuns(100) };
 const text = S.Literals(["x", "*", "_", "[", "]", "<", ">", "&", "|", "`", "\\", "#", "-", "+", "=", " "]).pipe(S.Array, Arbitrary.schema, Arbitrary.map(A.join("")));
 const ctx = Render.contextOf({ audience: "agent" });

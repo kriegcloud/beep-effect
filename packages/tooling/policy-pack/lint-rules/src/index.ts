@@ -1,7 +1,7 @@
 /**
  * \@beep/lint-rules
  *
- * Repo-local Biome GritQL lint rules for effect-smol-aligned quality enforcement.
+ * Repo-local Biome GritQL lint rules for Effect-aligned quality enforcement.
  * This module is the canonical registry of the GritQL rules shipped by the package:
  * each rule's slug, `.grit` file, advisory/mandatory severity, the CLI check it
  * supersedes (if any), and a one-line summary. Tooling (presets, the biome.jsonc

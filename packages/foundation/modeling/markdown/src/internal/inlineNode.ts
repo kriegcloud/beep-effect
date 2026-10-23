@@ -1,0 +1,330 @@
+// Ported from commonmark.js@0.31.2 (https://github.com/commonmark/commonmark.js)
+// Copyright (c) 2014-2023 John MacFarlane
+// License: BSD-2-Clause
+//
+// The mutable node list the inline pass builds into, and the sibling
+// operations upstream's `lib/node.js` provides.
+//
+// It exists for one reason: `processEmphasis` reaches back to a text node it
+// recorded on the delimiter stack, truncates it, moves every node BETWEEN two
+// delimiters into a new emphasis node, and unlinks what is left empty. On an
+// array that is O(n) index lookups per match, which turns the pathological
+// emphasis corpus quadratic; on a doubly linked list every one of those steps
+// is O(1), which is the whole reason upstream uses one. `inlineParser.ts`
+// materializes the immutable, mdast-shaped classes once the list is final.
+//
+// Leaf module: imports only node-shape types.
+
+import { $MarkdownId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
+import type { BreakStyle, EmphasisChar, ReferenceType } from "./nodes.ts";
+
+const $I = $MarkdownId.create("internal/inlineNode");
+
+/**
+ * The node kinds the inline pass builds.
+ *
+ * **Example** (Validate InlineNodeType)
+ *
+ * ```ts
+ * import { InlineNodeType } from "@beep/markdown/internal/inlineNode"
+ * import * as S from "effect/Schema"
+ *
+ * S.is(InlineNodeType)("strong") // => true
+ * S.is(InlineNodeType)("paragraph") // => false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const InlineNodeType = LiteralKit([
+  "text",
+  "inlineCode",
+  "html",
+  "break",
+  "emphasis",
+  "strong",
+  "delete",
+  "link",
+  "image",
+  "linkReference",
+  "imageReference",
+  "footnoteReference",
+]).pipe($I.annoteSchema("InlineNodeType", { description: "Inline node kinds built by the engine." }));
+
+/** The engine kind domain derived from its schema.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type InlineNodeType = typeof InlineNodeType.Type;
+
+/**
+ * Per-kind fields, all optional and never explicitly `undefined`.
+ *
+ * **Details**
+ *
+ * Mutable engine state (D-42): constructs fill these in after the node is
+ * linked, and only materialization reads them. The fields are declared, not
+ * initialized, so an unset field stays absent rather than `undefined`.
+ *
+ * **Example** (Record an emphasis marker)
+ *
+ * ```ts
+ * import { InlineNodeData } from "@beep/markdown/internal/inlineNode";
+ *
+ * const data = new InlineNodeData();
+ * data.markerChar = "_";
+ * console.log(data.markerChar, "url" in data) // _ false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InlineNodeData {
+  declare breakStyle?: BreakStyle;
+  declare identifier?: string;
+  declare label?: string;
+  declare markerChar?: EmphasisChar;
+  declare referenceType?: ReferenceType;
+  declare title?: string;
+  declare url?: string;
+}
+
+/**
+ * A node under construction, with its sibling and child links.
+ *
+ * **Details**
+ *
+ * Mutable engine state (D-42): the doubly linked list `processEmphasis`
+ * splices in O(1). `start` and `end` are local indices into the leaf's
+ * content, resolved to source offsets at materialization; `value` is the
+ * literal content, for the kinds that carry it.
+ *
+ * **Example** (Open a detached node)
+ *
+ * ```ts
+ * import { InlineNode } from "@beep/markdown/internal/inlineNode";
+ *
+ * const node = new InlineNode("text", 0, 5, "hello");
+ * console.log(node.value, node.parent) // hello undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InlineNode {
+  readonly data = new InlineNodeData();
+  end: number;
+  firstChild: InlineNode | undefined = undefined;
+  lastChild: InlineNode | undefined = undefined;
+  next: InlineNode | undefined = undefined;
+  parent: InlineNode | undefined = undefined;
+  prev: InlineNode | undefined = undefined;
+  start: number;
+  readonly type: InlineNodeType;
+  value: string;
+
+  constructor(type: InlineNodeType, start: number, end: number, value: string) {
+    this.type = type;
+    this.start = start;
+    this.end = end;
+    this.value = value;
+  }
+}
+
+/**
+ * Open a node with no links.
+ *
+ * **Example** (Create a detached text node)
+ *
+ * ```ts
+ * import { makeInlineNode } from "@beep/markdown/internal/inlineNode";
+ *
+ * const node = makeInlineNode("text", 0, 5, "hello");
+ * console.log(node.value, node.parent) // hello undefined
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeInlineNode: {
+  (type: InlineNodeType, start: number, end: number, value?: string): InlineNode;
+  (start: number, end: number, value?: string): (type: InlineNodeType) => InlineNode;
+} = dual(
+  (args) => P.isString(args[0]),
+  (type: InlineNodeType, start: number, end: number, value = ""): InlineNode => new InlineNode(type, start, end, value)
+);
+
+/**
+ * Append `child` to `parent`'s children.
+ *
+ * **Example** (Append a child to a container)
+ *
+ * ```ts
+ * import { appendChild, makeInlineNode } from "@beep/markdown/internal/inlineNode";
+ *
+ * const parent = makeInlineNode("emphasis", 0, 3);
+ * const child = makeInlineNode("text", 1, 2, "a");
+ * appendChild(parent, child);
+ * console.log(parent.firstChild === child, child.parent === parent) // true true
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const appendChild: {
+  (parent: InlineNode, child: InlineNode): void;
+  (child: InlineNode): (parent: InlineNode) => void;
+} = dual(2, (parent: InlineNode, child: InlineNode): void => {
+  unlink(child);
+  child.parent = parent;
+  child.prev = parent.lastChild;
+  child.next = undefined;
+  if (parent.lastChild === undefined) {
+    parent.firstChild = child;
+  } else {
+    parent.lastChild.next = child;
+  }
+  parent.lastChild = child;
+});
+
+/**
+ * Insert `sibling` immediately after `node`.
+ *
+ * **Example** (Insert a sibling between children)
+ *
+ * ```ts
+ * import { appendChild, insertAfter, makeInlineNode } from "@beep/markdown/internal/inlineNode";
+ *
+ * const parent = makeInlineNode("emphasis", 0, 4);
+ * const first = makeInlineNode("text", 1, 2, "a");
+ * const second = makeInlineNode("text", 2, 3, "b");
+ * appendChild(parent, first);
+ * insertAfter(first, second);
+ * console.log(first.next === second, parent.lastChild === second) // true true
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const insertAfter: {
+  (node: InlineNode, sibling: InlineNode): void;
+  (sibling: InlineNode): (node: InlineNode) => void;
+} = dual(2, (node: InlineNode, sibling: InlineNode): void => {
+  unlink(sibling);
+  sibling.parent = node.parent;
+  sibling.prev = node;
+  sibling.next = node.next;
+  if (node.next === undefined) {
+    if (node.parent !== undefined) {
+      node.parent.lastChild = sibling;
+    }
+  } else {
+    node.next.prev = sibling;
+  }
+  node.next = sibling;
+});
+
+/**
+ * Move `first` and every sibling after it, up to but excluding `stop`, to the
+ * end of `parent`'s children, keeping their order.
+ *
+ * **Details**
+ *
+ * The splice every pairing construct ends with: emphasis and strikethrough
+ * adopt the nodes between their two delimiters, and a link adopts everything
+ * after its opener (`stop` is `undefined`).
+ *
+ * **Example** (Wrap the nodes between two delimiters)
+ *
+ * ```ts
+ * import { appendChild, childrenOf, makeInlineNode, moveSiblings } from "@beep/markdown/internal/inlineNode";
+ *
+ * const root = makeInlineNode("text", 0, 3);
+ * const open = makeInlineNode("text", 0, 1, "*");
+ * const word = makeInlineNode("text", 1, 2, "a");
+ * const close = makeInlineNode("text", 2, 3, "*");
+ * for (const node of [open, word, close]) appendChild(root, node);
+ * const emphasis = makeInlineNode("emphasis", 1, 2);
+ * moveSiblings(emphasis, word, close);
+ * console.log(childrenOf(emphasis).length, open.next === close) // 1 true
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const moveSiblings: {
+  (parent: InlineNode, first: InlineNode | undefined, stop: InlineNode | undefined): void;
+  (first: InlineNode | undefined, stop: InlineNode | undefined): (parent: InlineNode) => void;
+} = dual(3, (parent: InlineNode, first: InlineNode | undefined, stop: InlineNode | undefined): void => {
+  let node = first;
+  while (node !== undefined && node !== stop) {
+    const following = node.next;
+    appendChild(parent, node);
+    node = following;
+  }
+});
+
+/**
+ * Detach `node` from its siblings and parent.
+ *
+ * **Example** (Detach the only child)
+ *
+ * ```ts
+ * import { appendChild, makeInlineNode, unlink } from "@beep/markdown/internal/inlineNode";
+ *
+ * const parent = makeInlineNode("emphasis", 0, 3);
+ * const child = makeInlineNode("text", 1, 2, "a");
+ * appendChild(parent, child);
+ * unlink(child);
+ * console.log(parent.firstChild, child.parent) // undefined undefined
+ * ```
+ *
+ * @category destructors
+ * @since 0.0.0
+ */
+export const unlink = (node: InlineNode): void => {
+  if (node.prev !== undefined) {
+    node.prev.next = node.next;
+  } else if (node.parent !== undefined) {
+    node.parent.firstChild = node.next;
+  }
+
+  if (node.next !== undefined) {
+    node.next.prev = node.prev;
+  } else if (node.parent !== undefined) {
+    node.parent.lastChild = node.prev;
+  }
+
+  node.prev = undefined;
+  node.next = undefined;
+  node.parent = undefined;
+};
+
+/**
+ * Every child of `node`, in order.
+ *
+ * **Example** (Read children in sibling order)
+ *
+ * ```ts
+ * import * as A from "effect/Array";
+ * import { appendChild, childrenOf, makeInlineNode } from "@beep/markdown/internal/inlineNode";
+ *
+ * const parent = makeInlineNode("emphasis", 0, 4);
+ * appendChild(parent, makeInlineNode("text", 1, 2, "a"));
+ * appendChild(parent, makeInlineNode("text", 2, 3, "b"));
+ * console.log(A.map(childrenOf(parent), (child) => child.value).join("")) // ab
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const childrenOf = (node: InlineNode): ReadonlyArray<InlineNode> => {
+  const children: InlineNode[] = [];
+  for (let child = node.firstChild; child !== undefined; child = child.next) {
+    children.push(child);
+  }
+  return children;
+};

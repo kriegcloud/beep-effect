@@ -3,6 +3,7 @@ import {
   AIMetricsRemoteDeploymentConfig,
   AIMetricsRemoteSshConfig,
   AIMetricsStackArgs,
+  loadAIMetricsStackArgs,
   makeAIMetricsStackArgsFromConfigValues,
 } from "@beep/infra";
 import { AiMetricsDeployTarget, AiMetricsInstallInput, makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics";
@@ -11,6 +12,7 @@ import { fcRuns } from "@beep/test-utils";
 import * as O from "@beep/utils/Option";
 import { describe, expect } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
+import * as pulumi from "@pulumi/pulumi";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -38,7 +40,7 @@ describe("@beep/infra AIMetrics", () => {
 
       expect(args.install.target).toBe("dankserver");
       assertNone(args.install.dataRoot);
-      expect(args.remote.remoteConfigRoot).toBe("/home/elpresidank/ai-metrics");
+      expect(args.remote.remoteConfigRoot).toBe("/srv/ai-metrics");
       expect(args.remote.remoteMirrorRoot).toBe("/srv/data/ai-metrics/p7-derived-mirror");
       expect(args.remote.phoenixTailnetHttpsPort).toBe(8447);
       expect(O.getOrUndefined((yield* makeAiMetricsInstallSpec(args.install)).hashSaltSecretRef)).toBe(
@@ -64,6 +66,7 @@ describe("@beep/infra AIMetrics", () => {
       expect(O.getOrUndefined(args.install.publicBaseUrl)).toBe("https://dankserver.tailc7c348.ts.net:8447");
       expect(args.remote.ssh.host).toBe("dankserver");
       expect(args.remote.ssh.user).toBe("elpresidank");
+      expect(args.remote.remoteConfigRoot).toBe(`/home/${args.remote.ssh.user}/ai-metrics`);
       expect(args.remote.remoteMirrorRoot).toBe("/srv/data/ai-metrics/p7-derived-mirror");
       expect(spec.target).toBe("dankserver");
       expect(O.getOrUndefined(spec.hashSaltSecretRef)).toBe("op://TBK/ai-metrics/hash-salt");
@@ -93,7 +96,7 @@ describe("@beep/infra AIMetrics", () => {
         phoenixImage: "arizephoenix/phoenix:latest-p5b",
         phoenixTailnetHttpsPort: 9446,
         rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
-        remoteConfigRoot: "/srv/ai-metrics",
+        remoteConfigRoot: "/home/example/ai-metrics",
         remoteMirrorRoot: "/srv/ai-metrics/p7-mirror",
         sshAgentSocketPath: "/tmp/agent.sock",
         sshHost: "dankserver-yubi",
@@ -104,7 +107,7 @@ describe("@beep/infra AIMetrics", () => {
       const spec = yield* makeAiMetricsInstallSpec(args.install);
 
       expect(O.getOrUndefined(args.install.publicBaseUrl)).toBe("https://dankserver.tail.example.ts.net:9446");
-      expect(args.remote.remoteConfigRoot).toBe("/srv/ai-metrics");
+      expect(args.remote.remoteConfigRoot).toBe("/home/example/ai-metrics");
       expect(args.remote.remoteMirrorRoot).toBe("/srv/ai-metrics/p7-mirror");
       expect(O.getOrUndefined(args.remote.ssh.agentSocketPath)).toBe("/tmp/agent.sock");
       expect(args.remote.ssh.host).toBe("dankserver-yubi");
@@ -183,7 +186,7 @@ describe("@beep/infra AIMetrics", () => {
       });
       expect(encodedRemote).toEqual({
         phoenixTailnetHttpsPort: 9446,
-        remoteConfigRoot: "/home/elpresidank/ai-metrics",
+        remoteConfigRoot: "/srv/ai-metrics",
         remoteMirrorRoot: "/srv/data/ai-metrics/p7-derived-mirror",
         ssh: {
           host: "dankserver",
@@ -224,5 +227,31 @@ describe("@beep/infra AIMetrics", () => {
     [Arbitrary.schema(AIMetricsRemoteDeploymentConfig)],
     ([value]) => expectSchemaRoundTrip(AIMetricsRemoteDeploymentConfig, value),
     { arbitrary: fcRuns(25) }
+  );
+});
+
+describe("@beep/infra loadAIMetricsStackArgs", { concurrent: false }, () => {
+  it.effect("resolves the remote config root from stack config, then env, then the SSH user's home", () =>
+    Effect.acquireUseRelease(
+      Effect.sync(pulumi.runtime.allConfig),
+      () =>
+        Effect.sync(() => {
+          pulumi.runtime.setAllConfig({ "aiMetrics:sshUser": "deploy", "aiMetrics:target": "dankserver" });
+          expect(loadAIMetricsStackArgs({}).remote.remoteConfigRoot).toBe("/home/deploy/ai-metrics");
+          expect(loadAIMetricsStackArgs({ BEEP_AI_METRICS_REMOTE_CONFIG_ROOT: "" }).remote.remoteConfigRoot).toBe(
+            "/home/deploy/ai-metrics"
+          );
+          expect(
+            loadAIMetricsStackArgs({ BEEP_AI_METRICS_REMOTE_CONFIG_ROOT: "/srv/ai-metrics-env" }).remote
+              .remoteConfigRoot
+          ).toBe("/srv/ai-metrics-env");
+          pulumi.runtime.setConfig("aiMetrics:remoteConfigRoot", "/srv/ai-metrics-stack");
+          expect(
+            loadAIMetricsStackArgs({ BEEP_AI_METRICS_REMOTE_CONFIG_ROOT: "/srv/ai-metrics-env" }).remote
+              .remoteConfigRoot
+          ).toBe("/srv/ai-metrics-stack");
+        }),
+      (config) => Effect.sync(() => pulumi.runtime.setAllConfig(config))
+    )
   );
 });

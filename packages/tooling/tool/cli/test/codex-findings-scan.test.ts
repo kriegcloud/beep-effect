@@ -32,7 +32,7 @@ const provenSanitizerGaps: ReadonlyArray<readonly [string, string, string]> = [
   ],
   ["azure sas url", "https://example.invalid/a?sv=2021-08-06&sig=abcDEF123%2Bxyz&se=2026-08-05", "signed-url-param"],
   ["1password reference", "op://Private/OpenAI/credential", "onepassword-ref"],
-  ["private home path", "/home/elpresidank/YeeBois/projects/beep-effect8/goals/x", "private-home-path"],
+  ["private home path", "/home/example/YeeBois/projects/beep-effect8/goals/x", "private-home-path"],
 ];
 
 describe("codex findings reject-scan closes the measured sanitizer gaps", () => {

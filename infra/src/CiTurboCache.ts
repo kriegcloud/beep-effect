@@ -19,6 +19,8 @@ import { $InfraId } from "@beep/identity/packages";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as S from "effect/Schema";
+import { resolveInfraArtifactPath } from "./internal/InfraArtifactPath.ts";
+import type { InfraPathEnv } from "./internal/InfraArtifactPath.ts";
 
 const $I = $InfraId.create("CiTurboCache");
 
@@ -142,6 +144,12 @@ export type CiTurboCachePulumiConfigValues = typeof CiTurboCachePulumiConfigValu
 /**
  * Load the Turbo cache configuration from the `ciTurboCache` Pulumi namespace.
  *
+ * **Details**
+ *
+ * A relative `lambdaZipPath` resolves against `BEEP_INFRA_ARTIFACTS_ROOT`, or
+ * `$HOME/beep-infra-artifacts` when that variable is unset; an absolute value
+ * is used as configured.
+ *
  * **Example** (Reference the loader)
  *
  * ```ts
@@ -153,12 +161,12 @@ export type CiTurboCachePulumiConfigValues = typeof CiTurboCachePulumiConfigValu
  * @category constructors
  * @since 0.0.0
  */
-export const loadCiTurboCacheConfig = (): CiTurboCachePulumiConfigValues => {
+export const loadCiTurboCacheConfig = (env: InfraPathEnv = process.env): CiTurboCachePulumiConfigValues => {
   const config = new pulumi.Config("ciTurboCache");
 
   return CiTurboCachePulumiConfigValues.make({
     bucketName: config.require("bucketName"),
-    lambdaZipPath: config.require("lambdaZipPath"),
+    lambdaZipPath: resolveInfraArtifactPath(env)(config.require("lambdaZipPath")),
     readOnlyTokenSsmParameterArn: config.require("readOnlyTokenSsmParameterArn"),
     tokenKmsKeyArn: config.require("tokenKmsKeyArn"),
     trustedWriteTokenSsmParameterArn: config.require("trustedWriteTokenSsmParameterArn"),

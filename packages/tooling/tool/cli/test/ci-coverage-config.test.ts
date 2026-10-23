@@ -4,6 +4,7 @@ import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterEach, beforeEach, expect, it } from "@effect/vitest";
 import { IstanbulCoverageProvider } from "@vitest/coverage-istanbul/dist/provider.js";
 import { V8CoverageProvider } from "@vitest/coverage-v8/dist/provider.js";
+import { createCoverageMap } from "@vitest/istanbul-lib-coverage";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -176,6 +177,66 @@ it.effect("closes the Vitest context after provider census fails", () =>
     expect(mocks.close).toHaveBeenCalledTimes(1);
   })
 );
+it.effect("admits only provider-backed files with zero statement, function, and branch units", () =>
+  Effect.gen(function* () {
+    const map = createCoverageMap({});
+    const loc = { start: { line: 1, column: 0 }, end: { line: 1, column: 1 } };
+    map.addFileCoverage({ path: "/zero.ts", statementMap: {}, fnMap: {}, branchMap: {}, s: {}, f: {}, b: {} });
+    map.addFileCoverage({
+      path: "/statement.ts",
+      statementMap: { 0: loc },
+      fnMap: {},
+      branchMap: {},
+      s: { 0: 0 },
+      f: {},
+      b: {},
+    });
+    map.addFileCoverage({
+      path: "/function.ts",
+      statementMap: {},
+      fnMap: { 0: { name: "f", decl: loc, loc, line: 1 } },
+      branchMap: {},
+      s: {},
+      f: { 0: 0 },
+      b: {},
+    });
+    map.addFileCoverage({
+      path: "/branch.ts",
+      statementMap: {},
+      fnMap: {},
+      branchMap: { 0: { type: "if", loc, locations: [loc], line: 1 } },
+      s: {},
+      f: {},
+      b: { 0: [0] },
+    });
+    const generate = vi.spyOn(V8CoverageProvider.prototype, "generateCoverage").mockResolvedValueOnce(map);
+    const config = (provider: string) =>
+      ConfigProvider.fromEnvRecord({
+        BEEP_COVERAGE_EXPECTED_RUNTIME: actualVersions.bun === undefined ? "node" : "bun",
+        BEEP_COVERAGE_EXPECTED_RUNTIME_VERSION: actualVersions.bun ?? actualVersions.node,
+        BEEP_COVERAGE_EXPECTED_PROVIDER: provider,
+        BEEP_COVERAGE_V8_ZERO_WITNESS: "1",
+      });
+    const discovery = () => CoverageConfig.inspectCoverageRuntimeSources(["vitest", "run"]);
+    expect(yield* discovery().pipe(Effect.provideService(ConfigProvider.ConfigProvider, config("v8")))).toEqual([
+      "/zero.ts",
+    ]);
+    expect(generate).toHaveBeenCalledWith({ allTestsRun: true });
+    generate.mockRejectedValueOnce(new Error("coverage generation failed"));
+    const failed = yield* discovery().pipe(
+      Effect.provideService(ConfigProvider.ConfigProvider, config("v8")),
+      Effect.flip
+    );
+    expect(failed.message).toContain("Cannot derive provider-backed V8 zero-unit witnesses");
+    const wrongProvider = yield* discovery().pipe(
+      Effect.provideService(ConfigProvider.ConfigProvider, config("istanbul")),
+      Effect.flip
+    );
+    expect(wrongProvider.message).toContain("Zero-unit discovery requires the V8 provider");
+    expect(mocks.close).toHaveBeenCalledTimes(3);
+  })
+);
+
 it("wires the isolated bootstrap to the Effect main without interpreting canonical argv", () => {
   CoverageConfig.runCoverageConfigRuntimeDiscovery(["node", "vitest", "run", "--config=selected.config.ts"]);
   expect(mocks.main).toHaveBeenCalledTimes(1);

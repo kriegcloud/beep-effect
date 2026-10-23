@@ -181,7 +181,7 @@ They name the same locations recorded by R1, R6, and the frozen fleet census.
 
 | File | Change |
 | --- | --- |
-| `~/.claude/rules/effect-coding-standards.md` | Replace the `effect-smol` / `.repos/effect-v4` sentence with `.repos/effect` (effect `main` is v4) and mention `.repos/effect-workspace` for graft. |
+| `~/.claude/rules/effect-coding-standards.md` | Replace the `effect-smol` / `.repos/effect-v4` sentence with `.repos/effect` (effect `main` is v4) and mention `.repos/effect-workspace` for graft. Applied by the operator's request 2026-10-22. |
 | Claude memory pointers naming `"$refs_old_effect"` | Update to `"$refs_root/effect"` after the move. |
 | `~/.config/beep-graft/env` | None; reused as-is. If a separate env is ever wanted, copy it to `~/.config/beep-refs/env` and re-run `install-timer --env-file`. |
 

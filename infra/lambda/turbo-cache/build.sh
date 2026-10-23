@@ -10,7 +10,7 @@ build_dir="${script_dir}/build"
 cd "${script_dir}"
 
 shim_version="$(bun -e 'console.log((await Bun.file("package.json").json()).dependencies["turborepo-remote-cache"])')"
-artifact_dir="/home/elpresidank/beep-infra-artifacts/turbo-cache/${shim_version}"
+artifact_dir="${BEEP_INFRA_ARTIFACTS_ROOT:-${HOME}/beep-infra-artifacts}/turbo-cache/${shim_version}"
 zip_path="${artifact_dir}/turbo-cache.zip"
 
 bun install --frozen-lockfile

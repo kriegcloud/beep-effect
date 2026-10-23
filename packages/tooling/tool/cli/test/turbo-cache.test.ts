@@ -106,6 +106,29 @@ describe("turbo cache plan resolution", () => {
     }
   );
 
+  it("requires an explicit host opt-in before enabling remote writes", () => {
+    const base = environmentWith("secret-reference", "local:rw,remote:rw");
+    expect(localPlan(base)._tag).toBe("local-only");
+    const plan = localPlan(TurboCacheEnvironment.make({ ...base, trustedWriter: true }));
+    expect(plan._tag).toBe("remote-write");
+    expect(turboCachePlanArgs(plan)).toEqual(["--cache=local:rw,remote:rw"]);
+    expect(turboCachePlanNeedsSecretSession(plan)).toBe(true);
+    expect(localOnlyTurboCacheArgs(turboCachePlanArgs(plan))).toEqual([LOCAL_ONLY_ARG]);
+  });
+
+  it("reads the trusted-writer opt-in without adding it to the secret allowlist", () => {
+    const environment = readTurboCacheEnvironment({
+      TURBO_API: "http://127.0.0.1:9427",
+      TURBO_TOKEN: "op://vault/item/bearer",
+      TURBO_TEAM: "beep-effect",
+      TURBO_CACHE: "local:rw,remote:rw",
+      BEEP_TURBO_TRUSTED_WRITER: "true",
+    });
+    expect(environment.trustedWriter).toBe(true);
+    expect(localPlan(environment)._tag).toBe("remote-write");
+    expect(TurboCacheSecretEnvName.literals).not.toContain("BEEP_TURBO_TRUSTED_WRITER");
+  });
+
   it("tolerates surrounding whitespace in the sanctioned posture", () => {
     expect(localPlan(environmentWith("secret-reference", `  ${REMOTE_READ_MODE}  `))).toEqual(
       RemoteReadTurboCache.make({ mode: REMOTE_READ_MODE, requiresSecretSession: true })

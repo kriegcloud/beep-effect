@@ -386,7 +386,7 @@ export const OpenClawPulumiConfigValues = S.Class<OpenClawPulumiConfigValuesFiel
  * import { OpenClawExpectedIdentity } from "@beep/infra"
  *
  * const identity = OpenClawExpectedIdentity.make({
- *   home: "/home/elpresidank",
+ *   home: "/home/example",
  *   hostname: "DankStation",
  *   machineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   runtimeDir: "/run/user/1000",
@@ -882,7 +882,7 @@ export class OpenClawBackupConfig extends S.Opaque<OpenClawBackupConfig, { reado
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1243,7 +1243,7 @@ export const makeOpenClawBundleHash: (
  * import * as Effect from "effect/Effect"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1331,7 +1331,7 @@ export const makeOpenClawGeneration: (
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1405,7 +1405,7 @@ export const renderOpenClawUnit = (generation: OpenClawGeneration): string =>
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1508,7 +1508,7 @@ export class OpenClawGenerationFile extends S.Opaque<OpenClawGenerationFile, { r
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1571,7 +1571,7 @@ export const renderOpenClawGenerationTree = (
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1713,7 +1713,7 @@ const trustedToolchainLines = (generation: OpenClawGeneration): ReadonlyArray<st
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1845,7 +1845,7 @@ export const renderOpenClawStageScript = (generation: OpenClawGeneration): strin
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -1967,7 +1967,7 @@ export const renderOpenClawApplyScript = (generation: OpenClawGeneration): strin
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2115,7 +2115,7 @@ const expectedUnitTextLines = (generation: OpenClawGeneration): ReadonlyArray<st
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2174,7 +2174,7 @@ export const renderOpenClawDriftAuditScript = (input: OpenClawGenerationIdentity
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2254,7 +2254,7 @@ export const renderOpenClawProbeScript = (input: OpenClawGenerationIdentityScrip
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2353,7 +2353,7 @@ export const renderOpenClawLiveAcceptanceScript = (generation: OpenClawGeneratio
  * import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2423,7 +2423,7 @@ export const renderOpenClawBackupShipScript = ({ backup, generation }: OpenClawB
  * import { makeOpenClawStackArgsFromConfigValues } from "@beep/infra"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2480,7 +2480,7 @@ export class OpenClawStackArgs extends S.Opaque<OpenClawStackArgs, { readonly br
    *
    * const args = OpenClawStackArgs.new(
    *   OpenClawExpectedIdentity.make({
-   *     home: "/home/elpresidank",
+   *     home: "/home/example",
    *     hostname: "DankStation",
    *     machineId: "0bffc9bc5a6b48928f1ab4794df5244b",
    *     runtimeDir: "/run/user/1000",
@@ -2520,7 +2520,7 @@ export class OpenClawStackArgs extends S.Opaque<OpenClawStackArgs, { readonly br
  * import { makeOpenClawStackArgsFromConfigValues } from "@beep/infra"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
@@ -2712,7 +2712,7 @@ export const loadOpenClawStackArgs = (): OpenClawStackArgs => {
  * import { makeOpenClawStackArgsFromConfigValues, OpenClawStack } from "@beep/infra"
  *
  * const args = makeOpenClawStackArgsFromConfigValues({
- *   expectedHome: "/home/elpresidank",
+ *   expectedHome: "/home/example",
  *   expectedHostname: "DankStation",
  *   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
  *   expectedRuntimeDir: "/run/user/1000",
