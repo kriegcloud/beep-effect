@@ -260,7 +260,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
         const error = yield* Effect.flip(effectDiagnosticsProjectConfig(profile, project));
         expect(error).toMatchObject({ message: `No complete Effect plugin in ${project}.`, exitCode: 1 });
       }
-    }).pipe(Effect.scoped)
+    })
   );
 
   it.effect("fails the security check when the OSV scan fails", () => {
