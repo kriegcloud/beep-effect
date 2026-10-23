@@ -498,6 +498,12 @@
         ]
       },
       {
+        "name": "@beep/lockfiles",
+        "patterns": [
+          "packages/foundation/modeling/lockfiles/src/**"
+        ]
+      },
+      {
         "name": "@beep/m365",
         "patterns": [
           "packages/drivers/m365/src/**"
@@ -2477,6 +2483,7 @@
           "@beep/managed-section",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -2487,6 +2494,7 @@
           "@beep/managed-section",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -2958,6 +2966,31 @@
         ]
       },
       {
+        "from": "@beep/lockfiles",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/lockfiles",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/lockfiles",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/yaml"
+        ]
+      },
+      {
         "from": "@beep/m365",
         "allow": [
           "@beep/identity",
@@ -3028,6 +3061,7 @@
           "@beep/jsonc",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/toml",
           "@beep/utils",
           "@beep/yaml"
@@ -3038,6 +3072,7 @@
           "@beep/jsonc",
           "@beep/markdown",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/toml",
           "@beep/utils",
           "@beep/yaml"
@@ -3617,7 +3652,8 @@
           "@beep/npm-spec",
           "@beep/package-json",
           "@beep/semver",
-          "@beep/spdx"
+          "@beep/spdx",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
           "@beep/fc-runs",
@@ -3627,7 +3663,8 @@
           "@beep/npm-spec",
           "@beep/package-json",
           "@beep/semver",
-          "@beep/spdx"
+          "@beep/spdx",
+          "@beep/test-utils"
         ]
       },
       {
@@ -4533,6 +4570,7 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/law-practice-use-cases",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/managed-section",
           "@beep/markdown",
@@ -4588,6 +4626,7 @@
           "@beep/identity",
           "@beep/jsonc",
           "@beep/law-practice-use-cases",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/managed-section",
           "@beep/markdown",

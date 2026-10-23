@@ -26,7 +26,7 @@ import { dual } from "effect/Function";
  * **Example** (ISO string ends with Z)
  *
  * ```ts
- * import { timestampIso } from "@beep/repo-cli/internal/cli/Timing"
+ * import { timestampIso } from "@beep/repo-cli/test/Cli"
  *
  * console.log(timestampIso().endsWith("Z"))
  * ```
@@ -42,7 +42,7 @@ export const timestampIso = (): string => DateTime.formatIso(DateTime.nowUnsafe(
  * **Example** (Non-negative elapsed milliseconds)
  *
  * ```ts
- * import { durationMsSince } from "@beep/repo-cli/internal/cli/Timing"
+ * import { durationMsSince } from "@beep/repo-cli/test/Cli"
  *
  * console.log(durationMsSince(globalThis.performance.now()) >= 0)
  * ```
@@ -61,7 +61,7 @@ export const durationMsSince = (startedAtMs: number): number =>
  * **Example** (YYYY-MM-DD string length)
  *
  * ```ts
- * import { todayYmd } from "@beep/repo-cli/internal/cli/Timing"
+ * import { todayYmd } from "@beep/repo-cli/test/Cli"
  *
  * console.log(todayYmd().length)
  * ```
@@ -83,7 +83,7 @@ export const todayYmd = (): string => {
  * **Example** (Trimmed first line extraction)
  *
  * ```ts
- * import { firstLine } from "@beep/repo-cli/internal/cli/Timing"
+ * import { firstLine } from "@beep/repo-cli/test/Cli"
  *
  * console.log(firstLine("  export const x = 1\nconst y = 2"))
  * ```
@@ -104,7 +104,7 @@ export const firstLine = (value: string): string => {
  * **Example** (Truncate text with ellipsis)
  *
  * ```ts
- * import { boundedText } from "@beep/repo-cli/internal/cli/Timing"
+ * import { boundedText } from "@beep/repo-cli/test/Cli"
  *
  * console.log(boundedText("abcdefghij", 6))
  * console.log(boundedText(6)("abcdefghij"))
@@ -130,7 +130,7 @@ export const boundedText: {
  * **Example** (Error message with fallback)
  *
  * ```ts
- * import { errorMessage } from "@beep/repo-cli/internal/cli/Timing"
+ * import { errorMessage } from "@beep/repo-cli/test/Cli"
  *
  * console.log(errorMessage(new Error("boom"), "Unknown failure."))
  * console.log(errorMessage("Unknown failure.")(42))

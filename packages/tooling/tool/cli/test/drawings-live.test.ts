@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { PdfTools, SvgToPdfRequest } from "@beep/pdf-tools";
 import {
   CriticPackRequest,
@@ -93,9 +94,11 @@ const Golden = S.fromJsonString(
   })
 );
 const decodeGolden = S.decodeUnknownEffect(Golden);
-const repoRoot = new URL("../../../../../", import.meta.url).pathname;
-const goldenPath = new URL("./fixtures/drawings/synthetic-bracket.golden.json", import.meta.url).pathname;
-const crateGoldenPath = new URL("./fixtures/drawings/synthetic-crate.golden.json", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
+const goldenPath = NodeURL.fileURLToPath(new URL("./fixtures/drawings/synthetic-bracket.golden.json", import.meta.url));
+const crateGoldenPath = NodeURL.fileURLToPath(
+  new URL("./fixtures/drawings/synthetic-crate.golden.json", import.meta.url)
+);
 
 // Render a golden's spec twice and check the first run against the golden,
 // the second against the first, and the validator.

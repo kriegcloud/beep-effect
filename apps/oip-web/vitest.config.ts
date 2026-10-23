@@ -31,7 +31,7 @@ export default mergeConfig(
       isolate: true,
       environment: "jsdom",
       include: vitestDoctestActive ? [] : ["test/**/*.test.{ts,tsx}"],
-      setupFiles: [new URL("./test/setup.dom.ts", import.meta.url).pathname],
+      setupFiles: [NodeURL.fileURLToPath(new URL("./test/setup.dom.ts", import.meta.url))],
     },
   })
 );

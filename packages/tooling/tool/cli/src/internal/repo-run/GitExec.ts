@@ -197,7 +197,7 @@ export const gitRenameEntriesFromNulOutput = (output: string): O.Option<Readonly
  *
  * ```ts
  * import * as O from "effect/Option"
- * import type { GitCommandErrorAdapter } from "@beep/repo-cli/internal/repo-run"
+ * import type { GitCommandErrorAdapter } from "@beep/repo-cli/test/RepoRun"
  *
  * const adapter: GitCommandErrorAdapter<Error> = {
  *   onSpawnFailure: (commandLine) => (cause) => new Error(`spawn ${commandLine}: ${String(cause)}`),
@@ -227,7 +227,7 @@ export type GitCommandErrorAdapter<E> = {
  * **Example** (Canonicalize a noisy path list)
  *
  * ```ts
- * import { sortedUniquePaths } from "@beep/repo-cli/internal/repo-run"
+ * import { sortedUniquePaths } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(sortedUniquePaths(["src/z.ts", "src/a.ts", "src/a.ts", ""]))
  * // [ "src/a.ts", "src/z.ts" ]
@@ -253,7 +253,7 @@ export const sortedUniquePaths: (paths: ReadonlyArray<string>) => ReadonlyArray<
  * **Example** (Read a NUL-delimited path list)
  *
  * ```ts
- * import { gitPathListFromNulOutput } from "@beep/repo-cli/internal/repo-run"
+ * import { gitPathListFromNulOutput } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(gitPathListFromNulOutput("src/z.ts\0src/a.ts\0src/a.ts\0"))
  * // [ "src/a.ts", "src/z.ts" ]
@@ -278,7 +278,7 @@ export const gitPathListFromNulOutput: (output: string) => ReadonlyArray<string>
  * **Example** (Normalize ragged git stdout)
  *
  * ```ts
- * import { gitLinesFromOutput } from "@beep/repo-cli/internal/repo-run"
+ * import { gitLinesFromOutput } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(gitLinesFromOutput("a\n  b  \n\nc\n")) // [ "a", "b", "c" ]
  * ```
@@ -400,7 +400,7 @@ const failFromOutcome = <E>(
  * **Example** (Capture a short status)
  *
  * ```ts
- * import { runGitOutput } from "@beep/repo-cli/internal/repo-run"
+ * import { runGitOutput } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -448,7 +448,7 @@ export const runGitOutput = Effect.fn("GitExec.runGitOutput")(function* <E>(
  * **Example** (List staged paths)
  *
  * ```ts
- * import { runGitPathList } from "@beep/repo-cli/internal/repo-run"
+ * import { runGitPathList } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -489,7 +489,7 @@ export const runGitPathList = Effect.fn("GitExec.runGitPathList")(function* <E>(
  * **Example** (List untracked files)
  *
  * ```ts
- * import { runGitLines } from "@beep/repo-cli/internal/repo-run"
+ * import { runGitLines } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -741,7 +741,7 @@ export const readGitRenames = Effect.fn("GitExec.readGitRenames")(function* <E>(
  * **Example** (Read the staged path set)
  *
  * ```ts
- * import { collectStagedPaths } from "@beep/repo-cli/internal/repo-run"
+ * import { collectStagedPaths } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -773,7 +773,7 @@ export const collectStagedPaths = Effect.fn("GitExec.collectStagedPaths")(functi
  * **Example** (Read the unstaged tracked path set)
  *
  * ```ts
- * import { collectUnstagedPaths } from "@beep/repo-cli/internal/repo-run"
+ * import { collectUnstagedPaths } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -810,7 +810,7 @@ export const collectUnstagedPaths = Effect.fn("GitExec.collectUnstagedPaths")(fu
  * **Example** (Read the untracked path set)
  *
  * ```ts
- * import { collectUntrackedPaths } from "@beep/repo-cli/internal/repo-run"
+ * import { collectUntrackedPaths } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -846,7 +846,7 @@ export const collectUntrackedPaths = Effect.fn("GitExec.collectUntrackedPaths")(
  * **Example** (Read the whole dirty-worktree path union)
  *
  * ```ts
- * import { collectDirtyPaths } from "@beep/repo-cli/internal/repo-run"
+ * import { collectDirtyPaths } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -881,7 +881,7 @@ export const collectDirtyPaths = Effect.fn("GitExec.collectDirtyPaths")(function
  * **Example** (Restrict a range diff to one path)
  *
  * ```ts
- * import { collectChangedPathsSinceBase } from "@beep/repo-cli/internal/repo-run"
+ * import { collectChangedPathsSinceBase } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -935,7 +935,7 @@ export type CurrentBranchRef = "abbrev-ref" | "show-current";
  * **Example** (Read the checked-out branch)
  *
  * ```ts
- * import { currentBranch } from "@beep/repo-cli/internal/repo-run"
+ * import { currentBranch } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -980,7 +980,7 @@ export const currentBranch = Effect.fn("GitExec.currentBranch")(function* <E>(
  * **Example** (Refresh the base ref before a range diff)
  *
  * ```ts
- * import { ensureOriginMain } from "@beep/repo-cli/internal/repo-run"
+ * import { ensureOriginMain } from "@beep/repo-cli/test/RepoRun"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
@@ -1028,7 +1028,7 @@ const unsafeRefnameChar = /[\s:~^?*[\]\\]/u;
  * **Example** (Reject an option-like branch name)
  *
  * ```ts
- * import { isSafeOriginBranch } from "@beep/repo-cli/internal/repo-run"
+ * import { isSafeOriginBranch } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(isSafeOriginBranch("main")) // true
  * console.log(isSafeOriginBranch("--upload-pack=x")) // false
@@ -1059,7 +1059,7 @@ export const isSafeOriginBranch = (branch: string): boolean =>
  * **Example** (Strip the remote prefix)
  *
  * ```ts
- * import { originBranchFromBase } from "@beep/repo-cli/internal/repo-run"
+ * import { originBranchFromBase } from "@beep/repo-cli/test/RepoRun"
  * import * as O from "effect/Option"
  *
  * console.log(O.getOrNull(originBranchFromBase("origin/main"))) // "main"
@@ -1090,7 +1090,7 @@ export const originBranchFromBase = (base: string): O.Option<string> =>
  * **Example** (Accept a plain branch and reject an unsafe one)
  *
  * ```ts
- * import { safeOriginBranchFromBase } from "@beep/repo-cli/internal/repo-run"
+ * import { safeOriginBranchFromBase } from "@beep/repo-cli/test/RepoRun"
  * import * as O from "effect/Option"
  *
  * console.log(O.getOrNull(safeOriginBranchFromBase("origin/main"))) // "main"

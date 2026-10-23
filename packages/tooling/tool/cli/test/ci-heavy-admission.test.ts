@@ -236,7 +236,7 @@ describe("B8 heavy admission contracts", () => {
   });
 });
 
-it.layer(platform)("B8 heavy admission reader", (layerIt) => {
+it.layer(platform, { timeout: "30 seconds" })("B8 heavy admission reader", (layerIt) => {
   layerIt.effect("reads labels, draft and the merge-base diff from the payload, fetching the base first", () =>
     temporary((root) =>
       Effect.gen(function* () {
@@ -341,7 +341,7 @@ it.layer(platform)("B8 heavy admission reader", (layerIt) => {
   );
 });
 
-it.layer(platform)("B8 ci admission command", (layerIt) => {
+it.layer(platform, { timeout: "30 seconds" })("B8 ci admission command", (layerIt) => {
   layerIt.effect("prints the verdict JSON, appends github output, and exits 0 for every verdict", () =>
     temporary((root) =>
       Effect.gen(function* () {

@@ -2530,6 +2530,7 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/github": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -2650,6 +2651,26 @@
         "lexical": "catalog:",
       },
     },
+    "packages/foundation/modeling/lockfiles": {
+      "name": "@beep/lockfiles",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/npm-spec": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@beep/yaml": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/managed-section": {
       "name": "@beep/managed-section",
       "version": "0.0.0",
@@ -2683,6 +2704,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
@@ -2779,6 +2801,7 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/memfs": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "@types/validate-npm-package-name": "catalog:",
@@ -4045,6 +4068,7 @@
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
         "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/lockfiles": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/managed-section": "workspace:^",
         "@beep/markdown": "workspace:^",
@@ -4680,6 +4704,8 @@
     "@beep/libpff": ["@beep/libpff@workspace:packages/drivers/libpff"],
 
     "@beep/lint-rules": ["@beep/lint-rules@workspace:packages/tooling/policy-pack/lint-rules"],
+
+    "@beep/lockfiles": ["@beep/lockfiles@workspace:packages/foundation/modeling/lockfiles"],
 
     "@beep/m365": ["@beep/m365@workspace:packages/drivers/m365"],
 

@@ -5,7 +5,9 @@
  * @since 0.0.0
  */
 
+export * from "../internal/cli/Bytes.ts";
 export * from "../internal/cli/CommandErrorFields.ts";
+export * from "../internal/cli/ExitCodeError.ts";
 export * from "../internal/cli/FailureRendering.ts";
 export * from "../internal/cli/Flags.ts";
 export * from "../internal/cli/FsGuards.ts";

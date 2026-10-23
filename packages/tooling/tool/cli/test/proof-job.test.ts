@@ -16,11 +16,15 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
+import * as Clock from "effect/Clock";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
 import * as Deferred from "effect/Deferred";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
@@ -593,6 +597,98 @@ describe("proof job launcher", () => {
       })
     )
   );
+  it.effect("stops a retiring lane's live jobs and leaves its settled ones", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const monitor = yield* launcher.submit(monitorSubmission(root));
+        const settled = yield* launcher.submit(submission(root));
+        yield* launcher.finalize(
+          settled.jobId,
+          Job.ProofJobSystemdResult.make({ serviceResult: "success", finalizedAt: stamp })
+        );
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        const stopped = yield* Job.stopLaneJobs(plan);
+
+        expect(stopped).toStrictEqual([Job.StoppedLaneJob.make({ jobId: monitor.jobId, outcome: "stop-requested" })]);
+        const argv = yield* fs.readFileString(`${root}/systemctl.argv`);
+        expect(argv).toContain(`--user\nstop\n${monitor.unit.unitName}`);
+        expect(argv).not.toContain(settled.unit.unitName);
+        expect(Job.renderStoppedLaneJobs(stopped)).toBe(`  lane job ${monitor.jobId}: stop-requested`);
+        expect(Job.renderStoppedLaneJobs([])).toBe("");
+      })
+    )
+  );
+  it.effect("stops a finished lane job's unit before its finalizer ran, keeping its outcome", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const finished = yield* launcher.submit(submission(root));
+        // The loop ended, but systemd has not run the finalizer: the unit is still loaded.
+        yield* launcher.markFinished(
+          finished.jobId,
+          Job.ProofJobOutcome.make({ verdictOutcome: "success", endedAt: stamp })
+        );
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        const stopped = yield* Job.stopLaneJobs(plan);
+
+        expect(stopped).toStrictEqual([Job.StoppedLaneJob.make({ jobId: finished.jobId, outcome: "stop-requested" })]);
+        expect(yield* fs.readFileString(`${root}/systemctl.argv`)).toContain(`--user\nstop\n${finished.unit.unitName}`);
+        const saved = O.getOrThrow(yield* launcher.read(finished.jobId));
+        assertNone(saved.cancelRequestedAt);
+        assertSome(
+          O.map(saved.outcome, (outcome) => outcome.verdictOutcome),
+          "success"
+        );
+      })
+    )
+  );
+  it.effect("leaves a settled job's unit alone when asked to stop it", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* launcher.finalize(
+          record.jobId,
+          Job.ProofJobSystemdResult.make({ serviceResult: "success", finalizedAt: stamp })
+        );
+
+        expect(yield* launcher.stopUnit(record.jobId)).toBe("already-terminal");
+      })
+    )
+  );
+  it.effect("stops nothing when a retiring lane's job listing cannot be read", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        // A file where the jobs directory belongs: the listing fails.
+        yield* fs.makeDirectory(`${root}/.beep/yeet`, { recursive: true });
+        yield* fs.writeFileString(`${root}/.beep/yeet/jobs`, "not a directory");
+        const plan = Job.YeetRetirePlan.make({
+          worktreePath: root,
+          owningClone: "/clone",
+          name: "lane",
+          branch: "feat/job",
+        });
+
+        expect(yield* Job.stopLaneJobs(plan)).toStrictEqual([]);
+      })
+    )
+  );
   it.effect("rolls the cancel stamp back when the stop fails and the unit is still loaded", () =>
     fixture(
       Effect.fnUntraced(function* (root) {
@@ -761,17 +857,54 @@ describe("proof job launcher", () => {
       })
     )
   );
-  // it.live: wait polls the record with real sleeps against a shimmed systemctl; under the
-  // TestClock the poll loop would never advance to its timeout.
-  it.live("times out while a unit remains active", () =>
+  // The wait arms its 15 ms deadline on this test's own TestClock as it starts. A delegating
+  // Clock counts each 1 ms poll sleep, which the loop requests only after a full read of the
+  // still-running record. The clock advances only once that first poll has completed, so the
+  // timeout is proven to fire against an observed active unit rather than before any read.
+  it.effect("times out while a unit remains active", () =>
     fixture(
       Effect.fnUntraced(function* (root) {
         const launcher = yield* ProofJobLauncher.make(root);
         const record = yield* launcher.submit(submission(root));
-        const error = yield* launcher
+        const completedPolls = yield* Ref.make(0);
+        const firstPollCompleted = yield* Deferred.make<void>();
+        const clock = yield* Clock.Clock;
+        const pollObservingClock: Clock.Clock = {
+          ...clock,
+          sleep: (duration) =>
+            Duration.toMillis(duration) === 1
+              ? Ref.update(completedPolls, (n) => n + 1).pipe(
+                  Effect.andThen(Deferred.succeed(firstPollCompleted, undefined)),
+                  Effect.andThen(clock.sleep(duration))
+                )
+              : clock.sleep(duration),
+        };
+        const waiting = yield* launcher
           .wait(record.jobId, Job.ProofJobWaitOptions.make({ timeoutMs: O.some(15), pollIntervalMs: 1 }))
-          .pipe(Effect.flip);
+          .pipe(
+            Effect.flip,
+            Effect.provideService(Clock.Clock, pollObservingClock),
+            Effect.forkChild({ startImmediately: true })
+          );
+        // A regression that makes wait return before its first poll ends the fiber without the
+        // 1 ms sleep, so the signal would never come: fail at once with what wait returned.
+        yield* Effect.raceFirst(
+          Deferred.await(firstPollCompleted),
+          Fiber.await(waiting).pipe(
+            Effect.flatMap((exit) =>
+              Effect.die(
+                `wait returned before its first poll: ${Exit.match(exit, {
+                  onSuccess: (error) => error.message,
+                  onFailure: Cause.pretty,
+                })}`
+              )
+            )
+          )
+        );
+        yield* TestClock.adjust("15 millis");
+        const error = yield* Fiber.join(waiting);
         expect(error.message).toContain("Timed out");
+        expect(yield* Ref.get(completedPolls)).toBeGreaterThanOrEqual(1);
       })
     )
   );
@@ -1981,20 +2114,34 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("proof job record guards
   );
 });
 
-// it.live: a contender on a held record lock sleeps 25 ms between attempts; under the TestClock
-// that sleep never advances and the busy verdict never arrives.
-it.live("reports a record lock held by a live process as busy", () =>
+// The contender pauses 25 ms between file-lock attempts. A delegating Clock counts those pauses
+// and returns at once, so the test needs neither live time nor a TestClock adjustment that real
+// filesystem IO between attempts would outrun. The count proves the busy verdict comes only
+// after the whole bounded backoff (200 attempts, 199 pauses), and the record proves the refused
+// cancel changed nothing.
+it.effect("reports a record lock held by a live process as busy", () =>
   fixture(
     Effect.fnUntraced(function* (root) {
       const fs = yield* FileSystem.FileSystem;
-      const launcher = yield* ProofJobLauncher.make(root);
+      const retryPauses = yield* Ref.make(0);
+      const clock = yield* Clock.Clock;
+      const pauseCountingClock: Clock.Clock = {
+        ...clock,
+        sleep: (duration) =>
+          Duration.toMillis(duration) === 25 ? Ref.update(retryPauses, (n) => n + 1) : clock.sleep(duration),
+      };
+      // The launcher captures its context, Clock included, when it is made.
+      const launcher = yield* ProofJobLauncher.make(root).pipe(Effect.provideService(Clock.Clock, pauseCountingClock));
       const record = yield* launcher.submit(submission(root));
       const lockPath = `${root}/.beep/yeet/jobs/${record.jobId}.lock`;
       const holder = `${process.pid}:test-holder`;
       expect(yield* acquireJournalFileLock(lockPath, holder, 1)).toBe(true);
+      const pausesBeforeCancel = yield* Ref.get(retryPauses);
       const busy = yield* launcher.cancel(record.jobId).pipe(Effect.flip);
       yield* releaseJournalFileLock(lockPath, holder);
       expect(busy).toMatchObject({ message: `Proof job ${record.jobId} stayed busy.` });
+      expect((yield* Ref.get(retryPauses)) - pausesBeforeCancel).toBe(199);
+      assertNone(O.getOrThrow(yield* launcher.read(record.jobId)).cancelRequestedAt);
       expect(yield* fs.exists(lockPath)).toBe(false);
     })
   )

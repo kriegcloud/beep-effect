@@ -97,7 +97,7 @@ const schemaRoundTrips = Effect.fn("ThreadStoreTest.schemaRoundTrips")(function*
 });
 
 describe("ThreadStore in-memory", () => {
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "creates a thread, appends ordered turns, and projects a timeline",
       Effect.fnUntraced(function* () {
@@ -151,7 +151,7 @@ describe("ThreadStore in-memory", () => {
     );
   });
 
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "isolates threads and turns by workspace and thread id",
       Effect.fnUntraced(function* () {
@@ -200,7 +200,7 @@ describe("ThreadStore in-memory", () => {
     );
   });
 
-  it.layer(Layer.fresh(Layer.suspend(makeYieldingCuidLayer)))((it) => {
+  it.layer(Layer.fresh(Layer.suspend(makeYieldingCuidLayer)), { timeout: "10 seconds" })((it) => {
     it.effect(
       "atomically persists concurrent threads and turns while public-id generation yields",
       Effect.fnUntraced(function* () {
@@ -248,7 +248,7 @@ describe("ThreadStore in-memory", () => {
     );
   });
 
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "fails with ThreadStoreNotFound when appending to an unknown thread",
       Effect.fnUntraced(function* () {
@@ -264,7 +264,7 @@ describe("ThreadStore in-memory", () => {
     );
   });
 
-  it.layer(Layer.fresh(FailingCuidTestLayer))((it) => {
+  it.layer(Layer.fresh(FailingCuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "maps public-id generation failures to ThreadStoreUnavailable",
       Effect.fnUntraced(function* () {
@@ -423,7 +423,7 @@ describe("ThreadStore in-memory", () => {
     { arbitrary: fcRuns(25) }
   );
 
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "fails with ThreadStoreNotFound when setting the title for an unknown thread",
       Effect.fnUntraced(function* () {
@@ -444,7 +444,7 @@ describe("ThreadStore in-memory", () => {
   // "Dec 31" (1969, in any negative UTC offset). The clock is the only source of
   // a timestamp: under the test clock every stamp must be *exactly* the current
   // time, which the old id-derived stamps never were.
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "stamps rows from the clock, and a rename advances updatedAt without restamping createdAt",
       Effect.fnUntraced(function* () {

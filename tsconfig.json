@@ -2357,6 +2357,13 @@
       ],
       "@beep/config-file/internal/*": [
         "./packages/foundation/capability/config-file/src/internal/*"
+      ],
+      "@beep/lockfiles": [
+        "./packages/foundation/modeling/lockfiles/src/index.ts"
+      ],
+      "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
+      "@beep/lockfiles/internal/*": [
+        "./packages/foundation/modeling/lockfiles/src/internal/*"
       ]
     }
   }
