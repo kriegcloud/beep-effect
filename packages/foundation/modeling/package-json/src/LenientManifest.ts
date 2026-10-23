@@ -105,6 +105,8 @@ export declare namespace LenientFieldIssue {
 const StringRecord = S.Record(S.String, S.String);
 const UnknownRecord = S.Record(S.String, S.Unknown);
 const StringOrRecord = S.Union([S.String, UnknownRecord]);
+const StringList = S.Array(S.String);
+const BooleanOrStringList = S.Union([S.Boolean, StringList]);
 
 // ── The permissive-shape guards backing the sift ────────────────────────────
 
@@ -128,6 +130,12 @@ const stringGuard: FieldGuard = { expected: "a string", test: isString };
 const stringRecordGuard: FieldGuard = { expected: "an object of string values", test: isStringRecord };
 const stringOrRecordGuard: FieldGuard = { expected: "a string or an object", test: isStringOrRecord };
 const recordGuard: FieldGuard = { expected: "an object", test: isPlainRecord };
+const booleanGuard: FieldGuard = { expected: "a boolean", test: isBoolean };
+const stringArrayGuard: FieldGuard = { expected: "an array of strings", test: isStringArray };
+const booleanOrStringArrayGuard: FieldGuard = {
+  expected: "a boolean or an array of strings",
+  test: (value) => isBoolean(value) || isStringArray(value),
+};
 
 // A Map, not a plain object: a manifest key like `"toString"` or
 // `"constructor"` must miss, not hit `Object.prototype`.
@@ -135,14 +143,14 @@ const FIELD_GUARDS = HashMap.fromIterable<string, FieldGuard>([
   ["name", stringGuard],
   ["version", stringGuard],
   ["description", stringGuard],
-  ["private", { expected: "a boolean", test: isBoolean }],
+  ["private", booleanGuard],
   ["type", stringGuard],
   ["main", stringGuard],
   ["license", stringGuard],
   ["author", stringOrRecordGuard],
   ["contributors", { expected: "an array of strings or objects", test: isStringOrRecordArray }],
   ["maintainers", { expected: "an array of strings or objects", test: isStringOrRecordArray }],
-  ["keywords", { expected: "an array of strings", test: isStringArray }],
+  ["keywords", stringArrayGuard],
   ["repository", stringOrRecordGuard],
   ["bugs", stringOrRecordGuard],
   [
@@ -165,6 +173,31 @@ const FIELD_GUARDS = HashMap.fromIterable<string, FieldGuard>([
   ["publishConfig", recordGuard],
   ["packageManager", stringGuard],
   ["devEngines", recordGuard],
+  ["files", stringArrayGuard],
+  ["imports", recordGuard],
+  ["module", stringGuard],
+  ["browser", stringOrRecordGuard],
+  ["man", { expected: "a string or an array of strings", test: (v) => isString(v) || isStringArray(v) }],
+  ["directories", stringRecordGuard],
+  ["config", recordGuard],
+  ["bundleDependencies", booleanOrStringArrayGuard],
+  ["bundledDependencies", booleanOrStringArrayGuard],
+  ["overrides", recordGuard],
+  ["engineStrict", booleanGuard],
+  ["os", stringArrayGuard],
+  ["cpu", stringArrayGuard],
+  ["libc", stringArrayGuard],
+  ["preferGlobal", booleanGuard],
+  ["workspaces", { expected: "an array of strings or an object", test: (v) => isStringArray(v) || isPlainRecord(v) }],
+  ["sideEffects", booleanOrStringArrayGuard],
+  ["types", stringGuard],
+  ["typings", stringGuard],
+  ["typesVersions", recordGuard],
+  ["resolutions", stringRecordGuard],
+  ["patchedDependencies", stringRecordGuard],
+  ["trustedDependencies", stringArrayGuard],
+  ["catalog", stringRecordGuard],
+  ["readme", stringGuard],
 ]);
 
 // ── The sift engine (pure) ──────────────────────────────────────────────────
@@ -411,6 +444,127 @@ export class LenientManifest extends S.Class<LenientManifest, { readonly brand: 
         description:
           "Development environment constraints from the manifest, preserved without validating individual engine entries",
       })
+    ),
+    files: S.optionalKey(StringList).pipe(
+      $I.annoteKey("LenientManifest.files", {
+        description: "File globs included when the package is packed, preserved without glob validation",
+      })
+    ),
+    imports: S.optionalKey(UnknownRecord).pipe(
+      $I.annoteKey("LenientManifest.imports", {
+        description: "Node subpath imports, preserving object contents without validating keys or targets",
+      })
+    ),
+    module: S.optionalKey(S.String).pipe(
+      $I.annoteKey("LenientManifest.module", {
+        description: "The bundler ESM entry-point path declared in the manifest",
+      })
+    ),
+    browser: S.optionalKey(StringOrRecord).pipe(
+      $I.annoteKey("LenientManifest.browser", {
+        description: "The browser entry point or module replacement map, preserved without validating targets",
+      })
+    ),
+    man: S.optionalKey(S.Union([S.String, StringList])).pipe(
+      $I.annoteKey("LenientManifest.man", { description: "Man page paths, declared as one path or a list of paths" })
+    ),
+    directories: S.optionalKey(StringRecord).pipe(
+      $I.annoteKey("LenientManifest.directories", {
+        description: "Package layout directory names mapped to paths, preserved without path validation",
+      })
+    ),
+    config: S.optionalKey(UnknownRecord).pipe(
+      $I.annoteKey("LenientManifest.config", {
+        description: "Script configuration values, preserved without validating their contents",
+      })
+    ),
+    bundleDependencies: S.optionalKey(BooleanOrStringList).pipe(
+      $I.annoteKey("LenientManifest.bundleDependencies", {
+        description: "Bundled dependency names, or a flag bundling every dependency",
+      })
+    ),
+    bundledDependencies: S.optionalKey(BooleanOrStringList).pipe(
+      $I.annoteKey("LenientManifest.bundledDependencies", {
+        description: "The `bundledDependencies` alias for bundled dependency names or the bundle-everything flag",
+      })
+    ),
+    overrides: S.optionalKey(UnknownRecord).pipe(
+      $I.annoteKey("LenientManifest.overrides", {
+        description: "Dependency overrides, preserving nested override objects without validating specifiers",
+      })
+    ),
+    engineStrict: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("LenientManifest.engineStrict", {
+        description: "The deprecated npm flag making engine mismatches fatal",
+      })
+    ),
+    os: S.optionalKey(StringList).pipe(
+      $I.annoteKey("LenientManifest.os", {
+        description: "Operating systems the package declares support for, preserved without validating names",
+      })
+    ),
+    cpu: S.optionalKey(StringList).pipe(
+      $I.annoteKey("LenientManifest.cpu", {
+        description: "CPU architectures the package declares support for, preserved without validating names",
+      })
+    ),
+    libc: S.optionalKey(StringList).pipe(
+      $I.annoteKey("LenientManifest.libc", {
+        description: "C standard libraries the package declares support for, preserved without validating names",
+      })
+    ),
+    preferGlobal: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("LenientManifest.preferGlobal", {
+        description: "The deprecated npm hint that the package prefers a global install",
+      })
+    ),
+    workspaces: S.optionalKey(S.Union([StringList, UnknownRecord])).pipe(
+      $I.annoteKey("LenientManifest.workspaces", {
+        description: "Workspace globs as a list, or the workspaces object preserved without validating its keys",
+      })
+    ),
+    sideEffects: S.optionalKey(BooleanOrStringList).pipe(
+      $I.annoteKey("LenientManifest.sideEffects", {
+        description: "The bundler side-effect flag or the side-effectful file globs",
+      })
+    ),
+    types: S.optionalKey(S.String).pipe(
+      $I.annoteKey("LenientManifest.types", {
+        description: "The TypeScript declaration entry-point path declared in the manifest",
+      })
+    ),
+    typings: S.optionalKey(S.String).pipe(
+      $I.annoteKey("LenientManifest.typings", {
+        description: "The `typings` alias for the TypeScript declaration entry-point path",
+      })
+    ),
+    typesVersions: S.optionalKey(UnknownRecord).pipe(
+      $I.annoteKey("LenientManifest.typesVersions", {
+        description: "TypeScript version redirects, preserved without validating ranges or path lists",
+      })
+    ),
+    resolutions: S.optionalKey(StringRecord).pipe(
+      $I.annoteKey("LenientManifest.resolutions", {
+        description: "Forced dependency resolutions mapped to specifiers, preserved without specifier validation",
+      })
+    ),
+    patchedDependencies: S.optionalKey(StringRecord).pipe(
+      $I.annoteKey("LenientManifest.patchedDependencies", {
+        description: "Patched package specifiers mapped to patch file paths",
+      })
+    ),
+    trustedDependencies: S.optionalKey(StringList).pipe(
+      $I.annoteKey("LenientManifest.trustedDependencies", {
+        description: "Package names allowed to run lifecycle scripts at install",
+      })
+    ),
+    catalog: S.optionalKey(StringRecord).pipe(
+      $I.annoteKey("LenientManifest.catalog", {
+        description: "Default catalog package names mapped to specifiers, preserved without specifier validation",
+      })
+    ),
+    readme: S.optionalKey(S.String).pipe(
+      $I.annoteKey("LenientManifest.readme", { description: "README text as stored in a published manifest" })
     ),
     /**
      * Unknown top-level keys, plus every degraded known field's raw value,
