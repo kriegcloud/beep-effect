@@ -8,6 +8,18 @@ Provenance: $HOME/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955e
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
 decisions live in README.md → Port notes, not here.
 
+Upstream paths, names and commands below describe the upstream checkout, not this package.
+In this repo `@effected/cli` is `@beep/cli-kit` at `packages/foundation/capability/cli-kit`, and
+`@effected/cli/testing` is `@beep/cli-kit/testing`: upstream `packages/cli/src/<Module>.ts` maps to
+`src/<Module>.ts` and upstream `__test__/` to `test/`. `@effected/cli/ui`, `@effected/cli/ui/testing`
+and their serializer are not part of this package; they stay in the lab at `scratchpad/effected/cli`
+(SPEC W4-m), so every section about them describes lab code. Other names: `@effected/env` is
+`@beep/runtime-env`, `@effected/config-file` is `@beep/config-file` (a test-only dependency here: the
+`ConfigIssueRenderer` takes a structural `{ readonly issue }`), `@effected/walker` is `@beep/walker`,
+and `@effected/github-commands` is `@beep/github-commands`. The upstream `pnpm vitest` / `pnpm build`
+commands and `savvy.build.ts` do not apply: this package builds with `bun run build` and tests with
+`bun run test` (Bun) and `bun run coverage` (Node).
+
 ---
 <!-- packages/cli/CLAUDE.md -->
 # @effected/cli
