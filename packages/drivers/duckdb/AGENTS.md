@@ -25,7 +25,9 @@ are in `README.md`. Keep the two files in step.
 ## Design decisions
 
 D1 to D12 come from the gap-map critique; D13 to D43 from the implementation
-SPEC; D44 onward record what implementation changed or learned.
+SPEC; D44 to D59 record what implementation changed or learned. D60 onward are
+designs settled by `/grill-with-docs` for open issues: each names its issue
+and describes code that does not exist until that issue closes.
 
 | id | decision | reason | reversal |
 | --- | --- | --- | --- |
@@ -37,15 +39,15 @@ SPEC; D44 onward record what implementation changed or learned.
 | D6 | `Date` binds as `timestampTZValue`; UTC by default (the "instance option" half is replaced by D13) | the only `Date` encoding correct for both TIMESTAMP and TIMESTAMPTZ columns under UTC that still types as a timestamp in untyped contexts | config knob |
 | D7 | Instance policy: read-write files → `DuckDBInstance.fromCache`; `:memory:` → own instance; READ_ONLY as amended by D35 | one process-wide database per file; two RW instances of one file in one process lose writes | policy function in `native.ts` |
 | D8 | `executeStream` materializes inside a transaction and streams incrementally outside one | a per-row statement on the transaction connection silently truncates a native stream at 2048 rows | flag |
-| D9 | One connection per client (`makeSqliteAcquirers`) | DuckDB serializes per connection anyway; matches sqlite-node and pglite | add a reader pool |
+| D9 | One connection per client (`makeSqliteAcquirers`) | DuckDB serializes per connection anyway; matches sqlite-node and pglite | reader connections for streams, designed in D60–D62 (#2083) |
 | D10 | Legacy `DuckDb` keeps its API, runs on the shared internals, never provides `SqlClient` | existing consumers (ai-metrics, law-practice, labs) depend on JSON rows and `$param` records; providing `SqlClient` would shadow PGlite in mixed layers | keep the old implementation |
-| D11 | Persistence, PersistedQueue, cluster storages and the encrypted event log are declared unsupported at 4.0.5 (documented, not guarded) | their sqlite DDL uses `AUTOINCREMENT`, `datetime()`, partial indexes and INT32 columns DuckDB rejects or overflows | DuckDB-native storage layers later |
+| D11 | Persistence, PersistedQueue, cluster storages and the encrypted event log are declared unsupported at 4.0.5 (documented, not guarded) | their sqlite DDL uses `AUTOINCREMENT`, `datetime()`, partial indexes and INT32 columns DuckDB rejects or overflows (per-consumer failures probed in #2084) | DuckDB-native storages, designed in D63–D65 (#2084) |
 | D12 | Private package: no changeset; consumers migrate in the same PR | repo convention for private packages | n/a |
 | D13 | TimeZone is a session `SET TimeZone` on the client's connection (default `UTC`), never an instance option | instance options are part of the cached configuration: `{}` vs `{TimeZone:"UTC"}` on one file fails with `Connection Error` and would break sharing with legacy opens | instance option for `:memory:` only |
 | D14 | `db.namespace` = `current_database()` name; `config.databasePath` for adopters = attached path or `:memory:` | OTel semconv names the database; the query is exact for every constructor | use the path |
 | D15 | Per-connection op lock plus a settle-aware interrupt canceller around every native call | `interrupt()` is connection-wide and a late interrupt hits the next statement; a shared prepared statement races | none (correctness) |
 | D16 | Prepared cache = `ScopedCache` per connection (200 entries, 10 minutes); `get`, `invalidateAll` and the cache-scope close run only under the op lock; entry finalizers `destroySync` directly; the lookup is settle-aware and destroys a late result; multi-statement and no-statement SQL cached as `RunDirect` (scope narrowed by D44) | ScopedCache joins every eviction close before the evicting call returns; an abandoned lookup used to release the lock early and leak the statement | `prepareCacheSize: 0` |
-| D17 | No `backup` extra | `COPY FROM DATABASE` fails on foreign-key order and leaves a partial file | add `exportDatabase` or an ordered copy |
+| D17 | No `backup` extra | `ATTACH` + `COPY FROM DATABASE` fails on foreign-key order (`Constraint Error: Violates foreign key constraint`) and leaves the attached target file behind with no tables; `EXPORT DATABASE` writes FK-ordered `schema.sql`/`load.sql` and `IMPORT DATABASE` restores rows and sequence state (probed, #2082) | `exportDatabase`/`importDatabase` (#2082) |
 | D18 | Extras in a transaction: parquet export and checkpoint refuse; LOAD, INSTALL, ATTACH, DETACH run on the transaction connection | filesystem and database-level effects are not transactional; ATTACH is | change per extra |
 | D19 | No class statics on the `DuckDbClient` tag | the namespace export already gives `DuckDbClient.make/layer/...` | add statics |
 | D20 | Config = `typeof DuckDbClientConfigData.Encoded & { runtime and function fields }` | unbranded, accepts plain literals, works with the `Config.Wrap` record form and `Config.schema` | — |
@@ -53,17 +55,17 @@ SPEC; D44 onward record what implementation changed or learned.
 | D22 | Refused commit = `UnknownError` (`commitTransaction`), cause = original failure or the nested marker | not retryable: the caller swallowed an error | reuse the original reason |
 | D23 | The commit effect refuses without issuing ROLLBACK; `onCommitFailure` rolls back | one rollback path, upstream poisoning semantics | roll back inside commit |
 | D24 | File-backed tests live in `test/DuckDb.service.test.ts` | any other file would add an EV010 effect-vitest row (S31) | new file plus an accepted row |
-| D25 | Legacy `makeNodeClient` kept (unscoped, documented) | keep the public API | delete in a follow-up |
+| D25 | Legacy `DuckDb.makeNodeClient` deleted (#2087); `makeNodeLayer` is the managed constructor | it was unscoped and never closed its shared connection, and nothing in the repo called it | restore `makeNodeClient` from `src/DuckDb.service.ts` at `61dcdbad9d` |
 | D26 | Legacy `DuckDbError.cause` = classified `SqlError` | classifier reuse; still an `Error` with the native error one level down | keep the raw error |
 | D27 | `threads`, `memory_limit`, `temp_directory` stay in `databaseOptions`; no default temp directory | minimal typed surface; a default needs a path policy the driver does not own | typed fields later |
-| D28 | Appender out of scope | scope | follow-up |
+| D28 | Appender out of scope | scope; a failed flush inside a transaction aborts it and the next COMMIT reports success (probed), so support must feed the D3 tracker | `appendRows` (#2081) |
 | D29 | An empty array binds as an empty LIST typed `LIST(SQLNULL)` through `bindTypes` (R2-DF-1); it casts into `INTEGER[]`, `VARCHAR[]` and nested LIST columns, and `SELECT ?` reads it as `INTEGER[]` | the untyped native bind refuses an empty `listValue` ("Cannot create lists with item type of ANY") but accepts it with the explicit `LIST(SQLNULL)` type the driver already passes | reject empty arrays |
 | D30 | DuckDB `infinity`/`-infinity` read as those strings at every DATE/TIMESTAMP precision (sentinels checked before conversion); other values outside the JS `Date` range read as `String(value)`, TIMESTAMPTZ rendered in UTC (`+00`) instead of the upstream module-load host offset (R2-DF-3); in-range values are floored to the millisecond | the JS reader throws on out-of-range values and would fail the whole query; DATE and TIMESTAMP_S/MS `toString` print the sentinels as huge finite dates and ±infinity TIMESTAMP_NS fits the `Date` range; the upstream reader truncates toward zero and moved pre-epoch instants forward | `Date(NaN)` |
 | D31 | INTERVAL `micros` follows SafeIntegers | consistency with integer columns | keep `bigint` |
 | D32 | Blank SQL returns the empty result without a native call | `run("")` is a native no-op while `prepare("")` and `extractStatements("")` fail | fail |
 | D33 | B1 (rename plus legacy instance policy) between A1 and A2; B2 (re-base) after A2 | barrel name collision; the legacy test fakes constrain the re-base; the instance policy must not be droppable | — |
 | D34 | `makeSqliteAcquirers` without `isTransaction` (the option exists at 4.0.5) | its only use is the cleanup ROLLBACK after a failed commit or poisoning; an unconditional ROLLBACK plus the raw-cause `no transaction is active` check cannot drift from DuckDB's real state | pass `(conn) => conn.isTransaction()` |
-| D35 | Client READ_ONLY opens go through `fromCache` (refused beside an in-process RW open); legacy READ_ONLY keeps `create()`; legacy RW moved to `fromCache` in B1 | a private RO instance beside RW reads corrupt blocks after a checkpoint and drops the process file lock on close; law-practice depends on legacy RO beside RW (known hazard, follow-up) | RO through `create()` |
+| D35 | Client READ_ONLY opens go through `fromCache` (refused beside an in-process RW open); legacy READ_ONLY keeps `create()`; legacy RW moved to `fromCache` in B1 | a private RO instance beside RW reads corrupt blocks after a checkpoint and drops the process file lock on close; law-practice depends on legacy RO beside RW (known hazard, #2086) | RO through `create()` |
 | D36 | Result-name transform = local null-safe `makeRowTransform`, not `Statement.defaultTransforms(...).array` | upstream throws on LIST values with a leading `NULL` and on `null` elements in arrays of objects | upstream helper once fixed |
 | D37 | `clearBindings()` before every bind of a cached statement | stale bindings survive a short or empty bind | — (correctness) |
 | D38 | `USE` and `SET`/`RESET schema\|search_path` invalidate the connection's prepared cache | defensive on DuckDB 1.5.6: a statement with binds is re-bound per execution against the current catalog and schema, result-shape changes included (probed); only parameterless prepared statements keep their first binding, and D44 keeps those out of the cache. The clear keeps that true if a DuckDB release stops re-binding; test in `test/DuckDbClient.test.ts` | drop the invalidation |
@@ -88,6 +90,12 @@ SPEC; D44 onward record what implementation changed or learned.
 | D57 | A list whose number items bind as different types takes the widest, INTEGER < BIGINT < DOUBLE, recursively through nested lists (`[1, 2.5]` is `DOUBLE[]`, `[1, 3e9]` is `BIGINT[]`) in `bindTypes` (R2-05) | upstream `typeForValue` types a list from its first item, so `[1, 2.5]` bound as `INTEGER[]` and failed with "number is not an integer"; every JS number is a double, so widening loses nothing the caller had | keep failing and point at a typed `listValue` |
 | D58 | A read-write open of a file that a `readOnly` client holds in the same process is refused, not queued or downgraded: `DuckDbClient` fails with `ConnectionError`, the legacy service fails its first statement with `DuckDbError` (R2-CI-1, test in `test/DuckDb.service.test.ts`) | both opens go through `fromCache`, which refuses a second open of a cached file with a different configuration; letting RW through would need a private instance and bring back the D35 hazard | close the read-only client first, or open read-write only |
 | D59 | Raw transaction control is tracked only as the single statement of a text, after stripping line and nested block comments (`classifyControl` / `splitStatements` in `src/internal/transaction.ts`); multi-statement text containing `BEGIN`/`COMMIT`/`ROLLBACK`/a savepoint is refused with an `UnknownError` before it reaches DuckDB, on every execute path including streams (PR-T1, #1963) | `/* tx */ BEGIN` or `COMMIT; SELECT 1` classified as a plain statement, so a swallowed constraint error followed by raw COMMIT skipped the D55 guard and DuckDB discarded the writes; a probe showed a multi-statement failure leaves an undecidable state (a parser error runs nothing, a binder error after `BEGIN` leaves a healthy transaction, a constraint error leaves an aborted one, a failure after `COMMIT` leaves none) | classify by the first or last control statement and fold the phase, guessing the state after a part-way failure |
+| D60 | Reader connections (designed, #2083): one writer connection plus `readerConnections` read-only connections (`NonNegativeInt`, default `0` = today's behaviour). The readers are `SqlClient.make`'s `acquirer`; `borrower` and `transactionAcquirer` stay on the writer, so only `executeStream` outside a transaction reaches a reader | at effect 4.0.5 (unchanged at HEAD) `stream` alone uses `acquirer`; a statement on the streaming connection ends the stream after 2048 rows, while a second connection streams a full snapshot beside writes (probed); a symmetric `maxConnections` pool would make writes conflict optimistically (`Conflict on update!`) and scatter temp tables, `USE`, `search_path` and the tracked transaction phase across connections; always materializing costs unbounded memory | symmetric pool under `maxConnections`, or keep D9 |
+| D61 | Each reader lease runs inside `BEGIN TRANSACTION READ ONLY` … `ROLLBACK` (designed, #2083) | a write streamed through a reader (`INSERT … RETURNING`) would bypass the writer's serialization and the D3/D55 commit guard; DuckDB 1.5.6 refuses writes in a read-only transaction with a message `classify.ts` already maps to `AuthorizationError` (probed) | trust callers and document |
+| D62 | Reader state (designed, #2083): a leased reader replays the writer's latest catalog-changing statement (`USE`, `SET`/`RESET schema\|search_path`, as detected for D38) and runs the client's `SET TimeZone` at connect; temp tables and temp macros stay writer-only (a reader stream that reads one fails with a Catalog Error). Readers come from `effect/Pool.make({ size: readerConnections })`, each a full driver connection with its own `NativeGate` (D15) and the prepared cache off; `fromConnection` has no `readerConnections`; the legacy `DuckDb` service is unchanged (D10) | `USE` and `search_path` are connection-local, so a reader at defaults would silently read the wrong catalog; routing such streams back to the writer would silently bring back the deadlock; plain `SET TimeZone` is session-scoped (probed with a non-host zone; `duckdb_settings()` reports scope `GLOBAL`, which only `SET GLOBAL` honours); streams call `native.stream` without the cache | readers at defaults, documented |
+| D63 | DuckDB-native storages are demand-gated (designed, #2084): one is built when a consumer needs it on DuckDB, against the effect version in use then, as a `@beep/duckdb` subpath module (`DuckDbEventJournal`, `DuckDbPersistence`, `DuckDbPersistedQueue`, `DuckDbMessageStorage`, `DuckDbRunnerStorage`, `DuckDbEventLogServerEncrypted`) | no repo package imports any of the six effect modules with any driver; effect HEAD reworks persistence, queue and eventlog (upgrade note 5), so a 4.0.5 port would be redone on the bump; the storages are product-neutral technical capability (driver doctrine) | port all six now |
+| D64 | Tiered by the probed failure (designed, #2084). Tier A, where only INT32 columns are wrong (`SqlEventJournal`, `Persistence.layerBackingSqlMultiTable`): DuckDB DDL with `BIGINT` first, then the unchanged upstream layer. Tier B, where DDL does not parse or queries call SQLite functions (`Persistence.layerBackingSql`, `PersistedQueue`, `SqlMessageStorage`, `SqlRunnerStorage`, `SqlEventLogServerEncrypted`): a DuckDB port of the upstream service contract from its SQLite branch, marked `// beep:` (D48). Both proven by the vendored upstream shared suite | pre-created tables turn the upstream `CREATE TABLE IF NOT EXISTS` into a no-op, and the journal and multi-table store then pass (probed); `AUTOINCREMENT` fails to parse before the existence check, `CREATE INDEX IF NOT EXISTS … WHERE` is refused even when the index exists, and DuckDB has no `datetime()` or SQLite-order `strftime('%s', …)`; rewriting SQL text needs a tokenizer (the D45/D59 stance), `datetime` macros cannot fix the DDL, `"pg"` breaks the Migrator (D1), and an upstream `"duckdb"` dialect alone changes nothing (HEAD added `clickhouse` without storage branches) | upstream DuckDB branches (re-evaluate at the effect bump, then delete the Tier B ports) |
+| D65 | Cluster storages on DuckDB serve single-process deployments (`SingleRunner`) only (designed, #2084) | DuckDB holds a per-process file lock, so runners in other processes cannot share the file | none on DuckDB; use a server database |
 
 ## Known hazards
 
@@ -99,7 +107,9 @@ SPEC; D44 onward record what implementation changed or learned.
   instance can read corrupt or wrong blocks after the RW instance checkpoints,
   and closing it releases the process's file lock while the RW instance is
   still open, so another process can then open the file read-write. The new
-  client never does this: its READ_ONLY opens are refused beside RW.
+  client never does this: its READ_ONLY opens are refused beside RW. The fix
+  (route those reads through the RW connection, then cache legacy READ_ONLY
+  opens) is #2086.
 - **A `readOnly` client opened first blocks read-write opens of the file.**
   While it is open, a read-write `DuckDbClient` of the same file in the same
   process fails with `ConnectionError` and the legacy service fails its first
@@ -116,7 +126,8 @@ SPEC; D44 onward record what implementation changed or learned.
   outside a transaction deadlocks on the client semaphore; on a `reserve`d
   connection it deadlocks on the op lock the stream holds. Deliberate: a
   deadlock is better than the silent 2048-row truncation the alternative
-  produces.
+  produces. Reader connections (D60, #2083) remove the outside-transaction
+  case; the `reserve`d case stays.
 - **`fromConnection` interrupts are connection-wide.** Cancelling a client
   statement calls `connection.interrupt()`, which can cancel a query the caller
   runs on the same connection outside the client.
@@ -133,8 +144,6 @@ SPEC; D44 onward record what implementation changed or learned.
   number kinds widen (D57). `@duckdb/node-api` 1.5.6 has no `doubleValue`
   helper and `listValue(items)` takes no item type, so the fix is the typed
   `DuckDB*Value` pass-through.
-- **`DuckDb.makeNodeClient`** is unscoped and never closes its connection
-  (D25).
 
 ## Upgrade notes (effect > 4.0.5)
 
@@ -159,14 +168,15 @@ SPEC; D44 onward record what implementation changed or learned.
 
 ## Follow-ups
 
-- Appender support (D28).
-- `exportDatabase(directory)` over `EXPORT DATABASE` (works from READ_ONLY), or
-  a topologically ordered per-table copy, instead of the missing `backup`
-  (D17).
-- Optional reader pool (`maxConnections > 1`), which also removes the
-  outside-transaction stream deadlock.
-- DuckDB-native storage layers for the unsupported consumers (D11).
-- `DuckDbMigrator` `dumpSchema`.
-- Route law-practice READ_ONLY lookups through the RW `PracticeKgHost`
+Tracked in #2088. Each sub-issue carries the constraint probed on DuckDB 1.5.6
+and its acceptance criteria:
+
+- #2081 Appender-backed bulk loads (D28).
+- #2082 `exportDatabase` / `importDatabase` over `EXPORT DATABASE`, instead of
+  a `backup` extra (D17).
+- #2083 Reader connections for streams (D60–D62).
+- #2084 DuckDB-native storages for the unsupported consumers, demand-gated
+  (D11, D63–D65).
+- #2085 `DuckDbMigrator` `dumpSchema` from the DuckDB catalog.
+- #2086 Route law-practice READ_ONLY lookups through the read-write
   connection, then move legacy READ_ONLY opens onto `fromCache` (D35).
-- Delete the unscoped legacy `makeNodeClient` (D25).
