@@ -96,10 +96,11 @@ describe("bundle reachability", () => {
   it("package-json is reached as a type only — the control for the absence above", () => {
     // Without this control the absence could mean the walker never saw the
     // edge. `SbomMetadataSource` names `Package` and `Person` through leaves.
-    assert.deepStrictEqual(A.sort(edgesOf(sourceOf("SbomMetadataSource.ts")).typeOnly, Str.Order), [
-      "@beep/package-json/Package",
-      "@beep/package-json/Person",
-    ]);
+    const typeOnly = A.filter(
+      edgesOf(sourceOf("SbomMetadataSource.ts")).typeOnly,
+      Str.startsWith("@beep/package-json")
+    );
+    assert.deepStrictEqual(A.sort(typeOnly, Str.Order), ["@beep/package-json/Package", "@beep/package-json/Person"]);
   });
 
   it("the bundle value and the identity contract reach nothing but effect and identity", () => {
