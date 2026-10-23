@@ -295,6 +295,9 @@
       "path": "packages/foundation/capability/colors"
     },
     {
+      "path": "packages/foundation/capability/config-file"
+    },
+    {
       "path": "packages/foundation/capability/file-processing"
     },
     {

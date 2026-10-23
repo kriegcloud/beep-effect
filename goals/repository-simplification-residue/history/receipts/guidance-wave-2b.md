@@ -477,3 +477,13 @@ Wave 2c's census uses `--hidden -g '!.git'` too.
 | Path | Line | Kind | Disposition | Reason |
 | --- | --- | --- | --- | --- |
 | `apps/storybook/.storybook/preview.tsx` | 1 | `@effect-diagnostics` `globalConsole:skip-file` | kept | Dev-only `console.warn` in the preview iframe, outside any Effect runtime. It stays at file level because the line above the call holds its required `biome-ignore`. |
+
+## Config-file graduation note (effected-promotion 3-3)
+
+Effected promotion wave 3, sub-wave 3-3, graduated the config-file module into
+`@beep/config-file` (`packages/foundation/capability/config-file`). The three kept
+`@ts-expect-error` directives listed above for
+`scratchpad/test/config-file/ConfigFileKeyTyping.test.ts` (lines 44, 46 and 73) moved
+unchanged to `packages/foundation/capability/config-file/test/ConfigFileKeyTyping.test.ts`
+at the same lines, and their owner is now `@beep/config-file`. The directive count does
+not change.
