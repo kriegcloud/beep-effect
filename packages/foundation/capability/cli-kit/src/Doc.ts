@@ -1840,7 +1840,8 @@ export abstract class Doc {
         key: options.key,
         label: options.label,
         n: options.n,
-        status: StatusRef.make({ name, def: statusDef(vocab.resolve(name)) }),
+        // Plain fields: `counterOf` admits the status, its definition and the counter once each.
+        status: { name, def: vocab.resolve(name) },
         ...O.getSomesStruct({ showZero: O.fromUndefinedOr(options.showZero) }),
       })
   );
