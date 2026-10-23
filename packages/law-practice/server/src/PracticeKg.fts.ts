@@ -5,14 +5,13 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { DuckDb } from "@beep/duckdb";
 import { $LawPracticeServerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { sqlStringLiteral } from "./internal/Sql.ts";
 import { PracticeKgProjectionError } from "./PracticeKg.errors.ts";
-import { withDuckDb } from "./PracticeKg.rows.ts";
 import type { DuckDbShape } from "@beep/duckdb";
 import type { PracticeKgCatalogRow, PracticeKgEnrichmentRow } from "./PracticeKg.rows.ts";
 import type { PracticeKgEmailHeaderRow } from "./PracticeKg.schemas.ts";
@@ -245,6 +244,7 @@ ORDER BY digest`;
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as A from "effect/Array"
+ * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
  * import { buildDuckDb } from "../../src/PracticeKg.fts.ts"
  *
  * const counts = buildDuckDb(
@@ -256,7 +256,10 @@ ORDER BY digest`;
  *   2_097_152
  * )
  *
- * Effect.runPromise(counts).then((row) => console.log(row.documents, row.emails)) // 0 0
+ * const program = counts.pipe(Effect.provide(DuckDb.makeNodeLayer(
+ *   DuckDbConnectionOptions.make({ databasePath: ":memory:" })
+ * )))
+ * Effect.runPromise(program).then((row) => console.log(row.documents, row.emails)) // 0 0
  * ```
  *
  * @param databasePath - Destination DuckDB path.
@@ -266,7 +269,7 @@ ORDER BY digest`;
  * @param sourceSpecs - Extraction JSONL and text glob pairs.
  * @param maxTextBytes - Per-document inline text byte cap.
  * @returns Persisted document and email counts.
- * @effects Creates the DuckDB database and its plain-SQL BM25 tables.
+ * @effects Creates document and BM25 tables through the injected read-write DuckDb service.
  * @category use-cases
  * @since 0.0.0
  */
@@ -338,8 +341,5 @@ export const buildDuckDb = Effect.fn("PracticeKg.buildDuckDb")(function* (
         PracticeKgProjectionError.mapError("Graph DuckDB counts failed schema validation.")
       );
     return A.headNonEmpty(countRows);
-  }).pipe(
-    withDuckDb(DuckDbConnectionOptions.make({ databasePath })),
-    PracticeKgProjectionError.mapError(`Failed building graph DuckDB "${databasePath}".`)
-  );
+  }).pipe(PracticeKgProjectionError.mapError(`Failed building graph DuckDB "${databasePath}".`));
 });
