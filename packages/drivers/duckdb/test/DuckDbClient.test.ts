@@ -9,9 +9,11 @@ import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
+import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Fiber from "effect/Fiber";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
@@ -1059,4 +1061,163 @@ describe("DuckDbClient", { concurrent: false }, () => {
       }),
     { arbitrary: fcRuns(20) }
   );
+});
+
+describe("DuckDbClient reader connections", { concurrent: false }, () => {
+  it.layer(DuckDbClient.layer({ databasePath: ":memory:", readerConnections: 1 }), { timeout: "60 seconds" })((it) => {
+    it.effect(
+      "streams 10000 rows while every consumer statement uses the writer",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE reader_consumed (v BIGINT)`;
+        yield* sql<{ readonly v: number }>`SELECT range AS v FROM range(10000)`.stream.pipe(
+          Stream.runForEach((row) => sql`INSERT INTO reader_consumed VALUES (${row.v})`)
+        );
+        assert.deepStrictEqual(yield* sql`SELECT count(*) AS n, sum(v) AS total FROM reader_consumed`, [
+          { n: 10000, total: 49995000 },
+        ]);
+      })
+    );
+
+    it.effect(
+      "refuses a streamed write and returns the reader after failure",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE reader_write (v INTEGER)`;
+        const error = yield* sql`INSERT INTO reader_write VALUES (1) RETURNING v`.stream.pipe(
+          Stream.runCollect,
+          Effect.flip
+        );
+        assert.strictEqual(error.reason._tag, "AuthorizationError");
+        assert.deepStrictEqual(yield* sql`SELECT * FROM reader_write`, []);
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT 42 AS v`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+      })
+    );
+
+    it.effect(
+      "mirrors accumulated catalog and schema state, including failed text",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`ATTACH ':memory:' AS reader_a`;
+        yield* sql`CREATE SCHEMA reader_a.s`;
+        yield* sql`CREATE TABLE reader_a.s.t AS SELECT 42 AS v`;
+        // The original catalog deliberately has no schema s.
+        yield* sql.unsafe("USE reader_a; SET search_path = 's'");
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT v FROM t`.stream.pipe(Stream.runCollect)), [{ v: 42 }]);
+        yield* sql`USE memory`;
+        yield* sql.unsafe("USE reader_a; SELECT * FROM missing").pipe(Effect.flip);
+        assert.deepStrictEqual(
+          A.fromIterable(yield* sql`SELECT current_database() AS db`.stream.pipe(Stream.runCollect)),
+          [{ db: "reader_a" }]
+        );
+        yield* sql`USE memory`;
+        yield* sql`RESET search_path`;
+      })
+    );
+
+    it.effect(
+      "mirrors TimeZone and Calendar and refreshes after failed SET text",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        const query = sql`SELECT date_trunc('day', TIMESTAMPTZ '2024-01-15 12:00:00+00') AS day, current_setting('TimeZone') AS zone, current_setting('Calendar') AS calendar`;
+        yield* sql`SET TimeZone = 'Pacific/Kiritimati'`;
+        yield* sql`SET Calendar = 'japanese'`;
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        yield* sql.unsafe("SET TimeZone='Asia/Tokyo'; SELECT * FROM missing").pipe(Effect.flip);
+        assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        assert.deepStrictEqual(yield* sql`SELECT current_setting('TimeZone') AS zone`, [{ zone: "Asia/Tokyo" }]);
+        yield* sql`SET Calendar = 'gregorian'`;
+        yield* sql`SET TimeZone = 'UTC'`;
+      })
+    );
+
+    it.effect(
+      "refuses reader session changes without leaking them to the next lease",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        for (const text of [
+          "USE reader_a; SELECT 1",
+          "SET TimeZone='Asia/Tokyo'; SELECT 1",
+          "RESET TimeZone; SELECT 1",
+          "COMMIT",
+          "/* before */ SET search_path='s'; SELECT 1",
+        ]) {
+          const error = yield* sql.unsafe(text).stream.pipe(Stream.runCollect, Effect.flip);
+          assert.strictEqual(error.reason._tag, "AuthorizationError");
+          const query = sql`SELECT current_database() AS db, current_setting('search_path') AS path, current_setting('TimeZone') AS zone`;
+          assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        }
+      })
+    );
+
+    it.effect(
+      "returns an interrupted reader lease to the pool",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        const started = yield* Deferred.make<void>();
+        const fiber = yield* sql`SELECT * FROM range(10000)`.stream.pipe(
+          Stream.runForEach(() => Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never))),
+          Effect.forkChild
+        );
+        yield* Deferred.await(started);
+        yield* Fiber.interrupt(fiber);
+        assert.deepStrictEqual(A.fromIterable(yield* sql`SELECT 7 AS v`.stream.pipe(Stream.runCollect)), [{ v: 7 }]);
+      })
+    );
+
+    it.effect(
+      "reads committed state beside the writer's open transaction",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TABLE reader_isolation (v INTEGER)`;
+        yield* sql`INSERT INTO reader_isolation VALUES (1)`;
+        const beginRead = yield* Deferred.make<void>();
+        const finishedRead = yield* Deferred.make<void>();
+        const fiber = yield* Deferred.await(beginRead).pipe(
+          Effect.andThen(sql`SELECT v FROM reader_isolation`.stream.pipe(Stream.runCollect)),
+          Effect.tap(() => Deferred.succeed(finishedRead, undefined)),
+          Effect.forkChild
+        );
+        yield* sql.withTransaction(
+          Effect.gen(function* () {
+            yield* sql`INSERT INTO reader_isolation VALUES (2)`;
+            yield* Deferred.succeed(beginRead, undefined);
+            yield* Deferred.await(finishedRead);
+          })
+        );
+        assert.deepStrictEqual(A.fromIterable(yield* Fiber.join(fiber)), [{ v: 1 }]);
+      })
+    );
+
+    it.effect(
+      "keeps temporary tables and macros on the writer",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE TEMP TABLE reader_temp AS SELECT 1 AS v`;
+        yield* sql`CREATE TEMP MACRO reader_temp_macro() AS 1`;
+        assert.deepStrictEqual(yield* sql`SELECT * FROM reader_temp`, [{ v: 1 }]);
+        for (const text of ["SELECT * FROM reader_temp", "SELECT reader_temp_macro() AS v"]) {
+          const error = yield* sql.unsafe(text).stream.pipe(Stream.runCollect, Effect.flip);
+          assert.strictEqual(error.reason._tag, "SqlSyntaxError");
+        }
+      })
+    );
+  });
+
+  for (const config of [
+    { databasePath: ":memory:", readerConnections: 1 },
+    { databasePath: ":memory:", readerConnections: 1, timeZone: "Pacific/Kiritimati" },
+    { databasePath: ":memory:", readerConnections: 1, databaseOptions: { TimeZone: "Asia/Tokyo" } },
+  ]) {
+    it.layer(DuckDbClient.layer(config))((it) => {
+      it.effect(
+        `matches the writer TimeZone at connect (${config.timeZone ?? config.databaseOptions?.TimeZone ?? "default"})`,
+        Effect.fnUntraced(function* () {
+          const sql = yield* DuckDbClient.DuckDbClient;
+          const query = sql`SELECT current_setting('TimeZone') AS zone`;
+          assert.deepStrictEqual(A.fromIterable(yield* query.stream.pipe(Stream.runCollect)), yield* query);
+        })
+      );
+    });
+  }
 });

@@ -93,6 +93,7 @@ what `fromConnection` does and does not touch.
 | Field | Default | Meaning |
 | --- | --- | --- |
 | `databasePath` | required | File path, or `":memory:"` for a private in-memory database |
+| `readerConnections` | `0` | Nonnegative integer; eager read-only reader connections for streams outside transactions |
 | `readOnly` | `false` | Open with `access_mode=READ_ONLY` |
 | `databaseOptions` | `{}` | Native instance options passed through unchanged (`threads`, `memory_limit`, `temp_directory`, ...) |
 | `timeZone` | `"UTC"` | Session `TimeZone` set on the client's connection |
@@ -112,6 +113,7 @@ The client value carries these on top of `SqlClient`:
 | Extra | SQL | Inside `withTransaction` |
 | --- | --- | --- |
 | `copyTableToParquet({ tableName, filePath })` | `COPY "t" TO 'file' (FORMAT parquet)` | refused: file writes are not rolled back |
+| Reader pool (configuration, no extra method) | streams use read-only leases | writer stays serialized |
 | `checkpoint()` / `checkpoint({ force: true })` | `CHECKPOINT` / `FORCE CHECKPOINT` | refused: database-level operation |
 | `loadExtension(name)` | `LOAD 'name'` | runs on the transaction connection, not rolled back |
 | `installExtension(name)` | `INSTALL 'name'` | runs on the transaction connection |
@@ -265,17 +267,31 @@ query the caller runs on that connection outside the client.
 
 ### Single connection and streams
 
-- Each client has one native connection. Statements are serialized; a
-  transaction or `reserve` holds the connection for its whole duration.
-- `executeStream` streams incrementally outside a transaction and materializes
-  the full result inside one.
-- Two patterns deadlock: a stream consumer that runs a statement per row
-  through the client outside a transaction, and the same consumer on a
-  `reserve`d connection. Collect the stream first, or do the per-row work
-  inside `withTransaction`. The driver holds the connection on purpose: a
-  statement interleaved with a native stream silently truncates it at 2048
-  rows. Opt-in reader connections for streams, which remove the first
-  pattern, are designed in #2083.
+- Each client has one serialized writer. Single statements, transactions,
+  `reserve`, extras and streams inside transactions stay on the writer.
+  `executeStream` materializes inside a transaction and streams incrementally
+  outside one.
+- `readerConnections` defaults to `0`, preserving the single-connection
+  behaviour. A positive value creates an eager reader pool on the same
+  instance, each with its own operation lock and no prepared cache. `make`
+  and `fromInstance` support it; `fromConnection` does not.
+- With readers enabled, streams outside transactions lease a reader inside
+  `BEGIN TRANSACTION READ ONLY` through `ROLLBACK`. Their consumers can run
+  one writer statement per row without deadlocking. Readers see a committed
+  snapshot; they cannot see uncommitted writer changes. Streamed writes
+  (`INSERT … RETURNING`, for example) fail with `AuthorizationError`.
+- Readers mirror the writer's resolved current database, search path,
+  TimeZone and Calendar, including state retained by failed multi-statement
+  text. Other raw session settings are not mirrored. Temporary tables and
+  temporary macros remain writer-only; reader queries referring to them fail
+  with `SqlSyntaxError` (DuckDB Catalog Error). Reader streams containing
+  `USE`, `SET`, `RESET` or transaction control are refused before execution
+  with `AuthorizationError`, so session state cannot leak across leases.
+- With no readers, a consumer that runs one client statement per row outside
+  a transaction still deadlocks; collect first or use `withTransaction`.
+  Streams on a `reserve`d connection still deadlock with readers enabled.
+  Holding the connection prevents native statements from silently truncating
+  an active stream at 2048 rows.
 
 ### Prepared statements
 
@@ -401,6 +417,7 @@ DDL for it.
 | SqlEventJournal | unsupported (INT32 `timestamp` overflow); DuckDB-native layer designed in #2084 |
 | Persistence (both layers), PersistedQueue, cluster SqlMessageStorage/SqlRunnerStorage, SqlEventLogServerEncrypted | unsupported (`AUTOINCREMENT`, `datetime()`, partial index, INT32 columns); DuckDB-native layers designed in #2084, built when a consumer needs one |
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
+| Streams with one writer statement per row outside a transaction | supported with `readerConnections > 0`; streams on `reserve` still deadlock |
 | `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); `exportDatabase` is #2082 |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
 | READ_ONLY client beside a read-write client of the same file in one process, in either open order | the later open is refused with `ConnectionError`; share the read-write client instead |

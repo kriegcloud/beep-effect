@@ -3,7 +3,7 @@
  *
  * **Details**
  *
- * One serialized native connection per client. The client reports the
+ * One serialized writer connection per client, with optional read-only readers. The client reports the
  * `"sqlite"` dialect and uses a DuckDB compiler that supports `updateValues`.
  * DuckDB has no savepoints: a nested `withTransaction` that rolls back refuses
  * the outer `COMMIT` and the whole transaction rolls back. `COMMIT` is safe:
@@ -15,9 +15,12 @@
  *
  * **Gotchas**
  *
- * - A stream consumer that issues a statement per row outside a transaction
- *   (also on a `reserve`d connection) deadlocks on the single connection;
- *   collect the stream first or run the per-row work inside `withTransaction`.
+ * - With `readerConnections: 0` (default), a stream consumer that issues a
+ *   statement per row outside a transaction deadlocks. Enable readers or
+ *   collect first. Streams on a `reserve`d connection still deadlock.
+ * - Readers mirror the writer's catalog, search path, TimeZone and Calendar.
+ *   Other raw session settings, temporary tables and macros stay writer-only.
+ *   Reader streams refuse session changes and run in read-only transactions.
  * - A `readOnly` open shares the process-wide instance of its file and is
  *   refused with a `ConnectionError` while this process holds the same file
  *   read-write.
@@ -32,7 +35,7 @@
  */
 
 import { $DuckdbId } from "@beep/identity/packages";
-import { quotedString } from "@duckdb/node-api";
+import { quotedIdentifier, quotedString } from "@duckdb/node-api";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -40,6 +43,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Pool from "effect/Pool";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Reactivity from "effect/reactivity/Reactivity";
@@ -192,7 +196,7 @@ export type DuckDbClientFromInstanceOptions = Omit<
  */
 export type DuckDbClientFromConnectionOptions = Omit<
   DuckDbClientConfig,
-  "databaseOptions" | "databasePath" | "readOnly"
+  "databaseOptions" | "databasePath" | "readOnly" | "readerConnections"
 > & {
   readonly connection: DuckDBConnection;
   readonly databasePath?: string | undefined;
@@ -276,10 +280,12 @@ const stringField = (row: unknown, key: string): O.Option<string> =>
 const makeFromNative = Effect.fnUntraced(function* (
   native: DuckDBConnection,
   options: CoreOptions,
-  skipDefaultTimeZone: boolean
+  skipDefaultTimeZone: boolean,
+  instance?: DuckDBInstance
 ) {
   const connection = yield* makeConnection({
     native,
+    trackSession: (options.readerConnections ?? 0) > 0,
     prepareCacheSize: options.prepareCacheSize ?? DEFAULT_PREPARE_CACHE_SIZE,
     prepareCacheTTL: options.prepareCacheTTL ?? Duration.minutes(10),
   });
@@ -299,8 +305,48 @@ const makeFromNative = Effect.fnUntraced(function* (
     connection: Effect.succeed(connection),
     semaphore: yield* Semaphore.make(1),
   });
+  let streamAcquirer = acquirers.acquirer;
+  if (instance !== undefined && (options.readerConnections ?? 0) > 0) {
+    yield* connection.sessionSnapshot;
+    const readerPool = yield* Pool.make({
+      size: options.readerConnections ?? 0,
+      acquire: Effect.gen(function* () {
+        const readerNative = yield* acquireConnection(instance);
+        const reader = yield* makeConnection({
+          native: readerNative,
+          prepareCacheSize: 0,
+          prepareCacheTTL: Duration.zero,
+          readOnlyReader: true,
+        });
+        // A reader never executes session-changing user text, so only a new
+        // writer snapshot can invalidate its applied settings.
+        let applied: O.Option<Effect.Success<typeof connection.sessionSnapshot>> = O.none();
+        return {
+          reader,
+          synchronize: Effect.fnUntraced(function* () {
+            const snapshot = yield* connection.sessionSnapshot;
+            if (O.isSome(applied) && connection.sameSessionSnapshot(applied.value, snapshot)) return;
+            yield* reader.runDriverStatement(`USE ${quotedIdentifier(snapshot.database)}`, "executeStream");
+            yield* reader.runDriverStatement(`SET search_path = ${quotedString(snapshot.searchPath)}`, "executeStream");
+            yield* reader.runDriverStatement(`SET TimeZone = ${quotedString(snapshot.timeZone)}`, "executeStream");
+            yield* reader.runDriverStatement(`SET Calendar = ${quotedString(snapshot.calendar)}`, "executeStream");
+            applied = O.some(snapshot);
+          }),
+        };
+      }),
+    });
+    streamAcquirer = Effect.gen(function* () {
+      const lease = yield* Pool.get(readerPool);
+      yield* lease.synchronize();
+      yield* Effect.acquireRelease(
+        lease.reader.runDriverStatement("BEGIN TRANSACTION READ ONLY", "beginTransaction"),
+        () => lease.reader.runDriverStatement("ROLLBACK", "rollbackTransaction").pipe(Effect.orDie)
+      );
+      return lease.reader;
+    });
+  }
   const client = yield* SqlClient.make({
-    acquirer: acquirers.acquirer,
+    acquirer: streamAcquirer,
     borrower: acquirers.borrower,
     transactionAcquirer: acquirers.transactionAcquirer,
     onCommitFailure: acquirers.onCommitFailure,
@@ -362,7 +408,7 @@ export const make = Effect.fn("DuckDbClient.make")(function* (
 ): Effect.fn.Return<DuckDbClientValue, SqlError, Scope.Scope | Reactivity.Reactivity> {
   const instance = yield* acquireInstance(options);
   const native = yield* acquireConnection(instance);
-  return yield* makeFromNative(native, options, hasTimeZoneKey(options.databaseOptions));
+  return yield* makeFromNative(native, options, hasTimeZoneKey(options.databaseOptions), instance);
 });
 
 /**
@@ -398,7 +444,7 @@ export const fromInstance = Effect.fn("DuckDbClient.fromInstance")(function* (
 ): Effect.fn.Return<DuckDbClientValue, SqlError, Scope.Scope | Reactivity.Reactivity> {
   const { instance, ...config } = options;
   const native = yield* acquireConnection(instance);
-  return yield* makeFromNative(native, config, false);
+  return yield* makeFromNative(native, config, false, instance);
 });
 
 /**

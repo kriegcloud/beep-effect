@@ -20,7 +20,9 @@
  * @since 0.0.0
  */
 
+import { $DuckdbId } from "@beep/identity/packages";
 import { ResultReturnType } from "@duckdb/node-api";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";
@@ -30,11 +32,14 @@ import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as ScopedCache from "effect/ScopedCache";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
+import { AuthorizationError, SqlError } from "effect/sql/SqlError";
+import { toSqlError } from "./classify.ts";
 import { converterFor } from "./convert.ts";
 import { NativeGate } from "./gate.ts";
 import { ignoreNative } from "./native.ts";
@@ -61,7 +66,19 @@ import type {
   DuckDBValueConverter,
 } from "@duckdb/node-api";
 import type * as SqlConnection from "effect/sql/SqlConnection";
-import type { SqlError } from "effect/sql/SqlError";
+
+const $I = $DuckdbId.create("internal/connection");
+const SessionSnapshot = S.Struct({
+  database: S.String,
+  searchPath: S.String,
+  timeZone: S.String,
+  calendar: S.String,
+}).pipe($I.annoteSchema("SessionSnapshot", { description: "Resolved writer session settings mirrored to readers." }));
+const decodeSessionSnapshot = S.decodeUnknownEffect(SessionSnapshot);
+const SESSION_QUERY =
+  "SELECT current_database() AS database, current_setting('search_path') AS searchPath, current_setting('TimeZone') AS timeZone, current_setting('Calendar') AS calendar";
+const changesSession = (sql: string): boolean =>
+  A.some(splitStatements(sql), (text) => /^\s*(?:USE|SET|RESET)\b/i.test(text));
 
 const ConnectionTypeId = "~@beep/duckdb/internal/connection";
 
@@ -93,11 +110,15 @@ type DuckDbConnection = SqlConnection.Connection & {
   readonly gate: NativeGate;
   readonly isTransaction: () => boolean;
   readonly commit: Effect.Effect<void, SqlError>;
+  readonly sessionSnapshot: Effect.Effect<typeof SessionSnapshot.Type, SqlError>;
+  readonly sameSessionSnapshot: ReturnType<typeof S.toEquivalence<typeof SessionSnapshot.Type>>;
   readonly runDriverStatement: (sql: string, operation: string) => Effect.Effect<void, SqlError>;
 };
 
 type ConnectionOptions = {
   readonly native: DuckDBConnection;
+  readonly trackSession?: boolean;
+  readonly readOnlyReader?: boolean;
   readonly prepareCacheSize: number;
   readonly prepareCacheTTL: Duration.Input;
 };
@@ -190,6 +211,26 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
   const { native } = options;
   const gate = new NativeGate(native);
   const state = MutableRef.make<TransactionPhase>(TransactionPhase.Idle());
+  const snapshot = MutableRef.make<O.Option<Exit.Exit<typeof SessionSnapshot.Type, SqlError>>>(O.none());
+  const refreshSession = gate
+    .runUnlocked("execute", () => native.runAndReadAll(SESSION_QUERY).then((result) => result.getRowObjects()))
+    .pipe(
+      Effect.flatMap((rows) =>
+        decodeSessionSnapshot(rows[0]).pipe(Effect.mapError((cause) => toSqlError(cause, "execute")))
+      ),
+      Effect.exit,
+      Effect.tap((result) => Effect.sync(() => MutableRef.set(snapshot, O.some(result)))),
+      Effect.asVoid
+    );
+  const sessionSnapshot = gate.withLock(
+    Effect.gen(function* () {
+      if (snapshot.pipe(MutableRef.get, O.isNone)) yield* refreshSession;
+      return yield* O.match(MutableRef.get(snapshot), {
+        onNone: () => Effect.die("Missing session snapshot"),
+        onSome: (exit) => (Exit.isSuccess(exit) ? Effect.succeed(exit.value) : Effect.failCause(exit.cause)),
+      });
+    })
+  );
   const isTransaction = (): boolean => state.pipe(MutableRef.get, TransactionPhase.$is("Active"));
 
   const lookup = (sql: string): Effect.Effect<CachedStatement, SqlError, Scope.Scope> =>
@@ -270,13 +311,30 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         ),
     });
     const invalidate = O.match(
-      O.filter(cache, () => control === "catalogContext"),
+      O.filter(cache, () => control === "catalogContext" && !MutableRef.get(cacheClosed)),
       {
         onNone: () => Effect.void,
         onSome: ScopedCache.invalidateAll,
       }
     );
-    return gate.withLock(Effect.tap(run, () => invalidate));
+    return gate.withLock(
+      run.pipe(
+        Effect.onExit(() =>
+          Effect.gen(function* () {
+            // A later statement can fail after USE/SET has already changed the session.
+            // Invalidate on failure too, and retain a failed snapshot read until a
+            // subsequent rollback/control statement makes the session readable again.
+            yield* invalidate;
+            if (
+              options.trackSession === true &&
+              (changesSession(sql) || control === "rollback" || control === "commit")
+            ) {
+              yield* refreshSession;
+            }
+          })
+        )
+      )
+    );
   };
 
   const setIdle = Effect.sync(() => MutableRef.set(state, TransactionPhase.Idle()));
@@ -374,6 +432,11 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         Effect.flatMap(currentConverter, (converter) =>
           gate.holdLock.pipe(
             Effect.andThen(
+              options.trackSession === true && changesSession(sql)
+                ? Effect.addFinalizer(() => refreshSession)
+                : Effect.void
+            ),
+            Effect.andThen(
               gate.runUnlocked("executeStream", () => native.stream(sql, nativeBinds(binds), bindTypes(binds)))
             ),
             Effect.tap(() =>
@@ -407,6 +470,8 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     gate,
     isTransaction,
     commit,
+    sessionSnapshot,
+    sameSessionSnapshot: S.toEquivalence(SessionSnapshot),
     runDriverStatement: (sql, operation) => Effect.asVoid(runStatement(sql, [], operation, false, readRows, [])),
     execute: (sql, params, transformRows) => runRows(sql, params, "execute", true, transformRows),
     executeUnprepared: (sql, params, transformRows) => runRows(sql, params, "executeUnprepared", false, transformRows),
@@ -418,11 +483,25 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       Stream.unwrap(
         Effect.suspend((): Effect.Effect<Stream.Stream<Row, SqlError>, SqlError, Scope.Scope> => {
           const control = classifyControl(sql);
+          if (
+            options.readOnlyReader === true &&
+            (changesSession(sql) || (control !== "statement" && control !== "catalogContext"))
+          ) {
+            return Effect.fail(
+              SqlError.make({
+                reason: AuthorizationError.make({
+                  cause: sql,
+                  message: "Reader streams cannot change session settings or transaction control",
+                  operation: "executeStream",
+                }),
+              })
+            );
+          }
           // Multi-statement catalog-context streams keep native.stream's last
           // result while invalidating the prepared cache under its op lock.
           const incremental =
             control === "statement" || (control === "catalogContext" && splitStatements(sql).length > 1);
-          return isTransaction() || !incremental
+          return (isTransaction() && options.readOnlyReader !== true) || !incremental
             ? Effect.succeed(
                 runRows(sql, params, "executeStream", false, transformRows).pipe(Stream.fromIterableEffect)
               )
