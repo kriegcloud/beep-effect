@@ -209,7 +209,7 @@ environment line again.
 
 Line numbers are at the base `04a3dc1e23`. Kept reasons are quoted from the base text;
 the `Owner`/`Exit` tail added by this wave is in the source line, except for the 22
-digest-pinned `noqa`, whose reason is given here.
+digest-pinned `noqa` and the Semgrep fixture's `biome-ignore-all`, whose reasons are given here.
 
 | Path | Line (base) | Kind | Disposition | Reason |
 | --- | --- | --- | --- | --- |
@@ -229,7 +229,7 @@ digest-pinned `noqa`, whose reason is given here.
 | `goals/lexical-playground-capability-atlas/ops/exercise/runner.ts` | 1 | biome-ignore `lint/suspicious/noConsole` | kept | This CLI prints its inventory, progress, and terminal result. Owner and exit in source. |
 | `goals/lexical-playground-capability-atlas/ops/exercise/runner.ts` | 35 | biome-ignore `lint/suspicious/noUndeclaredEnvVars` | kept | This standalone runner is not a cached Turbo task. Owner and exit in source. |
 | `goals/lexical-playground-capability-atlas/ops/exercise/runner.ts` | 761 | biome-ignore `lint/suspicious/noUndeclaredEnvVars` | kept | This standalone runner is not a cached Turbo task. Owner and exit in source. |
-| `goals/repository-simplification-confidence/history/outputs/semgrep/first-party.ts` | 1 | biome-ignore `lint` | kept | Semgrep rule fixture for .semgrep/first-party.yml; each line is a deliberate positive or negative case. Owner and exit in source. |
+| `goals/repository-simplification-confidence/history/outputs/semgrep/first-party.ts` | 1 | biome-ignore `lint` | kept | Semgrep rule fixture for .semgrep/first-party.yml; each line is a deliberate positive or negative case. File left byte-identical (immutable #2091 history output whose `ruleid:`/`ok:` lines are Semgrep test annotations, not suppressions). Owner: goals/repository-simplification-confidence. Exit: the fixture moves out of Biome's includes. |
 | `packages/ecosystem/effect-drizzle/src/core/Field.ts` | 50 | biome-ignore `lint/suspicious/noExplicitAny` | kept | Effect uses Field<any> at invariant variant-field existential boundaries. Owner and exit in source. |
 | `packages/ecosystem/effect-drizzle/src/core/variant.ts` | 150 | biome-ignore `lint/suspicious/noExplicitAny` | kept | Effect uses Field<any> as its invariant variant-field existential. Owner and exit in source. |
 | `packages/foundation/modeling/schema-org/src/internal/vocabulary.ts` | 1 | biome-ignore `format` | kept | generated table; tabs keep it inside the byte budget. Owner and exit in source. |
@@ -405,3 +405,9 @@ digest-pinned `noqa`, whose reason is given here.
 | `packages/foundation/capability/chalk/src/Chalk.ts` | 57 | oxlint-disable `typescript-eslint/no-unsafe-declaration-merging` | stale | no oxlint config enables `no-unsafe-declaration-merging`; the root lane enables no native rules |
 | `.cursor/hooks/deny-shell.sh` | 29 | shellcheck `SC2086` | stale | shellcheck is not installed or run by any hook or workflow |
 | `scripts/cloud/bootstrap.sh` | 240 | shellcheck `SC1091` | stale | shellcheck is not installed or run by any hook or workflow |
+
+## Review round 1 (#2124)
+
+The first push edited `goals/repository-simplification-confidence/history/outputs/semgrep/first-party.ts` to add an `Owner`/`Exit` tail to its `biome-ignore-all`. That file is the #2091 Semgrep rule fixture. The SAST lane passes changed files to Semgrep as explicit paths, which bypasses `.semgrepignore` (`goals/**/history/outputs/`), so the fixture's deliberate `eval`, `exec` and private-key cases fired as blocking findings.
+
+The file is restored byte for byte to main. Its `biome-ignore-all` stays counted as kept, with the reason recorded only in the table above, the same treatment as the digest-pinned `noqa`. The fixture's `ruleid:` and `ok:` lines are Semgrep test annotations, not suppressions; they were never in this census, and future censuses must leave them out too. Counts are unchanged: 182 real directives, 2 fixed, 91 stale, 89 kept, of which 66 carry `Owner`/`Exit` in source and 23 are recorded only here. The SAST lane gap is the orchestrator's follow-up.
