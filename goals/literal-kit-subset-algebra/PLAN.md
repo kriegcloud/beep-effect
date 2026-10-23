@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active`
+Status: `complete`
 
 ## Phases
 
@@ -11,7 +11,7 @@ Status: `active`
 | P0 Research | done | Panel review, `/adhd`, `/grill-with-docs` rulings. | Rulings in `research/2026-10-22-grill-rulings.md`. |
 | P1 Implement | done | Kit surface, builders, errors, codemod rule and migration, doctrine rows, typeperf fixtures. | Dependents type-check green. |
 | P2 Verify | done | Run required checks and capture evidence. | Verification is green or blockers are documented. |
-| P3 Yeet: PR to mergeable | active (#2080) | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
+| P3 Yeet: PR to mergeable | done (#2080 merged `7055b05c88`) | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
 | P4 Close | done (reflection; proposedCloseout) | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## Closeout Checklist

@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -36,11 +36,15 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Yeet — [#2080](https://github.com/beep-effect/beep-effect/pull/2080) driven to
-mergeable. Closeout reflection: `history/reflections/2026-10-22-claude.md`.
-Follow-up after merge: upstream PRs for Effect-TS/effect#9821 and #9822.
+Closed `completed-retained` on 2026-10-23. #2080 merged as `7055b05c88`; the lane is retired.
 
 ## Latest Evidence
+
+- 2026-10-23: #2080 MERGED as `7055b05c88` (final head `2991c0ac62`). The merge-time completion
+  receipt reads `unsatisfied` because the merge bypassed five pending required Heavy checks; zero
+  required reds at the accepted head. Closeout ruled by the S44 orchestrator (SPEC decision log).
+- Upstream: Effect-TS/effect#9822 shipped as #9824 (merged 2026-10-23); #9821 is in #9826 (open).
+  When the effect pin passes them, `LiteralKit.omit` delegates to `Literals.omit`.
 
 - Codemod `literal-kit-match-rename`: 323 `$match` reads and 24 re-wraps in 218
   files, zero residue; labs apps and chalk statics migrated by hand.
