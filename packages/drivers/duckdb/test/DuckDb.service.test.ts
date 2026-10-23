@@ -1306,6 +1306,44 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
 
   it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
     it.effect(
+      "exports and imports FK data and sequence state in CSV and Parquet",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const fs = yield* FileSystem.FileSystem;
+        const sourceScope = yield* Scope.make();
+        const databasePath = path.join(tmpDir, "export-source.duckdb");
+        const source = yield* DuckDbClient.make({ databasePath }).pipe(Scope.provide(sourceScope));
+        yield* source`CREATE SEQUENCE serial START 1`;
+        yield* source`CREATE TABLE z_parent (id INTEGER PRIMARY KEY DEFAULT nextval('serial'))`;
+        yield* source`CREATE TABLE a_child (id INTEGER PRIMARY KEY, parent INTEGER REFERENCES z_parent(id))`;
+        yield* source`INSERT INTO z_parent VALUES (DEFAULT), (DEFAULT), (DEFAULT)`;
+        yield* source`INSERT INTO a_child VALUES (1, 3)`;
+        const refusedDir = path.join(tmpDir, "refused-export");
+        const refused = yield* source
+          .withTransaction(source.exportDatabase({ directory: refusedDir }))
+          .pipe(Effect.flip);
+        expect(refused.reason._tag).toBe("UnknownError");
+        expect(yield* fs.exists(refusedDir)).toBe(false);
+        for (const format of ["csv", "parquet"] as const) {
+          const directory = path.join(tmpDir, format);
+          yield* source.exportDatabase({ directory, format });
+          const target = yield* DuckDbClient.make({ databasePath: path.join(tmpDir, `import-${format}.duckdb`) });
+          yield* target.importDatabase({ directory });
+          expect(yield* target`SELECT * FROM a_child`).toEqual([{ id: 1, parent: 3 }]);
+          expect(yield* target`SELECT count(*) AS n FROM z_parent`).toEqual([{ n: 3 }]);
+          expect(yield* target`SELECT nextval('serial') AS n`).toEqual([{ n: 4 }]);
+          expect((yield* target.importDatabase({ directory }).pipe(Effect.flip)).reason._tag).toBe("SqlSyntaxError");
+        }
+        yield* Scope.close(sourceScope, Exit.void);
+        const reader = yield* DuckDbClient.make({ databasePath, readOnly: true });
+        const directory = path.join(tmpDir, "readonly-export");
+        yield* reader.exportDatabase({ directory });
+        expect(yield* fs.exists(path.join(directory, "schema.sql"))).toBe(true);
+      })
+    );
+
+    it.effect(
       "shares one database between clients of the same file",
       Effect.fnUntraced(function* () {
         const tmpDir = yield* NativeTestDirectory;

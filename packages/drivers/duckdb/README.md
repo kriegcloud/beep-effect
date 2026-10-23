@@ -111,6 +111,8 @@ The client value carries these on top of `SqlClient`:
 
 | Extra | SQL | Inside `withTransaction` |
 | --- | --- | --- |
+| `exportDatabase({ directory, format? })` | `EXPORT DATABASE`; CSV by default, or Parquet | refused: files survive rollback |
+| `importDatabase({ directory })` | `IMPORT DATABASE`; requires an empty target | runs on the transaction connection |
 | `appendRows({ table, schema?, rows })` | Native Appender; complete rows in table column order | participates; a failed flush poisons commit |
 | `copyTableToParquet({ tableName, filePath })` | `COPY "t" TO 'file' (FORMAT parquet)` | refused: file writes are not rolled back |
 | `checkpoint()` / `checkpoint({ force: true })` | `CHECKPOINT` / `FORCE CHECKPOINT` | refused: database-level operation |
@@ -119,7 +121,9 @@ The client value carries these on top of `SqlClient`:
 | `attach(path, alias, { readOnly })` | `ATTACH 'path' AS "alias" [(READ_ONLY)]` | runs on the transaction connection; DuckDB rolls the attach back with the transaction |
 | `detach(alias)` | `DETACH "alias"` | runs on the transaction connection |
 
-There is no `backup` extra; `exportDatabase` is #2082 (backlog: #2088).
+`exportDatabase` writes a restorable directory with schema and FK-ordered data.
+`importDatabase` requires an empty target and restores sequence state. Export
+also works from a read-only client. There is no single-file `backup` extra.
 
 `appendRows` normalizes values like statement binds, then uses each table column's
 native type. Every row must include every column; use explicit values for defaults.
@@ -406,7 +410,7 @@ DDL for it.
 | SqlEventJournal | unsupported (INT32 `timestamp` overflow); DuckDB-native layer designed in #2084 |
 | Persistence (both layers), PersistedQueue, cluster SqlMessageStorage/SqlRunnerStorage, SqlEventLogServerEncrypted | unsupported (`AUTOINCREMENT`, `datetime()`, partial index, INT32 columns); DuckDB-native layers designed in #2084, built when a consumer needs one |
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
-| `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); `exportDatabase` is #2082 |
+| `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); use `exportDatabase` / `importDatabase` |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
 | READ_ONLY client beside a read-write client of the same file in one process, in either open order | the later open is refused with `ConnectionError`; share the read-write client instead |
 

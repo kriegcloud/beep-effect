@@ -28,12 +28,19 @@ import { isDuckDbConnection } from "./connection.ts";
 import type * as Scope from "effect/Scope";
 import type * as SqlClient from "effect/sql/SqlClient";
 import type * as SqlConnection from "effect/sql/SqlConnection";
-import type { DuckDbAppendRows, DuckDbParquetExport } from "../DuckDb.models.ts";
+import type {
+  DuckDbAppendRows,
+  DuckDbDatabaseExport,
+  DuckDbDatabaseImport,
+  DuckDbParquetExport,
+} from "../DuckDb.models.ts";
 
 const $I = $DuckdbId.create("internal/extras");
 
 const DuckDbDriverOperation = LiteralKit([
   "copyTableToParquet",
+  "exportDatabase",
+  "importDatabase",
   "checkpoint",
   "loadExtension",
   "installExtension",
@@ -141,6 +148,23 @@ export const makeExtras = (options: {
     }
   );
 
+  const exportDatabase = Effect.fn("DuckDbClient.exportDatabase")(
+    (request: typeof DuckDbDatabaseExport.Encoded): Effect.Effect<void, SqlError> =>
+      useConnection(
+        DuckDbDriverOperation.Enum.exportDatabase,
+        O.some("DuckDB database export cannot run inside withTransaction: filesystem writes survive rollback."),
+        `EXPORT DATABASE ${quotedString(request.directory)} (FORMAT ${request.format === "parquet" ? "parquet" : "csv"})`
+      )
+  );
+  const importDatabase = Effect.fn("DuckDbClient.importDatabase")(
+    (request: typeof DuckDbDatabaseImport.Encoded): Effect.Effect<void, SqlError> =>
+      useConnection(
+        DuckDbDriverOperation.Enum.importDatabase,
+        O.none(),
+        `IMPORT DATABASE ${quotedString(request.directory)}`
+      )
+  );
+
   const checkpoint = Effect.fn("DuckDbClient.checkpoint")(
     (checkpointOptions?: { readonly force?: boolean | undefined } | undefined): Effect.Effect<void, SqlError> =>
       useConnection(
@@ -178,7 +202,17 @@ export const makeExtras = (options: {
       useConnection(DuckDbDriverOperation.Enum.detach, O.none(), `DETACH ${quotedIdentifier(alias)}`)
   );
 
-  return { appendRows, copyTableToParquet, checkpoint, loadExtension, installExtension, attach, detach };
+  return {
+    exportDatabase,
+    importDatabase,
+    appendRows,
+    copyTableToParquet,
+    checkpoint,
+    loadExtension,
+    installExtension,
+    attach,
+    detach,
+  };
 };
 
 /**
