@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { docgenCommand } from "@beep/repo-cli/commands/Docgen";
 import {
   AnalyzeDocgenQualityWorkerEvalOptions,
@@ -106,7 +107,7 @@ const decodeDocgenConfigDocument = S.decodeUnknownEffect(DocgenConfigDocument);
 const decodeWorkerEvalReportJson = S.decodeUnknownEffect(S.fromJsonString(DocgenQualityWorkerEvalReport));
 const isString = (value: unknown): value is string => typeof value === "string";
 const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
-const DOCTEST_FIXTURE_DIR = new URL("./fixtures/doctest/", import.meta.url).pathname;
+const DOCTEST_FIXTURE_DIR = NodeURL.fileURLToPath(new URL("./fixtures/doctest/", import.meta.url));
 const DOCTEST_FIXTURE_PACKAGE = "packages/doctest-fixture";
 const decodeDoctestReport = S.decodeUnknownEffect(S.fromJsonString(DoctestReport));
 

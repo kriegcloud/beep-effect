@@ -62,6 +62,8 @@ const $I = $ProfessionalDesktopId.create("runtime/Pglite");
 // Bun resolves `type: "file"` imports while compiling the sidecar executable;
 // Vite exposes the same files through `/@fs/` during integration tests.
 
+const chatDbDataUrl = new URL("../../../../.beep/professional-desktop/chat-db", import.meta.url);
+
 /**
  * Directory PGlite persists into, resolved from the environment.
  *
@@ -73,7 +75,7 @@ const $I = $ProfessionalDesktopId.create("runtime/Pglite");
  * @since 0.0.0
  */
 const ChatDbDataDir = Config.String("CHAT_DB_PATH").pipe(
-  Config.withDefault(NodeURL.fileURLToPath(new URL("../../../../.beep/professional-desktop/chat-db", import.meta.url)))
+  Config.withDefault(chatDbDataUrl.protocol === "file:" ? NodeURL.fileURLToPath(chatDbDataUrl) : chatDbDataUrl.pathname)
 );
 
 /**

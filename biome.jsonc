@@ -11,6 +11,7 @@
   // advisory (severity "warn" inside each .grit) and run inside the single lint pass.
   // `no-native-error` is registered via `overrides` (tooling source only), not here.
   "plugins": [
+    "./packages/tooling/policy-pack/lint-rules/rules/no-file-url-pathname.grit",
     "./packages/tooling/policy-pack/lint-rules/rules/no-empty-named-blocks.grit",
     "./packages/tooling/policy-pack/lint-rules/rules/prefer-array-flat-map.grit",
     "./packages/tooling/policy-pack/lint-rules/rules/prefer-identity-annote-pipe.grit",

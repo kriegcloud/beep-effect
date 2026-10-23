@@ -43,6 +43,8 @@
  * Flags: `--runs <n>` (default 31), `--warmup <n>` (default 3),
  * `--min-sample-ms <n>` (default 300).
  */
+
+import * as NodeURL from "node:url";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as A from "effect/Array";
@@ -183,7 +185,7 @@ class BenchCorpusUnreadable extends S.TaggedError<BenchCorpusUnreadable>()("Benc
 const TOOL = "goals/effected-promotion/ops/lockfiles-bench.ts";
 const WORKLOAD_VERSION = 1;
 const MAX_SLOWDOWN_PCT = 10;
-const repoRoot = new URL("../../..", import.meta.url).pathname;
+const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 const fixtureRoot = `${repoRoot}packages/foundation/modeling/lockfiles/test/fixtures`;
 
 const argv = A.drop(process.argv, 2);

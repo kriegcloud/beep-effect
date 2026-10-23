@@ -1,10 +1,11 @@
 import { trustedNode } from "@beep/markdown/internal/nodes";
-import { stringifyTree } from "@beep/markdown/internal/stringify";
+import { inlineOutput, stringifyTree } from "@beep/markdown/internal/stringify";
 import { Markdown } from "@beep/markdown/Markdown";
 import { InlineCode, Paragraph, Position, Root, Table, TableCell, TableRow, Text } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -57,37 +58,55 @@ describe("stringify scalability", () => {
 });
 
 describe("inline emission scales linearly", () => {
-  // Every inline child used to read the run's growing output (its last
-  // characters, for marker choice and the `!` guard), and each read
-  // flattened the output string: a long paragraph of mixed inline nodes was
-  // quadratic (4x the input cost ~13x the time). The run now keeps its last
-  // chunk pending and reads only that.
-  it("a long paragraph of mixed inline nodes serializes in linear time", () => {
-    const treeAt = (reps: number): Root =>
-      Result.getOrThrow(Markdown.parseResult(Str.repeat(reps)("a_b &amp; www.x.com http://x *y* [z] ![w](u) # 1. ")));
-    const timeAt = (tree: Root): number => {
-      // Two passes, keep the faster: damps JIT and GC noise without
-      // hiding an algorithmic blowup.
-      let best = Number.POSITIVE_INFINITY;
-      for (let pass = 0; pass < 2; pass += 1) {
-        const started = performance.now();
+  it.effect("inspects exactly linear chunk text and detects growing-output reads", () =>
+    Effect.gen(function* () {
+      let work = 0;
+      const tail = inlineOutput.tail;
+      yield* Effect.acquireRelease(
+        Effect.sync(() => {
+          inlineOutput.tail = (text) => {
+            work += text.length;
+            return tail(text);
+          };
+        }),
+        () =>
+          Effect.sync(() => {
+            inlineOutput.tail = tail;
+          })
+      );
+      const workAt = (reps: number): number => {
+        const tree = Result.getOrThrow(
+          Markdown.parseResult(Str.repeat(reps)("a_b &amp; www.x.com http://x *y* [z] ![w](u) # 1. "))
+        );
+        work = 0;
         stringifyTree(tree);
-        best = Math.min(best, performance.now() - started);
-      }
-      return best;
-    };
-    const [warm, smallTree, largeTree] = [treeAt(500), treeAt(2500), treeAt(10_000)];
-    timeAt(warm);
-    const small = timeAt(smallTree);
-    const large = timeAt(largeTree);
-    const ratio = large / Math.max(small, 1);
-    assert.isBelow(
-      ratio,
-      8,
-      `4x the input cost ${ratio.toFixed(1)}x the time (${small.toFixed(1)}ms -> ${large.toFixed(1)}ms); ` +
-        "linear is ~4x, the per-child output read was ~13x"
-    );
-  }, 120_000);
+        return work;
+      };
+      const small = workAt(1000);
+      const medium = workAt(2000);
+      const large = workAt(4000);
+      assert.isAbove(small, 0, "the serializer must enter the metered seam");
+      assert.isAbove(medium, small);
+      assert.strictEqual(large - medium, 2 * (medium - small));
+
+      // The former implementation inspected the whole growing output per child.
+      // Send that same input shape through the same seam as a negative control.
+      const quadraticWork = (reps: number): number => {
+        work = 0;
+        let output = "";
+        for (let index = 0; index < reps; index += 1) {
+          output += "x";
+          inlineOutput.tail(output);
+        }
+        return work;
+      };
+      const badSmall = quadraticWork(100);
+      const badMedium = quadraticWork(200);
+      const badLarge = quadraticWork(400);
+      assert.isAbove(badSmall, 0);
+      assert.isAbove(badLarge - badMedium, 2 * (badMedium - badSmall));
+    })
+  );
 });
 
 describe("compiled serializer dispatch", () => {

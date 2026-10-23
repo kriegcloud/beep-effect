@@ -514,11 +514,11 @@
       }
     },
     "@beep/github-reporting": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-1, effected-w3-1 lane)",
-      "reason": "Record the new wave-3-1 workspace @beep/github-reporting scaffolded by create-package with the generated task set; its #test, #build and #check coupling on the @beep/github devDependency closure is measured in the review; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion W3-p, effected-importgraph lane)",
+      "reason": "Record the @beep/test-utils devDependency that @beep/markdown and @beep/github-reporting gain for the shared ImportGraph test helper; each closure adds only the @beep/test-utils node; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w3-1.md",
-        "sha256": "ef450b4ff56d02931d2780049ee1d7d01ee11d5d6612f047a7fadea55b7a53ae"
+        "path": "goals/effected-promotion/research/cache-baseline-review-importgraph.md",
+        "sha256": "77400506f8e271ad5012cdbf81eb8f66b7a52e853828abab32562bad735b5656"
       }
     },
     "@beep/glob": {
@@ -706,11 +706,11 @@
       }
     },
     "@beep/markdown": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2d-1, feat/effected-promotion-w2d)",
-      "reason": "Record the new wave-2d-1 workspace @beep/markdown scaffolded by create-package with the generated task set, and the root catalog entry for commonmark 0.31.2 that moves from the scratchpad manifest; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion W3-p, effected-importgraph lane)",
+      "reason": "Record the @beep/test-utils devDependency that @beep/markdown and @beep/github-reporting gain for the shared ImportGraph test helper; each closure adds only the @beep/test-utils node; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w2d1.md",
-        "sha256": "ed27ded852978028e84e0399b7c9da87065f94f34eba91a73eb34527fb9f3970"
+        "path": "goals/effected-promotion/research/cache-baseline-review-importgraph.md",
+        "sha256": "77400506f8e271ad5012cdbf81eb8f66b7a52e853828abab32562bad735b5656"
       }
     },
     "@beep/mcp-kit": {
@@ -922,11 +922,11 @@
       }
     },
     "@beep/package-json": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-4, feat/effected-promotion-w3-4)",
-      "reason": "Record the new wave-3-4 workspace @beep/package-json scaffolded by create-package with the generated task set, and the root catalog exact pins validate-npm-package-name 7.0.2 and @types/validate-npm-package-name 4.0.2, both already locked as transitives; no qualification is granted.",
+      "reviewer": "Codex S44 md-tests (author review)",
+      "reason": "Register the RESUME 3 package-json ImportGraph test dependency; only build, check, lint:deprecated-apis and test drifted. No qualification change.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w3-4.md",
-        "sha256": "59f3432f3c6265957db2b74b89484f2adc5fbe37de2aeabc6f2b3d500a6466b0"
+        "path": "goals/effected-promotion/research/s44-package-json-importgraph-cache-review.md",
+        "sha256": "22ef3a369bb9d725ac7dd18b048099aef524a4740954021adf7f0609c5ca8a43"
       }
     },
     "@beep/palantiri": {
@@ -45529,6 +45529,7 @@
           "@beep/managed-section#audit",
           "@beep/markdown#audit",
           "@beep/schema#audit",
+          "@beep/test-utils#audit",
           "@beep/utils#audit"
         ],
         "configuration": {
@@ -45597,6 +45598,7 @@
           "@beep/managed-section#build",
           "@beep/markdown#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/utils#build"
         ],
         "configuration": {
@@ -45654,6 +45656,7 @@
           "@beep/managed-section#build",
           "@beep/markdown#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/utils#build"
         ],
         "configuration": {
@@ -45698,6 +45701,7 @@
           "@beep/managed-section#build",
           "@beep/markdown#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/utils#build"
         ],
         "configuration": {
@@ -45827,6 +45831,7 @@
           "@beep/managed-section#transit",
           "@beep/markdown#transit",
           "@beep/schema#transit",
+          "@beep/test-utils#transit",
           "@beep/utils#transit"
         ],
         "configuration": {
@@ -46034,6 +46039,7 @@
           "@beep/managed-section#transit",
           "@beep/markdown#transit",
           "@beep/schema#transit",
+          "@beep/test-utils#transit",
           "@beep/utils#transit"
         ],
         "configuration": {
@@ -46081,6 +46087,7 @@
           "@beep/managed-section#transit",
           "@beep/markdown#transit",
           "@beep/schema#transit",
+          "@beep/test-utils#transit",
           "@beep/utils#transit",
           "@beep/utils#transit"
         ],
@@ -46134,6 +46141,7 @@
           "@beep/managed-section#build",
           "@beep/markdown#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/utils#build"
         ],
         "configuration": {
@@ -61850,6 +61858,7 @@
           "@beep/identity#audit",
           "@beep/jsonc#audit",
           "@beep/schema#audit",
+          "@beep/test-utils#audit",
           "@beep/toml#audit",
           "@beep/utils#audit",
           "@beep/yaml#audit"
@@ -61918,6 +61927,7 @@
           "@beep/identity#build",
           "@beep/jsonc#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/toml#build",
           "@beep/utils#build",
           "@beep/yaml#build"
@@ -61975,6 +61985,7 @@
           "@beep/identity#build",
           "@beep/jsonc#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/toml#build",
           "@beep/utils#build",
           "@beep/yaml#build"
@@ -62019,6 +62030,7 @@
           "@beep/identity#build",
           "@beep/jsonc#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/toml#build",
           "@beep/utils#build",
           "@beep/yaml#build"
@@ -62148,6 +62160,7 @@
           "@beep/identity#transit",
           "@beep/jsonc#transit",
           "@beep/schema#transit",
+          "@beep/test-utils#transit",
           "@beep/toml#transit",
           "@beep/utils#transit",
           "@beep/yaml#transit"
@@ -62355,6 +62368,7 @@
           "@beep/identity#transit",
           "@beep/jsonc#transit",
           "@beep/schema#transit",
+          "@beep/test-utils#transit",
           "@beep/toml#transit",
           "@beep/utils#transit",
           "@beep/yaml#transit"
@@ -62402,6 +62416,7 @@
           "@beep/identity#transit",
           "@beep/jsonc#transit",
           "@beep/schema#transit",
+          "@beep/test-utils#transit",
           "@beep/toml#transit",
           "@beep/utils#transit",
           "@beep/utils#transit",
@@ -62455,6 +62470,7 @@
           "@beep/identity#build",
           "@beep/jsonc#build",
           "@beep/schema#build",
+          "@beep/test-utils#build",
           "@beep/toml#build",
           "@beep/utils#build",
           "@beep/yaml#build"
@@ -80043,7 +80059,8 @@
           "@beep/memfs#audit",
           "@beep/npm-spec#audit",
           "@beep/semver#audit",
-          "@beep/spdx#audit"
+          "@beep/spdx#audit",
+          "@beep/test-utils#audit"
         ],
         "configuration": {
           "cache": false,
@@ -80111,7 +80128,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": true,
@@ -80168,7 +80186,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": true,
@@ -80212,7 +80231,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": false,
@@ -80341,7 +80361,8 @@
           "@beep/memfs#transit",
           "@beep/npm-spec#transit",
           "@beep/semver#transit",
-          "@beep/spdx#transit"
+          "@beep/spdx#transit",
+          "@beep/test-utils#transit"
         ],
         "configuration": {
           "cache": true,
@@ -80548,7 +80569,8 @@
           "@beep/memfs#transit",
           "@beep/npm-spec#transit",
           "@beep/semver#transit",
-          "@beep/spdx#transit"
+          "@beep/spdx#transit",
+          "@beep/test-utils#transit"
         ],
         "configuration": {
           "cache": false,
@@ -80596,6 +80618,7 @@
           "@beep/npm-spec#transit",
           "@beep/semver#transit",
           "@beep/spdx#transit",
+          "@beep/test-utils#transit",
           "@beep/utils#transit"
         ],
         "configuration": {
@@ -80648,7 +80671,8 @@
           "@beep/memfs#build",
           "@beep/npm-spec#build",
           "@beep/semver#build",
-          "@beep/spdx#build"
+          "@beep/spdx#build",
+          "@beep/test-utils#build"
         ],
         "configuration": {
           "cache": false,
