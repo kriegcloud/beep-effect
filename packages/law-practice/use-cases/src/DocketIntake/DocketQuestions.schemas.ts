@@ -7,8 +7,7 @@
  */
 
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
-import { SourceRef } from "@beep/law-practice-domain";
-import { LocalDateFromString } from "@beep/schema/LocalDate";
+import { CalendarDate, SourceRef } from "@beep/law-practice-domain";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { DocketCandidateDate, DocketIntakeOutcome, DocketNeedsReviewReason } from "./DocketIntake.schemas.ts";
@@ -18,8 +17,8 @@ const $I = $LawPracticeUseCasesId.create("DocketIntake/DocketQuestions.schemas")
 // An optional text key: absent when the pipeline does not know the value.
 const OptionalText = S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone));
 
-// An optional calendar day, encoded as `YYYY-MM-DD`.
-const OptionalDate = LocalDateFromString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone));
+// An optional calendar day that exists in its month, encoded as `YYYY-MM-DD`.
+const OptionalDate = CalendarDate.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone));
 
 /**
  * What tells the attorney which email a docket question is about.

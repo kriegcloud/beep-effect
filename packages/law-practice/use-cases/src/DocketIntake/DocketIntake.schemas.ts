@@ -8,6 +8,7 @@
  */
 
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
+import { CalendarDate } from "@beep/law-practice-domain";
 import { DocketCategory, DocketDueDate, DocketResponsePeriod } from "@beep/law-practice-domain/values/DocketDeadline";
 import { LiteralKit } from "@beep/schema";
 import { LocalDateFromString } from "@beep/schema/LocalDate";
@@ -984,7 +985,7 @@ export class DocketNeedsReview extends S.Opaque<DocketNeedsReview, { readonly br
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
     messageLink: opt(S.NonEmptyString, "Link that opens the message in Outlook."),
     reason: DocketNeedsReviewReason.annotateKey({ description: "Why no dated entry was written." }),
-    receivedDate: opt(LocalDateFromString, "Calendar day the message was received on, in the practice time zone."),
+    receivedDate: opt(CalendarDate, "Calendar day the message was received on, in the practice time zone."),
     review: opt(ReviewVerdict, "Verdict of the review, when the item went through one."),
     sender: opt(S.NonEmptyString, "Sender address of the message (never logged)."),
     subject: opt(S.NonEmptyString, "Subject line of the message (never logged)."),
