@@ -24,7 +24,7 @@ import type { AiMetricsInstallSpec, AiMetricsOtlpEndpointSpec, AiMetricsServiceS
 
 const $I = $InfraId.create("AIMetrics");
 const defaultPhoenixTailnetHttpsPort = 8447;
-const defaultRemoteConfigRoot = "/home/elpresidank/ai-metrics";
+const defaultRemoteConfigRoot = "/srv/ai-metrics";
 const defaultRemoteMirrorRoot = "/srv/data/ai-metrics/p7-derived-mirror";
 const defaultSshHost = "dankserver";
 const defaultSshUser = "elpresidank";

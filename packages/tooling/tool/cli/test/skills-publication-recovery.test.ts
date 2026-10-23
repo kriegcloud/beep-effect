@@ -1,5 +1,9 @@
 import { ModelsAtomicExchange, makeModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service";
-import { ModelsExchangeFault } from "@beep/repo-cli/commands/Models/Models.errors";
+import {
+  ModelsExchangeFault,
+  ModelsExchangeProbeError,
+  ModelsLocatorError,
+} from "@beep/repo-cli/commands/Models/Models.errors";
 import {
   ModelsPublicationOwner,
   ModelsPublicationState,
@@ -22,7 +26,7 @@ import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
-import { assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
@@ -36,6 +40,7 @@ import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -798,4 +803,483 @@ layer(
       expect(yield* (yield* publisherWith()).recover(root, "retry")).toEqual([]);
     }).pipe(Effect.provideService(HttpClient.HttpClient, skillsClient))
   );
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  it.effect("rejects foreign target kinds, symlink roots, and unsupported tree entries", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const directory = yield* fixture("directory", true);
+      const file = yield* fixture("file", true);
+      const publisher = yield* publisherWith();
+      expect(
+        (yield* publisher.publishFile(directory.root, directory.target, intendedFile).pipe(Effect.flip)).message
+      ).toContain("not a regular file");
+      expect(
+        (yield* publisher.publishDirectory(file.root, file.target, intendedFiles).pipe(Effect.flip)).message
+      ).toContain("not a directory");
+      const link = path.join(directory.root, "linked-tree");
+      yield* fs.symlink(directory.target, link);
+      assertNone(yield* skillTreeDigest(link));
+      expect(
+        (yield* publisher.publishDirectory(directory.root, link, intendedFiles).pipe(Effect.flip)).message
+      ).toContain("symbolic link");
+      for (const unusual of [directory.target, path.join(directory.target, "SKILL.md")]) {
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          stat: Effect.fn("SkillsCoverage.stat")((...[entry]: Parameters<FileSystem.FileSystem["stat"]>) =>
+            fs
+              .stat(entry)
+              .pipe(
+                Effect.map((info): FileSystem.File.Info => (entry === unusual ? { ...info, type: "Socket" } : info))
+              )
+          ),
+        });
+        const isolated = yield* makeSkillPublisher().pipe(Effect.provideService(FileSystem.FileSystem, wrapped));
+        expect(
+          (yield* isolated.publishDirectory(directory.root, directory.target, intendedFiles).pipe(Effect.flip)).message
+        ).toContain("Refusing a skill");
+        assertNone(
+          yield* skillTreeDigest(directory.target).pipe(Effect.provideService(FileSystem.FileSystem, wrapped))
+        );
+      }
+    })
+  );
+
+  it.effect("keeps typed fingerprint and capability failures before any publication", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { root, target } = yield* fixture("directory", true);
+      for (const operation of ["stat", "readFile", "readDirectory"]) {
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          stat: Effect.fn("SkillsCoverage.stat")((...[file]: Parameters<FileSystem.FileSystem["stat"]>) =>
+            operation === "stat" && Str.includes("SKILL.md")(file) ? fs.stat(`${file}.missing`) : fs.stat(file)
+          ),
+          readFile: Effect.fn("SkillsCoverage.readFile")((...[file]: Parameters<FileSystem.FileSystem["readFile"]>) =>
+            operation === "readFile" ? fs.readFile(`${file}.missing`) : fs.readFile(file)
+          ),
+          readDirectory: Effect.fn("SkillsCoverage.readDirectory")(
+            (...[file]: Parameters<FileSystem.FileSystem["readDirectory"]>) =>
+              operation === "readDirectory" ? fs.readDirectory(`${file}.missing`) : fs.readDirectory(file)
+          ),
+        });
+        const publisher = yield* makeSkillPublisher().pipe(Effect.provideService(FileSystem.FileSystem, wrapped));
+        expect((yield* publisher.publishDirectory(root, target, intendedFiles).pipe(Effect.flip))._tag).toBe(
+          "SkillPublicationError"
+        );
+      }
+      const base = yield* ModelsAtomicExchange;
+      const publisher = yield* publisherWith({
+        ...base,
+        qualify: Effect.fn("SkillsCoverage.qualify")(() =>
+          Effect.fail(ModelsExchangeProbeError.make({ message: "fixture qualification failed" }))
+        ),
+      });
+      expect((yield* publisher.publishDirectory(root, target, intendedFiles).pipe(Effect.flip)).reason).toBe(
+        "exchange-probe-failed"
+      );
+    })
+  );
+
+  it.effect("retains live bytes and the recovery journal when a qualified exchange fails", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { root, target, journals } = yield* fixture("file", true);
+      const base = yield* ModelsAtomicExchange;
+      const publisher = yield* publisherWith({
+        ...base,
+        exchange: () => Effect.fail(ModelsLocatorError.make({ message: "fixture exchange failed", path: target })),
+      });
+      const error = yield* publisher.publishFile(root, target, intendedFile).pipe(Effect.flip);
+      expect(error.message).toContain("fixture exchange failed");
+      expect(error.target).toBe(target);
+      expect(error.journal).toBeDefined();
+      expect(yield* fs.readFileString(target)).toBe(nativeFile);
+      const publication = yield* firstTracked(journals);
+      expect(publication.state._tag).toBe("staged");
+      expect(yield* fs.readFileString(publication.staging)).toBe(intendedFile);
+      const reports = yield* (yield* publisherWith()).recover(root, "pending");
+      expect(reports[0]?.result).toMatchObject({ _tag: "skipped", reason: "owner-alive" });
+    })
+  );
+
+  for (const corruption of ["file-bytes", "tree-bytes", "missing-tree"]) {
+    it.effect(`rejects ${corruption} corruption between staging and verification`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const kind = corruption === "file-bytes" ? "file" : "directory";
+        const { root, target } = yield* fixture(kind, true);
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          writeFileString: Effect.fn("SkillsCoverage.writeFileString")(
+            (...[file, text, options]: Parameters<FileSystem.FileSystem["writeFileString"]>) =>
+              fs.writeFileString(
+                file,
+                corruption === "file-bytes" && Str.includes(".tmp-")(file) ? competitorFile : text,
+                options
+              )
+          ),
+          rename: Effect.fn("SkillsCoverage.rename")((...[from, to]: Parameters<FileSystem.FileSystem["rename"]>) =>
+            fs
+              .rename(from, to)
+              .pipe(
+                Effect.andThen(
+                  Str.endsWith(".partial")(from) && Str.includes(".stage-")(to)
+                    ? corruption === "missing-tree"
+                      ? fs.remove(to, { recursive: true })
+                      : fs.writeFileString(path.join(to, "unexpected.md"), "foreign")
+                    : Effect.void
+                )
+              )
+          ),
+        });
+        const publisher = yield* makeSkillPublisher().pipe(Effect.provideService(FileSystem.FileSystem, wrapped));
+        expect((yield* publish(publisher, kind, root, target).pipe(Effect.flip)).message).toContain(
+          "differs from the planned"
+        );
+      })
+    );
+  }
+
+  it.effect("rejects staged paths outside the tree and detects a post-exchange writer", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { root, target } = yield* fixture("directory", false);
+      for (const file of ["../escape.md", "."]) {
+        const publisher = yield* publisherWith();
+        const error = yield* publisher
+          .publishDirectory(root, target, [SkillPublicationFile.make({ path: file, bytes: encoder.encode("foreign") })])
+          .pipe(Effect.flip);
+        expect(error.message).toContain("outside its staged tree");
+      }
+      const existing = yield* fixture("file", true);
+      const base = yield* ModelsAtomicExchange;
+      const publisher = yield* publisherWith({
+        ...base,
+        exchange: Effect.fn("SkillsCoverage.exchange")(
+          (...[left, right]: Parameters<ModelsAtomicExchange["Service"]["exchange"]>) =>
+            base
+              .exchange(left, right)
+              .pipe(Effect.andThen(fs.writeFileString(right, competitorFile).pipe(Effect.orDie)))
+        ),
+      });
+      const error = yield* publisher.publishFile(existing.root, existing.target, intendedFile).pipe(Effect.flip);
+      expect(error.message).toContain("Skill target changed after replacement");
+      expect(yield* fs.readFileString(existing.target)).toBe(competitorFile);
+    })
+  );
+
+  it.effect("refuses recovery without recorded exchange identity or after filesystem identity changes", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      for (const { identity, reason } of [
+        { identity: O.none<string>(), reason: "competing-writer" },
+        { identity: O.some("changed-filesystem"), reason: "filesystem-changed" },
+      ]) {
+        const { journals, root, target } = yield* fixture("file", true);
+        yield* crash("publish-file", root, target, "staged");
+        const journal = O.getOrThrow(A.head(yield* journalsIn(journals)));
+        const tracked = trackedOf(journal);
+        yield* fs.writeFileString(target, yield* fs.readFileString(tracked.staging));
+        yield* fs.writeFileString(tracked.staging, competitorFile);
+        yield* fs.writeFileString(
+          path.join(journals, `${journal.id}.json`),
+          yield* encodeJournal(
+            SkillPublicationJournal.make({
+              ...journal,
+              publication: SkillTrackedPublication.make({ ...tracked, filesystem: identity }),
+            })
+          )
+        );
+        const reports = yield* (yield* publisherWith()).recover(root, "pending");
+        expect(reports[0]?.result).toMatchObject({
+          _tag: "refused",
+          reason,
+        });
+        expect(yield* fs.readFileString(tracked.staging)).toBe(competitorFile);
+      }
+    })
+  );
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  for (const procfs of ["unavailable", "empty-boot", "rebooted", "malformed-stat", "zombie", "exited"]) {
+    it.effect(`recovery respects ${procfs} procfs evidence`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const { journals, root, target } = yield* fixture("file", true);
+        yield* crash("publish-file", root, target, "staged");
+        const recorded = O.getOrThrow((yield* firstTracked(journals)).owner);
+        const boot = Match.value(procfs).pipe(
+          Match.when("empty-boot", () => ""),
+          Match.when("rebooted", () => "new-boot"),
+          Match.orElse(() => recorded.bootId)
+        );
+        const state = procfs === "zombie" ? "Z" : "X";
+        const stat =
+          procfs === "malformed-stat"
+            ? "malformed"
+            : `${recorded.pid} (fixture) ${A.join([state, ...A.replicate("0", 18), recorded.startTicks], " ")}`;
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          readFileString: Effect.fn("SkillsCoverage.readFileString")(
+            (...[file, options]: Parameters<FileSystem.FileSystem["readFileString"]>) => {
+              if (!Str.startsWith("/proc/")(file)) return fs.readFileString(file, options);
+              if (procfs === "unavailable") return fs.readFileString(`${root}/missing`);
+              return Effect.succeed(Str.endsWith("boot_id")(file) ? boot : stat);
+            }
+          ),
+        });
+        const publisher = yield* makeSkillPublisher().pipe(Effect.provideService(FileSystem.FileSystem, wrapped));
+        const reports = yield* publisher.recover(root, "pending");
+        expect(reports[0]?.result).toMatchObject(
+          procfs === "unavailable"
+            ? { _tag: "skipped", reason: "owner-alive" }
+            : { _tag: "recovered", outcome: "preimage" }
+        );
+        expect(yield* fs.readFileString(target)).toBe(nativeFile);
+      })
+    );
+  }
+
+  for (const race of ["missing-clock", "rename-failed", "stamp-replaced", "stamp-vanished", "discard-failed"]) {
+    it.effect(`recovery preserves evidence when ${race}`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const { root, lock } = yield* crashedWithLock("unreadable stamp");
+        yield* fs.utimes(lock, 0, 0);
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          stat: Effect.fn("SkillsCoverage.stat")((...[file]: Parameters<FileSystem.FileSystem["stat"]>) =>
+            race === "missing-clock" && (file === lock || Str.endsWith(".clock")(file))
+              ? fs.stat(`${file}.missing`)
+              : fs.stat(file)
+          ),
+          readFileString: Effect.fn("SkillsCoverage.readFileString")(
+            (...[file, options]: Parameters<FileSystem.FileSystem["readFileString"]>) =>
+              race === "stamp-vanished" && file === lock
+                ? fs.remove(lock).pipe(Effect.andThen(fs.readFileString(file, options)))
+                : fs.readFileString(file, options)
+          ),
+          rename: Effect.fn("SkillsCoverage.rename")((...[from, to]: Parameters<FileSystem.FileSystem["rename"]>) =>
+            from === lock && race === "rename-failed"
+              ? fs.rename(`${from}.missing`, to)
+              : fs
+                  .rename(from, to)
+                  .pipe(
+                    Effect.andThen(
+                      from === lock && race === "stamp-replaced"
+                        ? fs.writeFileString(to, "replacement stamp")
+                        : Effect.void
+                    )
+                  )
+          ),
+          remove: Effect.fn("SkillsCoverage.remove")(
+            (...[file, options]: Parameters<FileSystem.FileSystem["remove"]>) =>
+              race === "discard-failed" && Str.endsWith(".stale")(file) ? fs.remove(root) : fs.remove(file, options)
+          ),
+        });
+        const publisher = yield* makeSkillPublisher().pipe(Effect.provideService(FileSystem.FileSystem, wrapped));
+        if (race === "discard-failed") {
+          const error = yield* publisher.recover(root, "pending").pipe(Effect.flip);
+          expect(error.message).toContain("Cannot reclaim a skill recovery lock");
+        } else {
+          const reports = yield* publisher.recover(root, "pending");
+          expect(reports[0]?.result).toMatchObject(
+            race === "stamp-vanished" ? { _tag: "recovered" } : { _tag: "skipped", reason: "lock-held" }
+          );
+          if (race === "stamp-replaced") expect(yield* fs.readFileString(lock)).toBe("replacement stamp");
+        }
+      })
+    );
+  }
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  for (const mutation of [
+    "target-link",
+    "target-missing",
+    "foreign-stage",
+    "settled-during-lock",
+    "failed-return-confirmation",
+  ]) {
+    it.effect(`recovery refuses or skips ${mutation} without discarding competing evidence`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { journals, root, target } = yield* fixture("file", true);
+        yield* crash("publish-file", root, target, "staged");
+        const journal = O.getOrThrow(A.head(yield* journalsIn(journals)));
+        const tracked = trackedOf(journal);
+        const journalPath = path.join(journals, `${journal.id}.json`);
+        yield* Match.value(mutation).pipe(
+          Match.when("target-link", () => fs.remove(target).pipe(Effect.andThen(fs.symlink(tracked.staging, target)))),
+          Match.when("target-missing", () => fs.remove(target)),
+          Match.when("foreign-stage", () => fs.writeFileString(tracked.staging, competitorFile)),
+          Match.when("failed-return-confirmation", () =>
+            fs.readFileString(tracked.staging).pipe(
+              Effect.flatMap((text) => fs.writeFileString(target, text)),
+              Effect.andThen(fs.writeFileString(tracked.staging, competitorFile))
+            )
+          ),
+          Match.orElse(() => Effect.void)
+        );
+        const wrapped = FileSystem.FileSystem.of({
+          ...fs,
+          link: Effect.fn("SkillsCoverage.link")((...[from, to]: Parameters<FileSystem.FileSystem["link"]>) =>
+            fs.link(from, to).pipe(
+              Effect.andThen(
+                mutation === "settled-during-lock" && Str.endsWith(".recovering")(to)
+                  ? encodeJournal(
+                      SkillPublicationJournal.make({
+                        ...journal,
+                        publication: SkillTrackedPublication.make({
+                          ...tracked,
+                          state: ModelsPublicationState.cases.completed.make({}),
+                        }),
+                      })
+                    ).pipe(
+                      Effect.orDie,
+                      Effect.flatMap((text) => fs.writeFileString(journalPath, text))
+                    )
+                  : Effect.void
+              )
+            )
+          ),
+        });
+        const base = yield* ModelsAtomicExchange;
+        const exchange = ModelsAtomicExchange.of({
+          ...base,
+          exchange: Effect.fn("SkillsCoverage.exchange")(
+            (...[left, right]: Parameters<ModelsAtomicExchange["Service"]["exchange"]>) =>
+              base
+                .exchange(left, right)
+                .pipe(
+                  Effect.andThen(
+                    mutation === "failed-return-confirmation"
+                      ? fs.writeFileString(right, "another competing writer").pipe(Effect.orDie)
+                      : Effect.void
+                  )
+                )
+          ),
+        });
+        const publisher = yield* makeSkillPublisher().pipe(
+          Effect.provideService(FileSystem.FileSystem, wrapped),
+          Effect.provideService(ModelsAtomicExchange, exchange)
+        );
+        const reports = yield* publisher.recover(root, "pending");
+        expect(reports[0]?.result).toMatchObject(
+          mutation === "settled-during-lock"
+            ? { _tag: "skipped", reason: "settled" }
+            : {
+                _tag: "refused",
+                reason:
+                  mutation === "target-missing"
+                    ? "target-missing"
+                    : mutation === "foreign-stage"
+                      ? "foreign-artifact"
+                      : "competing-writer",
+              }
+        );
+        if (mutation === "failed-return-confirmation")
+          expect(reports[0]?.result).toMatchObject({ detail: expect.stringContaining("could not be confirmed") });
+      })
+    );
+  }
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  it.effect("identical direct publications are no-ops for both file and directory targets", () =>
+    Effect.gen(function* () {
+      for (const kind of ["file", "directory"] as const) {
+        const { root, target, journals } = yield* fixture(kind, false);
+        const publisher = yield* publisherWith();
+        yield* publish(publisher, kind, root, target);
+        const before = yield* listing(journals);
+        yield* publish(publisher, kind, root, target);
+        expect(yield* listing(journals)).toEqual(before);
+        expect(yield* fingerprint(target, kind)).toBe(yield* intendedFingerprint(kind));
+      }
+    })
+  );
+
+  it.effect("keeps the intended target when a displaced stage disappears before verification", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { root, target, journals } = yield* fixture("file", true);
+      const base = yield* ModelsAtomicExchange;
+      const publisher = yield* publisherWith({
+        ...base,
+        exchange: Effect.fn("SkillsCoverage.removeDisplaced")((left, right) =>
+          base.exchange(left, right).pipe(Effect.andThen(fs.remove(left).pipe(Effect.orDie)))
+        ),
+      });
+      const error = yield* publisher.publishFile(root, target, intendedFile).pipe(Effect.flip);
+      expect(error.message).toContain("recovery state retained");
+      expect(yield* fs.readFileString(target)).toBe(intendedFile);
+      expect((yield* firstTracked(journals)).state._tag).toBe("recovered");
+    })
+  );
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  for (const mutation of ["owner-absent", "foreign-recorded-path"]) {
+    it.effect(`recovery handles ${mutation} through the journal boundary`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { root, target, journals } = yield* fixture("file", true);
+        yield* crash("publish-file", root, target, "staged");
+        const journal = O.getOrThrow(A.head(yield* journalsIn(journals)));
+        const tracked = trackedOf(journal);
+        const foreign = path.join(root, "foreign-staging");
+        yield* fs.writeFileString(foreign, competitorFile);
+        const publication = SkillTrackedPublication.make({
+          ...tracked,
+          ...(mutation === "owner-absent" ? { owner: O.none() } : { staging: foreign }),
+        });
+        yield* fs.writeFileString(
+          path.join(journals, `${journal.id}.json`),
+          yield* encodeJournal(SkillPublicationJournal.make({ ...journal, publication }))
+        );
+        const reports = yield* (yield* publisherWith()).recover(root, "pending");
+        expect(reports[0]?.result).toMatchObject(
+          mutation === "owner-absent"
+            ? { _tag: "recovered", outcome: "preimage" }
+            : { _tag: "refused", reason: "foreign-artifact" }
+        );
+        expect(yield* fs.readFileString(target)).toBe(nativeFile);
+        expect(yield* fs.readFileString(foreign)).toBe(competitorFile);
+      })
+    );
+  }
 });

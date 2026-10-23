@@ -7,7 +7,8 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { GitHubMarkdown } from "../../effected/github-actions/GitHubMarkdown.ts";
-import { Markdown, Root } from "../../effected/markdown/index.ts";
+import { Markdown } from "@beep/markdown/Markdown";
+import { Root } from "@beep/markdown/MarkdownNode";
 const runs = { arbitrary: fcRuns(100) };
 const Word = S.String.check(S.isPattern(/^[a-z]{1,20}$/u));
 // Source coordinates describe the original spelling, not markdown semantics.

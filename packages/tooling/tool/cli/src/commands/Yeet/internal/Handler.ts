@@ -2321,10 +2321,8 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   });
 
   const coordinatedExecution =
-    options.mode === "verify" && (options.tier === "full" || options.tier === "cheap-gates")
-      ? options.merged
-        ? execution
-        : runWithFullProofCoordinator(plan.context, fullSteps, execution, { priority: "verify" }, O.some(attempt))
+    options.mode === "verify" && (options.tier === "full" || options.tier === "cheap-gates") && !options.merged
+      ? runWithFullProofCoordinator(plan.context, fullSteps, execution, { priority: "verify" }, O.some(attempt))
       : options.mode === "verify" && options.tier === "review-fix"
         ? runWithReviewFixAdmission(plan.context, execution, O.some(attempt))
         : execution;
