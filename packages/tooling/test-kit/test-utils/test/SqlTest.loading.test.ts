@@ -8,20 +8,33 @@ const unavailable = () => {
   throw new Error("fixture module unavailable");
 };
 
+const expectLoaderFailure = (error: unknown, message: string) => {
+  expect(error).toMatchObject({ _tag: "SqlTestHarnessError", phase: "provision", message });
+};
+
 describe("SqlTest dependency failures", () => {
   it.effect("maps unavailable optional modules to provisioning errors", () =>
     Effect.gen(function* () {
       const modules = [
-        "testcontainers",
-        "pg",
-        "@effect/sql-pg",
-        "@effect/sql-pglite/PgliteClient",
-        "@effect/sql-sqlite-node/SqliteClient",
-        "@effect/platform-bun/BunFileSystem",
-        "@effect/platform-bun/BunPath",
-        "@effect/sql-sqlite-bun",
+        { dependency: "testcontainers", message: "Failed to load Testcontainers support for PGLite SQL tests." },
+        { dependency: "pg", message: "Failed to load pg support for SQL tests." },
+        { dependency: "@effect/sql-pg", message: "Failed to load PostgreSQL client support for SQL tests." },
+        {
+          dependency: "@effect/sql-pglite/PgliteClient",
+          message: "Failed to load @effect/sql-pglite in-process driver support for SQL tests.",
+        },
+        {
+          dependency: "@effect/sql-sqlite-node/SqliteClient",
+          message: "Failed to load @effect/sql-sqlite-node driver support for SQL tests.",
+        },
+        {
+          dependency: "@effect/platform-bun/BunFileSystem",
+          message: "Failed to load Bun filesystem support for SQL tests.",
+        },
+        { dependency: "@effect/platform-bun/BunPath", message: "Failed to load Bun path support for SQL tests." },
+        { dependency: "@effect/sql-sqlite-bun", message: "Failed to load Bun SQLite support for SQL tests." },
       ];
-      for (const dependency of modules) {
+      for (const { dependency, message } of modules) {
         vi.resetModules();
         vi.doMock("@effect/platform-bun/BunFileSystem", () => import("@effect/platform-node/NodeFileSystem"));
         vi.doMock("@effect/platform-bun/BunPath", () => import("@effect/platform-node/NodePath"));
@@ -66,11 +79,29 @@ describe("SqlTest dependency failures", () => {
         );
         const error = yield* effect.pipe(Effect.flip);
         expect(harness.SqlTestHarnessError.is(error)).toBe(true);
+        expectLoaderFailure(error, message);
         vi.doUnmock(dependency);
         vi.doUnmock("testcontainers");
         vi.doUnmock("@effect/platform-bun/BunFileSystem");
         vi.doUnmock("@effect/platform-bun/BunPath");
       }
+    })
+  );
+  it.effect("rejects a later provisioning error when the driver loader mock is absent", () =>
+    Effect.gen(function* () {
+      vi.resetModules();
+      vi.doUnmock("@effect/sql-sqlite-node/SqliteClient");
+      vi.doMock("@effect/platform-node/NodeFileSystem", () => ({
+        layer: Layer.effectContext(Effect.fail("fixture platform failure")),
+      }));
+      const harness = yield* Effect.promise(() => import("@beep/test-utils/SqlTest"));
+      const error = yield* harness.NodeSqliteTestDriver.makeLayer(undefined).pipe(Layer.build, Effect.flip);
+      expect(harness.SqlTestHarnessError.is(error)).toBe(true);
+      expect(error).toMatchObject({ phase: "provision", message: "Failed to provision the Node SQLite test driver." });
+      expect(() =>
+        expectLoaderFailure(error, "Failed to load @effect/sql-sqlite-node driver support for SQL tests.")
+      ).toThrow();
+      vi.doUnmock("@effect/platform-node/NodeFileSystem");
     })
   );
   it.effect("wraps raw platform-layer failures for each filesystem-backed driver", () =>
