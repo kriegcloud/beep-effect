@@ -29,6 +29,7 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { fixture as readFixture } from "./support/fixtures.ts";
 
 const fixture = (relative: string): string => readFixture(`pnpm/${relative}/pnpm-lock.yaml`);
@@ -118,7 +119,8 @@ describe("PnpmEnvLockfile.packageManager", () => {
     it.effect("pnpm 12: pnpm's integrity plus one native per platform, keyed without a version", () =>
       Effect.gen(function* () {
         const lock = yield* lockOf(fixture("env-pnpm12"));
-        assert.instanceOf(lock, PackageManagerLock);
+        // W3-h: a branded `S.Opaque` record is checked structurally.
+        assert.isTrue(S.is(PackageManagerLock)(lock));
         assert.strictEqual(lock.name, "pnpm");
         assert.strictEqual(lock.specifier, "12.6.0");
         assert.strictEqual(lock.version, "12.6.0");
@@ -345,7 +347,8 @@ describe("PnpmEnvLockfile.configDependencies", () => {
             true
           );
           const lock = O.getOrThrow(recorded);
-          assert.instanceOf(lock, ConfigDependencyLock);
+          // W3-h: a branded `S.Opaque` record is checked structurally.
+          assert.isTrue(S.is(ConfigDependencyLock)(lock));
           assert.strictEqual(lock.name, "@effected/pnpm-plugin-effect");
           assert.strictEqual(lock.specifier, "0.11.1");
           assert.strictEqual(lock.version, "0.11.1");

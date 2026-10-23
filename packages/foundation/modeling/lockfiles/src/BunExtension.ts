@@ -41,9 +41,8 @@ const OverrideValue: S.Codec<OverrideValue> = S.Union([
  * @category schemas
  * @since 0.0.0
  */
-export class BunExtension extends S.TaggedClass<BunExtension, { readonly brand: unique symbol }>($I`BunExtension`)(
-  "bun",
-  {
+export class BunExtension extends S.Opaque<BunExtension, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("bun", {
     catalog: S.optionalKey(S.Record(S.String, S.Unknown)).pipe(
       $I.annoteKey("BunExtension.catalog", {
         description: "Default unnamed catalog entries preserved from the bun lockfile",
@@ -67,9 +66,26 @@ export class BunExtension extends S.TaggedClass<BunExtension, { readonly brand: 
         description: "Packages the bun lockfile allows to run install scripts",
       })
     ),
-  },
-  $I.annote("BunExtension", {
-    description:
-      'Extension data specific to bun lockfiles, attached to `Lockfile.extension` when the format is `"bun"`.',
-  })
+  }).pipe(
+    $I.annoteSchema("BunExtension", {
+      description:
+        'Extension data specific to bun lockfiles, attached to `Lockfile.extension` when the format is `"bun"`.',
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link BunExtension}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace BunExtension {
+  /**
+   * The plain, unbranded encoded shape of a {@link BunExtension}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof BunExtension.Encoded;
+}

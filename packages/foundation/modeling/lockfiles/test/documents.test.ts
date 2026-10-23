@@ -18,6 +18,7 @@
 
 import { Lockfile, LockfileFramingError, LockfileParseError } from "@beep/lockfiles/Lockfile";
 import { PnpmEnvLockfile } from "@beep/lockfiles/PnpmEnvLockfile";
+import { PnpmCatalogPin } from "@beep/lockfiles/PnpmExtension";
 import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -89,7 +90,7 @@ describe("document framing", () => {
         if (lockfile.extension?._tag === "pnpm") {
           // The preamble has no catalogs at all — 0 catalogs was a symptom.
           assert.deepStrictEqual(lockfile.extension.catalogs?.effect, {
-            effect: { specifier: "4.0.0-beta.94", version: "4.0.0-beta.94" },
+            effect: PnpmCatalogPin.make({ specifier: "4.0.0-beta.94", version: "4.0.0-beta.94" }),
           });
           assert.deepStrictEqual(lockfile.extension.overrides, { lodash: "4.17.21" });
           assert.strictEqual(lockfile.extension.settings?.autoInstallPeers, true);

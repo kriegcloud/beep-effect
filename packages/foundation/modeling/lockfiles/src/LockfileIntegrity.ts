@@ -37,10 +37,8 @@ const $I = $LockfilesId.create("LockfileIntegrity");
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceManifest extends S.Class<WorkspaceManifest, { readonly brand: unique symbol }>(
-  $I`WorkspaceManifest`
-)(
-  {
+export class WorkspaceManifest extends S.Opaque<WorkspaceManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.pipe(
       $I.annoteKey("WorkspaceManifest.name", {
         description: "Workspace package identity used to match its manifest against lockfile workspace entries",
@@ -66,12 +64,29 @@ export class WorkspaceManifest extends S.Class<WorkspaceManifest, { readonly bra
         description: "Optional dependency specifiers declared by the workspace manifest",
       })
     ),
-  },
-  $I.annote("WorkspaceManifest", {
-    description:
-      "The minimal manifest shape LockfileIntegrity.compare checks a lockfile against: a package name plus the four optional dependency maps.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceManifest", {
+      description:
+        "The minimal manifest shape LockfileIntegrity.compare checks a lockfile against: a package name plus the four optional dependency maps.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link WorkspaceManifest}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace WorkspaceManifest {
+  /**
+   * The plain, unbranded encoded shape of a {@link WorkspaceManifest}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WorkspaceManifest.Encoded;
+}
 
 const decodeRange = S.decodeUnknownExit(Range.FromString);
 const decodeSemVer = S.decodeUnknownExit(SemVer.FromString);
@@ -106,10 +121,8 @@ const decodeSemVer = S.decodeUnknownExit(SemVer.FromString);
  * @category models
  * @since 0.0.0
  */
-export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly brand: unique symbol }>(
-  $I`LockfileIntegrity`
-)(
-  {
+export class LockfileIntegrity extends S.Opaque<LockfileIntegrity, { readonly brand: unique symbol }>()(
+  S.Struct({
     valid: S.Boolean.pipe(
       $I.annoteKey("LockfileIntegrity.valid", {
         description:
@@ -140,10 +153,11 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
           "Declared SemVer constraints satisfied by no parseable resolved candidate, with workspace, dependency section and all candidate versions",
       })
     ),
-  },
-  $I.annote("LockfileIntegrity", {
-    description: "Result of checking a parsed lockfile against the workspace's declared manifests.",
-  })
+  }).pipe(
+    $I.annoteSchema("LockfileIntegrity", {
+      description: "Result of checking a parsed lockfile against the workspace's declared manifests.",
+    })
+  )
 ) {
   /**
    * Check a lockfile's consistency against workspace manifests — a total,
@@ -251,4 +265,20 @@ export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly bra
       unsatisfiedConstraints,
     });
   });
+}
+
+/**
+ * Companion types for {@link LockfileIntegrity}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace LockfileIntegrity {
+  /**
+   * The plain, unbranded encoded shape of a {@link LockfileIntegrity}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LockfileIntegrity.Encoded;
 }

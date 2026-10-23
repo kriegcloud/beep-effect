@@ -24,29 +24,40 @@ const $I = $LockfilesId.create("internal/documents");
  * @category schemas
  * @since 0.0.0
  */
-export const SelectedDocument = S.Struct({
-  document: S.Unknown.pipe(
-    $I.annoteKey("SelectedDocument.document", {
-      description: "Selected YAML value, preserved for the format-specific validator",
+export class SelectedDocument extends S.Opaque<SelectedDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
+    document: S.Unknown.pipe(
+      $I.annoteKey("SelectedDocument.document", {
+        description: "Selected YAML value, preserved for the format-specific validator",
+      })
+    ),
+    documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
+      $I.annoteKey("SelectedDocument.documents", { description: "Number of documents composed from the YAML stream" })
+    ),
+  }).pipe(
+    $I.annoteSchema("SelectedDocument", {
+      description: "A selected YAML document together with its stream's document count",
     })
-  ),
-  documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
-    $I.annoteKey("SelectedDocument.documents", { description: "Number of documents composed from the YAML stream" })
-  ),
-}).pipe(
-  $I.annoteSchema("SelectedDocument", {
-    description: "A selected YAML document together with its stream's document count",
-  })
-);
+  )
+) {}
 
 /**
- * Plain document-selection payload described by {@link SelectedDocument}.
+ * Companion types for {@link SelectedDocument}.
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type SelectedDocument = typeof SelectedDocument.Type;
+export declare namespace SelectedDocument {
+  /**
+   * The plain, unbranded encoded shape of a {@link SelectedDocument}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SelectedDocument.Encoded;
+}
 
 /**
  * An empty YAML document composes to `null` (`Yaml.parseAll("")` is `[null]`,
@@ -84,34 +95,45 @@ const MAX_PNPM_DOCUMENTS = 2;
  * @category schemas
  * @since 0.0.0
  */
-export const PnpmStream = S.Struct({
-  preamble: S.Unknown.pipe(
-    $I.annoteKey("PnpmStream.preamble", {
-      description: "Env preamble value, or undefined when its stream position is empty or absent",
+export class PnpmStream extends S.Opaque<PnpmStream, { readonly brand: unique symbol }>()(
+  S.Struct({
+    preamble: S.Unknown.pipe(
+      $I.annoteKey("PnpmStream.preamble", {
+        description: "Env preamble value, or undefined when its stream position is empty or absent",
+      })
+    ),
+    main: S.Unknown.pipe(
+      $I.annoteKey("PnpmStream.main", {
+        description: "Main lockfile value, or undefined when its stream position is empty or absent",
+      })
+    ),
+    documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
+      $I.annoteKey("PnpmStream.documents", { description: "Number of documents composed from the YAML stream" })
+    ),
+  }).pipe(
+    $I.annoteSchema("PnpmStream", {
+      description: "Positional pnpm YAML stream payload preserving the preamble, main document and document count",
     })
-  ),
-  main: S.Unknown.pipe(
-    $I.annoteKey("PnpmStream.main", {
-      description: "Main lockfile value, or undefined when its stream position is empty or absent",
-    })
-  ),
-  documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
-    $I.annoteKey("PnpmStream.documents", { description: "Number of documents composed from the YAML stream" })
-  ),
-}).pipe(
-  $I.annoteSchema("PnpmStream", {
-    description: "Positional pnpm YAML stream payload preserving the preamble, main document and document count",
-  })
-);
+  )
+) {}
 
 /**
- * Plain pnpm stream payload described by {@link PnpmStream}.
+ * Companion types for {@link PnpmStream}.
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type PnpmStream = typeof PnpmStream.Type;
+export declare namespace PnpmStream {
+  /**
+   * The plain, unbranded encoded shape of a {@link PnpmStream}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PnpmStream.Encoded;
+}
 
 /**
  * Split a `pnpm-lock.yaml` YAML stream into its env preamble and its main
@@ -170,9 +192,11 @@ export const splitPnpmStream = Effect.fn("splitPnpmStream")(function* (
     return yield* Effect.fail(framingFailure("unexpectedDocuments", documents.length));
   }
   const present = (document: unknown): unknown => (isEmptyDocument(document) ? undefined : document);
-  return documents.length === MAX_PNPM_DOCUMENTS
-    ? { preamble: present(documents[0]), main: present(documents[1]), documents: documents.length }
-    : { preamble: undefined, main: present(documents[0]), documents: documents.length };
+  return PnpmStream.make(
+    documents.length === MAX_PNPM_DOCUMENTS
+      ? { preamble: present(documents[0]), main: present(documents[1]), documents: documents.length }
+      : { preamble: undefined, main: present(documents[0]), documents: documents.length }
+  );
 });
 
 /**
@@ -213,5 +237,5 @@ export const selectSoleDocument = Effect.fn("selectSoleDocument")(function* (
   if (documents.length === 0 || isEmptyDocument(document)) {
     return yield* Effect.fail(framingFailure("noLockfileDocument", documents.length));
   }
-  return { document, documents: documents.length };
+  return SelectedDocument.make({ document, documents: documents.length });
 });

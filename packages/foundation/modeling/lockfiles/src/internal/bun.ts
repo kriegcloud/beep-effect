@@ -18,13 +18,14 @@ import { ResolvedPackage } from "../ResolvedPackage.ts";
 import {
   extractWorkspaceDeps,
   importerDependencies,
+  LockfileFields,
   peerDeclarations,
   splitNameVersion,
   syntaxFailure,
   toIntegrityHash,
   validationFailure,
 } from "./shared.ts";
-import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
+import type { ParseFailure, WorkspaceEntry } from "./shared.ts";
 
 const $I = $LockfilesId.create("internal/bun");
 
@@ -275,7 +276,7 @@ const toFields = Effect.fn("toFields")(function* (
   // bun's own instance identities: the `packages` keys.
   const keys = MutableHashSet.fromIterable(raw.packages !== undefined ? R.keys(raw.packages) : []);
   let workspaceNames = HashSet.fromIterable<string>([]);
-  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry>();
+  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry.Encoded>();
   const importers: Array<LockfileImporter> = [];
   const instanceIds = MutableHashSet.empty<string>();
 
@@ -294,7 +295,7 @@ const toFields = Effect.fn("toFields")(function* (
       if (key === "") continue;
       const first = tuple[0];
       if (P.isString(first)) {
-        const split = splitNameVersion(first);
+        const split = O.getOrUndefined(splitNameVersion(first));
         if (split !== undefined && HashSet.has(workspaceNames, split.name) === false) {
           MutableHashSet.add(instanceIds, key);
         }
@@ -350,7 +351,7 @@ const toFields = Effect.fn("toFields")(function* (
       if (!P.isString(first)) continue; // malformed tuples are skipped, never thrown on
       // The first "@" after a scoped name's own, never the last: a version
       // part may hold one (`file:../@scope/lib`).
-      const split = splitNameVersion(first);
+      const split = O.getOrUndefined(splitNameVersion(first));
       if (split === undefined) continue; // handles "@", "@scope/", bare names
       const { name, version } = split;
 
@@ -377,18 +378,19 @@ const toFields = Effect.fn("toFields")(function* (
 
   const workspaceDependencies = extractWorkspaceDeps(workspaceEntries, workspaceNames);
 
-  const extension = BunExtension.make({
+  const extension: BunExtension.Encoded = {
+    _tag: "bun",
     ...O.getSomesStruct({ catalog: O.fromUndefinedOr(raw.catalog) }),
     ...O.getSomesStruct({ catalogs: O.fromUndefinedOr(raw.catalogs) }),
     ...O.getSomesStruct({ overrides: O.fromUndefinedOr(raw.overrides) }),
     ...O.getSomesStruct({ trustedDependencies: O.fromUndefinedOr(raw.trustedDependencies) }),
-  });
+  };
 
-  return {
+  return LockfileFields.make({
     lockfileVersion: String(raw.lockfileVersion),
     packages,
     workspaceDependencies,
     importers,
     extension,
-  };
+  });
 });

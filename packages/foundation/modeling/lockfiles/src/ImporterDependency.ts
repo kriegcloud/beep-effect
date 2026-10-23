@@ -52,10 +52,8 @@ const $I = $LockfilesId.create("ImporterDependency");
  * @category models
  * @since 0.0.0
  */
-export class ImporterDependency extends S.Class<ImporterDependency, { readonly brand: unique symbol }>(
-  $I`ImporterDependency`
-)(
-  {
+export class ImporterDependency extends S.Opaque<ImporterDependency, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.pipe(
       $I.annoteKey("ImporterDependency.name", { description: "Dependency package declared by this workspace importer" })
     ),
@@ -82,8 +80,25 @@ export class ImporterDependency extends S.Class<ImporterDependency, { readonly b
         description: "Dependency section that declared this entry: runtime, development, peer or optional",
       })
     ),
-  },
-  $I.annote("ImporterDependency", {
-    description: "One declared dependency of one workspace importer, as the lockfile records it.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImporterDependency", {
+      description: "One declared dependency of one workspace importer, as the lockfile records it.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link ImporterDependency}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ImporterDependency {
+  /**
+   * The plain, unbranded encoded shape of a {@link ImporterDependency}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ImporterDependency.Encoded;
+}

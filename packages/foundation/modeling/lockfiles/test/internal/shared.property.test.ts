@@ -27,6 +27,7 @@ import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 
@@ -103,8 +104,11 @@ it.effect.prop(
     Effect.sync(() => {
       const text = `${sample.name}@${sample.version}`;
       const parsed = splitNameVersion(text);
-      assert.deepStrictEqual(parsed, sample);
-      assert.deepStrictEqual(splitNameVersion(`${parsed?.name}@${parsed?.version}`), parsed);
+      assert.deepStrictEqual(parsed, O.some(sample));
+      assert.deepStrictEqual(
+        O.flatMap(parsed, (split) => splitNameVersion(`${split.name}@${split.version}`)),
+        parsed
+      );
     }),
   runs
 );
@@ -131,7 +135,7 @@ it.effect.prop(
         A.map(R.toEntries(sections.dependencies), ([name, specifier]) => [name, specifier, "dependencies"])
       );
       const names = HashSet.fromIterable(["app", "lib"]);
-      const extract = (entry: WorkspaceEntry) =>
+      const extract = (entry: WorkspaceEntry.Encoded) =>
         extractWorkspaceDeps(MutableHashMap.fromIterable([["app", entry]]), names);
       assert.deepStrictEqual(extract(read), extract(sections));
       assert.deepStrictEqual(

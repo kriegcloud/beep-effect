@@ -1,4 +1,9 @@
-import { importerDependencies, requireLockfileVersion, splitPeerSuffix } from "@beep/lockfiles/internal/shared";
+import {
+  importerDependencies,
+  requireLockfileVersion,
+  splitPeerSuffix,
+  validationFailure,
+} from "@beep/lockfiles/internal/shared";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -16,16 +21,16 @@ it.effect("suffix splitting preserves unbalanced groups and accepts a suffix wit
 it.effect("nonfinite direct version-gate input fails typed with a printable fallback", () =>
   Effect.gen(function* () {
     const result = yield* Effect.result(requireLockfileVersion("npm", Number.POSITIVE_INFINITY));
-    assertFailure(result, {
-      stage: "validation",
-      cause: {
+    assertFailure(
+      result,
+      validationFailure({
         _tag: "UnsupportedLockfileVersion",
         format: "npm",
         lockfileVersion: Number.POSITIVE_INFINITY,
         minimumSupported: 3,
         message:
           "npm lockfileVersion null is not supported: @effected/lockfiles parses npm lockfileVersion 3 and newer",
-      },
-    });
+      })
+    );
   })
 );

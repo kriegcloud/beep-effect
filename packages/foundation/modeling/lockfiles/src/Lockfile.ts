@@ -7,6 +7,7 @@ import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { BunExtension } from "./BunExtension.ts";
 import { parseBun } from "./internal/bun.ts";
 import { parseNpm } from "./internal/npm.ts";
@@ -218,9 +219,10 @@ export class LockfileFramingError extends S.TaggedError<LockfileFramingError, { 
  * **Example** (Materialize a framing failure)
  *
  * ```ts
+ * import { framingFailure } from "@beep/lockfiles/internal/shared";
  * import { materializeFailure } from "@beep/lockfiles/Lockfile";
  *
- * const error = materializeFailure("pnpm", { stage: "framing", reason: "noImporters", documents: 1 });
+ * const error = materializeFailure("pnpm", framingFailure("noImporters", 1));
  * console.log(error._tag); // LockfileFramingError
  * ```
  *
@@ -251,6 +253,10 @@ const dispatch: {
       Match.exhaustive
     )
 );
+
+// A name mapped to the empty string is no name: the entry keeps its own.
+const lookupName = (names: HashMap.HashMap<string, string>, key: string): O.Option<string> =>
+  O.filter(HashMap.get(names, key), Str.isNonEmpty);
 
 /**
  * The unified lockfile model all four formats normalize into.
@@ -431,14 +437,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
       const fields = yield* dispatch(options.format, content, options.configOnly === true).pipe(
         Effect.mapError((failure) => materializeFailure(options.format, failure))
       );
-      return Lockfile.make({
-        format: options.format,
-        lockfileVersion: fields.lockfileVersion,
-        packages: fields.packages,
-        workspaceDependencies: fields.workspaceDependencies,
-        importers: fields.importers,
-        ...O.getSomesStruct({ extension: O.fromUndefinedOr(fields.extension) }),
-      });
+      return Lockfile.make({ ...fields, format: options.format });
     })
   );
 
@@ -472,37 +471,18 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * @since 0.0.0
    */
   withImporterNames(names: HashMap.HashMap<string, string>): Lockfile {
-    const packages = A.map(this.packages, (pkg) => {
-      if (!pkg.isWorkspace || pkg.relativePath === undefined) return pkg;
-      const realName = HashMap.get(names, pkg.relativePath).pipe(O.getOrElse(() => pkg.name));
-      if (realName === "" || realName === pkg.name) return pkg;
-      // Every field carries over: this rewrites the *name*, and dropping any
-      // other field here would be silent data loss (the peer and resolved
-      // maps in particular are what a peer check reads).
-      return ResolvedPackage.make({
-        name: realName,
-        version: pkg.version,
-        instanceId: pkg.instanceId,
-        ...O.getSomesStruct({ integrity: O.fromUndefinedOr(pkg.integrity) }),
-        isWorkspace: pkg.isWorkspace,
-        relativePath: pkg.relativePath,
-        dependencies: pkg.dependencies,
-        peerDependencies: pkg.peerDependencies,
-        peerDependenciesMeta: pkg.peerDependenciesMeta,
-        resolved: pkg.resolved,
-        unresolvedEdges: pkg.unresolvedEdges,
-      });
-    });
-    const workspaceDependencies = A.map(this.workspaceDependencies, (dep) => {
-      const mappedFrom = HashMap.get(names, dep.from).pipe(O.getOrElse(() => dep.from));
-      const mappedTo = HashMap.get(names, dep.to).pipe(O.getOrElse(() => dep.to));
-      const from = mappedFrom === "" ? dep.from : mappedFrom;
-      const to = mappedTo === "" ? dep.to : mappedTo;
-      if (from === dep.from && to === dep.to) return dep;
-      return WorkspaceDependency.make({ from, to, depType: dep.depType, constraint: dep.constraint });
-    });
+    const nameOf = (key: string, fallback: string): string => O.getOrElse(lookupName(names, key), () => fallback);
+    const packages = A.map(this.packages, (pkg) =>
+      pkg.isWorkspace && pkg.relativePath !== undefined ? pkg.withName(nameOf(pkg.relativePath, pkg.name)) : pkg
+    );
+    const workspaceDependencies = A.map(this.workspaceDependencies, (dep) =>
+      dep.withEndpoints(nameOf(dep.from, dep.from), nameOf(dep.to, dep.to))
+    );
     // Importers stay untouched: they are keyed by importer path, not by
-    // package name, so a name-rewrite does not apply to them.
+    // package name, so a name-rewrite does not apply to them. `ResolvedPackage`,
+    // `WorkspaceDependency` and `LockfileImporter` stay `S.Class` (W3-g bench
+    // fallback), so this `make` keeps every unchanged entry by reference
+    // instead of re-validating the whole lockfile.
     return Lockfile.make({
       format: this.format,
       lockfileVersion: this.lockfileVersion,

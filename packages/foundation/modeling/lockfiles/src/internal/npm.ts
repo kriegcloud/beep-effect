@@ -12,13 +12,14 @@ import { ResolvedPackage } from "../ResolvedPackage.ts";
 import {
   extractWorkspaceDeps,
   importerDependencies,
+  LockfileFields,
   peerDeclarations,
   requireLockfileVersion,
   syntaxFailure,
   toIntegrityHash,
   validationFailure,
 } from "./shared.ts";
-import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
+import type { ParseFailure, WorkspaceEntry } from "./shared.ts";
 
 const $I = $LockfilesId.create("internal/npm");
 
@@ -286,7 +287,7 @@ const toFields = Effect.fn("toFields")(function* (
   const packages: Array<ResolvedPackage> = [];
   const instanceIds = MutableHashSet.empty<string>();
   let workspaceNames = HashSet.fromIterable<string>([]);
-  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry>();
+  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry.Encoded>();
   const importers: Array<LockfileImporter> = [];
 
   // npm records concrete versions on the `node_modules/*` entries, not per
@@ -395,10 +396,10 @@ const toFields = Effect.fn("toFields")(function* (
 
   const workspaceDependencies = extractWorkspaceDeps(workspaceEntries, workspaceNames);
 
-  return {
+  return LockfileFields.make({
     lockfileVersion: String(raw.lockfileVersion),
     packages,
     workspaceDependencies,
     importers,
-  };
+  });
 });

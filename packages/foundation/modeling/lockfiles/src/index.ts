@@ -47,7 +47,7 @@ export { LockfileImporter } from "./LockfileImporter.ts";
 export { LockfileIntegrity, WorkspaceManifest } from "./LockfileIntegrity.ts";
 export { PackageManagerLock } from "./PackageManagerLock.ts";
 export { PnpmEnvLockfile, type PnpmEnvLockfileReaders } from "./PnpmEnvLockfile.ts";
-export { type PnpmCatalogs, PnpmExtension } from "./PnpmExtension.ts";
+export { PnpmCatalogPin, type PnpmCatalogs, PnpmExtension } from "./PnpmExtension.ts";
 export { ResolvedPackage } from "./ResolvedPackage.ts";
 export { isUnsupportedLockfileVersion, type UnsupportedLockfileVersion } from "./UnsupportedLockfileVersion.ts";
 export { WorkspaceDependency } from "./WorkspaceDependency.ts";

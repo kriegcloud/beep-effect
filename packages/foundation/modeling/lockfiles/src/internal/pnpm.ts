@@ -10,7 +10,6 @@ import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { LockfileImporter } from "../LockfileImporter.ts";
-import { PnpmExtension } from "../PnpmExtension.ts";
 import { ResolvedPackage } from "../ResolvedPackage.ts";
 import { splitPnpmStream } from "./documents.ts";
 import {
@@ -18,13 +17,15 @@ import {
   framingFailure,
   gatePnpmVersion,
   importerDependencies,
+  LockfileFields,
   peerDeclarations,
   splitNameVersion,
   splitPeerSuffix,
   toIntegrityHash,
   validationFailure,
 } from "./shared.ts";
-import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
+import type { PnpmExtension } from "../PnpmExtension.ts";
+import type { ParseFailure, WorkspaceEntry } from "./shared.ts";
 
 const $I = $LockfilesId.create("internal/pnpm");
 
@@ -274,13 +275,13 @@ export const parsePnpm: {
         return yield* Effect.fail(framingFailure("noLockfileDocument", documents));
       }
       const lockfileVersion = yield* gatePnpmVersion(preamble);
-      return {
+      return LockfileFields.make({
         lockfileVersion,
         packages: [],
         workspaceDependencies: [],
         importers: [],
-        extension: PnpmExtension.make({}),
-      };
+        extension: { _tag: "pnpm" },
+      });
     }
     // Format-version gate. Deliberately NOT a check for `snapshots:` being
     // present or populated: a dependency-free v9 workspace legitimately has
@@ -609,7 +610,7 @@ const importerDepGroups = (importer: PnpmImporterType) =>
 const toFields = Effect.fn("toFields")(function* (
   raw: PnpmLockfileRawType
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
-  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry>();
+  const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry.Encoded>();
   let workspaceNames = HashSet.fromIterable<string>([]);
   const importers: Array<LockfileImporter> = [];
 
@@ -674,7 +675,7 @@ const toFields = Effect.fn("toFields")(function* (
   if (snapshots !== undefined) {
     for (const key of R.keys(snapshots)) {
       const plain = splitPeerSuffix(key).plain;
-      if (splitNameVersion(plain) === undefined) continue;
+      if (O.isNone(splitNameVersion(plain))) continue;
       MutableHashSet.add(instanceIds, key);
       MutableHashSet.add(snapshotVersions, plain);
     }
@@ -682,7 +683,7 @@ const toFields = Effect.fn("toFields")(function* (
   if (raw.packages !== undefined) {
     for (const key of R.keys(raw.packages)) {
       if (MutableHashSet.has(snapshotVersions, key)) continue;
-      if (splitNameVersion(splitPeerSuffix(key).plain) !== undefined) MutableHashSet.add(instanceIds, key);
+      if (O.isSome(splitNameVersion(splitPeerSuffix(key).plain))) MutableHashSet.add(instanceIds, key);
     }
   }
   // Only modeled workspace importers can own a publish-directory target.
@@ -736,7 +737,7 @@ const toFields = Effect.fn("toFields")(function* (
       // "lib@file:vendor/lib(react@18.3.1)" — whose inner "@" would corrupt
       // the split; splitPeerSuffix (the one stripping implementation, shared
       // with the importer path) drops it first.
-      const split = splitNameVersion(splitPeerSuffix(instanceId).plain);
+      const split = O.getOrUndefined(splitNameVersion(splitPeerSuffix(instanceId).plain));
       if (split === undefined) return; // malformed "name@version" keys are skipped, never thrown on
       const { name, version } = split;
       const integrity = yield* toIntegrityHash(meta?.resolution?.integrity);
@@ -786,17 +787,18 @@ const toFields = Effect.fn("toFields")(function* (
 
   const workspaceDependencies = extractWorkspaceDeps(workspaceEntries, workspaceNames);
 
-  const extension = PnpmExtension.make({
+  const extension: PnpmExtension.Encoded = {
+    _tag: "pnpm",
     ...O.getSomesStruct({ catalogs: O.fromUndefinedOr(raw.catalogs) }),
     ...O.getSomesStruct({ overrides: O.fromUndefinedOr(raw.overrides) }),
     ...O.getSomesStruct({ settings: O.fromUndefinedOr(raw.settings) }),
-  });
+  };
 
-  return {
+  return LockfileFields.make({
     lockfileVersion: String(raw.lockfileVersion),
     packages,
     workspaceDependencies,
     importers,
     extension,
-  };
+  });
 });

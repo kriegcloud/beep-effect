@@ -9,6 +9,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { filenameFor } from "@beep/lockfiles/LockfileFormat";
+import { PnpmCatalogPin } from "@beep/lockfiles/PnpmExtension";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { isUnsupportedLockfileVersion } from "@beep/lockfiles/UnsupportedLockfileVersion";
 import { assert, describe, it } from "@effect/vitest";
@@ -93,7 +94,7 @@ describe("Lockfile.parse", () => {
         assert.strictEqual(lockfile.extension?._tag, "pnpm");
         if (lockfile.extension?._tag === "pnpm") {
           assert.deepStrictEqual(lockfile.extension.catalogs?.default, {
-            chalk: { specifier: "^5.3.0", version: "5.6.2" },
+            chalk: PnpmCatalogPin.make({ specifier: "^5.3.0", version: "5.6.2" }),
           });
           assert.deepStrictEqual(lockfile.extension.overrides, { lodash: "4.17.21" });
           assert.strictEqual(lockfile.extension.settings?.autoInstallPeers, true);

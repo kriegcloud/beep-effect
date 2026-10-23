@@ -42,10 +42,8 @@ const $I = $LockfilesId.create("ConfigDependencyLock");
  * @category models
  * @since 0.0.0
  */
-export class ConfigDependencyLock extends S.Class<ConfigDependencyLock, { readonly brand: unique symbol }>(
-  $I`ConfigDependencyLock`
-)(
-  {
+export class ConfigDependencyLock extends S.Opaque<ConfigDependencyLock, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.pipe(
       $I.annoteKey("ConfigDependencyLock.name", {
         description: "Config dependency package recorded in the pnpm lockfile's env preamble",
@@ -65,9 +63,26 @@ export class ConfigDependencyLock extends S.Class<ConfigDependencyLock, { readon
         description: "SRI checksum recorded in the env preamble for the resolved config dependency package",
       })
     ),
-  },
-  $I.annote("ConfigDependencyLock", {
-    description:
-      "One config dependency a `pnpm-lock.yaml` records, with the integrity pnpm recorded for it — read from the lockfile's env preamble by `PnpmEnvLockfile.configDependencies`.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigDependencyLock", {
+      description:
+        "One config dependency a `pnpm-lock.yaml` records, with the integrity pnpm recorded for it — read from the lockfile's env preamble by `PnpmEnvLockfile.configDependencies`.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link ConfigDependencyLock}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ConfigDependencyLock {
+  /**
+   * The plain, unbranded encoded shape of a {@link ConfigDependencyLock}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ConfigDependencyLock.Encoded;
+}

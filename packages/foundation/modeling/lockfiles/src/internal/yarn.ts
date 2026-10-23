@@ -12,8 +12,14 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ResolvedPackage } from "../ResolvedPackage.ts";
 import { selectSoleDocument } from "./documents.ts";
-import { extractWorkspaceDeps, peerDeclarations, toIntegrityHash, validationFailure } from "./shared.ts";
-import type { LockfileFields, ParseFailure, WorkspaceEntry } from "./shared.ts";
+import {
+  extractWorkspaceDeps,
+  LockfileFields,
+  peerDeclarations,
+  toIntegrityHash,
+  validationFailure,
+} from "./shared.ts";
+import type { ParseFailure, WorkspaceEntry } from "./shared.ts";
 
 const $I = $LockfilesId.create("internal/yarn");
 
@@ -169,7 +175,7 @@ const toFields: {
   ): Effect.fn.Return<LockfileFields, ParseFailure> {
     const packages: Array<ResolvedPackage> = [];
     let workspaceNames = HashSet.fromIterable<string>([]);
-    const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry>();
+    const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry.Encoded>();
     // yarn's own identity is the locator, and its lockfile *is* the
     // descriptor→locator index — every key lists the descriptors that resolve
     // to that entry. Building the index is therefore a read, not a guess.
@@ -241,7 +247,7 @@ const toFields: {
     const workspaceDependencies = extractWorkspaceDeps(workspaceEntries, workspaceNames);
 
     // yarn does not record importers; the field is always empty.
-    return { lockfileVersion, packages, workspaceDependencies, importers: [] };
+    return LockfileFields.make({ lockfileVersion, packages, workspaceDependencies, importers: [] });
   })
 );
 

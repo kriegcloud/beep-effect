@@ -173,4 +173,33 @@ export class ResolvedPackage extends S.Class<ResolvedPackage, { readonly brand: 
     ),
   },
   $I.annote("ResolvedPackage", { description: "A package resolved from a lockfile." })
-) {}
+) {
+  /**
+   * This package under another name, with every other field carried over.
+   *
+   * **Details**
+   *
+   * The rename `Lockfile#withImporterNames` applies to pnpm workspace rows.
+   * Rebuilding a package field by field risks dropping one (the peer and
+   * resolved maps are what a peer check reads), so the rename lives here, next
+   * to the fields it must preserve.
+   *
+   * **Example** (Rename a workspace package)
+   *
+   * ```ts
+   * import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
+   *
+   * const pkg = ResolvedPackage.make({ name: "packages/core", version: "0.0.0", instanceId: "packages/core", isWorkspace: true });
+   * console.log(pkg.withName("@acme/core").name); // @acme/core
+   * console.log(pkg.withName("packages/core") === pkg); // true
+   * ```
+   *
+   * @param name - The new, non-empty package name.
+   * @returns This package when `name` is already its name, otherwise a renamed copy.
+   * @category mapping
+   * @since 0.0.0
+   */
+  withName(name: string): ResolvedPackage {
+    return name === this.name ? this : ResolvedPackage.make({ ...this, name });
+  }
+}

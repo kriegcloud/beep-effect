@@ -44,7 +44,10 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
 
-const roundTrip = Effect.fn("roundTrip")(function* <T, S extends Schema.Codec<T, unknown>>(schema: S, value: T) {
+const roundTrip = Effect.fn("roundTrip")(function* <S extends Schema.Codec<unknown, unknown>>(
+  schema: S,
+  value: S["Type"]
+) {
   const encoded = yield* Schema.encodeUnknownEffect(schema)(value);
   const decoded = yield* Schema.decodeUnknownEffect(schema)(encoded);
   assert.deepStrictEqual(decoded, value);
@@ -201,7 +204,7 @@ describe("codec round-trips", () => {
   );
 
   it.effect.prop("LockfileIntegrity: decode ∘ encode is identity", [LockfileIntegrity], ([report]) =>
-    roundTrip(LockfileIntegrity, report)
+    roundTrip(LockfileIntegrity, LockfileIntegrity.make(report))
   );
 
   it.effect("a parsed fixture-shaped lockfile survives encode ∘ decode", () =>

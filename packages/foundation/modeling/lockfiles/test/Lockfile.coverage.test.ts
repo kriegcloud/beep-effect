@@ -1,3 +1,4 @@
+import { framingFailure, validationFailure } from "@beep/lockfiles/internal/shared";
 import { Lockfile, LockfileFramingError, LockfileParseError, materializeFailure } from "@beep/lockfiles/Lockfile";
 import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
 import { PnpmExtension } from "@beep/lockfiles/PnpmExtension";
@@ -36,11 +37,8 @@ it.effect("public failure messages explain each parsing and framing outcome", ()
       "Failed to parse pnpm lockfile: the content carries no lockfile document (0 YAML document(s) found)"
     );
     const cause = { detail: "invalid" };
-    assert.strictEqual(materializeFailure({ stage: "validation", cause })("npm")._tag, "LockfileParseError");
-    assert.strictEqual(
-      materializeFailure("pnpm", { stage: "framing", reason: "noImporters", documents: 1 })._tag,
-      "LockfileFramingError"
-    );
+    assert.strictEqual(materializeFailure(validationFailure(cause))("npm")._tag, "LockfileParseError");
+    assert.strictEqual(materializeFailure("pnpm", framingFailure("noImporters", 1))._tag, "LockfileFramingError");
   })
 );
 
@@ -119,7 +117,13 @@ it.effect("name rewrites preserve metadata and handle absent, empty, identical a
       assert.strictEqual(rewritten.packages[1], noPath);
       assert.strictEqual(rewritten.packages[2], external);
       assert.deepStrictEqual(rewritten.importers, model.importers);
-      assert.strictEqual(rewritten.extension, extension);
+      // W3-h: `PnpmExtension` is a branded `S.Opaque`, so `Lockfile.make`
+      // admits an equal copy of it, not the receiver's own object.
+      assert.deepStrictEqual(rewritten.extension, extension);
+      // W3-g bench fallback: packages, edges and importers stay `S.Class`, so
+      // `Lockfile.make` keeps unchanged entries by reference instead of
+      // re-validating the whole lockfile.
+      assert.strictEqual(rewritten.importers[0], importer);
     }
   })
 );

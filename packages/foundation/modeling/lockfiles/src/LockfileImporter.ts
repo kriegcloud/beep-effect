@@ -1,6 +1,8 @@
 import { $LockfilesId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { ImporterDependency } from "./ImporterDependency.ts";
+import type * as O from "effect/Option";
 
 const $I = $LockfilesId.create("LockfileImporter");
 
@@ -53,4 +55,28 @@ export class LockfileImporter extends S.Class<LockfileImporter, { readonly brand
   $I.annote("LockfileImporter", {
     description: "One workspace importer's declared dependencies, as the lockfile records them.",
   })
-) {}
+) {
+  /**
+   * The first declared dependency with the given name, in section order
+   * (`dependencies`, `devDependencies`, `peerDependencies`,
+   * `optionalDependencies`).
+   *
+   * **Example** (Look up a declared dependency)
+   *
+   * ```ts
+   * import { LockfileImporter } from "@beep/lockfiles/LockfileImporter";
+   * import * as O from "effect/Option";
+   *
+   * const importer = LockfileImporter.make({ path: ".", dependencies: [] });
+   * console.log(O.isNone(importer.dependency("effect"))); // true
+   * ```
+   *
+   * @param name - The dependency's package name.
+   * @returns The matching {@link ImporterDependency}, or `Option.none()`.
+   * @category getters
+   * @since 0.0.0
+   */
+  dependency(name: string): O.Option<ImporterDependency> {
+    return A.findFirst(this.dependencies, (dependency) => dependency.name === name);
+  }
+}

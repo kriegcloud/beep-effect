@@ -55,7 +55,7 @@ it.effect.prop(
       });
       const text = yield* render(sample.preamble, sample.main);
       const split = yield* splitPnpmStream(text);
-      assert.deepStrictEqual(split, { ...sample, documents: 2 });
+      assert.deepStrictEqual(split, PnpmStream.make({ ...sample, documents: 2 }));
       const canonical = yield* render(split.preamble, split.main);
       assert.strictEqual(canonical, text);
       const reparsed = yield* splitPnpmStream(canonical);

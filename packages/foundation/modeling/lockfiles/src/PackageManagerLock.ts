@@ -44,10 +44,8 @@ const $I = $LockfilesId.create("PackageManagerLock");
  * @category models
  * @since 0.0.0
  */
-export class PackageManagerLock extends S.Class<PackageManagerLock, { readonly brand: unique symbol }>(
-  $I`PackageManagerLock`
-)(
-  {
+export class PackageManagerLock extends S.Opaque<PackageManagerLock, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag("pnpm").pipe(
       $I.annoteKey("PackageManagerLock.name", {
         description: "Package manager pinned by the env preamble, always `pnpm`",
@@ -75,9 +73,26 @@ export class PackageManagerLock extends S.Class<PackageManagerLock, { readonly b
           "SRI checksums for pnpm's recorded optional native packages, keyed by unversioned package name; empty for pnpm 11",
       })
     ),
-  },
-  $I.annote("PackageManagerLock", {
-    description:
-      "The package manager a `pnpm-lock.yaml` pins, with the integrity pnpm recorded for it — read from the lockfile's env preamble by `PnpmEnvLockfile.packageManager`.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageManagerLock", {
+      description:
+        "The package manager a `pnpm-lock.yaml` pins, with the integrity pnpm recorded for it — read from the lockfile's env preamble by `PnpmEnvLockfile.packageManager`.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link PackageManagerLock}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PackageManagerLock {
+  /**
+   * The plain, unbranded encoded shape of a {@link PackageManagerLock}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PackageManagerLock.Encoded;
+}

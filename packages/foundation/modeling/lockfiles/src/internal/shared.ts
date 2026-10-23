@@ -13,6 +13,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { BunExtension } from "../BunExtension.ts";
 import { ImporterDependency } from "../ImporterDependency.ts";
 import { LockfileImporter } from "../LockfileImporter.ts";
@@ -86,6 +87,79 @@ export const toIntegrityHash = (
 const decodeSpecifier = S.decodeUnknownExit(DependencySpecifier.FromString);
 
 /**
+ * A recorded string split at its pnpm peer-disambiguation suffix:
+ * {@link splitPeerSuffix}'s result.
+ *
+ * **Example** (Validate a split peer suffix)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { PeerSuffixSplit } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(S.is(PeerSuffixSplit)({ plain: "1.0.0", peerSuffix: "(effect@4.0.0)" })) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export class PeerSuffixSplit extends S.Opaque<PeerSuffixSplit, { readonly brand: unique symbol }>()(
+  S.Struct({
+    plain: S.String.pipe(
+      $I.annoteKey("PeerSuffixSplit.plain", {
+        description: "The recorded string with its trailing peer groups removed; empty when it is only groups",
+      })
+    ),
+    peerSuffix: S.optionalKey(S.String).pipe(
+      $I.annoteKey("PeerSuffixSplit.peerSuffix", {
+        description: "The raw trailing run of balanced parenthesized peer groups, present only when recorded",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PeerSuffixSplit", {
+      description: "A recorded pnpm version or key split at its peer-disambiguation suffix",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link PeerSuffixSplit}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PeerSuffixSplit {
+  /**
+   * The plain, unbranded encoded shape of a {@link PeerSuffixSplit}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PeerSuffixSplit.Encoded;
+}
+
+/**
+ * Where the maximal trailing run of balanced parenthesized groups starts, for
+ * a string that ends in `)`: scanning back from the end, the first character
+ * outside every group ends the plain part. `0` when the string is nothing but
+ * groups; `None` when the groups do not balance.
+ *
+ * @internal
+ */
+const trailingGroupsStart = (raw: string): O.Option<number> => {
+  let open = 1;
+  for (let index = raw.length - 2; index >= 0; index--) {
+    const char = raw[index];
+    if (char === "(") open--;
+    else if (char === ")") open++;
+    else if (open === 0) return O.some(index + 1);
+  }
+  return open === 0 ? O.some(0) : O.none();
+};
+
+/**
  * Split pnpm's peer-disambiguation suffix off a recorded string: the suffix is
  * the maximal TRAILING run of balanced parenthesized groups, found by scanning
  * back from the end, which is `@pnpm/dependency-path`'s own
@@ -128,42 +202,86 @@ const decodeSpecifier = S.decodeUnknownExit(DependencySpecifier.FromString);
  * @category parsing
  * @since 0.0.0
  */
-export const splitPeerSuffix = (raw: string): { readonly plain: string; readonly peerSuffix?: string } => {
-  if (raw.startsWith("link:") || !raw.endsWith(")")) return { plain: raw };
-  let open = 1;
-  for (let i = raw.length - 2; i >= 0; i--) {
-    const char = raw[i];
-    if (char === "(") open--;
-    else if (char === ")") open++;
-    else if (open === 0) return { plain: raw.slice(0, i + 1), peerSuffix: raw.slice(i + 1) };
-  }
-  return open === 0 ? { plain: "", peerSuffix: raw } : { plain: raw };
-};
+export const splitPeerSuffix = (raw: string): PeerSuffixSplit.Encoded =>
+  Str.startsWith("link:")(raw) || !Str.endsWith(")")(raw)
+    ? { plain: raw }
+    : O.match(trailingGroupsStart(raw), {
+        onNone: () => ({ plain: raw }),
+        onSome: (start) => ({ plain: Str.slice(0, start)(raw), peerSuffix: Str.slice(start)(raw) }),
+      });
+
+/**
+ * A `name@version` key split at its separator: {@link splitNameVersion}'s
+ * result.
+ *
+ * **Example** (Validate a split identity)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { NameVersion } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(S.is(NameVersion)({ name: "@scope/lib", version: "1.2.3" })) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export class NameVersion extends S.Opaque<NameVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: S.String.pipe(
+      $I.annoteKey("NameVersion.name", { description: "The package name before the separating `@`" })
+    ),
+    version: S.String.pipe(
+      $I.annoteKey("NameVersion.version", { description: "Everything after the separating `@`, verbatim" })
+    ),
+  }).pipe($I.annoteSchema("NameVersion", { description: "A lockfile `name@version` key split at its separator" }))
+) {}
+
+/**
+ * Companion types for {@link NameVersion}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace NameVersion {
+  /**
+   * The plain, unbranded encoded shape of a {@link NameVersion}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof NameVersion.Encoded;
+}
 
 /**
  * Split a `name@version` key at the separator: the first `@` after a scoped
  * name's leading one. A package name holds no other `@`, while the version
  * part may (`file:../@scope/lib`), so the LAST `@` is the wrong boundary.
- * Returns `undefined` for a key with no separator after its first character
- * (`"@"`, `"@scope/"`, a bare name).
+ * Returns `Option.none()` for a key with no separator after its first
+ * character (`"@"`, `"@scope/"`, a bare name).
  *
  * **Example** (Split a scoped package identity)
  *
  * ```ts
  * import { splitNameVersion } from "@beep/lockfiles/internal/shared";
  *
- * console.log(splitNameVersion("@scope/lib@1.2.3")?.name) // @scope/lib
+ * import * as O from "effect/Option";
+ *
+ * console.log(O.getOrThrow(splitNameVersion("@scope/lib@1.2.3")).name) // @scope/lib
  * ```
  *
  * @internal
  * @category parsing
  * @since 0.0.0
  */
-export const splitNameVersion = (key: string): { readonly name: string; readonly version: string } | undefined => {
-  const at = key.indexOf("@", 1);
-  if (at === -1) return undefined;
-  return { name: key.slice(0, at), version: key.slice(at + 1) };
-};
+export const splitNameVersion = (key: string): O.Option<NameVersion.Encoded> =>
+  O.map(Str.indexOf("@")(Str.slice(1)(key)), (index) => ({
+    name: Str.slice(0, index + 1)(key),
+    version: Str.slice(index + 2)(key),
+  }));
 
 /**
  * Build one {@link ImporterDependency}, decoding the raw specifier string into
@@ -295,41 +413,53 @@ export const importerDependencies: {
  * @category schemas
  * @since 0.0.0
  */
-export const PeerDeclarations = S.Struct({
-  peerDependencies: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("PeerDeclarations.peerDependencies", {
-      description: "Declared peer dependencies keyed by package name",
+export class PeerDeclarations extends S.Opaque<PeerDeclarations, { readonly brand: unique symbol }>()(
+  S.Struct({
+    peerDependencies: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("PeerDeclarations.peerDependencies", {
+        description: "Declared peer dependencies keyed by package name",
+      })
+    ),
+    peerDependenciesMeta: S.Record(
+      S.String,
+      S.Struct({
+        optional: S.Boolean.pipe(
+          $I.annoteKey("PeerDeclarations.peerDependenciesMeta.optional", {
+            description: "Whether this peer dependency is optional",
+          })
+        ),
+      })
+    ).pipe(
+      $I.annoteKey("PeerDeclarations.peerDependenciesMeta", {
+        description: "Optionality metadata keyed by peer dependency name",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PeerDeclarations", {
+      description: "Normalized peer ranges and optional flags shared by all lockfile formats",
     })
-  ),
-  peerDependenciesMeta: S.Record(
-    S.String,
-    S.Struct({
-      optional: S.Boolean.pipe(
-        $I.annoteKey("PeerDeclarations.peerDependenciesMeta.optional", {
-          description: "Whether this peer dependency is optional",
-        })
-      ),
-    })
-  ).pipe(
-    $I.annoteKey("PeerDeclarations.peerDependenciesMeta", {
-      description: "Optionality metadata keyed by peer dependency name",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("PeerDeclarations", {
-    description: "Normalized peer ranges and optional flags shared by all lockfile formats",
-  })
-);
+  )
+) {}
+
 /**
- * Decoded representation of {@link PeerDeclarations} for internal parser composition.
+ * Companion types for {@link PeerDeclarations}.
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type PeerDeclarations = typeof PeerDeclarations.Type;
+export declare namespace PeerDeclarations {
+  /**
+   * The plain, unbranded encoded shape of a {@link PeerDeclarations}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PeerDeclarations.Encoded;
+}
 
-const EMPTY_PEERS: PeerDeclarations = { peerDependencies: {}, peerDependenciesMeta: {} };
+const EMPTY_PEERS: PeerDeclarations.Encoded = { peerDependencies: {}, peerDependenciesMeta: {} };
 
 /**
  * Normalize one format's peer declarations into the unified pair.
@@ -371,19 +501,19 @@ export const peerDeclarations: {
   (
     meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined,
     optionalPeers: ReadonlyArray<string> | undefined
-  ): (peers: Readonly<Record<string, string>> | undefined) => PeerDeclarations;
+  ): (peers: Readonly<Record<string, string>> | undefined) => PeerDeclarations.Encoded;
   (
     peers: Readonly<Record<string, string>> | undefined,
     meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined,
     optionalPeers: ReadonlyArray<string> | undefined
-  ): PeerDeclarations;
+  ): PeerDeclarations.Encoded;
 } = dual(
   3,
   (
     peers: Readonly<Record<string, string>> | undefined,
     meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined,
     optionalPeers: ReadonlyArray<string> | undefined
-  ): PeerDeclarations => {
+  ): PeerDeclarations.Encoded => {
     if (peers === undefined && meta === undefined && optionalPeers === undefined) return EMPTY_PEERS;
     const flags = MutableHashMap.empty<string, boolean>();
     if (meta !== undefined) {
@@ -573,8 +703,112 @@ export const FramingReason = LiteralKit(["noLockfileDocument", "noImporters", "u
 export type FramingReason = typeof FramingReason.Type;
 
 /**
+ * A text-level failure: the content is not well-formed. Carries the delegated
+ * engine's error.
+ *
+ * **Example** (Validate a syntax failure record)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { SyntaxFailure } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(S.is(SyntaxFailure)({ stage: "syntax", cause: "invalid YAML" })) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export class SyntaxFailure extends S.Opaque<SyntaxFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
+    stage: S.tag("syntax").pipe(
+      $I.annoteKey("SyntaxFailure.stage", { description: "Parser stage at which this failure occurred" })
+    ),
+    cause: S.Unknown.pipe(
+      $I.annoteKey("SyntaxFailure.cause", {
+        description: "Original engine throwable, retained without narrowing",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("SyntaxFailure", {
+      description: "Syntax failure preserving the original engine throwable without transformation",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link SyntaxFailure}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace SyntaxFailure {
+  /**
+   * The plain, unbranded encoded shape of a {@link SyntaxFailure}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SyntaxFailure.Encoded;
+}
+
+/**
+ * A shape-level failure: the content parsed, but it does not have the
+ * format's expected shape. Carries the schema or structured cause.
+ *
+ * **Example** (Validate a shape failure record)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { ValidationFailure } from "@beep/lockfiles/internal/shared";
+ *
+ * console.log(S.is(ValidationFailure)({ stage: "validation", cause: "invalid shape" })) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ValidationFailure extends S.Opaque<ValidationFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
+    stage: S.tag("validation").pipe(
+      $I.annoteKey("ValidationFailure.stage", { description: "Parser stage at which this failure occurred" })
+    ),
+    cause: S.Unknown.pipe(
+      $I.annoteKey("ValidationFailure.cause", {
+        description: "Structural validation cause, retained without narrowing",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ValidationFailure", {
+      description: "Shape-validation failure preserving the schema or structured cause without transformation",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link ValidationFailure}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ValidationFailure {
+  /**
+   * The plain, unbranded encoded shape of a {@link ValidationFailure}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ValidationFailure.Encoded;
+}
+
+/**
  * A text- or shape-level failure: the content is not well-formed, or it does
- * not have the format's expected shape. Carries the delegated engine's error.
+ * not have the format's expected shape.
  *
  * **Example** (Validate a syntax failure record)
  *
@@ -589,28 +823,7 @@ export type FramingReason = typeof FramingReason.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ContentFailure = S.Union([
-  S.Struct({
-    stage: S.tag("syntax").pipe(
-      $I.annoteKey("ContentFailure.Syntax.stage", { description: "Parser stage at which this failure occurred" })
-    ),
-    cause: S.Unknown.pipe(
-      $I.annoteKey("ContentFailure.Syntax.cause", {
-        description: "Original engine throwable or structural validation cause, retained without narrowing",
-      })
-    ),
-  }),
-  S.Struct({
-    stage: S.tag("validation").pipe(
-      $I.annoteKey("ContentFailure.Validation.stage", { description: "Parser stage at which this failure occurred" })
-    ),
-    cause: S.Unknown.pipe(
-      $I.annoteKey("ContentFailure.Validation.cause", {
-        description: "Original engine throwable or structural validation cause, retained without narrowing",
-      })
-    ),
-  }),
-]).pipe(
+export const ContentFailure = S.Union([SyntaxFailure, ValidationFailure]).pipe(
   $I.annoteSchema("ContentFailure", {
     description: "Syntax or validation failure preserving the original engine throwable without transformation",
   })
@@ -642,29 +855,43 @@ export type ContentFailure = typeof ContentFailure.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FramingFailure = S.Struct({
-  stage: S.tag("framing").pipe(
-    $I.annoteKey("FramingFailure.stage", { description: "Parser stage at which this failure occurred" })
-  ),
-  reason: FramingReason.pipe(
-    $I.annoteKey("FramingFailure.reason", { description: "Reason a lockfile document could not be uniquely located" })
-  ),
-  documents: S.Finite.pipe(
-    $I.annoteKey("FramingFailure.documents", { description: "Number of parsed documents in the YAML stream" })
-  ),
-}).pipe(
-  $I.annoteSchema("FramingFailure", {
-    description: "Synthetic document-framing failure with a reason and the parsed document count",
-  })
-);
+export class FramingFailure extends S.Opaque<FramingFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
+    stage: S.tag("framing").pipe(
+      $I.annoteKey("FramingFailure.stage", { description: "Parser stage at which this failure occurred" })
+    ),
+    reason: FramingReason.pipe(
+      $I.annoteKey("FramingFailure.reason", {
+        description: "Reason a lockfile document could not be uniquely located",
+      })
+    ),
+    documents: S.Finite.pipe(
+      $I.annoteKey("FramingFailure.documents", { description: "Number of parsed documents in the YAML stream" })
+    ),
+  }).pipe(
+    $I.annoteSchema("FramingFailure", {
+      description: "Synthetic document-framing failure with a reason and the parsed document count",
+    })
+  )
+) {}
+
 /**
- * Decoded representation of {@link FramingFailure} for internal parser composition.
+ * Companion types for {@link FramingFailure}.
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type FramingFailure = typeof FramingFailure.Type;
+export declare namespace FramingFailure {
+  /**
+   * The plain, unbranded encoded shape of a {@link FramingFailure}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FramingFailure.Encoded;
+}
 
 /**
  * The raw failure record a per-format transform fails with. `Lockfile.parse`
@@ -685,7 +912,7 @@ export type FramingFailure = typeof FramingFailure.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ParseFailure = S.Union([...ContentFailure.members, FramingFailure]).pipe(
+export const ParseFailure = S.Union([SyntaxFailure, ValidationFailure, FramingFailure]).pipe(
   S.toTaggedUnion("stage"),
   $I.annoteSchema("ParseFailure", {
     description: "Parser failure discriminated by syntax, validation or framing stage",
@@ -715,7 +942,7 @@ export type ParseFailure = typeof ParseFailure.Type;
  * @category errors
  * @since 0.0.0
  */
-export const syntaxFailure = (cause: unknown): ParseFailure => ({ stage: "syntax", cause });
+export const syntaxFailure = (cause: unknown): ParseFailure => SyntaxFailure.make({ cause });
 
 /**
  * Preserves a shape-validation cause in the shared failure channel.
@@ -732,7 +959,7 @@ export const syntaxFailure = (cause: unknown): ParseFailure => ({ stage: "syntax
  * @category errors
  * @since 0.0.0
  */
-export const validationFailure = (cause: unknown): ParseFailure => ({ stage: "validation", cause });
+export const validationFailure = (cause: unknown): ParseFailure => ValidationFailure.make({ cause });
 
 /**
  * Records why a parsed stream has no uniquely locatable lockfile document.
@@ -752,14 +979,7 @@ export const validationFailure = (cause: unknown): ParseFailure => ({ stage: "va
 export const framingFailure: {
   (documents: number): (reason: FramingReason) => ParseFailure;
   (reason: FramingReason, documents: number): ParseFailure;
-} = dual(
-  2,
-  (reason: FramingReason, documents: number): ParseFailure => ({
-    stage: "framing",
-    reason,
-    documents,
-  })
-);
+} = dual(2, (reason: FramingReason, documents: number): ParseFailure => FramingFailure.make({ reason, documents }));
 
 /**
  * The field bundle a per-format transform produces and `Lockfile.parse`
@@ -778,39 +998,51 @@ export const framingFailure: {
  * @category schemas
  * @since 0.0.0
  */
-export const LockfileFields = S.Struct({
-  lockfileVersion: S.String.pipe(
-    $I.annoteKey("LockfileFields.lockfileVersion", {
-      description: "Recorded format version, preserved verbatim before gating or string conversion",
+export class LockfileFields extends S.Opaque<LockfileFields, { readonly brand: unique symbol }>()(
+  S.Struct({
+    lockfileVersion: S.String.pipe(
+      $I.annoteKey("LockfileFields.lockfileVersion", {
+        description: "Recorded format version, preserved verbatim before gating or string conversion",
+      })
+    ),
+    packages: S.Array(ResolvedPackage).pipe(
+      $I.annoteKey("LockfileFields.packages", { description: "Resolved package entries in lockfile traversal order" })
+    ),
+    workspaceDependencies: S.Array(WorkspaceDependency).pipe(
+      $I.annoteKey("LockfileFields.workspaceDependencies", {
+        description: "Inter-workspace dependency edges in workspace and dependency-section traversal order",
+      })
+    ),
+    importers: S.Array(LockfileImporter).pipe(
+      $I.annoteKey("LockfileFields.importers", { description: "Workspace importer entries recorded by the lockfile" })
+    ),
+    extension: S.optionalKey(S.Union([PnpmExtension, BunExtension])).pipe(
+      $I.annoteKey("LockfileFields.extension", { description: "Optional format-specific extension fields" })
+    ),
+  }).pipe(
+    $I.annoteSchema("LockfileFields", {
+      description: "Plain field bundle normalized by a format parser before constructing the public Lockfile",
     })
-  ),
-  packages: S.Array(ResolvedPackage).pipe(
-    $I.annoteKey("LockfileFields.packages", { description: "Resolved package entries in lockfile traversal order" })
-  ),
-  workspaceDependencies: S.Array(WorkspaceDependency).pipe(
-    $I.annoteKey("LockfileFields.workspaceDependencies", {
-      description: "Inter-workspace dependency edges in workspace and dependency-section traversal order",
-    })
-  ),
-  importers: S.Array(LockfileImporter).pipe(
-    $I.annoteKey("LockfileFields.importers", { description: "Workspace importer entries recorded by the lockfile" })
-  ),
-  extension: S.optionalKey(S.Union([PnpmExtension, BunExtension])).pipe(
-    $I.annoteKey("LockfileFields.extension", { description: "Optional format-specific extension fields" })
-  ),
-}).pipe(
-  $I.annoteSchema("LockfileFields", {
-    description: "Plain field bundle normalized by a format parser before constructing the public Lockfile",
-  })
-);
+  )
+) {}
+
 /**
- * Decoded representation of {@link LockfileFields} for internal parser composition.
+ * Companion types for {@link LockfileFields}.
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type LockfileFields = typeof LockfileFields.Type;
+export declare namespace LockfileFields {
+  /**
+   * The plain, unbranded encoded shape of a {@link LockfileFields}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LockfileFields.Encoded;
+}
 
 /**
  * Common dependency-map shape of a single workspace entry, shared across all
@@ -829,36 +1061,52 @@ export type LockfileFields = typeof LockfileFields.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const WorkspaceEntry = S.Struct({
-  dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("WorkspaceEntry.dependencies", { description: "Declared runtime dependencies keyed by package name" })
-  ),
-  devDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("WorkspaceEntry.devDependencies", {
-      description: "Declared development dependencies keyed by package name",
+export class WorkspaceEntry extends S.Opaque<WorkspaceEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("WorkspaceEntry.dependencies", {
+        description: "Declared runtime dependencies keyed by package name",
+      })
+    ),
+    devDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("WorkspaceEntry.devDependencies", {
+        description: "Declared development dependencies keyed by package name",
+      })
+    ),
+    peerDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("WorkspaceEntry.peerDependencies", {
+        description: "Declared peer dependencies keyed by package name",
+      })
+    ),
+    optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("WorkspaceEntry.optionalDependencies", {
+        description: "Declared optional dependencies keyed by package name",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("WorkspaceEntry", {
+      description: "Optional dependency sections of a workspace entry shared across the four formats",
     })
-  ),
-  peerDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("WorkspaceEntry.peerDependencies", { description: "Declared peer dependencies keyed by package name" })
-  ),
-  optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("WorkspaceEntry.optionalDependencies", {
-      description: "Declared optional dependencies keyed by package name",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("WorkspaceEntry", {
-    description: "Optional dependency sections of a workspace entry shared across the four formats",
-  })
-);
+  )
+) {}
+
 /**
- * Decoded representation of {@link WorkspaceEntry} for internal parser composition.
+ * Companion types for {@link WorkspaceEntry}.
  *
  * @internal
  * @category type-level
  * @since 0.0.0
  */
-export type WorkspaceEntry = typeof WorkspaceEntry.Type;
+export declare namespace WorkspaceEntry {
+  /**
+   * The plain, unbranded encoded shape of a {@link WorkspaceEntry}.
+   *
+   * @internal
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WorkspaceEntry.Encoded;
+}
 
 /**
  * Whether the specifier is a workspace, link or file reference
@@ -911,16 +1159,16 @@ export const isWorkspaceSpecifier = (specifier: string): boolean =>
  */
 export const extractWorkspaceDeps: {
   (
-    workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry>,
+    workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry.Encoded>,
     workspaceNames: HashSet.HashSet<string>
   ): ReadonlyArray<WorkspaceDependency>;
   (
     workspaceNames: HashSet.HashSet<string>
-  ): (workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry>) => ReadonlyArray<WorkspaceDependency>;
+  ): (workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry.Encoded>) => ReadonlyArray<WorkspaceDependency>;
 } = dual(
   2,
   (
-    workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry>,
+    workspaces: MutableHashMap.MutableHashMap<string, WorkspaceEntry.Encoded>,
     workspaceNames: HashSet.HashSet<string>
   ): ReadonlyArray<WorkspaceDependency> => {
     const deps: Array<WorkspaceDependency> = [];

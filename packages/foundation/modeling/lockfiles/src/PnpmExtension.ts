@@ -4,9 +4,62 @@ import * as S from "effect/Schema";
 const $I = $LockfilesId.create("PnpmExtension");
 
 /**
+ * One pinned catalog entry as `pnpm-lock.yaml` records it: the declared
+ * specifier and the version it resolved to.
+ *
+ * **Example** (Validate a catalog pin)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { PnpmCatalogPin } from "@beep/lockfiles/PnpmExtension";
+ *
+ * console.log(S.is(PnpmCatalogPin)({ specifier: "^4.0.0", version: "4.0.2" })); // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class PnpmCatalogPin extends S.Opaque<PnpmCatalogPin, { readonly brand: unique symbol }>()(
+  S.Struct({
+    specifier: S.String.pipe(
+      $I.annoteKey("PnpmCatalogPin.specifier", {
+        description: "Dependency specifier declared by the catalog entry",
+      })
+    ),
+    version: S.String.pipe(
+      $I.annoteKey("PnpmCatalogPin.version", {
+        description: "Pinned version resolved for the catalog entry",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PnpmCatalogPin", {
+      description: "A pnpm catalog entry's declared specifier and the version it resolved to",
+    })
+  )
+) {}
+
+/**
+ * Companion types for {@link PnpmCatalogPin}.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PnpmCatalogPin {
+  /**
+   * The plain, unbranded encoded shape of a {@link PnpmCatalogPin}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PnpmCatalogPin.Encoded;
+}
+
+/**
  * The pnpm `catalogs:` record shape as it appears in `pnpm-lock.yaml`:
  * catalog name → package name → pinned version string or
- * `{ specifier, version }` pair.
+ * {@link PnpmCatalogPin}.
  *
  * **Details**
  *
@@ -28,28 +81,7 @@ const $I = $LockfilesId.create("PnpmExtension");
  */
 export const PnpmCatalogs = S.Record(
   S.String,
-  S.mutableKey(
-    S.Record(
-      S.String,
-      S.mutableKey(
-        S.Union([
-          S.String,
-          S.Struct({
-            specifier: S.String.pipe(
-              $I.annoteKey("PnpmCatalogs.entry.specifier", {
-                description: "Dependency specifier declared by the catalog entry",
-              })
-            ),
-            version: S.String.pipe(
-              $I.annoteKey("PnpmCatalogs.entry.version", {
-                description: "Pinned version resolved for the catalog entry",
-              })
-            ),
-          }),
-        ])
-      )
-    )
-  )
+  S.mutableKey(S.Record(S.String, S.mutableKey(S.Union([S.String, PnpmCatalogPin]))))
 ).pipe(
   $I.annoteSchema("PnpmCatalogs", {
     description: "Catalog names mapped to package versions or specifier/version pairs preserved from the pnpm lockfile",
@@ -88,9 +120,8 @@ export type PnpmCatalogs = typeof PnpmCatalogs.Type;
  * @category models
  * @since 0.0.0
  */
-export class PnpmExtension extends S.TaggedClass<PnpmExtension, { readonly brand: unique symbol }>($I`PnpmExtension`)(
-  "pnpm",
-  {
+export class PnpmExtension extends S.Opaque<PnpmExtension, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("pnpm", {
     catalogs: S.optionalKey(PnpmCatalogs).pipe(
       $I.annoteKey("PnpmExtension.catalogs", {
         description:
@@ -112,9 +143,26 @@ export class PnpmExtension extends S.TaggedClass<PnpmExtension, { readonly brand
         description: "Peer auto-installation and link-exclusion settings recorded in the pnpm lockfile header",
       })
     ),
-  },
-  $I.annote("PnpmExtension", {
-    description:
-      'Extension data specific to pnpm lockfiles, attached to `Lockfile.extension` when the format is `"pnpm"`.',
-  })
+  }).pipe(
+    $I.annoteSchema("PnpmExtension", {
+      description:
+        'Extension data specific to pnpm lockfiles, attached to `Lockfile.extension` when the format is `"pnpm"`.',
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link PnpmExtension}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace PnpmExtension {
+  /**
+   * The plain, unbranded encoded shape of a {@link PnpmExtension}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PnpmExtension.Encoded;
+}

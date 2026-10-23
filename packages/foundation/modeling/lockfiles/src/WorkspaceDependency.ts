@@ -59,4 +59,27 @@ export class WorkspaceDependency extends S.Class<WorkspaceDependency, { readonly
   $I.annote("WorkspaceDependency", {
     description: "A directed dependency edge between two workspace packages as recorded in the lockfile.",
   })
-) {}
+) {
+  /**
+   * This edge with its endpoints renamed, keeping its section and constraint.
+   *
+   * **Example** (Rename both ends of an edge)
+   *
+   * ```ts
+   * import { WorkspaceDependency } from "@beep/lockfiles/WorkspaceDependency";
+   *
+   * const edge = WorkspaceDependency.make({ from: "packages/app", to: "packages/lib", depType: "dependencies", constraint: "workspace:*" });
+   * console.log(edge.withEndpoints("@acme/app", "@acme/lib").to); // @acme/lib
+   * console.log(edge.withEndpoints("packages/app", "packages/lib") === edge); // true
+   * ```
+   *
+   * @param from - The new, non-empty declaring workspace name.
+   * @param to - The new, non-empty depended-upon workspace name.
+   * @returns This edge when both endpoints are unchanged, otherwise a renamed copy.
+   * @category mapping
+   * @since 0.0.0
+   */
+  withEndpoints(from: string, to: string): WorkspaceDependency {
+    return from === this.from && to === this.to ? this : WorkspaceDependency.make({ ...this, from, to });
+  }
+}
