@@ -51,7 +51,7 @@ everything left, and its decisions are recorded as W4-a onward.
 | 3-A7 (queued) | `TsconfigSync.schemas` onto `@beep/tsconfig` | repo-cli `TsconfigSync.schemas.ts`, with byte parity of tsconfig-sync output. After 3-2. |
 | 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
 | 3-A9 (queued, optional) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`. After 3-4. |
-| 4-S (in review, this PR) | `@beep/sbom` | W4-b, W4-g, W4-j, W4-s (4-S parts). The 8 pure modules of the lab `sbom` (IdentityToken included) as branded `S.Opaque` records admitted once per constructor; `SigstoreSigner` stays in the lab (signer-only `index.ts`, deferred `@beep/sigstore`). Bun-safe raw-glob reachability, `S.optional` restored on the 5 input structs (#1928, EF-40 not on main), `ajv`/`ajv-formats` exact pins with no new `bun.lock` hash, the full-schema oracle and `ops/sbom-corpus.ts` (189 manifests, 0 schema failures). Lab retargets: the signer, github-actions `ActionsIdentityToken`/`ActionsProvenance`, both PROMOTED maps. |
+| 4-S (in review, this PR) | `@beep/sbom` | W4-b, W4-g, W4-j, W4-s (4-S parts). The 8 pure modules of the lab `sbom` (IdentityToken included) as branded `S.Opaque` records admitted once per constructor; `SigstoreSigner` stays in the lab (signer-only `index.ts`, deferred `@beep/sigstore`). Bun-safe raw-glob reachability, `S.optionalKey` kept on the 5 input structs with their explicit-undefined tests inverted to pin rejection (#1928 under EF-40, W4-j), `ajv`/`ajv-formats` exact pins with no new `bun.lock` hash, the full-schema oracle and `ops/sbom-corpus.ts` (189 manifests, 0 schema failures). Lab retargets: the signer, github-actions `ActionsIdentityToken`/`ActionsProvenance`, both PROMOTED maps. |
 | 4 (queued) | `@beep/sbom` (4-S), `@beep/xdg` (4-X), `@beep/cli-kit` (4-C), `@beep/repo-workspaces` (4-W-a, 4-W-b) | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j. |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05 as amended by W4-m: deleted from the lab at C and pinned by sha; see "Deferred" below. |
@@ -148,9 +148,11 @@ bridge section that closes map sites #237 and #290 and the placement half of
 
 PR #1928 changed `S.optional` to `S.optionalKey` across the lab, and the
 scratchpad tests are not part of hosted CI, so these failed on `main` before
-wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Each
-promotion restores the upstream optional semantics its tests assert, as
-`@beep/commands` did in wave 1.
+wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Until
+#2145 landed, each promotion restored the upstream optional semantics its
+tests assert, as `@beep/commands` did in wave 1. EF-40 (#2145) is on `main`
+now, so per W4-j each later promotion keeps `S.optionalKey` and inverts its
+explicit-undefined tests to pin rejection; 4-S is the first to do so.
 
 | Module | Failing on main | Wave |
 | --- | --- | --- |
@@ -158,7 +160,7 @@ promotion restores the upstream optional semantics its tests assert, as
 | `engine` | `ProcessGuard.test.ts` explicit-undefined `onRejection` | deferred |
 | `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubToken, twirp, PackageManagerInstaller, sigv4, ToolInstaller option schemas (GitHubMarkdown and ManagedDocument fixed in 3-1, W3-b) | 5 |
 | `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | 4 |
-| `sbom` | type-level only: the `SbomInput`, `SbomJsonOptions`, `SbomMetadataOptions`, `ComponentInput` and `CopyrightYears` explicit-undefined tests (6 TS2379 in the package check; Node and Bun runs passed) | fixed in 4-S: the five structs are `S.optional` again (W4-j, EF-40 not on main) |
+| `sbom` | type-level only: the `SbomInput`, `SbomJsonOptions`, `SbomMetadataOptions`, `ComponentInput` and `CopyrightYears` explicit-undefined tests (6 TS2379 in the package check; Node and Bun runs passed) | fixed in 4-S under EF-40 (W4-j): the five structs keep `S.optionalKey` and the four explicit-undefined tests pin rejection, by `S.is` and by `@ts-expect-error` |
 
 ## Execution Notes
 
