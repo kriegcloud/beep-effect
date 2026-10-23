@@ -22,8 +22,10 @@ console.log(Result.getOrThrow(markdown)) // "# Hello\n\nWorld"
 ## Package Role
 
 `@beep/md` owns the repo-native Markdown AST, constructors, pure behavior, escaping helpers, and render adapters.
-It is not a Markdown string parser and does not depend on `marked`; `marked` is used only as a reference for
-capability, fixture, and security comparisons.
+The package root is not a Markdown string parser and does not depend on `marked`; `marked` is used only as a
+reference for capability, fixture, and security comparisons. Parsing text lives on two subpaths,
+`@beep/md/Md.syntax` and `@beep/md/Md.parse`, which bridge the `@beep/markdown` syntax tree into an `Md.Document`
+(see [Parsing Markdown text](#parsing-markdown-text)).
 
 The AST includes common Markdown blocks/inlines plus typed extensions for JSON frontmatter, link/image titles, ordered
 list starts, table alignment, TeX math, footnotes, admonitions, and generalized embeds. `Md.youtube(...)` remains as a
@@ -57,6 +59,105 @@ console.log(safeHtmlValue(safeHtml))
 `SafeDocument` directly to `@beep/html`, proves the fragment conformant, applies
 the canonical deny-by-default policy, and returns that package's opaque,
 runtime-issued `SafeHtml`.
+
+## Parsing Markdown text
+
+`@beep/markdown` owns parsing: positioned nodes, trivia, and offset-splice edits. `@beep/md` owns the persisted
+semantic model. The bridge between them is two subpath modules:
+
+- `@beep/md/Md.syntax` folds a parsed `MarkdownDocument` into an `Md.Document` with `fromMarkdownDocument`, and
+  carries the loss, source-map, and option schemas.
+- `@beep/md/Md.parse` runs the `@beep/markdown` parser with frontmatter capture on and then the fold:
+  `parseResult` and `parseSafeResult` return a `Result`, `parse` and `parseSafe` are their `Effect` twins.
+
+Import them by subpath. Neither is re-exported from `@beep/md` or from the `Md` namespace, so code that only builds
+or renders documents never loads the parser or the frontmatter codecs. A test in `test/Md.import-boundary.test.ts`
+holds that rule.
+
+```ts
+import { parseResult } from "@beep/md/Md.parse"
+import { positionAt } from "@beep/md/Md.syntax"
+import * as O from "effect/Option"
+import * as Result from "effect/Result"
+
+const bridged = Result.getOrThrow(parseResult("---\ntitle: Notes\n---\n# Notes\n\n<b>hi</b> there"))
+
+console.log(bridged.document.children.map((block) => block._tag)) // [ "heading", "p" ]
+console.log(bridged.losses.map((loss) => loss.reason))
+// [ "frontmatterFormatChanged", "htmlEscapedAsText", "htmlEscapedAsText" ]
+console.log(O.map(positionAt(bridged.sourceMap, bridged.document, ["children", 0]), (span) => span.start.line))
+// Some(4)
+```
+
+### What the bridge reports
+
+The fold is pure, total, and synchronous, and it never throws. Everything it could not carry unchanged comes back as
+data in `losses`: each `MdLoss` names the source node kind, an `MdLossReason`, the source position, and the Md path
+the content landed at (if any). `lossSeverity` sorts a reason into `lossy` (the content survives in another shape)
+or `unsupported` (the content is gone). The reasons are:
+
+| Area | Reasons |
+|------|---------|
+| Raw HTML | `htmlEscapedAsText`, `htmlInlinedBlock`, `htmlDropped` |
+| Links and references | `autolinkLiteralAsText`, `referenceUnresolved`, `definitionUnreferenced` |
+| Code | `codeLanguageDropped`, `codeMetaDropped` |
+| Footnotes | `footnoteIdentifierRewritten`, `footnoteDefinitionDuplicate` |
+| Lists and admonitions | `taskCheckboxDropped`, `admonitionTitleFlattened` |
+| Recognizers | `recognizerSkipped` |
+| Frontmatter | `frontmatterInvalid`, `frontmatterNotObject`, `frontmatterValueCoerced`, `frontmatterDropped`, `frontmatterFormatChanged` |
+| MDX | `mdxElementUnwrapped`, `mdxDropped` |
+
+Trivia (marker characters, fence lengths, heading styles, label casing) is erased by design and is never a loss:
+`Md.render` writes canonical style, and positions live in the source map.
+
+### Defaults
+
+Every option has a default, so no options gives the documented behaviour. Options are passed as plain encoded
+objects (`MdSyntaxOptions.Encoded`, `MdParseOptions.Encoded`).
+
+| Option | Default | Effect |
+|--------|---------|--------|
+| `html` | `"escapeAsText"` | Raw HTML becomes escaped text. `"rawHtml"` keeps `RawHtml` nodes (never safe); `"drop"` removes them. |
+| `htmlComments` | `"drop"` | HTML comments are dropped; `"asHtml"` treats them like other HTML. |
+| `breakTag` | `true` | `<br>` becomes a hard break. |
+| `admonitions` | `true` | `> [!NOTE]` blockquotes become admonitions. |
+| `math` | `false` | `$…$`, `$$…$$`, and ```` ```math ```` stay text until the Markdown writer escapes `$`. |
+| `youtube` | `false` | A paragraph holding only a YouTube link stays a link. |
+| `absorbEmptyTableHeader` | `true` | An all-empty header row becomes a header-less table. |
+| `autolinkLiterals` | `"link"` | GFM autolink literals become links; `"text"` keeps them as text. |
+| `softBreak` | `"space"` | Soft line breaks become a space; `"newline"` keeps the newline. |
+| `frontmatter` | `"decode"` | YAML, TOML, and JSON frontmatter is decoded into the JSON `frontmatter` field; `"drop"` drops it with a loss. |
+| `onFrontmatterFailure` | `"loss"` | An invalid or non-object block is a loss; `"fail"` returns `MdFrontmatterError`. |
+| `sourceMap` | `true` | Build the source map. |
+| `dialect` (`Md.parse` only) | `"gfm"` | Markdown grammar; `"commonmark"` turns the GFM extensions off. |
+
+Frontmatter always round-trips as JSON. A YAML or TOML block reports `frontmatterFormatChanged`, and each value the
+JSON projection changed is a `frontmatterValueCoerced` loss addressed by a JSON pointer.
+
+### Safety
+
+`parseResult` returns a general `Document`, which may hold trusted raw nodes when you ask for them.
+`parseSafeResult` narrows it to a `SafeDocument` and fails with `MdUnsafeDocumentError`, which carries every
+violation and, through `locateViolations`, its source position. With the defaults the parser never produces raw
+HTML, so ordinary text refines cleanly.
+
+```ts
+import { parseSafeResult } from "@beep/md/Md.parse"
+import * as Result from "effect/Result"
+
+console.log(Result.isSuccess(parseSafeResult("<b>x</b>"))) // true
+console.log(Result.isFailure(parseSafeResult("<b>x</b>", { html: "rawHtml" }))) // true
+```
+
+### Source map lifetime
+
+The bridge builds the whole document as plain data and admits it once through `MdFromSyntax.make`, so the cost is
+linear in the node count. The source map is a pre-order list of spans over that exact document. It is valid only
+for the document it came with: after any transform (insert, remove, reorder) `positionAt` returns `Option.none()`
+when the path no longer matches the recorded shape, rather than a wrong span.
+
+There is no `Context.Service`. Parsing has no environment, resource, or alternative implementation; a slice that
+wants configured ingest can wrap `parseSafe` in its own service.
 
 ## Pattern Ontology classification
 

@@ -45,8 +45,10 @@
     "./Md.escape": "./src/Md.escape.ts",
     "./Md.html": "./src/Md.html.ts",
     "./Md.model": "./src/Md.model.ts",
+    "./Md.parse": "./src/Md.parse.ts",
     "./Md.render": "./src/Md.render.ts",
     "./Md.safe": "./src/Md.safe.ts",
+    "./Md.syntax": "./src/Md.syntax.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -69,8 +71,10 @@
       "./Md.escape": "./dist/Md.escape.js",
       "./Md.html": "./dist/Md.html.js",
       "./Md.model": "./dist/Md.model.js",
+      "./Md.parse": "./dist/Md.parse.js",
       "./Md.render": "./dist/Md.render.js",
       "./Md.safe": "./dist/Md.safe.js",
+      "./Md.syntax": "./dist/Md.syntax.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
@@ -78,6 +82,7 @@
   "dependencies": {
     "@beep/html": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/markdown": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:"

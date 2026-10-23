@@ -3,9 +3,21 @@ import shared, { vitestCoverageReportOnly } from "../../../../vitest.shared.ts";
 
 const reportOnly = vitestCoverageReportOnly;
 
+// `@beep/markdown` exports its conformance corpora as `./conformance/*` JSON
+// subpaths, but the generated `@beep/markdown/*` source alias rewrites every
+// subpath to `src/`, so the bridge-corpus ledger's JSON imports need this
+// longer alias. Vite puts a merged config's aliases ahead of the shared ones.
+const markdownConformanceAlias = {
+  find: /^@beep\/markdown\/conformance\/(.*)$/,
+  replacement: `${new URL("../markdown/data/conformance/", import.meta.url).pathname}$1.json`,
+};
+
 export default mergeConfig(
   shared,
   defineConfig({
+    resolve: {
+      alias: [markdownConformanceAlias],
+    },
     test: {
       coverage: {
         thresholds: reportOnly

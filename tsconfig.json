@@ -2315,6 +2315,12 @@
       "@beep/markdown/*": ["./packages/foundation/modeling/markdown/src/*"],
       "@beep/markdown/internal/*": [
         "./packages/foundation/modeling/markdown/src/internal/*"
+      ],
+      "@beep/md/Md.parse": [
+        "./packages/foundation/modeling/md/src/Md.parse.ts"
+      ],
+      "@beep/md/Md.syntax": [
+        "./packages/foundation/modeling/md/src/Md.syntax.ts"
       ]
     }
   }

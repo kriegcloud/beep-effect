@@ -3008,6 +3008,7 @@
         "allow": [
           "@beep/html",
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/test-runner",
@@ -3017,6 +3018,7 @@
         "allowTypeOnly": [
           "@beep/html",
           "@beep/identity",
+          "@beep/markdown",
           "@beep/md",
           "@beep/schema",
           "@beep/test-runner",
