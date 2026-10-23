@@ -15,6 +15,19 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | repo-cli Reviewer and CI summary bodies | - | deferred | Named by D-10; adopt with the wave-5 GitHub Actions driver, which composes `CheckDocument` with a real sink. |
 | Marker-splice family (Provenance, GhOps, Quality, Findings.refresh, Atlas, Observability, Models) | - | excluded | File-backed managed sections go to `@beep/managed-section` directly, not through `ManagedDocument`'s comment dialect. |
 
+## `@beep/runtime-env` CI rule (wave 4, 4-CI, SPEC W4-e)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| repo-cli `internal/cli/EnvConfig.ts` `isCi`, `isCiSync` | - | 4-CI | `isCi` reads `CurrentRuntimeEnv`; `isCiSync` is `RuntimeEnv.fromRecord` over `Bun.env`. Callers: `KnowledgeDoctor.service.ts`, `Knowledge.command.ts`, `Docgen/internal/Local.ts`. |
+| repo-cli `EnvConfig.ts` `canUseTurboCacheSecretSession` | - | 4-CI | Was exact `CI === "true"`; the verdict cache is keyed by repo root. |
+| repo-cli `Quality/Tasks.ts` (`isCi` alias, 11 uses) | - | 4-CI | Alias removed; calls `isCiSync`. |
+| repo-cli `Lint/Lint.command.ts` deprecated-apis and policy | - | 4-CI | Was `Config.String("CI")` compared to `"true"`. |
+| repo-cli `DeletePackage/DeletePackage.command.ts` `assembleDeletePolicy` | - | 4-CI | Was `Config.Boolean("CI")`. |
+| repo-cli `Ci/CiLane.ts` `directTurboArgs`, `Quality/internal/GithubChecks.ts` `rootTaskLane` | - | 4-CI | Were `Bun.env.CI === "true"`. |
+| repo-cli `Quality/Quality.plan.ts` `detectQualityProfile` | - | 4-CI | Was non-empty `CI`, so `CI=false` and `CI=0` no longer select the CI profile. |
+| repo-cli `Ci/CiLane.ts` `qualityCheckConcurrencyArg` (`GITHUB_ACTIONS === "true"`) | - | excluded | Hosted 16GB runner sizing, not a CI predicate. |
+
 ## `@beep/markdown` (wave 2d, SPEC D-46)
 
 | Site | Map id | Status | Notes |
