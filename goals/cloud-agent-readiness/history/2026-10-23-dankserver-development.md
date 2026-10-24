@@ -41,10 +41,10 @@ maintenance changes. New development automation belongs in the isolated
 `feat/dankserver-development-worker` worktree; existing changes are preserved.
 No new worker or provider acceptance is claimed by this preparation receipt.
 
-The fleet skill is `.claude/skills/remote-development-agents` in Beep. Both
-global skill directories link to that versioned source. Preserve this worktree
-until the skill is merged and those links are moved to a retained canonical
-checkout. Its dankserver profile remains pending until live proof is recorded.
+At preparation, both global skill directories linked to
+`.claude/skills/remote-development-agents` in the Beep task worktree, and the
+dankserver profile awaited live proof. The proof and publication updates below
+supersede those temporary holds.
 
 ## Provisioned boundary and development proof — October 24 UTC
 
@@ -144,3 +144,20 @@ The fleet skill and operating records are published in
 [Beep PR #2222](https://github.com/beep-effect/beep-effect/pull/2222).
 Publication gates and the broader cloud/fleet packet remain separate from this
 runtime setup receipt. The same global skill covers all three worker routes.
+
+## Publication closeout — October 24 UTC
+
+Dankserver PR #1 merged as `8d07c0508aaed54d039014163607dd27a397d658`.
+Its merged tree matched the tested branch, and all 11 credential-helper tests
+passed on that branch's final commit. The task worktree and local/remote task
+branch were removed after retaining an archive ref. The primary control
+checkout remains one commit behind with its unrelated maintenance edits intact.
+No CI or deployment workflows are configured in that repository; its
+rate-limited review-bot status is not independent review proof.
+
+Both global remote-agent skill links now use a retained sparse Beep checkout
+at `~/.local/share/beep/worker-skill-source`. The installed skill and goal-packet
+file hashes matched the published source when the links were moved. This
+removes their dependency on the task worktree. Keep the installed checkout
+and advance it to the verified fleet merge revision during closeout. Beep
+PR #2222 remains subject to its own exact-head checks and review window.

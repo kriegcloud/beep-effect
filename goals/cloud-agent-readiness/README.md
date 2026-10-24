@@ -106,9 +106,10 @@ It admits one substantive job at a time within the installed host budget.
 - [TBK worker operation](./ops/tbk-worker-runbook.md): connection, guarded startup,
   protective-stop investigation, workload limits and credential recovery.
 - [Remote development agents](../../.claude/skills/remote-development-agents/SKILL.md):
-  versioned fleet workflow, also installed globally through retained-worktree
-  symlinks. Covers secure access, bounded jobs, reconnecting and evidence. Move
-  those symlinks to the merged source before retiring this worktree.
+  versioned fleet workflow, also installed globally through a retained sparse
+  Beep checkout at `~/.local/share/beep/worker-skill-source`. Covers secure
+  access, bounded jobs, reconnecting and evidence. Keep that installed source
+  when retiring task worktrees; advance it to the verified merged revision.
 - [Dankserver development preparation](./history/2026-10-23-dankserver-development.md):
   live capacity, existing service boundaries and the bare-metal decision.
 - [Worker vault correction](./history/2026-10-24-worker-vault-correction.md):
