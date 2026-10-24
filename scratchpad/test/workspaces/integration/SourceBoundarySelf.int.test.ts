@@ -9,9 +9,12 @@ import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { SourceBoundary } from "../../../effected/workspaces/testing.ts";
+import { type BoundaryRule, SourceBoundary } from "../../../effected/workspaces/testing.ts";
 
-const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "effected", "workspaces");
+// Wave 4-W-a: the core and config-deps modules live in @beep/repo-workspaces; the
+// ./testing cluster stays in the lab directory until 4-W-b.
+const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "packages", "tooling", "library", "repo-workspaces", "src");
+const LAB = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "effected", "workspaces");
 const Platform = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TESTING_MODULES = new Set([
 	"testing.ts",
@@ -25,19 +28,15 @@ const TESTING_MODULES = new Set([
 ]);
 
 /**
- * The modules that legitimately read `process`: ambient defaults (the cwd,
- * the environment) and real Node bindings. Twelve reads across six files:
- * the four root-resolving services share `internal/layerRoot.ts`'s one
- * ambient-cwd read, and four Node bindings each retrieve two built-in modules.
+ * The modules that legitimately read `process`: the ambient cwd read and the
+ * Node sync binding. Wave 4-W-a moved the config-dependency ladder onto
+ * Effect's FileSystem, Path and Config, so only these two remain: the four
+ * root-resolving services and `Workspaces.ts`'s `LocalExec` share
+ * `internal/layerRoot.ts`'s one `ambientCwd` read, and `node-sync.ts`
+ * resolves `node:fs` lazily on first use.
  */
-const PROCESS_READERS: ReadonlyArray<string> = [
-	"Workspaces.ts",
-	"internal/configDependencyFetch.ts",
-	"internal/configDependencyResolution.ts",
-	"internal/configDependencyShared.ts",
-	"internal/layerRoot.ts",
-	"node-sync.ts",
-];
+const PROCESS_READERS: ReadonlyArray<string> = ["internal/layerRoot.ts", "node-sync.ts"];
+const PROCESS_READ_COUNT = 2;
 
 describe("@effected/workspaces, scanned by SourceBoundary", () => {
 	layer(Platform, { timeout: "30 seconds" })((it) => {
@@ -46,7 +45,7 @@ describe("@effected/workspaces, scanned by SourceBoundary", () => {
 				const scan = yield* SourceBoundary.scan({ root: SRC, rules: ["process"] });
 				assert.include(scan.files, "ConfigDependencyHooks.ts", "the embedded script's module was read");
 				assert.deepStrictEqual([...new Set(scan.offences.map((offence) => offence.file))], [...PROCESS_READERS]);
-				assert.strictEqual(scan.offences.length, 12);
+				assert.strictEqual(scan.offences.length, PROCESS_READ_COUNT);
 			}),
 		);
 
@@ -83,18 +82,17 @@ describe("@effected/workspaces, scanned by SourceBoundary", () => {
 			"the ./testing modules read no process, import no node: or platform module, and touch no console or stdout",
 			() =>
 				Effect.gen(function* () {
-					const scan = yield* SourceBoundary.scan({
-						root: SRC,
-						rules: [
-							"process",
-							"node:process",
-							"stdout-write",
-							"console",
-							{ forbidImports: ["node:*", "@effect/platform*"] },
-						],
-					});
+					const rules: ReadonlyArray<BoundaryRule> = [
+						"process",
+						"node:process",
+						"stdout-write",
+						"console",
+						{ forbidImports: ["node:*", "@effect/platform*"] },
+					];
+					const scan = yield* SourceBoundary.scan({ root: LAB, rules });
 					assert.isTrue(scan.files.includes("SourceBoundary.ts"), "the testing modules were read");
-					assert.isNotEmpty(scan.offences, "the same rules do flag the modules outside ./testing");
+					const core = yield* SourceBoundary.scan({ root: SRC, rules });
+					assert.isNotEmpty(core.offences, "the same rules do flag the modules outside ./testing");
 					assert.deepStrictEqual(
 						scan.offences.filter((offence) => TESTING_MODULES.has(offence.file)).map((offence) => offence.label),
 						[],
