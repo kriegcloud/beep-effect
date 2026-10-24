@@ -47,6 +47,19 @@ export { Funding } from "./Funding.ts";
 export { LenientFieldIssue, LenientManifest } from "./LenientManifest.ts";
 export { InvalidSpdxLicenseError, isValidSpdx, licenseExpressionOf, SpdxLicense } from "./License.ts";
 export {
+  BooleanOrStringListField,
+  BrowserField,
+  ManField,
+  OpenRecordField,
+  OverridesField,
+  OverrideValue,
+  StringListField,
+  StringRecordField,
+  TypesVersionsField,
+  WorkspacesConfig,
+  WorkspacesField,
+} from "./ManifestFields.ts";
+export {
   BinField,
   DependencyMapField,
   ExportsField,

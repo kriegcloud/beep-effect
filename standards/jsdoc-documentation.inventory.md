@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-24T03:03:50.635Z
+Generated: 2026-10-24T03:41:47.479Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 99 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
-| publicModules | 3563 |
-| publicExports | 25209 |
+| publicModules | 3564 |
+| publicExports | 25232 |
 | openModules | 492 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 26 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 38 | 303 | 1 | 5 |
 | 27 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 30 | 58 | 0 | 0 |
 | 28 | `@beep/epistemics` | `packages/foundation/modeling/epistemics` | clean | 35 | 131 | 0 | 0 |
-| 29 | `@beep/package-json` | `packages/foundation/modeling/package-json` | clean | 17 | 98 | 0 | 0 |
+| 29 | `@beep/package-json` | `packages/foundation/modeling/package-json` | clean | 18 | 121 | 0 | 0 |
 | 30 | `@beep/colors` | `packages/foundation/capability/colors` | needs-remediation | 1 | 9 | 1 | 9 |
 | 31 | `@beep/config-file` | `packages/foundation/capability/config-file` | clean | 13 | 70 | 0 | 0 |
 | 32 | `@beep/github-commands` | `packages/foundation/modeling/github-commands` | clean | 3 | 6 | 0 | 0 |

@@ -302,6 +302,22 @@ describe("PackageJsonFile manifest and modify", () => {
       })
     );
 
+    it.effect("write keeps a Bun root's nested workspaces key order byte-for-byte", () =>
+      Effect.gen(function* () {
+        const BUN_ROOT_TEXT =
+          '{\n  "name": "root",\n  "version": "0.0.0",\n  "private": true,\n  "workspaces": {\n    "catalog": {\n      "effect": "4.0.4"\n    },\n    "packages": [\n      "packages/*"\n    ]\n  }\n}\n';
+        const file = yield* PackageJsonFile;
+        const fs = yield* FileSystem.FileSystem;
+        const pathService = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped({ prefix: "pkg-json-bun-root-" });
+        const path = pathService.join(dir, "package.json");
+        yield* fs.writeFileString(path, BUN_ROOT_TEXT);
+        yield* file.write(path, yield* file.read(path), { indent: "preserve" });
+
+        assert.strictEqual(yield* fs.readFileString(path), BUN_ROOT_TEXT);
+      })
+    );
+
     it.effect("modify edits one field and preserves every other byte", () =>
       Effect.gen(function* () {
         const file = yield* PackageJsonFile;
