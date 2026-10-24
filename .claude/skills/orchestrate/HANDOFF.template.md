@@ -47,6 +47,16 @@ Money only. Everything else was decided and is in the Decision Log of the owning
 1. <the single most important thing; usually a merge or a routed hold>
 2. ...
 
+## Recipes
+
+Exact commands a successor needs to re-create what dies with this session or must be re-armed:
+merge-gate arming (argv-file recipe), wait-then-arm units, every `Monitor` and background poller
+command with its timeout, and worker/lane launch commands. Paths here are private; never commit.
+
+```bash
+<command>   # what it re-arms, when to re-run it
+```
+
 ## Register
 
 Output of `bun run beep session register list --markdown`, pasted at write time.

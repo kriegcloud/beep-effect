@@ -33,9 +33,9 @@ Do these in order, without asking the operator anything:
 
 1. Read `~/.cache/beep/orchestrator/HANDOFF.md` whole, then
    `tail -40 ~/.cache/beep/orchestrator/STATE.md`. The handoff is the brief:
-   rulings in force (verbatim, dated), the gate snapshot, outstanding work by
-   owner, operator-hands items, ordered next actions, recipes, register rows
-   and broadcast text.
+   rulings in force (verbatim, dated), the gate snapshot, outstanding
+   "final" promises, pending operator decisions, ordered next actions,
+   recipes, register rows, communication routes and broadcast text.
 2. Load the [orchestrate skill](../orchestrate/SKILL.md) and follow its
    Take-over steps 3–8: register list, `gate.sh`, compare with the snapshot,
    claim the role (`bun run beep session note --role orchestrator --state
@@ -51,10 +51,14 @@ Do these in order, without asking the operator anything:
    - any wait-then-arm units it lists.
    `systemctl --user list-units 'merge-gate-*' 'wait-arm-*'` shows which
    survived; re-arm only the missing ones.
-5. Send the handoff's "Broadcast" text to every session in "Outstanding
-   work" through its recorded route (`SendMessage` to the `local_…` id for
-   Claude Desktop sessions). Units with no route stay as listed; never
-   resume a dormant Codex Desktop task to deliver a message.
+5. Send the handoff's "Broadcast" text only to units the "Communication
+   routes" table marks as authorized contacts, through the route recorded
+   there. A session id, register row or this skill's invocation does not
+   establish messaging permission, and a Claude Desktop attachment is a
+   separate qualification: use a `local_…` Desktop route only where the table
+   authorizes it. Record every other unit as unreachable in the handoff and
+   keep its brief on disk; never resume a dormant Codex Desktop task to
+   deliver a message.
 6. Work the "Next actions" list. The standing loop is the orchestrate
    skill's "Run" section: verify each `final <sha40>` (head, draft, threads,
    conflicts, leak grep, coverage-baseline removals), arm the gate, route
@@ -66,17 +70,23 @@ Do these in order, without asking the operator anything:
 
 ## 3. Hand-off (holding session)
 
-Follow the orchestrate skill's Hand-off steps, then:
+Run the orchestrate skill's Hand-off step 1 (convert in-process units) and
+step 5 (announce the move) as written. The list below replaces its steps 2–4
+and 6: no successor id exists yet, so the operator starts the successor and
+this session goes idle only after the successor's claim appears.
 
 1. Convert everything in-process: `Monitor` tasks and background Bash pollers
    die with the session. Record their exact commands in the handoff's
-   "Recipes". Gates and waiters must already be `systemd --user` units.
+   "Recipes" section. Gates and waiters must already be `systemd --user`
+   units.
 2. Rewrite `HANDOFF.md` from
    [the template](../orchestrate/HANDOFF.template.md), backing up the old file
-   first. Include: verbatim dated rulings, a fresh `gate.sh` snapshot, an
-   "Outstanding work" table (PR, owner session id, state, next step),
-   operator-hands items, ordered next actions, the arming/monitor/worker
-   recipes, the live register rows and the broadcast text.
+   first. Fill every template section: verbatim dated rulings, a fresh
+   `gate.sh` snapshot, outstanding "final" promises (with owner addresses),
+   pending operator decisions and operator-hands items, ordered next actions,
+   recipes (gate arming, monitors, workers), the live register rows,
+   communication routes with their authorized-contact column, and the
+   broadcast text.
 3. Retire stale register rows you own, then run `bun run beep session note
    --role member --state blocked --next "handing off the orchestrator role;
    successor: next session that runs /operator-handoff"`.
