@@ -796,7 +796,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
         Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner("REST unavailable", 1))
       );
       expect(snapshot.remote.available).toBe(false);
-      assertTrue(O.isSome(snapshot.remote.readFailure));
+      assertTrue(snapshot.remote.readFailure.pipe(O.isSome));
       expect(snapshot.remote.detail).toContain("REST unavailable");
       const decision = decideYeetReadyGate(
         YeetReadyPullRequestRead.make({

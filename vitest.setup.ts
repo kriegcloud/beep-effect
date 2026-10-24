@@ -426,7 +426,7 @@ const serve = (options: BunServeOptions): ReturnType<BunTestShim["serve"]> => {
     hostname,
     port,
     reload: (options) => {
-      if (bindError) {
+      if (bindError !== undefined) {
         const error = bindError;
         bindError = undefined;
         throw error;
