@@ -17,6 +17,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -32,6 +33,9 @@ import { nearestRank } from "../../internal/stats/NearestRank.ts";
 import { CacheProducerAcceptanceReference, CacheProducerImportRequest } from "./Cache.acceptance.schemas.ts";
 import { loadCacheProducerStoreConfiguration, persistCacheProducerAcceptance } from "./Cache.acceptance.store.ts";
 import { collectCacheCensus } from "./Cache.census.ts";
+import { buildCacheConformanceCorpus, syncCacheConformanceCorpus } from "./Cache.conformance.corpus.ts";
+import { CacheConformanceRun, CacheConformanceTarget } from "./Cache.conformance.schemas.ts";
+import { loadCacheConformanceBearers, runCacheConformance } from "./Cache.conformance.ts";
 import { CacheDependencyMaterialization } from "./Cache.dependencies.schemas.ts";
 import { materializeCacheDependencies } from "./Cache.dependencies.ts";
 import { CacheEntrypointReviewRequest } from "./Cache.entrypoints.schemas.ts";
@@ -887,6 +891,52 @@ const cacheProtocolReviewCommand = Command.make(
     }).pipe(renderCacheFailure)
 ).pipe(Command.withDescription("Validate bounded synthetic protocol observations without granting qualification"));
 
+const cacheConformanceCorpusCommand = Command.make(
+  "conformance-corpus",
+  {
+    check: Flag.Boolean("check").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Fail when the committed corpus differs from the regenerated one")
+    ),
+  },
+  ({ check }) =>
+    syncCacheConformanceCorpus(process.cwd(), check).pipe(
+      Effect.flatMap((path) => Console.log(check ? `${path} is current.` : `${path} written.`)),
+      renderCacheFailure
+    )
+).pipe(Command.withDescription("Generate the Remote Cache conformance corpus from the pinned OpenAPI blob and plan"));
+
+const cacheConformanceRunCommand = Command.make(
+  "conformance-run",
+  { target: Flag.File("target"), output: Flag.Path("output", { pathType: "file" }) },
+  ({ target, output }) =>
+    Effect.gen(function* () {
+      const descriptor = CacheConformanceTarget.make(yield* readCacheRequest(target, CacheConformanceTarget));
+      const bearers = yield* loadCacheConformanceBearers(descriptor);
+      const corpus = yield* buildCacheConformanceCorpus(process.cwd());
+      const report = yield* runCacheConformance(corpus, descriptor, bearers);
+      yield* writeEncoded(
+        report,
+        { encode: S.encodeEffect(S.fromJsonString(CacheConformanceRun, { space: 2 })) },
+        O.some(output),
+        false
+      );
+      yield* Console.log(
+        A.join(
+          A.map(
+            report.summary,
+            (row) =>
+              `${row.dimension}: pass ${row.pass}, fail ${row.fail}, unsupported-optional ${row.unsupportedOptional}, not-applicable ${row.notApplicable}, not-executed ${row.notExecuted}`
+          ),
+          "\n"
+        )
+      );
+    }).pipe(renderCacheFailure)
+).pipe(
+  Command.withDescription("Score one Remote Cache target over direct HTTP; native and lab cases are not executed"),
+  Command.provide(FetchHttpClient.layer)
+);
+
 const cacheExecuteCommand = Command.make(
   "execute",
   { args: Argument.String("args").pipe(Argument.variadic) },
@@ -934,7 +984,7 @@ const cacheRemoteReadsCommand = Command.make(
 
 const cacheCommandDefinition = Command.make("cache", {}, () =>
   Console.log(
-    "cache commands: census, audit, inspect, baseline, fingerprint, profile, activation, transition, synthetic, dependencies, pilot, pilot-signed, accept, protocol-run, protocol-review, warm, probe, dashboard, execute"
+    "cache commands: census, audit, inspect, baseline, fingerprint, profile, activation, transition, synthetic, dependencies, pilot, pilot-signed, accept, protocol-run, protocol-review, conformance-corpus, conformance-run, warm, probe, dashboard, execute"
   )
 ).pipe(
   Command.withDescription("Turbo cache recovery and evidence operations"),
@@ -956,6 +1006,8 @@ const cacheCommandDefinition = Command.make("cache", {}, () =>
     cacheAcceptCommand,
     cacheProtocolRunCommand,
     cacheProtocolReviewCommand,
+    cacheConformanceCorpusCommand,
+    cacheConformanceRunCommand,
     cacheWarmCommand,
     cacheProbeCommand,
     cacheDashboardCommand,

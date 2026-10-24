@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "cache-conformance-lab-receipt/v1",
+  "epoch": "c1023a",
+  "profile": "aws-lab",
+  "account": "832907639880",
+  "region": "us-east-1",
+  "stack": "beep-turbo-cache-lab/lab-c1023a",
+  "approvedCeilingUsd": 10,
+  "appliedAt": "2026-10-24T01:10:54Z",
+  "expiresAt": "2026-10-26T01:10:54Z",
+  "preview": "32 creates, 0 updates, 0 deletes; every resource named beep-tcl-c1023a-*; no production resource referenced",
+  "pins": {
+    "incumbentZipSha256": "f865fed950e5226e89afbc976e39a09f59944c688740ed7dc01b732e7e68177c",
+    "incumbentZipSource": "infra/lambda/turbo-cache at the lab branch base (main b6e7399445), built by build.sh into a lab-only artifacts root",
+    "productionZipSha256": "47fcec56b828fa7ce41414f6f9e39c31d9c015d5a5ef34617bde3e004008f8e5",
+    "parityNote": "The two ZIPs differ, so the lab incumbent is main's source, not a byte replica of the deployed production ZIP. Deployed production parity is not claimed.",
+    "shim": "turborepo-remote-cache@2.12.0 sha512-X34C/eyL+cIDQRDBAln0zEa5QsqpCbbbxS7qtiIhgmNGKlQQPFPo6snbOyq7xhRfVKFeyVEIAypTrR7XDZV6pw=="
+  },
+  "isolation": [
+    "Lab-only KMS key and three SecureStrings under /beep-ci/cache-lab/c1023a/, generated in-process, never printed.",
+    "Lab bucket beep-tcl-c1023a-832907639880; lab roles are scoped to it by the unchanged CiTurboCache component."
+  ],
+  "deployedChecks": [
+    {
+      "case": "RC-011",
+      "check": "status/PUT/GET with lab reader and writer bearers",
+      "observed": "200/200/200"
+    },
+    {
+      "case": "RC-011",
+      "check": "unknown bearer GET; missing Authorization",
+      "observed": "403; 401"
+    },
+    {
+      "case": "RC-012",
+      "check": "reader bearer PUT",
+      "observed": "403, no object"
+    },
+    {
+      "case": "RC-012",
+      "check": "IAM simulation of the read role on the lab bucket",
+      "observed": "s3:GetObject allowed; s3:PutObject and s3:DeleteObject implicitDeny"
+    },
+    {
+      "case": "RC-012",
+      "check": "IAM simulation of the write role",
+      "observed": "s3:PutObject and s3:GetObject allowed; s3:DeleteObject implicitDeny"
+    },
+    {
+      "case": "RC-013",
+      "check": "direct lambda:Invoke of the writer with a PUT event lacking the authorizer signature",
+      "observed": "statusCode 403; no object created (bucket held only the smoke artifact)"
+    }
+  ],
+  "limits": [
+    "RC-013 used the operator principal, which may invoke any function; the check proves the writer's HMAC gate, not that other principals lack lambda:InvokeFunction.",
+    "Teardown evidence is appended at destroy time."
+  ]
+}

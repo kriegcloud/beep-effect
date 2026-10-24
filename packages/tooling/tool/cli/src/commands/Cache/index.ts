@@ -32,6 +32,77 @@ export {
   runCacheWarm,
 } from "./Cache.command.ts";
 /**
+ * Remote Cache conformance corpus generation.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export {
+  buildCacheConformanceCorpus,
+  CacheConformancePaths,
+  renderCacheConformanceCorpus,
+  syncCacheConformanceCorpus,
+} from "./Cache.conformance.corpus.ts";
+/**
+ * Remote Cache conformance corpus, target, receipt and run-report contracts.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export {
+  CacheConformanceBearers,
+  CacheConformanceCase,
+  CacheConformanceCaseClass,
+  CacheConformanceCaseId,
+  CacheConformanceCaseResult,
+  CacheConformanceCaseVerdicts,
+  CacheConformanceCorpus,
+  CacheConformanceCredentialRole,
+  CacheConformanceDimension,
+  CacheConformanceEnvName,
+  CacheConformanceExchange,
+  CacheConformanceExecutor,
+  CacheConformanceHashShape,
+  CacheConformanceMethod,
+  CacheConformanceOperation,
+  CacheConformanceOperationId,
+  CacheConformanceOrigin,
+  CacheConformanceOutcome,
+  CacheConformanceProfile,
+  CacheConformanceResponseShape,
+  CacheConformanceRoute,
+  CacheConformanceRun,
+  CacheConformanceSelectorShape,
+  CacheConformanceTarget,
+  CacheConformanceTopology,
+  CacheConformanceVerdict,
+  CacheConformanceVerdictCounts,
+  CacheConformanceVerdictKind,
+} from "./Cache.conformance.schemas.ts";
+/**
+ * Score a Remote Cache target against the conformance corpus.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export {
+  assertCacheConformanceTargetBoundary,
+  encodeCacheConformanceRun,
+  loadCacheConformanceBearers,
+  runCacheConformance,
+} from "./Cache.conformance.ts";
+/**
+ * Direct-wire Remote Cache case execution.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export {
+  CacheConformanceWireCheck,
+  CacheConformanceWireOutcome,
+  runCacheConformanceWireCase,
+} from "./Cache.conformance.wire.ts";
+/**
  * Installed dependency identities and materialization contracts.
  *
  * @category models

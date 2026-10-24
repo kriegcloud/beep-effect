@@ -10,6 +10,14 @@ regexes = ['''^runtimeKey(?:Digest|Value|ObservationSha256)"\s*:\s*"[0-9a-f]{64}
 paths = ['''^(?:/repo/)?goals/turborepo-task-qualification/research/(?:runtime-key-checkpoint|runtime-keyed-invalidation-observation|pilot-runtime-key-v5-stable|pilot-runtime-key-v5-canary)\.json$''']
 
 [[allowlists]]
+description = "Cache conformance pins and run receipts store public OpenAPI blob and SHA-256 digests, not credentials. Restricted to the digest fields in the corpus source and run receipts."
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "match"
+regexes = ['''^(?:openapiGitBlob|openapiSha256|sourcePlanSha256)"?\s*:\s*"[0-9a-f]{40,64}"$''']
+paths = ['''^(?:/repo/)?(?:packages/tooling/tool/cli/src/commands/Cache/Cache\.conformance\.corpus\.ts|goals/turborepo-cache-conformance/research/runs/[a-z0-9-]+\.json)$''']
+
+[[allowlists]]
 description = "Exact public synthetic canary used to verify cache capture rejection; never an operator credential."
 targetRules = ["generic-api-key"]
 condition = "AND"

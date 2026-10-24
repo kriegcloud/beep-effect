@@ -189,6 +189,18 @@ this goal.
 - A change would overwrite another owner's artifacts, weaken required statuses,
   or bypass the approved secret or runner-admission paths.
 
+## Decision log
+
+| Date | Decision | Reason | Reversal |
+| --- | --- | --- | --- |
+| 2026-10-23 | Score `turbo@2.11.10` (stable, matches the repo lock) and `2.11.9-canary.1` (the current `canary` dist-tag, which trails stable). | The SPEC asks for the exact published canary; npm published no canary after 2.11.9. | Re-pin when a newer canary is published; regenerate client receipts. |
+| 2026-10-23 | Score Ducktors `2.14.3`; record `2.14.4` without scoring it. | 2.14.4 was published hours before the refresh; the repo's two-week supply-chain age floor applies. | Re-pin after 2026-11-06 and rerun the corpus. |
+| 2026-10-23 | Bruno pin moves from 4.0.17 to 4.0.20, and a `bruno-loopback` topology joins the comparison. | PR #2000 put Bruno 4.0.20 on consumer-host loopback over R2 (opt-in, inactive); comparing a release nobody runs would be moot. The live R2 bucket is never a write target. | Drop the topology if the R2 cohort is retired. |
+| 2026-10-23 | The local container lab lives in `infra/lambda/turbo-cache/lab/` and is not bundled. | Its gateway must load the pinned shim and the incumbent's own authorizer/writer source; that package already owns them and is outside fallow's scope. No adapter source changes. | Move the three files to their own directory and add an install step. |
+| 2026-10-23 | The lab's S3-compatible store is `versity/versitygw` v1.0.17 by digest. | MinIO no longer publishes community images; versitygw is Apache-2.0 and serves a POSIX directory. | Swap the image line in `lab.sh`. |
+| 2026-10-23 | The AWS lab is a separate Pulumi project reusing `CiTurboCache` unchanged under a `beep-tcl-<epoch>` name; Bruno and upstream Ducktors are not deployed to AWS. | One shared-file writer and no production stack contact. Both candidates deploy as single processes, so the local lab is their deployed shape. | Add Fargate services to the lab entry if a deployed candidate shape changes. |
+| 2026-10-23 | Lab spend (P2) escalated with a prepared preview; the operator approved a USD 10 ceiling, a 48-hour TTL and the read-only production size census in chat on 2026-10-23. | AGENTS.md autonomy charter: money escalates. | `lab-aws.sh destroy <epoch>` and inventory; the approval covers this lab only. |
+
 ## Exception ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |

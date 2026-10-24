@@ -16,9 +16,9 @@ SPEC gates. Prefer local fixtures with no incremental cloud resources.
 
 | Phase | Status | Work | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Pins, corpus and budget plan | in-progress | Refresh exact releases/licenses, inventory the source contract, agree receipt interfaces and derive the lab deployment plan. | Immutable pins and case mapping; numeric cost/TTL/load bounds precede any deployment. |
+| P0 Pins, corpus and budget plan | completed | Refresh exact releases/licenses, inventory the source contract, agree receipt interfaces and derive the lab deployment plan. | Immutable pins and case mapping; numeric cost/TTL/load bounds precede any deployment. |
 | P1 Local differential runner | in-progress | Generate baseline cases and add semantic/adversarial fixtures behind Cache. | Spec/stable/canary verdicts remain separate; direct receipts expose fail-soft behavior. |
-| P2 Disposable AWS lab | pending | Review the bounded deployment preview and provision isolated comparison topologies through repo infra. | Scoped lab is healthy, expiring, budgeted, and has a reproducible teardown. |
+| P2 Disposable AWS lab | in-progress | Review the bounded deployment preview and provision isolated comparison topologies through repo infra. | Scoped lab is healthy, expiring, budgeted, and has a reproducible teardown. |
 | P3 Execute and compare | pending | Run identical cases/load across incumbent, evolved incumbent, Bruno and Ducktors; consume trust fixes and rerun. | Every case is attributed; frozen rubric yields a recommendation or a substantiated no-eligible result. |
 | P4 Verify and tear down | pending | Prove upgrade regeneration, fault reproducibility, artifact retention and lab teardown; hand off signed-boundary receipts. | Package/protocol checks pass, deletion targets are verified, cost and cleanup receipts exist. |
 | P5 Yeet: PR to mergeable | pending | Publish through Yeet and resolve hosted failures and reviews. | Yeet monitor reports merge-ready: yes on final head. |
@@ -194,3 +194,21 @@ seven edited variants per report fail. Fresh stable 2.11.5 and exact canary 2.11
 native cases with 23 wire events. Full package verification passes: audit 627.0
 seconds, docgen 21.8 seconds. This does not grant qualification or
 replace the remaining authenticated-bundle and operational-import work.
+
+## Corpus, lab and comparison slice — 2026-10-23
+
+P0 closed: [pins](./research/pins-2026-10-23.json) refresh the clients to
+stable 2.11.10 and canary 2.11.9-canary.1 (the canary tag trails stable),
+Ducktors to 2.14.3 and Bruno to 4.0.20; the OpenAPI blob is unchanged. The
+[measured envelope](./research/load-envelope-2026-10-23.json) comes from a
+read-only census of 120,154 production objects (p99 428,602 bytes, max
+4,616,341) and peak Lambda concurrency (20 read, 10 write). The
+[design](./research/corpus-fixture-design.md) compiles the 32-case plan into
+`cache conformance-corpus` and `cache conformance-run`.
+
+The local lab (`infra/lambda/turbo-cache/lab/`) runs the incumbent's own
+authorizer, writer gate and two shim functions behind an API v2 emulator,
+Bruno behind that boundary and alone, and upstream Ducktors, all over an
+isolated S3-compatible store on loopback. The operator approved the AWS lab
+(USD 10, 48 hours); stack `lab-c1023a` applied 32 lab-only resources at
+2026-10-24T01:10:54Z ([receipt](./research/aws-lab-c1023a.json)).
