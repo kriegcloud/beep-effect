@@ -11,7 +11,7 @@ import * as TestClock from "effect/testing/TestClock";
 import { Box, Text, render, renderToString } from "ink";
 import type { ReactElement, ReactNode } from "react";
 import { createElement } from "react";
-import { CliTheme } from "../../../effected/cli/CliTheme.ts";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
 import { withInkColour } from "../../../effected/cli/ui/internal/ink.ts";
 import { useScreenCancel } from "../../../effected/cli/ui/internal/ScreenContext.ts";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
