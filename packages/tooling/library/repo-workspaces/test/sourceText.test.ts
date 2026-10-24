@@ -116,7 +116,13 @@ describe("sourceText review regressions", () => {
 });
 
 describe("sourceText cooked identifier regressions", () => {
-  const reads = ["\\u0070rocess", "\\u{70}rocess", "pr\\u006fcess", "pr\\u006Fcess", "proce\\u0073\\u0073"] as const;
+  const reads = [
+    "\\u0070rocess",
+    "\\u{70}\\u0072ocess",
+    "pr\\u006fcess",
+    "pr\\u006Fcess",
+    "proc\\u0065\\u0073\\u0073",
+  ] as const;
   for (const raw of reads) {
     it(`matches the whole cooked identifier ${raw} at its original UTF-16 offset`, () => {
       const text = `const label = "😀"; /* comment */\r\nconst p = ${raw};`;
@@ -137,17 +143,17 @@ describe("sourceText cooked identifier regressions", () => {
     "\\u{1d499}process",
     "process\\uD835\\uDC99",
     "child.\\u0070rocess",
-    "child?.\\u{70}rocess",
+    "child?.\\u{70}\\u0072ocess",
     "this.#\\u0070rocess",
     "({ \\u0070rocess: 1 })",
-    "interface I { \\u{70}rocess?: string }",
+    "interface I { \\u{70}\\u0072ocess?: string }",
     "\\u007Zprocess",
     "process\\u00ZZ",
     "\\u{110000}process",
     "process\\u0020",
     "process\\u{D800}",
     "\\U0070rocess",
-    "\\u{70rocess",
+    "\\u{70\\u0072ocess",
   ] as const;
   for (const text of nonReads) {
     it(`excludes longer names, members, keys and invalid escapes in ${text}`, () => {
@@ -163,10 +169,10 @@ describe("sourceText cooked identifier regressions", () => {
   const calls = [
     "\\u0072equire",
     "re\\u0071uire",
-    "requir\\u{65}",
+    "requi\\u0072\\u{65}",
     "require?.",
     "\\u0072equire?.",
-    "requir\\u{65}?.",
+    "requi\\u0072\\u{65}?.",
     "require /* comment */ ?. /* comment */",
   ] as const;
   for (const callee of calls) {
@@ -191,7 +197,7 @@ describe("sourceText cooked identifier regressions", () => {
     'obj.#\\u0072equire?.("node:process")',
     '\\u0078require("node:process")',
     'require\\u0078?.("node:process")',
-    'requir\\u{110000}("node:process")',
+    'requi\\u0072\\u{110000}("node:process")',
     '\\u00ZZrequire?.("node:process")',
     '\\u0020require("node:process")',
     '\\u{require("node:process")',

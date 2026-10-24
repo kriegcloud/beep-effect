@@ -43,11 +43,6 @@ Definely = "Definely"
 LOV = "LOV"
 # Intentional misspelling in identity Vocab negative test (asserts typo'd predicate is rejected)
 Clas = "Clas"
-# @beep/repo-workspaces sourceText tests spell `process` and `require` through escape
-# sequences (\u{70}rocess, proce\u0073\u0073, requir\u{65}) to pin identifier decoding.
-rocess = "rocess"
-proce = "proce"
-requir = "requir"
 
 # Biome rule names
 Inferrable = "Inferrable"

@@ -480,7 +480,7 @@ describe("SourceBoundary.fixtures", () => {
   });
 
   it("covers both polarities for every rule kind", () => {
-    const kinds = new Set(A.map(SourceBoundary.fixtures, (fixture) => kindOf(fixture.rule)));
+    const kinds = A.dedupe(A.map(SourceBoundary.fixtures, (fixture) => kindOf(fixture.rule)));
     for (const kind of kinds) {
       const own = A.filter(SourceBoundary.fixtures, (fixture) => kindOf(fixture.rule) === kind);
       assert.isTrue(
@@ -492,7 +492,7 @@ describe("SourceBoundary.fixtures", () => {
         `${kind} has a spared fixture`
       );
     }
-    assert.strictEqual(kinds.size, 7);
+    assert.strictEqual(kinds.length, 7);
   });
 });
 
@@ -601,7 +601,7 @@ describe("SourceBoundary round-2 scanner contracts", () => {
     assert.isFalse(SourceBoundary.referencesProcess("process\\u00ZZ;"));
     assert.deepStrictEqual(
       A.map(
-        SourceBoundary.check("src/a.ts", 'const label = "😀";\r\n\tconst p = \\u{70}rocess;', ["process"]),
+        SourceBoundary.check("src/a.ts", 'const label = "😀";\r\n\tconst p = \\u{70}\\u0072ocess;', ["process"]),
         (offence) => offence.label
       ),
       ["src/a.ts:2:12 process process"]

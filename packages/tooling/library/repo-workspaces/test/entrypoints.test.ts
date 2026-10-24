@@ -33,7 +33,7 @@ const reachableFrom = (entry: string): ReadonlyArray<string> => {
 };
 
 const TESTING_ONLY =
-  /^(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
+  /^(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan|internal\/dependencyFields)\.ts$/;
 
 describe("entrypoint boundary", () => {
   it("exports the synchronous enumeration depth error from the main entrypoint", () => {
@@ -62,6 +62,7 @@ describe("entrypoint boundary", () => {
       "WorkspaceLayering",
       "PackedInstall",
       "internal/packedInstallPlan",
+      "internal/dependencyFields",
     ]) {
       assert.include(reachable, `${module}.ts`, module);
     }

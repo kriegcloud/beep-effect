@@ -63,6 +63,9 @@ const PROD = "dist/prod/npm/pkg";
 const HOST_ENV: Readonly<Record<string, string | undefined>> = process.env;
 const IS_DARWIN = process.platform === "darwin";
 const NODE = process.execPath;
+// `NODE` is this process's own binary: Bun under `bunx --bun`, Node otherwise. Each runtime words a
+// missing module its own way, so the expected wording is keyed by the runtime that spawns it.
+const MODULE_NOT_FOUND = process.versions.bun === undefined ? /ERR_MODULE_NOT_FOUND/ : /Cannot find module/;
 /** The parent manager's context this runner carries, which every spawn must lose. */
 const LEAKED = A.filter(R.keys(HOST_ENV), (key) => /^(npm_|pnpm_config_|PNPM_SCRIPT_SRC_DIR$)/i.test(key));
 const USER_AGENT = O.getOrElse(O.fromUndefinedOr(HOST_ENV.npm_config_user_agent), () => "");
@@ -609,9 +612,9 @@ describe("PackedInstall against a real fixture workspace", () => {
           if (O.isNone(pnpm)) return;
           const out = yield* importFromRoot(pnpm.value);
           assert.isFalse(out.succeeded);
-          // Node reports ERR_MODULE_NOT_FOUND; under `bunx --bun` the runner and the `node` on PATH are
-          // Bun, which reports "Cannot find module". Either way the unresolved specifier is the peer.
-          assert.match(out.stderr, /ERR_MODULE_NOT_FOUND|Cannot find module/);
+          // Node reports ERR_MODULE_NOT_FOUND; under `bunx --bun` the runner and `NODE` are Bun, which
+          // reports "Cannot find module". Either way the unresolved specifier is the peer.
+          assert.match(out.stderr, MODULE_NOT_FOUND);
           assert.include(out.stderr, LIB);
         }).pipe(Effect.timeout("100 seconds")),
       120_000
