@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty, BoolKeyDefaultFalse } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -55,14 +56,8 @@ type EffectFnOwner = ArrowFunction | FunctionDeclaration | FunctionExpression | 
  */
 export class EffectFnRulesOptions extends S.Opaque<EffectFnRulesOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    strictCheck: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    excludePaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    strictCheck: BoolKeyDefaultFalse,
+    excludePaths: ArrayKeyDefaultEmpty(S.String),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
   }).pipe(
     $I.annoteSchema("EffectFnRulesOptions", {
@@ -138,14 +133,8 @@ export class EffectFnRulesSummary extends S.Opaque<EffectFnRulesSummary, { reado
     touchedFiles: S.Finite,
     violationCount: S.Finite,
     strictFailure: S.Boolean,
-    affectedFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    diagnostics: S.Array(EffectFnDiagnostic).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<EffectFnDiagnostic>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectFnDiagnostic>()))
-    ),
+    affectedFiles: ArrayKeyDefaultEmpty(S.String),
+    diagnostics: ArrayKeyDefaultEmpty(EffectFnDiagnostic),
   }).pipe(
     $I.annoteSchema("EffectFnRulesSummary", {
       description: "Summary of repo-local Effect.fn supplemental law results.",

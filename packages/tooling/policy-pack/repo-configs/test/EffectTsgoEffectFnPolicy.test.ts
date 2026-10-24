@@ -27,7 +27,7 @@ const effectTsgoCliPath = NodeURL.fileURLToPath(
   new URL("../../../../../node_modules/@effect/tsgo/dist/effect-tsgo.cjs", import.meta.url)
 );
 
-// Shared Effect rules gate tsc-rs until the standalone diagnostics lane is promoted.
+// tsc-rs reports Effect rules but gates TypeScript errors only; the standalone diagnostics lane gates the rules.
 // Its embedded Effect port may lag the independently reviewed editor/rule compiler.
 const RootCatalog = S.Struct({
   catalog: S.Struct({ "tsc-rs": S.String, "@effect/tsgo": S.String }),
@@ -189,12 +189,13 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
         const tscRs = yield* runCommand(process.execPath, [tscRsBinPath, "--version"], repoRoot);
         const context = `tsc-rs --version: stdout=${Str.takeLeft(tscRs.stdout, 2048)}; stderr=${Str.takeLeft(tscRs.stderr, 2048)}`;
         expect(tscRs.exitCode, context).toBe(0);
-        // tsc-rs pins its own upstream TypeScript (7.1.0-dev.20261008.1 for 0.8.0) and does not
+        // tsc-rs pins its own upstream TypeScript (7.1.0-dev.20261008.1 as of 0.8.0) and does not
         // carry the +effect-tsgo build suffix; the Effect rules are compiled in.
         expect(tscRs.stdout, context).toMatch(/^Version 7\.1\.0-dev/u);
         expect(tscRs.stdout, context).not.toContain("+effect-tsgo");
         const { catalog } = decodeRootCatalog(yield* fs.readFileString(rootManifestPath));
-        expect(catalog["tsc-rs"]).toBe("0.8.0");
+        // `deps:update` moves tsc-rs to the latest release, so only require an exact pin.
+        expect(catalog["tsc-rs"]).toMatch(/^\d+\.\d+\.\d+$/u);
         expect(catalog["@effect/tsgo"]).toBe("0.55.0");
       })
     );

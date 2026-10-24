@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import * as A from "effect/Array";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../../../internal/schema/JsonCodec.ts";
@@ -200,14 +200,8 @@ export class PrCloseoutReport extends S.Opaque<PrCloseoutReport, { readonly bran
     reviewedHeadSha: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     retriggeredGreptile: S.Boolean,
     schemaVersion: S.tag("yeet-pr-closeout/v1"),
-    states: S.Array(PrCloseoutGateState).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutGateState>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<PrCloseoutGateState>()))
-    ),
-    writeActions: S.Array(PrCloseoutWriteAction).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<PrCloseoutWriteAction>()))
-    ),
+    states: ArrayKeyDefaultEmpty(PrCloseoutGateState),
+    writeActions: ArrayKeyDefaultEmpty(PrCloseoutWriteAction),
   }).pipe(
     $I.annoteSchema("PrCloseoutReport", {
       description: "Structured PR closeout result bound to the reviewed pull request head.",

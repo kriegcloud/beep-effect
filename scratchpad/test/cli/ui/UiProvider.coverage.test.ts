@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { CliUi } from "../../../effected/cli/ui/CliUi.ts";
 import { UiProvider } from "../../../effected/cli/ui/UiProvider.ts";
 import { DocView } from "../../../effected/cli/ui/DocView.ts";
-import { Doc } from "../../../effected/cli/Doc.ts";
+import { Doc } from "@beep/cli-kit/Doc";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 
 it.layer(Layer.unwrap(Effect.map(CliUiTest.session(), (session) => session.layer)), { timeout: "30 seconds" })((it) => {

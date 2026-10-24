@@ -18,6 +18,7 @@ describe("schema test helpers", () => {
 
   it("asserts that schema-derived arbitrary values decode to themselves", () => {
     assertSchemaArbitraryDecodesToSelf(S.Literal("ready"), { runs: 5 });
+    assertSchemaArbitraryDecodesToSelf()(S.Literal("ready"));
   });
 
   it("supports object-valued class schemas", () => {
