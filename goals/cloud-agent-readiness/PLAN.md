@@ -140,8 +140,8 @@ initially serving command-line and web workflows (D15), with 4 vCPUs and
 old Ubuntu SATA SSD while preserving existing data (D17).
 Restricted guest networking is accepted (D18): operator inbound access and
 public-internet egress, with private host/LAN/tailnet initiation denied by default.
-A dedicated development-only 1Password service account is required for this
-guest (D19); audit vault membership and credential capabilities before delivery.
+D19 originally required a dedicated development-only 1Password account.
+D40 later expanded its readable credential scope as described below.
 D29 initially admitted repository, registry and coding-provider credentials.
 D40 supersedes the vault membership: each dedicated worker account can read
 `BEEP_SECRETS` plus its own development vault. The replacements were verified

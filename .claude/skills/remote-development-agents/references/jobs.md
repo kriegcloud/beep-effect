@@ -35,7 +35,7 @@ name and a brief containing no secrets. The example per-job limits must fit
 inside the host's already-admitted aggregate budget.
 
 ```sh
-systemd-run --user --unit=dev-agent-TASK-ID --service-type=exec \
+systemd-run --user --remain-after-exit --unit=dev-agent-TASK-ID --service-type=exec \
   --slice=agent-runs.slice --working-directory=/absolute/task/worktree \
   --property=RuntimeMaxSec=3600 --property=TimeoutStopSec=30 \
   --property=KillMode=control-group --property=UMask=0077 \
@@ -61,6 +61,13 @@ secret isolation. A narrower technical grant requires a different vault scope
 or execution identity; do not claim that the example unit supplies one.
 
 ## Observe and recover
+
+`--remain-after-exit` keeps a successful unit inspectable after the process exits,
+including after SSH disconnects. `active/exited` describes a completed retained
+unit, not a still-running job; inspect `Result` and `ExecMainStatus` before calling
+it successful. Save the receipt, then explicitly stop only that retained unit.
+Do not add `--collect`, `--wait` or `--pipe` to this detached retention example.
+See the [systemd-run reference](https://www.freedesktop.org/software/systemd/man/latest/systemd-run.html#--remain-after-exit).
 
 ```sh
 systemctl --user show dev-agent-TASK-ID.service \

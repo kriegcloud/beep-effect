@@ -46,8 +46,9 @@ network boundaries, fresh healthy readings, 60 consecutive healthy seconds,
 stop latch. Direct `virsh start` cannot bypass the single-use start permit.
 
 The guard checks execution/consensus synchronization, fresh chain heads and
-the configured full set of active validators. It also requires at least 16 GiB available host memory,
-host memory full pressure at most 1%, host I/O full pressure at most 10%, and
+the configured full set of active validators. It also requires at least 16 GiB
+available host memory, host memory full pressure at most 1%, host I/O full
+pressure at most 10%, and
 filesystem headroom. Pressure values are the kernel's ten-second averages.
 Sustained failure or missing readings for 90 seconds stops the guest. A broken
 containment boundary stops it immediately. Loss of the guard also stops it.
