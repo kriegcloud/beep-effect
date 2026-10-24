@@ -9,7 +9,7 @@ import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 import { Text } from "ink";
 import { createElement } from "react";
-import { CliInteractive, CliTheme, NotInteractive } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme, NotInteractive } from "@beep/cli-kit";
 import type { FakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import { CliUi, UiStreams } from "../../../effected/cli/ui.ts";

@@ -1,0 +1,96 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { assert, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const runs = { arbitrary: fcRuns(100) };
+
+import { Doc } from "@beep/cli-kit/Doc";
+import { capOf, renderDoc, renderDocLines, targetText, textLines, trimLine } from "@beep/cli-kit/internal/renderDoc";
+import { plainInline } from "@beep/cli-kit/internal/renderPlain";
+import { Render } from "@beep/cli-kit/Render";
+import { dual } from "effect/Function";
+import * as Str from "effect/String";
+import type { Flavour, Line } from "@beep/cli-kit/internal/renderDoc";
+import type { RenderContext } from "@beep/cli-kit/Render";
+
+const ctx = Render.contextOf({ audience: "agent" });
+const flavour: Flavour = {
+  inline: plainInline,
+  finish: dual(2, (line: Line, _ctx: RenderContext.Encoded): string =>
+    A.join(
+      A.map(line, (span) => span.text),
+      ""
+    )
+  ),
+};
+it.effect.prop(
+  "textLines: parse/stringify fidelity and normalized line-ending idempotence",
+  [Arbitrary.schema(S.String)],
+  ([text]) =>
+    Effect.sync(() => {
+      const parsed = textLines(text);
+      const stringified = `${A.join(parsed, "\n")}\n`;
+      assert.deepStrictEqual(textLines(stringified), parsed);
+      assert.strictEqual(A.join(textLines(stringified), "\n"), A.join(parsed, "\n"));
+    }),
+  runs
+);
+it.effect.prop(
+  "trimLine is idempotent and keeps all non-trailing text",
+  [S.String.pipe(S.Array, Arbitrary.schema)],
+  ([strings]) =>
+    Effect.sync(() => {
+      const spans = A.map(strings, (text) => ({ text }));
+      const trimmed = trimLine(spans);
+      assert.deepStrictEqual(trimLine(trimmed), trimmed);
+      assert.strictEqual(
+        A.join(
+          A.map(trimmed, (span) => span.text),
+          ""
+        ),
+        Str.trimEnd(A.join(strings, ""))
+      );
+    }),
+  runs
+);
+it.effect.prop(
+  "renderDoc and its line parser preserve verbatim text with idempotent rendering",
+  [Arbitrary.schema(S.String)],
+  ([text]) =>
+    Effect.sync(() => {
+      const doc = [Doc.verbatim(`prefix ${text} suffix`)];
+      const once = renderDoc(doc, ctx, flavour);
+      assert.deepStrictEqual(renderDocLines(doc, ctx, flavour), textLines(once));
+      assert.strictEqual(renderDoc([Doc.verbatim(once)], ctx, flavour), once);
+      assert.deepStrictEqual(
+        textLines(renderDoc([Doc.verbatim(A.join(textLines(once), "\n"))], ctx, flavour)),
+        textLines(once)
+      );
+    }),
+  runs
+);
+it.effect.prop(
+  "cap normalization is idempotent and file target rendering retains location coordinates",
+  [Arbitrary.schema(S.Int)],
+  ([n]) =>
+    Effect.sync(() => {
+      assert.strictEqual<unknown>(capOf(n).pipe(O.flatMap(capOf), O.getOrUndefined), O.getOrUndefined(capOf(n)));
+      const rendered = targetText({ file: "source.ts", line: n, col: 2 }, ctx);
+      const parts = Str.split(rendered, ":");
+      assert.deepStrictEqual(parts, ["source.ts", String(n), "2"]);
+      const recovered = {
+        file: A.getUnsafe(parts, 0),
+        line: Number(A.getUnsafe(parts, 1)),
+        col: Number(A.getUnsafe(parts, 2)),
+      };
+      assert.strictEqual(recovered.file, "source.ts");
+      assert.isTrue(recovered.line === n);
+      assert.strictEqual(recovered.col, 2);
+      assert.strictEqual(targetText(recovered, ctx), rendered);
+    }),
+  runs
+);
