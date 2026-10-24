@@ -482,6 +482,9 @@ const canonicalizeExistingDirectory = Effect.fn("Files.matchPersonCanonicalizeDi
   return canonical;
 });
 
+// A Windows drive root (`C:\` or `C:/`) or UNC (`\\`) prefix, which `XdgBase` does not count as absolute.
+const hasWindowsRootPrefix = (value: string): boolean => /^(?:[A-Za-z]:[\\/]|\\\\)/u.test(value);
+
 /**
  * Select the person-match cache directory before it is canonicalized.
  *
@@ -493,6 +496,10 @@ const canonicalizeExistingDirectory = Effect.fn("Files.matchPersonCanonicalizeDi
  * under an absolute `$HOME`); then `.cache/beep/photo-face` beneath
  * `%USERPROFILE%`, the Windows branch. Values are trimmed, and a blank one
  * counts as unset. `None` means nothing resolves.
+ *
+ * `XdgBase` is POSIX-only, so Windows roots keep their old rungs beside it: a
+ * drive or UNC `XDG_CACHE_HOME` is still used, and a drive or UNC `HOME` still
+ * comes before `USERPROFILE`.
  *
  * **Example** (Build the selection effect)
  *
@@ -517,12 +524,15 @@ export const selectPersonMatchCacheRoot = Effect.fn("Files.matchPersonSelectCach
     [readOptionalConfig("XDG_CACHE_HOME"), readOptionalConfig("HOME"), readOptionalConfig("USERPROFILE")],
     { concurrency: 3 }
   );
-  const xdgCache = XdgBase.resolve("cache", { value: O.getOrUndefined(xdgCacheHome), home: O.getOrUndefined(home) });
+  const xdgCache = O.orElse(O.filter(xdgCacheHome, hasWindowsRootPrefix), () =>
+    XdgBase.resolve("cache", { value: O.getOrUndefined(xdgCacheHome), home: O.getOrUndefined(home) })
+  );
+  const homeCache = O.orElse(O.filter(home, hasWindowsRootPrefix), () => userProfile);
   return pipe(
     configured,
     O.map(path.resolve),
     O.orElse(() => O.map(xdgCache, (root) => path.join(root, "beep", "photo-face"))),
-    O.orElse(() => O.map(userProfile, (root) => path.join(root, ".cache", "beep", "photo-face")))
+    O.orElse(() => O.map(homeCache, (root) => path.join(root, ".cache", "beep", "photo-face")))
   );
 });
 

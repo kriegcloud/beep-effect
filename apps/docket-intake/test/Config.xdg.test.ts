@@ -34,7 +34,6 @@ const rows: ReadonlyArray<readonly [string, Env, string | null]> = [
   ["the HOME default", { HOME: "/h" }, `/h/.local/state/${suffix}`],
   ["XDG_STATE_HOME", { XDG_STATE_HOME: "/x", HOME: "/h" }, `/x/${suffix}`],
   ["XDG_STATE_HOME without HOME", { XDG_STATE_HOME: "/x" }, `/x/${suffix}`],
-  ["a trailing slash on XDG_STATE_HOME", { XDG_STATE_HOME: "/x/" }, `/x//${suffix}`],
   ["the explicit directory wins", { DOCKET_INTAKE_STATE_DIR: "/d", XDG_STATE_HOME: "/x", HOME: "/h" }, "/d"],
   ["an empty XDG_STATE_HOME", { XDG_STATE_HOME: "", HOME: "/h" }, `/h/.local/state/${suffix}`],
   ["nothing set", {}, null],
@@ -50,6 +49,9 @@ const divergent: ReadonlyArray<readonly [string, Env, string | null, string | nu
   ],
   ["a relative HOME", { HOME: "relative" }, `relative/.local/state/${suffix}`, null],
   ["a trailing slash on HOME", { HOME: "/h/" }, `/h//.local/state/${suffix}`, `/h/.local/state/${suffix}`],
+  // Joined without a doubled slash, as the contacts root, the forwarder and BeepCacheRoot already were.
+  ["a trailing slash on XDG_STATE_HOME", { XDG_STATE_HOME: "/x/" }, `/x//${suffix}`, `/x/${suffix}`],
+  ["a root XDG_STATE_HOME", { XDG_STATE_HOME: "/" }, `//${suffix}`, `/${suffix}`],
 ];
 
 describe("@beep/docket-intake state directory env matrix", () => {

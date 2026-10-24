@@ -24,7 +24,6 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, O, P, Str } from "@beep/utils";
-import { XdgBase } from "@beep/xdg/XdgBase";
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -42,6 +41,7 @@ import * as S from "effect/Schema";
 import { configStringOptionSync } from "../../internal/cli/EnvConfig.ts";
 import { repoRunOutputBound, runCapturedStreams } from "../../internal/process/StepExec.ts";
 import { parseAdmissionProcStatStartTime } from "../../internal/repo-run/index.ts";
+import { selectFleetScannerDir } from "./internal/FleetScannerDir.ts";
 import { WorktreeCommandError } from "./Worktree.errors.ts";
 import {
   FLEET_LIVENESS_WINDOW_SECONDS,
@@ -1247,40 +1247,6 @@ const deriveCheckout = Effect.fn("Fleet.deriveCheckout")(function* (
 
 const homeDirectory = (): O.Option<string> => configStringOptionSync("HOME");
 
-/**
- * The cache root the fleet scanner clone lives beneath (`beep/fleet-scanner` under it).
- *
- * **Details**
- *
- * `@beep/xdg` `XdgBase.resolve("cache")`: `$XDG_CACHE_HOME` when it is
- * absolute, else `.cache` under an absolute home directory. `None` (nothing
- * absolute to resolve) sends the scanner to `.beep-fleet-scanner` under the
- * fleet root instead.
- *
- * **Example** (Fall back to the home cache)
- *
- * ```ts
- * import { fleetScannerCacheRoot } from "@beep/repo-cli/commands/Worktree"
- * import * as O from "effect/Option"
- *
- * const root = fleetScannerCacheRoot({ xdgCacheHome: O.none(), homeDir: O.some("/home/dev") })
- * console.log(O.getOrNull(root)) // /home/dev/.cache
- * ```
- *
- * @param input - The `XDG_CACHE_HOME` value and the home directory, each when known.
- * @returns The cache root, when one resolves.
- * @category utilities
- * @since 0.0.0
- */
-export const fleetScannerCacheRoot = (input: {
-  readonly xdgCacheHome: O.Option<string>;
-  readonly homeDir: O.Option<string>;
-}): O.Option<string> =>
-  XdgBase.resolve("cache", { value: O.getOrUndefined(input.xdgCacheHome), home: O.getOrUndefined(input.homeDir) });
-
-const cacheDirectory = (homeDir: O.Option<string>): O.Option<string> =>
-  fleetScannerCacheRoot({ xdgCacheHome: configStringOptionSync("XDG_CACHE_HOME"), homeDir });
-
 type FleetScope = {
   readonly fleetRoot: string;
   readonly normalizedOrigin: string;
@@ -1331,7 +1297,6 @@ const listFleetCheckouts = Effect.fn("Fleet.listFleetCheckouts")(function* (
 const scanFleet = Effect.fn("Fleet.scanFleet")(function* (
   options: FleetScanOptions
 ): Effect.fn.Return<FleetSnapshot, WorktreeCommandError, FleetMirrorServiceRequirements> {
-  const path = yield* Path.Path;
   const nowMillis = yield* Clock.currentTimeMillis;
   const scannedAt = DateTime.formatIso(yield* DateTime.now);
   const windowSeconds = options.livenessWindowSeconds ?? FLEET_LIVENESS_WINDOW_SECONDS;
@@ -1339,11 +1304,11 @@ const scanFleet = Effect.fn("Fleet.scanFleet")(function* (
   const { fleetRoot, normalizedOrigin, originUrl } = yield* resolveFleetScope(options);
 
   const homeDir = O.orElse(O.fromUndefinedOr(options.homeDir), () => homeDirectory());
-  const scannerDir = pipe(
-    O.fromUndefinedOr(options.scannerDir),
-    O.orElse(() => O.map(cacheDirectory(homeDir), (cache) => path.join(cache, "beep", "fleet-scanner"))),
-    O.getOrElse(() => path.join(fleetRoot, ".beep-fleet-scanner"))
-  );
+  const scannerDir = yield* selectFleetScannerDir({
+    scannerDir: O.fromUndefinedOr(options.scannerDir),
+    homeDir,
+    fleetRoot,
+  });
 
   const { clones, stubs } = yield* enumerateFleet(fleetRoot, normalizedOrigin);
   const processScan = yield* scanProcesses(A.map(stubs, (stub) => stub.path));

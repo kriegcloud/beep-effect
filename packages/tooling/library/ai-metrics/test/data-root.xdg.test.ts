@@ -32,6 +32,13 @@ const stateHomeRows: ReadonlyArray<Row<StateHomeInput>> = [
   ["a blank XDG_STATE_HOME is unset", { homeDir: "/h", stateHome: "  " }, "/h/.local/state"],
   ["nothing set", {}, null],
   ["a blank HOME", { homeDir: "   " }, null],
+  // Windows roots: AiMetricsAbsoluteDataRoot admits drive and UNC paths, so the state home keeps them.
+  ["a Windows drive HOME", { homeDir: "C:\\Users\\dev" }, "C:\\Users\\dev/.local/state"],
+  ["a forward-slash drive HOME", { homeDir: "C:/Users/dev/" }, "C:/Users/dev/.local/state"],
+  ["a UNC HOME", { homeDir: "\\\\srv\\home\\dev" }, "\\\\srv\\home\\dev/.local/state"],
+  ["a Windows drive XDG_STATE_HOME", { homeDir: "/h", stateHome: "D:\\state" }, "D:\\state"],
+  ["a UNC XDG_STATE_HOME without HOME", { stateHome: "\\\\srv\\state" }, "\\\\srv\\state"],
+  ["a POSIX XDG_STATE_HOME beside a Windows HOME", { homeDir: "C:\\Users\\dev", stateHome: "/x" }, "/x"],
 ];
 
 /** Rows where the hand-written body broke the spec: a relative value counted, HOME was not normalized. */
@@ -59,6 +66,12 @@ const evidenceRows: ReadonlyArray<Row<EvidenceInput>> = [
   ["a trailing slash on HOME", { homeDir: "/h/", env: {} }, "/h/.local/state/beep/agent-evidence"],
   ["the override wins", { homeDir: "/h", env: { BEEP_AGENT_EVIDENCE_ROOT: "/e", XDG_STATE_HOME: "/x" } }, "/e"],
   ["the override wins over a relative HOME", { homeDir: "relative", env: { BEEP_AGENT_EVIDENCE_ROOT: "/e" } }, "/e"],
+  ["a Windows drive HOME", { homeDir: "C:\\Users\\dev", env: {} }, "C:\\Users\\dev/.local/state/beep/agent-evidence"],
+  [
+    "a Windows drive XDG_STATE_HOME",
+    { homeDir: "/h", env: { XDG_STATE_HOME: "D:\\state" } },
+    "D:\\state/beep/agent-evidence",
+  ],
   [
     "an empty override falls through",
     { homeDir: "/h", env: { BEEP_AGENT_EVIDENCE_ROOT: "" } },

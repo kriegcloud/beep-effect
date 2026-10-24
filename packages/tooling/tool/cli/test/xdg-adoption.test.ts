@@ -11,11 +11,11 @@
 
 import { AiMetricsDeployTarget } from "@beep/repo-ai-metrics";
 import { resolveDataRoot } from "@beep/repo-cli/commands/AIMetrics/internal/Programs";
-import { resolveHookPulseDir } from "@beep/repo-cli/commands/HarnessLedger";
-import { fleetScannerCacheRoot } from "@beep/repo-cli/commands/Worktree";
 import { selectPersonMatchCacheRoot } from "@beep/repo-cli/test/Files";
+import { resolveHookPulseDir } from "@beep/repo-cli/test/HarnessLedger";
 import { resolveBeepCacheRoot } from "@beep/repo-cli/test/RepoRun";
-import { assert, it } from "@effect/vitest";
+import { fleetScannerCacheRoot, selectFleetScannerDir } from "@beep/repo-cli/test/Worktree";
+import { afterEach, assert, it, vi } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -120,6 +120,60 @@ matrix(
   ]
 );
 
+// The production read path: `fleet` reads XDG_CACHE_HOME from the live environment at call time
+// (`configStringOptionSync`), so these rows stub the process environment instead of a ConfigProvider.
+const fleetScannerRows: ReadonlyArray<
+  readonly [name: string, xdgCacheHome: string | undefined, homeDir: string | undefined, expected: string]
+> = [
+  ["the HOME default", undefined, "/h", "/h/.cache/beep/fleet-scanner"],
+  ["XDG_CACHE_HOME wins", "/x", "/h", "/x/beep/fleet-scanner"],
+  ["nothing resolves: the fleet-root fallback", undefined, undefined, "/f/.beep-fleet-scanner"],
+  [
+    "a relative XDG_CACHE_HOME (diverges on purpose; before: relative/beep/fleet-scanner)",
+    "relative",
+    "/h",
+    "/h/.cache/beep/fleet-scanner",
+  ],
+  [
+    "a relative HOME (diverges on purpose; before: relative/.cache/beep/fleet-scanner)",
+    undefined,
+    "relative",
+    "/f/.beep-fleet-scanner",
+  ],
+];
+
+it.layer(Path.layer, { timeout: "10 seconds" })("selectFleetScannerDir (live environment)", (it) => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  for (const [name, xdgCacheHome, homeDir, expected] of fleetScannerRows) {
+    it.effect(name, () =>
+      Effect.gen(function* () {
+        vi.stubEnv("XDG_CACHE_HOME", xdgCacheHome);
+        const selected = yield* selectFleetScannerDir({
+          scannerDir: O.none(),
+          homeDir: O.fromUndefinedOr(homeDir),
+          fleetRoot: "/f",
+        });
+        assert.strictEqual(selected, expected);
+      })
+    );
+  }
+
+  it.effect("an explicit scanner directory wins", () =>
+    Effect.gen(function* () {
+      vi.stubEnv("XDG_CACHE_HOME", "/x");
+      const selected = yield* selectFleetScannerDir({
+        scannerDir: O.some("/s"),
+        homeDir: O.some("/h"),
+        fleetRoot: "/f",
+      });
+      assert.strictEqual(selected, "/s");
+    })
+  );
+});
+
 const hooks = "beep/agent-evidence/hook-events";
 
 matrix(
@@ -134,6 +188,8 @@ matrix(
     ["a trailing slash on XDG_STATE_HOME", { XDG_STATE_HOME: "/x/", HOME: "/h" }, `/x/${hooks}`],
     ["a padded XDG_STATE_HOME is trimmed", { XDG_STATE_HOME: " /x", HOME: "/h" }, `/x/${hooks}`],
     ["nothing set", {}, null],
+    ["a Windows drive HOME", { HOME: "C:\\Users\\dev" }, `C:\\Users\\dev/.local/state/${hooks}`],
+    ["a UNC XDG_STATE_HOME", { XDG_STATE_HOME: "\\\\srv\\state", HOME: "/h" }, `\\\\srv\\state/${hooks}`],
   ],
   [
     [
@@ -146,6 +202,17 @@ matrix(
   ]
 );
 
+it.effect("resolveHookPulseDir: an unreadable environment fails with HarnessLedgerInputError", () =>
+  Effect.gen(function* () {
+    const unreadable = ConfigProvider.make(() => Effect.fail(new ConfigProvider.SourceError({ message: "no env" })));
+    const error = yield* Effect.flip(
+      resolveHookPulseDir.pipe(Effect.provideService(ConfigProvider.ConfigProvider, unreadable))
+    );
+    assert.strictEqual(error._tag, "HarnessLedgerInputError");
+    assert.strictEqual(error.message, "Failed to read the state-home environment.");
+  })
+);
+
 matrix(
   "resolveDataRoot (local target)",
   (env) => resolveDataRoot(noFlag, AiMetricsDeployTarget.Enum.local).pipe(inEnv(env)),
@@ -155,6 +222,8 @@ matrix(
     ["the environment root wins", { BEEP_AI_METRICS_DATA_ROOT: "/d", HOME: "/h" }, "/d"],
     ["nothing set", {}, null],
     ["a relative HOME", { HOME: "relative" }, null],
+    ["a Windows drive HOME", { HOME: "C:\\Users\\dev" }, "C:\\Users\\dev/.local/state/beep/ai-metrics"],
+    ["a Windows drive XDG_STATE_HOME", { XDG_STATE_HOME: "D:\\state", HOME: "/h" }, "D:\\state/beep/ai-metrics"],
   ],
   [["a relative XDG_STATE_HOME", { XDG_STATE_HOME: "relative", HOME: "/h" }, null, "/h/.local/state/beep/ai-metrics"]]
 );
@@ -172,6 +241,17 @@ matrix(
     ["a padded XDG_CACHE_HOME is trimmed", { XDG_CACHE_HOME: " /x ", HOME: "/h" }, `/x/${photoFace}`],
     ["the USERPROFILE branch", { USERPROFILE: "C:\\Users\\ada" }, `C:\\Users\\ada/.cache/${photoFace}`],
     ["nothing set", {}, null],
+    [
+      "a Windows drive XDG_CACHE_HOME beside USERPROFILE",
+      { XDG_CACHE_HOME: "C:\\cache", USERPROFILE: "C:\\Users\\ada" },
+      `C:\\cache/${photoFace}`,
+    ],
+    ["a UNC XDG_CACHE_HOME", { XDG_CACHE_HOME: "\\\\srv\\cache", HOME: "/h" }, `\\\\srv\\cache/${photoFace}`],
+    [
+      "a Windows drive HOME before USERPROFILE",
+      { HOME: "C:\\Users\\git", USERPROFILE: "C:\\Users\\ada" },
+      `C:\\Users\\git/.cache/${photoFace}`,
+    ],
   ],
   [
     [
