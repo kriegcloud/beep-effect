@@ -61,7 +61,10 @@ export {
 } from "@beep/repo-cli/commands/Quality/Quality.schemas";
 export * from "@beep/repo-cli/commands/Quality/Tasks";
 export { effectDiagnosticsAffectedPackages, effectDiagnosticsProjects } from "../commands/Quality/EffectDiagnostics.ts";
-export { reportInvariantDiagnosticsForTesting } from "../commands/Quality/FallowQuality.command.ts";
+export {
+  inheritedCodemodDuplicationCountForTesting,
+  reportInvariantDiagnosticsForTesting,
+} from "../commands/Quality/FallowQuality.command.ts";
 export * from "../commands/Quality/internal/CheckCensusOutput.ts";
 export * from "../commands/Quality/internal/CoverageArtifacts.schemas.ts";
 export * from "../commands/Quality/internal/CoverageArtifacts.ts";

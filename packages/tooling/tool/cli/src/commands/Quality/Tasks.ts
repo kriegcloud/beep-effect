@@ -638,7 +638,7 @@ const coverageTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =
   const stripped = stripCoverageControlArgs(stripPassthroughDelimiter(args));
   return A.some(stripped, isTurboConcurrencyArg)
     ? stripped
-    : isCi()
+    : isCiSync()
       ? [CI_TURBO_CONCURRENCY_ARG, ...stripped]
       : [ROOT_COVERAGE_TURBO_CONCURRENCY_ARG, ...stripped];
 };
@@ -1050,13 +1050,11 @@ const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some
 const shouldRunLintRepoWideSteps = (args: ReadonlyArray<string>): boolean =>
   !A.some(args, isExplicitTurboAffectedOrScopeArg);
 
-const isCi = isCiSync;
-
 // A workstation configured for remote reads is honored; everything else falls
 // back to local-only. The decision itself lives in `internal/cli/TurboCache`
 // so the whole matrix stays unit-testable without mutating the environment.
 const turboCachePlan = (args: ReadonlyArray<string>) =>
-  resolveTurboCachePlan(readTurboCacheEnvironmentSync(), { args, ci: isCi() });
+  resolveTurboCachePlan(readTurboCacheEnvironmentSync(), { args, ci: isCiSync() });
 
 const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   turboCachePlanArgs(turboCachePlan(args));
@@ -1097,7 +1095,7 @@ export const turboStepLocalEnvForTesting = turboStepLocalEnv;
 const needsTurboSecretSession = (): boolean => turboCacheEnvironmentNeedsSecretSession(readTurboCacheEnvironmentSync());
 
 const ciFreshTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  isCi() && !A.some(args, isTurboCacheControlArg) ? ["--force", ...args] : args;
+  isCiSync() && !A.some(args, isTurboCacheControlArg) ? ["--force", ...args] : args;
 
 const isUnscopedInvocation = (args: ReadonlyArray<string>): boolean => A.isReadonlyArrayEmpty(args);
 
@@ -1139,7 +1137,7 @@ const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>)
 const boundedRootTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   A.some(args, isTurboConcurrencyArg)
     ? args
-    : isCi()
+    : isCiSync()
       ? [CI_TURBO_CONCURRENCY_ARG, ...args]
       : [ROOT_TURBO_CONCURRENCY_ARG, ...args];
 
@@ -1568,7 +1566,7 @@ const attemptFlakeQuarantine = Effect.fn("QualityTasks.attemptFlakeQuarantine")(
 const quarantineArtifactCwd = (steps: ReadonlyArray<QualityTaskStep>): O.Option<string> =>
   pipe(
     A.findFirst(steps, (step) => step.flakeQuarantine !== undefined),
-    O.filter(() => !isCi()),
+    O.filter(() => !isCiSync()),
     O.map((step) => step.cwd)
   );
 
@@ -1608,7 +1606,7 @@ const runStepWithQuarantine = Effect.fn("QualityTasks.runStepWithQuarantine")(fu
   step: QualityTaskStep,
   incidents: Ref.Ref<ReadonlyArray<FlakeQuarantineIncident>>
 ): Effect.fn.Return<O.Option<QualityTaskFailed>, QualityTaskConfigurationError, QualityTaskEnvironment> {
-  if (step.flakeQuarantine === undefined || isCi()) {
+  if (step.flakeQuarantine === undefined || isCiSync()) {
     return yield* runStep(step).pipe(
       Effect.as(O.none<QualityTaskFailed>()),
       Effect.catchTag("QualityTaskFailed", (failure) => Effect.succeedSome(failure))
@@ -3161,7 +3159,7 @@ export const rootLintPolicyStepsForTesting: {
     files?: ReadonlyArray<string>,
     base?: string,
     sweeps = oxlintPolicySweeps,
-    hosted = isCi(),
+    hosted = isCiSync(),
     docsCacheKey = UNKEYED_ROOT_DOCS_CACHE
   ): ReadonlyArray<QualityTaskStep> => rootRepoLintPolicySteps(repoRoot, files, base, sweeps, hosted, docsCacheKey)
 );
@@ -3204,7 +3202,7 @@ const runRootLintPolicyTaskInternal = Effect.fn("QualityTasks.runRootLintPolicyT
   yield* Console.log(`[beep-cli] lint:policy: scope=${runFull ? "full" : `changed (${changedFileCount} files)`}`);
   const docsCacheKey = yield* rootDocsCacheKey(repoRoot);
   yield* runPolicySteps(
-    rootRepoLintPolicySteps(repoRoot, files, runFull ? undefined : base, sweeps, isCi(), docsCacheKey),
+    rootRepoLintPolicySteps(repoRoot, files, runFull ? undefined : base, sweeps, isCiSync(), docsCacheKey),
     runFull
   );
 });
@@ -3268,7 +3266,7 @@ const rootLintPolicySteps = (
     return A.empty<QualityTaskStep>();
   }
 
-  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, oxlintPolicySweeps, isCi(), docsCacheKey);
+  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, oxlintPolicySweeps, isCiSync(), docsCacheKey);
 };
 
 // The one root lint plan: the aggregate Turbo lint (or lint:fix) followed by
@@ -3655,7 +3653,11 @@ const runSelectedCoverage = Effect.fn("QualityTasks.runSelectedCoverage")(functi
   repoRoot: string,
   options: CoverageTaskOptions
 ) {
-  const steps = coverageSelectedSteps(repoRoot, options, usesShardedCoverageExecutor(isCi(), options.writeBaseline));
+  const steps = coverageSelectedSteps(
+    repoRoot,
+    options,
+    usesShardedCoverageExecutor(isCiSync(), options.writeBaseline)
+  );
   if (A.isReadonlyArrayNonEmpty(A.tailNonEmpty(steps))) {
     yield* Console.log(
       options.writeBaseline
@@ -3684,7 +3686,7 @@ const runRootCoverageTask = Effect.fn("QualityTasks.runRootCoverageTask")(functi
   }
 
   yield* cleanCoverageRegressionOutputs(repoRoot);
-  if (!options.scoped && usesShardedCoverageExecutor(isCi(), options.writeBaseline)) {
+  if (!options.scoped && usesShardedCoverageExecutor(isCiSync(), options.writeBaseline)) {
     yield* runFullShardedCoverage(repoRoot, options.args);
   } else {
     yield* runSelectedCoverage(repoRoot, options);

@@ -72,10 +72,16 @@
       "path": "../../../foundation/capability/observability/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/runtime-env/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/capability/technical-drawing/tsconfig.json"
     },
     {
       "path": "../../../foundation/capability/walker/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/capability/xdg/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/glob/tsconfig.json"
