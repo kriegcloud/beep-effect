@@ -84,6 +84,90 @@ const decodeFixture = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, 
 const decodePlan = S.decodeUnknownEffect(S.fromJsonString(RepoRunPlan));
 const decodeAdmissionLease = S.decodeUnknownEffect(S.fromJsonString(YeetAdmissionLease));
 
+const runFixtureGit = Effect.fn("YeetCommandWiringTest.runFixtureGit")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>
+) {
+  const handle = yield* ChildProcess.make(
+    "git",
+    ["-c", "user.name=final-check", "-c", "user.email=final-check@example.test", "-c", "commit.gpgsign=false", ...args],
+    { cwd: repoRoot, stdin: "ignore", stdout: "ignore", stderr: "ignore" }
+  );
+  expect(yield* handle.exitCode).toBe(0);
+});
+
+describe("yeet final-check command", () => {
+  it.layer(commandTestLayer, { timeout: "60 seconds" })("in a scratch repository", (it) => {
+    const commit = Effect.fnUntraced(function* (root: string, file: string, content: string, message: string) {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFileString(`${root}/${file}`, content);
+      yield* runFixtureGit(root, ["add", file]);
+      yield* runFixtureGit(root, ["commit", "-q", "-m", message]);
+    });
+    const finalCheck = (args: ReadonlyArray<string>) =>
+      runYeetCommand(["final-check", ...args]).pipe(
+        Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}))
+      );
+
+    it.effect(
+      "plans, refuses a dirty tree, records skips, and fails on a red gate",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* temporaryWorkingDirectory;
+        yield* runFixtureGit(root, ["init", "-q"]);
+        yield* commit(root, ".gitignore", ".beep/\n", "ignore yeet state");
+        yield* commit(root, "README.md", "base\n", "base");
+        yield* commit(root, "README.md", "head\n", "head");
+
+        yield* finalCheck(["--base", "HEAD~1", "--dry-run", "--skip", "coverage=hosted proves it"]);
+        const planned = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+        assertInclude(planned, "final-check plan for");
+        assertInclude(planned, "skip coverage: hosted proves it");
+        assertInclude(planned, "expectation-rewrite: scan the diff's test files");
+        assertInclude(planned, "lint: bunx biome check --files-ignore-unknown=true --no-errors-on-unmatched README.md");
+
+        expect((yield* finalCheck(["--gates", "heavy"]).pipe(Effect.flip)).message).toContain(
+          "Unknown final-check gate(s): heavy"
+        );
+
+        yield* fs.writeFileString(`${root}/README.md`, "dirty\n");
+        expect((yield* finalCheck(["--base", "HEAD~1"]).pipe(Effect.flip)).message).toContain(
+          "the tree has uncommitted changes"
+        );
+        yield* runFixtureGit(root, ["checkout", "--", "README.md"]);
+        yield* fs.writeFileString(`${root}/untracked.ts`, "export {};\n");
+        expect((yield* finalCheck(["--base", "HEAD~1"]).pipe(Effect.flip)).message).toContain("untracked files");
+        yield* fs.remove(`${root}/untracked.ts`);
+
+        yield* finalCheck([
+          "--base",
+          "HEAD~1",
+          "--gates",
+          "expectation-rewrite,cheap-gates",
+          "--skip",
+          "cheap-gates=covered by publish",
+        ]);
+        const receipts = yield* fs.readDirectory(`${root}/.beep/yeet/final-check`);
+        expect(receipts).toHaveLength(1);
+        const receipt = yield* fs.readFileString(`${root}/.beep/yeet/final-check/${receipts[0]}`);
+        assertInclude(receipt, '"complete":false');
+        assertInclude(receipt, '"verdict":"pass"');
+        assertInclude(receipt, '"status":"skipped"');
+
+        const red = yield* finalCheck(["--base", "HEAD~1", "--gates", "repo-sanity", "--fail-fast"]).pipe(Effect.flip);
+        expect(red.message).toContain("yeet final-check failed: final-check:repo-sanity");
+
+        // A gate that edits a tracked file while it runs: the gates then saw bytes
+        // the pinned head does not hold, so no receipt may be written.
+        yield* commit(root, "package.json", '{"scripts":{"beep":"echo drift >> README.md"}}\n', "drifting gate");
+        const moved = yield* finalCheck(["--base", "HEAD~1", "--gates", "repo-sanity"]).pipe(Effect.flip);
+        expect(moved.message).toContain("the checkout changed while the gates ran");
+        expect(yield* fs.readDirectory(`${root}/.beep/yeet/final-check`)).toHaveLength(1);
+      })
+    );
+  });
+});
+
 describe("yeet merge-loop command wiring", () => {
   it.layer(commandTestLayer, { timeout: "30 seconds" })("foreground monitor", (it) => {
     it.effect(
@@ -95,7 +179,7 @@ describe("yeet merge-loop command wiring", () => {
         yield* Effect.addFinalizer(() => Effect.sync(() => process.chdir(originalCwd)));
         yield* Effect.sync(() => process.chdir(root));
         yield* Effect.forEach(
-          [["monitor", "--until-ready"], ["ready"], ["merge"], ["reply"]],
+          [["monitor", "--until-ready"], ["ready"], ["merge"], ["reply"], ["final-check"]],
           (args) =>
             runYeetCommand(args).pipe(
               Effect.result,

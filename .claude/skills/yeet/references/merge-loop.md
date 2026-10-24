@@ -47,3 +47,37 @@ turbo work, so they are cheap to run mid-loop.
 - `merge` never passes `--delete-branch`: it merges, confirms `MERGED` by bounded
   poll, then hands the whole cleanup sequence to the worktree-aware sweep. The
   sweep may auto-run on monitor's merged detection; the merge never auto-runs.
+
+## Ready
+
+`bun run beep yeet ready` flips a draft at content-final (push-first-publish
+D11, which amends D10). It reads the PR with the monitor's own status read and
+flips the draft when, on the current head, the PR is open, no required
+check is known to be failing, every review thread is answered, and
+`.beep/yeet/final-check/<head>.json` is a complete passing receipt. Pending
+checks and optional lanes (`Heavy / *`) never hold it. Otherwise it refuses
+with the first blocker named (`pr-open`, `no-required-red`,
+`threads-resolved`, `final-check`); skipped final-check gates are printed so
+the PR body can name them. There is no `--force`. Flip only when no further push is
+planned: a push after the flip restarts the review window. Squash-message advice: [`gh-rest.md`](gh-rest.md).
+
+It then pushes one empty `chore: re-request beep-reviewer (S32)` commit (beep-reviewer
+ignores heads pushed while draft), only from the flipped head, else it prints the manual
+command; a failed push only warns. Send the sha it prints as the final. Run that printed
+fallback only when `yeet ready` could not push; never push an unprompted S32 by hand.
+
+The merge gate carries the wait instead. `merge-ready: yes` needs the
+`review-window-elapsed` criterion: 20 minutes since the later of the latest
+`ready_for_review` timeline event (the PR's creation when it was opened
+ready) and the push of the current head (the earliest check suite on the head
+commit). Both are read over REST, only once every other criterion holds, and
+the current time comes from the Effect `Clock`. A failed or unparsable read
+is `review window unknown`, which blocks exactly like an open window.
+`BEEP_YEET_REVIEW_WINDOW` overrides the length with an Effect duration string
+(`"30 minutes"`); the default is `YEET_REVIEW_WINDOW_DEFAULT` in
+`internal/ReviewWindow.ts`. No reviewer has to post for the window to elapse.
+
+`monitor --until-ready` still ends `ready-pending-flip` (exit 0) when the PR
+is a draft and nothing but the draft flag blocks it. That now means the owner
+flipped late: the window starts at the flip, so submit a new monitor after
+`yeet ready` and wait for `merge-ready: yes`.

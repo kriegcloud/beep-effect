@@ -37907,6 +37907,18 @@
             "functions": 3
           }
         },
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/ExpectationRewrite.ts": {
+          "lines": 97.84,
+          "statements": 95.28,
+          "branches": 89.28,
+          "functions": 89.13,
+          "uncovered": {
+            "lines": 2,
+            "statements": 5,
+            "branches": 3,
+            "functions": 5
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts": {
           "lines": 66.48,
           "statements": 66.15,
@@ -37917,6 +37929,18 @@
             "statements": 66,
             "branches": 65,
             "functions": 28
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/FinalCheck.ts": {
+          "lines": 97.72,
+          "statements": 96.57,
+          "branches": 82.35,
+          "functions": 92.85,
+          "uncovered": {
+            "lines": 3,
+            "statements": 5,
+            "branches": 9,
+            "functions": 4
           }
         },
         "packages/tooling/tool/cli/src/commands/Yeet/internal/GateStaleness.ts": {
@@ -42504,6 +42528,141 @@
           }
         },
         "packages/drivers/sanity/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/sbom": {
+      "path": "packages/foundation/modeling/sbom",
+      "lines": 100,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "uncovered": {
+        "lines": 0,
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
+      },
+      "files": {
+        "packages/foundation/modeling/sbom/src/IdentityToken.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/InTotoStatement.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/NtiaReport.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/Sbom.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/SbomDocument.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/SbomMetadataSource.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/SigstoreBundle.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/SlsaProvenance.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/foundation/modeling/sbom/src/internal/admission.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,

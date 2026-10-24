@@ -156,7 +156,7 @@ export type ArtifactItem = typeof ArtifactItem.Type;
  *
  * **Details**
  *
- * This boundary struct preserves plain objects and explicit undefined fields.
+ * This boundary struct preserves plain objects and rejects explicit undefined fields.
  * Schema decoding requires finite numbers; the upload operation also validates
  * positive retention and expiration range, and still clamps infinite compression.
  * Defaults are applied by the operation rather than added during schema decoding.

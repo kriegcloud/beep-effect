@@ -16,6 +16,7 @@ import {
   defaultYeetRunOptions,
   deriveYeetMergeReady,
   ensurePullRequest,
+  FinalCheckReceipt,
   findOpenPullRequest,
   isMergeCommitSubject,
   ProofJobRecord,
@@ -76,6 +77,22 @@ const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Resu
 
 const BRANCH = "feat/coverage-restore";
 const PR_URL = "https://github.com/o/r/pull/7";
+
+const passingFinalCheck = (_context: RepoRunContext, head: string) =>
+  Effect.succeedSome(
+    FinalCheckReceipt.make({
+      schemaVersion: "yeet-final-check/v1",
+      headSha: head,
+      mergeBase: Str.repeat(40)("0"),
+      base: "origin/main",
+      complete: true,
+      verdict: "pass",
+      startedAt: "2026-10-24T00:00:00.000Z",
+      finishedAt: "2026-10-24T00:01:00.000Z",
+      steps: [],
+      expectationRewrites: [],
+    })
+  );
 
 const contextAt = (repoRoot: string, branch: string = BRANCH) =>
   RepoRunContext.make({
@@ -1346,6 +1363,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       const commands = yield* makeCommands;
       const flips = yield* Ref.make<ReadonlyArray<number>>([]);
       const decision = yield* runYeetReadyGate(contextAt(root), {
+        finalCheck: passingFinalCheck,
         recordInherited: () => Effect.void,
         markReady: (prNumber) => Ref.update(flips, A.append(prNumber)),
       }).pipe(withProcesses(greenDraft, commands));
@@ -1366,6 +1384,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       yield* fs.writeFileString(path.join(root, ".beep", "yeet", "jobs"), "not a directory");
       const commands = yield* makeCommands;
       const decision = yield* runYeetReadyGate(contextAt(root), {
+        finalCheck: passingFinalCheck,
         recordInherited: () => Effect.void,
         markReady: () => Effect.void,
         read: () => Effect.succeed(readOf(remoteOf())),
@@ -1410,6 +1429,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       });
       const asked = yield* Ref.make<ReadonlyArray<number>>([]);
       const decision = yield* runYeetReadyGate(contextAt("/repo"), {
+        finalCheck: passingFinalCheck,
         recordInherited: () => Effect.void,
         markReady: () => Effect.void,
         findMonitor: (_context, prNumber) => Ref.update(asked, A.append(prNumber)).pipe(Effect.as(O.some(monitor))),
@@ -1425,6 +1445,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       const headless = readOf(remoteOf({ headSha: O.none() }));
       const refusal = Effect.fnUntraced(function* (first: YeetReadyPullRequestRead, later: YeetReadyPullRequestRead) {
         const error = yield* runYeetReadyGate(contextAt("/repo"), {
+          finalCheck: passingFinalCheck,
           markReady: () => Effect.die("the flip must not run"),
           read: yield* readTwice(first, later),
         }).pipe(Effect.flip);

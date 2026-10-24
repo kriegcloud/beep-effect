@@ -79,7 +79,9 @@ const captureLayer = (env: Readonly<Record<string, string | undefined>> = {}) =>
 				Effect.sync(() => {
 					spy.mockRestore();
 					// Action.run sets process.exitCode by design; restore it on every path.
-					process.exitCode = previousExit;
+					// Bun ignores `process.exitCode = undefined` and keeps the 1, so an
+					// unset code restores as 0, the same success verdict, on both runtimes.
+					process.exitCode = previousExit ?? 0;
 					for (const [name, value] of previousEnv) {
 						if (value === undefined) delete runnerEnvironment[name];
 						else runnerEnvironment[name] = value;

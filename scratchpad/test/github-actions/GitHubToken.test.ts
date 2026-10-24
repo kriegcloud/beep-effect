@@ -25,15 +25,16 @@ import {
 const Json = S.fromJsonString(S.Unknown);
 
 describe("GitHubToken option schemas", () => {
-  it("provision options retain plain objects, redacted keys and explicit undefined fields", () => {
+  it("provision options retain plain objects and redacted keys and reject explicit undefined fields", () => {
     const minimal: ProvisionOptions = { appId: "app", privateKey: Redacted.make("pem") };
-    const explicit: ProvisionOptions = {
-      ...minimal, installationId: undefined, owner: undefined, required: undefined, stateKey: undefined,
-    };
     const scoped: ProvisionOptions = { ...minimal, installationId: 42, owner: "acme", required: { contents: "write" }, stateKey: "token" };
-    for (const input of [minimal, explicit, scoped]) {
+    for (const input of [minimal, scoped]) {
       assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ProvisionOptions)(input)), input);
       assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ProvisionOptions)(input)), input);
+    }
+    // Exact optional keys (EF-40): an optional key is omitted, never undefined.
+    for (const key of ["installationId", "owner", "required", "stateKey"]) {
+      assert.isFalse(S.is(ProvisionOptions)({ ...minimal, [key]: undefined }));
     }
     assert.isFalse(S.is(ProvisionOptions)({ ...minimal, privateKey: "pem" }));
     assert.isFalse(S.is(ProvisionOptions)({ ...minimal, required: { contents: "owner" } }));
@@ -43,7 +44,10 @@ describe("GitHubToken option schemas", () => {
   });
 
   it("read options preserve Duration values and leave existing defaults to the reader", () => {
-    for (const input of [{}, { stateKey: undefined, skew: undefined }, { stateKey: "token", skew: Duration.seconds(30) }]) {
+    // Exact optional keys (EF-40): omission leaves the default; explicit undefined is rejected.
+    assert.isFalse(S.is(ReadOptions)({ stateKey: undefined }));
+    assert.isFalse(S.is(ReadOptions)({ skew: undefined }));
+    for (const input of [{}, { stateKey: "token", skew: Duration.seconds(30) }]) {
       const options: ReadOptions = input;
       assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ReadOptions)(options)), options);
       assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ReadOptions)(options)), options);

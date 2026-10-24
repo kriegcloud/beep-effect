@@ -417,6 +417,14 @@
       ],
       "installedTreeHash": "e2ae4a428c536575906b8fcdad56c7ac992e243073128345c3276572cd7c7ae4"
     },
+    "remote-development-agents": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/remote-development-agents",
+        ".agents/skills/remote-development-agents"
+      ],
+      "installedTreeHash": "9a0d1310679bad3817a42fcd632679165c0f8f398e11481279f2cfa14571e961"
+    },
     "schema-first-development": {
       "_tag": "local",
       "installedTargets": [
@@ -745,7 +753,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "8ab174579cb447da58f9820659a4c69afdfba628ad54cb16028a8382f2de76d1"
+      "installedTreeHash": "2f86e6e9080e318d9f2c7df186f88b3d64a01f7797aa858d30601256d4145058"
     }
   }
 }

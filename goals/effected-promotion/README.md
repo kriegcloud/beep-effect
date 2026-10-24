@@ -41,7 +41,7 @@ merged. 2d-A (four adopter sites, D-47) merged in #2114. Wave 2d-2 (`@beep/md`
 writer fixes (D-52, `math` on by default) merged in #2141 and D-53 in #2143.
 Wave 3 (W3-a..W3-n) is in progress; everything left is sequenced by
 [`research/wave-4-plan-2026-10-23.md`](./research/wave-4-plan-2026-10-23.md)
-(W4-a..W4-t, mirrored in [`PLAN.md`](./PLAN.md)). P0
+(W4-a..W4-u, mirrored in [`PLAN.md`](./PLAN.md)). P0
 research is complete:
 see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md),
 [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md)
@@ -52,7 +52,7 @@ and [`research/wave-2d-plan-2026-10-22.md`](./research/wave-2d-plan-2026-10-22.m
 - 2026-10-20 discovery workflow: 34-row package map (30 now, 4 deferred), 6
   waves, 312 deduplicated reuse sites (29 confirmed, 209 partial, 74 refuted),
   three scored `@beep/md` merge designs.
-- Decisions D-01..D-53, W3-a..W3-n and W4-a..W4-t are in [`SPEC.md`](./SPEC.md).
+- Decisions D-01..D-53, W3-a..W3-n and W4-a..W4-u are in [`SPEC.md`](./SPEC.md).
 
 ## Notes
 

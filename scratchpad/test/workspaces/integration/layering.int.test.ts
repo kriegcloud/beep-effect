@@ -46,6 +46,8 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // Wave 4-W-a split `workspaces`: its core and config-deps half is `@beep/repo-workspaces`
 // and the `./testing` cluster stays a lab directory without an `index.ts`, so a promoted
 // module's remaining lab directory counts as that module even without its barrel.
+// Wave 4-S split `sbom` the same way: its pure models are `@beep/sbom` and the Sigstore
+// signer stays a lab directory, so the package folds into the `sbom` lab module.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/cli-kit": "cli",
@@ -68,6 +70,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/repo-tsconfig": "tsconfig-json",
 	"@beep/repo-workspaces": "workspaces",
 	"@beep/runtime-env": "env",
+	"@beep/sbom": "sbom",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
 	"@beep/spdx": "spdx",

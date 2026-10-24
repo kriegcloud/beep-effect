@@ -139,11 +139,19 @@ bun run beep yeet publish --no-pr --message "type(scope): summary"
 bun run beep yeet publish --prove-first --message "type(scope): summary"
 ```
 
+- Before calling final, replay the hosted gates the cheap tier skips on the
+  committed head. It writes the head-pinned receipt `yeet ready` requires;
+  skip a gate only with a recorded reason (`--skip coverage="<why>"`):
+
+```bash
+bun run beep yeet final-check
+```
+
 - Flip this branch's draft PR to ready as soon as its content is final: no
-  further push planned, cheap gates passed at publish, every review thread
-  answered. Hosted heavy CI may still be running; only a required check that
-  is already red holds the flip (it refuses and names the blocker; there is no
-  `--force`):
+  further push planned, a passing `final-check` receipt for the head, every
+  review thread answered. Hosted heavy CI may still be running; only a
+  required check that is already red holds the flip (it refuses and names the
+  blocker; there is no `--force`):
 
 ```bash
 bun run beep yeet ready
@@ -331,8 +339,11 @@ temporary worktree). Hosted CI is the authoritative proof. `bun run beep yeet
 verify` (full tier) dispatches the hosted lane bodies locally and is on-demand:
 run it to reproduce a hosted red, never to unblock a publish. Package-scoped
 `turbo run check`, `docgen:local --reuse-proof-manifest`, and the cheap tier
-alone are inner-loop tools, not proof. Details, what the full proof does not
-replay, and plan mode: [`references/gates-and-proof.md`](references/gates-and-proof.md).
+alone are inner-loop tools, not proof. `yeet final-check` is the content-final
+gate: the affected replay of Lint Policy, Lint, Effect Diagnostics, Check,
+Docgen, Repo Sanity, Fallow, Coverage, and rewritten test expectations.
+Details, the gate table, what the full proof does not replay, and plan mode:
+[`references/gates-and-proof.md`](references/gates-and-proof.md).
 
 ## Cache baseline after a script-word or root-config change
 
@@ -403,12 +414,12 @@ from a real security failure) before shipping such a fix.
 9. Address failed checks or actionable review comments with follow-up commits
    through the same Yeet publish path.
 10. Flip ready at content-final: as soon as no further push is planned and
-    the publish passed its cheap gates, run `bun run beep yeet ready`, without
-    waiting for hosted heavy CI. Draft means only "I am still pushing".
+    `bun run beep yeet final-check` passed on the pushed head, run
+    `bun run beep yeet ready`, without waiting for hosted heavy CI. Draft means only "I am still pushing".
     Reviewers start when the PR leaves draft and take 8–15 minutes, so the CI
     run is the review window (review-window ruling, 2026-10-06). The flip
-    refuses only on a required check that is already red or an unanswered
-    thread. A job that ends `ready-pending-flip` (exit 0) means you left the
+    refuses on a missing or red final-check receipt, a required check that is
+    already red, or an unanswered thread. A job that ends `ready-pending-flip` (exit 0) means you left the
     draft until green: flip it, then the full review window still has to run.
     Mergeable means all of: required checks green; no outstanding review
     thread — unresolved, or resolved by the author with a later human reviewer
@@ -466,35 +477,11 @@ comments exist). Deep review is on-demand:
 
 ## Ready
 
-`bun run beep yeet ready` flips a draft at content-final (push-first-publish
-D11, which amends D10). It reads the PR with the monitor's own status read and
-flips the draft when, on the current head, the PR is open, no required
-check is known to be failing, and every review thread is answered. Pending
-checks and optional lanes (`Heavy / *`) never hold it. Otherwise it refuses
-with the first blocker named (`pr-open`, `no-required-red`,
-`threads-resolved`). There is no `--force`. Flip only when no further push is
-planned: a push after the flip restarts the review window. Squash-message advice: [`gh-rest.md`](references/gh-rest.md).
-
-It then pushes one empty `chore: re-request beep-reviewer (S32)` commit (beep-reviewer
-ignores heads pushed while draft), only from the flipped head, else it prints the manual
-command; a failed push only warns. Send the sha it prints as the final. Run that printed
-fallback only when `yeet ready` could not push; never push an unprompted S32 by hand.
-
-The merge gate carries the wait instead. `merge-ready: yes` needs the
-`review-window-elapsed` criterion: 20 minutes since the later of the latest
-`ready_for_review` timeline event (the PR's creation when it was opened
-ready) and the push of the current head (the earliest check suite on the head
-commit). Both are read over REST, only once every other criterion holds, and
-the current time comes from the Effect `Clock`. A failed or unparsable read
-is `review window unknown`, which blocks exactly like an open window.
-`BEEP_YEET_REVIEW_WINDOW` overrides the length with an Effect duration string
-(`"30 minutes"`); the default is `YEET_REVIEW_WINDOW_DEFAULT` in
-`internal/ReviewWindow.ts`. No reviewer has to post for the window to elapse.
-
-`monitor --until-ready` still ends `ready-pending-flip` (exit 0) when the PR
-is a draft and nothing but the draft flag blocks it. That now means the owner
-flipped late: the window starts at the flip, so submit a new monitor after
-`yeet ready` and wait for `merge-ready: yes`.
+`bun run beep yeet ready` flips a draft at content-final once the head has a
+passing `yeet final-check` receipt, no required check is red, and every thread
+is answered; refusals name `pr-open`, `no-required-red`, `threads-resolved` or
+`final-check`. The S32 re-request push, the review window and
+`ready-pending-flip`: [`references/merge-loop.md`](references/merge-loop.md#ready).
 
 ## References
 

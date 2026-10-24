@@ -888,6 +888,12 @@
         ]
       },
       {
+        "name": "@beep/sbom",
+        "patterns": [
+          "packages/foundation/modeling/sbom/src/**"
+        ]
+      },
+      {
         "name": "@beep/schema",
         "patterns": [
           "packages/foundation/modeling/schema/src/**"
@@ -4615,6 +4621,27 @@
         ]
       },
       {
+        "from": "@beep/sbom",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/package-json",
+          "@beep/sbom",
+          "@beep/schema",
+          "@beep/spdx"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/package-json",
+          "@beep/sbom",
+          "@beep/schema",
+          "@beep/spdx"
+        ]
+      },
+      {
         "from": "@beep/schema",
         "allow": [
           "@beep/data",
@@ -4694,6 +4721,7 @@
           "@beep/repo-utils",
           "@beep/repo-workspaces",
           "@beep/runtime-env",
+          "@beep/sbom",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
@@ -4752,6 +4780,7 @@
           "@beep/repo-utils",
           "@beep/repo-workspaces",
           "@beep/runtime-env",
+          "@beep/sbom",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
