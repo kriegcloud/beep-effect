@@ -231,10 +231,10 @@ export const resolveInstalledToolVersion = Effect.fn("resolveInstalledToolVersio
 
   const pkgJson = yield* readRootPackageJson(repoRoot);
 
+  const declaredIn = (field: Readonly<Record<string, string>> | undefined): O.Option<string> =>
+    O.flatMap(O.fromUndefinedOr(field), R.get(dependencyName));
   const rawVersion = O.getOrElse(
-    O.orElse(R.get(pkgJson.catalog ?? R.empty<string, string>(), dependencyName), () =>
-      R.get(pkgJson.devDependencies ?? R.empty<string, string>(), dependencyName)
-    ),
+    O.orElse(declaredIn(pkgJson.catalog), () => declaredIn(pkgJson.devDependencies)),
     thunkEmptyStr
   );
 
