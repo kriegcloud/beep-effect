@@ -66,6 +66,7 @@ import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -1688,9 +1689,16 @@ describe("worktree git operations", () => {
               ),
               Effect.exit
             );
-            assertTrue(Exit.isFailure(failed));
-            if (!Exit.isFailure(failed)) return;
+            const isFailure = Exit.isFailure(failed);
+            assertTrue(isFailure);
+            if (!isFailure) return;
             const message = Cause.pretty(failed.cause);
+            // Reap/retire render the primary failure message rather than Cause.pretty.
+            const primary = yield* failed.cause.pipe(Effect.failCause, Effect.result);
+            if (Result.isFailure(primary) && rollbackFails) {
+              expect(primary.failure.message).toContain("b.txt");
+              expect(primary.failure.message).toContain("beep-material");
+            }
             expect(message).toContain("does not match its source");
             expect(Str.includes("Could not roll back the moved material")(message)).toBe(rollbackFails);
             expect(yield* fs.readFileString(path.join(targetPath, ".beep", "a.txt"))).toBe("a.txt");
@@ -1715,6 +1723,57 @@ describe("worktree git operations", () => {
         )
       );
     }
+
+    it.effect("hashes material incrementally without reading whole files", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const context = yield* resolveWorktreeContext(repoRoot);
+          yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+          const name = "material-stream";
+          const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+          yield* fs.makeDirectory(path.join(targetPath, ".beep"), { recursive: true });
+          const content = Str.repeat(256 * 1024)("x");
+          yield* fs.writeFileString(path.join(targetPath, ".beep", "notes.txt"), content);
+          const streamedBytes = yield* Ref.make(0);
+          const faultyFs = FileSystem.FileSystem.of({
+            ...fs,
+            readFile: Effect.fn("WorktreeCommandTest.refuseWholeFileRead")((target) =>
+              Str.includes("/.beep/")(target) || Str.includes("/beep-material/")(target)
+                ? Effect.fail(
+                    PlatformError.systemError({
+                      _tag: "PermissionDenied",
+                      module: "FileSystem",
+                      method: "readFile",
+                      pathOrDescriptor: target,
+                    })
+                  )
+                : fs.readFile(target)
+            ),
+            stream: (target, options) =>
+              fs
+                .stream(target, options)
+                .pipe(Stream.tap((chunk) => Ref.update(streamedBytes, (bytes) => bytes + chunk.byteLength))),
+          });
+          const receipt = yield* removeArchivedLane(context, name, targetPath).pipe(
+            Effect.provideServiceEffect(
+              WorktreeRemovalService,
+              WorktreeRemovalServiceLive.pipe(
+                Layer.fresh,
+                Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+                Layer.build,
+                Effect.map(Context.get(WorktreeRemovalService))
+              )
+            )
+          );
+          const manifest = O.getOrThrow(receipt.manifest);
+          expect(O.getOrThrow(A.head(manifest.materialEntries)).bytes).toBe(content.length);
+          expect(yield* Ref.get(streamedBytes)).toBe(content.length * 2);
+          expect(yield* fs.readFileString(path.join(manifest.residueRoot, "beep-material", "notes.txt"))).toBe(content);
+        })
+      )
+    );
 
     it.effect("preserves a clean lane's git-ignored .beep material and restores it as the exact inverse", () =>
       withScratchRepo((repoRoot) =>
@@ -1899,6 +1958,7 @@ describe("worktree git operations", () => {
           expect(
             yield* fs.readFileString(path.join(tampered.manifest.residueRoot, "beep-material", "fallow", "report.json"))
           ).toBe("original\n");
+          const beforeErrors = A.length(yield* TestConsole.errorLines);
           const cliMismatch = yield* Effect.flip(
             Command.runWith(worktreeCommand, { version: "0.0.0" })([
               "restore-material",
@@ -1907,6 +1967,9 @@ describe("worktree git operations", () => {
             ])
           );
           expect(cliMismatch.message).toContain("no longer matches its manifest");
+          expect(A.join(A.filter(A.drop(yield* TestConsole.errorLines, beforeErrors), P.isString), "\n")).toContain(
+            cliMismatch.message
+          );
           expect(yield* fs.readFileString(path.join(tampered.archived, "report.json"))).toBe("changed\n");
 
           const missing = yield* retire("material-missing");

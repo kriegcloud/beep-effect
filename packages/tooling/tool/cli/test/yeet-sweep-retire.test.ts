@@ -44,6 +44,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -51,6 +52,7 @@ import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
@@ -1049,6 +1051,51 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
     )
   );
 
+  it.effect("reports stranded material in the retire error when rollback cannot restore an entry", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+        yield* fs.makeDirectory(path.join(lane, ".beep"), { recursive: true });
+        for (const name of ["a.txt", "b.txt"]) {
+          yield* fs.writeFileString(path.join(lane, ".beep", name), name);
+        }
+        const faultyFs = FileSystem.FileSystem.of({
+          ...fs,
+          rename: Effect.fn("YeetRetireTest.injectRollbackFailure")(function* (source, target) {
+            if (Str.endsWith("/beep-material/b.txt")(source)) {
+              return yield* PlatformError.systemError({
+                _tag: "PermissionDenied",
+                module: "FileSystem",
+                method: "rename",
+                pathOrDescriptor: source,
+              });
+            }
+            yield* fs.rename(source, target);
+            if (Str.endsWith("/beep-material/b.txt")(target)) yield* fs.writeFileString(target, "newest data");
+          }),
+        });
+        const error = yield* Effect.flip(withCwd(lane, retireMergedLane(repoRoot, lane))).pipe(
+          Effect.provideServiceEffect(
+            WorktreeRemovalService,
+            WorktreeRemovalServiceLive.pipe(
+              Layer.fresh,
+              Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+              Layer.build,
+              Effect.map(Context.get(WorktreeRemovalService))
+            )
+          )
+        );
+        expect(error.message).toContain("b.txt");
+        expect(error.message).toContain("beep-material");
+        expect(error.message).toContain("does not match its source");
+        expect(error.message).not.toMatch(/\n\s+at /);
+        expect(yield* fs.readFileString(path.join(lane, ".beep", "a.txt"))).toBe("a.txt");
+      })
+    )
+  );
+
   it.effect("restores a refused lane whose path a late writer recreated, so a rerun retires it", () =>
     withScratchRepo(({ repoRoot, lane }) =>
       Effect.gen(function* () {
@@ -1062,6 +1109,8 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         yield* Effect.ignore(holder.exitCode);
 
         expect(error.message).toContain("still hold it");
+        expect(error.message).not.toMatch(/\n\s+at /);
+        expect(Str.split("still hold it")(error.message)).toHaveLength(2);
         expect(error.message).toContain(`preserved at ${lane}.late-writes-`);
         const siblings = yield* fs.readDirectory(path.dirname(lane));
         expect(A.filter(siblings, Str.startsWith(`${path.basename(lane)}.retiring-`))).toEqual([]);

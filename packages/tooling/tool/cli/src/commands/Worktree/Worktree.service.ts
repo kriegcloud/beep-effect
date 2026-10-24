@@ -26,9 +26,10 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
+import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import { A, O, Str } from "@beep/utils";
+import { sha256 } from "@noble/hashes/sha2.js";
 import * as Bool from "effect/Boolean";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
@@ -37,6 +38,7 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -49,6 +51,7 @@ import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import { ghOutput } from "../../internal/github/index.ts";
 import {
   ancestryPidsOf,
@@ -86,7 +89,6 @@ import {
   WorktreeUnpushedInspection,
   WorktreeUpstreamState,
 } from "./Worktree.schemas.ts";
-import type { Sha256Hex } from "@beep/schema";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { GitCommandErrorAdapter, ProcessAttachment } from "../../internal/repo-run/index.ts";
@@ -956,11 +958,15 @@ const describeMaterialTree = Effect.fn("WorktreeRemovalService.describeMaterialT
     if (Str.Equivalence(info.type, "Directory"))
       return { line: `d ${label}`, bytes: 0, isFile: false, isDirectory: true };
     if (!Str.Equivalence(info.type, "File")) return { line: `o ${label}`, bytes: 0, isFile: false, isDirectory: false };
-    const content = yield* fs.readFile(absolute).pipe(materialError(step, `Could not read ${label}.`, absolute));
-    const contentDigest = yield* decodeSha256HexFromBytes(content).pipe(
-      materialError(step, `Could not hash ${label}.`, absolute)
-    );
-    const bytes = content.length;
+    const hasher = sha256.create();
+    let bytes = 0;
+    yield* Stream.runForEach(fs.stream(absolute), (chunk) =>
+      Effect.sync(() => {
+        hasher.update(chunk);
+        bytes += chunk.byteLength;
+      })
+    ).pipe(materialError(step, `Could not read ${label}.`, absolute));
+    const contentDigest = Sha256Hex.make(Hex.encode(hasher.digest()));
     return { line: `f ${label} ${bytes} ${contentDigest}`, bytes, isFile: true, isDirectory: false };
   });
   const top = yield* describe("");
@@ -1110,7 +1116,13 @@ const preserveBeepMaterial = Effect.fn("WorktreeRemovalService.preserveBeepMater
               // the move. Return it without requiring the pre-move digest.
               yield* fs
                 .rename(source, destination)
-                .pipe(materialError("preserve-beep-material", "Could not roll back the moved material.", source));
+                .pipe(
+                  materialError(
+                    "preserve-beep-material",
+                    `Could not roll back the moved material at ${source}.`,
+                    source
+                  )
+                );
             })
           )
         )
@@ -1362,11 +1374,19 @@ const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(func
           );
         }
         const cleaned = yield* Effect.forEach(cleanup, Effect.exit);
-        return yield* Effect.failCause(
-          A.reduce([...restored, ...cleaned], cause, (original, result) =>
-            Exit.isFailure(result) ? Cause.combine(original, result.cause) : original
-          )
-        );
+        const failures = A.filter([...restored, ...cleaned], Exit.isFailure);
+        const combined = A.reduce(failures, cause, (original, result) => Cause.combine(original, result.cause));
+        if (A.isReadonlyArrayNonEmpty(failures)) {
+          const messages = A.flatMap([cause, ...A.map(failures, (failure) => failure.cause)], (reason) =>
+            A.map(Cause.prettyErrors(reason), (error) => error.message)
+          );
+          return yield* WorktreePreservationError.new(
+            "preserve-beep-material",
+            `${A.join(messages, "; ")} Recovery material is retained at ${plan.materialRoot}.`,
+            { cause: combined, path: plan.materialRoot }
+          );
+        }
+        return yield* Effect.failCause(cause);
       })
     ),
     Effect.uninterruptible
@@ -2134,11 +2154,14 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
       onSome: (lateWritesPath) =>
         Cause.fail(
           WorktreeCommandError.make({
-            message: `${Cause.pretty(planned.cause)} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
+            message: `${A.join(
+              A.map(Cause.prettyErrors(planned.cause), (error) => error.message),
+              "; "
+            )} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
             path: request.targetPath,
             cause: planned.cause,
           })
-        ).pipe(Cause.combine(planned.cause), Effect.failCause),
+        ).pipe(Effect.failCause),
     });
   }
   const { reason, manifest, head, unpushedInspection, quietShells } = planned.value;

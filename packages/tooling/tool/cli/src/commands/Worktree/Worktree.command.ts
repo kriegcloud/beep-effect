@@ -1250,8 +1250,14 @@ const worktreeRestoreMaterialCommand = Command.make(
     });
     yield* restore.pipe(
       Effect.catchTags({
-        WorktreeCommandError: (error) => failWithReportedExit(`worktree restore-material: ${error.message}`),
-        WorktreePreservationError: (error) => failWithReportedExit(`worktree restore-material: ${error.message}`),
+        WorktreeCommandError: Effect.fn(function* (error) {
+          yield* Console.error(`worktree restore-material: ${error.message}`);
+          return yield* failWithReportedExit(`worktree restore-material: ${error.message}`);
+        }),
+        WorktreePreservationError: Effect.fn(function* (error) {
+          yield* Console.error(`worktree restore-material: ${error.message}`);
+          return yield* failWithReportedExit(`worktree restore-material: ${error.message}`);
+        }),
       })
     );
   })
