@@ -34,6 +34,7 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/semver": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-node": "catalog:",
     "effect": "catalog:",

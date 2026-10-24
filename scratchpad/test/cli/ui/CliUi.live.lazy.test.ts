@@ -13,7 +13,7 @@ import * as Scope from "effect/Scope";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
 import type { ReactElement } from "react";
-import { CliInteractive, CliTheme } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme } from "@beep/cli-kit";
 import { inkModules } from "../../../effected/cli/ui/internal/ink.ts";
 import { LazyViewShapeError, loadView } from "../../../effected/cli/ui/internal/lazyView.ts";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";

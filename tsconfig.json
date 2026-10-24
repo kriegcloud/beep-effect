@@ -803,9 +803,6 @@
       "@beep/schema/SemanticVersion": [
         "./packages/foundation/modeling/schema/src/SemanticVersion.ts"
       ],
-      "@beep/schema/Semver": [
-        "./packages/foundation/modeling/schema/src/Semver.ts"
-      ],
       "@beep/schema/SeverityLevel": [
         "./packages/foundation/modeling/schema/src/SeverityLevel.ts"
       ],
@@ -2372,6 +2369,16 @@
       "@beep/xdg/*": ["./packages/foundation/capability/xdg/src/*"],
       "@beep/xdg/internal/*": [
         "./packages/foundation/capability/xdg/src/internal/*"
+      ],
+      "@beep/cli-kit": [
+        "./packages/foundation/capability/cli-kit/src/index.ts"
+      ],
+      "@beep/cli-kit/*": ["./packages/foundation/capability/cli-kit/src/*"],
+      "@beep/cli-kit/internal/*": [
+        "./packages/foundation/capability/cli-kit/src/internal/*"
+      ],
+      "@beep/cli-kit/testing": [
+        "./packages/foundation/capability/cli-kit/src/testing.ts"
       ]
     }
   }
