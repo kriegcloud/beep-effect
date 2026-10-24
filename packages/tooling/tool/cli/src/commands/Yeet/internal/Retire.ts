@@ -272,9 +272,9 @@ const discardLaneFallowBaseCache = Effect.fn("Yeet.discardLaneFallowBaseCache")(
  * The gate is {@link retireVerdict}: the pull request resolved for the
  * branch is MERGED and heads it, or, for a branch that never headed one, the
  * tip is already contained in `origin/<main>` and the tree is clean.
- * Retirement always archives, so dirty files and unpushed commits behind a
- * merged pull request are preserved under the residue root rather than
- * blocking the closeout. A pull-request-less retirement is pinned to the tip
+ * Retirement always archives, so dirty files, unpushed commits and the lane's
+ * git-ignored `.beep` material behind a merged pull request are preserved under
+ * the residue root rather than blocking the closeout. A pull-request-less retirement is pinned to the tip
  * its verdict proved on `origin/<main>`: if the lane's HEAD moves before or
  * inside the archive fence, the removal refuses instead of retiring new work. The archive fence refuses a lane any process still
  * stands in; this command first moves its own working directory to the

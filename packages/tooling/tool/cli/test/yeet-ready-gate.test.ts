@@ -5,6 +5,7 @@ import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { YeetCommandError } from "@beep/repo-cli/commands/Yeet/Yeet.errors";
 import { layerGithubRest, layerGraphqlBudget } from "@beep/repo-cli/test/SharedInternals";
 import {
+  collectYeetStatus,
   decideYeetReadyGate,
   deriveYeetMergeReady,
   flipPullRequestReady,
@@ -35,7 +36,7 @@ import {
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -140,6 +141,39 @@ const failingSquashCommitlint = () =>
   );
 
 describe("yeet ready gate decision (push-first-publish D11: ready at content-final)", () => {
+  it.each(["GraphQL: API rate limit exceeded", "authentication required", "network unreachable"])(
+    "reports an unreadable PR as unknown: %s",
+    (reason) => {
+      const read = YeetReadyPullRequestRead.make({
+        remote: YeetStatusRemote.make({
+          available: false,
+          checked: true,
+          detail: reason,
+          readFailure: O.some(YeetCommandError.make({ message: reason })),
+        }),
+        mergeReady: O.none(),
+      });
+      expect(decideYeetReadyGate(read)).toMatchObject({
+        _tag: "blocked",
+        blocker: "pr-open",
+        detail: `could not read the pull request: ${reason}; retry after the GitHub rate limit resets or restore GitHub access`,
+      });
+    }
+  );
+
+  it("reports a successful lookup with no PR separately from a closed PR", () => {
+    expect(decideYeetReadyGate(noPullRequest)).toMatchObject({
+      _tag: "blocked",
+      blocker: "pr-open",
+      detail: "no open pull request was found for this branch",
+    });
+    expect(decideYeetReadyGate(prView({ state: "CLOSED" }))).toMatchObject({
+      _tag: "blocked",
+      blocker: "pr-open",
+      detail: "pull request #42 is CLOSED",
+    });
+  });
+
   it("flips a draft whose threads are answered and required checks are green", () => {
     expect(decideYeetReadyGate(prView())).toMatchObject({ _tag: "flip", prNumber: 42 });
   });
@@ -673,6 +707,137 @@ const readyPlatform = Layer.mergeAll(
   Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, mockSpawner)
 );
 it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundaries", (it) => {
+  const fallbackRunner = (lookup: string, lookupExit = 0, comments = "[]", restStatus = "OPEN") =>
+    ChildProcessSpawner.make((command) => {
+      if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+      const route = A.join(A.take(command.args, 2), " ");
+      if (command.command === "git") {
+        return Effect.succeed(fakeHandle("git@github.com:beep/beep.git"));
+      }
+      if (route === "pr view" || route === "api graphql") {
+        return Effect.succeed(fakeHandle("GraphQL: API rate limit exceeded", 1));
+      }
+      if (Str.includes("pulls?head=")(route)) return Effect.succeed(fakeHandle(lookup, lookupExit));
+      if (Str.includes("/comments?")(route)) return Effect.succeed(fakeHandle(comments));
+      if (Str.endsWith("/pulls/42")(route)) {
+        return Effect.succeed(
+          fakeHandle(
+            `{"headRefOid":"abc1234def","id":"PR_ready","isDraft":true,"labels":[],"mergeable":"MERGEABLE","mergeStateStatus":"DRAFT","number":42,"reviewDecision":null,"state":"${restStatus}","url":"https://github.com/beep/beep/pull/42"}`
+          )
+        );
+      }
+      return Effect.succeed(fakeHandle("[]"));
+    });
+  const restFound = '[{"number":42,"headRefName":"feature/ready-gate","state":"OPEN"}]';
+
+  it.effect("recovers the ready read through REST while GraphQL is rate limited", () =>
+    Effect.gen(function* () {
+      const snapshot = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner(restFound))
+      );
+      expect(snapshot.remote.available).toBe(true);
+      assertNone(snapshot.remote.readFailure);
+      expect(snapshot.remote.unresolvedReviewThreadCount).toBe(0);
+      expect(
+        decideYeetReadyGate(
+          YeetReadyPullRequestRead.make({
+            remote: snapshot.remote,
+            mergeReady: snapshot.mergeReady,
+          })
+        )
+      ).toMatchObject({ _tag: "flip", prNumber: 42 });
+    })
+  );
+
+  it.effect("keeps an unread REST review decision unknown and blocks merge readiness", () =>
+    Effect.gen(function* () {
+      const snapshot = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner(restFound))
+      );
+      expect(snapshot.remote.available).toBe(true);
+      expect(snapshot.remote.reviewDecision).toBe("UNKNOWN");
+      const mergeReady = snapshot.mergeReady;
+      assertSome(
+        O.map(mergeReady, (value) => value.criteria.reviewDecisionAcceptable),
+        false
+      );
+      assertSome(
+        O.map(mergeReady, (value) => value.ready),
+        false
+      );
+    })
+  );
+
+  it.effect("reports absence only after REST successfully confirms no branch PR", () =>
+    Effect.gen(function* () {
+      const snapshot = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner("[]"))
+      );
+      expect(snapshot.remote.available).toBe(false);
+      assertNone(snapshot.remote.readFailure);
+      expect(
+        decideYeetReadyGate(
+          YeetReadyPullRequestRead.make({
+            remote: snapshot.remote,
+            mergeReady: snapshot.mergeReady,
+          })
+        )
+      ).toMatchObject({
+        _tag: "blocked",
+        blocker: "pr-open",
+        detail: "no open pull request was found for this branch",
+      });
+    })
+  );
+
+  it.effect("retains the read failure when the REST lookup fails too", () =>
+    Effect.gen(function* () {
+      const snapshot = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner("REST unavailable", 1))
+      );
+      expect(snapshot.remote.available).toBe(false);
+      assertTrue(O.isSome(snapshot.remote.readFailure));
+      expect(snapshot.remote.detail).toContain("REST unavailable");
+      const decision = decideYeetReadyGate(
+        YeetReadyPullRequestRead.make({
+          remote: snapshot.remote,
+          mergeReady: snapshot.mergeReady,
+        })
+      );
+      expect(decision).toMatchObject({ _tag: "blocked", blocker: "pr-open" });
+      if (decision._tag === "blocked")
+        expect(decision.detail).toContain(
+          "could not read the pull request: gh pr view failed: GraphQL: API rate limit exceeded"
+        );
+    })
+  );
+
+  it.effect("blocks when the recovered PR has closed since the branch lookup", () =>
+    Effect.gen(function* () {
+      const snapshot = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner(restFound, 0, "[]", "CLOSED"))
+      );
+      expect(
+        decideYeetReadyGate(
+          YeetReadyPullRequestRead.make({
+            remote: snapshot.remote,
+            mergeReady: snapshot.mergeReady,
+          })
+        )
+      ).toMatchObject({ _tag: "blocked", blocker: "pr-open", detail: "pull request #42 is CLOSED" });
+    })
+  );
+
+  it.effect("refuses to treat existing review comments as resolved threads", () =>
+    Effect.gen(function* () {
+      const failure = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner(restFound, 0, "[{}]")),
+        Effect.flip
+      );
+      expect(failure.message).toContain("thread resolution is unknown");
+    })
+  );
+
   it.effect("confirms and flips through the default remote reader", () =>
     Effect.gen(function* () {
       const runner = ChildProcessSpawner.make((command) => {

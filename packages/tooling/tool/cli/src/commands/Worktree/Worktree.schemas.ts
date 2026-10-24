@@ -12,7 +12,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, Sha256Hex } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { IsoDateTimeString } from "@beep/skill-contract";
@@ -120,6 +120,8 @@ export const WorktreePreservationStep = LiteralKit([
   "prepare-residue",
   "write-tracked-patch",
   "copy-untracked-files",
+  "preserve-beep-material",
+  "restore-beep-material",
   "write-manifest",
 ]).pipe(
   $I.annoteSchema("WorktreePreservationStep", {
@@ -279,6 +281,47 @@ export const WorktreeUpstreamState = S.TaggedUnion({
 export type WorktreeUpstreamState = typeof WorktreeUpstreamState.Type;
 
 /**
+ * One git-ignored `.beep` entry an archive retirement preserved, with the tree
+ * digest that proves its copy or move and its restore.
+ *
+ * **Details**
+ *
+ * `digest` is the SHA-256 of the entry's sorted tree listing: one line per
+ * path with its kind, and for files the size and content SHA-256, for symbolic
+ * links the target. `files` and `bytes` count regular files.
+ *
+ * **Example** (Record a preserved entry)
+ *
+ * ```ts
+ * import { WorktreeBeepMaterialEntry } from "@beep/repo-cli/commands/Worktree"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
+ *
+ * const entry = WorktreeBeepMaterialEntry.make({
+ *   name: "fallow",
+ *   files: 1,
+ *   bytes: 16,
+ *   digest: Sha256Hex.make("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+ * })
+ * console.log(entry.name) // fallow
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WorktreeBeepMaterialEntry extends S.Opaque<WorktreeBeepMaterialEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: TrimmedNonEmptyString,
+    files: S.Natural,
+    bytes: S.Natural,
+    digest: Sha256Hex,
+  }).pipe(
+    $I.annoteSchema("WorktreeBeepMaterialEntry", {
+      description: "A preserved git-ignored .beep entry with its file count, byte size and verified tree digest.",
+    })
+  )
+) {}
+
+/**
  * Durable receipt for worktree state preserved before archive removal.
  *
  * **Details**
@@ -326,6 +369,10 @@ export class WorktreeResidueManifest extends S.Opaque<WorktreeResidueManifest, {
     repositoryHash: WorktreeRepositoryHash,
     patchPath: S.OptionFromNullOr(S.String),
     untrackedFiles: S.Array(S.String),
+    materialEntries: S.Array(WorktreeBeepMaterialEntry).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
     residueRoot: S.String,
     reason: WorktreeResidueReason,
     upstream: WorktreeUpstreamState.pipe(
@@ -334,7 +381,7 @@ export class WorktreeResidueManifest extends S.Opaque<WorktreeResidueManifest, {
   }).pipe(
     $I.annoteSchema("WorktreeResidueManifest", {
       description:
-        "Durable receipt for a worktree HEAD, tracked patch, copied untracked files, and branch-upstream state preserved before removal.",
+        "Durable receipt for a worktree HEAD, tracked patch, copied untracked files, preserved `.beep` material entries, and branch-upstream state preserved before removal.",
     })
   )
 ) {}
@@ -352,6 +399,7 @@ export class WorktreeResidueManifest extends S.Opaque<WorktreeResidueManifest, {
  *   residueRoot: "/cache/repo-0123456789ab/feature-x-20260902-123456",
  *   patchPath: "/cache/repo-0123456789ab/feature-x-20260902-123456/tracked.patch",
  *   untrackedRoot: "/cache/repo-0123456789ab/feature-x-20260902-123456/untracked",
+ *   materialRoot: "/cache/repo-0123456789ab/feature-x-20260902-123456/beep-material",
  *   manifestPath: "/cache/repo-0123456789ab/feature-x-20260902-123456/manifest.json",
  * })
  * console.log(plan.manifestPath)
@@ -366,6 +414,7 @@ export class WorktreeArchivePlan extends S.Opaque<WorktreeArchivePlan, { readonl
     residueRoot: S.String,
     patchPath: S.String,
     untrackedRoot: S.String,
+    materialRoot: S.String,
     manifestPath: S.String,
   }).pipe(
     $I.annoteSchema("WorktreeArchivePlan", {

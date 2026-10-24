@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import * as A from "effect/Array";
@@ -311,20 +312,26 @@ export const CiOperationalLive = Layer.effect(
               [
                 `### Runner resources: ${lane}`,
                 "",
-                "| Measurement | Value |",
-                "| --- | --- |",
-                `| Lane exit status | ${status} |`,
-                `| Elapsed seconds | ${Math.floor(last.epoch - first.epoch)} |`,
-                `| Memory samples (5-second interval) | ${A.length(samples)} |`,
-                `| Host memory GiB | ${(last.total / 1048576).toFixed(2)} |`,
-                `| Sampled used-memory peak GiB | ${(peak / 1048576).toFixed(2)} |`,
-                `| Minimum available memory GiB | ${(available / 1048576).toFixed(2)} |`,
-                ...(delta > 0
-                  ? [
-                      `| Host CPU busy percent (excluding I/O wait) | ${((100 * (delta - (last.idle - first.idle))) / delta).toFixed(1)} |`,
-                    ]
-                  : []),
-                `| Swap-in / swap-out pages | ${last.swapIn - first.swapIn} / ${last.swapOut - first.swapOut} |`,
+                GitHubMarkdown.table(
+                  ["Measurement", "Value"],
+                  [
+                    ["Lane exit status", `${status}`],
+                    ["Elapsed seconds", `${Math.floor(last.epoch - first.epoch)}`],
+                    ["Memory samples (5-second interval)", `${A.length(samples)}`],
+                    ["Host memory GiB", (last.total / 1048576).toFixed(2)],
+                    ["Sampled used-memory peak GiB", (peak / 1048576).toFixed(2)],
+                    ["Minimum available memory GiB", (available / 1048576).toFixed(2)],
+                    ...(delta > 0
+                      ? [
+                          [
+                            "Host CPU busy percent (excluding I/O wait)",
+                            ((100 * (delta - (last.idle - first.idle))) / delta).toFixed(1),
+                          ],
+                        ]
+                      : []),
+                    ["Swap-in / swap-out pages", `${last.swapIn - first.swapIn} / ${last.swapOut - first.swapOut}`],
+                  ]
+                ),
                 "",
                 "Host-wide samples include the OS and other processes. Peaks between samples may be missed.",
                 "Elapsed time excludes checkout/setup and is not billed instance lifetime.",

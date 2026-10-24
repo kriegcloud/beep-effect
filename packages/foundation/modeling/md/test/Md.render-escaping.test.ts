@@ -115,6 +115,19 @@ describe("@beep/md/Md.render writer escapes", () => {
 
   it("keeps an email address in text from becoming an autolink", () => {
     expectWriter([p(text("a@b.co"))], "a\\@b\\.co");
+    expectWriter([p(text("a+b@c-d.e_f.co"))], "a\\+b\\@c\\-d\\.e\\_f\\.co");
+    expectWriter([p(text("a@b.c."))], "a\\@b\\.c\\.");
+    expectWriter([p(text("a@b@c.d"))], "a@b\\@c\\.d");
+  });
+
+  it("keeps scoped package names and non-email at signs literal", () => {
+    expectWriter([p(text("@beep/repo-cli"))], "@beep/repo\\-cli");
+    expectWriter([p(text("@scope/pkg"))], "@scope/pkg");
+    for (const value of ["@", "@example", "a@b", "a@b.c1", "a@b.c_", "a@b.c-", "a@b..co", "a@b.-co"]) {
+      const document = Document.make({ children: [p(text(value))] });
+      expect(renderUnsafe(document)).not.toContain("\\@");
+      expect(reparsed(renderUnsafe(document))).toStrictEqual(encode(document));
+    }
   });
 
   it("escapes a `$` only where it could open inline math", () => {
