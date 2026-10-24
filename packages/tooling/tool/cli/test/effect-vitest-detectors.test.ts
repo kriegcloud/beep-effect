@@ -1941,6 +1941,8 @@ it.layer(NodeServices.layer)((it) => {
         'it.effect("same effect layer", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); yield* b.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); }));',
         'it.effect("store path binding", () => Fx.gen(function* () { const root = yield* makeDataDir; const target = path.join(root, "a"); yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: target }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: target }))); }));',
         `${scoped} it.effect("carry", Fx.fnUntraced(function* () { const carried = yield* makeOut; yield* first.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); yield* second.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); }));`,
+        'it.effect("outer binding", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* Fx.gen(function* () { yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); yield* Fx.gen(function* () { yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); }));',
+        'import * as Path from "effect/Path"; it.effect("nested path services", () => Fx.gen(function* () { const root = yield* makeDataDir; yield* Fx.gen(function* () { const path = yield* Path.Path; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); yield* Fx.gen(function* () { const path = yield* Path.Path; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); }));',
       ]) {
         deepStrictEqual(yield* provisions(body), []);
       }
@@ -1993,8 +1995,64 @@ it.layer(NodeServices.layer)((it) => {
           'it.effect("different stores", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Cache.makeLayer({ dataDir }))); }));',
           2,
         ],
+        [
+          'it.effect("nested scopes", () => Fx.gen(function* () { yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); }));',
+          2,
+        ],
+        [
+          'it.effect("sibling blocks", () => Fx.gen(function* () { { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); } { const dataDir = yield* makeDataDir; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); } }));',
+          2,
+        ],
+        [
+          'it.effect("nested derived paths", () => Fx.gen(function* () { yield* Fx.gen(function* () { const root = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); yield* Fx.gen(function* () { const root = yield* makeDataDir; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); }));',
+          2,
+        ],
+        [
+          'it.effect("nested effect layers", () => Fx.gen(function* () { yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); }); yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* b.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); }); }));',
+          2,
+        ],
+        [
+          `${scoped} it.effect("nested run layers", () => Fx.gen(function* () { yield* Fx.gen(function* () { const out = yield* makeOut; const layer = makeRunLayer(manifest, out); yield* run.pipe(provideScopedLayer(layer)); }); yield* Fx.gen(function* () { const out = yield* makeOut; const layer = makeRunLayer(manifest, out); yield* replay.pipe(provideScopedLayer(layer)); }); }));`,
+          2,
+        ],
       ] as const) {
         deepStrictEqual((yield* provisions(body)).length, count);
+      }
+    })
+  );
+
+  it.effect("keys EV002 reopens through uninitialized, destructured and repeated test-body bindings", () =>
+    Effect.gen(function* () {
+      const provisions = Effect.fnUntraced(function* (body: string) {
+        return A.filter(yield* findings(body), (row) => row.ruleId === "EV002").length;
+      });
+      for (const [body, count] of [
+        [
+          'it.effect("assigned store value", () => Fx.gen(function* () { let dataDir: string; dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+          0,
+        ],
+        [
+          'it.effect("destructured store value", () => Fx.gen(function* () { const { dataDir } = yield* setup; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+          0,
+        ],
+        [
+          'it.effect("one store read twice", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; const layer = L.mergeAll(Store.makeLayer({ dataDir }), Cache.makeLayer({ dataDir })); yield* a.pipe(Fx.provide(layer)); yield* b.pipe(Fx.provide(layer)); }));',
+          0,
+        ],
+        [
+          'it.effect("one binding merged twice", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; const store = Store.makeLayer({ dataDir }); const both = L.merge(store, store); yield* a.pipe(Fx.provide(both)); yield* b.pipe(Fx.provide(both)); }));',
+          0,
+        ],
+        [
+          'it.effect("reassigned layer", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; let layer: L.Layer<Store>; layer = Store.makeLayer({ dataDir }); yield* a.pipe(Fx.provide(layer)); yield* b.pipe(Fx.provide(layer)); }));',
+          2,
+        ],
+        [
+          'it.effect("destructured layer", () => Fx.gen(function* () { const { layer } = yield* setup; yield* a.pipe(Fx.provide(layer)); yield* b.pipe(Fx.provide(layer)); }));',
+          2,
+        ],
+      ] as const) {
+        deepStrictEqual(yield* provisions(body), count);
       }
     })
   );
@@ -2028,9 +2086,28 @@ it.layer(NodeServices.layer)((it) => {
         'export default defineConfig({ test: { exclude: ["test/browser/**"] } });',
         "export default defineConfig({ test: { browser: { enabled: true } } });",
         'const include = ["test/**"]; export default defineConfig({ test: { include, browser: { enabled: true } } });',
+        "export default defineConfig({ test: { include: browserGlobs, browser: { enabled: true } } });",
+        'export default defineConfig({ test: { include: ["test/a.test.ts", dir + "/*.test.ts"], browser: { enabled: true } } });',
+        'export default defineConfig({ test: { include: ["test/**"], browser: true } });',
       ]) {
         deepStrictEqual(browserModeIncludeGlobs(config(text)), []);
       }
+      deepStrictEqual(
+        browserModeIncludeGlobs(
+          config(
+            "export default defineConfig({ test: { include: [`test/browser/**/*.test.ts`], browser: { enabled: true } } });"
+          )
+        ),
+        ["test/browser/**/*.test.ts"]
+      );
+      deepStrictEqual(
+        browserModeIncludeGlobs(
+          config(
+            'export default defineConfig({ test: { projects: [{ test: { include: ["a/**"], browser: { enabled: true } } }, { test: { include: ["b/**"] } }, { test: { include: ["c/**"], browser: { enabled: true } } }] } });'
+          )
+        ),
+        ["a/**", "c/**"]
+      );
     })
   );
 
@@ -2044,6 +2121,8 @@ it.layer(NodeServices.layer)((it) => {
       const browser = retainBrowserSafeFindings(rows, true);
       assertFalse(A.some(browser, (row) => row.ruleId === "EV006"));
       assertTrue(A.some(browser, (row) => row.ruleId === "EV002"));
+      deepStrictEqual(retainBrowserSafeFindings(true)(rows), browser);
+      deepStrictEqual(retainBrowserSafeFindings(false)(rows), rows);
     })
   );
 

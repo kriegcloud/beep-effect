@@ -514,3 +514,59 @@ cross-provider lane.
 Revert the PR. The 79 rows come back from the base inventory with their status and
 reasons, and the seven converted rows return to `open`. The inherited stream-console row
 stays resolved, because `main` removed its source. Per-repair reversals are listed above.
+
+## Follow-up #2196 (declaration-bound store evidence)
+
+The round-3 review on #2186 found that `argumentStoreEvidence` reduced each
+store-reading factory argument to normalized text, and `sharesLifecycle` compared
+those strings. `callbackCalls` walks nested functions, and `testBodyBindings` accepts
+any declaration inside the test callback. As a result, two nested `Fx.gen` blocks that
+each declare `const dataDir = yield* makeDataDir` and provide
+`Store.makeLayer({ dataDir })` produced the same key and were exempted as a reopen,
+even though they are distinct stores.
+
+Repair: each argument's evidence is now its normalized text plus the test-body
+declarations its identifiers resolve to (`testBodyBindings`). `sameEvidence` compares
+the text and then the declarations pairwise by node identity (`===`, never structural
+`Equal`). Node-valued evidence from layer bindings still compares by identity. The
+round-2 rules are unchanged: generic Layer constructors keep their full-text key,
+project factories keep their callee-name key, and inline derived arguments still
+compare by their whole expression.
+
+Fixtures, failing first on the base code (the count loop received 0 where 2 was
+expected): nested `Fx.gen` scopes, sibling block scopes, nested derived paths
+(`path.join(root, "kg")`), nested `L.effect(StoreA, openA(dataDir))`, and nested
+`makeRunLayer(manifest, out)` bindings. Each now stays EV002 twice. A body-level
+`const dataDir` reused by provisions in two nested blocks stays exempt, and so do all
+existing exempt reopen shapes.
+
+Inventory: `lint effect-vitest --write` reopened no rows and changed no EV002 row.
+All 7 `#1855 wave 4 register` exceptions survive, and a second `--write` is
+byte-stable. The only rows that changed are 9 inherited line shifts in
+`ci-lane.test.ts` (EV003 ×4, EV010 ×1) and `quality-tasks.test.ts` (EV003 ×1, EV010 ×1,
+EV013 ×2). Those come from source edits already on `main` (most recently #2179), not from this change. Only `id`, `line`
+and `endLine` change; status and reasons are untouched. The check reports
+`introduced=0 resolved=0`.
+
+Coverage floors restored: `main` inherited a repo-cli coverage-ratchet red from #2186.
+`EffectVitestDetectors.ts` statements stood at 97.82% against a 97.89% floor, and
+`EffectVitestScan.ts` branches at 95.31% against a 100% floor. A scoped lcov run located
+the uncovered units. In `EffectVitestScan.ts`, the three untaken arms were the non-array
+`include`, the non-literal element, and the not-a-`StringLiteral` arm. In
+`EffectVitestDetectors.ts`, they were the `storeEvidence` / `lifecycleKeys` revisit and
+no-initializer arms. The #2196 additions were already fully covered. New tests:
+- six EV002 cases, through assigned, destructured and repeated test-body bindings: four
+  exempt reopens, and two that stay findings (a reassigned `let` layer and a
+  destructured layer);
+- browser globs: an identifier `include`, a mixed literal and computed `include`,
+  `browser: true`, and a no-substitution template literal;
+- a multi-project config where only the enabled projects contribute;
+- the data-last `retainBrowserSafeFindings` form.
+
+The ratchet (`bun run coverage -- --filter=@beep/repo-cli`, 7,603 tests) reports
+`[coverage-ratchet] ok`, with no baseline file touched:
+
+| File | Lines | Statements | Branches | Functions |
+| --- | --- | --- | --- | --- |
+| `EffectVitestDetectors.ts` | 99.51 | 98.11 | 96.42 | 98.94 |
+| `EffectVitestScan.ts` | 100 | 100 | 100 | 100 |
