@@ -11,7 +11,8 @@
  * Every schema here is its field's plain JSON shape, decoded and encoded
  * without rewriting it: maps stay plain records (so their source key order
  * survives a round trip, unlike the `HashMap`-backed dependency maps), and
- * open objects keep every key. Repo-specific refinements, such as a closed
+ * open objects keep every key in source order, the `workspaces` object
+ * included. Repo-specific refinements, such as a closed
  * key set or package-name keys in `catalog`, belong to a `.extend()`ed
  * subclass, not to these generic shapes.
  *
@@ -20,7 +21,10 @@
  */
 
 import { $PackageJsonId } from "@beep/identity/packages";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as SchemaParser from "effect/SchemaParser";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 
 const $I = $PackageJsonId.create("ManifestFields");
 
@@ -307,10 +311,43 @@ export const TypesVersionsField = S.Record(S.String, S.Record(S.String, S.Array(
  */
 export type TypesVersionsField = typeof TypesVersionsField.Type;
 
+// The declared `workspaces` object keys plus the open rest. Validation only:
+// a struct parse rebuilds its output with the declared keys first, so it is
+// never the decoded value (see `WorkspacesConfig`).
+const WorkspacesConfigShape = S.StructWithRest(
+  S.Struct({
+    packages: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("WorkspacesConfig.packages", { description: "Workspace package globs." })
+    ),
+    nohoist: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("WorkspacesConfig.nohoist", {
+        description: "Yarn patterns for dependencies that must not be hoisted.",
+      })
+    ),
+  }),
+  [S.Record(S.String, S.Unknown)]
+);
+
+const parseWorkspacesConfig = SchemaParser.decodeUnknownEffect(WorkspacesConfigShape);
+const serializeWorkspacesConfig = SchemaParser.encodeUnknownEffect(WorkspacesConfigShape);
+
 /**
  * The object form of `workspaces`: optional `packages` globs and Yarn
  * `nohoist` patterns, with every other key (such as Bun's `catalog` and
  * `catalogs`) kept verbatim.
+ *
+ * **Details**
+ *
+ * The source key order survives a round trip. A struct parse emits its
+ * declared keys first, so a Bun root's `{ "catalog": …, "packages": … }`
+ * would come back as `{ "packages": …, "catalog": … }`, and the formatter's
+ * canonical sort orders top-level keys only. Instead the struct only
+ * validates (keeping its issue paths) and the plain record is the value; every
+ * member is an identity codec, so the validated object is the input.
  *
  * **Example** (Keep a Bun catalog inside the workspaces object)
  *
@@ -318,8 +355,8 @@ export type TypesVersionsField = typeof TypesVersionsField.Type;
  * import { WorkspacesConfig } from "@beep/package-json/ManifestFields";
  * import * as S from "effect/Schema";
  *
- * const config = S.decodeUnknownSync(WorkspacesConfig)({ packages: ["packages/*"], catalog: { effect: "4.0.4" } });
- * console.log(config.packages, config.catalog); // [ 'packages/*' ] { effect: '4.0.4' }
+ * const config = S.decodeUnknownSync(WorkspacesConfig)({ catalog: { effect: "4.0.4" }, packages: ["packages/*"] });
+ * console.log(config.packages, Object.keys(config)); // [ 'packages/*' ] [ 'catalog', 'packages' ]
  * ```
  *
  * @public
@@ -327,23 +364,14 @@ export type TypesVersionsField = typeof TypesVersionsField.Type;
  * @since 0.0.0
  */
 export class WorkspacesConfig extends S.Opaque<WorkspacesConfig, { readonly brand: unique symbol }>()(
-  S.StructWithRest(
-    S.Struct({
-      packages: S.String.pipe(
-        S.Array,
-        S.optionalKey,
-        $I.annoteKey("WorkspacesConfig.packages", { description: "Workspace package globs." })
-      ),
-      nohoist: S.String.pipe(
-        S.Array,
-        S.optionalKey,
-        $I.annoteKey("WorkspacesConfig.nohoist", {
-          description: "Yarn patterns for dependencies that must not be hoisted.",
-        })
-      ),
-    }),
-    [S.Record(S.String, S.Unknown)]
-  ).pipe(
+  S.Record(S.String, S.Unknown).pipe(
+    S.decodeTo(
+      S.Record(S.String, S.Unknown).pipe(S.refine(S.is(WorkspacesConfigShape))),
+      SchemaTransformation.transformEffect({
+        decode: (raw, options) => Effect.as(parseWorkspacesConfig(raw, options), raw),
+        encode: (config, options) => Effect.as(serializeWorkspacesConfig(config, options), config),
+      })
+    ),
     $I.annoteSchema("WorkspacesConfig", {
       description: "The object form of `workspaces`: package globs, nohoist patterns and any other key verbatim.",
     })

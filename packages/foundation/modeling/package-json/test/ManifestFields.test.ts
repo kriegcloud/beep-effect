@@ -169,8 +169,19 @@ describe("ManifestFields schemas", () => {
       const wire = { packages: ["packages/*"], nohoist: ["**/react-native"], catalog: { effect: "4.0.4" } };
       const decoded = yield* S.decodeEffect(WorkspacesField)(wire);
       deepStrictEqual(yield* S.encodeEffect(WorkspacesField)(decoded), wire);
-      const error = yield* Effect.flip(S.decodeUnknownEffect(WorkspacesField)({ packages: "packages/*" }));
+      const error = yield* Effect.flip(S.decodeEffect(WorkspacesField)({ packages: "packages/*" }));
       strictEqual(error._tag, "SchemaError");
+    })
+  );
+
+  it.effect("keep the workspaces object's source key order, catalog before packages", () =>
+    Effect.gen(function* () {
+      const wire = { catalog: { effect: "4.0.4" }, packages: ["packages/*"], catalogs: { test: { vitest: "4.0.0" } } };
+      const decoded = yield* S.decodeEffect(WorkspacesConfig)(wire);
+      deepStrictEqual(R.keys<string, unknown>(decoded), R.keys(wire));
+      const encoded = yield* S.encodeEffect(WorkspacesConfig)(decoded);
+      deepStrictEqual(R.keys(encoded), R.keys(wire));
+      deepStrictEqual(encoded, wire);
     })
   );
 
@@ -375,6 +386,43 @@ describe("ManifestFields formatted output", () => {
     Effect.gen(function* () {
       const manifest = yield* PackageManifest.decode(yield* S.decodeEffect(Json)(shuffled));
       strictEqual(manifest.toJsonString(), canonical);
+    })
+  );
+});
+
+// A struct parse emits its declared keys first, and the canonical sort orders
+// top-level keys only, so a nested Bun `workspaces` object written
+// catalog-before-packages is where a typed field could still drift from the
+// decode-free text path.
+describe("ManifestFields formatted output: nested workspaces key order", () => {
+  const bunRoot = [
+    "{",
+    '  "name": "root",',
+    '  "version": "0.0.0",',
+    '  "private": true,',
+    '  "workspaces": {',
+    '    "catalog": {',
+    '      "effect": "4.0.4"',
+    "    },",
+    '    "packages": [',
+    '      "packages/*"',
+    "    ]",
+    "  }",
+    "}",
+    "",
+  ].join("\n");
+
+  it.effect("the decode-free text path keeps the Bun root byte-for-byte", () =>
+    Effect.gen(function* () {
+      strictEqual(yield* Effect.fromResult(PackageJsonFormat.formatToString(bunRoot)), bunRoot);
+    })
+  );
+
+  it.effect("Package and PackageManifest re-render the Bun root byte-for-byte", () =>
+    Effect.gen(function* () {
+      const raw = yield* S.decodeEffect(Json)(bunRoot);
+      strictEqual((yield* Package.decode(raw)).toJsonString(), bunRoot);
+      strictEqual((yield* PackageManifest.decode(raw)).toJsonString(), bunRoot);
     })
   );
 });
