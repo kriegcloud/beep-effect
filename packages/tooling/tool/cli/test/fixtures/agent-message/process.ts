@@ -1,4 +1,5 @@
 /** Synthetic process-crash boundary; no providers, credentials or tools. */
+
 import {
   AmbiguityResolution,
   Claim,
@@ -18,6 +19,7 @@ import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/sql/SqlClient";
+import type { RouterError } from "@beep/repo-cli/test/AgentMessage";
 
 const EnvelopeJson = S.fromJsonString(Envelope);
 const ResolutionJson = S.fromJsonString(AmbiguityResolution);
@@ -34,13 +36,24 @@ const writeCheckpoint = Effect.fnUntraced(function* (checkpoint: string, content
   yield* fs.rename(staged, checkpoint);
 });
 
+const isMailboxLockTimeout = (error: RouterError) =>
+  error.code === "storage" && error.message === "Agent message SQL operation failed: LockTimeoutError.";
+
 const program = Effect.scoped(
   Effect.gen(function* () {
     const filename = yield* Config.String("BEEP_MESSAGE_FIXTURE_DATABASE");
     const checkpoint = yield* Config.String("BEEP_MESSAGE_FIXTURE_CHECKPOINT");
     const stage = yield* Config.String("BEEP_MESSAGE_FIXTURE_STAGE");
     const client = yield* makeAgentMessageSqliteClient(filename, "100 millis");
-    const store = yield* makeAgentMessageStore().pipe(Effect.provideService(SqlClient.SqlClient, client));
+    const store = yield* makeAgentMessageStore().pipe(
+      Effect.provideService(SqlClient.SqlClient, client),
+      // Concurrent children can exceed the deliberately short native busy timeout during
+      // schema initialization. Retry only its classified lock error; other failures stay fatal.
+      Effect.tapError((error) =>
+        isMailboxLockTimeout(error) ? writeCheckpoint(`${checkpoint}.contended`, "contended") : Effect.void
+      ),
+      Effect.retry({ while: isMailboxLockTimeout, times: 8, schedule: Schedule.spaced("50 millis") })
+    );
     const fs = yield* FileSystem.FileSystem;
     if (stage === "lock") {
       yield* client`BEGIN IMMEDIATE`;
