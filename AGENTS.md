@@ -171,6 +171,16 @@ Runbook: `docs/runbooks/agent-pools.md`.
   starts; do not respond to a missing MCP tool by asking the operator to unlock
   1Password or run `op signin`.
 
+## Sensitive human input
+
+When an authorized task needs sensitive human text (password, OTP, recovery
+code, token), use the `plasma-sensitive-entry` skill before collecting it.
+Its masked Plasma dialog delivers the value directly to the authorized
+consumer; never request or expose it through chat, question tools, terminal
+input, logs, arguments or files. Missing secure GUI delivery blocks collection.
+Canonical local YubiKey privilege wrappers, remote authentication wrappers and
+the agent 1Password lane take precedence; a dialog never replaces those routes.
+
 ## Code Laws
 
 - Use schema-first domain models; prefer typed errors and tagged unions.
