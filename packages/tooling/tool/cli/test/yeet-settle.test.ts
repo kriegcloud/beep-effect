@@ -1161,27 +1161,29 @@ const selfLoopRunner = (restRecoveryAvailable: boolean, pageReads: Ref.Ref<numbe
     });
   });
 
-for (const restRecoveryAvailable of [false, true]) {
-  it.effect(
-    `status refuses a review-thread page that names itself as its own successor (REST recovery: ${restRecoveryAvailable})`,
-    () =>
-      temporary((root) =>
-        Effect.gen(function* () {
-          const pageReads = yield* Ref.make(0);
-          const restReads = yield* Ref.make(0);
-          const runner = selfLoopRunner(restRecoveryAvailable, pageReads, restReads);
-          const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
-            Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
-            Effect.flip
-          );
-          assertInclude(failure.message, "repeated the same GraphQL end cursor");
-          // The first page and its claimed successor were read; the third lap never ran.
-          expect(yield* Ref.get(pageReads)).toBe(2);
-          expect(yield* Ref.get(restReads)).toBe(0);
-        })
-      ).pipe(provideScopedLayer(platform))
-  );
-}
+it.layer(platform)((it) => {
+  for (const restRecoveryAvailable of [false, true]) {
+    it.effect(
+      `status refuses a review-thread page that names itself as its own successor (REST recovery: ${restRecoveryAvailable})`,
+      () =>
+        temporary((root) =>
+          Effect.gen(function* () {
+            const pageReads = yield* Ref.make(0);
+            const restReads = yield* Ref.make(0);
+            const runner = selfLoopRunner(restRecoveryAvailable, pageReads, restReads);
+            const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
+              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
+              Effect.flip
+            );
+            assertInclude(failure.message, "repeated the same GraphQL end cursor");
+            // The first page and its claimed successor were read; the third lap never ran.
+            expect(yield* Ref.get(pageReads)).toBe(2);
+            expect(yield* Ref.get(restReads)).toBe(0);
+          })
+        )
+    );
+  }
+});
 
 it.effect("keeps following settled red heads, preserving the one-rerun budget", () =>
   temporary((root) =>
