@@ -158,23 +158,20 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 
-    it.effect("property: schema-generated inputs compile deterministic schema-valid plans", () =>
-      Effect.gen(function* () {
-        const result = yield* Arbitrary.checkEffect(
-          Arbitrary.all([Arbitrary.schema(BootstrapInput)]),
-          ([input]) =>
-            Effect.gen(function* () {
-              const first = yield* compileMaterializationPlan(input, []);
-              const second = yield* compileMaterializationPlan(input, []);
-              expect(isMaterializationPlan2(first)).toBe(true);
-              expect(second.planId).toBe(first.planId);
-              expect(second.entries).toStrictEqual(first.entries);
-              return true;
-            }),
-          fcRuns(32)
-        );
-        expect(result._tag).toBe("Passed");
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    it.effect.prop(
+      "property: schema-generated inputs compile deterministic schema-valid plans",
+      [Arbitrary.schema(BootstrapInput)],
+      Effect.fnUntraced(
+        function* ([input]) {
+          const first = yield* compileMaterializationPlan(input, []);
+          const second = yield* compileMaterializationPlan(input, []);
+          expect(isMaterializationPlan2(first)).toBe(true);
+          expect(second.planId).toBe(first.planId);
+          expect(second.entries).toStrictEqual(first.entries);
+        },
+        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+      ),
+      { arbitrary: fcRuns(32) }
     );
   });
 
