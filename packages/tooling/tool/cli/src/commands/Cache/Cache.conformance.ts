@@ -45,6 +45,9 @@ import type {
 import type { CacheConformanceWireOutcome } from "./Cache.conformance.wire.ts";
 
 const $I = $RepoCliId.create("commands/Cache/Cache.conformance");
+const decodeBearers = S.decodeUnknownEffect(S.toType(CacheConformanceBearers));
+const decodeEnvelopeJson = S.decodeEffect(S.fromJsonString(CacheConformanceLoadEnvelope));
+const encodeRunJson = S.encodeEffect(S.fromJsonString(CacheConformanceRun, { space: 2 }));
 
 const LoopbackIpv4 = S.String.check(S.isPattern(/^127(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/)).pipe(
   $I.annoteSchema("LoopbackIpv4", { description: "An IPv4 address inside 127.0.0.0/8." })
@@ -134,9 +137,7 @@ export const loadCacheConformanceBearers = Effect.fn("CacheConformance.loadBeare
     return yield* CacheCommandError.new(
       "Bearers must be non-empty, the unknown bearer must match no valid one, and claimed role or tenant separation needs distinct bearers."
     );
-  return yield* S.decodeUnknownEffect(S.toType(CacheConformanceBearers))(values).pipe(
-    CacheCommandError.mapError("Cannot hold the run bearers.")
-  );
+  return yield* decodeBearers(values).pipe(CacheCommandError.mapError("Cannot hold the run bearers."));
 });
 
 /**
@@ -453,7 +454,7 @@ export const cacheConformanceLoadEnvelopePath =
 export const loadCacheConformanceEnvelope = Effect.fn("CacheConformance.loadEnvelope")(function* (root: string) {
   return yield* readCacheExperimentBytes(root, cacheConformanceLoadEnvelopePath).pipe(
     Effect.flatMap(decodeCacheExperimentText),
-    Effect.flatMap(S.decodeEffect(S.fromJsonString(CacheConformanceLoadEnvelope)))
+    Effect.flatMap(decodeEnvelopeJson)
   );
 }, CacheCommandError.mapError("Cannot read the measured load envelope."));
 
@@ -660,5 +661,5 @@ export const mergeCacheConformanceRuns = Effect.fn("CacheConformance.mergeRuns")
 export const encodeCacheConformanceRun = Effect.fn("CacheConformance.encodeRun")(function* (
   report: CacheConformanceRun
 ) {
-  return `${yield* S.encodeEffect(S.fromJsonString(CacheConformanceRun, { space: 2 }))(report)}\n`;
+  return `${yield* encodeRunJson(report)}\n`;
 }, CacheCommandError.mapError("Cannot encode the conformance run report."));

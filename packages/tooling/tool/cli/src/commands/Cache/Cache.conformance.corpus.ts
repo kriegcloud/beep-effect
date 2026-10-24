@@ -57,8 +57,12 @@ export const CacheConformancePaths = {
 
 const hashBytes = S.decodeEffect(Sha256HexFromBytes);
 const CorpusJson = S.fromJsonString(CacheConformanceCorpus, { space: 2 });
-const normalise = (text: string) =>
-  S.decodeEffect(S.fromJsonString(S.Unknown))(text).pipe(Effect.flatMap(S.encodeEffect(S.fromJsonString(S.Unknown))));
+const JsonValue = S.fromJsonString(S.Unknown);
+const decodeJson = S.decodeEffect(JsonValue);
+const encodeJson = S.encodeEffect(JsonValue);
+const decodeCaseType = S.decodeUnknownEffect(S.toType(CacheConformanceCase));
+const decodeCorpusType = S.decodeUnknownEffect(S.toType(CacheConformanceCorpus));
+const normalise = (text: string) => decodeJson(text).pipe(Effect.flatMap(encodeJson));
 
 const OpenApiDocument = S.Struct({
   paths: S.Record(S.String, S.Record(S.String, S.Unknown)),
@@ -78,6 +82,7 @@ const PlanDocument = S.Struct({
     })
   ),
 }).pipe($I.annoteSchema("ConformancePlanDocument", { description: "Selected fields of the 32-case plan." }));
+const decodePlanJson = S.decodeEffect(S.fromJsonString(PlanDocument));
 const StatusCode = S.NumberFromString.check(S.isInt(), S.isBetween({ minimum: 100, maximum: 599 }));
 const decodeStatusCode = S.decodeUnknownOption(StatusCode);
 const decodeOperation = S.decodeUnknownEffect(OpenApiOperation);
@@ -270,10 +275,10 @@ export const buildCacheConformanceCorpus = Effect.fn("CacheConformance.buildCorp
     return yield* CacheCommandError.new(
       `Vendored OpenAPI digest ${openapiSha256} does not match the pinned ${CacheConformancePaths.openapiSha256}.`
     );
-  const document = yield* S.decodeEffect(S.fromJsonString(S.Unknown))(yield* decodeCacheExperimentText(openapiBytes));
+  const document = yield* decodeJson(yield* decodeCacheExperimentText(openapiBytes));
   const operations = yield* deriveOperations(document);
   const planBytes = yield* readCacheExperimentBytes(root, CacheConformancePaths.plan);
-  const plan = yield* S.decodeEffect(S.fromJsonString(PlanDocument))(yield* decodeCacheExperimentText(planBytes));
+  const plan = yield* decodePlanJson(yield* decodeCacheExperimentText(planBytes));
   if (plan.cases.length !== caseTable.length)
     return yield* CacheCommandError.new(
       `Plan has ${plan.cases.length} cases; the hand-authored table has ${caseTable.length}.`
@@ -283,7 +288,7 @@ export const buildCacheConformanceCorpus = Effect.fn("CacheConformance.buildCorp
       const generated = planned.class === "generated" || planned.class === "generated-optional";
       if (generated !== A.isReadonlyArrayNonEmpty(entry.routes))
         return yield* CacheCommandError.new(`${planned.id} origin disagrees with its plan class ${planned.class}.`);
-      return yield* S.decodeUnknownEffect(S.toType(CacheConformanceCase))({
+      return yield* decodeCaseType({
         ...planned,
         origin: generated ? yield* originFor(entry.routes, operations) : { origin: "hand-authored" as const },
         executor: entry.executor,
@@ -293,7 +298,7 @@ export const buildCacheConformanceCorpus = Effect.fn("CacheConformance.buildCorp
     })
   );
   // Validate through the type side so a plan drift is a typed failure, not a thrown make.
-  return yield* S.decodeUnknownEffect(S.toType(CacheConformanceCorpus))({
+  return yield* decodeCorpusType({
     schemaVersion: "cache-conformance-corpus/v1",
     openapi: { gitBlob: CacheConformancePaths.openapiGitBlob, sha256: openapiSha256, mountPrefix: "/v8" },
     sourcePlan: { path: CacheConformancePaths.plan, sha256: yield* hashBytes(planBytes) },

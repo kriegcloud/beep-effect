@@ -1,5 +1,6 @@
 import {
   buildCacheConformanceCorpus,
+  CacheConformanceExchange,
   CacheConformancePaths,
   CacheConformanceRun,
   renderCacheConformanceCorpus,
@@ -8,7 +9,7 @@ import {
 } from "@beep/repo-cli/commands/Cache";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
+import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -127,7 +128,7 @@ it.layer(Services, { timeout: "120 seconds", excludeTestServices: true })("cache
       const miss = caseOf(report, "RC-010");
       const get = A.findFirst(miss.exchanges, (exchange) => exchange.method === "GET").pipe(O.getOrThrow);
       expect(get.outcome).toBe("server-error");
-      expect(get.status).toEqual(O.some(500));
+      assertSome(get.status, 500);
       expect(miss.verdicts["strict-openapi"].verdict).toBe("fail");
       const head = A.findFirst(miss.exchanges, (exchange) => exchange.method === "HEAD").pipe(O.getOrThrow);
       expect(head.outcome).toBe("miss");
@@ -192,3 +193,18 @@ it.layer(Services, { timeout: "120 seconds", excludeTestServices: true })("cache
     })
   );
 });
+
+const ExchangeJson = S.fromJsonString(CacheConformanceExchange);
+const encodeExchange = S.encodeEffect(ExchangeJson);
+const decodeExchange = S.decodeEffect(ExchangeJson);
+
+it.effect.prop(
+  "round trips schema-generated exchange receipts through JSON",
+  { exchange: CacheConformanceExchange },
+  ({ exchange }) =>
+    Effect.gen(function* () {
+      const encoded = yield* encodeExchange(CacheConformanceExchange.make(exchange));
+      expect(yield* encodeExchange(yield* decodeExchange(encoded))).toBe(encoded);
+    }),
+  { arbitrary: { runs: 50 } }
+);

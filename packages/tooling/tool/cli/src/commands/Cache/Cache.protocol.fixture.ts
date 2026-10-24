@@ -93,6 +93,28 @@ export const corruptCacheArtifactBody = (bytes: Uint8Array) => {
  */
 export const tamperCacheArtifactTag = (tag: string) => `${Str.startsWith("A")(tag) ? "B" : "A"}${Str.slice(1)(tag)}`;
 
+/**
+ * Serve an HTTP app on an ephemeral 127.0.0.1 port for the caller's scope and return its URL.
+ *
+ * **Example** (Reference the loopback server)
+ * ```ts
+ * import { serveCacheLoopback } from "@beep/repo-cli/commands/Cache"
+ * console.assert(typeof serveCacheLoopback === "function")
+ * ```
+ *
+ * @internal
+ * @category fixtures
+ * @since 0.0.0
+ */
+export const serveCacheLoopback = Effect.fn("Cache.serveLoopback")(function* <E, R>(
+  app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>,
+  maxRequestBodySize: number
+) {
+  const server = yield* BunHttpServer.make({ hostname: "127.0.0.1", port: 0, maxRequestBodySize });
+  yield* server.serve(app);
+  return HttpServer.formatAddress(server.address);
+});
+
 // Truncate artifact bytes while retaining complete HTTP framing so the native
 // client must reject the signed payload itself.
 const readFaultBody = (stored: StoredArtifact, fault: CacheFixtureScenario["fault"]) =>
@@ -245,10 +267,8 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
     if (role === "unknown") return yield* reply(401, "rejected");
     return yield* routeRequest(request, role, current, reply);
   });
-  const server = yield* BunHttpServer.make({ hostname: "127.0.0.1", port: 0, maxRequestBodySize: bodyLimit });
-  yield* server.serve(app);
   return {
-    url: HttpServer.formatAddress(server.address),
+    url: yield* serveCacheLoopback(app, bodyLimit),
     events: Ref.get(events),
     // Supervisor-only observation; HTTP readers cannot access this capability.
     artifactBytes: (key: CacheFixtureArtifactKey) =>

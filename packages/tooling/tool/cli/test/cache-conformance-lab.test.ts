@@ -25,7 +25,7 @@ import { CacheRuntimeProcess } from "@beep/repo-cli/test/Cache";
 import { Sha256Hex } from "@beep/schema";
 import { NodeServices } from "@effect/platform-node";
 import { afterEach, expect, it, vi } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Crypto from "effect/Crypto";
@@ -61,6 +61,8 @@ afterEach(() => vi.restoreAllMocks());
 const Services = Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer);
 const RunJson = S.fromJsonString(CacheConformanceRun, { space: 2 });
 const ComparisonJson = S.fromJsonString(CacheConformanceComparison, { space: 2 });
+const encodeProxyEvents = S.encodeEffect(CacheConformanceProxyEvent.pipe(S.Array, S.fromJsonString));
+const encodeSummaryJson = S.encodeEffect(S.fromJsonString(S.Json));
 
 // A small envelope keeps the measured steps fast while exercising every step.
 const envelope = CacheConformanceLoadEnvelope.make({
@@ -145,9 +147,10 @@ it.layer(Services, { timeout: "60 seconds", excludeTestServices: true })("cache 
         Result.isSuccess(outcome)
           ? O.flatMap(outcome.success, (reply) => Headers.get(reply.headers, "x-artifact-tag"))
           : O.none();
-      expect(tagOf(plain)).toEqual(O.some("Atag-value"));
-      expect(tagOf(yield* read("missing-tag"))).toEqual(O.none());
-      expect(tagOf(yield* read("tampered-tag"))).toEqual(O.some("Btag-value"));
+      assertSome(tagOf(plain), "Atag-value");
+      const stripped = yield* read("missing-tag");
+      stripped.pipe(tagOf, assertNone);
+      assertSome(tagOf(yield* read("tampered-tag")), "Btag-value");
       const tampered = yield* read("tampered-body");
       assertTrue(
         Result.isSuccess(tampered) &&
@@ -181,7 +184,7 @@ it.layer(Services, { timeout: "60 seconds", excludeTestServices: true })("cache 
           "truncated-body",
         ])
       );
-      const receipts = yield* S.encodeEffect(CacheConformanceProxyEvent.pipe(S.Array, S.fromJsonString))(events);
+      const receipts = yield* encodeProxyEvents(events);
       for (const secret of [...R.values(secrets), "Atag-value", "Btag-value", hash])
         expect(receipts).not.toContain(secret);
     })
@@ -244,41 +247,59 @@ const sign = (key: string, team: string, body: Uint8Array) =>
     crypto.digest("SHA-256", new Uint8Array([...new TextEncoder().encode(`${key}|${taskHash}|${team}|`), ...body]))
   ).pipe(Effect.map(Hex.encode));
 
-const makeNativeClient = (fs: FileSystem.FileSystem, path: Path.Path, client: HttpClient.HttpClient) =>
-  Effect.fn("ConformanceNativeTest.process")(function* (
-    options: Parameters<typeof CacheRuntimeProcess.runCapturedStreams>[0]
-  ) {
-    const args = options.args ?? [];
-    expect(options.command).toBe("/usr/bin/bwrap");
-    const work = O.getOrThrow(A.get(args, O.getOrThrow(A.findFirstIndex(args, (arg) => arg === "--bind")) + 1));
-    const env = options.env ?? {};
-    const team = env.TURBO_TEAMID ?? "";
-    const key = env.TURBO_REMOTE_CACHE_SIGNATURE_KEY ?? "";
-    const url = `${env.TURBO_API}/v8/artifacts/${taskHash}?teamId=${team}`;
-    const headers = { authorization: `Bearer ${env.TURBO_TOKEN}` };
-    const response = yield* client.get(url, { headers });
+type SimulatedRun = {
+  readonly work: string;
+  readonly team: string;
+  readonly key: string;
+  readonly url: string;
+  readonly headers: Readonly<Record<string, string>>;
+  readonly deny: boolean;
+};
+
+const simulatedRun = (options: Parameters<typeof CacheRuntimeProcess.runCapturedStreams>[0]): SimulatedRun => {
+  const args = options.args ?? [];
+  const env = options.env ?? {};
+  const team = env.TURBO_TEAMID ?? "";
+  return {
+    work: O.getOrThrow(A.get(args, O.getOrThrow(A.findFirstIndex(args, (arg) => arg === "--bind")) + 1)),
+    team,
+    key: env.TURBO_REMOTE_CACHE_SIGNATURE_KEY ?? "",
+    url: `${env.TURBO_API}/v8/artifacts/${taskHash}?teamId=${team}`,
+    headers: { authorization: `Bearer ${env.TURBO_TOKEN}` },
+    deny: env.PROBE_DENY_EXECUTION === "1",
+  };
+};
+
+const simulatedOutput = new TextEncoder().encode("conformance-native-signed-output\n");
+
+const makeNativeClient = (fs: FileSystem.FileSystem, path: Path.Path, client: HttpClient.HttpClient) => {
+  const restore = Effect.fnUntraced(function* (run: SimulatedRun) {
+    const response = yield* client.get(run.url, { headers: run.headers });
     const stored = new Uint8Array(yield* response.arrayBuffer);
     const tag = Headers.get(response.headers, "x-artifact-tag");
-    const verified = response.status === 200 && O.contains(tag, yield* sign(key, team, stored));
-    const deny = env.PROBE_DENY_EXECUTION === "1";
-    const output = new TextEncoder().encode("conformance-native-signed-output\n");
-    const restored = verified ? stored : output;
-    const exitCode = verified || !deny ? 0 : 42;
-    if (verified || !deny) {
-      yield* fs.makeDirectory(path.join(work, "dist"), { recursive: true });
-      yield* fs.writeFile(path.join(work, "dist/result.txt"), restored);
-    }
-    if (!verified && !deny)
-      yield* HttpClientRequest.put(url).pipe(
-        HttpClientRequest.setHeaders({ ...headers, "x-artifact-tag": yield* sign(key, team, output) }),
-        HttpClientRequest.bodyUint8Array(output),
-        client.execute,
-        Effect.flatMap((reply) => reply.arrayBuffer)
-      );
-    yield* fs.makeDirectory(path.join(work, ".turbo/runs"), { recursive: true });
+    const verified = response.status === 200 && O.contains(tag, yield* sign(run.key, run.team, stored));
+    return { verified, stored };
+  });
+  const writeOutput = Effect.fnUntraced(function* (run: SimulatedRun, bytes: Uint8Array) {
+    yield* fs.makeDirectory(path.join(run.work, "dist"), { recursive: true });
+    yield* fs.writeFile(path.join(run.work, "dist/result.txt"), bytes);
+  });
+  const upload = Effect.fnUntraced(function* (run: SimulatedRun) {
+    yield* HttpClientRequest.put(run.url).pipe(
+      HttpClientRequest.setHeaders({
+        ...run.headers,
+        "x-artifact-tag": yield* sign(run.key, run.team, simulatedOutput),
+      }),
+      HttpClientRequest.bodyUint8Array(simulatedOutput),
+      client.execute,
+      Effect.flatMap((reply) => reply.arrayBuffer)
+    );
+  });
+  const writeSummary = Effect.fnUntraced(function* (run: SimulatedRun, verified: boolean, exitCode: number) {
+    yield* fs.makeDirectory(path.join(run.work, ".turbo/runs"), { recursive: true });
     yield* fs.writeFileString(
-      path.join(work, ".turbo/runs/run.json"),
-      yield* S.encodeEffect(S.fromJsonString(S.Json))({
+      path.join(run.work, ".turbo/runs/run.json"),
+      yield* encodeSummaryJson({
         turboVersion: "2.11.10",
         tasks: [
           {
@@ -290,8 +311,21 @@ const makeNativeClient = (fs: FileSystem.FileSystem, path: Path.Path, client: Ht
         ],
       })
     );
+  });
+  return Effect.fn("ConformanceNativeTest.process")(function* (
+    options: Parameters<typeof CacheRuntimeProcess.runCapturedStreams>[0]
+  ) {
+    expect(options.command).toBe("/usr/bin/bwrap");
+    const run = simulatedRun(options);
+    const { verified, stored } = yield* restore(run);
+    // Restored from a verified remote hit, executed when allowed, or denied (exit 42).
+    if (verified) yield* writeOutput(run, stored);
+    if (!verified && !run.deny) yield* writeOutput(run, simulatedOutput).pipe(Effect.andThen(upload(run)));
+    const exitCode = verified || !run.deny ? 0 : 42;
+    yield* writeSummary(run, verified, exitCode);
     return CacheRuntimeProcess.CapturedStreams.make({ exitCode, stdout: "", stderr: "", truncated: false });
   }, Effect.orDie);
+};
 
 const pin = CacheConformanceClientPin.make({
   channel: "stable",
@@ -458,3 +492,18 @@ it.layer(Services, { timeout: "180 seconds", excludeTestServices: true })("cache
     })
   );
 });
+
+const ProxyEventJson = S.fromJsonString(CacheConformanceProxyEvent);
+const encodeProxyEvent = S.encodeEffect(ProxyEventJson);
+const decodeProxyEvent = S.decodeEffect(ProxyEventJson);
+
+it.effect.prop(
+  "round trips schema-generated proxy events through JSON",
+  { event: CacheConformanceProxyEvent },
+  ({ event }) =>
+    Effect.gen(function* () {
+      const encoded = yield* encodeProxyEvent(CacheConformanceProxyEvent.make(event));
+      expect(yield* encodeProxyEvent(yield* decodeProxyEvent(encoded))).toBe(encoded);
+    }),
+  { arbitrary: { runs: 50 } }
+);

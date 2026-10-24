@@ -226,6 +226,13 @@ export const CacheConformanceEvidenceVerdict = LiteralKit(["pass", "fail"]).pipe
     description: "Executed outcome of an external check; an unexecuted check is simply not listed.",
   })
 );
+/**
+ * Executed outcome of an external check.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CacheConformanceEvidenceVerdict = typeof CacheConformanceEvidenceVerdict.Type;
 
 /**
  * One executed deployed or log check scored against a corpus case and dimension.
@@ -450,6 +457,7 @@ const BackendPins = S.Struct({
     })
   ),
 }).pipe($I.annoteSchema("CacheConformanceBackendPins", { description: "Pinned backends and their licenses." }));
+const decodeBackendPins = S.decodeEffect(S.fromJsonString(BackendPins));
 const permissiveLicenses = HashSet.make("MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC");
 
 const detailOf = (verdict: CacheConformanceVerdict) =>
@@ -539,47 +547,68 @@ const obligationOf = (external: ExternalEvidence, gate: number) => (obligation: 
         }
       );
 
+const hasStatus =
+  (status: CacheConformanceGateStatus) =>
+  (evidence: ReadonlyArray<CacheConformanceGateEvidence>): boolean =>
+    A.some(evidence, (item) => item.status === status);
+const hasFail = hasStatus("fail");
+const hasUnproven = hasStatus("unproven");
+
+const gateStatusOf = (
+  evidence: ReadonlyArray<CacheConformanceGateEvidence>,
+  nonRepresentative: boolean
+): CacheConformanceGateStatus => {
+  if (hasFail(evidence)) return "fail";
+  const proven = A.isReadonlyArrayNonEmpty(evidence) && !hasUnproven(evidence) && !nonRepresentative;
+  return proven ? "pass" : "unproven";
+};
+
+const namedEvidence = (item: CacheConformanceGateEvidence) =>
+  `${item.case}${O.match(item.dimension, { onNone: () => "", onSome: (dimension) => ` ${dimension}` })}`;
+
+const failReason = (evidence: ReadonlyArray<CacheConformanceGateEvidence>) =>
+  A.join(
+    A.map(
+      A.filter(evidence, (item) => item.status === "fail"),
+      (item) => `${namedEvidence(item)}: ${item.detail}`
+    ),
+    " | "
+  );
+
+const unprovenReason = (evidence: ReadonlyArray<CacheConformanceGateEvidence>, nonRepresentative: boolean) =>
+  nonRepresentative && !hasUnproven(evidence)
+    ? "Measured only on a non-representative profile; gate 9 needs a disposable-deployment run."
+    : `Unexecuted evidence: ${A.join(
+        A.dedupe(
+          A.map(
+            A.filter(evidence, (item) => item.status === "unproven"),
+            namedEvidence
+          )
+        ),
+        ", "
+      )}`;
+
+const gateReasonOf = (
+  status: CacheConformanceGateStatus,
+  evidence: ReadonlyArray<CacheConformanceGateEvidence>,
+  nonRepresentative: boolean
+) =>
+  Match.value(status).pipe(
+    Match.when("fail", () => failReason(evidence)),
+    Match.when("unproven", () => unprovenReason(evidence, nonRepresentative)),
+    Match.orElse(() => "Every mapped verdict passed.")
+  );
+
 const evaluateGate =
   (run: CacheConformanceRun, external: ExternalEvidence, envelopeNote: string) => (rule: GateRule) => {
-    const enumerated = A.flatMap(rule.enumerated ?? [], evidenceOf(run, external, true));
-    const direct = A.flatMap(rule.evidence, evidenceOf(run, external, false));
-    const obligations = A.flatMap(rule.obligations ?? [], obligationOf(external, rule.gate));
-    const evidence = [...enumerated, ...direct, ...obligations];
+    const evidence = [
+      ...A.flatMap(rule.enumerated ?? [], evidenceOf(run, external, true)),
+      ...A.flatMap(rule.evidence, evidenceOf(run, external, false)),
+      ...A.flatMap(rule.obligations ?? [], obligationOf(external, rule.gate)),
+    ];
     const nonRepresentative = (rule.representative ?? false) && !run.representative;
-    const status: CacheConformanceGateStatus = A.some(evidence, (item) => item.status === "fail")
-      ? "fail"
-      : !A.isReadonlyArrayNonEmpty(evidence) ||
-          A.some(evidence, (item) => item.status === "unproven") ||
-          nonRepresentative
-        ? "unproven"
-        : "pass";
-    const named = (item: CacheConformanceGateEvidence) =>
-      `${item.case}${O.match(item.dimension, { onNone: () => "", onSome: (dimension) => ` ${dimension}` })}`;
-    const reason = Match.value(status).pipe(
-      Match.when("fail", () =>
-        A.join(
-          A.map(
-            A.filter(evidence, (item) => item.status === "fail"),
-            (item) => `${named(item)}: ${item.detail}`
-          ),
-          " | "
-        )
-      ),
-      Match.when("unproven", () =>
-        nonRepresentative && !A.some(evidence, (item) => item.status === "unproven")
-          ? "Measured only on a non-representative profile; gate 9 needs a disposable-deployment run."
-          : `Unexecuted evidence: ${A.join(
-              A.dedupe(
-                A.map(
-                  A.filter(evidence, (item) => item.status === "unproven"),
-                  named
-                )
-              ),
-              ", "
-            )}`
-      ),
-      Match.orElse(() => "Every mapped verdict passed.")
-    );
+    const status = gateStatusOf(evidence, nonRepresentative);
+    const reason = gateReasonOf(status, evidence, nonRepresentative);
     return CacheConformanceGateResult.make({
       gate: rule.gate,
       title: rule.title,
@@ -626,7 +655,7 @@ export const compareCacheConformanceRuns = Effect.fn("CacheConformance.compareRu
     );
   const pins = yield* readCacheExperimentBytes(root, cacheConformancePinsPath).pipe(
     Effect.flatMap(decodeCacheExperimentText),
-    Effect.flatMap(S.decodeEffect(S.fromJsonString(BackendPins)))
+    Effect.flatMap(decodeBackendPins)
   );
   const envelope = yield* loadCacheConformanceEnvelope(root);
   const envelopeNote = envelope.concurrency.censored

@@ -155,6 +155,7 @@ export {
   CacheConformanceWireOutcome,
   cacheConformanceLabCaseIds,
   classifyCacheConformanceStatus,
+  readCacheConformanceReply,
   runCacheConformanceLabCase,
   runCacheConformanceWireCase,
 } from "./Cache.conformance.wire.ts";
@@ -312,6 +313,7 @@ export {
 export {
   corruptCacheArtifactBody,
   makeCacheProtocolFixture,
+  serveCacheLoopback,
   tamperCacheArtifactTag,
 } from "./Cache.protocol.fixture.ts";
 export {

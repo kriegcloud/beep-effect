@@ -7,7 +7,6 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { O } from "@beep/utils";
-import { BunHttpServer } from "@effect/platform-bun";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Duration from "effect/Duration";
@@ -17,7 +16,6 @@ import * as HashSet from "effect/HashSet";
 import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
-import * as HttpServer from "effect/http/HttpServer";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Match from "effect/Match";
@@ -29,17 +27,17 @@ import * as Str from "effect/String";
 import {
   CacheConformanceBearers,
   CacheConformanceExchange,
+  CacheConformanceMethod,
   CacheConformanceProxyEvent,
   CacheConformanceTarget,
 } from "./Cache.conformance.schemas.ts";
-import { classifyCacheConformanceStatus } from "./Cache.conformance.wire.ts";
-import { corruptCacheArtifactBody, tamperCacheArtifactTag } from "./Cache.protocol.fixture.ts";
+import { classifyCacheConformanceStatus, readCacheConformanceReply } from "./Cache.conformance.wire.ts";
+import { corruptCacheArtifactBody, serveCacheLoopback, tamperCacheArtifactTag } from "./Cache.protocol.fixture.ts";
 import { CacheCommandError } from "./Cache.schemas.ts";
 import type { Sha256Hex } from "@beep/schema";
 import type {
   CacheConformanceCredentialRole,
   CacheConformanceFault,
-  CacheConformanceMethod,
   CacheConformanceOperationId,
   CacheConformanceOutcome,
   CacheConformanceRoute,
@@ -139,6 +137,125 @@ const statusOnly = (status: number): Delivered => ({
   response: HttpServerResponse.empty({ status }),
 });
 
+const isSuccessStatus = (status: number) => status >= 200 && status < 300;
+const isMethod = S.is(CacheConformanceMethod);
+const routeOfPath = HashMap.make<ReadonlyArray<readonly [string, CacheConformanceRoute]>>(
+  ["/v8/artifacts/status", "/v8/artifacts/status"],
+  ["/v8/artifacts/events", "/v8/artifacts/events"]
+);
+const operationOf = HashMap.make<ReadonlyArray<readonly [string, CacheConformanceOperationId]>>(
+  ["PUT /v8/artifacts/{hash}", "uploadArtifact"],
+  ["HEAD /v8/artifacts/{hash}", "artifactExists"],
+  ["GET /v8/artifacts/{hash}", "downloadArtifact"],
+  ["GET /v8/artifacts/status", "getArtifactStatus"],
+  ["POST /v8/artifacts/events", "recordCacheEvents"],
+  ["POST /v8/artifacts", "queryArtifacts"]
+);
+// Faults answered by the proxy itself: no upstream status exists for them.
+const syntheticFaults = HashSet.make<ReadonlyArray<CacheConformanceFault>>(
+  "status-429",
+  "status-503",
+  "timeout",
+  "reset",
+  "wrong-team"
+);
+const bodyMethods = HashSet.make<ReadonlyArray<CacheConformanceMethod>>("PUT", "POST");
+const readMethods = HashSet.make<ReadonlyArray<CacheConformanceMethod>>("GET", "HEAD");
+
+type ProxyRequest = {
+  readonly team: O.Option<string>;
+  readonly hash: O.Option<string>;
+  readonly route: CacheConformanceRoute;
+  readonly method: CacheConformanceMethod;
+  readonly read: boolean;
+  readonly key: string;
+};
+
+const parseProxyRequest = (url: string, rawMethod: string): ProxyRequest => {
+  const [pathname = "", query = ""] = Str.split(url, "?");
+  const team = O.fromNullishOr(new URLSearchParams(query).get("teamId"));
+  const hash = O.filter(
+    Str.startsWith("/v8/artifacts/")(pathname)
+      ? O.some(Str.slice("/v8/artifacts/".length)(pathname))
+      : O.none<string>(),
+    (value) => value !== "events" && value !== "status"
+  );
+  const method: CacheConformanceMethod = isMethod(rawMethod) ? rawMethod : "GET";
+  const route: CacheConformanceRoute = O.isSome(hash)
+    ? "/v8/artifacts/{hash}"
+    : O.getOrElse(HashMap.get(routeOfPath, pathname), () => "/v8/artifacts" as const);
+  return {
+    team,
+    hash,
+    route,
+    method,
+    read: O.isSome(hash) && HashSet.has(readMethods, method),
+    key: `${O.getOrElse(team, () => "")}\0${O.getOrElse(hash, () => "")}`,
+  };
+};
+
+const readProxyBody = (request: HttpServerRequest.HttpServerRequest, method: CacheConformanceMethod) =>
+  HashSet.has(bodyMethods, method)
+    ? request.arrayBuffer.pipe(
+        Effect.map((buffer) => new Uint8Array(buffer)),
+        Effect.orElseSucceed(() => empty)
+      )
+    : Effect.succeed(empty);
+
+const digestOf = (bytes: Uint8Array, present: boolean) =>
+  present ? hashBytes(bytes).pipe(Effect.asSome) : Effect.succeed(O.none<Sha256Hex>());
+const digestTag = (tag: O.Option<string>) =>
+  O.match(tag, {
+    onNone: () => Effect.succeed(O.none<Sha256Hex>()),
+    onSome: (value) => hashBytes(new TextEncoder().encode(value)).pipe(Effect.asSome),
+  });
+
+const proxyExchange = Effect.fnUntraced(function* (input: {
+  readonly request: HttpServerRequest.HttpServerRequest;
+  readonly parsed: ProxyRequest;
+  readonly scenario: string;
+  readonly fault: CacheConformanceFault;
+  readonly body: Uint8Array;
+  readonly delivered: Delivered;
+  readonly neverWritten: boolean;
+  readonly role: CacheConformanceCredentialRole;
+  readonly selector: CacheConformanceSelectorShape;
+  readonly elapsedMs: number;
+}) {
+  const { parsed, delivered, body } = input;
+  const tag = Headers.get(delivered.headers, "x-artifact-tag");
+  return CacheConformanceExchange.make({
+    step: Str.slice(0, 96)(`proxy-${Str.toLowerCase(parsed.method)}-${input.scenario}`),
+    role: input.role,
+    method: parsed.method,
+    route: parsed.route,
+    operationId: HashMap.get(operationOf, `${parsed.method} ${parsed.route}`),
+    strictScored: input.fault === "none",
+    selector: input.selector,
+    hash: O.match(parsed.hash, {
+      onNone: () => "none",
+      onSome: (value) => (isArtifactHash(value) ? "valid" : "non-hex"),
+    }),
+    outcome: O.getOrElse(delivered.outcome, () =>
+      O.match(delivered.status, {
+        onNone: (): CacheConformanceOutcome => "transport-error",
+        onSome: classifyCacheConformanceStatus(input.neverWritten),
+      })
+    ),
+    status: delivered.status,
+    contentType: Headers.get(delivered.headers, "content-type").pipe(O.map(Str.slice(0, 128))),
+    requestBytes: S.Natural.make(body.byteLength),
+    requestSha256: yield* digestOf(body, body.byteLength > 0),
+    requestTagSha256: yield* digestTag(Headers.get(input.request.headers, "x-artifact-tag")),
+    responseBytes: S.Natural.make(delivered.body.byteLength),
+    responseSha256: yield* digestOf(delivered.body, O.isSome(delivered.status) && parsed.method !== "HEAD"),
+    tagPresent: O.isSome(tag),
+    tagSha256: yield* digestTag(tag),
+    durationPresent: O.isSome(Headers.get(delivered.headers, "x-artifact-duration")),
+    elapsedMs: S.Natural.make(Math.max(0, Math.round(input.elapsedMs))),
+  });
+});
+
 /**
  * Start a scoped loopback reverse proxy in front of a conformance target.
  *
@@ -214,15 +331,7 @@ export const makeCacheConformanceFaultProxy = Effect.fn("CacheConformance.makeFa
           )
         : base;
     return yield* client.execute(outgoing).pipe(
-      Effect.flatMap((response) =>
-        response.arrayBuffer.pipe(
-          Effect.map((buffer) => ({
-            status: O.some(response.status),
-            headers: response.headers,
-            body: new Uint8Array(buffer),
-          }))
-        )
-      ),
+      Effect.flatMap(readCacheConformanceReply),
       Effect.timeoutOption(Duration.millis(target.requestTimeoutMs)),
       Effect.map(O.getOrElse(() => ({ status: O.none<number>(), headers: Headers.empty, body: empty }))),
       Effect.orElseSucceed(() => ({ status: O.none<number>(), headers: Headers.empty, body: empty }))
@@ -345,108 +454,57 @@ export const makeCacheConformanceFaultProxy = Effect.fn("CacheConformance.makeFa
     );
   });
 
+  const recordUpload = Effect.fnUntraced(function* (
+    request: HttpServerRequest.HttpServerRequest,
+    parsed: ProxyRequest,
+    body: Uint8Array,
+    delivered: Delivered
+  ) {
+    if (parsed.method !== "PUT" || !O.exists(delivered.status, isSuccessStatus)) return;
+    yield* Ref.update(written, HashSet.add(parsed.key));
+    yield* O.match(Headers.get(request.headers, "x-artifact-tag"), {
+      onNone: () => Effect.void,
+      onSome: (tag) =>
+        Ref.update(captures, (all) =>
+          HashMap.size(all) < captureLimit ? HashMap.set(all, parsed.key, { body, tag }) : all
+        ),
+    });
+  });
+
   const app = Effect.gen(function* () {
     const request = yield* HttpServerRequest.HttpServerRequest;
     const started = yield* Clock.currentTimeMillis;
     const current = yield* Ref.get(scenario);
-    const [pathname = "", query = ""] = Str.split(request.url, "?");
-    const team = O.fromNullishOr(new URLSearchParams(query).get("teamId"));
-    const segment = Str.startsWith("/v8/artifacts/")(pathname)
-      ? O.some(Str.slice("/v8/artifacts/".length)(pathname))
-      : O.none<string>();
-    const hash = O.filter(segment, (value) => value !== "events" && value !== "status");
-    const route: CacheConformanceRoute = O.isSome(hash)
-      ? "/v8/artifacts/{hash}"
-      : pathname === "/v8/artifacts/status"
-        ? "/v8/artifacts/status"
-        : pathname === "/v8/artifacts/events"
-          ? "/v8/artifacts/events"
-          : "/v8/artifacts";
-    const method: CacheConformanceMethod =
-      request.method === "PUT" || request.method === "POST" || request.method === "HEAD" ? request.method : "GET";
-    const read = O.isSome(hash) && (method === "GET" || method === "HEAD");
-    const fault: CacheConformanceFault = read ? current.fault : "none";
-    const body =
-      method === "PUT" || method === "POST"
-        ? yield* request.arrayBuffer.pipe(
-            Effect.map((buffer) => new Uint8Array(buffer)),
-            Effect.orElseSucceed(() => empty)
-          )
-        : empty;
-    const delivered = yield* respond(request, fault, team, hash, body);
-    const key = `${O.getOrElse(team, () => "")}\0${O.getOrElse(hash, () => "")}`;
-    const uploaded = method === "PUT" && O.exists(delivered.status, (status) => status >= 200 && status < 300);
-    if (uploaded) {
-      yield* Ref.update(written, HashSet.add(key));
-      yield* O.match(Headers.get(request.headers, "x-artifact-tag"), {
-        onNone: () => Effect.void,
-        onSome: (tag) =>
-          Ref.update(captures, (all) =>
-            HashMap.size(all) < captureLimit ? HashMap.set(all, key, { body, tag }) : all
-          ),
-      });
-    }
-    const neverWritten = !HashSet.has(yield* Ref.get(written), key);
-    const tag = Headers.get(delivered.headers, "x-artifact-tag");
-    const operationId: O.Option<CacheConformanceOperationId> = O.isSome(hash)
-      ? O.some(method === "PUT" ? "uploadArtifact" : method === "HEAD" ? "artifactExists" : "downloadArtifact")
-      : route === "/v8/artifacts/status"
-        ? O.some("getArtifactStatus")
-        : route === "/v8/artifacts/events"
-          ? O.some("recordCacheEvents")
-          : O.some("queryArtifacts");
+    const parsed = parseProxyRequest(request.url, request.method);
+    const fault: CacheConformanceFault = parsed.read ? current.fault : "none";
+    const body = yield* readProxyBody(request, parsed.method);
+    const delivered = yield* respond(request, fault, parsed.team, parsed.hash, body);
+    yield* recordUpload(request, parsed, body, delivered);
+    const neverWritten = !HashSet.has(yield* Ref.get(written), parsed.key);
     const finished = yield* Clock.currentTimeMillis;
-    const exchange = CacheConformanceExchange.make({
-      step: Str.slice(0, 96)(`proxy-${Str.toLowerCase(method)}-${current.id}`),
+    const exchange = yield* proxyExchange({
+      request,
+      parsed,
+      scenario: current.id,
+      fault,
+      body,
+      delivered,
+      neverWritten,
       role: roleOf(Headers.get(request.headers, "authorization")),
-      method,
-      route,
-      operationId,
-      strictScored: fault === "none",
-      selector: selectorOf(team),
-      hash: O.match(hash, { onNone: () => "none", onSome: (value) => (isArtifactHash(value) ? "valid" : "non-hex") }),
-      outcome: O.getOrElse(delivered.outcome, () =>
-        O.match(delivered.status, {
-          onNone: (): CacheConformanceOutcome => "transport-error",
-          onSome: classifyCacheConformanceStatus(neverWritten),
-        })
-      ),
-      status: delivered.status,
-      contentType: Headers.get(delivered.headers, "content-type").pipe(O.map(Str.slice(0, 128))),
-      requestBytes: S.Natural.make(body.byteLength),
-      requestSha256: body.byteLength > 0 ? O.some(yield* hashBytes(body)) : O.none<Sha256Hex>(),
-      requestTagSha256: yield* O.match(Headers.get(request.headers, "x-artifact-tag"), {
-        onNone: () => Effect.succeed(O.none<Sha256Hex>()),
-        onSome: (value) => hashBytes(new TextEncoder().encode(value)).pipe(Effect.asSome),
-      }),
-      responseBytes: S.Natural.make(delivered.body.byteLength),
-      responseSha256:
-        O.isSome(delivered.status) && method !== "HEAD" ? O.some(yield* hashBytes(delivered.body)) : O.none(),
-      tagPresent: O.isSome(tag),
-      tagSha256: O.isSome(tag) ? O.some(yield* hashBytes(new TextEncoder().encode(tag.value))) : O.none(),
-      durationPresent: O.isSome(Headers.get(delivered.headers, "x-artifact-duration")),
-      elapsedMs: S.Natural.make(Math.max(0, Math.round(finished - started))),
+      selector: selectorOf(parsed.team),
+      elapsedMs: finished - started,
     });
     const event = CacheConformanceProxyEvent.make({
       scenario: current.id,
       fault,
-      upstreamStatus:
-        fault === "status-429" ||
-        fault === "status-503" ||
-        fault === "timeout" ||
-        fault === "reset" ||
-        fault === "wrong-team"
-          ? O.none()
-          : delivered.status,
+      upstreamStatus: HashSet.has(syntheticFaults, fault) ? O.none() : delivered.status,
       exchange,
     });
     yield* Ref.update(events, (all) => (all.length < eventLimit ? A.append(all, event) : all));
     return delivered.response;
   });
-  const server = yield* BunHttpServer.make({ hostname: "127.0.0.1", port: 0, maxRequestBodySize: bodyLimit });
-  yield* server.serve(app);
   return {
-    url: HttpServer.formatAddress(server.address),
+    url: yield* serveCacheLoopback(app, bodyLimit),
     events: Ref.get(events),
     setScenario: (id: string, fault: CacheConformanceFault) => Ref.set(scenario, { id, fault }),
   };

@@ -179,6 +179,12 @@ type CiTurboCacheArgs = {
   readonly remediation?: CiTurboCacheRemediation;
 };
 
+const ReservedConcurrency = S.Int.check(S.isBetween({ minimum: 1, maximum: 1000 })).pipe(
+  $I.annoteSchema("ReservedConcurrency", {
+    description: "A Lambda reserved-concurrency value within the account's default 1,000 limit.",
+  })
+);
+
 /**
  * Optional evolved-incumbent settings, used by the disposable conformance lab.
  *
@@ -196,15 +202,30 @@ type CiTurboCacheArgs = {
  * With passthrough on, the shim answers 404 for any artifact stored without a
  * tag, so every writer must sign and existing untagged objects read as misses.
  *
+ * **Example** (Describe the evolved lab incumbent)
+ *
+ * ```ts
+ * import { CiTurboCacheRemediation } from "@beep/infra"
+ *
+ * const evolved = CiTurboCacheRemediation.make({ tagPassthrough: true, readReservedConcurrency: 60 })
+ * console.assert(evolved.readReservedConcurrency === 60)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export type CiTurboCacheRemediation = {
-  readonly tagPassthrough?: boolean;
-  readonly readReservedConcurrency?: number;
-  readonly writeReservedConcurrency?: number;
-  readonly authorizerReservedConcurrency?: number;
-};
+export class CiTurboCacheRemediation extends S.Opaque<CiTurboCacheRemediation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    tagPassthrough: S.optionalKey(S.Boolean),
+    readReservedConcurrency: S.optionalKey(ReservedConcurrency),
+    writeReservedConcurrency: S.optionalKey(ReservedConcurrency),
+    authorizerReservedConcurrency: S.optionalKey(ReservedConcurrency),
+  }).pipe(
+    $I.annoteSchema("CiTurboCacheRemediation", {
+      description: "Optional evolved-incumbent settings; omitted fields keep the deployed values.",
+    })
+  )
+) {}
 
 const defaultTags = {
   App: "turbo-cache",
@@ -546,7 +567,7 @@ export class CiTurboCache extends pulumi.ComponentResource {
       { parent: this }
     );
 
-    const remediation = args.remediation ?? {};
+    const remediation = args.remediation ?? CiTurboCacheRemediation.make({});
     const commonEnvironment = {
       AUTH_MODE: "none",
       STORAGE_PATH: config.bucketName,

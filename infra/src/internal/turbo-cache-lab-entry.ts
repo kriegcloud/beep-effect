@@ -13,7 +13,12 @@
  */
 
 import * as pulumi from "@pulumi/pulumi";
-import { CiTurboCache, CiTurboCachePulumiConfigValues, loadCiTurboCacheConfig } from "../CiTurboCache.ts";
+import {
+  CiTurboCache,
+  CiTurboCachePulumiConfigValues,
+  CiTurboCacheRemediation,
+  loadCiTurboCacheConfig,
+} from "../CiTurboCache.ts";
 
 const lab = new pulumi.Config("turboCacheLab");
 const epoch = lab.require("epoch");
@@ -35,12 +40,12 @@ const evolved = new CiTurboCache(`beep-tcl-${epoch}-evo`, {
     ...config,
     bucketName: `beep-tcl-${epoch}-evo-${config.bucketName.slice(`beep-tcl-${epoch}-`.length)}`,
   }),
-  remediation: {
+  remediation: CiTurboCacheRemediation.make({
     tagPassthrough: true,
     readReservedConcurrency: 60,
     writeReservedConcurrency: 30,
     authorizerReservedConcurrency: 60,
-  },
+  }),
 });
 
 /**

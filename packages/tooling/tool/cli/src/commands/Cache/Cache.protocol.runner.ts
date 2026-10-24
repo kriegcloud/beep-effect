@@ -98,21 +98,27 @@ export const cacheProtocolSandboxMounts: ReadonlyArray<string> = [
  * @category schemas
  * @since 0.0.0
  */
-export const CacheProtocolNativeSummary = S.Struct({
-  turboVersion: S.NonEmptyString,
-  tasks: S.Array(
-    S.Struct({
-      taskId: S.NonEmptyString,
-      hash: S.NonEmptyString,
-      cache: S.Struct({ status: S.Literals(["HIT", "MISS"]), source: S.OptionFromOptionalKey(S.String) }),
-      execution: S.Struct({ exitCode: S.Int }),
+export class CacheProtocolNativeSummary extends S.Opaque<
+  CacheProtocolNativeSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    turboVersion: S.NonEmptyString,
+    tasks: S.Array(
+      S.Struct({
+        taskId: S.NonEmptyString,
+        hash: S.NonEmptyString,
+        cache: S.Struct({ status: S.Literals(["HIT", "MISS"]), source: S.OptionFromOptionalKey(S.String) }),
+        execution: S.Struct({ exitCode: S.Int }),
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("CacheProtocolNativeSummary", {
+      description:
+        "Selected fields of one native Turbo run summary; a reported hit is evidence only with wire receipts.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("CacheProtocolNativeSummary", {
-    description: "Selected fields of one native Turbo run summary; a reported hit is evidence only with wire receipts.",
-  })
-);
+  )
+) {}
 
 const verifyPrivateNetwork = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

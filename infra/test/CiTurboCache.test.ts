@@ -1,4 +1,9 @@
-import { CiTurboCache, CiTurboCachePulumiConfigValues, loadCiTurboCacheConfig } from "@beep/infra";
+import {
+  CiTurboCache,
+  CiTurboCachePulumiConfigValues,
+  CiTurboCacheRemediation,
+  loadCiTurboCacheConfig,
+} from "@beep/infra";
 import { it } from "@beep/test-runner";
 import { assert, describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -157,9 +162,7 @@ describe("@beep/infra CiTurboCache remediation", { concurrent: false }, () => {
     readonly reservedConcurrentExecutions?: number;
   };
 
-  const functionInputsFor = Effect.fnUntraced(function* (
-    remediation?: ConstructorParameters<typeof CiTurboCache>[1]["remediation"]
-  ) {
+  const functionInputsFor = Effect.fnUntraced(function* (remediation?: CiTurboCacheRemediation) {
     const functions = MutableHashMap.empty<string, FunctionInputs>();
     yield* Effect.acquireUseRelease(
       Effect.tryPromise(() =>
@@ -204,12 +207,14 @@ describe("@beep/infra CiTurboCache remediation", { concurrent: false }, () => {
   it.effect(
     "applies tag passthrough to both shim functions and the requested concurrency",
     Effect.fnUntraced(function* () {
-      const fn = yield* functionInputsFor({
-        tagPassthrough: true,
-        readReservedConcurrency: 60,
-        writeReservedConcurrency: 30,
-        authorizerReservedConcurrency: 60,
-      });
+      const fn = yield* functionInputsFor(
+        CiTurboCacheRemediation.make({
+          tagPassthrough: true,
+          readReservedConcurrency: 60,
+          writeReservedConcurrency: 30,
+          authorizerReservedConcurrency: 60,
+        })
+      );
       expect(fn("read")?.reservedConcurrentExecutions).toBe(60);
       expect(fn("write")?.reservedConcurrentExecutions).toBe(30);
       expect(fn("authorizer")?.reservedConcurrentExecutions).toBe(60);

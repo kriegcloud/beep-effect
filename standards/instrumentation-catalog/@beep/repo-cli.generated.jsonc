@@ -243,6 +243,7 @@
     {"name":"Cache.runSyntheticExperiment","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Cache.runtimeToolchainDigest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Cache.selectTaskArgument","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Cache.serveLoopback","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Cache.taskSelectionArgs","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Cache.validateIdentityProfileScope","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Cache.validateProtocolExchange","owner":"@beep/repo-cli","family":"tooling","conforms":true},

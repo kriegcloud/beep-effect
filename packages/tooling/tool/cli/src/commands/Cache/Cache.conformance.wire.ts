@@ -33,6 +33,7 @@ import {
   CacheConformanceTarget,
 } from "./Cache.conformance.schemas.ts";
 import { CacheCommandError } from "./Cache.schemas.ts";
+import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type {
   CacheConformanceBearers,
   CacheConformanceCaseId,
@@ -256,6 +257,28 @@ const withWriterTag = Effect.fnUntraced(function* (step: WireStep) {
   return { step: { ...step, headers: { ...step.headers, "x-artifact-tag": tag } }, sentTag: O.some(tag) };
 });
 
+/**
+ * Read a client response into its status, headers and complete body bytes.
+ *
+ * **Example** (Reference the reply reader)
+ * ```ts
+ * import { readCacheConformanceReply } from "@beep/repo-cli/commands/Cache"
+ * console.assert(typeof readCacheConformanceReply === "function")
+ * ```
+ *
+ * @internal
+ * @category utilities
+ * @since 0.0.0
+ */
+export const readCacheConformanceReply = (response: HttpClientResponse.HttpClientResponse) =>
+  response.arrayBuffer.pipe(
+    Effect.map((buffer) => ({
+      status: O.some(response.status),
+      headers: response.headers,
+      body: new Uint8Array(buffer),
+    }))
+  );
+
 const send = Effect.fnUntraced(function* (context: WireContext, unsigned: WireStep) {
   const client = yield* HttpClient.HttpClient;
   const { step, sentTag } = yield* withWriterTag(unsigned);
@@ -263,13 +286,8 @@ const send = Effect.fnUntraced(function* (context: WireContext, unsigned: WireSt
   const empty = new Uint8Array();
   const observed = yield* client.execute(buildRequest(context, step)).pipe(
     Effect.flatMap((response) =>
-      response.arrayBuffer.pipe(
-        Effect.map((buffer) => ({
-          status: O.some(response.status),
-          headers: response.headers,
-          body: new Uint8Array(buffer),
-          fault: O.none<CacheConformanceOutcome>(),
-        })),
+      readCacheConformanceReply(response).pipe(
+        Effect.map((reply) => ({ ...reply, fault: O.none<CacheConformanceOutcome>() })),
         Effect.orElseSucceed(() => ({
           status: O.some(response.status),
           headers: response.headers,
@@ -982,6 +1000,28 @@ const readDuringWrite: WireCase = Effect.fnUntraced(function* (context: WireCont
   );
 });
 
+const prepareCase = <Case>(
+  cases: HashMap.HashMap<CacheConformanceCaseId, Case>,
+  id: CacheConformanceCaseId,
+  executor: string,
+  target: CacheConformanceTarget,
+  bearers: CacheConformanceBearers,
+  operations: ReadonlyArray<CacheConformanceOperation>
+) =>
+  HashMap.get(cases, id).pipe(
+    Effect.fromOption(() => CacheCommandError.new(`${id} has no ${executor} executor.`)),
+    Effect.map((execute) => ({
+      execute,
+      recorder: makeRecorder(),
+      context: {
+        base: Str.replace(/\/+$/, "")(target.baseUrl.href),
+        target,
+        bearers,
+        operations,
+      } satisfies WireContext,
+    }))
+  );
+
 const wireCases = HashMap.make<ReadonlyArray<readonly [CacheConformanceCaseId, WireCase]>>(
   ["RC-001", status],
   ["RC-002", roundTrip(0)],
@@ -1028,19 +1068,9 @@ export const runCacheConformanceWireCase = Effect.fn("CacheConformance.runWireCa
   bearers: CacheConformanceBearers,
   operations: ReadonlyArray<CacheConformanceOperation>
 ) {
-  const execute = yield* HashMap.get(wireCases, id).pipe(
-    Effect.fromOption(() => CacheCommandError.new(`${id} has no direct-wire executor.`))
-  );
-  const recorder = makeRecorder();
-  const base = Str.replace(/\/+$/, "")(target.baseUrl.href);
-  yield* execute({ base, target, bearers, operations }, recorder);
-  return CacheConformanceWireOutcome.make({
-    exchanges: recorder.exchanges,
-    strict: recorder.strict,
-    policy: recorder.policy,
-    notes: recorder.notes,
-    unsupported: recorder.unsupported,
-  });
+  const { execute, context, recorder } = yield* prepareCase(wireCases, id, "direct-wire", target, bearers, operations);
+  yield* execute(context, recorder);
+  return outcomeOf(recorder);
 }, CacheCommandError.mapError("Cannot execute a direct-wire conformance case."));
 
 const outcomeOf = (recorder: Recorder) =>
@@ -1227,6 +1257,17 @@ const payloadEnvelope: LabCase = Effect.fnUntraced(function* (
   recorder.notes.push(`Each size ran ${payloadRounds} sequential write-then-read round trips with random bytes.`);
 });
 
+const freshArtifact = Effect.fnUntraced(function* (size: number) {
+  const hash = yield* freshHash;
+  const body = yield* randomBytes(size);
+  return { hash, body, digest: yield* hashBytes(body) };
+});
+const freshArtifacts = (count: number, size: number) =>
+  Effect.forEach(
+    A.makeBy(count, () => size),
+    freshArtifact
+  );
+
 /** Concurrent rounds per concurrency step. */
 const concurrencyRounds = 2;
 
@@ -1238,16 +1279,7 @@ const concurrencyEnvelope: LabCase = Effect.fnUntraced(function* (
 ) {
   const size = envelope.artifactSizes.p95Bytes;
   const poolSize = envelope.envelope.readConcurrency;
-  const pool = yield* Effect.forEach(
-    A.makeBy(poolSize, () => 0),
-    () =>
-      Effect.gen(function* () {
-        const hash = yield* freshHash;
-        const body = yield* randomBytes(size);
-        return { hash, body, digest: yield* hashBytes(body) };
-      }),
-    { concurrency: 1 }
-  );
+  const pool = yield* freshArtifacts(poolSize, size);
   const seeded = yield* Effect.forEach(
     pool,
     (entry, index) => send(context, putStep(`writer-put-pool-${index + 1}`, "writer", valid(entry.hash), entry.body)),
@@ -1275,15 +1307,7 @@ const concurrencyEnvelope: LabCase = Effect.fnUntraced(function* (
     const reads = A.empty<WireReply>();
     let failures = 0;
     for (let round = 0; round < concurrencyRounds; round++) {
-      const fresh = yield* Effect.forEach(
-        A.makeBy(writers, () => 0),
-        () =>
-          Effect.gen(function* () {
-            const hash = yield* freshHash;
-            const body = yield* randomBytes(size);
-            return { hash, body, digest: yield* hashBytes(body) };
-          })
-      );
+      const fresh = yield* freshArtifacts(writers, size);
       const [roundWrites, roundReads] = yield* Effect.all(
         [
           Effect.forEach(
@@ -1391,11 +1415,7 @@ export const runCacheConformanceLabCase = Effect.fn("CacheConformance.runLabCase
   proxy: FaultProxy,
   envelope: CacheConformanceLoadEnvelope
 ) {
-  const execute = yield* HashMap.get(labCases, id).pipe(
-    Effect.fromOption(() => CacheCommandError.new(`${id} has no lab executor.`))
-  );
-  const recorder = makeRecorder();
-  const base = Str.replace(/\/+$/, "")(target.baseUrl.href);
-  yield* execute({ base, target, bearers, operations }, recorder, proxy, envelope);
+  const { execute, context, recorder } = yield* prepareCase(labCases, id, "lab", target, bearers, operations);
+  yield* execute(context, recorder, proxy, envelope);
   return outcomeOf(recorder);
 }, CacheCommandError.mapError("Cannot execute a lab conformance case."));

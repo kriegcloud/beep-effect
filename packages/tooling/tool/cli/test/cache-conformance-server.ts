@@ -57,84 +57,116 @@ export const goodMode: ServerMode = {
 type Stored = { readonly body: Uint8Array; readonly headers: Readonly<Record<string, string>> };
 const metadataHeaders = ["x-artifact-duration", "x-artifact-tag", "x-artifact-sha", "x-artifact-dirty-hash"];
 
+type Principal = { readonly role: "reader" | "writer"; readonly namespace: string };
+type ServerState = {
+  readonly mode: ServerMode;
+  readonly store: Ref.Ref<HashMap.HashMap<string, Stored>>;
+  readonly tags: Ref.Ref<Array<string>>;
+};
+
+const principals = HashMap.make<ReadonlyArray<readonly [string, Principal]>>(
+  [`Bearer ${secrets.reader}`, { role: "reader", namespace: teamId }],
+  [`Bearer ${secrets.writer}`, { role: "writer", namespace: teamId }],
+  [`Bearer ${secrets.foreign}`, { role: "writer", namespace: foreignTeamId }]
+);
+const status = (code: number) => HttpServerResponse.empty({ status: code });
+const json = (text: string, code = 200) =>
+  HttpServerResponse.uint8Array(new TextEncoder().encode(text), { status: code, contentType: "application/json" });
+
+// Exactly one non-empty `teamId`; a binding server also requires the principal's own namespace.
+const namespaceOf = (mode: ServerMode, principal: Principal, query: string): O.Option<string> => {
+  const selectors = A.fromIterable(new URLSearchParams(query).entries());
+  const [name, value] = O.getOrElse(A.head(selectors), () => ["", ""]);
+  const allowed = selectors.length === 1 && name === "teamId" && value !== "";
+  const bound = !mode.bindTenant || value === principal.namespace;
+  return allowed && bound ? O.some(value) : O.none();
+};
+
+const uploadArtifact = Effect.fnUntraced(function* (
+  state: ServerState,
+  request: HttpServerRequest.HttpServerRequest,
+  principal: Principal,
+  key: string
+) {
+  if (principal.role !== "writer" && !state.mode.readersWrite) return status(403);
+  if (!O.contains(Headers.get(request.headers, "content-type"), "application/octet-stream")) return status(415);
+  if (O.exists(Headers.get(request.headers, "x-artifact-duration"), (value) => !/^\d+$/.test(value)))
+    return status(400);
+  const body = yield* request.arrayBuffer.pipe(
+    Effect.map((buffer) => O.some(new Uint8Array(buffer))),
+    Effect.orElseSucceed(() => O.none<Uint8Array>())
+  );
+  if (O.isNone(body)) return status(400);
+  const headers = R.fromEntries(
+    A.getSomes(
+      A.map(metadataHeaders, (name) => O.map(Headers.get(request.headers, name), (value) => [name, value] as const))
+    )
+  );
+  yield* O.match(Headers.get(request.headers, "x-artifact-tag"), {
+    onNone: () => Effect.void,
+    onSome: (tag) => Ref.update(state.tags, A.append(tag)),
+  });
+  yield* Ref.update(state.store, HashMap.set(key, { body: body.value, headers }));
+  return json('{"urls":[]}', state.mode.putStatus);
+});
+
+const readArtifact = Effect.fnUntraced(function* (
+  state: ServerState,
+  request: HttpServerRequest.HttpServerRequest,
+  key: string
+) {
+  if (request.method !== "GET" && request.method !== "HEAD") return status(405);
+  if (request.method === "GET" && O.isSome(state.mode.readFault)) return status(state.mode.readFault.value);
+  const stored = O.filter(
+    HashMap.get(yield* Ref.get(state.store), key),
+    (entry) => !state.mode.hideUntagged || R.has(entry.headers, "x-artifact-tag")
+  );
+  if (O.isNone(stored)) return status(404);
+  const headers = state.mode.dropTags ? R.remove(stored.value.headers, "x-artifact-tag") : stored.value.headers;
+  return HttpServerResponse.uint8Array(stored.value.body, {
+    contentType: "application/octet-stream",
+    headers: { "x-artifact-duration": "0", ...headers },
+  });
+});
+
+const artifactRoute = (
+  state: ServerState,
+  request: HttpServerRequest.HttpServerRequest,
+  principal: Principal,
+  namespace: string,
+  pathname: string
+) => {
+  const hash = Str.slice("/v8/artifacts/".length)(pathname);
+  if (!/^[a-f0-9]{16,128}$/.test(hash)) return Effect.succeed(status(hash === "events" ? 404 : 400));
+  const key = `${namespace}/${hash}`;
+  return request.method === "PUT" ? uploadArtifact(state, request, principal, key) : readArtifact(state, request, key);
+};
+
+const handle = Effect.fnUntraced(function* (state: ServerState) {
+  const request = yield* HttpServerRequest.HttpServerRequest;
+  const [pathname = "", query = ""] = Str.split(request.url, "?");
+  const principal = HashMap.get(
+    principals,
+    O.getOrElse(Headers.get(request.headers, "authorization"), () => "")
+  );
+  if (O.isNone(principal)) return status(401);
+  const namespace = namespaceOf(state.mode, principal.value, query);
+  if (O.isNone(namespace)) return status(403);
+  if (pathname === "/v8/artifacts/status" && request.method === "GET") return json('{"status":"enabled"}');
+  if (!Str.startsWith("/v8/artifacts/")(pathname)) return status(404);
+  return yield* artifactRoute(state, request, principal.value, namespace.value, pathname);
+});
+
 // Small policy-complete Remote Cache server used only by these tests.
 export const makeConformanceServer = Effect.fn("test.makeConformanceServer")(function* (mode: ServerMode) {
-  const store = yield* Ref.make(HashMap.empty<string, Stored>());
-  const tags = yield* Ref.make(A.empty<string>());
-  const principals = HashMap.make(
-    [`Bearer ${secrets.reader}`, { role: "reader", namespace: teamId }],
-    [`Bearer ${secrets.writer}`, { role: "writer", namespace: teamId }],
-    [`Bearer ${secrets.foreign}`, { role: "writer", namespace: foreignTeamId }]
-  );
-  const app = Effect.gen(function* () {
-    const request = yield* HttpServerRequest.HttpServerRequest;
-    const [pathname = "", query = ""] = Str.split(request.url, "?");
-    const principal = HashMap.get(
-      principals,
-      O.getOrElse(Headers.get(request.headers, "authorization"), () => "")
-    );
-    if (O.isNone(principal)) return HttpServerResponse.empty({ status: 401 });
-    const selectors = A.fromIterable(new URLSearchParams(query).entries());
-    const selectorOk =
-      selectors.length === 1 &&
-      A.every(
-        selectors,
-        ([name, value]) => name === "teamId" && (mode.bindTenant ? value === principal.value.namespace : value !== "")
-      );
-    if (!selectorOk) return HttpServerResponse.empty({ status: 403 });
-    const namespace = mode.bindTenant ? principal.value.namespace : O.getOrElse(A.head(selectors), () => ["", ""])[1];
-    if (pathname === "/v8/artifacts/status" && request.method === "GET")
-      return HttpServerResponse.uint8Array(new TextEncoder().encode('{"status":"enabled"}'), {
-        contentType: "application/json",
-      });
-    if (!Str.startsWith("/v8/artifacts/")(pathname)) return HttpServerResponse.empty({ status: 404 });
-    const hash = Str.slice("/v8/artifacts/".length)(pathname);
-    if (hash === "events") return HttpServerResponse.empty({ status: 404 });
-    if (!/^[a-f0-9]{16,128}$/.test(hash)) return HttpServerResponse.empty({ status: 400 });
-    const key = `${namespace}/${hash}`;
-    if (request.method === "PUT") {
-      if (principal.value.role !== "writer" && !mode.readersWrite) return HttpServerResponse.empty({ status: 403 });
-      if (!O.contains(Headers.get(request.headers, "content-type"), "application/octet-stream"))
-        return HttpServerResponse.empty({ status: 415 });
-      const duration = Headers.get(request.headers, "x-artifact-duration");
-      if (O.exists(duration, (value) => !/^\d+$/.test(value))) return HttpServerResponse.empty({ status: 400 });
-      const body = yield* request.arrayBuffer.pipe(
-        Effect.map((buffer) => O.some(new Uint8Array(buffer))),
-        Effect.orElseSucceed(() => O.none<Uint8Array>())
-      );
-      if (O.isNone(body)) return HttpServerResponse.empty({ status: 400 });
-      const headers = R.fromEntries(
-        A.getSomes(
-          A.map(metadataHeaders, (name) => O.map(Headers.get(request.headers, name), (value) => [name, value] as const))
-        )
-      );
-      yield* O.match(Headers.get(request.headers, "x-artifact-tag"), {
-        onNone: () => Effect.void,
-        onSome: (tag) => Ref.update(tags, A.append(tag)),
-      });
-      yield* Ref.update(store, HashMap.set(key, { body: body.value, headers }));
-      return HttpServerResponse.uint8Array(new TextEncoder().encode('{"urls":[]}'), {
-        status: mode.putStatus,
-        contentType: "application/json",
-      });
-    }
-    if (request.method !== "GET" && request.method !== "HEAD") return HttpServerResponse.empty({ status: 405 });
-    if (request.method === "GET" && O.isSome(mode.readFault))
-      return HttpServerResponse.empty({ status: mode.readFault.value });
-    const stored = HashMap.get(yield* Ref.get(store), key);
-    if (O.isNone(stored) || (mode.hideUntagged && !R.has(stored.value.headers, "x-artifact-tag")))
-      return HttpServerResponse.empty({ status: 404 });
-    return HttpServerResponse.uint8Array(stored.value.body, {
-      contentType: "application/octet-stream",
-      headers: {
-        "x-artifact-duration": "0",
-        ...(mode.dropTags ? R.remove(stored.value.headers, "x-artifact-tag") : stored.value.headers),
-      },
-    });
-  });
+  const state: ServerState = {
+    mode,
+    store: yield* Ref.make(HashMap.empty<string, Stored>()),
+    tags: yield* Ref.make(A.empty<string>()),
+  };
   const server = yield* BunHttpServer.make({ hostname: "127.0.0.1", port: 0 });
-  yield* server.serve(app);
-  return { url: HttpServer.formatAddress(server.address), tags: Ref.get(tags) };
+  yield* server.serve(handle(state));
+  return { url: HttpServer.formatAddress(server.address), tags: Ref.get(state.tags) };
 });
 
 export const targetFor = (options: {

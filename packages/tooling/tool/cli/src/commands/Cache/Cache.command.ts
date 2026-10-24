@@ -84,6 +84,7 @@ import {
 } from "./Cache.schemas.ts";
 import { CacheQualificationLive, CacheQualificationService } from "./Cache.service.ts";
 import type * as Layer from "effect/Layer";
+import type { CacheConformanceBearers, CacheConformanceCorpus } from "./Cache.conformance.schemas.ts";
 
 const TurboTaskCache = S.Struct({
   status: S.String,
@@ -919,6 +920,7 @@ const cacheConformanceCorpusCommand = Command.make(
 ).pipe(Command.withDescription("Generate the Remote Cache conformance corpus from the pinned OpenAPI blob and plan"));
 
 const conformanceRunJson = S.fromJsonString(CacheConformanceRun, { space: 2 });
+const encodeComparisonJson = S.encodeEffect(S.fromJsonString(CacheConformanceComparison, { space: 2 }));
 
 const writeConformanceRun = Effect.fn("Cache.writeConformanceRun")(function* (
   report: CacheConformanceRun,
@@ -949,18 +951,27 @@ const conformanceOutputFlag = Flag.Path("output", { pathType: "file" }).pipe(
   Flag.withDescription("Write the cache-conformance-run/v1 report to this path")
 );
 
-const cacheConformanceRunCommand = Command.make(
-  "conformance-run",
-  { target: conformanceTargetFlag, output: conformanceOutputFlag },
-  ({ target, output }) =>
+const conformanceTargetCommand = <R>(
+  name: string,
+  description: string,
+  run: (
+    descriptor: CacheConformanceTarget,
+    bearers: CacheConformanceBearers,
+    corpus: CacheConformanceCorpus
+  ) => Effect.Effect<CacheConformanceRun, CacheCommandError, R>
+) =>
+  Command.make(name, { target: conformanceTargetFlag, output: conformanceOutputFlag }, ({ target, output }) =>
     Effect.gen(function* () {
       const { descriptor, bearers } = yield* readConformanceTarget(target);
       const corpus = yield* buildCacheConformanceCorpus(process.cwd());
-      yield* writeConformanceRun(yield* runCacheConformance(corpus, descriptor, bearers), output);
+      yield* writeConformanceRun(yield* run(descriptor, bearers, corpus), output);
     }).pipe(renderCacheFailure)
-).pipe(
-  Command.withDescription("Score one Remote Cache target over direct HTTP; native and lab cases are not executed"),
-  Command.provide(FetchHttpClient.layer)
+  ).pipe(Command.withDescription(description), Command.provide(FetchHttpClient.layer));
+
+const cacheConformanceRunCommand = conformanceTargetCommand(
+  "conformance-run",
+  "Score one Remote Cache target over direct HTTP; native and lab cases are not executed",
+  (descriptor, bearers, corpus) => runCacheConformance(corpus, descriptor, bearers)
 );
 
 const cacheConformanceNativeCommand = Command.make(
@@ -991,19 +1002,13 @@ const cacheConformanceNativeCommand = Command.make(
   Command.provide(FetchHttpClient.layer)
 );
 
-const cacheConformanceLabCommand = Command.make(
+const cacheConformanceLabCommand = conformanceTargetCommand(
   "conformance-lab",
-  { target: conformanceTargetFlag, output: conformanceOutputFlag },
-  ({ target, output }) =>
-    Effect.gen(function* () {
-      const { descriptor, bearers } = yield* readConformanceTarget(target);
-      const corpus = yield* buildCacheConformanceCorpus(process.cwd());
-      const envelope = yield* loadCacheConformanceEnvelope(process.cwd());
-      yield* writeConformanceRun(yield* runCacheConformanceLab(corpus, descriptor, bearers, envelope), output);
-    }).pipe(renderCacheFailure)
-).pipe(
-  Command.withDescription("Inject RC-023 fault classes through the proxy and measure the RC-027/RC-028 envelopes"),
-  Command.provide(FetchHttpClient.layer)
+  "Inject RC-023 fault classes through the proxy and measure the RC-027/RC-028 envelopes",
+  (descriptor, bearers, corpus) =>
+    loadCacheConformanceEnvelope(process.cwd()).pipe(
+      Effect.flatMap((envelope) => runCacheConformanceLab(corpus, descriptor, bearers, envelope))
+    )
 );
 
 const cacheConformanceCompareCommand = Command.make(
@@ -1039,12 +1044,7 @@ const cacheConformanceCompareCommand = Command.make(
         onEmpty: () => Effect.fail(CacheCommandError.new("Pass at least one --runs report.")),
         onNonEmpty: (all) => compareCacheConformanceRuns(process.cwd(), all, documents),
       });
-      yield* writeEncoded(
-        comparison,
-        { encode: S.encodeEffect(S.fromJsonString(CacheConformanceComparison, { space: 2 })) },
-        O.some(output),
-        false
-      );
+      yield* writeEncoded(comparison, { encode: encodeComparisonJson }, O.some(output), false);
       const markdown = Str.endsWith(".json")(output) ? `${Str.slice(0, -5)(output)}.md` : `${output}.md`;
       yield* Effect.tryPromise({
         try: () => Bun.write(markdown, renderCacheConformanceComparison(comparison)),
