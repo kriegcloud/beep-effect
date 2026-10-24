@@ -315,27 +315,20 @@ const withDependencies = (ids: ReadonlyArray<string>, rows: ReadonlyArray<TaskSu
   A.sort(A.dedupe([...ids, ...A.flatMap(ids, (id) => rowFor(rows, id).dependencies)]), Str.Order);
 
 describe("Stage C root task inputs", { concurrent: false }, () => {
-  it.effect("round-trips the fixture's schema-derived rows through JSON", () =>
-    Effect.gen(function* () {
-      return expect(
-        (yield* Arbitrary.checkEffect(
-          fixtureArbitrary,
-          ([summary, task]) =>
-            Effect.gen(function* () {
-              const encodedSummary = yield* encodeTaskSummary(summary);
-              const decodedSummary = yield* decodeTaskSummary(encodedSummary);
-              expect(taskSummaryEquivalent(decodedSummary, summary)).toBe(true);
-              expect(yield* encodeTaskSummary(decodedSummary)).toBe(encodedSummary);
-              const encodedTask = yield* encodeRootTask(task);
-              const decodedTask = yield* decodeRootTask(encodedTask);
-              expect(rootTaskEquivalent(decodedTask, task)).toBe(true);
-              expect(yield* encodeRootTask(decodedTask)).toBe(encodedTask);
-              return true;
-            }),
-          fcRuns(25)
-        ))._tag
-      ).toBe("Passed");
-    })
+  it.effect.prop(
+    "round-trips the fixture's schema-derived rows through JSON",
+    [fixtureArbitrary],
+    Effect.fnUntraced(function* ([[summary, task]]) {
+      const encodedSummary = yield* encodeTaskSummary(summary);
+      const decodedSummary = yield* decodeTaskSummary(encodedSummary);
+      expect(taskSummaryEquivalent(decodedSummary, summary)).toBe(true);
+      expect(yield* encodeTaskSummary(decodedSummary)).toBe(encodedSummary);
+      const encodedTask = yield* encodeRootTask(task);
+      const decodedTask = yield* decodeRootTask(encodedTask);
+      expect(rootTaskEquivalent(decodedTask, task)).toBe(true);
+      expect(yield* encodeRootTask(decodedTask)).toBe(encodedTask);
+    }),
+    { arbitrary: fcRuns(25) }
   );
 
   it.layer(PlatformLayer, { timeout: "30 seconds" })("native Turbo fixtures", (it) => {

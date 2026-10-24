@@ -3792,6 +3792,7 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",
@@ -3903,6 +3904,7 @@
         "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
+        "@beep/lockfiles": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/markdown": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
@@ -3923,6 +3925,7 @@
         "@beep/runpod": "workspace:^",
         "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
         "@beep/skill-contract": "workspace:^",
         "@beep/spdx": "workspace:^",
         "@beep/t3-code": "workspace:^",

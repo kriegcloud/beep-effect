@@ -113,6 +113,7 @@ export type PnpmCatalogs = typeof PnpmCatalogs.Type;
  * - `catalogs` — pnpm catalog definitions ({@link PnpmCatalogs}).
  * - `overrides` — the version override map recorded in the lockfile header.
  * - `settings` — pnpm settings recorded in the lockfile header.
+ * - `publishDirTargets` — normalized declared publish directories mapped to workspace importer paths.
  *
  * **Example** (Construct pnpm header metadata)
  *
@@ -129,6 +130,11 @@ export type PnpmCatalogs = typeof PnpmCatalogs.Type;
  */
 export class PnpmExtension extends S.Opaque<PnpmExtension, { readonly brand: unique symbol }>()(
   S.TaggedStruct("pnpm", {
+    publishDirTargets: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("PnpmExtension.publishDirTargets", {
+        description: "Normalized declared publish-directory targets mapped to their workspace importer paths",
+      })
+    ),
     catalogs: S.optionalKey(PnpmCatalogs).pipe(
       $I.annoteKey("PnpmExtension.catalogs", {
         description:

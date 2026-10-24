@@ -538,7 +538,7 @@ describe("proof job launcher", () => {
           record.jobId,
           Job.ProofJobSystemdResult.make({ serviceResult: "signal", finalizedAt: stamp })
         );
-        expect(O.isSome(finalized.record.publishedAt)).toBe(true);
+        finalized.record.publishedAt.pipe(O.isSome, assertTrue);
         // Simulate a crash between the stamp and the publish: drop the publication stamp and
         // the inbox row, then let an ordinary read repair both.
         const recordPath = `${root}/.beep/yeet/jobs/${record.jobId}.json`;
@@ -549,7 +549,7 @@ describe("proof job launcher", () => {
         yield* fs.remove(`${root}/.beep/inbox/failures.ndjson`, { force: true });
         yield* fs.remove(`${root}/.beep/inbox/active.ndjson`, { force: true });
         const repaired = O.getOrThrow(yield* launcher.read(record.jobId));
-        expect(O.isSome(repaired.publishedAt)).toBe(true);
+        repaired.publishedAt.pipe(O.isSome, assertTrue);
         expect(yield* inbox(root)).toHaveLength(1);
         expect(A.length(Str.split(yield* fs.readFileString(journal), '"attempt-terminated"'))).toBe(2);
         yield* launcher.read(record.jobId);
@@ -1544,7 +1544,10 @@ it.layer(commandCheckoutLayer, { timeout: "30 seconds" })("proof job command han
           Effect.exit
         );
         const reported = O.getOrThrow(yield* launcher.read(record.jobId));
-        expect(O.map(reported.runner, (runner) => runner.pid)).toStrictEqual(O.some(process.pid));
+        assertSome(
+          O.map(reported.runner, (runner) => runner.pid),
+          process.pid
+        );
         yield* runJobCommand(["job", "finalize", record.jobId]).pipe(
           Effect.provideService(
             ConfigProvider.ConfigProvider,
@@ -1571,7 +1574,10 @@ it.layer(commandCheckoutLayer, { timeout: "30 seconds" })("proof job command han
         );
         const reported = O.getOrThrow(yield* launcher.read(record.jobId));
         expect(reported.phase).toBe("finished");
-        expect(O.map(reported.outcome, (outcome) => outcome.verdictOutcome)).toStrictEqual(O.some("failure"));
+        assertSome(
+          O.map(reported.outcome, (outcome) => outcome.verdictOutcome),
+          "failure"
+        );
       })
     );
   }
@@ -1598,7 +1604,7 @@ it.layer(commandCheckoutLayer, { timeout: "30 seconds" })("proof job command han
       yield* Job.reportProofJobCommand(root, Effect.void);
       const untouched = O.getOrThrow(yield* launcher.read(record.jobId));
       expect(untouched.phase).toBe(record.phase);
-      expect(O.isNone(untouched.outcome)).toBe(true);
+      assertNone(untouched.outcome);
     })
   );
   it.effect(
