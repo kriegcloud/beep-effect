@@ -386,6 +386,8 @@ filename order is always **date, dimensions, aspect ratio, size, hash**:
 The date marker is `m` for embedded media creation time with a known UTC offset,
 `b` for filesystem birth time, or `n` for the current UTC time when neither is
 available. Unzoned media dates are skipped because their UTC time is ambiguous.
+Reading embedded creation dates requires `exiftool`. If it cannot read metadata,
+the command warns once and uses birth time or current UTC for affected files.
 Identical file bytes yield the same hash; the index keeps filenames distinct.
 Any of these fields selects image and video files only, leaving non-media files
 untouched. Aspect ratio uses orientation-adjusted dimensions and needs `ffprobe`

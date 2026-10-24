@@ -32,7 +32,7 @@ import {
   sharpFormatForNormalize,
 } from "../Files.media.ts";
 import { decodeFfprobeOutputJson, decodeImageSizeMetadata, MediaDimensions } from "../Files.schemas.ts";
-import type { ExifMetadata } from "@beep/exiftool";
+import type { ExifMetadata, ExiftoolError } from "@beep/exiftool";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type {
@@ -283,18 +283,16 @@ const creationDateFromMetadata = (metadata: CreationDateMetadata): O.Option<Date
  *
  * @param file - Selected media file.
  * @returns UTC-safe creation timestamp, if embedded metadata supplies one.
+ * @throws ExiftoolError when the metadata reader cannot inspect the file.
  * @category media
  * @since 0.0.0
  */
 export const probeMediaCreationDate = Effect.fn("Files.probeMediaCreationDate")(function* (
   file: SortableFile
-): Effect.fn.Return<O.Option<DateTime.Utc>, never, Exiftool> {
+): Effect.fn.Return<O.Option<DateTime.Utc>, ExiftoolError, Exiftool> {
   const exiftool = yield* Exiftool;
-  const result = yield* exiftool.readTags(ReadTagsRequest.make({ filePath: file.sourcePath })).pipe(Effect.option);
-  return pipe(
-    result,
-    O.flatMap((read) => creationDateFromMetadata(read.metadata))
-  );
+  const result = yield* exiftool.readTags(ReadTagsRequest.make({ filePath: file.sourcePath }));
+  return creationDateFromMetadata(result.metadata);
 });
 
 /**

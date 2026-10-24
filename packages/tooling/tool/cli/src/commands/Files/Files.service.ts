@@ -1571,8 +1571,10 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
 const formatUtcDate = (date: DateTime.DateTime): string =>
   pipe(DateTime.formatIso(date), Str.replace(/[-:]/g, ""), Str.replace(/\.\d{3}Z$/, "Z"));
 
-const creationDateToken = Effect.fn("Files.creationDateToken")(function* (file: SortableFile) {
-  const mediaDate = yield* probeMediaCreationDate(file);
+const creationDateToken = Effect.fn("Files.creationDateToken")(function* (
+  file: SortableFile,
+  mediaDate: O.Option<DateTime.Utc>
+) {
   if (O.isSome(mediaDate)) return `m${formatUtcDate(mediaDate.value)}`;
   if (
     O.isSome(file.birthtime) &&
@@ -1618,9 +1620,26 @@ const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
       : A.map(collection.files, O.none<MediaDimensions>);
   let index = 0;
   let plan = A.empty<RenamePlanEntry>();
+  let warnedMetadataRead = false;
 
   for (const [file, dimensions] of A.zip(collection.files, dimensionsByFile)) {
-    const dateCreated = options.withDateCreated ? O.some(yield* creationDateToken(file)) : O.none<string>();
+    const dateCreated = options.withDateCreated
+      ? O.some(
+          yield* creationDateToken(
+            file,
+            yield* probeMediaCreationDate(file).pipe(
+              Effect.tapError(() => {
+                if (warnedMetadataRead) return Effect.void;
+                warnedMetadataRead = true;
+                return Console.error(
+                  "files sort-and-rename: warning: exiftool could not read creation metadata; using filesystem birth time or current UTC for affected media. Install exiftool to inspect embedded dates."
+                );
+              }),
+              Effect.orElseSucceed(() => O.none<DateTime.Utc>())
+            )
+          )
+        )
+      : O.none<string>();
     const hash = options.withHash ? O.some(yield* hashMediaFile(file)) : O.none<string>();
     const targetName = targetNameForEntry(
       prefix,

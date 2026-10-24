@@ -3376,6 +3376,30 @@ exit 74
     })
   );
 
+  it.effect("warns once and uses filesystem dates when exiftool is unavailable", () =>
+    Effect.gen(function* () {
+      const tmpDir = yield* temporaryWorkingDirectory;
+      const path = yield* Path.Path;
+      const datasetDir = yield* makeDatasetDir(tmpDir);
+      yield* writeSvgFile(path.join(datasetDir, "first.svg"), 3, 2);
+      yield* writeSvgFile(path.join(datasetDir, "second.svg"), 2, 1);
+      yield* withEnvVar(
+        "PATH",
+        path.join(tmpDir, "missing-bin"),
+        runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-date-created"])
+      );
+      const warnings = A.filter(
+        yield* TestConsole.errorLines,
+        (line) => P.isString(line) && Str.includes("exiftool could not read creation metadata")(line)
+      );
+      expect(warnings).toHaveLength(1);
+      expect(yield* sortedDirectoryEntries(datasetDir)).toEqual([
+        expect.stringMatching(/^image_00_[bn]\d{8}T\d{6}Z\.svg$/),
+        expect.stringMatching(/^image_01_[bn]\d{8}T\d{6}Z\.svg$/),
+      ]);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
   it.effect("allows aspect ratio, size, and hash without dimensions", () =>
     Effect.gen(function* () {
       const tmpDir = yield* temporaryWorkingDirectory;
