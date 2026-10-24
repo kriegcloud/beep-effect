@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A1 (lockfiles adoption, W3-g/W4-h) merged (#2187); 3-A9 (observability `PackageName` onto `ScopedPackageName`, #137) merged (#2190); 3-A8 (repo-cli Ci summary tables onto `GitHubMarkdown.table`) merged (#2202); 3-A2 (`@beep/package-json` field growth, W3-f) merged, 3-A3..3-A7 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): 4-X (`@beep/xdg`, W4-c) merged (#2184); 4-CI (one CI rule through `@beep/runtime-env`, W4-e) merged (#2179); 4-C (`@beep/cli-kit`, W4-d) merged (#2200); R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows); R1 (the semver owner switch: `@beep/schema/Semver` deleted, VersionSync and `CacheClientPin` on `@beep/semver`, W4-h, W4-i) merged (#2195); 4-W-a (`@beep/repo-workspaces` core and config-deps, W4-f..W4-h, W4-j) in review in this PR; the rest are in review or queued in the PR sequence below.
+Status: `active` — P1 in progress. The state of each wave and PR lives in its row in the tables below: a PR edits only its own row, and this line names no wave or PR, so concurrent lanes never conflict on it (SPEC W4-v).
 
 ## Phases
 
@@ -55,7 +55,8 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j. |
 | R1 (merged, #2195) | semver owner switch (no new package) | W4-h, W4-i. Deletes `@beep/schema/Semver` (zero importers, no alias). repo-cli VersionSync `BunResolver` and `DockerResolver` (one exported `selectLatestDockerTag`) and `@beep/repo-configs` `CacheClientPin.version` read through `@beep/semver`. Parity: `ops/semver-owner-switch-differential.ts`, recorded before the deletion in `research/semver-owner-switch-differential-r1.json`, 0 unclassified differences. Removes the "Duplicate semver model" Exception Ledger row; reuse-ledger `@beep/semver` section. |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05 as amended by W4-m: deleted from the lab at C and pinned by sha; see "Deferred" below. |
-| 4-W-a (in review, this PR) | `@beep/repo-workspaces` (core and config-deps) | W4-f, W4-g, W4-h. Rename-only partial move (W4-t), then the conformance commits to zero findings; the `testing` cluster stays in the lab and imports the leaves (4-W-b moves it). `@beep/commands` and `@beep/git` are operational-adapter driver deps confined by `test/reachability.test.ts`; `@pnpm/catalogs.*` exact catalog pins. The config-dependency ladder reads through `FileSystem`/`Path`/`Config` (correction 4). Oracle: `research/repo-workspaces-differential-w4.json` (186 members, 1,301 edges, `sort()` valid). Exception Ledger "Duplicate workspace discovery and dependency graph" (4-A1..4-A3). |
+| 4-W-a (merged, #2206) | `@beep/repo-workspaces` (core and config-deps) | W4-f, W4-g, W4-h. Rename-only partial move (W4-t), then the conformance commits to zero findings; the `testing` cluster stays in the lab and imports the leaves (4-W-b moves it). `@beep/commands` and `@beep/git` are operational-adapter driver deps confined by `test/reachability.test.ts`; `@pnpm/catalogs.*` exact catalog pins. The config-dependency ladder reads through `FileSystem`/`Path`/`Config` (correction 4). Oracle: `research/repo-workspaces-differential-w4.json` (186 members, 1,301 edges, `sort()` valid). Exception Ledger "Duplicate workspace discovery and dependency graph" (4-A1..4-A3). |
+| 4-S (in review, this PR) | `@beep/sbom` | W4-b, W4-g, W4-j, W4-s (4-S parts). The 8 pure modules of the lab `sbom` (IdentityToken included) as branded `S.Opaque` records admitted once per constructor; `SigstoreSigner` stays in the lab (signer-only `index.ts`, deferred `@beep/sigstore`). Bun-safe raw-glob reachability, `S.optionalKey` kept on the 5 input structs with their explicit-undefined tests inverted to pin rejection (#1928 under EF-40, W4-j), `ajv`/`ajv-formats` exact pins with no new `bun.lock` hash, the full-schema oracle and `ops/sbom-corpus.ts` (192 manifests, 191 generated, 0 schema failures). Lab retargets: the signer, github-actions `ActionsIdentityToken`/`ActionsProvenance`, both PROMOTED maps. |
 
 ## Wave 4 and the closing roadmap
 
@@ -74,12 +75,12 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-3 (#2134, merged) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |
 | 3-5 (#2159, merged) | `@beep/lockfiles`; lab workspaces retargets | main |
 | 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
-| R0 | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
-| 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
+| R0 (merged, #2156) | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
+| 3-A2 (merged, #2197) | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
 | 3-A8 (merged, #2202) | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
-| 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
+| 3-A9 (merged, #2190) | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
 | 4-CI (merged, #2179) | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 (merged, #2195) | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
 | R2a | `vitest.setup.ts`: `toml` shim out, `GlobShim` matcher on `@beep/glob`; `toml`, `picomatch`, `@types/picomatch` out of the root | main |
@@ -87,12 +88,12 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | R5b | slugger/TOC in `@beep/markdown`; `@effect/markdown-toc` out of docgen, repo-cli and root; effect-drizzle README script | main |
 | R9 | exiftool, pdf-tools, obs, tailscale onto `@beep/commands` `Run.collect`; retire the D-03 "Driver-local output folds" row | main (after #2145 if it is close to merging) |
 | R10 | `@beep/git` for `Skills/internal/MergeBase.ts`, `repo-run/GitWorktree.ts`, `Yeet/internal/ProvenanceFooter.ts`, dead `GitExec.ts` collectors | main |
-| 4-S | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
+| 4-S (in review, this PR) | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
 | 4-X (merged, #2184) | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
 | 4-C (merged, #2200) | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
 | 3-A1 (merged, #2187) | lockfiles adoption + `ResolvedPackage.installName`; `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half) | 3-5 |
 | 3-A3 | repo-utils re-base on `@beep/package-json` (`schemas/PackageJson.ts` 2,111 → ~450, HashMap moves) | 3-A2 |
-| 4-W-a (in review, this PR) | `@beep/repo-workspaces` core + config-deps (W4-f) | 3-5 |
+| 4-W-a (merged, #2206) | `@beep/repo-workspaces` core + config-deps (W4-f) | 3-5 |
 | 3-A4 | package.json readers in repo-cli and docgen | 3-A1, 3-A2, 3-3, R1, 4-CI |
 | 4-W-b | `@beep/repo-workspaces/testing` + PackedInstall fix + `LayerPolicy` re-key + lab cli/engine boundary retargets | 4-W-a |
 | 4-X-A | XDG adoption: ai-metrics forwarder/data-root, `BeepCacheRoot`, `Fleet`, `HarnessLedger`, `AIMetrics/Programs`, `MatchPerson`, apps docket-intake and practice-m365-contacts (#183 excluded) | 4-X |

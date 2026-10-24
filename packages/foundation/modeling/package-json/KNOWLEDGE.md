@@ -11,8 +11,9 @@ Upstream `pnpm` commands map to this repository's package scripts: `bun run test
 `bun run check` and `bun run beep quality package-verify @beep/package-json`; there is no `savvy.build.ts`.
 Upstream package names map the same way: `@effected/package-json` is `@beep/package-json`, the pure half of
 `@effected/npm` (the specifier vocabulary and the `CatalogResolver`/`WorkspaceResolver` contracts) is
-`@beep/npm-spec`, and `@effected/semver`, `@effected/spdx` and `@effected/jsonc` are `@beep/semver`,
-`@beep/spdx` and `@beep/jsonc`. Four upstream facts below no longer hold here (SPEC W3-f): `src/index.ts` no
+`@beep/npm-spec`, and `@effected/semver`, `@effected/spdx`, `@effected/jsonc` and `@effected/sbom` are
+`@beep/semver`, `@beep/spdx`, `@beep/jsonc` and `@beep/sbom` (wave 4-S moved its pure half, the
+metadata-source mapping included). Four upstream facts below no longer hold here (SPEC W3-f): `src/index.ts` no
 longer re-exports `DependencySpecifier` or `JsoncEdit`/`JsoncPath`, so import them from `@beep/npm-spec` and
 `@beep/jsonc`; `PackageJsonFile` is a leaf import (`@beep/package-json/PackageJsonFile`), not part of the root
 barrel; the deprecated `RepositoryField` union is removed; and `PackageName` rejects a leading `-`,

@@ -240,7 +240,8 @@ const generatedComposers = $I.compose(
   "lockfiles",
   "xdg",
   "cli-kit",
-  "repo-workspaces"
+  "repo-workspaces",
+  "sbom"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3514,3 +3515,20 @@ export const $CliKitId: Identity.IdentityComposer<"@beep/cli-kit"> = composers.$
  * @since 0.0.0
  */
 export const $RepoWorkspacesId: Identity.IdentityComposer<"@beep/repo-workspaces"> = composers.$RepoWorkspacesId;
+
+/**
+ * Identity composer for `@beep/sbom`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $SbomId } from "@beep/identity/packages"
+ *
+ * const id = $SbomId.make("Sbom")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $SbomId: Identity.IdentityComposer<"@beep/sbom"> = composers.$SbomId;
