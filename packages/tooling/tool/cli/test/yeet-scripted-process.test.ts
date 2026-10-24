@@ -83,7 +83,7 @@ const passingFinalCheck = (_context: RepoRunContext, head: string) =>
     FinalCheckReceipt.make({
       schemaVersion: "yeet-final-check/v1",
       headSha: head,
-      mergeBase: "0".repeat(40),
+      mergeBase: Str.repeat(40)("0"),
       base: "origin/main",
       complete: true,
       verdict: "pass",

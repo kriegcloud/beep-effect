@@ -684,7 +684,7 @@ const resolveLintPackage = Effect.fn("Lint.resolvePackage")(function* (root: str
 const runDocsWorker = Effect.fn("Lint.docsWorker")(function* (
   root: string,
   targets: ReadonlyArray<string>,
-  allowUnmatched = false
+  allowUnmatched: boolean
 ) {
   if (A.isReadonlyArrayEmpty(targets)) return;
   const path = yield* Path.Path;
@@ -716,7 +716,7 @@ const lintJsdocCommand = Command.make(
     }
     const root = yield* findRepoRoot();
     if (O.isSome(directory)) {
-      return yield* runDocsWorker(root, [yield* resolveLintPackage(root, directory.value)]);
+      return yield* runDocsWorker(root, [yield* resolveLintPackage(root, directory.value)], false);
     }
     const fsUtils = yield* FsUtils;
     const path = yield* Path.Path;
