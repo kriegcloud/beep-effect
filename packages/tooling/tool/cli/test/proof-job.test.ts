@@ -2112,7 +2112,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("proof job record guards
         yield* launcher
           .submit(submission(root))
           .pipe(
-            provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({ PATH: root, BEEP: { NESTED: "x" } })))
+            Effect.provideService(
+              ConfigProvider.ConfigProvider,
+              ConfigProvider.fromUnknown({ PATH: root, BEEP: { NESTED: "x" } })
+            )
           );
         expect(yield* fs.readFileString(`${root}/launch.argv`)).toContain("--setenv=BEEP_NESTED=x");
       })

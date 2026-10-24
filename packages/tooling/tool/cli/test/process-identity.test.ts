@@ -10,10 +10,9 @@ import {
   processStartTimeForPid,
 } from "@beep/repo-cli/test/RepoRun";
 import { it } from "@beep/test-runner";
-import { provideScopedLayer } from "@beep/test-utils";
 import { HostProcessPlatform } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import { describe, expect, vi } from "@effect/vitest";
+import { expect, vi } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -39,7 +38,7 @@ const withProcStat = Effect.fnUntraced(function* <Value, Error, Requirements>(
   return yield* effect.pipe(Effect.provideService(FileSystem.FileSystem, testFileSystem));
 });
 
-describe("ProcessIdentity", () => {
+it.layer(NodeFileSystem.layer)("ProcessIdentity", (it) => {
   it("models every supported source-prefixed identity", () => {
     expect(ProcessIdentitySource.literals).toStrictEqual(["proc", "ps", "win"]);
     expect(ProcessIdentityStatus.literals).toStrictEqual(["alive", "dead", "unknown"]);
@@ -121,14 +120,13 @@ describe("ProcessIdentity", () => {
 
       (yield* processStartIdentityForPid(DEAD_PID, O.some("ps:missing"))).pipe(assertNone);
       (yield* processStartIdentityForPid(process.pid, O.some("win:recorded"))).pipe(assertNone);
-    }).pipe(provideScopedLayer(NodeFileSystem.layer))
+    })
   );
 
   it.effect("uses the Windows source when the runtime identifies as Windows", () =>
     withProcStat("", processStartIdentityForPid(process.pid)).pipe(
       Effect.tap((identity) => Effect.sync(() => identity.pipe(assertNone))),
-      Effect.provideService(HostProcessPlatform, "win32"),
-      provideScopedLayer(NodeFileSystem.layer)
+      Effect.provideService(HostProcessPlatform, "win32")
     )
   );
 });

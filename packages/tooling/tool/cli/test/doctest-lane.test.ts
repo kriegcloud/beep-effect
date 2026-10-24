@@ -2,9 +2,8 @@ import * as NodeURL from "node:url";
 import { doctestFenceInfo, doctestSourceMarker, isDoctestSourcePath } from "@beep/repo-cli/test/Docgen";
 import { StepExec } from "@beep/repo-cli/test/PackageScripts";
 import { FsUtils, FsUtilsLive, findRepoRoot, readPackageJsonFile, resolveWorkspacePackages } from "@beep/repo-utils";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -19,7 +18,7 @@ import * as Str from "effect/String";
 import "vitest/config";
 import { resolveConfig } from "vitest/node";
 
-const providePlatform = provideScopedLayer(FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer)));
+const PlatformLayer = FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer));
 const fixture = NodeURL.fileURLToPath(new URL("./fixtures/doctest-lane/package/", import.meta.url));
 
 // These configs override test.include (coverage.include is a different selector).
@@ -131,7 +130,7 @@ const expectSetupInputsCovered = Effect.fn("DoctestLaneTest.expectSetupInputsCov
   }
 });
 
-describe("doctest lane fixture", { concurrent: false }, () => {
+it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })("doctest lane fixture", (it) => {
   it("admits only workspace source files under src, in either TypeScript flavour", () => {
     expect(isDoctestSourcePath("packages/example/src/index.ts")).toBe(true);
     expect(isDoctestSourcePath("apps/example/src/App.tsx")).toBe(true);
@@ -179,7 +178,7 @@ describe("doctest lane fixture", { concurrent: false }, () => {
       yield* Console.log(`doctest discovery: ${owners} owners with non-empty source discovery and covered setup files`);
       expect(owners).toBeGreaterThan(0);
       expect(HashMap.has(workspaces, "@beep/storybook")).toBe(true);
-    }, providePlatform),
+    }),
     { timeout: 180_000 }
   );
 
@@ -226,7 +225,7 @@ describe("doctest lane fixture", { concurrent: false }, () => {
       expect(selected).toEqual(["src/marked.ts"]);
       expect(doctestSourceMarker).toBe("import.meta.vitest");
       expect(doctestFenceInfo("Add numbers")).toBe('ts import.meta.vitest name="Add numbers"');
-    }, providePlatform)
+    })
   );
 
   it.effect(
@@ -245,7 +244,7 @@ describe("doctest lane fixture", { concurrent: false }, () => {
           { concurrency: 1 }
         );
       }
-    }, providePlatform),
+    }),
     { timeout: 120_000 }
   );
 
@@ -267,7 +266,7 @@ describe("doctest lane fixture", { concurrent: false }, () => {
       const result = yield* fs.readFileString(resultPath);
       expect(result).toContain('"numPassedTestSuites":2');
       expect(result).toContain('"numPassedTests":2');
-    }, providePlatform),
+    }),
     { timeout: 90_000 }
   );
 });

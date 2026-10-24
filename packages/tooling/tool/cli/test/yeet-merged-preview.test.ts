@@ -11,7 +11,6 @@ import {
   YeetMergeTreeConflicted,
   yeetMergedPreviewContext,
 } from "@beep/repo-cli/test/Yeet";
-import { provideScopedLayer } from "@beep/test-utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -167,7 +166,7 @@ describe("yeet merged preview context", () => {
   });
 });
 
-describe("yeet merged tier guards", () => {
+it.layer(PlatformLayer, { timeout: "30 seconds" })("yeet merged tier guards", (it) => {
   it.effect("refuses --merged outside verify", () =>
     Effect.gen(function* () {
       const exit = yield* Effect.exit(
@@ -175,7 +174,7 @@ describe("yeet merged tier guards", () => {
       );
 
       exit.pipe(Exit.isFailure, assertTrue);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 
   it.effect("refuses --merged on a review-fix tier", () =>
@@ -185,7 +184,7 @@ describe("yeet merged tier guards", () => {
       );
 
       exit.pipe(Exit.isFailure, assertTrue);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 
   it.effect("accepts --merged on a full verify", () =>
@@ -195,7 +194,7 @@ describe("yeet merged tier guards", () => {
       );
 
       exit.pipe(Exit.isSuccess, assertTrue);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 
   it.effect("accepts --ci-parity on a full verify", () =>
@@ -205,7 +204,7 @@ describe("yeet merged tier guards", () => {
       );
 
       exit.pipe(Exit.isSuccess, assertTrue);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 
   it.effect("refuses --ci-parity outside full verify", () =>
@@ -219,6 +218,6 @@ describe("yeet merged tier guards", () => {
 
       publishExit.pipe(Exit.isFailure, assertTrue);
       mergedExit.pipe(Exit.isFailure, assertTrue);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 });

@@ -1,8 +1,8 @@
 import { CacheCensusWorkspace, CacheDependencyMaterialization } from "@beep/repo-cli/commands/Cache";
 import { inspectCacheDependencyTree } from "@beep/repo-cli/test/Cache";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
@@ -22,7 +22,7 @@ const fixture = Effect.fn("CacheDependenciesTest.fixture")(function* () {
   return { root, modules, source, fs, path };
 });
 
-describe("installed cache dependency integrity", () => {
+it.layer(NodeServices.layer)("installed cache dependency integrity", (it) => {
   it.prop(
     "roundtrips materialization evidence through its schema",
     { value: Arbitrary.schema(CacheDependencyMaterialization) },
@@ -52,7 +52,7 @@ describe("installed cache dependency integrity", () => {
       const removed = yield* inspectCacheDependencyTree(first.root, []);
       expect(removed.regularFiles).toBe(0);
       expect(removed.sha256).not.toBe(before.sha256);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 
   it.effect("records internal and declared workspace links without following them", () =>
@@ -73,7 +73,7 @@ describe("installed cache dependency integrity", () => {
         { _tag: "Internal", path: "entry", target: "example/index.js" },
       ]);
       (yield* inspectCacheDependencyTree(root, []).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 
   it.effect("refuses absolute and escaping links and a symlinked tree root", () =>
@@ -88,6 +88,6 @@ describe("installed cache dependency integrity", () => {
       const alternate = yield* fs.makeTempDirectoryScoped({ prefix: "cache-dependency-link-test-" });
       yield* fs.symlink(modules, path.join(alternate, "node_modules"));
       (yield* inspectCacheDependencyTree(alternate, []).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 });

@@ -28,7 +28,7 @@ import {
   YeetEnsuredPullRequest,
   YeetRunPlanModeOptions,
 } from "@beep/repo-cli/test/Yeet";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertInclude, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
@@ -84,6 +84,90 @@ const decodeFixture = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, 
 const decodePlan = S.decodeUnknownEffect(S.fromJsonString(RepoRunPlan));
 const decodeAdmissionLease = S.decodeUnknownEffect(S.fromJsonString(YeetAdmissionLease));
 
+const runFixtureGit = Effect.fn("YeetCommandWiringTest.runFixtureGit")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>
+) {
+  const handle = yield* ChildProcess.make(
+    "git",
+    ["-c", "user.name=final-check", "-c", "user.email=final-check@example.test", "-c", "commit.gpgsign=false", ...args],
+    { cwd: repoRoot, stdin: "ignore", stdout: "ignore", stderr: "ignore" }
+  );
+  expect(yield* handle.exitCode).toBe(0);
+});
+
+describe("yeet final-check command", () => {
+  it.layer(commandTestLayer, { timeout: "60 seconds" })("in a scratch repository", (it) => {
+    const commit = Effect.fnUntraced(function* (root: string, file: string, content: string, message: string) {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFileString(`${root}/${file}`, content);
+      yield* runFixtureGit(root, ["add", file]);
+      yield* runFixtureGit(root, ["commit", "-q", "-m", message]);
+    });
+    const finalCheck = (args: ReadonlyArray<string>) =>
+      runYeetCommand(["final-check", ...args]).pipe(
+        Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}))
+      );
+
+    it.effect(
+      "plans, refuses a dirty tree, records skips, and fails on a red gate",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* temporaryWorkingDirectory;
+        yield* runFixtureGit(root, ["init", "-q"]);
+        yield* commit(root, ".gitignore", ".beep/\n", "ignore yeet state");
+        yield* commit(root, "README.md", "base\n", "base");
+        yield* commit(root, "README.md", "head\n", "head");
+
+        yield* finalCheck(["--base", "HEAD~1", "--dry-run", "--skip", "coverage=hosted proves it"]);
+        const planned = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+        assertInclude(planned, "final-check plan for");
+        assertInclude(planned, "skip coverage: hosted proves it");
+        assertInclude(planned, "expectation-rewrite: scan the diff's test files");
+        assertInclude(planned, "lint: bunx biome check --files-ignore-unknown=true --no-errors-on-unmatched README.md");
+
+        expect((yield* finalCheck(["--gates", "heavy"]).pipe(Effect.flip)).message).toContain(
+          "Unknown final-check gate(s): heavy"
+        );
+
+        yield* fs.writeFileString(`${root}/README.md`, "dirty\n");
+        expect((yield* finalCheck(["--base", "HEAD~1"]).pipe(Effect.flip)).message).toContain(
+          "the tree has uncommitted changes"
+        );
+        yield* runFixtureGit(root, ["checkout", "--", "README.md"]);
+        yield* fs.writeFileString(`${root}/untracked.ts`, "export {};\n");
+        expect((yield* finalCheck(["--base", "HEAD~1"]).pipe(Effect.flip)).message).toContain("untracked files");
+        yield* fs.remove(`${root}/untracked.ts`);
+
+        yield* finalCheck([
+          "--base",
+          "HEAD~1",
+          "--gates",
+          "expectation-rewrite,cheap-gates",
+          "--skip",
+          "cheap-gates=covered by publish",
+        ]);
+        const receipts = yield* fs.readDirectory(`${root}/.beep/yeet/final-check`);
+        expect(receipts).toHaveLength(1);
+        const receipt = yield* fs.readFileString(`${root}/.beep/yeet/final-check/${receipts[0]}`);
+        assertInclude(receipt, '"complete":false');
+        assertInclude(receipt, '"verdict":"pass"');
+        assertInclude(receipt, '"status":"skipped"');
+
+        const red = yield* finalCheck(["--base", "HEAD~1", "--gates", "repo-sanity", "--fail-fast"]).pipe(Effect.flip);
+        expect(red.message).toContain("yeet final-check failed: final-check:repo-sanity");
+
+        // A gate that edits a tracked file while it runs: the gates then saw bytes
+        // the pinned head does not hold, so no receipt may be written.
+        yield* commit(root, "package.json", '{"scripts":{"beep":"echo drift >> README.md"}}\n', "drifting gate");
+        const moved = yield* finalCheck(["--base", "HEAD~1", "--gates", "repo-sanity"]).pipe(Effect.flip);
+        expect(moved.message).toContain("the checkout changed while the gates ran");
+        expect(yield* fs.readDirectory(`${root}/.beep/yeet/final-check`)).toHaveLength(1);
+      })
+    );
+  });
+});
+
 describe("yeet merge-loop command wiring", () => {
   it.layer(commandTestLayer, { timeout: "30 seconds" })("foreground monitor", (it) => {
     it.effect(
@@ -95,7 +179,7 @@ describe("yeet merge-loop command wiring", () => {
         yield* Effect.addFinalizer(() => Effect.sync(() => process.chdir(originalCwd)));
         yield* Effect.sync(() => process.chdir(root));
         yield* Effect.forEach(
-          [["monitor", "--until-ready"], ["ready"], ["merge"], ["reply"]],
+          [["monitor", "--until-ready"], ["ready"], ["merge"], ["reply"], ["final-check"]],
           (args) =>
             runYeetCommand(args).pipe(
               Effect.result,
@@ -169,103 +253,104 @@ describe("yeet merge-loop command wiring", () => {
     );
   });
 
-  it.effect("dispatches the top-level publish and repair planners", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const root = yield* temporaryWorkingDirectory;
-      yield* fs.writeFileString(`${root}/bun.lock`, "");
-      yield* fs.writeFileString(
-        `${root}/package.json`,
-        yield* S.encodeUnknownEffect(FixturePackageJson)({ name: "yeet-command-fixture", workspaces: [] })
-      );
-      const encoder = new TextEncoder();
-      const handle = (output: string) =>
-        ChildProcessSpawner.makeHandle({
-          all: Stream.make(encoder.encode(output)),
-          exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(0)),
-          getInputFd: () => Sink.drain,
-          getOutputFd: () => Stream.empty,
-          isRunning: Effect.succeed(false),
-          kill: () => Effect.void,
-          pid: ChildProcessSpawner.ProcessId(1),
-          stderr: Stream.empty,
-          stdin: Sink.drain,
-          stdout: Stream.make(encoder.encode(output)),
-          unref: Effect.succeed(Effect.void),
-        });
-      const spawner = ChildProcessSpawner.make((command) => {
-        if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected planner pipe");
-        const line = A.join([command.command, ...command.args], " ");
-        const responseFor = (responses: ReadonlyArray<readonly [string, string]>) =>
-          A.findFirst(responses, ([argument]) => A.contains(command.args, argument)).pipe(
-            O.map(([, output]) => output)
-          );
-        const response = Match.value(command.command).pipe(
-          Match.when("git", () =>
-            responseFor([
-              ["--abbrev-ref", "feat/yeet-command-wiring\n"],
-              ["--show-toplevel", `${root}\n`],
-              ["rev-parse", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"],
-              ["diff", ""],
-              ["status", ""],
-              ["worktree", ""],
-              ["merge-base", ""],
-            ])
-          ),
-          Match.when("gh", () =>
-            responseFor([
-              [
-                "view",
-                '{"number":1,"headRefName":"feat/yeet-command-wiring","state":"OPEN","headRefOid":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}',
-              ],
-            ])
-          ),
-          Match.orElse(() =>
-            Str.includes("turbo")(line)
-              ? responseFor([
-                  ["--version", "2.5.0\n"],
-                  ["ls", '{"packages":{"count":0,"items":[]}}'],
-                  ["affected", '{"data":{"affectedTasks":{"length":0,"items":[]}}}'],
-                ])
-              : O.none()
-          )
+  it.layer(commandTestLayer)((it) => {
+    it.effect("dispatches the top-level publish and repair planners", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* temporaryWorkingDirectory;
+        yield* fs.writeFileString(`${root}/bun.lock`, "");
+        yield* fs.writeFileString(
+          `${root}/package.json`,
+          yield* S.encodeUnknownEffect(FixturePackageJson)({ name: "yeet-command-fixture", workspaces: [] })
         );
-        return response.pipe(
-          O.match({
-            onNone: () => Effect.die(`unexpected planner invocation: ${line}`),
-            onSome: (output) => Effect.succeed(handle(output)),
-          })
-        );
-      });
-      yield* Effect.forEach(
-        [
-          ["--plan"],
-          ["--plan", "--state-root", "/tmp/yeet-command-wiring-state"],
-          ["monitor", "--plan", "--state-root", "/tmp/yeet-command-wiring-state"],
-          ["repair", "--plan"],
-          ["status", "--plan"],
-          ["sweep", "--plan"],
-          ["pre-push-hook", "--plan"],
-        ],
-        Effect.fnUntraced(function* (args) {
-          const logged = A.length(yield* TestConsole.logLines);
-          yield* runYeetCommand(args);
-          const lines = A.drop(yield* TestConsole.logLines, logged);
-          expect(
-            A.some(
-              lines,
-              (line) => line === "yeet plan" || (S.is(S.String)(line) && Str.startsWith("[yeet] sweep plan")(line))
+        const encoder = new TextEncoder();
+        const handle = (output: string) =>
+          ChildProcessSpawner.makeHandle({
+            all: Stream.make(encoder.encode(output)),
+            exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(0)),
+            getInputFd: () => Sink.drain,
+            getOutputFd: () => Stream.empty,
+            isRunning: Effect.succeed(false),
+            kill: () => Effect.void,
+            pid: ChildProcessSpawner.ProcessId(1),
+            stderr: Stream.empty,
+            stdin: Sink.drain,
+            stdout: Stream.make(encoder.encode(output)),
+            unref: Effect.succeed(Effect.void),
+          });
+        const spawner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected planner pipe");
+          const line = A.join([command.command, ...command.args], " ");
+          const responseFor = (responses: ReadonlyArray<readonly [string, string]>) =>
+            A.findFirst(responses, ([argument]) => A.contains(command.args, argument)).pipe(
+              O.map(([, output]) => output)
+            );
+          const response = Match.value(command.command).pipe(
+            Match.when("git", () =>
+              responseFor([
+                ["--abbrev-ref", "feat/yeet-command-wiring\n"],
+                ["--show-toplevel", `${root}\n`],
+                ["rev-parse", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"],
+                ["diff", ""],
+                ["status", ""],
+                ["worktree", ""],
+                ["merge-base", ""],
+              ])
+            ),
+            Match.when("gh", () =>
+              responseFor([
+                [
+                  "view",
+                  '{"number":1,"headRefName":"feat/yeet-command-wiring","state":"OPEN","headRefOid":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}',
+                ],
+              ])
+            ),
+            Match.orElse(() =>
+              Str.includes("turbo")(line)
+                ? responseFor([
+                    ["--version", "2.5.0\n"],
+                    ["ls", '{"packages":{"count":0,"items":[]}}'],
+                    ["affected", '{"data":{"affectedTasks":{"length":0,"items":[]}}}'],
+                  ])
+                : O.none()
             )
-          ).toBe(true);
-        }),
-        { discard: true, concurrency: 1 }
-      ).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner));
-    }).pipe(
-      Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({})),
-      Effect.provideServiceEffect(Console.Console, TestConsole.make),
-      provideScopedLayer(commandTestLayer)
-    )
-  );
+          );
+          return response.pipe(
+            O.match({
+              onNone: () => Effect.die(`unexpected planner invocation: ${line}`),
+              onSome: (output) => Effect.succeed(handle(output)),
+            })
+          );
+        });
+        yield* Effect.forEach(
+          [
+            ["--plan"],
+            ["--plan", "--state-root", "/tmp/yeet-command-wiring-state"],
+            ["monitor", "--plan", "--state-root", "/tmp/yeet-command-wiring-state"],
+            ["repair", "--plan"],
+            ["status", "--plan"],
+            ["sweep", "--plan"],
+            ["pre-push-hook", "--plan"],
+          ],
+          Effect.fnUntraced(function* (args) {
+            const logged = A.length(yield* TestConsole.logLines);
+            yield* runYeetCommand(args);
+            const lines = A.drop(yield* TestConsole.logLines, logged);
+            expect(
+              A.some(
+                lines,
+                (line) => line === "yeet plan" || (S.is(S.String)(line) && Str.startsWith("[yeet] sweep plan")(line))
+              )
+            ).toBe(true);
+          }),
+          { discard: true, concurrency: 1 }
+        ).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner));
+      }).pipe(
+        Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({})),
+        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+      )
+    );
+  });
 
   it.each(["sweep", "merge", "reply"])("registers the %s subcommand", (name) => {
     expect(subcommandNames).toContain(name);
@@ -339,7 +424,7 @@ describe("yeet publish plan wiring", () => {
   });
 });
 
-describe("yeet push-first publish plan wiring", () => {
+it.layer(commandTestLayer)("yeet push-first publish plan wiring", (it) => {
   const planContext = RepoRunContext.make({
     base: "origin/main",
     branch: "feat/yeet-command-wiring",
@@ -487,7 +572,7 @@ describe("yeet push-first publish plan wiring", () => {
           );
         }
       }
-    }).pipe(provideScopedLayer(commandTestLayer))
+    })
   );
 
   it("gives --prove-first and --push-only the same draft, label, stamp, and detached monitor tail", () => {
@@ -524,7 +609,7 @@ describe("yeet push-first publish plan wiring", () => {
         const error = yield* runYeetCommand(["publish", flag, "--detach", "--plan"]).pipe(Effect.flip);
         expect(error._tag).not.toBe("YeetCommandError");
       }
-    }).pipe(provideScopedLayer(commandTestLayer))
+    })
   );
 
   it("registers the ready subcommand", () => {
@@ -654,7 +739,7 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("cheap-gates admission", (
   }
 });
 
-describe("yeet monitor command routing", () => {
+it.layer(commandTestLayer)("yeet monitor command routing", (it) => {
   it.each([
     [true, true, true, false, "classic"],
     [false, true, false, false, "invalid-until-event"],
@@ -675,7 +760,7 @@ describe("yeet monitor command routing", () => {
 
       expect(exit._tag).toBe("Failure");
       expect(String(exit)).toContain("requires --watch");
-    }).pipe(provideScopedLayer(commandTestLayer))
+    })
   );
 });
 
@@ -693,7 +778,7 @@ describe("yeet inbox command wiring", () => {
   });
 });
 
-describe("settle-timeout route legality", () => {
+it.layer(commandTestLayer)("settle-timeout route legality", (it) => {
   it.each([
     { watch: false, untilMerged: false, expected: "invalid-settle-timeout" },
     { watch: true, untilMerged: false, expected: "watch" },
@@ -707,11 +792,11 @@ describe("settle-timeout route legality", () => {
     Effect.gen(function* () {
       const failure = yield* Effect.flip(runYeetCommand(["monitor", "--settle-timeout", "30m"]));
       assertInclude(String(failure), "requires --until-merged, --until-ready, or --watch");
-    }).pipe(provideScopedLayer(commandTestLayer))
+    })
   );
 });
 
-describe("until-ready route legality", () => {
+it.layer(commandTestLayer)("until-ready route legality", (it) => {
   it.each([
     { untilMerged: false, untilEvent: false, watch: false, expected: "ready-loop" },
     { untilMerged: true, untilEvent: false, watch: false, expected: "invalid-until-ready" },
@@ -724,7 +809,7 @@ describe("until-ready route legality", () => {
     Effect.gen(function* () {
       const failure = yield* Effect.flip(runYeetCommand(["monitor", "--until-ready", "--watch"]));
       expect(failure).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
-    }).pipe(provideScopedLayer(commandTestLayer))
+    })
   );
 });
 
