@@ -77,7 +77,6 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
 | 3-A8 (in review) | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
-| 3-A8 | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
 | 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
 | 4-CI | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
