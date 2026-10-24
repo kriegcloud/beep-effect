@@ -292,7 +292,9 @@ orchestrator session):
      HANDOFF "Next actions".
 2. Rewrite `HANDOFF.md` from the template: rulings, gate snapshot (paste
    `gate.sh` output), outstanding "final <sha>" promises, pending operator
-   decisions, ordered next actions, broadcast text naming the successor.
+   decisions, ordered next actions, recipes (the exact gate-arming, monitor
+   and worker commands from step 1), communication routes, broadcast text
+   naming the successor.
 3. `bun run beep session register list --markdown >> HANDOFF.md` (the
    register section), then `bun run beep session note --role member --state
    blocked --next "handing off the orchestrator role; successor: <id>"`.
