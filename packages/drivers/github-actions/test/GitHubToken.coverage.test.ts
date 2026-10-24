@@ -1,6 +1,6 @@
+import { GitHubTokenError } from "@beep/github-actions/GitHubToken";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { GitHubTokenError } from "../../effected/github-actions/GitHubToken.ts";
 
 it.effect("expired token explains its expiry and why later phases cannot mint a replacement", () =>
   Effect.sync(() => {

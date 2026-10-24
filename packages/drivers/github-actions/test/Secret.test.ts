@@ -2,12 +2,12 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ActionOutputs, Secret } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
-import { ActionOutputs, Secret } from "../../effected/github-actions/index.ts";
 
 /** Records what was masked, so ordering can be asserted. */
 const recordingOutputs = () => {
@@ -199,7 +199,7 @@ describe("Secret", () => {
   });
 
   describe("the declassification invariant", () => {
-    const srcRoot = fileURLToPath(new URL("../../effected/github-actions/", import.meta.url));
+    const srcRoot = fileURLToPath(new URL("../src/", import.meta.url));
 
     /**
      * Strip comments before scanning.

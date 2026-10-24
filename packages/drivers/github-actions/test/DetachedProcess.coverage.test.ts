@@ -1,7 +1,3 @@
-import { assert, describe, it } from "@effect/vitest";
-import { assertExitFailure } from "@effect/vitest/utils";
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
 import {
   DetachedLogUnavailableError,
   DetachedNotReadyError,
@@ -9,8 +5,12 @@ import {
   DetachedSignalFailedError,
   DetachedSpawnFailedError,
   InvalidPidError,
-} from "../../effected/github-actions/DetachedProcess.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
+} from "@beep/github-actions/DetachedProcess";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { assert, describe, it } from "@effect/vitest";
+import { assertExitFailure } from "@effect/vitest/utils";
+import * as Cause from "effect/Cause";
+import * as Effect from "effect/Effect";
 
 describe("DetachedProcess coverage", () => {
   it.effect("errors identify the failed resource and operation", () =>

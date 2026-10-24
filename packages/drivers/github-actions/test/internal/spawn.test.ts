@@ -1,7 +1,7 @@
+import { SpawnOnceResult } from "@beep/github-actions/internal/spawn";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { SpawnOnceResult } from "../../../effected/github-actions/internal/spawn.ts";
 
 it.effect("spawn result schema preserves plain output and finite caller-policy exit codes", () =>
   Effect.gen(function* () {

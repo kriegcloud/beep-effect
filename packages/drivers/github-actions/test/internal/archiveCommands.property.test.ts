@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { zipManifest } from "@beep/github-actions/internal/archiveCommands";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { zipManifest } from "../../../effected/github-actions/internal/archiveCommands.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // The caller rejects CR/LF in paths. Empty strings are preserved as blank lines.

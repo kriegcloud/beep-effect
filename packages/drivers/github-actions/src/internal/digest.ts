@@ -14,7 +14,7 @@ const { createHash } = process.getBuiltinModule("node:crypto");
  * **Example** (Hash in-memory bytes)
  *
  * ```ts
- * import { sha256 } from "@beep/scratchpad/effected/github-actions/internal/digest";
+ * import { sha256 } from "@beep/github-actions/internal/digest";
  *
  * console.log(sha256("hello").length) // 32
  * ```
@@ -32,7 +32,7 @@ export const sha256 = (value: string | Uint8Array): Uint8Array =>
  * **Example** (Hash text as hexadecimal)
  *
  * ```ts
- * import { sha256Hex } from "@beep/scratchpad/effected/github-actions/internal/digest";
+ * import { sha256Hex } from "@beep/github-actions/internal/digest";
  *
  * console.log(sha256Hex("hello")) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
  * ```
@@ -57,7 +57,7 @@ export const sha256Hex = (value: string | Uint8Array): string => createHash("sha
  * **Example** (Digest a supplied byte stream)
  *
  * ```ts
- * import { digestFile } from "@beep/scratchpad/effected/github-actions/internal/digest";
+ * import { digestFile } from "@beep/github-actions/internal/digest";
  * import * as Effect from "effect/Effect";
  * import * as FileSystem from "effect/FileSystem";
  * import * as Stream from "effect/Stream";
@@ -102,7 +102,7 @@ export const digestFile: {
  * **Example** (Encode a streamed digest as hexadecimal)
  *
  * ```ts
- * import { digestFileHex } from "@beep/scratchpad/effected/github-actions/internal/digest";
+ * import { digestFileHex } from "@beep/github-actions/internal/digest";
  * import * as Effect from "effect/Effect";
  * import * as FileSystem from "effect/FileSystem";
  * import * as Stream from "effect/Stream";

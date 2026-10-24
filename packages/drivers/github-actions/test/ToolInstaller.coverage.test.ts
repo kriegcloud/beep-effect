@@ -1,3 +1,6 @@
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { ToolInstaller, ToolInstallerError } from "@beep/github-actions/ToolInstaller";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertNone } from "@effect/vitest/utils";
@@ -17,10 +20,7 @@ import * as Result from "effect/Result";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { ToolInstaller, ToolInstallerError } from "../../effected/github-actions/ToolInstaller.ts";
-import { settle } from "./results.ts";
+import { settle } from "./support/results.ts";
 
 const refused = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "refused" });
 const successHttp = HttpClient.make((request) =>

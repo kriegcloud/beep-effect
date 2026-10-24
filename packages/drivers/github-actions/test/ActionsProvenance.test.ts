@@ -1,17 +1,17 @@
 // @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 
-import { MemoryFileSystem } from "@beep/memfs";
-import { SlsaProvenance } from "@beep/sbom/SlsaProvenance";
-import { assert, describe, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import {
   ActionEnvironment,
   ActionsProvenance,
   OidcClaims,
   OidcTokenError,
   OidcTokenIssuer,
-} from "../../effected/github-actions/index.ts";
+} from "@beep/github-actions";
+import { MemoryFileSystem } from "@beep/memfs";
+import { SlsaProvenance } from "@beep/sbom/SlsaProvenance";
+import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 
 // Every value distinct, and `workflow_ref` ≠ `job_workflow_ref` (a reusable
 // workflow in another repository) — sbom's own fixture keeps them different

@@ -4,6 +4,16 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+  DetachedLogUnavailableError,
+  DetachedNotReadyError,
+  DetachedProcess,
+  DetachedSignalFailedError,
+  DetachedSpawnFailedError,
+  InvalidPidError,
+  ProcessId,
+} from "@beep/github-actions";
+import { DetachedSpawnOptions } from "@beep/github-actions/DetachedProcess";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -18,16 +28,6 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
-import { DetachedSpawnOptions } from "../../effected/github-actions/DetachedProcess.ts";
-import {
-  DetachedLogUnavailableError,
-  DetachedNotReadyError,
-  DetachedProcess,
-  DetachedSignalFailedError,
-  DetachedSpawnFailedError,
-  InvalidPidError,
-  ProcessId,
-} from "../../effected/github-actions/index.ts";
 import type { Server, ServerResponse } from "node:http";
 
 const Json = S.fromJsonString(S.Unknown);
@@ -59,7 +59,7 @@ const alive = (pid: number): boolean => {
 
 // process.kill is a native global seam; no Effect service is exposed for spying.
 class KillSpy extends Context.Service<KillSpy, ReturnType<typeof killSpy>>()(
-  "@beep/scratchpad/test/github-actions/DetachedProcess.test/KillSpy"
+  "@beep/github-actions/test/DetachedProcess.test/KillSpy"
 ) {}
 const killSpy = () => vi.spyOn(process, "kill");
 
@@ -289,7 +289,7 @@ describe("DetachedProcess", () => {
 
   describe("httpProbe", () => {
     class ServerUrl extends Context.Service<ServerUrl, string>()(
-      "@beep/scratchpad/test/github-actions/DetachedProcess.test/ServerUrl"
+      "@beep/github-actions/test/DetachedProcess.test/ServerUrl"
     ) {}
     const serverLayer = (respond: (response: ServerResponse) => void) =>
       Layer.effect(

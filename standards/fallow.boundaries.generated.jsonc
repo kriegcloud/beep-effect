@@ -2507,10 +2507,32 @@
       {
         "from": "@beep/github-actions",
         "allow": [
-          "@beep/github-actions"
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/github-actions",
+          "@beep/github-commands",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/sbom",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
-          "@beep/github-actions"
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/github-actions",
+          "@beep/github-commands",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/sbom",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {

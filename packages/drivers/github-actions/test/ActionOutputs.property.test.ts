@@ -1,13 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { MemoryFileSystem } from "@beep/memfs";
-import { assert, describe, it } from "@effect/vitest";
-import { assertDefined } from "@effect/vitest/utils";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
-import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
 import {
   ActionOutputs,
   DetachedOutputError,
@@ -16,7 +8,15 @@ import {
   RecordedOutput,
   RunnerFileUnavailableError,
   RunnerFileWriteError,
-} from "../../effected/github-actions/ActionOutputs.ts";
+} from "@beep/github-actions/ActionOutputs";
+import { MemoryFileSystem } from "@beep/memfs";
+import { assert, describe, it } from "@effect/vitest";
+import { assertDefined } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 
 const Defect = S.Defect();
 const runs = { arbitrary: fcRuns(100) };

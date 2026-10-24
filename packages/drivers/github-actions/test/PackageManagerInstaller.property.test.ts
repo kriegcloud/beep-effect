@@ -1,14 +1,14 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   AmbientPackageManager,
   CachedPackageManager,
   InstalledPackageManager,
   PackageManagerInstallerError,
-} from "../../effected/github-actions/PackageManagerInstaller.ts";
+} from "@beep/github-actions/PackageManagerInstaller";
+import { assert, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrip =

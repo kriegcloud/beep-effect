@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Function from "effect/Function";
@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { sha256Hex } from "./digest.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/sigv4");
+const $I = $GithubActionsId.create("internal/sigv4");
 
 // Effect Crypto cannot provide the synchronous HMAC required by SigV4.
 const { createHmac } = process.getBuiltinModule("node:crypto");
@@ -53,7 +53,7 @@ const hmac: {
  * **Example** (Encode reserved path characters)
  *
  * ```ts
- * import { uriEncode } from "@beep/scratchpad/effected/github-actions/internal/sigv4"
+ * import { uriEncode } from "@beep/github-actions/internal/sigv4"
  *
  * console.log(uriEncode("a b+c")) // a%20b%2Bc
  * ```
@@ -75,7 +75,7 @@ export const uriEncode = (value: string): string =>
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { SigV4Credentials } from "@beep/scratchpad/effected/github-actions/internal/sigv4";
+ * import { SigV4Credentials } from "@beep/github-actions/internal/sigv4";
  *
  * const input = { accessKeyId: "example-access", secretAccessKey: "example-secret", region: "us-east-1", service: "s3" };
  * Effect.runSync(Console.log(S.is(SigV4Credentials)(input))) // true
@@ -119,7 +119,7 @@ export type SigV4Credentials = typeof SigV4Credentials.Type;
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
  * import * as DateTime from "effect/DateTime";
- * import { SigV4Request } from "@beep/scratchpad/effected/github-actions/internal/sigv4";
+ * import { SigV4Request } from "@beep/github-actions/internal/sigv4";
  *
  * const input = { method: "GET", path: "/object.txt", host: "example.s3.amazonaws.com", headers: {}, body: new Uint8Array(), now: DateTime.toDateUtc(DateTime.makeUnsafe("2013-05-24T00:00:00Z")) };
  * Effect.runSync(Console.log(S.is(SigV4Request)(input))) // true
@@ -186,7 +186,7 @@ const timestamps = (now: Date): { readonly amzDate: string; readonly dateStamp: 
  * **Example** (Inspect canonical signing headers)
  *
  * ```ts
- * import { canonicalize } from "@beep/scratchpad/effected/github-actions/internal/sigv4"
+ * import { canonicalize } from "@beep/github-actions/internal/sigv4"
  *
  * const request = {
  *   method: "GET",
@@ -303,7 +303,7 @@ export const canonicalize: {
  * **Example** (Derive a SHA-256 signing key)
  *
  * ```ts
- * import { signingKey } from "@beep/scratchpad/effected/github-actions/internal/sigv4"
+ * import { signingKey } from "@beep/github-actions/internal/sigv4"
  *
  * const key = signingKey("example-secret-key", "20130524", "us-east-1", "s3")
  * console.log(key.length) // 32
@@ -334,7 +334,7 @@ export const signingKey: {
  * **Example** (Sign a reproducible S3 request)
  *
  * ```ts
- * import { sign } from "@beep/scratchpad/effected/github-actions/internal/sigv4"
+ * import { sign } from "@beep/github-actions/internal/sigv4"
  *
  * const request = {
  *   method: "GET",
@@ -379,7 +379,7 @@ export const sign: {
  * **Example** (Hash an empty payload)
  *
  * ```ts
- * import { digestHex } from "@beep/scratchpad/effected/github-actions/internal/sigv4"
+ * import { digestHex } from "@beep/github-actions/internal/sigv4"
  *
  * console.log(digestHex("")) // e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
  * ```

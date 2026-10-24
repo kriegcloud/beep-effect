@@ -1,5 +1,7 @@
 import { AppIdentity, GitHubApp, GitHubAppError, InstallationToken } from "@beep/github/GitHubApp";
 import { GitHubClient } from "@beep/github/GitHubClient";
+import { ActionOutputs, ActionState, ActionStateError, GitHubToken, GitHubTokenError } from "@beep/github-actions";
+import { ProvisionOptions, ReadOptions } from "@beep/github-actions/GitHubToken";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, fail } from "@effect/vitest/utils";
 import * as DateTime from "effect/DateTime";
@@ -12,14 +14,6 @@ import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
-import { ProvisionOptions, ReadOptions } from "../../effected/github-actions/GitHubToken.ts";
-import {
-  ActionOutputs,
-  ActionState,
-  ActionStateError,
-  GitHubToken,
-  GitHubTokenError,
-} from "../../effected/github-actions/index.ts";
 import type { GitHubAppShape } from "@beep/github/GitHubApp";
 
 const Json = S.fromJsonString(S.Unknown);

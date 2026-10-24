@@ -1,3 +1,5 @@
+import { ActionsIdentityToken, OidcClaims, OidcTokenError, OidcTokenIssuer } from "@beep/github-actions";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { IdentityToken, IdentityTokenError } from "@beep/sbom/IdentityToken";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
@@ -7,13 +9,6 @@ import * as Equal from "effect/Equal";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import {
-  ActionsIdentityToken,
-  OidcClaims,
-  OidcTokenError,
-  OidcTokenIssuer,
-} from "../../effected/github-actions/index.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
 
 const CLAIMS = OidcClaims.make({
   iss: "https://token.actions.githubusercontent.com",

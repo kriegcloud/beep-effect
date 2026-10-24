@@ -1,8 +1,8 @@
+import { ActionInput, ActionLogger, DryRun } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as TestConsole from "effect/testing/TestConsole";
-import { ActionInput, ActionLogger, DryRun } from "../../effected/github-actions/index.ts";
 
 const lines = Effect.map(TestConsole.logLines, (captured) => captured.map(String));
 

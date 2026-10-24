@@ -7,11 +7,11 @@
 // backend-id decoder rejects, and the divergence would only show up in
 // production.
 
+import { ActionEnvironment } from "@beep/github-actions";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../effected/github-actions/index.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 const RequestBodyJson = S.fromJsonString(S.Record(S.String, S.Unknown));

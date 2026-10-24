@@ -1,3 +1,5 @@
+import { ActionEnvironment, OidcClaims, OidcTokenIssuer } from "@beep/github-actions";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -7,8 +9,6 @@ import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ActionEnvironment, OidcClaims, OidcTokenIssuer } from "../../effected/github-actions/index.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 const WorkflowClaim = S.Struct({ job_workflow_ref: S.optionalKey(S.String) });

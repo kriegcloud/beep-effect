@@ -1,9 +1,9 @@
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { OidcTokenError, OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { OidcTokenError, OidcTokenIssuer } from "../../effected/github-actions/OidcTokenIssuer.ts";
 
 describe("OidcTokenIssuer coverage", () => {
   it.effect("every token error explains its reason with optional status and detail", () =>

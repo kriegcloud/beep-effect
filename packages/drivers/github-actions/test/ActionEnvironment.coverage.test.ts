@@ -1,9 +1,9 @@
+import { ActionEnvironment, ActionEnvironmentError } from "@beep/github-actions/ActionEnvironment";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { ActionEnvironment, ActionEnvironmentError } from "../../effected/github-actions/ActionEnvironment.ts";
 
 it.layer(ActionEnvironment.layerFrom({ X: "", RUNNER_DEBUG: "0" }).pipe(Layer.provide(MemoryFileSystem.layer)), {
   timeout: "30 seconds",

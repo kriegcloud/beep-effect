@@ -1,3 +1,7 @@
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
+import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
+import { ActionState, ActionStateError } from "@beep/github-actions/ActionState";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
@@ -6,10 +10,6 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { ActionOutputs } from "../../effected/github-actions/ActionOutputs.ts";
-import { ActionState, ActionStateError } from "../../effected/github-actions/ActionState.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
 
 it.layer(ActionState.layerTest(), { timeout: "30 seconds" })((it) => {
   it.effect("every unstubbed state member defects naming its override", () =>

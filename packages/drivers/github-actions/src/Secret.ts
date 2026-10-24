@@ -46,7 +46,7 @@ import { ActionOutputs } from "./ActionOutputs.ts";
  * **Example** (Mask secrets for a child process environment)
  *
  * ```ts
- * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+ * import { Secret } from "@beep/github-actions/Secret";
  * import * as Effect from "effect/Effect";
  * import * as Redacted from "effect/Redacted";
  *
@@ -84,7 +84,7 @@ export abstract class Secret {
    * **Example** (Construct a masked child environment)
    *
    * ```ts
-   * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+   * import { Secret } from "@beep/github-actions/Secret";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -119,7 +119,7 @@ export abstract class Secret {
    * **Example** (Construct a masked runner-file handoff)
    *
    * ```ts
-   * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+   * import { Secret } from "@beep/github-actions/Secret";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -180,7 +180,7 @@ export abstract class Secret {
    * **Example** (Construct a masked signing-key handoff)
    *
    * ```ts
-   * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+   * import { Secret } from "@beep/github-actions/Secret";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -225,7 +225,7 @@ export abstract class Secret {
    * **Example** (Construct a masked process-environment handoff)
    *
    * ```ts
-   * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+   * import { Secret } from "@beep/github-actions/Secret";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -275,7 +275,7 @@ export abstract class Secret {
    * **Example** (Construct a register-only masking effect)
    *
    * ```ts
-   * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+   * import { Secret } from "@beep/github-actions/Secret";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -301,7 +301,7 @@ export abstract class Secret {
    * **Example** (Describe an inherited token configuration)
    *
    * ```ts
-   * import { Secret } from "@beep/scratchpad/effected/github-actions/Secret";
+   * import { Secret } from "@beep/github-actions/Secret";
    * import * as Config from "effect/Config";
    *
    * const token = Secret.adopt("MY_TOKEN");

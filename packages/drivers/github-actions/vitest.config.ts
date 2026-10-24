@@ -5,7 +5,12 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      // The ported suites share process-wide state: `Action.run` sets `process.exitCode` and
+      // writes through the global console, the logger properties read one TestConsole transcript,
+      // and the DetachedProcess suites spawn and reap real children. They were written for the
+      // lab's sequential runner; the shared config runs tests concurrently, which interleaves
+      // those runs, so this suite keeps its sequential order.
+      sequence: { concurrent: false },
     },
   })
 );

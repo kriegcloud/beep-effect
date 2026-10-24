@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { isErrno, typeAt } from "@beep/github-actions/internal/fsProbe";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -6,7 +7,6 @@ import * as Effect from "effect/Effect";
 import * as Base64Url from "effect/encoding/Base64Url";
 import * as FileSystem from "effect/FileSystem";
 import * as S from "effect/Schema";
-import { isErrno, typeAt } from "../../../effected/github-actions/internal/fsProbe.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {

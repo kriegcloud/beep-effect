@@ -1,4 +1,6 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
+import { backendIdsFrom, misconfiguredDetail, resultsBackend } from "@beep/github-actions/internal/actionsResults";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
@@ -7,12 +9,6 @@ import * as Effect from "effect/Effect";
 import * as Base64Url from "effect/encoding/Base64Url";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../../effected/github-actions/ActionEnvironment.ts";
-import {
-  backendIdsFrom,
-  misconfiguredDetail,
-  resultsBackend,
-} from "../../../effected/github-actions/internal/actionsResults.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const identifier = Arbitrary.schema(S.NonEmptyString).pipe(Arbitrary.map(Base64Url.encode));

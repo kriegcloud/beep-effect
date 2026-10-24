@@ -1,5 +1,5 @@
 import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -19,7 +19,7 @@ import * as S from "effect/Schema";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import type { AnnotationProperties } from "@beep/github-commands";
 
-const $I = $ScratchpadId.create("effected/github-actions/ActionLogger");
+const $I = $GithubActionsId.create("ActionLogger");
 
 /**
  * Render a log message, which arrives as an array of the values passed to
@@ -194,7 +194,7 @@ const BufferSuccessPolicy = LiteralKit(["flush", "discard"]).pipe(
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { WithBufferOptions } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+ * import { WithBufferOptions } from "@beep/github-actions/ActionLogger";
  *
  * const input = { onSuccess: "discard" };
  * Effect.runSync(Console.log(S.is(WithBufferOptions)(input))) // true
@@ -219,7 +219,7 @@ export const WithBufferOptions = S.Struct({
    * **Example** (Discard successful transcripts)
    *
    * ```ts
-   * import type { WithBufferOptions } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import type { WithBufferOptions } from "@beep/github-actions/ActionLogger";
    *
    * const options: WithBufferOptions = { onSuccess: "discard" };
    * console.log(options.onSuccess) // discard
@@ -256,7 +256,7 @@ export type WithBufferOptions = typeof WithBufferOptions.Type;
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { WithStepOptions } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+ * import { WithStepOptions } from "@beep/github-actions/ActionLogger";
  *
  * const input = { summary: "Published" };
  * Effect.runSync(Console.log(S.is(WithStepOptions)(input))) // true
@@ -278,7 +278,7 @@ export const WithStepOptions = S.Struct({
    * **Example** (Customize the success summary)
    *
    * ```ts
-   * import type { WithStepOptions } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import type { WithStepOptions } from "@beep/github-actions/ActionLogger";
    *
    * const options: WithStepOptions = { summary: "Published" };
    * console.log(options.summary) // Published
@@ -327,7 +327,7 @@ export interface ActionLoggerShape {
    * **Example** (Attach source fields to an effect)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const logger = ActionLogger.makeTest();
@@ -348,7 +348,7 @@ export interface ActionLoggerShape {
    * **Example** (Preserve a grouped result)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const logger = ActionLogger.makeTest();
@@ -374,7 +374,7 @@ export interface ActionLoggerShape {
    * **Example** (Construct a notice effect)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const program = ActionLogger.makeTest().notice("Published", { title: "Release" });
@@ -413,7 +413,7 @@ export interface ActionLoggerShape {
    * **Example** (Discard a successful buffer in a test)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const logger = ActionLogger.makeTest();
@@ -464,7 +464,7 @@ export interface ActionLoggerShape {
    * **Example** (Preserve a named step result)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const logger = ActionLogger.makeTest();
@@ -595,7 +595,7 @@ const make = Effect.gen(function* () {
  * **Example** (Group and buffer installation logs)
  *
  * ```ts
- * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+ * import { ActionLogger } from "@beep/github-actions/ActionLogger";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -622,7 +622,7 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
    * **Example** (Construct the live logger service)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -652,7 +652,7 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
    * **Example** (Inspect the workflow logger)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Logger from "effect/Logger";
    *
    * console.log(Logger.isLogger(ActionLogger.logger)) // true
@@ -674,7 +674,7 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
    * **Example** (Construct logging with workflow rendering)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.logWarning("Check the release").pipe(Effect.provide(ActionLogger.layerLogger));
@@ -700,7 +700,7 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
    * **Example** (Pass a grouped test effect through unchanged)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const logger = ActionLogger.makeTest();
@@ -741,7 +741,7 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
    * **Example** (Provide a silent service double)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -769,7 +769,7 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
    * **Example** (Silence the service and Effect logging)
    *
    * ```ts
-   * import { ActionLogger } from "@beep/scratchpad/effected/github-actions/ActionLogger";
+   * import { ActionLogger } from "@beep/github-actions/ActionLogger";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {

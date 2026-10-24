@@ -61,7 +61,7 @@ export type ActionServices =
  * **Example** (Inspect the default action runtime)
  *
  * ```ts
- * import { ActionRuntime } from "@beep/scratchpad/effected/github-actions/Action";
+ * import { ActionRuntime } from "@beep/github-actions/Action";
  * import * as Layer from "effect/Layer";
  *
  * console.log(Layer.isLayer(ActionRuntime.layer)) // true
@@ -87,7 +87,7 @@ export class ActionRuntime {
    * **Example** (Compose the default runner services)
    *
    * ```ts
-   * import { ActionRuntime } from "@beep/scratchpad/effected/github-actions/Action";
+   * import { ActionRuntime } from "@beep/github-actions/Action";
    * import * as Layer from "effect/Layer";
    *
    * const runtime = ActionRuntime.layer;
@@ -192,7 +192,7 @@ const withStepDebugLogLevel = Effect.fn("withStepDebugLogLevel")(function* <A, E
  * **Example** (Render a tagged action failure)
  *
  * ```ts
- * import { describeCause } from "@beep/scratchpad/effected/github-actions/Action";
+ * import { describeCause } from "@beep/github-actions/Action";
  * import * as Cause from "effect/Cause";
  *
  * console.log(describeCause(Cause.fail({ _tag: "BuildError", message: "build failed" }))) // [BuildError]: build failed
@@ -272,8 +272,8 @@ const describeError = (error: unknown): string => {
  * **Example** (Run an action with the cache layer)
  *
  * ```ts
- * import { Action } from "@beep/scratchpad/effected/github-actions/Action";
- * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+ * import { Action } from "@beep/github-actions/Action";
+ * import { ActionCache } from "@beep/github-actions/ActionCache";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -297,7 +297,7 @@ export class Action {
    * **Example** (Render a failure through the action entry point)
    *
    * ```ts
-   * import { Action } from "@beep/scratchpad/effected/github-actions/Action";
+   * import { Action } from "@beep/github-actions/Action";
    * import * as Cause from "effect/Cause";
    *
    * console.log(Action.describeCause(Cause.fail(new Error("build failed")))) // [Error]: build failed
@@ -319,7 +319,7 @@ export class Action {
    * **Example** (Run a successful action program)
    *
    * ```ts
-   * import { Action } from "@beep/scratchpad/effected/github-actions/Action";
+   * import { Action } from "@beep/github-actions/Action";
    * import * as Effect from "effect/Effect";
    *
    * await Action.run(Effect.void);

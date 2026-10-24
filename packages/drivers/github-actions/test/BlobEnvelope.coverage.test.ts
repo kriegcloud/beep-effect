@@ -1,5 +1,3 @@
-import { assert, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
 import {
   BlobEnvelope,
   BlobMetadataDecodeError,
@@ -7,7 +5,9 @@ import {
   NotABlobEnvelopeError,
   TruncatedBlobEnvelopeError,
   UnsupportedBlobEnvelopeVersionError,
-} from "../../effected/github-actions/BlobEnvelope.ts";
+} from "@beep/github-actions/BlobEnvelope";
+import { assert, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 
 it.effect("envelope failures explain the precise framing or metadata problem", () =>
   Effect.sync(() => {

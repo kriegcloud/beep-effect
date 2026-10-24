@@ -6,7 +6,7 @@
 // `TwirpFailure` into its own typed error, because the failure a caller
 // reports is about *its* operation, not about HTTP.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
@@ -18,7 +18,7 @@ import * as S from "effect/Schema";
 import type * as HttpClient from "effect/http/HttpClient";
 import type * as Redacted from "effect/Redacted";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/twirp");
+const $I = $GithubActionsId.create("internal/twirp");
 const TwirpFailureKind = LiteralKit(["transport", "status", "malformed"]).pipe(
   $I.annoteSchema("TwirpFailureKind", {
     description: "The transport, HTTP status, or JSON decoding stage of a failed RPC.",
@@ -50,7 +50,7 @@ const TwirpFailureFields = {
  * **Example** (Recognize the shared conflict sentinel)
  *
  * ```ts
- * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { CONFLICT } from "@beep/github-actions/internal/twirp"
  *
  * console.log(Symbol.keyFor(CONFLICT)) // @effected/github-actions/twirp/conflict
  * ```
@@ -82,7 +82,7 @@ export type TwirpResult<T> = T | typeof CONFLICT;
  * **Example** (Classify an unsupported HTTP status)
  *
  * ```ts
- * import { TwirpFailure } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { TwirpFailure } from "@beep/github-actions/internal/twirp"
  * import * as S from "effect/Schema"
  *
  * const failure = S.decodeUnknownSync(TwirpFailure)({ kind: "status", method: "CreateCacheEntry", status: 503 })
@@ -133,7 +133,7 @@ export type TwirpFailure = typeof TwirpFailure.Type;
  * **Example** (Map a refused RPC into error fields)
  *
  * ```ts
- * import { twirpFailureFields } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { twirpFailureFields } from "@beep/github-actions/internal/twirp"
  *
  * const fields = twirpFailureFields({ method: "CreateCacheEntry", kind: "status", status: 403 })
  * console.log(fields.reason) // refused
@@ -173,7 +173,7 @@ export const twirpFailureFields = (
  * **Example** (Distinguish transient and malformed failures)
  *
  * ```ts
- * import { isRetryable } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { isRetryable } from "@beep/github-actions/internal/twirp"
  *
  * console.log(isRetryable({ method: "CreateCacheEntry", kind: "status", status: 503 })) // true
  * console.log(isRetryable({ method: "CreateCacheEntry", kind: "malformed" })) // false
@@ -208,7 +208,7 @@ const RETRIES = 4;
  * **Example** (Construct an authenticated Twirp call)
  *
  * ```ts
- * import { twirpCall } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { twirpCall } from "@beep/github-actions/internal/twirp"
  * import * as Effect from "effect/Effect"
  * import * as Redacted from "effect/Redacted"
  * import * as HttpClient from "effect/http/HttpClient";
@@ -283,7 +283,7 @@ const hasField: {
  * **Example** (Read a snake-case backend field)
  *
  * ```ts
- * import { field } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { field } from "@beep/github-actions/internal/twirp"
  *
  * console.log(field({ signed_upload_url: "https://example.com/upload" }, "signedUploadUrl")) // https://example.com/upload
  * ```
@@ -309,7 +309,7 @@ export const field: {
  * **Example** (Reject empty strings while accepting snake case)
  *
  * ```ts
- * import { stringField } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { stringField } from "@beep/github-actions/internal/twirp"
  *
  * console.log(stringField({ signed_upload_url: "https://example.com/upload" }, "signedUploadUrl")) // https://example.com/upload
  * console.log(stringField({ signedUploadUrl: "" }, "signedUploadUrl")) // undefined
@@ -333,7 +333,7 @@ export const stringField: {
  * **Example** (Require a literal success flag)
  *
  * ```ts
- * import { isOk } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import { isOk } from "@beep/github-actions/internal/twirp"
  *
  * console.log(isOk({ ok: true })) // true
  * console.log(isOk({ ok: "true" })) // false

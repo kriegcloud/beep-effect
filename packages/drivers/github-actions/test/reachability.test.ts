@@ -29,7 +29,7 @@ const DependenciesManifestJson = S.fromJsonString(
   })
 );
 
-const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "effected", "github-actions");
+const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "..", "src");
 
 /** Every runtime import/export specifier and literal builtin load, ignoring type-only imports. */
 const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
@@ -582,12 +582,13 @@ describe("bundle reachability", () => {
 
   it("the package declares itself side-effect free", () => {
     // The other half of the mechanism: without this a bundler must assume
-    // evaluating an unreferenced module matters, and keeps it.
+    // evaluating an unreferenced module matters, and keeps it. The repo spells it as an empty
+    // list (no module has a side effect), which bundlers read the same as upstream's `false`.
     const manifest = Result.getOrThrowWith(
-      S.decodeResult(SideEffectsManifestJson)(readFileSync(resolve(SRC, "package.json"), "utf8")),
+      S.decodeResult(SideEffectsManifestJson)(readFileSync(resolve(SRC, "..", "package.json"), "utf8")),
       (error) => error
     );
-    assert.strictEqual(manifest.sideEffects, false);
+    assert.deepStrictEqual(manifest.sideEffects, []);
   });
 
   it("every runtime dependency is declared", () => {
@@ -596,7 +597,7 @@ describe("bundle reachability", () => {
     // is its bare `@beep/*` package, which the data manifest declares in place of
     // the `@effected/*` name it replaced.
     const manifest = Result.getOrThrowWith(
-      S.decodeResult(DependenciesManifestJson)(readFileSync(resolve(SRC, "package.json"), "utf8")),
+      S.decodeResult(DependenciesManifestJson)(readFileSync(resolve(SRC, "..", "package.json"), "utf8")),
       (error) => error
     );
     const declared = new Set([

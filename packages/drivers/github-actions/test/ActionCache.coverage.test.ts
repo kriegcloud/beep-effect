@@ -1,4 +1,6 @@
 import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
+import { ActionCache, ActionCacheError } from "@beep/github-actions/ActionCache";
+import { BlobTransferError } from "@beep/github-actions/BlobTransfer";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
@@ -13,10 +15,8 @@ import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
-import { ActionCache, ActionCacheError } from "../../effected/github-actions/ActionCache.ts";
-import { BlobTransferError } from "../../effected/github-actions/BlobTransfer.ts";
-import { json, resultsEnv, twirpFetch } from "./results.ts";
-import type { FileBlobTransfer } from "../../effected/github-actions/BlobTransfer.ts";
+import { json, resultsEnv, twirpFetch } from "./support/results.ts";
+import type { FileBlobTransfer } from "@beep/github-actions/BlobTransfer";
 
 const fault = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "injected failure" });
 interface Options {

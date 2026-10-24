@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { describeCause } from "@beep/github-actions/Action";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { describeCause } from "../../effected/github-actions/Action.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // Diagnostic formatting accepts a Cause and returns text, so it has no

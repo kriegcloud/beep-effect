@@ -1,8 +1,8 @@
+import { ActionInput } from "@beep/github-actions/ActionInput";
 import { assert, it } from "@effect/vitest";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
-import { ActionInput } from "../../effected/github-actions/ActionInput.ts";
 
 it.effect("input-name collisions retain the first present value", () =>
   Effect.gen(function* () {

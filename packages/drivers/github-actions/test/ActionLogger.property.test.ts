@@ -1,4 +1,6 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
+import { ActionLogger } from "@beep/github-actions/ActionLogger";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
@@ -7,8 +9,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { ActionLogger } from "../../effected/github-actions/ActionLogger.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 

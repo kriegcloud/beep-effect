@@ -59,14 +59,14 @@
 // Pure: no filesystem, no environment, no spawn. `internal/spawn.ts` is the
 // execution half. Command construction and schema identity add no Azure or
 // GitHub SDK imports (`__test__/reachability.test.ts`).
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/archiveCommands");
+const $I = $GithubActionsId.create("internal/archiveCommands");
 
 /** A PowerShell single-quoted literal: `'` becomes `''`, nothing else is special. */
 const pwshLiteral = (value: string): string => `'${value.replaceAll("'", "''")}'`;
@@ -92,7 +92,7 @@ const pwsh: {
  * **Example** (Validate zip inputs)
  *
  * ```ts
- * import { ZipCommandOptions } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { ZipCommandOptions } from "@beep/github-actions/internal/archiveCommands";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(ZipCommandOptions)({ windows: false, root: "/work", files: ["a.txt"], manifest: "/m", destination: "/a.zip", level: 6 })) // true
@@ -174,7 +174,7 @@ const dotnetCompressionLevel = (level: number): string =>
  * **Example** (Serialize archive entries)
  *
  * ```ts
- * import { zipManifest } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { zipManifest } from "@beep/github-actions/internal/archiveCommands";
  *
  * console.log(JSON.stringify(zipManifest(["a.txt", "dir/b.txt"]))) // "a.txt\ndir/b.txt\n"
  * ```
@@ -202,7 +202,7 @@ export const zipManifest = (files: ReadonlyArray<string>): string =>
  * **Example** (Construct a POSIX zip command)
  *
  * ```ts
- * import { zipCommand } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { zipCommand } from "@beep/github-actions/internal/archiveCommands";
  *
  * const command = zipCommand({ windows: false, root: "/work", files: ["a.txt"], manifest: "/work/files.txt", destination: "/work/archive.zip", level: 6 });
  * console.log(command.command) // zip
@@ -245,7 +245,7 @@ export const zipCommand = (options: ZipCommandOptions): ChildProcess.StandardCom
  * **Example** (Validate unzip inputs)
  *
  * ```ts
- * import { UnzipCommandOptions } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { UnzipCommandOptions } from "@beep/github-actions/internal/archiveCommands";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(UnzipCommandOptions)({ windows: false, source: "/a.zip", destination: "/out" })) // true
@@ -285,7 +285,7 @@ export type UnzipCommandOptions = typeof UnzipCommandOptions.Type;
  * **Example** (Construct a POSIX unzip command)
  *
  * ```ts
- * import { unzipCommand } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { unzipCommand } from "@beep/github-actions/internal/archiveCommands";
  *
  * const command = unzipCommand({ windows: false, source: "/work/archive.zip", destination: "/work/output" });
  * console.log(command.command) // unzip
@@ -309,7 +309,7 @@ export const unzipCommand = (options: UnzipCommandOptions): ChildProcess.Standar
  * **Example** (Validate tar extraction inputs)
  *
  * ```ts
- * import { TarExtractCommandOptions } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { TarExtractCommandOptions } from "@beep/github-actions/internal/archiveCommands";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(TarExtractCommandOptions)({ archive: "/a.tgz", destination: "/out" })) // true
@@ -350,7 +350,7 @@ export type TarExtractCommandOptions = typeof TarExtractCommandOptions.Type;
  * **Example** (Construct a POSIX tar command)
  *
  * ```ts
- * import { tarExtractCommand } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
+ * import { tarExtractCommand } from "@beep/github-actions/internal/archiveCommands";
  *
  * const command = tarExtractCommand({ archive: "/work/archive.tar.gz", destination: "/work/output" });
  * console.log(command.command) // tar

@@ -20,8 +20,8 @@ import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
  * **Example** (Compose a runner-platform lookup)
  *
  * ```ts
- * import { isWindowsRunner } from "@beep/scratchpad/effected/github-actions/internal/runner";
- * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { isWindowsRunner } from "@beep/github-actions/internal/runner";
+ * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -56,8 +56,8 @@ export const isWindowsRunner = (env: ActionEnvironmentShape): Effect.Effect<bool
  * **Example** (Compose a tool-cache lookup)
  *
  * ```ts
- * import { toolCacheRoot } from "@beep/scratchpad/effected/github-actions/internal/runner";
- * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { toolCacheRoot } from "@beep/github-actions/internal/runner";
+ * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
  * import * as Effect from "effect/Effect";
  * import * as Path from "effect/Path";
  *

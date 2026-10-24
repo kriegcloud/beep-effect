@@ -1,5 +1,7 @@
 // Real archive bytes, subprocess extraction, and spawn-time manifest IO need the Node platform.
 
+import { Artifact, ArtifactError, BlobTransferError } from "@beep/github-actions";
+import { DownloadOptions, DownloadResult, UploadOptions } from "@beep/github-actions/Artifact";
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
@@ -20,10 +22,8 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
-import { DownloadOptions, DownloadResult, UploadOptions } from "../../effected/github-actions/Artifact.ts";
-import { Artifact, ArtifactError, BlobTransferError } from "../../effected/github-actions/index.ts";
-import { json, resultsEnv, runtimeToken, twirpFetch } from "./results.ts";
-import type { FileBlobTransfer } from "../../effected/github-actions/index.ts";
+import { json, resultsEnv, runtimeToken, twirpFetch } from "./support/results.ts";
+import type { FileBlobTransfer } from "@beep/github-actions";
 
 const Json = S.fromJsonString(S.Unknown);
 

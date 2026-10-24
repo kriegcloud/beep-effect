@@ -15,7 +15,7 @@ import type * as FileSystem from "effect/FileSystem";
  * **Example** (Treat an unreadable path as absent)
  *
  * ```ts
- * import { typeAt } from "@beep/scratchpad/effected/github-actions/internal/fsProbe";
+ * import { typeAt } from "@beep/github-actions/internal/fsProbe";
  * import * as Effect from "effect/Effect";
  * import * as FileSystem from "effect/FileSystem";
  *
@@ -44,7 +44,7 @@ export const typeAt: {
  * **Example** (Recognize a cross-device errno)
  *
  * ```ts
- * import { isErrno } from "@beep/scratchpad/effected/github-actions/internal/fsProbe";
+ * import { isErrno } from "@beep/github-actions/internal/fsProbe";
  *
  * console.log(isErrno({ code: "EXDEV" }, "EXDEV")) // true
  * ```

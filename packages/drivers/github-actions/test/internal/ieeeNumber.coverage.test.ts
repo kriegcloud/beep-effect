@@ -1,7 +1,7 @@
+import { IeeeNumber } from "@beep/github-actions/internal/ieeeNumber";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { IeeeNumber } from "../../../effected/github-actions/internal/ieeeNumber.ts";
 
 it.effect("IEEE JSON and string-tree codecs preserve finite and non-finite values", () =>
   Effect.gen(function* () {

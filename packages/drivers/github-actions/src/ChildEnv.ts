@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -6,7 +6,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $ScratchpadId.create("effected/github-actions/ChildEnv");
+const $I = $GithubActionsId.create("ChildEnv");
 /**
  * The environment additions {@link ChildEnv.prependPath} builds: exactly one
  * entry, keyed by `PATH` on POSIX or the base's own spelling on Windows.
@@ -14,7 +14,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ChildEnv");
  * **Example** (Validate PathPrependEnv)
  *
  * ```ts
- * import { PathPrependEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+ * import { PathPrependEnv } from "@beep/github-actions/ChildEnv";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(PathPrependEnv)({ env: { PATH: "/tools" }, extendEnv: true })) // true
@@ -60,7 +60,7 @@ export type PathPrependEnv = typeof PathPrependEnv.Type;
  * **Example** (Validate PathPrependOptions)
  *
  * ```ts
- * import { PathPrependOptions } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+ * import { PathPrependOptions } from "@beep/github-actions/ChildEnv";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(PathPrependOptions)({ base: {}, platform: "linux" })) // true
@@ -150,7 +150,7 @@ export type PathPrependOptions = typeof PathPrependOptions.Type;
  * **Example** (Build a child PATH without losing inherited entries)
  *
  * ```ts
- * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+ * import { ChildEnv } from "@beep/github-actions/ChildEnv";
  *
  * const additions = ChildEnv.prependPath(["/opt/pnpm/bin"], {
  *   base: { PATH: "/usr/bin" },
@@ -177,7 +177,7 @@ export abstract class ChildEnv {
    * **Example** (Preserve Windows PATH casing)
    *
    * ```ts
-   * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+   * import { ChildEnv } from "@beep/github-actions/ChildEnv";
    *
    * console.log(ChildEnv.pathKeyOf({ Path: "C:\\Windows" })) // Path
    * ```
@@ -222,7 +222,7 @@ export abstract class ChildEnv {
    * **Example** (Prepend a pnpm directory to the child environment)
    *
    * ```ts
-   * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+   * import { ChildEnv } from "@beep/github-actions/ChildEnv";
    * import * as ChildProcess from "effect/process/ChildProcess";
    *
    * const command = ChildProcess.make("pnpm", ["install"], {
@@ -274,7 +274,7 @@ export abstract class ChildEnv {
    * **Example** (Choose shell launch behavior by platform)
    *
    * ```ts
-   * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+   * import { ChildEnv } from "@beep/github-actions/ChildEnv";
    *
    * console.log(ChildEnv.needsShell("win32")) // true
    * console.log(ChildEnv.needsShell("linux")) // false

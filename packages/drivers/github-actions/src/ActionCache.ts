@@ -1,6 +1,6 @@
 import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
 import { GlobPattern, GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -30,7 +30,7 @@ import type { FileBlobTransfer } from "./BlobTransfer.ts";
 import type { CacheKey } from "./CacheKey.ts";
 import type { CacheServiceClient } from "./internal/cacheService.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/ActionCache");
+const $I = $GithubActionsId.create("ActionCache");
 
 /**
  * Raised when the runner's cache cannot be read or written.
@@ -38,7 +38,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionCache");
  * **Example** (Explain a refused cache request)
  *
  * ```ts
- * import { ActionCacheError } from "@beep/scratchpad/effected/github-actions/ActionCache";
+ * import { ActionCacheError } from "@beep/github-actions/ActionCache";
  *
  * const error = ActionCacheError.make({ reason: "refused", key: "build-v1", status: 403 });
  * console.log(error.message) // The Actions cache refused the request for "build-v1" with status 403
@@ -117,7 +117,7 @@ export class ActionCacheError extends S.TaggedError<ActionCacheError, { readonly
    * **Example** (Explain a refused cache request)
    *
    * ```ts
-   * import { ActionCacheError } from "@beep/scratchpad/effected/github-actions/ActionCache";
+   * import { ActionCacheError } from "@beep/github-actions/ActionCache";
    *
    * const error = ActionCacheError.make({ reason: "refused", key: "build-v1", status: 403 });
    * console.log(error.message) // The Actions cache refused the request for "build-v1" with status 403
@@ -732,8 +732,8 @@ const dies = unstubbed("ActionCache.makeTest");
  * **Example** (Restore a pnpm store and save on a cache miss)
  *
  * ```ts
- * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
- * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+ * import { ActionCache } from "@beep/github-actions/ActionCache";
+ * import { CacheKey } from "@beep/github-actions/CacheKey";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
  *
@@ -759,7 +759,7 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
    * **Example** (Select the live cache layer)
    *
    * ```ts
-   * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+   * import { ActionCache } from "@beep/github-actions/ActionCache";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ActionCache.layer)) // true
@@ -795,7 +795,7 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
    * **Example** (Bind a cache layer with a supplied transport)
    *
    * ```ts
-   * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+   * import { ActionCache } from "@beep/github-actions/ActionCache";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    * import { dual } from "effect/Function";
@@ -827,7 +827,7 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
    * **Example** (Serve a cache miss in a test double)
    *
    * ```ts
-   * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+   * import { ActionCache } from "@beep/github-actions/ActionCache";
    * import * as A from "effect/Array";
    * import * as Effect from "effect/Effect";
    * import { dual } from "effect/Function";
@@ -866,7 +866,7 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
    * **Example** (Provide a cache miss through a test layer)
    *
    * ```ts
-   * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+   * import { ActionCache } from "@beep/github-actions/ActionCache";
    * import * as A from "effect/Array";
    * import * as Effect from "effect/Effect";
    * import { dual } from "effect/Function";

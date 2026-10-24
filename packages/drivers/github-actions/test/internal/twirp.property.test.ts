@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { field, stringField } from "@beep/github-actions/internal/twirp";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { field, stringField } from "../../../effected/github-actions/internal/twirp.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

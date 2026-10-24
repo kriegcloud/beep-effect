@@ -1,5 +1,5 @@
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { descend } from "@beep/walker/Descend";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { sha256, sha256Hex } from "./internal/digest.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/CacheKey");
+const $I = $GithubActionsId.create("CacheKey");
 
 /**
  * A digest length outside the sha256 output range was requested.
@@ -23,7 +23,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CacheKey");
  * **Example** (Describe an invalid digest length)
  *
  * ```ts
- * import { InvalidDigestLengthError } from "@beep/scratchpad/effected/github-actions/CacheKey";
+ * import { InvalidDigestLengthError } from "@beep/github-actions/CacheKey";
  *
  * const error = InvalidDigestLengthError.make({ message: "Digest length must be between 1 and 64" });
  * console.log(error.message) // Digest length must be between 1 and 64
@@ -52,7 +52,7 @@ export class InvalidDigestLengthError extends S.TaggedError<
  * **Example** (Identify an unreadable lockfile)
  *
  * ```ts
- * import { CacheKeyReadError } from "@beep/scratchpad/effected/github-actions/CacheKey";
+ * import { CacheKeyReadError } from "@beep/github-actions/CacheKey";
  *
  * const error = CacheKeyReadError.make({ path: "pnpm-lock.yaml" });
  * console.log(error.message) // Could not read "pnpm-lock.yaml" while deriving a cache key
@@ -86,7 +86,7 @@ export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError, { readon
    * **Example** (Identify an unreadable lockfile)
    *
    * ```ts
-   * import { CacheKeyReadError } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKeyReadError } from "@beep/github-actions/CacheKey";
    *
    * const error = CacheKeyReadError.make({ path: "pnpm-lock.yaml" });
    * console.log(error.message) // Could not read "pnpm-lock.yaml" while deriving a cache key
@@ -105,7 +105,7 @@ export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError, { readon
  * **Example** (Identify a rejected pattern)
  *
  * ```ts
- * import { CacheKeyBadPatternError } from "@beep/scratchpad/effected/github-actions/CacheKey";
+ * import { CacheKeyBadPatternError } from "@beep/github-actions/CacheKey";
  *
  * const error = CacheKeyBadPatternError.make({ pattern: "[" });
  * console.log(error.message) // "[" is not a usable glob pattern
@@ -139,7 +139,7 @@ export class CacheKeyBadPatternError extends S.TaggedError<CacheKeyBadPatternErr
    * **Example** (Identify a rejected pattern)
    *
    * ```ts
-   * import { CacheKeyBadPatternError } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKeyBadPatternError } from "@beep/github-actions/CacheKey";
    *
    * const error = CacheKeyBadPatternError.make({ pattern: "[" });
    * console.log(error.message) // "[" is not a usable glob pattern
@@ -261,7 +261,7 @@ const RestoreDepths = S.Array(RestoreDepth);
  * **Example** (Build a cache key with a restore-key ladder)
  *
  * ```ts
- * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+ * import { CacheKey } from "@beep/github-actions/CacheKey";
  *
  * const key = CacheKey.of("Linux", "pnpm-store", "abc123");
  * console.log(key.key) // Linux-pnpm-store-abc123
@@ -304,7 +304,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Read the primary cache key)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * console.log(CacheKey.of("Linux", "pnpm-store", "abc123").key) // Linux-pnpm-store-abc123
    * ```
@@ -340,7 +340,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Read fallback prefixes)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.of("Linux", "pnpm-store", "abc123");
    * console.log(key.restoreKeys.join(",")) // Linux-pnpm-store-,Linux-
@@ -378,7 +378,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Keep the version digest in restore-key prefixes)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.of("Linux", "X64", "v1hash", "main", "lockhash").withRestoreDepths([4, 3]);
    * console.log(key.restoreKeys.join(",")) // Linux-X64-v1hash-main-,Linux-X64-v1hash-
@@ -405,7 +405,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Disable restore keys for exact cache matches)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.of("Linux", "pnpm-store", "abc123").withoutRestoreKeys();
    * console.log(key.key) // Linux-pnpm-store-abc123
@@ -447,7 +447,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Namespace a cache key and drop its restore ladder)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.of("Linux", "pnpm-store", "abc123").withNamespace("bust7");
    * console.log(key.key) // bust7-Linux-pnpm-store-abc123
@@ -467,7 +467,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Construct a key from ordered segments)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.of("Linux", "pnpm-store", "abc123");
    * console.log(key.key) // Linux-pnpm-store-abc123
@@ -498,7 +498,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Prefer caches from the same branch)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.forBranch({ os: "Linux", scope: "pnpm-store", branch: "main", hash: "abc123" });
    * console.log(key.key) // Linux-pnpm-store-main-abc123
@@ -555,7 +555,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Hash tool versions and a branch name into cache segments)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    *
    * const key = CacheKey.of(
    *   "Linux",
@@ -605,7 +605,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Construct a lockfile hashing effect)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    * import * as Effect from "effect/Effect";
    *
    * const program = CacheKey.hashFiles(["pnpm-lock.yaml", "package.json"]);
@@ -680,7 +680,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Construct a lockfile discovery effect)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    * import * as Effect from "effect/Effect";
    *
    * const program = CacheKey.matchingFiles({ workspace: "/workspace", patterns: ["pnpm-lock.yaml"] });
@@ -784,7 +784,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
    * **Example** (Build a cache key from matching lockfile contents)
    *
    * ```ts
-   * import { CacheKey } from "@beep/scratchpad/effected/github-actions/CacheKey";
+   * import { CacheKey } from "@beep/github-actions/CacheKey";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    *

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as Config from "effect/Config";
@@ -18,7 +18,7 @@ import * as Str from "effect/String";
 import type * as Layer from "effect/Layer";
 import type * as Redacted from "effect/Redacted";
 
-const $I = $ScratchpadId.create("effected/github-actions/ActionInput");
+const $I = $GithubActionsId.create("ActionInput");
 
 const Json = S.fromJsonString(S.Unknown);
 const StringList = S.Array(S.String);
@@ -40,7 +40,7 @@ const StringList = S.Array(S.String);
  * **Example** (Derive a dashed runner variable)
  *
  * ```ts
- * import { inputVariable } from "@beep/scratchpad/effected/github-actions/ActionInput";
+ * import { inputVariable } from "@beep/github-actions/ActionInput";
  *
  * console.log(inputVariable("sbom-config")) // INPUT_SBOM-CONFIG
  * ```
@@ -86,7 +86,7 @@ const FALSE = HashSet.fromIterable<string>(["false", "False", "FALSE"]);
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { PairsOptions } from "@beep/scratchpad/effected/github-actions/ActionInput";
+ * import { PairsOptions } from "@beep/github-actions/ActionInput";
  *
  * const input = { requireValue: true };
  * Effect.runSync(Console.log(S.is(PairsOptions)(input))) // true
@@ -103,7 +103,7 @@ export const PairsOptions = S.Struct({
    * **Example** (Reject empty pair values)
    *
    * ```ts
-   * import type { PairsOptions } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import type { PairsOptions } from "@beep/github-actions/ActionInput";
    *
    * const options: PairsOptions = { requireValue: true };
    * console.log(options.requireValue) // true
@@ -164,7 +164,7 @@ const stripComment = (line: string): string => {
  * **Example** (Read a boolean flag and path list)
  *
  * ```ts
- * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+ * import { ActionInput } from "@beep/github-actions/ActionInput";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -203,7 +203,7 @@ export class ActionInput {
    * **Example** (Derive a runner key for tests)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    *
    * console.log(ActionInput.variable("biome-version")) // INPUT_BIOME-VERSION
    * ```
@@ -259,7 +259,7 @@ export class ActionInput {
    * **Example** (Distinguish a manifest default from explicit empty input)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    * import * as Config from "effect/Config";
    * import * as O from "effect/Option";
@@ -292,7 +292,7 @@ export class ActionInput {
    * **Example** (Read a YAML boolean)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -349,7 +349,7 @@ export class ActionInput {
    * **Example** (Constrain an input to commit or pr with a default)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    * import * as Config from "effect/Config";
    *
@@ -393,7 +393,7 @@ export class ActionInput {
    * **Example** (Read a retry count)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -422,7 +422,7 @@ export class ActionInput {
    * **Example** (Keep a token redacted)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -455,7 +455,7 @@ export class ActionInput {
    * **Example** (Trim and filter multiline input)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -516,7 +516,7 @@ export class ActionInput {
    * **Example** (Preserve a hash after a bullet)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -582,7 +582,7 @@ export class ActionInput {
    * **Example** (Split only the first equals sign)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -653,7 +653,7 @@ export class ActionInput {
    * **Example** (Decode JSON through a schema)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema";
    *
@@ -743,7 +743,7 @@ export class ActionInput {
    * **Example** (Resolve an input name through a provider)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    * import * as Config from "effect/Config";
    * import * as ConfigProvider from "effect/ConfigProvider";
@@ -801,7 +801,7 @@ export class ActionInput {
    * **Example** (Install deterministic action inputs)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -865,7 +865,7 @@ export class ActionInput {
    * **Example** (Prefer runner inputs over ambient names)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    * import * as Config from "effect/Config";
    * import * as ConfigProvider from "effect/ConfigProvider";
@@ -932,7 +932,7 @@ export class ActionInput {
    * **Example** (Construct a read with the default provider)
    *
    * ```ts
-   * import { ActionInput } from "@beep/scratchpad/effected/github-actions/ActionInput";
+   * import { ActionInput } from "@beep/github-actions/ActionInput";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {

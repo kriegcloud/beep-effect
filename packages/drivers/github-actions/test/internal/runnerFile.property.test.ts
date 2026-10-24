@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { delimiterFor, heredocBlock } from "@beep/github-actions/internal/runnerFile";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { delimiterFor, heredocBlock } from "../../../effected/github-actions/internal/runnerFile.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // Framing and delimiter selection are not endomorphisms: applying them to their

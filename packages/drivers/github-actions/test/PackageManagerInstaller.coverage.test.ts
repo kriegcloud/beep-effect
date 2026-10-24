@@ -1,3 +1,6 @@
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
+import { PackageManagerInstaller, PackageManagerInstallerError } from "@beep/github-actions/PackageManagerInstaller";
+import { ToolInstaller } from "@beep/github-actions/ToolInstaller";
 import { MemoryFileSystem } from "@beep/memfs";
 import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
 import { assert, it } from "@effect/vitest";
@@ -14,12 +17,6 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import {
-  PackageManagerInstaller,
-  PackageManagerInstallerError,
-} from "../../effected/github-actions/PackageManagerInstaller.ts";
-import { ToolInstaller } from "../../effected/github-actions/ToolInstaller.ts";
 
 const refused = PlatformError.badArgument({ module: "FileSystem", method: "fixture", description: "refused" });
 const Json = S.fromJsonString(S.Unknown);

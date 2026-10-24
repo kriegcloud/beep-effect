@@ -1,10 +1,10 @@
+import { JwtPayloadFailure, payloadOf, unsignedJwt } from "@beep/github-actions/internal/jwt";
 import { assert, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Base64Url from "effect/encoding/Base64Url";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { JwtPayloadFailure, payloadOf, unsignedJwt } from "../../../effected/github-actions/internal/jwt.ts";
 
 it.effect("JWT rejects invalid JSON and unencodable fixtures, and supports curried framing", () =>
   Effect.sync(() => {

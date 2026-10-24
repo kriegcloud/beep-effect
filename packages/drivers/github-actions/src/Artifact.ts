@@ -1,5 +1,5 @@
 import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
@@ -31,7 +31,7 @@ import type { FileBlobTransfer } from "./BlobTransfer.ts";
 import type { BackendIds } from "./internal/actionsResults.ts";
 import type { TwirpResult } from "./internal/twirp.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/Artifact");
+const $I = $GithubActionsId.create("Artifact");
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -41,7 +41,7 @@ const Json = S.fromJsonString(S.Unknown);
  * **Example** (Describe a missing artifact)
  *
  * ```ts
- * import { ArtifactError } from "@beep/scratchpad/effected/github-actions/Artifact";
+ * import { ArtifactError } from "@beep/github-actions/Artifact";
  *
  * const error = ArtifactError.make({ reason: "notFound", artifact: "logs" });
  * console.log(error.message) // No artifact "logs" exists in this run
@@ -113,7 +113,7 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
    * **Example** (Read an artifact diagnostic)
    *
    * ```ts
-   * import { ArtifactError } from "@beep/scratchpad/effected/github-actions/Artifact";
+   * import { ArtifactError } from "@beep/github-actions/Artifact";
    *
    * const error = ArtifactError.make({ reason: "notFound", artifact: "logs" });
    * console.log(error.message) // No artifact "logs" exists in this run
@@ -152,7 +152,7 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
  * **Example** (Decode an artifact listing row)
  *
  * ```ts
- * import { ArtifactItem } from "@beep/scratchpad/effected/github-actions/Artifact";
+ * import { ArtifactItem } from "@beep/github-actions/Artifact";
  * import * as S from "effect/Schema";
  *
  * const item = S.decodeUnknownSync(ArtifactItem)({ id: 42, name: "logs", size: 128 });
@@ -201,7 +201,7 @@ export type ArtifactItem = typeof ArtifactItem.Type;
  * **Example** (Validate upload options)
  *
  * ```ts
- * import { UploadOptions } from "@beep/scratchpad/effected/github-actions/Artifact";
+ * import { UploadOptions } from "@beep/github-actions/Artifact";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(UploadOptions)({ retentionDays: 7, compressionLevel: 6 })) // true
@@ -276,7 +276,7 @@ export type UploadResult = typeof UploadResult.Type;
  * **Example** (Validate a download destination)
  *
  * ```ts
- * import { DownloadOptions } from "@beep/scratchpad/effected/github-actions/Artifact";
+ * import { DownloadOptions } from "@beep/github-actions/Artifact";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(DownloadOptions)({ path: "/work/output" })) // true
@@ -311,7 +311,7 @@ export type DownloadOptions = typeof DownloadOptions.Type;
  * **Example** (Validate a download result)
  *
  * ```ts
- * import { DownloadResult } from "@beep/scratchpad/effected/github-actions/Artifact";
+ * import { DownloadResult } from "@beep/github-actions/Artifact";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(DownloadResult)({ downloadPath: "/work/output" })) // true
@@ -899,7 +899,7 @@ const dies = unstubbed("Artifact.makeTest");
  * **Example** (Upload a build log as an artifact)
  *
  * ```ts
- * import { Artifact } from "@beep/scratchpad/effected/github-actions/Artifact";
+ * import { Artifact } from "@beep/github-actions/Artifact";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -921,7 +921,7 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
    * **Example** (Inspect the live artifact layer)
    *
    * ```ts
-   * import { Artifact } from "@beep/scratchpad/effected/github-actions/Artifact";
+   * import { Artifact } from "@beep/github-actions/Artifact";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(Artifact.layer)) // true
@@ -956,7 +956,7 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
    * **Example** (Bind an artifact layer to a supplied transfer)
    *
    * ```ts
-   * import { Artifact } from "@beep/scratchpad/effected/github-actions/Artifact";
+   * import { Artifact } from "@beep/github-actions/Artifact";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    * import { dual } from "effect/Function";
@@ -989,7 +989,7 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
    * **Example** (Stub an empty artifact listing)
    *
    * ```ts
-   * import { Artifact } from "@beep/scratchpad/effected/github-actions/Artifact";
+   * import { Artifact } from "@beep/github-actions/Artifact";
    * import * as Effect from "effect/Effect";
    *
    * const artifacts = Artifact.makeTest({ list: Effect.succeed([]) });
@@ -1026,7 +1026,7 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
    * **Example** (Provide an artifact listing test double)
    *
    * ```ts
-   * import { Artifact } from "@beep/scratchpad/effected/github-actions/Artifact";
+   * import { Artifact } from "@beep/github-actions/Artifact";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.flatMap(Artifact, (artifacts) => artifacts.list);

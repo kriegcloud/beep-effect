@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
@@ -20,7 +20,7 @@ import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { payloadOf, unsignedJwt } from "./internal/jwt.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/OidcTokenIssuer");
+const $I = $GithubActionsId.create("OidcTokenIssuer");
 
 /**
  * Raised when an OIDC token cannot be issued or read.
@@ -28,7 +28,7 @@ const $I = $ScratchpadId.create("effected/github-actions/OidcTokenIssuer");
  * **Example** (Inspect an unavailable token service)
  *
  * ```ts
- * import { OidcTokenError } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+ * import { OidcTokenError } from "@beep/github-actions/OidcTokenIssuer";
  *
  * const error = OidcTokenError.make({ reason: "unavailable" });
  * console.log(error.reason) // unavailable
@@ -81,7 +81,7 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
    * **Example** (Read a malformed-token explanation)
    *
    * ```ts
-   * import { OidcTokenError } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+   * import { OidcTokenError } from "@beep/github-actions/OidcTokenIssuer";
    *
    * const error = OidcTokenError.make({ reason: "malformedToken", detail: "missing payload" });
    * console.log(error.message) // The OIDC token is not a decodable JWT: missing payload
@@ -124,7 +124,7 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
  * **Example** (Construct workflow identity claims)
  *
  * ```ts
- * import { OidcClaims } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+ * import { OidcClaims } from "@beep/github-actions/OidcTokenIssuer";
  *
  * const claims = OidcClaims.make({
  *   iss: "https://token.actions.githubusercontent.com",
@@ -348,7 +348,7 @@ const dies = unstubbed("OidcTokenIssuer.makeTest");
  * **Example** (Read the workflow reference from OIDC claims)
  *
  * ```ts
- * import { OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+ * import { OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -375,7 +375,7 @@ export class OidcTokenIssuer extends Context.Service<OidcTokenIssuer, OidcTokenI
    * **Example** (Construct the live issuer layer)
    *
    * ```ts
-   * import { OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+   * import { OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(OidcTokenIssuer.layer)) // true
@@ -402,7 +402,7 @@ export class OidcTokenIssuer extends Context.Service<OidcTokenIssuer, OidcTokenI
    * **Example** (Build an unsigned token fixture)
    *
    * ```ts
-   * import { OidcClaims, OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+   * import { OidcClaims, OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
    * import * as Redacted from "effect/Redacted";
    *
    * const claims = OidcClaims.make({
@@ -437,7 +437,7 @@ export class OidcTokenIssuer extends Context.Service<OidcTokenIssuer, OidcTokenI
    * **Example** (Override token issuance in a double)
    *
    * ```ts
-   * import { OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+   * import { OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -462,7 +462,7 @@ export class OidcTokenIssuer extends Context.Service<OidcTokenIssuer, OidcTokenI
    * **Example** (Construct the test issuer layer)
    *
    * ```ts
-   * import { OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+   * import { OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(OidcTokenIssuer.layerTest())) // true
@@ -488,7 +488,7 @@ export class OidcTokenIssuer extends Context.Service<OidcTokenIssuer, OidcTokenI
    * **Example** (Read claims from a consistent issuer double)
    *
    * ```ts
-   * import { OidcClaims, OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+   * import { OidcClaims, OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
    * import * as Effect from "effect/Effect";
    *
    * const claims = OidcClaims.make({

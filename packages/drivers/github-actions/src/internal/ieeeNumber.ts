@@ -1,10 +1,10 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/ieeeNumber");
+const $I = $GithubActionsId.create("internal/ieeeNumber");
 
 const NonFiniteSpelling = LiteralKit(["Infinity", "-Infinity", "NaN"]).pipe(
   $I.annoteSchema("NonFiniteSpelling", {
@@ -29,7 +29,7 @@ const stringTreeLink = () =>
  * **Example** (Accept non-finite numbers)
  *
  * ```ts
- * import { IeeeNumber } from "@beep/scratchpad/effected/github-actions/internal/ieeeNumber";
+ * import { IeeeNumber } from "@beep/github-actions/internal/ieeeNumber";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(IeeeNumber)(Infinity)) // true

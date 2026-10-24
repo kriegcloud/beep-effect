@@ -1,5 +1,5 @@
+import { delimiterFor, heredocBlock, isUsableName } from "@beep/github-actions/internal/runnerFile";
 import { assert, describe, it } from "@effect/vitest";
-import { delimiterFor, heredocBlock, isUsableName } from "../../effected/github-actions/internal/runnerFile.ts";
 
 // Follow FileCommandManager.ReadLine and its heredoc endIndex calculation,
 // rather than removing framing by fixed slices.

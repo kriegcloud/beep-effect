@@ -1,5 +1,5 @@
 import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as Bool from "effect/Boolean";
 import * as Console from "effect/Console";
@@ -13,7 +13,7 @@ import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { heredocBlock, isUsableName } from "./internal/runnerFile.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/ActionOutputs");
+const $I = $GithubActionsId.create("ActionOutputs");
 
 /**
  * Raised when an action cannot publish an output.
@@ -21,7 +21,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionOutputs");
  * **Example** (Identify RunnerFileUnavailableError)
  *
  * ```ts
- * import { RunnerFileUnavailableError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { RunnerFileUnavailableError } from "@beep/github-actions/ActionOutputs";
  *
  * const error = RunnerFileUnavailableError.make({ file: "GITHUB_OUTPUT" });
  * console.log(error._tag) // RunnerFileUnavailableError
@@ -60,7 +60,7 @@ export class RunnerFileUnavailableError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { RunnerFileUnavailableError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { RunnerFileUnavailableError } from "@beep/github-actions/ActionOutputs";
    *
    * const error = RunnerFileUnavailableError.make({ file: "GITHUB_OUTPUT" });
    * console.log(error.message) // Runner file "GITHUB_OUTPUT" is not available; is this running on a GitHub runner?
@@ -80,7 +80,7 @@ export class RunnerFileUnavailableError extends S.TaggedError<
  * **Example** (Identify RunnerFileWriteError)
  *
  * ```ts
- * import { RunnerFileWriteError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { RunnerFileWriteError } from "@beep/github-actions/ActionOutputs";
  *
  * const error = RunnerFileWriteError.make({ file: "GITHUB_ENV" });
  * console.log(error._tag) // RunnerFileWriteError
@@ -116,7 +116,7 @@ export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError, { 
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { RunnerFileWriteError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { RunnerFileWriteError } from "@beep/github-actions/ActionOutputs";
    *
    * const error = RunnerFileWriteError.make({ file: "GITHUB_ENV" });
    * console.log(error.message) // Failed to write to runner file "GITHUB_ENV"
@@ -136,7 +136,7 @@ export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError, { 
  * **Example** (Identify InvalidOutputNameError)
  *
  * ```ts
- * import { InvalidOutputNameError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { InvalidOutputNameError } from "@beep/github-actions/ActionOutputs";
  *
  * const error = InvalidOutputNameError.make({ name: "bad=name" });
  * console.log(error._tag) // InvalidOutputNameError
@@ -174,7 +174,7 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { InvalidOutputNameError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { InvalidOutputNameError } from "@beep/github-actions/ActionOutputs";
    *
    * const error = InvalidOutputNameError.make({ name: "bad=name" });
    * console.log(error.message) // "bad=name" is not a usable output name
@@ -194,7 +194,7 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
  * **Example** (Identify OutputEncodeError)
  *
  * ```ts
- * import { OutputEncodeError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { OutputEncodeError } from "@beep/github-actions/ActionOutputs";
  *
  * const error = OutputEncodeError.make({ name: "packages" });
  * console.log(error._tag) // OutputEncodeError
@@ -230,7 +230,7 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readon
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { OutputEncodeError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { OutputEncodeError } from "@beep/github-actions/ActionOutputs";
    *
    * const error = OutputEncodeError.make({ name: "packages" });
    * console.log(error.message) // Failed to encode the value for "packages"
@@ -251,7 +251,7 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readon
  * **Example** (Identify DetachedOutputError)
  *
  * ```ts
- * import { DetachedOutputError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { DetachedOutputError } from "@beep/github-actions/ActionOutputs";
  *
  * const error = DetachedOutputError.make({ file: "GITHUB_OUTPUT" });
  * console.log(error._tag) // DetachedOutputError
@@ -291,7 +291,7 @@ export class DetachedOutputError extends S.TaggedError<DetachedOutputError, { re
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { DetachedOutputError } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { DetachedOutputError } from "@beep/github-actions/ActionOutputs";
    *
    * const error = DetachedOutputError.make({ file: "GITHUB_OUTPUT" });
    * console.log(error.message.includes("Publish this from the parent process instead.")) // true
@@ -415,7 +415,7 @@ const encodeJson: {
  * **Example** (Inspect a recorded step output)
  *
  * ```ts
- * import { RecordedOutput } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { RecordedOutput } from "@beep/github-actions/ActionOutputs";
  *
  * const entry = RecordedOutput.make({ member: "set", name: "version", value: "1.2.3" });
  * console.log(entry.value) // 1.2.3
@@ -592,7 +592,7 @@ const dies = unstubbed("ActionOutputs.makeTest");
  * **Example** (Publish string and schema-encoded JSON outputs)
  *
  * ```ts
- * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -621,7 +621,7 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
    * **Example** (Construct a live output layer)
    *
    * ```ts
-   * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ActionOutputs.layer)) // true
@@ -675,7 +675,7 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
    * **Example** (Reject a detached worker output)
    *
    * ```ts
-   * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -730,7 +730,7 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
    * **Example** (Stub a summary write)
    *
    * ```ts
-   * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
    * import * as Effect from "effect/Effect";
    *
    * const outputs = ActionOutputs.makeTest({ summary: () => Effect.void });
@@ -774,7 +774,7 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
    * **Example** (Provide a stubbed output service)
    *
    * ```ts
-   * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.gen(function* () {
@@ -820,7 +820,7 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
    * **Example** (Read schema-encoded JSON from the journal)
    *
    * ```ts
-   * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+   * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema";
    *

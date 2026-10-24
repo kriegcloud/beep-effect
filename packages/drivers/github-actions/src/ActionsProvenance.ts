@@ -42,7 +42,7 @@ const DEFAULT_SERVER_URL = "https://github.com";
  * **Example** (Capture workflow provenance and read its builder ID)
  *
  * ```ts
- * import { ActionsProvenance } from "@beep/scratchpad/effected/github-actions/ActionsProvenance";
+ * import { ActionsProvenance } from "@beep/github-actions/ActionsProvenance";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -92,7 +92,7 @@ export class ActionsProvenance {
    * **Example** (Construct a provenance capture for an audience)
    *
    * ```ts
-   * import { ActionsProvenance } from "@beep/scratchpad/effected/github-actions/ActionsProvenance";
+   * import { ActionsProvenance } from "@beep/github-actions/ActionsProvenance";
    * import * as Effect from "effect/Effect";
    *
    * const program = ActionsProvenance.capture("sigstore");

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -9,7 +9,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/github-actions/ActionEnvironment");
+const $I = $GithubActionsId.create("ActionEnvironment");
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -27,7 +27,7 @@ const Json = S.fromJsonString(S.Unknown);
  * **Example** (Explain a missing runner variable)
  *
  * ```ts
- * import { ActionEnvironmentError } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { ActionEnvironmentError } from "@beep/github-actions/ActionEnvironment";
  *
  * const error = ActionEnvironmentError.make({ reason: "missing", name: "GITHUB_REPOSITORY" });
  * console.log(error.message) // Required environment variable "GITHUB_REPOSITORY" is not set
@@ -76,7 +76,7 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
    * **Example** (Explain a missing runner variable)
    *
    * ```ts
-   * import { ActionEnvironmentError } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+   * import { ActionEnvironmentError } from "@beep/github-actions/ActionEnvironment";
    *
    * const error = ActionEnvironmentError.make({ reason: "missing", name: "GITHUB_REPOSITORY" });
    * console.log(error.message) // Required environment variable "GITHUB_REPOSITORY" is not set
@@ -98,7 +98,7 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
  * **Example** (Read a seeded workflow context)
  *
  * ```ts
- * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.flatMap(ActionEnvironment, (env) => env.github);
@@ -247,7 +247,7 @@ export class GitHubContext extends S.Class<GitHubContext, { readonly brand: uniq
    * **Example** (Use the source branch on a pull request)
    *
    * ```ts
-   * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+   * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.flatMap(ActionEnvironment, (env) => env.github);
@@ -269,7 +269,7 @@ export class GitHubContext extends S.Class<GitHubContext, { readonly brand: uniq
  * **Example** (Construct a runner context)
  *
  * ```ts
- * import { RunnerContext } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { RunnerContext } from "@beep/github-actions/ActionEnvironment";
  *
  * const runner = RunnerContext.make({
  *   os: "Linux", arch: "X64", name: "runner", temp: "/tmp", toolCache: "/opt/hostedtoolcache",
@@ -542,7 +542,7 @@ const TEST_DEFAULTS: Readonly<Record<string, string>> = {
  * **Example** (Identify a workflow run by repository and run ID)
  *
  * ```ts
- * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -566,7 +566,7 @@ export class ActionEnvironment extends Context.Service<ActionEnvironment, Action
    * **Example** (Select the runner environment snapshot layer)
    *
    * ```ts
-   * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+   * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ActionEnvironment.layer)) // true
@@ -594,7 +594,7 @@ export class ActionEnvironment extends Context.Service<ActionEnvironment, Action
    * **Example** (Bind an explicit environment snapshot)
    *
    * ```ts
-   * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+   * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
    * import * as Layer from "effect/Layer";
    *
    * const environmentLayer = ActionEnvironment.layerFrom({ GITHUB_REPOSITORY: "acme/example" });
@@ -641,7 +641,7 @@ export class ActionEnvironment extends Context.Service<ActionEnvironment, Action
    * **Example** (Read an event payload from an in-memory filesystem)
    *
    * ```ts
-   * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+   * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
    * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
    * import * as Layer from "effect/Layer";
    *
@@ -679,7 +679,7 @@ export class ActionEnvironment extends Context.Service<ActionEnvironment, Action
    * **Example** (Seed a pull request environment and payload)
    *
    * ```ts
-   * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+   * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
    * import * as Effect from "effect/Effect";
    *
    * const testLayer = ActionEnvironment.layerTest(

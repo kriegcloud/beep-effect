@@ -1,4 +1,12 @@
 import { env as runnerEnvironment } from "node:process";
+import {
+  Action,
+  ActionEnvironment,
+  ActionInput,
+  ActionOutputs,
+  ActionRuntime,
+  describeCause,
+} from "@beep/github-actions";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
@@ -9,18 +17,10 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as References from "effect/References";
 import * as S from "effect/Schema";
-import {
-  Action,
-  ActionEnvironment,
-  ActionInput,
-  ActionOutputs,
-  ActionRuntime,
-  describeCause,
-} from "../../effected/github-actions/index.ts";
-import type { ActionEnvironmentError } from "../../effected/github-actions/index.ts";
+import type { ActionEnvironmentError } from "@beep/github-actions";
 
 class Extra extends Context.Service<Extra, { readonly describe: Effect.Effect<string, ActionEnvironmentError> }>()(
-  "@beep/scratchpad/test/github-actions/Action.test/Extra"
+  "@beep/github-actions/test/Action.test/Extra"
 ) {}
 
 class Boom extends S.TaggedError<Boom, { readonly brand: unique symbol }>()("Boom", { detail: S.String }) {
@@ -55,7 +55,7 @@ const RUNNER_ENV: Readonly<Record<string, string>> = {
 };
 
 class Captured extends Context.Service<Captured, { readonly lines: ReadonlyArray<string> }>()(
-  "@beep/scratchpad/test/github-actions/Action.test/Captured"
+  "@beep/github-actions/test/Action.test/Captured"
 ) {}
 
 // Action.run owns its runtime, so its real console and runner environment are the subject.

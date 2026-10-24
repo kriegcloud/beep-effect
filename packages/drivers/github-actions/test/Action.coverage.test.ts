@@ -1,7 +1,7 @@
+import { Action, ActionRuntime, describeCause } from "@beep/github-actions/Action";
 import { assert, it, vi } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import { Action, ActionRuntime, describeCause } from "../../effected/github-actions/Action.ts";
 
 it.effect("cause rendering distinguishes missing, nonstring and empty tagged messages", () =>
   Effect.sync(() => {

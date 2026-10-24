@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { IeeeNumber } from "@beep/github-actions/internal/ieeeNumber";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { IeeeNumber } from "../../../effected/github-actions/internal/ieeeNumber.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

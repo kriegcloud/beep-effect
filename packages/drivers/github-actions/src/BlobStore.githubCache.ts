@@ -157,7 +157,7 @@ const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
  * **Example** (Select the GitHub Actions cache blob backend)
  *
  * ```ts
- * import { GitHubCacheBlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore.githubCache";
+ * import { GitHubCacheBlobStore } from "@beep/github-actions/BlobStore.githubCache";
  * import * as Layer from "effect/Layer";
  *
  * const layer = GitHubCacheBlobStore.layer;
@@ -181,7 +181,7 @@ export abstract class GitHubCacheBlobStore {
    * **Example** (Construct the Azure-backed cache layer)
    *
    * ```ts
-   * import { GitHubCacheBlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore.githubCache";
+   * import { GitHubCacheBlobStore } from "@beep/github-actions/BlobStore.githubCache";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(GitHubCacheBlobStore.layer)) // true
@@ -212,7 +212,7 @@ export abstract class GitHubCacheBlobStore {
    * **Example** (Supply an in-memory blob transport)
    *
    * ```ts
-   * import { GitHubCacheBlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore.githubCache";
+   * import { GitHubCacheBlobStore } from "@beep/github-actions/BlobStore.githubCache";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    * import { dual } from "effect/Function";

@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -6,7 +7,6 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
@@ -24,11 +24,7 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
   );
 };
 
-import {
-  ActionEnvironmentError,
-  GitHubContext,
-  RunnerContext,
-} from "../../effected/github-actions/ActionEnvironment.ts";
+import { ActionEnvironmentError, GitHubContext, RunnerContext } from "@beep/github-actions/ActionEnvironment";
 
 describe("ActionEnvironment property floor", () => {
   roundTrips("ActionEnvironmentError encode/decode fidelity", ActionEnvironmentError);

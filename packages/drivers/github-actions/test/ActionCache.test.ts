@@ -1,3 +1,6 @@
+import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "@beep/github-actions";
+import { spawnOnce } from "@beep/github-actions/internal/spawn";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
@@ -17,11 +20,8 @@ import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Str from "effect/String";
-import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "../../effected/github-actions/index.ts";
-import { spawnOnce } from "../../effected/github-actions/internal/spawn.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { json, resultsEnv, twirpFetch } from "./results.ts";
-import type { FileBlobTransfer } from "../../effected/github-actions/index.ts";
+import { json, resultsEnv, twirpFetch } from "./support/results.ts";
+import type { FileBlobTransfer } from "@beep/github-actions";
 
 /**
  * A transport that keeps whole files in memory.
@@ -162,7 +162,7 @@ describe("ActionCache", () => {
       return { root, file, url, blobs, transfer, fetch, layer: live(fetch, transfer) };
     });
     class Fixture1 extends Context.Service<Fixture1, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture1"
+      "@beep/github-actions/test/ActionCache.test/Fixture1"
     ) {}
     const fixtureLayer = Layer.effect(Fixture1, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture1, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -205,7 +205,7 @@ describe("ActionCache", () => {
       return { root, file, url, transfer, fetch, layer: live(fetch, transfer) };
     });
     class Fixture2 extends Context.Service<Fixture2, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture2"
+      "@beep/github-actions/test/ActionCache.test/Fixture2"
     ) {}
     const fixtureLayer = Layer.effect(Fixture2, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture2, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -234,7 +234,7 @@ describe("ActionCache", () => {
       return { transfer, calls, fetch, layer: live(fetch, transfer) };
     });
     class Fixture3 extends Context.Service<Fixture3, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture3"
+      "@beep/github-actions/test/ActionCache.test/Fixture3"
     ) {}
     const fixtureLayer = Layer.effect(Fixture3, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture3, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -264,7 +264,7 @@ describe("ActionCache", () => {
       return { key, transfer, calls, fetch, layer: live(fetch, transfer) };
     });
     class Fixture4 extends Context.Service<Fixture4, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture4"
+      "@beep/github-actions/test/ActionCache.test/Fixture4"
     ) {}
     const fixtureLayer = Layer.effect(Fixture4, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture4, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -299,7 +299,7 @@ describe("ActionCache", () => {
       return { key, transfer, calls, fetch, layer: live(fetch, transfer) };
     });
     class Fixture5 extends Context.Service<Fixture5, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture5"
+      "@beep/github-actions/test/ActionCache.test/Fixture5"
     ) {}
     const fixtureLayer = Layer.effect(Fixture5, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture5, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -330,7 +330,7 @@ describe("ActionCache", () => {
       return { key, transfer, calls, fetch, layer: live(fetch, transfer) };
     });
     class Fixture6 extends Context.Service<Fixture6, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture6"
+      "@beep/github-actions/test/ActionCache.test/Fixture6"
     ) {}
     const fixtureLayer = Layer.effect(Fixture6, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture6, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -356,7 +356,7 @@ describe("ActionCache", () => {
       return { transfer, fetch, layer: live(fetch, transfer) };
     });
     class Fixture7 extends Context.Service<Fixture7, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture7"
+      "@beep/github-actions/test/ActionCache.test/Fixture7"
     ) {}
     const fixtureLayer = Layer.effect(Fixture7, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture7, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -389,7 +389,7 @@ describe("ActionCache", () => {
       return { root, file, url, transfer, fetch, layer: live(fetch, transfer) };
     });
     class Fixture8 extends Context.Service<Fixture8, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture8"
+      "@beep/github-actions/test/ActionCache.test/Fixture8"
     ) {}
     const fixtureLayer = Layer.effect(Fixture8, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture8, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -417,7 +417,7 @@ describe("ActionCache", () => {
       return { transfer, calls, fetch, layer: live(fetch, transfer) };
     });
     class Fixture9 extends Context.Service<Fixture9, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture9"
+      "@beep/github-actions/test/ActionCache.test/Fixture9"
     ) {}
     const fixtureLayer = Layer.effect(Fixture9, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture9, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -458,7 +458,7 @@ describe("ActionCache", () => {
       return { corrupt, fetch, layer: live(fetch, corrupt) };
     });
     class Fixture10 extends Context.Service<Fixture10, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture10"
+      "@beep/github-actions/test/ActionCache.test/Fixture10"
     ) {}
     const fixtureLayer = Layer.effect(Fixture10, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture10, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -489,7 +489,7 @@ describe("ActionCache", () => {
       return { root, file, blobs, transfer, calls, fetch, layer: live(fetch, transfer) };
     });
     class Fixture11 extends Context.Service<Fixture11, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture11"
+      "@beep/github-actions/test/ActionCache.test/Fixture11"
     ) {}
     const fixtureLayer = Layer.effect(Fixture11, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture11, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -523,7 +523,7 @@ describe("ActionCache", () => {
       return { root, file, blobs, transfer, fetch, layer: live(fetch, transfer) };
     });
     class Fixture12 extends Context.Service<Fixture12, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture12"
+      "@beep/github-actions/test/ActionCache.test/Fixture12"
     ) {}
     const fixtureLayer = Layer.effect(Fixture12, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture12, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -564,7 +564,7 @@ describe("ActionCache", () => {
       return { root, file, failing, fetch, layer: live(fetch, failing) };
     });
     class Fixture13 extends Context.Service<Fixture13, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture13"
+      "@beep/github-actions/test/ActionCache.test/Fixture13"
     ) {}
     const fixtureLayer = Layer.effect(Fixture13, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture13, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -589,7 +589,7 @@ describe("ActionCache", () => {
       return { transfer, fetch, layer: live(fetch, transfer, { ACTIONS_RESULTS_URL: "" }) };
     });
     class Fixture14 extends Context.Service<Fixture14, Effect.Success<typeof setup>>()(
-      "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture14"
+      "@beep/github-actions/test/ActionCache.test/Fixture14"
     ) {}
     const fixtureLayer = Layer.effect(Fixture14, setup).pipe(Layer.provideMerge(NodeServices.layer));
     it.layer(Layer.unwrap(Effect.map(Fixture14, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -645,7 +645,7 @@ describe("ActionCache", () => {
         return { root, aDep, bDep, bystander, transfer, fetch, scope, layer: scope };
       });
       class Fixture15 extends Context.Service<Fixture15, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture15"
+        "@beep/github-actions/test/ActionCache.test/Fixture15"
       ) {}
       const fixtureLayer = Layer.effect(Fixture15, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture15, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -689,7 +689,7 @@ describe("ActionCache", () => {
         return { root, literals, transfer, calls, fetch, scope, layer: scope };
       });
       class Fixture16 extends Context.Service<Fixture16, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture16"
+        "@beep/github-actions/test/ActionCache.test/Fixture16"
       ) {}
       const fixtureLayer = Layer.effect(Fixture16, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture16, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -728,7 +728,7 @@ describe("ActionCache", () => {
         return { root, file, blobs, transfer, fetch, layer: live(fetch, transfer) };
       });
       class Fixture17 extends Context.Service<Fixture17, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture17"
+        "@beep/github-actions/test/ActionCache.test/Fixture17"
       ) {}
       const fixtureLayer = Layer.effect(Fixture17, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture17, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -758,7 +758,7 @@ describe("ActionCache", () => {
         return { root, transfer, calls, fetch, layer: live(fetch, transfer) };
       });
       class Fixture18 extends Context.Service<Fixture18, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture18"
+        "@beep/github-actions/test/ActionCache.test/Fixture18"
       ) {}
       const fixtureLayer = Layer.effect(Fixture18, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture18, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -796,7 +796,7 @@ describe("ActionCache", () => {
         return { root, aDep, transfer, fetch, scope, layer: scope };
       });
       class Fixture19 extends Context.Service<Fixture19, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture19"
+        "@beep/github-actions/test/ActionCache.test/Fixture19"
       ) {}
       const fixtureLayer = Layer.effect(Fixture19, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture19, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -830,7 +830,7 @@ describe("ActionCache", () => {
         return { root, file, blobs, transfer, fetch, layer: live(fetch, transfer, { HOME: root }) };
       });
       class Fixture20 extends Context.Service<Fixture20, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture20"
+        "@beep/github-actions/test/ActionCache.test/Fixture20"
       ) {}
       const fixtureLayer = Layer.effect(Fixture20, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture20, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -860,7 +860,7 @@ describe("ActionCache", () => {
         return { root, aDep, bDep, transfer, fetch, patterns, scope, layer: scope };
       });
       class Fixture21 extends Context.Service<Fixture21, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture21"
+        "@beep/github-actions/test/ActionCache.test/Fixture21"
       ) {}
       const fixtureLayer = Layer.effect(Fixture21, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture21, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -945,7 +945,7 @@ describe("ActionCache", () => {
         return { files, calls, spying, uploads: () => uploads, layer };
       });
       class Fixture25 extends Context.Service<Fixture25, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture25"
+        "@beep/github-actions/test/ActionCache.test/Fixture25"
       ) {}
       const fixtureLayer = Layer.effect(Fixture25, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture25, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -1015,7 +1015,7 @@ describe("ActionCache", () => {
         return { directory, files, broken, other, alias, archived, patterns, calls, spying, layer };
       });
       class Fixture26 extends Context.Service<Fixture26, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture26"
+        "@beep/github-actions/test/ActionCache.test/Fixture26"
       ) {}
       const fixtureLayer = Layer.effect(Fixture26, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture26, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -1112,7 +1112,7 @@ describe("ActionCache", () => {
         return { root, segment, deep, files, transfer, fetch, spy, scope, pattern, layer: scope };
       });
       class Fixture22 extends Context.Service<Fixture22, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture22"
+        "@beep/github-actions/test/ActionCache.test/Fixture22"
       ) {}
       const fixtureLayer = Layer.effect(Fixture22, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture22, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -1176,7 +1176,7 @@ describe("ActionCache", () => {
         return { root, store, transfer, fetch, counting, scope, layer: scope };
       });
       class Fixture23 extends Context.Service<Fixture23, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture23"
+        "@beep/github-actions/test/ActionCache.test/Fixture23"
       ) {}
       const fixtureLayer = Layer.effect(Fixture23, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture23, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {
@@ -1219,7 +1219,7 @@ describe("ActionCache", () => {
         return { root, transfer, calls, fetch, layer: live(fetch, transfer) };
       });
       class Fixture24 extends Context.Service<Fixture24, Effect.Success<typeof setup>>()(
-        "@beep/scratchpad/test/github-actions/ActionCache.test/Fixture24"
+        "@beep/github-actions/test/ActionCache.test/Fixture24"
       ) {}
       const fixtureLayer = Layer.effect(Fixture24, setup).pipe(Layer.provideMerge(NodeServices.layer));
       it.layer(Layer.unwrap(Effect.map(Fixture24, (fixture) => fixture.layer)).pipe(Layer.provideMerge(fixtureLayer)), {

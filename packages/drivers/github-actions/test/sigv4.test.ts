@@ -1,8 +1,8 @@
+import { canonicalize, SigV4Credentials, SigV4Request, sign } from "@beep/github-actions/internal/sigv4";
 import { assert, describe, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { canonicalize, SigV4Credentials, SigV4Request, sign } from "../../effected/github-actions/internal/sigv4.ts";
 
 const credentials = { accessKeyId: "AK", secretAccessKey: "SK", region: "us-east-1", service: "s3" };
 const request = {

@@ -1,11 +1,11 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ActionInput, inputVariable } from "@beep/github-actions/ActionInput";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { ActionInput, inputVariable } from "../../effected/github-actions/ActionInput.ts";
 import type * as Config from "effect/Config";
 
 const runs = { arbitrary: fcRuns(100) };

@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { digestFile, digestFileHex, sha256, sha256Hex } from "@beep/github-actions/internal/digest";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -6,7 +7,6 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import * as S from "effect/Schema";
-import { digestFile, digestFileHex, sha256, sha256Hex } from "../../../effected/github-actions/internal/digest.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {

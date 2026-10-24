@@ -1,12 +1,4 @@
-import { MemoryFileSystem } from "@beep/memfs";
-import { assert, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
-import * as Base64Url from "effect/encoding/Base64Url";
-import * as Redacted from "effect/Redacted";
-import * as Result from "effect/Result";
-import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../../effected/github-actions/ActionEnvironment.ts";
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
 import {
   BackendIds,
   backendIdsFrom,
@@ -15,7 +7,15 @@ import {
   ResultsBackend,
   RUNTIME_TOKEN,
   resultsBackend,
-} from "../../../effected/github-actions/internal/actionsResults.ts";
+} from "@beep/github-actions/internal/actionsResults";
+import { MemoryFileSystem } from "@beep/memfs";
+import { assert, it } from "@effect/vitest";
+import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import * as Base64Url from "effect/encoding/Base64Url";
+import * as Redacted from "effect/Redacted";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
   const json = S.fromJsonString(S.Unknown);

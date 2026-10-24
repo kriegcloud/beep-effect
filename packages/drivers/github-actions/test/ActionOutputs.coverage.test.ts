@@ -1,11 +1,4 @@
-import { MemoryFileSystem } from "@beep/memfs";
-import { assert, it } from "@effect/vitest";
-import { assertExitFailure } from "@effect/vitest/utils";
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
 import {
   ActionOutputs,
   DetachedOutputError,
@@ -13,8 +6,15 @@ import {
   OutputEncodeError,
   RunnerFileUnavailableError,
   RunnerFileWriteError,
-} from "../../effected/github-actions/ActionOutputs.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
+} from "@beep/github-actions/ActionOutputs";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { MemoryFileSystem } from "@beep/memfs";
+import { assert, it } from "@effect/vitest";
+import { assertExitFailure } from "@effect/vitest/utils";
+import * as Cause from "effect/Cause";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 
 it.layer(ActionOutputs.layerTest(), { timeout: "30 seconds" })((it) => {
   it.effect("every unstubbed output operation defects with its member and override", () =>

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
@@ -26,14 +26,14 @@ import type * as Duration from "effect/Duration";
 import type * as PlatformError from "effect/PlatformError";
 import type * as ChildProcess from "effect/process/ChildProcess";
 
-const $I = $ScratchpadId.create("effected/github-actions/ToolInstaller");
+const $I = $GithubActionsId.create("ToolInstaller");
 
 /**
  * Raised when a tool cannot be downloaded, extracted or cached.
  * **Example** (Inspect a download failure)
  *
  * ```ts
- * import { ToolInstallerError } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+ * import { ToolInstallerError } from "@beep/github-actions/ToolInstaller";
  *
  * const error = ToolInstallerError.make({ reason: "downloadFailed", subject: "https://example.com/tool", status: 429 });
  * console.log(error.message) // Could not download https://example.com/tool (HTTP 429)
@@ -91,7 +91,7 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
    * **Example** (Render a download message)
    *
    * ```ts
-   * import { ToolInstallerError } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+   * import { ToolInstallerError } from "@beep/github-actions/ToolInstaller";
    *
    * const error = ToolInstallerError.make({ reason: "downloadFailed", subject: "https://example.com/tool", status: 429 });
    * console.log(error.message) // Could not download https://example.com/tool (HTTP 429)
@@ -127,7 +127,7 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
    * **Example** (Retry a throttled download)
    *
    * ```ts
-   * import { ToolInstallerError } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+   * import { ToolInstallerError } from "@beep/github-actions/ToolInstaller";
    *
    * const error = ToolInstallerError.make({ reason: "downloadFailed", subject: "https://example.com/tool", status: 429 });
    * console.log(error.retryable) // true
@@ -158,7 +158,7 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { ExtractOptions } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+ * import { ExtractOptions } from "@beep/github-actions/ToolInstaller";
  *
  * const input = { destination: "/tools/staging", flags: ["xzf"] };
  * Effect.runSync(Console.log(S.is(ExtractOptions)(input))) // true
@@ -242,7 +242,7 @@ export interface ToolDownloadOptions {
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { ProvisionFileOptions } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+ * import { ProvisionFileOptions } from "@beep/github-actions/ToolInstaller";
  *
  * const input = { tool: "biome", version: "2.0.0", url: "https://example.com/biome", binary: "biome" };
  * Effect.runSync(Console.log(S.is(ProvisionFileOptions)(input))) // true
@@ -302,7 +302,7 @@ export type ProvisionFileOptions = typeof ProvisionFileOptions.Type;
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { ProvisionedFile } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+ * import { ProvisionedFile } from "@beep/github-actions/ToolInstaller";
  *
  * const input = { directory: "/tools/biome/2.0.0/x64", binDir: "/tools/biome/2.0.0/x64" };
  * Effect.runSync(Console.log(S.is(ProvisionedFile)(input))) // true
@@ -847,7 +847,7 @@ const testRoot = (): string =>
  * **Example** (Download and cache Node on a cache miss)
  *
  * ```ts
- * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+ * import { ToolInstaller } from "@beep/github-actions/ToolInstaller";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
  *
@@ -879,7 +879,7 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
    * **Example** (Compose the live installer)
    *
    * ```ts
-   * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+   * import { ToolInstaller } from "@beep/github-actions/ToolInstaller";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ToolInstaller.layer)) // true
@@ -913,7 +913,7 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
    * **Example** (Locate an x64 tool entry)
    *
    * ```ts
-   * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+   * import { ToolInstaller } from "@beep/github-actions/ToolInstaller";
    *
    * const directory = ToolInstaller.cachePath({ root: "/tools", tool: "node", version: "22.11.0", arch: "x64" });
    * console.log(directory) // /tools/node/22.11.0/x64
@@ -946,7 +946,7 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
    * **Example** (Stub a cache lookup)
    *
    * ```ts
-   * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+   * import { ToolInstaller } from "@beep/github-actions/ToolInstaller";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import { dual } from "effect/Function";
@@ -994,7 +994,7 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
    * **Example** (Provide a stubbed installer)
    *
    * ```ts
-   * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
+   * import { ToolInstaller } from "@beep/github-actions/ToolInstaller";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import { dual } from "effect/Function";

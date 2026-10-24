@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { ToolInstallerError } from "@beep/github-actions/ToolInstaller";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { ToolInstallerError } from "../../effected/github-actions/ToolInstaller.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

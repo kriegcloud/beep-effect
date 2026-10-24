@@ -20,7 +20,7 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
   );
 };
 
-import { GitHubTokenError } from "../../effected/github-actions/GitHubToken.ts";
+import { GitHubTokenError } from "@beep/github-actions/GitHubToken";
 
 describe("GitHubToken schema property floor", () => {
   roundTrips("GitHubTokenError", GitHubTokenError);

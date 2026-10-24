@@ -1,7 +1,7 @@
 import { GitHubApp, InstallationToken } from "@beep/github/GitHubApp";
 import { GitHubClient } from "@beep/github/GitHubClient";
 import { PermissionLevel, TokenPermissions } from "@beep/github/TokenPermissions";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -17,7 +17,7 @@ import type { BotIdentity, GitHubAppShape } from "@beep/github/GitHubApp";
 import type { RetryPolicy } from "@beep/github/Resilience";
 import type { ActionStateError } from "./ActionState.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/GitHubToken");
+const $I = $GithubActionsId.create("GitHubToken");
 
 /**
  * Raised when the token an earlier phase persisted cannot be used.
@@ -25,7 +25,7 @@ const $I = $ScratchpadId.create("effected/github-actions/GitHubToken");
  * **Example** (Identify an expired persisted token)
  *
  * ```ts
- * import { GitHubTokenError } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+ * import { GitHubTokenError } from "@beep/github-actions/GitHubToken";
  *
  * const error = GitHubTokenError.make({ reason: "expired", expiresAt: "2026-10-09T12:00:00Z" });
  * console.log(error.reason) // expired
@@ -66,7 +66,7 @@ export class GitHubTokenError extends S.TaggedError<GitHubTokenError, { readonly
    * **Example** (Inspect expiry guidance)
    *
    * ```ts
-   * import { GitHubTokenError } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+   * import { GitHubTokenError } from "@beep/github-actions/GitHubToken";
    *
    * const error = GitHubTokenError.make({ reason: "expired", expiresAt: "2026-10-09T12:00:00Z" });
    * console.log(error.message.includes("2026-10-09T12:00:00Z")) // true
@@ -92,7 +92,7 @@ const DEFAULT_KEY = "githubToken";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
  * import * as Redacted from "effect/Redacted";
- * import { ProvisionOptions } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+ * import { ProvisionOptions } from "@beep/github-actions/GitHubToken";
  *
  * const input = { appId: "123", privateKey: Redacted.make("example PEM") };
  * Effect.runSync(Console.log(S.is(ProvisionOptions)(input))) // true
@@ -155,7 +155,7 @@ export type ProvisionOptions = typeof ProvisionOptions.Type;
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { ReadOptions } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+ * import { ReadOptions } from "@beep/github-actions/GitHubToken";
  *
  * const input = { stateKey: "releaseToken" };
  * Effect.runSync(Console.log(S.is(ReadOptions)(input))) // true
@@ -295,7 +295,7 @@ const identified: {
  * **Example** (Provision a GitHub App token with write permissions)
  *
  * ```ts
- * import { GitHubToken } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+ * import { GitHubToken } from "@beep/github-actions/GitHubToken";
  * import * as Effect from "effect/Effect";
  * import * as Redacted from "effect/Redacted";
  *
@@ -335,7 +335,7 @@ export abstract class GitHubToken {
    * **Example** (Construct token provisioning for the pre phase)
    *
    * ```ts
-   * import { GitHubToken } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+   * import { GitHubToken } from "@beep/github-actions/GitHubToken";
    * import * as Effect from "effect/Effect";
    * import * as Redacted from "effect/Redacted";
    *
@@ -397,7 +397,7 @@ export abstract class GitHubToken {
    * **Example** (Construct a persisted token read)
    *
    * ```ts
-   * import { GitHubToken } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+   * import { GitHubToken } from "@beep/github-actions/GitHubToken";
    * import * as Effect from "effect/Effect";
    *
    * const program = GitHubToken.read({ stateKey: "githubToken" });
@@ -427,7 +427,7 @@ export abstract class GitHubToken {
    * **Example** (Construct a committer identity lookup)
    *
    * ```ts
-   * import { GitHubToken } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+   * import { GitHubToken } from "@beep/github-actions/GitHubToken";
    * import * as Effect from "effect/Effect";
    *
    * const program = GitHubToken.botIdentity();
@@ -457,7 +457,7 @@ export abstract class GitHubToken {
    * **Example** (Bind a client layer for later composition)
    *
    * ```ts
-   * import { GitHubToken } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+   * import { GitHubToken } from "@beep/github-actions/GitHubToken";
    * import * as Layer from "effect/Layer";
    *
    * const client = GitHubToken.clientLayer({ retry: "off" });
@@ -500,7 +500,7 @@ export abstract class GitHubToken {
    * **Example** (Construct token cleanup for the post phase)
    *
    * ```ts
-   * import { GitHubToken } from "@beep/scratchpad/effected/github-actions/GitHubToken";
+   * import { GitHubToken } from "@beep/github-actions/GitHubToken";
    * import * as Effect from "effect/Effect";
    *
    * const program = GitHubToken.dispose();

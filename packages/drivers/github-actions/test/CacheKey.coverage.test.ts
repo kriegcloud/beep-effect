@@ -1,6 +1,6 @@
+import { CacheKey, CacheKeyBadPatternError, CacheKeyReadError } from "@beep/github-actions/CacheKey";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { CacheKey, CacheKeyBadPatternError, CacheKeyReadError } from "../../effected/github-actions/CacheKey.ts";
 
 it.effect("cache errors name the failed input and digest defaults to eight hex digits", () =>
   Effect.sync(() => {

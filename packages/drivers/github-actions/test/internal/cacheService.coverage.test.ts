@@ -1,16 +1,11 @@
+import { CacheHit, finalizeUpload, lookupDownload, reserveUpload } from "@beep/github-actions/internal/cacheService";
+import { CONFLICT } from "@beep/github-actions/internal/twirp";
 import { assert, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import {
-  CacheHit,
-  finalizeUpload,
-  lookupDownload,
-  reserveUpload,
-} from "../../../effected/github-actions/internal/cacheService.ts";
-import { CONFLICT } from "../../../effected/github-actions/internal/twirp.ts";
-import type { CacheServiceClient } from "../../../effected/github-actions/internal/cacheService.ts";
+import type { CacheServiceClient } from "@beep/github-actions/internal/cacheService";
 
 it.effect("cache RPCs reject absent upload URLs and unconfirmed finalization and preserve lookup keys", () =>
   Effect.gen(function* () {

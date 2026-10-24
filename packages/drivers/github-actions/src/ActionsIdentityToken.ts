@@ -31,8 +31,8 @@ import { OidcTokenIssuer } from "./OidcTokenIssuer.ts";
  * **Example** (Provide runner OIDC identity to the Sigstore signer)
  *
  * ```ts
- * import { ActionsIdentityToken } from "@beep/scratchpad/effected/github-actions/ActionsIdentityToken";
- * import { OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/OidcTokenIssuer";
+ * import { ActionsIdentityToken } from "@beep/github-actions/ActionsIdentityToken";
+ * import { OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
  * import { SigstoreSigner } from "@beep/scratchpad/effected/sbom/SigstoreSigner";
  * import * as Layer from "effect/Layer";
  *
@@ -64,7 +64,7 @@ export class ActionsIdentityToken {
    * **Example** (Inspect the identity adapter layer)
    *
    * ```ts
-   * import { ActionsIdentityToken } from "@beep/scratchpad/effected/github-actions/ActionsIdentityToken";
+   * import { ActionsIdentityToken } from "@beep/github-actions/ActionsIdentityToken";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ActionsIdentityToken.layer)) // true

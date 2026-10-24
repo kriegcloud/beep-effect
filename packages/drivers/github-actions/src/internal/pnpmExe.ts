@@ -25,7 +25,7 @@ import * as Result from "effect/Result";
  * **Example** (Recognize the native package prefix)
  *
  * ```ts
- * import { PNPM_EXE_PREFIX } from "@beep/scratchpad/effected/github-actions/internal/pnpmExe";
+ * import { PNPM_EXE_PREFIX } from "@beep/github-actions/internal/pnpmExe";
  *
  * console.log(PNPM_EXE_PREFIX) // @pnpm/exe.
  * ```
@@ -78,7 +78,7 @@ const RUNNER_OS_TO_PLATFORM: Readonly<Record<string, string>> = {
  * **Example** (Select a Linux musl executable)
  *
  * ```ts
- * import { pnpmExeTarget } from "@beep/scratchpad/effected/github-actions/internal/pnpmExe";
+ * import { pnpmExeTarget } from "@beep/github-actions/internal/pnpmExe";
  * import * as O from "effect/Option";
  *
  * console.log(O.getOrUndefined(pnpmExeTarget("Linux", "x64", true))) // linux-x64-musl
@@ -116,7 +116,7 @@ export const pnpmExeTarget: {
  * **Example** (Probe the host libc)
  *
  * ```ts
- * import { detectMusl } from "@beep/scratchpad/effected/github-actions/internal/pnpmExe";
+ * import { detectMusl } from "@beep/github-actions/internal/pnpmExe";
  *
  * const usesMusl = detectMusl();
  * console.log(typeof usesMusl) // boolean
@@ -158,7 +158,7 @@ const SRI_ALGORITHMS: ReadonlyArray<string> = ["sha512", "sha384", "sha256", "sh
  * **Example** (Prefer the strongest parseable integrity entry)
  *
  * ```ts
- * import { strongestSri } from "@beep/scratchpad/effected/github-actions/internal/pnpmExe";
+ * import { strongestSri } from "@beep/github-actions/internal/pnpmExe";
  * import * as O from "effect/Option";
  *
  * const sri = strongestSri("sha1-YQ== sha512-Yg==");
@@ -203,7 +203,7 @@ export const strongestSri = (integrity: string): O.Option<{ readonly algorithm: 
  * **Example** (Distinguish Node scripts from native binaries)
  *
  * ```ts
- * import { isNodeScript } from "@beep/scratchpad/effected/github-actions/internal/pnpmExe";
+ * import { isNodeScript } from "@beep/github-actions/internal/pnpmExe";
  *
  * console.log(isNodeScript("bin/pnpm.cjs")) // true
  * console.log(isNodeScript("bin/pnpm")) // false

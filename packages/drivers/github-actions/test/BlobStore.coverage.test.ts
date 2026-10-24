@@ -1,3 +1,6 @@
+import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
+import { BlobStore, BlobStoreError } from "@beep/github-actions/BlobStore";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -8,9 +11,6 @@ import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { ActionOutputs } from "../../effected/github-actions/ActionOutputs.ts";
-import { BlobStore, BlobStoreError } from "../../effected/github-actions/BlobStore.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
 
 const config = {
   bucket: "bucket",

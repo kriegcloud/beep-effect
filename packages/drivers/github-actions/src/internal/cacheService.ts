@@ -10,7 +10,7 @@
 // the bytes between the two RPCs stays in the three modules licensed to import
 // it (`__test__/reachability.test.ts`).
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
@@ -19,7 +19,7 @@ import * as S from "effect/Schema";
 import { CONFLICT, isOk, stringField } from "./twirp.ts";
 import type { TwirpResult } from "./twirp.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/cacheService");
+const $I = $GithubActionsId.create("internal/cacheService");
 
 /**
  * The Twirp service the Actions cache protocol lives under.
@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/cacheService")
  * **Example** (Name the cache RPC service)
  *
  * ```ts
- * import { CACHE_SERVICE } from "@beep/scratchpad/effected/github-actions/internal/cacheService";
+ * import { CACHE_SERVICE } from "@beep/github-actions/internal/cacheService";
  *
  * console.log(CACHE_SERVICE) // github.actions.results.api.v1.CacheService
  * ```
@@ -60,10 +60,10 @@ export interface CacheServiceClient<E> {
  * **Example** (Observe an existing cache reservation)
  *
  * ```ts
- * import { reserveUpload } from "@beep/scratchpad/effected/github-actions/internal/cacheService";
+ * import { reserveUpload } from "@beep/github-actions/internal/cacheService";
  * import * as O from "effect/Option";
  * import * as Effect from "effect/Effect";
- * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp";
+ * import { CONFLICT } from "@beep/github-actions/internal/twirp";
  * import { dual } from "effect/Function";
  *
  * const client = {
@@ -103,9 +103,9 @@ export const reserveUpload: {
  * **Example** (Compose upload finalization)
  *
  * ```ts
- * import { finalizeUpload } from "@beep/scratchpad/effected/github-actions/internal/cacheService";
+ * import { finalizeUpload } from "@beep/github-actions/internal/cacheService";
  * import * as Effect from "effect/Effect";
- * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp";
+ * import { CONFLICT } from "@beep/github-actions/internal/twirp";
  * import { dual } from "effect/Function";
  *
  * const client = {
@@ -154,7 +154,7 @@ export const finalizeUpload: {
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { CacheHit } from "@beep/scratchpad/effected/github-actions/internal/cacheService";
+ * import { CacheHit } from "@beep/github-actions/internal/cacheService";
  *
  * const input = { url: "https://cache.example/blob", matchedKey: undefined };
  * Effect.runSync(Console.log(S.is(CacheHit)(input))) // true
@@ -189,10 +189,10 @@ export type CacheHit = typeof CacheHit.Type;
  * **Example** (Observe a cold cache)
  *
  * ```ts
- * import { lookupDownload } from "@beep/scratchpad/effected/github-actions/internal/cacheService";
+ * import { lookupDownload } from "@beep/github-actions/internal/cacheService";
  * import * as O from "effect/Option";
  * import * as Effect from "effect/Effect";
- * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp";
+ * import { CONFLICT } from "@beep/github-actions/internal/twirp";
  * import { dual } from "effect/Function";
  *
  * const client = {

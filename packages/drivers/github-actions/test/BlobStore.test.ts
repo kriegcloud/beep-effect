@@ -1,3 +1,6 @@
+import { ActionOutputs, BlobStore, BlobStoreError, NotABlobEnvelopeError } from "@beep/github-actions";
+import { canonicalize, digestHex, sign, signingKey, uriEncode } from "@beep/github-actions/internal/sigv4";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -12,19 +15,11 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
-import {
-  ActionOutputs,
-  BlobStore,
-  BlobStoreError,
-  NotABlobEnvelopeError,
-} from "../../effected/github-actions/index.ts";
-import { canonicalize, digestHex, sign, signingKey, uriEncode } from "../../effected/github-actions/internal/sigv4.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
+import type { S3Config } from "@beep/github-actions";
 import type * as HttpClientRequest from "effect/http/HttpClientRequest";
-import type { S3Config } from "../../effected/github-actions/index.ts";
 
 class AlternateBlobStore extends Context.Service<AlternateBlobStore, Context.Service.Shape<typeof BlobStore>>()(
-  "@beep/scratchpad/test/github-actions/BlobStore.test/AlternateBlobStore"
+  "@beep/github-actions/test/BlobStore.test/AlternateBlobStore"
 ) {}
 
 class Meta extends S.Class<Meta, { readonly brand: unique symbol }>("Meta")({ tag: S.String, durationMs: S.Finite }) {}

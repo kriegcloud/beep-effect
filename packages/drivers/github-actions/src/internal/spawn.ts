@@ -17,7 +17,7 @@
 // cannot deadlock on a full pipe; the stream ends at exit. The caller applies
 // its own exit-code policy (the cache tolerates `tar -k`'s exit 1) and maps
 // the `PlatformError` into its own error class.
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
 import * as S from "effect/Schema";
@@ -26,7 +26,7 @@ import type * as PlatformError from "effect/PlatformError";
 import type * as ChildProcess from "effect/process/ChildProcess";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/spawn");
+const $I = $GithubActionsId.create("internal/spawn");
 
 /**
  * What one run produced: stdout and stderr interleaved, and the exit code.
@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/spawn");
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { SpawnOnceResult } from "@beep/scratchpad/effected/github-actions/internal/spawn";
+ * import { SpawnOnceResult } from "@beep/github-actions/internal/spawn";
  *
  * const input = { output: "installed", code: 0 };
  * Effect.runSync(Console.log(S.is(SpawnOnceResult)(input))) // true
@@ -75,7 +75,7 @@ export type SpawnOnceResult = typeof SpawnOnceResult.Type;
  * **Example** (Construct a single-spawn program)
  *
  * ```ts
- * import { spawnOnce } from "@beep/scratchpad/effected/github-actions/internal/spawn"
+ * import { spawnOnce } from "@beep/github-actions/internal/spawn"
  * import * as Effect from "effect/Effect"
  * import * as ChildProcess from "effect/process/ChildProcess";
  * import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";

@@ -1,3 +1,5 @@
+import { ActionInput } from "@beep/github-actions";
+import { PairsOptions } from "@beep/github-actions/ActionInput";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Config from "effect/Config";
@@ -9,8 +11,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { PairsOptions } from "../../effected/github-actions/ActionInput.ts";
-import { ActionInput } from "../../effected/github-actions/index.ts";
 
 /** Read a config against a fixed runner environment. */
 const read = <A>(config: Config.Config<A>, env: Record<string, string>) =>

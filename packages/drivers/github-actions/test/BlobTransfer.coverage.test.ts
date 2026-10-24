@@ -1,6 +1,6 @@
+import { BlobTransferError } from "@beep/github-actions/BlobTransfer";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { BlobTransferError } from "../../effected/github-actions/BlobTransfer.ts";
 
 it.effect("transfer errors describe the failing direction", () =>
   Effect.sync(() => {

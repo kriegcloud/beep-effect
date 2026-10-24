@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { UnstubbedMemberError } from "../../../effected/github-actions/internal/unstubbed.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

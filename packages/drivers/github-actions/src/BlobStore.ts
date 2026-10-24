@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -22,7 +22,7 @@ import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type { ActionOutputs } from "./ActionOutputs.ts";
 import type { BlobEnvelopeError } from "./BlobEnvelope.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/BlobStore");
+const $I = $GithubActionsId.create("BlobStore");
 
 const DotSegment = LiteralKit([".", ".."]).pipe(
   $I.annoteSchema("DotSegment", { description: "Complete path segments that URL normalization would resolve." })
@@ -37,7 +37,7 @@ const EndpointProtocol = LiteralKit(["http:", "https:"]).pipe(
  * **Example** (Describe a refused blob write)
  *
  * ```ts
- * import { BlobStoreError } from "@beep/scratchpad/effected/github-actions/BlobStore";
+ * import { BlobStoreError } from "@beep/github-actions/BlobStore";
  *
  * const error = BlobStoreError.make({ reason: "refused", key: "build/1", status: 403 });
  * console.log(error.message) // The blob store refused "build/1" with status 403
@@ -88,7 +88,7 @@ export class BlobStoreError extends S.TaggedError<BlobStoreError, { readonly bra
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { BlobStoreError } from "@beep/scratchpad/effected/github-actions/BlobStore";
+   * import { BlobStoreError } from "@beep/github-actions/BlobStore";
    *
    * const error = BlobStoreError.make({ reason: "unreachable", key: "build/1" });
    * console.log(error.message) // The blob store could not be reached for "build/1"
@@ -177,7 +177,7 @@ export interface BlobStoreShape {
  * **Example** (Validate an S3 configuration)
  *
  * ```ts
- * import { S3Config } from "@beep/scratchpad/effected/github-actions/BlobStore";
+ * import { S3Config } from "@beep/github-actions/BlobStore";
  * import * as Redacted from "effect/Redacted";
  * import * as S from "effect/Schema";
  *
@@ -264,7 +264,7 @@ export type S3Config = typeof S3Config.Type;
  * **Example** (Store and retrieve a blob with typed metadata)
  *
  * ```ts
- * import { BlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore";
+ * import { BlobStore } from "@beep/github-actions/BlobStore";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
@@ -302,7 +302,7 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
    * **Example** (Configure an S3-compatible backend)
    *
    * ```ts
-   * import { BlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore";
+   * import { BlobStore } from "@beep/github-actions/BlobStore";
    * import * as Layer from "effect/Layer";
    * import * as Redacted from "effect/Redacted";
    *
@@ -326,7 +326,7 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
    * **Example** (Stub a key-presence check)
    *
    * ```ts
-   * import { BlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore";
+   * import { BlobStore } from "@beep/github-actions/BlobStore";
    * import * as Effect from "effect/Effect";
    *
    * const store = BlobStore.makeTest({ has: (_key) => Effect.succeed(true) });
@@ -361,7 +361,7 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
    * **Example** (Provide a stubbed blob service)
    *
    * ```ts
-   * import { BlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore";
+   * import { BlobStore } from "@beep/github-actions/BlobStore";
    * import * as Effect from "effect/Effect";
    *
    * const layer = BlobStore.layerTest({ has: (_key) => Effect.succeed(false) });
@@ -387,7 +387,7 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
    * **Example** (Round trip metadata through the memory backend)
    *
    * ```ts
-   * import { BlobStore } from "@beep/scratchpad/effected/github-actions/BlobStore";
+   * import { BlobStore } from "@beep/github-actions/BlobStore";
    * import * as Effect from "effect/Effect";
    * import * as O from "effect/Option";
    * import * as S from "effect/Schema";

@@ -21,7 +21,7 @@ const RULE =
   "read it through ActionEnvironment, or take it as an argument (see ChildEnv's class doc). " +
   "A new sanctioned default must be added to the allowlist in __test__/ambientReads.test.ts WITH its reason.";
 
-const srcRoot = fileURLToPath(new URL("../../effected/github-actions/", import.meta.url));
+const srcRoot = fileURLToPath(new URL("../src/", import.meta.url));
 
 const AMBIENT_MEMBERS: ReadonlySet<string> = new Set(["env", "arch", "platform"]);
 
@@ -159,17 +159,17 @@ const ALLOWED: ReadonlyArray<readonly [string, string, string]> = [
   ],
   [
     "PackageManagerInstaller.ts",
-    "O.match(found, { onNone: (): string => process.arch, onSome: archFromRunner }),",
+    "O.match(found, { onNone: (): string => process.arch, onSome: archFromRunner })",
     "the off-runner fallback for RUNNER_ARCH, selecting the native-binary target",
   ],
   [
     "ToolInstaller.ts",
-    "ToolInstaller.cachePath({ root, tool, version, arch: process.arch }));",
+    "ToolInstaller.cachePath({ root, tool, version, arch: process.arch })",
     "the tool-cache layout's arch segment is Node's spelling by contract with the runner",
   ],
   [
     "ToolInstaller.ts",
-    "ToolInstaller.cachePath({ root: testRoot(), tool, version, arch: process.arch })),",
+    "ToolInstaller.cachePath({ root: testRoot(), tool, version, arch: process.arch })",
     "makeTest's cachePath default — the same arch segment `make` writes, for the same reason",
   ],
   [

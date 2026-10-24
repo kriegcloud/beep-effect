@@ -28,7 +28,7 @@ import {
   InvalidPidError,
   MissingProcessIdError,
   ProcessId,
-} from "../../effected/github-actions/DetachedProcess.ts";
+} from "@beep/github-actions/DetachedProcess";
 
 describe("DetachedProcess schema property floor", () => {
   roundTrips("MissingProcessIdError", MissingProcessIdError);

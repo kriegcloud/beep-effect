@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { strongestSri } from "@beep/github-actions/internal/pnpmExe";
 import { assert, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
@@ -8,7 +9,6 @@ import * as Hex from "effect/encoding/Hex";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { strongestSri } from "../../../effected/github-actions/internal/pnpmExe.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

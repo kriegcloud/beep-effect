@@ -18,7 +18,7 @@ All `@effected/*` packages are ESM-only: the exports maps publish only `import` 
 ## Quick start
 
 ```ts
-import { Action, ActionInput, ActionOutputs } from "@beep/scratchpad/effected/github-actions/index";
+import { Action, ActionInput, ActionOutputs } from "@beep/github-actions";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 
@@ -42,7 +42,7 @@ Step debugging works without wiring: when the runner sets `RUNNER_DEBUG=1`, `Act
 Every accessor shares one absence rule: the runner writes `""` for an input the workflow omitted, and this package reads that the same as unset — **missing data**, not an empty value. An optional input needs `Config.withDefault` (or `Config.option`) at the call site:
 
 ```ts
-import { ActionInput } from "@beep/scratchpad/effected/github-actions/index";
+import { ActionInput } from "@beep/github-actions";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 
@@ -62,7 +62,7 @@ console.log(Effect.isEffect(program)) // true
 `GitHubToken` shapes GitHub App authentication like the three-phase workflow it runs inside: mint in `pre`, use in `main`, revoke in `post`. Nothing survives between phases except what `GITHUB_STATE` carries, so an installation token — which lives about an hour — is persisted rather than held in a `Scope`:
 
 ```ts
-import { GitHubToken } from "@beep/scratchpad/effected/github-actions/index";
+import { GitHubToken } from "@beep/github-actions";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Layer from "effect/Layer";
@@ -90,7 +90,7 @@ console.log(Effect.isEffect(pre) && Layer.isLayer(ClientLayer) && Effect.isEffec
 `Secret` is the only place in this package a `Redacted` value becomes a plain string, and masking and declassification are the same call — every member registers the value with the runner's `::add-mask::` filter *before* returning plaintext:
 
 ```ts
-import { Secret } from "@beep/scratchpad/effected/github-actions/index";
+import { Secret } from "@beep/github-actions";
 import * as Redacted from "effect/Redacted";
 import * as Effect from "effect/Effect";
 
@@ -109,7 +109,7 @@ console.log(Effect.isEffect(program)) // true
 `ActionCache` and `Artifact` speak the Actions Twirp v2 protocol directly — no `@actions/cache` or `@actions/artifact` dependency, and both are excluded from `ActionRuntime.layer` on purpose, so a consumer that only sets an output never links `@azure/storage-blob`:
 
 ```ts
-import { Action, ActionCache, CacheKey } from "@beep/scratchpad/effected/github-actions/index";
+import { Action, ActionCache, CacheKey } from "@beep/github-actions";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
@@ -129,7 +129,7 @@ console.log(Effect.isEffect(program) && typeof run === "function") // true
 `CacheKey.withNamespace(segment)` is the cache-bust case — a run that must match nothing an unbusted run wrote, and whose own entries must be invisible to unbusted runs:
 
 ```ts
-import { CacheKey } from "@beep/scratchpad/effected/github-actions/index";
+import { CacheKey } from "@beep/github-actions";
 
 const key = CacheKey.of("Linux", "pnpm-store", "abc123").withNamespace("bust7");
 console.log(key.key, key.restoreKeys);
@@ -143,7 +143,7 @@ Two decisions make that safe for any segment value, with no prefix reasoning at 
 `ActionsProvenance.capture` turns those claims into a `@beep/sbom` `SlsaProvenance` predicate, and `ActionsIdentityToken.layer` serves that package's narrow `IdentityToken` contract from the same issuer — the inversion that keeps the Actions runtime out of every consumer that only wants to emit an SBOM:
 
 ```ts
-import { ActionsIdentityToken, ActionsProvenance, OidcTokenIssuer } from "@beep/scratchpad/effected/github-actions/index";
+import { ActionsIdentityToken, ActionsProvenance, OidcTokenIssuer } from "@beep/github-actions";
 import { SigstoreSigner } from "@beep/scratchpad/effected/sbom/index";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -181,7 +181,7 @@ Four failure types in this package are **tagged unions of one error class per re
 **Breaking, and how to migrate.** Code that branched on `error.reason` matches on `_tag` instead, which is what buys the split: one failure can be handled on its own with `Effect.catchTag`, and the rest stay in the error channel rather than being caught by a handler that only meant to answer one of them.
 
 ```ts
-import { CacheKey } from "@beep/scratchpad/effected/github-actions/index";
+import { CacheKey } from "@beep/github-actions";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
@@ -198,7 +198,7 @@ console.log(Effect.isEffect(digest)) // true
 Every service ships `makeTest(overrides?)` and `layerTest(overrides?)`, with unstubbed members dying loudly and naming themselves — three recorded exceptions state why they default instead: `ActionEnvironment.makeTest` seeds the twelve `GITHUB_*`/`RUNNER_*` variables, `ActionLogger.makeTest` defaults to silent, and `DryRun.makeTest` defaults to rehearsing, the safe direction. `ActionEnvironment.makeTest`/`layerTest` also take the webhook event payload as an optional second argument, serving it directly instead of routing it through a `GITHUB_EVENT_PATH` filesystem read the stubbed filesystem could never satisfy:
 
 ```ts
-import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/index";
+import { ActionEnvironment } from "@beep/github-actions";
 import * as Layer from "effect/Layer";
 
 const layer = ActionEnvironment.layerTest(
@@ -209,7 +209,7 @@ console.log(Layer.isLayer(layer)) // true
 ```
 
 ```ts
-import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/index";
+import { ActionOutputs } from "@beep/github-actions";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 

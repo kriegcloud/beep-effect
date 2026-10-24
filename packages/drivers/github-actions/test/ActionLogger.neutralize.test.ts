@@ -1,3 +1,4 @@
+import { ActionEnvironment, ActionLogger, ActionOutputs } from "@beep/github-actions";
 import { WorkflowCommand } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -6,8 +7,7 @@ import * as References from "effect/References";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import { ActionEnvironment, ActionLogger, ActionOutputs } from "../../effected/github-actions/index.ts";
-import { commandLines, isCommand } from "./helpers/runnerCommands.ts";
+import { commandLines, isCommand } from "./support/runnerCommands.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 

@@ -19,7 +19,7 @@ const BASE_DELIMITER = "EFFECTED_EOF";
  * **Example** (Avoid an existing delimiter run)
  *
  * ```ts
- * import { delimiterFor } from "@beep/scratchpad/effected/github-actions/internal/runnerFile";
+ * import { delimiterFor } from "@beep/github-actions/internal/runnerFile";
  *
  * console.log(delimiterFor("EFFECTED_EOF__")) // EFFECTED_EOF___
  * ```
@@ -74,7 +74,7 @@ export const delimiterFor = (value: string): string => {
  * **Example** (Reject runner-file separators)
  *
  * ```ts
- * import { isUsableName } from "@beep/scratchpad/effected/github-actions/internal/runnerFile";
+ * import { isUsableName } from "@beep/github-actions/internal/runnerFile";
  *
  * console.log(isUsableName("a<b")) // true
  * console.log(isUsableName("a=")) // false
@@ -100,7 +100,7 @@ export const isUsableName = (name: string): boolean => name !== "" && /[\r\n=]|<
  * **Example** (Frame a validated output name)
  *
  * ```ts
- * import { heredocBlock, isUsableName } from "@beep/scratchpad/effected/github-actions/internal/runnerFile";
+ * import { heredocBlock, isUsableName } from "@beep/github-actions/internal/runnerFile";
  *
  * const name = "answer";
  * if (isUsableName(name)) {

@@ -14,6 +14,17 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+  ActionEnvironment,
+  AmbientPackageManager,
+  CachedPackageManager,
+  InstalledPackageManager,
+  PackageManagerInstaller,
+  PackageManagerInstallerError,
+  ToolInstaller,
+  ToolInstallerError,
+} from "@beep/github-actions";
+import { PackageManagerInstallOptions } from "@beep/github-actions/PackageManagerInstaller";
 import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
 import { NodeServices } from "@effect/platform-node";
@@ -35,18 +46,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-import {
-  ActionEnvironment,
-  AmbientPackageManager,
-  CachedPackageManager,
-  InstalledPackageManager,
-  PackageManagerInstaller,
-  PackageManagerInstallerError,
-  ToolInstaller,
-  ToolInstallerError,
-} from "../../effected/github-actions/index.ts";
-import { PackageManagerInstallOptions } from "../../effected/github-actions/PackageManagerInstaller.ts";
-import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
 import type * as Scope from "effect/Scope";
 
@@ -100,7 +100,7 @@ const live = (root: string, fetch: typeof globalThis.fetch = alwaysFails, env: R
 type TestError = Error | InstalledPackageManager;
 
 class TestProgram extends Context.Service<TestProgram, { readonly run: Effect.Effect<unknown, TestError> }>()(
-  "@beep/scratchpad/test/github-actions/PackageManagerInstaller.test/TestProgram"
+  "@beep/github-actions/test/PackageManagerInstaller.test/TestProgram"
 ) {}
 
 const runTest = () => Effect.flatMap(TestProgram, ({ run }) => run);

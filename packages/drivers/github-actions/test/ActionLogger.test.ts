@@ -1,3 +1,5 @@
+import { ActionEnvironment, ActionLogger } from "@beep/github-actions";
+import { WithBufferOptions, WithStepOptions } from "@beep/github-actions/ActionLogger";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -7,8 +9,6 @@ import * as P from "effect/Predicate";
 import * as References from "effect/References";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import { WithBufferOptions, WithStepOptions } from "../../effected/github-actions/ActionLogger.ts";
-import { ActionEnvironment, ActionLogger } from "../../effected/github-actions/index.ts";
 import type { AnnotationProperties } from "@beep/github-commands";
 
 /** Everything written to `Console.log`, as strings, in order. */

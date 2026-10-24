@@ -6,11 +6,11 @@
 //     internal — so the helper must write THROUGH the inherited casing;
 // (c) `.cmd` shims need `shell: true` since CVE-2024-27980.
 
+import { ChildEnv } from "@beep/github-actions";
+import { PathPrependEnv, PathPrependOptions } from "@beep/github-actions/ChildEnv";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { PathPrependEnv, PathPrependOptions } from "../../effected/github-actions/ChildEnv.ts";
-import { ChildEnv } from "../../effected/github-actions/index.ts";
 
 describe("ChildEnv", () => {
   describe("trap (a): the extendEnv pair", () => {

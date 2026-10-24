@@ -20,7 +20,7 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
   );
 };
 
-import { ActionCacheError } from "../../effected/github-actions/ActionCache.ts";
+import { ActionCacheError } from "@beep/github-actions/ActionCache";
 
 describe("ActionCache property floor", () => {
   roundTrips("ActionCacheError encode/decode fidelity", ActionCacheError);

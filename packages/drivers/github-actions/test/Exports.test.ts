@@ -1,12 +1,8 @@
+import { InvalidActionStateNameError, InvalidDigestLengthError, MissingProcessIdError } from "@beep/github-actions";
+import * as ActionState from "@beep/github-actions/ActionState";
+import * as CacheKey from "@beep/github-actions/CacheKey";
+import * as DetachedProcess from "@beep/github-actions/DetachedProcess";
 import { assert, describe, it } from "@effect/vitest";
-import * as ActionState from "../../effected/github-actions/ActionState.ts";
-import * as CacheKey from "../../effected/github-actions/CacheKey.ts";
-import * as DetachedProcess from "../../effected/github-actions/DetachedProcess.ts";
-import {
-  InvalidActionStateNameError,
-  InvalidDigestLengthError,
-  MissingProcessIdError,
-} from "../../effected/github-actions/index.ts";
 
 describe("github-actions entry-point exports", () => {
   it("exports the three existing tagged error classes", () => {

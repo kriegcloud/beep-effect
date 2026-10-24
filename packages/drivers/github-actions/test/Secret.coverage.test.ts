@@ -1,8 +1,8 @@
+import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
+import { Secret } from "@beep/github-actions/Secret";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import { ActionOutputs } from "../../effected/github-actions/ActionOutputs.ts";
-import { Secret } from "../../effected/github-actions/Secret.ts";
 
 it.effect("signing masks before returning the key", () =>
   Effect.gen(function* () {

@@ -11,7 +11,7 @@
 // strict about the alphabet where Node's decoder is forgiving, which is why
 // there is a test whose payload actually contains `-` and `_`.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Base64Url from "effect/encoding/Base64Url";
 import * as Function from "effect/Function";
@@ -19,7 +19,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 const Json = S.fromJsonString(S.Unknown);
-const $I = $ScratchpadId.create("effected/github-actions/internal/jwt");
+const $I = $GithubActionsId.create("internal/jwt");
 const JwtPayloadFailureKind = LiteralKit(["segments", "payload"]).pipe(
   $I.annoteSchema("JwtPayloadFailureKind", { description: "Whether token framing or payload decoding failed." })
 );
@@ -36,7 +36,7 @@ const PayloadFailureDetail = S.String.pipe(
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { JwtPayloadFailure } from "@beep/scratchpad/effected/github-actions/internal/jwt";
+ * import { JwtPayloadFailure } from "@beep/github-actions/internal/jwt";
  *
  * const input = { kind: "segments", detail: "expected three JWT segments" };
  * Effect.runSync(Console.log(S.is(JwtPayloadFailure)(input))) // true
@@ -85,7 +85,7 @@ export type JwtPayloadFailure = typeof JwtPayloadFailure.Type;
  * **Example** (Read claims from an unsigned fixture)
  *
  * ```ts
- * import { payloadOf, unsignedJwt } from "@beep/scratchpad/effected/github-actions/internal/jwt";
+ * import { payloadOf, unsignedJwt } from "@beep/github-actions/internal/jwt";
  * import * as Result from "effect/Result";
  *
  * const token = unsignedJwt({ alg: "none" }, { sub: "test" });
@@ -124,7 +124,7 @@ export const payloadOf = (token: string): Result.Result<unknown, JwtPayloadFailu
  * **Example** (Build a token with a placeholder signature)
  *
  * ```ts
- * import { unsignedJwt } from "@beep/scratchpad/effected/github-actions/internal/jwt";
+ * import { unsignedJwt } from "@beep/github-actions/internal/jwt";
  *
  * console.log(unsignedJwt({}, {})) // e30.e30.unsigned
  * ```

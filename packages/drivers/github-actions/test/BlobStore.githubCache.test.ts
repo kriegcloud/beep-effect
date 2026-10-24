@@ -1,3 +1,4 @@
+import { BlobStore, BlobStoreError, BlobTransferError, GitHubCacheBlobStore } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Context from "effect/Context";
@@ -7,17 +8,11 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
-import {
-  BlobStore,
-  BlobStoreError,
-  BlobTransferError,
-  GitHubCacheBlobStore,
-} from "../../effected/github-actions/index.ts";
-import { json, resultsEnv, settle, twirpFetch } from "./results.ts";
-import type { DataBlobTransfer } from "../../effected/github-actions/index.ts";
+import { json, resultsEnv, settle, twirpFetch } from "./support/results.ts";
+import type { DataBlobTransfer } from "@beep/github-actions";
 
 class AlternateBlobStore extends Context.Service<AlternateBlobStore, Context.Service.Shape<typeof BlobStore>>()(
-  "@beep/scratchpad/test/github-actions/BlobStore.githubCache.test/AlternateBlobStore"
+  "@beep/github-actions/test/BlobStore.githubCache.test/AlternateBlobStore"
 ) {}
 
 class Meta extends S.Class<Meta, { readonly brand: unique symbol }>("Meta")({ tag: S.String, durationMs: S.Finite }) {}

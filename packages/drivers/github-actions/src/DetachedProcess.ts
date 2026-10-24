@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
@@ -13,7 +13,7 @@ import { IeeeNumber } from "./internal/ieeeNumber.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import type * as Duration from "effect/Duration";
 
-const $I = $ScratchpadId.create("effected/github-actions/DetachedProcess");
+const $I = $GithubActionsId.create("DetachedProcess");
 
 /**
  * A spawned detached child did not provide a process id.
@@ -21,7 +21,7 @@ const $I = $ScratchpadId.create("effected/github-actions/DetachedProcess");
  * **Example** (Inspect MissingProcessIdError message)
  *
  * ```ts
- * import { MissingProcessIdError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { MissingProcessIdError } from "@beep/github-actions/DetachedProcess";
  *
  * const error = MissingProcessIdError.make({ message: "No process id was returned" });
  * console.log(error.message) // No process id was returned
@@ -55,7 +55,7 @@ const { closeSync, openSync } = process.getBuiltinModule("node:fs");
  * **Example** (Inspect DetachedLogUnavailableError message)
  *
  * ```ts
- * import { DetachedLogUnavailableError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { DetachedLogUnavailableError } from "@beep/github-actions/DetachedProcess";
  *
  * const error = DetachedLogUnavailableError.make({ path: "/tmp/server.log" });
  * console.log(error.message) // Could not open the detached log file "/tmp/server.log"
@@ -102,7 +102,7 @@ export class DetachedLogUnavailableError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { DetachedLogUnavailableError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedLogUnavailableError } from "@beep/github-actions/DetachedProcess";
    *
    * const error = DetachedLogUnavailableError.make({ path: "/tmp/server.log" });
    * console.log(error.message) // Could not open the detached log file "/tmp/server.log"
@@ -121,7 +121,7 @@ export class DetachedLogUnavailableError extends S.TaggedError<
  * **Example** (Inspect DetachedSpawnFailedError message)
  *
  * ```ts
- * import { DetachedSpawnFailedError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { DetachedSpawnFailedError } from "@beep/github-actions/DetachedProcess";
  *
  * const error = DetachedSpawnFailedError.make({});
  * console.log(error.message) // The detached child did not start
@@ -158,7 +158,7 @@ export class DetachedSpawnFailedError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { DetachedSpawnFailedError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedSpawnFailedError } from "@beep/github-actions/DetachedProcess";
    *
    * const error = DetachedSpawnFailedError.make({});
    * console.log(error.message) // The detached child did not start
@@ -182,7 +182,7 @@ export class DetachedSpawnFailedError extends S.TaggedError<
  * **Example** (Inspect InvalidPidError message)
  *
  * ```ts
- * import { InvalidPidError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { InvalidPidError } from "@beep/github-actions/DetachedProcess";
  *
  * const error = InvalidPidError.make({ pid: 0 });
  * console.log(error.message) // Refusing to signal pid 0: a non-positive pid targets a process group, not a process
@@ -225,7 +225,7 @@ export class InvalidPidError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { InvalidPidError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { InvalidPidError } from "@beep/github-actions/DetachedProcess";
    *
    * const error = InvalidPidError.make({ pid: 0 });
    * console.log(error.message) // Refusing to signal pid 0: a non-positive pid targets a process group, not a process
@@ -244,7 +244,7 @@ export class InvalidPidError extends S.TaggedError<
  * **Example** (Inspect DetachedSignalFailedError message)
  *
  * ```ts
- * import { DetachedSignalFailedError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { DetachedSignalFailedError } from "@beep/github-actions/DetachedProcess";
  *
  * const error = DetachedSignalFailedError.make({ pid: 123 });
  * console.log(error.message) // Could not signal pid 123
@@ -291,7 +291,7 @@ export class DetachedSignalFailedError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { DetachedSignalFailedError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedSignalFailedError } from "@beep/github-actions/DetachedProcess";
    *
    * const error = DetachedSignalFailedError.make({ pid: 123 });
    * console.log(error.message) // Could not signal pid 123
@@ -310,7 +310,7 @@ export class DetachedSignalFailedError extends S.TaggedError<
  * **Example** (Inspect DetachedNotReadyError message)
  *
  * ```ts
- * import { DetachedNotReadyError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { DetachedNotReadyError } from "@beep/github-actions/DetachedProcess";
  *
  * const error = DetachedNotReadyError.make({});
  * console.log(error.message) // The detached child never became ready
@@ -347,7 +347,7 @@ export class DetachedNotReadyError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { DetachedNotReadyError } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedNotReadyError } from "@beep/github-actions/DetachedProcess";
    *
    * const error = DetachedNotReadyError.make({});
    * console.log(error.message) // The detached child never became ready
@@ -406,8 +406,8 @@ export type DetachedProcessError =
  * **Example** (Decode a persisted process ID before reaping)
  *
  * ```ts
- * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
- * import { DetachedProcess, ProcessId } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { ActionState } from "@beep/github-actions/ActionState";
+ * import { DetachedProcess, ProcessId } from "@beep/github-actions/DetachedProcess";
  * import * as Effect from "effect/Effect";
  *
  * const post = Effect.gen(function* () {
@@ -453,7 +453,7 @@ export type ProcessId = typeof ProcessId.Type;
  * **Example** (Validate detached launch options)
  *
  * ```ts
- * import { DetachedSpawnOptions } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { DetachedSpawnOptions } from "@beep/github-actions/DetachedProcess";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(DetachedSpawnOptions)({ command: "node", logFile: "/tmp/server.log" })) // true
@@ -659,7 +659,7 @@ const dies = unstubbed("DetachedProcess.makeTestOps");
  * **Example** (Start a detached server and await readiness)
  *
  * ```ts
- * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
  * import * as Effect from "effect/Effect";
  *
  * const healthCheck = DetachedProcess.httpProbe("http://localhost:3000/health");
@@ -692,7 +692,7 @@ export abstract class DetachedProcess {
    * **Example** (Construct a detached server launch)
    *
    * ```ts
-   * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
    * import * as Effect from "effect/Effect";
    *
    * const program = DetachedProcess.spawn({
@@ -765,7 +765,7 @@ export abstract class DetachedProcess {
    * **Example** (Accept a ready predicate)
    *
    * ```ts
-   * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
    * import * as Effect from "effect/Effect";
    *
    * const program = DetachedProcess.awaitReady(Effect.succeed(true));
@@ -832,7 +832,7 @@ export abstract class DetachedProcess {
    * **Example** (Construct an HTTP readiness check)
    *
    * ```ts
-   * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
    * import * as Effect from "effect/Effect";
    *
    * const probe = DetachedProcess.httpProbe("http://localhost:3000/health");
@@ -872,7 +872,7 @@ export abstract class DetachedProcess {
    * **Example** (Reject a process-group pid before signalling)
    *
    * ```ts
-   * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
    * import * as Effect from "effect/Effect";
    *
    * const program = DetachedProcess.reap(0).pipe(
@@ -925,7 +925,7 @@ export abstract class DetachedProcess {
    * **Example** (Inspect the production operation seam)
    *
    * ```ts
-   * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
    *
    * console.log(DetachedProcess.ops.spawn === DetachedProcess.spawn) // true
    * ```
@@ -954,7 +954,7 @@ export abstract class DetachedProcess {
    * **Example** (Stub reaping without signalling a process)
    *
    * ```ts
-   * import { DetachedProcess } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+   * import { DetachedProcess } from "@beep/github-actions/DetachedProcess";
    * import * as Effect from "effect/Effect";
    * import { dual } from "effect/Function";
    * import * as P from "effect/Predicate";

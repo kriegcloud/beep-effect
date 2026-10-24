@@ -1,3 +1,11 @@
+import {
+  field,
+  isRetryable,
+  stringField,
+  TwirpFailure,
+  twirpCall,
+  twirpFailureFields,
+} from "@beep/github-actions/internal/twirp";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -6,14 +14,6 @@ import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import {
-  field,
-  isRetryable,
-  stringField,
-  TwirpFailure,
-  twirpCall,
-  twirpFailureFields,
-} from "../../../effected/github-actions/internal/twirp.ts";
 
 it.effect("Twirp field readers handle absent, primitive, snake-case, and empty values", () =>
   Effect.sync(() => {
@@ -94,7 +94,7 @@ it.effect("Twirp maps malformed JSON and informational statuses without retry", 
 import { assertExitSuccess } from "@effect/vitest/utils";
 import * as HttpClientError from "effect/http/HttpClientError";
 import * as TestClock from "effect/testing/TestClock";
-import { settle } from "../results.ts";
+import { settle } from "../support/results.ts";
 
 it.effect("a transport failure retries and returns the recovered body", () =>
   Effect.gen(function* () {

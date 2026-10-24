@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  */
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { PackageManagerPin, PackageManagerPinName } from "@beep/npm-spec/PackageManagerPin";
 import { DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
@@ -33,7 +33,7 @@ import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
 import type * as PlatformError from "effect/PlatformError";
 import type { ToolInstallerError } from "./ToolInstaller.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/PackageManagerInstaller");
+const $I = $GithubActionsId.create("PackageManagerInstaller");
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -77,7 +77,7 @@ const isWindowsShimTarget = S.is(WindowsShimTarget);
  * **Example** (Inspect an integrity requirement failure)
  *
  * ```ts
- * import { PackageManagerInstallerError } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+ * import { PackageManagerInstallerError } from "@beep/github-actions/PackageManagerInstaller";
  *
  * const error = PackageManagerInstallerError.make({
  *   reason: "integrityMissing", name: "pnpm", version: "10.13.1",
@@ -175,7 +175,7 @@ export class PackageManagerInstallerError extends S.TaggedError<
    * **Example** (Read a download failure explanation)
    *
    * ```ts
-   * import { PackageManagerInstallerError } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+   * import { PackageManagerInstallerError } from "@beep/github-actions/PackageManagerInstaller";
    *
    * const error = PackageManagerInstallerError.make({
    *   reason: "downloadFailed", name: "pnpm", version: "10.13.1",
@@ -235,7 +235,7 @@ export class PackageManagerInstallerError extends S.TaggedError<
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { PackageManagerInstallOptions } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+ * import { PackageManagerInstallOptions } from "@beep/github-actions/PackageManagerInstaller";
  *
  * const input = { requireIntegrity: true };
  * Effect.runSync(Console.log(S.is(PackageManagerInstallOptions)(input))) // true
@@ -390,7 +390,7 @@ export type PackageManagerInstallOptions = typeof PackageManagerInstallOptions.T
  * **Example** (Construct an ambient npm record)
  *
  * ```ts
- * import { AmbientPackageManager } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+ * import { AmbientPackageManager } from "@beep/github-actions/PackageManagerInstaller";
  *
  * const manager = AmbientPackageManager.make({
  *   name: "npm", version: "11.0.0", bins: { npm: "npm", npx: "npx" },
@@ -460,7 +460,7 @@ export class AmbientPackageManager extends S.Class<AmbientPackageManager, { read
  * **Example** (Locate cached executable shims)
  *
  * ```ts
- * import { CachedPackageManager } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+ * import { CachedPackageManager } from "@beep/github-actions/PackageManagerInstaller";
  *
  * const manager = CachedPackageManager.make({
  *   name: "pnpm", version: "10.13.1", directory: "/tools/pnpm/10.13.1/x64",
@@ -539,7 +539,7 @@ export class CachedPackageManager extends S.Class<CachedPackageManager, { readon
  * **Example** (Validate an ambient variant)
  *
  * ```ts
- * import { AmbientPackageManager, InstalledPackageManager } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+ * import { AmbientPackageManager, InstalledPackageManager } from "@beep/github-actions/PackageManagerInstaller";
  * import * as S from "effect/Schema";
  *
  * const manager = AmbientPackageManager.make({
@@ -1694,8 +1694,8 @@ const dies = unstubbed("PackageManagerInstaller.makeTest");
  * **Example** (Install pinned pnpm and publish its bin directory)
  *
  * ```ts
- * import { PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
- * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
+ * import { PackageManagerInstaller } from "@beep/github-actions/PackageManagerInstaller";
+ * import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
  * import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
  * import * as Effect from "effect/Effect";
  *
@@ -1730,7 +1730,7 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
    * **Example** (Construct the live installer layer)
    *
    * ```ts
-   * import { PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+   * import { PackageManagerInstaller } from "@beep/github-actions/PackageManagerInstaller";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(PackageManagerInstaller.layer)) // true
@@ -1751,7 +1751,7 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
    * **Example** (Override installation in a double)
    *
    * ```ts
-   * import { AmbientPackageManager, PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+   * import { AmbientPackageManager, PackageManagerInstaller } from "@beep/github-actions/PackageManagerInstaller";
    * import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
    * import * as Effect from "effect/Effect";
    * import { dual } from "effect/Function";
@@ -1786,7 +1786,7 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
    * **Example** (Construct the test installer layer)
    *
    * ```ts
-   * import { PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+   * import { PackageManagerInstaller } from "@beep/github-actions/PackageManagerInstaller";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(PackageManagerInstaller.layerTest())) // true

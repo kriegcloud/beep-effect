@@ -1,9 +1,9 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/github-actions/BlobEnvelope");
+const $I = $GithubActionsId.create("BlobEnvelope");
 
 /**
  * Raised when bytes cannot be read as an envelope.
@@ -11,7 +11,7 @@ const $I = $ScratchpadId.create("effected/github-actions/BlobEnvelope");
  * **Example** (Inspect the NotABlobEnvelopeError message)
  *
  * ```ts
- * import { NotABlobEnvelopeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+ * import { NotABlobEnvelopeError } from "@beep/github-actions/BlobEnvelope";
  *
  * const error = NotABlobEnvelopeError.make({});
  * console.log(error.message) // Bytes are not an @effected/github-actions blob envelope
@@ -41,7 +41,7 @@ export class NotABlobEnvelopeError extends S.TaggedError<NotABlobEnvelopeError, 
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { NotABlobEnvelopeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { NotABlobEnvelopeError } from "@beep/github-actions/BlobEnvelope";
    *
    * const error = NotABlobEnvelopeError.make({});
    * console.log(error.message) // Bytes are not an @effected/github-actions blob envelope
@@ -61,7 +61,7 @@ export class NotABlobEnvelopeError extends S.TaggedError<NotABlobEnvelopeError, 
  * **Example** (Inspect the TruncatedBlobEnvelopeError message)
  *
  * ```ts
- * import { TruncatedBlobEnvelopeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+ * import { TruncatedBlobEnvelopeError } from "@beep/github-actions/BlobEnvelope";
  *
  * const error = TruncatedBlobEnvelopeError.make({});
  * console.log(error.message) // Blob envelope is truncated
@@ -94,7 +94,7 @@ export class TruncatedBlobEnvelopeError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { TruncatedBlobEnvelopeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { TruncatedBlobEnvelopeError } from "@beep/github-actions/BlobEnvelope";
    *
    * const error = TruncatedBlobEnvelopeError.make({});
    * console.log(error.message) // Blob envelope is truncated
@@ -114,7 +114,7 @@ export class TruncatedBlobEnvelopeError extends S.TaggedError<
  * **Example** (Inspect the UnsupportedBlobEnvelopeVersionError message)
  *
  * ```ts
- * import { UnsupportedBlobEnvelopeVersionError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+ * import { UnsupportedBlobEnvelopeVersionError } from "@beep/github-actions/BlobEnvelope";
  *
  * const error = UnsupportedBlobEnvelopeVersionError.make({ version: 2 });
  * console.log(error.message) // Blob envelope version 2 is not supported
@@ -151,7 +151,7 @@ export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { UnsupportedBlobEnvelopeVersionError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { UnsupportedBlobEnvelopeVersionError } from "@beep/github-actions/BlobEnvelope";
    *
    * const error = UnsupportedBlobEnvelopeVersionError.make({ version: 2 });
    * console.log(error.message) // Blob envelope version 2 is not supported
@@ -171,7 +171,7 @@ export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<
  * **Example** (Inspect the BlobMetadataDecodeError message)
  *
  * ```ts
- * import { BlobMetadataDecodeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+ * import { BlobMetadataDecodeError } from "@beep/github-actions/BlobEnvelope";
  *
  * const error = BlobMetadataDecodeError.make({});
  * console.log(error.message) // Blob envelope metadata did not satisfy the schema
@@ -201,7 +201,7 @@ export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeErr
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { BlobMetadataDecodeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { BlobMetadataDecodeError } from "@beep/github-actions/BlobEnvelope";
    *
    * const error = BlobMetadataDecodeError.make({});
    * console.log(error.message) // Blob envelope metadata did not satisfy the schema
@@ -221,7 +221,7 @@ export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeErr
  * **Example** (Inspect the BlobMetadataEncodeError message)
  *
  * ```ts
- * import { BlobMetadataEncodeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+ * import { BlobMetadataEncodeError } from "@beep/github-actions/BlobEnvelope";
  *
  * const error = BlobMetadataEncodeError.make({});
  * console.log(error.message) // Blob metadata could not be encoded
@@ -251,7 +251,7 @@ export class BlobMetadataEncodeError extends S.TaggedError<BlobMetadataEncodeErr
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { BlobMetadataEncodeError } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { BlobMetadataEncodeError } from "@beep/github-actions/BlobEnvelope";
    *
    * const error = BlobMetadataEncodeError.make({});
    * console.log(error.message) // Blob metadata could not be encoded
@@ -324,7 +324,7 @@ const HEADER_BYTES = MAGIC.length + 1 + 4;
  * **Example** (Encode and decode a blob with typed metadata)
  *
  * ```ts
- * import { BlobEnvelope } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+ * import { BlobEnvelope } from "@beep/github-actions/BlobEnvelope";
  * import * as Result from "effect/Result";
  * import * as S from "effect/Schema";
  *
@@ -347,7 +347,7 @@ export class BlobEnvelope {
    * **Example** (Inspect the accepted envelope version)
    *
    * ```ts
-   * import { BlobEnvelope } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { BlobEnvelope } from "@beep/github-actions/BlobEnvelope";
    *
    * console.log(BlobEnvelope.version) // 1
    * ```
@@ -362,7 +362,7 @@ export class BlobEnvelope {
    * **Example** (Frame typed metadata and payload bytes)
    *
    * ```ts
-   * import { BlobEnvelope } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { BlobEnvelope } from "@beep/github-actions/BlobEnvelope";
    * import * as Result from "effect/Result";
    * import * as S from "effect/Schema";
    *
@@ -406,7 +406,7 @@ export class BlobEnvelope {
    * **Example** (Recover metadata from a framed blob)
    *
    * ```ts
-   * import { BlobEnvelope } from "@beep/scratchpad/effected/github-actions/BlobEnvelope";
+   * import { BlobEnvelope } from "@beep/github-actions/BlobEnvelope";
    * import * as Result from "effect/Result";
    * import * as S from "effect/Schema";
    *

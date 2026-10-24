@@ -1,4 +1,5 @@
 import { env as processEnvironment } from "node:process";
+import { ActionEnvironment } from "@beep/github-actions";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -8,15 +9,14 @@ import * as Latch from "effect/Latch";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ActionEnvironment } from "../../effected/github-actions/index.ts";
-import type { ActionEnvironmentError } from "../../effected/github-actions/index.ts";
+import type { ActionEnvironmentError } from "@beep/github-actions";
 
 class BaseDebug extends Context.Service<BaseDebug, Effect.Effect<boolean>>()(
-  "@beep/scratchpad/test/github-actions/ActionEnvironment.test/BaseDebug"
+  "@beep/github-actions/test/ActionEnvironment.test/BaseDebug"
 ) {}
 
 class RunnerDebug extends Context.Service<RunnerDebug, Effect.Effect<boolean>>()(
-  "@beep/scratchpad/test/github-actions/ActionEnvironment.test/RunnerDebug"
+  "@beep/github-actions/test/ActionEnvironment.test/RunnerDebug"
 ) {}
 
 const Json = S.fromJsonString(S.Unknown);

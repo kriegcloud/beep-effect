@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -13,7 +13,7 @@ import { ActionOutputs } from "./ActionOutputs.ts";
 import { heredocBlock, isUsableName } from "./internal/runnerFile.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/ActionState");
+const $I = $GithubActionsId.create("ActionState");
 
 /**
  * An invalid name cannot head an action-state runner-file entry.
@@ -21,7 +21,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionState");
  * **Example** (Describe an invalid state key)
  *
  * ```ts
- * import { InvalidActionStateNameError } from "@beep/scratchpad/effected/github-actions/ActionState";
+ * import { InvalidActionStateNameError } from "@beep/github-actions/ActionState";
  *
  * const error = InvalidActionStateNameError.make({ message: "A state key cannot contain a line break" });
  * console.log(error.message) // A state key cannot contain a line break
@@ -52,7 +52,7 @@ const Json = S.fromJsonString(S.Unknown);
  * **Example** (Describe missing phase state)
  *
  * ```ts
- * import { ActionStateError } from "@beep/scratchpad/effected/github-actions/ActionState";
+ * import { ActionStateError } from "@beep/github-actions/ActionState";
  *
  * const error = ActionStateError.make({ reason: "missing", key: "server-pid" });
  * console.log(error.message) // No action state was saved under "server-pid"
@@ -101,7 +101,7 @@ export class ActionStateError extends S.TaggedError<ActionStateError, { readonly
    * **Example** (Read a missing-state diagnostic)
    *
    * ```ts
-   * import { ActionStateError } from "@beep/scratchpad/effected/github-actions/ActionState";
+   * import { ActionStateError } from "@beep/github-actions/ActionState";
    *
    * const error = ActionStateError.make({ reason: "missing", key: "server-pid" });
    * console.log(error.message) // No action state was saved under "server-pid"
@@ -291,7 +291,7 @@ const dies = unstubbed("ActionState.makeTest");
  * **Example** (Save and retrieve a server PID across action phases)
  *
  * ```ts
- * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
+ * import { ActionState } from "@beep/github-actions/ActionState";
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -327,7 +327,7 @@ export class ActionState extends Context.Service<ActionState, ActionStateShape>(
    * **Example** (Inspect the live state layer)
    *
    * ```ts
-   * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
+   * import { ActionState } from "@beep/github-actions/ActionState";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(ActionState.layer)) // true
@@ -345,7 +345,7 @@ export class ActionState extends Context.Service<ActionState, ActionStateShape>(
    * **Example** (Stub a saved PID)
    *
    * ```ts
-   * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
+   * import { ActionState } from "@beep/github-actions/ActionState";
    * import * as Effect from "effect/Effect";
    * import { dual } from "effect/Function";
    * import * as S from "effect/Schema";
@@ -377,7 +377,7 @@ export class ActionState extends Context.Service<ActionState, ActionStateShape>(
    * **Example** (Provide a state test double)
    *
    * ```ts
-   * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
+   * import { ActionState } from "@beep/github-actions/ActionState";
    * import * as Effect from "effect/Effect";
    * import { dual } from "effect/Function";
    * import * as S from "effect/Schema";

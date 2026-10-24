@@ -6,7 +6,7 @@
 // a heavy import leaks into a light module's graph, so the one piece those
 // three modules share is the piece with no dependencies.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
 import * as O from "effect/Option";
@@ -17,7 +17,7 @@ import * as S from "effect/Schema";
 import { payloadOf } from "./jwt.ts";
 import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/internal/actionsResults");
+const $I = $GithubActionsId.create("internal/actionsResults");
 
 /**
  * The run/job identifiers the artifact protocol scopes every call to.
@@ -28,7 +28,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/actionsResults
  * import * as S from "effect/Schema";
  * import * as Console from "effect/Console";
  * import * as Effect from "effect/Effect";
- * import { BackendIds } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ * import { BackendIds } from "@beep/github-actions/internal/actionsResults";
  *
  * const input = { workflowRunBackendId: "run-1", workflowJobRunBackendId: "job-1" };
  * Effect.runSync(Console.log(S.is(BackendIds)(input))) // true
@@ -65,7 +65,7 @@ export type BackendIds = typeof BackendIds.Type;
  * import * as Effect from "effect/Effect";
  * import * as Redacted from "effect/Redacted";
  * import * as Result from "effect/Result";
- * import { ResultsBackend } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ * import { ResultsBackend } from "@beep/github-actions/internal/actionsResults";
  *
  * const input = { baseUrl: "https://results.example/", token: Redacted.make("example token"), backendIds: Result.succeed({ workflowRunBackendId: "run-1", workflowJobRunBackendId: "job-1" }) };
  * Effect.runSync(Console.log(S.is(ResultsBackend)(input))) // true
@@ -128,7 +128,7 @@ export type ResultsBackend = typeof ResultsBackend.Type;
  * **Example** (Read the results_url variable name)
  *
  * ```ts
- * import { RESULTS_URL } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ * import { RESULTS_URL } from "@beep/github-actions/internal/actionsResults";
  *
  * console.log(RESULTS_URL) // ACTIONS_RESULTS_URL
  * ```
@@ -144,7 +144,7 @@ export const RESULTS_URL = "ACTIONS_RESULTS_URL";
  * **Example** (Read the runtime_token variable name)
  *
  * ```ts
- * import { RUNTIME_TOKEN } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ * import { RUNTIME_TOKEN } from "@beep/github-actions/internal/actionsResults";
  *
  * console.log(RUNTIME_TOKEN) // ACTIONS_RUNTIME_TOKEN
  * ```
@@ -161,7 +161,7 @@ export const RUNTIME_TOKEN = "ACTIONS_RUNTIME_TOKEN";
  * **Example** (Explain a missing results URL)
  *
  * ```ts
- * import { misconfiguredDetail, RESULTS_URL } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ * import { misconfiguredDetail, RESULTS_URL } from "@beep/github-actions/internal/actionsResults";
  *
  * console.log(misconfiguredDetail(RESULTS_URL, "cache")) // ACTIONS_RESULTS_URL is not set — the cache is only reachable from a `uses:` step, never from `run:`
  * ```
@@ -191,7 +191,7 @@ export const misconfiguredDetail: {
  * **Example** (Read artifact backend scope)
  *
  * ```ts
- * import { backendIdsFrom } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ * import { backendIdsFrom } from "@beep/github-actions/internal/actionsResults";
  * import * as Base64Url from "effect/encoding/Base64Url";
  * import * as Result from "effect/Result";
  *
@@ -250,8 +250,8 @@ export const backendIdsFrom = (token: string): Result.Result<BackendIds, string>
  * **Example** (Compose a results backend lookup)
  *
  * ```ts
- * import { resultsBackend } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
- * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
+ * import { resultsBackend } from "@beep/github-actions/internal/actionsResults";
+ * import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {

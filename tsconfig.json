@@ -2397,7 +2397,10 @@
       "@beep/github-actions": [
         "./packages/drivers/github-actions/src/index.ts"
       ],
-      "@beep/github-actions/*": ["./packages/drivers/github-actions/src/*"]
+      "@beep/github-actions/*": ["./packages/drivers/github-actions/src/*"],
+      "@beep/github-actions/internal/*": [
+        "./packages/drivers/github-actions/src/internal/*"
+      ]
     }
   }
 }

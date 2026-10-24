@@ -1,6 +1,9 @@
 import { toCompatResponse } from "@azure/core-http-compat";
 import { createHttpHeaders, createPipelineRequest } from "@azure/core-rest-pipeline";
 import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
+import { BlobEnvelope } from "@beep/github-actions/BlobEnvelope";
+import { BlobStore, BlobStoreError } from "@beep/github-actions/BlobStore";
+import { GitHubCacheBlobStore } from "@beep/github-actions/BlobStore.githubCache";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -8,10 +11,7 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { BlobEnvelope } from "../../effected/github-actions/BlobEnvelope.ts";
-import { GitHubCacheBlobStore } from "../../effected/github-actions/BlobStore.githubCache.ts";
-import { BlobStore, BlobStoreError } from "../../effected/github-actions/BlobStore.ts";
-import { json, resultsEnv, twirpFetch } from "./results.ts";
+import { json, resultsEnv, twirpFetch } from "./support/results.ts";
 
 const { fetch, calls } = twirpFetch({
   CreateCacheEntry: () => json({ ok: true, signed_upload_url: "https://blob.example/upload" }),

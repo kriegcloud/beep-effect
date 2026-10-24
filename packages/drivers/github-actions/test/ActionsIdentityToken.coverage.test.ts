@@ -1,6 +1,6 @@
+import { ActionsIdentityToken } from "@beep/github-actions/ActionsIdentityToken";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { ActionsIdentityToken } from "../../effected/github-actions/ActionsIdentityToken.ts";
 
 it.effect("the adapter namespace constructor has no runtime side effects", () =>
   Effect.sync(() => {

@@ -1,10 +1,10 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { canonicalize, uriEncode } from "@beep/github-actions/internal/sigv4";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { canonicalize, uriEncode } from "../../../effected/github-actions/internal/sigv4.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

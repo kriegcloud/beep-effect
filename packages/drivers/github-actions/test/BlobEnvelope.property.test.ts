@@ -20,7 +20,6 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
   );
 };
 
-import * as Result from "effect/Result";
 import {
   BlobEnvelope,
   BlobMetadataDecodeError,
@@ -28,7 +27,8 @@ import {
   NotABlobEnvelopeError,
   TruncatedBlobEnvelopeError,
   UnsupportedBlobEnvelopeVersionError,
-} from "../../effected/github-actions/BlobEnvelope.ts";
+} from "@beep/github-actions/BlobEnvelope";
+import * as Result from "effect/Result";
 
 const Meta = S.Struct({ label: S.String, count: S.Int });
 const Body = S.Uint8Array.check(S.isMaxLength(128));

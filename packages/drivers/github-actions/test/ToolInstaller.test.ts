@@ -1,3 +1,6 @@
+import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "@beep/github-actions";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { ExtractOptions, ProvisionedFile, ProvisionFileOptions } from "@beep/github-actions/ToolInstaller";
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
@@ -20,10 +23,7 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
-import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "../../effected/github-actions/index.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { ExtractOptions, ProvisionedFile, ProvisionFileOptions } from "../../effected/github-actions/ToolInstaller.ts";
-import { settle } from "./results.ts";
+import { settle } from "./support/results.ts";
 
 const alwaysFails: typeof globalThis.fetch = Object.assign(() => Promise.resolve(new Response("no", { status: 500 })), {
   preconnect: () => {},
@@ -52,15 +52,13 @@ const live = (root: string, fetch: typeof globalThis.fetch = alwaysFails, env: R
   );
 
 class TarInstaller extends Context.Service<TarInstaller, ReturnType<typeof ToolInstaller.makeTest>>()(
-  "@beep/scratchpad/test/github-actions/ToolInstaller.test/TarInstaller"
+  "@beep/github-actions/test/ToolInstaller.test/TarInstaller"
 ) {}
 class ZipInstaller extends Context.Service<ZipInstaller, ReturnType<typeof ToolInstaller.makeTest>>()(
-  "@beep/scratchpad/test/github-actions/ToolInstaller.test/ZipInstaller"
+  "@beep/github-actions/test/ToolInstaller.test/ZipInstaller"
 ) {}
 
-class TestRoot extends Context.Service<TestRoot, string>()(
-  "@beep/scratchpad/test/github-actions/ToolInstaller.test/TestRoot"
-) {}
+class TestRoot extends Context.Service<TestRoot, string>()("@beep/github-actions/test/ToolInstaller.test/TestRoot") {}
 
 const testLayer = (
   options: {

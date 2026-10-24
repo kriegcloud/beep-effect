@@ -1,11 +1,11 @@
+import { BlobEnvelope, UnsupportedBlobEnvelopeVersionError } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { BlobEnvelope, UnsupportedBlobEnvelopeVersionError } from "../../effected/github-actions/index.ts";
-import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type { BlobEnvelopeError } from "../../effected/github-actions/index.ts";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
+import type { BlobEnvelopeError } from "@beep/github-actions";
 
 const Meta = S.Struct({ tag: S.String, durationMs: S.Finite });
 type Meta = typeof Meta.Type;

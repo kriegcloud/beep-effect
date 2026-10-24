@@ -1,7 +1,7 @@
+import { detectMusl, strongestSri } from "@beep/github-actions/internal/pnpmExe";
 import { assert, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import { detectMusl, strongestSri } from "../../../effected/github-actions/internal/pnpmExe.ts";
 
 it.effect("libc detection handles every report shape and probe failure", () =>
   Effect.sync(() => {

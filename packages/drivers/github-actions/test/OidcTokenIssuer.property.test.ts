@@ -20,19 +20,19 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
   );
 };
 
-import { OidcClaims, OidcTokenError } from "../../effected/github-actions/OidcTokenIssuer.ts";
+import { OidcClaims, OidcTokenError } from "@beep/github-actions/OidcTokenIssuer";
 
 describe("OidcTokenIssuer schema property floor", () => {
   roundTrips("OidcTokenError", OidcTokenError);
   roundTrips("OidcClaims", OidcClaims);
 });
 
+import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
+import { OidcTokenIssuer } from "@beep/github-actions/OidcTokenIssuer";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
-import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { OidcTokenIssuer } from "../../effected/github-actions/OidcTokenIssuer.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 const http = HttpClient.make((request, url) =>

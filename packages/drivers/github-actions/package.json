@@ -42,7 +42,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -59,16 +59,32 @@
     "exports": {
       ".": "./dist/index.js",
       "./*": "./dist/*.js",
-      "./internal/*": null,
+      "./internal/*": "./dist/internal/*.js",
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@azure/storage-blob": "catalog:",
+    "@beep/github": "workspace:^",
+    "@beep/github-commands": "workspace:^",
+    "@beep/glob": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/npm-spec": "workspace:^",
+    "@beep/sbom": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/walker": "workspace:^",
+    "@effect/platform-node": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@azure/core-http-compat": "catalog:",
+    "@azure/core-rest-pipeline": "catalog:",
+    "@beep/fc-runs": "workspace:^",
+    "@beep/memfs": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
     "bun-types": "catalog:"
   }
 }

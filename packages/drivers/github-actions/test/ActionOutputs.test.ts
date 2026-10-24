@@ -1,4 +1,14 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import {
+  ActionEnvironment,
+  ActionOutputs,
+  DetachedOutputError,
+  InvalidOutputNameError,
+  OutputEncodeError,
+  RunnerFileUnavailableError,
+  Secret,
+} from "@beep/github-actions";
+import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { $GithubActionsId } from "@beep/identity/packages";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
@@ -12,20 +22,10 @@ import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import {
-  ActionEnvironment,
-  ActionOutputs,
-  DetachedOutputError,
-  InvalidOutputNameError,
-  OutputEncodeError,
-  RunnerFileUnavailableError,
-  Secret,
-} from "../../effected/github-actions/index.ts";
-import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type { ActionOutputError } from "../../effected/github-actions/index.ts";
+import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
+import type { ActionOutputError } from "@beep/github-actions";
 
-const $I = $ScratchpadId.create("test/github-actions/ActionOutputs.test");
+const $I = $GithubActionsId.create("test/ActionOutputs.test");
 class FirstOutputs extends Context.Service<FirstOutputs, ReturnType<typeof ActionOutputs.makeTest>>()(
   $I`FirstOutputs`
 ) {}

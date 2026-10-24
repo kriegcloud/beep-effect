@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -7,7 +7,7 @@ import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import { ActionInput } from "./ActionInput.ts";
 
-const $I = $ScratchpadId.create("effected/github-actions/DryRun");
+const $I = $GithubActionsId.create("DryRun");
 
 /**
  * The {@link DryRun} service shape.
@@ -74,7 +74,7 @@ const make = (enabled: boolean): DryRunShape => ({
  * **Example** (Guard package publication during a dry run)
  *
  * ```ts
- * import { DryRun } from "@beep/scratchpad/effected/github-actions/DryRun";
+ * import { DryRun } from "@beep/github-actions/DryRun";
  * import * as Effect from "effect/Effect";
  *
  * let published = false;
@@ -104,7 +104,7 @@ export class DryRun extends Context.Service<DryRun, DryRunShape>()($I`DryRun`) {
    * **Example** (Bind a named rehearsal layer once)
    *
    * ```ts
-   * import { DryRun } from "@beep/scratchpad/effected/github-actions/DryRun";
+   * import { DryRun } from "@beep/github-actions/DryRun";
    * import * as Layer from "effect/Layer";
    *
    * const rehearsal = DryRun.layerFromInput("preview");
@@ -129,7 +129,7 @@ export class DryRun extends Context.Service<DryRun, DryRunShape>()($I`DryRun`) {
    * **Example** (Inspect the action-input rehearsal layer)
    *
    * ```ts
-   * import { DryRun } from "@beep/scratchpad/effected/github-actions/DryRun";
+   * import { DryRun } from "@beep/github-actions/DryRun";
    * import * as Layer from "effect/Layer";
    *
    * console.log(Layer.isLayer(DryRun.layer)) // true
@@ -146,7 +146,7 @@ export class DryRun extends Context.Service<DryRun, DryRunShape>()($I`DryRun`) {
    * **Example** (Read an explicit rehearsal decision)
    *
    * ```ts
-   * import { DryRun } from "@beep/scratchpad/effected/github-actions/DryRun";
+   * import { DryRun } from "@beep/github-actions/DryRun";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.flatMap(DryRun, (dryRun) => dryRun.isDryRun);
@@ -171,7 +171,7 @@ export class DryRun extends Context.Service<DryRun, DryRunShape>()($I`DryRun`) {
    * **Example** (Inspect the safe default test mode)
    *
    * ```ts
-   * import { DryRun } from "@beep/scratchpad/effected/github-actions/DryRun";
+   * import { DryRun } from "@beep/github-actions/DryRun";
    * import * as Effect from "effect/Effect";
    *
    * console.log(Effect.runSync(DryRun.makeTest().isDryRun)) // true
@@ -191,7 +191,7 @@ export class DryRun extends Context.Service<DryRun, DryRunShape>()($I`DryRun`) {
    * **Example** (Provide the default rehearsal test layer)
    *
    * ```ts
-   * import { DryRun } from "@beep/scratchpad/effected/github-actions/DryRun";
+   * import { DryRun } from "@beep/github-actions/DryRun";
    * import * as Effect from "effect/Effect";
    *
    * const program = Effect.flatMap(DryRun, (dryRun) => dryRun.isDryRun);

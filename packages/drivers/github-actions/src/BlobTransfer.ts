@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $GithubActionsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type * as Effect from "effect/Effect";
 
-const $I = $ScratchpadId.create("effected/github-actions/BlobTransfer");
+const $I = $GithubActionsId.create("BlobTransfer");
 
 /**
  * Raised when bytes could not be moved to or from a signed blob url.
@@ -10,7 +10,7 @@ const $I = $ScratchpadId.create("effected/github-actions/BlobTransfer");
  * **Example** (Identify a failed upload)
  *
  * ```ts
- * import { BlobTransferError } from "@beep/scratchpad/effected/github-actions/BlobTransfer";
+ * import { BlobTransferError } from "@beep/github-actions/BlobTransfer";
  *
  * const error = BlobTransferError.make({ reason: "uploadFailed" });
  * console.log(error.message) // Could not upload to the signed blob url
@@ -44,7 +44,7 @@ export class BlobTransferError extends S.TaggedError<BlobTransferError, { readon
    * **Example** (Describe a failed download)
    *
    * ```ts
-   * import { BlobTransferError } from "@beep/scratchpad/effected/github-actions/BlobTransfer";
+   * import { BlobTransferError } from "@beep/github-actions/BlobTransfer";
    *
    * const error = BlobTransferError.make({ reason: "downloadFailed" });
    * console.log(error.message) // Could not download from the signed blob url

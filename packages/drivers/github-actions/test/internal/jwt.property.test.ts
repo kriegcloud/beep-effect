@@ -1,11 +1,11 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { payloadOf, unsignedJwt } from "@beep/github-actions/internal/jwt";
 import { assert, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { payloadOf, unsignedJwt } from "../../../effected/github-actions/internal/jwt.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(

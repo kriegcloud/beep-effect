@@ -20,7 +20,7 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
   );
 };
 
-import { ArtifactError, ArtifactItem } from "../../effected/github-actions/Artifact.ts";
+import { ArtifactError, ArtifactItem } from "@beep/github-actions/Artifact";
 
 describe("Artifact schema property floor", () => {
   roundTrips("ArtifactError preserves its fields through encoding", ArtifactError);
