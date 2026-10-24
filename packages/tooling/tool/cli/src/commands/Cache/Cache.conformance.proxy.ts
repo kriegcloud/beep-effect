@@ -105,6 +105,12 @@ type Delivered = {
   readonly response: HttpServerResponse.HttpServerResponse;
 };
 
+type UpstreamReply = {
+  readonly status: O.Option<number>;
+  readonly headers: Headers.Headers;
+  readonly body: Uint8Array;
+};
+
 type Captured = { readonly body: Uint8Array; readonly tag: string };
 
 const deliver = (
@@ -338,62 +344,65 @@ export const makeCacheConformanceFaultProxy = Effect.fn("CacheConformance.makeFa
     );
   });
 
-  const rewrite = (
+  // Faults rewrite only a successful upstream read; any other reply passes through.
+  const rewriteStatus = (
     fault: CacheConformanceFault,
     head: boolean,
-    reply: { readonly status: O.Option<number>; readonly headers: Headers.Headers; readonly body: Uint8Array }
-  ): Delivered =>
+    reply: UpstreamReply,
+    status: number
+  ): Delivered => {
+    const plain: Delivered = {
+      status: reply.status,
+      headers: reply.headers,
+      body: reply.body,
+      outcome: O.none(),
+      response: deliver(status, reply.headers, reply.body, head),
+    };
+    if (status !== 200) return plain;
+    return Match.value(fault).pipe(
+      Match.when("missing-tag", (): Delivered => {
+        const headers = Headers.remove(reply.headers, "x-artifact-tag");
+        return { ...plain, headers, response: deliver(status, headers, reply.body, head) };
+      }),
+      Match.when("tampered-tag", (): Delivered => {
+        const headers = O.match(Headers.get(reply.headers, "x-artifact-tag"), {
+          onNone: () => reply.headers,
+          onSome: (tag) => Headers.set(reply.headers, "x-artifact-tag", tamperCacheArtifactTag(tag)),
+        });
+        return { ...plain, headers, response: deliver(status, headers, reply.body, head) };
+      }),
+      Match.when("tampered-body", (): Delivered => {
+        const body = corruptCacheArtifactBody(reply.body);
+        return { ...plain, body, response: deliver(status, reply.headers, body, head) };
+      }),
+      Match.when("truncated-body", (): Delivered => {
+        const partial = reply.body.subarray(0, Math.floor(reply.body.byteLength / 2));
+        const kept = withoutHop(reply.headers);
+        // A chunk followed by a delayed failure ships headers and part of
+        // the body, then aborts: a client-visible truncated transfer.
+        return {
+          ...plain,
+          body: partial,
+          outcome: O.some("truncated-body"),
+          response: HttpServerResponse.stream(
+            Stream.concat(
+              Stream.make(partial),
+              Stream.fromEffect(Duration.millis(50).pipe(Effect.sleep)).pipe(
+                Stream.drain,
+                Stream.concat(Stream.fail(injectedAbort("truncated-body")))
+              )
+            ),
+            { status, headers: kept }
+          ),
+        };
+      }),
+      Match.orElse(() => plain)
+    );
+  };
+  const rewrite = (fault: CacheConformanceFault, head: boolean, reply: UpstreamReply): Delivered =>
     O.match(reply.status, {
       onNone: () => ({ ...statusOnly(502), outcome: O.none() }),
-      onSome: (status): Delivered => {
-        const plain: Delivered = {
-          status: reply.status,
-          headers: reply.headers,
-          body: reply.body,
-          outcome: O.none(),
-          response: deliver(status, reply.headers, reply.body, head),
-        };
-        if (status !== 200) return plain;
-        return Match.value(fault).pipe(
-          Match.when("missing-tag", (): Delivered => {
-            const headers = Headers.remove(reply.headers, "x-artifact-tag");
-            return { ...plain, headers, response: deliver(status, headers, reply.body, head) };
-          }),
-          Match.when("tampered-tag", (): Delivered => {
-            const headers = O.match(Headers.get(reply.headers, "x-artifact-tag"), {
-              onNone: () => reply.headers,
-              onSome: (tag) => Headers.set(reply.headers, "x-artifact-tag", tamperCacheArtifactTag(tag)),
-            });
-            return { ...plain, headers, response: deliver(status, headers, reply.body, head) };
-          }),
-          Match.when("tampered-body", (): Delivered => {
-            const body = corruptCacheArtifactBody(reply.body);
-            return { ...plain, body, response: deliver(status, reply.headers, body, head) };
-          }),
-          Match.when("truncated-body", (): Delivered => {
-            const partial = reply.body.subarray(0, Math.floor(reply.body.byteLength / 2));
-            const kept = withoutHop(reply.headers);
-            // A chunk followed by a delayed failure ships headers and part of
-            // the body, then aborts: a client-visible truncated transfer.
-            return {
-              ...plain,
-              body: partial,
-              outcome: O.some("truncated-body"),
-              response: HttpServerResponse.stream(
-                Stream.concat(
-                  Stream.make(partial),
-                  Stream.fromEffect(Duration.millis(50).pipe(Effect.sleep)).pipe(
-                    Stream.drain,
-                    Stream.concat(Stream.fail(injectedAbort("truncated-body")))
-                  )
-                ),
-                { status, headers: kept }
-              ),
-            };
-          }),
-          Match.orElse(() => plain)
-        );
-      },
+      onSome: (status) => rewriteStatus(fault, head, reply, status),
     });
 
   const respond = Effect.fnUntraced(function* (

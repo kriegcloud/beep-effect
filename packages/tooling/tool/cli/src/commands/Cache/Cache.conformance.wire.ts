@@ -206,7 +206,7 @@ export const classifyCacheConformanceStatus = (neverWritten: boolean) =>
 
 const authorization = (bearers: CacheConformanceBearers, role: CacheConformanceCredentialRole) =>
   Match.value(role).pipe(
-    Match.when("missing", () => O.none<string>()),
+    Match.when("missing", O.none<string>),
     Match.when("malformed", () => O.some("Bearer")),
     Match.orElse((named) => O.some(`Bearer ${Redacted.value(bearers[named])}`))
   );
