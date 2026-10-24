@@ -40,7 +40,13 @@ import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../Lint/ReflectionArtifact.ts";
 import { goalCompletionUnknownReasons, observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
-import { decodeGoalManifest, GoalPhaseStatus, GoalStatus, goalPullRequestRefs } from "./Goals.schemas.ts";
+import {
+  decodeGoalManifest,
+  GoalOpsScriptPath,
+  GoalPhaseStatus,
+  GoalStatus,
+  goalPullRequestRefs,
+} from "./Goals.schemas.ts";
 import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
 import {
   goalManifestPhases,
@@ -407,6 +413,8 @@ const filesystemReflectionFiles = Effect.fn("Goals.filesystemReflectionFiles")(f
     : A.empty<string>();
 });
 
+const isRegisterableOpsScript = S.is(GoalOpsScriptPath);
+
 const filesystemOpsFiles = Effect.fn("Goals.filesystemOpsFiles")(function* (packetPath: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -515,8 +523,10 @@ const opsScriptFindings = Effect.fn("Goals.opsScriptFindings")(function* <E, R>(
         script.path
       )
   );
+  // Only a path `GoalOpsScriptPath` admits can be registered (it rejects dot-leading segments such as
+  // `ops/.scratch/probe.ts`), so only those are reported: every finding is fixable by listing the file.
   const unregistered = A.map(
-    A.filter(files, (file) => Str.endsWith(".ts")(file) && !HashSet.has(listed, file)),
+    A.filter(files, (file) => Str.endsWith(".ts")(file) && isRegisterableOpsScript(file) && !HashSet.has(listed, file)),
     (file) =>
       finding(
         record.slug,

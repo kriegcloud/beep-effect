@@ -102,6 +102,15 @@ describe("goal ops script registration", () => {
     })
   );
 
+  it.effect("skips ts files under dot-leading segments, which opsScripts cannot register", () =>
+    Effect.gen(function* () {
+      const { reader } = stubReader(["ops/.scratch/probe.ts", "ops/.hidden.ts", "ops/listed.ts"]);
+      const text = manifestText({ opsScripts: [{ path: "ops/listed.ts", purpose: "Listed and present." }] });
+      const { findings } = yield* goalPacketFindings(record(text), reader);
+      assert.deepStrictEqual(opsKeys(findings), []);
+    })
+  );
+
   it.effect("reports listed paths that are missing and ts files that are unlisted", () =>
     Effect.gen(function* () {
       const { reader, reads } = stubReader([
