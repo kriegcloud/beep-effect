@@ -2372,7 +2372,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
       const reversedMarkdown = Result.getOrThrow(renderPackageQualityPacketMarkdown(reversedReport));
 
       expect(markdown).toBe(reversedMarkdown);
-      expect(markdown).toContain("# Yeet Quality Packet: @beep/repo\\-cli");
+      expect(markdown).toContain("# Yeet Quality Packet: \\@beep/repo\\-cli");
       expect(markdown).toContain("Effect tsgo diagnostic");
       expect(markdown).toContain("bun run check");
       expect(markdown).toContain("bun run lint");
