@@ -26,6 +26,7 @@ import { isWindowsRunner } from "./internal/runner.ts";
 import { spawnOnce } from "./internal/spawn.ts";
 import { twirpCall, twirpFailureFields } from "./internal/twirp.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
+import type { ActionEnvironmentShape } from "./ActionEnvironment.ts";
 import type { FileBlobTransfer } from "./BlobTransfer.ts";
 import type { CacheKey } from "./CacheKey.ts";
 import type { CacheServiceClient } from "./internal/cacheService.ts";
@@ -303,6 +304,288 @@ const ladder: {
       : { primary: key.key, fallbacks: restoreKeys ?? key.restoreKeys }
 );
 
+/**
+ * What path resolution reads: the filesystem, the path dialect, the runner
+ * environment (`GITHUB_WORKSPACE`, `HOME`, `USERPROFILE`) and whether the
+ * runner is Windows.
+ */
+interface PathResolution {
+  readonly env: ActionEnvironmentShape;
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly windows: boolean;
+}
+
+/**
+ * Builds the `archiveFailed` error for one key, with an optional structural cause.
+ */
+const pathFailure =
+  (key: string) =>
+  (detail: string, cause?: unknown): ActionCacheError =>
+    ActionCacheError.make({
+      reason: "archiveFailed",
+      key,
+      detail,
+      ...O.getSomesStruct({ cause: O.fromUndefinedOr(cause) }),
+    });
+
+/**
+ * Platform separators to the dialect's — applied to paths WE produce, never to
+ * the caller's pattern text, where a backslash is minimatch's escape character.
+ */
+const posixFor = (windows: boolean, value: string): string => (windows ? Str.replaceAll("\\", "/")(value) : value);
+
+/**
+ * The caller's members with blank and `#` lines removed: the toolkit joins the
+ * list with newlines, where both are inert.
+ */
+const cleanPatterns = (patterns: ReadonlyArray<string>): ReadonlyArray<string> =>
+  pipe(
+    patterns,
+    A.map(Str.trim),
+    A.filter((pattern) => Str.isNonEmpty(pattern) && !Str.startsWith("#")(pattern))
+  );
+
+/**
+ * The home directory a leading `~` expands to: `HOME`, then `USERPROFILE`.
+ */
+const homeDirectory = (env: ActionEnvironmentShape): Effect.Effect<O.Option<string>> =>
+  env.getOptional("HOME").pipe(Effect.filterOrElse(O.isSome, () => env.getOptional("USERPROFILE")));
+
+/**
+ * One member rooted absolutely: a leading `~` expands to the home directory
+ * with the expansion glob-escaped, and a relative member roots at the escaped
+ * workspace `base`, as the toolkit escapes its own (`Pattern.globEscape`) — a
+ * `[` in a directory name is a path here, not a character class. A leading
+ * `!` (an exclusion) is kept in front of the rooted body.
+ */
+const rootPattern = Effect.fnUntraced(function* (
+  resolution: PathResolution,
+  base: string,
+  failed: ReturnType<typeof pathFailure>,
+  pattern: string
+): Effect.fn.Return<string, ActionCacheError> {
+  const excluded = Str.startsWith("!")(pattern);
+  const body = excluded ? Str.slice(1)(pattern) : pattern;
+  let target = body;
+  if (body === "~" || Str.startsWith("~/")(body)) {
+    const home = yield* homeDirectory(resolution.env);
+    if (O.isNone(home)) {
+      return yield* failed(`cannot expand "~" in "${pattern}" — neither HOME nor USERPROFILE is set`);
+    }
+    target = `${GlobPattern.escape(posixFor(resolution.windows, resolution.path.resolve(home.value)))}${Str.slice(1)(body)}`;
+  }
+  const rooted = resolution.path.isAbsolute(target) ? target : `${GlobPattern.escape(base)}/${target}`;
+  return excluded ? `!${rooted}` : rooted;
+});
+
+/**
+ * Whether `child` lies strictly below `parent` (every path lies below `/`).
+ */
+const isBelow = (child: string, parent: string): boolean =>
+  parent === "/" ? child !== "/" : Str.startsWith(`${parent}/`)(child);
+
+/**
+ * Where to look, and where a walk is worth its cost.
+ *
+ * **Details**
+ *
+ * Search roots are the longest literal prefix of every include — the same
+ * derivation as `@actions/glob`'s search paths — with descendant roots folded
+ * into their ancestors so nothing is walked twice. Wildcard roots are
+ * remembered apart from literal ones, because only a wildcard can match BELOW
+ * a root: a root that literals alone contributed is stat-and-admitted without
+ * the recursive walk (a literal `~/.pnpm-store` must not cost a full store
+ * enumeration that can admit nothing), while a folded-in wildcard root keeps
+ * the toolkit-parity descent for the ancestor that absorbed it.
+ */
+const searchPlan = (
+  set: GlobSet
+): { readonly roots: ReadonlyArray<string>; readonly needsWalk: (root: string) => boolean } => {
+  // GlobSet classifies whole-pattern negations as excludes, not wildcards, and
+  // every include was rooted, so its literal prefix contains at least "/".
+  const wildcardRoots = A.map(set.wildcards, ({ enumerationPrefix }) =>
+    enumerationPrefix === "/" ? "/" : Str.slice(0, -1)(enumerationPrefix)
+  );
+  const roots = uniqueInOrder(A.appendAll(set.literals, wildcardRoots));
+  return {
+    roots: A.filter(roots, (root) => !A.some(roots, (other) => other !== root && isBelow(root, other))),
+    needsWalk: (root) => A.some(wildcardRoots, (wildcard) => wildcard === root || isBelow(wildcard, root)),
+  };
+};
+
+/**
+ * `values` without repeats, first occurrence first, in one hashed pass (a
+ * resolution at pnpm-store scale holds tens of thousands of paths).
+ */
+const uniqueInOrder = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const seen = MutableHashSet.empty<string>();
+  return A.filter(values, (value) => {
+    const fresh = !MutableHashSet.has(seen, value);
+    MutableHashSet.add(seen, value);
+    return fresh;
+  });
+};
+
+/**
+ * The candidates one search root contributes: nothing when it is not on disk,
+ * the root itself, and — only where a wildcard can match below it — every
+ * entry of its recursive listing.
+ *
+ * **Details**
+ *
+ * Existence IS the filter: a literal that is not on disk and a pattern whose
+ * literal prefix directory is absent both contribute nothing, exactly as the
+ * toolkit's globber skips an ENOENT search path. `stat` follows symlinks, so a
+ * broken link is also nothing. A literal-only root admits itself (or not) at
+ * the stat; every deeper candidate would fail the set anyway, so the walk
+ * would be pure cost.
+ */
+const rootCandidates = Effect.fnUntraced(function* (
+  resolution: PathResolution,
+  needsWalk: (root: string) => boolean,
+  failed: ReturnType<typeof pathFailure>,
+  root: string
+): Effect.fn.Return<ReadonlyArray<string>, ActionCacheError> {
+  const info = yield* resolution.fs.stat(root).pipe(Effect.option);
+  if (O.isNone(info)) {
+    return [];
+  }
+  if (info.value.type !== "Directory" || !needsWalk(root)) {
+    return [root];
+  }
+  const entries = yield* resolution.fs
+    .readDirectory(root, { recursive: true })
+    .pipe(Effect.mapError((cause) => failed(`could not enumerate "${root}"`, cause)));
+  return A.prepend(
+    A.map(entries, (entry) => `${root}/${posixFor(resolution.windows, entry)}`),
+    root
+  );
+});
+
+/**
+ * Why `candidate` cannot be one `tar` manifest line, if it cannot: a line is
+ * one tar input, so a line break would split it, and off Windows a backslash
+ * is not a separator the archive would restore.
+ */
+const unusableCandidate = (windows: boolean, candidate: string): O.Option<string> => {
+  if (!windows && Str.includes("\\")(candidate)) {
+    return O.some(`cache path contains a backslash: "${candidate}"`);
+  }
+  return Str.includes("\n")(candidate) || Str.includes("\r")(candidate)
+    ? O.some(`cache path contains a line break: "${candidate}"`)
+    : O.none();
+};
+
+/**
+ * `matched` without the paths a selected real directory already covers, in
+ * resolution order.
+ *
+ * **Details**
+ *
+ * Every selected real directory is collected first, so a descendant that
+ * precedes its parent in filesystem enumeration is covered too. Tar stores
+ * symlinks without following them, unlike `fs.stat`: an enumerated broken link
+ * is a valid member whose missing target is never stat'd, and a link between
+ * a real ancestor and a path stops tar's recursion, so that path's explicitly
+ * selected descendants still belong.
+ */
+const dropCoveredPaths = Effect.fnUntraced(function* (
+  resolution: PathResolution,
+  failed: ReturnType<typeof pathFailure>,
+  matched: ReadonlyArray<string>
+): Effect.fn.Return<ReadonlyArray<string>, ActionCacheError> {
+  const { fs, path, windows } = resolution;
+  const symlinks = MutableHashSet.empty<string>();
+  const checkedLinks = MutableHashSet.empty<string>();
+  const isSymlink = Effect.fnUntraced(function* (candidate: string) {
+    if (!MutableHashSet.has(checkedLinks, candidate)) {
+      const link = yield* fs.readLink(candidate).pipe(Effect.option);
+      MutableHashSet.add(checkedLinks, candidate);
+      if (O.isSome(link)) MutableHashSet.add(symlinks, candidate);
+    }
+    return MutableHashSet.has(symlinks, candidate);
+  });
+  const directories = MutableHashSet.empty<string>();
+  yield* Effect.forEach(
+    matched,
+    Effect.fnUntraced(function* (candidate: string) {
+      if (yield* isSymlink(candidate)) return;
+      const info = yield* fs
+        .stat(candidate)
+        .pipe(Effect.mapError((cause) => failed(`could not inspect "${candidate}"`, cause)));
+      if (info.type === "Directory") MutableHashSet.add(directories, candidate);
+    }),
+    { discard: true }
+  );
+  const isCovered = Effect.fnUntraced(function* (candidate: string) {
+    let parent = posixFor(windows, path.dirname(candidate));
+    while (parent !== candidate) {
+      if (yield* isSymlink(parent)) return false;
+      if (MutableHashSet.has(directories, parent)) return true;
+      const next = posixFor(windows, path.dirname(parent));
+      if (next === parent) return false;
+      parent = next;
+    }
+    return false;
+  });
+  return yield* Effect.filter(matched, (candidate) => Effect.map(isCovered(candidate), (covered) => !covered));
+});
+
+/**
+ * Resolve the caller's patterns to the concrete files and directories `tar`
+ * will archive, with `actions/cache` parity.
+ *
+ * **Details**
+ *
+ * The toolkit resolves through `@actions/glob` with `implicitDescendants`
+ * disabled (`cacheUtils.ts:48-70`): a matched directory is answered as itself
+ * and `tar` recurses into it, a pattern that matches nothing — including a
+ * literal path that is not on disk — contributes nothing
+ * (`internal-globber.ts:90-100` existence-filters every search path), a
+ * leading `~` expands to the home directory with the expansion glob-escaped
+ * (`internal-pattern.ts:226-234`), and blank or `#` members are skipped. A
+ * fully empty resolution is the toolkit's hard "Path Validation Error"
+ * (`cache.ts:662-666`) and a typed failure here. Every resolved name is
+ * checked before the manifest is written or `tar` spawns, including names a
+ * directory later covers.
+ *
+ * Two knowing departures: matches stay ABSOLUTE for the `-P` archive posture
+ * rather than being re-rooted at the workspace (the version hashes the
+ * literal list, so the wire protocol never sees the difference), and the walk
+ * does not follow directory symlinks, where the toolkit's globber does.
+ */
+const resolvePaths = Effect.fnUntraced(function* (
+  resolution: PathResolution,
+  patterns: ReadonlyArray<string>,
+  key: string
+): Effect.fn.Return<ReadonlyArray<string>, ActionCacheError> {
+  const failed = pathFailure(key);
+  const cleaned = cleanPatterns(patterns);
+  // The toolkit roots relative patterns at the process working directory and
+  // relativizes matches against GITHUB_WORKSPACE; on a runner the two are the
+  // same directory, and the variable is the one a test controls.
+  const workspace = O.getOrElse(yield* resolution.env.getOptional("GITHUB_WORKSPACE"), () => ".");
+  const base = posixFor(resolution.windows, resolution.path.resolve(workspace));
+  const rooted = yield* Effect.forEach(cleaned, (pattern) => rootPattern(resolution, base, failed, pattern));
+  const set = yield* GlobSet.compile(rooted).pipe(
+    Effect.mapError((cause) => failed(`"${cause.pattern}" is not a usable glob pattern`, cause))
+  );
+  const plan = searchPlan(set);
+  const candidates = yield* Effect.forEach(plan.roots, (root) =>
+    rootCandidates(resolution, plan.needsWalk, failed, root)
+  );
+  const matched = uniqueInOrder(A.filter(A.flatten(candidates), (candidate) => set.matches(candidate)));
+  if (!A.isReadonlyArrayNonEmpty(matched)) {
+    return yield* failed(`no file or directory matched the cache paths: ${A.join(cleaned, ", ")}`);
+  }
+  const unusable = A.findFirst(matched, (candidate) => unusableCandidate(resolution.windows, candidate));
+  if (O.isSome(unusable)) {
+    return yield* failed(unusable.value);
+  }
+  return yield* dropCoveredPaths(resolution, failed, matched);
+});
+
 const make = Effect.fn("make")(function* (
   transfer: FileBlobTransfer
 ): Effect.fn.Return<
@@ -407,221 +690,7 @@ const make = Effect.fn("make")(function* (
   const moved = (key: string) =>
     Effect.mapError((cause: BlobTransferError) => ActionCacheError.make({ reason: "transferFailed", key, cause }));
 
-  /**
-   * Platform separators to the dialect's — applied to paths WE produce, never to the caller's pattern text, where a backslash is minimatch's escape character.
-   */
-  const posix = (value: string): string => (windows ? Str.replaceAll("\\", "/")(value) : value);
-
-  /**
-   * Resolve the caller's patterns to the concrete files and directories
-   * `tar` will archive, with `actions/cache` parity.
-   *
-   * **Details**
-   *
-   * The toolkit resolves through `@actions/glob` with `implicitDescendants`
-   * disabled (`cacheUtils.ts:48-70`): a matched directory is answered as
-   * itself and `tar` recurses into it, a pattern that matches nothing —
-   * including a literal path that is not on disk — contributes nothing
-   * (`internal-globber.ts:90-100` existence-filters every search path), a
-   * leading `~` expands to the home directory with the expansion
-   * glob-escaped (`internal-pattern.ts:226-234`), and blank or `#` members
-   * are skipped (the toolkit joins the list with newlines, where both are
-   * inert). A fully empty resolution is the toolkit's hard
-   * "Path Validation Error" (`cache.ts:662-666`) and a typed failure here.
-   *
-   * Two knowing departures: matches stay ABSOLUTE for the `-P` archive
-   * posture rather than being re-rooted at the workspace (the version
-   * hashes the literal list, so the wire protocol never sees the
-   * difference), and the walk does not follow directory symlinks, where
-   * the toolkit's globber does.
-   */
-  const resolvePaths: {
-    (patterns: ReadonlyArray<string>, key: string): Effect.Effect<ReadonlyArray<string>, ActionCacheError>;
-    (key: string): (patterns: ReadonlyArray<string>) => Effect.Effect<ReadonlyArray<string>, ActionCacheError>;
-  } = dual(
-    2,
-    Effect.fnUntraced(function* (
-      patterns: ReadonlyArray<string>,
-      key: string
-    ): Effect.fn.Return<ReadonlyArray<string>, ActionCacheError> {
-      const failed = (detail: string, cause?: unknown) =>
-        ActionCacheError.make({
-          reason: "archiveFailed",
-          key,
-          detail,
-          ...O.getSomesStruct({ cause: O.fromUndefinedOr(cause) }),
-        });
-      const cleaned = pipe(
-        patterns,
-        A.map(Str.trim),
-        A.filter((p) => p !== "" && !p.startsWith("#"))
-      );
-      // The toolkit roots relative patterns at the process working directory
-      // and relativizes matches against GITHUB_WORKSPACE; on a runner the two
-      // are the same directory, and the variable is the one a test controls.
-      const workspace = O.getOrElse(yield* env.getOptional("GITHUB_WORKSPACE"), () => ".");
-      const base = posix(path.resolve(workspace));
-
-      const rooted: Array<string> = [];
-      for (const pattern of cleaned) {
-        const excluded = pattern.startsWith("!");
-        let target = excluded ? pattern.slice(1) : pattern;
-        if (target === "~" || target.startsWith("~/")) {
-          let home = yield* env.getOptional("HOME");
-          if (O.isNone(home)) {
-            home = yield* env.getOptional("USERPROFILE");
-          }
-          if (O.isNone(home)) {
-            return yield* failed(`cannot expand "~" in "${pattern}" — neither HOME nor USERPROFILE is set`);
-          }
-          target = `${GlobPattern.escape(posix(path.resolve(home.value)))}${target.slice(1)}`;
-        }
-        if (!path.isAbsolute(target)) {
-          // The prepended root is escaped, as the toolkit escapes its
-          // (`Pattern.globEscape`) — a `[` in a directory name is a path
-          // here, not a character class.
-          target = `${GlobPattern.escape(base)}/${target}`;
-        }
-        rooted.push(excluded ? `!${target}` : target);
-      }
-
-      const set = yield* GlobSet.compile(rooted).pipe(
-        Effect.mapError((cause) => failed(`"${cause.pattern}" is not a usable glob pattern`, cause))
-      );
-
-      // Search roots: the longest literal prefix of every include — the same
-      // derivation as `@actions/glob`'s search paths, with descendant roots
-      // folded into their ancestors so nothing is walked twice. Wildcard
-      // roots are remembered apart from literal ones, because only a
-      // wildcard can match BELOW a root: a root that literals alone
-      // contributed is stat-and-admitted without the recursive walk (a
-      // literal `~/.pnpm-store` must not cost a full store enumeration
-      // that can admit nothing), while a folded-in wildcard root keeps
-      // the toolkit-parity descent for the ancestor that absorbed it.
-      const roots: Array<string> = [];
-      const wildcardRoots: Array<string> = [];
-      const addRoot: {
-        (root: string, fromWildcard: boolean): void;
-        (fromWildcard: boolean): (root: string) => void;
-      } = dual(2, (root: string, fromWildcard: boolean): void => {
-        if (!roots.includes(root)) {
-          roots.push(root);
-        }
-        if (fromWildcard && !wildcardRoots.includes(root)) {
-          wildcardRoots.push(root);
-        }
-      });
-      for (const literal of set.literals) {
-        addRoot(literal, false);
-      }
-      for (const wildcard of set.wildcards) {
-        // GlobSet classifies whole-pattern negations as excludes, not wildcards.
-        const prefix = wildcard.enumerationPrefix;
-        // Every include was rooted above, so its literal prefix contains at least "/".
-        addRoot(prefix === "/" ? "/" : prefix.slice(0, -1), true);
-      }
-      const under: {
-        (child: string, parent: string): boolean;
-        (parent: string): (child: string) => boolean;
-      } = dual(2, (child: string, parent: string): boolean =>
-        parent === "/" ? child !== "/" : child.startsWith(`${parent}/`)
-      );
-      const searchRoots = A.filter(roots, (root) => !A.some(roots, (other) => other !== root && under(root, other)));
-      const needsWalk = (root: string) => A.some(wildcardRoots, (w) => w === root || under(w, root));
-
-      const matched: Array<string> = [];
-      const seen = MutableHashSet.empty<string>();
-      const admit = (candidate: string) => {
-        if (!MutableHashSet.has(seen, candidate) && set.matches(candidate)) {
-          MutableHashSet.add(seen, candidate);
-          matched.push(candidate);
-        }
-      };
-      for (const root of searchRoots) {
-        // Existence IS the filter: a literal that is not on disk and a
-        // pattern whose literal prefix directory is absent both contribute
-        // nothing, exactly as the toolkit's globber skips an ENOENT search
-        // path. `stat` follows symlinks, so a broken link is also nothing.
-        const info = yield* fs.stat(root).pipe(Effect.option);
-        if (O.isNone(info)) {
-          continue;
-        }
-        admit(root);
-        // Descend only where a wildcard can match: a literal-only root
-        // admits itself (or not) at the stat above, and every deeper
-        // candidate would fail `set.matches` anyway — the walk would be
-        // pure cost, at pnpm-store scale a multi-second one.
-        if (info.value.type === "Directory" && needsWalk(root)) {
-          const entries = yield* fs
-            .readDirectory(root, { recursive: true })
-            .pipe(Effect.mapError((cause) => failed(`could not enumerate "${root}"`, cause)));
-          for (const entry of entries) {
-            admit(`${root}/${posix(entry)}`);
-          }
-        }
-      }
-      if (matched.length === 0) {
-        return yield* failed(`no file or directory matched the cache paths: ${A.join(cleaned, ", ")}`);
-      }
-      // A line is one tar input. Reject every resolved name, including names
-      // later covered by a directory, before writing the manifest or spawning.
-      for (const candidate of matched) {
-        if (!windows && Str.includes("\\")(candidate)) {
-          return yield* failed(`cache path contains a backslash: "${candidate}"`);
-        }
-        if (Str.includes("\n")(candidate) || Str.includes("\r")(candidate)) {
-          return yield* failed(`cache path contains a line break: "${candidate}"`);
-        }
-      }
-
-      // Collect all selected real directories first, so a descendant that
-      // precedes its parent in filesystem enumeration is covered too. Tar
-      // stores symlinks without following them, unlike fs.stat.
-      const directories = MutableHashSet.empty<string>();
-      const symlinks = MutableHashSet.empty<string>();
-      const checkedLinks = MutableHashSet.empty<string>();
-      const isSymlink = Effect.fnUntraced(function* (candidate: string) {
-        if (!MutableHashSet.has(checkedLinks, candidate)) {
-          const link = yield* fs.readLink(candidate).pipe(Effect.option);
-          MutableHashSet.add(checkedLinks, candidate);
-          if (O.isSome(link)) MutableHashSet.add(symlinks, candidate);
-        }
-        return MutableHashSet.has(symlinks, candidate);
-      });
-      for (const candidate of matched) {
-        // Enumerated broken links are valid tar members too; do not stat
-        // their missing targets when deciding which paths recurse.
-        if (yield* isSymlink(candidate)) continue;
-        const info = yield* fs
-          .stat(candidate)
-          .pipe(Effect.mapError((cause) => failed(`could not inspect "${candidate}"`, cause)));
-        if (info.type === "Directory") {
-          MutableHashSet.add(directories, candidate);
-        }
-      }
-
-      const retained: Array<string> = [];
-      for (const candidate of matched) {
-        let parent = posix(path.dirname(candidate));
-        let covered = false;
-        while (parent !== candidate) {
-          // A link between a real ancestor and this path stops tar's
-          // recursion; its explicitly selected descendants still belong.
-          if (yield* isSymlink(parent)) break;
-          if (MutableHashSet.has(directories, parent)) {
-            covered = true;
-            break;
-          }
-          const next = posix(path.dirname(parent));
-          if (next === parent) break;
-          parent = next;
-        }
-        if (!covered) retained.push(candidate);
-      }
-      // Keep the original resolution order among the surviving inputs.
-      return retained;
-    })
-  );
+  const resolution: PathResolution = { fs, path, env, windows };
 
   return {
     save: dual(
@@ -638,7 +707,7 @@ const make = Effect.fn("make")(function* (
         }
         // The LITERAL list, before resolution — see `versionOf` for why.
         const version = versionOf(paths);
-        const resolved = yield* resolvePaths(paths, primary);
+        const resolved = yield* resolvePaths(resolution, paths, primary);
         yield* withArchive(
           primary,
           Effect.fnUntraced(function* (archive: string, scratch: string) {
