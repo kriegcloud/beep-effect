@@ -239,6 +239,7 @@ const generatedComposers = $I.compose(
   "config-file",
   "lockfiles",
   "xdg",
+  "cli-kit",
   "sbom"
 );
 
@@ -3479,6 +3480,23 @@ export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = compos
  * @since 0.0.0
  */
 export const $XdgId: Identity.IdentityComposer<"@beep/xdg"> = composers.$XdgId;
+
+/**
+ * Identity composer for `@beep/cli-kit`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $CliKitId } from "@beep/identity/packages"
+ *
+ * const id = $CliKitId.make("CliKit")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $CliKitId: Identity.IdentityComposer<"@beep/cli-kit"> = composers.$CliKitId;
 
 /**
  * Identity composer for `@beep/sbom`.
