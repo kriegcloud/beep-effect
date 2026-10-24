@@ -35,6 +35,11 @@ inherited EV011 row was added by `--write`. The PR adds no other row and no exce
 and changes no exception reason. EV002 open rows across the repository fell from 168 to
 52.
 
+Against the PR base after merging `main` `a1542ea161` (1,111 rows: 692 exceptions, 419 open, which
+already carries the EV011 import fix and the EV012 seams): 980 rows (692 exceptions, 288 open).
+Paired by `(ruleId, file, occurrence)`, 131 rows are gone, none is new, and no row changes status:
+419 − 131 = 288 open, 1,111 − 131 = 980 rows, exceptions unchanged at 692.
+
 ## Migration patterns
 
 Three patterns, chosen per test by what the provided layer holds.
@@ -191,8 +196,8 @@ same admission. Dependency dists were built first with
 | Full repo-cli suite, Bun (`bun run test`) | 7,621 passed, 1 failed: `knowledge-doctor-evaluators.test.ts` "reads the same packets ... as the live filesystem". Environment-only: it compares the live packet files with committed state, and the diff is this lane's uncommitted `statusNote`. Not a source defect; it passes once the packet edits are committed. |
 | Mutation probes (Bun) | shared block: a `git-worktree` expected value flipped, which failed; stub: the `ci-lane-timings` run-page count changed from 4 to 5, which failed; split block: the `yeet-monitor-loop` allowance text changed, which failed; isolation: the `yeet-settle` ruleset-reader loop merged into one shared block, which failed the `invalid` and `truncated` cases on accumulated TestConsole errors. Every file was restored byte-identical (`cmp`). |
 | Biome / oxlint on the 31 changed files | clean |
-| Coverage ratchet `bun run coverage --filter=@beep/repo-cli` | PENDING. The first run failed in its test step before the comparison: the knowledge-doctor environment row above, plus a `cache-pilot-orchestration.test.ts` 300 s timeout under load, which passes alone on Node (25/25). The rerun was stopped for the workstation reboot. |
-| `lint:schema-first`, `quality fallow audit --base origin/main --check`, root `lint:oxlint`, `jsdoc:inventory:check` + `jsdoc:ratchet:check`, `lint:retired-effect-paths`, `goals:doctor`, `quality package-verify @beep/repo-cli` | PENDING (after the reboot) |
+| Coverage ratchet `bun run coverage --filter=@beep/repo-cli` | exit 0 after merging `main` `a1542ea161`: the full repo-cli suite and the ratchet comparison pass with no regression row. The earlier failures were environment-only (the knowledge-doctor row against an uncommitted packet note, and a `cache-pilot-orchestration.test.ts` timeout under load). |
+| `lint:schema-first`, `quality fallow audit --base origin/main --check`, root `lint:oxlint`, `jsdoc:inventory:check` + `jsdoc:ratchet:check`, `lint:retired-effect-paths`, `goals:doctor`, `quality package-verify @beep/repo-cli` | all exit 0 after the main merge. The jsdoc ratchet reports `increased=0` and zero-legacy ok; it needs `jsdoc:inventory:check` to write its input first. `package-verify` passes its audit (full suite) and docgen. |
 
 ## Reversal
 
