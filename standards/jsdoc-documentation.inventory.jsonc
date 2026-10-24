@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-24T00:54:42.121Z",
+  "generatedAt": "2026-10-24T01:50:43.434Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -65,8 +65,8 @@
     "cleanPackages": 99,
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
-    "publicModules": 3564,
-    "publicExports": 25203,
+    "publicModules": 3563,
+    "publicExports": 25199,
     "openModules": 492,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -18819,9 +18819,9 @@
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
-        "sourceFileCount": 169,
-        "publicModuleCount": 169,
-        "publicExportCount": 975
+        "sourceFileCount": 168,
+        "publicModuleCount": 168,
+        "publicExportCount": 971
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -22314,28 +22314,6 @@
         },
         {
           "docKind": "packageDocumentation",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 1,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-1-module",
-          "currentTags": [
-            "@packageDocumentation",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "exportCount": 3,
-          "remediationStatus": "resolved"
-        },
-        {
-          "docKind": "packageDocumentation",
           "filePath": "src/SeverityLevel.ts",
           "repoPath": "packages/foundation/modeling/schema/src/SeverityLevel.ts",
           "line": 1,
@@ -22622,7 +22600,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 44,
+          "exportCount": 43,
           "remediationStatus": "resolved"
         }
       ],
@@ -42137,72 +42115,6 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "Semver",
-          "exportKind": "class",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 382,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-382-semver",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "SemverFromString",
-          "exportKind": "const",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 657,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-657-semverfromstring",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "SemverFromString",
-          "exportKind": "type",
-          "filePath": "src/Semver.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/Semver.ts",
-          "line": 683,
-          "anchor": "packages-foundation-modeling-schema-src-semver-ts-683-semverfromstring",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
           "symbolName": "SeverityLevel",
           "exportKind": "const",
           "filePath": "src/SeverityLevel.ts",
@@ -44285,34 +44197,12 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "export * from \"./Semver.ts\";",
-          "exportKind": "re-export",
-          "filePath": "src/index.ts",
-          "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 220,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-220-export-from-semver-ts",
-          "currentTags": [
-            "@since",
-            "@category"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
           "symbolName": "export * from \"./SeverityLevel.ts\";",
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 225,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-225-export-from-severitylevel-ts",
+          "line": 220,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-220-export-from-severitylevel-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44333,8 +44223,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 230,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-230-export-from-sha256-ts",
+          "line": 225,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-225-export-from-sha256-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44355,8 +44245,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 235,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-235-export-from-slug-ts",
+          "line": 230,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-230-export-from-slug-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44377,8 +44267,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 240,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-240-export-from-territorycode-ts",
+          "line": 235,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-235-export-from-territorycode-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44399,8 +44289,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 245,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-245-export-from-url-ts",
+          "line": 240,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-240-export-from-url-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -44421,8 +44311,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/foundation/modeling/schema/src/index.ts",
-          "line": 250,
-          "anchor": "packages-foundation-modeling-schema-src-index-ts-250-export-from-xml-ts",
+          "line": 245,
+          "anchor": "packages-foundation-modeling-schema-src-index-ts-245-export-from-xml-ts",
           "currentTags": [
             "@since",
             "@category"
@@ -120342,8 +120232,8 @@
           "exportKind": "interface",
           "filePath": "src/ConfigFile.ts",
           "repoPath": "packages/foundation/capability/config-file/src/ConfigFile.ts",
-          "line": 1205,
-          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1205-configfiletestoptions",
+          "line": 1218,
+          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1218-configfiletestoptions",
           "currentTags": [
             "@public",
             "@category",
@@ -120365,8 +120255,8 @@
           "exportKind": "interface",
           "filePath": "src/ConfigFile.ts",
           "repoPath": "packages/foundation/capability/config-file/src/ConfigFile.ts",
-          "line": 1336,
-          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1336-configreadschema",
+          "line": 1349,
+          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1349-configreadschema",
           "currentTags": [
             "@public",
             "@category",
@@ -120388,8 +120278,8 @@
           "exportKind": "interface",
           "filePath": "src/ConfigFile.ts",
           "repoPath": "packages/foundation/capability/config-file/src/ConfigFile.ts",
-          "line": 1364,
-          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1364-configreadoptions",
+          "line": 1377,
+          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1377-configreadoptions",
           "currentTags": [
             "@public",
             "@category",
@@ -120411,8 +120301,8 @@
           "exportKind": "class",
           "filePath": "src/ConfigFile.ts",
           "repoPath": "packages/foundation/capability/config-file/src/ConfigFile.ts",
-          "line": 1444,
-          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1444-configfile",
+          "line": 1457,
+          "anchor": "packages-foundation-capability-config-file-src-configfile-ts-1457-configfile",
           "currentTags": [
             "@public",
             "@category",
@@ -164212,8 +164102,8 @@
           "exportKind": "class",
           "filePath": "src/SemVer.ts",
           "repoPath": "packages/foundation/modeling/semver/src/SemVer.ts",
-          "line": 184,
-          "anchor": "packages-foundation-modeling-semver-src-semver-ts-184-semver",
+          "line": 195,
+          "anchor": "packages-foundation-modeling-semver-src-semver-ts-195-semver",
           "currentTags": [
             "@see",
             "@public",
@@ -164236,8 +164126,8 @@
           "exportKind": "const",
           "filePath": "src/SemVer.ts",
           "repoPath": "packages/foundation/modeling/semver/src/SemVer.ts",
-          "line": 1227,
-          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1227-semverbumpcomponent",
+          "line": 1254,
+          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1254-semverbumpcomponent",
           "currentTags": [
             "@category",
             "@since"
@@ -164258,8 +164148,8 @@
           "exportKind": "type",
           "filePath": "src/SemVer.ts",
           "repoPath": "packages/foundation/modeling/semver/src/SemVer.ts",
-          "line": 1237,
-          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1237-semverbumpcomponent",
+          "line": 1264,
+          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1264-semverbumpcomponent",
           "currentTags": [
             "@see",
             "@category",
@@ -164281,8 +164171,8 @@
           "exportKind": "class",
           "filePath": "src/SemVer.ts",
           "repoPath": "packages/foundation/modeling/semver/src/SemVer.ts",
-          "line": 1255,
-          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1255-semverbumpoverflowerror",
+          "line": 1282,
+          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1282-semverbumpoverflowerror",
           "currentTags": [
             "@category",
             "@since"
@@ -164303,8 +164193,8 @@
           "exportKind": "class",
           "filePath": "src/SemVer.ts",
           "repoPath": "packages/foundation/modeling/semver/src/SemVer.ts",
-          "line": 1330,
-          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1330-semverbump",
+          "line": 1357,
+          "anchor": "packages-foundation-modeling-semver-src-semver-ts-1357-semverbump",
           "currentTags": [
             "@public",
             "@category",
@@ -379260,8 +379150,8 @@
           "exportKind": "class",
           "filePath": "src/Lockfile.ts",
           "repoPath": "packages/foundation/modeling/lockfiles/src/Lockfile.ts",
-          "line": 65,
-          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-65-lockfileparseerror",
+          "line": 68,
+          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-68-lockfileparseerror",
           "currentTags": [
             "@public",
             "@category",
@@ -379283,8 +379173,8 @@
           "exportKind": "class",
           "filePath": "src/Lockfile.ts",
           "repoPath": "packages/foundation/modeling/lockfiles/src/Lockfile.ts",
-          "line": 167,
-          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-167-lockfileframingerror",
+          "line": 170,
+          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-170-lockfileframingerror",
           "currentTags": [
             "@public",
             "@category",
@@ -379306,8 +379196,8 @@
           "exportKind": "const",
           "filePath": "src/Lockfile.ts",
           "repoPath": "packages/foundation/modeling/lockfiles/src/Lockfile.ts",
-          "line": 240,
-          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-240-materializefailure",
+          "line": 243,
+          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-243-materializefailure",
           "currentTags": [
             "@internal",
             "@category",
@@ -379329,8 +379219,8 @@
           "exportKind": "class",
           "filePath": "src/Lockfile.ts",
           "repoPath": "packages/foundation/modeling/lockfiles/src/Lockfile.ts",
-          "line": 303,
-          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-303-lockfile",
+          "line": 306,
+          "anchor": "packages-foundation-modeling-lockfiles-src-lockfile-ts-306-lockfile",
           "currentTags": [
             "@public",
             "@category",
@@ -379763,8 +379653,8 @@
           "exportKind": "class",
           "filePath": "src/PnpmExtension.ts",
           "repoPath": "packages/foundation/modeling/lockfiles/src/PnpmExtension.ts",
-          "line": 130,
-          "anchor": "packages-foundation-modeling-lockfiles-src-pnpmextension-ts-130-pnpmextension",
+          "line": 131,
+          "anchor": "packages-foundation-modeling-lockfiles-src-pnpmextension-ts-131-pnpmextension",
           "currentTags": [
             "@public",
             "@category",
@@ -379786,8 +379676,8 @@
           "exportKind": "namespace",
           "filePath": "src/PnpmExtension.ts",
           "repoPath": "packages/foundation/modeling/lockfiles/src/PnpmExtension.ts",
-          "line": 167,
-          "anchor": "packages-foundation-modeling-lockfiles-src-pnpmextension-ts-167-pnpmextension",
+          "line": 173,
+          "anchor": "packages-foundation-modeling-lockfiles-src-pnpmextension-ts-173-pnpmextension",
           "currentTags": [
             "@category",
             "@since"
@@ -381360,8 +381250,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 31,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-31-cachequalificationstate",
+          "line": 32,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-32-cachequalificationstate",
           "currentTags": [
             "@category",
             "@since"
@@ -381382,8 +381272,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 45,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-45-cachequalificationstate",
+          "line": 46,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-46-cachequalificationstate",
           "currentTags": [
             "@category",
             "@since"
@@ -381404,8 +381294,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 60,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-60-cachereuselayer",
+          "line": 61,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-61-cachereuselayer",
           "currentTags": [
             "@category",
             "@since"
@@ -381426,8 +381316,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 77,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-77-cachereuselayer",
+          "line": 78,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-78-cachereuselayer",
           "currentTags": [
             "@category",
             "@since"
@@ -381448,8 +381338,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 92,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-92-cacheevidencekind",
+          "line": 93,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-93-cacheevidencekind",
           "currentTags": [
             "@category",
             "@since"
@@ -381470,8 +381360,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 115,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-115-cacheevidencekind",
+          "line": 116,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-116-cacheevidencekind",
           "currentTags": [
             "@category",
             "@since"
@@ -381492,8 +381382,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 130,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-130-cacheclientchannel",
+          "line": 131,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-131-cacheclientchannel",
           "currentTags": [
             "@category",
             "@since"
@@ -381514,8 +381404,8 @@
           "exportKind": "type",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 139,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-139-cacheclientchannel",
+          "line": 140,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-140-cacheclientchannel",
           "currentTags": [
             "@category",
             "@since"
@@ -381536,8 +381426,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 155,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-155-cachequalificationkey",
+          "line": 156,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-156-cachequalificationkey",
           "currentTags": [
             "@category",
             "@since"
@@ -381558,8 +381448,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 182,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-182-cachequalificationpins",
+          "line": 183,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-183-cachequalificationpins",
           "currentTags": [
             "@category",
             "@since"
@@ -381580,8 +381470,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 210,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-210-cachetaskconfiguration",
+          "line": 211,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-211-cachetaskconfiguration",
           "currentTags": [
             "@category",
             "@since"
@@ -381602,8 +381492,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 243,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-243-cacheclientpin",
+          "line": 244,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-244-cacheclientpin",
           "currentTags": [
             "@category",
             "@since"
@@ -381624,8 +381514,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 265,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-265-cacheevidencereference",
+          "line": 266,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-266-cacheevidencereference",
           "currentTags": [
             "@category",
             "@since"
@@ -381646,8 +381536,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 296,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-296-cacheactivationprojection",
+          "line": 297,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-297-cacheactivationprojection",
           "currentTags": [
             "@category",
             "@since"
@@ -381668,8 +381558,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 326,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-326-cachesignedexecutionprofile",
+          "line": 327,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-327-cachesignedexecutionprofile",
           "currentTags": [
             "@category",
             "@since"
@@ -381690,8 +381580,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 360,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-360-cachetaskcontract",
+          "line": 361,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-361-cachetaskcontract",
           "currentTags": [
             "@category",
             "@since"
@@ -381712,8 +381602,8 @@
           "exportKind": "class",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 399,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-399-cachequalificationobservation",
+          "line": 400,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-400-cachequalificationobservation",
           "currentTags": [
             "@category",
             "@since"
@@ -381734,8 +381624,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 434,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-434-iscachetransitionallowed",
+          "line": 435,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-435-iscachetransitionallowed",
           "currentTags": [
             "@category",
             "@since"
@@ -381756,8 +381646,8 @@
           "exportKind": "const",
           "filePath": "src/cache/Cache.policy.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/cache/Cache.policy.ts",
-          "line": 581,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-581-cachepromotionfailures",
+          "line": 582,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-cache-cache-policy-ts-582-cachepromotionfailures",
           "currentTags": [
             "@category",
             "@since"

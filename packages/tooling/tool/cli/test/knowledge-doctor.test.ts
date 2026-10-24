@@ -26,7 +26,7 @@ import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
@@ -878,7 +878,7 @@ describe("knowledge doctor command boundary", () => {
           }
           const run = Command.runWith(knowledgeDoctorCommand, { version: "0.0.0" });
           const refused = yield* Effect.exit(run([]));
-          assert.isTrue(Exit.isFailure(refused));
+          refused.pipe(Exit.isFailure, assertTrue);
           yield* run(["--report", "--tree", "HEAD"]);
           const human = yield* TestConsole.logLines.pipe(Effect.flatMap(decodeConsoleLines));
           assert.isTrue(A.some(human, (line) => Str.includes("knowledge doctor --report @ HEAD")(line)));
