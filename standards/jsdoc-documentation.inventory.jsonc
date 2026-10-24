@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-24T15:00:38.842Z",
+  "generatedAt": "2026-10-24T19:37:30.825Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -66,7 +66,7 @@
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
     "publicModules": 3552,
-    "publicExports": 25194,
+    "publicExports": 25192,
     "openModules": 449,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -170417,8 +170417,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 314,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-314-appdiroverrides",
+          "line": 303,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-303-appdiroverrides",
           "currentTags": [
             "@category",
             "@since"
@@ -170439,8 +170439,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 367,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-367-appdirsoptions",
+          "line": 356,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-356-appdirsoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -170461,8 +170461,8 @@
           "exportKind": "class",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 619,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-619-appdirs",
+          "line": 608,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-608-appdirs",
           "currentTags": [
             "@public",
             "@category",
@@ -170484,8 +170484,8 @@
           "exportKind": "type",
           "filePath": "src/AppDirs.ts",
           "repoPath": "packages/foundation/capability/xdg/src/AppDirs.ts",
-          "line": 739,
-          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-739-appdirsshape",
+          "line": 728,
+          "anchor": "packages-foundation-capability-xdg-src-appdirs-ts-728-appdirsshape",
           "currentTags": [
             "@public",
             "@category",
@@ -170530,8 +170530,8 @@
           "exportKind": "const",
           "filePath": "src/Xdg.ts",
           "repoPath": "packages/foundation/capability/xdg/src/Xdg.ts",
-          "line": 57,
-          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-57-xdgplatform",
+          "line": 46,
+          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-46-xdgplatform",
           "currentTags": [
             "@public",
             "@category",
@@ -170553,8 +170553,8 @@
           "exportKind": "type",
           "filePath": "src/Xdg.ts",
           "repoPath": "packages/foundation/capability/xdg/src/Xdg.ts",
-          "line": 78,
-          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-78-xdgplatform",
+          "line": 67,
+          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-67-xdgplatform",
           "currentTags": [
             "@public",
             "@category",
@@ -170576,8 +170576,8 @@
           "exportKind": "const",
           "filePath": "src/Xdg.ts",
           "repoPath": "packages/foundation/capability/xdg/src/Xdg.ts",
-          "line": 107,
-          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-107-currentplatform",
+          "line": 96,
+          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-96-currentplatform",
           "currentTags": [
             "@public",
             "@category",
@@ -170599,8 +170599,8 @@
           "exportKind": "class",
           "filePath": "src/Xdg.ts",
           "repoPath": "packages/foundation/capability/xdg/src/Xdg.ts",
-          "line": 135,
-          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-135-xdgenverror",
+          "line": 124,
+          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-124-xdgenverror",
           "currentTags": [
             "@public",
             "@category",
@@ -170622,8 +170622,8 @@
           "exportKind": "class",
           "filePath": "src/Xdg.ts",
           "repoPath": "packages/foundation/capability/xdg/src/Xdg.ts",
-          "line": 199,
-          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-199-xdgpaths",
+          "line": 188,
+          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-188-xdgpaths",
           "currentTags": [
             "@public",
             "@category",
@@ -170645,8 +170645,8 @@
           "exportKind": "class",
           "filePath": "src/Xdg.ts",
           "repoPath": "packages/foundation/capability/xdg/src/Xdg.ts",
-          "line": 294,
-          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-294-xdg",
+          "line": 283,
+          "anchor": "packages-foundation-capability-xdg-src-xdg-ts-283-xdg",
           "currentTags": [
             "@public",
             "@category",
@@ -170668,8 +170668,8 @@
           "exportKind": "const",
           "filePath": "src/XdgBase.ts",
           "repoPath": "packages/foundation/capability/xdg/src/XdgBase.ts",
-          "line": 37,
-          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-37-xdgbasekind",
+          "line": 36,
+          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-36-xdgbasekind",
           "currentTags": [
             "@public",
             "@category",
@@ -170691,8 +170691,8 @@
           "exportKind": "type",
           "filePath": "src/XdgBase.ts",
           "repoPath": "packages/foundation/capability/xdg/src/XdgBase.ts",
-          "line": 50,
-          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-50-xdgbasekind",
+          "line": 49,
+          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-49-xdgbasekind",
           "currentTags": [
             "@public",
             "@category",
@@ -170714,8 +170714,8 @@
           "exportKind": "class",
           "filePath": "src/XdgBase.ts",
           "repoPath": "packages/foundation/capability/xdg/src/XdgBase.ts",
-          "line": 168,
-          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-168-xdgbase",
+          "line": 157,
+          "anchor": "packages-foundation-capability-xdg-src-xdgbase-ts-157-xdgbase",
           "currentTags": [
             "@public",
             "@category",
@@ -253922,8 +253922,8 @@
           "exportKind": "const",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 73,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-73-aimetricsabsolutedataroot",
+          "line": 81,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-81-aimetricsabsolutedataroot",
           "currentTags": [
             "@category",
             "@since"
@@ -253944,8 +253944,8 @@
           "exportKind": "type",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 88,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-88-aimetricsabsolutedataroot",
+          "line": 96,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-96-aimetricsabsolutedataroot",
           "currentTags": [
             "@category",
             "@since"
@@ -253966,8 +253966,8 @@
           "exportKind": "const",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 118,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-118-aimetricsdatarootsource",
+          "line": 126,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-126-aimetricsdatarootsource",
           "currentTags": [
             "@see",
             "@category",
@@ -253989,8 +253989,8 @@
           "exportKind": "type",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 131,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-131-aimetricsdatarootsource",
+          "line": 139,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-139-aimetricsdatarootsource",
           "currentTags": [
             "@see",
             "@category",
@@ -254012,8 +254012,8 @@
           "exportKind": "class",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 180,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-180-aimetricsdatarootinput",
+          "line": 188,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-188-aimetricsdatarootinput",
           "currentTags": [
             "@category",
             "@since"
@@ -254034,8 +254034,8 @@
           "exportKind": "class",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 217,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-217-aimetricsdataroot",
+          "line": 225,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-225-aimetricsdataroot",
           "currentTags": [
             "@category",
             "@since"
@@ -254056,8 +254056,8 @@
           "exportKind": "class",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 248,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-248-aimetricsdatarooterror",
+          "line": 256,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-256-aimetricsdatarooterror",
           "currentTags": [
             "@category",
             "@since"
@@ -254078,8 +254078,8 @@
           "exportKind": "class",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 285,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-285-aimetricsstatehomeinput",
+          "line": 293,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-293-aimetricsstatehomeinput",
           "currentTags": [
             "@category",
             "@since"
@@ -254100,8 +254100,8 @@
           "exportKind": "const",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 354,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-354-aimetricsstatehome",
+          "line": 367,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-367-aimetricsstatehome",
           "currentTags": [
             "@param",
             "@returns",
@@ -254124,8 +254124,8 @@
           "exportKind": "const",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 388,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-388-aimetricsstateroot",
+          "line": 411,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-411-aimetricsstateroot",
           "currentTags": [
             "@param",
             "@returns",
@@ -254148,8 +254148,8 @@
           "exportKind": "const",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 452,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-452-resolveaimetricsdataroot",
+          "line": 475,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-475-resolveaimetricsdataroot",
           "currentTags": [
             "@param",
             "@returns",
@@ -254172,8 +254172,8 @@
           "exportKind": "const",
           "filePath": "src/data-root.ts",
           "repoPath": "packages/tooling/library/ai-metrics/src/data-root.ts",
-          "line": 502,
-          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-502-requireabsoluteaimetricsdataroot",
+          "line": 525,
+          "anchor": "packages-tooling-library-ai-metrics-src-data-root-ts-525-requireabsoluteaimetricsdataroot",
           "currentTags": [
             "@param",
             "@returns",
@@ -450986,7 +450986,7 @@
         "srcDir": "src",
         "sourceFileCount": 467,
         "publicModuleCount": 465,
-        "publicExportCount": 4340
+        "publicExportCount": 4338
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -455688,7 +455688,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 8,
+          "exportCount": 7,
           "remediationStatus": "resolved"
         },
         {
@@ -461090,7 +461090,7 @@
               "rule": "multiple-description-paragraphs"
             }
           ],
-          "exportCount": 11,
+          "exportCount": 10,
           "remediationStatus": "open"
         },
         {
@@ -502141,8 +502141,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 139,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-139-harnessledgerproposecommand",
+          "line": 135,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-135-harnessledgerproposecommand",
           "currentTags": [
             "@category",
             "@since"
@@ -502163,8 +502163,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 227,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-227-harnessledgerdispositioncommand",
+          "line": 223,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-223-harnessledgerdispositioncommand",
           "currentTags": [
             "@category",
             "@since"
@@ -502185,30 +502185,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 332,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-332-harnessledgerlistcommand",
-          "currentTags": [
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "resolveHookPulseDir",
-          "exportKind": "const",
-          "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 421,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-421-resolvehookpulsedir",
+          "line": 328,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-328-harnessledgerlistcommand",
           "currentTags": [
             "@category",
             "@since"
@@ -502229,8 +502207,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 497,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-497-harnessledgerprunereportlines",
+          "line": 449,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-449-harnessledgerprunereportlines",
           "currentTags": [
             "@param",
             "@returns",
@@ -502253,8 +502231,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 553,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-553-harnessledgerpruneproposalscommand",
+          "line": 505,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-505-harnessledgerpruneproposalscommand",
           "currentTags": [
             "@category",
             "@since"
@@ -502275,8 +502253,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 638,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-638-harnessledgerreconcilecommand",
+          "line": 590,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-590-harnessledgerreconcilecommand",
           "currentTags": [
             "@category",
             "@since"
@@ -502297,8 +502275,8 @@
           "exportKind": "const",
           "filePath": "src/commands/HarnessLedger/HarnessLedger.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts",
-          "line": 689,
-          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-689-harnessledgercommand",
+          "line": 641,
+          "anchor": "packages-tooling-tool-cli-src-commands-harnessledger-harnessledger-command-ts-641-harnessledgercommand",
           "currentTags": [
             "@category",
             "@since"
@@ -554775,36 +554753,12 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "fleetScannerCacheRoot",
-          "exportKind": "const",
-          "filePath": "src/commands/Worktree/Fleet.service.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Worktree/Fleet.service.ts",
-          "line": 1275,
-          "anchor": "packages-tooling-tool-cli-src-commands-worktree-fleet-service-ts-1275-fleetscannercacheroot",
-          "currentTags": [
-            "@param",
-            "@returns",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "categoryViolations": [],
-          "documentationShapeViolations": [],
-          "remediationStatus": "resolved"
-        },
-        {
           "symbolName": "FleetMirrorServiceLive",
           "exportKind": "const",
           "filePath": "src/commands/Worktree/Fleet.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Worktree/Fleet.service.ts",
-          "line": 1407,
-          "anchor": "packages-tooling-tool-cli-src-commands-worktree-fleet-service-ts-1407-fleetmirrorservicelive",
+          "line": 1372,
+          "anchor": "packages-tooling-tool-cli-src-commands-worktree-fleet-service-ts-1372-fleetmirrorservicelive",
           "currentTags": [
             "@category",
             "@since"
@@ -592839,8 +592793,8 @@
           "exportKind": "class",
           "filePath": "src/Config.ts",
           "repoPath": "apps/docket-intake/src/Config.ts",
-          "line": 37,
-          "anchor": "apps-docket-intake-src-config-ts-37-docketintakeappconfig",
+          "line": 38,
+          "anchor": "apps-docket-intake-src-config-ts-38-docketintakeappconfig",
           "currentTags": [
             "@category",
             "@since"
@@ -592861,8 +592815,8 @@
           "exportKind": "const",
           "filePath": "src/Config.ts",
           "repoPath": "apps/docket-intake/src/Config.ts",
-          "line": 105,
-          "anchor": "apps-docket-intake-src-config-ts-105-docketintakeappconfigfromenv",
+          "line": 109,
+          "anchor": "apps-docket-intake-src-config-ts-109-docketintakeappconfigfromenv",
           "currentTags": [
             "@category",
             "@since"
