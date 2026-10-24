@@ -11,8 +11,9 @@ Upstream `pnpm` commands map to this repository's package scripts: `bun run test
 `bun run check` and `bun run beep quality package-verify @beep/package-json`; there is no `savvy.build.ts`.
 Upstream package names map the same way: `@effected/package-json` is `@beep/package-json`, the pure half of
 `@effected/npm` (the specifier vocabulary and the `CatalogResolver`/`WorkspaceResolver` contracts) is
-`@beep/npm-spec`, and `@effected/semver`, `@effected/spdx` and `@effected/jsonc` are `@beep/semver`,
-`@beep/spdx` and `@beep/jsonc`. Four upstream facts below no longer hold here (SPEC W3-f): `src/index.ts` no
+`@beep/npm-spec`, and `@effected/semver`, `@effected/spdx`, `@effected/jsonc` and `@effected/sbom` are
+`@beep/semver`, `@beep/spdx`, `@beep/jsonc` and `@beep/sbom` (wave 4-S moved its pure half, the
+metadata-source mapping included). Four upstream facts below no longer hold here (SPEC W3-f): `src/index.ts` no
 longer re-exports `DependencySpecifier` or `JsoncEdit`/`JsoncPath`, so import them from `@beep/npm-spec` and
 `@beep/jsonc`; `PackageJsonFile` is a leaf import (`@beep/package-json/PackageJsonFile`), not part of the root
 barrel; the deprecated `RepositoryField` union is removed; and `PackageName` rejects a leading `-`,
@@ -130,7 +131,7 @@ Module-per-concept, one class or concept per file:
 
 - `Package.ts` — the core model, the wire transform and `.extend()` story, and the reusable `@public` field codecs.
 - `PackageManifest.ts` and `LenientManifest.ts` — the two more permissive tiers; see [the tolerance ladder](#the-tolerance-ladder).
-- The leaf concepts: `PackageName.ts`, `License.ts`, `PackageManager.ts`, `PackageManagerRange.ts` (with `InvalidPackageManagerRangeError`), `Person.ts`, `Repository.ts` (holding both `Repository` and `Bugs`, since they share the shorthand-or-object encoding and the wire-provenance machinery), `Funding.ts`, `DevEngines.ts`, `Dependency.ts`.
+- The leaf concepts: `PackageName.ts`, `License.ts`, `PackageManager.ts`, `PackageManagerRange.ts` (with `InvalidPackageManagerRangeError`), `Person.ts`, `Repository.ts` (holding both `Repository` and `Bugs`, since they share the shorthand-or-object encoding and the wire-provenance machinery), `Funding.ts`, `DevEngines.ts`, `Dependency.ts`. `ManifestFields.ts` holds the plain-shape schemas for the generic fields beyond the core (files, imports, browser, overrides, workspaces, typesVersions, the Bun catalog and the rest added in 3-A2).
 - `PackageValidator.ts` — the validation service, its rule interface, the default rule set and a parameterized layer factory.
 - `PackageJsonFile.ts` — the only IO module: one service, read/write over core `FileSystem`/`Path`, plus its error tags.
 - `EntryPoint.ts` — entry-point resolution, pure and IO-free, and the one module whose input is deliberately structural rather than a `Package`. See [the entry-point resolver interface](../interfaces/package-json-entry-point.md).

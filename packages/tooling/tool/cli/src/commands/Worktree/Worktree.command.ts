@@ -27,7 +27,7 @@ import { constFalse, dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
+import { reportCommandError } from "../../internal/cli/CommandErrorFields.ts";
 import { isWithinRoot } from "../../internal/PathContainment.ts";
 import { ProcessPid, runRepoCommandStreamingCapture } from "../../internal/repo-run/index.ts";
 import { ReferenceWorkspace, referenceWorkspaceLayer } from "../Refs/index.ts";
@@ -40,6 +40,7 @@ import {
   WorktreeInvokerExemption,
   WorktreeListEntry,
   WorktreeRemovalRequest,
+  WorktreeResidueManifest,
   WorktreeSessionMarker,
   WorktreeUpstreamState,
   WorktreeUpstreamVerdict,
@@ -47,6 +48,7 @@ import {
 import {
   branchDeleteCommand,
   installRegenerateMergeDriver,
+  restoreBeepMaterial,
   runWorktreeGitCapture,
   WorktreeRemovalService,
   WorktreeRemovalServiceLive,
@@ -59,6 +61,7 @@ import type { WorktreeInotifyWatcher, WorktreeRemovalReceipt, WorktreeUnpushedIn
 const $I = $RepoCliId.create("commands/Worktree/Worktree.command");
 const decodeWorktreeName = S.decodeUnknownEffect(WorktreeRemovalRequest.fields.name);
 const isProcessPid = S.is(ProcessPid);
+const decodeResidueManifest = S.decodeUnknownEffect(S.fromJsonString(WorktreeResidueManifest));
 
 // Claude Code exports its own pid under this name to every tool shell it
 // spawns; that harness key lives here, in the command layer that runs under
@@ -950,6 +953,16 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
       yield* Console.log(`  repository hash: ${manifest.repositoryHash}`);
       yield* Console.log(`  tracked patch: ${O.getOrElse(manifest.patchPath, () => "(none)")}`);
       yield* Console.log(`  untracked files: ${manifest.untrackedFiles.length}`);
+      yield* Console.log(
+        `  .beep material: ${
+          A.isReadonlyArrayNonEmpty(manifest.materialEntries)
+            ? A.join(
+                A.map(manifest.materialEntries, ({ name, files, bytes }) => `${name} (${files} files, ${bytes} bytes)`),
+                ", "
+              )
+            : "(none)"
+        }`
+      );
       yield* Console.log(`  residue root: ${manifest.residueRoot}`);
       yield* Console.log(`  manifest: ${manifest.residueRoot}/manifest.json`);
       yield* Console.log("  restore:");
@@ -959,6 +972,11 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
       }
       if (manifest.untrackedFiles.length > 0) {
         yield* Console.log(`    copy ${manifest.residueRoot}/untracked/ contents back into <restore-path>`);
+      }
+      if (A.isReadonlyArrayNonEmpty(manifest.materialEntries)) {
+        yield* Console.log(
+          `    bun run beep worktree restore-material ${quoteShellArgument(manifest.residueRoot)} <restore-path>`
+        );
       }
     }),
   });
@@ -1139,14 +1157,8 @@ const worktreeNewCommand = Command.make(
   Effect.fn(function* ({ name, branch, base }) {
     yield* runWorktreeNew({ name, branch, base }).pipe(
       Effect.catchTags({
-        WorktreeCommandError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree new: ${error.message}`);
-          return yield* failWithReportedExit(`worktree new: ${error.message}`);
-        }),
-        WorktreeExistsError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree new: ${error.message}`);
-          return yield* failWithReportedExit(`worktree new: ${error.message}`);
-        }),
+        WorktreeCommandError: reportCommandError("worktree new"),
+        WorktreeExistsError: reportCommandError("worktree new"),
       })
     );
   })
@@ -1172,18 +1184,9 @@ const worktreeRemoveCommand = Command.make(
   Effect.fn(function* ({ name, archive, deleteBranch }) {
     yield* runWorktreeRemove({ name, archive, deleteBranch }).pipe(
       Effect.catchTags({
-        WorktreeCommandError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree remove: ${error.message}`);
-          return yield* failWithReportedExit(`worktree remove: ${error.message}`);
-        }),
-        WorktreeDirtyError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree remove: ${error.message}`);
-          return yield* failWithReportedExit(`worktree remove: ${error.message}`);
-        }),
-        WorktreePreservationError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree remove: ${error.message}`);
-          return yield* failWithReportedExit(`worktree remove: ${error.message}`);
-        }),
+        WorktreeCommandError: reportCommandError("worktree remove"),
+        WorktreeDirtyError: reportCommandError("worktree remove"),
+        WorktreePreservationError: reportCommandError("worktree remove"),
       })
     );
   })
@@ -1194,19 +1197,56 @@ const worktreeRemoveCommand = Command.make(
   Command.provide(WorktreeRemovalServiceLive)
 );
 
+const quoteShellArgument = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
+
+const worktreeRestoreMaterialCommand = Command.make(
+  "restore-material",
+  {
+    archive: Argument.String("archive").pipe(
+      Argument.withDescription("Residue archive directory containing manifest.json")
+    ),
+    restorePath: Argument.String("restore-path").pipe(
+      Argument.withDescription("Checkout restored from the archive ref")
+    ),
+  },
+  Effect.fn("Worktree.restoreMaterial")(function* ({ archive, restorePath }) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const manifestPath = path.join(path.resolve(archive), "manifest.json");
+    const restore = Effect.gen(function* () {
+      const manifest = yield* fs.readFileString(manifestPath).pipe(
+        Effect.flatMap(decodeResidueManifest),
+        Effect.mapError((cause) =>
+          WorktreeCommandError.make({
+            message: `Could not read the residue manifest at ${manifestPath}.`,
+            cause,
+          })
+        )
+      );
+      if (!Str.Equivalence(path.resolve(manifest.residueRoot), path.resolve(archive))) {
+        return yield* WorktreeCommandError.make({
+          message: "The manifest residue root does not match the archive directory.",
+        });
+      }
+      const entries = yield* restoreBeepMaterial(manifest, path.resolve(restorePath));
+      yield* Console.log(
+        `Restored ${A.length(entries)} .beep material entries into ${path.resolve(restorePath)} (digests verified).`
+      );
+    });
+    yield* restore.pipe(
+      Effect.catchTags({
+        WorktreeCommandError: reportCommandError("worktree restore-material"),
+        WorktreePreservationError: reportCommandError("worktree restore-material"),
+      })
+    );
+  })
+).pipe(Command.withDescription("Restore archived .beep material after validating every entry against its manifest"));
+
 const worktreeDoctorCommand = Command.make(
   "doctor",
   {},
   Effect.fn(function* () {
-    yield* runWorktreeDoctor().pipe(
-      Effect.catchTag(
-        "WorktreeCommandError",
-        Effect.fn(function* (error) {
-          yield* Console.error(`worktree doctor: ${error.message}`);
-          return yield* failWithReportedExit(`worktree doctor: ${error.message}`);
-        })
-      )
-    );
+    yield* runWorktreeDoctor().pipe(Effect.catchTag("WorktreeCommandError", reportCommandError("worktree doctor")));
   })
 ).pipe(
   Command.withDescription(
@@ -1221,7 +1261,7 @@ const worktreeDoctorCommand = Command.make(
  * **Details**
  *
  * Bare `worktree` prints the subcommand menu; the work lives in the `new`,
- * `remove`, `doctor`, `reap`, and `fleet` subcommands.
+ * `remove`, `restore-material`, `doctor`, `reap`, and `fleet` subcommands.
  *
  * **Example** (Build the CLI program for the group)
  *
@@ -1243,6 +1283,7 @@ export const worktreeCommand = Command.make("worktree", {}, () =>
         "Worktree commands:",
         "- bun run beep worktree new <name> [--branch <branch>]",
         "- bun run beep worktree remove <name> [--archive] [--delete-branch]",
+        "- bun run beep worktree restore-material <archive> <restore-path>",
         "- bun run beep worktree doctor",
         "- bun run beep worktree reap [--apply] [--json] [--idle-hours <hours>]",
         "- bun run beep worktree fleet [--json]",
@@ -1263,6 +1304,7 @@ export const worktreeCommand = Command.make("worktree", {}, () =>
     ).pipe(Command.withDescription("Install the local fail-closed projection merge driver")),
     worktreeNewCommand,
     worktreeRemoveCommand,
+    worktreeRestoreMaterialCommand,
     worktreeDoctorCommand,
     worktreeReapCommand,
     worktreeFleetCommand,

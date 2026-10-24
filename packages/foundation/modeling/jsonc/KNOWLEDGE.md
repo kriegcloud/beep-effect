@@ -5,7 +5,8 @@ Relative `okf/...` links refer to that checkout. Content is carried verbatim; po
 decisions live in README.md → Port notes, not here. Paths and commands in the bundle are
 upstream's: upstream `packages/jsonc/src/` is this package's `src/`, upstream `__test__/` is
 `test/`, and the `pnpm` commands correspond to `bun run test` and `bun run build` here (or
-`bun run beep quality package-verify @beep/jsonc` from the repository root).
+`bun run beep quality package-verify @beep/jsonc` from the repository root). Upstream `@effected/sbom`
+is `@beep/sbom` here (its `Sha256Digest` is `@beep/sbom/InTotoStatement`).
 
 ---
 <!-- packages/jsonc/CLAUDE.md -->

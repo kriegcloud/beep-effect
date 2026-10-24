@@ -2,7 +2,7 @@
 	"name": "@effected/sbom",
 	"version": "0.10.0",
 	"private": true,
-	"description": "CycloneDX 1.6 SBOM construction, SLSA provenance, NTIA validation and Sigstore signing as typed services.",
+	"description": "Sigstore DSSE signing for in-toto statements; the SBOM, provenance and statement models live in @beep/sbom.",
 	"keywords": [
 		"sbom",
 		"cyclonedx",
@@ -41,13 +41,11 @@
 		"types:check": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@beep/package-json": "workspace:^",
-		"@beep/spdx": "workspace:^",
+		"@beep/sbom": "workspace:^",
 		"@sigstore/bundle": "^5.0.0",
 		"@sigstore/sign": "^5.0.0",
 		"@beep/identity": "workspace:^",
-		"@beep/schema": "workspace:^",
-		"@beep/utils": "workspace:^"
+		"@beep/schema": "workspace:^"
 	},
 	"devDependencies": {
 		"@effect/platform-node": "catalog:effect",

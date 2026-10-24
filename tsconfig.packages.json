@@ -397,6 +397,9 @@
       "path": "packages/foundation/modeling/rdf"
     },
     {
+      "path": "packages/foundation/modeling/sbom"
+    },
+    {
       "path": "packages/foundation/modeling/schema"
     },
     {
@@ -506,6 +509,9 @@
     },
     {
       "path": "packages/tooling/library/repo-utils"
+    },
+    {
+      "path": "packages/tooling/library/repo-workspaces"
     },
     {
       "path": "packages/tooling/policy-pack/lint-rules"

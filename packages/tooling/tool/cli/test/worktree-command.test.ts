@@ -7,6 +7,7 @@ import {
   parseWorktreePorcelain,
   renderWorktreeRemovalReceipt,
   resolveWorktreeContext,
+  restoreBeepMaterial,
   runWorktreeGitCapture,
   WORKTREE_LOCAL_FILE_ENTRIES,
   WorktreeArchivePlan,
@@ -49,18 +50,23 @@ import { A, O, P, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { describe, expect } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -156,6 +162,49 @@ const initScratchRepo = Effect.fn("WorktreeCommandTest.initScratchRepo")(functio
   yield* runGit(repoRoot, ["config", "commit.gpgsign", "false"]);
   yield* runGit(repoRoot, ["add", "README.md"]);
   yield* runGit(repoRoot, ["commit", "-m", "init"]);
+});
+
+// Archive-retire one lane under the scratch residue root, with extra env (#2167 material cases).
+const removeArchivedLane = Effect.fn("WorktreeCommandTest.removeArchivedLane")(function* (
+  context: { readonly mainCheckout: string; readonly worktreesRoot: string },
+  name: string,
+  targetPath: string,
+  env: Record<string, string> = {}
+) {
+  const service = yield* WorktreeRemovalService;
+  return yield* service
+    .remove(
+      WorktreeRemovalRequest.make({
+        name,
+        targetPath,
+        mainCheckout: context.mainCheckout,
+        branch: O.some(defaultWorktreeBranch(name)),
+        archive: true,
+        deleteBranch: true,
+        expectedHead: O.none(),
+      })
+    )
+    .pipe(
+      Effect.provideService(
+        ConfigProvider.ConfigProvider,
+        ConfigProvider.fromEnv({
+          env: {
+            BEEP_WORKTREE_RESIDUE_ROOT: `${context.worktreesRoot}/test-residue`,
+            HOME: context.worktreesRoot,
+            ...env,
+          },
+        })
+      )
+    );
+});
+
+const makeFifo = Effect.fn("WorktreeCommandTest.makeFifo")(function* (fifoPath: string) {
+  const handle = yield* ChildProcess.make("mkfifo", [fifoPath], {
+    stdin: "ignore",
+    stdout: "ignore",
+    stderr: "ignore",
+  });
+  expect(yield* handle.exitCode).toBe(0);
 });
 
 const withScratchRepo = <A, E, R>(use: (repoRoot: string) => Effect.Effect<A, E, R>) =>
@@ -434,6 +483,8 @@ describe("WorktreeResidueManifest", () => {
       }`);
       expect(manifest.upstream).toEqual({ _tag: "unset" });
       expect(manifest.untrackedFiles).toEqual(["notes.txt"]);
+      // Written before `.beep` material was preserved (#2167): no entries.
+      expect(manifest.materialEntries).toEqual([]);
       expect(manifest.archiveRef).toBe("refs/archive/worktrees/feature-x/20260902-123456");
       const decoded = yield* encodeResidueManifest(manifest).pipe(Effect.flatMap(decodeResidueManifest));
       expect(decoded).toEqual(manifest);
@@ -1523,6 +1574,454 @@ describe("worktree git operations", () => {
           expect(cleanReceipt.branchDeleted).toBe(true);
           expect(yield* fs.exists(cleanPath)).toBe(false);
           expect(afterCleanRemoval).toEqual(beforeCleanRemoval);
+        })
+      )
+    );
+  });
+
+  it.layer(testLayer, { timeout: "60 seconds" })((it) => {
+    for (const failure of ["second-entry", "manifest"]) {
+      it.effect(`restores every material entry after a ${failure} failure without a manifest`, () =>
+        withScratchRepo((repoRoot) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const context = yield* resolveWorktreeContext(repoRoot);
+            yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+            const name = `rollback-${failure}`;
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            yield* fs.makeDirectory(path.join(targetPath, ".beep"), { recursive: true });
+            yield* fs.writeFileString(path.join(targetPath, ".beep", "notes.txt"), "notes\n");
+            yield* fs.symlink("../missing-cache", path.join(targetPath, ".beep", "cache"));
+            const injected = (method: string, target: string) =>
+              Effect.fail(
+                PlatformError.systemError({
+                  _tag: "PermissionDenied",
+                  module: "FileSystem",
+                  method,
+                  pathOrDescriptor: target,
+                })
+              );
+            const faultyFs = FileSystem.FileSystem.of({
+              ...fs,
+              rename: Effect.fn("WorktreeCommandTest.injectRename")((source, target) =>
+                failure === "second-entry" && Str.endsWith("/beep-material/notes.txt")(target)
+                  ? injected("rename", target)
+                  : fs.rename(source, target)
+              ),
+
+              writeFileString: Effect.fn("WorktreeCommandTest.injectManifest")((target, content, options) =>
+                failure === "manifest" && Str.endsWith("/manifest.json")(target)
+                  ? fs
+                      .writeFileString(target, "partial manifest")
+                      .pipe(Effect.andThen(injected("writeFileString", target)))
+                  : fs.writeFileString(target, content, options)
+              ),
+            });
+            const failed = yield* removeArchivedLane(context, name, targetPath).pipe(
+              Effect.provideServiceEffect(
+                WorktreeRemovalService,
+                WorktreeRemovalServiceLive.pipe(
+                  Layer.fresh,
+                  Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+                  Layer.build,
+                  Effect.map(Context.get(WorktreeRemovalService))
+                )
+              ),
+              Effect.flip
+            );
+            expect(failed.message).toContain(failure === "manifest" ? "Could not write" : "Could not move");
+            expect(yield* fs.readLink(path.join(targetPath, ".beep", "cache"))).toBe("../missing-cache");
+            expect(yield* fs.readFileString(path.join(targetPath, ".beep", "notes.txt"))).toBe("notes\n");
+            expect(yield* runWorktreeGitCapture(targetPath, ["rev-parse", "--show-toplevel"], "restored")).toContain(
+              targetPath
+            );
+            const residue = yield* fs.readDirectory(path.join(context.worktreesRoot, "test-residue"), {
+              recursive: true,
+            });
+            expect(A.some(residue, Str.endsWith("/manifest.json"))).toBe(false);
+            expect(A.some(residue, Str.includes("/beep-material/"))).toBe(false);
+          })
+        )
+      );
+    }
+
+    for (const rollbackFails of [false, true]) {
+      it.effect(`restores all possible entries after a post-move change (rollback fails: ${rollbackFails})`, () =>
+        withScratchRepo((repoRoot) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const context = yield* resolveWorktreeContext(repoRoot);
+            yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+            const name = rollbackFails ? "rollback-partial" : "rollback-changed";
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            yield* fs.makeDirectory(path.join(targetPath, ".beep"), { recursive: true });
+            for (const entry of ["a.txt", "b.txt", "c.txt"]) {
+              yield* fs.writeFileString(path.join(targetPath, ".beep", entry), entry);
+            }
+            const faultyFs = FileSystem.FileSystem.of({
+              ...fs,
+              rename: Effect.fn("WorktreeCommandTest.injectPostMoveChange")(function* (source, target) {
+                if (rollbackFails && Str.endsWith("/beep-material/b.txt")(source)) {
+                  return yield* PlatformError.systemError({
+                    _tag: "PermissionDenied",
+                    module: "FileSystem",
+                    method: "rename",
+                    pathOrDescriptor: source,
+                  });
+                }
+                yield* fs.rename(source, target);
+                if (Str.endsWith("/beep-material/b.txt")(target)) {
+                  yield* fs.writeFileString(target, "b.txt appended during capture");
+                }
+              }),
+            });
+            const failed = yield* removeArchivedLane(context, name, targetPath).pipe(
+              Effect.provideServiceEffect(
+                WorktreeRemovalService,
+                WorktreeRemovalServiceLive.pipe(
+                  Layer.fresh,
+                  Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+                  Layer.build,
+                  Effect.map(Context.get(WorktreeRemovalService))
+                )
+              ),
+              Effect.exit
+            );
+            const isFailure = Exit.isFailure(failed);
+            assertTrue(isFailure);
+            if (!isFailure) return;
+            const message = Cause.pretty(failed.cause);
+            // Reap/retire render the primary failure message rather than Cause.pretty.
+            const primary = yield* failed.cause.pipe(Effect.failCause, Effect.result);
+            if (Result.isFailure(primary) && rollbackFails) {
+              expect(primary.failure.message).toContain("b.txt");
+              expect(primary.failure.message).toContain("beep-material");
+            }
+            expect(message).toContain("does not match its source");
+            expect(Str.includes("Could not roll back the moved material")(message)).toBe(rollbackFails);
+            expect(yield* fs.readFileString(path.join(targetPath, ".beep", "a.txt"))).toBe("a.txt");
+            expect(yield* fs.readFileString(path.join(targetPath, ".beep", "c.txt"))).toBe("c.txt");
+            const residueRoot = path.join(context.worktreesRoot, "test-residue");
+            const residue = yield* fs.readDirectory(residueRoot, { recursive: true });
+            expect(A.some(residue, Str.endsWith("/manifest.json"))).toBe(false);
+            const archived = A.filter(residue, Str.endsWith("/beep-material/b.txt"));
+            if (rollbackFails) {
+              expect(archived).toHaveLength(1);
+              expect(yield* fs.readFileString(path.join(residueRoot, O.getOrThrow(A.head(archived))))).toBe(
+                "b.txt appended during capture"
+              );
+              expect(yield* fs.exists(path.join(targetPath, ".beep", "b.txt"))).toBe(false);
+            } else {
+              expect(yield* fs.readFileString(path.join(targetPath, ".beep", "b.txt"))).toBe(
+                "b.txt appended during capture"
+              );
+              expect(A.some(residue, Str.includes("/beep-material"))).toBe(false);
+            }
+          })
+        )
+      );
+    }
+
+    it.effect("hashes material incrementally without reading whole files", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const context = yield* resolveWorktreeContext(repoRoot);
+          yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+          const name = "material-stream";
+          const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+          yield* fs.makeDirectory(path.join(targetPath, ".beep"), { recursive: true });
+          const content = Str.repeat(256 * 1024)("x");
+          yield* fs.writeFileString(path.join(targetPath, ".beep", "notes.txt"), content);
+          const streamedBytes = yield* Ref.make(0);
+          const faultyFs = FileSystem.FileSystem.of({
+            ...fs,
+            readFile: Effect.fn("WorktreeCommandTest.refuseWholeFileRead")((target) =>
+              Str.includes("/.beep/")(target) || Str.includes("/beep-material/")(target)
+                ? Effect.fail(
+                    PlatformError.systemError({
+                      _tag: "PermissionDenied",
+                      module: "FileSystem",
+                      method: "readFile",
+                      pathOrDescriptor: target,
+                    })
+                  )
+                : fs.readFile(target)
+            ),
+            stream: (target, options) =>
+              fs
+                .stream(target, options)
+                .pipe(Stream.tap((chunk) => Ref.update(streamedBytes, (bytes) => bytes + chunk.byteLength))),
+          });
+          const receipt = yield* removeArchivedLane(context, name, targetPath).pipe(
+            Effect.provideServiceEffect(
+              WorktreeRemovalService,
+              WorktreeRemovalServiceLive.pipe(
+                Layer.fresh,
+                Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+                Layer.build,
+                Effect.map(Context.get(WorktreeRemovalService))
+              )
+            )
+          );
+          const manifest = O.getOrThrow(receipt.manifest);
+          expect(O.getOrThrow(A.head(manifest.materialEntries)).bytes).toBe(content.length);
+          expect(yield* Ref.get(streamedBytes)).toBe(content.length * 2);
+          expect(yield* fs.readFileString(path.join(manifest.residueRoot, "beep-material", "notes.txt"))).toBe(content);
+        })
+      )
+    );
+
+    it.effect("preserves a clean lane's git-ignored .beep material and restores it as the exact inverse", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const removalService = yield* WorktreeRemovalService;
+          const context = yield* resolveWorktreeContext(repoRoot);
+          // `.beep/` is git-ignored, as in the repository, so none of it is untracked residue.
+          yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+
+          const retireWithMaterial = Effect.fnUntraced(function* (name: string, env: Record<string, string>) {
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            const report = path.join(targetPath, ".beep", "fallow", "report.json");
+            yield* fs.makeDirectory(path.dirname(report), { recursive: true });
+            yield* fs.writeFileString(report, '{"findings":[]}\n');
+            yield* fs.makeDirectory(path.join(targetPath, ".beep", "yeet", "jobs"), { recursive: true });
+            yield* fs.writeFileString(path.join(targetPath, ".beep", "yeet", "jobs", "job.log"), "disposable\n");
+            const sourceInode = (yield* fs.stat(report)).ino;
+            const receipt = yield* removalService
+              .remove(
+                WorktreeRemovalRequest.make({
+                  name,
+                  targetPath,
+                  mainCheckout: context.mainCheckout,
+                  branch: O.some(defaultWorktreeBranch(name)),
+                  archive: true,
+                  deleteBranch: true,
+                  expectedHead: O.none(),
+                })
+              )
+              .pipe(
+                Effect.provideService(
+                  ConfigProvider.ConfigProvider,
+                  ConfigProvider.fromEnv({
+                    env: {
+                      BEEP_WORKTREE_RESIDUE_ROOT: path.join(context.worktreesRoot, "test-residue"),
+                      HOME: context.worktreesRoot,
+                      ...env,
+                    },
+                  })
+                )
+              );
+            return { receipt, sourceInode, targetPath };
+          });
+
+          // A clean lane still gets a residue root, because its ignored material would otherwise be deleted.
+          const moved = yield* retireWithMaterial("material-demo", {});
+          expect(moved.receipt.reason).toBe("clean");
+          const manifest = O.getOrThrow(moved.receipt.manifest);
+          expect(manifest.untrackedFiles).toEqual([]);
+          expect(A.map(manifest.materialEntries, ({ name, files, bytes }) => [name, files, bytes])).toEqual([
+            ["fallow", 1, 16],
+          ]);
+          const archived = path.join(manifest.residueRoot, "beep-material", "fallow", "report.json");
+          expect(yield* fs.readFileString(archived)).toBe('{"findings":[]}\n');
+          // Within the rename cap and on one filesystem the entry is moved, not copied.
+          expect((yield* fs.stat(archived)).ino).toEqual(moved.sourceInode);
+          expect(yield* fs.exists(path.join(manifest.residueRoot, "beep-material", "yeet"))).toBe(false);
+          expect(yield* fs.exists(moved.targetPath)).toBe(false);
+          const persisted = yield* fs
+            .readFileString(path.join(manifest.residueRoot, "manifest.json"))
+            .pipe(Effect.flatMap(decodeResidueManifest));
+          expect(persisted.materialEntries).toEqual(manifest.materialEntries);
+
+          // Restore is the exact inverse: the entry returns under its recorded digest, and a second restore is refused.
+          const restorePath = path.join(context.worktreesRoot, "material-restored");
+          yield* runGit(repoRoot, ["worktree", "add", "--detach", restorePath, manifest.archiveRef]);
+          const lines = yield* collectRemovalReceiptLines(moved.receipt, true);
+          expect(A.some(lines, Str.includes("bun run beep worktree restore-material"))).toBe(true);
+          yield* Command.runWith(worktreeCommand, { version: "0.0.0" })([
+            "restore-material",
+            manifest.residueRoot,
+            restorePath,
+          ]);
+          expect(yield* fs.readFileString(path.join(restorePath, ".beep", "fallow", "report.json"))).toBe(
+            '{"findings":[]}\n'
+          );
+          expect(yield* fs.exists(path.join(manifest.residueRoot, "beep-material", "fallow"))).toBe(false);
+          const again = yield* Effect.flip(restoreBeepMaterial(manifest, restorePath));
+          expect(again.message).toContain("already exists");
+
+          // Above the cap the entry is copied and verified, so the archive holds a new inode.
+          const copied = yield* retireWithMaterial("material-copy-demo", {
+            BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES: "1",
+          });
+          const copiedManifest = O.getOrThrow(copied.receipt.manifest);
+          const copiedReport = path.join(copiedManifest.residueRoot, "beep-material", "fallow", "report.json");
+          expect(yield* fs.readFileString(copiedReport)).toBe('{"findings":[]}\n');
+          expect((yield* fs.stat(copiedReport)).ino).not.toEqual(copied.sourceInode);
+          expect(A.map(copiedManifest.materialEntries, ({ digest }) => digest)).toEqual(
+            A.map(manifest.materialEntries, ({ digest }) => digest)
+          );
+        })
+      )
+    );
+
+    it.effect("preserves file, symlink and FIFO material verbatim by rename and by verified copy", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const context = yield* resolveWorktreeContext(repoRoot);
+          yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+          const seed = Effect.fnUntraced(function* (name: string, withFifo: boolean) {
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            const beep = path.join(targetPath, ".beep");
+            yield* fs.makeDirectory(beep, { recursive: true });
+            yield* fs.writeFileString(path.join(beep, "notes.txt"), "n\n");
+            yield* fs.symlink("../shared-cache", path.join(beep, "cache"));
+            if (withFifo) {
+              // The file puts the entry over a 1-byte cap, so copy mode reaches the FIFO.
+              yield* fs.makeDirectory(path.join(beep, "pipes"));
+              yield* fs.writeFileString(path.join(beep, "pipes", "note.txt"), "p\n");
+              yield* makeFifo(path.join(beep, "pipes", "fifo"));
+            }
+            return targetPath;
+          });
+
+          // Renamed: a top-level file, a relative symbolic link and a FIFO survive, and restore inverts them.
+          const renamedLane = yield* seed("material-kinds", true);
+          const renamed = O.getOrThrow((yield* removeArchivedLane(context, "material-kinds", renamedLane)).manifest);
+          expect(A.map(renamed.materialEntries, ({ name }) => name)).toEqual(["cache", "notes.txt", "pipes"]);
+          const material = path.join(renamed.residueRoot, "beep-material");
+          expect(yield* fs.readLink(path.join(material, "cache"))).toBe("../shared-cache");
+          expect((yield* fs.stat(path.join(material, "pipes", "fifo"))).type).toBe("FIFO");
+          const restorePath = path.join(context.worktreesRoot, "material-kinds-restored");
+          yield* runGit(repoRoot, ["worktree", "add", "--detach", restorePath, renamed.archiveRef]);
+          yield* restoreBeepMaterial(renamed, restorePath);
+          expect(yield* fs.readLink(path.join(restorePath, ".beep", "cache"))).toBe("../shared-cache");
+          expect(yield* fs.readFileString(path.join(restorePath, ".beep", "notes.txt"))).toBe("n\n");
+
+          // Copied (cap of 1 byte): the relative link is kept verbatim, not rewritten as an absolute path.
+          const copiedLane = yield* seed("material-copy-kinds", false);
+          const copied = O.getOrThrow(
+            (yield* removeArchivedLane(context, "material-copy-kinds", copiedLane, {
+              BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES: "1",
+            })).manifest
+          );
+          expect(yield* fs.readLink(path.join(copied.residueRoot, "beep-material", "cache"))).toBe("../shared-cache");
+
+          // A special file cannot be copied, so a copy-mode retirement refuses and the lane stays in place.
+          const fifoLane = yield* seed("material-copy-fifo", true);
+          const refused = yield* Effect.flip(
+            removeArchivedLane(context, "material-copy-fifo", fifoLane, {
+              BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES: "1",
+            })
+          );
+          expect(refused.message).toContain("Refused to copy the special file");
+          expect((yield* fs.stat(path.join(fifoLane, ".beep", "pipes", "fifo"))).type).toBe("FIFO");
+          expect(yield* fs.readLink(path.join(fifoLane, ".beep", "cache"))).toBe("../shared-cache");
+          expect(yield* fs.readFileString(path.join(fifoLane, ".beep", "notes.txt"))).toBe("n\n");
+        })
+      )
+    );
+
+    it.effect("refuses a material restore once its archive no longer matches the manifest", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const context = yield* resolveWorktreeContext(repoRoot);
+          yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+          const retire = Effect.fnUntraced(function* (name: string) {
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            yield* fs.makeDirectory(path.join(targetPath, ".beep", "fallow"), { recursive: true });
+            yield* fs.writeFileString(path.join(targetPath, ".beep", "fallow", "report.json"), "original\n");
+            yield* fs.makeDirectory(path.join(targetPath, ".beep", "quality"), { recursive: true });
+            yield* fs.writeFileString(path.join(targetPath, ".beep", "quality", "report.json"), "original\n");
+            const manifest = O.getOrThrow((yield* removeArchivedLane(context, name, targetPath)).manifest);
+            const restorePath = path.join(context.worktreesRoot, `${name}-restored`);
+            yield* runGit(repoRoot, ["worktree", "add", "--detach", restorePath, manifest.archiveRef]);
+            return { manifest, restorePath, archived: path.join(manifest.residueRoot, "beep-material", "quality") };
+          });
+
+          const tampered = yield* retire("material-tampered");
+          yield* fs.writeFileString(path.join(tampered.archived, "report.json"), "changed\n");
+          const mismatch = yield* Effect.flip(restoreBeepMaterial(tampered.manifest, tampered.restorePath));
+          expect(mismatch.message).toContain("no longer matches its manifest");
+          expect(yield* fs.readFileString(path.join(tampered.archived, "report.json"))).toBe("changed\n");
+          expect(yield* fs.exists(path.join(tampered.restorePath, ".beep", "fallow"))).toBe(false);
+          expect(
+            yield* fs.readFileString(path.join(tampered.manifest.residueRoot, "beep-material", "fallow", "report.json"))
+          ).toBe("original\n");
+          const beforeErrors = A.length(yield* TestConsole.errorLines);
+          const cliMismatch = yield* Effect.flip(
+            Command.runWith(worktreeCommand, { version: "0.0.0" })([
+              "restore-material",
+              tampered.manifest.residueRoot,
+              tampered.restorePath,
+            ])
+          );
+          expect(cliMismatch.message).toContain("no longer matches its manifest");
+          expect(A.join(A.filter(A.drop(yield* TestConsole.errorLines, beforeErrors), P.isString), "\n")).toContain(
+            cliMismatch.message
+          );
+          expect(yield* fs.readFileString(path.join(tampered.archived, "report.json"))).toBe("changed\n");
+
+          const missing = yield* retire("material-missing");
+          yield* fs.remove(missing.archived, { recursive: true });
+          const unreadable = yield* Effect.flip(restoreBeepMaterial(missing.manifest, missing.restorePath));
+          expect(unreadable.message).toContain("Could not read");
+
+          const badCap = yield* Effect.flip(
+            restoreBeepMaterial(tampered.manifest, tampered.restorePath).pipe(
+              Effect.provideService(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromEnv({ env: { BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES: "not-a-number" } })
+              )
+            )
+          );
+          expect(badCap.message).toContain("Could not read BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES");
+
+          // A manifest written before material was preserved restores nothing.
+          const legacy = WorktreeResidueManifest.make({ ...tampered.manifest, materialEntries: [] });
+          expect(yield* restoreBeepMaterial(legacy, path.join(context.worktreesRoot, "absent"))).toEqual([]);
+        })
+      )
+    );
+
+    it.effect("refuses an archive retirement whose .beep cannot be listed or whose rename cap is malformed", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const context = yield* resolveWorktreeContext(repoRoot);
+          yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep\n");
+
+          const fileLane = yield* addWorktree(
+            context,
+            "material-beep-file",
+            defaultWorktreeBranch("material-beep-file")
+          );
+          yield* fs.writeFileString(path.join(fileLane, ".beep"), "not a directory\n");
+          const unlisted = yield* Effect.flip(removeArchivedLane(context, "material-beep-file", fileLane));
+          expect(unlisted.message).toContain("Could not list the worktree's .beep directory");
+          expect(yield* fs.exists(path.join(fileLane, ".beep"))).toBe(true);
+
+          const capLane = yield* addWorktree(context, "material-bad-cap", defaultWorktreeBranch("material-bad-cap"));
+          yield* fs.makeDirectory(path.join(capLane, ".beep", "fallow"), { recursive: true });
+          yield* fs.writeFileString(path.join(capLane, ".beep", "fallow", "report.json"), "kept\n");
+          const badCap = yield* Effect.flip(
+            removeArchivedLane(context, "material-bad-cap", capLane, {
+              BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES: "nope",
+            })
+          );
+          expect(badCap.message).toContain("Could not read BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES");
+          expect(yield* fs.readFileString(path.join(capLane, ".beep", "fallow", "report.json"))).toBe("kept\n");
         })
       )
     );

@@ -128,6 +128,9 @@
       "path": "../packages/foundation/modeling/rdf/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/sbom/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/schema/tsconfig.json"
     },
     {
@@ -162,6 +165,9 @@
     },
     {
       "path": "../packages/tooling/library/repo-utils/tsconfig.json"
+    },
+    {
+      "path": "../packages/tooling/library/repo-workspaces/tsconfig.json"
     },
     {
       "path": "../packages/tooling/test-kit/fc-runs/tsconfig.json"

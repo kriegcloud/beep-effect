@@ -14,8 +14,8 @@ import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
 import { ALL_DEPENDENCY_FIELDS } from "./internal/dependencyFields.ts";
 import type { LayerPolicy } from "./LayerPolicy.ts";
-import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
-import type { WorkspacePackage } from "./WorkspacePackage.ts";
+import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import type { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/workspaces/WorkspaceLayering");
@@ -337,7 +337,7 @@ export abstract class WorkspaceLayering {
 	 *
 	 * ```ts
 	 * import { WorkspaceLayering } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
-	 * import { WorkspacePackage } from "@beep/scratchpad/effected/workspaces/WorkspacePackage";
+	 * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 	 *
 	 * const web = WorkspacePackage.make({
 	 *   name: "@app/web", path: "/repo/packages/web", relativePath: "packages/web",

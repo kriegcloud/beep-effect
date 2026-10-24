@@ -4,6 +4,24 @@ Reuse sites from `research/promotion-map-2026-10-20.md` ("Reuse sites") and
 the wave plans, with their adoption status. `#n` is the map's site id. A site
 leaves the open list in the PR that migrates it, or carries its reason here.
 
+## `@beep/sbom` (wave 4-S, W4-b)
+
+4-S moves only lab importers; `@beep/sbom` has no repo adopter yet (modeling, so no capability gate). Its consumers are
+the lab `github-actions` adapters (wave 5 `@beep/github-actions`) and the lab Sigstore signer (deferred
+`@beep/sigstore`, W4-m). The live corpus (`research/sbom-corpus-w4.json`) generates an SBOM for 191 of the 192 tracked
+manifests with 0 full-schema failures.
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| lab `sbom` `SigstoreSigner.ts`, its tests, `index.ts`, `package.json`, `reachability.test.ts` | - | 4-S (done) | The signer imports `@beep/sbom/IdentityToken`, `/InTotoStatement` (type) and `/SigstoreBundle`; the lab index is signer-only, with no alias of the package; the lab reachability test keeps the signer assertions and pins leaf-only `@beep/sbom` edges. |
+| lab `github-actions` `ActionsIdentityToken.ts`, `ActionsProvenance.ts`, their tests, `package.json` | - | 4-S (done) | Retargeted to `@beep/sbom/IdentityToken` and `@beep/sbom/SlsaProvenance`; the manifest names `@beep/sbom` instead of `@effected/sbom`. Suites 24/24 before and after. |
+| both PROMOTED maps (`layering.int.test.ts`, github-actions `reachability.test.ts`) | - | 4-S (done) | `"@beep/sbom": "sbom"` (the package folds into the lab `sbom` module, D-29) and `@beep/sbom` in the kit-package set. Layering 26/26. |
+| `@beep/github` `Attestation.ts` JSDoc, `KNOWLEDGE.md` | - | 4-S (done) | Prose only: statements are `@beep/sbom`'s, signing is the lab signer's. No code edge. |
+| skill-contract `EvidenceReceipt.ts` | #138 | excluded | Stricter than the kit (a typed `{ sha256 }` digest, a literal `predicateType` per schema, a `NonEmptyArray` subject) and already thin; adopting `InTotoStatement` would loosen it. |
+| `@beep/github` `Attestation.ts` `predicateType` literal | - | excluded | A string in a JSDoc example and a test; a driver-to-modeling edge for one constant is not worth it. |
+| lab `github-actions` `ActionsIdentityToken`, `ActionsProvenance` move | - | wave 5 | They move with `@beep/github-actions` and import the `@beep/sbom` leaves they already use. |
+| lab `sbom` `SigstoreSigner.ts` | - | deferred (D-05, W4-m) | `@beep/sigstore` with its first consumer (a release attestation step), or deleted at C and recoverable by sha. |
+
 ## `@beep/xdg` (wave 4, PR 4-X, SPEC W4-c)
 
 | Site | Map id | Status | Notes |
@@ -18,11 +36,22 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | repo-cli `Files/internal/MatchPerson.ts` `resolveCacheRoot` | #178 | queued for 4-X-A | |
 | apps `docket-intake` `Config.ts` and `practice-m365-contacts` `Contacts.state.ts` | #181, #182 | queued for 4-X-A | |
 | apps `practice-mail-tagging` `PracticeMailTagging.config.ts` | #183 | excluded | It would start honouring XDG on a deployed practice service (W4-c correction 6). |
+
+## `@beep/repo-workspaces` (wave 4-W-a, W4-f)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| lab `scratchpad/effected/workspaces` testing cluster (`SourceBoundary`, `LayerPolicy`, `WorkspaceLayering`, `PackedInstall`, `testing.ts` and their internals and tests) | - | 4-W-a | Retargeted to `@beep/repo-workspaces` leaves in the promotion PR; the cluster itself moves in 4-W-b. |
+| lab-wide `layering.int.test.ts` (with `lab-layers.json`), `peerClosure.int.test.ts`, `SourceBoundarySelf.int.test.ts`, and both PROMOTED maps | - | 4-W-a | Stay in place (correction 3) and read the package; `layering.int` maps `@beep/repo-workspaces` to the lab directory it came from. Deleted by C. |
+| repo-cli `Quality/internal/QualityArtifactSupport.ts` `discoverWorkspacePackages` | #143 | 4-A1 | Discovery onto `WorkspaceDiscovery`, discovery only, with a `resolvePathWithinRoot` post-filter (the kit keeps upstream link-following). Exception Ledger "Duplicate workspace discovery and dependency graph". |
+| repo-cli `workspacePatternsFrom` copies (`ChangesetGraph`, `CreatePackage`, `TsconfigSync.plan`, `ConfigUpdater`, `Quality/Tasks.ts`) | #146, #148, #149, #150 | 4-A2 | Through a public `WorkspacePatterns` leaf (`internal/patterns` today). |
+| repo-utils `Workspaces.ts`, `Dependencies.ts`, `DependencyIndex.ts`; `beep topo-sort` | #139, #142, #238, #239, #268 | 4-A3 | Onto `WorkspaceDiscovery` and `DependencyGraph.sort()`; the differential's 186-member, 1,301-edge parity is the baseline. |
+
 ## `@beep/lockfiles` (wave 3-5, W3-g)
 
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
-| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the module itself promotes as `@beep/repo-workspaces` in a later wave. |
+| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the core and config-dependency half promoted as `@beep/repo-workspaces` in 4-W-a, and the `testing` cluster follows in 4-W-b. |
 | repo-cli `Quality/CatalogUsage.ts` `readLockfilePackages` (bun.lock key and specifier splitting) | #233, #129 (lockfile part), #156 | adopted in 3-A1 | `Lockfile.parse({ format: "bun" })` with `[pkg.installName, pkg.name]` per package; `installedNameFromLockKey` and `CatalogUsageLockfile` are deleted. The override-selector `packageNameFromSpecifier` stays (not a lockfile read). Names 2,408/2,408 (`research/lockfiles-adoption-parity-w4.json`). Exception Ledger "Duplicate lockfile readers" removed. |
 | repo-cli `VersionSync/internal/resolvers/RootCatalog.ts` `BunLockDocument` and `readLockfileResolvedVersion` | #131, #155, #269, #289 | adopted in 3-A1 (bun.lock half) | `Lockfile#rootPackage` filtered to a non-workspace package of that real name; 3,172/3,356 probes agree, the 184 others are workspace packages whose legacy `workspace:<path>` "version" is now `None`. The package.json half is 3-A4. |
 | mcpb-kit `internal/steps.ts` `ensureWindowsBindings` | #136 | excluded | Needs the npm driver's tarball download and integrity check, deferred with it; the lockfile pin read alone does not justify the edge. |
@@ -58,8 +87,8 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
 | lab `scratchpad/effected/github-actions` (index re-exports, `Exports.test.ts`, reachability and layering maps) | - | 3-1 | Retargeted in the promotion PR; no lab module imports the suite any more. |
-| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`; fixes its unescaped `\|` cells. |
-| repo-cli `Ci/CiOperational.service.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`. |
+| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | adopted in 3-A8 | `GitHubMarkdown.table`; fixes its unescaped `\|` cells (red-then-green test in `ci-rerun-runner-loss.test.ts`). Pipes are escaped and newlines become `<br>` (both via `GitHubMarkdown.table`; pipe and newline tests in `ci-rerun-runner-loss.test.ts`). Parity: the existing `ci-rerun-runner-loss.test.ts` suite passes unchanged, and in a one-off old-vs-new render of its summaries only the pipe fixture (rendered twice, once per rerun mode) differs. |
+| repo-cli `Ci/CiOperational.service.ts` markdown table | - | adopted in 3-A8 | `GitHubMarkdown.table` for the runner-resources table. Parity: old and new tables byte-identical over a one-off 36-case measurement matrix; `ci-runner-security.test.ts` pins the exact table text for both CPU-row branches. |
 | repo-cli `LaneTimings` and `Ci.command` tables | - | excluded | Need column alignment, which the writer does not offer. |
 | repo-cli Reviewer and CI summary bodies | - | deferred | Named by D-10; adopt with the wave-5 GitHub Actions driver, which composes `CheckDocument` with a real sink. |
 | Marker-splice family (Provenance, GhOps, Quality, Findings.refresh, Atlas, Observability, Models) | - | excluded | File-backed managed sections go to `@beep/managed-section` directly, not through `ManagedDocument`'s comment dialect. |
@@ -112,7 +141,8 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | --- | --- | --- | --- |
 | lab `sbom` `index.ts` re-export of `Package`, `Person`, `Repository` | - | 3-4 (done) | Dropped; `SbomMetadataSource` imports the types from `@beep/package-json`, and the sbom reachability test pins no runtime edge. |
 | lab `workspaces` `WorkspacePackage.ts`, `PackageManagerName.ts` | - | 3-4 (done) | Import `@beep/package-json`. |
-| `DevEngine.onFail` `download`, plus the generic npm/bun fields repo-utils models today | #243 | 3-A2 | Field growth in the kit, verified against the npm docs. |
+| `DevEngine.onFail` `download`, plus the generic npm/bun fields repo-utils models today | #243 | 3-A2 (done) | 25 fields join `Package` through `ManifestFields` and `LenientManifest` (W3-f 3-A2 row). npm documents `onFail` as `warn`/`error`/`ignore`; `download` is the OpenJS devEngines proposal value pnpm implements. Repo refinements (repo-name keys, closed `rest`, the strict `exports`/`imports` grammar, the typed `publishConfig` base, `beep`, `resolutions#`) stay for 3-A3. Census `--compare`: 0 regressions over 189 manifests; all 189 round-trip through `PackageManifest.schema` with the new fields typed. |
+| `@beep/lockfiles` `BunExtension.ts` private `OverrideValue` (bun.lock `overrides`) | - | excluded | Same recursive shape as `ManifestFields.OverrideValue` (3-A2), kept independent: lockfiles has no `@beep/package-json` edge and one five-line schema does not justify one (SPEC W3-f 3-A2 (i)). Reverse by importing `OverrideValue` from `@beep/package-json/ManifestFields`. |
 | repo-utils `schemas/PackageJson.ts` (2,111 lines), `DocgenConfig.ts`, `WorkspaceDeps.ts` | #127, #243, #267, #47 | 3-A3 | Re-based on `PackageManifest.extend`; repo-utils keeps the beep metadata, the closed `rest` refinement and JSON Schema emission (D-08 by field ownership). 184-manifest verdict parity. |
 | repo-utils `schemas/PackageJsonTools.ts` canonical order | #128 | 3-A3 | Keeps its own repo key order (beep after repository, publishConfig sub-order); the kit's `KEY_ORDER` has no override hook and is never the adopter path. |
 | repo-cli Quality readers: ChangesetGraph, ChangesetStatus, PackageVerify, QualityArtifactSupport, Quality.schemas, Tasks, CatalogUsage.schemas, PackageTestTypecheck, EffectSchemaInventoryModules | #134, #135, #130, #143, #277 | 3-A4 | `LenientManifest` or `PackageManifest` per site tier; 184-manifest verdict parity. |
