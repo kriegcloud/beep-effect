@@ -1122,19 +1122,19 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 4-C, feat/effected-promotion-w4-cli-kit)",
-      "reason": "Record the new wave-4-C workspace @beep/cli-kit scaffolded by create-package with the generated task set, the dependency-only drift of its two named importers (W4-d), and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion roadmap R1, refactor/semver-owner-switch)",
+      "reason": "Record the R1 manifest edits that add the @beep/semver workspace dependency to @beep/repo-cli (VersionSync Bun and Docker resolvers) and @beep/repo-configs (CacheClientPin.version); the turbo coupling is measured in the review; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w4-c.md",
-        "sha256": "2d509dee954c6036a8a808b9e3dc9547cf1f8c57572fb3081c3d7e9fb88800b0"
+        "path": "goals/effected-promotion/research/cache-baseline-review-r1.md",
+        "sha256": "fb56bc111a0050d95bb02316f0df6f4dd3a670f6bf86ad38e1cced286e7ffd73"
       }
     },
     "@beep/repo-configs": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion roadmap R1, refactor/semver-owner-switch)",
+      "reason": "Record the R1 manifest edits that add the @beep/semver workspace dependency to @beep/repo-cli (VersionSync Bun and Docker resolvers) and @beep/repo-configs (CacheClientPin.version); the turbo coupling is measured in the review; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-r1.md",
+        "sha256": "fb56bc111a0050d95bb02316f0df6f4dd3a670f6bf86ad38e1cced286e7ffd73"
       }
     },
     "@beep/repo-docgen": {
@@ -97071,6 +97071,7 @@
           "@beep/runpod#audit",
           "@beep/runtime-env#audit",
           "@beep/schema#audit",
+          "@beep/semver#audit",
           "@beep/skill-contract#audit",
           "@beep/spdx#audit",
           "@beep/t3-code#audit",
@@ -97180,6 +97181,7 @@
           "@beep/runpod#build",
           "@beep/runtime-env#build",
           "@beep/schema#build",
+          "@beep/semver#build",
           "@beep/skill-contract#build",
           "@beep/spdx#build",
           "@beep/t3-code#build",
@@ -97278,6 +97280,7 @@
           "@beep/runpod#build",
           "@beep/runtime-env#build",
           "@beep/schema#build",
+          "@beep/semver#build",
           "@beep/skill-contract#build",
           "@beep/spdx#build",
           "@beep/t3-code#build",
@@ -97363,6 +97366,7 @@
           "@beep/runpod#build",
           "@beep/runtime-env#build",
           "@beep/schema#build",
+          "@beep/semver#build",
           "@beep/skill-contract#build",
           "@beep/spdx#build",
           "@beep/t3-code#build",
@@ -97497,6 +97501,7 @@
           "@beep/runpod#transit",
           "@beep/runtime-env#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/skill-contract#transit",
           "@beep/spdx#transit",
           "@beep/t3-code#transit",
@@ -97627,6 +97632,7 @@
           "@beep/runpod#transit",
           "@beep/runtime-env#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/skill-contract#transit",
           "@beep/spdx#transit",
           "@beep/t3-code#transit",
@@ -97875,6 +97881,7 @@
           "@beep/runpod#transit",
           "@beep/runtime-env#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/skill-contract#transit",
           "@beep/spdx#transit",
           "@beep/t3-code#transit",
@@ -97963,6 +97970,7 @@
           "@beep/runpod#transit",
           "@beep/runtime-env#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/skill-contract#transit",
           "@beep/spdx#transit",
           "@beep/t3-code#transit",
@@ -98076,6 +98084,7 @@
           "@beep/runpod#transit",
           "@beep/runtime-env#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/skill-contract#transit",
           "@beep/spdx#transit",
           "@beep/t3-code#transit",
@@ -98135,6 +98144,7 @@
         "dependencies": [
           "@beep/identity#audit",
           "@beep/schema#audit",
+          "@beep/semver#audit",
           "@beep/test-runner#audit",
           "@beep/test-utils#audit",
           "@beep/utils#audit"
@@ -98201,6 +98211,7 @@
         "dependencies": [
           "@beep/identity#build",
           "@beep/schema#build",
+          "@beep/semver#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
           "@beep/utils#build"
@@ -98257,6 +98268,7 @@
         "dependencies": [
           "@beep/identity#build",
           "@beep/schema#build",
+          "@beep/semver#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
           "@beep/utils#build"
@@ -98299,6 +98311,7 @@
         "dependencies": [
           "@beep/identity#codegen",
           "@beep/schema#codegen",
+          "@beep/semver#codegen",
           "@beep/test-runner#codegen",
           "@beep/test-utils#codegen",
           "@beep/utils#codegen"
@@ -98334,6 +98347,7 @@
         "dependencies": [
           "@beep/identity#build",
           "@beep/schema#build",
+          "@beep/semver#build",
           "@beep/test-runner#build",
           "@beep/test-utils#build",
           "@beep/utils#build"
@@ -98461,6 +98475,7 @@
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
           "@beep/utils#transit"
@@ -98666,6 +98681,7 @@
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
           "@beep/utils#transit"
@@ -98711,6 +98727,7 @@
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
           "@beep/utils#transit",
@@ -98762,6 +98779,7 @@
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
+          "@beep/semver#transit",
           "@beep/test-runner#transit",
           "@beep/test-utils#transit",
           "@beep/utils#transit",

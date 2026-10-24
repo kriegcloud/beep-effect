@@ -6,6 +6,7 @@
  */
 import { $RepoConfigsId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
+import { SemVer } from "@beep/semver/SemVer";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -242,7 +243,7 @@ export class CacheTaskConfiguration extends S.Opaque<CacheTaskConfiguration, { r
  */
 export class CacheClientPin extends S.Opaque<CacheClientPin, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.NonEmptyString.check(S.isPattern(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/)),
+    version: SemVer.PinnableVersionString,
     sha256: Sha256Hex,
     namespace: S.NonEmptyString.check(S.isPattern(/^[a-z0-9][a-z0-9._-]{0,127}$/)),
   }).pipe($I.annoteSchema("CacheClientPin", { description: "Exact client binary and isolated experiment namespace." }))

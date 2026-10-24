@@ -33,6 +33,7 @@ import {
 import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import { assertTrue, strictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -423,7 +424,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       yield* withCatalog(root, () =>
         Effect.succeed(LibraryCatalog.make({ ...catalog, qualifications: [...catalog.qualifications, tampered] }))
       );
-      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
+      (yield* Effect.exit(verifyLibrary(root))).pipe(Exit.isFailure, assertTrue);
     })
   );
 
@@ -455,7 +456,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
             })
           )
         );
-        expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
+        (yield* Effect.exit(verifyLibrary(root))).pipe(Exit.isFailure, assertTrue);
       })
   );
 
@@ -464,14 +465,14 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       const { root, catalog } = yield* fixture;
       yield* withCatalog(root, () => Effect.succeed(LibraryCatalog.make({ ...catalog, occurrences: [] })));
       const missingCitations = yield* Effect.exit(verifyLibrary(root));
-      expect(Exit.isFailure(missingCitations)).toBe(true);
+      missingCitations.pipe(Exit.isFailure, assertTrue);
       yield* withCatalog(root, () =>
         Effect.succeed(
           LibraryCatalog.make({ ...catalog, occurrences: [...catalog.occurrences, ...catalog.occurrences] })
         )
       );
       const ambiguousCitations = yield* Effect.exit(verifyLibrary(root));
-      expect(Exit.isFailure(ambiguousCitations)).toBe(true);
+      ambiguousCitations.pipe(Exit.isFailure, assertTrue);
     })
   );
 
@@ -485,7 +486,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
         reason: "Provider authentication unavailable",
       });
       yield* withCatalog(root, () => Effect.succeed(LibraryCatalog.make({ ...catalog, captures: [capture] })));
-      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
+      (yield* Effect.exit(verifyLibrary(root))).pipe(Exit.isFailure, assertTrue);
     })
   );
 
@@ -508,7 +509,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       yield* withCatalog(root, () =>
         Effect.succeed(LibraryCatalog.make({ ...catalog, sources: [source], occurrences }))
       );
-      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
+      (yield* Effect.exit(verifyLibrary(root))).pipe(Exit.isFailure, assertTrue);
     })
   );
 
@@ -590,7 +591,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       expect(capture.complete).toBe(false);
       expect(capture.status).toBe("blocked");
       const outcome = yield* Effect.exit(verifyLibrary(root));
-      expect(Exit.isSuccess(outcome)).toBe(variation.valid);
+      strictEqual(Exit.isSuccess(outcome), variation.valid);
       yield* renderLibrary(root);
       const index = yield* fs.readFileString(path.join(root, "index.html"));
       const category = variation.category;
@@ -683,7 +684,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
           Effect.succeed(LibraryCatalog.make({ ...reviewedCatalog, occurrences: catalog.occurrences }))
         );
         const gate = yield* Effect.exit(verifyLibrary(root));
-        expect(Exit.isSuccess(gate)).toBe(scenario === "valid review");
+        strictEqual(Exit.isSuccess(gate), scenario === "valid review");
         if (scenario === "valid review") {
           yield* renderLibrary(root);
           const index = yield* fs.readFileString(path.join(root, "index.html"));
@@ -770,7 +771,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
     Effect.gen(function* () {
       const { root, fs, path, evidence } = yield* fixture;
       yield* fs.remove(path.join(root, evidence.path));
-      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
+      (yield* Effect.exit(verifyLibrary(root))).pipe(Exit.isFailure, assertTrue);
       yield* renderLibrary(root);
       expect(yield* fs.readFileString(path.join(root, "sources/s", `artifact-c-${evidence.sha256}.html`))).toContain(
         "Artifact unavailable: read failed."
@@ -786,7 +787,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       expect(yield* fs.readFileString(path.join(root, "sources/s", `artifact-c-${evidence.sha256}.html`))).toContain(
         "Artifact unavailable: integrity mismatch."
       );
-      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
+      (yield* Effect.exit(verifyLibrary(root))).pipe(Exit.isFailure, assertTrue);
     })
   );
   it.effect.each([
@@ -950,7 +951,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       const { root, fs, path } = yield* fixture;
       const outside = yield* fs.makeTempDirectoryScoped({ prefix: "research-library-outside-" });
       yield* fs.symlink(outside, path.join(root, "sources"));
-      expect(Exit.isFailure(yield* Effect.exit(renderLibrary(root)))).toBe(true);
+      (yield* Effect.exit(renderLibrary(root))).pipe(Exit.isFailure, assertTrue);
       expect(yield* fs.readDirectory(outside)).toEqual([]);
     })
   );
@@ -1036,7 +1037,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
         )
       );
       const result = yield* Effect.exit(verifyLibrary(root));
-      expect(Exit.isSuccess(result)).toBe(requested === "");
+      strictEqual(Exit.isSuccess(result), requested === "");
     })
   );
   it.effect("gates explicitly required provider routes even without a matching source-kind adapter", () =>
@@ -1145,10 +1146,10 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
         yield* fs.writeFileString(request, yield* fixtureJson(raw));
         const imported = yield* Effect.exit(importLibraryResult(root, request));
         if (scenario === "empty review" || scenario === "missing context") {
-          expect(Exit.isFailure(imported)).toBe(true);
+          imported.pipe(Exit.isFailure, assertTrue);
           return;
         }
-        expect(Exit.isSuccess(imported)).toBe(true);
+        imported.pipe(Exit.isSuccess, assertTrue);
         const current = yield* loadCatalog(root);
         expect(A.findFirst(current.captures, (c) => c.status === "non-reference")._tag).toBe("Some");
         if (scenario === "wrong revision")
@@ -1163,7 +1164,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
             )
           );
         const result = yield* Effect.exit(verifyLibrary(root));
-        expect(Exit.isSuccess(result)).toBe(scenario === "valid");
+        strictEqual(Exit.isSuccess(result), scenario === "valid");
       })
   );
   it.effect("prioritizes validated reading evidence before collapsed retained history", () =>
