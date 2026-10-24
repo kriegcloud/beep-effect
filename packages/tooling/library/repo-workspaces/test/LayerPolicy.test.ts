@@ -54,6 +54,15 @@ describe("LayerPolicy.decode", () => {
     })
   );
 
+  it.effect("rejects an explicit undefined optional key (EF-40)", () =>
+    Effect.gen(function* () {
+      for (const key of ["fields", "requiredEdges"]) {
+        const error = yield* Effect.flip(LayerPolicy.decode({ ...VALID, [key]: undefined }));
+        assert.strictEqual(error.reason, "decode", key);
+      }
+    })
+  );
+
   it.effect("rejects an unconstrained glob that cannot compile", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(LayerPolicy.decode({ ...VALID, unconstrained: [Str.repeat(65_537)("a")] }));
