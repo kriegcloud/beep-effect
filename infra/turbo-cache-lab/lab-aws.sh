@@ -94,18 +94,23 @@ destroy() {
 
 inventory() {
   require_account
-  local arn left=0
-  while read -r arn; do
-    [[ -n "$arn" && "$arn" != "None" ]] || continue
+  local arns arn state left=0
+  # Capture first: a failed or throttled query must fail the check, never read as empty.
+  arns="$(aws resourcegroupstaggingapi get-resources --region "$region" --tag-filters "$tag_filter" \
+    --query 'ResourceTagMappingList[].ResourceARN' --output text)" || die "inventory query failed"
+  for arn in $(printf '%s' "$arns" | tr '\t' ' '); do
+    [[ "$arn" != "None" ]] || continue
     # A scheduled-for-deletion lab key stays tagged for its waiting period.
-    if [[ "$arn" == arn:aws:kms:* ]] &&
-      [[ "$(aws kms describe-key --region "$region" --key-id "$arn" --query KeyMetadata.KeyState --output text)" == "PendingDeletion" ]]; then
-      echo "pending deletion: $arn"
-      continue
+    if [[ "$arn" == arn:aws:kms:* ]]; then
+      state="$(aws kms describe-key --region "$region" --key-id "$arn" --query KeyMetadata.KeyState --output text)" ||
+        die "cannot read state of $arn"
+      if [[ "$state" == "PendingDeletion" ]]; then
+        echo "pending deletion: $arn"
+        continue
+      fi
     fi
     echo "remaining: $arn"; left=$((left + 1))
-  done < <(aws resourcegroupstaggingapi get-resources --region "$region" --tag-filters "$tag_filter" \
-    --query 'ResourceTagMappingList[].ResourceARN' --output text | tr '\t' '\n')
+  done
   [[ $left -eq 0 ]] && echo "lab-aws: no remaining $epoch resources" || die "$left $epoch resource(s) remain"
 }
 
