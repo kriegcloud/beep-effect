@@ -105,7 +105,24 @@ const ownsReceivingGrant = (
   grant.ownerId === ownerId &&
   grant.generation === generation &&
   grant.repositoryScope === repositoryScope;
-const isMailboxLockTimeout = S.is(
+/**
+ * Recognizes sanitized mailbox lock contention across unknown error channels.
+ *
+ * **Example** (Distinguish retryable contention from other failures)
+ * ```ts
+ * import { isMailboxLockTimeout } from "@beep/repo-cli/commands/AgentMessage"
+ *
+ * console.log(isMailboxLockTimeout({
+ *   code: "storage",
+ *   message: "Agent message SQL operation failed: LockTimeoutError.",
+ * })) // true
+ * console.log(isMailboxLockTimeout({ code: "storage", message: "Disk full." })) // false
+ * ```
+ *
+ * @category guards
+ * @since 0.0.0
+ */
+export const isMailboxLockTimeout = S.is(
   S.Struct({
     code: S.tag("storage"),
     message: S.tag("Agent message SQL operation failed: LockTimeoutError."),
