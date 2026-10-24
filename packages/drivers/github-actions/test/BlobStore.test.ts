@@ -1,6 +1,6 @@
 import { ActionOutputs, BlobStore, BlobStoreError, NotABlobEnvelopeError } from "@beep/github-actions";
 import { canonicalize, digestHex, sign, signingKey, uriEncode } from "@beep/github-actions/internal/sigv4";
-import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/utils/TestDouble";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";

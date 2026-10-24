@@ -1,8 +1,8 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "@beep/github-actions";
 import { ExtractOptions, ProvisionedFile, ProvisionFileOptions } from "@beep/github-actions/ToolInstaller";
-import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
+import { UnstubbedMemberError } from "@beep/utils/TestDouble";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
@@ -124,9 +124,11 @@ const makeZip = Effect.fn("ToolInstaller.test.makeZip")(function* (directory: st
  */
 const countingSpawner = (script: { readonly exitCode: number; readonly output: string }) => {
   let spawns = 0;
-  const service = ChildProcessSpawner.make(() =>
+  let argvs: ReadonlyArray<ReadonlyArray<string>> = [];
+  const service = ChildProcessSpawner.make((command) =>
     Effect.sync(() => {
       spawns += 1;
+      if (command._tag === "StandardCommand") argvs = A.append(argvs, [command.command, ...command.args]);
       const bytes = new TextEncoder().encode(script.output);
       return ChildProcessSpawner.makeHandle({
         pid: ChildProcessSpawner.ProcessId(4321),
@@ -145,6 +147,7 @@ const countingSpawner = (script: { readonly exitCode: number; readonly output: s
   );
   return {
     count: () => spawns,
+    argvs: () => argvs,
     layer: Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, service),
   };
 };
@@ -805,6 +808,25 @@ describe("ToolInstaller", () => {
             assert.strictEqual(error.reason, "extractFailed");
             assert.strictEqual(error.stderr, "the actual complaint");
             assert.strictEqual(spawner.count(), 1, "the failure must come from the one and only run");
+          })
+        );
+      });
+    }
+
+    {
+      const root = "/tool-cache";
+      const spawner = countingSpawner({ exitCode: 0, output: "" });
+      it.layer(Layer.merge(liveWithSpawner(root, spawner.layer), Path.layer), { timeout: "30 seconds" })((it) => {
+        it.effect("caller tar flags replace the default xzf in the spawned command", () =>
+          Effect.gen(function* () {
+            const { join } = yield* Path.Path;
+            const archive = join(root, "a.tar");
+            const destination = yield* (yield* ToolInstaller).extractTar(archive, {
+              destination: "/out",
+              flags: ["xf"],
+            });
+            assert.strictEqual(destination, "/out");
+            assert.deepStrictEqual(spawner.argvs(), [["tar", "xf", archive, "-C", "/out"]]);
           })
         );
       });

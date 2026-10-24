@@ -1,6 +1,6 @@
 import { ActionEnvironment, ActionOutputs, ActionState } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
+import { UnstubbedMemberError } from "@beep/utils/TestDouble";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";

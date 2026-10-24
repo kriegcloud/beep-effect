@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
-import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { GlobPattern, GlobSet } from "@beep/glob";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
+import { unstubbed } from "@beep/utils/TestDouble";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -491,9 +491,11 @@ const dropCoveredPaths = Effect.fnUntraced(function* (
       const next = posixFor(windows, path.dirname(parent));
       return next === parent ? Effect.succeed(false) : coveredFrom(next);
     });
-  return yield* Effect.filter(matched, (candidate) =>
-    Effect.map(coveredFrom(posixFor(windows, path.dirname(candidate))), (covered) => !covered)
-  );
+  // A filesystem root ("/", "C:/") is its own parent and is never covered.
+  return yield* Effect.filter(matched, (candidate) => {
+    const parent = posixFor(windows, path.dirname(candidate));
+    return parent === candidate ? Effect.succeed(true) : Effect.map(coveredFrom(parent), (covered) => !covered);
+  });
 });
 
 /**

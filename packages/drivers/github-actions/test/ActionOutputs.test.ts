@@ -7,9 +7,9 @@ import {
   RunnerFileUnavailableError,
   Secret,
 } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { MemoryFileSystem } from "@beep/memfs";
+import { UnstubbedMemberError } from "@beep/utils/TestDouble";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as A from "effect/Array";

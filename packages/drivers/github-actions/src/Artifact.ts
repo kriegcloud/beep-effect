@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
-import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
+import { unstubbed } from "@beep/utils/TestDouble";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";

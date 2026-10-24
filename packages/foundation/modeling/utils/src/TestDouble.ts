@@ -1,16 +1,23 @@
-import { $GithubReportingId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-// The one way an unstubbed test-double member dies, for every `makeTest` in
-// this package.
-//
-// A double's unstubbed member must die rather than silently succeed — a stub
-// that returns nothing teaches a test that nothing happened. The message names
-// the double, the member and the override that fixes it, and it is spelled
-// here once so a wording change is one edit rather than ten.
+/**
+ * The one way an unstubbed test-double member dies.
+ *
+ * **Details**
+ *
+ * A `makeTest` double's unstubbed member must die rather than silently
+ * succeed: a stub that returns nothing teaches a test that nothing happened.
+ * The defect names the double, the member and the override that fixes it, and
+ * the wording lives here once so every package's doubles report it the same
+ * way.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
+import { $UtilsId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
-const $I = $GithubReportingId.create("internal/unstubbed");
+const $I = $UtilsId.create("TestDouble");
 
 /**
  * A test-double member was called without an override.
@@ -18,7 +25,7 @@ const $I = $GithubReportingId.create("internal/unstubbed");
  * **Example** (Construct an unstubbed-member error)
  *
  * ```ts
- * import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed"
+ * import { UnstubbedMemberError } from "@beep/utils/TestDouble"
  *
  * const error = UnstubbedMemberError.make({ message: "Cache: save() needs an override." })
  * console.log(error.message) // Cache: save() needs an override.
@@ -41,13 +48,13 @@ export class UnstubbedMemberError extends S.TaggedError<UnstubbedMemberError, { 
 
 /**
  * The die-on-call members of `<double>.makeTest`: `dies("save")` is an
- * `Effect` that defects naming `save` when run. Each package double binds its
- * own name once, then lists its members.
+ * `Effect` that defects naming `save` when run. Each double binds its own name
+ * once, then lists its members.
  *
  * **Example** (Construct a failing test-double member)
  *
  * ```ts
- * import { unstubbed } from "@beep/github-reporting/internal/unstubbed"
+ * import { unstubbed } from "@beep/utils/TestDouble"
  * import * as Effect from "effect/Effect"
  *
  * const dies = unstubbed("Cache")
@@ -55,7 +62,6 @@ export class UnstubbedMemberError extends S.TaggedError<UnstubbedMemberError, { 
  * console.log(Effect.isEffect(save)) // true
  * ```
  *
- * @internal
  * @category testing
  * @since 0.0.0
  */

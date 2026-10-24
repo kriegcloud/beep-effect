@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
-import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { IeeeNumber } from "@beep/schema/IeeeNumber";
 import * as O from "@beep/utils/Option";
+import { unstubbed } from "@beep/utils/TestDouble";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";

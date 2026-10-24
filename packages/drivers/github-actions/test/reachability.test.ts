@@ -171,8 +171,8 @@ describe("bundle reachability", () => {
   it.effect("no module reaches the markdown engine", () =>
     Effect.gen(function* () {
       // The reporting suite ships as `@beep/github-reporting`, whose own
-      // reachability test pins its markdown edges; this package reaches only
-      // its test-double helper, which has none.
+      // reachability test pins its markdown edges; this package does not
+      // import it.
       assert.deepStrictEqual(yield* reachingAmong(MODULES, "@beep/markdown"), []);
     })
   );
@@ -217,10 +217,10 @@ describe("bundle reachability", () => {
 const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
   "Action.ts": [
     "@beep/github-commands",
-    "@beep/github-reporting/internal/unstubbed",
     "@beep/identity/packages",
     "@beep/schema/LiteralKit",
     "@beep/utils/Option",
+    "@beep/utils/TestDouble",
     "@effect/platform-node",
     "effect/Array",
     "effect/Boolean",
@@ -275,9 +275,9 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
   ],
   "ActionOutputs.ts": [
     "@beep/github-commands",
-    "@beep/github-reporting/internal/unstubbed",
     "@beep/identity/packages",
     "@beep/utils/Option",
+    "@beep/utils/TestDouble",
     "effect/Array",
     "effect/Boolean",
     "effect/Console",
@@ -294,10 +294,10 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
   "BlobEnvelope.ts": ["@beep/identity/packages", "effect/Function", "effect/Result", "effect/Schema"],
   "BlobStore.ts": [
     "@beep/github-commands",
-    "@beep/github-reporting/internal/unstubbed",
     "@beep/identity/packages",
     "@beep/schema/LiteralKit",
     "@beep/utils/Option",
+    "@beep/utils/TestDouble",
     "effect/Array",
     "effect/Boolean",
     "effect/Config",
@@ -353,12 +353,12 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
     "effect/String",
   ],
   "PackageManagerInstaller.ts": [
-    "@beep/github-reporting/internal/unstubbed",
     "@beep/identity/packages",
     "@beep/npm-spec/IntegrityHash",
     "@beep/npm-spec/PackageManagerPin",
     "@beep/npm-spec/RegistryKind",
     "@beep/utils/Option",
+    "@beep/utils/TestDouble",
     "effect/Array",
     "effect/Boolean",
     "effect/Config",

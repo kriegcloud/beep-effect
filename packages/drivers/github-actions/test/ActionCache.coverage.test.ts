@@ -274,6 +274,15 @@ it.layer(fixture({ expectedPath: "/work" }), { timeout: "30 seconds" })((it) => 
   );
 });
 
+it.layer(fixture({ expectedPath: "/" }), { timeout: "30 seconds" })((it) => {
+  it.effect("a filesystem-root candidate is kept and covers every other match", () =>
+    Effect.gen(function* () {
+      yield* (yield* ActionCache).save(["/", "/work", "/work/a.txt"], "key");
+      assertSome(yield* restore(yield* ActionCache), "key");
+    })
+  );
+});
+
 it.layer(fixture({ env: { RUNNER_OS: "Windows" }, expectedPath: "/work/a.txt" }), { timeout: "5 seconds" })((it) => {
   it.effect("Windows path normalization preserves the resolved manifest path", () =>
     Effect.gen(function* () {

@@ -7,9 +7,9 @@
  */
 
 import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
-import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
+import { unstubbed } from "@beep/utils/TestDouble";
 import * as Bool from "effect/Boolean";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";

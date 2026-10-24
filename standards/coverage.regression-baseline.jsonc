@@ -11818,14 +11818,14 @@
     "@beep/github-actions": {
       "path": "packages/drivers/github-actions",
       "lines": 100,
-      "statements": 99.95,
-      "branches": 99.86,
-      "functions": 99.87,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
       "uncovered": {
         "lines": 0,
-        "statements": 1,
-        "branches": 1,
-        "functions": 1
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
       },
       "files": {
         "packages/drivers/github-actions/src/Action.ts": {
@@ -12070,14 +12070,14 @@
         },
         "packages/drivers/github-actions/src/PackageManagerInstaller.ts": {
           "lines": 100,
-          "statements": 99.7,
+          "statements": 100,
           "branches": 100,
-          "functions": 98.87,
+          "functions": 100,
           "uncovered": {
             "lines": 0,
-            "statements": 1,
+            "statements": 0,
             "branches": 0,
-            "functions": 1
+            "functions": 0
           }
         },
         "packages/drivers/github-actions/src/Secret.ts": {
@@ -12095,12 +12095,12 @@
         "packages/drivers/github-actions/src/ToolInstaller.ts": {
           "lines": 100,
           "statements": 100,
-          "branches": 96.77,
+          "branches": 100,
           "functions": 100,
           "uncovered": {
             "lines": 0,
             "statements": 0,
-            "branches": 1,
+            "branches": 0,
             "functions": 0
           }
         },
@@ -12498,18 +12498,6 @@
           }
         },
         "packages/foundation/modeling/github-reporting/src/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/foundation/modeling/github-reporting/src/internal/unstubbed.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -51792,6 +51780,18 @@
             "statements": 8,
             "branches": 6,
             "functions": 4
+          }
+        },
+        "packages/foundation/modeling/utils/src/TestDouble.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/foundation/modeling/utils/src/Text.ts": {

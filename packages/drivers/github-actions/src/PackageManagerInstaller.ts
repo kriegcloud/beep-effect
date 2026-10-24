@@ -5,12 +5,12 @@
  * @since 0.0.0
  */
 
-import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { PackageManagerPin, PackageManagerPinName } from "@beep/npm-spec/PackageManagerPin";
 import { DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
 import * as O from "@beep/utils/Option";
+import { unstubbed } from "@beep/utils/TestDouble";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -857,9 +857,10 @@ const make = Effect.gen(function* () {
         );
         return;
       }
-      const dot = O.getOrElse(Str.indexOf(".")(integrity), () => -1);
-      const algorithm = Str.slice(0, dot)(integrity);
-      const expectedHex = Str.slice(dot + 1)(integrity);
+      // The pin grammar is corepack `<algo>.<hex>`: the algorithm is the text
+      // before the one dot, the digest everything after it.
+      const algorithm = A.headNonEmpty(Str.split(".")(integrity));
+      const expectedHex = Str.slice(Str.length(algorithm) + 1)(integrity);
       const actualHex = yield* hashFile(pin, file, algorithm);
       if (actualHex !== expectedHex) {
         return yield* errorFor(pin)({

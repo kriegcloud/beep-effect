@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
+import { unstubbed } from "@beep/utils/TestDouble";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";

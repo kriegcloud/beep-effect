@@ -210,10 +210,11 @@ console.log(Layer.isLayer(layer)) // true
 ```ts
 import { ActionOutputs } from "@beep/github-actions";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 
 const TestOutputs = ActionOutputs.layerTest({
-  set: () => Effect.void,
+  set: dual(2, (_name: string, _value: string) => Effect.void),
 });
 console.log(Layer.isLayer(TestOutputs)) // true
 ```
@@ -264,8 +265,8 @@ The real-process suites (`ActionCache`, `Artifact`, `ToolInstaller`, `PackageMan
 
 Promoted from the effected lab (`scratchpad/effected/github-actions`, `scratchpad/test/github-actions`) in wave 5 of
 `goals/effected-promotion`. The lab suite was 957/957 under Node and Bun before the move (#2223); the package suite is
-969/969 under Node and Bun after it (the `unstubbed` property test and the `IeeeNumber` tests moved with their modules
-to `@beep/github-reporting` and `@beep/schema`, and the property, schema and coverage tests below were added). The
+971/971 under Node and Bun after it (the `unstubbed` test moved with its module to `@beep/utils/TestDouble` and the
+`IeeeNumber` tests to `@beep/schema`, and the property, schema and coverage tests below were added). The
 port reviews and the canon exceptions are archived under `goals/effected-promotion/history/`. The
 `github-actions` row of `scratchpad/effected/PORT_LEDGER.json` keeps the lab-era evidence under the pre-promotion
 `scratchpad/test/github-actions/` paths; the deviations below cite them as recorded there.

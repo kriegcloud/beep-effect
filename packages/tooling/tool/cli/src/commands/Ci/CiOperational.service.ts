@@ -201,6 +201,9 @@ export const CiOperationalLive = Layer.effect(
     });
     // `ActionOutputs` frames each entry as a `GITHUB_ENV` heredoc block whose
     // delimiter is derived from the value, so no value can close its block early.
+    // Entries append one at a time, in order: a runner-file write failure fails
+    // the step with the earlier entries written, and no later step reads them
+    // (reuse-ledger #93).
     const exportEnvironmentEntry = ([name, value]: readonly [string, Redacted.Redacted<string>]) =>
       outputs.exportVariable(name, Redacted.value(value));
     const jobEnvironment = Effect.gen(function* () {

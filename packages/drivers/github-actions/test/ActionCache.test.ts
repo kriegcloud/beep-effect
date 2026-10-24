@@ -1,7 +1,7 @@
 import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "@beep/github-actions";
 import { spawnOnce } from "@beep/github-actions/internal/spawn";
-import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
+import { UnstubbedMemberError } from "@beep/utils/TestDouble";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";

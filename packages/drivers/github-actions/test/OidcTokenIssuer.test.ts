@@ -1,5 +1,5 @@
 import { ActionEnvironment, OidcClaims, OidcTokenIssuer } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/utils/TestDouble";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
