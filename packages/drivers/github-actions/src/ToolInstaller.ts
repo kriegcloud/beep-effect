@@ -226,6 +226,16 @@ export declare namespace ExtractOptions {
 
 /**
  * How a {@link ToolInstallerShape.download} should behave.
+ *
+ * **Example** (Validate a download budget)
+ *
+ * ```ts
+ * import { ToolDownloadOptions } from "@beep/github-actions/ToolInstaller";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(ToolDownloadOptions)({ timeout: "10 minutes" })) // true
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0

@@ -1,21 +1,20 @@
-# github-actions (lab port of @effected/github-actions)
-
+# @beep/github-actions
 
 The GitHub Actions runtime for [Effect](https://effect.website) v4: the services an action needs to talk to the runner it is executing inside. `Action.run` composes the runtime, runs your program, renders a failure as an `::error::` annotation and sets the exit code. `ActionInput` reads workflow inputs as typed `Config` values — string, boolean, integer, redacted secret, multiline list, `key=value` pairs, or a schema-decoded JSON blob — with one absence rule shared by every accessor: unset and `""` are both missing data. `ActionOutputs`, `ActionState`, `ActionLogger` and a fiber-local `ActionEnvironment` round out the runner surface, alongside `ActionCache`, `Artifact`, a metadata-carrying `BlobStore` (S3-compatible or the runner's own cache), `OidcTokenIssuer` and `ToolInstaller` for the heavier protocols. The reporting suite that renders what a run did onto a pull request comment, a check run or the job summary now ships as `@beep/github-reporting`. No `@actions/*` dependency anywhere — the cache, artifact and tool-cache protocols are implemented directly against their HTTP APIs.
 
-## Why @effected/github-actions
+## Why @beep/github-actions
 
 `@actions/core` and its siblings (`@actions/cache`, `@actions/artifact`, `@actions/tool-cache`) are the standard way to write an action, and each one owns its own ad hoc contract: inputs are read with `getInput`, which returns `""` for both "unset" and "set to empty" with no way to tell them apart at the type level; outputs, masking and workflow commands are separate globals; and the cache and artifact clients bring their own HTTP stacks. This package answers the same questions as one coherent set of Effect services instead, with the absence rule stated once (`Config.withDefault` is the idiom for every optional input) and every mutation running through the same `R`-typed services a test can swap out.
 
 It is also the **one place in the kit** where `@effect/platform-node` is a required peer, deliberately: a GitHub Action always compiles into a Node process on a GitHub-provided runner, so there is no second platform to abstract over. Everything that *can* go through a core contract still does — `ToolInstaller` downloads over `HttpClient` and extracts over `ChildProcessSpawner`, `CacheKey` reads over `FileSystem` — and the four sanctioned `node:` imports (`node:crypto` for digests, `process.kill` for reaping a bare pid, `node:child_process` for a detached spawn, and `node:zlib`/`node:stream` in the cache and artifact codecs) cover exactly what core cannot do yet.
 
-The line against [`@effected/github`](https://www.npmjs.com/package/@effected/github) is exact: that package talks to the GitHub API, this one talks to the runner. They meet at two seams — the token bridge (`GitHubToken`) and the `Logger` that maps `Effect.log*` onto workflow commands — and nothing here reads `process.env.GITHUB_REPOSITORY` on `github`'s behalf.
+The line against `@beep/github` is exact: that package talks to the GitHub API, this one talks to the runner. They meet at two seams — the token bridge (`GitHubToken`) and the `Logger` that maps `Effect.log*` onto workflow commands — and nothing here reads `process.env.GITHUB_REPOSITORY` on `github`'s behalf.
 
-Requires Node.js >=24.11.0. `effect` v4 and `@effect/platform-node` are both peer dependencies.
+Requires Node.js >=24.11.0. `effect` v4 and `@effect/platform-node` are both dependencies. The package is ESM-only: import it from an ES module.
 
-All `@effected/*` packages are ESM-only: the exports maps publish only `import` conditions, so `require()` — including tools that resolve in CJS mode — fails with Node's `ERR_PACKAGE_PATH_NOT_EXPORTED` rather than loading a CJS build that does not exist. Import from an ES module.
+## Usage
 
-## Quick start
+### Quick start
 
 ```ts
 import { Action, ActionInput, ActionOutputs } from "@beep/github-actions";
@@ -37,7 +36,7 @@ console.log("action completed") // action completed
 
 Step debugging works without wiring: when the runner sets `RUNNER_DEBUG=1`, `Action.run` lowers Effect's minimum log level to `Debug`, so `Effect.logDebug` calls show up as `::debug::` lines. It only ever lowers the level; pass `{ stepDebugLogLevel: false }` to keep it as it is.
 
-## Reading inputs
+### Reading inputs
 
 Every accessor shares one absence rule: the runner writes `""` for an input the workflow omitted, and this package reads that the same as unset — **missing data**, not an empty value. An optional input needs `Config.withDefault` (or `Config.option`) at the call site:
 
@@ -57,7 +56,7 @@ console.log(Effect.isEffect(program)) // true
 
 `list` accepts a JSON array, a bullet list, or comma- and newline-separated values, with full-line `#` comments dropped — whichever shape a workflow author reaches for first. A **present but malformed** value (`dry-run: yes` instead of a YAML 1.2 boolean) is a different class from an absent one: it fails carrying its `actual` and is never silently swallowed by a default.
 
-## The token bridge
+### The token bridge
 
 `GitHubToken` shapes GitHub App authentication like the three-phase workflow it runs inside: mint in `pre`, use in `main`, revoke in `post`. Nothing survives between phases except what `GITHUB_STATE` carries, so an installation token — which lives about an hour — is persisted rather than held in a `Scope`:
 
@@ -85,7 +84,7 @@ console.log(Effect.isEffect(pre) && Layer.isLayer(ClientLayer) && Effect.isEffec
 
 `GitHubToken.read` fails typed with `reason: "expired"` rather than handing back a token GitHub will answer with a bare 401 — the credential that could re-mint one is the app's private key, and persisting that through a plaintext `GITHUB_STATE` file would trade a one-hour token for a permanent one.
 
-## Secrets
+### Secrets
 
 `Secret` is the only place in this package a `Redacted` value becomes a plain string, and masking and declassification are the same call — every member registers the value with the runner's `::add-mask::` filter *before* returning plaintext:
 
@@ -104,7 +103,7 @@ const program = Effect.gen(function* () {
 console.log(Effect.isEffect(program)) // true
 ```
 
-## The runner's cache, artifacts and OIDC
+### The runner's cache, artifacts and OIDC
 
 `ActionCache` and `Artifact` speak the Actions Twirp v2 protocol directly — no `@actions/cache` or `@actions/artifact` dependency, and both are excluded from `ActionRuntime.layer` on purpose, so a consumer that only sets an output never links `@azure/storage-blob`:
 
@@ -163,11 +162,11 @@ console.log(Effect.isEffect(program) && Layer.isLayer(SigningLayer)) // true
 
 An `OidcTokenError` passes through `capture` untouched: whether an unattested publish is allowed is the action's policy, not this package's. `reason: "unavailable"` almost always means the workflow is missing `permissions: id-token: write`.
 
-## Reporting on GitHub surfaces
+### Reporting on GitHub surfaces
 
 The reporting suite (`GitHubMarkdown`, `ManagedDocument`, `CheckState` and `CheckDocument`) ships as `@beep/github-reporting` since wave 3-1 of `goals/effected-promotion`. Its usage, features and port notes are in `packages/foundation/modeling/github-reporting/README.md`. Import the root (`CheckState`, `ManagedDocument`, `CheckDocument`) from `@beep/github-reporting` and the writer from `@beep/github-reporting/GitHubMarkdown`.
 
-## Typed failures
+### Typed failures
 
 Four failure types in this package are **tagged unions of one error class per reason** rather than a single class carrying a `reason` field: `ActionOutputError`, `BlobEnvelopeError`, `CacheKeyError` and `DetachedProcessError`. Every one of those names still exists and still means the same set of outcomes, so no signature changed — each is now a type alias over its members:
 
@@ -193,7 +192,7 @@ const digest = CacheKey.hashMatching({ workspace: ".", patterns: ["**/pnpm-lock.
 console.log(Effect.isEffect(digest)) // true
 ```
 
-## Testing
+### Testing
 
 Every service ships `makeTest(overrides?)` and `layerTest(overrides?)`, with unstubbed members dying loudly and naming themselves — three recorded exceptions state why they default instead: `ActionEnvironment.makeTest` seeds the twelve `GITHUB_*`/`RUNNER_*` variables, `ActionLogger.makeTest` defaults to silent, and `DryRun.makeTest` defaults to rehearsing, the safe direction. `ActionEnvironment.makeTest`/`layerTest` also take the webhook event payload as an optional second argument, serving it directly instead of routing it through a `GITHUB_EVENT_PATH` filesystem read the stubbed filesystem could never satisfy:
 
@@ -238,10 +237,38 @@ console.log(Layer.isLayer(TestOutputs)) // true
 - `ToolInstaller` — download, extract and cache a toolchain in the runner's tool cache, with no `@actions/tool-cache` dependency; `ToolInstallerError` always names its `subject`.
 - `BlobStore` — durable `get`/`put`/`has` over `StoredBlob<A>` values (bytes plus caller-schema metadata; the type was named `Blob<A>` before, which collided with the global), backed by `layerS3` (SigV4-signed, no `@aws-sdk/*` dependency) or `GitHubCacheBlobStore.layer` (the runner's own cache); `layerMemory` runs the real envelope framing for tests.
 
-## License
+## Named importers
 
-[MIT](LICENSE)
+- `@beep/repo-cli` — the `ci` commands publish their runner files through `ActionOutputs`
+  (`commands/Ci/CiRunnerOutputs.ts` seeds `ActionEnvironment` from the current `ConfigProvider`): `ci job-env`
+  exports `GITHUB_ENV` entries, `ci admission` publishes its four step outputs, and `ci append-turbo-summary`,
+  `ci rerun-runner-loss` and `ci runner-resources` append to the job summary.
 
+## Development
+
+```sh
+# from the repository root
+bun run beep quality package-verify @beep/github-actions
+
+# from packages/drivers/github-actions
+bun run check
+bun run test            # Bun (the package test runner)
+bunx vitest run         # Node
+```
+
+The real-process suites (`ActionCache`, `Artifact`, `ToolInstaller`, `PackageManagerInstaller`,
+`DetachedProcess`) need `tar`, `unzip` and `zip` on `PATH`; they reach the host through
+`test/support/host.ts` and never import a builtin.
+
+## Provenance
+
+Promoted from the effected lab (`scratchpad/effected/github-actions`, `scratchpad/test/github-actions`) in wave 5 of
+`goals/effected-promotion`. The lab suite was 957/957 under Node and Bun before the move (#2223); the package suite is
+969/969 under Node and Bun after it (the `unstubbed` property test and the `IeeeNumber` tests moved with their modules
+to `@beep/github-reporting` and `@beep/schema`, and the property, schema and coverage tests below were added). The
+port reviews and the canon exceptions are archived under `goals/effected-promotion/history/`. The
+`github-actions` row of `scratchpad/effected/PORT_LEDGER.json` keeps the lab-era evidence under the pre-promotion
+`scratchpad/test/github-actions/` paths; the deviations below cite them as recorded there.
 
 ## Port notes
 
@@ -249,11 +276,9 @@ console.log(Layer.isLayer(TestOutputs)) // true
 
 - Upstream package: `@effected/github-actions` 0.20.0
 - Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
-- License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- scratchpad/effected/github-actions/internal/cacheService.ts:10 // the bytes between the two RPCs stays in the three modules licensed to import
-- scratchpad/effected/github-actions/internal/digest.ts:4 // no HMAC and no incremental hasher, so this package's licence for a `node:`
-- scratchpad/effected/github-actions/internal/digest.ts:6 // `createHash` behind this module is what makes that licence auditable in one
-- scratchpad/effected/github-actions/internal/sigv4.ts:16 * licence). This package is the one place in the kit where a `node:` import
+- License: [LICENSE](./LICENSE) (beep-effect notice plus the verbatim upstream MIT notice)
+- Vendored-engine notices: none. The `licence` hits in `src/internal/cacheService.ts`, `src/internal/digest.ts` and
+  `src/internal/sigv4.ts` are prose about which modules may import a `node:` builtin, not licence headers.
 
 ### Added exports
 
@@ -266,6 +291,30 @@ console.log(Layer.isLayer(TestOutputs)) // true
 ### Deviations
 
 One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
+
+Wave 5 (the promotion itself), each pinned by tests in this package:
+
+- **schema-first** — Every exported option bag and result record is a branded `S.Opaque` with an `Encoded` companion
+  (`ReadinessOptions`, `ToolDownloadOptions`, `ClientLayerOptions` and the message `Frame` were interfaces; the lab
+  structs were bare `S.Struct`s; `RunnerContext`, `RecordedOutput`, `OidcClaims` and both package-manager variants were
+  `S.Class`). Inputs take `X.Encoded`, or `X.Admitted` where a field is already a branded value
+  (`PackageManagerInstallOptions`, `ClientLayerOptions`); results are admitted once with `X.make`, which copies nested
+  values, so instance checks are `S.is` checks. (test/*.test.ts codec property per schema-heavy suite;
+  test/internal/durationInput.test.ts)
+- **exact-optional-keys** — Optional fields are `S.optionalKey` (EF-40), so an explicit `undefined` is rejected where
+  upstream accepted it; the explicit-undefined tests were inverted to pin the rejection in the lab (#2223, W4-j) and
+  move with the suite. (test/ActionInput.test.ts; test/Artifact.test.ts;
+  test/PackageManagerInstaller.test.ts)
+- **numeric-domains** — A `Duration.Input` option accepts finite counts only; an unbounded budget is spelled
+  `Duration.infinity` or `"Infinity"`. (test/internal/durationInput.test.ts)
+- **upstream-bug** — `DetachedProcess.reap` classifies the `ESRCH` of an already-exited child from the wrapped cause,
+  so a dead pid reaps as `false` instead of failing (fixed in the lab by #2223, carried here). (test/DetachedProcess.test.ts
+  "reports a real exited child as false")
+- **reachability** — The suites read `src` through a raw-glob walker over `@beep/test-utils/ImportGraph`, so the
+  reachability, ambient-read and declassification suites touch no filesystem and run under Bun; the one Azure
+  boundary is `src/internal/azureBlob.ts`. (test/reachability.test.ts)
+
+Lab era:
 
 - **native-runtime** — Effect hash collections, ordered check snapshots, scoped Logger.layer and Clock/DateTime replace native structures and wall-clock paths; zone-less stamps read as UTC. (scratchpad/test/github-actions/CheckDocument.test.ts:222,365; scratchpad/test/github-actions/BlobStore.test.ts:230; scratchpad/test/github-actions/Artifact.test.ts:392; scratchpad/test/github-actions/ActionLogger.test.ts)
 - **identity-keys** — IdentityComposer keys replace upstream service/reference identities and change CacheKey/ManagedDocument JSON Schema definition paths. (scratchpad/test/github-actions/CacheKey.test.ts:583; scratchpad/test/github-actions/ManagedDocument.test.ts:305)
@@ -324,3 +373,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 ### Dependency backlog
 
 None.
+
+## License
+
+[MIT](LICENSE)

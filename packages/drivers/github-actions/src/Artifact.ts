@@ -279,7 +279,22 @@ export declare namespace UploadOptions {
   export type Encoded = typeof UploadOptions.Encoded;
 }
 
-// A boundary struct keeps the upload's plain-record public representation.
+/**
+ * What an upload produced: the new artifact's database id and the size of its zip.
+ *
+ * **Example** (Admit an upload result)
+ *
+ * ```ts
+ * import { UploadResult } from "@beep/github-actions/Artifact";
+ *
+ * const result = UploadResult.make({ id: 4242, size: 128 });
+ * console.log(result.id) // 4242
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
 export class UploadResult extends S.Opaque<UploadResult, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The new artifact's database id, which `download` takes. */
@@ -398,7 +413,22 @@ export declare namespace DownloadResult {
   export type Encoded = typeof DownloadResult.Encoded;
 }
 
-// A boundary struct keeps the deletion's plain-record public representation.
+/**
+ * The database id of an artifact that `delete` removed.
+ *
+ * **Example** (Admit a deletion result)
+ *
+ * ```ts
+ * import { ArtifactRef } from "@beep/github-actions/Artifact";
+ *
+ * const removed = ArtifactRef.make({ id: 11 });
+ * console.log(removed.id) // 11
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
 export class ArtifactRef extends S.Opaque<ArtifactRef, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The deleted artifact's database id. */

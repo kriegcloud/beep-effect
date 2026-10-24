@@ -481,18 +481,19 @@ const dropCoveredPaths = Effect.fnUntraced(function* (
     }),
     { discard: true }
   );
-  const isCovered = Effect.fnUntraced(function* (candidate: string) {
-    let parent = posixFor(windows, path.dirname(candidate));
-    while (parent !== candidate) {
-      if (yield* isSymlink(parent)) return false;
-      if (MutableHashSet.has(directories, parent)) return true;
+  // Walk up from a candidate's parent: a symlinked ancestor ends the walk
+  // uncovered (its contents are not this tree's), a matched directory covers
+  // the candidate, and reaching the root ends it uncovered.
+  const coveredFrom = (parent: string): Effect.Effect<boolean> =>
+    Effect.flatMap(isSymlink(parent), (symlink) => {
+      if (symlink) return Effect.succeed(false);
+      if (MutableHashSet.has(directories, parent)) return Effect.succeed(true);
       const next = posixFor(windows, path.dirname(parent));
-      if (next === parent) return false;
-      parent = next;
-    }
-    return false;
-  });
-  return yield* Effect.filter(matched, (candidate) => Effect.map(isCovered(candidate), (covered) => !covered));
+      return next === parent ? Effect.succeed(false) : coveredFrom(next);
+    });
+  return yield* Effect.filter(matched, (candidate) =>
+    Effect.map(coveredFrom(posixFor(windows, path.dirname(candidate))), (covered) => !covered)
+  );
 });
 
 /**

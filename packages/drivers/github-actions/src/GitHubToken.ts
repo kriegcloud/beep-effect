@@ -227,8 +227,17 @@ const FetchFunction = S.declare<typeof globalThis.fetch>((input): input is typeo
 /**
  * How to build a client from a persisted token.
  *
+ * **Example** (Validate client options)
+ *
+ * ```ts
+ * import { ClientLayerOptions } from "@beep/github-actions/GitHubToken";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(ClientLayerOptions)({ baseUrl: "https://ghe.example.com/api/v3", retry: "off" })) // true
+ * ```
+ *
  * @public
- * @category type-level
+ * @category models
  * @since 0.0.0
  */
 export class ClientLayerOptions extends S.Opaque<ClientLayerOptions, { readonly brand: unique symbol }>()(

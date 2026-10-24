@@ -579,6 +579,15 @@ export declare namespace DetachedSpawnOptions {
 /**
  * How long to wait for a child to become ready.
  *
+ * **Example** (Validate readiness options)
+ *
+ * ```ts
+ * import { ReadinessOptions } from "@beep/github-actions/DetachedProcess";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(ReadinessOptions)({ attempts: 10, interval: "100 millis" })) // true
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
