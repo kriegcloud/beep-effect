@@ -594,15 +594,9 @@ interface RunPiece {
   readonly valueStart: number;
 }
 
-/** Replace a run of adjacent text nodes with the same text plus its email links. */
-const linkifyRun = (pieces: ReadonlyArray<RunPiece>): void => {
-  const merged = pipe(
-    pieces,
-    A.map((piece) => piece.node.value),
-    A.join("")
-  );
-  // Count escaped source pieces once, so rejecting a candidate that crosses
-  // an escape stays linear even when one run holds many email addresses.
+// Count escaped source pieces once, so rejecting a candidate that crosses
+// an escape stays linear even when one run holds many email addresses.
+const escapedRunOffsets = (pieces: ReadonlyArray<RunPiece>): ReadonlyArray<number> => {
   const escapes = [0];
   let count = 0;
   for (const piece of pieces) {
@@ -612,6 +606,17 @@ const linkifyRun = (pieces: ReadonlyArray<RunPiece>): void => {
       escapes.push(count);
     }
   }
+  return escapes;
+};
+
+/** Replace a run of adjacent text nodes with the same text plus its email links. */
+const linkifyRun = (pieces: ReadonlyArray<RunPiece>): void => {
+  const merged = pipe(
+    pieces,
+    A.map((piece) => piece.node.value),
+    A.join("")
+  );
+  const escapes = escapedRunOffsets(pieces);
   const matches = A.filter(scanEmails(merged), (match) => escapes[match.from] === escapes[match.to]);
   if (matches.length === 0) {
     return;
