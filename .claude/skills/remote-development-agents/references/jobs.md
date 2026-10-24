@@ -52,7 +52,13 @@ starting successfully proves launch, not task completion. Check the child's
 environment for forbidden variable **names only**; user managers can retain
 older values even when the SSH shell has none. If any other `OP_*` credential
 variable is present, stop the owned job and fix its launch environment before
-continuing. Never remove the credential isolation to make a tool pass.
+continuing. Do not remove these inheritance controls to make a tool pass.
+They prevent ambient credential variables and forwarded administrative sockets;
+they do not block a job running as the worker from reading its credential store
+or resolving any shared-vault item through `op`. The full-vault scope in D40
+applies to these jobs. Per-task use restrictions are instructions, not enforced
+secret isolation. A narrower technical grant requires a different vault scope
+or execution identity; do not claim that the example unit supplies one.
 
 ## Observe and recover
 

@@ -38,7 +38,9 @@ Read `ops/tbk-worker-runbook.md` and
 - Credentials: independently revocable account with read-only access to
   `BEEP_SECRETS` and `tbk-worker-development`; repository-limited GitHub token
   expires November 22, 2026. Cloud tools are installed but
-  cloud account access is not admitted. Never copy another host's auth files.
+  cloud sign-ins/deployment use is not authorized. Shared-vault credentials
+  remain technically readable by worker jobs (D40); no item-level exclusion
+  is enforced. Never copy another host's auth files.
 - Native Codex/Claude/Grok/Muse inference and four proxy wrappers passed their
   bounded setup checks. Cursor authentication and sandbox startup passed, but
   its Opus subscription was quota-blocked until November 11. Refresh status

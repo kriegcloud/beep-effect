@@ -1,8 +1,7 @@
 # GOAL: agent and Linux development readiness
 
-Repo root is the current beep-effect checkout. Retain this packet's stable path
-and initiative id, cloud-agent-readiness. Its scope now includes managed Linux
-machines as well as fresh hosted agent containers (operator, 2026-10-14).
+Retain the cloud-agent-readiness packet path and id. Scope includes managed
+Linux workers and fresh hosted agent containers (operator, 2026-10-14).
 
 Read AGENTS.md and this packet's README.md, SPEC.md, PLAN.md and
 ops/manifest.json first. SPEC.md is normative. Read the historical cloud probe
@@ -23,7 +22,7 @@ Scope:
   repo-pinned Bun, Docker Compose/Buildx, Codex, Claude, Cursor, Grok, Muse and CLIProxyAPI from official
   sources. Prove noninteractive shell operation and representative workflows.
 - Use approved 1Password accounts. TBK and dankserver have independent read-only
-  accounts for BEEP_SECRETS plus their development vaults (D40).
+  accounts for all BEEP_SECRETS items plus their development vaults (D40).
   Preserve the canonical PATH shim; transfer credentials
   directly over authenticated SSH into mode-0600 storage. Never print, commit,
   or copy resolved secrets into reports. Prove the required op operations with
@@ -33,11 +32,11 @@ Scope:
   Prove fresh SSH and sudo before retiring recovery/bootstrap access.
 - Development apps run on the tailnet using explicit bindings/rules or Serve.
   No public Funnel by default. Prefer rootless Docker where compatible.
-- Preserve staking services on tbk-ubuntu bare metal. No staking credentials,
-  host Docker socket or host/fleet admin agent enter the development guest.
+- Preserve staking services on tbk-ubuntu bare metal. Do not copy host credential
+  files, Docker sockets or admin agents into the guest. D40 permits broad vault
+  reads by worker jobs; environment cleanup is not per-job secret isolation.
   D23 permits a separate guest-only key/agent during explicit administration.
-  Staking backup
-  work is excluded by the operator and is not an approval gate for this task.
+  Staking backups are excluded from this task.
 
 Workflow:
 1. Inspect branch, unrelated edits, active work and actual host state.

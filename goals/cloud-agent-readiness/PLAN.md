@@ -188,16 +188,15 @@ their separate acceptance boundaries. Keep heavy work serialized. See the
    D26 sets combined disk limits of 100 MiB/s and 5,000 operations per second,
    with no extra burst allowance. Qualify read/write enforcement using only
    disposable guest-owned data, including the provisioning write path.
-   Maintain D40 credential scoping (superseding D19/D29 vault membership) and
+   Maintain D40 full-vault access and its task-use restrictions, and
    verify D18 network policy, with D28
    admitting only DankStation as the initial inbound source. A live tailnet
-   audit found an owner-to-anywhere grant; the prepared draft replaces its
-   destination wildcard with member devices and the existing service tags,
-   then adds only DankStation-to-guest TCP 22. Keep the new guest tagged from
+   audit informed the explicit approved device/service destinations,
+   admitting only DankStation-to-guest TCP 22. Keep the new guest tagged from
    enrollment. The operator approved and saved this policy on 2026-10-23 (D32).
    Its 32 tests passed the save gate; saved JSON semantically matches the approved
-   candidate. Real guest allowed/denied paths remain to be proved before workload
-   admission. Then qualify
+   candidate. Real guest allowed/denied paths and host-side LAN/control
+   isolation passed (D32/D34); retain these controls. Qualification also covers
    the accepted CPU/memory/disk controls. D27 keeps startup manual after reboot,
    requires healthy pre-start checks and authorizes a host-side protective stop
    of the VM only. Verify graceful shutdown, the 60-second forced-stop deadline,

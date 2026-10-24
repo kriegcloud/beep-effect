@@ -89,7 +89,7 @@ It admits one substantive job at a time within the installed host budget.
 - [Host upgrades and YubiKey access](./history/2026-10-23-host-os-upgrades.md):
   both hosts boot Ubuntu 26.04.1 with kernel 7.0.0-38 and recovery verified.
   Fresh tbk hardware SSH/sudo and the `ssh-tbk-ubuntu` wrapper pass.
-  Rocket Pool clients are synced; all 107 validators are active with fresh
+  Rocket Pool clients are synced; all managed validators are active with fresh
   successful attestations. Temporary maintenance sessions are closed.
 
 - [Staking-host worker checkpoint](./history/2026-10-23-tbk-worker-design.md):

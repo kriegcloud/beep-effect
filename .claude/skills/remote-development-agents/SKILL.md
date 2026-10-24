@@ -44,7 +44,8 @@ versioned source belongs to Beep; each target checkout supplies its own rules.
 5. **Launch and capture identity.** Start one substantive job at a time in the
    admitted shared user slice, with finite runtime and explicit limits. Record
    its systemd unit or the repository's durable job ID immediately. Remove
-   administrative and secret-service environment variables from the child.
+   administrative and secret-service environment variables from the child to
+   prevent ambient inheritance; this does not revoke worker-owned vault access.
    Fail closed if the user manager or required slice is unavailable.
 6. **Observe the same job.** Poll its recorded identity, not a replacement
    invocation. A disconnected SSH session does not mean the job failed. Inspect
@@ -59,6 +60,14 @@ versioned source belongs to Beep; each target checkout supplies its own rules.
    are separate states.
 
 ## Credentials and recovery
+
+All three worker accounts can read every item in `BEEP_SECRETS` through their
+approved `op` shim. Jobs run as that same account and can also read its protected
+service-account store. Mode 0600 and environment cleanup do not isolate secrets
+from same-user jobs. Shared-vault administrative, deployment and review-signing
+credentials retain their upstream powers; use only what the task authorizes.
+D40 records the operator-approved broad grant and how to revoke or narrow it.
+Do not describe task-use restrictions as technical credential denial.
 
 - Use the host's approved `op` shim from `PATH`; verification reads go to
   `/dev/null`. On an agent-side failure run `op-doctor` once, then stop that path

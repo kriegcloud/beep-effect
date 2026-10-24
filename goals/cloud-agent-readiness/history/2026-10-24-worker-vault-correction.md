@@ -17,6 +17,15 @@ vault-creation permission. Full-vault access includes all present and future
 items in the shared vault. It does not narrow the upstream permissions of
 stored credentials or authorize unrelated operations or cloud deployment.
 
+Worker jobs use the same local account that owns the service-account store.
+They can read that mode-0600 file or invoke the approved `op` shim to resolve
+any shared-vault item. Clearing OP variables prevents ambient inheritance only;
+it does not isolate those jobs from the vault. Any administrative, deployment
+or review-signing credentials stored there remain technically reachable, with
+their original provider powers. Task-use restrictions are not a technical
+denial. Independent accounts allow revocation; narrowing actual access requires
+a narrower vault grant or a separate execution identity.
+
 Each new credential was delivered through an in-memory private pipe to its
 worker's protected store. Both doctors passed identity, exact two-vault
 membership, readable inventories, mode 0700/0600 storage, PATH resolution and
@@ -32,6 +41,7 @@ former tokens failed suppressed authentication probes. Both current accounts
 passed checks again after those revocations. Private operational receipts
 retain rotation details; no token value is included in this repository.
 
-This receipt supersedes earlier vault-membership claims, not their historical
-verification dates or other host boundaries. Dankserver provider and workload
+This receipt supersedes the earlier reuse, development-only and excluded-item
+assumptions in D10/D12/D19/D29/D35, not their historical verification dates or
+the host resource/network and administrative-agent boundaries. Dankserver provider and workload
 qualification remains separate from successful secret access.

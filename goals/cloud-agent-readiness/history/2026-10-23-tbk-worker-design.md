@@ -1,5 +1,12 @@
 # Staking-host worker design checkpoint — 2026-10-23
 
+This is a chronological receipt. Earlier development-only credential decisions
+and exclusions were superseded by D40 and the
+[worker vault correction](2026-10-24-worker-vault-correction.md). Worker jobs
+now have full shared-vault read access; environment cleanup does not enforce
+item-level or per-job secret isolation. Exact host identifiers, prior network
+policy and validator activity details are retained in private receipts.
+
 ## Scope and decisions
 
 The operator resumed the isolated tbk-ubuntu worker covered by D12 and accepted
@@ -368,17 +375,15 @@ was changed by these tests, and their disposable files were removed.
 ## Tailnet policy preparation
 
 Read the current policy through the authenticated Tailscale admin console.
-The first owner grant targets every destination. Adding a narrower guest grant
-alone would therefore leave other owner-account devices able to initiate
-connections to the new guest. Existing service-tag isolation and eight policy
-tests are already present and must be retained.
+The audit identified policy changes needed to enforce the guest admission
+boundary. Exact prior policy is retained privately. Existing service-tag
+isolation and regression tests must be retained.
 
 Prepared an unsaved draft implementing D18/D28:
 
 - Give the guest its own operator-owned `tag:tbk-worker` identity at enrollment.
-- Replace the owner grant's destination wildcard with user-owned member devices
-  and the three already defined service tags. This preserves observed existing
-  node coverage; future service tags require an explicit rule.
+- Use explicit approved device and existing service destinations. Preserve
+  current node coverage; future service tags require an explicit rule.
 - Admit only DankStation's verified IPv4/IPv6 identity to guest TCP 22.
   Initial development web access uses SSH forwarding. No new Tailscale SSH
   rule, Funnel permission, subnet route or exit-node permission is added.
@@ -419,7 +424,7 @@ unchanged recovery includes. A fresh login-shell authentication check remains.
 No password was collected as a substitute for the hardware route.
 
 At 20:38 UTC the host had about 101 GiB available, no memory pressure, no
-failed services, and all 107 validators active with recent successful
+failed services, and all managed validators active with recent successful
 attestations. Consensus reported synchronized, non-optimistic and execution
 online; execution reported mainnet, no synchronization and 49 peers. This
 is a short baseline, not peak-load qualification.
@@ -623,8 +628,8 @@ the only reason. The existing guard records labels, not a numeric pressure
 history, so that event alone cannot distinguish VM throttling from shared host
 contention or establish a causal effect on staking.
 
-The 21:45–21:52 UTC validator logs contained 35 activity readings, all 107/107,
-40 successful attestation-publication lines and no validator warnings/errors.
+The inspected validator logs showed all managed validators active, successful
+attestation publications and no validator warnings/errors.
 Execution logs had no warning/error lines. Consensus logged one rejected gossip
 block with an invalid proposer signature; no kernel storage error was found in
 the inspected window. These observations do not establish every attestation's

@@ -94,15 +94,9 @@ root-owned tmux session is idle; no release upgrader has started on tbk.
 Resuming privileged work requires fresh administration authentication through
 the approved route.
 
-For a future tbk reconnect, read-only inspection confirms SSH user
-`tbkventures`, effective hostname `tbk-ubuntu`, no configured HostKeyAlias,
-and `pam_google_authenticator.so` without a prompt override or combined-password
-option. Its upstream default is `Verification code: `, so the expected OpenSSH
-keyboard-interactive callback is `(tbkventures@tbk-ubuntu) Verification code: `.
-This is configuration-derived preparation, not a new-login acceptance result;
-recheck the configuration after the host upgrade. The remote sudo account
-password is a separate challenge. Source:
-[Google Authenticator PAM implementation](https://github.com/google/google-authenticator-libpam/blob/master/src/pam_google_authenticator.c).
+At this checkpoint the pre-upgrade OTP route still applied. Exact account and
+prompt-matching details are retained in the private access receipt. The later
+hardware-authentication acceptance below supersedes that preparation.
 
 ## Dankserver recovery completed
 
@@ -119,7 +113,7 @@ The monitoring disk initially failed its label-based boot mount because old
 ZFS signatures coexist with its active ext4 filesystem. Read-only inspection
 confirmed clean ext4 and the intact original data. Recovery preserved the
 empty boot-created directories, then mounted the verified disk using stable
-hardware ID `ata-WDC_WD40EFZX-68AWUN0_WD-WX62D22025CJ-part1` and explicit ext4.
+hardware identity recorded in the private receipt and explicit ext4.
 The live fstab and Ansible variables now agree, with mount ordering before
 Docker. No disk signature or data was erased; generic probing still warns about
 the ambiguity. The generated mount ordering was verified; no second reboot
@@ -244,8 +238,7 @@ verified against SHA-256
 and checked for resolved dependencies on tbk. This matches the prior worker
 setup; the older guide's `pam_ssh_agent_auth.so` recipe is stale.
 
-The sudo key file is root-owned at
-`/etc/security/authorized_keys/tbkventures`; sudo retains only the named user's
+The administrator sudo key file is root-owned; sudo retains only that user's
 `SSH_AUTH_SOCK` addition. PAM tries hardware authentication before the existing
 account-password fallback. Agents must cancel a missed-touch password fallback
 and follow the bounded YubiKey retry policy. The new Ubuntu sudo-rs provider
@@ -282,10 +275,9 @@ being observed. No guest or guest administration identity has been created.
 
 ## Final host-maintenance acceptance
 
-At 18:24:29 UTC, Lighthouse reported all 107 validators active. Fresh successful
-attestations were observed across slots 15496320–15496323 through 18:25:05 UTC,
-with both clients still fully synced on the correct mainnet and all ten expected
-containers running. The doppelganger delay completed without changing its
+Lighthouse reported all managed validators active, with fresh successful
+attestations. Both clients were fully synced on the intended network and all
+expected containers were running. The doppelganger delay completed without changing its
 configuration. Final package audit is empty and no system unit is failed.
 This closes the tbk post-upgrade recovery check; it is a point-in-time recovery
 proof, not a guarantee of future validator performance under guest workload.
