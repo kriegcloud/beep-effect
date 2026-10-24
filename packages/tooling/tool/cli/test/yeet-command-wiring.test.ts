@@ -115,6 +115,7 @@ describe("yeet final-check command", () => {
         const fs = yield* FileSystem.FileSystem;
         const root = yield* temporaryWorkingDirectory;
         yield* runFixtureGit(root, ["init", "-q"]);
+        yield* commit(root, ".gitignore", ".beep/\n", "ignore yeet state");
         yield* commit(root, "README.md", "base\n", "base");
         yield* commit(root, "README.md", "head\n", "head");
 
@@ -134,6 +135,9 @@ describe("yeet final-check command", () => {
           "the tree has uncommitted changes"
         );
         yield* runFixtureGit(root, ["checkout", "--", "README.md"]);
+        yield* fs.writeFileString(`${root}/untracked.ts`, "export {};\n");
+        expect((yield* finalCheck(["--base", "HEAD~1"]).pipe(Effect.flip)).message).toContain("untracked files");
+        yield* fs.remove(`${root}/untracked.ts`);
 
         yield* finalCheck([
           "--base",

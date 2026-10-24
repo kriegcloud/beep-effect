@@ -555,15 +555,17 @@ const runGates = Effect.fn("Yeet.runFinalCheckGates")(function* (
   return outcome;
 });
 
+// Untracked, non-ignored files count: the gates read them (check typechecks
+// every file), so a receipt for the committed head cannot cover them.
 const dirtyTree = Effect.fn("Yeet.finalCheckDirtyTree")(function* (repoRoot: string) {
-  return Str.isNonEmpty(Str.trim(yield* runGitOutput(repoRoot, ["status", "--porcelain", "--untracked-files=no"])));
+  return Str.isNonEmpty(Str.trim(yield* runGitOutput(repoRoot, ["status", "--porcelain", "--untracked-files=all"])));
 });
 
 const refuseDirtyTree = Effect.fn("Yeet.refuseDirtyFinalCheckTree")(function* (repoRoot: string) {
   if (yield* dirtyTree(repoRoot)) {
     return yield* YeetCommandError.make({
       message:
-        "yeet final-check refused: the tree has uncommitted changes; commit first, the receipt pins the committed head.",
+        "yeet final-check refused: the tree has uncommitted changes or untracked files; commit or remove them first, the receipt pins the committed head.",
       exitCode: 2,
     });
   }
@@ -576,7 +578,7 @@ const refuseMovedTree = Effect.fn("Yeet.refuseMovedFinalCheckTree")(function* (r
   const liveHead = Str.trim(yield* runGitOutput(repoRoot, ["rev-parse", "HEAD"]));
   if (liveHead !== headSha || (yield* dirtyTree(repoRoot))) {
     return yield* YeetCommandError.make({
-      message: `yeet final-check refused: the checkout changed while the gates ran (head ${Str.slice(0, 12)(headSha)} -> ${Str.slice(0, 12)(liveHead)}, or uncommitted edits); no receipt was written. Commit, then re-run \`${YEET_FINAL_CHECK_COMMAND}\`.`,
+      message: `yeet final-check refused: the checkout changed while the gates ran (head ${Str.slice(0, 12)(headSha)} -> ${Str.slice(0, 12)(liveHead)}, or uncommitted edits or untracked files); no receipt was written. Commit, then re-run \`${YEET_FINAL_CHECK_COMMAND}\`.`,
       exitCode: 2,
     });
   }

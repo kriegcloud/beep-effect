@@ -122,7 +122,8 @@ skipped gates so the PR body names them as hosted-only. Use it for the
 constrained-compute ruling (a gate parked behind admission for 10 minutes),
 never to step around a red. `--gates <list>` runs a subset for iteration and
 writes an incomplete receipt that never admits the flip. `--dry-run` prints
-the plan for the head without running it. A dirty tree is refused, because
+the plan for the head without running it. A dirty tree (uncommitted edits or
+untracked, non-ignored files, which the gates read) is refused, because
 the receipt pins the committed head; amend or merge `main` and the receipt
 must be produced again. HEAD and the tree are re-read after the gates, and a
 checkout that changed during the run gets no receipt.
