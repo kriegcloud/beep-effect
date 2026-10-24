@@ -99,6 +99,7 @@ type BunServeOptions = {
   readonly fetch: (request: Request, server: ReturnType<BunTestShim["serve"]>) => Promise<Response> | Response;
   readonly hostname?: string;
   readonly port?: number;
+  readonly maxRequestBodySize?: number;
 };
 
 type BunMarkdownOptions = {
@@ -350,48 +351,89 @@ const writeResponse = async (nodeResponse: NodeHttp.ServerResponse, response: Re
 const listenPort = (requestedPort: number | undefined): number =>
   requestedPort === undefined || requestedPort === 0 ? 30_000 + Math.floor(Math.random() * 20_000) : requestedPort;
 
+const collectRequestBody = (
+  request: NodeHttp.IncomingMessage,
+  response: NodeHttp.ServerResponse,
+  limit: number | undefined,
+  onBody: (chunks: ReadonlyArray<Buffer>) => void
+): void => {
+  const chunks: Array<Buffer> = [];
+  let size = 0;
+  request.on("data", (chunk: Buffer) => {
+    size += chunk.byteLength;
+    if (size > (limit ?? Number.POSITIVE_INFINITY)) {
+      chunks.length = 0;
+      response.writeHead(413);
+      response.end();
+      request.destroy();
+    } else chunks.push(chunk);
+  });
+  request.on("end", () => {
+    if (!request.destroyed) onBody(chunks);
+  });
+};
+
+const respondToRequest = async (
+  request: NodeHttp.IncomingMessage,
+  response: NodeHttp.ServerResponse,
+  chunks: ReadonlyArray<Buffer>,
+  handle: ReturnType<BunTestShim["serve"]>,
+  handler: BunServeOptions["fetch"]
+): Promise<void> => {
+  try {
+    const fetchRequest = toFetchRequest(request, chunks, `${handle.hostname}:${handle.port}`);
+    await writeResponse(response, await handler(fetchRequest, handle));
+  } catch (error) {
+    response.statusCode = 500;
+    response.end(errorMessage(error));
+  }
+};
+
+const stopServer = (server: NodeHttp.Server): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const close = () =>
+      server.close((error) => {
+        if (P.isUndefined(error)) resolve();
+        else reject(error);
+      });
+    if (server.listening) close();
+    else {
+      server.once("listening", close);
+      server.once("error", reject);
+    }
+  });
+
 const serve = (options: BunServeOptions): ReturnType<BunTestShim["serve"]> => {
   let handler = options.fetch;
   let stopped: Promise<void> | undefined;
   const hostname = options.hostname ?? "0.0.0.0";
   const port = listenPort(options.port);
+  let bindError: Error | undefined;
+  let bindFailed = false;
   const server = NodeHttp.createServer((request, response) => {
-    const chunks: Array<Buffer> = [];
-    request.on("data", (chunk: Buffer) => chunks.push(chunk));
-    request.on("end", () => {
-      void (async () => {
-        try {
-          const fetchRequest = toFetchRequest(request, chunks, `${hostname}:${port}`);
-          await writeResponse(response, await handler(fetchRequest, handle));
-        } catch (error) {
-          response.statusCode = 500;
-          response.end(errorMessage(error));
-        }
-      })();
+    collectRequestBody(request, response, options.maxRequestBodySize, (chunks) => {
+      void respondToRequest(request, response, chunks, handle, handler);
     });
   });
 
+  server.on("error", (error) => {
+    bindError = error;
+    bindFailed = true;
+  });
   server.listen(port, hostname);
 
   const handle: ReturnType<BunTestShim["serve"]> = {
     hostname,
     port,
     reload: (options) => {
+      if (bindError) {
+        const error = bindError;
+        bindError = undefined;
+        throw error;
+      }
       handler = options.fetch;
     },
-    stop: () =>
-      (stopped ??= new Promise<void>((resolve, reject) => {
-        const close = () =>
-          server.close((error) => {
-            if (P.isUndefined(error)) resolve();
-            else reject(error);
-          });
-        if (server.listening) close();
-        else {
-          server.once("listening", close);
-          server.once("error", reject);
-        }
-      })),
+    stop: () => (bindFailed ? Promise.resolve() : (stopped ??= stopServer(server))),
   };
   return handle;
 };
