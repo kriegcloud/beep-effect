@@ -241,14 +241,27 @@ const diffBlock: PackageScriptsPolicyShape["diff"] = (actual, expected) => {
 // `tsc-rs` is the only TypeScript checker a `beep:build`, `beep:check`, or `beep:check:*` script
 // may run. Every word of the command counts, not just each segment's head, so runner flag values
 // (`bunx -p typescript tsc`), wrappers (`env … tsc`, `node node_modules/typescript/bin/tsc`) and
-// assignments (`TSC=tsgo`) cannot hide a checker: a word whose basename is `tsgo` or `tsc` fails
-// the gate unless `checkerEngineExemptions` carries a reviewed row for that manifest script.
+// assignments (`TSC=tsgo`) cannot hide a checker. Each word is normalized first: a trailing
+// `@<version>` is dropped, the `@typescript/native-preview` package maps to `tsgo`, and the
+// basename loses a `.js`/`.cjs`/`.mjs`/`.cmd`/`.exe` extension, so `tsc@5.9.3`, `tsgo@latest` and
+// `node node_modules/typescript/lib/tsc.js` count too. A normalized `tsgo` or `tsc` fails the gate
+// unless `checkerEngineExemptions` carries a reviewed row for that manifest script.
 const COMMAND_WORD_SEPARATOR = /[\s;&|=()"'`]+/u;
 const isCheckerScriptName = S.is(CheckerScriptName);
 const isNonCanonicalChecker = S.is(NonCanonicalChecker);
+const CHECKER_PACKAGE_ALIASES: Readonly<Record<string, NonCanonicalChecker>> = {
+  "@typescript/native-preview": "tsgo",
+};
+const normalizeCommandWord = flow(
+  Str.replace(/(?<=.)@[^/@]*$/u, ""),
+  (word: string) => O.getOrElse(R.get(CHECKER_PACKAGE_ALIASES, word), () => word),
+  Str.split("/"),
+  A.lastNonEmpty,
+  Str.replace(/\.(?:[cm]?js|cmd|exe)$/u, "")
+);
 const commandCheckers = flow(
   Str.split(COMMAND_WORD_SEPARATOR),
-  A.map(flow(Str.split("/"), A.lastNonEmpty)),
+  A.map(normalizeCommandWord),
   A.filter(isNonCanonicalChecker),
   A.dedupe
 );

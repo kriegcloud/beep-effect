@@ -262,12 +262,17 @@ describe("package scripts policy", () => {
         "bunx -p typescript tsc -p a.json && bunx --package @typescript/native-preview tsgo -p b.json",
       "beep:check:wrappers": "env NODE_ENV=production tsc -p a.json; node node_modules/typescript/bin/tsc -p b.json",
       "beep:check:assigned": "TSC=tsgo bun run beep:check:tests",
+      "beep:check:entry": "node node_modules/typescript/lib/tsc.js -p a.json",
+      "beep:check:versioned": "npx tsc@5.9.3 -p a.json && bunx tsgo@latest -p b.json",
+      "beep:check:package":
+        "bunx @typescript/native-preview@7.0.0-dev -p a.json; bunx @typescript/native-preview -p b.json",
     };
     const customized = {
       coverage: "owned coverage",
       "beep:build": "vite build",
       "beep:check": "tsc-rs -p tsconfig.check.json && bunx --bun --no-install tsc-rs -p scripts/tsconfig.json",
       "beep:check:stories": "tsc-rs -p tsconfig.stories.json --noEmit",
+      "beep:check:pinned": "bunx tsc-rs@0.8.0 -p tsconfig.json && node node_modules/tsc-rs/bin/tsc-rs.js -p a.json",
       "typecheck:legacy": "tsgo -p tsconfig.json",
     };
     const checkerFixture = () =>
@@ -287,9 +292,13 @@ describe("package scripts policy", () => {
       row("beep:check", "tsgo"),
       row("beep:check:assigned", "tsgo"),
       row("beep:check:cwd", "tsgo"),
+      row("beep:check:entry", "tsc"),
       row("beep:check:flags", "tsc"),
       row("beep:check:flags", "tsgo"),
+      row("beep:check:package", "tsgo"),
       row("beep:check:tests", "tsgo"),
+      row("beep:check:versioned", "tsc"),
+      row("beep:check:versioned", "tsgo"),
       row("beep:check:wrappers", "tsc"),
     ];
     const checkerRows = (report: { readonly drift: HashMap.HashMap<string, ReadonlyArray<unknown>> }) =>
