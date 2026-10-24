@@ -7719,13 +7719,13 @@
       "reason": "See goals/effect-vitest-canon/research/cli-next-five-scope-proof.md. Per-invocation fixture and repository directories close before returning captured commands and configs; do not widen this lifetime to the shared platform layer."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/agent-message-store.test.ts:1596:scoped@15#1",
+      "id": "EV004:packages/tooling/tool/cli/test/agent-message-store.test.ts:1634:scoped@15#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/agent-message-store.test.ts",
-      "line": 1596,
-      "endLine": 1605,
+      "line": 1634,
+      "endLine": 1643,
       "symbol": "scoped",
       "occurrence": "v2:2a0c3e16b37b5347c2fea9b2bee98fe86f7d9ebaf57256278ff450b4a7778667",
       "class": "shorter-scope-lifetime-review",
