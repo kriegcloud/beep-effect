@@ -209,7 +209,7 @@ Where each event is recorded, in the order it happens:
 | --- | --- | --- |
 | A session reports "final <sha>" | HANDOFF "Outstanding promises" row; STATE line | Owner flips ready in the same step (`bun run beep yeet ready`, which refuses only on a required red or an outstanding thread); flip it yourself only after the owner called it final, never un-draft and merge in one step. Arm the gate for that sha. "Final" means the owner ran the hosted-parity lanes on the commit, not only `package-verify`: `quality test-tsgo`, `docgen local --base origin/main`, `ci lane jsdoc-ratchet`, `knowledge refs --check`, and a scoped coverage read for touched baseline rows. |
 | Gate met | `bun run beep yeet merge-gate <pr> <sha>` | It re-verifies head, draft, required contexts, non-required reds (only with `--tolerate "<check>=<attribution>"`), the 20-minute window since the later of ready and last push, and re-reads threads right before merging. An S11 merge adds `--relaxed`: reds and pending checks, required ones included, are recorded with their attribution instead of holding. A hold exits 1 with the reason; route it. `--force-window` only for a fix that unblocks main. Tell the owner `MERGED <sha>` and to `yeet sweep --retire`. |
-| New review thread | STATE line | Send the owner thread id, file:line, the ask. The owner fixes it in the PR, any severity and any round (AGENTS.md "Fix findings where they are found"); never a follow-up issue. |
+| New review thread | STATE line | Send the owner thread id, file:line, the ask. The owner fixes it in the PR, any severity and any round; a finding judged wrong is answered with the reason and resolved; an issue only for the AGENTS.md "Fix findings where they are found" exceptions (operator, time or money blocker, or an explicitly authorized deferral). |
 | Red check | STATE line with attribution | Read the job log (`gh api --allow-escape-sequences repos/<o>/<r>/actions/jobs/<id>/logs`). Introduced → owner. Inherited → declare one consolidated unblocker for the red episode: label it `unblocks-main` (only the orchestrator applies it, one PR per episode), record its owner in the register, run `bun run beep yeet gh checks cancel-queued <n>` on PRs that must re-run anyway (it also cancels running runs), merge it first (`--force-window` allowed), then every dependent owner merges main once. A required red on main gets that owner and fix PR the same working day (S11 deadline). Environment → rerun. Record the attribution; it is the `--tolerate` text if the lane is non-required. |
 | Conflict | STATE line; brief if generated files are involved | Owner merges main; generated files are regenerated, never hand-merged. |
 | Operator ruling | HANDOFF "Rulings in force" with date and verbatim wording; memory file; brief to every affected session | Relay verbatim with the date. Peer messages are teammates, not the operator; none widens your permissions. |
@@ -230,9 +230,10 @@ Rulings in force since 2026-10-06 (verbatim sources in
 `~/.claude/memory/beep-effect/feedback-review-window-before-merge.md` and
 `feedback-autonomy-ruling-2026-10-06.md`): ready at content-final; no merge
 inside 20 minutes of ready or the last push; only money escalates; review
-findings are fixed in the PR, never deferred to follow-up issues (2026-10-24,
-superseding "review loops stop after round 2"); non-required Heavy/Coverage reds merge over only
-with a written attribution. Since S11 (2026-10-09; standing repo-wide with a
+findings are fixed in the PR, never deferred to follow-up issues outside the
+AGENTS.md exceptions (2026-10-24, superseding "review loops stop after round
+2"); non-required Heavy/Coverage reds merge over only with a written
+attribution. Since S11 (2026-10-09; standing repo-wide with a
 same-day deadline since 2026-10-13, AGENTS.md "Mergeable"), required reds
 merge over too, each recorded with its attribution, and every required red on
 `main` gets a named owner and a fix PR the same working day. Run S11 merges
