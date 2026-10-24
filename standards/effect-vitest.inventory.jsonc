@@ -14413,13 +14413,13 @@
       "reason": "NodeServices supplies the real filesystem and path services for fresh private SQLite mailboxes and grant-bound MCP authorization fixtures. The bounded outer it.layer owns the temporary resources; a mocked filesystem would remove the persistence and path boundary being exercised."
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:57:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:58:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 57,
-      "endLine": 57,
+      "line": 58,
+      "endLine": 58,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -16007,13 +16007,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/package-scripts.policy.test.ts:11:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/package-scripts.policy.test.ts:12:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/package-scripts.policy.test.ts",
-      "line": 11,
-      "endLine": 11,
+      "line": 12,
+      "endLine": 12,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -17068,13 +17068,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/version-sync-effect.test.ts:36:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/version-sync-effect.test.ts:42:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/version-sync-effect.test.ts",
-      "line": 36,
-      "endLine": 36,
+      "line": 42,
+      "endLine": 42,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -18023,48 +18023,6 @@
       "reason": "See goals/effect-vitest-canon/research/desktop-residual-judgments-proof.md. The hoisted Vitest module mock observes the imperative toast.error export imported directly by the React UI. It is not an Effect service that a test Layer can replace. Tests assert safe toast text and atom clearing through the real components; serial suites and afterEach cleanup/clearAllMocks own shared state. Keep this narrow UI-module boundary mock."
     },
     {
-      "id": "EV012:packages/agents/server/test/AnthropicTurnKernel.test.ts:33:vi.mock@0#1",
-      "lens": "resource",
-      "ruleId": "EV012",
-      "package": "@beep/agents-server",
-      "file": "packages/agents/server/test/AnthropicTurnKernel.test.ts",
-      "line": 33,
-      "endLine": 85,
-      "symbol": "vi.mock",
-      "occurrence": "v2:b950c7ead1c76d0a5e510126d0db8785a8ec901c5ac6947d03a1ed7ec622240d",
-      "class": "unproven-module-mock-review",
-      "evidence": "vi.mock(\"@beep/anthropic\", (importOriginal) => Promise.all([ import(\"effect/Effect\"), import(\"effect/ExecutionPlan\"), import(\"effect/Layer\"), import(\"effect/Stream\"), importOriginal<typeof import(\"@be",
-      "replacement": {
-        "primitive": "Layer.mock",
-        "sketch": "Review mock provenance: Layer.mock requires a real service key; unknown module/codec subject mocks are not mechanically service-replaceable. Layer.mock: Use for effect-service-mock-candidate judgments (EV012, candidate class effect-service-mock-candidate) when an Effect service is the actual dependency."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV012:packages/epistemic/server/test/BoundedShaclValidator.test.ts:25:vi.mock@0#1",
-      "lens": "resource",
-      "ruleId": "EV012",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/BoundedShaclValidator.test.ts",
-      "line": 25,
-      "endLine": 36,
-      "symbol": "vi.mock",
-      "occurrence": "v2:b64681d0a1ca22f867656ad125a7bf54385d6ef21f3cac92a26c3256cae23381",
-      "class": "unproven-module-mock-review",
-      "evidence": "vi.mock(\"@beep/semantic-web/services/shacl-validation\", (importOriginal) => importOriginal<typeof import(\"@beep/semantic-web/services/shacl-validation\")>().then((original) => { violationMake.mockImple",
-      "replacement": {
-        "primitive": "Layer.mock",
-        "sketch": "Review mock provenance: Layer.mock requires a real service key; unknown module/codec subject mocks are not mechanically service-replaceable. Layer.mock: Use for effect-service-mock-candidate judgments (EV012, candidate class effect-service-mock-candidate) when an Effect service is the actual dependency."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV012:packages/foundation/modeling/pandoc-ast/test/Pandoc.conformance-strict-failure.test.ts:8:vi.mock@0#1",
       "lens": "resource",
       "ruleId": "EV012",
@@ -18151,27 +18109,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Forced command-encoder failure is the existing codec-boundary regression, not a service replacement. It proves exact user-facing failure and zero messages; a real service Layer.mock cannot expose this module codec arm."
-    },
-    {
-      "id": "EV012:packages/tooling/tool/cli/test/codex-findings-packet-encode-failure.test.ts:10:vi.mock@0#1",
-      "lens": "resource",
-      "ruleId": "EV012",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/codex-findings-packet-encode-failure.test.ts",
-      "line": 10,
-      "endLine": 26,
-      "symbol": "vi.mock",
-      "occurrence": "v2:f05872fd9ecc95b020bc147586caec0c056a199b8d2c17955c7aa4f8b6dcd549",
-      "class": "unproven-module-mock-review",
-      "evidence": "vi.mock(\"@beep/repo-cli/commands/Codex/Findings.triage.schemas\", (importOriginal) => Promise.all([ importOriginal<typeof import(\"@beep/repo-cli/commands/Codex/Findings.triage.schemas\")>(), import(\"eff",
-      "replacement": {
-        "primitive": "Layer.mock",
-        "sketch": "Review mock provenance: Layer.mock requires a real service key; unknown module/codec subject mocks are not mechanically service-replaceable. Layer.mock: Use for effect-service-mock-candidate judgments (EV012, candidate class effect-service-mock-candidate) when an Effect service is the actual dependency."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV012:packages/tooling/tool/cli/test/lint-workers.test.ts:31:vi.mock@0#1",
@@ -18326,17 +18263,17 @@
       "reason": "Preserve the three independent RegistryTestLayer scopes and their original native budget. Real in-process RpcTest transport has no measured setup cost warranting a deadline change; resource probes prove registry disposal."
     },
     {
-      "id": "EV014:packages/agents/server/test/AnthropicTurnKernel.test.ts:128:it.layer@2#1",
+      "id": "EV014:packages/agents/server/test/AnthropicTurnKernel.test.ts:127:it.layer@2#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/agents-server",
       "file": "packages/agents/server/test/AnthropicTurnKernel.test.ts",
-      "line": 128,
-      "endLine": 128,
+      "line": 127,
+      "endLine": 127,
       "symbol": "it.layer",
-      "occurrence": "v2:f00d2999aff1c6392817f17d2583f87dde04a34c5bfadac24b99c016542a4a48",
+      "occurrence": "v2:f8b3c9f7ffc6438d5746e911a1a2c767377051184595c8dc70009542a2bea97f",
       "class": "resource-layer-without-hook-timeout",
-      "evidence": "it.layer(AnthropicTurnKernel, { concurrent: false })",
+      "evidence": "it.layer(TestAnthropicTurnKernel, { concurrent: false })",
       "replacement": {
         "primitive": "it.layer.option.timeout",
         "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."
@@ -18345,7 +18282,7 @@
       "confidence": 0.55,
       "mechanization": "judgment",
       "status": "exception",
-      "reason": "The public layer composes hermetic in-memory services without external startup acquisition. Preserve its existing hook deadline instead of inventing a larger budget."
+      "reason": "The test kernel layer composes the scripted AnthropicTurnProvider and hermetic in-memory services without external startup acquisition (moved from the public layer when the EV012 seam replaced the module mock). Preserve its existing hook deadline instead of inventing a larger budget."
     },
     {
       "id": "EV014:packages/architecture-lab/config/test/WorkItemConfig.test.ts:101:it.layer@2#1",

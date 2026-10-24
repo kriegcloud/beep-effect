@@ -716,8 +716,8 @@ const renameCodemodLine = (line: string, sites: typeof SchemaParityCodemodReport
   let rewritten = "";
   let token = scanner.scan();
   while (token !== ts.SyntaxKind.EndOfFileToken) {
-    const start = scanner.getTokenPos();
-    const end = scanner.getTextPos();
+    const start = scanner.getTokenStart();
+    const end = scanner.getTokenEnd();
     const site = A.findFirst(sites, (site) => site.column === start + 1 && site.before === scanner.getTokenText());
     rewritten += Str.slice(offset, start)(line);
     rewritten += token === ts.SyntaxKind.Identifier && O.isSome(site) ? site.value.after : Str.slice(start, end)(line);
