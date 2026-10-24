@@ -25,6 +25,7 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
@@ -33,13 +34,17 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { configStringOption } from "../../../internal/cli/EnvConfig.ts";
 import { runToExit } from "../../../internal/process/index.ts";
+import { readGitRenames, runGitOutput as runSharedGitOutput } from "../../../internal/repo-run/index.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
 import { ExpectationRewrite, ExpectationRewriteVerdict } from "./FinalCheck.schemas.ts";
+import { runGitPathList } from "./GitExec.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import type { GitCommandErrorAdapter } from "../../../internal/repo-run/index.ts";
 
 const TEST_FILE_PATTERN = /\.(?:test|spec)\.tsx?$/;
 const SNAPSHOT_FILE_PATTERN = /^(.*)\/__snapshots__\/(.+)\.snap$/;
@@ -276,6 +281,142 @@ const classifyOnBase = Effect.fn("Yeet.ExpectationRewrite.classifyOnBase")(funct
           "masks-base-red",
           `the old test already fails on the merge base (vitest exit ${exitCode}), so the rewritten expectation hides an inherited red instead of fixing its source`
         );
+});
+
+const $I = $RepoCliId.create("commands/Yeet/internal/ExpectationRewrite");
+
+/**
+ * Git pathspec selecting the test files and snapshots the gate scans.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const EXPECTATION_TEST_PATHSPEC: ReadonlyArray<string> = [
+  "*.test.ts",
+  "*.test.tsx",
+  "*.spec.ts",
+  "*.spec.tsx",
+  "*.snap",
+];
+
+/**
+ * Placeholder recorded for a test file whose own diff exceeded the capture
+ * bound; the file is replayed whole on the merge base instead.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const EXPECTATION_DIFF_OVERFLOW =
+  "(diff exceeded the capture limit; the whole file is replayed on the merge base)";
+
+class ExpectationDiffOverflow extends S.TaggedError<ExpectationDiffOverflow, { readonly brand: unique symbol }>(
+  $I`ExpectationDiffOverflow`
+)(
+  "ExpectationDiffOverflow",
+  { commandLine: S.String },
+  $I.annoteError<ExpectationDiffOverflow>("ExpectationDiffOverflow", {
+    description: "One test file's unified diff exceeded the repo-run capture bound.",
+  })
+) {}
+
+const gitFailure = {
+  onSpawnFailure: (commandLine: string) => YeetCommandError.new(`Failed to run ${commandLine}.`),
+  onNonZeroExit: ({ commandLine, exitCode }: { readonly commandLine: string; readonly exitCode: number }) =>
+    YeetCommandError.make({
+      message: `${commandLine} failed with exit code ${exitCode}.`,
+      command: commandLine,
+      exitCode,
+    }),
+};
+
+// The rename table is read raw and unbounded, so truncation cannot occur there.
+const listingAdapter: GitCommandErrorAdapter<YeetCommandError> = { ...gitFailure, onTruncated: O.none() };
+
+// A single file's diff that overflows is a typed outcome, not a failure: the
+// file is replayed whole on the merge base.
+const fileDiffAdapter: GitCommandErrorAdapter<YeetCommandError | ExpectationDiffOverflow> = {
+  ...gitFailure,
+  onTruncated: O.some((commandLine) => ExpectationDiffOverflow.make({ commandLine })),
+};
+
+const overflowRewrite = (path: string): ExpectationRewrite =>
+  ExpectationRewrite.make({
+    testFile: O.getOrElse(testFileForPath(path), () => path),
+    line: 0,
+    removed: EXPECTATION_DIFF_OVERFLOW,
+    added: EXPECTATION_DIFF_OVERFLOW,
+  });
+
+const diffTestFile = Effect.fn("Yeet.ExpectationRewrite.diffTestFile")(function* (
+  repoRoot: string,
+  mergeBase: string,
+  headPath: string,
+  paths: ReadonlyArray<string>
+) {
+  return yield* runSharedGitOutput(
+    repoRoot,
+    ["diff", "--unified=0", "--no-color", "--find-renames=50%", mergeBase, "HEAD", "--", ...paths],
+    fileDiffAdapter
+  ).pipe(
+    Effect.map(findExpectationRewrites),
+    Effect.catchTag("ExpectationDiffOverflow", () => Effect.succeed([overflowRewrite(headPath)]))
+  );
+});
+
+/**
+ * Collect the rewritten expectations between the merge base and `HEAD`.
+ *
+ * **Details**
+ *
+ * Only files Git reports as modified or renamed are diffed, each on its own:
+ * an added file removes nothing and a deleted file adds nothing, so neither
+ * can hold a rewrite, and together they are what makes one whole-tree diff
+ * of a moved test directory overflow the capture bound (#2241). A renamed
+ * file is diffed with both of its paths so Git pairs them and shows only the
+ * changed hunks. A single file whose diff still overflows becomes one
+ * {@link EXPECTATION_DIFF_OVERFLOW} rewrite, so it is replayed whole.
+ *
+ * **Example** (Build the collector)
+ *
+ * ```ts
+ * import { collectExpectationRewrites } from "@beep/repo-cli/test/Yeet"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(collectExpectationRewrites("/repo", "abc123"))) // true
+ * ```
+ *
+ * @param repoRoot - Checkout whose diff is scanned.
+ * @param mergeBase - Merge base of the branch with its base ref.
+ * @returns Every rewritten expectation, modified files first, then renames.
+ * @category workflows
+ * @since 0.0.0
+ */
+export const collectExpectationRewrites = Effect.fn("Yeet.collectExpectationRewrites")(function* (
+  repoRoot: string,
+  mergeBase: string
+): Effect.fn.Return<
+  ReadonlyArray<ExpectationRewrite>,
+  YeetCommandError,
+  Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const modified = yield* runGitPathList(repoRoot, [
+    "diff",
+    "--name-only",
+    "-z",
+    "--diff-filter=M",
+    mergeBase,
+    "HEAD",
+    "--",
+    ...EXPECTATION_TEST_PATHSPEC,
+  ]);
+  const renamed = yield* readGitRenames(repoRoot, mergeBase, "HEAD", EXPECTATION_TEST_PATHSPEC, listingAdapter, () =>
+    YeetCommandError.make({ message: "git diff --name-status returned a malformed rename table.", exitCode: 1 })
+  );
+  const fromModified = yield* Effect.forEach(modified, (path) => diffTestFile(repoRoot, mergeBase, path, [path]));
+  const fromRenamed = yield* Effect.forEach(renamed, (rename) =>
+    diffTestFile(repoRoot, mergeBase, rename.targetPath, [rename.sourcePath, rename.targetPath])
+  );
+  return A.flatten([...fromModified, ...fromRenamed]);
 });
 
 /**
