@@ -472,6 +472,7 @@
     {"name":"CatalogUsage.readCatalogUsageSnapshot","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CatalogUsage.readLockfilePackages","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CatalogUsage.readManifest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"CatalogUsage.readRootCatalogs","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CatalogUsage.readText","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CatalogUsage.runCatalogUsageCheck","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CatalogUsageSource.snapshot","owner":"@beep/repo-cli","family":"tooling","conforms":true},
