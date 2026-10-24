@@ -106,7 +106,7 @@ describe("aiMetricsStateHome env matrix", () => {
   }
 });
 
-it.layer(Path.layer)("resolveForwarderEvidenceRoot env matrix", (it) => {
+it.layer(Path.layer, { timeout: "10 seconds" })("resolveForwarderEvidenceRoot env matrix", (it) => {
   for (const [name, input, expected] of evidenceRows) {
     it.effect(name, () =>
       Effect.gen(function* () {

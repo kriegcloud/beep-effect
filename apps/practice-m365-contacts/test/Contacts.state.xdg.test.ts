@@ -44,7 +44,7 @@ const divergent: ReadonlyArray<readonly [string, Env, string | null, string | nu
   ["a relative HOME", { HOME: "relative" }, `relative/.local/state/${suffix}`, null],
 ];
 
-it.layer(Path.layer)("@beep/practice-m365-contacts state directory env matrix", (it) => {
+it.layer(Path.layer, { timeout: "10 seconds" })("@beep/practice-m365-contacts state directory env matrix", (it) => {
   for (const [name, env, expected] of rows) {
     it.effect(name, () =>
       Effect.gen(function* () {

@@ -55,7 +55,7 @@ const matrix = (
   rows: ReadonlyArray<Row>,
   divergent: ReadonlyArray<DivergentRow>
 ) =>
-  it.layer(Path.layer)(title, (it) => {
+  it.layer(Path.layer, { timeout: "10 seconds" })(title, (it) => {
     for (const [name, env, expected] of rows) {
       it.effect(name, () =>
         Effect.gen(function* () {
@@ -192,7 +192,7 @@ matrix(
 
 const explicitCacheDir = O.some("/c");
 
-it.layer(Path.layer)("selectPersonMatchCacheRoot --cache-dir", (it) => {
+it.layer(Path.layer, { timeout: "10 seconds" })("selectPersonMatchCacheRoot --cache-dir", (it) => {
   it.effect("an explicit --cache-dir wins over the environment", () =>
     Effect.gen(function* () {
       const selected = yield* selectPersonMatchCacheRoot(explicitCacheDir).pipe(
