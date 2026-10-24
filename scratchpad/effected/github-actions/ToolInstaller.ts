@@ -150,7 +150,7 @@ export const ExtractOptions = S.Struct({
   * must end the same way, deliberately rather than by ordering luck.
   */
 	flags: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("ExtractOptions.flags", { description: "Custom tar flags in argv order; omission retains the extraction default." })),
-}).pipe($I.annoteSchema("ExtractOptions", { description: "Structural archive extraction options, preserving absent and explicit undefined fields." }));
+}).pipe($I.annoteSchema("ExtractOptions", { description: "Structural archive extraction options; absent fields stay absent and an explicit undefined is rejected." }));
 
 /**
  * The plain-object contract represented by {@link ExtractOptions}.

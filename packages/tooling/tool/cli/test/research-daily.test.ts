@@ -44,23 +44,22 @@ const testLayer = Layer.mergeAll(
 );
 
 // A stand-in Cognee that answers every request with a redirect off the loopback
-// host, the shape a downgrade or a moved login endpoint would take.
-const withRedirectingCognee = <A, E, R>(use: (baseUrl: string) => Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
-    Effect.sync(() =>
-      Bun.serve({
-        fetch: () =>
-          new Response(null, {
-            headers: { location: "http://cognee.example.com/api/v1/auth/login" },
-            status: 302,
-          }),
-        hostname: "127.0.0.1",
-        port: 0,
-      })
-    ),
-    (server) => use(`http://127.0.0.1:${server.port}`),
-    (server) => Effect.promise(() => server.stop(true))
-  );
+// host, the shape a downgrade or a moved login endpoint would take. The test scope
+// owns the server, so it stops when the one test using it ends.
+const redirectingCognee = Effect.acquireRelease(
+  Effect.sync(() =>
+    Bun.serve({
+      fetch: () =>
+        new Response(null, {
+          headers: { location: "http://cognee.example.com/api/v1/auth/login" },
+          status: 302,
+        }),
+      hostname: "127.0.0.1",
+      port: 0,
+    })
+  ),
+  (server) => Effect.promise(() => server.stop(true))
+).pipe(Effect.map((server) => `http://127.0.0.1:${server.port}`));
 
 // Per-test configuration is a pure provider value, so it is provided as a
 // service instead of rebuilding a layer for every test.
@@ -312,18 +311,17 @@ layer(testLayer, { timeout: "30 seconds" })("research daily cognify gate", (it) 
   );
 
   it.effect("refuses to follow a redirect from the Cognee login endpoint", () =>
-    withRedirectingCognee((baseUrl) =>
-      Effect.gen(function* () {
-        const settings = yield* readCogneeSettings.pipe(withConfig({ COGNEE_API_URL: baseUrl }));
-        const error = yield* Effect.flip(
-          O.match(settings, {
-            onNone: () => Effect.die(new Error("Cognee settings were expected for a loopback URL")),
-            onSome: cogneeLogin,
-          })
-        );
+    Effect.gen(function* () {
+      const baseUrl = yield* redirectingCognee;
+      const settings = yield* readCogneeSettings.pipe(withConfig({ COGNEE_API_URL: baseUrl }));
+      const error = yield* Effect.flip(
+        O.match(settings, {
+          onNone: () => Effect.die(new Error("Cognee settings were expected for a loopback URL")),
+          onSome: cogneeLogin,
+        })
+      );
 
-        expect(error.message).toContain(`Cognee login at ${baseUrl} answered with a redirect (302)`);
-      })
-    )
+      expect(error.message).toContain(`Cognee login at ${baseUrl} answered with a redirect (302)`);
+    })
   );
 });

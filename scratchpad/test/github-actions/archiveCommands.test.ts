@@ -16,13 +16,15 @@ import { TarExtractCommandOptions, UnzipCommandOptions, ZipCommandOptions, tarEx
  * try/catch that writes the .NET exception to stderr and exits 1.
  */
 describe("archiveCommands", () => {
-	it.effect("option schemas preserve plain objects, required fields and explicit undefined flags", () =>
+	it.effect("option schemas preserve plain objects and required fields and reject explicit undefined flags", () =>
 		Effect.gen(function* () {
 			const zip: ZipCommandOptions = { windows: false, root: "/r", files: ["a"], manifest: "/m", destination: "/d", level: 4.9 };
 			const unzip: UnzipCommandOptions = { windows: true, source: "a.zip", destination: "out" };
 			assert.deepStrictEqual(yield* S.decodeEffect(ZipCommandOptions)(zip), zip);
 			assert.deepStrictEqual(yield* S.decodeEffect(UnzipCommandOptions)(unzip), unzip);
-			for (const options of [{ archive: "a.tgz", destination: "out" }, { archive: "a.tgz", destination: "out", flags: undefined }, { archive: "a.tgz", destination: "out", flags: [] }]) {
+			// Exact optional keys (EF-40): an optional key is omitted, never undefined.
+			assert.isFalse(S.is(TarExtractCommandOptions)({ archive: "a.tgz", destination: "out", flags: undefined }));
+			for (const options of [{ archive: "a.tgz", destination: "out" }, { archive: "a.tgz", destination: "out", flags: [] }]) {
 				const plain: TarExtractCommandOptions = options;
 				assert.deepStrictEqual(yield* S.decodeEffect(TarExtractCommandOptions)(plain), plain);
 				assert.deepStrictEqual([...tarExtractCommand(plain).args], ["xzf", "a.tgz", "-C", "out"]);

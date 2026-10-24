@@ -807,9 +807,11 @@ export abstract class DetachedProcess {
       },
       catch: (cause) => DetachedSignalFailedError.make({ pid, cause }),
     }).pipe(
-      Effect.catch((cause) => (Bool.match(isErrno(cause, "ESRCH"), {
+      // Classify the errno the wrapper carries, not the wrapper itself: the
+      // tagged error has no `code`, so testing it never matched ESRCH.
+      Effect.catch((error) => (Bool.match(isErrno(error.cause, "ESRCH"), {
         onTrue: () => Effect.succeed(false),
-        onFalse: () => Effect.fail(cause),
+        onFalse: () => Effect.fail(error),
       }))),
     );
   }));

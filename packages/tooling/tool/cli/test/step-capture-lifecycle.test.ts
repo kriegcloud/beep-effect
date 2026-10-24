@@ -33,6 +33,7 @@ import * as O from "effect/Option";
 import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
+import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
@@ -561,11 +562,11 @@ BunRuntime.runMain(
                   }).pipe(withAdmissionWorkloadBinding(workloadPath, "outer-group-lease"))
                 );
 
-                let ready = false;
-                for (let attempt = 0; attempt < 2_000 && !ready; attempt += 1) {
-                  ready = yield* fs.exists(readyPath);
-                  if (!ready) yield* Effect.sleep("10 millis");
-                }
+                const ready = yield* fs
+                  .exists(readyPath)
+                  .pipe(
+                    Effect.repeat({ schedule: Schedule.spaced("10 millis"), until: (ready) => ready, times: 2_000 })
+                  );
                 expect(ready).toBe(true);
 
                 const workload = yield* decodeActiveAdmissionWorkload(yield* fs.readFileString(workloadPath));
@@ -574,11 +575,9 @@ BunRuntime.runMain(
                 expect(nestedGroup).toBe(workload.processGroupId);
 
                 yield* Fiber.interrupt(outer);
-                let nestedAlive = true;
-                for (let attempt = 0; attempt < 300 && nestedAlive; attempt += 1) {
-                  nestedAlive = yield* fs.exists(`/proc/${nestedPid}`);
-                  if (nestedAlive) yield* Effect.sleep("10 millis");
-                }
+                const nestedAlive = yield* fs
+                  .exists(`/proc/${nestedPid}`)
+                  .pipe(Effect.repeat({ schedule: Schedule.spaced("10 millis"), while: (alive) => alive, times: 300 }));
                 expect(nestedAlive).toBe(false);
               }),
             (root) => fs.remove(root, { recursive: true }).pipe(Effect.orDie)

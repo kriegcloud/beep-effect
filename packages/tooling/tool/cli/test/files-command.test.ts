@@ -40,7 +40,7 @@ import {
   SortableFile,
 } from "@beep/repo-cli/test/Files";
 import { it } from "@beep/test-runner";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { A, N, O, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
@@ -756,20 +756,26 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
   }).pipe(Effect.asVoid);
 });
 
+// The subjects read these names through `Config`, so the value is a provider service and no global changes.
 const withEnvVar = <A, E, R>(name: string, value: string, use: Effect.Effect<A, E, R>) =>
+  Effect.provideService(use, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ [name]: value }));
+
+// `exiftool` is resolved by the real ChildProcessSpawner through the inherited process PATH, not `Config`,
+// so this one wrapper replaces PATH for a single command call and restores the exact previous value.
+const withReplacedPath = <A, E, R>(pathValue: string, use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previousValue = Bun.env[name];
-      Bun.env[name] = value;
-      return previousValue;
+      const previousPath = Bun.env.PATH;
+      Bun.env.PATH = pathValue;
+      return previousPath;
     }),
-    () => provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({ [name]: value })))(use),
-    (previousValue) =>
+    () => use,
+    (previousPath) =>
       Effect.sync(() => {
-        if (previousValue === undefined) {
-          delete Bun.env[name];
+        if (previousPath === undefined) {
+          delete Bun.env.PATH;
         } else {
-          Bun.env[name] = previousValue;
+          Bun.env.PATH = previousPath;
         }
       })
   );
@@ -3386,8 +3392,7 @@ exit 74
       const datasetDir = yield* makeDatasetDir(tmpDir);
       yield* writeSvgFile(path.join(datasetDir, "first.svg"), 3, 2);
       yield* writeSvgFile(path.join(datasetDir, "second.svg"), 2, 1);
-      yield* withEnvVar(
-        "PATH",
+      yield* withReplacedPath(
         path.join(tmpDir, "missing-bin"),
         runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-date-created"])
       );

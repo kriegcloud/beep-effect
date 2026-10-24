@@ -310,7 +310,7 @@ const install = (
 		requireIntegrity?: boolean;
 		registry?: string;
 		allowAmbient?: boolean;
-		integrity?: IntegrityHashBrand | undefined;
+		integrity?: IntegrityHashBrand;
 		nativeIntegrity?: Readonly<Record<string, string>>;
 	},
 ) => Effect.flatMap(PackageManagerInstaller, (installer) => installer.install(pin(spec), options));
@@ -331,14 +331,16 @@ const cachedOf = (installed: InstalledPackageManager): CachedPackageManager => {
 describe("PackageManagerInstaller", () => {
 	it("preserves the structural install-options contract", () => {
 		const options: PackageManagerInstallOptions = {
-			requireIntegrity: undefined, integrity: corepack("sha512.deadbeef"),
-			registry: undefined, nativeIntegrity: { "@pnpm/exe.win32-x64": "sha512-3q2+7w==" }, allowAmbient: undefined,
+			integrity: corepack("sha512.deadbeef"), nativeIntegrity: { "@pnpm/exe.win32-x64": "sha512-3q2+7w==" },
 		};
 		assert.isTrue(S.is(PackageManagerInstallOptions)({}));
 		assert.isTrue(S.is(PackageManagerInstallOptions)(options));
 		assert.deepEqual(S.decodeResult(PackageManagerInstallOptions)(options).pipe(Result.getOrThrow), options);
 		assert.deepEqual(S.decodeResult(PackageManagerInstallOptions)({}).pipe(Result.getOrThrow), {});
-		assert.isTrue(S.is(PackageManagerInstallOptions)({ integrity: undefined, nativeIntegrity: undefined }));
+		// Exact optional keys (EF-40): an optional key is omitted, never undefined.
+		for (const key of ["requireIntegrity", "integrity", "registry", "nativeIntegrity", "allowAmbient"]) {
+			assert.isFalse(S.is(PackageManagerInstallOptions)({ ...options, [key]: undefined }));
+		}
 		assert.isFalse(S.is(PackageManagerInstallOptions)({ allowAmbient: "true" }));
 		assert.isFalse(S.is(PackageManagerInstallOptions)({ nativeIntegrity: { host: 1 } }));
 		assert.isFalse(S.is(PackageManagerInstallOptions)({ integrity: "not-integrity" }));
@@ -1168,7 +1170,7 @@ describe("PackageManagerInstaller", () => {
 
 		it.layer(testLayer(Effect.sync(() => ({
 			layer: stubbed({}), test: Effect.gen(function* () {
-				const error = yield* Effect.flip(install("npm@9.9.8", { requireIntegrity: true, integrity: undefined }));
+				const error = yield* Effect.flip(install("npm@9.9.8", { requireIntegrity: true }));
 				assert.strictEqual(error.reason, "integrityMissing");
 
 			})

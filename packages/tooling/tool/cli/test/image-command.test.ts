@@ -31,20 +31,14 @@ const CLI_ENTRYPOINT = NodeURL.fileURLToPath(new URL("../src/bin.ts", import.met
 
 const firstFailure = <E>(cause: Cause.Cause<E>): O.Option<E> => Cause.findErrorOption(cause);
 
+// Every case passes absolute paths and the CLI case spawns with an explicit cwd, so the
+// working directory is never read and the case root is only a scoped temp directory.
 const withTempDirectory = Effect.fn("ImageTest.withTempDirectory")(function* <A, E, R>(
   use: (tmpDir: string) => Effect.Effect<A, E, R>
 ) {
   const fs = yield* FileSystem.FileSystem;
   const tmpDir = yield* fs.makeTempDirectoryScoped();
-  return yield* Effect.acquireUseRelease(
-    Effect.sync(() => {
-      const previousCwd = process.cwd();
-      process.chdir(tmpDir);
-      return previousCwd;
-    }),
-    () => use(tmpDir).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
-    (previousCwd) => Effect.sync(() => process.chdir(previousCwd))
-  );
+  return yield* use(tmpDir).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make));
 });
 
 const withPathPrefix = <A, E, R>(pathPrefix: string, use: Effect.Effect<A, E, R>) =>

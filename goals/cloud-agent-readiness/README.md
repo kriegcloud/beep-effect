@@ -18,8 +18,8 @@ on tbk-ubuntu if subsequently provisioned. The display title is now **Agent and
 Linux Development Readiness**; the stable packet directory and initiative id stay
 `cloud-agent-readiness` so existing links, launches, and history keep working.
 
-Cloud acceptance remains in scope. Managed Linux acceptance is defined by D8–D12
-and L0–L4 in `SPEC.md` and `PLAN.md`. Historical cloud probes and completed phases
+Cloud acceptance remains in scope. Managed Linux acceptance is defined by the
+managed Linux decisions and L0–L4 in `SPEC.md` and `PLAN.md`. Historical cloud probes and completed phases
 are evidence for their original environment, not proof of Linux fleet readiness.
 The expired cloud-credit deadline is historical context, not a current deadline.
 
@@ -59,7 +59,7 @@ portfolio can spend them until this lands.
 ## Read This First
 
 1. [`GOAL.md`](./GOAL.md) - compact `/goal` launcher.
-2. [`SPEC.md`](./SPEC.md) - normative source of truth, including decisions D1–D12.
+2. [`SPEC.md`](./SPEC.md) - normative source of truth, including cloud and managed Linux decisions.
 3. [`PLAN.md`](./PLAN.md) - active execution plan.
 4. [`ops/manifest.json`](./ops/manifest.json) - machine-readable routing.
 5. [`research/2026-10-01-container-probe.md`](./research/2026-10-01-container-probe.md) - the evidence (F1–F15).
@@ -74,10 +74,52 @@ representative development proof are complete. L2 is in progress: most tools and
 agent accounts are ready, including verified Azure/Vercel/Cloudflare CLI account
 access. Backend parity and additional agent-environment qualification remain
 explicit follow-up.
-L4 fleet closeout is pending; dankserver and an isolated tbk worker are not yet
-qualified by the beep-worker receipts.
+The isolated tbk-worker now has its own initial serialized-development proof;
+its limits and remaining acceptance are recorded below. L4 fleet closeout is
+pending. On October 23 the operator resumed the packet and requested bare-metal
+development on dankserver. Its dedicated worker boundary, repository/toolchain,
+GitHub/reference tooling and native Codex/Claude coding checks now pass.
+All five native sign-ins and four separate proxy sign-ins are complete.
+Native Grok and the Codex/Claude/Grok proxy routes passed bounded inference.
+Cursor and Muse remain quota-blocked, with exact limits recorded in the receipt.
+It admits one substantive job at a time within the installed host budget.
 
 ## Latest Evidence
+
+- [Host upgrades and YubiKey access](./history/2026-10-23-host-os-upgrades.md):
+  both hosts boot Ubuntu 26.04.1 with kernel 7.0.0-38 and recovery verified.
+  Fresh tbk hardware SSH/sudo and the `ssh-tbk-ubuntu` wrapper pass.
+  Rocket Pool clients are synced; all managed validators are active with fresh
+  successful attestations. Temporary maintenance sessions are closed.
+
+- [Staking-host worker checkpoint](./history/2026-10-23-tbk-worker-design.md):
+  KVM worker provisioned with the accepted resource, storage and network bounds;
+  guest-only hardware administration, live protective-stop tests and repository
+  qualification pass. A real I/O-pressure stop was investigated and preserved;
+  serialized qualification passes without relaxing the guard. Dedicated vault
+  and repository-limited GitHub access are verified. Guest restart checks,
+  bounded Effect graph/query proof, five native provider logins and four proxy
+  logins pass. Native Codex/Claude/Grok/Muse and all four proxy wrappers return
+  successful inference; Cursor starts with its sandbox enabled but its Opus
+  subscription is quota-blocked until November 11. Cloud tools are installed;
+  cloud-account sign-ins and broader parallel-workload qualification remain deferred.
+- [TBK worker operation](./ops/tbk-worker-runbook.md): connection, guarded startup,
+  protective-stop investigation, workload limits and credential recovery.
+- [Remote development agents](../../.claude/skills/remote-development-agents/SKILL.md):
+  versioned fleet workflow, also installed globally through a retained sparse
+  Beep checkout. Covers secure access, bounded jobs, reconnecting and evidence.
+  Locate the installed source with
+  `readlink -f ~/.codex/skills/remote-development-agents`; the Agents skill
+  directory points to the same source. Keep that checkout when retiring task
+  worktrees, and advance it to the verified merged revision.
+- [Dankserver development preparation](./history/2026-10-23-dankserver-development.md):
+  live capacity, existing service boundaries and the bare-metal decision.
+- [Worker vault correction](./history/2026-10-24-worker-vault-correction.md):
+  verified `BEEP_SECRETS` access for all three workers, independent replacement
+  accounts for tbk/dankserver and revocation of the superseded accounts.
+- [Plasma sensitive entry](../../.claude/skills/plasma-sensitive-entry/SKILL.md):
+  PR #2113 merged; the global skill now points to the retained canonical
+  checkout. Twenty-one synthetic tests passed during post-merge cleanup.
 
 - [PR closure follow-up](./history/2026-10-15-pr-closure.md): current-main integration,
   worker concurrency safety and the required `agent-runs.slice` install name.

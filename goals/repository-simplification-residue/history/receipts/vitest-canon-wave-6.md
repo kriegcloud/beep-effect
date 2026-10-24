@@ -35,10 +35,11 @@ inherited EV011 row was added by `--write`. The PR adds no other row and no exce
 and changes no exception reason. EV002 open rows across the repository fell from 168 to
 52.
 
-Against the PR base after merging `main` `a1542ea161` (1,111 rows: 692 exceptions, 419 open, which
-already carries the EV011 import fix and the EV012 seams): 980 rows (692 exceptions, 288 open).
-Paired by `(ruleId, file, occurrence)`, 131 rows are gone, none is new, and no row changes status:
-419 − 131 = 288 open, 1,111 − 131 = 980 rows, exceptions unchanged at 692.
+Against the PR base after merging `main` `d861a23e7f` (1,088 rows: 698 exceptions, 390 open; it
+already carries #1855 wave 5, #2227): 958 rows (698 exceptions, 260 open). Paired by `(ruleId,
+file, occurrence)`, 130 rows are gone, none is new, and no row changes status: 390 − 130 = 260 open,
+1,088 − 130 = 958 rows, exceptions unchanged at 698. The 131st row this wave retired at its first
+base, the stale EV002 `yeet-settle.test.ts:1172` row, was already dropped by #2227.
 
 ## Migration patterns
 
