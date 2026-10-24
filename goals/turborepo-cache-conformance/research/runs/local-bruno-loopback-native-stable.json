@@ -24,7 +24,7 @@
     "specSha256": "1080314512226dc48535fe24648fc0abb10c1cd405c1fd74eacfdc95e22d70b8",
     "sourcePlanSha256": "20ab0c9fdf030c3941be72dc780ee2cc48fb7432e7edbfbc86366846abc35b8b"
   },
-  "startedAt": "2026-10-24T02:47:14.206Z",
+  "startedAt": "2026-10-24T18:55:30.889Z",
   "cases": [
     {
       "id": "RC-001",
@@ -282,7 +282,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 4
         },
         {
           "step": "proxy-get-producer",
@@ -319,14 +319,14 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 126,
-          "requestSha256": "b7b5282c6a28639bae740e72266c7e39800d93f64d0b5fb8e739890e7e619085",
+          "requestSha256": "9cdd3f30fcda5cbdfad424099967f389b11fe406a395b251552a5388264bf1f1",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "proxy-put-producer",
@@ -342,7 +342,7 @@
           "contentType": "application/json",
           "requestBytes": 193,
           "requestSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
-          "requestTagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "requestTagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "responseBytes": 31,
           "responseSha256": "bcd1d4a96a8f763c35268bc09a8c3cfc7a2cbb8435e7c04cac01b0c5130b9160",
           "tagPresent": false,
@@ -390,9 +390,9 @@
           "responseBytes": 193,
           "responseSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
           "tagPresent": true,
-          "tagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "tagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "durationPresent": true,
-          "elapsedMs": 2
+          "elapsedMs": 3
         },
         {
           "step": "proxy-post-replay",
@@ -407,7 +407,7 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 125,
-          "requestSha256": "3765271a7b0736013349fa5fdc50bb1b3ddf942973ca5bb63a9917c6b507590a",
+          "requestSha256": "c24a95f17dd11a8adc5bdf7b337201337a034a41b6ec2fe4f6259f6afa26c6da",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -469,7 +469,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 4
         },
         {
           "step": "proxy-get-producer",
@@ -506,14 +506,14 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 126,
-          "requestSha256": "b7b5282c6a28639bae740e72266c7e39800d93f64d0b5fb8e739890e7e619085",
+          "requestSha256": "9cdd3f30fcda5cbdfad424099967f389b11fe406a395b251552a5388264bf1f1",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "proxy-put-producer",
@@ -529,7 +529,7 @@
           "contentType": "application/json",
           "requestBytes": 193,
           "requestSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
-          "requestTagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "requestTagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "responseBytes": 31,
           "responseSha256": "bcd1d4a96a8f763c35268bc09a8c3cfc7a2cbb8435e7c04cac01b0c5130b9160",
           "tagPresent": false,
@@ -761,7 +761,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 4
         },
         {
           "step": "proxy-get-producer",
@@ -798,14 +798,14 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 126,
-          "requestSha256": "b7b5282c6a28639bae740e72266c7e39800d93f64d0b5fb8e739890e7e619085",
+          "requestSha256": "9cdd3f30fcda5cbdfad424099967f389b11fe406a395b251552a5388264bf1f1",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "proxy-put-producer",
@@ -821,7 +821,7 @@
           "contentType": "application/json",
           "requestBytes": 193,
           "requestSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
-          "requestTagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "requestTagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "responseBytes": 31,
           "responseSha256": "bcd1d4a96a8f763c35268bc09a8c3cfc7a2cbb8435e7c04cac01b0c5130b9160",
           "tagPresent": false,
@@ -869,9 +869,9 @@
           "responseBytes": 193,
           "responseSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
           "tagPresent": true,
-          "tagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "tagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "durationPresent": true,
-          "elapsedMs": 2
+          "elapsedMs": 3
         },
         {
           "step": "proxy-post-replay",
@@ -886,7 +886,7 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 125,
-          "requestSha256": "3765271a7b0736013349fa5fdc50bb1b3ddf942973ca5bb63a9917c6b507590a",
+          "requestSha256": "c24a95f17dd11a8adc5bdf7b337201337a034a41b6ec2fe4f6259f6afa26c6da",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1040,7 +1040,7 @@
           "responseBytes": 193,
           "responseSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
           "tagPresent": true,
-          "tagSha256": "a30b1bb518a1ddadd038a65f78bc7f10b46b38c586fd5d6622f4d837b0bdb402",
+          "tagSha256": "31c0179a154f5cf3d46eddaf46d7d07d35d78341f3c7e2cb36656e8cd2b9f484",
           "durationPresent": true,
           "elapsedMs": 2
         }
@@ -1093,7 +1093,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "proxy-get-tampered-body",
@@ -1113,9 +1113,9 @@
           "responseBytes": 193,
           "responseSha256": "0f0209a44c27ca652ca83e54c272e54d12f958c464f8d50d825608ea6fdd6489",
           "tagPresent": true,
-          "tagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "tagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "durationPresent": true,
-          "elapsedMs": 2
+          "elapsedMs": 1
         }
       ],
       "notes": ["tampered-body: exit 42, MISS, output absent"],
@@ -1188,7 +1188,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "proxy-post-foreign-producer",
@@ -1203,7 +1203,7 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 126,
-          "requestSha256": "dab6e86e2ccf7dc6881aebc835295e0ec98036dd536dba07194bd951fc84b163",
+          "requestSha256": "270e3c7ba0996a0367c7d3deb8892e29254c43dc5925a0c3e04a094cc657c8bb",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1226,13 +1226,13 @@
           "contentType": "application/json",
           "requestBytes": 193,
           "requestSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
-          "requestTagSha256": "783f603c7b46784a219459f08296361998990c6787d2f7eff25708be7f2c1dd3",
+          "requestTagSha256": "850f0fb1572e64e0ece0fa9cb1dbe961e08c20923e81ba4e208f00d4621ecc2b",
           "responseBytes": 31,
           "responseSha256": "bcd1d4a96a8f763c35268bc09a8c3cfc7a2cbb8435e7c04cac01b0c5130b9160",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "proxy-get-wrong-team",
@@ -1274,7 +1274,7 @@
           "responseBytes": 193,
           "responseSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
           "tagPresent": true,
-          "tagSha256": "783f603c7b46784a219459f08296361998990c6787d2f7eff25708be7f2c1dd3",
+          "tagSha256": "850f0fb1572e64e0ece0fa9cb1dbe961e08c20923e81ba4e208f00d4621ecc2b",
           "durationPresent": false,
           "elapsedMs": 0
         }
@@ -1367,14 +1367,14 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 126,
-          "requestSha256": "e792a965f959c0e22920e98831f9bad841ec5d781e68cff3a13da35f2d353112",
+          "requestSha256": "12a48cf88cd6afed83b07341bbe4a628e99347d928cadb1a48558ebcfaf3a19c",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "proxy-get-epoch-old-namespace",
@@ -1396,7 +1396,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "proxy-get-epoch-old-namespace",
@@ -1416,7 +1416,7 @@
           "responseBytes": 193,
           "responseSha256": "2dda93702fe0abdef7d97ce962c77a2c4fe476fd79ffddac428da13a1a47f18e",
           "tagPresent": true,
-          "tagSha256": "e2c94bbc3567267ac4017dbd998f79d4750b0acd7549809d6c12587f84f1ee36",
+          "tagSha256": "abecf36fe21f10d8b6dca5cc8a9ce1844f05cb27a314fbf965121b30a01e47fd",
           "durationPresent": true,
           "elapsedMs": 2
         }

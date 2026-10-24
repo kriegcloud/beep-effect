@@ -738,9 +738,9 @@ export const compareCacheConformanceRuns = Effect.fn("CacheConformance.compareRu
     );
     const candidate = role === "candidate";
     const eligible = A.every(gates, (gate) => gate.status === "pass");
-    const baseline = HashMap.get(incumbents, run.profile).pipe(
-      O.orElse(() => incumbents.pipe(HashMap.values, A.fromIterable, A.head))
-    );
+    // Only the incumbent of the same profile is a fair baseline: profiles prove
+    // different gates, so a missing one reports "no incumbent", never a substitute.
+    const baseline = HashMap.get(incumbents, run.profile);
     const delta = (keep: (mine: CacheConformanceGateStatus, theirs: CacheConformanceGateStatus) => boolean) =>
       O.match(baseline, {
         onNone: () => [],

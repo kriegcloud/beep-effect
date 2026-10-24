@@ -21,7 +21,7 @@ SPEC gates. Prefer local fixtures with no incremental cloud resources.
 | P2 Disposable AWS lab | complete | Review the bounded deployment preview and provision isolated comparison topologies through repo infra. | Scoped lab is healthy, expiring, budgeted, and has a reproducible teardown. |
 | P3 Execute and compare | complete | Run identical cases/load across incumbent, evolved incumbent, Bruno and Ducktors; consume trust fixes and rerun. | Every case is attributed; frozen rubric yields a recommendation or a substantiated no-eligible result. |
 | P4 Verify and tear down | complete | Prove upgrade regeneration, fault reproducibility, artifact retention and lab teardown; hand off signed-boundary receipts. | Package/protocol checks pass, deletion targets are verified, cost and cleanup receipts exist. |
-| P5 Yeet: PR to mergeable | in-progress | Publish through Yeet and resolve hosted failures and reviews. | Yeet monitor reports merge-ready: yes on final head. |
+| P5 Yeet: PR to mergeable | complete | Publish through Yeet and resolve hosted failures and reviews. | Yeet monitor reports merge-ready: yes on final head. |
 | P6 Close | complete | Land comparison, reflection and lifecycle with final implementation work. | Reproducible evidence and same-PR closeout. |
 
 ## First action
@@ -228,6 +228,8 @@ finds **no eligible replacement**: every topology fails tenant binding (G5),
 and no candidate shows a material win over the incumbent. The evolved
 incumbent passes 10 of 12 gates on AWS, improving gates 1, 2, 3, 6 and 9 with
 no regression, so the result is retain and evolve.
+
+Error responses are scored against the pinned spec's shared JSON error responses; Bruno's 404 and 500 replies carry no content type, so both Bruno topologies fail gate 7 (error attributability) as well.
 
 Findings that the incumbent's remediation must carry:
 

@@ -64,12 +64,25 @@ const decodeCaseType = S.decodeUnknownEffect(S.toType(CacheConformanceCase));
 const decodeCorpusType = S.decodeUnknownEffect(S.toType(CacheConformanceCorpus));
 const normalise = (text: string) => decodeJson(text).pipe(Effect.flatMap(encodeJson));
 
+const OpenApiResponse = S.Struct({
+  content: S.optionalKey(S.Record(S.String, S.Unknown)),
+  $ref: S.optionalKey(S.String),
+}).pipe(
+  $I.annoteSchema("OpenApiResponse", {
+    description: "An inline response object or a `#/components/responses/<name>` reference.",
+  })
+);
 const OpenApiDocument = S.Struct({
   paths: S.Record(S.String, S.Record(S.String, S.Unknown)),
-}).pipe($I.annoteSchema("OpenApiDocument", { description: "Selected paths of the vendored OpenAPI blob." }));
+  components: S.optionalKey(S.Struct({ responses: S.optionalKey(S.Record(S.String, OpenApiResponse)) })),
+}).pipe(
+  $I.annoteSchema("OpenApiDocument", {
+    description: "Selected paths and shared responses of the vendored OpenAPI blob.",
+  })
+);
 const OpenApiOperation = S.Struct({
   operationId: CacheConformanceOperationId,
-  responses: S.Record(S.String, S.Struct({ content: S.optionalKey(S.Record(S.String, S.Unknown)) })),
+  responses: S.Record(S.String, OpenApiResponse),
 }).pipe($I.annoteSchema("OpenApiOperation", { description: "Selected fields of one OpenAPI operation." }));
 const PlanDocument = S.Struct({
   verdictDimensions: S.NonEmptyArray(CacheConformanceDimension),
@@ -198,8 +211,25 @@ const caseTable: ReadonlyArray<CaseRule> = [
   rule("lab", ["beep-security-policy"], "Cutback needs a rehearsed endpoint and epoch restoration receipt."),
 ];
 
+const responseRefPrefix = "#/components/responses/";
+
+// Error responses in the pinned blob are `$ref`s to shared components; resolve
+// them so their documented media type is scored, and fail on a dangling ref.
+const resolveResponse = (
+  components: (typeof OpenApiDocument.Type)["components"],
+  response: typeof OpenApiResponse.Type
+) =>
+  O.match(O.fromUndefinedOr(response.$ref), {
+    onNone: () => Effect.succeed(response),
+    onSome: (ref) =>
+      R.get(components?.responses ?? {}, Str.slice(responseRefPrefix.length)(ref)).pipe(
+        O.filter(() => Str.startsWith(responseRefPrefix)(ref)),
+        Effect.fromOption(() => CacheCommandError.new(`OpenAPI response reference ${ref} does not resolve.`))
+      ),
+  });
+
 const deriveOperations = Effect.fn("CacheConformance.deriveOperations")(function* (document: unknown) {
-  const { paths } = yield* S.decodeUnknownEffect(OpenApiDocument)(document);
+  const { paths, components } = yield* S.decodeUnknownEffect(OpenApiDocument)(document);
   return yield* Effect.forEach(
     routeTable,
     Effect.fnUntraced(function* ([method, path]) {
@@ -208,9 +238,12 @@ const deriveOperations = Effect.fn("CacheConformance.deriveOperations")(function
         Effect.fromOption(() => CacheCommandError.new(`OpenAPI blob has no ${method} ${path} operation.`))
       );
       const operation = yield* decodeOperation(raw);
+      const resolved = yield* Effect.forEach(R.toEntries(operation.responses), ([status, response]) =>
+        resolveResponse(components, response).pipe(Effect.map((shape) => [status, shape] as const))
+      );
       const responses = A.sort(
         A.getSomes(
-          A.map(R.toEntries(operation.responses), ([status, response]) =>
+          A.map(resolved, ([status, response]) =>
             O.map(decodeStatusCode(status), (code) =>
               CacheConformanceResponseShape.make({
                 status: code,

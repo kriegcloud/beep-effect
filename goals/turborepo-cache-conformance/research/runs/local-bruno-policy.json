@@ -18,7 +18,7 @@
     "specSha256": "1080314512226dc48535fe24648fc0abb10c1cd405c1fd74eacfdc95e22d70b8",
     "sourcePlanSha256": "20ab0c9fdf030c3941be72dc780ee2cc48fb7432e7edbfbc86366846abc35b8b"
   },
-  "startedAt": "2026-10-24T02:46:53.033Z",
+  "startedAt": "2026-10-24T18:55:04.335Z",
   "cases": [
     {
       "id": "RC-001",
@@ -110,13 +110,13 @@
           "contentType": "application/json",
           "requestBytes": 0,
           "requestSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "requestTagSha256": "4a6735ec5dcfe791d8f1e4d6633aca460a861a7e05c646e7142c6df316668261",
+          "requestTagSha256": "c9d3d78c08e56dc91d10fcb7ddd08dd96bf2806da3937418687044722ba17bd3",
           "responseBytes": 47,
-          "responseSha256": "bbc4b52f62ea795d0090efbbaf56320c559f3ed1f6420639a1ee538a5c156e99",
+          "responseSha256": "f703646eb35fa7de3a98c6391af7c601af29a68698bec9b378d356f3d1b94680",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 4
+          "elapsedMs": 2
         },
         {
           "step": "reader-head",
@@ -136,7 +136,7 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "4a6735ec5dcfe791d8f1e4d6633aca460a861a7e05c646e7142c6df316668261",
+          "tagSha256": "c9d3d78c08e56dc91d10fcb7ddd08dd96bf2806da3937418687044722ba17bd3",
           "durationPresent": false,
           "elapsedMs": 2
         },
@@ -158,9 +158,9 @@
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": true,
-          "tagSha256": "4a6735ec5dcfe791d8f1e4d6633aca460a861a7e05c646e7142c6df316668261",
+          "tagSha256": "c9d3d78c08e56dc91d10fcb7ddd08dd96bf2806da3937418687044722ba17bd3",
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         }
       ],
       "notes": [],
@@ -207,14 +207,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 4096,
-          "requestSha256": "2358934dbaa9c98abe0af21934cb30c86a70bebe868b92fd2abab797420d11d1",
-          "requestTagSha256": "01012e6f37432a625162900f6cde41dc645a46a69bf85e33ef74a8cf37c18074",
+          "requestSha256": "2e28d059149dab0fe94593a270e1893cc0aadbedf87cbff1082b42c61443ffd8",
+          "requestTagSha256": "752aeb8324c20cae215b5e9fa225dfa0c2a96287d9557acb2331e370e5515962",
           "responseBytes": 47,
-          "responseSha256": "d8cf7cdbef05c3c4c98ab86e1b0c680031941cd14938fc46b680ca8af79abb08",
+          "responseSha256": "9d41dc3a68cf3f449411f1a8038a9ab795dd1ae6c652831035c21249e67a3c05",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "reader-head",
@@ -234,7 +234,7 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "01012e6f37432a625162900f6cde41dc645a46a69bf85e33ef74a8cf37c18074",
+          "tagSha256": "752aeb8324c20cae215b5e9fa225dfa0c2a96287d9557acb2331e370e5515962",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -254,11 +254,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 4096,
-          "responseSha256": "2358934dbaa9c98abe0af21934cb30c86a70bebe868b92fd2abab797420d11d1",
+          "responseSha256": "2e28d059149dab0fe94593a270e1893cc0aadbedf87cbff1082b42c61443ffd8",
           "tagPresent": true,
-          "tagSha256": "01012e6f37432a625162900f6cde41dc645a46a69bf85e33ef74a8cf37c18074",
+          "tagSha256": "752aeb8324c20cae215b5e9fa225dfa0c2a96287d9557acb2331e370e5515962",
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 43
         }
       ],
       "notes": [],
@@ -305,14 +305,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 64,
-          "requestSha256": "1e7cc1c694ffbf8aa10148aa6a1dc037b4f6415c8c87094cfb0e53cee8ea811e",
-          "requestTagSha256": "c3a2a9952145be64e331411e900568efb5598b3e7fb88ccf9f7b90cfae80780f",
+          "requestSha256": "20420ff70b4a7af3bc6fefa079c8b255e3408e741b5b2863b367e2dd66378190",
+          "requestTagSha256": "93ad89853d1991a3ff46c9c68e6d64cefccc56543a624a91dd425b2f597d34e3",
           "responseBytes": 47,
-          "responseSha256": "8b20cdbc46234472620430ceaa2b80fb7892f7a6b3ec9d881b9b8a7ae93bcfac",
+          "responseSha256": "c03790c2f2f651a5d4b15f3b2fec7c2e53ed9c63df45fbf10ab7ec0c4be4435c",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 3
         },
         {
           "step": "writer-put-text-plain",
@@ -327,14 +327,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 64,
-          "requestSha256": "fcf63a9e3ac8a7c963d998da55eb40834fbca75a6a97b64de0c9893c5f518190",
-          "requestTagSha256": "f5bdd4750c76052dcfbfa1233c9760e4a97aa10889bf089bbdac8a134de0b52e",
+          "requestSha256": "1d4f5c587a20c77b38059b23f725bbc7bc7e412e3eb3eeaf39e92fa72ac00aa6",
+          "requestTagSha256": "4e1a6fdf064ca764ee30627cabcc1dba48a7cc7c75424d719ddb7f69b8416400",
           "responseBytes": 47,
-          "responseSha256": "b9993498bf7be0baa0849d15b55dad388362ce4308fe6092a5ef957b9e787a49",
+          "responseSha256": "ab4923d392751dea72f4162288d0825b3e8348c86b11baafc4c5542d92320fdc",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "reader-get-text-plain",
@@ -352,9 +352,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 64,
-          "responseSha256": "fcf63a9e3ac8a7c963d998da55eb40834fbca75a6a97b64de0c9893c5f518190",
+          "responseSha256": "1d4f5c587a20c77b38059b23f725bbc7bc7e412e3eb3eeaf39e92fa72ac00aa6",
           "tagPresent": true,
-          "tagSha256": "f5bdd4750c76052dcfbfa1233c9760e4a97aa10889bf089bbdac8a134de0b52e",
+          "tagSha256": "4e1a6fdf064ca764ee30627cabcc1dba48a7cc7c75424d719ddb7f69b8416400",
           "durationPresent": false,
           "elapsedMs": 1
         }
@@ -403,14 +403,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "e6c14e0e484be9018a92c631081c55a78a0470cd4f5d6623543104c3b980a33e",
-          "requestTagSha256": "558d0f9bae653c0f2584b0122a515182c85863980f0413545d042408d7e8edc5",
+          "requestSha256": "13644afa46e07d333d858d83bb4c15f22c2adb0320c62135259bfd640d240484",
+          "requestTagSha256": "19d8f1e3ddf654c0e53d13377b716768c99a54a6d22f8c3bdb961a9a48e7bdaf",
           "responseBytes": 47,
-          "responseSha256": "ff0776fde1ab7373fa6ae6e6a1c9321f3c1232bb88050a7d1841524c9a6ce636",
+          "responseSha256": "9d2afaef7dffa6f6ff070065e1ebc47e7b8bcf80496137abe5184b07606c66fc",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 2
         },
         {
           "step": "reader-head-duration",
@@ -430,9 +430,9 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "558d0f9bae653c0f2584b0122a515182c85863980f0413545d042408d7e8edc5",
+          "tagSha256": "19d8f1e3ddf654c0e53d13377b716768c99a54a6d22f8c3bdb961a9a48e7bdaf",
           "durationPresent": true,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "reader-get-duration",
@@ -450,9 +450,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "e6c14e0e484be9018a92c631081c55a78a0470cd4f5d6623543104c3b980a33e",
+          "responseSha256": "13644afa46e07d333d858d83bb4c15f22c2adb0320c62135259bfd640d240484",
           "tagPresent": true,
-          "tagSha256": "558d0f9bae653c0f2584b0122a515182c85863980f0413545d042408d7e8edc5",
+          "tagSha256": "19d8f1e3ddf654c0e53d13377b716768c99a54a6d22f8c3bdb961a9a48e7bdaf",
           "durationPresent": true,
           "elapsedMs": 1
         },
@@ -469,14 +469,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "e6c14e0e484be9018a92c631081c55a78a0470cd4f5d6623543104c3b980a33e",
-          "requestTagSha256": "4a13ed315e3be10fb27e282c2d2d443ca149cf3b087ef4c0eed45478e7ecf6d8",
+          "requestSha256": "13644afa46e07d333d858d83bb4c15f22c2adb0320c62135259bfd640d240484",
+          "requestTagSha256": "906a20338b5f309cb45b0592d292fc648323e6318d4016487256c3413b68dd9b",
           "responseBytes": 47,
-          "responseSha256": "33df0c8c2c09b28de73e838238f4a11934c044d3304d9351cebbb781885e44c5",
+          "responseSha256": "492054228ccc4261c8567439f5ef090527b5c803bd2cbb40a63f99210115e24c",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "reader-get-no-duration",
@@ -494,9 +494,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "e6c14e0e484be9018a92c631081c55a78a0470cd4f5d6623543104c3b980a33e",
+          "responseSha256": "13644afa46e07d333d858d83bb4c15f22c2adb0320c62135259bfd640d240484",
           "tagPresent": true,
-          "tagSha256": "4a13ed315e3be10fb27e282c2d2d443ca149cf3b087ef4c0eed45478e7ecf6d8",
+          "tagSha256": "906a20338b5f309cb45b0592d292fc648323e6318d4016487256c3413b68dd9b",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -513,10 +513,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "e6c14e0e484be9018a92c631081c55a78a0470cd4f5d6623543104c3b980a33e",
-          "requestTagSha256": "b59b1a40c1ba5eb53c26edcc4574055504f9ec3e65eb70fe5adc9c422eb82147",
+          "requestSha256": "13644afa46e07d333d858d83bb4c15f22c2adb0320c62135259bfd640d240484",
+          "requestTagSha256": "e27bcc6564eceaf4d1dbe4e82dff1847cfe0014fecaad9f984cda32700bbf9a4",
           "responseBytes": 47,
-          "responseSha256": "8557087af16ccc2143c2854405cc9b0b482d9132c35021b0fa9722b6c972cf08",
+          "responseSha256": "87d92e4ab9ebde0e70eaa9701cc1bae63b89e7c0392b7f8394d1dcca195fd115",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -569,10 +569,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 48,
-          "requestSha256": "79de9f2a10c383436e2c20885523cf43cac2b8da9147575f77b893195f708c27",
-          "requestTagSha256": "17eb5ed9bcba47c7000c4b53a2134e9d85041911c041ac4a9ee49204728daea6",
+          "requestSha256": "460c89d4bb5ac3d63b63bc8f3d0b12ba27b9f231aecbf1dd44a6c8b953c42047",
+          "requestTagSha256": "1117fa1077d9c5f0a3867fe8144a3f48061cd8b36199dd11807fb125918e922b",
           "responseBytes": 47,
-          "responseSha256": "3c621dcc67a11457676248c93e7db618c3d5ecf2f03a6b109dc4f63e67bf89ca",
+          "responseSha256": "a70ea3c6c45af08ccaed132dd8911a5713f2623be20174c879de18e83ec286f2",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -594,9 +594,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 48,
-          "responseSha256": "79de9f2a10c383436e2c20885523cf43cac2b8da9147575f77b893195f708c27",
+          "responseSha256": "460c89d4bb5ac3d63b63bc8f3d0b12ba27b9f231aecbf1dd44a6c8b953c42047",
           "tagPresent": true,
-          "tagSha256": "17eb5ed9bcba47c7000c4b53a2134e9d85041911c041ac4a9ee49204728daea6",
+          "tagSha256": "1117fa1077d9c5f0a3867fe8144a3f48061cd8b36199dd11807fb125918e922b",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -618,9 +618,9 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "17eb5ed9bcba47c7000c4b53a2134e9d85041911c041ac4a9ee49204728daea6",
+          "tagSha256": "1117fa1077d9c5f0a3867fe8144a3f48061cd8b36199dd11807fb125918e922b",
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         }
       ],
       "notes": [],
@@ -667,14 +667,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 24,
-          "requestSha256": "20a2624ca640f456f3a7f95455b39f2c77fa92f11499488f0d9cffb76657fea4",
-          "requestTagSha256": "8a1a63e2ffe28626571a8f6f01a2558977f26fee09bbc493e20f830f9cd66d58",
+          "requestSha256": "77e3e22b2fa0f721d3bbb50172309808a0661ccae56164c77ea3ccac81100e13",
+          "requestTagSha256": "1a0a376bf718f4b0d03fe6ae6569b2b8ba17aeea9ab8d1f00cd974fa580506f5",
           "responseBytes": 47,
-          "responseSha256": "ef4e2820e521305bff84f592e38abe3f450d6f27e9272f2577941c8bc52366a1",
+          "responseSha256": "091d389250c0c2a7c6b649ebe8fe85b5a8bc97e358e68e8fd4d340a6d39a14ca",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 10
         },
         {
           "step": "reader-post-query",
@@ -689,14 +689,14 @@
           "status": 404,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 82,
-          "requestSha256": "28392e7b7712e3e08a78ae4fab35edc5fe4f63b7fba07200ace4e77fefac7bba",
+          "requestSha256": "13727bc3072c796b1d44d08f0449cdd9a2e1b92e5901a40d3021254fdf3087da",
           "requestTagSha256": null,
           "responseBytes": 23,
           "responseSha256": "8fd54eee4277f1327015cc0bcaed8a878bf44d1804364cd5d93dfab9e2d1a5af",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         }
       ],
       "notes": [],
@@ -740,14 +740,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 24,
-          "requestSha256": "fae34bbfb2425c63cc9f7d9c1f82ffbcbfa5b21ea957d7f7cddd892e4601d84c",
-          "requestTagSha256": "dde2c36a458fbd47003cef4df3fbf649a0745cdbc571c3a4b84b9c02797e3f31",
+          "requestSha256": "f729b2d39ca67731bc1376594e527342fc2e7851936132cc48d0c0c901c8027f",
+          "requestTagSha256": "9a668ef9d64dd08aec4459a058f87330b92f4903e06996e0bc35a53e08f46f65",
           "responseBytes": 47,
-          "responseSha256": "f54f0e9b4b158ddd49bde1335bf36eac8cc2964cf3fa7ff81f9baa18d00c9606",
+          "responseSha256": "9d58690c70201e15f94b48883e727483f6b1d4ca37d293d510e996291cedd93e",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "reader-post-events",
@@ -762,14 +762,14 @@
           "status": 201,
           "contentType": null,
           "requestBytes": 142,
-          "requestSha256": "9866f9f2559e20214ec0fcf132bd3923ecedff759e582bdb3bb63b4c5d13f8d3",
+          "requestSha256": "8575a39f3dc5c037198d44deb352d9276d2477d5cb36307f9cb843ebcc952dbd",
           "requestTagSha256": null,
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         }
       ],
       "notes": [],
@@ -814,14 +814,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 16,
-          "requestSha256": "ee34c5c82239ff250e5e6fb09ed948e0df1fc21146e439d2f1cd17bd02660e8d",
-          "requestTagSha256": "c051ee5b0154759cf3536c415968f35eca7fb125ed1cc2c498d9a550a59f0ba2",
+          "requestSha256": "54f80a94197a04f25fcee90a9641f85b64b4f392facb270bfc3336f2acb2247c",
+          "requestTagSha256": "931806f66dc2981cf74fd77ad4496be143556a9e5ab399dffa148ee1794f7b39",
           "responseBytes": 47,
-          "responseSha256": "32cd23dc8624d24fc438b0dfd1970613a9260ccb8db393428b1df18349643ecb",
+          "responseSha256": "af8e856f169e4b440322c65e7d61631be8996296edcbe251952f7cdf22dbd167",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 2
         }
       ],
       "notes": [
@@ -877,7 +877,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "reader-head-unwritten",
@@ -899,14 +899,16 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 2
         }
       ],
       "notes": [],
       "measurements": [],
       "verdicts": {
         "strict-openapi": {
-          "verdict": "pass"
+          "verdict": "fail",
+          "expectation": "documented-content-type:downloadArtifact",
+          "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
         },
         "published-stable-client": {
           "verdict": "not-executed",
@@ -945,14 +947,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "b2236330031e7fd6814046668890e42b0fe9220d534639653fbf6a7da38c6a0e",
-          "requestTagSha256": "1dab72f15e0f9a01ce321cb180e04a761849a457657076eb857ced5ded24d3b4",
+          "requestSha256": "27a752b43a46989847cece8e6fa6daac610795a666b53f0c03caa9a40a93876f",
+          "requestTagSha256": "83cc19b49ada2885e7831f287dca5503644867c29b089a550bd93bca8e40e2bf",
           "responseBytes": 47,
-          "responseSha256": "45c46f71bf9584e6c5e33e005032d021e3fd008822cd8dffd9833e7212020bec",
+          "responseSha256": "604fedd60e9fb667e52110858c9a30b391d7f4f0b580bf5c2fb61edd4c40eae5",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 2
         },
         {
           "step": "missing-get",
@@ -974,7 +976,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "malformed-get",
@@ -1018,7 +1020,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "reader-get",
@@ -1036,9 +1038,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "b2236330031e7fd6814046668890e42b0fe9220d534639653fbf6a7da38c6a0e",
+          "responseSha256": "27a752b43a46989847cece8e6fa6daac610795a666b53f0c03caa9a40a93876f",
           "tagPresent": true,
-          "tagSha256": "1dab72f15e0f9a01ce321cb180e04a761849a457657076eb857ced5ded24d3b4",
+          "tagSha256": "83cc19b49ada2885e7831f287dca5503644867c29b089a550bd93bca8e40e2bf",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -1058,11 +1060,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "b2236330031e7fd6814046668890e42b0fe9220d534639653fbf6a7da38c6a0e",
+          "responseSha256": "27a752b43a46989847cece8e6fa6daac610795a666b53f0c03caa9a40a93876f",
           "tagPresent": true,
-          "tagSha256": "1dab72f15e0f9a01ce321cb180e04a761849a457657076eb857ced5ded24d3b4",
+          "tagSha256": "83cc19b49ada2885e7831f287dca5503644867c29b089a550bd93bca8e40e2bf",
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "missing-status",
@@ -1129,14 +1131,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "c6c272e8e8849df74b9af3284575e64c3408097b1a9cf7b361e9998fbeb46940",
-          "requestTagSha256": "4b9adfa4abc0c92b6e6ceea2dde088a4c52002383755ebe354eb120f2e4b7fa7",
+          "requestSha256": "72d90025abb6f4fee8d7962201b0c2cc532c2cf1c22bbf46f74c59aacf28e7a0",
+          "requestTagSha256": "5dfabc22b4ab3ae1f92f35e4ec4bcb283f518f272cdcac555cf669a47d876946",
           "responseBytes": 47,
-          "responseSha256": "b37d0182440e8d949a86b36f8dc51733e6434c6c4d6e724bfa60c5f792ade8e9",
+          "responseSha256": "08a91cd61823e7c83c5555de8e869a897f46c5e75f40c96009a39fab85d32efd",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 2
         },
         {
           "step": "reader-put-new",
@@ -1151,8 +1153,8 @@
           "status": 403,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 32,
-          "requestSha256": "00bd19daf7acdff2c2457c3cbbdd4e2a4201a9bc16eabe7be2aeea6c0816d2e4",
-          "requestTagSha256": "7d94f41711ceca40c35c1a1bc4fc9bf871f54f2159fb711adc93f2d803f69fc1",
+          "requestSha256": "e7a4abd8ac94bb2b3d112ecab2401199753f5d187efbe2e327549f353ca5b641",
+          "requestTagSha256": "7fe3a30b94cdb436d166935c4db22b414e9f939187d814dc1fb40ed8328b6248",
           "responseBytes": 23,
           "responseSha256": "12a22880bc2e59f8278b4a5e547567f0aa14d020ea456598267fa00208cfebc5",
           "tagPresent": false,
@@ -1180,7 +1182,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "reader-put-existing",
@@ -1195,14 +1197,14 @@
           "status": 403,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 32,
-          "requestSha256": "00bd19daf7acdff2c2457c3cbbdd4e2a4201a9bc16eabe7be2aeea6c0816d2e4",
-          "requestTagSha256": "52f9896143ec7c31914c9f6915857eea365f8c43a9d0981631cb655080ac6ced",
+          "requestSha256": "e7a4abd8ac94bb2b3d112ecab2401199753f5d187efbe2e327549f353ca5b641",
+          "requestTagSha256": "e64c020f10ebb173802797ff0c05d958484947c7f49048eadee1c7a258b82b87",
           "responseBytes": 23,
           "responseSha256": "12a22880bc2e59f8278b4a5e547567f0aa14d020ea456598267fa00208cfebc5",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 0
         },
         {
           "step": "writer-get-existing",
@@ -1220,11 +1222,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "c6c272e8e8849df74b9af3284575e64c3408097b1a9cf7b361e9998fbeb46940",
+          "responseSha256": "72d90025abb6f4fee8d7962201b0c2cc532c2cf1c22bbf46f74c59aacf28e7a0",
           "tagPresent": true,
-          "tagSha256": "4b9adfa4abc0c92b6e6ceea2dde088a4c52002383755ebe354eb120f2e4b7fa7",
+          "tagSha256": "5dfabc22b4ab3ae1f92f35e4ec4bcb283f518f272cdcac555cf669a47d876946",
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         }
       ],
       "notes": [
@@ -1299,14 +1301,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "2c2d8bc897ea526044ff94e106f5e457076974faa00cea95f9c321e9c6375e12",
-          "requestTagSha256": "6ccf288572d2077d8f6ee9ca2fa9173748824061b970140f95756428e3e901ae",
+          "requestSha256": "c7fbcfc1ba9a52f241d439f1db7f1e9f7014e261e75ebb87f4c3c358885ae7c8",
+          "requestTagSha256": "e8b576c076ece1565c182b3cb092c25774ed5f91cd8f42d9aecf6cef19f3ae5e",
           "responseBytes": 47,
-          "responseSha256": "4a834ba7dbd38a27dea2aaf38c02c91e6405af6f6c700d444f0a1ee8277692c4",
+          "responseSha256": "e278c9f62f310a26da6adaf152564ebf50cfe1cd67b9c7acd617f5f0d26d9ef4",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "foreign-get-own-namespace",
@@ -1324,11 +1326,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "2c2d8bc897ea526044ff94e106f5e457076974faa00cea95f9c321e9c6375e12",
+          "responseSha256": "c7fbcfc1ba9a52f241d439f1db7f1e9f7014e261e75ebb87f4c3c358885ae7c8",
           "tagPresent": true,
-          "tagSha256": "6ccf288572d2077d8f6ee9ca2fa9173748824061b970140f95756428e3e901ae",
+          "tagSha256": "e8b576c076ece1565c182b3cb092c25774ed5f91cd8f42d9aecf6cef19f3ae5e",
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "foreign-put-own-namespace",
@@ -1343,14 +1345,14 @@
           "status": 403,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 32,
-          "requestSha256": "c1c02949778eeeba3e42d7deebe1973e56e6e3e2d6474f894116c8e4e83d0f90",
-          "requestTagSha256": "fca6921663d2a9933dbf44bb7a291fd466a87d2d2710006dbd45310969df7847",
+          "requestSha256": "1c954b924b3ee99851e5f3e7a11a03fd9eee5fd60587174da5308ed578cdf849",
+          "requestTagSha256": "70acdb545efc6ed1f5f00920387057f6fdb2193f415f72b7ac51785818a878d2",
           "responseBytes": 23,
           "responseSha256": "12a22880bc2e59f8278b4a5e547567f0aa14d020ea456598267fa00208cfebc5",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "writer-head-planted",
@@ -1372,7 +1374,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "writer-get-foreign-namespace",
@@ -1394,7 +1396,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "writer-put-foreign-namespace",
@@ -1409,14 +1411,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "c1c02949778eeeba3e42d7deebe1973e56e6e3e2d6474f894116c8e4e83d0f90",
-          "requestTagSha256": "d66447652eaa2b376f8f4fc8273d5ded360fac7c7d73bdb473ff92de3ff1df67",
+          "requestSha256": "1c954b924b3ee99851e5f3e7a11a03fd9eee5fd60587174da5308ed578cdf849",
+          "requestTagSha256": "ada451f04c2bce0b925e7091b30718ce484f2612f94c93e8a3ac546b4a04568e",
           "responseBytes": 47,
-          "responseSha256": "7e623c2d774fdf9ce3ca078c257dbb028693d41f494138f8bd4c457c574610e7",
+          "responseSha256": "42f7fa10501517f30726eec89c07e98b9eb7d7e85aa29295b3acc3c8b483e33a",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "foreign-head-foreign-namespace",
@@ -1436,7 +1438,7 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "d66447652eaa2b376f8f4fc8273d5ded360fac7c7d73bdb473ff92de3ff1df67",
+          "tagSha256": "ada451f04c2bce0b925e7091b30718ce484f2612f94c93e8a3ac546b4a04568e",
           "durationPresent": false,
           "elapsedMs": 1
         }
@@ -1447,7 +1449,7 @@
         "strict-openapi": {
           "verdict": "fail",
           "expectation": "documented-status:uploadArtifact",
-          "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-foreign-namespace answered 201; documented 200, 202, 400, 401, 403"
+          "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-foreign-namespace content type absent | documented-status:uploadArtifact: writer-put-foreign-namespace answered 201; documented 200, 202, 400, 401, 403"
         },
         "published-stable-client": {
           "verdict": "not-applicable"
@@ -1485,14 +1487,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "a3c88161cd6715cb1ab0024eae090f995796aef4f696a6d9b1a11ecc1414c6f7",
-          "requestTagSha256": "120c16e975ca2a7103046a88252dfe5f568ec38f38ff12e33a5bc4f9c0faad0c",
+          "requestSha256": "a1e2df7fea181cdfaba7a03584bda17101e885bd291ec5042495c61e6ac58cd8",
+          "requestTagSha256": "a2a72cecd190c4d0ca94937f84f1a974f49afb02484f3ae0d49c449bd147b569",
           "responseBytes": 47,
-          "responseSha256": "8f0ddfd1a087ee16d6be639bbcedf10aae6db59b839221fd561be3dc60d54928",
+          "responseSha256": "6f65d116a79b496ff85956663e316c7299886d62522dde80920b6062005a0e1d",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "writer-get-selector-empty",
@@ -1529,14 +1531,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "a876f56d22c7251fddeaff7dc6fda749804f55e2ada65b44f0ddb580c98934f8",
-          "requestTagSha256": "1fb294627de3947f69bcfeedfc4401ce5866279bfef4d26bfc00873bc5a93fdd",
+          "requestSha256": "1122e522af5f458788b154f78d43d72800c5ae63f38cb44242fd1195e3702fb4",
+          "requestTagSha256": "afbbbfa53f8d455ad8e9675c4c8e01b01e14f697e00de97d06d8b2dfb5e4f061",
           "responseBytes": 47,
-          "responseSha256": "e78d0a06cc61d111062bb391f7ad8e741969f9e7a4e4c1b504db485871bad2a8",
+          "responseSha256": "87ff65f67c8a59ed2e6de979d973d8094fd1c8d4910301787560d85ec5100f8d",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 2
         },
         {
           "step": "writer-head-selector-empty",
@@ -1580,7 +1582,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "writer-put-selector-conflicting",
@@ -1595,10 +1597,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "a876f56d22c7251fddeaff7dc6fda749804f55e2ada65b44f0ddb580c98934f8",
-          "requestTagSha256": "9788855af095dc8461b4ec7d3e537328d73f3cec3434a8bda3ddbb1f9afafbab",
+          "requestSha256": "1122e522af5f458788b154f78d43d72800c5ae63f38cb44242fd1195e3702fb4",
+          "requestTagSha256": "5fbaed157cd0fecb8800932f922e7228149a0ac623bbc1d95647d398cfb825ab",
           "responseBytes": 47,
-          "responseSha256": "005d59a13e4645d4f581d589dc07deef3a850cada8721a53a6150f5a704c5f26",
+          "responseSha256": "f90f8e7eb9d3e98af197a90e12ffb1823af4728c6294ff8a13dd357d4654f028",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -1661,10 +1663,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "a876f56d22c7251fddeaff7dc6fda749804f55e2ada65b44f0ddb580c98934f8",
-          "requestTagSha256": "725d44bccc45f20de64de692ca49bc5ec6a13cd4c549ae74d8cf85d9bb919879",
+          "requestSha256": "1122e522af5f458788b154f78d43d72800c5ae63f38cb44242fd1195e3702fb4",
+          "requestTagSha256": "a872a648563ced683770db61d7afaa8429cb8bc967f0e74c0d8781978dd976db",
           "responseBytes": 47,
-          "responseSha256": "1372a31d5399f926cf265c88f7a20805d5fe820194f3d7d2e29ba7b62a975546",
+          "responseSha256": "1ede49763a6012f5ec2f680130c41b974ff875aef15f474b1e9eba60a0cff468",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -1690,7 +1692,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "writer-get-selector-traversal",
@@ -1727,10 +1729,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "a876f56d22c7251fddeaff7dc6fda749804f55e2ada65b44f0ddb580c98934f8",
-          "requestTagSha256": "881d7bf930a2132ddd9e1859d1c507d4e408df0e5837f8d5fb68e337bdcf77b5",
+          "requestSha256": "1122e522af5f458788b154f78d43d72800c5ae63f38cb44242fd1195e3702fb4",
+          "requestTagSha256": "9a5a8587b96716a90615311033b52939c5b0305a5b8397f6a52c5d977154c7e1",
           "responseBytes": 47,
-          "responseSha256": "b01c09b58257cc3655018a887bd960566004169b1fdf1167d64b4b9e3d9b6322",
+          "responseSha256": "68feebb552bd0f75fc952e148d4979fa40f960432644dc6cb1b30d4c0209ffe7",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -1756,7 +1758,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "writer-get-selector-encoded",
@@ -1793,14 +1795,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "a876f56d22c7251fddeaff7dc6fda749804f55e2ada65b44f0ddb580c98934f8",
-          "requestTagSha256": "b4f7741e6ddf99e684e731ecf09403a1e05377be102f74907dce76bdf9da9869",
+          "requestSha256": "1122e522af5f458788b154f78d43d72800c5ae63f38cb44242fd1195e3702fb4",
+          "requestTagSha256": "c62cc23fbe221282bcbde96cc39cd860aa81be19bac782fa1adfcfa102b7eaef",
           "responseBytes": 47,
-          "responseSha256": "3ec6158b9f9d60a599263972ba48cf711f183df272b8edfb4cf820e7c0343d3f",
+          "responseSha256": "5aa8860006960b5002950d8d6e718ebd85a1e408dcc28d30cfb1041410f9f2b4",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "writer-head-selector-encoded",
@@ -1822,7 +1824,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "writer-get-selector-oversized",
@@ -1859,8 +1861,8 @@
           "status": 500,
           "contentType": null,
           "requestBytes": 32,
-          "requestSha256": "a876f56d22c7251fddeaff7dc6fda749804f55e2ada65b44f0ddb580c98934f8",
-          "requestTagSha256": "64b8c80d37fb99654aedbf9632c64fc85e751e297f4e710dc9ea1a307fa64f0f",
+          "requestSha256": "1122e522af5f458788b154f78d43d72800c5ae63f38cb44242fd1195e3702fb4",
+          "requestTagSha256": "18b56ae7c7833330657e18a7a7fc352d211490e0cc9793496cc4a29eb30cfa4e",
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
@@ -1897,7 +1899,7 @@
         "strict-openapi": {
           "verdict": "fail",
           "expectation": "documented-status:uploadArtifact",
-          "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-empty answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-conflicting answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-slug-conflict answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-traversal answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-encoded answered 201; documented 200, 202, 400, 401, 403 | documented-status:downloadArtifact: writer-get-selector-oversized answered 500; documented 200, 400, 401, 403, 404 | documented-status:uploadArtifact: writer-put-selector-oversized answered 500; documented 200, 202, 400, 401, 403"
+          "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-empty content type absent | documented-status:uploadArtifact: writer-put-selector-empty answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-conflicting content type absent | documented-status:uploadArtifact: writer-put-selector-conflicting answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-slug-conflict content type absent | documented-status:uploadArtifact: writer-put-selector-slug-conflict answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-traversal content type absent | documented-status:uploadArtifact: writer-put-selector-traversal answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-encoded content type absent | documented-status:uploadArtifact: writer-put-selector-encoded answered 201; documented 200, 202, 400, 401, 403 | documented-status:downloadArtifact: writer-get-selector-oversized answered 500; documented 200, 400, 401, 403, 404 | documented-status:uploadArtifact: writer-put-selector-oversized answered 500; documented 200, 202, 400, 401, 403"
         },
         "published-stable-client": {
           "verdict": "not-applicable"
@@ -1935,8 +1937,8 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
-          "requestTagSha256": "ae844a7a2cc6a6ace647a74be01093e0eb2c15a55db9e0e902a5adba679f0cb1",
+          "requestSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
+          "requestTagSha256": "7ee30950a0975c43118d305fd35ea9c1c920d6a8102762849b5f81c75c9a786a",
           "responseBytes": 29,
           "responseSha256": "001bd091a7ac9a0665c8b2febd536e2069d88816b6893cafaac62e0d91f874c6",
           "tagPresent": false,
@@ -1960,9 +1962,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
+          "responseSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
           "tagPresent": true,
-          "tagSha256": "ae844a7a2cc6a6ace647a74be01093e0eb2c15a55db9e0e902a5adba679f0cb1",
+          "tagSha256": "7ee30950a0975c43118d305fd35ea9c1c920d6a8102762849b5f81c75c9a786a",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -1984,7 +1986,7 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "ae844a7a2cc6a6ace647a74be01093e0eb2c15a55db9e0e902a5adba679f0cb1",
+          "tagSha256": "7ee30950a0975c43118d305fd35ea9c1c920d6a8102762849b5f81c75c9a786a",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -2001,10 +2003,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
-          "requestTagSha256": "0cdb3bcfda6b8eecb75be2fbbf3a7bf62b1c03016fc4dae2ffb413e72013db69",
+          "requestSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
+          "requestTagSha256": "cde09500d164f1d23f447d4e3d3f0b9450aaac385f441655de967878b9b20890",
           "responseBytes": 52,
-          "responseSha256": "6f222df8a4d0146de285931a3b006b4688385c1bb555b544d28df6ed2ce71ab2",
+          "responseSha256": "76a4148e26dccf971868a2ba64c8e7912a090d042114bee0d9af18beffb92274",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2026,9 +2028,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
+          "responseSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
           "tagPresent": true,
-          "tagSha256": "0cdb3bcfda6b8eecb75be2fbbf3a7bf62b1c03016fc4dae2ffb413e72013db69",
+          "tagSha256": "cde09500d164f1d23f447d4e3d3f0b9450aaac385f441655de967878b9b20890",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -2067,14 +2069,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
-          "requestTagSha256": "11400fa40b6900f6e2daf08feecc331e1cc9620c6a16b3c6663249e25ad7fda1",
+          "requestSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
+          "requestTagSha256": "151d8727da6b5d617584abc00c1e3d594066953e10d6d0bd12d2dd3b04446d8f",
           "responseBytes": 47,
-          "responseSha256": "c507ae94c17421cc9ce0ebccd087b6adc9f121d2d1b83a002ab17ef151ac3b8e",
+          "responseSha256": "5dc81a305c14d38a906168050364f50cfe3b82c41d2016dda399155711bdc4c4",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "reader-get-hash-encoded",
@@ -2092,9 +2094,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
+          "responseSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
           "tagPresent": true,
-          "tagSha256": "11400fa40b6900f6e2daf08feecc331e1cc9620c6a16b3c6663249e25ad7fda1",
+          "tagSha256": "151d8727da6b5d617584abc00c1e3d594066953e10d6d0bd12d2dd3b04446d8f",
           "durationPresent": false,
           "elapsedMs": 1
         },
@@ -2116,9 +2118,9 @@
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": true,
-          "tagSha256": "11400fa40b6900f6e2daf08feecc331e1cc9620c6a16b3c6663249e25ad7fda1",
+          "tagSha256": "151d8727da6b5d617584abc00c1e3d594066953e10d6d0bd12d2dd3b04446d8f",
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "writer-put-hash-empty",
@@ -2133,14 +2135,14 @@
           "status": 404,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 32,
-          "requestSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
-          "requestTagSha256": "c1f55430b5153528f7b7c9929437b8ce95a4da63246df70a3cb730ff89ff7a06",
+          "requestSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
+          "requestTagSha256": "aa865277483829a843fa220af5a553c7882ac59beffc6ba54d89117e4f0c5429",
           "responseBytes": 23,
           "responseSha256": "8fd54eee4277f1327015cc0bcaed8a878bf44d1804364cd5d93dfab9e2d1a5af",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "reader-get-hash-empty",
@@ -2199,8 +2201,8 @@
           "status": 500,
           "contentType": null,
           "requestBytes": 32,
-          "requestSha256": "e87eb5f4be8415aaba4a5cf881f236f1368eeb4f5c76a6d1b64309b063751e8d",
-          "requestTagSha256": "221c7fc1b19d34fd09578b5c7cb71980375837cbcd3252657c1b61723e596f18",
+          "requestSha256": "5b335a4053880fe95c503213aceb4dafe2cd7f5c1a813b0f5460dee6c94980fc",
+          "requestTagSha256": "8b76b3a228e09c42eed46122779a865028e1982cb69bb244fb635655ec5b797e",
           "responseBytes": 0,
           "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "tagPresent": false,
@@ -2228,7 +2230,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "writer-head-hash-oversized",
@@ -2250,7 +2252,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 10
+          "elapsedMs": 1
         }
       ],
       "notes": [
@@ -2474,14 +2476,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32,
-          "requestSha256": "ade75cd93620627fdfd1f2254ce8d41ecc58bfac4e9f03c66bcf571167cf6a32",
-          "requestTagSha256": "f5d68544e23939a10a9e98ef2c343acf7843378b169becb5bd599c9ca8af239e",
+          "requestSha256": "ced4af6ebde31f1f172a4b3ddb10c7e8b0398166dc3ab4d490aa247e9da12b28",
+          "requestTagSha256": "2d6adf98f73fc6e35566b311441d8372ead23326eb8d530e0cc9609638e44529",
           "responseBytes": 47,
-          "responseSha256": "45ba44a34866953eac723aac34d216e31916222a56d92aad052b898a97b1ed9c",
+          "responseSha256": "67cfad6ee1adea21e383f6c99aa58e04856e49deed32546ec0ad127c4d3f0ea3",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "unknown-get-written",
@@ -2503,7 +2505,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 0
         },
         {
           "step": "missing-get-written",
@@ -2525,7 +2527,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 0
+          "elapsedMs": 1
         },
         {
           "step": "reader-get-unwritten",
@@ -2547,7 +2549,7 @@
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 0
         },
         {
           "step": "reader-get-written",
@@ -2565,11 +2567,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32,
-          "responseSha256": "ade75cd93620627fdfd1f2254ce8d41ecc58bfac4e9f03c66bcf571167cf6a32",
+          "responseSha256": "ced4af6ebde31f1f172a4b3ddb10c7e8b0398166dc3ab4d490aa247e9da12b28",
           "tagPresent": true,
-          "tagSha256": "f5d68544e23939a10a9e98ef2c343acf7843378b169becb5bd599c9ca8af239e",
+          "tagSha256": "2d6adf98f73fc6e35566b311441d8372ead23326eb8d530e0cc9609638e44529",
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 0
         }
       ],
       "notes": [
@@ -2578,7 +2580,9 @@
       "measurements": [],
       "verdicts": {
         "strict-openapi": {
-          "verdict": "pass"
+          "verdict": "fail",
+          "expectation": "documented-content-type:downloadArtifact",
+          "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
         },
         "published-stable-client": {
           "verdict": "not-applicable"
@@ -2615,10 +2619,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 4096,
-          "requestSha256": "00845c405c1c426ea4be42e17b72a1c149f2606a0f722576a3610fa572660b58",
-          "requestTagSha256": "cfa256fa7883828005fc0c645e9b547ec8fdf245792eb23e94551c79345d60aa",
+          "requestSha256": "035a54e95f85e98d7f9967c161527b37d9692c922ff23f7db76304433884453d",
+          "requestTagSha256": "fe9dd4a1e1220067cb4cc9a464b426b971cb3838ffe2e02aeb9ec9d68636dc84",
           "responseBytes": 47,
-          "responseSha256": "f4810151c935f8f435e8be042aedd2c0dc591ec55f3ffc0cd15d6baa647b601c",
+          "responseSha256": "f209e7dcc7c48b50ab6c016fbfb0b00c7b5a9fe8ba2d17bb29b30ae5f5a25d8e",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2637,8 +2641,8 @@
           "status": 403,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 4096,
-          "requestSha256": "20f5598de3cb03c76cdfedeac351b89ac196b08c5e8231447aecf2f37ca97e53",
-          "requestTagSha256": "bd96e06c5adb3733b099280baf35953bd74a8d720cce69ad0cb00af44d998848",
+          "requestSha256": "9dc3ae5b10553104b1b5c8682224481e528d4a5e54e527f7015e5e5fbe1571df",
+          "requestTagSha256": "fb064850bbe8f14964175a48ec98dc1bacad26182b919883019920cea14555a8",
           "responseBytes": 23,
           "responseSha256": "12a22880bc2e59f8278b4a5e547567f0aa14d020ea456598267fa00208cfebc5",
           "tagPresent": false,
@@ -2659,8 +2663,8 @@
           "status": 403,
           "contentType": "application/json;charset=utf-8",
           "requestBytes": 4096,
-          "requestSha256": "20f5598de3cb03c76cdfedeac351b89ac196b08c5e8231447aecf2f37ca97e53",
-          "requestTagSha256": "4dac4fe7098c4001811892bf5e438c475133b589a6ef5909a829f85633d88887",
+          "requestSha256": "9dc3ae5b10553104b1b5c8682224481e528d4a5e54e527f7015e5e5fbe1571df",
+          "requestTagSha256": "de1cf093b3f4b188dbc35252eb39113972c1383c683c41239df8036a1b65cd24",
           "responseBytes": 23,
           "responseSha256": "12a22880bc2e59f8278b4a5e547567f0aa14d020ea456598267fa00208cfebc5",
           "tagPresent": false,
@@ -2681,8 +2685,8 @@
           "status": null,
           "contentType": null,
           "requestBytes": 1024,
-          "requestSha256": "20f5598de3cb03c76cdfedeac351b89ac196b08c5e8231447aecf2f37ca97e53",
-          "requestTagSha256": "bd421246fdfd3951dbf5e06dbfea7b7c7492aa5d336814b07458c960b412d0b1",
+          "requestSha256": "9dc3ae5b10553104b1b5c8682224481e528d4a5e54e527f7015e5e5fbe1571df",
+          "requestTagSha256": "28b815eed9014db8b9efc12ed951338cea62465f5f54cfda3bbb474acdb0a55e",
           "responseBytes": 0,
           "responseSha256": null,
           "tagPresent": false,
@@ -2706,11 +2710,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 4096,
-          "responseSha256": "00845c405c1c426ea4be42e17b72a1c149f2606a0f722576a3610fa572660b58",
+          "responseSha256": "035a54e95f85e98d7f9967c161527b37d9692c922ff23f7db76304433884453d",
           "tagPresent": true,
-          "tagSha256": "cfa256fa7883828005fc0c645e9b547ec8fdf245792eb23e94551c79345d60aa",
+          "tagSha256": "fe9dd4a1e1220067cb4cc9a464b426b971cb3838ffe2e02aeb9ec9d68636dc84",
           "durationPresent": false,
-          "elapsedMs": 43
+          "elapsedMs": 1
         },
         {
           "step": "writer-put-untagged",
@@ -2725,14 +2729,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 512,
-          "requestSha256": "4b293fb433763d5e4448919c27705f63ad0d86b6e66cfaf8ba050a51416d3134",
+          "requestSha256": "7445410099ed9b672127277c8611d1c723da7b9308fecbb59109fca47a65c4c9",
           "requestTagSha256": null,
           "responseBytes": 47,
-          "responseSha256": "1c5a78879e4bc7311beb4a7e775c196aa76de684da80bc1b60fc1951d0b8c082",
+          "responseSha256": "814b7bf48a254ad39e691ed040f682b8668d2b8385d10145ee78eb0c6a233737",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 1
         },
         {
           "step": "reader-get-untagged",
@@ -2750,7 +2754,7 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 512,
-          "responseSha256": "4b293fb433763d5e4448919c27705f63ad0d86b6e66cfaf8ba050a51416d3134",
+          "responseSha256": "7445410099ed9b672127277c8611d1c723da7b9308fecbb59109fca47a65c4c9",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2799,14 +2803,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32768,
-          "requestSha256": "e3bd4bfa744ad225038d049e82a32c16a1450c0cc3c3f7d19e38a279f467de71",
-          "requestTagSha256": "54412cf05edfd511f4a89f9a1239333a97f0f1420cf56851313111a73bdc131d",
+          "requestSha256": "f4f01838f6d166462c85e4897f3fba3237354c8dc7664fe20a81844511398b27",
+          "requestTagSha256": "ebdb114bb1dfa21558c7447ace1d9625921591c9dde6a991e9076d5c73680424",
           "responseBytes": 47,
-          "responseSha256": "d85e989b560ffe346387973edd769081ba1b9bb054691c7ee13a485d72fea007",
+          "responseSha256": "2ae548c6e94fd12366b47639aa5dfbed5e860401258c6291cab16377b2782a8c",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 2
         },
         {
           "step": "writer-put-identical-2",
@@ -2821,10 +2825,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32768,
-          "requestSha256": "e3bd4bfa744ad225038d049e82a32c16a1450c0cc3c3f7d19e38a279f467de71",
-          "requestTagSha256": "c4be3bc9c1d00f229b7be530bacda1316dfac4d51330f83d80ad6811d7742136",
+          "requestSha256": "f4f01838f6d166462c85e4897f3fba3237354c8dc7664fe20a81844511398b27",
+          "requestTagSha256": "d63d2ce7259aa316ab1283be870e8840467ad80eefa708a246f2266c0fa48ca0",
           "responseBytes": 47,
-          "responseSha256": "d85e989b560ffe346387973edd769081ba1b9bb054691c7ee13a485d72fea007",
+          "responseSha256": "2ae548c6e94fd12366b47639aa5dfbed5e860401258c6291cab16377b2782a8c",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2843,14 +2847,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32768,
-          "requestSha256": "e3bd4bfa744ad225038d049e82a32c16a1450c0cc3c3f7d19e38a279f467de71",
-          "requestTagSha256": "e6df51f52b61d69dae25d2c546519ae731a49a9fc8d55cf5b828c4c1dc20f912",
+          "requestSha256": "f4f01838f6d166462c85e4897f3fba3237354c8dc7664fe20a81844511398b27",
+          "requestTagSha256": "a1c2026e11407e75a7cda2595e76392482c480792ea4078dac55819898e98b15",
           "responseBytes": 47,
-          "responseSha256": "d85e989b560ffe346387973edd769081ba1b9bb054691c7ee13a485d72fea007",
+          "responseSha256": "2ae548c6e94fd12366b47639aa5dfbed5e860401258c6291cab16377b2782a8c",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 4
+          "elapsedMs": 3
         },
         {
           "step": "writer-put-identical-4",
@@ -2865,10 +2869,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 32768,
-          "requestSha256": "e3bd4bfa744ad225038d049e82a32c16a1450c0cc3c3f7d19e38a279f467de71",
-          "requestTagSha256": "cc90ed4514a7e701c99e0fd892be841acb9a5b5eb12cd55b8a03a849f5d04c16",
+          "requestSha256": "f4f01838f6d166462c85e4897f3fba3237354c8dc7664fe20a81844511398b27",
+          "requestTagSha256": "91ff4d14fbdedfaffafb514f9e93a3835682147143ba8e64c90bd2cc75531220",
           "responseBytes": 47,
-          "responseSha256": "d85e989b560ffe346387973edd769081ba1b9bb054691c7ee13a485d72fea007",
+          "responseSha256": "2ae548c6e94fd12366b47639aa5dfbed5e860401258c6291cab16377b2782a8c",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2890,9 +2894,9 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 32768,
-          "responseSha256": "e3bd4bfa744ad225038d049e82a32c16a1450c0cc3c3f7d19e38a279f467de71",
+          "responseSha256": "f4f01838f6d166462c85e4897f3fba3237354c8dc7664fe20a81844511398b27",
           "tagPresent": true,
-          "tagSha256": "e6df51f52b61d69dae25d2c546519ae731a49a9fc8d55cf5b828c4c1dc20f912",
+          "tagSha256": "91ff4d14fbdedfaffafb514f9e93a3835682147143ba8e64c90bd2cc75531220",
           "durationPresent": false,
           "elapsedMs": 43
         },
@@ -2909,14 +2913,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 16384,
-          "requestSha256": "3e9ddb073e935ef693e17d3b913201b08abe726c4e156aada16c11f1733d2dee",
-          "requestTagSha256": "05056f02b8238cb812dc06387cb1cabb20b72a00d3e68c6febfa738187a1d875",
+          "requestSha256": "16b990ae4866b6f841c646defb8d83299ac03e56ad12780b74c44fef55e02d01",
+          "requestTagSha256": "1bca219caa0fe7afdb869a95c54553f8f4f88b4c30301d5eb2d69df176aa7ec5",
           "responseBytes": 47,
-          "responseSha256": "c5452e825237a8c5391719970401bdb0a964a1eb0c27d90b6c2882a05513b218",
+          "responseSha256": "cfff266da215e0b52925441aa195fdee18a30d5a3466725ac84890a805bd3224",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 3
         },
         {
           "step": "writer-put-conflicting-2",
@@ -2931,10 +2935,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 17408,
-          "requestSha256": "5df43facac8548d5663d489e6de834c87f138589d7f1355ec164bd72af38c743",
-          "requestTagSha256": "e3a4b58d7ce58a7ea7801ff3a6e94bd23c8f4076f10d4ccffd81e4c5a37a542c",
+          "requestSha256": "a55db2202bf835a070979ba76afabcee9f4142996995c853d73fbe79c1aed0a6",
+          "requestTagSha256": "f2b05802383f3ed1403f101500d0448c7e3aef39cf8d8a963a5dcb6cec36d3a2",
           "responseBytes": 47,
-          "responseSha256": "c5452e825237a8c5391719970401bdb0a964a1eb0c27d90b6c2882a05513b218",
+          "responseSha256": "cfff266da215e0b52925441aa195fdee18a30d5a3466725ac84890a805bd3224",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2953,14 +2957,14 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 18432,
-          "requestSha256": "47519e6a2e8b34ca9670d25247f55d7a2bed611bad54c939a490f19343c2291d",
-          "requestTagSha256": "f170aaa3af0e1ade0df88a704c3688d530e1a5739faabaee48be0dbbe8526328",
+          "requestSha256": "e0a021e016799551255135feec69106d7698a5ba2c5fbc38ab99241c5e9bb0c9",
+          "requestTagSha256": "65553fef0a8552152fc1b9533dddf62d13c7ae0153f926492026fb3c524a0b66",
           "responseBytes": 47,
-          "responseSha256": "c5452e825237a8c5391719970401bdb0a964a1eb0c27d90b6c2882a05513b218",
+          "responseSha256": "cfff266da215e0b52925441aa195fdee18a30d5a3466725ac84890a805bd3224",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
-          "elapsedMs": 1
+          "elapsedMs": 3
         },
         {
           "step": "writer-put-conflicting-4",
@@ -2975,10 +2979,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 19456,
-          "requestSha256": "d5c3336f8a4e3c1b23207fa42b1441d15961397116810725c0c8777cd8847cb6",
-          "requestTagSha256": "db1505d7e143da2a9a8ee37ffd7edf5e88a13f7a4ad1304c6728cf4f2d6d0802",
+          "requestSha256": "57398668fbfe2075f1231cf5d5e7bdf24ee946bece4a5fbe7641d8eceefeaf85",
+          "requestTagSha256": "0c23e5a2633f54d3e50d70fbee2042dedec94030c877ccf4046350ede49c56c8",
           "responseBytes": 47,
-          "responseSha256": "c5452e825237a8c5391719970401bdb0a964a1eb0c27d90b6c2882a05513b218",
+          "responseSha256": "cfff266da215e0b52925441aa195fdee18a30d5a3466725ac84890a805bd3224",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -2999,16 +3003,16 @@
           "requestBytes": 0,
           "requestSha256": null,
           "requestTagSha256": null,
-          "responseBytes": 17408,
-          "responseSha256": "5df43facac8548d5663d489e6de834c87f138589d7f1355ec164bd72af38c743",
+          "responseBytes": 19456,
+          "responseSha256": "57398668fbfe2075f1231cf5d5e7bdf24ee946bece4a5fbe7641d8eceefeaf85",
           "tagPresent": true,
-          "tagSha256": "e3a4b58d7ce58a7ea7801ff3a6e94bd23c8f4076f10d4ccffd81e4c5a37a542c",
+          "tagSha256": "0c23e5a2633f54d3e50d70fbee2042dedec94030c877ccf4046350ede49c56c8",
           "durationPresent": false,
-          "elapsedMs": 43
+          "elapsedMs": 42
         }
       ],
       "notes": [
-        "conflicting writes: write 2 of 4 won; writer-put-conflicting-1 answered 201 (success); writer-put-conflicting-2 answered 201 (success); writer-put-conflicting-3 answered 201 (success); writer-put-conflicting-4 answered 201 (success)"
+        "conflicting writes: write 4 of 4 won; writer-put-conflicting-1 answered 201 (success); writer-put-conflicting-2 answered 201 (success); writer-put-conflicting-3 answered 201 (success); writer-put-conflicting-4 answered 201 (success)"
       ],
       "measurements": [],
       "verdicts": {
@@ -3051,10 +3055,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 65536,
-          "requestSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
-          "requestTagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "requestSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
+          "requestTagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "responseBytes": 47,
-          "responseSha256": "0584e40be9c96b93fcd7b78470c93685d64c75c3b5bacc5ff6f457c4aa55eb23",
+          "responseSha256": "1b34b638b122340811bc9ca56552ff6ffe59c0ddb7e0af90dbd84618d70ada81",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -3073,10 +3077,10 @@
           "status": 201,
           "contentType": "application/json",
           "requestBytes": 524288,
-          "requestSha256": "fa3dd87434a531e5d85b9c9b33051fa5507d0fcc35f36aa1e7167ba2492d07b2",
-          "requestTagSha256": "6b8e48cdf857f1a629a1728377c67e9ec77b2ca59f8a206e8cd5a361b1c3c1ed",
+          "requestSha256": "472f4bf3bcbaa52e66a3dd9e23f1e343db6bab1e4cb506c6d6c561a8d8cb9314",
+          "requestTagSha256": "e6274e473366fa9a03f2de0c9113e1b68d9c88ce2a43b3203c173a5bcaaad47a",
           "responseBytes": 47,
-          "responseSha256": "0584e40be9c96b93fcd7b78470c93685d64c75c3b5bacc5ff6f457c4aa55eb23",
+          "responseSha256": "1b34b638b122340811bc9ca56552ff6ffe59c0ddb7e0af90dbd84618d70ada81",
           "tagPresent": false,
           "tagSha256": null,
           "durationPresent": false,
@@ -3098,11 +3102,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 65536,
-          "responseSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
+          "responseSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
           "tagPresent": true,
-          "tagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "tagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "durationPresent": false,
-          "elapsedMs": 43
+          "elapsedMs": 4
         },
         {
           "step": "reader-get-during-2",
@@ -3120,11 +3124,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 65536,
-          "responseSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
+          "responseSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
           "tagPresent": true,
-          "tagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "tagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 4
         },
         {
           "step": "reader-get-during-3",
@@ -3142,11 +3146,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 65536,
-          "responseSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
+          "responseSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
           "tagPresent": true,
-          "tagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "tagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "durationPresent": false,
-          "elapsedMs": 2
+          "elapsedMs": 4
         },
         {
           "step": "reader-get-during-4",
@@ -3164,11 +3168,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 65536,
-          "responseSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
+          "responseSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
           "tagPresent": true,
-          "tagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "tagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 4
         },
         {
           "step": "reader-get-during-5",
@@ -3186,11 +3190,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 65536,
-          "responseSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
+          "responseSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
           "tagPresent": true,
-          "tagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "tagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 4
         },
         {
           "step": "reader-get-during-6",
@@ -3208,11 +3212,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 65536,
-          "responseSha256": "6aa6b0cf247e662d3ab497f1aaa7307cd3ce7ce3e8482ae190e376f432cc354a",
+          "responseSha256": "88b2f09cca28161ef0b74ec20f3780e5079cf51c2e4c0fed004652821b3df0f6",
           "tagPresent": true,
-          "tagSha256": "5d4734caf70e15ef3d2b7af785491f433094a975c6c288e734d554e0f7acaea1",
+          "tagSha256": "28b93585579968199cdddc83cee9e08a2c26f2a4776027b902380435b9195273",
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 4
         },
         {
           "step": "reader-get-after",
@@ -3230,11 +3234,11 @@
           "requestSha256": null,
           "requestTagSha256": null,
           "responseBytes": 524288,
-          "responseSha256": "fa3dd87434a531e5d85b9c9b33051fa5507d0fcc35f36aa1e7167ba2492d07b2",
+          "responseSha256": "472f4bf3bcbaa52e66a3dd9e23f1e343db6bab1e4cb506c6d6c561a8d8cb9314",
           "tagPresent": true,
-          "tagSha256": "6b8e48cdf857f1a629a1728377c67e9ec77b2ca59f8a206e8cd5a361b1c3c1ed",
+          "tagSha256": "e6274e473366fa9a03f2de0c9113e1b68d9c88ce2a43b3203c173a5bcaaad47a",
           "durationPresent": false,
-          "elapsedMs": 3
+          "elapsedMs": 2
         }
       ],
       "notes": [],
@@ -3436,8 +3440,8 @@
   "summary": [
     {
       "dimension": "strict-openapi",
-      "pass": 3,
-      "fail": 15,
+      "pass": 1,
+      "fail": 17,
       "unsupportedOptional": 1,
       "notApplicable": 13,
       "notExecuted": 0

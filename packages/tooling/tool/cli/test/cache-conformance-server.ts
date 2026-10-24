@@ -69,9 +69,10 @@ const principals = HashMap.make<ReadonlyArray<readonly [string, Principal]>>(
   [`Bearer ${secrets.writer}`, { role: "writer", namespace: teamId }],
   [`Bearer ${secrets.foreign}`, { role: "writer", namespace: foreignTeamId }]
 );
-const status = (code: number) => HttpServerResponse.empty({ status: code });
 const json = (text: string, code = 200) =>
   HttpServerResponse.uint8Array(new TextEncoder().encode(text), { status: code, contentType: "application/json" });
+// Error replies carry the pinned spec's JSON error object (`#/components/responses/*`).
+const status = (code: number) => json(`{"code":"${code}","message":"conformance test server error"}`, code);
 
 // Exactly one non-empty `teamId`; a binding server also requires the principal's own namespace.
 const namespaceOf = (mode: ServerMode, principal: Principal, query: string): O.Option<string> => {

@@ -430,6 +430,27 @@ it.layer(Services, { timeout: "180 seconds", excludeTestServices: true })("cache
     })
   );
 
+  it.effect("never compares a candidate with another profile's incumbent", () =>
+    Effect.gen(function* () {
+      const corpus = yield* buildCacheConformanceCorpus(yield* repoRoot);
+      const good = yield* makeConformanceServer(goodMode);
+      const weak = yield* makeConformanceServer({ ...goodMode, bindTenant: false });
+      const candidate = yield* runCacheConformance(corpus, targetFor({ url: good.url }), bearers);
+      const weakRun = yield* runCacheConformance(corpus, targetFor({ url: weak.url }), bearers);
+      // The only incumbent fails gate 5, which the candidate passes, but it was
+      // measured in another profile: a fallback would report gate 5 as removed.
+      const otherProfileIncumbent = CacheConformanceRun.make({
+        ...weakRun,
+        profile: "disposable-deployment",
+        topology: "beep-incumbent",
+      });
+      const comparison = yield* compareCacheConformanceRuns(yield* repoRoot, [candidate, otherProfileIncumbent]);
+      const target = A.findFirst(comparison.targets, (entry) => entry.topology === "owned-fixture").pipe(O.getOrThrow);
+      expect(target.blockersRemoved).toEqual([]);
+      expect(target.regressions).toEqual([]);
+    })
+  );
+
   it.effect("lets executed external evidence and pinned licenses settle gates", () =>
     Effect.gen(function* () {
       const server = yield* makeConformanceServer(goodMode);

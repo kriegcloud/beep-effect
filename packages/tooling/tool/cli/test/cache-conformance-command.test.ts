@@ -13,9 +13,11 @@ import {
 } from "@beep/repo-cli/commands/Cache";
 import { makeCacheCommandForTesting } from "@beep/repo-cli/test/Cache";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { fcRuns } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { afterEach, expect, it, vi } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
@@ -23,12 +25,24 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { goodMode, makeConformanceServer, repoRoot, secrets, targetFor } from "./cache-conformance-server.ts";
 
 afterEach(() => vi.restoreAllMocks());
+
+it.prop(
+  "round-trips evidence checks through their JSON codec",
+  { value: Arbitrary.schema(CacheConformanceEvidenceCheck) },
+  ({ value }) => {
+    const codec = S.fromJsonString(CacheConformanceEvidenceCheck);
+    const decoded = S.encodeResult(codec)(value).pipe(Result.getOrThrow, S.decodeResult(codec), Result.getOrThrow);
+    expect(S.toEquivalence(CacheConformanceEvidenceCheck)(value, decoded)).toBe(true);
+  },
+  { arbitrary: fcRuns(20) }
+);
 
 const Services = Layer.mergeAll(
   NodeServices.layer,

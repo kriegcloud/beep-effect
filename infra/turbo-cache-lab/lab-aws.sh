@@ -25,7 +25,9 @@ stack="lab-$epoch"
 prefix="beep-tcl-$epoch"
 bucket="$prefix-$account"
 params="/beep-ci/cache-lab/$epoch"
-tag_filter="Key=beep:lab,Values=turbo-cache-conformance"
+# Every lab resource carries its epoch tag; inventory filters on it alone, so
+# resources whose ARN lacks the epoch (HTTP APIs, KMS keys) are still found.
+tag_filter="Key=beep:lab-epoch,Values=$epoch"
 
 require_approval() {
   [[ -n "${BEEP_TCL_APPROVED_CEILING_USD:-}" ]] || die "no approved cost ceiling; see lab-deployment-preview.md"
@@ -39,17 +41,19 @@ bootstrap() {
   require_approval; require_account
   local key
   key="$(aws kms create-key --region "$region" --description "$prefix lab SecureStrings" \
-    --tags TagKey=beep:lab,TagValue=turbo-cache-conformance --query KeyMetadata.Arn --output text)"
+    --tags TagKey=beep:lab,TagValue=turbo-cache-conformance TagKey=beep:lab-epoch,TagValue="$epoch" --query KeyMetadata.Arn --output text)"
   local name
   for name in read-only-token trusted-write-token writer-hmac-secret; do
     local value_file; value_file="$(mktemp)"
     openssl rand -hex 32 | tr -d '\n' >"$value_file"
     aws ssm put-parameter --region "$region" --name "$params/$name" --type SecureString --key-id "$key" \
-      --value "file://$value_file" --tags Key=beep:lab,Value=turbo-cache-conformance >/dev/null
+      --value "file://$value_file" --tags Key=beep:lab,Value=turbo-cache-conformance Key=beep:lab-epoch,Value="$epoch" >/dev/null
     rm -f "$value_file"
   done
   (cd "$here" && pulumi stack init "$stack" >/dev/null &&
     pulumi config set --stack "$stack" turboCacheLab:epoch "$epoch" &&
+    pulumi config set --path --stack "$stack" 'aws:defaultTags.tags["beep:lab"]' turbo-cache-conformance &&
+    pulumi config set --path --stack "$stack" 'aws:defaultTags.tags["beep:lab-epoch"]' "$epoch" &&
     pulumi config set --stack "$stack" ciTurboCache:bucketName "$bucket" &&
     pulumi config set --stack "$stack" ciTurboCache:lambdaZipPath turbo-cache/2.12.0/turbo-cache.zip &&
     pulumi config set --plaintext --stack "$stack" ciTurboCache:tokenKmsKeyArn "$key" &&
@@ -90,8 +94,19 @@ destroy() {
 
 inventory() {
   require_account
-  aws resourcegroupstaggingapi get-resources --region "$region" --tag-filters "$tag_filter" \
-    --query 'ResourceTagMappingList[].ResourceARN' --output text | tr '\t' '\n' | grep -F "$epoch" || echo "lab-aws: no tagged $epoch resources"
+  local arn left=0
+  while read -r arn; do
+    [[ -n "$arn" && "$arn" != "None" ]] || continue
+    # A scheduled-for-deletion lab key stays tagged for its waiting period.
+    if [[ "$arn" == arn:aws:kms:* ]] &&
+      [[ "$(aws kms describe-key --region "$region" --key-id "$arn" --query KeyMetadata.KeyState --output text)" == "PendingDeletion" ]]; then
+      echo "pending deletion: $arn"
+      continue
+    fi
+    echo "remaining: $arn"; left=$((left + 1))
+  done < <(aws resourcegroupstaggingapi get-resources --region "$region" --tag-filters "$tag_filter" \
+    --query 'ResourceTagMappingList[].ResourceARN' --output text | tr '\t' '\n')
+  [[ $left -eq 0 ]] && echo "lab-aws: no remaining $epoch resources" || die "$left $epoch resource(s) remain"
 }
 
 case "$cmd" in

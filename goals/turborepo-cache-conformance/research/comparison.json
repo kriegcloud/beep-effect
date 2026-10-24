@@ -2603,10 +2603,10 @@
             {
               "case": "RC-010",
               "dimension": "strict-openapi",
-              "verdict": "pass",
+              "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-011",
@@ -2630,7 +2630,7 @@
               "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: foreign-put-own-namespace answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArti"
+              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: foreign-put-own-namespace answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:down"
             },
             {
               "case": "RC-015",
@@ -2638,7 +2638,7 @@
               "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-empty answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArti"
+              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-empty content type absent | documented-status:uploadArtifact: writer-put-sele"
             },
             {
               "case": "RC-016",
@@ -2651,10 +2651,10 @@
             {
               "case": "RC-023",
               "dimension": "strict-openapi",
-              "verdict": "pass",
+              "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-024",
@@ -2845,24 +2845,24 @@
         {
           "gate": 7,
           "title": "every error class is attributable despite Turbo's task-level fail-soft behavior",
-          "status": "pass",
-          "reason": "Every mapped verdict passed.",
+          "status": "fail",
+          "reason": "RC-010 strict-openapi: documented-content-type:downloadArtifact: reader-get-unwritten content type absent | RC-023 strict-openapi: documented-content-type:downloadArtifact: reader-get-unwritten content type absent",
           "evidence": [
             {
               "case": "RC-010",
               "dimension": "strict-openapi",
-              "verdict": "pass",
-              "status": "pass",
+              "verdict": "fail",
+              "status": "fail",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-023",
               "dimension": "strict-openapi",
-              "verdict": "pass",
-              "status": "pass",
+              "verdict": "fail",
+              "status": "fail",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-023",
@@ -2989,10 +2989,10 @@
       ],
       "eligible": false,
       "blockersRemoved": [1, 2, 3, 6],
-      "regressions": [],
+      "regressions": [7],
       "notReproven": [],
       "materialWin": "not-evaluated",
-      "materialWinReason": "Not eligible: gates 4 fail, 5 fail, 9 unproven, 10 unproven, 11 unproven."
+      "materialWinReason": "Not eligible: gates 4 fail, 5 fail, 7 fail, 9 unproven, 10 unproven, 11 unproven."
     },
     {
       "profile": "local-container",
@@ -3196,10 +3196,10 @@
             {
               "case": "RC-010",
               "dimension": "strict-openapi",
-              "verdict": "pass",
+              "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-011",
@@ -3223,7 +3223,7 @@
               "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-foreign-namespace answered 201; documented 200, 202, 400, 401, 403"
+              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-foreign-namespace content type absent | documented-status:uploadArtifact: writer-put-f"
             },
             {
               "case": "RC-015",
@@ -3231,7 +3231,7 @@
               "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArtifact: writer-put-selector-empty answered 201; documented 200, 202, 400, 401, 403 | documented-status:uploadArti"
+              "detail": "documented-status:uploadArtifact: writer-put-seed answered 201; documented 200, 202, 400, 401, 403 | documented-content-type:downloadArtifact: writer-get-selector-empty content type absent | documented-status:uploadArtifact: writer-put-sele"
             },
             {
               "case": "RC-016",
@@ -3244,10 +3244,10 @@
             {
               "case": "RC-023",
               "dimension": "strict-openapi",
-              "verdict": "pass",
+              "verdict": "fail",
               "status": "pass",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-024",
@@ -3438,24 +3438,24 @@
         {
           "gate": 7,
           "title": "every error class is attributable despite Turbo's task-level fail-soft behavior",
-          "status": "pass",
-          "reason": "Every mapped verdict passed.",
+          "status": "fail",
+          "reason": "RC-010 strict-openapi: documented-content-type:downloadArtifact: reader-get-unwritten content type absent | RC-023 strict-openapi: documented-content-type:downloadArtifact: reader-get-unwritten content type absent",
           "evidence": [
             {
               "case": "RC-010",
               "dimension": "strict-openapi",
-              "verdict": "pass",
-              "status": "pass",
+              "verdict": "fail",
+              "status": "fail",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-023",
               "dimension": "strict-openapi",
-              "verdict": "pass",
-              "status": "pass",
+              "verdict": "fail",
+              "status": "fail",
               "source": "run",
-              "detail": ""
+              "detail": "documented-content-type:downloadArtifact: reader-get-unwritten content type absent"
             },
             {
               "case": "RC-023",
@@ -3582,10 +3582,10 @@
       ],
       "eligible": false,
       "blockersRemoved": [1, 2, 3, 6],
-      "regressions": [],
+      "regressions": [7],
       "notReproven": [],
       "materialWin": "not-evaluated",
-      "materialWinReason": "Not eligible: gates 4 unproven, 5 fail, 9 unproven, 10 unproven, 11 unproven."
+      "materialWinReason": "Not eligible: gates 4 unproven, 5 fail, 7 fail, 9 unproven, 10 unproven, 11 unproven."
     },
     {
       "profile": "local-container",
