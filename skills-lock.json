@@ -55,7 +55,7 @@
         ".claude/skills/effect-first-development",
         ".agents/skills/effect-first-development"
       ],
-      "installedTreeHash": "28b91d58a84c1e128ffca6d01a7119b7b03e3faef98ac72bfab4315f68c325d7"
+      "installedTreeHash": "fbe20de1442d7e14315d8573a462e603a7f20ac30f1e38ff927b78b837a2df3c"
     },
     "explore": {
       "_tag": "local",
@@ -328,7 +328,7 @@
         ".claude/skills/plasma-sensitive-entry",
         ".agents/skills/plasma-sensitive-entry"
       ],
-      "installedTreeHash": "1c9d7df41fcce35a9628c1849bc39312d9bb7ea70c9777aa5af9146ce233441a"
+      "installedTreeHash": "0de8bc73d4f82c4d398f57caf5f72717a230f0070142b9dbd44bf22718681ebf"
     },
     "portless": {
       "_tag": "vendored",
@@ -415,7 +415,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "215f35ce2014fe1d8d2734bbfdeab4b475397c930bff28bd5a1c8a94504d256f"
+      "installedTreeHash": "7955594b646b0ee1c23dde002caa975c0fd431dedf54c43c3af2cdd2a2808db1"
     },
     "shadcn": {
       "_tag": "vendored",
