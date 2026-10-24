@@ -174,6 +174,21 @@ describe("yeet ready gate decision (push-first-publish D11: ready at content-fin
     });
   });
 
+  it.effect("explains an unread remote without a captured command failure", () =>
+    Effect.gen(function* () {
+      for (const remote of [
+        YeetStatusRemote.make({ available: false, checked: false, detail: "remote read skipped" }),
+        YeetStatusRemote.make({ available: true, checked: true, detail: "state missing" }),
+      ]) {
+        expect(decideYeetReadyGate(YeetReadyPullRequestRead.make({ remote, mergeReady: O.none() }))).toMatchObject({
+          _tag: "blocked",
+          blocker: "pr-open",
+          detail: `could not read the pull request: ${remote.detail}; retry after the GitHub rate limit resets or restore GitHub access`,
+        });
+      }
+    })
+  );
+
   it("flips a draft whose threads are answered and required checks are green", () => {
     expect(decideYeetReadyGate(prView())).toMatchObject({ _tag: "flip", prNumber: 42 });
   });
@@ -835,6 +850,39 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
         Effect.flip
       );
       expect(failure.message).toContain("thread resolution is unknown");
+    })
+  );
+
+  it.effect("preserves REST status and review-comment read errors instead of reporting absence", () =>
+    Effect.gen(function* () {
+      for (const [routeFragment, output, exitCode] of [
+        ["/pulls/42", "REST status unavailable", 1],
+        ["/pulls/42", "invalid status JSON", 0],
+        ["/comments?", "comments unavailable", 1],
+        ["/comments?", "invalid comments JSON", 0],
+      ] as const) {
+        const base = fallbackRunner(restFound);
+        const runner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+          const route = command.args[1] ?? "";
+          return command.command === "gh" && Str.includes(routeFragment)(route)
+            ? Effect.succeed(fakeHandle(output, exitCode))
+            : base.spawn(command);
+        });
+        const result = yield* collectYeetStatus(context, true).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
+          Effect.result
+        );
+        if (result._tag === "Failure") {
+          expect(result.failure.message).toContain("REST fallback:");
+        } else {
+          expect(result.success.remote.available).toBe(false);
+          assertTrue(O.isSome(result.success.remote.readFailure));
+          expect(result.success.remote.detail).toContain(
+            "gh pr view failed: GraphQL: API rate limit exceeded; REST fallback:"
+          );
+        }
+      }
     })
   );
 
