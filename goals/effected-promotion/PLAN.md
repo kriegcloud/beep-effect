@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A1 (lockfiles adoption, W3-g/W4-h) merged (#2187); 3-A9 (observability `PackageName` onto `ScopedPackageName`, #137) merged (#2190); 3-A8 (repo-cli Ci summary tables onto `GitHubMarkdown.table`) merged (#2202); 3-A2 (`@beep/package-json` field growth, W3-f) merged (#2197), 3-A3..3-A7 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): 4-X (`@beep/xdg`, W4-c) merged (#2184); 4-CI (one CI rule through `@beep/runtime-env`, W4-e) merged (#2179); 4-C (`@beep/cli-kit`, W4-d) merged (#2200); R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows); R1 (the semver owner switch: `@beep/schema/Semver` deleted, VersionSync and `CacheClientPin` on `@beep/semver`, W4-h, W4-i) merged (#2195); 4-S (`@beep/sbom`, W4-b) in review in this PR; the rest are in review or queued in the PR sequence below.
+Status: `active` — P1 in progress. The state of each wave and PR lives in its row in the tables below: a PR edits only its own row, and this line names no wave or PR, so concurrent lanes never conflict on it (SPEC W4-v).
 
 ## Phases
 
@@ -75,12 +75,12 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-3 (#2134, merged) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |
 | 3-5 (#2159, merged) | `@beep/lockfiles`; lab workspaces retargets | main |
 | 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
-| R0 | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
-| 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
+| R0 (merged, #2156) | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
+| 3-A2 (merged, #2197) | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
 | 3-A8 (merged, #2202) | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
-| 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
+| 3-A9 (merged, #2190) | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
 | 4-CI (merged, #2179) | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 (merged, #2195) | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
 | R2a | `vitest.setup.ts`: `toml` shim out, `GlobShim` matcher on `@beep/glob`; `toml`, `picomatch`, `@types/picomatch` out of the root | main |
