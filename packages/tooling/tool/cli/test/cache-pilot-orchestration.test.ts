@@ -813,21 +813,19 @@ it.layer(platform, { timeout: "10 seconds" })("pilot orchestration process bound
     })
   );
 
-  it.effect(
+  it.effect.prop(
     "rejects schema-generated binary pins before execution",
-    Effect.fnUntraced(function* () {
+    [Arbitrary.schema(Sha256Hex)],
+    Effect.fnUntraced(function* ([sha256]) {
       const { run, request } = yield* fixture();
-      const result = yield* Arbitrary.checkEffect(
-        Arbitrary.schema(Sha256Hex),
-        (sha256) =>
-          run(CachePilotRequest.make({ ...request, client: CacheClientPin.make({ ...request.client, sha256 }) })).pipe(
-            Effect.result,
-            Effect.map((outcome) => Result.isFailure(outcome) === (sha256 !== digest))
-          ),
-        fcRuns(40)
+      return yield* run(
+        CachePilotRequest.make({ ...request, client: CacheClientPin.make({ ...request.client, sha256 }) })
+      ).pipe(
+        Effect.result,
+        Effect.map((outcome) => Result.isFailure(outcome) === (sha256 !== digest))
       );
-      expect(result._tag).toBe("Passed");
-    })
+    }),
+    { arbitrary: fcRuns(40) }
   );
 
   for (const closureFault of closureFaultDomain.pick(["cached", "unexpected"]).literals) {

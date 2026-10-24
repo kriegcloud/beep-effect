@@ -3,6 +3,7 @@ import { MailReaderFromM365, MailReaderUnavailable } from "@beep/repo-cli/comman
 import { approvalStatement, EmailAddress, MailReader, Sha256Hex, verifyConfirmation } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
@@ -91,7 +92,7 @@ describe("beep drawings sign email", () => {
           approver: EmailAddress.make("attorney@example.com"),
           confirmation,
         });
-        expect(Result.isSuccess(checked)).toBe(true);
+        checked.pipe(Result.isSuccess, assertTrue);
       })
     );
   });

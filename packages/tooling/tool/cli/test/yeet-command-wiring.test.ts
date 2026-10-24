@@ -31,7 +31,7 @@ import {
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertInclude, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -705,10 +705,8 @@ describe("settle-timeout route legality", () => {
   });
   it.effect("rejects a timeout on plain monitor before hydration", () =>
     Effect.gen(function* () {
-      const result = yield* Effect.result(runYeetCommand(["monitor", "--settle-timeout", "30m"]));
-      expect(result._tag).toBe("Failure");
-      if (result._tag === "Failure")
-        expect(String(result.failure)).toContain("requires --until-merged, --until-ready, or --watch");
+      const failure = yield* Effect.flip(runYeetCommand(["monitor", "--settle-timeout", "30m"]));
+      assertInclude(String(failure), "requires --until-merged, --until-ready, or --watch");
     }).pipe(provideScopedLayer(commandTestLayer))
   );
 });
@@ -724,8 +722,8 @@ describe("until-ready route legality", () => {
   });
   it.effect("rejects --until-ready --watch before hydration", () =>
     Effect.gen(function* () {
-      const result = yield* Effect.result(runYeetCommand(["monitor", "--until-ready", "--watch"]));
-      expect(result).toMatchObject({ _tag: "Failure", failure: { _tag: "CliReportedExit", exitCode: 1 } });
+      const failure = yield* Effect.flip(runYeetCommand(["monitor", "--until-ready", "--watch"]));
+      expect(failure).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
     }).pipe(provideScopedLayer(commandTestLayer))
   );
 });

@@ -23,6 +23,21 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 };
 
 describe("SemVer property floor", () => {
+  // The version-string schemas carry the grammar as a pattern check, so the derived generator yields
+  // well-formed versions; a schema embedding them (e.g. repo-cli's cache pins) no longer exhausts
+  // its discard budget against the predicate.
+  it.effect.prop(
+    "PinnableVersionString generates only pinnable versions",
+    [Arbitrary.schema(SemVer.PinnableVersionString)],
+    ([value]) => Effect.sync(() => assert.isTrue(SemVer.isPinnable(value))),
+    runs
+  );
+  it.effect.prop(
+    "ExactVersionString generates only exact versions",
+    [Arbitrary.schema(SemVer.ExactVersionString)],
+    ([value]) => Effect.sync(() => assert.isTrue(SemVer.isValid(value))),
+    runs
+  );
   roundTrips("SemVer", SemVer);
   roundTrips("SemVer.FromString", SemVer.FromString);
   roundTrips("InvalidVersionError", InvalidVersionError);

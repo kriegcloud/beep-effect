@@ -51,6 +51,7 @@ import {
 } from "@beep/repo-cli/test/Skills";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, expect, layer, vi } from "@effect/vitest";
+import { assertNone, assertSome, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
@@ -377,9 +378,10 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
 
       const partial = yield* decideWith(review, repoRoot, first);
       expect(partial.stoppedBy).toBe("queue-empty");
-      expect(A.map(partial.recorded, (row) => [row.hunk, row.decision, row.label, row.reviewer, row.origin])).toEqual([
-        [1, "keep", O.some("policy"), "@kriegcloud", "review"],
-      ]);
+      deepStrictEqual(
+        A.map(partial.recorded, (row) => [row.hunk, row.decision, row.label, row.reviewer, row.origin]),
+        [[1, "keep", O.some("policy"), "@kriegcloud", "review"]]
+      );
       expect(A.map(partial.queue, (item) => item.hunk)).toEqual([2]);
       expect(A.map(partial.skills, (skill) => skill.state)).toEqual(["queued"]);
 
@@ -479,7 +481,8 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
       const bump2 = yield* reviewWith(conflictedPristine, { [SKILL]: REV_A });
       const listed2 = yield* list(bump2, repoRoot);
       const second = itemAt(listed2, 2);
-      expect([second.twoStrike, O.isNone(second.ghost)]).toEqual([true, true]);
+      assertTrue(second.twoStrike);
+      assertNone(second.ghost);
       const ghosted = yield* decideWith(bump2, repoRoot, [], { ghost: true });
       expect(A.length(ghosted.recorded)).toBe(0);
 
@@ -509,7 +512,10 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
       const fromD = yield* reviewWith(conflictedPristine, { [SKILL]: REV_D });
       const listedD = yield* list(fromD, repoRoot);
       const proposal = itemAt(listedD, 2);
-      expect(O.map(proposal.ghost, (row) => [row.decision, row.reviewer])).toEqual(O.some(["drop", "@kriegcloud"]));
+      assertSome(
+        O.map(proposal.ghost, (row) => [row.decision, row.reviewer]),
+        ["drop", "@kriegcloud"]
+      );
 
       const ghosted = yield* decideWith(fromD, repoRoot, [], { ghost: true, reviewer: "@agent" });
       expect(A.map(ghosted.recorded, (row) => [row.decision, row.reviewer, row.origin, row.oldRevision])).toEqual([

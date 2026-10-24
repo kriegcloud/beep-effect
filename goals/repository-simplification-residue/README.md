@@ -55,6 +55,8 @@ Wave 2 retired every open EV009 and EV014 row and left 26 EV015 rows for #1855
 ([record](./history/receipts/vitest-canon-wave-2.md)); wave 3 takes law-practice-server.
 Wave 3 retired 27 law-practice-server and leaf-package rows and handed 23 to #1855
 ([record](./history/receipts/vitest-canon-wave-3.md)); wave 4 takes the repo-cli assertion families.
+Wave 4 retired 99 repo-cli assertion and harness rows and handed seven EV008/EV013 rows to #1855
+([record](./history/receipts/vitest-canon-wave-4.md)); wave 5 takes the resource-lifetime families.
 The EV012 seams lane gave the Anthropic turn kernel, the bounded SHACL validator and the Codex packet renderer production service seams and retired their three module mocks
 ([record](./history/receipts/vitest-canon-ev012-seams.md)).
 Issue #1876 is complete: the RDF failure assertions and the Pacer logout teardown

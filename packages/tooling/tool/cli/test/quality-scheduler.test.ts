@@ -1161,11 +1161,9 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
               )
             );
 
-            let ticketNames = A.empty<string>();
-            for (let attempt = 0; attempt < 100 && A.isReadonlyArrayEmpty(ticketNames); attempt++) {
-              yield* Effect.sleep("5 millis");
-              ticketNames = yield* listDirectory(tempRoot.queue);
-            }
+            const ticketNames = yield* listDirectory(tempRoot.queue).pipe(
+              Effect.repeat({ schedule: Schedule.spaced("5 millis"), until: A.isReadonlyArrayNonEmpty, times: 100 })
+            );
             const ticketName = pipe(ticketNames, A.head, O.getOrThrow);
             const ticket = yield* fs
               .readFileString(path.join(tempRoot.queue, ticketName))

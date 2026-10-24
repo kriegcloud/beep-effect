@@ -159,22 +159,16 @@ const policyHashes = Effect.fn("PolicyFingerprintTurboTest.policyHashes")(functi
 });
 
 describe("policy fingerprint Turbo inputs", { concurrent: false }, () => {
-  it.effect("round-trips schema-derived dry-run summaries through the JSON boundary", () =>
-    Effect.gen(function* () {
-      const result = yield* Arbitrary.checkEffect(
-        FingerprintRunSummaryArbitrary,
-        (summary) =>
-          Effect.gen(function* () {
-            const encoded = yield* encodeSummary(summary);
-            const decoded = yield* decodeSummary(encoded);
-            expect(summaryEquivalent(decoded, summary)).toBe(true);
-            expect(yield* encodeSummary(decoded)).toBe(encoded);
-            return true;
-          }),
-        fcRuns()
-      );
-      expect(result._tag).toBe("Passed");
-    })
+  it.effect.prop(
+    "round-trips schema-derived dry-run summaries through the JSON boundary",
+    [FingerprintRunSummaryArbitrary],
+    Effect.fnUntraced(function* ([summary]) {
+      const encoded = yield* encodeSummary(summary);
+      const decoded = yield* decodeSummary(encoded);
+      expect(summaryEquivalent(decoded, summary)).toBe(true);
+      expect(yield* encodeSummary(decoded)).toBe(encoded);
+    }),
+    { arbitrary: fcRuns() }
   );
 
   it.effect(
