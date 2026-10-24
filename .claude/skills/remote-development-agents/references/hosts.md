@@ -9,7 +9,7 @@ boundary. Host-specific receipts are under that packet's `history/` directory.
 | --- | --- | --- |
 | `beep-worker` | `ssh-beep-worker-yubi` | Existing headless development worker; default wrapper disables forwarding. Recheck current provider and workload readiness. |
 | `tbk-worker` | `ssh-tbk-worker` | Separate KVM guest, account `worker`, no sudo; initial serialized development verified. Only DankStation has admitted inbound SSH. |
-| `dankserver` | `ssh-dankserver-worker` | Dedicated bare-metal account `worker`; initial serialized Codex development verified. Other coding-provider routes remain pending. |
+| `dankserver` | `ssh-dankserver-worker` | Dedicated bare-metal account `worker`; initial serialized Codex and Claude development verified. Other coding-provider routes remain pending. |
 
 ## beep-worker
 
@@ -70,8 +70,11 @@ The boundary checks, rootless Compose probe, frozen Beep installation,
 representative package checks, reference graph/query and native Codex inference
 and tool-use fixture passed. Codex used `gpt-6.1-sol` with medium reasoning in
 its normal workspace-write restriction; an independent recheck passed the
-fixture's tests. Claude, Grok, Cursor, Muse and proxy routes are not yet
-qualified on this host. Read `history/2026-10-23-dankserver-development.md`
+fixture's tests. Native Claude also completed sign-in and a bounded
+`claude-fable-5-1` / medium coding fixture, with zero permission denials and
+an independent passing test run. Use explicit model/effort flags. Grok, Cursor,
+Muse and proxy routes are not yet qualified on this host.
+Read `history/2026-10-23-dankserver-development.md`
 for the evidence boundary. OpenClaw was disabled with its data retained.
 
 The worker's dedicated service account can read `BEEP_SECRETS` and

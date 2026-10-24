@@ -95,8 +95,18 @@ wrote its implementation and ran the tests under the normal workspace-write
 restriction. Its success marker and an independent test recheck passed. This
 admits initial serialized Codex development within the recorded host limits.
 Repository/toolchain proof is recorded separately above.
-Other native/proxy coding-provider sign-ins remain
-in progress. No cloud-account
-login or paid overage is admitted. Managed
-automation, verification scripts and the operating guide are staged in the
-dankserver control-repository worktree; publication is still pending.
+Native Claude subsequently completed manual browser authorization and stored
+its credential with mode 0600. A bounded `claude-fable-5-1` / medium job read a
+disposable Python fixture, wrote its implementation and ran the tests using an
+explicit tool allowlist. The provider returned its exact success marker with
+zero permission denials, and an independent test run passed. This qualifies
+serialized native Claude development within the same host budget. The first
+authorization code exchange failed HTTP 400; a fresh manual authorization
+completed successfully. No authentication code or token was recorded here.
+
+Other native/proxy coding-provider sign-ins remain in progress. No cloud-account
+login or paid overage is admitted. Managed automation, verification scripts and
+the operating guide are published in [dankserver PR #1](https://github.com/kriegcloud/dankserver/pull/1).
+The fleet skill and operating records are published in
+[Beep PR #2222](https://github.com/beep-effect/beep-effect/pull/2222).
+Both remain drafts pending the remaining provider checks and publication gates.
