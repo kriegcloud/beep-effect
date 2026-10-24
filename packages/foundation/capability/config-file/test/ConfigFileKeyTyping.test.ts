@@ -1,5 +1,5 @@
 import { ConfigFile } from "@beep/config-file/ConfigFile";
-import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { ConfigProbe, ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { assert, describe, it } from "@effect/vitest";
@@ -112,5 +112,19 @@ describe("ConfigFile resolver requirements", () => {
     expectTypeOf<Layer.Services<typeof layer>>().toEqualTypeOf<
       FileSystem.FileSystem | Path.Path | SettingsFile | OptionalFile | WiderFile
     >();
+  });
+
+  it("infers independent match and probe requirements in both call forms", () => {
+    const resolver = {
+      name: "independent-probe",
+      resolve: first.resolve,
+      resolveMatch: OptionalFile.pipe(Effect.as(O.none())),
+      resolveProbe: WiderFile.pipe(Effect.as(ConfigProbe.make({ match: O.none(), probed: [] }))),
+    };
+    const direct = ConfigFile.layer(SettingsFile, { ...options, resolvers: [resolver] });
+    const curried = ConfigFile.layer({ ...options, resolvers: [resolver] })(SettingsFile);
+    type Required = FileSystem.FileSystem | Path.Path | SettingsFile | OptionalFile | WiderFile;
+    expectTypeOf<Layer.Services<typeof direct>>().toEqualTypeOf<Required>();
+    expectTypeOf<Layer.Services<typeof curried>>().toEqualTypeOf<Required>();
   });
 });
