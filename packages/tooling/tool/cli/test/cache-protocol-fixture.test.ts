@@ -45,6 +45,21 @@ const put = (url: string, body = bytes, capability = writer, signature = tag) =>
     HttpClient.execute
   );
 
+it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "10 seconds" })(
+  "native protocol fixture with TestClock",
+  (it) => {
+    it.effect("starts and serves requests without advancing TestClock", () =>
+      Effect.gen(function* () {
+        const fixture = yield* makeCacheProtocolFixture(credentials);
+        expect(new URL(fixture.url).hostname).toBe("127.0.0.1");
+        const response = yield* get(`${fixture.url}/v8/artifacts/status?teamId=${credentials.namespace}`);
+        expect(response.status).toBe(200);
+        yield* response.text;
+      })
+    );
+  }
+);
+
 it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20 seconds", excludeTestServices: true })(
   "native protocol fixture server",
   (it) => {

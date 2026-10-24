@@ -93,12 +93,18 @@ const AddressInUse = S.Struct({ code: S.tag("EADDRINUSE") }).pipe(
 );
 const bindFailure = (cause: unknown) => Effect.fail(new HttpServerError.ServeError({ cause }));
 
+// Let the Node test shim deliver listen/error events without consulting Clock.
+const awaitBindEvents = Effect.callback<void>((resume) => {
+  const handle = setImmediate(() => resume(Effect.void));
+  return Effect.sync(() => clearImmediate(handle));
+});
+
 const startFixtureServer = Effect.fn("CacheFixture.startServer")(function* <E>(
   app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>
 ) {
   const server = yield* BunHttpServer.make({ port: 0, hostname: fixtureHost, maxRequestBodySize: bodyLimit });
   // Node's Bun.serve test shim reports asynchronous listen errors at reload.
-  yield* Effect.sleep("1 millis");
+  yield* awaitBindEvents;
   yield* server.serve(app);
   return server;
 });
