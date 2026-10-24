@@ -4,6 +4,7 @@ import {
   buildYeetRunPlan,
   defaultYeetRunOptions,
   findOpenPullRequest,
+  findOpenPullRequestViaRest,
   RepoPlanStep,
   RepoRunContext,
   runGhPullRequestView,
@@ -15,13 +16,14 @@ import {
 } from "@beep/repo-cli/test/Yeet";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
@@ -85,6 +87,67 @@ const encodeView = S.encodeEffect(
 
 describe("Yeet pull request lifecycle boundaries", () => {
   it.layer(Layer.mergeAll(BunCrypto.layer, MemoryFileSystem.layer, Path.layer), { timeout: "10 seconds" })((it) => {
+    it.effect("uses REST branch matches and preserves confirmed absence without a GraphQL read", () =>
+      Effect.gen(function* () {
+        const view = { number: 42, state: "OPEN", headRefName: context.branch };
+        const encodeList = S.encodeEffect(S.fromJsonString(S.Array(S.Unknown)));
+        for (const views of [[view], [{ ...view, state: "CLOSED" }, { ...view, headRefName: "other" }, view], []]) {
+          const output = yield* encodeList(views);
+          const calls = yield* Ref.make<ReadonlyArray<string>>([]);
+          const runner = ChildProcessSpawner.make((command) => {
+            if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+            return Ref.update(calls, A.append(command.command)).pipe(
+              Effect.as(handle(command.command === "git" ? "git@github.com:beep-effect/beep-effect.git" : output))
+            );
+          });
+          const found = yield* findOpenPullRequest(context).pipe(
+            Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner)
+          );
+          if (A.isReadonlyArrayEmpty(views)) assertNone(found);
+          else
+            assertSome(
+              O.map(found, (pr) => pr.number),
+              42
+            );
+          expect(yield* Ref.get(calls)).toEqual(["git", "gh"]);
+          if (A.isReadonlyArrayNonEmpty(views)) {
+            const required = yield* runGhPullRequestView(context).pipe(
+              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner)
+            );
+            expect(required.number).toBe(42);
+          }
+        }
+      })
+    );
+
+    it.effect("retains REST lookup failures when GraphQL is rate limited", () =>
+      Effect.gen(function* () {
+        for (const [output, exitCode, message] of [
+          ["REST unavailable", 7, "REST unavailable"],
+          ["invalid JSON", 0, "Failed to decode GitHub REST pull request JSON"],
+          [Str.repeat(512 * 1024 + 1)("x"), 0, "capture limit"],
+        ] as const) {
+          const runner = ChildProcessSpawner.make((command) => {
+            if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+            return Effect.succeed(
+              command.command === "git"
+                ? handle("https://github.com/beep-effect/beep-effect.git")
+                : command.args[0] === "api"
+                  ? handle(output, exitCode)
+                  : handle("GraphQL: API rate limit already exceeded", 1)
+            );
+          });
+          const provide = Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner);
+          const failure = yield* findOpenPullRequest(context).pipe(Effect.flip, provide);
+          expect(failure.message).toContain(message);
+          const direct = yield* findOpenPullRequestViaRest(context).pipe(Effect.flip, provide);
+          expect(direct.message).toBe(failure.message);
+          const required = yield* runGhPullRequestView(context).pipe(Effect.flip, provide);
+          expect(required.command).toBe("gh api repos/{owner}/{repo}/pulls");
+        }
+      })
+    );
+
     it.effect("rejects protected monitoring branches and incompatible publication flags", () =>
       Effect.gen(function* () {
         for (const branch of ["main", "master", "HEAD"]) {
