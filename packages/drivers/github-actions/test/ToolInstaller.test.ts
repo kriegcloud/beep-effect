@@ -1,10 +1,11 @@
 import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { ExtractOptions, ProvisionedFile, ProvisionFileOptions } from "@beep/github-actions/ToolInstaller";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -22,6 +23,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import { settle } from "./support/results.ts";
 
@@ -665,7 +667,7 @@ describe("ToolInstaller", () => {
             const { join } = yield* Path.Path;
             const installer = yield* ToolInstaller;
             yield* Effect.flip(installer.cacheDir(join(root, "does-not-exist"), "node", "22.11.0"));
-            const leftovers = (yield* fs.readDirectory(root)).filter((entry) => entry.startsWith(".staging-"));
+            const leftovers = A.filter(yield* fs.readDirectory(root), (entry) => Str.startsWith(".staging-")(entry));
             assert.deepStrictEqual(leftovers, [], "the staging directory must be cleaned up on the failure path");
           })
         )
@@ -1055,7 +1057,10 @@ describe("ToolInstaller", () => {
             Effect.gen(function* () {
               yield* Effect.flatMap(ToolInstaller, (installer) => installer.provisionFile(options));
               assert.lengthOf(chmods, 1, "the Windows test's spy must be able to see a chmod at all");
-              assert.isTrue(chmods[0]?.endsWith("download"), "the chmod lands on the downloaded file, before caching");
+              assert.isTrue(
+                chmods[0] !== undefined && Str.endsWith("download")(chmods[0]),
+                "the chmod lands on the downloaded file, before caching"
+              );
             })
           )
         );
@@ -1087,7 +1092,7 @@ describe("ToolInstaller", () => {
               assert.instanceOf(error, ToolInstallerError);
               assert.strictEqual(error.reason, "cacheFailed");
               assert.isTrue(
-                error.subject?.endsWith("download"),
+                error.subject !== undefined && Str.endsWith("download")(error.subject),
                 "the subject is the file that could not be made executable"
               );
               // The failure happened BEFORE caching, so the cache must not contain

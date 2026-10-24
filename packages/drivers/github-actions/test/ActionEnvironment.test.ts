@@ -68,7 +68,7 @@ describe("ActionEnvironment", () => {
           const error = yield* Effect.flip(env.get("NOPE"));
           assert.strictEqual(error._tag, "ActionEnvironmentError");
           assert.strictEqual(error.reason, "missing");
-          assert.strictEqual(error.name, "NOPE");
+          assert.strictEqual(error.variable, "NOPE");
           assert.include(error.message, "NOPE");
         })
       );
@@ -84,7 +84,7 @@ describe("ActionEnvironment", () => {
             assertNone(yield* env.getOptional(name));
             const error = yield* Effect.flip(env.get(name));
             assert.strictEqual(error.reason, "missing");
-            assert.strictEqual(error.name, name);
+            assert.strictEqual(error.variable, name);
           }
         })
       );
@@ -160,7 +160,7 @@ describe("ActionEnvironment", () => {
         Effect.gen(function* () {
           const env = yield* ActionEnvironment;
           const error = yield* Effect.flip(env.github);
-          assert.strictEqual(error.name, "GITHUB_REPOSITORY");
+          assert.strictEqual(error.variable, "GITHUB_REPOSITORY");
         })
       );
     });
@@ -176,7 +176,7 @@ describe("ActionEnvironment", () => {
           const env = yield* ActionEnvironment;
           const error = yield* Effect.flip(env.github);
           assert.strictEqual(error.reason, "malformed");
-          assert.strictEqual(error.name, "GITHUB_RUN_ID");
+          assert.strictEqual(error.variable, "GITHUB_RUN_ID");
         })
       );
     });
@@ -299,7 +299,7 @@ describe("ActionEnvironment", () => {
         Effect.gen(function* () {
           const error = yield* (yield* ActionEnvironment).payload.pipe(Effect.asVoid, Effect.flip);
           assert.strictEqual(error.reason, "malformed");
-          assert.strictEqual(error.name, "GITHUB_EVENT_PATH");
+          assert.strictEqual(error.variable, "GITHUB_EVENT_PATH");
         })
       );
     });
@@ -310,7 +310,7 @@ describe("ActionEnvironment", () => {
       it.effect("fails typed when GITHUB_EVENT_PATH is not set", () =>
         Effect.gen(function* () {
           const error = yield* (yield* ActionEnvironment).payload.pipe(Effect.asVoid, Effect.flip);
-          assert.strictEqual(error.name, "GITHUB_EVENT_PATH");
+          assert.strictEqual(error.variable, "GITHUB_EVENT_PATH");
         })
       );
     });
@@ -484,7 +484,7 @@ describe("ActionEnvironment", () => {
           // to arrange a payload gets a loud failure naming what is missing, not a
           // plausible empty object.
           const error = yield* (yield* ActionEnvironment).payload.pipe(Effect.asVoid, Effect.flip);
-          assert.strictEqual(error.name, "GITHUB_EVENT_PATH");
+          assert.strictEqual(error.variable, "GITHUB_EVENT_PATH");
         })
       );
     });
@@ -527,7 +527,7 @@ describe("ActionEnvironment", () => {
         Effect.gen(function* () {
           const error = yield* (yield* ActionEnvironment).payload.pipe(Effect.asVoid, Effect.flip);
           assert.strictEqual(error.reason, "malformed");
-          assert.strictEqual(error.name, "GITHUB_EVENT_PATH");
+          assert.strictEqual(error.variable, "GITHUB_EVENT_PATH");
         })
       );
     });

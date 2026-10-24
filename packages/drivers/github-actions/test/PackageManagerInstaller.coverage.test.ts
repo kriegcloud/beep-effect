@@ -14,9 +14,11 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const refused = PlatformError.badArgument({ module: "FileSystem", method: "fixture", description: "refused" });
 const Json = S.fromJsonString(S.Unknown);
@@ -26,7 +28,7 @@ const nativeDependencies = { "@pnpm/exe.linux-x64": "12.0.0", "@pnpm/exe.win32-x
 it("an expected hash without a measured hash reports unverifiable integrity", () => {
   const error = PackageManagerInstallerError.make({
     reason: "integrityMismatch",
-    name: "pnpm",
+    manager: "pnpm",
     version: "12.0.0",
     expected: "sha512.expected",
     subject: "/archive",
@@ -62,7 +64,7 @@ const runtime = (options: Fixture) => {
         "/stage/package/package.json",
         Result.getOrThrow(S.encodeResult(Json)(options.manifest ?? { bin: { pnpm: "bin/pnpm.cjs" } }))
       );
-      for (const [file, contents] of Object.entries(options.files ?? { "bin/pnpm.cjs": "console.log('pnpm')" })) {
+      for (const [file, contents] of R.toEntries(options.files ?? { "bin/pnpm.cjs": "console.log('pnpm')" })) {
         yield* fs.writeFileString(`/stage/package/${file}`, contents);
       }
       yield* fs.writeFileString("/native/package/pnpm", "native");
@@ -85,7 +87,11 @@ const runtime = (options: Fixture) => {
       find: dual(2, (_tool: string, _version: string) =>
         Effect.succeed(
           options.cached === true
-            ? O.some(options.spec?.startsWith("bun") === true ? "/bun/bun-linux-x64" : "/stage/package")
+            ? O.some(
+                options.spec !== undefined && Str.startsWith("bun")(options.spec)
+                  ? "/bun/bun-linux-x64"
+                  : "/stage/package"
+              )
             : O.none()
         )
       ),
@@ -93,9 +99,9 @@ const runtime = (options: Fixture) => {
         (args) => P.isString(args[0]),
         (url: string, _options?: unknown) =>
           Effect.succeed(
-            url.includes("/-/exe.")
+            Str.includes("/-/exe.")(url)
               ? "/native-archive"
-              : url.endsWith(".tgz") || url.endsWith(".zip")
+              : Str.endsWith(".tgz")(url) || Str.endsWith(".zip")(url)
                 ? "/archive"
                 : "/packument"
           )
@@ -111,7 +117,7 @@ const runtime = (options: Fixture) => {
       cachePath: dual(2, (_tool: string, _version: string) => "/stage/package"),
       cacheDir: dual(3, (directory: string, _tool: string, _version: string) => Effect.succeed(directory)),
       cacheFile: dual(4, (file: string, _name: string, _tool: string, _version: string) =>
-        Effect.succeed(file.includes("bun-windows") ? "/bun/bun-windows-x64" : "/bun/bun-linux-x64")
+        Effect.succeed(Str.includes("bun-windows")(file) ? "/bun/bun-windows-x64" : "/bun/bun-linux-x64")
       ),
     })
   );
@@ -149,7 +155,10 @@ for (const bin of [42, {}, { pnpm: 42 }]) {
 fails("missing bin property is refused", { manifest: {} }, "layoutUnexpected", "names no bin");
 fails(
   "unreadable integrity input fails closed",
-  { spec: `pnpm@12.0.0+sha512.${"a".repeat(128)}`, mutate: (fs) => ({ ...fs, stream: () => Stream.fail(refused) }) },
+  {
+    spec: `pnpm@12.0.0+sha512.${Str.repeat(128)("a")}`,
+    mutate: (fs) => ({ ...fs, stream: () => Stream.fail(refused) }),
+  },
   "integrityMismatch",
   "/archive"
 );
@@ -218,7 +227,7 @@ for (const options of [
         const record = yield* installer.install(pin(options.spec ?? "pnpm@12.0.0"));
         assert.strictEqual(record.source, "tool-cache");
         const fs = yield* FileSystem.FileSystem;
-        for (const file of Object.values(record.bins)) assert.isTrue(yield* fs.exists(file));
+        for (const file of R.values(record.bins)) assert.isTrue(yield* fs.exists(file));
         if (options.spec === "bun@1.0.0") assert.strictEqual(record.bins.bun, "/bun/bun-linux-x64/bun");
         if (options.env?.RUNNER_OS === "Windows") {
           assert.strictEqual(record.bins.pnpm, "/stage/package/pnpm.exe");

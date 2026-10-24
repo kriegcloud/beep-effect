@@ -1,23 +1,32 @@
 import { ActionEnvironment, ActionLogger } from "@beep/github-actions";
 import { WithBufferOptions, WithStepOptions } from "@beep/github-actions/ActionLogger";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Latch from "effect/Latch";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as References from "effect/References";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import type { AnnotationProperties } from "@beep/github-commands";
 
 /** Everything written to `Console.log`, as strings, in order. */
-const lines = Effect.map(TestConsole.logLines, (captured) => captured.map(String));
+const lines = Effect.map(TestConsole.logLines, (captured) => A.map(captured, String));
 
 /** The lines a single buffer flushed, between its header and its footer. */
 const bufferedFor = (label: string, captured: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const start = captured.findIndex((line) => line.includes(`Buffered output for "${label}"`));
-  const end = captured.findIndex((line) => line.includes(`End buffered output for "${label}"`));
+  const start = O.getOrElse(
+    A.findFirstIndex(captured, (line) => Str.includes(`Buffered output for "${label}"`)(line)),
+    () => -1
+  );
+  const end = O.getOrElse(
+    A.findFirstIndex(captured, (line) => Str.includes(`End buffered output for "${label}"`)(line)),
+    () => -1
+  );
   return start === -1 || end === -1 ? [] : captured.slice(start + 1, end);
 };
 
@@ -336,7 +345,10 @@ describe("ActionLogger", () => {
             );
             const captured = yield* lines;
             const endGroup = captured.indexOf("::endgroup::");
-            const flushed = captured.findIndex((line) => line.includes('Buffered output for "install"'));
+            const flushed = O.getOrElse(
+              A.findFirstIndex(captured, (line) => Str.includes('Buffered output for "install"')(line)),
+              () => -1
+            );
             assert.isAbove(endGroup, 0, "the group must close");
             assert.isBelow(flushed, endGroup, "the transcript belongs inside the group that failed");
             assert.deepStrictEqual(bufferedFor("install", captured), ["resolving"]);
@@ -444,7 +456,10 @@ describe("ActionLogger", () => {
           );
           const captured = yield* lines;
           const header = captured.indexOf("❌ install");
-          const flushed = captured.findIndex((line) => line.includes('Buffered output for "install"'));
+          const flushed = O.getOrElse(
+            A.findFirstIndex(captured, (line) => Str.includes('Buffered output for "install"')(line)),
+            () => -1
+          );
           assert.isAtLeast(header, 0, "the failure header must be emitted");
           assert.isBelow(header, flushed, "the header introduces the transcript, so it cannot follow it");
           assert.deepStrictEqual(bufferedFor("install", captured), ["resolving"]);

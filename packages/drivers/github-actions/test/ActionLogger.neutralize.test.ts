@@ -1,11 +1,14 @@
 import { ActionEnvironment, ActionLogger, ActionOutputs } from "@beep/github-actions";
 import { WorkflowCommand } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as References from "effect/References";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { commandLines, isCommand } from "./support/runnerCommands.ts";
 
@@ -14,7 +17,7 @@ const Json = S.fromJsonString(S.Unknown);
 const ZWSP = String.fromCodePoint(0x200b);
 
 /** Everything written to `Console.log`, as strings, in order. */
-const lines = Effect.map(TestConsole.logLines, (captured) => captured.map(String));
+const lines = Effect.map(TestConsole.logLines, (captured) => A.map(captured, String));
 
 const HOSTILE = [
   "ok\n::add-mask::x",
@@ -45,7 +48,7 @@ describe("ActionLogger neutralizes the plain text it writes", () => {
           Effect.gen(function* () {
             const captured = yield* logged(Effect.logInfo(text));
             assert.deepStrictEqual(
-              commandLines(captured.join("\n")),
+              commandLines(A.join(captured, "\n")),
               [],
               Result.getOrThrowWith(S.encodeResult(Json)(captured), (error) => error)
             );
@@ -59,8 +62,8 @@ describe("ActionLogger neutralizes the plain text it writes", () => {
     it.effect("the text is kept: only zero-width spaces are added", () =>
       Effect.gen(function* () {
         const captured = yield* logged(Effect.logInfo("ok\n::add-mask::x"));
-        assert.strictEqual(captured.join("\n").replaceAll(ZWSP, ""), "ok\n::add-mask::x");
-        assert.include(captured.join("\n"), ZWSP);
+        assert.strictEqual(pipe(captured, A.join("\n"), Str.replaceAll(ZWSP, "")), "ok\n::add-mask::x");
+        assert.include(A.join(captured, "\n"), ZWSP);
       })
     );
   });
@@ -124,7 +127,7 @@ describe("ActionLogger neutralizes the plain text it writes", () => {
           WorkflowCommand.endGroup(),
           WorkflowCommand.notice("looks odd", { file: "src/a.ts", startLine: 12 }),
         ]);
-        assert.strictEqual(commandLines(captured.join("\n")).length, 3);
+        assert.strictEqual(commandLines(A.join(captured, "\n")).length, 3);
       })
     );
   });
@@ -143,8 +146,8 @@ describe("the buffered transcript and the step line are neutralized too", () => 
         );
         const captured = yield* lines;
         assert.isAbove(captured.length, 2);
-        assert.deepStrictEqual(commandLines(captured.join("\n")), []);
-        assert.include(captured.join("\n").replaceAll(ZWSP, ""), "resolving\n::add-mask::secret");
+        assert.deepStrictEqual(commandLines(A.join(captured, "\n")), []);
+        assert.include(pipe(captured, A.join("\n"), Str.replaceAll(ZWSP, "")), "resolving\n::add-mask::secret");
       })
     );
   });
@@ -156,7 +159,7 @@ describe("the buffered transcript and the step line are neutralized too", () => 
         yield* Effect.flip(logger.withStep("name\n::error::x ##[add-mask]y", Effect.fail("boom")));
         const captured = yield* lines;
         assert.deepStrictEqual(
-          commandLines(captured.join("\n")),
+          commandLines(A.join(captured, "\n")),
           [],
           Result.getOrThrowWith(S.encodeResult(Json)(captured), (error) => error)
         );
@@ -171,9 +174,9 @@ describe("a detached worker's setFailed degrades to a neutralized plain line", (
       Effect.gen(function* () {
         const outputs = yield* ActionOutputs;
         yield* outputs.setFailed("bad\n::error::x ##[stop-commands]y");
-        const errors = (yield* TestConsole.errorLines).map(String);
+        const errors = A.map(yield* TestConsole.errorLines, String);
         assert.deepStrictEqual(
-          commandLines(errors.join("\n")),
+          commandLines(A.join(errors, "\n")),
           [],
           Result.getOrThrowWith(S.encodeResult(Json)(errors), (error) => error)
         );

@@ -1,3 +1,4 @@
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
@@ -11,7 +12,6 @@ import * as S from "effect/Schema";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { ActionOutputs } from "./ActionOutputs.ts";
 import { heredocBlock, isUsableName } from "./internal/runnerFile.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
 
 const $I = $GithubActionsId.create("ActionState");
 

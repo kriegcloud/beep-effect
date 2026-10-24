@@ -1,10 +1,11 @@
 import { ActionInput, ActionLogger, DryRun } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as TestConsole from "effect/testing/TestConsole";
 
-const lines = Effect.map(TestConsole.logLines, (captured) => captured.map(String));
+const lines = Effect.map(TestConsole.logLines, (captured) => A.map(captured, String));
 
 /** A mutation that records the fact it ran, so "did not run" is observable. */
 const mutation = () => {

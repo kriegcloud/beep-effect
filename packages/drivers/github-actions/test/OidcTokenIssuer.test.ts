@@ -1,5 +1,5 @@
 import { ActionEnvironment, OidcClaims, OidcTokenIssuer } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -9,6 +9,7 @@ import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Json = S.fromJsonString(S.Unknown);
 const WorkflowClaim = S.Struct({ job_workflow_ref: S.optionalKey(S.String) });
@@ -349,7 +350,7 @@ describe("OidcTokenIssuer", () => {
       it.layer(live(fake), { timeout: "30 seconds" })((it) => {
         it.effect("decodes a payload whose base64url alphabet differs from base64", () =>
           Effect.gen(function* () {
-            assert.match(token.split(".")[1] ?? "", /[-_]/, "the fixture must actually exercise the url alphabet");
+            assert.match(Str.split(token, ".")[1] ?? "", /[-_]/, "the fixture must actually exercise the url alphabet");
             const claims = yield* (yield* OidcTokenIssuer).claims();
             assert.strictEqual(claims.ref, "refs/heads/~~~??>>>");
           })
@@ -386,7 +387,7 @@ describe("OidcTokenIssuer", () => {
           // token ITSELF — which is what a provenance builder does — must get the
           // same claims the service reports, or the path stays untested while
           // looking tested.
-          const payload = Redacted.value(token).split(".")[1] ?? "";
+          const payload = Str.split(Redacted.value(token), ".")[1] ?? "";
           const decoded = Result.getOrThrowWith(
             S.decodeResult(Json)(Buffer.from(payload, "base64url").toString("utf8")),
             (error) => error

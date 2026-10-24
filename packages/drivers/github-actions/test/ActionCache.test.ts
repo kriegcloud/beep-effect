@@ -1,6 +1,6 @@
 import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "@beep/github-actions";
 import { spawnOnce } from "@beep/github-actions/internal/spawn";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
@@ -12,9 +12,11 @@ import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -32,13 +34,13 @@ import type { FileBlobTransfer } from "@beep/github-actions";
  * archive a real `tar` will accept.
  */
 const fileTransfer = (fs: FileSystem.FileSystem) => {
-  const blobs = new Map<string, Uint8Array>();
+  const blobs = MutableHashMap.empty<string, Uint8Array>();
   const transfer: FileBlobTransfer = {
     uploadFile: dual(2, (url: string, file: string) =>
       fs.readFile(file).pipe(
         Effect.tap((bytes) =>
           Effect.sync(() => {
-            blobs.set(url, bytes);
+            MutableHashMap.set(blobs, url, bytes);
           })
         ),
         Effect.asVoid,
@@ -47,7 +49,7 @@ const fileTransfer = (fs: FileSystem.FileSystem) => {
     ),
     downloadToFile: dual(2, (url: string, file: string) =>
       Effect.suspend(() => {
-        const found = blobs.get(url);
+        const found = O.getOrUndefined(MutableHashMap.get(blobs, url));
         return found === undefined
           ? Effect.fail(
               BlobTransferError.make({ reason: "downloadFailed", cause: new Error(`nothing was uploaded to ${url}`) })
@@ -76,7 +78,9 @@ const live = (fetch: typeof globalThis.fetch, transfer: FileBlobTransfer, env: R
 /** The digest `actions/cache` computes for the same path set. */
 const versionOf = (paths: ReadonlyArray<string>) =>
   Crypto.Crypto.use((crypto) =>
-    crypto.digest("SHA-256", new TextEncoder().encode([...paths, "gzip", "1.0"].join("|"))).pipe(Effect.map(Hex.encode))
+    crypto
+      .digest("SHA-256", new TextEncoder().encode(A.join([...paths, "gzip", "1.0"], "|")))
+      .pipe(Effect.map(Hex.encode))
   );
 
 describe("ActionCache", () => {
@@ -89,7 +93,7 @@ describe("ActionCache", () => {
       Effect.map(FileSystem.FileSystem, (fs) => ({
         ...fs,
         writeFileString: Effect.fnUntraced(function* (...args: Parameters<typeof fs.writeFileString>) {
-          if (args[0].endsWith("manifest.txt")) manifestWrites += 1;
+          if (Str.endsWith("manifest.txt")(args[0])) manifestWrites += 1;
           return yield* fs.writeFileString(...args);
         }),
       }))
@@ -178,9 +182,12 @@ describe("ActionCache", () => {
           const matched = yield* cache.restore([file], "the-key");
 
           assertSome(matched, "the-key");
-          assert.strictEqual(blobs.size, 1);
+          assert.strictEqual(MutableHashMap.size(blobs), 1);
           // gzip's magic: what was uploaded is an archive, not a description of one.
-          assert.deepStrictEqual([...(blobs.get(url) ?? []).slice(0, 2)], [0x1f, 0x8b]);
+          assert.deepStrictEqual(
+            [...(O.getOrUndefined(MutableHashMap.get(blobs, url)) ?? []).slice(0, 2)],
+            [0x1f, 0x8b]
+          );
           assert.strictEqual(yield* fs.readFileString(file), "cached contents");
         })
       );
@@ -500,7 +507,7 @@ describe("ActionCache", () => {
           const { file, blobs, calls } = yield* Fixture11;
 
           yield* Effect.flatMap(ActionCache, (cache) => cache.save([file], "k"));
-          assert.strictEqual(blobs.size, 0);
+          assert.strictEqual(MutableHashMap.size(blobs), 0);
           assert.lengthOf(calls, 1);
         })
       );
@@ -534,7 +541,7 @@ describe("ActionCache", () => {
           const { file, blobs } = yield* Fixture12;
 
           const error = yield* Effect.flip(Effect.flatMap(ActionCache, (cache) => cache.save([file], "k")));
-          assert.strictEqual(blobs.size, 1, "the archive did arrive");
+          assert.strictEqual(MutableHashMap.size(blobs), 1, "the archive did arrive");
           assert.strictEqual(error.reason, "refused");
           assert.include(error.message, "FinalizeCacheEntryUpload");
         })
@@ -701,8 +708,8 @@ describe("ActionCache", () => {
 
             yield* Effect.flatMap(ActionCache, (cache) => cache.save(literals, "k"));
             yield* Effect.flatMap(ActionCache, (cache) => cache.restore(literals, "k"));
-            const create = calls.find((call) => call.method === "CreateCacheEntry");
-            const lookup = calls.find((call) => call.method === "GetCacheEntryDownloadURL");
+            const create = O.getOrUndefined(A.findFirst(calls, (call) => call.method === "CreateCacheEntry"));
+            const lookup = O.getOrUndefined(A.findFirst(calls, (call) => call.method === "GetCacheEntryDownloadURL"));
             assert.strictEqual(create?.body.version, yield* versionOf(literals));
             assert.strictEqual(lookup?.body.version, yield* versionOf(literals));
           })
@@ -742,7 +749,7 @@ describe("ActionCache", () => {
             yield* Effect.flatMap(ActionCache, (cache) =>
               cache.save([file, `${root}/nothing-*`, join(root, "absent-literal")], "k")
             );
-            assert.strictEqual(blobs.size, 1, "the archive with the surviving path was uploaded");
+            assert.strictEqual(MutableHashMap.size(blobs), 1, "the archive with the surviving path was uploaded");
           })
         );
       });
@@ -841,7 +848,7 @@ describe("ActionCache", () => {
             const { blobs } = yield* Fixture20;
 
             yield* Effect.flatMap(ActionCache, (cache) => cache.save(["~/payload.txt"], "k"));
-            assert.strictEqual(blobs.size, 1);
+            assert.strictEqual(MutableHashMap.size(blobs), 1);
           })
         );
       });
@@ -1080,17 +1087,17 @@ describe("ActionCache", () => {
         // macOS's 1MB execve budgets, so handing the list to tar as
         // argv would die as E2BIG before tar even started — the
         // `${workspace}/**` shape at production scale.
-        const segment = (label: string) => `${label}-${"x".repeat(180)}`;
+        const segment = (label: string) => `${label}-${Str.repeat(180)("x")}`;
         const deep = join(root, segment("d1"), segment("d2"), segment("d3"), segment("d4"));
         yield* fs.makeDirectory(deep, { recursive: true });
         const files: Array<string> = [];
         for (let index = 0; index < 2800; index += 1) {
-          const file = join(deep, `file-${String(index).padStart(4, "0")}-${"y".repeat(180)}.txt`);
+          const file = join(deep, `file-${Str.padStart(4, "0")(String(index))}-${Str.repeat(180)("y")}.txt`);
           yield* fs.writeFileString(file, `payload ${index}`);
           files.push(file);
         }
         assert.isAbove(
-          files.reduce((total, file) => total + file.length + 1, 0),
+          A.reduce(files, 0, (total, file) => total + file.length + 1),
           2_500_000,
           "the fixture must be big enough that argv would actually overflow"
         );
@@ -1134,14 +1141,18 @@ describe("ActionCache", () => {
 
               // The create invocation carried `-T <manifest>` and not one
               // resolved path; the manifest listed every match.
-              const create = spy.spawns.find((spawn) => spawn.args.includes("-T"));
+              const create = O.getOrUndefined(A.findFirst(spy.spawns, (spawn) => spawn.args.includes("-T")));
               assert.isDefined(create, "tar was never invoked with a manifest");
-              const resolvedSet = new Set(files);
+              const resolvedSet = HashSet.fromIterable(files);
               assert.isFalse(
-                create?.args.some((arg) => resolvedSet.has(arg)),
+                A.some(create?.args, (arg) => HashSet.has(resolvedSet, arg)),
                 "resolved paths must not travel as argv"
               );
-              const listed = (create?.manifest ?? "").split("\n").filter((line) => line !== "");
+              const listed = pipe(
+                create?.manifest ?? "",
+                Str.split("\n"),
+                A.filter((line) => line !== "")
+              );
               assert.deepStrictEqual([...listed].sort(), [...files].sort());
             }),
           120_000
@@ -1230,7 +1241,7 @@ describe("ActionCache", () => {
             const { root, calls } = yield* Fixture24;
 
             const error = yield* Effect.flip(
-              Effect.flatMap(ActionCache, (cache) => cache.save([`${root}/${"a".repeat(70_000)}`], "k"))
+              Effect.flatMap(ActionCache, (cache) => cache.save([`${root}/${Str.repeat(70_000)("a")}`], "k"))
             );
             assert.strictEqual(error.reason, "archiveFailed");
             assert.include(error.detail, "not a usable glob pattern");

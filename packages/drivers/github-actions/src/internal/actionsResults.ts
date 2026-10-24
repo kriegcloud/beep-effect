@@ -14,6 +14,7 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { payloadOf } from "./jwt.ts";
 import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
 
@@ -216,8 +217,8 @@ export const backendIdsFrom = (token: string): Result.Result<BackendIds, string>
   if (!P.isString(scope)) {
     return Result.fail("the runtime token carries no `scp` claim");
   }
-  for (const entry of scope.split(" ")) {
-    const parts = entry.split(":");
+  for (const entry of Str.split(scope, " ")) {
+    const parts = Str.split(entry, ":");
     if (parts[0] !== "Actions.Results") {
       continue;
     }
@@ -275,7 +276,7 @@ export const resultsBackend = Effect.fn("resultsBackend")(function* (env: Action
     return yield* Effect.fail(RUNTIME_TOKEN);
   }
   return {
-    baseUrl: url.value.endsWith("/") ? url.value : `${url.value}/`,
+    baseUrl: Str.endsWith("/")(url.value) ? url.value : `${url.value}/`,
     token: Redacted.make(token.value),
     backendIds: backendIdsFrom(token.value),
   };

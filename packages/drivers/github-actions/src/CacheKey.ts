@@ -14,6 +14,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { sha256, sha256Hex } from "./internal/digest.ts";
+import { escapesRoot, statIfPresent } from "./internal/fsProbe.ts";
 
 const $I = $GithubActionsId.create("CacheKey");
 
@@ -578,7 +579,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
           message: `A digest length must be an integer between 1 and 64, got ${length}`,
         });
       }
-      return sha256Hex(input).slice(0, length);
+      return Str.slice(0, length)(sha256Hex(input));
     }
   );
 
@@ -724,22 +725,12 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
       // symlinked directory targeting outside the workspace is descended,
       // matching `@actions/glob`'s out-of-tree link following.)
       const relative = path.relative(workspace, target);
-      if (
-        relative === "" ||
-        relative === ".." ||
-        Str.startsWith(`..${path.sep}`)(relative) ||
-        path.isAbsolute(relative)
-      ) {
+      if (escapesRoot(path, relative)) {
         continue;
       }
       // Absent is a miss; unreadable is not, because a key computed without a file the caller asked for
       // silently restores the wrong cache.
-      const info = yield* fs.stat(target).pipe(
-        Effect.asSome,
-        Effect.catchIf(
-          (error) => error.reason._tag === "NotFound",
-          () => Effect.succeedNone
-        ),
+      const info = yield* statIfPresent(fs, target).pipe(
         Effect.mapError((cause) => CacheKeyReadError.make({ path: target, cause }))
       );
       if (O.isSome(info) && info.value.type === "File") {

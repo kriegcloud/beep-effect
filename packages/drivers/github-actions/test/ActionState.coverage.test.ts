@@ -1,7 +1,7 @@
 import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
 import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
 import { ActionState, ActionStateError } from "@beep/github-actions/ActionState";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";

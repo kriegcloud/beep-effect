@@ -6,6 +6,7 @@ import { BlobStore, BlobStoreError } from "@beep/github-actions/BlobStore";
 import { GitHubCacheBlobStore } from "@beep/github-actions/BlobStore.githubCache";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
@@ -46,7 +47,7 @@ describe("Azure cache transport", () => {
           yield* store.put("key", { metadata: "metadata", body: new Uint8Array([7, 8]) }, S.String);
           assert.deepStrictEqual(upload.mock.calls[0]?.[0], frame);
           assertSome(yield* store.get("key", S.String), { metadata: "metadata", body: new Uint8Array([7, 8]) });
-          assert.isTrue(calls.some((call) => call.method === "FinalizeCacheEntryUpload"));
+          assert.isTrue(A.some(calls, (call) => call.method === "FinalizeCacheEntryUpload"));
         }).pipe(
           Effect.ensuring(
             Effect.sync(() => {

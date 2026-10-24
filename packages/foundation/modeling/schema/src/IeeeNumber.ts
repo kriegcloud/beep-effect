@@ -1,14 +1,29 @@
-import { $GithubActionsId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema/LiteralKit";
+/**
+ * Schema for any JavaScript number, including `NaN` and the infinities.
+ *
+ * **Details**
+ *
+ * `S.Finite` rejects the IEEE-754 special values, which is right for every
+ * domain value and wrong for the few places that must carry whatever number
+ * arrived: a TOML float (`inf`, `nan`), or an error that reports the value it
+ * refused. The JSON and string-tree codecs spell the special values as
+ * `"Infinity"`, `"-Infinity"` and `"NaN"`, so a round trip keeps them.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $SchemaId } from "@beep/identity/packages";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import { LiteralKit } from "./LiteralKit/index.ts";
 
-const $I = $GithubActionsId.create("internal/ieeeNumber");
+const $I = $SchemaId.create("IeeeNumber");
 
 const NonFiniteSpelling = LiteralKit(["Infinity", "-Infinity", "NaN"]).pipe(
   $I.annoteSchema("NonFiniteSpelling", {
-    description: "The text encodings of non-finite IEEE numbers.",
+    description: "The text spellings of the non-finite IEEE-754 numbers used by the JSON and string-tree codecs.",
   })
 );
 const spellNonFinite = (n: number) => (Number.isNaN(n) ? "NaN" : n > 0 ? "Infinity" : "-Infinity");
@@ -26,18 +41,19 @@ const stringTreeLink = () =>
 /**
  * Accepts every JavaScript number, including `NaN`, `Infinity` and `-Infinity`.
  *
- * **Example** (Accept non-finite numbers)
+ * **Example** (Keep a non-finite number through JSON)
  *
- * ```ts
- * import { IeeeNumber } from "@beep/github-actions/internal/ieeeNumber";
+ * ```ts import.meta.vitest name="Keep a non-finite number through JSON"
+ * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
+ * import { IeeeNumber } from "@beep/schema/IeeeNumber";
  *
- * console.log(S.is(IeeeNumber)(Infinity)) // true
- * console.log(S.is(IeeeNumber)(NaN)) // true
+ * const codec = S.toCodecJson(IeeeNumber);
+ * const encoded = await Effect.runPromise(S.encodeEffect(codec)(Number.NEGATIVE_INFINITY));
+ * encoded // => "-Infinity"
  * ```
  *
- * @internal
- * @category schemas
+ * @category validation
  * @since 0.0.0
  */
 export const IeeeNumber = S.declare(P.isNumber, {
@@ -47,14 +63,15 @@ export const IeeeNumber = S.declare(P.isNumber, {
   toCodecArbitrary: jsonLink,
 }).pipe(
   $I.annoteSchema("IeeeNumber", {
-    description: "Any JavaScript number, including NaN, Infinity and -Infinity.",
+    description:
+      "Any JavaScript number, including NaN and positive or negative infinity, with non-finite codec spellings.",
   })
 );
 
 /**
  * The number type accepted by the {@link IeeeNumber} runtime schema.
  *
- * @category type-level
+ * @category validation
  * @since 0.0.0
  */
 export type IeeeNumber = typeof IeeeNumber.Type;

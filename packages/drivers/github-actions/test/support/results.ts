@@ -8,10 +8,13 @@
 // production.
 
 import { ActionEnvironment } from "@beep/github-actions";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Json = S.fromJsonString(S.Unknown);
 const RequestBodyJson = S.fromJsonString(S.Record(S.String, S.Unknown));
@@ -72,7 +75,7 @@ export const twirpFetch = (
   const fetch: typeof globalThis.fetch = Object.assign(
     async (input: Parameters<typeof globalThis.fetch>[0], init: Parameters<typeof globalThis.fetch>[1]) => {
       const url = String(input);
-      const method = url.slice(url.lastIndexOf("/") + 1);
+      const method = Str.slice(O.getOrElse(Str.lastIndexOf("/")(url), () => -1) + 1)(url);
       // Decoded through `Response` rather than `String(init.body)`: the request
       // body arrives as bytes, and stringifying a Uint8Array produces `123,34,…`,
       // which throws in `JSON.parse` — inside a fake `fetch`, that surfaces as a
@@ -82,7 +85,7 @@ export const twirpFetch = (
         S.decodeResult(RequestBodyJson)((await new Response(init?.body ?? "{}").text()) || "{}"),
         (error) => error
       );
-      const index = calls.filter((call) => call.method === method).length;
+      const index = A.filter(calls, (call) => call.method === method).length;
       calls.push({ url, method, body, authorization: new Headers(init?.headers).get("authorization") });
       const handler = handlers[method];
       return handler === undefined ? new Response(null, { status: 501 }) : handler(body, index);

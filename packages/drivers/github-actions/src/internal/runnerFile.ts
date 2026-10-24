@@ -1,3 +1,6 @@
+import * as A from "effect/Array";
+import * as Str from "effect/String";
+
 // The runner-file heredoc protocol — `GITHUB_OUTPUT`, `GITHUB_ENV` and
 // `GITHUB_STATE` all take `name<<DELIM\nvalue\nDELIM\n` — spelled once for
 // `ActionOutputs` and `ActionState`.
@@ -12,6 +15,9 @@
 
 /** The base delimiter for a heredoc block. */
 const BASE_DELIMITER = "EFFECTED_EOF";
+
+/** One base delimiter and the underscore run that follows it. */
+const DELIMITER_RUN = /EFFECTED_EOF_*/g;
 
 /**
  * A delimiter guaranteed absent from `value`.
@@ -29,22 +35,13 @@ const BASE_DELIMITER = "EFFECTED_EOF";
  * @since 0.0.0
  */
 export const delimiterFor = (value: string): string => {
-  let longestRun = -1;
-  let occurrence = value.indexOf(BASE_DELIMITER);
-  while (occurrence >= 0) {
-    const runStart = occurrence + BASE_DELIMITER.length;
-    let runEnd = runStart;
-    while (value[runEnd] === "_") {
-      runEnd++;
-    }
-    const runLength = runEnd - runStart;
-    if (runLength > longestRun) {
-      longestRun = runLength;
-    }
-    // No base delimiter can begin inside the underscore run just scanned.
-    occurrence = value.indexOf(BASE_DELIMITER, runEnd);
-  }
-  return longestRun < 0 ? BASE_DELIMITER : `${BASE_DELIMITER}${"_".repeat(longestRun + 1)}`;
+  // Each match consumes the underscore run after one base delimiter, and no
+  // base delimiter can begin inside that run, so the global scan resumes
+  // exactly where the run ends.
+  const longestRun = A.reduce(A.fromIterable(Str.matchAll(DELIMITER_RUN)(value)), -1, (longest, match) =>
+    Math.max(longest, match[0].length - BASE_DELIMITER.length)
+  );
+  return longestRun < 0 ? BASE_DELIMITER : `${BASE_DELIMITER}${Str.repeat(longestRun + 1)("_")}`;
 };
 
 /**

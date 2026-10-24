@@ -1,4 +1,4 @@
-import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -6,29 +6,31 @@ import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
-import * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Num from "effect/Number";
-import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
-import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ActionEnvironment } from "./ActionEnvironment.ts";
-import { BlobTransferError } from "./BlobTransfer.ts";
+import * as Str from "effect/String";
 import { misconfiguredDetail, resultsBackend } from "./internal/actionsResults.ts";
 import { unzipCommand, zipCommand, zipManifest } from "./internal/archiveCommands.ts";
+import { azureFileTransfer } from "./internal/azureBlob.ts";
 import { digestFileHex } from "./internal/digest.ts";
-import { isWindowsRunner } from "./internal/runner.ts";
+import { framed } from "./internal/messageText.ts";
+import { runnerServices } from "./internal/runnerServices.ts";
 import { spawnOnce } from "./internal/spawn.ts";
 import { CONFLICT, field, isOk, stringField, twirpCall, twirpFailureFields } from "./internal/twirp.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
+import type * as FileSystem from "effect/FileSystem";
+import type * as HttpClient from "effect/http/HttpClient";
+import type * as Path from "effect/Path";
 import type * as ChildProcess from "effect/process/ChildProcess";
-import type { FileBlobTransfer } from "./BlobTransfer.ts";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import type { ActionEnvironment } from "./ActionEnvironment.ts";
+import type { BlobTransferError, FileBlobTransfer } from "./BlobTransfer.ts";
 import type { BackendIds } from "./internal/actionsResults.ts";
+import type { RunnerServiceRequirements } from "./internal/runnerServices.ts";
 import type { TwirpResult } from "./internal/twirp.ts";
 
 const $I = $GithubActionsId.create("Artifact");
@@ -123,21 +125,19 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
    * @since 0.0.0
    */
   override get message(): string {
-    const about = this.artifact === undefined ? "" : ` "${this.artifact}"`;
-    const detail = this.detail === undefined ? "" : `: ${this.detail}`;
+    const about = framed(this.artifact, ' "', '"');
+    const detail = framed(this.detail, ": ");
     return Match.value(this.reason).pipe(
       Match.when("misconfigured", () => `The artifact service is not reachable from here${detail}`),
       Match.when("unreachable", () => `The artifact service could not be reached${detail}`),
       Match.when(
         "refused",
-        () =>
-          `The artifact service refused${about}${this.status === undefined ? "" : ` with status ${this.status}`}${detail}`
+        () => `The artifact service refused${about}${framed(this.status, " with status ")}${detail}`
       ),
       Match.when("notFound", () => `No artifact${about} exists in this run`),
       Match.when(
         "archiveFailed",
-        () =>
-          `The artifact archive could not be built or extracted${about}${this.stderr === undefined ? "" : `: ${this.stderr}`}`
+        () => `The artifact archive could not be built or extracted${about}${framed(this.stderr, ": ")}`
       ),
       Match.when("transferFailed", () => `The artifact archive did not transfer${about}`),
       Match.when("invalidOptions", () => `The artifact call cannot be made as asked${detail}`),
@@ -415,41 +415,6 @@ const SERVICE = "github.actions.results.api.v1.ArtifactService";
  */
 const ARTIFACT_VERSION = 7;
 
-/**
- * The Azure half, duplicated on purpose.
- *
- * **Gotchas**
- *
- * `@azure/storage-blob` may be imported here, by `ActionCache` and by
- * `BlobStore.githubCache`, and nowhere else. Hoisting these two calls into a
- * shared `internal/` helper is exactly how a heavy import leaks into the graph
- * of a module that only sets an output; `__test__/reachability.test.ts`
- * measures that these are the only three.
- */
-const azure: FileBlobTransfer = {
-  uploadFile: dual(
-    2,
-    (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
-      Effect.tryPromise({
-        try: () =>
-          new BlockBlobClient(url).uploadFile(file, {
-            blockSize: 64 * 1024 * 1024,
-            concurrency: 8,
-            maxSingleShotSize: 128 * 1024 * 1024,
-          }),
-        catch: (cause) => BlobTransferError.make({ reason: "uploadFailed", cause }),
-      }).pipe(Effect.asVoid)
-  ),
-  downloadToFile: dual(
-    2,
-    (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
-      Effect.tryPromise({
-        try: () => new BlobClient(url).downloadToFile(file),
-        catch: (cause) => BlobTransferError.make({ reason: "downloadFailed", cause }),
-      }).pipe(Effect.asVoid)
-  ),
-};
-
 /** One row of a `ListArtifacts` answer, read under either field spelling. */
 const toItem = Effect.fnUntraced(function* (row: unknown) {
   const createdAt = stringField(row, "createdAt");
@@ -463,22 +428,9 @@ const toItem = Effect.fnUntraced(function* (row: unknown) {
 
 const make = Effect.fn("make")(function* (
   transfer: FileBlobTransfer
-): Effect.fn.Return<
-  ArtifactShape,
-  never,
-  | ActionEnvironment
-  | HttpClient.HttpClient
-  | FileSystem.FileSystem
-  | Path.Path
-  | ChildProcessSpawner.ChildProcessSpawner
-> {
-  const http = yield* HttpClient.HttpClient;
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+): Effect.fn.Return<ArtifactShape, never, RunnerServiceRequirements> {
   // Resolved once, at construction, so every member's `R` is `never`.
-  const env = yield* ActionEnvironment;
-  const windows = yield* isWindowsRunner(env);
+  const { http, fs, path, spawner, env, windows } = yield* runnerServices;
 
   const backend = (artifact: string) =>
     resultsBackend(env).pipe(
@@ -558,7 +510,7 @@ const make = Effect.fn("make")(function* (
         Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact, cause }))
       );
       if (code !== 0) {
-        return yield* ArtifactError.make({ reason: "archiveFailed", artifact, stderr: output.trim() });
+        return yield* ArtifactError.make({ reason: "archiveFailed", artifact, stderr: Str.trim(output) });
       }
     })
   );
@@ -639,7 +591,7 @@ const make = Effect.fn("make")(function* (
       // says why), so a path holding a line break cannot be represented.
       // Rejected on every platform: the same upload must not succeed on one
       // runner and fail on another.
-      const unrepresentable = A.findFirst(relative, (file) => file.includes("\n") || file.includes("\r"));
+      const unrepresentable = A.findFirst(relative, (file) => Str.includes("\n")(file) || Str.includes("\r")(file));
       if (O.isSome(unrepresentable)) {
         const quoted = yield* S.encodeEffect(Json)(unrepresentable.value).pipe(Effect.orDie);
         return yield* ArtifactError.make({
@@ -938,7 +890,7 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
     | FileSystem.FileSystem
     | Path.Path
     | ChildProcessSpawner.ChildProcessSpawner
-  > = Layer.effect(this, make(azure));
+  > = Layer.effect(this, make(azureFileTransfer));
 
   /**
    * The service, over a supplied transport.

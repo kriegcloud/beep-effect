@@ -17,6 +17,7 @@ import * as Base64Url from "effect/encoding/Base64Url";
 import * as Function from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Json = S.fromJsonString(S.Unknown);
 const $I = $GithubActionsId.create("internal/jwt");
@@ -97,7 +98,7 @@ export type JwtPayloadFailure = typeof JwtPayloadFailure.Type;
  * @since 0.0.0
  */
 export const payloadOf = (token: string): Result.Result<unknown, JwtPayloadFailure> => {
-  const segments = token.split(".");
+  const segments = Str.split(token, ".");
   const payload = segments[1];
   if (segments.length !== 3 || payload === undefined || payload === "") {
     return Result.fail({ kind: "segments", detail: `expected three segments, got ${segments.length}` });

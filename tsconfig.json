@@ -2400,6 +2400,9 @@
       "@beep/github-actions/*": ["./packages/drivers/github-actions/src/*"],
       "@beep/github-actions/internal/*": [
         "./packages/drivers/github-actions/src/internal/*"
+      ],
+      "@beep/schema/IeeeNumber": [
+        "./packages/foundation/modeling/schema/src/IeeeNumber.ts"
       ]
     }
   }

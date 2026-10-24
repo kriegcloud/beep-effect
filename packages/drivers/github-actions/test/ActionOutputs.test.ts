@@ -7,20 +7,22 @@ import {
   RunnerFileUnavailableError,
   Secret,
 } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 import type { ActionOutputError } from "@beep/github-actions";
@@ -91,7 +93,7 @@ describe("ActionOutputs", () => {
               const error = yield* Effect.flip(outputs.addPath(path));
               assert.instanceOf(error, InvalidOutputNameError);
               assert.strictEqual(error.file, "GITHUB_PATH");
-              assert.strictEqual(error.name, path);
+              assert.strictEqual(error.outputName, path);
               assert.isUndefined(files.written.text(FILES.GITHUB_PATH));
             }
             // PATH entries have no heredoc separator restrictions.
@@ -109,10 +111,10 @@ describe("ActionOutputs", () => {
           Effect.gen(function* () {
             yield* (yield* ActionOutputs).set("version", "1.2.3");
             const body = files.written.text(FILES.GITHUB_OUTPUT) ?? "";
-            const [head, value, tail] = body.trimEnd().split("\n");
-            assert.isTrue(head?.startsWith("version<<"), `unexpected head: ${head}`);
+            const [head, value, tail] = pipe(body, Str.trimEnd, Str.split("\n"));
+            assert.isTrue(head !== undefined && Str.startsWith("version<<")(head), `unexpected head: ${head}`);
             assert.strictEqual(value, "1.2.3");
-            assert.strictEqual(tail, head?.slice("version<<".length));
+            assert.strictEqual(tail, head === undefined ? undefined : Str.slice("version<<".length)(head));
           })
         );
       });
@@ -125,8 +127,8 @@ describe("ActionOutputs", () => {
           Effect.gen(function* () {
             yield* (yield* ActionOutputs).set("notes", "line one\nline two\n\nline four");
             const body = files.written.text(FILES.GITHUB_OUTPUT) ?? "";
-            const lines = body.trimEnd().split("\n");
-            const delimiter = lines[0]?.slice("notes<<".length) ?? "";
+            const lines = pipe(body, Str.trimEnd, Str.split("\n"));
+            const delimiter = Str.slice("notes<<".length)(lines[0] ?? "");
             assert.deepStrictEqual(lines.slice(1, -1), ["line one", "line two", "", "line four"]);
             assert.strictEqual(lines.at(-1), delimiter);
           })
@@ -143,10 +145,13 @@ describe("ActionOutputs", () => {
             // delimiter, terminate the block early and corrupt every later entry.
             yield* (yield* ActionOutputs).set("evil", "EFFECTED_EOF\nsmuggled=1");
             const body = files.written.text(FILES.GITHUB_OUTPUT) ?? "";
-            const lines = body.trimEnd().split("\n");
-            const delimiter = lines[0]?.slice("evil<<".length) ?? "";
+            const lines = pipe(body, Str.trimEnd, Str.split("\n"));
+            const delimiter = Str.slice("evil<<".length)(lines[0] ?? "");
             assert.notStrictEqual(delimiter, "EFFECTED_EOF");
-            assert.isFalse("EFFECTED_EOF\nsmuggled=1".includes(delimiter), "delimiter must not occur in the value");
+            assert.isFalse(
+              Str.includes(delimiter)("EFFECTED_EOF\nsmuggled=1"),
+              "delimiter must not occur in the value"
+            );
             assert.strictEqual(lines.at(-1), delimiter);
           })
         );
@@ -440,7 +445,7 @@ describe("ActionOutputs", () => {
             // and turned a production OutputEncodeError into a green suite.
             const error = yield* Effect.flip((yield* ActionOutputs).setJson("result", drifted, Report));
             assert.strictEqual(error._tag, "OutputEncodeError");
-            assert.strictEqual(error.name, "result");
+            assert.strictEqual(error._tag === "OutputEncodeError" ? error.outputName : undefined, "result");
           })
         );
       });
@@ -485,7 +490,7 @@ describe("ActionOutputs", () => {
           Effect.gen(function* () {
             const error = yield* Effect.flip((yield* ActionOutputs).setJson("result", drifted, Report));
             assert.instanceOf(error, OutputEncodeError);
-            assert.strictEqual(error.name, "result");
+            assert.strictEqual(error.outputName, "result");
           })
         );
       });
@@ -503,12 +508,12 @@ describe("ActionOutputs", () => {
               const error = yield* Effect.flip(outputs.addPath(path));
               assert.instanceOf(error, InvalidOutputNameError);
               assert.strictEqual(error.file, "GITHUB_PATH");
-              assert.strictEqual(error.name, path);
+              assert.strictEqual(error.outputName, path);
               assert.strictEqual(recorder.entries().length, 0);
             }
             yield* outputs.addPath("/opt/a=b<<c");
             assert.deepStrictEqual(
-              recorder.entries().map((entry) => [entry.member, entry.value]),
+              A.map(recorder.entries(), (entry) => [entry.member, entry.value]),
               [["addPath", "/opt/a=b<<c"]]
             );
           })
@@ -567,7 +572,7 @@ describe("ActionOutputs", () => {
             yield* outputs.setSecret("s3cr3t");
             yield* outputs.setJson("n", 2, S.Finite);
             assert.deepStrictEqual(
-              recorder.entries().map((entry) => [entry.member, entry.name, entry.value]),
+              A.map(recorder.entries(), (entry) => [entry.member, entry.name, entry.value]),
               [
                 ["set", "version", "1.2.3"],
                 ["exportVariable", "FOO", "bar"],
@@ -598,11 +603,11 @@ describe("ActionOutputs", () => {
             yield* Effect.flatMap(FirstOutputs, (outputs) => outputs.set("a", "1"));
             yield* Effect.flatMap(SecondOutputs, (outputs) => outputs.set("b", "2"));
             assert.deepStrictEqual(
-              first.entries().map((entry) => entry.name),
+              A.map(first.entries(), (entry) => entry.name),
               ["a"]
             );
             assert.deepStrictEqual(
-              second.entries().map((entry) => entry.name),
+              A.map(second.entries(), (entry) => entry.name),
               ["b"]
             );
           })

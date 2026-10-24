@@ -16,7 +16,9 @@ import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { CONFLICT, isOk, stringField } from "./twirp.ts";
+import { CONFLICT, isOk, stringField, twirpCall, twirpFailureFields } from "./twirp.ts";
+import type * as HttpClient from "effect/http/HttpClient";
+import type * as Redacted from "effect/Redacted";
 import type { TwirpResult } from "./twirp.ts";
 
 const $I = $GithubActionsId.create("internal/cacheService");
@@ -52,6 +54,65 @@ export interface CacheServiceClient<E> {
   };
   readonly refused: (detail: string) => E;
 }
+
+/**
+ * What a failed cache RPC reports, for one key: a refusal or an unreachable
+ * backend, in the shape both callers' tagged errors take.
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export type CacheServiceFailure = ReturnType<typeof twirpFailureFields> & { readonly key: string };
+
+/**
+ * What {@link cacheServiceFor} needs: the HTTP client, the caller's
+ * results-backend lookup (already failing with the caller's error), and the
+ * caller's error constructor.
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export interface CacheServiceOptions<E> {
+  readonly backend: Effect.Effect<{ readonly baseUrl: string; readonly token: Redacted.Redacted<string> }, E>;
+  readonly fail: (failure: CacheServiceFailure) => E;
+  readonly http: HttpClient.HttpClient;
+}
+
+/**
+ * The per-key client both cache-backed services speak through: every RPC
+ * resolves the backend, calls the cache service, and maps a Twirp failure into
+ * the caller's error naming the key.
+ *
+ * **Example** (Build a per-key client)
+ *
+ * ```ts
+ * import { cacheServiceFor } from "@beep/github-actions/internal/cacheService";
+ * import * as Effect from "effect/Effect";
+ * import * as HttpClient from "effect/http/HttpClient";
+ *
+ * const program = Effect.map(HttpClient.HttpClient, (http) =>
+ *   cacheServiceFor({ http, backend: Effect.die("no backend"), fail: (failure) => failure })("key")
+ * );
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ * @internal
+ * @category constructors
+ * @since 0.0.0
+ */
+export const cacheServiceFor =
+  <E>(options: CacheServiceOptions<E>) =>
+  (key: string): CacheServiceClient<E> => ({
+    call: Function.dual(
+      2,
+      Effect.fn("CacheService.call")(function* (method: string, body: Record<string, unknown>) {
+        const { baseUrl, token } = yield* options.backend;
+        return yield* twirpCall({ http: options.http, baseUrl, service: CACHE_SERVICE, token, method, body }).pipe(
+          Effect.mapError((failure) => options.fail({ ...twirpFailureFields(failure), key }))
+        );
+      })
+    ),
+    refused: (detail) => options.fail({ reason: "refused", key, detail }),
+  });
 
 /**
  * Reserve `(key, version)` for an upload. `Option.none()` means another job

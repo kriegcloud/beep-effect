@@ -49,7 +49,7 @@ const StringList = S.Array(S.String);
  * @category utilities
  * @since 0.0.0
  */
-export const inputVariable = (name: string): string => `INPUT_${name.replaceAll(" ", "_").toUpperCase()}`;
+export const inputVariable = (name: string): string => `INPUT_${pipe(name, Str.replaceAll(" ", "_"), Str.toUpperCase)}`;
 
 /**
  * A validation failure for an input that is present but unusable.
@@ -134,8 +134,8 @@ export type PairsOptions = typeof PairsOptions.Type;
 
 /** Strip a trailing `#` comment and surrounding whitespace from one line. */
 const stripComment = (line: string): string => {
-  const hash = line.indexOf("#");
-  return (hash === -1 ? line : line.slice(0, hash)).trim();
+  const kept = O.match(Str.indexOf("#")(line), { onNone: () => line, onSome: (hash) => Str.slice(0, hash)(line) });
+  return Str.trim(kept);
 };
 
 /**
@@ -308,7 +308,7 @@ export class ActionInput {
   static boolean(name: string): Config.Config<boolean> {
     return Config.String(inputVariable(name)).pipe(
       Config.mapEffect((raw) => {
-        const value = raw.trim();
+        const value = Str.trim(raw);
         if (HashSet.has(TRUE, value)) {
           return Effect.succeed(true);
         }
@@ -472,7 +472,7 @@ export class ActionInput {
     return Config.String(inputVariable(name)).pipe(
       Config.map((raw) =>
         pipe(
-          raw.split("\n"),
+          Str.split(raw, "\n"),
           A.map(Str.trim),
           A.filter((line) => line !== "")
         )
@@ -532,11 +532,11 @@ export class ActionInput {
   static list(name: string): Config.Config<ReadonlyArray<string>> {
     return Config.String(inputVariable(name)).pipe(
       Config.mapEffect((raw) => {
-        const trimmed = raw.trim();
+        const trimmed = Str.trim(raw);
         if (trimmed === "") {
           return Effect.succeed<ReadonlyArray<string>>([]);
         }
-        if (trimmed.startsWith("[")) {
+        if (Str.startsWith("[")(trimmed)) {
           const parsed = S.decodeResult(Json)(trimmed);
           if (Result.isFailure(parsed)) {
             return Effect.fail(configError(`Input "${name}" looks like JSON but could not be parsed`, raw));
@@ -547,13 +547,15 @@ export class ActionInput {
           return Effect.fail(configError(`Input "${name}" is a JSON array but not an array of strings`, raw));
         }
         const entries = pipe(
-          trimmed.split(/[\n,]/),
+          Str.split(trimmed, /[\n,]/),
           A.map(Str.trim),
           // A line whose first character is "#" is a full-line comment,
           // dropped before a bullet marker is considered.
-          A.filter((item) => !item.startsWith("#")),
+          A.filter((item) => !Str.startsWith("#")(item)),
           // A leading "- " or "* " is a YAML/Markdown bullet, not part of the value.
-          A.map((item) => (item.startsWith("- ") || item.startsWith("* ") ? item.slice(2).trim() : item)),
+          A.map((item) =>
+            Str.startsWith("- ")(item) || Str.startsWith("* ")(item) ? pipe(item, Str.slice(2), Str.trim) : item
+          ),
           A.filter((item) => item !== "")
         );
         return Effect.succeed<ReadonlyArray<string>>(entries);
@@ -607,19 +609,19 @@ export class ActionInput {
       return Config.String(inputVariable(name)).pipe(
         Config.mapEffect((raw) => {
           const result: Record<string, string> = {};
-          for (const line of raw.split("\n")) {
+          for (const line of Str.split(raw, "\n")) {
             const stripped = stripComment(line);
             if (stripped === "") {
               continue;
             }
-            const split = stripped.indexOf("=");
-            if (split === -1) {
+            const separator = Str.indexOf("=")(stripped);
+            if (O.isNone(separator)) {
               return Effect.fail(
                 configError(`Input "${name}" has a line that is not \`key=value\`: "${stripped}"`, raw)
               );
             }
-            const key = stripped.slice(0, split).trim();
-            const value = stripped.slice(split + 1).trim();
+            const key = pipe(stripped, Str.slice(0, separator.value), Str.trim);
+            const value = pipe(stripped, Str.slice(separator.value + 1), Str.trim);
             if (key === "") {
               return Effect.fail(configError(`Input "${name}" has a line with an empty key: "${stripped}"`, raw));
             }
@@ -770,7 +772,7 @@ export class ActionInput {
      */
     const byInputName = MutableHashMap.empty<string, string>();
     for (const [key, value] of R.toEntries(env)) {
-      if (!key.startsWith("INPUT_") && present(value) && !MutableHashMap.has(byInputName, inputVariable(key))) {
+      if (!Str.startsWith("INPUT_")(key) && present(value) && !MutableHashMap.has(byInputName, inputVariable(key))) {
         MutableHashMap.set(byInputName, inputVariable(key), value);
       }
     }
@@ -782,7 +784,8 @@ export class ActionInput {
     return ConfigProvider.make((path) => {
       const single = path.length === 1 && P.isString(path[0]) ? path[0] : undefined;
       const attempted = single === undefined ? undefined : lookup(inputVariable(single));
-      const value = attempted ?? lookup(pipe(path, A.map(String), A.join("_")).replaceAll(" ", "_").toUpperCase());
+      const value =
+        attempted ?? lookup(pipe(pipe(path, A.map(String), A.join("_")), Str.replaceAll(" ", "_"), Str.toUpperCase));
       return Effect.succeed(value === undefined ? undefined : ConfigProvider.makeValue(value));
     });
   }

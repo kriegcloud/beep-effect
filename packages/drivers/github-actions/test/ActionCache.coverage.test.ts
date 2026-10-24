@@ -15,6 +15,7 @@ import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { json, resultsEnv, twirpFetch } from "./support/results.ts";
 import type { FileBlobTransfer } from "@beep/github-actions/BlobTransfer";
 
@@ -59,9 +60,9 @@ const fixture = (options: Options = {}) => {
             const manifest = command.args[3];
             if (manifest === undefined) return yield* Effect.die("missing manifest");
             const contents = yield* fs.readFileString(manifest);
-            assert.isTrue(contents.endsWith("\n"));
+            assert.isTrue(Str.endsWith("\n")(contents));
             if (options.expectedPath !== undefined)
-              assert.deepStrictEqual(contents.split("\n"), [options.expectedPath, ""]);
+              assert.deepStrictEqual(Str.split(contents, "\n"), [options.expectedPath, ""]);
             yield* fs.writeFileString(destination, "archive bytes");
           }
           return ChildProcessSpawner.makeHandle({
@@ -138,7 +139,12 @@ describe("cache supplemental failure paths", () => {
   );
   failed(
     "archive stat failure",
-    { fs: (fs) => ({ ...fs, stat: (path) => (path.endsWith("cache.tar.gz") ? Effect.fail(fault) : fs.stat(path)) }) },
+    {
+      fs: (fs) => ({
+        ...fs,
+        stat: (path) => (Str.endsWith("cache.tar.gz")(path) ? Effect.fail(fault) : fs.stat(path)),
+      }),
+    },
     save,
     "archiveFailed"
   );

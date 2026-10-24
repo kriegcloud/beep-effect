@@ -20,11 +20,11 @@ it.layer(ActionEnvironment.layerFrom({ X: "", RUNNER_DEBUG: "0" }).pipe(Layer.pr
 it.effect("malformed environment diagnostics allow missing detail", () =>
   Effect.sync(() => {
     assert.strictEqual(
-      ActionEnvironmentError.make({ reason: "malformed", name: "X" }).message,
+      ActionEnvironmentError.make({ reason: "malformed", variable: "X" }).message,
       'Environment variable "X" is malformed'
     );
     assert.strictEqual(
-      ActionEnvironmentError.make({ reason: "malformed", name: "X", detail: "bad" }).message,
+      ActionEnvironmentError.make({ reason: "malformed", variable: "X", detail: "bad" }).message,
       'Environment variable "X" is malformed: bad'
     );
   })

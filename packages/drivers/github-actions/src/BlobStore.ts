@@ -1,3 +1,4 @@
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
@@ -15,8 +16,9 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { BlobEnvelope } from "./BlobEnvelope.ts";
+import { framed } from "./internal/messageText.ts";
 import { sign, uriEncode } from "./internal/sigv4.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
+import { framedGet, framedPut } from "./internal/storedBlob.ts";
 import { Secret } from "./Secret.ts";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type { ActionOutputs } from "./ActionOutputs.ts";
@@ -99,18 +101,12 @@ export class BlobStoreError extends S.TaggedError<BlobStoreError, { readonly bra
    */
   override get message(): string {
     return Match.value(this.reason).pipe(
-      Match.when(
-        "unreachable",
-        () => `The blob store could not be reached${this.key === undefined ? "" : ` for "${this.key}"`}`
-      ),
+      Match.when("unreachable", () => `The blob store could not be reached${framed(this.key, ' for "', '"')}`),
       Match.when(
         "refused",
-        () =>
-          `The blob store refused "${this.key}"${this.status === undefined ? "" : ` with status ${this.status}`}${
-            this.detail === undefined ? "" : `: ${this.detail}`
-          }`
+        () => `The blob store refused "${this.key}"${framed(this.status, " with status ")}${framed(this.detail, ": ")}`
       ),
-      Match.orElse(() => `The blob store is misconfigured${this.detail === undefined ? "" : `: ${this.detail}`}`)
+      Match.orElse(() => `The blob store is misconfigured${framed(this.detail, ": ")}`)
     );
   }
 }
@@ -570,26 +566,23 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
   );
 
   return {
-    get: dual(
-      2,
-      Effect.fn("get")(function* <A, I>(key: string, schema: S.Codec<A, I>) {
+    get: framedGet(
+      Effect.fnUntraced(function* (key: string) {
         const response = yield* send("GET", key, new Uint8Array(0));
         // A miss is not a failure: it is the answer the caller asked for.
         if (response.status === 404) {
-          return O.none<StoredBlob<A>>();
+          return O.none();
         }
         yield* accepted(key, response.status);
         const buffer = yield* response.arrayBuffer.pipe(
           Effect.mapError((cause) => BlobStoreError.make({ reason: "unreachable", key, cause }))
         );
-        return O.some(yield* Effect.fromResult(BlobEnvelope.decodeResult(new Uint8Array(buffer), schema)));
+        return O.some(new Uint8Array(buffer));
       })
     ),
 
-    put: dual(
-      3,
-      Effect.fn("put")(function* <A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) {
-        const framed = yield* Effect.fromResult(BlobEnvelope.encodeResult(blob.metadata, blob.body, schema));
+    put: framedPut(
+      Effect.fnUntraced(function* (key: string, framed: Uint8Array) {
         const response = yield* send("PUT", key, framed);
         yield* accepted(key, response.status);
       })

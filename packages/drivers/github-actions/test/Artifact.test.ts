@@ -6,6 +6,7 @@ import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
@@ -15,6 +16,7 @@ import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -28,18 +30,18 @@ import type { FileBlobTransfer } from "@beep/github-actions";
 const Json = S.fromJsonString(S.Unknown);
 
 const fileTransfer = () => {
-  const blobs = new Map<string, Uint8Array>();
+  const blobs = MutableHashMap.empty<string, Uint8Array>();
   const transfer = (fs: FileSystem.FileSystem): FileBlobTransfer => ({
     uploadFile: dual(2, (url: string, file: string) =>
       fs.readFile(file).pipe(
-        Effect.tap((bytes) => Effect.sync(() => blobs.set(url, bytes))),
+        Effect.tap((bytes) => Effect.sync(() => MutableHashMap.set(blobs, url, bytes))),
         Effect.asVoid,
         Effect.mapError((cause) => BlobTransferError.make({ reason: "uploadFailed", cause }))
       )
     ),
     downloadToFile: dual(2, (url: string, file: string) =>
       Effect.suspend(() => {
-        const found = blobs.get(url);
+        const found = O.getOrUndefined(MutableHashMap.get(blobs, url));
         return found === undefined
           ? Effect.fail(
               BlobTransferError.make({ reason: "downloadFailed", cause: new Error(`nothing was uploaded to ${url}`) })
@@ -233,13 +235,14 @@ describe("Artifact", () => {
           const now = yield* Clock.currentTimeMillis;
           yield* artifacts.upload("retained", ["/work/a.txt"], "/work", { retentionDays: 7 });
           assert.strictEqual(
-            calls.find((call) => call.method === "FinalizeArtifact")?.body.expiresAt,
+            O.getOrUndefined(A.findFirst(calls, (call) => call.method === "FinalizeArtifact"))?.body.expiresAt,
             DateTime.formatIso(DateTime.makeUnsafe(now + 7 * 86_400_000))
           );
           for (const compressionLevel of [12, -3, 4.9, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
             yield* artifacts.upload("default", ["/work/a.txt"], "/work", { compressionLevel });
           }
-          for (const call of calls.filter(
+          for (const call of A.filter(
+            calls,
             (call) => call.method === "FinalizeArtifact" && call.body.name === "default"
           )) {
             assert.notProperty(call.body, "expiresAt");
@@ -273,7 +276,7 @@ describe("Artifact", () => {
               assert.strictEqual(error.detail, `${method} did not answer with a Twirp body`);
               assert.instanceOf(error.cause, S.SchemaError);
               assert.deepStrictEqual(
-                calls.map((call) => call.method),
+                A.map(calls, (call) => call.method),
                 method === "FinalizeArtifact"
                   ? ["CreateArtifact", "FinalizeArtifact"]
                   : ["ListArtifacts", "DeleteArtifact"]
@@ -320,7 +323,7 @@ describe("Artifact", () => {
             artifacts.upload("logs", [join(root, "nested", "log.txt")], root)
           );
 
-          const uploaded = blobs.get("https://blob.example/artifact?sig=abc");
+          const uploaded = O.getOrUndefined(MutableHashMap.get(blobs, "https://blob.example/artifact?sig=abc"));
           assert.isDefined(uploaded);
           // `PK\x03\x04`: what was uploaded is a zip, not a description of one.
           assert.deepStrictEqual([...(uploaded ?? []).slice(0, 4)], [0x50, 0x4b, 0x03, 0x04]);
@@ -328,11 +331,11 @@ describe("Artifact", () => {
           // The protocol version is 7 and has nothing to do with the `v4` in
           // `actions/upload-artifact@v4` — which is the obvious wrong guess, and
           // produces a create the backend rejects.
-          const create = calls.find((call) => call.method === "CreateArtifact");
+          const create = O.getOrUndefined(A.findFirst(calls, (call) => call.method === "CreateArtifact"));
           assert.strictEqual(create?.body.version, 7);
           assert.strictEqual(create?.body.mimeType, "application/zip");
 
-          const finalize = calls.find((call) => call.method === "FinalizeArtifact");
+          const finalize = O.getOrUndefined(A.findFirst(calls, (call) => call.method === "FinalizeArtifact"));
           // The digest is over the STORED zip. Hashing anything else produces a
           // finalize the backend accepts and an artifact it later refuses to serve.
           assert.strictEqual(
@@ -428,7 +431,7 @@ describe("Artifact", () => {
         Effect.gen(function* () {
           const items = yield* Effect.flatMap(Artifact, (artifacts) => artifacts.list);
           assert.deepStrictEqual(
-            items.map((item) => [item.id, item.name, item.size, item.createdAt]),
+            A.map(items, (item) => [item.id, item.name, item.size, item.createdAt]),
             [
               [1, "camel", 10, "2026-01-01T00:00:00Z"],
               [2, "snake", 20, "2026-01-02T00:00:00Z"],
@@ -682,7 +685,8 @@ describe("Artifact", () => {
           yield* Effect.flatMap(Artifact, (artifacts) =>
             artifacts.upload("logs", [join(root, "a.txt")], root, { retentionDays: 7 })
           );
-          const expiry = calls.find((call) => call.method === "FinalizeArtifact")?.body.expiresAt;
+          const expiry = O.getOrUndefined(A.findFirst(calls, (call) => call.method === "FinalizeArtifact"))?.body
+            .expiresAt;
           assert.isString(expiry);
           assert.isAbove(Date.parse(String(expiry)), yield* Clock.currentTimeMillis);
         })
@@ -704,7 +708,10 @@ describe("Artifact", () => {
           yield* fs.writeFileString(join(root, "a.txt"), "x");
 
           yield* Effect.flatMap(Artifact, (artifacts) => artifacts.upload("logs", [join(root, "a.txt")], root));
-          assert.notProperty(calls.find((call) => call.method === "FinalizeArtifact")?.body ?? {}, "expiresAt");
+          assert.notProperty(
+            O.getOrUndefined(A.findFirst(calls, (call) => call.method === "FinalizeArtifact"))?.body ?? {},
+            "expiresAt"
+          );
         })
       );
     });
@@ -738,7 +745,7 @@ describe("Artifact", () => {
           const gone = yield* Effect.flatMap(Artifact, (artifacts) => artifacts.delete("logs"));
           assert.strictEqual(gone.id, 11);
           assert.deepStrictEqual(
-            calls.map((call) => call.method),
+            A.map(calls, (call) => call.method),
             ["ListArtifacts", "DeleteArtifact"]
           );
         })

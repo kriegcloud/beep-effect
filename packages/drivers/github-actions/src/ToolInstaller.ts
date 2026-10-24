@@ -1,3 +1,4 @@
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -18,10 +19,10 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { tarExtractCommand, unzipCommand } from "./internal/archiveCommands.ts";
-import { isErrno, typeAt } from "./internal/fsProbe.ts";
+import { escapesRoot, isErrno, realDestination, typeAt } from "./internal/fsProbe.ts";
+import { framed } from "./internal/messageText.ts";
 import { isWindowsRunner, toolCacheRoot } from "./internal/runner.ts";
 import { spawnOnce } from "./internal/spawn.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
 import type * as Duration from "effect/Duration";
 import type * as PlatformError from "effect/PlatformError";
 import type * as ChildProcess from "effect/process/ChildProcess";
@@ -102,14 +103,8 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
    */
   override get message(): string {
     return Match.value(this.reason).pipe(
-      Match.when(
-        "downloadFailed",
-        () => `Could not download ${this.subject}${this.status === undefined ? "" : ` (HTTP ${this.status})`}`
-      ),
-      Match.when(
-        "extractFailed",
-        () => `Could not extract ${this.subject}${this.stderr === undefined ? "" : `: ${this.stderr}`}`
-      ),
+      Match.when("downloadFailed", () => `Could not download ${this.subject}${framed(this.status, " (HTTP ", ")")}`),
+      Match.when("extractFailed", () => `Could not extract ${this.subject}${framed(this.stderr, ": ")}`),
       Match.orElse(() => `Could not cache ${this.subject} into the tool cache`)
     );
   }
@@ -506,7 +501,7 @@ const make = Effect.gen(function* () {
         Effect.mapError((cause) => ToolInstallerError.make({ reason: "extractFailed", subject: archive, cause }))
       );
       if (code !== 0) {
-        return yield* ToolInstallerError.make({ reason: "extractFailed", subject: archive, stderr: output.trim() });
+        return yield* ToolInstallerError.make({ reason: "extractFailed", subject: archive, stderr: Str.trim(output) });
       }
     })
   );
@@ -666,34 +661,12 @@ const make = Effect.gen(function* () {
   } = dual(2, (directory: string, name: string): Effect.Effect<string, ToolInstallerError> => {
     const destination = path.resolve(directory, name);
     const relative = path.relative(path.resolve(directory), destination);
-    return relative === "" ||
-      relative === ".." ||
-      Str.startsWith(`..${path.sep}`)(relative) ||
-      path.isAbsolute(relative)
+    return escapesRoot(path, relative)
       ? Effect.fail(ToolInstallerError.make({ reason: "cacheFailed", subject: name }))
       : Effect.succeed(destination);
   });
 
-  /** Resolve a new filename through its existing parent, rejecting dangling links. */
-  const resolvedDestination = Effect.fnUntraced(function* (
-    file: string
-  ): Effect.fn.Return<string, PlatformError.PlatformError> {
-    return yield* fs.realPath(file).pipe(
-      Effect.catchIf(
-        (error) => error.reason._tag === "NotFound",
-        Effect.fnUntraced(function* (
-          error: PlatformError.PlatformError
-        ): Effect.fn.Return<string, PlatformError.PlatformError> {
-          const link = yield* Effect.option(fs.readLink(file));
-          const parent = path.dirname(file);
-          if (O.isSome(link) || parent === file) {
-            return yield* error;
-          }
-          return path.join(yield* resolvedDestination(parent), path.basename(file));
-        })
-      )
-    );
-  });
+  const resolvedDestination = realDestination(fs, path);
 
   const containedBinaryDestination: {
     (directory: string, name: string): Effect.Effect<string, ToolInstallerError>;
@@ -715,15 +688,29 @@ const make = Effect.gen(function* () {
     })
   );
 
+  /**
+   * Fill a fresh staging directory with `place`, then swap it into the cache
+   * as `tool@version`; a placement failure is `cacheFailed` naming the tool.
+   */
+  const stageAndSwap = <E>(
+    tool: string,
+    version: string,
+    place: (staging: string) => Effect.Effect<unknown, E>
+  ): Effect.Effect<string, ToolInstallerError> =>
+    staged(tool, (staging) =>
+      place(staging).pipe(
+        Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: tool, cause })),
+        Effect.flatMap(() => swapIntoCache(staging, tool, version))
+      )
+    );
+
   const cacheFile: ToolInstallerShape["cacheFile"] = dual(
     4,
     Effect.fn("ToolInstaller.cacheFile")(function* (source: string, name: string, tool: string, version: string) {
       yield* Effect.annotateCurrentSpan({ tool, version });
-      return yield* staged(tool, (staging) =>
+      return yield* stageAndSwap(tool, version, (staging) =>
         containedBinaryDestination(staging, name).pipe(
-          Effect.flatMap((destination) => fs.copyFile(source, destination)),
-          Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: tool, cause })),
-          Effect.flatMap(() => swapIntoCache(staging, tool, version))
+          Effect.flatMap((destination) => fs.copyFile(source, destination))
         )
       );
     })
@@ -769,12 +756,7 @@ const make = Effect.gen(function* () {
       3,
       Effect.fn("ToolInstaller.cacheDir")(function* (source: string, tool: string, version: string) {
         yield* Effect.annotateCurrentSpan({ tool, version });
-        return yield* staged(tool, (staging) =>
-          moveIntoStaging(source, staging).pipe(
-            Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: tool, cause })),
-            Effect.flatMap(() => swapIntoCache(staging, tool, version))
-          )
-        );
+        return yield* stageAndSwap(tool, version, (staging) => moveIntoStaging(source, staging));
       })
     ),
 

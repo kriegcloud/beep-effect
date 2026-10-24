@@ -2,10 +2,14 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionInput, inputVariable } from "@beep/github-actions/ActionInput";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as Config from "effect/Config";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -20,9 +24,9 @@ describe("ActionInput parser and formatter properties", () => {
     ([name]) =>
       Effect.sync(() => {
         const variable = inputVariable(name);
-        assert.strictEqual(variable, `INPUT_${name.replaceAll(" ", "_").toUpperCase()}`);
+        assert.strictEqual(variable, `INPUT_${pipe(name, Str.replaceAll(" ", "_"), Str.toUpperCase)}`);
         assert.strictEqual(ActionInput.variable(name), variable);
-        assert.strictEqual(inputVariable(variable.slice(6)), variable);
+        assert.strictEqual(inputVariable(Str.slice(6)(variable)), variable);
       }),
     runs
   );
@@ -57,16 +61,18 @@ describe("ActionInput parser and formatter properties", () => {
     ([raw]) =>
       Effect.gen(function* () {
         const parsed = yield* read(ActionInput.lines("value"), `\n${raw}\nanchor\n`);
-        const formatted = parsed.join("\n");
+        const formatted = A.join(parsed, "\n");
         const reparsed = yield* read(ActionInput.lines("value"), formatted);
         assert.deepStrictEqual(reparsed, parsed);
-        assert.strictEqual(reparsed.join("\n"), formatted);
+        assert.strictEqual(A.join(reparsed, "\n"), formatted);
         assert.deepStrictEqual(
           parsed,
-          `${raw}\nanchor`
-            .split("\n")
-            .map((line) => line.trim())
-            .filter((line) => line !== "")
+          pipe(
+            `${raw}\nanchor`,
+            Str.split("\n"),
+            A.map((line) => Str.trim(line)),
+            A.filter((line) => line !== "")
+          )
         );
       }),
     runs
@@ -76,18 +82,22 @@ describe("ActionInput parser and formatter properties", () => {
     [Arbitrary.schema(S.String)],
     ([raw]) =>
       Effect.gen(function* () {
-        const value = raw.replaceAll(/[\r\n#]/g, "").trim();
+        const value = pipe(raw, Str.replaceAll(/[\r\n#]/g, ""), Str.trim);
         const parsed = yield* read(ActionInput.pairs("value"), ` # comment\n key = ${value}\nanchor=x`);
         assert.deepStrictEqual(parsed, { key: value, anchor: "x" });
-        const formatted = Object.entries(parsed)
-          .map(([key, item]) => `${key}=${item}`)
-          .join("\n");
+        const formatted = pipe(
+          R.toEntries(parsed),
+          A.map(([key, item]) => `${key}=${item}`),
+          A.join("\n")
+        );
         const reparsed = yield* read(ActionInput.pairs("value"), formatted);
         assert.deepStrictEqual(reparsed, parsed);
         assert.strictEqual(
-          Object.entries(reparsed)
-            .map(([key, item]) => `${key}=${item}`)
-            .join("\n"),
+          pipe(
+            R.toEntries(reparsed),
+            A.map(([key, item]) => `${key}=${item}`),
+            A.join("\n")
+          ),
           formatted
         );
       }),
@@ -140,7 +150,7 @@ it.effect.prop(
   [Arbitrary.schema(S.String)],
   ([raw]) =>
     Effect.gen(function* () {
-      const item = `item=${raw.replaceAll(/[\r\n,]/g, "").trim()}`;
+      const item = `item=${pipe(raw, Str.replaceAll(/[\r\n,]/g, ""), Str.trim)}`;
       const parsed = yield* read(ActionInput.list("value"), `# comment\n- ${item}\n* anchor`);
       assert.deepStrictEqual(parsed, [item, "anchor"]);
       const formatted = yield* S.encodeEffect(JsonList)(parsed);

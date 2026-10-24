@@ -1,5 +1,5 @@
 import { ActionEnvironment, ActionOutputs, ActionState } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
@@ -9,6 +9,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const Json = S.fromJsonString(S.Unknown);
@@ -74,7 +75,7 @@ describe("ActionState", () => {
         });
         return Effect.map(run, () => {
           const body = files.written.text("/rf/state") ?? "";
-          assert.isTrue(body.startsWith("token<<"));
+          assert.isTrue(Str.startsWith("token<<")(body));
           assert.include(body, '{"value":"abc","expires":1}');
         });
       });

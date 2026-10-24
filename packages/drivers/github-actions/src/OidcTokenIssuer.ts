@@ -4,6 +4,7 @@
  * @packageDocumentation
  */
 
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -18,7 +19,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { payloadOf, unsignedJwt } from "./internal/jwt.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
+import { framed } from "./internal/messageText.ts";
 
 const $I = $GithubActionsId.create("OidcTokenIssuer");
 
@@ -96,15 +97,9 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
         "unavailable",
         () => "The runner published no OIDC token service; the workflow needs `permissions: id-token: write`"
       ),
-      Match.when(
-        "requestFailed",
-        () => `The OIDC token request failed${this.status === undefined ? "" : ` with status ${this.status}`}`
-      ),
+      Match.when("requestFailed", () => `The OIDC token request failed${framed(this.status, " with status ")}`),
       Match.when("malformedResponse", () => "The OIDC token service answered with an unexpected shape"),
-      Match.when(
-        "malformedToken",
-        () => `The OIDC token is not a decodable JWT${this.detail === undefined ? "" : `: ${this.detail}`}`
-      ),
+      Match.when("malformedToken", () => `The OIDC token is not a decodable JWT${framed(this.detail, ": ")}`),
       Match.orElse(() => "The OIDC token is missing claims a provenance statement needs")
     );
   }

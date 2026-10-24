@@ -5,6 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 // Diagnostic formatting accepts a Cause and returns text, so it has no
@@ -20,7 +21,7 @@ it.effect.prop(
       assert.strictEqual(rendered, expected);
       assert.strictEqual(describeCause(Cause.die(error)), `[defect] ${rendered}`);
       assert.strictEqual(describeCause(Cause.fail({ ...error })), rendered);
-      assert.strictEqual(rendered.slice(message === "" ? 12 : 14), message);
+      assert.strictEqual(Str.slice(message === "" ? 12 : 14)(rendered), message);
     }),
   runs
 );

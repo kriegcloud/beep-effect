@@ -1,24 +1,31 @@
 import { delimiterFor, heredocBlock, isUsableName } from "@beep/github-actions/internal/runnerFile";
 import { assert, describe, it } from "@effect/vitest";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 // Follow FileCommandManager.ReadLine and its heredoc endIndex calculation,
 // rather than removing framing by fixed slices.
 // https://github.com/actions/runner/blob/main/src/Runner.Worker/FileCommandManager.cs
 const parseRunnerBlock = (body: string, windows: boolean): string => {
   let index = 0;
+  const indexFrom = (needle: string): number =>
+    O.getOrElse(
+      O.map(Str.indexOf(needle)(Str.slice(index)(body)), (found) => found + index),
+      () => -1
+    );
   const readLine = () => {
-    const lfIndex = body.indexOf("\n", index);
+    const lfIndex = indexFrom("\n");
     assert.isAtLeast(lfIndex, index, "the runner requires a newline before the delimiter");
-    const crlfIndex = body.indexOf("\r\n", index);
+    const crlfIndex = indexFrom("\r\n");
     const crlf = windows && crlfIndex >= 0 && crlfIndex < lfIndex;
     const end = crlf ? crlfIndex : lfIndex;
     const newlineLength = crlf ? 2 : 1;
-    const line = body.slice(index, end);
+    const line = Str.slice(index, end)(body);
     index = end + newlineLength;
     return { line, newlineLength };
   };
   const header = readLine().line;
-  const delimiter = header.slice(header.indexOf("<<") + 2);
+  const delimiter = Str.slice(O.getOrElse(Str.indexOf("<<")(header), () => -1) + 2)(header);
   const startIndex = index;
   let endIndex = index;
   let current = readLine();
@@ -26,7 +33,7 @@ const parseRunnerBlock = (body: string, windows: boolean): string => {
     endIndex = index - current.newlineLength;
     current = readLine();
   }
-  return body.slice(startIndex, endIndex);
+  return Str.slice(startIndex, endIndex)(body);
 };
 
 describe("runner-file heredoc protocol", () => {
@@ -83,11 +90,11 @@ describe("runner-file heredoc protocol", () => {
   });
 
   it("handles a million-underscore run and a later embedded collision", () => {
-    const underscores = "_".repeat(1_000_000);
+    const underscores = Str.repeat(1_000_000)("_");
     const value = `prefixEFFECTED_EOF${underscores}suffixEFFECTED_EOF___`;
     const delimiter = delimiterFor(value);
     assert.strictEqual(delimiter, `EFFECTED_EOF${underscores}_`);
-    assert.isFalse(value.includes(delimiter));
+    assert.isFalse(Str.includes(delimiter)(value));
   });
 
   it("preserves heredoc bytes for empty and multiline values with collisions", () => {

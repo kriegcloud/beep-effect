@@ -1,4 +1,6 @@
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
+import { IeeeNumber } from "@beep/schema/IeeeNumber";
 import * as O from "@beep/utils/Option";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
@@ -9,8 +11,6 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import { isErrno } from "./internal/fsProbe.ts";
-import { IeeeNumber } from "./internal/ieeeNumber.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
 import type * as Duration from "effect/Duration";
 
 const $I = $GithubActionsId.create("DetachedProcess");

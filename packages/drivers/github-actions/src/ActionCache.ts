@@ -1,35 +1,33 @@
-import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { GlobPattern, GlobSet } from "@beep/glob";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
-import * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
-import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
-import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ActionEnvironment } from "./ActionEnvironment.ts";
-import { BlobTransferError } from "./BlobTransfer.ts";
 import { misconfiguredDetail, resultsBackend } from "./internal/actionsResults.ts";
-import { CACHE_SERVICE, finalizeUpload, lookupDownload, reserveUpload } from "./internal/cacheService.ts";
+import { azureFileTransfer } from "./internal/azureBlob.ts";
+import { cacheServiceFor, finalizeUpload, lookupDownload, reserveUpload } from "./internal/cacheService.ts";
 import { sha256Hex } from "./internal/digest.ts";
-import { isWindowsRunner } from "./internal/runner.ts";
+import { framed } from "./internal/messageText.ts";
+import { runnerServices } from "./internal/runnerServices.ts";
 import { spawnOnce } from "./internal/spawn.ts";
-import { twirpCall, twirpFailureFields } from "./internal/twirp.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
-import type { ActionEnvironmentShape } from "./ActionEnvironment.ts";
-import type { FileBlobTransfer } from "./BlobTransfer.ts";
+import type * as FileSystem from "effect/FileSystem";
+import type * as HttpClient from "effect/http/HttpClient";
+import type * as Path from "effect/Path";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import type { ActionEnvironment, ActionEnvironmentShape } from "./ActionEnvironment.ts";
+import type { BlobTransferError, FileBlobTransfer } from "./BlobTransfer.ts";
 import type { CacheKey } from "./CacheKey.ts";
-import type { CacheServiceClient } from "./internal/cacheService.ts";
+import type { RunnerServiceRequirements } from "./internal/runnerServices.ts";
 
 const $I = $GithubActionsId.create("ActionCache");
 
@@ -128,20 +126,17 @@ export class ActionCacheError extends S.TaggedError<ActionCacheError, { readonly
    * @since 0.0.0
    */
   override get message(): string {
-    const about = this.key === undefined ? "" : ` for "${this.key}"`;
-    const detail = this.detail === undefined ? "" : `: ${this.detail}`;
+    const [about, detail] = [framed(this.key, ' for "', '"'), framed(this.detail, ": ")];
     return Match.value(this.reason).pipe(
       Match.when("misconfigured", () => `The Actions cache is not reachable from here${detail}`),
       Match.when("unreachable", () => `The Actions cache could not be reached${about}${detail}`),
       Match.when(
         "refused",
-        () =>
-          `The Actions cache refused the request${about}${this.status === undefined ? "" : ` with status ${this.status}`}${detail}`
+        () => `The Actions cache refused the request${about}${framed(this.status, " with status ")}${detail}`
       ),
       Match.when(
         "archiveFailed",
-        () =>
-          `The cache archive could not be built or extracted${about}${this.stderr === undefined ? "" : `: ${this.stderr}`}`
+        () => `The cache archive could not be built or extracted${about}${framed(this.stderr, ": ")}`
       ),
       Match.when("transferFailed", () => `The cache archive did not transfer${about}`),
       Match.exhaustive
@@ -243,44 +238,6 @@ export interface ActionCacheShape {
  * no restore ever finds.
  */
 const versionOf = (paths: ReadonlyArray<string>): string => sha256Hex(A.join([...paths, "gzip", "1.0"], "|"));
-
-/**
- * The Azure half, duplicated on purpose.
- *
- * **Gotchas**
- *
- * `@azure/storage-blob` may be imported here, by `Artifact` and by
- * `BlobStore.githubCache`, and nowhere else — hoisting these two calls into a
- * shared `internal/` helper is exactly how a heavy import leaks into the graph
- * of a module that only sets an output. `__test__/reachability.test.ts`
- * measures that these are the only three.
- */
-const azure: FileBlobTransfer = {
-  uploadFile: dual(
-    2,
-    (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
-      Effect.tryPromise({
-        try: () =>
-          new BlockBlobClient(url).uploadFile(file, {
-            // The block size and concurrency `actions/cache` itself uses: a
-            // multi-gigabyte toolchain cache is the normal case, not the
-            // exceptional one.
-            blockSize: 64 * 1024 * 1024,
-            concurrency: 8,
-            maxSingleShotSize: 128 * 1024 * 1024,
-          }),
-        catch: (cause) => BlobTransferError.make({ reason: "uploadFailed", cause }),
-      }).pipe(Effect.asVoid)
-  ),
-  downloadToFile: dual(
-    2,
-    (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
-      Effect.tryPromise({
-        try: () => new BlobClient(url).downloadToFile(file),
-        catch: (cause) => BlobTransferError.make({ reason: "downloadFailed", cause }),
-      }).pipe(Effect.asVoid)
-  ),
-};
 
 /**
  * The primary key and the ladder to fall back through.
@@ -588,22 +545,9 @@ const resolvePaths = Effect.fnUntraced(function* (
 
 const make = Effect.fn("make")(function* (
   transfer: FileBlobTransfer
-): Effect.fn.Return<
-  ActionCacheShape,
-  never,
-  | ActionEnvironment
-  | HttpClient.HttpClient
-  | FileSystem.FileSystem
-  | Path.Path
-  | ChildProcessSpawner.ChildProcessSpawner
-> {
-  const http = yield* HttpClient.HttpClient;
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+): Effect.fn.Return<ActionCacheShape, never, RunnerServiceRequirements> {
   // Resolved once, at construction, so every member's `R` is `never`.
-  const env = yield* ActionEnvironment;
-  const windows = yield* isWindowsRunner(env);
+  const { http, fs, path, spawner, env, windows } = yield* runnerServices;
 
   /**
    * A filesystem or subprocess failure on the way to or from the archive.
@@ -620,18 +564,7 @@ const make = Effect.fn("make")(function* (
   /**
    * The cache service, for one key: every failure names it.
    */
-  const cacheService = (key: string): CacheServiceClient<ActionCacheError> => ({
-    call: dual(
-      2,
-      Effect.fn("call")(function* (method: string, body: Record<string, unknown>) {
-        const { baseUrl, token } = yield* backend;
-        return yield* twirpCall({ http, baseUrl, service: CACHE_SERVICE, token, method, body }).pipe(
-          Effect.mapError((failure) => ActionCacheError.make({ ...twirpFailureFields(failure), key }))
-        );
-      })
-    ),
-    refused: (detail) => ActionCacheError.make({ reason: "refused", key, detail }),
-  });
+  const cacheService = cacheServiceFor({ http, backend, fail: (failure) => ActionCacheError.make(failure) });
 
   /**
    * Run `tar` ONCE, keeping its stderr.
@@ -657,7 +590,7 @@ const make = Effect.fn("make")(function* (
         Effect.mapError(archiveFailed(key))
       );
       if (code !== 0 && !(tolerateWarnings && code === 1)) {
-        return yield* ActionCacheError.make({ reason: "archiveFailed", key, stderr: output.trim() });
+        return yield* ActionCacheError.make({ reason: "archiveFailed", key, stderr: Str.trim(output) });
       }
     })
   );
@@ -844,7 +777,7 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
     | FileSystem.FileSystem
     | Path.Path
     | ChildProcessSpawner.ChildProcessSpawner
-  > = Layer.effect(this, make(azure));
+  > = Layer.effect(this, make(azureFileTransfer));
 
   /**
    * The cache, over a supplied transport.

@@ -1,3 +1,7 @@
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
+
 /**
  * What the GitHub Actions runner reads as a workflow command, written from the runner's own source and imported by
  * nothing in `src/`: `actions/runner`, `src/Runner.Common/ActionCommand.cs` and
@@ -11,34 +15,18 @@
  */
 
 /** The runner's line breaks. */
-export const LINE_BREAK = /\r\n|\r|\n/;
+const LINE_BREAK = /\r\n|\r|\n/;
 
 /**
- * .NET's `Char.IsWhiteSpace`, which is what `TrimStart` removes. Note U+0085 is in it and U+200B and U+FEFF are not.
+ * The leading run of .NET's `Char.IsWhiteSpace`, which is what `TrimStart` removes. Note U+0085 is in it and U+200B
+ * and U+FEFF are not.
  */
-export const isDotNetWhitespace = (ch: string): boolean => {
-  const code = ch.codePointAt(0) ?? 0;
-  return (
-    (code >= 0x09 && code <= 0x0d) ||
-    code === 0x20 ||
-    code === 0x85 ||
-    code === 0xa0 ||
-    code === 0x1680 ||
-    (code >= 0x2000 && code <= 0x200a) ||
-    code === 0x2028 ||
-    code === 0x2029 ||
-    code === 0x202f ||
-    code === 0x205f ||
-    code === 0x3000
-  );
-};
+const LEADING_DOTNET_WHITESPACE = /^[\t-\r \u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]*/;
 
 /** Would the runner read this one line as a command, by either parser. */
-export const isCommand = (line: string): boolean => {
-  let i = 0;
-  while (i < line.length && isDotNetWhitespace(line.charAt(i))) i++;
-  return line.slice(i).startsWith("::") || line.includes("##[");
-};
+export const isCommand = (line: string): boolean =>
+  pipe(line, Str.replace(LEADING_DOTNET_WHITESPACE, ""), Str.startsWith("::")) || Str.includes("##[")(line);
 
 /** The lines of `text` the runner would read as a command. */
-export const commandLines = (text: string): ReadonlyArray<string> => text.split(LINE_BREAK).filter(isCommand);
+export const commandLines = (text: string): ReadonlyArray<string> =>
+  pipe(text, Str.split(LINE_BREAK), A.filter(isCommand));

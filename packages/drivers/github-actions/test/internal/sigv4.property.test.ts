@@ -5,6 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(
@@ -39,8 +40,8 @@ it.effect.prop(
         canonicalize({ ...request, headers: first.headers }, credentials).canonicalRequest,
         first.canonicalRequest
       );
-      const path = first.canonicalRequest.split("\n")[1];
-      assert.strictEqual(decodeURIComponent(path ?? ""), value.startsWith("/") ? value : `/${value}`);
+      const path = Str.split(first.canonicalRequest, "\n")[1];
+      assert.strictEqual(decodeURIComponent(path ?? ""), Str.startsWith("/")(value) ? value : `/${value}`);
     }),
   runs
 );

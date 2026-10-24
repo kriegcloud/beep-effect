@@ -7,7 +7,7 @@ import {
   RunnerFileUnavailableError,
   RunnerFileWriteError,
 } from "@beep/github-actions/ActionOutputs";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
@@ -53,11 +53,11 @@ it.effect("output failures identify the affected runner file or value", () =>
       'Failed to write to runner file "GITHUB_ENV"'
     );
     assert.strictEqual(
-      InvalidOutputNameError.make({ name: "bad=name" }).message,
+      InvalidOutputNameError.make({ outputName: "bad=name" }).message,
       '"bad=name" is not a usable output name'
     );
     assert.strictEqual(
-      OutputEncodeError.make({ name: "packages" }).message,
+      OutputEncodeError.make({ outputName: "packages" }).message,
       'Failed to encode the value for "packages"'
     );
     assert.strictEqual(

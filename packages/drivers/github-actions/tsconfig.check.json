@@ -12,6 +12,9 @@
       "path": "../../foundation/modeling/github-commands/tsconfig.json"
     },
     {
+      "path": "../../foundation/modeling/github-reporting/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/glob/tsconfig.json"
     },
     {

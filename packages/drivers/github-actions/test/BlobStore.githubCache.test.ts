@@ -1,11 +1,14 @@
 import { BlobStore, BlobStoreError, BlobTransferError, GitHubCacheBlobStore } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
 import { json, resultsEnv, settle, twirpFetch } from "./support/results.ts";
@@ -19,16 +22,16 @@ class Meta extends S.Class<Meta, { readonly brand: unique symbol }>("Meta")({ ta
 
 /** A transport that keeps what it was given, keyed by the url it was given it at. */
 const memoryTransfer = () => {
-  const blobs = new Map<string, Uint8Array>();
+  const blobs = MutableHashMap.empty<string, Uint8Array>();
   const transfer: DataBlobTransfer = {
     uploadData: dual(2, (url: string, data: Uint8Array) =>
       Effect.sync(() => {
-        blobs.set(url, data);
+        MutableHashMap.set(blobs, url, data);
       })
     ),
     downloadToBuffer: (url) =>
       Effect.suspend(() => {
-        const found = blobs.get(url);
+        const found = O.getOrUndefined(MutableHashMap.get(blobs, url));
         return found === undefined
           ? Effect.fail(BlobTransferError.make({ reason: "downloadFailed" }))
           : Effect.succeed(found);
@@ -88,11 +91,11 @@ describe("GitHubCacheBlobStore", () => {
           );
 
           assert.deepStrictEqual(
-            calls.map((call) => call.method),
+            A.map(calls, (call) => call.method),
             ["CreateCacheEntry", "FinalizeCacheEntryUpload"]
           );
           // The url is the one the backend signed, not one this package composed.
-          const uploaded = blobs.get("https://blob.example/upload?sig=abc");
+          const uploaded = O.getOrUndefined(MutableHashMap.get(blobs, "https://blob.example/upload?sig=abc"));
           assert.isDefined(uploaded);
           // The finalized size is the size of the FRAMED bytes. Reporting the
           // caller's body length instead produces an entry the backend accepts and
@@ -187,7 +190,7 @@ describe("GitHubCacheBlobStore", () => {
     it.layer(store(fetch, transfer), { timeout: "30 seconds" })((it) => {
       it.effect("reads both the camelCase and the snake_case spelling of a signed url", () =>
         Effect.gen(function* () {
-          blobs.set("https://blob.example/snake", new Uint8Array([1]));
+          MutableHashMap.set(blobs, "https://blob.example/snake", new Uint8Array([1]));
           assert.isTrue(yield* Effect.flatMap(BlobStore, (blobStore) => blobStore.has("k")));
         })
       );
@@ -206,7 +209,7 @@ describe("GitHubCacheBlobStore", () => {
           yield* Effect.flatMap(BlobStore, (blobStore) =>
             blobStore.put("k", { metadata: Meta.make({ tag: "x", durationMs: 1 }), body: new Uint8Array([1]) }, Meta)
           );
-          assert.strictEqual(blobs.size, 0, "a conflicting create must not upload");
+          assert.strictEqual(MutableHashMap.size(blobs), 0, "a conflicting create must not upload");
           assert.lengthOf(calls, 1, "and must not finalize either");
         })
       );
@@ -247,7 +250,7 @@ describe("GitHubCacheBlobStore", () => {
               blobStore.put("k", { metadata: Meta.make({ tag: "x", durationMs: 1 }), body: new Uint8Array([1]) }, Meta)
             )
           );
-          assert.strictEqual(blobs.size, 1);
+          assert.strictEqual(MutableHashMap.size(blobs), 1);
           assert.include(error.message, "FinalizeCacheEntryUpload");
         })
       );

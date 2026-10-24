@@ -1,18 +1,18 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { ActionOutputs, Secret } from "@beep/github-actions";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
+import * as Str from "effect/String";
+import { sourceModules, sourceOf } from "./support/sourceGraph.ts";
 
 /** Records what was masked, so ordering can be asserted. */
 const recordingOutputs = () => {
   const masked: Array<string> = [];
-  const layer = ActionOutputs.layerTest({
+  const service = ActionOutputs.makeTest({
     setSecret: (value) =>
       // `Effect.suspend` so the record happens when the effect RUNS, not when
       // it is described — an eager recorder logs calls that never happened.
@@ -21,7 +21,7 @@ const recordingOutputs = () => {
         return Effect.void;
       }),
   });
-  return { masked, layer };
+  return { masked, service };
 };
 
 /**
@@ -34,7 +34,7 @@ const withConfig = <A, E, R>(values: Record<string, string>, effect: Effect.Effe
     effect,
     ConfigProvider.ConfigProvider,
     ConfigProvider.make((path) => {
-      const value = values[path.join("_")];
+      const value = values[A.join(A.map(path, String), "_")];
       return Effect.succeed(value === undefined ? undefined : ConfigProvider.makeValue(value));
     })
   );
@@ -46,7 +46,7 @@ describe("Secret", () => {
       return Effect.gen(function* () {
         const env = yield* Secret.forChildEnv({ TOKEN: Redacted.make("s3cr3t") });
         assert.deepStrictEqual(env, { TOKEN: "s3cr3t" });
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
 
     it.effect("masks every value it declassifies", () => {
@@ -55,7 +55,7 @@ describe("Secret", () => {
         const env = yield* Secret.forChildEnv({ A: Redacted.make("aaa"), B: Redacted.make("bbb") });
         assert.deepStrictEqual(outputs.masked, ["aaa", "bbb"]);
         assert.deepStrictEqual(env, { A: "aaa", B: "bbb" });
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
 
     it.effect("preserves an own __proto__ entry and masks every value in order", () => {
@@ -68,14 +68,14 @@ describe("Secret", () => {
         assert.isTrue(R.has(env, "__proto__"));
         assert.deepStrictEqual(env, { ["__proto__"]: "proto-secret", NORMAL: "normal-secret" });
         assert.deepStrictEqual(outputs.masked, ["proto-secret", "normal-secret"]);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
 
     it.effect("masks a value before that value is in the returned record", () => {
       // The ordering is the invariant: a mask that ran after the caller
       // already held plaintext would be a mask the caller could skip.
       const seen: Array<string> = [];
-      const layer = ActionOutputs.layerTest({
+      const service = ActionOutputs.makeTest({
         setSecret: (value) =>
           Effect.suspend(() => {
             seen.push(`mask:${value}`);
@@ -86,7 +86,7 @@ describe("Secret", () => {
         const env = yield* Secret.forChildEnv({ A: Redacted.make("aaa") });
         seen.push(`returned:${env.A}`);
         assert.deepStrictEqual(seen, ["mask:aaa", "returned:aaa"]);
-      }).pipe(Effect.provide(layer));
+      }).pipe(Effect.provideService(ActionOutputs, service));
     });
 
     it.effect("returns an empty record for no entries, masking nothing", () => {
@@ -94,7 +94,7 @@ describe("Secret", () => {
       return Effect.gen(function* () {
         assert.deepStrictEqual(yield* Secret.forChildEnv({}), {});
         assert.lengthOf(outputs.masked, 0);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
   });
 
@@ -104,7 +104,7 @@ describe("Secret", () => {
       return Effect.gen(function* () {
         assert.strictEqual(yield* Secret.forRunnerFile(Redacted.make("ghs_abc")), "ghs_abc");
         assert.deepStrictEqual(outputs.masked, ["ghs_abc"]);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
   });
 
@@ -114,7 +114,7 @@ describe("Secret", () => {
       return Effect.gen(function* () {
         assert.strictEqual(yield* Secret.forProcessEnv(Redacted.make("ghs_env")), "ghs_env");
         assert.deepStrictEqual(outputs.masked, ["ghs_env"]);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
 
     it.effect("masks before the caller holds the plaintext", () => {
@@ -122,7 +122,7 @@ describe("Secret", () => {
       // the caller already held plaintext would be a mask the caller could
       // skip on the way into `process.env`.
       const seen: Array<string> = [];
-      const layer = ActionOutputs.layerTest({
+      const service = ActionOutputs.makeTest({
         setSecret: (value) =>
           Effect.suspend(() => {
             seen.push(`mask:${value}`);
@@ -133,7 +133,7 @@ describe("Secret", () => {
         const plaintext = yield* Secret.forProcessEnv(Redacted.make("bridged"));
         seen.push(`returned:${plaintext}`);
         assert.deepStrictEqual(seen, ["mask:bridged", "returned:bridged"]);
-      }).pipe(Effect.provide(layer));
+      }).pipe(Effect.provideService(ActionOutputs, service));
     });
 
     it.effect("behaves identically to forRunnerFile — same mechanism, distinct audit name", () => {
@@ -143,7 +143,7 @@ describe("Secret", () => {
         const viaProcessEnv = yield* Secret.forProcessEnv(Redacted.make("same-secret"));
         assert.strictEqual(viaProcessEnv, viaRunnerFile);
         assert.deepStrictEqual(outputs.masked, ["same-secret", "same-secret"]);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
   });
 
@@ -154,7 +154,7 @@ describe("Secret", () => {
         const result = yield* Secret.mask(Redacted.make("register-only"));
         assert.isUndefined(result);
         assert.deepStrictEqual(outputs.masked, ["register-only"]);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
 
     it.effect("registers through the same route as forRunnerFile — one mechanism, observed identically", () => {
@@ -163,7 +163,7 @@ describe("Secret", () => {
         yield* Secret.forRunnerFile(Redacted.make("same-route"));
         yield* Secret.mask(Redacted.make("same-route"));
         assert.deepStrictEqual(outputs.masked, ["same-route", "same-route"]);
-      }).pipe(Effect.provide(outputs.layer));
+      }).pipe(Effect.provideService(ActionOutputs, outputs.service));
     });
 
     it("never hands back plaintext — the success channel is void, by type", () => {
@@ -199,12 +199,11 @@ describe("Secret", () => {
   });
 
   describe("the declassification invariant", () => {
-    const srcRoot = fileURLToPath(new URL("../src/", import.meta.url));
-
     /**
      * Strip comments before scanning.
      *
-     * @remarks
+     * **Details**
+     *
      * A raw text scan reads TSDoc as code: a module whose comment *explains*
      * that it does not unwrap a secret gets reported as unwrapping one. That
      * happened — `OidcTokenIssuer` documents the invariant it obeys and failed
@@ -220,26 +219,10 @@ describe("Secret", () => {
      * block comment is harmless.
      */
     const stripComments = (source: string): string =>
-      source.replace(/(^|\n)\s*\/\/.*/g, "$1").replace(/\/\*[\s\S]*?\*\//g, "");
+      pipe(source, Str.replace(/(^|\n)\s*\/\/.*/g, "$1"), Str.replace(/\/\*[\s\S]*?\*\//g, ""));
 
-    const unwrappingModules = (): ReadonlyArray<string> => {
-      const found: Array<string> = [];
-      const walk = (dir: string) => {
-        for (const entry of readdirSync(dir, { withFileTypes: true })) {
-          const path = join(dir, entry.name);
-          if (entry.isDirectory()) {
-            walk(path);
-          } else if (
-            entry.name.endsWith(".ts") &&
-            stripComments(readFileSync(path, "utf8")).includes("Redacted.value")
-          ) {
-            found.push(entry.name);
-          }
-        }
-      };
-      walk(srcRoot);
-      return found.sort();
-    };
+    const unwrappingModules = (): ReadonlyArray<string> =>
+      A.filter(sourceModules, (module) => Str.includes("Redacted.value")(stripComments(sourceOf(module))));
 
     it("only Secret.ts unwraps a Redacted", () => {
       // The structural half of the invariant: declassification is coupled to

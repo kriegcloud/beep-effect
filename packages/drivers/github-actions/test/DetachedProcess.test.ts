@@ -16,17 +16,20 @@ import {
 import { DetachedSpawnOptions } from "@beep/github-actions/DetachedProcess";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type { Server, ServerResponse } from "node:http";
 
@@ -404,7 +407,11 @@ describe("DetachedProcess", () => {
         return "";
       }
       assert.isTrue(Cause.hasDies(exit.cause), "an unstubbed member must die, never fail typed");
-      const defect = exit.cause.reasons.filter(Cause.isDieReason).map((reason) => reason.defect)[0];
+      const defect = pipe(
+        exit.cause.reasons,
+        A.filter(Cause.isDieReason),
+        A.map((reason) => reason.defect)
+      )[0];
       assert.instanceOf(defect, Error);
       assert.isTrue(defect instanceof Error);
       return defect.message;
@@ -493,7 +500,7 @@ describe("DetachedProcess", () => {
         const wrote = yield* Effect.promise(() =>
           eventually(() => {
             try {
-              return readFileSync(logFile, "utf8").includes("hello from the child");
+              return Str.includes("hello from the child")(readFileSync(logFile, "utf8"));
             } catch {
               return false;
             }
@@ -516,7 +523,7 @@ describe("DetachedProcess", () => {
       // test's duration only, and restored on every path.
       const PARENT_ONLY = "EFFECTED_DETACHED_PARENT_ONLY";
       const previous = process.env[PARENT_ONLY];
-      process.env[PARENT_ONLY] = `parent-${Math.random().toString(36).slice(2)}`;
+      process.env[PARENT_ONLY] = `parent-${Str.slice(2)(Math.random().toString(36))}`;
       return Effect.gen(function* () {
         // The parent holds it; the child must NOT see it — the base is the
         // whole inherited block, not additions to process.env.
@@ -532,7 +539,7 @@ describe("DetachedProcess", () => {
         const wrote = yield* Effect.promise(() =>
           eventually(() => {
             try {
-              return readFileSync(logFile, "utf8").endsWith("}");
+              return Str.endsWith("}")(readFileSync(logFile, "utf8"));
             } catch {
               return false;
             }
@@ -549,7 +556,7 @@ describe("DetachedProcess", () => {
         assert.notProperty(seen, PARENT_ONLY, "the parent's own variables must not leak past an explicit base");
         // An `undefined` base value is dropped, never stringified.
         assert.notProperty(seen, "DROPPED");
-        assert.notInclude(Object.values(seen), "undefined");
+        assert.notInclude(R.values(seen), "undefined");
       }).pipe(
         Effect.ensuring(
           Effect.sync(() => {
@@ -576,7 +583,7 @@ describe("DetachedProcess", () => {
         const wrote = yield* Effect.promise(() =>
           eventually(() => {
             try {
-              return readFileSync(logFile, "utf8").endsWith("}");
+              return Str.endsWith("}")(readFileSync(logFile, "utf8"));
             } catch {
               return false;
             }

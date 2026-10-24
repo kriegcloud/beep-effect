@@ -3,6 +3,8 @@
  *
  * @packageDocumentation
  */
+
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { PackageManagerPin, PackageManagerPinName } from "@beep/npm-spec/PackageManagerPin";
@@ -24,13 +26,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { digestFileHex } from "./internal/digest.ts";
-import { typeAt } from "./internal/fsProbe.ts";
+import { escapesRoot, realDestination, typeAt } from "./internal/fsProbe.ts";
+import { framed } from "./internal/messageText.ts";
 import { detectMusl, isNodeScript, PNPM_EXE_PREFIX, pnpmExeTarget, strongestSri } from "./internal/pnpmExe.ts";
 import { isWindowsRunner } from "./internal/runner.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
 import { ToolInstaller } from "./ToolInstaller.ts";
 import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
-import type * as PlatformError from "effect/PlatformError";
 import type { ToolInstallerError } from "./ToolInstaller.ts";
 
 const $I = $GithubActionsId.create("PackageManagerInstaller");
@@ -80,7 +81,7 @@ const isWindowsShimTarget = S.is(WindowsShimTarget);
  * import { PackageManagerInstallerError } from "@beep/github-actions/PackageManagerInstaller";
  *
  * const error = PackageManagerInstallerError.make({
- *   reason: "integrityMissing", name: "pnpm", version: "10.13.1",
+ *   reason: "integrityMissing", manager: "pnpm", version: "10.13.1",
  * });
  * console.log(error.reason) // integrityMissing
  * ```
@@ -131,8 +132,8 @@ export class PackageManagerInstallerError extends S.TaggedError<
       })
     ),
     /** The package manager being installed. */
-    name: PackageManagerPinName.pipe(
-      $I.annoteKey("PackageManagerInstallerError.name", { description: "The package manager being installed." })
+    manager: PackageManagerPinName.pipe(
+      $I.annoteKey("PackageManagerInstallerError.manager", { description: "The package manager being installed." })
     ),
     /** The exact version being installed, in string form. */
     version: S.String.pipe(
@@ -178,7 +179,7 @@ export class PackageManagerInstallerError extends S.TaggedError<
    * import { PackageManagerInstallerError } from "@beep/github-actions/PackageManagerInstaller";
    *
    * const error = PackageManagerInstallerError.make({
-   *   reason: "downloadFailed", name: "pnpm", version: "10.13.1",
+   *   reason: "downloadFailed", manager: "pnpm", version: "10.13.1",
    * });
    * console.log(error.message) // Could not download pnpm@10.13.1
    * ```
@@ -187,23 +188,17 @@ export class PackageManagerInstallerError extends S.TaggedError<
    * @since 0.0.0
    */
   override get message(): string {
-    const pin = `${this.name}@${this.version}`;
+    const pin = `${this.manager}@${this.version}`;
     return Match.value(this.reason).pipe(
-      Match.when(
-        "downloadFailed",
-        () => `Could not download ${pin}${this.subject === undefined ? "" : ` from ${this.subject}`}`
-      ),
-      Match.when(
-        "extractFailed",
-        () => `Could not extract ${pin}${this.subject === undefined ? "" : ` (${this.subject})`}`
-      ),
+      Match.when("downloadFailed", () => `Could not download ${pin}${framed(this.subject, " from ")}`),
+      Match.when("extractFailed", () => `Could not extract ${pin}${framed(this.subject, " (", ")")}`),
       Match.when("integrityMismatch", () =>
         // Both hashes are absent on the path where the digest itself could
         // not be computed, which is a failure to VERIFY rather than a
         // verified mismatch. Saying so beats "expected undefined, got
         // undefined", which reads as a mismatch that was actually measured.
         this.expected === undefined || this.actual === undefined
-          ? `Could not verify the integrity of ${pin}${this.subject === undefined ? "" : ` (${this.subject})`}`
+          ? `Could not verify the integrity of ${pin}${framed(this.subject, " (", ")")}`
           : `Integrity mismatch for ${pin}: expected ${this.expected}, got ${this.actual}`
       ),
       Match.when("integrityMissing", () =>
@@ -214,13 +209,9 @@ export class PackageManagerInstallerError extends S.TaggedError<
       Match.when("unsupportedPlatform", () => `No ${pin} build is published for ${this.subject}`),
       Match.when(
         "layoutUnexpected",
-        () =>
-          `The ${pin} artifact does not have the expected layout${this.subject === undefined ? "" : `: ${this.subject}`}`
+        () => `The ${pin} artifact does not have the expected layout${framed(this.subject, ": ")}`
       ),
-      Match.when(
-        "cacheFailed",
-        () => `Could not cache ${pin} into the tool cache${this.subject === undefined ? "" : `: ${this.subject}`}`
-      ),
+      Match.when("cacheFailed", () => `Could not cache ${pin} into the tool cache${framed(this.subject, ": ")}`),
       Match.exhaustive
     );
   }
@@ -663,7 +654,7 @@ const bunTarget: {
   (runnerOs: string, arch: string): O.Option<string>;
   (arch: string): (runnerOs: string) => O.Option<string>;
 } = dual(2, (runnerOs: string, arch: string): O.Option<string> => {
-  const os = BUN_OS[runnerOs.toLowerCase()];
+  const os = BUN_OS[Str.toLowerCase(runnerOs)];
   const cpu = BUN_CPU[arch];
   return os === undefined || cpu === undefined ? O.none() : O.some(`bun-${os}-${cpu}`);
 });
@@ -692,7 +683,7 @@ const normalizeBins: {
   (fallbackName: string): (bin: unknown) => O.Option<Record<string, string>>;
 } = dual(2, (bin: unknown, fallbackName: string): O.Option<Record<string, string>> => {
   if (P.isString(bin)) {
-    return O.some({ [fallbackName]: bin.replace(/^\.\//, "") });
+    return O.some({ [fallbackName]: Str.replace(/^\.\//, "")(bin) });
   }
   if (!P.isObjectOrArray(bin)) {
     return O.none();
@@ -703,14 +694,14 @@ const normalizeBins: {
     if (!P.isString(value)) {
       return O.none();
     }
-    R.assignProperty(entries, name, value.replace(/^\.\//, ""));
+    R.assignProperty(entries, name, Str.replace(/^\.\//, "")(value));
   }
   return R.keys(entries).length === 0 ? O.none() : O.some(entries);
 });
 
 /** Map a `RUNNER_ARCH` value (`X64`, `ARM64`) onto the Node arch spelling. */
 const archFromRunner = (runnerArch: string): string => {
-  const lowered = runnerArch.toLowerCase();
+  const lowered = Str.toLowerCase(runnerArch);
   return lowered === "x64" || lowered === "arm64" ? lowered : runnerArch;
 };
 
@@ -749,7 +740,7 @@ const make = Effect.gen(function* () {
       readonly actual?: string;
       readonly cause?: unknown;
     }): PackageManagerInstallerError =>
-      PackageManagerInstallerError.make({ name: pin.name, version: pin.version.toString(), ...fields });
+      PackageManagerInstallerError.make({ manager: pin.name, version: pin.version.toString(), ...fields });
 
   /** Map a ToolInstaller failure onto this surface; the reasons line up 1:1. */
   const fromInstaller =
@@ -801,9 +792,9 @@ const make = Effect.gen(function* () {
         );
         return;
       }
-      const dot = integrity.indexOf(".");
-      const algorithm = integrity.slice(0, dot);
-      const expectedHex = integrity.slice(dot + 1);
+      const dot = O.getOrElse(Str.indexOf(".")(integrity), () => -1);
+      const algorithm = Str.slice(0, dot)(integrity);
+      const expectedHex = Str.slice(dot + 1)(integrity);
       const actualHex = yield* hashFile(pin, file, algorithm);
       if (actualHex !== expectedHex) {
         return yield* errorFor(pin)({
@@ -826,7 +817,7 @@ const make = Effect.gen(function* () {
    */
   const ambientNpmVersion: Effect.Effect<O.Option<string>> = Effect.map(
     Effect.result(spawner.string(ChildProcess.make("npm", ["--version"]))),
-    (result) => (result._tag === "Success" ? O.some(result.success.trim()) : O.none())
+    (result) => (result._tag === "Success" ? O.some(Str.trim(result.success)) : O.none())
   );
 
   const assertFile: {
@@ -845,26 +836,7 @@ const make = Effect.gen(function* () {
     })
   );
 
-  /** Resolve missing destinations through their existing parent without following dangling links. */
-  const resolvedDestination = Effect.fnUntraced(function* (
-    file: string
-  ): Effect.fn.Return<string, PlatformError.PlatformError> {
-    return yield* fs.realPath(file).pipe(
-      Effect.catchIf(
-        (error) => error.reason._tag === "NotFound",
-        Effect.fnUntraced(function* (
-          error: PlatformError.PlatformError
-        ): Effect.fn.Return<string, PlatformError.PlatformError> {
-          const link = yield* Effect.option(fs.readLink(file));
-          const parent = path.dirname(file);
-          if (O.isSome(link) || parent === file) {
-            return yield* error;
-          }
-          return path.join(yield* resolvedDestination(parent), path.basename(file));
-        })
-      )
-    );
-  });
+  const resolvedDestination = realDestination(fs, path);
 
   /** Package roots must be real directories; bins may follow links only within that root. */
   const containedPackagePath: {
@@ -889,12 +861,7 @@ const make = Effect.gen(function* () {
         Effect.mapError((cause) => errorFor(pin)({ reason: "layoutUnexpected", subject: file, cause }))
       );
       const relative = path.relative(realRoot, target);
-      if (
-        relative === "" ||
-        relative === ".." ||
-        Str.startsWith(`..${path.sep}`)(relative) ||
-        path.isAbsolute(relative)
-      ) {
+      if (escapesRoot(path, relative)) {
         return yield* errorFor(pin)({
           reason: "layoutUnexpected",
           subject: `${file} escapes the real package directory`,
@@ -990,7 +957,7 @@ const make = Effect.gen(function* () {
         // owned. Containment is checked on the resolved path, so `..` smuggled
         // through any spelling is caught.
         const containment = path.relative(packageDir, target);
-        if (containment === ".." || containment.startsWith(`..${path.sep}`) || path.isAbsolute(containment)) {
+        if (containment === ".." || Str.startsWith(`..${path.sep}`)(containment) || path.isAbsolute(containment)) {
           return yield* errorFor(pin)({
             reason: "layoutUnexpected",
             subject: `bin ${name} (${relative}) escapes the package directory`,
@@ -1021,7 +988,7 @@ const make = Effect.gen(function* () {
     const entries: Record<string, string> = {};
     const properties: ReadonlyArray<[string, unknown]> = R.toEntries<never, unknown>(optionalDependencies);
     for (const [name, version] of properties) {
-      if (name.startsWith(PNPM_EXE_PREFIX) && P.isString(version)) {
+      if (Str.startsWith(PNPM_EXE_PREFIX)(name) && P.isString(version)) {
         entries[name] = version;
       }
     }
@@ -1648,7 +1615,7 @@ const make = Effect.gen(function* () {
         return yield* installBun(effective);
       }
       return yield* installFromRegistry(effective, {
-        registry: (options?.registry ?? DEFAULT_REGISTRY).replace(/\/+$/, ""),
+        registry: Str.replace(/\/+$/, "")(options?.registry ?? DEFAULT_REGISTRY),
         nativeIntegrity: options?.nativeIntegrity,
       });
     })

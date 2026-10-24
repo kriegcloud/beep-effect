@@ -30,6 +30,7 @@ import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -46,6 +47,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
 import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
 import type * as Scope from "effect/Scope";
@@ -163,7 +165,7 @@ const makeManagerTarball = (
     readonly manifest?: Readonly<Record<string, unknown>> | undefined;
   }
 ): string => {
-  const safeName = options.name.replaceAll("/", "-");
+  const safeName = Str.replaceAll("/", "-")(options.name);
   const staging = join(directory, `staging-${safeName}-${options.version}`);
   const packageDir = join(staging, "package");
   mkdirSync(packageDir, { recursive: true });
@@ -181,7 +183,7 @@ const makeManagerTarball = (
       )
     );
   }
-  for (const [file, contents] of Object.entries(options.files ?? {})) {
+  for (const [file, contents] of R.toEntries(options.files ?? {})) {
     mkdirSync(join(packageDir, file, ".."), { recursive: true });
     writeFileSync(join(packageDir, file), contents);
   }
@@ -265,8 +267,11 @@ const makePnpm12Wrapper = (
       "bin/pnpm.mjs": "console.log('corepack entry — must not be used')\n",
     },
     manifest: {
-      optionalDependencies: Object.fromEntries(
-        (options.targets ?? PNPM_EXE_TARGETS).map((target) => [`@pnpm/exe.${target}`, options.nativeVersion ?? version])
+      optionalDependencies: R.fromEntries(
+        A.map(options.targets ?? PNPM_EXE_TARGETS, (target) => [
+          `@pnpm/exe.${target}`,
+          options.nativeVersion ?? version,
+        ])
       ),
     },
   });
@@ -972,7 +977,7 @@ describe("PackageManagerInstaller", () => {
             join(directory, "package.json"),
             S.encodeResult(Json)({ bin: targets }).pipe(Result.getOrThrow)
           );
-          for (const relative of Object.values(targets)) writeFileSync(join(directory, relative), "fixture");
+          for (const relative of R.values(targets)) writeFileSync(join(directory, relative), "fixture");
           const installed = cachedOf(
             yield* install("pnpm@7.7.7").pipe(
               Effect.provide(
@@ -985,8 +990,8 @@ describe("PackageManagerInstaller", () => {
               )
             )
           );
-          for (const [name, relative] of Object.entries(targets)) {
-            const literal = `'${join(directory, relative).replaceAll("'", "'\\''")}'`;
+          for (const [name, relative] of R.toEntries(targets)) {
+            const literal = `'${Str.replaceAll("'", "'\\''")(join(directory, relative))}'`;
             assert.strictEqual(
               readFileSync(join(installed.binDir, name), "utf8"),
               `#!/bin/sh\nexec ${name === "pnpm" ? "node -- " : ""}${literal} "$@"\n`
@@ -1007,7 +1012,7 @@ describe("PackageManagerInstaller", () => {
           writeFileSync(join(directory, "package.json"), '{"bin":{"__proto__":"bin/pnpm.cjs","pnpm":"bin/pnpm.cjs"}}');
           writeFileSync(join(directory, "bin", "pnpm.cjs"), "fixture");
           const installed = cachedOf(yield* install("pnpm@7.7.7"));
-          assert.deepStrictEqual(Object.keys(installed.bins), ["__proto__", "pnpm"]);
+          assert.deepStrictEqual(R.keys(installed.bins), ["__proto__", "pnpm"]);
           assert.deepStrictEqual(R.get(installed.bins, "__proto__"), O.some(join(directory, "bin", "pnpm.cjs")));
           assert.strictEqual(installed.bins.pnpm, join(directory, "bin", "pnpm.cjs"));
           assert.strictEqual(
@@ -1085,7 +1090,7 @@ describe("PackageManagerInstaller", () => {
               ChildProcess.make(join(installed.binDir, "pnpm"), ["a b", "--flag", "c"])
             );
             assert.deepStrictEqual(
-              Result.getOrThrowWith(S.decodeResult(Json)(output.trim()), (error) => error),
+              Result.getOrThrowWith(S.decodeResult(Json)(Str.trim(output)), (error) => error),
               ["a b", "--flag", "c"]
             );
           });
@@ -1172,7 +1177,7 @@ describe("PackageManagerInstaller", () => {
             binFiles: ["bin/pnpm.cjs"],
           });
           const script = scriptedFetch({ "https://registry.npmjs.org/pnpm/-/pnpm-1.0.1.tgz": tgzResponse(archive) });
-          const wrong = "0".repeat(128);
+          const wrong = Str.repeat(128)("0");
           return {
             layer: live(root, script.fetch),
             test: Effect.gen(function* () {
@@ -1190,7 +1195,7 @@ describe("PackageManagerInstaller", () => {
               assert.include(
                 PackageManagerInstallerError.make({
                   reason: "integrityMismatch",
-                  name: "pnpm",
+                  manager: "pnpm",
                   version: "1.0.1",
                   subject: "/tmp/pnpm.tgz",
                 }).message,
@@ -1233,7 +1238,7 @@ describe("PackageManagerInstaller", () => {
                 Effect.ensuring(Effect.sync(() => rmSync(root, { recursive: true, force: true })))
               );
               assert.strictEqual(installed.source, "tool-cache");
-              const warning = entries.find((entry) => entry.level === "Warn");
+              const warning = O.getOrUndefined(A.findFirst(entries, (entry) => entry.level === "Warn"));
               assert.isDefined(warning, "an unverified download must be announced");
               assert.include(String(warning?.message), "integrity");
             }),
@@ -1276,7 +1281,7 @@ describe("PackageManagerInstaller", () => {
       const url = `https://registry.npmjs.org/pnpm/-/pnpm-${version}.tgz`;
       return { archive, url, script: scriptedFetch({ [url]: tgzResponse(archive) }) };
     };
-    const wrong = corepack(`sha512.${"0".repeat(128)}`);
+    const wrong = corepack(`sha512.${Str.repeat(128)("0")}`);
 
     it.layer(
       testLayer(
@@ -1297,7 +1302,7 @@ describe("PackageManagerInstaller", () => {
               }).pipe(Effect.ensuring(Effect.sync(() => rmSync(root, { recursive: true, force: true }))));
               assert.strictEqual(installed.source, "tool-cache");
               assert.isUndefined(
-                entries.find((entry) => entry.level === "Warn"),
+                O.getOrUndefined(A.findFirst(entries, (entry) => entry.level === "Warn")),
                 "a download verified against the option is not an unverified one"
               );
             }),
@@ -1483,7 +1488,10 @@ describe("PackageManagerInstaller", () => {
           assert.strictEqual(refused.reason, "integrityMissing");
           assert.include(refused.message, "requireIntegrity");
           const installed = cachedOf(
-            yield* install("pnpm@7.8.0", { requireIntegrity: true, integrity: corepack(`sha512.${"a".repeat(128)}`) })
+            yield* install("pnpm@7.8.0", {
+              requireIntegrity: true,
+              integrity: corepack(`sha512.${Str.repeat(128)("a")}`),
+            })
           );
           assert.strictEqual(installed.directory, cached);
         })
@@ -1760,9 +1768,9 @@ describe("PackageManagerInstaller", () => {
             // needs (the wrapper's own directory) is the layout that was cached.
             const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
             const direct = yield* spawner.string(ChildProcess.make(join(installed.binDir, "pnpm"), ["--version"]));
-            assert.strictEqual(direct.trim(), `native-pnpm ${version} --version`);
+            assert.strictEqual(Str.trim(direct), `native-pnpm ${version} --version`);
             const viaAlias = yield* spawner.string(ChildProcess.make(join(installed.binDir, "pnx"), ["a b"]));
-            assert.strictEqual(viaAlias.trim(), `native-pnpm ${version} a b`);
+            assert.strictEqual(Str.trim(viaAlias), `native-pnpm ${version} a b`);
           });
           return {
             layer: Layer.mergeAll(live(root, script.fetch, darwinArm), NodeServices.layer),
@@ -2736,7 +2744,8 @@ describe("PackageManagerInstaller", () => {
                       find: dual(2, (_tool: string, _version: string) => Effect.succeedNone),
                       download: dual(
                         (args) => P.isString(args[0]),
-                        (url: string, _options?: unknown) => Effect.succeed(url.endsWith(".tgz") ? "unused" : packument)
+                        (url: string, _options?: unknown) =>
+                          Effect.succeed(Str.endsWith(".tgz")(url) ? "unused" : packument)
                       ),
                       extractTar: dual(
                         (args) => P.isString(args[0]),

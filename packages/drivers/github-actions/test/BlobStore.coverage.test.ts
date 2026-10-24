@@ -1,6 +1,6 @@
 import { ActionOutputs } from "@beep/github-actions/ActionOutputs";
 import { BlobStore, BlobStoreError } from "@beep/github-actions/BlobStore";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";

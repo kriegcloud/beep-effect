@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as References from "effect/References";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { ActionInput } from "./ActionInput.ts";
 import { ActionLogger } from "./ActionLogger.ts";
@@ -212,7 +213,7 @@ export const describeCause = (cause: Cause.Cause<unknown>): string => {
     return `[defect] ${describeError(defect.success)}`;
   }
   const pretty = Cause.pretty(cause);
-  return pretty.trim() === "" ? "the action failed with no diagnostic information" : pretty;
+  return Str.trim(pretty) === "" ? "the action failed with no diagnostic information" : pretty;
 };
 
 /**
@@ -364,7 +365,7 @@ export class Action {
               // the `Logger`, because this runs after the program — and after
               // whatever went wrong with it.
               const detail = Cause.pretty(cause);
-              if (detail.trim() !== "") {
+              if (Str.trim(detail) !== "") {
                 yield* Console.log(WorkflowCommand.render("debug", {}, detail));
               }
               yield* Console.log(WorkflowCommand.render("error", {}, `Action failed: ${describeCause(cause)}`));

@@ -1,9 +1,13 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
 import { computeLineStarts, createScanner, LanguageVariant, SyntaxKind } from "@typescript/native/unstable/ast";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as Num from "effect/Number";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as Str from "effect/String";
+import { sourceModules, sourceOf } from "./support/sourceGraph.ts";
 
 /**
  * The package's rule that ambient process state is never read behind a
@@ -19,11 +23,9 @@ import { computeLineStarts, createScanner, LanguageVariant, SyntaxKind } from "@
 const RULE =
   "ambient process state (process.env / process.arch / process.platform) is never read behind a caller's back — " +
   "read it through ActionEnvironment, or take it as an argument (see ChildEnv's class doc). " +
-  "A new sanctioned default must be added to the allowlist in __test__/ambientReads.test.ts WITH its reason.";
+  "A new sanctioned default must be added to the allowlist in test/ambientReads.test.ts WITH its reason.";
 
-const srcRoot = fileURLToPath(new URL("../src/", import.meta.url));
-
-const AMBIENT_MEMBERS: ReadonlySet<string> = new Set(["env", "arch", "platform"]);
+const AMBIENT_MEMBERS = HashSet.make("env", "arch", "platform");
 
 /**
  * Every `process.env` / `process.arch` / `process.platform` read in `text`,
@@ -48,64 +50,107 @@ const AMBIENT_MEMBERS: ReadonlySet<string> = new Set(["env", "arch", "platform"]
  * native, and the JS scanner moved there with a shorter signature (no
  * `ScriptTarget`) and `SyntaxKind.EndOfFile` in place of `EndOfFileToken`.
  */
-const scanAmbientReads = (text: string): ReadonlyArray<{ readonly line: number; readonly text: string }> => {
-  const found: Array<{ readonly line: number; readonly text: string }> = [];
-  const lineStarts = computeLineStarts(text);
-  const lines = text.split("\n");
-  const lineOf = (position: number): number => {
-    // The last line start at or before `position`; 0-based.
-    let line = 0;
-    while (line + 1 < lineStarts.length && (lineStarts[line + 1] ?? Number.POSITIVE_INFINITY) <= position) {
-      line += 1;
-    }
-    return line;
-  };
-  const scanner = createScanner(true, LanguageVariant.Standard, text);
-  // One entry per open template substitution: the brace depth at which its
-  // `}` closes the `${`. A `{` inside the substitution pushes deeper.
-  const templateDepths: Array<number> = [];
-  let depth = 0;
-  // The two tokens before the current one, oldest first, as (kind, text).
-  let history: ReadonlyArray<readonly [SyntaxKind, string]> = [];
-  const remember = (kind: SyntaxKind, value: string) => {
-    history = [...history.slice(-1), [kind, value]];
-  };
-  let token = scanner.scan();
-  while (token !== SyntaxKind.EndOfFile) {
-    if (token === SyntaxKind.TemplateHead || token === SyntaxKind.TemplateMiddle) {
-      templateDepths.push(depth);
-    } else if (token === SyntaxKind.OpenBraceToken) {
-      depth += 1;
-    } else if (token === SyntaxKind.CloseBraceToken) {
-      if (templateDepths[templateDepths.length - 1] === depth) {
-        templateDepths.pop();
-        // The `}` ends a substitution: what follows is template text, not
-        // code, until the next `${` (`TemplateMiddle`) or the closing
-        // backtick (`TemplateTail`).
-        token = scanner.reScanTemplateToken(false);
-        if (token === SyntaxKind.TemplateMiddle) {
-          templateDepths.push(depth);
-        }
-        remember(token, "");
-        token = scanner.scan();
-        continue;
-      }
-      depth -= 1;
-    }
-    if (
-      token === SyntaxKind.Identifier &&
-      AMBIENT_MEMBERS.has(scanner.getTokenValue()) &&
-      history[1]?.[0] === SyntaxKind.DotToken &&
-      history[0]?.[0] === SyntaxKind.Identifier &&
-      history[0]?.[1] === "process"
-    ) {
-      const line = lineOf(scanner.getTokenStart());
-      found.push({ line: line + 1, text: (lines[line] ?? "").trim() });
-    }
-    remember(token, token === SyntaxKind.Identifier ? scanner.getTokenValue() : "");
-    token = scanner.scan();
+/** One token of the stream, as the scanner reported it. */
+interface Token {
+  readonly kind: SyntaxKind;
+  readonly start: number;
+  /** The identifier text, for an `Identifier`; empty otherwise. */
+  readonly value: string;
+}
+
+/** The brace bookkeeping that keeps template text out of the code stream. */
+interface Braces {
+  depth: number;
+  /** One entry per open template substitution: the brace depth its `}` closes. */
+  readonly open: Array<number>;
+}
+
+/**
+ * The token after `kind`, steering the scanner through template literals: a
+ * `}` that closes a `${…}` substitution is re-scanned as template text, so what
+ * follows it is a template span (or the next `${`) and never code.
+ */
+const steer = (scanner: ReturnType<typeof createScanner>, braces: Braces, kind: SyntaxKind): SyntaxKind => {
+  if (kind === SyntaxKind.TemplateHead || kind === SyntaxKind.TemplateMiddle) {
+    braces.open.push(braces.depth);
+    return kind;
   }
-  return found;
+  if (kind === SyntaxKind.OpenBraceToken) {
+    braces.depth += 1;
+    return kind;
+  }
+  if (kind !== SyntaxKind.CloseBraceToken || !O.contains(A.last(braces.open), braces.depth)) {
+    braces.depth -= kind === SyntaxKind.CloseBraceToken ? 1 : 0;
+    return kind;
+  }
+  braces.open.pop();
+  const resumed = scanner.reScanTemplateToken(false);
+  if (resumed === SyntaxKind.TemplateMiddle) braces.open.push(braces.depth);
+  return resumed;
+};
+
+/** The code tokens of `text`, trivia skipped and template text kept apart. */
+const tokensOf = (text: string): ReadonlyArray<Token> => {
+  const scanner = createScanner(true, LanguageVariant.Standard, text);
+  const braces: Braces = { depth: 0, open: [] };
+  const tokens: Array<Token> = [];
+  for (let kind = scanner.scan(); kind !== SyntaxKind.EndOfFile; kind = scanner.scan()) {
+    const settled = steer(scanner, braces, kind);
+    tokens.push({
+      kind: settled,
+      start: scanner.getTokenStart(),
+      value: settled === SyntaxKind.Identifier ? scanner.getTokenValue() : "",
+    });
+  }
+  return tokens;
+};
+
+/** Whether the token at `index` ends a `process` `.` `env|arch|platform` triple. */
+const endsAmbientRead = (tokens: ReadonlyArray<Token>, index: number): boolean => {
+  const [owner, dot, member] = A.take(A.drop(tokens, index - 2), 3);
+  return (
+    index >= 2 &&
+    member?.kind === SyntaxKind.Identifier &&
+    HashSet.has(AMBIENT_MEMBERS, member.value) &&
+    dot?.kind === SyntaxKind.DotToken &&
+    owner?.kind === SyntaxKind.Identifier &&
+    owner.value === "process"
+  );
+};
+
+/**
+ * Every `process.env` / `process.arch` / `process.platform` read in `text`,
+ * found by walking TypeScript's own token stream rather than a regex over
+ * comment-stripped source.
+ *
+ * **Details**
+ *
+ * A site is the token triple `process` `.` `env|arch|platform`. The scanner
+ * skips trivia, so comments never match; a string literal is one
+ * `StringLiteral` token, so `"/* process.env *\/"` never matches either — the
+ * two false-positive classes a regex has to approximate. Template literals
+ * are the one place the scanner needs steering (see `steer`): the code
+ * inside `${…}` is scanned as code — a read there IS a read and is counted —
+ * and the template's remaining text is a template span, not code.
+ *
+ * The scanner is TypeScript 7's, installed under the repo's
+ * `@typescript/native` npm alias (`typescript/unstable/ast` upstream).
+ */
+const scanAmbientReads = (text: string): ReadonlyArray<{ readonly line: number; readonly text: string }> => {
+  const lineStarts = computeLineStarts(text);
+  const lines = Str.split(text, "\n");
+  const tokens = tokensOf(text);
+  return A.getSomes(
+    A.map(tokens, (token, index) => {
+      if (!endsAmbientRead(tokens, index)) return O.none();
+      // The last line start at or before the token; 0-based.
+      const line = O.getOrElse(
+        A.findLastIndex(lineStarts, (start) => start <= token.start),
+        () => 0
+      );
+      return O.some({ line: line + 1, text: Str.trim(lines[line] ?? "") });
+    })
+  );
 };
 
 /** One read of ambient process state in `src/`. */
@@ -118,24 +163,17 @@ interface Site {
   readonly text: string;
 }
 
+const bySite: Order.Order<Site> = Order.combine(
+  Order.mapInput(Str.Order, (site: Site) => site.file),
+  Order.mapInput(Num.Order, (site: Site) => site.line)
+);
+
 /** Every read of ambient process state in `src/`, by token. */
-const ambientReadSites = (): ReadonlyArray<Site> => {
-  const found: Array<Site> = [];
-  const walk = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const path = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        walk(path);
-      } else if (entry.name.endsWith(".ts")) {
-        for (const site of scanAmbientReads(readFileSync(path, "utf8"))) {
-          found.push({ file: relative(srcRoot, path), ...site });
-        }
-      }
-    }
-  };
-  walk(srcRoot);
-  return found.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
-};
+const ambientReadSites = (): ReadonlyArray<Site> =>
+  A.sort(
+    A.flatMap(sourceModules, (file) => A.map(scanAmbientReads(sourceOf(file)), (site) => ({ file, ...site }))),
+    bySite
+  );
 
 /**
  * The sanctioned sites, and why each is one. Keep it minimal: remove an
@@ -187,35 +225,40 @@ describe("ambient process reads", () => {
 
   it("every read of process.env / process.arch / process.platform in src/ is an allowlisted site", () => {
     const actual = ambientReadSites();
-    const allowed = ALLOWED.map(([file, text]) => ({ file, text }));
-    const unexpected = actual.filter((site) => !allowed.some((entry) => key(entry) === key(site)));
-    const missing = allowed.filter((entry) => !actual.some((site) => key(entry) === key(site)));
+    const allowed = A.map(ALLOWED, ([file, text]) => ({ file, text }));
+    const unexpected = A.filter(actual, (site) => !A.some(allowed, (entry) => key(entry) === key(site)));
+    const missing = A.filter(allowed, (entry) => !A.some(actual, (site) => key(entry) === key(site)));
     assert.deepStrictEqual(
       unexpected,
       [],
-      `unsanctioned ambient read(s):\n${unexpected.map(render).join("\n")}\n${RULE}`
+      `unsanctioned ambient read(s):\n${pipe(unexpected, A.map(render), A.join("\n"))}\n${RULE}`
     );
     assert.deepStrictEqual(
       missing,
       [],
-      `allowlisted site(s) no longer present — remove them from the allowlist:\n${missing
-        .map((site) => `  ${site.file}: ${site.text}`)
-        .join("\n")}`
+      `allowlisted site(s) no longer present — remove them from the allowlist:\n${pipe(
+        missing,
+        A.map((site) => `  ${site.file}: ${site.text}`),
+        A.join("\n")
+      )}`
     );
   });
 
   it("the scan can fail — it is asserting on a non-empty set with ActionEnvironment in it", () => {
-    const files = ambientReadSites().map((site) => site.file);
+    const files = A.map(ambientReadSites(), (site) => site.file);
     assert.include(files, "ActionEnvironment.ts");
   });
 
   it("the scanner counts code, not comments or strings, and sees inside a template substitution", () => {
-    const fixture = [
-      'const a = "/* process.env */";', // a string literal: one token, never a read
-      "// process.env", // a comment: trivia, skipped
-      "const b = `${process.env.X}`;", // a real read inside `${…}`
-      "const c = process.env.Y; // trailing process.env", // one read, then a comment
-    ].join("\n");
+    const fixture = A.join(
+      [
+        'const a = "/* process.env */";', // a string literal: one token, never a read
+        "// process.env", // a comment: trivia, skipped
+        "const b = `${process.env.X}`;", // a real read inside `${…}`
+        "const c = process.env.Y; // trailing process.env", // one read, then a comment
+      ],
+      "\n"
+    );
     assert.deepStrictEqual(scanAmbientReads(fixture), [
       { line: 3, text: "const b = `${process.env.X}`;" },
       { line: 4, text: "const c = process.env.Y; // trailing process.env" },
@@ -228,7 +271,7 @@ describe("ambient process reads", () => {
     // own braces, which must not close the template early.
     const fixture = "const s = `${({ k: process.arch }).k} process.env ${process.platform}`;";
     assert.deepStrictEqual(
-      scanAmbientReads(fixture).map((site) => site.line),
+      A.map(scanAmbientReads(fixture), (site) => site.line),
       [1, 1]
     );
     assert.deepStrictEqual(scanAmbientReads("const t = `${1} process.env`; const u = 2;"), []);

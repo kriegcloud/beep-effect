@@ -1,5 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";

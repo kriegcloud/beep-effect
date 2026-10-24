@@ -3,6 +3,7 @@ import { InvalidDigestLengthError } from "@beep/github-actions/CacheKey";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
@@ -11,6 +12,7 @@ import * as Path from "effect/Path";
 import { systemError } from "effect/PlatformError";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { MemoryFileSystemSeedEntry } from "@beep/memfs";
 
 /**
@@ -62,11 +64,11 @@ describe("CacheKey", () => {
     });
 
     it("refuses a key longer than GitHub accepts", () => {
-      assert.throws(() => CacheKey.of("Linux", "x".repeat(512)));
+      assert.throws(() => CacheKey.of("Linux", Str.repeat(512)("x")));
     });
 
     it("accepts a key exactly at the limit", () => {
-      const key = CacheKey.of("x".repeat(512));
+      const key = CacheKey.of(Str.repeat(512)("x"));
       assert.lengthOf(key.key, 512);
     });
   });
@@ -172,7 +174,7 @@ describe("CacheKey", () => {
       const ordinary = CacheKey.of("Linux", "pnpm-store", "abc123");
       const busted = ordinary.withNamespace("bust7");
       for (const rung of ordinary.restoreKeys) {
-        assert.isFalse(busted.key.startsWith(rung), `"${rung}" must not match "${busted.key}"`);
+        assert.isFalse(Str.startsWith(rung)(busted.key), `"${rung}" must not match "${busted.key}"`);
       }
     });
 
@@ -389,7 +391,7 @@ describe("CacheKey", () => {
           // the workspace" structural. Matching absolute paths would also make
           // every pattern depend on where the runner happened to check out.
           assert.deepStrictEqual(
-            matched.map((file) => file.slice(root.length + 1)),
+            A.map(matched, (file) => Str.slice(root.length + 1)(file)),
             ["packages/a/pnpm-lock.yaml", "pnpm-lock.yaml"]
           );
         })
@@ -409,7 +411,7 @@ describe("CacheKey", () => {
           // action.
           const matched = yield* CacheKey.matchingFiles({ workspace: root, patterns: ["*.txt", "**/*.txt"] });
           assert.deepStrictEqual(
-            matched.map((file) => file.slice(root.length + 1)),
+            A.map(matched, (file) => Str.slice(root.length + 1)(file)),
             ["notes.txt/inner.txt"]
           );
         })
@@ -442,7 +444,7 @@ describe("CacheKey", () => {
       it.effect("fails typed, naming the pattern, when one will not compile", () =>
         Effect.gen(function* () {
           const root = WORKSPACE;
-          const hostile = "x".repeat(70_000);
+          const hostile = Str.repeat(70_000)("x");
           const error = yield* Effect.flip(CacheKey.matchingFiles({ workspace: root, patterns: [hostile] }));
           assert.instanceOf(error, CacheKeyBadPatternError);
           assert.strictEqual(error.pattern, hostile);
@@ -505,7 +507,7 @@ describe("CacheKey", () => {
             patterns: ["../ws-outside.lock", "pnpm-lock.yaml"],
           });
           assert.deepStrictEqual(
-            matched.map((file) => file.slice(root.length + 1)),
+            A.map(matched, (file) => Str.slice(root.length + 1)(file)),
             ["pnpm-lock.yaml"]
           );
         })

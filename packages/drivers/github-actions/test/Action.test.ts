@@ -8,15 +8,20 @@ import {
   describeCause,
 } from "@beep/github-actions";
 import { assert, describe, it, vi } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as R from "effect/Record";
 import * as References from "effect/References";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { ActionEnvironmentError } from "@beep/github-actions";
 
 class Extra extends Context.Service<Extra, { readonly describe: Effect.Effect<string, ActionEnvironmentError> }>()(
@@ -66,12 +71,14 @@ const captureLayer = (env: Readonly<Record<string, string | undefined>> = {}) =>
       Effect.sync(() => {
         const lines: Array<string> = [];
         const spy = vi.spyOn(console, "log").mockImplementation((...parts: ReadonlyArray<unknown>) => {
-          lines.push(parts.map(String).join(" "));
+          lines.push(pipe(parts, A.map(String), A.join(" ")));
         });
         const previousExit = process.exitCode;
         const variables = { ...RUNNER_ENV, ...env };
-        const previousEnv = new Map(Object.keys(variables).map((name) => [name, runnerEnvironment[name]]));
-        for (const [name, value] of Object.entries(variables)) {
+        const previousEnv = MutableHashMap.fromIterable(
+          A.map(R.keys(variables), (name) => [name, runnerEnvironment[name]] as const)
+        );
+        for (const [name, value] of R.toEntries(variables)) {
           if (value === undefined) delete runnerEnvironment[name];
           else runnerEnvironment[name] = value;
         }
@@ -112,7 +119,7 @@ describe("describeCause", () => {
     // An interrupt carries no error and no message. The predecessor's fallback
     // chain ended in a sentinel for exactly this case; the requirement is only
     // that the line is never empty.
-    assert.notStrictEqual(describeCause(Cause.interrupt(1)).trim(), "");
+    assert.notStrictEqual(Str.trim(describeCause(Cause.interrupt(1))), "");
   });
 
   it("renders a plain Error, which is what a thrown library failure is", () => {
@@ -137,7 +144,7 @@ describe("Action.run", () => {
         const { lines } = yield* Captured;
         yield* Effect.promise(() => Action.run(Effect.fail(Boom.make({ detail: "no token" }))));
         assert.strictEqual(process.exitCode, 1);
-        const errors = lines.filter((line) => line.startsWith("::error::"));
+        const errors = A.filter(lines, (line) => Str.startsWith("::error::")(line));
         assert.lengthOf(errors, 1, "one line, not a wall of them");
         assert.include(errors[0] ?? "", "Action failed: [Boom]: it went wrong: no token");
       })
@@ -149,7 +156,7 @@ describe("Action.run", () => {
       Effect.gen(function* () {
         const { lines } = yield* Captured;
         yield* Effect.promise(() => Action.run(Effect.fail(Boom.make({ detail: "no token" }))));
-        assert.isTrue(lines.some((line) => line.startsWith("::debug::")));
+        assert.isTrue(A.some(lines, (line) => Str.startsWith("::debug::")(line)));
       })
     );
   });
@@ -166,7 +173,7 @@ describe("Action.run", () => {
           )
         );
         assert.strictEqual(process.exitCode, 1);
-        assert.isTrue(lines.some((line) => line.startsWith("::error::") && line.includes("[defect]")));
+        assert.isTrue(A.some(lines, (line) => Str.startsWith("::error::")(line) && Str.includes("[defect]")(line)));
       })
     );
   });
@@ -217,7 +224,7 @@ describe("Action.run", () => {
             })
           )
         );
-        assert.isTrue(lines.some((line) => line.includes("greeting=hello")));
+        assert.isTrue(A.some(lines, (line) => Str.includes("greeting=hello")(line)));
         assert.notStrictEqual(process.exitCode, 1);
       })
     );
@@ -341,7 +348,7 @@ describe("Action.run", () => {
             { layer: extra }
           )
         );
-        assert.isTrue(lines.some((line) => line.includes("job=test-job")));
+        assert.isTrue(A.some(lines, (line) => Str.includes("job=test-job")(line)));
         assert.notStrictEqual(process.exitCode, 1);
       })
     );
@@ -384,8 +391,8 @@ describe("Action.run", () => {
         yield* Effect.promise(() =>
           Action.run(Effect.flatMap(Effect.log("halfway through"), () => Effect.fail(Boom.make({ detail: "later" }))))
         );
-        assert.isTrue(lines.some((line) => line.includes("halfway through")));
-        assert.isTrue(lines.some((line) => line.startsWith("::error::")));
+        assert.isTrue(A.some(lines, (line) => Str.includes("halfway through")(line)));
+        assert.isTrue(A.some(lines, (line) => Str.startsWith("::error::")(line)));
         assert.strictEqual(process.exitCode, 1);
       })
     );
@@ -444,7 +451,7 @@ describe("Action.run step debugging", () => {
         const { lines } = yield* Captured;
         yield* Effect.promise(() => Action.run(probe));
         assert.include(lines, "probe-info");
-        assert.isFalse(lines.some((line) => line.includes("probe-debug")));
+        assert.isFalse(A.some(lines, (line) => Str.includes("probe-debug")(line)));
       })
     );
   });
@@ -455,7 +462,7 @@ describe("Action.run step debugging", () => {
         const { lines } = yield* Captured;
         yield* Effect.promise(() => Action.run(probe, { stepDebugLogLevel: false }));
         assert.include(lines, "probe-info");
-        assert.isFalse(lines.some((line) => line.includes("probe-debug")));
+        assert.isFalse(A.some(lines, (line) => Str.includes("probe-debug")(line)));
       })
     );
   });

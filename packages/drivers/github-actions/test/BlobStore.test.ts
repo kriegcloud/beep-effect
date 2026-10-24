@@ -1,8 +1,9 @@
 import { ActionOutputs, BlobStore, BlobStoreError, NotABlobEnvelopeError } from "@beep/github-actions";
 import { canonicalize, digestHex, sign, signingKey, uriEncode } from "@beep/github-actions/internal/sigv4";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -11,9 +12,13 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type { S3Config } from "@beep/github-actions";
 import type * as HttpClientRequest from "effect/http/HttpClientRequest";
@@ -126,10 +131,11 @@ describe("SigV4", () => {
       },
       { accessKeyId: "AK", secretAccessKey: "SK", region: "us-east-1", service: "s3", sessionToken: "ST" }
     );
-    const signedHeaders = /SignedHeaders=([^,]+)/.exec(headers.authorization ?? "")?.[1]?.split(";") ?? [];
-    const sent = Object.keys(headers)
-      .filter((name) => name !== "authorization")
-      .sort();
+    const signedHeaders = O.getOrElse(
+      O.map(O.fromNullishOr(/SignedHeaders=([^,]+)/.exec(headers.authorization ?? "")?.[1]), Str.split(";")),
+      (): ReadonlyArray<string> => []
+    );
+    const sent = A.filter(R.keys(headers), (name) => name !== "authorization").sort();
     assert.deepStrictEqual([...signedHeaders].sort(), sent, "every header sent must be a header signed");
     assert.include(signedHeaders, "x-amz-security-token", "a session token must be signed, not merely sent");
   });
@@ -200,7 +206,7 @@ describe("BlobStore", () => {
             );
             assert.isTrue(yield* store.has(key));
             assert.deepStrictEqual(
-              seen.map((entry) => entry.method),
+              A.map(seen, (entry) => entry.method),
               ["GET", "PUT", "HEAD"]
             );
             for (const entry of seen) {
@@ -223,7 +229,7 @@ describe("BlobStore", () => {
                 service: "s3",
               };
               assert.strictEqual(
-                canonicalize(signingRequest, credentials).canonicalRequest.split("\n")[1],
+                Str.split(canonicalize(signingRequest, credentials).canonicalRequest, "\n")[1],
                 expectedPath
               );
               assert.strictEqual(entry.headers.authorization, sign(signingRequest, credentials).authorization);
@@ -291,7 +297,7 @@ describe("BlobStore", () => {
               assert.strictEqual(error.key, "key");
               assert.strictEqual(
                 error.detail,
-                endpoint.includes("?") || endpoint.includes("#")
+                Str.includes("?")(endpoint) || Str.includes("#")(endpoint)
                   ? "The endpoint must not contain a search or hash"
                   : "The endpoint must be a valid absolute HTTP URL"
               );
@@ -489,8 +495,8 @@ describe("BlobStore", () => {
               yield* store.has(key);
             }
             assert.deepStrictEqual(
-              seen.map((entry) => entry.url),
-              paths.map((path) => `${CONFIG.endpoint}/cache/ci%3F%23%25//${path}`)
+              A.map(seen, (entry) => entry.url),
+              A.map(paths, (path) => `${CONFIG.endpoint}/cache/ci%3F%23%25//${path}`)
             );
             for (const [index, key] of keys.entries()) {
               const expected = sign(
@@ -517,18 +523,18 @@ describe("BlobStore", () => {
     }
 
     {
-      const stored = new Map<string, Uint8Array>();
+      const stored = MutableHashMap.empty<string, Uint8Array>();
 
       const fake: typeof globalThis.fetch = fetchStub(
         (input: Parameters<typeof globalThis.fetch>[0], init: Parameters<typeof globalThis.fetch>[1]) => {
           const url = String(input);
           if (init?.method === "PUT") {
             return new Response(init.body).arrayBuffer().then((buffer) => {
-              stored.set(url, new Uint8Array(buffer));
+              MutableHashMap.set(stored, url, new Uint8Array(buffer));
               return new Response(null, { status: 200 });
             });
           }
-          const bytes = stored.get(url);
+          const bytes = O.getOrUndefined(MutableHashMap.get(stored, url));
           return bytes === undefined ? new Response(null, { status: 404 }) : new Response(bytes, { status: 200 });
         }
       );
@@ -556,7 +562,7 @@ describe("BlobStore", () => {
               assert.strictEqual(found.value.metadata.tag, key);
               assert.deepStrictEqual(found.value.body, new Uint8Array([index]));
             }
-            assert.strictEqual(stored.size, keys.length);
+            assert.strictEqual(MutableHashMap.size(stored), keys.length);
           })
         );
       });
@@ -585,7 +591,7 @@ describe("BlobStore", () => {
 
             yield* store.has("key");
             assert.deepStrictEqual(
-              seen.map((entry) => entry.date),
+              A.map(seen, (entry) => entry.date),
               ["20240101T000000Z", "20240102T000000Z"]
             );
             for (const [index, instant] of ["2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z"].entries()) {
@@ -658,18 +664,18 @@ describe("BlobStore", () => {
     }
 
     {
-      const stored = new Map<string, Uint8Array>();
+      const stored = MutableHashMap.empty<string, Uint8Array>();
 
       const fake: typeof globalThis.fetch = fetchStub(
         (input: Parameters<typeof globalThis.fetch>[0], init: Parameters<typeof globalThis.fetch>[1]) => {
           const key = String(input);
           if ((init?.method ?? "GET") === "PUT") {
             return new Response(init?.body).arrayBuffer().then((buffer) => {
-              stored.set(key, new Uint8Array(buffer));
+              MutableHashMap.set(stored, key, new Uint8Array(buffer));
               return new Response(null, { status: 200 });
             });
           }
-          const found = stored.get(key);
+          const found = O.getOrUndefined(MutableHashMap.get(stored, key));
           return found === undefined ? new Response(null, { status: 404 }) : new Response(found, { status: 200 });
         }
       );

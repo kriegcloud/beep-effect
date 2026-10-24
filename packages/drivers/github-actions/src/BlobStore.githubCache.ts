@@ -1,21 +1,17 @@
-import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { BlobEnvelope } from "./BlobEnvelope.ts";
 import { BlobStore, BlobStoreError } from "./BlobStore.ts";
-import { BlobTransferError } from "./BlobTransfer.ts";
 import { misconfiguredDetail, resultsBackend } from "./internal/actionsResults.ts";
-import { CACHE_SERVICE, finalizeUpload, lookupDownload, reserveUpload } from "./internal/cacheService.ts";
+import { azureDataTransfer } from "./internal/azureBlob.ts";
+import { cacheServiceFor, finalizeUpload, lookupDownload, reserveUpload } from "./internal/cacheService.ts";
 import { sha256Hex } from "./internal/digest.ts";
-import { twirpCall, twirpFailureFields } from "./internal/twirp.ts";
-import type * as S from "effect/Schema";
-import type { BlobStoreShape, StoredBlob } from "./BlobStore.ts";
-import type { DataBlobTransfer } from "./BlobTransfer.ts";
-import type { CacheServiceClient } from "./internal/cacheService.ts";
+import { framedGet, framedPut } from "./internal/storedBlob.ts";
+import type { BlobStoreShape } from "./BlobStore.ts";
+import type { BlobTransferError, DataBlobTransfer } from "./BlobTransfer.ts";
 
 /**
  * The `version` every entry is filed under.
@@ -33,33 +29,6 @@ import type { CacheServiceClient } from "./internal/cacheService.ts";
  */
 const VERSION = sha256Hex("blobstore|1.0");
 
-/**
- * The Azure half, ~15 lines and duplicated on purpose.
- *
- * **Gotchas**
- *
- * `@azure/storage-blob` may be imported by this module, `ActionCache` and
- * `Artifact` and by nothing else. Hoisting these two calls into a shared
- * `internal/` helper is exactly how the import would leak into the graph of a
- * module that only sets an output — so the three modules each carry their own,
- * and `__test__/reachability.test.ts` measures that they are the only three.
- */
-const azure: DataBlobTransfer = {
-  uploadData: dual(
-    2,
-    (url: string, data: Uint8Array): Effect.Effect<void, BlobTransferError> =>
-      Effect.tryPromise({
-        try: () => new BlockBlobClient(url).uploadData(data),
-        catch: (cause) => BlobTransferError.make({ reason: "uploadFailed", cause }),
-      }).pipe(Effect.asVoid)
-  ),
-  downloadToBuffer: (url) =>
-    Effect.tryPromise({
-      try: () => new BlobClient(url).downloadToBuffer(),
-      catch: (cause) => BlobTransferError.make({ reason: "downloadFailed", cause }),
-    }).pipe(Effect.map((buffer) => new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength))),
-};
-
 const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
   const http = yield* HttpClient.HttpClient;
   // Resolved once, at construction, so every member's `R` is `never`.
@@ -72,18 +41,7 @@ const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
   );
 
   /** The cache service, for one key: every failure names it. */
-  const cacheService = (key: string): CacheServiceClient<BlobStoreError> => ({
-    call: dual(
-      2,
-      Effect.fn("call")(function* (method: string, body: Record<string, unknown>) {
-        const { baseUrl, token } = yield* backend;
-        return yield* twirpCall({ http, baseUrl, service: CACHE_SERVICE, token, method, body }).pipe(
-          Effect.mapError((failure) => BlobStoreError.make({ ...twirpFailureFields(failure), key }))
-        );
-      })
-    ),
-    refused: (detail) => BlobStoreError.make({ reason: "refused", key, detail }),
-  });
+  const cacheService = cacheServiceFor({ http, backend, fail: (failure) => BlobStoreError.make(failure) });
 
   /** The signed download url for a key, or nothing — a miss is not a failure. */
   const download = (key: string) =>
@@ -96,22 +54,18 @@ const make = Effect.fn("make")(function* (transfer: DataBlobTransfer) {
     Effect.mapError((cause: BlobTransferError) => BlobStoreError.make({ reason: "unreachable", key, cause }));
 
   return {
-    get: dual(
-      2,
-      Effect.fn("get")(function* <A, I>(key: string, schema: S.Codec<A, I>) {
+    get: framedGet(
+      Effect.fnUntraced(function* (key: string) {
         const url = yield* download(key);
         if (O.isNone(url)) {
-          return O.none<StoredBlob<A>>();
+          return O.none();
         }
-        const bytes = yield* transfer.downloadToBuffer(url.value).pipe(moved(key));
-        return O.some(yield* Effect.fromResult(BlobEnvelope.decodeResult(bytes, schema)));
+        return O.some(yield* transfer.downloadToBuffer(url.value).pipe(moved(key)));
       })
     ),
 
-    put: dual(
-      3,
-      Effect.fn("put")(function* <A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) {
-        const framed = yield* Effect.fromResult(BlobEnvelope.encodeResult(blob.metadata, blob.body, schema));
+    put: framedPut(
+      Effect.fnUntraced(function* (key: string, framed: Uint8Array) {
         const service = cacheService(key);
         // None: another job wrote this key first. The entry is immutable,
         // so the write has already happened and the caller got what it
@@ -191,7 +145,7 @@ export abstract class GitHubCacheBlobStore {
    */
   static readonly layer: Layer.Layer<BlobStore, never, HttpClient.HttpClient | ActionEnvironment> = Layer.effect(
     BlobStore,
-    make(azure)
+    make(azureDataTransfer)
   );
 
   /**

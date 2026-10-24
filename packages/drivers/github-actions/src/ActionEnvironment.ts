@@ -8,6 +8,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { framed } from "./internal/messageText.ts";
 
 const $I = $GithubActionsId.create("ActionEnvironment");
 
@@ -29,7 +30,7 @@ const Json = S.fromJsonString(S.Unknown);
  * ```ts
  * import { ActionEnvironmentError } from "@beep/github-actions/ActionEnvironment";
  *
- * const error = ActionEnvironmentError.make({ reason: "missing", name: "GITHUB_REPOSITORY" });
+ * const error = ActionEnvironmentError.make({ reason: "missing", variable: "GITHUB_REPOSITORY" });
  * console.log(error.message) // Required environment variable "GITHUB_REPOSITORY" is not set
  * ```
  *
@@ -55,8 +56,8 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
      * The environment variable involved.
      * @since 0.0.0
      */
-    name: S.String.pipe(
-      $I.annoteKey("ActionEnvironmentError.name", { description: "The environment variable involved." })
+    variable: S.String.pipe(
+      $I.annoteKey("ActionEnvironmentError.variable", { description: "The environment variable involved." })
     ),
     /**
      * What was wrong, when the reason is `malformed`.
@@ -78,7 +79,7 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
    * ```ts
    * import { ActionEnvironmentError } from "@beep/github-actions/ActionEnvironment";
    *
-   * const error = ActionEnvironmentError.make({ reason: "missing", name: "GITHUB_REPOSITORY" });
+   * const error = ActionEnvironmentError.make({ reason: "missing", variable: "GITHUB_REPOSITORY" });
    * console.log(error.message) // Required environment variable "GITHUB_REPOSITORY" is not set
    * ```
    *
@@ -87,8 +88,8 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
    */
   override get message(): string {
     return this.reason === "missing"
-      ? `Required environment variable "${this.name}" is not set`
-      : `Environment variable "${this.name}" is malformed${this.detail === undefined ? "" : `: ${this.detail}`}`;
+      ? `Required environment variable "${this.variable}" is not set`
+      : `Environment variable "${this.variable}" is malformed${framed(this.detail, ": ")}`;
   }
 }
 
@@ -410,7 +411,7 @@ const numeric: {
     onTrue: () => Effect.succeed(parsed),
     onFalse: () =>
       Effect.fail(
-        ActionEnvironmentError.make({ reason: "malformed", name, detail: `expected a number, got "${raw}"` })
+        ActionEnvironmentError.make({ reason: "malformed", variable: name, detail: `expected a number, got "${raw}"` })
       ),
   });
 });
@@ -428,7 +429,7 @@ const make = Effect.fn("make")(function* (base: Readonly<Record<string, string |
 
   const get = (name: string): Effect.Effect<string, ActionEnvironmentError> =>
     Effect.flatMap(lookup(name), (found) =>
-      Effect.fromOption(found, () => ActionEnvironmentError.make({ reason: "missing", name }))
+      Effect.fromOption(found, () => ActionEnvironmentError.make({ reason: "missing", variable: name }))
     );
 
   return {
@@ -477,7 +478,7 @@ const make = Effect.fn("make")(function* (base: Readonly<Record<string, string |
         Effect.mapError((cause) =>
           ActionEnvironmentError.make({
             reason: "malformed",
-            name: "GITHUB_EVENT_PATH",
+            variable: "GITHUB_EVENT_PATH",
             detail: `could not read "${path}": ${String(cause)}`,
           })
         )
@@ -486,7 +487,7 @@ const make = Effect.fn("make")(function* (base: Readonly<Record<string, string |
         Effect.mapError((cause) =>
           ActionEnvironmentError.make({
             reason: "malformed",
-            name: "GITHUB_EVENT_PATH",
+            variable: "GITHUB_EVENT_PATH",
             detail: `not valid JSON: ${String(cause)}`,
           })
         )

@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Defect = S.Defect();
 const runs = { arbitrary: fcRuns(100) };
@@ -62,14 +63,14 @@ it.layer(
         const fs = yield* FileSystem.FileSystem;
         yield* fs.writeFileString("/state", "");
         yield* state.save("payload", value, StatePayload);
-        const text = (yield* fs.readFileString("/state")).split("\n")[1];
+        const text = Str.split(yield* fs.readFileString("/state"), "\n")[1];
         assertDefined(text);
         phaseEnvironment.STATE_payload = text;
         const parsed = yield* state.get("payload", StatePayload);
         assert.isTrue(S.toEquivalence(StatePayload)(parsed, value));
         yield* fs.writeFileString("/state", "");
         yield* state.save("payload", parsed, StatePayload);
-        const reformatted = (yield* fs.readFileString("/state")).split("\n")[1];
+        const reformatted = Str.split(yield* fs.readFileString("/state"), "\n")[1];
         assertDefined(reformatted);
         assert.strictEqual(reformatted, text);
         phaseEnvironment.STATE_payload = yield* S.encodeEffect(StateJson)(parsed);

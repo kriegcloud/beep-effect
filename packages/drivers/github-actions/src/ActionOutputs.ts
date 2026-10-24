@@ -1,4 +1,5 @@
 import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
+import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as Bool from "effect/Boolean";
@@ -11,7 +12,6 @@ import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { heredocBlock, isUsableName } from "./internal/runnerFile.ts";
-import { unstubbed } from "./internal/unstubbed.ts";
 
 const $I = $GithubActionsId.create("ActionOutputs");
 
@@ -138,7 +138,7 @@ export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError, { 
  * ```ts
  * import { InvalidOutputNameError } from "@beep/github-actions/ActionOutputs";
  *
- * const error = InvalidOutputNameError.make({ name: "bad=name" });
+ * const error = InvalidOutputNameError.make({ outputName: "bad=name" });
  * console.log(error._tag) // InvalidOutputNameError
  * ```
  *
@@ -152,7 +152,9 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
   "InvalidOutputNameError",
   {
     /** The offending name. */
-    name: S.String.pipe($I.annoteKey("InvalidOutputNameError.name", { description: "The offending name." })),
+    outputName: S.String.pipe(
+      $I.annoteKey("InvalidOutputNameError.outputName", { description: "The offending name." })
+    ),
     /** The runner file involved, by environment variable name. */
     file: S.optionalKey(S.String).pipe(
       $I.annoteKey("InvalidOutputNameError.file", {
@@ -176,7 +178,7 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
    * ```ts
    * import { InvalidOutputNameError } from "@beep/github-actions/ActionOutputs";
    *
-   * const error = InvalidOutputNameError.make({ name: "bad=name" });
+   * const error = InvalidOutputNameError.make({ outputName: "bad=name" });
    * console.log(error.message) // "bad=name" is not a usable output name
    * ```
    *
@@ -184,7 +186,7 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
    * @since 0.0.0
    */
   override get message(): string {
-    return `"${this.name}" is not a usable output name`;
+    return `"${this.outputName}" is not a usable output name`;
   }
 }
 
@@ -196,7 +198,7 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
  * ```ts
  * import { OutputEncodeError } from "@beep/github-actions/ActionOutputs";
  *
- * const error = OutputEncodeError.make({ name: "packages" });
+ * const error = OutputEncodeError.make({ outputName: "packages" });
  * console.log(error._tag) // OutputEncodeError
  * ```
  *
@@ -210,8 +212,8 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readon
   "OutputEncodeError",
   {
     /** The output or variable name whose value would not encode. */
-    name: S.String.pipe(
-      $I.annoteKey("OutputEncodeError.name", {
+    outputName: S.String.pipe(
+      $I.annoteKey("OutputEncodeError.outputName", {
         description: "The output or variable name whose value would not encode.",
       })
     ),
@@ -232,7 +234,7 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readon
    * ```ts
    * import { OutputEncodeError } from "@beep/github-actions/ActionOutputs";
    *
-   * const error = OutputEncodeError.make({ name: "packages" });
+   * const error = OutputEncodeError.make({ outputName: "packages" });
    * console.log(error.message) // Failed to encode the value for "packages"
    * ```
    *
@@ -240,7 +242,7 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readon
    * @since 0.0.0
    */
   override get message(): string {
-    return `Failed to encode the value for "${this.name}"`;
+    return `Failed to encode the value for "${this.outputName}"`;
   }
 }
 
@@ -273,8 +275,10 @@ export class DetachedOutputError extends S.TaggedError<DetachedOutputError, { re
       })
     ),
     /** The output or variable name, when one is involved. */
-    name: S.optionalKey(S.String).pipe(
-      $I.annoteKey("DetachedOutputError.name", { description: "The output or variable name, when one is involved." })
+    outputName: S.optionalKey(S.String).pipe(
+      $I.annoteKey("DetachedOutputError.outputName", {
+        description: "The output or variable name, when one is involved.",
+      })
     ),
     /** The underlying failure, preserved structurally. */
     cause: S.optionalKey(S.Defect()).pipe(
@@ -363,7 +367,7 @@ const withUsableName: {
   ): Effect.Effect<A, E | InvalidOutputNameError, R> =>
     Bool.match(isUsableName(name), {
       onTrue: () => effect,
-      onFalse: () => Effect.fail(InvalidOutputNameError.make({ file, name })),
+      onFalse: () => Effect.fail(InvalidOutputNameError.make({ file, outputName: name })),
     })
 );
 
@@ -380,7 +384,7 @@ const withUsablePath: {
   <A, E, R>(path: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | InvalidOutputNameError, R> =>
     Bool.match(isSingleLinePath(path), {
       onTrue: () => effect,
-      onFalse: () => Effect.fail(InvalidOutputNameError.make({ file: RUNNER_FILE.addPath, name: path })),
+      onFalse: () => Effect.fail(InvalidOutputNameError.make({ file: RUNNER_FILE.addPath, outputName: path })),
     })
 );
 
@@ -396,7 +400,7 @@ const encodeJson: {
   3,
   <A, I>(name: string, value: A, schema: S.Codec<A, I>): Effect.Effect<string, OutputEncodeError> =>
     S.encodeUnknownEffect(S.fromJsonString(schema))(value).pipe(
-      Effect.mapError((cause) => OutputEncodeError.make({ name, cause }))
+      Effect.mapError((cause) => OutputEncodeError.make({ outputName: name, cause }))
     )
 );
 
@@ -693,18 +697,18 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
     set: dual(
       2,
       (name: string, _value: string): Effect.Effect<void, ActionOutputError> =>
-        Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.set, name }))
+        Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.set, outputName: name }))
     ),
     setJson: dual(
       3,
       <A, I>(name: string, _value: A, _schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError> =>
-        Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.setJson, name }))
+        Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.setJson, outputName: name }))
     ),
     summary: () => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.summary })),
     exportVariable: dual(
       2,
       (name: string, _value: string): Effect.Effect<void, ActionOutputError> =>
-        Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.exportVariable, name }))
+        Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.exportVariable, outputName: name }))
     ),
     addPath: () => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.addPath })),
     setFailed: (message) => Console.error(CommandNeutralizer.text(message)),

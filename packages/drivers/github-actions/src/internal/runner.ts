@@ -10,6 +10,7 @@
 import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type * as Path from "effect/Path";
 import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
 
@@ -37,7 +38,7 @@ import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
  */
 export const isWindowsRunner = (env: ActionEnvironmentShape): Effect.Effect<boolean> =>
   Effect.map(env.getOptional("RUNNER_OS"), (found) =>
-    O.match(found, { onNone: () => false, onSome: (os) => os.toLowerCase() === "windows" })
+    O.match(found, { onNone: () => false, onSome: (os) => Str.toLowerCase(os) === "windows" })
   );
 
 /**

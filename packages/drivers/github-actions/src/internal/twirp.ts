@@ -15,6 +15,7 @@ import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as P from "effect/Predicate";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as HttpClient from "effect/http/HttpClient";
 import type * as Redacted from "effect/Redacted";
 
@@ -299,7 +300,7 @@ export const field: {
   if (!P.isObjectOrArray(body)) {
     return undefined;
   }
-  const snake = name.replaceAll(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  const snake = Str.camelToSnake(name);
   return (hasField(body, name) ? body[name] : undefined) ?? (hasField(body, snake) ? body[snake] : undefined);
 });
 

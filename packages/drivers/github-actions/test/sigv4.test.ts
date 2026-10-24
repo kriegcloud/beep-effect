@@ -2,7 +2,9 @@ import { canonicalize, SigV4Credentials, SigV4Request, sign } from "@beep/github
 import { assert, describe, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const credentials = { accessKeyId: "AK", secretAccessKey: "SK", region: "us-east-1", service: "s3" };
 const request = {
@@ -26,7 +28,10 @@ describe("SigV4 raw paths", () => {
       ["", "/"],
       ["/", "/"],
     ] as const) {
-      assert.strictEqual(canonicalize({ ...request, path: raw }, credentials).canonicalRequest.split("\n")[1], encoded);
+      assert.strictEqual(
+        Str.split(canonicalize({ ...request, path: raw }, credentials).canonicalRequest, "\n")[1],
+        encoded
+      );
     }
   });
 
@@ -34,7 +39,7 @@ describe("SigV4 raw paths", () => {
     const raw = canonicalize({ ...request, path: "bucket/a#b?c%2Fd//" }, credentials);
     const rooted = canonicalize({ ...request, path: "/bucket/a#b?c%2Fd//" }, credentials);
     assert.strictEqual(raw.canonicalRequest, rooted.canonicalRequest);
-    assert.strictEqual(raw.canonicalRequest.split("\n")[1], "/bucket/a%23b%3Fc%252Fd//");
+    assert.strictEqual(Str.split(raw.canonicalRequest, "\n")[1], "/bucket/a%23b%3Fc%252Fd//");
   });
 
   it("pins canonical header order, whitespace normalization and signature bytes", () => {
@@ -89,7 +94,7 @@ describe("SigV4 normalized transport headers", () => {
     assert.notProperty(signed, "X-Amz-Date");
     assert.notProperty(signed, "Authorization");
     assert.notInclude(canonical.signedHeaders, "authorization");
-    for (const [name, value] of Object.entries(canonical.headers)) {
+    for (const [name, value] of R.toEntries(canonical.headers)) {
       assert.strictEqual(sent.get(name), value);
       assert.include(canonical.canonicalRequest, `${name}:${value}\n`);
     }
@@ -135,7 +140,7 @@ describe("SigV4 normalized transport headers", () => {
       credentials
     );
     assert.strictEqual(
-      canonical.canonicalRequest.split("\n")[1],
+      Str.split(canonical.canonicalRequest, "\n")[1],
       "/gateway%2ftenant/sp%20ace/%252F/cache/a%252Fb//%3F%23"
     );
   });

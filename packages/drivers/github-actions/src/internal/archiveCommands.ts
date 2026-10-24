@@ -65,11 +65,12 @@ import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $GithubActionsId.create("internal/archiveCommands");
 
 /** A PowerShell single-quoted literal: `'` becomes `''`, nothing else is special. */
-const pwshLiteral = (value: string): string => `'${value.replaceAll("'", "''")}'`;
+const pwshLiteral = (value: string): string => `'${Str.replaceAll("'", "''")(value)}'`;
 
 /** A non-interactive pwsh invocation of one command line. */
 const pwsh: {

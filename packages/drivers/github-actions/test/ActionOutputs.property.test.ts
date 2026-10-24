@@ -17,6 +17,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const Defect = S.Defect();
 const runs = { arbitrary: fcRuns(100) };
@@ -68,13 +69,13 @@ it.layer(
         const fs = yield* FileSystem.FileSystem;
         yield* fs.writeFileString("/output", "");
         yield* outputs.setJson("payload", value, OutputPayload);
-        const text = (yield* fs.readFileString("/output")).split("\n")[1];
+        const text = Str.split(yield* fs.readFileString("/output"), "\n")[1];
         assertDefined(text);
         const parsed = yield* S.decodeEffect(OutputJson)(text);
         assert.isTrue(S.toEquivalence(OutputPayload)(parsed, value));
         yield* fs.writeFileString("/output", "");
         yield* outputs.setJson("payload", parsed, OutputPayload);
-        const reformatted = (yield* fs.readFileString("/output")).split("\n")[1];
+        const reformatted = Str.split(yield* fs.readFileString("/output"), "\n")[1];
         assertDefined(reformatted);
         assert.strictEqual(reformatted, text);
         assert.deepStrictEqual(yield* S.decodeEffect(OutputJson)(reformatted), parsed);

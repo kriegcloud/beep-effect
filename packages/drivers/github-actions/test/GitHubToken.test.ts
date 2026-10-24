@@ -10,6 +10,8 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -75,12 +77,12 @@ const tokenAt = (expiresAt: string, permissions: Readonly<Record<string, string>
 const rig = (
   options: {
     readonly app?: Partial<GitHubAppShape>;
-    readonly saved?: Map<string, string>;
+    readonly saved?: MutableHashMap.MutableHashMap<string, string>;
     readonly outputs?: Partial<Parameters<typeof ActionOutputs.layerTest>[0]>;
   } = {}
 ) => {
   const events: Array<string> = [];
-  const saved = options.saved ?? new Map<string, string>();
+  const saved = options.saved ?? MutableHashMap.empty<string, string>();
   const revoked: Array<string> = [];
 
   const app = GitHubApp.layerTest({
@@ -105,7 +107,8 @@ const rig = (
       3,
       Effect.fn("save")(function* <A, I>(key: string, value: A, schema: S.Codec<A, I>) {
         events.push(`save:${key}`);
-        saved.set(
+        MutableHashMap.set(
+          saved,
           key,
           Result.getOrThrowWith(S.encodeResult(Json)(yield* S.encodeUnknownEffect(schema)(value)), (error) => error)
         );
@@ -113,7 +116,7 @@ const rig = (
     ),
     get: dual(2, <A, I>(key: string, schema: S.Codec<A, I>) =>
       Effect.suspend(() => {
-        const found = saved.get(key);
+        const found = O.getOrUndefined(MutableHashMap.get(saved, key));
         return found === undefined
           ? Effect.die(new Error(`nothing saved under ${key}`))
           : S.decodeUnknownEffect(schema)(Result.getOrThrowWith(S.decodeResult(Json)(found), (error) => error)).pipe(
@@ -123,7 +126,7 @@ const rig = (
     ),
     getOptional: dual(2, <A, I>(key: string, schema: S.Codec<A, I>) =>
       Effect.suspend(() => {
-        const found = saved.get(key);
+        const found = O.getOrUndefined(MutableHashMap.get(saved, key));
         return found === undefined
           ? Effect.succeedNone
           : S.decodeUnknownEffect(schema)(Result.getOrThrowWith(S.decodeResult(Json)(found), (error) => error)).pipe(
@@ -236,7 +239,7 @@ describe("GitHubToken", () => {
             // otherwise leave an hour of unreferenced write tokens behind, each one
             // a live credential nobody is tracking.
             assert.deepStrictEqual(harness.revoked, ["ghs_installation"]);
-            assert.strictEqual(harness.saved.size, 0);
+            assert.strictEqual(MutableHashMap.size(harness.saved), 0);
           })
         );
       });
@@ -291,7 +294,7 @@ describe("GitHubToken", () => {
             // Satisfied, and a broader grant is not an error — only `assertExact`
             // treats extra permissions as a misconfiguration.
             yield* GitHubToken.provision({ ...CREDENTIALS, required: { contents: "write" } });
-            assert.strictEqual(harness.saved.size, 1);
+            assert.strictEqual(MutableHashMap.size(harness.saved), 1);
           })
         );
       });

@@ -1,5 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { IeeeNumber } from "@beep/github-actions/internal/ieeeNumber";
+import { IeeeNumber } from "@beep/schema/IeeeNumber";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";

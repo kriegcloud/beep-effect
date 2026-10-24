@@ -10,6 +10,7 @@ import { ChildEnv } from "@beep/github-actions";
 import { PathPrependEnv, PathPrependOptions } from "@beep/github-actions/ChildEnv";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 describe("ChildEnv", () => {
@@ -29,7 +30,7 @@ describe("ChildEnv", () => {
         base: { PATH: "/usr/bin", HOME: "/home/ci" },
         platform: "linux",
       });
-      assert.deepStrictEqual(Object.keys(answer.env), ["PATH"]);
+      assert.deepStrictEqual(R.keys(answer.env), ["PATH"]);
     });
   });
 

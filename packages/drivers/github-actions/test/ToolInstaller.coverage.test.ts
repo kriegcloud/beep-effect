@@ -1,6 +1,6 @@
 import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
 import { ToolInstaller, ToolInstallerError } from "@beep/github-actions/ToolInstaller";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertNone } from "@effect/vitest/utils";
@@ -19,6 +19,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import { settle } from "./support/results.ts";
 
@@ -236,11 +237,12 @@ for (const mode of ["root-fault", "destination-fault", "dangling-link"] as const
     runtime((fs) => ({
       ...fs,
       realPath: Effect.fnUntraced(function* (file) {
-        if (mode === "root-fault" || (mode === "destination-fault" && file.endsWith("/bin"))) return yield* refused;
-        return yield* fs.realPath(mode === "dangling-link" && file.endsWith("/bin") ? "/missing-binary" : file);
+        if (mode === "root-fault" || (mode === "destination-fault" && Str.endsWith("/bin")(file)))
+          return yield* refused;
+        return yield* fs.realPath(mode === "dangling-link" && Str.endsWith("/bin")(file) ? "/missing-binary" : file);
       }),
       readLink: Effect.fnUntraced(function* (file) {
-        return mode === "dangling-link" && file.endsWith("/bin") ? "/missing-binary" : yield* fs.readLink(file);
+        return mode === "dangling-link" && Str.endsWith("/bin")(file) ? "/missing-binary" : yield* fs.readLink(file);
       }),
     })),
     { timeout: "5 seconds" }

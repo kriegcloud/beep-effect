@@ -1,5 +1,5 @@
 import { ActionsIdentityToken, OidcClaims, OidcTokenError, OidcTokenIssuer } from "@beep/github-actions";
-import { UnstubbedMemberError } from "@beep/github-actions/internal/unstubbed";
+import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { IdentityToken, IdentityTokenError } from "@beep/sbom/IdentityToken";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";

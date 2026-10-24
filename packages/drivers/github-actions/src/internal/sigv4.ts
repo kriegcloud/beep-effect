@@ -62,9 +62,13 @@ const hmac: {
  * @since 0.0.0
  */
 export const uriEncode = (value: string): string =>
-  encodeURIComponent(value).replace(
-    /[!'()*]/g,
-    (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+  Function.pipe(
+    encodeURIComponent(value),
+    Str.replaceAll("!", "%21"),
+    Str.replaceAll("'", "%27"),
+    Str.replaceAll("(", "%28"),
+    Str.replaceAll(")", "%29"),
+    Str.replaceAll("*", "%2A")
   );
 
 /**
@@ -167,11 +171,8 @@ export type SigV4Request = typeof SigV4Request.Type;
 
 /** `20130524T000000Z` and `20130524`, the two forms the algorithm uses. */
 const timestamps = (now: Date): { readonly amzDate: string; readonly dateStamp: string } => {
-  const amzDate = `${now
-    .toISOString()
-    .replace(/[:-]|\.\d{3}/g, "")
-    .slice(0, 15)}Z`;
-  return { amzDate, dateStamp: amzDate.slice(0, 8) };
+  const amzDate = `${Function.pipe(now.toISOString(), Str.replace(/[:-]|\.\d{3}/g, ""), Str.slice(0, 15))}Z`;
+  return { amzDate, dateStamp: Str.slice(0, 8)(amzDate) };
 };
 
 /**

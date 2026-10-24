@@ -18,6 +18,7 @@ import * as Function from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 /**
  * The prefix every native-binary package name carries.
@@ -93,7 +94,7 @@ export const pnpmExeTarget: {
   (runnerOs: string, arch: string, musl: boolean): O.Option<string>;
   (arch: string, musl: boolean): (runnerOs: string) => O.Option<string>;
 } = Function.dual(3, (runnerOs: string, arch: string, musl: boolean): O.Option<string> => {
-  const platform = RUNNER_OS_TO_PLATFORM[runnerOs.toLowerCase()];
+  const platform = RUNNER_OS_TO_PLATFORM[Str.toLowerCase(runnerOs)];
   if (platform === undefined) {
     return O.none();
   }
@@ -171,19 +172,19 @@ const SRI_ALGORITHMS: ReadonlyArray<string> = ["sha512", "sha384", "sha256", "sh
  */
 export const strongestSri = (integrity: string): O.Option<{ readonly algorithm: string; readonly hex: string }> => {
   const entries = Function.pipe(
-    integrity.split(/\s+/),
+    Str.split(integrity, /\s+/),
     A.filter((entry) => entry.length > 0),
     A.flatMap((entry): ReadonlyArray<{ readonly algorithm: string; readonly hex: string }> => {
-      const dash = entry.indexOf("-");
+      const dash = O.getOrElse(Str.indexOf("-")(entry), () => -1);
       if (dash <= 0) {
         return [];
       }
-      const algorithm = entry.slice(0, dash).toLowerCase();
+      const algorithm = Function.pipe(entry, Str.slice(0, dash), Str.toLowerCase);
       if (!SRI_ALGORITHMS.includes(algorithm)) {
         return [];
       }
       // Options (`?opt`) may trail the digest per the SRI grammar; drop them.
-      const digest = entry.slice(dash + 1).replace(/\?.*$/s, "");
+      const digest = Function.pipe(entry, Str.slice(dash + 1), Str.replace(/\?.*$/s, ""));
       const decoded = Base64.decode(digest);
       return Result.isSuccess(decoded) ? [{ algorithm, hex: Hex.encode(decoded.success) }] : [];
     })
