@@ -4183,7 +4183,6 @@
       "name": "@beep/scratchpad",
       "version": "0.0.0",
       "dependencies": {
-        "@azure/storage-blob": "^12.33.0",
         "@beep/cli-kit": "workspace:^",
         "@beep/commands": "workspace:^",
         "@beep/config-file": "workspace:^",
