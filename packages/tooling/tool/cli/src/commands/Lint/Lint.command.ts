@@ -678,12 +678,25 @@ const resolveLintPackage = Effect.fn("Lint.resolvePackage")(function* (root: str
   return normalizePath(path.relative(root, absolute)) || ".";
 });
 
-const runDocsWorker = Effect.fn("Lint.docsWorker")(function* (root: string, targets: ReadonlyArray<string>) {
+// Root-only targets are every non-workspace source file; `.oxlintrc.docs.json`
+// ignores tests and internals, so a target set made only of ignored files is
+// "nothing to lint", not a failure.
+const runDocsWorker = Effect.fn("Lint.docsWorker")(function* (
+  root: string,
+  targets: ReadonlyArray<string>,
+  allowUnmatched = false
+) {
   if (A.isReadonlyArrayEmpty(targets)) return;
   const path = yield* Path.Path;
   const exitCode = yield* runToExit({
     command: path.join(root, "node_modules/.bin/oxlint"),
-    args: ["--config", path.join(root, ".oxlintrc.docs.json"), "--max-warnings=0", ...targets],
+    args: [
+      "--config",
+      path.join(root, ".oxlintrc.docs.json"),
+      "--max-warnings=0",
+      ...(allowUnmatched ? ["--no-error-on-unmatched-pattern"] : []),
+      ...targets,
+    ],
     cwd: root,
     extendEnv: true,
     stdio: "inherit",
@@ -723,7 +736,7 @@ const lintJsdocCommand = Command.make(
         ],
       })
     );
-    yield* runDocsWorker(root, A.sort(files, Order.String));
+    yield* runDocsWorker(root, A.sort(files, Order.String), true);
   })
 ).pipe(Command.withDescription("Check package or non-workspace documentation with repo-owned oxlint rules"));
 

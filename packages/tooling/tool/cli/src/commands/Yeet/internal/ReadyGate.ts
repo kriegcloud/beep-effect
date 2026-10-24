@@ -61,7 +61,7 @@ import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetReadyOptions } from "../Yeet.schemas.ts";
-import type { FinalCheckReceipt, FinalCheckStepResult } from "./FinalCheck.schemas.ts";
+import type { FinalCheckReceipt } from "./FinalCheck.schemas.ts";
 import type { ProofJobRecord } from "./ProofJob.ts";
 import type { SquashCommitlintReport } from "./SquashCommitlint.ts";
 
@@ -719,7 +719,7 @@ const requireFinalCheck = Effect.fn("Yeet.requireFinalCheck")(function* (
     });
   }
   const skipped = A.filter(
-    O.match(receipt, { onNone: A.empty<FinalCheckStepResult>, onSome: (found) => found.steps }),
+    A.flatMap(O.toArray(receipt), (found) => found.steps),
     (step) => step.status === "skipped"
   );
   yield* Console.log(

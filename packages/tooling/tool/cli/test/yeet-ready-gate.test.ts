@@ -545,6 +545,14 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
                     durationMs: 0,
                     reason: "admission waited 10 minutes",
                   }),
+                  FinalCheckStepResult.make({
+                    gate: "fallow",
+                    label: "final-check:fallow",
+                    hostedContext: "Fallow Advisory Envelopes",
+                    command: "(skipped)",
+                    status: "skipped",
+                    durationMs: 0,
+                  }),
                 ],
               })
             )
@@ -558,7 +566,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       });
       expect(decision._tag).toBe("flip");
       const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
-      expect(printed).toContain("pass with 1 skipped gate(s): coverage (admission waited 10 minutes)");
+      expect(printed).toContain(
+        "pass with 2 skipped gate(s): coverage (admission waited 10 minutes); fallow (no reason)"
+      );
       expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
     })
   );
@@ -1302,6 +1312,16 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
         read: () => Effect.succeed(prView({ headSha: O.none() })),
       }).pipe(Effect.flip);
       expect(error.message).toContain("gate unknown, live unknown");
+    })
+  );
+  it.effect("reads the head's receipt from the checkout by default and refuses when it is absent", () =>
+    Effect.gen(function* () {
+      const error = yield* runYeetReadyGate(context, {
+        read: () => Effect.succeed(prView()),
+        markReady: () => Effect.die("the flip must not run without a final-check receipt"),
+      }).pipe(Effect.flip);
+      expect(error).toMatchObject({ _tag: "YeetReadyGateRefused", blocker: "final-check" });
+      expect(error.message).toContain(`no final-check receipt for head ${headSha}`);
     })
   );
   it.effect("maps an unavailable GitHub token on the default flip to the command error", () =>
