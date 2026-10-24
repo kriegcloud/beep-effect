@@ -855,9 +855,9 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
 
   it.effect("degrades remote status when REST status cannot be read", () =>
     Effect.gen(function* () {
-      for (const [output, exitCode] of [
-        ["REST status unavailable", 1],
-        ["invalid status JSON", 0],
+      for (const [output, exitCode, detail] of [
+        ["REST status unavailable", 1, "Failed to read PR status through GitHub REST."],
+        ["invalid status JSON", 0, "Failed to decode GitHub REST PR status."],
       ] as const) {
         const base = fallbackRunner(restFound);
         const runner = ChildProcessSpawner.make((command) => {
@@ -872,7 +872,9 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
         );
         expect(snapshot.remote.available).toBe(false);
         assertTrue(O.isSome(snapshot.remote.readFailure));
-        expect(snapshot.remote.detail).toContain("gh pr view failed: GraphQL: API rate limit exceeded; REST fallback:");
+        expect(snapshot.remote.detail).toBe(
+          `gh pr view failed: GraphQL: API rate limit exceeded; REST fallback: ${detail}`
+        );
       }
     })
   );
