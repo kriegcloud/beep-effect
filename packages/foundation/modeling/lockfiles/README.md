@@ -131,10 +131,11 @@ console.log(O.getOrUndefined(react)?.version); // 18.3.1
 - `Lockfile.parse(content, { format })` — the package's only fallible boundary; fails with `LockfileParseError` or `LockfileFramingError`.
 - `Lockfile#withImporterNames(names)` — the pure second stage for pnpm: rewrites importer-path names and both ends of each dependency edge once the consumer has read the manifests.
 - `Lockfile#packagesNamed(name)`, `Lockfile#packageByInstanceId(id)` (`Option`-answering, over a lazily built index) and `Lockfile#workspacePackages` — total lookups over the model.
+- `Lockfile#rootPackage(name)` — the instance the workspace root resolves `name` to, read the way each format records it (bun's bare key, npm's `node_modules/<name>`, pnpm's root importer; `None` for yarn).
 - `LockfileFormat` with `filenameFor` / `fromFilename` — the format literal and its mapping to lockfile filenames.
 - `LockfileIntegrity.compare(lockfile, manifests)` — total, pure integrity checking with no error channel; the report carries `valid`, `missingWorkspaces`, `extraWorkspaces` and `unsatisfiedConstraints`. Constraint checking is best-effort by design: `workspace:` / `link:` / `file:` specifiers and rows whose range does not parse as SemVer are skipped.
 - `WorkspaceManifest` — the manifest input shape for integrity checking: a package name plus four optional dependency records. Deliberately a plain value rather than a strict manifest model, so consumers can derive it from anything.
-- `ResolvedPackage` — one package *instance*: name, version, optional integrity hash, workspace flag and relative path, dependency map, the peer declarations (`peerDependencies`, `peerDependenciesMeta`), the opaque `instanceId`, the `resolved` name-to-instance map and the `unresolvedEdges` the model could not name.
+- `ResolvedPackage` — one package *instance*: name, the `alias` a bun or npm instance is installed under and the alias-aware `installName`, version, optional integrity hash, workspace flag and relative path, dependency map, the peer declarations (`peerDependencies`, `peerDependenciesMeta`), the opaque `instanceId`, the `resolved` name-to-instance map and the `unresolvedEdges` the model could not name.
 - `isUnsupportedLockfileVersion` and the `UnsupportedLockfileVersion` type — the predicate that narrows a `LockfileParseError.cause` to a version-gate rejection, so "too old" and "malformed" are told apart on a tag rather than on prose.
 - `WorkspaceDependency` — a `from`/`to` edge between workspace packages, with `depType` spelled in `@beep/npm-spec`'s `DependencyField` vocabulary and its declared constraint.
 - `PnpmExtension` (with `PnpmCatalogPin`) and `BunExtension` — format-specific data such as pnpm catalogs and bun trusted dependencies, preserved on the model's optional `extension` field.
@@ -169,6 +170,7 @@ Ported from upstream `@effected/lockfiles` (MIT, C. Spencer Beggs) through the e
 
 - `PnpmCatalogPin`: the named catalog-entry schema behind `PnpmExtension.catalogs`, added in the promotion so the record is a branded `S.Opaque` value.
 - `ResolvedPackage#withName`, `WorkspaceDependency#withEndpoints`, `LockfileImporter#dependency`: instance members added in the promotion (see Deviations).
+- `ResolvedPackage.alias`, `ResolvedPackage#installName` and `Lockfile#rootPackage`: added by the first repo-cli adoption (3-A1), whose bun.lock readers needed the install name of an npm alias and the root's resolved instance. `rootPackage` reads pnpm through `LockfileImporter#dependency`. bun and npm record `alias`; pnpm and yarn key an instance by real name and record an alias only on the dependency edge, so their instances carry none.
 
 ### Deviations
 
@@ -181,6 +183,11 @@ Promotion (wave 3-5):
 - **effect-string** — string, array and record operations go through `effect/String`, `effect/Array` and `effect/Record`; key splitting shares named helpers in `internal/shared.ts`, and the four `toFields` parsers are decomposed under the complexity ceiling.
 - **option-returns** — internal helpers return `Option` instead of `null`/`undefined`: `splitNameVersion`, `toIntegrityHash` (an `Effect` of `Option`), `readPnpmPackageManager` and the yarn and pnpm path helpers.
 - **test-environment** — the fixtures are read through `import.meta.glob` (`?raw`, eager), and the digest guard hashes with `JsoncFingerprint.hashText` on a WebCrypto `Crypto` layer, so no test imports `node:fs` or `node:crypto` and the four archived EV010 exceptions are cleared.
+
+Adoption (3-A1):
+
+- **upstream-bug** — The lab names an npm `node_modules/*` instance by the real `name` its entry records, keeping the install position as `alias`, where upstream names it by install position and drops the recorded name, so `packagesNamed` missed an `npm:` alias under its real name (packages/foundation/modeling/lockfiles/test/rootPackage.test.ts:224).
+- **upstream-bug** — The lab skips a bun `packages` row whose key ends in `/` (no install name) as malformed, matching the npm parser's skip of an empty `node_modules/` install name, where upstream keeps the row (packages/foundation/modeling/lockfiles/test/rootPackage.test.ts:212).
 
 Carried from the port:
 

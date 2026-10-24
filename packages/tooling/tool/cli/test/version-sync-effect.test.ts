@@ -1,3 +1,4 @@
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import {
   BunVersionState,
   buildBunReport,
@@ -10,6 +11,8 @@ import {
   extractBunArchiveChecksum,
   ReportRendererService,
   ReportRendererServiceLive,
+  ResolverService,
+  ResolverServiceLive,
   RootPackageJsonDocument,
   readLockfileResolvedVersion,
   resolveBunVersions,
@@ -37,8 +40,8 @@ import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A, R } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import { describe, expect, vi } from "@effect/vitest";
+import { assertNone, assertSome, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -74,6 +77,7 @@ const VersionSyncTestLayer = Layer.mergeAll(
   UpdateApplierServiceLive,
   CategorySelectionServiceLive,
   ReportRendererServiceLive,
+  ResolverServiceLive,
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer))
 );
 
@@ -1070,6 +1074,34 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
     );
 
     it.effect(
+      "reads only the root registry install: workspaces, aliases and nested installs yield None",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+        yield* fs.writeFileString(
+          path.join(tmpDir, "bun.lock"),
+          yield* encodeJson({
+            lockfileVersion: 1,
+            workspaces: { "": { name: "fixture" }, "packages/turbo": { name: "turbo", version: "9.9.9" } },
+            packages: {
+              turbo: ["turbo@workspace:packages/turbo"],
+              "@biomejs/biome": ["@biomejs/cli@2.4.4", "", {}],
+              "other/effect": ["effect@4.0.4", "", {}],
+              "string-width": ["string-width@5.1.2", "", {}],
+            },
+          })
+        );
+
+        assertNone(yield* readLockfileResolvedVersion(tmpDir, "turbo"));
+        assertNone(yield* readLockfileResolvedVersion(tmpDir, "@biomejs/biome"));
+        assertNone(yield* readLockfileResolvedVersion(tmpDir, "effect"));
+        assertSome(yield* readLockfileResolvedVersion(tmpDir, "string-width"), "5.1.2");
+      })
+    );
+
+    it.effect(
       "fails with a typed error when bun.lock is not JSONC",
       Effect.fn(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -1077,6 +1109,31 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
         const tmpDir = yield* fs.makeTempDirectoryScoped();
 
         yield* fs.writeFileString(path.join(tmpDir, "bun.lock"), "not json");
+
+        const failure = yield* readLockfileResolvedVersion(tmpDir, "turbo").pipe(Effect.flip);
+        expect(failure._tag).toBe("VersionSyncError");
+        expect(failure.file).toBe("bun.lock");
+      })
+    );
+
+    it.effect(
+      "fails with a typed error when bun.lock is JSONC the lockfile kit rejects",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+        // The legacy `packages`-only decode accepted this and found turbo; the
+        // kit rejects the unparseable integrity, so the read fails instead of
+        // falling back to the catalog.
+        yield* fs.writeFileString(
+          path.join(tmpDir, "bun.lock"),
+          yield* encodeJson({
+            lockfileVersion: 1,
+            workspaces: { "": { name: "fixture" } },
+            packages: { turbo: ["turbo@2.10.14", "", {}, "not-an-integrity"] },
+          })
+        );
 
         const failure = yield* readLockfileResolvedVersion(tmpDir, "turbo").pipe(Effect.flip);
         expect(failure._tag).toBe("VersionSyncError");
@@ -1135,4 +1192,43 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
       })
     );
   });
+});
+
+it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync shared lockfile", (it) => {
+  it.effect("parses bun.lock once per resolution run for Biome and Turbo", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped();
+      yield* fs.writeFileString(path.join(root, "package.json"), yield* encodeJson({ name: "fixture" }));
+      yield* fs.writeFileString(path.join(root, "biome.jsonc"), "{}");
+      yield* fs.writeFileString(path.join(root, "turbo.json"), "{}");
+      yield* fs.writeFileString(
+        path.join(root, "bun.lock"),
+        yield* encodeJson({
+          lockfileVersion: 1,
+          workspaces: { "": { name: "fixture" } },
+          packages: {
+            turbo: ["turbo@2.10.14", "", {}],
+            "@biomejs/biome": ["@biomejs/biome@2.5.6", "", {}],
+          },
+        })
+      );
+      const parse = yield* Effect.acquireRelease(
+        Effect.sync(() => vi.spyOn(Lockfile, "parse")),
+        (spy) => Effect.sync(() => spy.mockRestore())
+      );
+      const resolver = yield* ResolverService;
+      const options = VersionSyncOptions.cases.check.make({ biomeOnly: true, turboOnly: true, skipNetwork: true });
+      for (const expectedCalls of [1, 2]) {
+        const resolution = yield* resolver.resolve(root, options);
+        expect(A.map(resolution.report.categories, (category) => category.category)).toEqual(["biome", "turbo"]);
+        deepStrictEqual(
+          A.map(resolution.report.categories, (category) => category.latest),
+          [O.some("2.5.6"), O.some("2.10.14")]
+        );
+        expect(parse).toHaveBeenCalledTimes(expectedCalls);
+      }
+    })
+  );
 });

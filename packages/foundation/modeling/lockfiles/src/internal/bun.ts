@@ -18,6 +18,7 @@ import { ResolvedPackage } from "../ResolvedPackage.ts";
 import {
   extractWorkspaceDeps,
   importerDependencies,
+  installNameOf,
   LockfileFields,
   peerDeclarations,
   resolveByCandidates,
@@ -262,11 +263,12 @@ const workspaceSections = (entry: BunWorkspaceEntryType): ReadonlyArray<Dependen
 /** One non-root workspace entry with the name it is known by: its own, or its path. */
 type BunWorkspaceRow = { readonly path: string; readonly entry: BunWorkspaceEntryType; readonly name: string };
 
-/** One `packages` tuple whose first element splits as `name@version`. */
+/** One `packages` tuple whose first element splits as `name@version`, under a key naming an install position. */
 type BunPackageRow = {
   readonly key: string;
   readonly tuple: ReadonlyArray<unknown>;
   readonly name: string;
+  readonly installName: string;
   readonly version: string;
 };
 
@@ -275,20 +277,21 @@ const workspaceRows = (raw: BunLockfileRawType): ReadonlyArray<BunWorkspaceRow> 
     path === "" ? [] : [{ path, entry, name: entry.name === undefined || entry.name === "" ? path : entry.name }]
   );
 
-// Malformed tuples are skipped, never thrown on: the first element must be a
-// string that splits as `name@version` at the first "@" after a scoped name's
-// own — never the last, since a version part may hold one (`file:../@scope/lib`).
+// Malformed rows are skipped, never thrown on: the key must name an install
+// position (a key ending in "/" has an empty last segment and names none), and
+// the first element must be a string that splits as `name@version` at the
+// first "@" after a scoped name's own — never the last, since a version part
+// may hold one (`file:../@scope/lib`).
 const packageRows = (raw: BunLockfileRawType): ReadonlyArray<BunPackageRow> =>
   A.flatMap(R.toEntries(raw.packages ?? {}), ([key, tuple]) =>
     key === ""
       ? []
       : O.toArray(
-          O.map(O.flatMap(O.filter(A.get(tuple, 0), P.isString), splitNameVersion), ({ name, version }) => ({
-            key,
-            tuple,
-            name,
-            version,
-          }))
+          O.zipWith(
+            installNameOf(key),
+            O.flatMap(O.filter(A.get(tuple, 0), P.isString), splitNameVersion),
+            (installName, { name, version }) => ({ key, tuple, name, installName, version })
+          )
         )
   );
 
@@ -381,11 +384,12 @@ const externalPackage: {
     const integrity = yield* toIntegrityHash(A.get(row.tuple, 3).pipe(O.filter(P.isString), O.getOrUndefined));
     const info = O.flatMap(A.get(row.tuple, 2), readBunPackageInfo);
     const peers = O.getOrUndefined(info);
+    const alias = O.liftPredicate(row.installName, (installName) => installName !== row.name);
     return ResolvedPackage.make({
       name: row.name,
       version: row.version,
       instanceId: row.key,
-      ...O.getSomesStruct({ integrity }),
+      ...O.getSomesStruct({ integrity, alias }),
       isWorkspace: false,
       ...peerDeclarations(peers?.peerDependencies, undefined, peers?.optionalPeers),
       resolved: resolveBunEdges(row.key, infoSections(info), keys, instanceIds),

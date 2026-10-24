@@ -1122,11 +1122,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion roadmap R1, refactor/semver-owner-switch)",
-      "reason": "Record the R1 manifest edits that add the @beep/semver workspace dependency to @beep/repo-cli (VersionSync Bun and Docker resolvers) and @beep/repo-configs (CacheClientPin.version); the turbo coupling is measured in the review; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion 3-A1, refactor/repo-cli-lockfiles-adoption)",
+      "reason": "Record the 3-A1 dependency edge @beep/repo-cli -> @beep/lockfiles with its tsconfig references, and the policy-fingerprint input set that follows repo-cli's new runtime closure (@beep/lockfiles, @beep/npm-spec); no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-r1.md",
-        "sha256": "fb56bc111a0050d95bb02316f0df6f4dd3a670f6bf86ad38e1cced286e7ffd73"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w3-a1.md",
+        "sha256": "82a3c00224dc2659be84e1e42ffcca2e5fd9f664a98de0849bc92a7432ff5803"
       }
     },
     "@beep/repo-configs": {
@@ -2985,6 +2985,8 @@
             "packages/foundation/modeling/identity/src/**",
             "packages/foundation/modeling/jsonc/package.json",
             "packages/foundation/modeling/jsonc/src/**",
+            "packages/foundation/modeling/lockfiles/package.json",
+            "packages/foundation/modeling/lockfiles/src/**",
             "packages/foundation/modeling/markdown/package.json",
             "packages/foundation/modeling/markdown/src/**",
             "packages/foundation/modeling/md/package.json",
@@ -97063,6 +97065,7 @@
           "@beep/glob#audit",
           "@beep/identity#audit",
           "@beep/libpff#audit",
+          "@beep/lockfiles#audit",
           "@beep/m365#audit",
           "@beep/markdown#audit",
           "@beep/mcp-kit#audit",
@@ -97173,6 +97176,7 @@
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
+          "@beep/lockfiles#build",
           "@beep/m365#build",
           "@beep/markdown#build",
           "@beep/mcp-kit#build",
@@ -97272,6 +97276,7 @@
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
+          "@beep/lockfiles#build",
           "@beep/m365#build",
           "@beep/markdown#build",
           "@beep/mcp-kit#build",
@@ -97358,6 +97363,7 @@
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
+          "@beep/lockfiles#build",
           "@beep/m365#build",
           "@beep/markdown#build",
           "@beep/mcp-kit#build",
@@ -97493,6 +97499,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -97624,6 +97631,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -97873,6 +97881,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -97962,6 +97971,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -98076,6 +98086,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -127640,7 +127651,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "bb54cdaf199aded0c7f4fe8a29a12bb5555493a01147186ccb447b7906031e70"
+        "sha256": "619e069b39a815d92f085389f0d8214122296d29670eaf105baf8bcd479cad05"
       }
     ]
   }
