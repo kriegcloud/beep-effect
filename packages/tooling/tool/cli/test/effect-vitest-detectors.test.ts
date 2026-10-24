@@ -1942,6 +1942,7 @@ it.layer(NodeServices.layer)((it) => {
         'it.effect("store path binding", () => Fx.gen(function* () { const root = yield* makeDataDir; const target = path.join(root, "a"); yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: target }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: target }))); }));',
         `${scoped} it.effect("carry", Fx.fnUntraced(function* () { const carried = yield* makeOut; yield* first.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); yield* second.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); }));`,
         'it.effect("outer binding", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* Fx.gen(function* () { yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); yield* Fx.gen(function* () { yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); }));',
+        'import * as Path from "effect/Path"; it.effect("nested path services", () => Fx.gen(function* () { const root = yield* makeDataDir; yield* Fx.gen(function* () { const path = yield* Path.Path; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); yield* Fx.gen(function* () { const path = yield* Path.Path; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); }));',
       ]) {
         deepStrictEqual(yield* provisions(body), []);
       }

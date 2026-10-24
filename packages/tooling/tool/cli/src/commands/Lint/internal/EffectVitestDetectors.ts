@@ -1881,19 +1881,19 @@ const GENERIC_LAYER_CONSTRUCTORS = ["succeed", "sync", "effect", "scoped", "unwr
 
 const normalizedText = (node: MorphNode): string => Str.replace(/\s+/gu, "")(node.getText());
 
-// A factory argument names its store by its whole expression bound to its declarations, so
+// A factory argument names its store by its whole expression bound to its store-evidence declarations, so
 // `path.join(root, "a")` and `path.join(root, "b")` stay distinct, and so do two `dataDir` bindings declared
-// in different scopes; object arguments compare property by property.
+// in different scopes, while a per-scope `const path = yield* Path.Path` never splits one store; object
+// arguments compare property by property.
 const argumentStoreEvidence = (
   argument: MorphNode,
   callback: EffectVitestFunctionNode,
   imports: EffectVitestImports
 ): ReadonlyArray<ArgumentEvidence> =>
-  A.flatMap(Node.isObjectLiteralExpression(argument) ? argument.getProperties() : [argument], (part) =>
-    A.isReadonlyArrayNonEmpty(storeEvidence(part, callback, imports, []))
-      ? [{ text: normalizedText(part), bindings: testBodyBindings(part, callback, imports) }]
-      : []
-  );
+  A.flatMap(Node.isObjectLiteralExpression(argument) ? argument.getProperties() : [argument], (part) => {
+    const bindings = storeEvidence(part, callback, imports, []);
+    return A.isReadonlyArrayNonEmpty(bindings) ? [{ text: normalizedText(part), bindings }] : [];
+  });
 
 // The constructors a provided layer builds: a test-body layer binding (and what it builds), a project
 // factory call named by its callee, or a generic Layer constructor named by its whole call. Layer
