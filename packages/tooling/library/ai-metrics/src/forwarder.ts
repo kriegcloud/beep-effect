@@ -27,6 +27,7 @@ import {
   makeAiMetricsConfigSnapshot,
   writeAiMetricsConfigSnapshotArtifacts,
 } from "./config-snapshot.ts";
+import { AiMetricsStateHomeInput, aiMetricsStateHome } from "./data-root.ts";
 import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
@@ -957,9 +958,16 @@ const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderEr
  * **Details**
  *
  * `BEEP_AGENT_EVIDENCE_ROOT` wins when it is non-empty; otherwise the root is
- * `beep/agent-evidence` beneath the XDG state home, which is
- * `$XDG_STATE_HOME`, else `.local/state` under `homeDir`. The same precedence
- * as the hook writers' `${BEEP_AGENT_EVIDENCE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/beep/agent-evidence}`.
+ * `beep/agent-evidence` beneath {@link aiMetricsStateHome} of `XDG_STATE_HOME`
+ * and `homeDir`, the same precedence as the hook writers'
+ * `${BEEP_AGENT_EVIDENCE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/beep/agent-evidence}`
+ * with the XDG absolute-only rule.
+ *
+ * **Gotchas**
+ *
+ * Without the override, a relative or empty `homeDir` and no absolute
+ * `XDG_STATE_HOME` fail the run with an `AiMetricsForwarderError` instead of
+ * reading hook pulses from a directory relative to the working directory.
  *
  * **Example** (Resolve beneath the home directory)
  *
@@ -967,11 +975,9 @@ const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderEr
  * import { resolveForwarderEvidenceRoot } from "@beep/repo-ai-metrics"
  * import * as ConfigProvider from "effect/ConfigProvider"
  * import * as Effect from "effect/Effect"
- * import * as Path from "effect/Path"
  *
  * const root = resolveForwarderEvidenceRoot("/home/dev").pipe(
- *   Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({})),
- *   Effect.provide(Path.layer)
+ *   Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}))
  * )
  * console.log(Effect.runSync(root)) // /home/dev/.local/state/beep/agent-evidence
  * ```
@@ -984,17 +990,29 @@ const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderEr
 export const resolveForwarderEvidenceRoot = Effect.fn("AiMetrics.resolveForwarderEvidenceRoot")(function* (
   homeDir: string
 ) {
-  const pathApi = yield* Path.Path;
-  const stateHome = yield* Config.String("XDG_STATE_HOME").pipe(
-    Config.withDefault(pathApi.join(homeDir, ".local/state")),
-    Effect.map((value) => (value === "" ? pathApi.join(homeDir, ".local/state") : value)),
-    Effect.mapError((cause) => forwarderFailure("Cannot resolve XDG state home.", cause))
-  );
-  return yield* Config.String("BEEP_AGENT_EVIDENCE_ROOT").pipe(
-    Config.withDefault(agentEvidenceRoot(stateHome)),
-    Effect.map((value) => (value === "" ? agentEvidenceRoot(stateHome) : value)),
+  const override = yield* Config.option(Config.String("BEEP_AGENT_EVIDENCE_ROOT")).pipe(
     Effect.mapError((cause) => forwarderFailure("Cannot resolve hook evidence root.", cause))
   );
+  const configured = O.filter(override, Str.isNonEmpty);
+  if (O.isSome(configured)) {
+    return configured.value;
+  }
+  const stateHome = yield* Config.option(Config.String("XDG_STATE_HOME")).pipe(
+    Effect.map((value) =>
+      aiMetricsStateHome(AiMetricsStateHomeInput.make({ homeDir: O.some(homeDir), stateHome: value }))
+    ),
+    Effect.mapError((cause) => forwarderFailure("Cannot resolve XDG state home.", cause))
+  );
+  return yield* O.match(stateHome, {
+    onNone: () =>
+      Effect.fail(
+        forwarderFailure(
+          "Cannot resolve hook evidence root: set BEEP_AGENT_EVIDENCE_ROOT, or an absolute XDG_STATE_HOME or home directory.",
+          homeDir
+        )
+      ),
+    onSome: (home) => Effect.succeed(agentEvidenceRoot(home)),
+  });
 });
 
 const requireForwarderHashSalt = Effect.fn("AiMetrics.forwarder.requireHashSalt")(function* (

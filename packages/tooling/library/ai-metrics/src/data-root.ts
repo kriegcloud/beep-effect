@@ -8,6 +8,7 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { FilePath, Fn, LiteralKit, SchemaUtils, WindowsDrivePath, WindowsUncPath } from "@beep/schema";
 import { Str } from "@beep/utils";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -306,13 +307,17 @@ const AiMetricsStateHome = Fn({
  *
  * **Details**
  *
- * Mirrors the shell convention `${XDG_STATE_HOME:-$HOME/.local/state}`. Blank
- * and whitespace-only values are treated as unset on **both** inputs, matching a
- * shell that exports a variable without a value.
+ * Mirrors the shell convention `${XDG_STATE_HOME:-$HOME/.local/state}` through
+ * `@beep/xdg` `XdgBase.resolve("state")`. Blank and whitespace-only values are
+ * treated as unset on **both** inputs, matching a shell that exports a variable
+ * without a value. Per the XDG spec only absolute values count: a relative
+ * `stateHome` is ignored and a relative `homeDir` has no default, and the
+ * default is built under the normalized home directory. A trailing slash on
+ * the result is trimmed.
  *
  * **Gotchas**
  *
- * The result is `O.none()` when neither input carries a usable value. That case
+ * The result is `O.none()` when neither input carries a usable absolute value. That case
  * has no honest answer: interpolating a blank home would yield
  * `/.local/state`, an absolute path anchored at the filesystem root that every
  * downstream absolute-path guard happily accepts.
@@ -349,13 +354,7 @@ const AiMetricsStateHome = Fn({
 export const aiMetricsStateHome: (input: AiMetricsStateHomeInput) => O.Option<string> =
   AiMetricsStateHome.implementSync((input) =>
     pipe(
-      input.stateHome,
-      O.orElse(() =>
-        pipe(
-          input.homeDir,
-          O.map((home) => `${withoutTrailingSlash(home)}/.local/state`)
-        )
-      ),
+      XdgBase.resolve("state", { value: O.getOrUndefined(input.stateHome), home: O.getOrUndefined(input.homeDir) }),
       O.map(withoutTrailingSlash)
     )
   );

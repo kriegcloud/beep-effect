@@ -24,6 +24,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, O, P, Str } from "@beep/utils";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -1251,8 +1252,10 @@ const homeDirectory = (): O.Option<string> => configStringOptionSync("HOME");
  *
  * **Details**
  *
- * `$XDG_CACHE_HOME` when set, else `.cache` under the home directory. `None`
- * sends the scanner to `.beep-fleet-scanner` under the fleet root instead.
+ * `@beep/xdg` `XdgBase.resolve("cache")`: `$XDG_CACHE_HOME` when it is
+ * absolute, else `.cache` under an absolute home directory. `None` (nothing
+ * absolute to resolve) sends the scanner to `.beep-fleet-scanner` under the
+ * fleet root instead.
  *
  * **Example** (Fall back to the home cache)
  *
@@ -1272,7 +1275,8 @@ const homeDirectory = (): O.Option<string> => configStringOptionSync("HOME");
 export const fleetScannerCacheRoot = (input: {
   readonly xdgCacheHome: O.Option<string>;
   readonly homeDir: O.Option<string>;
-}): O.Option<string> => O.orElse(input.xdgCacheHome, () => O.map(input.homeDir, (home) => `${home}/.cache`));
+}): O.Option<string> =>
+  XdgBase.resolve("cache", { value: O.getOrUndefined(input.xdgCacheHome), home: O.getOrUndefined(input.homeDir) });
 
 const cacheDirectory = (homeDir: O.Option<string>): O.Option<string> =>
   fleetScannerCacheRoot({ xdgCacheHome: configStringOptionSync("XDG_CACHE_HOME"), homeDir });

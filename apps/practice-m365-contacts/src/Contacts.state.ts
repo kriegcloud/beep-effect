@@ -3,8 +3,8 @@
  * @since 0.0.0
  */
 import { $PracticeM365ContactsId } from "@beep/identity/packages";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as A from "effect/Array";
-import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
@@ -14,6 +14,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ContactsError, RunJournal } from "./Contacts.schemas.ts";
+import type * as Config from "effect/Config";
 import type * as Scope from "effect/Scope";
 
 const $I = $PracticeM365ContactsId.create("Contacts.state");
@@ -95,7 +96,8 @@ export const makeContactsState = Effect.fn("ContactsState.make")(function* (dire
 
 /** The contacts state directory: `beep/practice-m365-contacts` beneath the XDG state home.
  * **Details**
- * `$XDG_STATE_HOME`, else `.local/state` under `$HOME`; `HOME` is read first and required.
+ * `@beep/xdg` `XdgBase.require("state")`: an absolute `$XDG_STATE_HOME`, else `.local/state` under an
+ * absolute `$HOME`; the `ConfigError` names `HOME` when neither is absolute.
  * **Example** (Resolve beneath the home directory)
  * ```ts
  * import { contactsStateDirectory } from "@/Contacts.state"
@@ -111,12 +113,11 @@ export const makeContactsState = Effect.fn("ContactsState.make")(function* (dire
  * @category configuration
  * @since 0.0.0
  */
-export const contactsStateDirectory: Effect.Effect<string, Config.ConfigError, Path.Path> = Effect.gen(function* () {
-  const path = yield* Path.Path;
-  const home = yield* Config.String("HOME");
-  const root = yield* Config.String("XDG_STATE_HOME").pipe(Config.withDefault(path.join(home, ".local", "state")));
-  return path.join(root, "beep", "practice-m365-contacts");
-});
+export const contactsStateDirectory: Effect.Effect<string, Config.ConfigError, Path.Path> = Effect.zipWith(
+  Path.Path,
+  XdgBase.require("state"),
+  (path, root) => path.join(root, "beep", "practice-m365-contacts")
+);
 
 /** Ambient XDG state storage; stale locks require explicit inspection.
  * **Example** (Inspect the state layer)

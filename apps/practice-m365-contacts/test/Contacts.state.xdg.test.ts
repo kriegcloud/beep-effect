@@ -2,6 +2,9 @@
  * XDG env matrix for the contacts state directory (4-X-A parity). `before` is
  * the hand-written resolution, `after` is `@beep/xdg` `XdgBase`; `null` means
  * the configuration fails.
+ *
+ * Divergent rows assert `after`; `before` stays as the record of the old answer
+ * (committed and green against the hand-written body first).
  */
 import { assert, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -49,10 +52,10 @@ it.layer(Path.layer)("@beep/practice-m365-contacts state directory env matrix", 
       })
     );
   }
-  for (const [name, env, before] of divergent) {
-    it.effect(`${name} (hand-written resolution)`, () =>
+  for (const [name, env, , after] of divergent) {
+    it.effect(`${name} (diverges on purpose: XDG absolute-only)`, () =>
       Effect.gen(function* () {
-        assert.strictEqual(yield* directoryIn(env), before);
+        assert.strictEqual(yield* directoryIn(env), after);
       })
     );
   }

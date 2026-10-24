@@ -2,6 +2,9 @@
  * XDG env matrix for the docket intake state directory (4-X-A parity).
  * `before` is the hand-written resolution, `after` is `@beep/xdg` `XdgBase`;
  * `null` means the configuration fails. Every value is synthetic.
+ *
+ * Divergent rows assert `after`; `before` stays as the record of the old answer
+ * (committed and green against the hand-written body first).
  */
 import { assert, describe, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -57,10 +60,10 @@ describe("@beep/docket-intake state directory env matrix", () => {
       })
     );
   }
-  for (const [name, env, before] of divergent) {
-    it.effect(`${name} (hand-written resolution)`, () =>
+  for (const [name, env, , after] of divergent) {
+    it.effect(`${name} (diverges on purpose: XDG absolute-only)`, () =>
       Effect.gen(function* () {
-        assert.strictEqual(yield* stateDirectoryIn(env), before);
+        assert.strictEqual(yield* stateDirectoryIn(env), after);
       })
     );
   }

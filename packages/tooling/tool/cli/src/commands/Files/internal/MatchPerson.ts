@@ -8,6 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, HostProcessArchitecture, HostProcessPlatform, Str } from "@beep/utils";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as Bool from "effect/Boolean";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
@@ -487,9 +488,11 @@ const canonicalizeExistingDirectory = Effect.fn("Files.matchPersonCanonicalizeDi
  * **Details**
  *
  * `--cache-dir` (resolved against the working directory) wins; then
- * `beep/photo-face` beneath `$XDG_CACHE_HOME`; then `.cache/beep/photo-face`
- * beneath `$HOME`, or `%USERPROFILE%` when `HOME` is unset. Values are
- * trimmed, and a blank one counts as unset. `None` means nothing resolves.
+ * `beep/photo-face` beneath the XDG cache home (`@beep/xdg`
+ * `XdgBase.resolve("cache")`: `$XDG_CACHE_HOME` when absolute, else `.cache`
+ * under an absolute `$HOME`); then `.cache/beep/photo-face` beneath
+ * `%USERPROFILE%`, the Windows branch. Values are trimmed, and a blank one
+ * counts as unset. `None` means nothing resolves.
  *
  * **Example** (Build the selection effect)
  *
@@ -510,13 +513,16 @@ export const selectPersonMatchCacheRoot = Effect.fn("Files.matchPersonSelectCach
   configured: O.Option<string>
 ): Effect.fn.Return<O.Option<string>, never, Path.Path> {
   const path = yield* Path.Path;
-  const xdgCacheHome = yield* readOptionalConfig("XDG_CACHE_HOME");
-  const home = yield* readConfiguredHome();
+  const [xdgCacheHome, home, userProfile] = yield* Effect.all(
+    [readOptionalConfig("XDG_CACHE_HOME"), readOptionalConfig("HOME"), readOptionalConfig("USERPROFILE")],
+    { concurrency: 3 }
+  );
+  const xdgCache = XdgBase.resolve("cache", { value: O.getOrUndefined(xdgCacheHome), home: O.getOrUndefined(home) });
   return pipe(
     configured,
     O.map(path.resolve),
-    O.orElse(() => O.map(xdgCacheHome, (root) => path.join(root, "beep", "photo-face"))),
-    O.orElse(() => O.map(home, (root) => path.join(root, ".cache", "beep", "photo-face")))
+    O.orElse(() => O.map(xdgCache, (root) => path.join(root, "beep", "photo-face"))),
+    O.orElse(() => O.map(userProfile, (root) => path.join(root, ".cache", "beep", "photo-face")))
   );
 });
 

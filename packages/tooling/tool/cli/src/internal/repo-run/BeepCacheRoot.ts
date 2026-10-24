@@ -6,6 +6,7 @@
  */
 
 import * as O from "@beep/utils/Option";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
@@ -14,9 +15,12 @@ import * as Str from "effect/String";
 /**
  * Resolve the cache root used for persistent beep temporary installations.
  *
- * `XDG_CACHE_HOME` wins when non-empty; otherwise the root is `$HOME/.cache`.
- * An explicit override bypasses ambient configuration for tests and callers
- * that already resolved policy.
+ * The XDG cache home (`@beep/xdg` `XdgBase.dir("cache")`): `XDG_CACHE_HOME`
+ * when it is absolute, otherwise `.cache` under an absolute `$HOME`; failing
+ * both, `TMPDIR` (default `/tmp`). A relative `XDG_CACHE_HOME` or `HOME` is
+ * ignored rather than resolved against the working directory. An explicit
+ * override bypasses ambient configuration for tests and callers that already
+ * resolved policy.
  *
  * **Example** (Build the resolution effect)
  *
@@ -37,14 +41,9 @@ export const resolveBeepCacheRoot = Effect.fn("BeepCacheRoot.resolveBeepCacheRoo
   if (O.isSome(explicit)) {
     return pathService.resolve(explicit.value);
   }
-  const configured = yield* Config.option(Config.String("XDG_CACHE_HOME"));
-  const cacheRoot = O.filter(configured, Str.isNonEmpty);
+  const cacheRoot = yield* XdgBase.dir("cache");
   if (O.isSome(cacheRoot)) {
     return pathService.resolve(cacheRoot.value);
-  }
-  const home = O.filter(yield* Config.option(Config.String("HOME")), Str.isNonEmpty);
-  if (O.isSome(home)) {
-    return pathService.join(pathService.resolve(home.value), ".cache");
   }
   const tmpFallback = yield* Config.String("TMPDIR").pipe(Config.withDefault("/tmp"));
   return pathService.resolve(tmpFallback);

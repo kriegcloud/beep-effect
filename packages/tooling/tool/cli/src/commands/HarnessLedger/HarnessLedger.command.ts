@@ -402,8 +402,9 @@ export const harnessLedgerListCommand = Command.make(
  * **Details**
  *
  * `BEEP_AGENT_EVIDENCE_ROOT` wins when it is non-empty; otherwise the
- * directory hangs beneath the XDG state home's `beep/agent-evidence`. Fails
- * with a `HarnessLedgerInputError` naming `--state-dir` when neither resolves.
+ * directory hangs beneath `beep/agent-evidence` of `aiMetricsStateHome`
+ * (`@beep/xdg` `XdgBase`, absolute values only). Fails with a
+ * `HarnessLedgerInputError` naming `--state-dir` when neither resolves.
  *
  * **Example** (Build the resolution effect)
  *
@@ -430,7 +431,9 @@ export const resolveHookPulseDir = Effect.gen(function* () {
   );
   return yield* O.match(stateHome, {
     onNone: () =>
-      HarnessLedgerInputError.new("Neither XDG_STATE_HOME nor HOME is set; pass --state-dir <hook-events dir>."),
+      HarnessLedgerInputError.new(
+        "Neither XDG_STATE_HOME nor HOME is set to an absolute path; pass --state-dir <hook-events dir>."
+      ),
     onSome: (home) => Effect.succeed(hookPulseLedgerDir(agentEvidenceRoot(home))),
   });
 }).pipe(

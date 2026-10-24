@@ -2,6 +2,9 @@
  * XDG env matrix for the ai-metrics state home and the forwarder's hook
  * evidence root (4-X-A parity). `before` is the hand-written resolution, `after`
  * is `@beep/xdg` `XdgBase`; `null` means nothing resolves (none, or a failure).
+ *
+ * Divergent rows assert `after`; `before` stays as the record of the old answer
+ * (committed and green against the hand-written body first).
  */
 import { AiMetricsStateHomeInput, aiMetricsStateHome, resolveForwarderEvidenceRoot } from "@beep/repo-ai-metrics";
 import { assert, describe, it } from "@effect/vitest";
@@ -94,10 +97,10 @@ describe("aiMetricsStateHome env matrix", () => {
       })
     );
   }
-  for (const [name, input, before] of stateHomeDivergent) {
-    it.effect(`${name} (hand-written resolution)`, () =>
+  for (const [name, input, , after] of stateHomeDivergent) {
+    it.effect(`${name} (diverges on purpose: XDG absolute-only)`, () =>
       Effect.gen(function* () {
-        assert.strictEqual(yield* stateHomeOf(input), before);
+        assert.strictEqual(yield* stateHomeOf(input), after);
       })
     );
   }
@@ -111,10 +114,10 @@ it.layer(Path.layer)("resolveForwarderEvidenceRoot env matrix", (it) => {
       })
     );
   }
-  for (const [name, input, before] of evidenceDivergent) {
-    it.effect(`${name} (hand-written resolution)`, () =>
+  for (const [name, input, , after] of evidenceDivergent) {
+    it.effect(`${name} (diverges on purpose: XDG absolute-only)`, () =>
       Effect.gen(function* () {
-        assert.strictEqual(yield* evidenceRootOf(input), before);
+        assert.strictEqual(yield* evidenceRootOf(input), after);
       })
     );
   }

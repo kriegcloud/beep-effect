@@ -4,6 +4,9 @@
  * hook-pulse directory, the ai-metrics command data root and the person-match
  * cache. `before` is the hand-written resolution, `after` the adopted one;
  * `null` means nothing resolves (none, or a failure).
+ *
+ * Divergent rows assert `after`; `before` stays as the record of the old answer
+ * (committed and green against the hand-written body first).
  */
 
 import { AiMetricsDeployTarget } from "@beep/repo-ai-metrics";
@@ -60,10 +63,10 @@ const matrix = (
         })
       );
     }
-    for (const [name, env, before] of divergent) {
-      it.effect(`${name} (hand-written resolution)`, () =>
+    for (const [name, env, , after] of divergent) {
+      it.effect(`${name} (diverges on purpose: XDG absolute-only)`, () =>
         Effect.gen(function* () {
-          assert.strictEqual(yield* resolve(env), yield* expectedIn(before));
+          assert.strictEqual(yield* resolve(env), yield* expectedIn(after));
         })
       );
     }
@@ -128,6 +131,8 @@ matrix(
     ["XDG_STATE_HOME", { XDG_STATE_HOME: "/x", HOME: "/h" }, `/x/${hooks}`],
     ["XDG_STATE_HOME without HOME", { XDG_STATE_HOME: "/x" }, `/x/${hooks}`],
     ["a blank override falls through", { BEEP_AGENT_EVIDENCE_ROOT: "  ", HOME: "/h" }, `/h/.local/state/${hooks}`],
+    ["a trailing slash on XDG_STATE_HOME", { XDG_STATE_HOME: "/x/", HOME: "/h" }, `/x/${hooks}`],
+    ["a padded XDG_STATE_HOME is trimmed", { XDG_STATE_HOME: " /x", HOME: "/h" }, `/x/${hooks}`],
     ["nothing set", {}, null],
   ],
   [
