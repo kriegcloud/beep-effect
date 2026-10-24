@@ -19,6 +19,7 @@ import { $InfraId } from "@beep/identity/packages";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { resolveInfraArtifactPath } from "./internal/InfraArtifactPath.ts";
 import type { InfraPathEnv } from "./internal/InfraArtifactPath.ts";
 
@@ -176,7 +177,111 @@ export const loadCiTurboCacheConfig = (env: InfraPathEnv = process.env): CiTurbo
 
 type CiTurboCacheArgs = {
   readonly config: CiTurboCachePulumiConfigValues;
+  readonly remediation?: CiTurboCacheRemediation;
 };
+
+const TurboCacheLabEpoch = S.String.check(
+  S.isPattern(
+    /^[a-z0-9]{4,16}$/u,
+    $I.annote("TurboCacheLabEpochFormat", {
+      title: "Turbo Cache Lab Epoch Format",
+      description: "Four to sixteen lowercase alphanumerics naming one disposable lab epoch.",
+      message: "turboCacheLab:epoch must be 4-16 lowercase alphanumerics",
+    })
+  )
+).pipe($I.annoteSchema("TurboCacheLabEpoch", { description: "Disposable conformance-lab epoch identifier." }));
+
+/**
+ * Validate a disposable lab's epoch and bucket name and derive its resource names.
+ *
+ * **Details**
+ *
+ * The lab bucket must carry the `beep-tcl-<epoch>-` prefix so no lab stack can
+ * address a production bucket; the evolved incumbent's bucket inserts `-evo`
+ * after that prefix. Invalid input throws a Pulumi `RunError`, like
+ * {@link loadCiTurboCacheConfig}.
+ *
+ * **Example** (Derive lab names)
+ *
+ * ```ts
+ * import { resolveTurboCacheLabBuckets } from "@beep/infra"
+ *
+ * const names = resolveTurboCacheLabBuckets({ epoch: "c1023a", bucketName: "beep-tcl-c1023a-123456789012" })
+ * console.assert(names.evolvedBucket === "beep-tcl-c1023a-evo-123456789012")
+ * ```
+ *
+ * @param input - The `turboCacheLab:epoch` stack config value and the lab incumbent's configured bucket name.
+ * @returns The lab component prefix and the evolved incumbent's bucket name.
+ * @category configuration
+ * @since 0.0.0
+ */
+export const resolveTurboCacheLabBuckets = ({
+  epoch,
+  bucketName,
+}: {
+  readonly epoch: string;
+  readonly bucketName: string;
+}) => {
+  if (!S.is(TurboCacheLabEpoch)(epoch)) {
+    throw new pulumi.RunError("turboCacheLab:epoch must be 4-16 lowercase alphanumerics");
+  }
+  const prefix = `beep-tcl-${epoch}-`;
+  if (!Str.startsWith(prefix)(bucketName)) {
+    throw new pulumi.RunError("ciTurboCache:bucketName must carry the lab prefix beep-tcl-<epoch>-");
+  }
+  return {
+    componentPrefix: `beep-tcl-${epoch}`,
+    evolvedBucket: `beep-tcl-${epoch}-evo-${Str.slice(prefix.length)(bucketName)}`,
+  };
+};
+
+const ReservedConcurrency = S.Int.check(S.isBetween({ minimum: 1, maximum: 1000 })).pipe(
+  $I.annoteSchema("ReservedConcurrency", {
+    description: "A Lambda reserved-concurrency value within the account's default 1,000 limit.",
+  })
+);
+
+/**
+ * Optional evolved-incumbent settings, used by the disposable conformance lab.
+ *
+ * **Details**
+ *
+ * Omitted fields keep the deployed values (no tag passthrough, reserved
+ * concurrency 20 read, 10 write, 20 authorizer), so the production stack is
+ * unchanged when it passes none. `tagPassthrough` sets the shim's
+ * `TURBO_REMOTE_CACHE_SIGNATURE_KEY` to a fixed non-secret mode switch: the
+ * pinned shim then stores and returns `x-artifact-tag` without ever verifying
+ * with that value.
+ *
+ * **Gotchas**
+ *
+ * With passthrough on, the shim answers 404 for any artifact stored without a
+ * tag, so every writer must sign and existing untagged objects read as misses.
+ *
+ * **Example** (Describe the evolved lab incumbent)
+ *
+ * ```ts
+ * import { CiTurboCacheRemediation } from "@beep/infra"
+ *
+ * const evolved = CiTurboCacheRemediation.make({ tagPassthrough: true, readReservedConcurrency: 60 })
+ * console.assert(evolved.readReservedConcurrency === 60)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CiTurboCacheRemediation extends S.Opaque<CiTurboCacheRemediation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    tagPassthrough: S.optionalKey(S.Boolean),
+    readReservedConcurrency: S.optionalKey(ReservedConcurrency),
+    writeReservedConcurrency: S.optionalKey(ReservedConcurrency),
+    authorizerReservedConcurrency: S.optionalKey(ReservedConcurrency),
+  }).pipe(
+    $I.annoteSchema("CiTurboCacheRemediation", {
+      description: "Optional evolved-incumbent settings; omitted fields keep the deployed values.",
+    })
+  )
+) {}
 
 const defaultTags = {
   App: "turbo-cache",
@@ -518,10 +623,14 @@ export class CiTurboCache extends pulumi.ComponentResource {
       { parent: this }
     );
 
+    const remediation = args.remediation ?? CiTurboCacheRemediation.make({});
     const commonEnvironment = {
       AUTH_MODE: "none",
       STORAGE_PATH: config.bucketName,
       STORAGE_PROVIDER: "s3",
+      ...(remediation.tagPassthrough === true
+        ? { TURBO_REMOTE_CACHE_SIGNATURE_KEY: "tag-passthrough-mode-switch" }
+        : {}),
     };
     const code = new pulumi.asset.FileArchive(config.lambdaZipPath);
     const readFunction = new aws.lambda.Function(
@@ -537,7 +646,7 @@ export class CiTurboCache extends pulumi.ComponentResource {
         handler: "index.handler",
         memorySize: 512,
         name: `${name}-read`,
-        reservedConcurrentExecutions: 20,
+        reservedConcurrentExecutions: remediation.readReservedConcurrency ?? 20,
         role: readRole.arn,
         runtime: "nodejs22.x",
         tags: defaultTags,
@@ -559,7 +668,7 @@ export class CiTurboCache extends pulumi.ComponentResource {
         handler: "writer.handler",
         memorySize: 512,
         name: `${name}-write`,
-        reservedConcurrentExecutions: 10,
+        reservedConcurrentExecutions: remediation.writeReservedConcurrency ?? 10,
         role: writeRole.arn,
         runtime: "nodejs22.x",
         tags: defaultTags,
@@ -581,7 +690,7 @@ export class CiTurboCache extends pulumi.ComponentResource {
         handler: "authorizer.handler",
         memorySize: 128,
         name: `${name}-authorizer`,
-        reservedConcurrentExecutions: 20,
+        reservedConcurrentExecutions: remediation.authorizerReservedConcurrency ?? 20,
         role: authorizerRole.arn,
         runtime: "nodejs22.x",
         tags: defaultTags,
