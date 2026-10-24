@@ -4,7 +4,7 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import type { ReactElement } from "react";
-import { Fmt } from "../Fmt.ts";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import { inkModules } from "./internal/ink.ts";
 import { lineText } from "./internal/lineText.ts";
 import type { Binding } from "./KeyTable.ts";
