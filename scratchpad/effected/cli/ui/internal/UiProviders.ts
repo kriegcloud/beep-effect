@@ -19,8 +19,8 @@ import { screenContext } from "./ScreenContext.ts";
  * import { uiProviders } from "@beep/scratchpad/effected/cli/ui/internal/UiProviders"
  * import * as Effect from "effect/Effect"
  * import { loadInk } from "@beep/scratchpad/effected/cli/ui/internal/ink"
- * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme"
- * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+ * import { CliTheme } from "@beep/cli-kit/CliTheme"
+ * import { Glyphs } from "@beep/cli-kit/Glyphs"
  * import { isValidElement } from "react"
  *
  * await Effect.runPromise(loadInk)
