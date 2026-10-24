@@ -38,7 +38,7 @@ inside the host's already-admitted aggregate budget.
 systemd-run --user --remain-after-exit --unit=dev-agent-TASK-ID --service-type=exec \
   --slice=agent-runs.slice --working-directory=/absolute/task/worktree \
   --property=RuntimeMaxSec=3600 --property=TimeoutStopSec=30 \
-  --property=KillMode=control-group --property=UMask=0077 \
+  --property=ExitType=cgroup --property=KillMode=control-group --property=UMask=0077 \
   --property=MemoryHigh=5G --property=MemoryMax=6G \
   --property=MemorySwapMax=0 --property=CPUQuota=200% --property=TasksMax=512 \
   --property='UnsetEnvironment=SSH_AUTH_SOCK SSH_AGENT_PID OP_SERVICE_ACCOUNT_TOKEN OP_CONNECT_TOKEN OP_CONNECT_HOST' \
@@ -62,17 +62,28 @@ or execution identity; do not claim that the example unit supplies one.
 
 ## Observe and recover
 
-`--remain-after-exit` keeps a successful unit inspectable after the process exits,
-including after SSH disconnects. `active/exited` describes a completed retained
-unit, not a still-running job; inspect `Result` and `ExecMainStatus` before calling
-it successful. Save the receipt, then explicitly stop only that retained unit.
-Do not add `--collect`, `--wait` or `--pipe` to this detached retention example.
-See the [systemd-run reference](https://www.freedesktop.org/software/systemd/man/latest/systemd-run.html#--remain-after-exit).
+`ExitType=cgroup` keeps the unit running while any process in its group remains,
+so `RuntimeMaxSec` still limits children after the agent's main process exits.
+`KillMode=control-group` terminates that group when the runtime limit is reached.
+Once the group is empty, `--remain-after-exit` retains successful results across
+SSH disconnects. See the [service exit-type reference](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#ExitType=)
+and [result-retention reference](https://www.freedesktop.org/software/systemd/man/latest/systemd-run.html#--remain-after-exit).
+
+Inspect the actual `ExitType`, `SubState`, `Result`, `ExecMainStatus` and
+`TasksCurrent`. A zero main-process exit status alone is insufficient. After the main process
+has exited, remaining tasks mean leftover processes, not a clean finish; capture the receipt
+and stop only the owned unit promptly. `active/exited` alone is also insufficient
+for an older unit without `ExitType=cgroup`: its children can outlive the main
+process without the runtime timer. If task accounting is unavailable, record
+that as unknown, not zero; use the owned cgroup's process-count evidence when
+needed without dumping process arguments. Save the receipt before explicitly
+stopping a retained unit. Do not add `--collect`, `--wait` or `--pipe` to this
+example.
 
 ```sh
 systemctl --user show dev-agent-TASK-ID.service \
-  -p ActiveState -p SubState -p Result -p ExecMainStatus \
-  -p MemoryPeak -p CPUUsageNSec
+  -p ActiveState -p SubState -p Result -p MainPID -p ExecMainCode -p ExecMainStatus \
+  -p ExitType -p TasksCurrent -p ControlGroup -p MemoryPeak -p CPUUsageNSec
 journalctl --user -u dev-agent-TASK-ID.service --no-pager -n 60
 ```
 
