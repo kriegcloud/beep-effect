@@ -59,6 +59,7 @@ review and the zero scan.
 Wave 3 ruled FP-2 and FP-6 and retired 192 rows with no row or allowlist entry added
 (`history/receipts/detectors-wave-3.md`); wave 4 is the EV014 named-test-layer frontier.
 Wave 4 repaired the EV015 single-test-block, EV006 browser-project and EV002 repeated-lifecycle classes, retiring 79 rows and converting 7 to owner/exit exceptions (`history/receipts/detectors-wave-4.md`); waves 5-9 are the EV003 process-state ruling, the EV014 named test layers and the 693-row owner/exit register.
+Wave 5 ruled EV003 process-state wrappers a judgment class, repaired the EV003 layer-factory and two EV008 classes, retiring 22 rows and converting 13 to owner/exit exceptions (`history/receipts/detectors-wave-5.md`); wave 6 is the EV014 named test layers.
 #1875 `residue-vitest-canon` is in progress after wave 1, which leaves 689 open rows
 (`history/receipts/vitest-canon-wave-1.md`).
 Wave 2 retired every open EV009 and EV014 row and left 26 EV015 rows for #1855
@@ -68,6 +69,8 @@ Wave 3 retired 27 law-practice-server and leaf-package rows and handed 23 to #18
 Wave 4 retired 99 repo-cli assertion and harness rows and handed seven EV008/EV013 rows to #1855
 (`history/receipts/vitest-canon-wave-4.md`); wave 5 is the resource-lifetime families.
 The EV012 seams lane retired the three no-seam module mocks through production service seams, with no row or exception added (`history/receipts/vitest-canon-ev012-seams.md`).
+Wave 6 retired 116 repo-cli EV002 rows and handed 19 to #1855
+(`history/receipts/vitest-canon-wave-6.md`); waves 5 and 7 are EV004/EV003 and EV010.
 #1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the
 RDF failure assertions and the Pacer logout witness are ported, and every export
 hunk has a disposition.

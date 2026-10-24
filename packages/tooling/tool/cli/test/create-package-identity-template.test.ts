@@ -1,7 +1,6 @@
 import * as NodeURL from "node:url";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 
@@ -12,7 +11,7 @@ const identityExportBlockPath = NodeURL.fileURLToPath(
   new URL("../src/commands/CreatePackage/internal/IdentityExportBlock.ts", import.meta.url)
 );
 
-describe("create-package identity template", () => {
+it.layer(NodeServices.layer)("create-package identity template", (it) => {
   it.effect(
     "keeps the identity registration template aligned with @beep/identity's generated surface",
     Effect.fnUntraced(function* () {
@@ -31,6 +30,6 @@ describe("create-package identity template", () => {
       expect(identityRegistrationSource).toContain(
         'sourceFile.getVariableDeclaration("generatedComposers") ?? sourceFile.getVariableDeclarationOrThrow("composers")'
       );
-    }, provideScopedLayer(NodeServices.layer))
+    })
   );
 });

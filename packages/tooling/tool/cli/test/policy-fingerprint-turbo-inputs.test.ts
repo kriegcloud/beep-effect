@@ -6,7 +6,6 @@ import {
   StepExec,
 } from "@beep/repo-cli/test/PackageScripts";
 import { FsUtilsLive, findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -84,7 +83,6 @@ const encodeSummary = S.encodeEffect(S.fromJsonString(FingerprintRunSummary));
 const summaryEquivalent = S.toEquivalence(FingerprintRunSummary);
 const FingerprintRunSummaryArbitrary = Arbitrary.schema(FingerprintRunSummary);
 const platform = FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer));
-const providePlatform = provideScopedLayer(platform);
 
 const writeFile = Effect.fn("PolicyFingerprintTurboTest.writeFile")(function* (
   root: string,
@@ -171,26 +169,28 @@ describe("policy fingerprint Turbo inputs", { concurrent: false }, () => {
     { arbitrary: fcRuns() }
   );
 
-  it.effect(
-    "materializes exactly the computed repository closure and registers a nonrecursive cached root script",
-    Effect.fnUntraced(function* () {
-      const root = yield* findRepoRoot();
-      const fs = yield* FileSystem.FileSystem;
-      const text = yield* fs.readFileString(`${root}/turbo.json`);
-      const config = yield* decodeConfiguration(text);
-      const fingerprint = yield* policyToolsFingerprint(root);
-      expect(config.tasks["//#lint:policy-fingerprint"].inputs).toEqual(fingerprint.inputs);
-      expect(fingerprint.inputs).toEqual(A.sort(A.dedupe(fingerprint.inputs), Order.String));
-      expect(fingerprint.inputs).not.toContain("**/package.json");
-      expect(fingerprint.inputs).toContain("package.json");
-      expect(fingerprint.inputs).toContain("standards/policy-tools.fingerprint.json");
-      expect(fingerprint.inputs).toContain("standards/lint-policy.sweeps.jsonc");
-      const contract = yield* decodeContract(text);
-      expect(contract.tasks["//#lint:policy-fingerprint"]).toEqual({ cache: true, outputs: [] });
-      const manifest = yield* decodeScripts(yield* fs.readFileString(`${root}/package.json`));
-      expect(manifest.scripts["lint:policy-fingerprint"]).toBe("beep-cli lint policy-fingerprint --check");
-    }, providePlatform)
-  );
+  it.layer(platform, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "materializes exactly the computed repository closure and registers a nonrecursive cached root script",
+      Effect.fnUntraced(function* () {
+        const root = yield* findRepoRoot();
+        const fs = yield* FileSystem.FileSystem;
+        const text = yield* fs.readFileString(`${root}/turbo.json`);
+        const config = yield* decodeConfiguration(text);
+        const fingerprint = yield* policyToolsFingerprint(root);
+        expect(config.tasks["//#lint:policy-fingerprint"].inputs).toEqual(fingerprint.inputs);
+        expect(fingerprint.inputs).toEqual(A.sort(A.dedupe(fingerprint.inputs), Order.String));
+        expect(fingerprint.inputs).not.toContain("**/package.json");
+        expect(fingerprint.inputs).toContain("package.json");
+        expect(fingerprint.inputs).toContain("standards/policy-tools.fingerprint.json");
+        expect(fingerprint.inputs).toContain("standards/lint-policy.sweeps.jsonc");
+        const contract = yield* decodeContract(text);
+        expect(contract.tasks["//#lint:policy-fingerprint"]).toEqual({ cache: true, outputs: [] });
+        const manifest = yield* decodeScripts(yield* fs.readFileString(`${root}/package.json`));
+        expect(manifest.scripts["lint:policy-fingerprint"]).toBe("beep-cli lint policy-fingerprint --check");
+      })
+    );
+  });
 
   it.layer(platform, { timeout: "120 seconds" })((it) => {
     it.effect(

@@ -11,7 +11,10 @@
  * the readiness monitor uses and flips it (the GraphQL-only mutation, through
  * the budget guard) when, on the current head, no required check is known to
  * be failing and every review thread is answered. Pending checks and optional
- * lanes do not hold it. Anything else refuses with the first blocker named.
+ * lanes do not hold it. The flip also requires a complete, passing
+ * `yeet final-check` receipt for that exact head (`FinalCheck.ts`): the local
+ * replay of every hosted gate the push-first cheap tier skips, so a lane
+ * cannot call a pull request final while it still reds hosted CI. Anything else refuses with the first blocker named.
  * There is no `--force`. The merge gate, not this flip, waits for green checks
  * and for the review window.
  *
@@ -40,6 +43,7 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { YeetCommandError } from "../Yeet.errors.ts";
+import { finalCheckRefusal, readFinalCheckReceipt } from "./FinalCheck.ts";
 import { flipPullRequestReady, recordInheritedRedsInPullRequestBody, withYeetGh } from "./GhOps.ts";
 import { runGitOutput } from "./GitExec.ts";
 import { hydrateYeetReadOnlyContext } from "./Handler.ts";
@@ -57,6 +61,7 @@ import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetReadyOptions } from "../Yeet.schemas.ts";
+import type { FinalCheckReceipt } from "./FinalCheck.schemas.ts";
 import type { ProofJobRecord } from "./ProofJob.ts";
 import type { SquashCommitlintReport } from "./SquashCommitlint.ts";
 
@@ -295,6 +300,36 @@ export const YeetReadyGateDecision = S.Union([YeetReadyGateFlip, YeetReadyGateAl
 export type YeetReadyGateDecision = typeof YeetReadyGateDecision.Type;
 
 /**
+ * What a `yeet ready` refusal names: an unmet gate criterion read from the
+ * pull request, or `final-check`, the head-pinned local receipt
+ * (`FinalCheck.ts`) the flip requires before a draft leaves for review.
+ *
+ * **Example** (Check a refusal blocker)
+ *
+ * ```ts
+ * import { YeetReadyRefusalBlocker } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(YeetReadyRefusalBlocker.is["final-check"]("final-check")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const YeetReadyRefusalBlocker = LiteralKit([...YeetReadyGateCriterion.literals, "final-check"]).pipe(
+  $I.annoteSchema("YeetReadyRefusalBlocker", {
+    description: "The blocker a yeet ready refusal names: a pull-request gate criterion or the final-check receipt.",
+  })
+);
+
+/**
+ * What a `yeet ready` refusal names.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type YeetReadyRefusalBlocker = typeof YeetReadyRefusalBlocker.Type;
+
+/**
  * Typed refusal raised when `yeet ready` will not flip the draft.
  *
  * **Example** (Name the blocker)
@@ -314,7 +349,7 @@ export class YeetReadyGateRefused extends S.TaggedError<YeetReadyGateRefused, { 
 )(
   "YeetReadyGateRefused",
   {
-    blocker: YeetReadyGateCriterion,
+    blocker: YeetReadyRefusalBlocker,
     message: S.String,
   },
   $I.annoteError<YeetReadyGateRefused>("YeetReadyGateRefused", {
@@ -516,6 +551,10 @@ const recordInheritedThroughRest = (prNumber: number, entries: ReadonlyArray<Yee
   );
 
 interface YeetReadyGateDependencies {
+  readonly finalCheck?: (
+    context: RepoRunContext,
+    headSha: string
+  ) => Effect.Effect<O.Option<FinalCheckReceipt>, never, FileSystem.FileSystem | Path.Path>;
   readonly findMonitor?: typeof findLiveMonitorForReady;
   readonly markReady?: (
     prNumber: number,
@@ -660,6 +699,39 @@ const adviseSquashCommitlint = Effect.fn("Yeet.adviseSquashCommitlint")(function
   });
 });
 
+const readFinalCheckForReady = (context: RepoRunContext, headSha: string) =>
+  readFinalCheckReceipt(context.repoRoot, headSha);
+
+// The flip is the content-final claim, so it requires the head-pinned
+// final-check receipt: every hosted gate the cheap tier skips, replayed on
+// this exact head. Skipped gates are named so the owner states them in the PR.
+const requireFinalCheck = Effect.fn("Yeet.requireFinalCheck")(function* (
+  context: RepoRunContext,
+  dependencies: YeetReadyGateDependencies,
+  headSha: string
+) {
+  const receipt = yield* (dependencies.finalCheck ?? readFinalCheckForReady)(context, headSha);
+  const refusal = finalCheckRefusal(receipt, headSha);
+  if (O.isSome(refusal)) {
+    return yield* YeetReadyGateRefused.make({
+      blocker: "final-check",
+      message: `yeet ready refused: blocked on final-check: ${refusal.value}. Re-run \`${YEET_READY_COMMAND}\` once it passes.`,
+    });
+  }
+  const skipped = A.filter(
+    A.flatMap(O.toArray(receipt), (found) => found.steps),
+    (step) => step.status === "skipped"
+  );
+  yield* Console.log(
+    A.isReadonlyArrayEmpty(skipped)
+      ? `[yeet] final-check receipt for ${Str.slice(0, 12)(headSha)}: pass, every gate ran`
+      : `[yeet] final-check receipt for ${Str.slice(0, 12)(headSha)}: pass with ${A.length(skipped)} skipped gate(s): ${A.join(
+          A.map(skipped, (step) => `${step.gate} (${step.reason ?? "no reason"})`),
+          "; "
+        )}; name them in the PR body as checks hosted CI proves`
+  );
+});
+
 const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(function* (
   context: RepoRunContext,
   dependencies: YeetReadyGateDependencies,
@@ -764,6 +836,11 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
       yield* adviseSquashCommitlint(context, dependencies, prNumber);
     }),
     flip: Effect.fnUntraced(function* ({ prNumber, headSha }) {
+      yield* requireFinalCheck(
+        context,
+        dependencies,
+        O.getOrElse(headSha, () => "unknown")
+      );
       yield* adviseSquashCommitlint(context, dependencies, prNumber);
       // The gate decided on a read taken moments ago. A push, a check rerun,
       // or a new thread can land in between, even on the same head, so take
