@@ -286,8 +286,9 @@ needed only for the escalation list below.
   waited 10 minutes, stop that local run, keep the package-scoped checks that
   already passed (`quality package-verify`, or lint and check of the touched
   packages), `git push`, and open the PR with
-  `gh pr create --label ready-for-heavy`. Hosted CI is the proof; record in
-  the PR body which local checks ran and which were skipped.
+  `gh pr create --draft --label ready-for-heavy`, then flip it with
+  `bun run beep yeet ready` at content-final as usual. Hosted CI is the
+  proof; record in the PR body which local checks ran and which were skipped.
 - Draft means only "the owner is still pushing". Flip the PR ready with
   `bun run beep yeet ready` as soon as its content is final and cheap gates
   pass; do not wait for hosted heavy CI, which doubles as the review window.
