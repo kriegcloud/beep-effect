@@ -78,6 +78,10 @@
       "purpose": "Wave 2d bench gate: @beep/markdown parse and stringify cost on fixed corpora, compared against a baseline report."
     },
     {
+      "path": "ops/observability-package-name-parity.ts",
+      "purpose": "3-A9 parity: the retired observability scoped-name pattern compared with @beep/package-json ScopedPackageName over every tracked package.json name and every bun.lock package name."
+    },
+    {
       "path": "ops/package-json-corpus.ts",
       "purpose": "Wave 3-4 census: every tracked package.json through each @beep/package-json tier and npm name validation."
     },
