@@ -1039,7 +1039,8 @@ const pullRequestAuthorLogin = (node: GhStatusReviewThreadsNode): O.Option<strin
 // fallow-ignore-next-line complexity -- GraphQL cursor and page validity checks form one pagination loop (cognitive 14). Owner: @beep/repo-cli. Exit: move onto the internal/github `ghGraphqlPage` and `nextCursor` helpers that Reply uses.
 const collectRemoteReviewThreads = Effect.fn("YeetStatus.collectRemoteReviewThreads")(function* (
   context: RepoRunContext,
-  pullRequestId: string
+  pullRequestId: string,
+  pullRequestNumber: number
 ): Effect.fn.Return<
   GhStatusReviewThreadPages,
   YeetCommandError,
@@ -1061,15 +1062,30 @@ const collectRemoteReviewThreads = Effect.fn("YeetStatus.collectRemoteReviewThre
         ...O.match(cursor, { onNone: () => [], onSome: (value) => ["-F", `cursor=${value}`] }),
       ],
       context.repoRoot
-    ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect PR review threads for yeet status.")));
-    if (result.exitCode !== 0 || result.truncated) {
-      return yield* YeetCommandError.make({
-        message: "Failed to collect the paginated PR review-thread closeout gate.",
-        command: "gh api graphql",
-        exitCode: result.exitCode === 0 ? 1 : result.exitCode,
-      });
+    ).pipe(
+      Effect.mapError(YeetCommandError.new("Failed to inspect PR review threads for yeet status.")),
+      Effect.filterOrFail(
+        (result) => result.exitCode === 0 && !result.truncated,
+        (result) =>
+          YeetCommandError.make({
+            message: "Failed to collect the paginated PR review-thread closeout gate.",
+            command: "gh api graphql",
+            exitCode: result.exitCode === 0 ? 1 : result.exitCode,
+          })
+      ),
+      Effect.result
+    );
+    if (Result.isFailure(result)) {
+      // REST may recover a failed command, but never invalid JSON or pagination.
+      // In particular, an empty comments response cannot excuse a cursor cycle.
+      yield* confirmNoReviewComments(context, pullRequestNumber).pipe(
+        Effect.mapError((fallback) =>
+          YeetCommandError.make({ message: `${result.failure.message}; REST fallback: ${fallback.message}` })
+        )
+      );
+      return { pullRequestAuthor: O.none<string>(), threads: A.empty<GhStatusReviewThread>() };
     }
-    const node = yield* decodeGhStatusReviewThreads(result.output).pipe(
+    const node = yield* decodeGhStatusReviewThreads(result.success.output).pipe(
       Effect.map((document) => document.data.node),
       Effect.mapError(YeetCommandError.new("Failed to decode PR review threads for yeet status."))
     );
@@ -1508,16 +1524,7 @@ const collectRemoteStatus = Effect.fn("YeetStatus.collectRemoteStatus")(function
     GhStatusReviewThreadPages,
     YeetCommandError,
     Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
-  > = collectRemoteReviewThreads(context, view.id).pipe(
-    Effect.catchTag("YeetCommandError", (error) =>
-      confirmNoReviewComments(context, view.number).pipe(
-        Effect.as({ pullRequestAuthor: O.none<string>(), threads: A.empty<GhStatusReviewThread>() }),
-        Effect.mapError((fallback) =>
-          YeetCommandError.make({ message: `${error.message}; REST fallback: ${fallback.message}` })
-        )
-      )
-    )
-  );
+  > = collectRemoteReviewThreads(context, view.id, view.number);
   const [checksResult, requiredChecksResult, threadPagesResult, workflowRunsResult] = yield* Effect.all(
     [
       collectRemoteChecks(context, false),
