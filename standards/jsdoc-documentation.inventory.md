@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-24T03:03:50.635Z
+Generated: 2026-10-24T06:26:38.232Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 99 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
-| publicModules | 3563 |
-| publicExports | 25209 |
+| publicModules | 3564 |
+| publicExports | 25236 |
 | openModules | 492 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 26 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 38 | 303 | 1 | 5 |
 | 27 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 30 | 58 | 0 | 0 |
 | 28 | `@beep/epistemics` | `packages/foundation/modeling/epistemics` | clean | 35 | 131 | 0 | 0 |
-| 29 | `@beep/package-json` | `packages/foundation/modeling/package-json` | clean | 17 | 98 | 0 | 0 |
+| 29 | `@beep/package-json` | `packages/foundation/modeling/package-json` | clean | 18 | 121 | 0 | 0 |
 | 30 | `@beep/colors` | `packages/foundation/capability/colors` | needs-remediation | 1 | 9 | 1 | 9 |
 | 31 | `@beep/config-file` | `packages/foundation/capability/config-file` | clean | 13 | 70 | 0 | 0 |
 | 32 | `@beep/github-commands` | `packages/foundation/modeling/github-commands` | clean | 3 | 6 | 0 | 0 |
@@ -185,7 +185,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 127 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 14 | 0 | 0 |
 | 128 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 129 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 130 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4336 | 47 | 35 |
+| 130 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4340 | 47 | 35 |
 | 131 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 132 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 133 | `@beep/commands` | `packages/drivers/commands` | clean | 8 | 58 | 0 | 0 |
@@ -784,27 +784,27 @@ Export findings:
 - `src/Md.escape.ts:717` `maxBackticks` (const) - 1 example import violation(s)
 - `src/Md.escape.ts:786` `renderFencedCode` (const) - 1 example import violation(s)
 - `src/Md.html.ts:42` `renderSafeHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:877` `renderMarkdownInline` (function) - 1 example import violation(s)
-- `src/Md.render.ts:936` `renderHtmlInline` (function) - 1 example import violation(s)
-- `src/Md.render.ts:955` `renderMarkdownBlock` (const) - 1 example import violation(s)
-- `src/Md.render.ts:990` `renderHtmlBlock` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1025` `renderMarkdownBlocks` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1045` `renderHtmlBlocks` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1070` `renderUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1091` `renderHtmlUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1112` `renderPlainTextUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1157` `renderWithUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1192` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1234` `renderEffectWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1627` `makeMarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1655` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1681` `MarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1705` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1724` `PlainTextAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1751` `renderWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1785` `render` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1810` `renderHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1835` `renderPlainText` (const) - 1 example import violation(s)
+- `src/Md.render.ts:884` `renderMarkdownInline` (function) - 1 example import violation(s)
+- `src/Md.render.ts:943` `renderHtmlInline` (function) - 1 example import violation(s)
+- `src/Md.render.ts:962` `renderMarkdownBlock` (const) - 1 example import violation(s)
+- `src/Md.render.ts:997` `renderHtmlBlock` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1032` `renderMarkdownBlocks` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1052` `renderHtmlBlocks` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1077` `renderUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1098` `renderHtmlUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1119` `renderPlainTextUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1164` `renderWithUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1199` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1241` `renderEffectWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1634` `makeMarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1662` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1688` `MarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1712` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1731` `PlainTextAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1758` `renderWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1792` `render` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1817` `renderHtml` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1842` `renderPlainText` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:750` `documentSafetyIssues` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:776` `inlineSafetyIssuesAtRoot` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:968` `refineSafeDocument` (const) - 1 example import violation(s)

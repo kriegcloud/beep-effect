@@ -36,7 +36,7 @@ import {
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -796,7 +796,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
         Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner("REST unavailable", 1))
       );
       expect(snapshot.remote.available).toBe(false);
-      expect(O.isSome(snapshot.remote.readFailure)).toBe(true);
+      assertTrue(O.isSome(snapshot.remote.readFailure));
       expect(snapshot.remote.detail).toContain("REST unavailable");
       const decision = decideYeetReadyGate(
         YeetReadyPullRequestRead.make({
