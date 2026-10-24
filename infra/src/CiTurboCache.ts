@@ -19,6 +19,7 @@ import { $InfraId } from "@beep/identity/packages";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { resolveInfraArtifactPath } from "./internal/InfraArtifactPath.ts";
 import type { InfraPathEnv } from "./internal/InfraArtifactPath.ts";
 
@@ -177,6 +178,61 @@ export const loadCiTurboCacheConfig = (env: InfraPathEnv = process.env): CiTurbo
 type CiTurboCacheArgs = {
   readonly config: CiTurboCachePulumiConfigValues;
   readonly remediation?: CiTurboCacheRemediation;
+};
+
+const TurboCacheLabEpoch = S.String.check(
+  S.isPattern(
+    /^[a-z0-9]{4,16}$/u,
+    $I.annote("TurboCacheLabEpochFormat", {
+      title: "Turbo Cache Lab Epoch Format",
+      description: "Four to sixteen lowercase alphanumerics naming one disposable lab epoch.",
+      message: "turboCacheLab:epoch must be 4-16 lowercase alphanumerics",
+    })
+  )
+).pipe($I.annoteSchema("TurboCacheLabEpoch", { description: "Disposable conformance-lab epoch identifier." }));
+
+/**
+ * Validate a disposable lab's epoch and bucket name and derive its resource names.
+ *
+ * **Details**
+ *
+ * The lab bucket must carry the `beep-tcl-<epoch>-` prefix so no lab stack can
+ * address a production bucket; the evolved incumbent's bucket inserts `-evo`
+ * after that prefix. Invalid input throws a Pulumi `RunError`, like
+ * {@link loadCiTurboCacheConfig}.
+ *
+ * **Example** (Derive lab names)
+ *
+ * ```ts
+ * import { resolveTurboCacheLabBuckets } from "@beep/infra"
+ *
+ * const names = resolveTurboCacheLabBuckets({ epoch: "c1023a", bucketName: "beep-tcl-c1023a-123456789012" })
+ * console.assert(names.evolvedBucket === "beep-tcl-c1023a-evo-123456789012")
+ * ```
+ *
+ * @param input - The `turboCacheLab:epoch` stack config value and the lab incumbent's configured bucket name.
+ * @returns The lab component prefix and the evolved incumbent's bucket name.
+ * @category configuration
+ * @since 0.0.0
+ */
+export const resolveTurboCacheLabBuckets = ({
+  epoch,
+  bucketName,
+}: {
+  readonly epoch: string;
+  readonly bucketName: string;
+}) => {
+  if (!S.is(TurboCacheLabEpoch)(epoch)) {
+    throw new pulumi.RunError("turboCacheLab:epoch must be 4-16 lowercase alphanumerics");
+  }
+  const prefix = `beep-tcl-${epoch}-`;
+  if (!Str.startsWith(prefix)(bucketName)) {
+    throw new pulumi.RunError("ciTurboCache:bucketName must carry the lab prefix beep-tcl-<epoch>-");
+  }
+  return {
+    componentPrefix: `beep-tcl-${epoch}`,
+    evolvedBucket: `beep-tcl-${epoch}-evo-${Str.slice(prefix.length)(bucketName)}`,
+  };
 };
 
 const ReservedConcurrency = S.Int.check(S.isBetween({ minimum: 1, maximum: 1000 })).pipe(

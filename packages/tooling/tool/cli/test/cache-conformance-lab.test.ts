@@ -161,7 +161,7 @@ it.layer(Services, { timeout: "60 seconds", excludeTestServices: true })("cache 
       const plain = yield* read("none");
       assertTrue(replied(plain, (reply) => reply.status === 200));
       assertSome(tagOf(plain), "Atag-value");
-      assertNone(tagOf(yield* read("missing-tag")));
+      (yield* read("missing-tag")).pipe(tagOf, assertNone);
       assertSome(tagOf(yield* read("tampered-tag")), "Btag-value");
       const tampered = yield* read("tampered-body");
       assertTrue(replied(tampered, (reply) => reply.body.byteLength === body.byteLength && reply.body[0] !== body[0]));
@@ -169,8 +169,8 @@ it.layer(Services, { timeout: "60 seconds", excludeTestServices: true })("cache 
       assertTrue(replied(yield* read("status-503"), (reply) => reply.status === 503));
       const held = yield* read("timeout");
       assertTrue(Result.isSuccess(held) && O.isNone(held.success));
-      assertTrue(abortedOrShimCompleted(yield* read("reset")));
-      assertTrue(abortedOrShimCompleted(yield* read("truncated-body")));
+      (yield* read("reset")).pipe(abortedOrShimCompleted, assertTrue);
+      (yield* read("truncated-body")).pipe(abortedOrShimCompleted, assertTrue);
       const events = yield* proxy.events;
       const faults = A.map(
         A.filter(events, (event) => event.exchange.method === "GET"),
@@ -426,7 +426,7 @@ it.layer(Services, { timeout: "180 seconds", excludeTestServices: true })("cache
         corpus: { ...wire.corpus, specSha256: Sha256Hex.make(Str.repeat(64)("b")) },
       });
       const outcome = yield* compareCacheConformanceRuns(yield* repoRoot, [wire, regenerated]).pipe(Effect.result);
-      assertTrue(Result.isFailure(outcome));
+      outcome.pipe(Result.isFailure, assertTrue);
     })
   );
 

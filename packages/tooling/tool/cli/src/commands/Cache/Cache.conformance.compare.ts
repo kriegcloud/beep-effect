@@ -858,6 +858,8 @@ const cell = (status: CacheConformanceGateStatus) => status;
  * console.assert(typeof renderCacheConformanceComparison === "function")
  * ```
  *
+ * @param comparison - Comparison to render.
+ * @returns The Markdown summary.
  * @category encoding
  * @since 0.0.0
  */

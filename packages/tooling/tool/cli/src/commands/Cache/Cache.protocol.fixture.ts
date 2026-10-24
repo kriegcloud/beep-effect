@@ -71,6 +71,8 @@ const validFixtureSelectors = (parts: ReadonlyArray<string>, namespace: string) 
  * console.assert(corruptCacheArtifactBody(Uint8Array.of(0))[0] === 1)
  * ```
  *
+ * @param bytes - Stored artifact bytes; left unchanged.
+ * @returns A corrupted copy with the first bit flipped.
  * @category fixtures
  * @since 0.0.0
  */
@@ -92,6 +94,8 @@ export const corruptCacheArtifactBody = (bytes: Uint8Array) => {
  * console.assert(tamperCacheArtifactTag("Abc") === "Bbc")
  * ```
  *
+ * @param tag - Opaque artifact tag as stored.
+ * @returns The tag with its first character changed.
  * @category fixtures
  * @since 0.0.0
  */

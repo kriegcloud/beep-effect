@@ -3,6 +3,7 @@ import {
   CiTurboCachePulumiConfigValues,
   CiTurboCacheRemediation,
   loadCiTurboCacheConfig,
+  resolveTurboCacheLabBuckets,
 } from "@beep/infra";
 import { it } from "@beep/test-runner";
 import { assert, describe, expect } from "@effect/vitest";
@@ -223,6 +224,24 @@ describe("@beep/infra CiTurboCache remediation", { concurrent: false }, () => {
       expect(fn("authorizer")?.environment?.variables?.TURBO_REMOTE_CACHE_SIGNATURE_KEY).toBeUndefined();
     })
   );
+});
+
+describe("@beep/infra resolveTurboCacheLabBuckets", () => {
+  it("derives the lab component prefix and the evolved bucket", () => {
+    expect(resolveTurboCacheLabBuckets({ epoch: "c1023a", bucketName: "beep-tcl-c1023a-123456789012" })).toEqual({
+      componentPrefix: "beep-tcl-c1023a",
+      evolvedBucket: "beep-tcl-c1023a-evo-123456789012",
+    });
+  });
+
+  it("rejects a malformed epoch and a bucket outside the lab prefix", () => {
+    expect(() => resolveTurboCacheLabBuckets({ epoch: "C1", bucketName: "beep-tcl-C1-123456789012" })).toThrow(
+      "turboCacheLab:epoch"
+    );
+    expect(() => resolveTurboCacheLabBuckets({ epoch: "c1023a", bucketName: "beep-turbo-cache-123456789012" })).toThrow(
+      "lab prefix"
+    );
+  });
 });
 
 describe("@beep/infra loadCiTurboCacheConfig", { concurrent: false }, () => {

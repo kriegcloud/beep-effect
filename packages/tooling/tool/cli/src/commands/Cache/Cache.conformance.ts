@@ -150,6 +150,8 @@ export const loadCacheConformanceBearers = Effect.fn("CacheConformance.loadBeare
  * console.assert(cacheConformanceVerdictOf([]).verdict === "not-executed")
  * ```
  *
+ * @param checks - Expectations recorded for one case and dimension.
+ * @returns The folded verdict for that dimension.
  * @category constructors
  * @since 0.0.0
  */
@@ -356,6 +358,7 @@ export const skippedCacheConformanceCase: {
  * console.assert(typeof assembleCacheConformanceRun === "function")
  * ```
  *
+ * @returns The run report with per-dimension summary counts.
  * @category constructors
  * @since 0.0.0
  */

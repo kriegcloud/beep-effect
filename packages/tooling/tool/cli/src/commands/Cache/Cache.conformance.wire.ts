@@ -187,6 +187,8 @@ const isSuccessStatus = inRange(200, 299);
  * console.assert(classifyCacheConformanceStatus(false)(404) === "not-found")
  * ```
  *
+ * @param neverWritten - Whether the requested hash was never written in this namespace.
+ * @returns A classifier from HTTP status to conformance outcome.
  * @category validation
  * @since 0.0.0
  */
@@ -267,6 +269,8 @@ const withWriterTag = Effect.fnUntraced(function* (step: WireStep) {
  * ```
  *
  * @internal
+ * @param response - Client response to drain.
+ * @returns An effect yielding the status, headers and complete body bytes.
  * @category utilities
  * @since 0.0.0
  */

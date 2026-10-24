@@ -14,34 +14,27 @@
  */
 
 import * as pulumi from "@pulumi/pulumi";
-import * as Str from "effect/String";
 import {
   CiTurboCache,
   CiTurboCachePulumiConfigValues,
   CiTurboCacheRemediation,
   loadCiTurboCacheConfig,
+  resolveTurboCacheLabBuckets,
 } from "../CiTurboCache.ts";
 
-const lab = new pulumi.Config("turboCacheLab");
-const epoch = lab.require("epoch");
-if (!/^[a-z0-9]{4,16}$/u.test(epoch)) {
-  throw new pulumi.RunError("turboCacheLab:epoch must be 4-16 lowercase alphanumerics");
-}
 const config = loadCiTurboCacheConfig();
-if (!Str.startsWith(`beep-tcl-${epoch}-`)(config.bucketName)) {
-  throw new pulumi.RunError("ciTurboCache:bucketName must carry the lab prefix beep-tcl-<epoch>-");
-}
+const names = resolveTurboCacheLabBuckets({
+  epoch: new pulumi.Config("turboCacheLab").require("epoch"),
+  bucketName: config.bucketName,
+});
 
-const incumbent = new CiTurboCache(`beep-tcl-${epoch}`, { config });
+const incumbent = new CiTurboCache(names.componentPrefix, { config });
 
 // Evolved incumbent: the minimum remediation measured against the same corpus.
 // Its own bucket keeps tagged and untagged objects apart; reserved concurrency
 // is raised above the observed (capped) 20/10 peak.
-const evolved = new CiTurboCache(`beep-tcl-${epoch}-evo`, {
-  config: CiTurboCachePulumiConfigValues.make({
-    ...config,
-    bucketName: `beep-tcl-${epoch}-evo-${Str.slice(`beep-tcl-${epoch}-`.length)(config.bucketName)}`,
-  }),
+const evolved = new CiTurboCache(`${names.componentPrefix}-evo`, {
+  config: CiTurboCachePulumiConfigValues.make({ ...config, bucketName: names.evolvedBucket }),
   remediation: CiTurboCacheRemediation.make({
     tagPassthrough: true,
     readReservedConcurrency: 60,
