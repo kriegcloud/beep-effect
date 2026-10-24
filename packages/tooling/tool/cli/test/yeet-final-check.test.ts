@@ -1,3 +1,5 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
+import { configStringOption } from "@beep/repo-cli/test/SharedInternals";
 import {
   ExpectationRewrite,
   FINAL_CHECK_RECEIPT_DIR,
@@ -13,44 +15,61 @@ import {
   rewrittenTestFiles,
   verifyExpectationRewrites,
 } from "@beep/repo-cli/test/Yeet";
-import { NodeServices } from "@effect/platform-node";
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
+import type { FinalCheckVerdict } from "@beep/repo-cli/test/Yeet";
 
-const HEAD = "a".repeat(40);
-const BASE = "b".repeat(40);
+const HEAD = Str.repeat(40)("a");
+const encodeReceiptJson = S.encodeUnknownEffect(S.fromJsonString(FinalCheckReceipt));
+const BASE = Str.repeat(40)("b");
 
 // #2215 rewrote this expectation to match #2212's over-escaped `@`
 // (ba0efdf11c, packages/tooling/tool/cli/test/yeet.test.ts:2375).
-const MASKING_DIFF = [
-  "diff --git a/packages/tooling/tool/cli/test/yeet.test.ts b/packages/tooling/tool/cli/test/yeet.test.ts",
-  "index 5e0320ec5f..651379b01f 100644",
-  "--- a/packages/tooling/tool/cli/test/yeet.test.ts",
-  "+++ b/packages/tooling/tool/cli/test/yeet.test.ts",
-  "@@ -2375 +2375 @@ printf '%s\\\\n' '{\"number\":874}'",
-  '-      expect(markdown).toContain("# Yeet Quality Packet: @beep/repo\\\\-cli");',
-  '+      expect(markdown).toContain("# Yeet Quality Packet: \\\\@beep/repo\\\\-cli");',
-].join("\n");
+const MASKING_DIFF = A.join(
+  [
+    "diff --git a/packages/tooling/tool/cli/test/yeet.test.ts b/packages/tooling/tool/cli/test/yeet.test.ts",
+    "index 5e0320ec5f..651379b01f 100644",
+    "--- a/packages/tooling/tool/cli/test/yeet.test.ts",
+    "+++ b/packages/tooling/tool/cli/test/yeet.test.ts",
+    "@@ -2375 +2375 @@ printf '%s\\\\n' '{\"number\":874}'",
+    '-      expect(markdown).toContain("# Yeet Quality Packet: @beep/repo\\\\-cli");',
+    '+      expect(markdown).toContain("# Yeet Quality Packet: \\\\@beep/repo\\\\-cli");',
+  ],
+  "\n"
+);
 
-const receiptOf = (overrides: Partial<ConstructorParameters<typeof FinalCheckReceipt>[0]> = {}) =>
+type ReceiptOverrides = {
+  readonly headSha?: string;
+  readonly complete?: boolean;
+  readonly verdict?: FinalCheckVerdict;
+  readonly steps?: ReadonlyArray<FinalCheckStepResult>;
+};
+
+const receiptOf = (overrides: ReceiptOverrides = {}) =>
   FinalCheckReceipt.make({
     schemaVersion: "yeet-final-check/v1",
-    headSha: HEAD,
+    headSha: overrides.headSha ?? HEAD,
     mergeBase: BASE,
     base: "origin/main",
-    complete: true,
-    verdict: "pass",
+    complete: overrides.complete ?? true,
+    verdict: overrides.verdict ?? "pass",
     startedAt: "2026-10-24T00:00:00.000Z",
     finishedAt: "2026-10-24T00:10:00.000Z",
-    steps: [],
+    steps: overrides.steps ?? [],
     expectationRewrites: [],
-    ...overrides,
   });
 
 const failedStep = (gate: FinalCheckGate) =>
@@ -74,41 +93,47 @@ describe("findExpectationRewrites", () => {
   });
 
   it("ignores newly added assertions, non-assertion edits and non-test files", () => {
-    const diff = [
-      "diff --git a/pkg/test/a.test.ts b/pkg/test/a.test.ts",
-      "+++ b/pkg/test/a.test.ts",
-      "@@ -0,0 +5,2 @@",
-      '+    expect(value).toBe("new")',
-      "+    assertTrue(flag)",
-      "@@ -9 +11 @@",
-      "-    const fixture = 1",
-      "+    const fixture = 2",
-      "diff --git a/pkg/src/a.ts b/pkg/src/a.ts",
-      "+++ b/pkg/src/a.ts",
-      "@@ -1 +1 @@",
-      '-expect("a").toBe("a")',
-      '+expect("b").toBe("b")',
-    ].join("\n");
+    const diff = A.join(
+      [
+        "diff --git a/pkg/test/a.test.ts b/pkg/test/a.test.ts",
+        "+++ b/pkg/test/a.test.ts",
+        "@@ -0,0 +5,2 @@",
+        '+    expect(value).toBe("new")',
+        "+    assertTrue(flag)",
+        "@@ -9 +11 @@",
+        "-    const fixture = 1",
+        "+    const fixture = 2",
+        "diff --git a/pkg/src/a.ts b/pkg/src/a.ts",
+        "+++ b/pkg/src/a.ts",
+        "@@ -1 +1 @@",
+        '-expect("a").toBe("a")',
+        '+expect("b").toBe("b")',
+      ],
+      "\n"
+    );
     expect(findExpectationRewrites(diff)).toEqual([]);
   });
 
   it("pairs each added assertion with a removed one across hunks and files", () => {
-    const diff = [
-      "diff --git a/p/test/a.test.ts b/p/test/a.test.ts",
-      "--- a/p/test/a.test.ts",
-      "+++ b/p/test/a.test.ts",
-      "@@ -3,2 +3,2 @@",
-      "-  assert.strictEqual(x, 1)",
-      "-  expect(y).toEqual([1])",
-      "+  assert.strictEqual(x, 2)",
-      "+  expect(y).toEqual([2])",
-      "diff --git a/p/test/b.spec.tsx b/p/test/b.spec.tsx",
-      "+++ b/p/test/b.spec.tsx",
-      "@@ -7 +7,2 @@",
-      "-  deepStrictEqual(a, b)",
-      "+  deepStrictEqual(a, c)",
-      "+  deepStrictEqual(a, d)",
-    ].join("\n");
+    const diff = A.join(
+      [
+        "diff --git a/p/test/a.test.ts b/p/test/a.test.ts",
+        "--- a/p/test/a.test.ts",
+        "+++ b/p/test/a.test.ts",
+        "@@ -3,2 +3,2 @@",
+        "-  assert.strictEqual(x, 1)",
+        "-  expect(y).toEqual([1])",
+        "+  assert.strictEqual(x, 2)",
+        "+  expect(y).toEqual([2])",
+        "diff --git a/p/test/b.spec.tsx b/p/test/b.spec.tsx",
+        "+++ b/p/test/b.spec.tsx",
+        "@@ -7 +7,2 @@",
+        "-  deepStrictEqual(a, b)",
+        "+  deepStrictEqual(a, c)",
+        "+  deepStrictEqual(a, d)",
+      ],
+      "\n"
+    );
     const rewrites = findExpectationRewrites(diff);
     expect(A.map(rewrites, (rewrite) => [rewrite.testFile, rewrite.line])).toEqual([
       ["p/test/a.test.ts", 3],
@@ -124,15 +149,18 @@ describe("findExpectationRewrites", () => {
   });
 
   it("maps an edited snapshot to its test file and skips added-only snapshots", () => {
-    const diff = [
-      "diff --git a/p/test/__snapshots__/render.test.ts.snap b/p/test/__snapshots__/render.test.ts.snap",
-      "+++ b/p/test/__snapshots__/render.test.ts.snap",
-      "@@ -4 +4 @@",
-      '-exports[`render 1`] = `"old"`;',
-      '+exports[`render 1`] = `"new"`;',
-      "@@ -0,0 +9 @@",
-      '+exports[`render 2`] = `"added"`;',
-    ].join("\n");
+    const diff = A.join(
+      [
+        "diff --git a/p/test/__snapshots__/render.test.ts.snap b/p/test/__snapshots__/render.test.ts.snap",
+        "+++ b/p/test/__snapshots__/render.test.ts.snap",
+        "@@ -4 +4 @@",
+        '-exports[`render 1`] = `"old"`;',
+        '+exports[`render 1`] = `"new"`;',
+        "@@ -0,0 +9 @@",
+        '+exports[`render 2`] = `"added"`;',
+      ],
+      "\n"
+    );
     expect(findExpectationRewrites(diff)).toEqual([
       ExpectationRewrite.make({
         testFile: "p/test/render.test.ts",
@@ -144,13 +172,16 @@ describe("findExpectationRewrites", () => {
   });
 
   it("treats a deleted test file as no rewrite", () => {
-    const diff = [
-      "diff --git a/p/test/gone.test.ts b/p/test/gone.test.ts",
-      "--- a/p/test/gone.test.ts",
-      "+++ /dev/null",
-      "@@ -1 +0,0 @@",
-      "-  expect(a).toBe(1)",
-    ].join("\n");
+    const diff = A.join(
+      [
+        "diff --git a/p/test/gone.test.ts b/p/test/gone.test.ts",
+        "--- a/p/test/gone.test.ts",
+        "+++ /dev/null",
+        "@@ -1 +0,0 @@",
+        "-  expect(a).toBe(1)",
+      ],
+      "\n"
+    );
     expect(findExpectationRewrites(diff)).toEqual([]);
   });
 });
@@ -247,7 +278,7 @@ describe("final-check flag parsing", () => {
 describe("finalCheckRefusal", () => {
   it("admits only a complete passing receipt for the exact head", () => {
     assertNone(finalCheckRefusal(O.some(receiptOf()), HEAD));
-    assertNone(finalCheckRefusal(HEAD)(O.some(receiptOf())));
+    assertNone(O.some(receiptOf()).pipe(finalCheckRefusal(HEAD)));
     expect(O.getOrThrow(finalCheckRefusal(O.none(), HEAD))).toContain("no final-check receipt for head aaaaaaaaaaaa");
     expect(O.getOrThrow(finalCheckRefusal(O.some(receiptOf({ headSha: BASE })), HEAD))).toContain(
       "is for bbbbbbbbbbbb, not head aaaaaaaaaaaa"
@@ -266,16 +297,118 @@ describe("finalCheckRefusal", () => {
   });
 });
 
-it.layer(NodeServices.layer)("final-check receipts on disk", (it) => {
+const handle = (exitCode: number) =>
+  ChildProcessSpawner.makeHandle({
+    all: Stream.empty,
+    stdout: Stream.empty,
+    stderr: Stream.empty,
+    stdin: Sink.drain,
+    exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(exitCode)),
+    getInputFd: () => Sink.drain,
+    getOutputFd: () => Stream.empty,
+    isRunning: Effect.succeed(false),
+    kill: () => Effect.void,
+    pid: ChildProcessSpawner.ProcessId(1),
+    unref: Effect.succeed(Effect.void),
+  });
+
+// git and bun install succeed unless their command names a failing step; the
+// merge-base vitest run fails for test files whose path says `masked`.
+const scriptedSpawner = (failing: ReadonlyArray<string> = []) =>
+  ChildProcessSpawner.make((command) => {
+    if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+    const line = A.join([command.command, ...command.args], " ");
+    if (A.some(failing, (fragment) => Str.includes(fragment)(line))) return Effect.succeed(handle(1));
+    return Effect.succeed(handle(command.command === "bunx" && Str.includes("masked")(line) ? 1 : 0));
+  });
+
+const platformWith = (failing: ReadonlyArray<string> = []) =>
+  Layer.mergeAll(
+    MemoryFileSystem.layer,
+    Path.layer,
+    BunCrypto.layer,
+    Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, scriptedSpawner(failing))
+  );
+
+const rewriteIn = (testFile: string) => ExpectationRewrite.make({ testFile, line: 3, removed: "a", added: "b" });
+
+// TestClock pins the worktree suffix to 0; HOME comes from the ambient config.
+const seedBaseWorktree = Effect.fnUntraced(function* (files: ReadonlyArray<string>) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const home = O.getOrElse(yield* configStringOption("HOME"), () => "/repo");
+  const baseRoot = path.join(home, ".cache", "beep", "final-check", `base-${Str.slice(0, 12)(BASE)}-0`);
+  yield* Effect.forEach(
+    files,
+    (file) =>
+      fs
+        .makeDirectory(path.dirname(path.join(baseRoot, file)), { recursive: true })
+        .pipe(Effect.andThen(fs.writeFileString(path.join(baseRoot, file), "{}"))),
+    { discard: true }
+  );
+});
+
+it.layer(platformWith(), { timeout: "30 seconds" })("expectation rewrites replayed on the merge base", (it) => {
+  it.effect("classifies a base-red test file as masking and a base-green one as following the diff", () =>
+    Effect.gen(function* () {
+      yield* seedBaseWorktree([
+        "pkg/package.json",
+        "pkg/test/masked.test.ts",
+        "pkg/test/honest.test.ts",
+        "loose/orphan.test.ts",
+      ]);
+      const verdicts = yield* verifyExpectationRewrites("/repo", BASE, [
+        rewriteIn("pkg/test/masked.test.ts"),
+        rewriteIn("pkg/test/masked.test.ts"),
+        rewriteIn("pkg/test/honest.test.ts"),
+        rewriteIn("pkg/test/missing.test.ts"),
+        rewriteIn("loose/orphan.test.ts"),
+      ]);
+      expect(A.map(verdicts, (verdict) => [verdict.testFile, verdict.classification, verdict.rewrites])).toEqual([
+        ["pkg/test/masked.test.ts", "masks-base-red", 2],
+        ["pkg/test/honest.test.ts", "follows-diff", 1],
+        ["pkg/test/missing.test.ts", "unverified", 1],
+        ["loose/orphan.test.ts", "unverified", 1],
+      ]);
+      expect(verdicts[0]?.detail).toContain("vitest exit 1");
+    })
+  );
+});
+
+it.layer(platformWith(["worktree add"]), { timeout: "30 seconds" })(
+  "merge-base worktree that cannot be created",
+  (it) => {
+    it.effect("reports every rewritten file as unverified", () =>
+      Effect.gen(function* () {
+        const verdicts = yield* verifyExpectationRewrites("/repo", BASE, [rewriteIn("pkg/test/a.test.ts")]);
+        expect(verdicts).toMatchObject([{ classification: "unverified", detail: "git worktree add exited 1" }]);
+      })
+    );
+  }
+);
+
+it.layer(platformWith(["install --frozen-lockfile"]), { timeout: "30 seconds" })(
+  "merge-base worktree that cannot be installed",
+  (it) => {
+    it.effect("reports every rewritten file as unverified", () =>
+      Effect.gen(function* () {
+        const verdicts = yield* verifyExpectationRewrites("/repo", BASE, [rewriteIn("pkg/test/a.test.ts")]);
+        expect(verdicts[0]?.detail).toContain("bun install in the merge-base worktree exited 1");
+      })
+    );
+  }
+);
+
+it.layer(platformWith(), { timeout: "30 seconds" })("final-check receipts on disk", (it) => {
   it.effect("reads a written receipt and treats an absent or malformed one as none", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-final-check-" });
+      const root = "/repo";
       assertNone(yield* readFinalCheckReceipt(root, HEAD));
       const dir = path.join(root, FINAL_CHECK_RECEIPT_DIR);
       yield* fs.makeDirectory(dir, { recursive: true });
-      const encoded = yield* S.encodeUnknownEffect(S.fromJsonString(FinalCheckReceipt))(receiptOf());
+      const encoded = yield* encodeReceiptJson(receiptOf());
       yield* fs.writeFileString(path.join(dir, `${HEAD}.json`), encoded);
       assertSome(yield* readFinalCheckReceipt(root, HEAD), receiptOf());
       yield* fs.writeFileString(path.join(dir, `${BASE}.json`), "{not json");

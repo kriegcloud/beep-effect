@@ -52,8 +52,17 @@ const isAssertionLine = (line: string): boolean => ASSERTION_PATTERN.test(line);
 type AddedLine = { readonly line: number; readonly text: string };
 
 type HunkState = {
-  readonly removed: Array<string>;
-  readonly added: Array<AddedLine>;
+  readonly removed: ReadonlyArray<string>;
+  readonly added: ReadonlyArray<AddedLine>;
+  readonly nextLine: number;
+};
+
+type DiffFile = { readonly path: string; readonly testFile: string };
+
+type ScanState = {
+  readonly rewrites: ReadonlyArray<ExpectationRewrite>;
+  readonly file: O.Option<DiffFile>;
+  readonly hunk: O.Option<HunkState>;
 };
 
 const testFileForPath = (path: string): O.Option<string> =>
@@ -84,6 +93,63 @@ const hunkRewrites = (path: string, testFile: string, hunk: HunkState): Readonly
     })
   );
 };
+
+const flushHunk = (state: ScanState): ScanState => ({
+  file: state.file,
+  hunk: O.none(),
+  rewrites: O.match(O.all({ file: state.file, hunk: state.hunk }), {
+    onNone: () => state.rewrites,
+    onSome: ({ file, hunk }) => A.appendAll(state.rewrites, hunkRewrites(file.path, file.testFile, hunk)),
+  }),
+});
+
+const startHunk = (state: ScanState, line: string): ScanState => {
+  const header = HUNK_HEADER_PATTERN.exec(line);
+  return {
+    ...flushHunk(state),
+    hunk: O.some({ removed: [], added: [], nextLine: header === null ? 0 : Number(header[1]) }),
+  };
+};
+
+const startFile = (state: ScanState, line: string): ScanState => {
+  const path = Str.replace(/^b\//, "")(Str.slice(4)(line));
+  return { ...state, file: O.map(testFileForPath(path), (testFile) => ({ path, testFile })) };
+};
+
+const extendHunk = (state: ScanState, update: (hunk: HunkState) => HunkState): ScanState => ({
+  ...state,
+  hunk: O.map(state.hunk, update),
+});
+
+const removeLine = (state: ScanState, line: string): ScanState =>
+  extendHunk(state, (hunk) => ({ ...hunk, removed: A.append(hunk.removed, Str.slice(1)(line)) }));
+
+const addLine = (state: ScanState, line: string): ScanState =>
+  extendHunk(state, (hunk) => ({
+    ...hunk,
+    added: A.append(hunk.added, { line: hunk.nextLine, text: Str.slice(1)(line) }),
+    nextLine: hunk.nextLine + 1,
+  }));
+
+// Unified-diff line shapes, in precedence order: a `+++`/`---` header also
+// starts with `+`/`-`, so headers come before body lines.
+const LINE_HANDLERS: ReadonlyArray<readonly [string, (state: ScanState, line: string) => ScanState]> = [
+  ["diff --git ", (state) => ({ ...flushHunk(state), file: O.none() })],
+  ["+++ ", startFile],
+  ["--- ", (state) => state],
+  ["@@", startHunk],
+  ["-", removeLine],
+  ["+", addLine],
+];
+
+const scanLine = (state: ScanState, line: string): ScanState =>
+  O.match(
+    A.findFirst(LINE_HANDLERS, ([prefix]) => Str.startsWith(prefix)(line)),
+    {
+      onNone: () => state,
+      onSome: ([, handle]) => handle(state, line),
+    }
+  );
 
 /**
  * Find existing test assertions (and snapshot entries) a unified diff rewrote.
@@ -116,44 +182,10 @@ const hunkRewrites = (path: string, testFile: string, hunk: HunkState): Readonly
  * @category parsers
  * @since 0.0.0
  */
-export const findExpectationRewrites = (diff: string): ReadonlyArray<ExpectationRewrite> => {
-  let rewrites: ReadonlyArray<ExpectationRewrite> = [];
-  let current: O.Option<{ readonly path: string; readonly testFile: string }> = O.none();
-  let hunk: O.Option<HunkState> = O.none();
-  let nextLine = 0;
-  const flush = () => {
-    if (O.isSome(current) && O.isSome(hunk)) {
-      rewrites = A.appendAll(rewrites, hunkRewrites(current.value.path, current.value.testFile, hunk.value));
-    }
-    hunk = O.none();
-  };
-  for (const line of Str.split(diff, "\n")) {
-    if (Str.startsWith("diff --git ")(line)) {
-      flush();
-      current = O.none();
-    } else if (Str.startsWith("+++ ")(line)) {
-      const path = Str.replace(/^b\//, "")(Str.slice(4)(line));
-      current = pipe(
-        testFileForPath(path),
-        O.map((testFile) => ({ path, testFile }))
-      );
-    } else if (Str.startsWith("--- ")(line)) {
-      // The old-side header carries no information the new side lacks.
-    } else if (Str.startsWith("@@")(line)) {
-      flush();
-      const header = HUNK_HEADER_PATTERN.exec(line);
-      nextLine = header === null ? 0 : Number(header[1]);
-      hunk = O.some({ removed: [], added: [] });
-    } else if (O.isSome(hunk) && Str.startsWith("-")(line)) {
-      hunk.value.removed.push(Str.slice(1)(line));
-    } else if (O.isSome(hunk) && Str.startsWith("+")(line)) {
-      hunk.value.added.push({ line: nextLine, text: Str.slice(1)(line) });
-      nextLine += 1;
-    }
-  }
-  flush();
-  return rewrites;
-};
+export const findExpectationRewrites = (diff: string): ReadonlyArray<ExpectationRewrite> =>
+  flushHunk(
+    A.reduce(Str.split(diff, "\n"), { rewrites: [], file: O.none(), hunk: O.none() } satisfies ScanState, scanLine)
+  ).rewrites;
 
 /**
  * Group rewrites by test file, keeping first-seen order.
@@ -190,9 +222,14 @@ const runInherited = Effect.fn("Yeet.ExpectationRewrite.runInherited")(function*
   env?: Record<string, string>
 ): Effect.fn.Return<number, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const commandLine = A.join([command, ...args], " ");
-  return yield* runToExit({ command, args, cwd, stdio: "inherit", ...(env === undefined ? {} : { env }) }).pipe(
-    Effect.mapError(commandFailure(commandLine))
-  );
+  return yield* runToExit({
+    command,
+    args,
+    cwd,
+    stdio: "inherit",
+    env,
+    extendEnv: true,
+  }).pipe(Effect.mapError(commandFailure(commandLine)));
 });
 
 const packageDirFor = Effect.fn("Yeet.ExpectationRewrite.packageDirFor")(function* (root: string, testFile: string) {
@@ -230,7 +267,7 @@ const classifyOnBase = Effect.fn("Yeet.ExpectationRewrite.classifyOnBase")(funct
     ["vitest", "run", path.relative(packageDir.value, path.join(baseRoot, testFile))],
     packageDir.value,
     { CI: "true" }
-  ).pipe(Effect.orElseSucceed(() => -1));
+  ).pipe(Effect.catch((cause) => Console.error(`[yeet] final-check: ${cause.message}`).pipe(Effect.as(-1))));
   return exitCode === 0
     ? verdict("follows-diff", "the old test passes on the merge base, so this diff's source change moved the output")
     : exitCode === -1
@@ -293,17 +330,16 @@ export const verifyExpectationRewrites = Effect.fn("Yeet.verifyExpectationRewrit
     );
   return yield* Effect.acquireUseRelease(
     runInherited("git", ["worktree", "add", "--detach", baseRoot, mergeBase], repoRoot),
-    (addExit) =>
-      Effect.gen(function* () {
-        if (addExit !== 0) {
-          return unverifiedAll(`git worktree add exited ${addExit}`);
-        }
-        const installExit = yield* runInherited("bun", ["install", "--frozen-lockfile"], baseRoot);
-        if (installExit !== 0) {
-          return unverifiedAll(`bun install in the merge-base worktree exited ${installExit}`);
-        }
-        return yield* Effect.forEach(files, ([testFile, count]) => classifyOnBase(baseRoot, testFile, count));
-      }),
+    Effect.fnUntraced(function* (addExit) {
+      if (addExit !== 0) {
+        return unverifiedAll(`git worktree add exited ${addExit}`);
+      }
+      const installExit = yield* runInherited("bun", ["install", "--frozen-lockfile"], baseRoot);
+      if (installExit !== 0) {
+        return unverifiedAll(`bun install in the merge-base worktree exited ${installExit}`);
+      }
+      return yield* Effect.forEach(files, ([testFile, count]) => classifyOnBase(baseRoot, testFile, count));
+    }),
     () => runInherited("git", ["worktree", "remove", "--force", baseRoot], repoRoot).pipe(Effect.ignore)
   );
 });

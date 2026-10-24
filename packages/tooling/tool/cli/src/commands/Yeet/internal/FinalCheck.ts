@@ -73,6 +73,8 @@ export const YEET_FINAL_CHECK_COMMAND = "bun run beep yeet final-check";
  */
 export const FINAL_CHECK_RECEIPT_DIR = ".beep/yeet/final-check";
 
+const EXPECTATION_REWRITE_CONTEXT = "Test Unit (expectations edited to match new output)";
+
 /**
  * Plan the subprocess steps for every subprocess-backed final-check gate.
  *
@@ -119,7 +121,7 @@ export const planFinalCheckSteps: {
     hostedContext: string,
     label: string,
     argv: readonly [string, ...Array<string>],
-    env?: Record<string, string>
+    env: Record<string, string> = {}
   ) =>
     FinalCheckPlannedStep.make({
       gate,
@@ -129,7 +131,7 @@ export const planFinalCheckSteps: {
         command: argv[0],
         args: A.drop(argv, 1),
         cwd: repoRoot,
-        ...(env === undefined ? {} : { env }),
+        env,
       }),
     });
   return [
@@ -375,8 +377,15 @@ const runStep = Effect.fn("Yeet.runFinalCheckStep")(function* (planned: FinalChe
     args: planned.step.args,
     cwd: planned.step.cwd,
     stdio: "inherit",
-    ...(planned.step.env === undefined ? {} : { env: planned.step.env }),
-  }).pipe(Effect.orElseSucceed(() => -1));
+    env: planned.step.env,
+    extendEnv: true,
+  }).pipe(
+    Effect.catch((cause) =>
+      Console.error(`[yeet] final-check ${planned.gate}: could not start ${command}: ${cause.message}`).pipe(
+        Effect.as(-1)
+      )
+    )
+  );
   const durationMs = (yield* Clock.currentTimeMillis) - started;
   return FinalCheckStepResult.make({
     gate: planned.gate,
@@ -423,7 +432,7 @@ const runExpectationRewriteGate = Effect.fn("Yeet.runExpectationRewriteGate")(fu
   const step = FinalCheckStepResult.make({
     gate: "expectation-rewrite",
     label: "final-check:expectation-rewrite",
-    hostedContext: "Test Unit (expectations edited to match new output)",
+    hostedContext: EXPECTATION_REWRITE_CONTEXT,
     command,
     status: A.isReadonlyArrayEmpty(blocking) ? "passed" : "failed",
     durationMs: (yield* Clock.currentTimeMillis) - started,
@@ -461,6 +470,91 @@ const renderSummary = (receipt: FinalCheckReceipt): string =>
       ),
     ],
     "\n"
+  );
+
+type FinalCheckRun = {
+  readonly repoRoot: string;
+  readonly mergeBase: string;
+  readonly planned: ReadonlyArray<FinalCheckPlannedStep>;
+  readonly skips: ReadonlyArray<FinalCheckSkip>;
+};
+
+type GateOutcome = {
+  readonly steps: ReadonlyArray<FinalCheckStepResult>;
+  readonly verdicts: ReadonlyArray<ExpectationRewriteVerdict>;
+};
+
+const plannedFor = (run: FinalCheckRun, gate: FinalCheckGate) => A.filter(run.planned, (entry) => entry.gate === gate);
+
+const hostedContextFor = (run: FinalCheckRun, gate: FinalCheckGate): string =>
+  gate === "expectation-rewrite"
+    ? EXPECTATION_REWRITE_CONTEXT
+    : A.join(
+        A.map(plannedFor(run, gate), (entry) => entry.hostedContext),
+        "; "
+      );
+
+const skipFor = (run: FinalCheckRun, gate: FinalCheckGate) => A.findFirst(run.skips, (entry) => entry.gate === gate);
+
+const printGatePlan = (run: FinalCheckRun, gate: FinalCheckGate) =>
+  O.match(skipFor(run, gate), {
+    onSome: (skip) => Console.log(`  skip ${gate}: ${skip.reason}`),
+    onNone: () =>
+      gate === "expectation-rewrite"
+        ? Console.log(`  ${gate}: scan the diff's test files and snapshots; replay rewritten tests on the merge base`)
+        : Effect.forEach(plannedFor(run, gate), (entry) => Console.log(`  ${gate}: ${renderCommand(entry.step)}`), {
+            discard: true,
+          }),
+  });
+
+const runGate = (run: FinalCheckRun, gate: FinalCheckGate) =>
+  O.match(skipFor(run, gate), {
+    onSome: (skip): Effect.Effect<GateOutcome> =>
+      Effect.succeed({ steps: [skippedStep(skip, hostedContextFor(run, gate))], verdicts: [] }),
+    onNone: () =>
+      gate === "expectation-rewrite"
+        ? Effect.map(runExpectationRewriteGate(run.repoRoot, run.mergeBase), (result) => ({
+            steps: [result.step],
+            verdicts: result.verdicts,
+          }))
+        : Effect.map(Effect.forEach(plannedFor(run, gate), runStep), (steps) => ({ steps, verdicts: [] })),
+  });
+
+const hasFailure = (steps: ReadonlyArray<FinalCheckStepResult>): boolean =>
+  A.some(steps, (step) => step.status === "failed");
+
+const runGates = Effect.fn("Yeet.runFinalCheckGates")(function* (
+  run: FinalCheckRun,
+  gates: ReadonlyArray<FinalCheckGate>,
+  failFast: boolean
+) {
+  let outcome: GateOutcome = { steps: [], verdicts: [] };
+  for (const gate of gates) {
+    if (failFast && hasFailure(outcome.steps)) break;
+    const next = yield* runGate(run, gate);
+    outcome = { steps: A.appendAll(outcome.steps, next.steps), verdicts: A.appendAll(outcome.verdicts, next.verdicts) };
+  }
+  return outcome;
+});
+
+const refuseDirtyTree = Effect.fn("Yeet.refuseDirtyFinalCheckTree")(function* (repoRoot: string) {
+  const dirty = Str.trim(yield* runGitOutput(repoRoot, ["status", "--porcelain", "--untracked-files=no"]));
+  if (Str.isNonEmpty(dirty)) {
+    return yield* YeetCommandError.make({
+      message:
+        "yeet final-check refused: the tree has uncommitted changes; commit first, the receipt pins the committed head.",
+      exitCode: 2,
+    });
+  }
+});
+
+const failedLabels = (steps: ReadonlyArray<FinalCheckStepResult>): string =>
+  A.join(
+    A.map(
+      A.filter(steps, (step) => step.status === "failed"),
+      (step) => step.label
+    ),
+    ", "
   );
 
 /**
@@ -501,78 +595,19 @@ export const runYeetFinalCheck = Effect.fn("Yeet.runYeetFinalCheck")(function* (
   const skips = yield* parseFinalCheckSkips(options.skip);
   const headSha = Str.trim(yield* runGitOutput(repoRoot, ["rev-parse", "HEAD"]));
   const mergeBase = Str.trim(yield* runGitOutput(repoRoot, ["merge-base", options.base, "HEAD"]));
-  const planned = planFinalCheckSteps(repoRoot, mergeBase);
-  const hostedContextFor = (gate: FinalCheckGate) =>
-    gate === "expectation-rewrite"
-      ? "Test Unit (expectations edited to match new output)"
-      : A.join(
-          A.map(
-            A.filter(planned, (entry) => entry.gate === gate),
-            (entry) => entry.hostedContext
-          ),
-          "; "
-        );
+  const run: FinalCheckRun = { repoRoot, mergeBase, planned: planFinalCheckSteps(repoRoot, mergeBase), skips };
 
   if (options.dryRun) {
     yield* Console.log(
       `[yeet] final-check plan for ${Str.slice(0, 12)(headSha)} (merge base ${Str.slice(0, 12)(mergeBase)}):`
     );
-    yield* Effect.forEach(
-      gates,
-      (gate) =>
-        pipe(
-          A.findFirst(skips, (skip) => skip.gate === gate),
-          O.match({
-            onSome: (skip) => Console.log(`  skip ${gate}: ${skip.reason}`),
-            onNone: () =>
-              gate === "expectation-rewrite"
-                ? Console.log(
-                    `  ${gate}: scan the diff's test files and snapshots; replay rewritten tests on the merge base`
-                  )
-                : Effect.forEach(
-                    A.filter(planned, (entry) => entry.gate === gate),
-                    (entry) => Console.log(`  ${gate}: ${renderCommand(entry.step)}`),
-                    { discard: true }
-                  ),
-          })
-        ),
-      { discard: true }
-    );
+    yield* Effect.forEach(gates, (gate) => printGatePlan(run, gate), { discard: true });
     return O.none();
   }
 
-  const dirty = Str.trim(yield* runGitOutput(repoRoot, ["status", "--porcelain", "--untracked-files=no"]));
-  if (Str.isNonEmpty(dirty)) {
-    return yield* YeetCommandError.make({
-      message:
-        "yeet final-check refused: the tree has uncommitted changes; commit first, the receipt pins the committed head.",
-      exitCode: 2,
-    });
-  }
-
+  yield* refuseDirtyTree(repoRoot);
   const startedAt = yield* nowIso;
-  const steps: Array<FinalCheckStepResult> = [];
-  let verdicts: ReadonlyArray<ExpectationRewriteVerdict> = [];
-  let stopped = false;
-  for (const gate of gates) {
-    if (stopped) break;
-    const skip = A.findFirst(skips, (entry) => entry.gate === gate);
-    if (O.isSome(skip)) {
-      steps.push(skippedStep(skip.value, hostedContextFor(gate)));
-      continue;
-    }
-    if (gate === "expectation-rewrite") {
-      const result = yield* runExpectationRewriteGate(repoRoot, mergeBase);
-      verdicts = result.verdicts;
-      steps.push(result.step);
-    } else {
-      for (const entry of A.filter(planned, (candidate) => candidate.gate === gate)) {
-        steps.push(yield* runStep(entry));
-      }
-    }
-    stopped = options.failFast && A.some(steps, (step) => step.status === "failed");
-  }
-
+  const { steps, verdicts } = yield* runGates(run, gates, options.failFast);
   const ranGates = A.dedupe(A.map(steps, (step) => step.gate));
   const receipt = FinalCheckReceipt.make({
     schemaVersion: "yeet-final-check/v1",
@@ -580,7 +615,7 @@ export const runYeetFinalCheck = Effect.fn("Yeet.runYeetFinalCheck")(function* (
     mergeBase,
     base: options.base,
     complete: A.every(FinalCheckGate.literals, (gate) => A.contains(ranGates, gate)),
-    verdict: A.some(steps, (step) => step.status === "failed") ? "fail" : "pass",
+    verdict: hasFailure(steps) ? "fail" : "pass",
     startedAt,
     finishedAt: yield* nowIso,
     steps,
@@ -591,13 +626,7 @@ export const runYeetFinalCheck = Effect.fn("Yeet.runYeetFinalCheck")(function* (
   yield* Console.log(`[yeet] final-check receipt: ${file}`);
   if (receipt.verdict === "fail") {
     return yield* YeetCommandError.make({
-      message: `yeet final-check failed: ${A.join(
-        A.map(
-          A.filter(steps, (step) => step.status === "failed"),
-          (step) => step.label
-        ),
-        ", "
-      )}. These gates red hosted CI too; fix them before calling the pull request final.`,
+      message: `yeet final-check failed: ${failedLabels(steps)}. These gates red hosted CI too; fix them before calling the pull request final.`,
       exitCode: 1,
     });
   }
