@@ -5,21 +5,28 @@
  * @since 0.0.0
  */
 
+// @effect-diagnostics nodeBuiltinImport:skip-file -- NodeHttpServer requires a node:http server factory; no host-configurable factory is exported by platform-node. Owner: @beep/repo-cli. Exit: remove when platform-node exports a host-configurable default server layer.
+import * as Http from "node:http";
 import { $RepoCliId } from "@beep/identity/packages";
 import { Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { O } from "@beep/utils";
 import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer";
 import * as A from "effect/Array";
+import * as ByteSize from "effect/ByteSize";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Headers from "effect/http/Headers";
+import * as HttpIncomingMessage from "effect/http/HttpIncomingMessage";
 import * as HttpServer from "effect/http/HttpServer";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
+import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { CacheFixtureArtifactKey, CacheFixtureEvent, CacheFixtureScenario } from "./Cache.protocol.fixture.schemas.ts";
@@ -160,13 +167,17 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
       return yield* reply(415, "put", O.some(key));
     const tag = Headers.get(request.headers, "x-artifact-tag");
     if (O.isNone(tag) || !S.is(Tag)(tag.value)) return yield* reply(400, "put", O.some(key));
-    const body = yield* request.arrayBuffer.pipe(
-      Effect.map((buffer) => O.some(new Uint8Array(buffer))),
-      Effect.catchTag("HttpServerError", () => Effect.succeedNone)
-    );
-    if (O.isNone(body)) return yield* reply(400, "put", O.some(key));
-    if (body.value.byteLength > bodyLimit) return yield* reply(413, "put", O.some(key));
-    const stored = StoredArtifact.make({ body: body.value, digest: yield* hashBytes(body.value), tag: tag.value });
+    const contentLength = Headers.get(request.headers, "content-length").pipe(O.flatMap(Num.parse));
+    if (O.exists(contentLength, Num.isGreaterThan(bodyLimit))) return yield* reply(413, "put", O.some(key));
+    const body = yield* request.arrayBuffer.pipe(Effect.result);
+    if (Result.isFailure(body)) {
+      const cause = body.failure.reason.cause;
+      const status = P.isError(cause) && cause.message === "maxBytes exceeded" ? 413 : 400;
+      return yield* reply(status, "put", O.some(key));
+    }
+    const bytes = new Uint8Array(body.success);
+    if (bytes.byteLength > bodyLimit) return yield* reply(413, "put", O.some(key));
+    const stored = StoredArtifact.make({ body: bytes, digest: yield* hashBytes(bytes), tag: tag.value });
     const status = yield* Ref.modify(artifacts, (all) => {
       const prior = HashMap.get(all, key);
       if (O.isSome(prior))
@@ -225,9 +236,9 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
     return yield* routeRequest(request, role, current, reply);
   });
   // Build in this fixture's scope so concurrent fixtures retain distinct OS-assigned sockets.
-  const services = yield* Layer.build(NodeHttpServer.layerTest);
+  const services = yield* Layer.build(NodeHttpServer.layer(Http.createServer, { port: 0, host: "127.0.0.1" }));
   const server = Context.get(services, HttpServer.HttpServer);
-  yield* server.serve(app);
+  yield* server.serve(app.pipe(Effect.provideService(HttpIncomingMessage.MaxBodySize, ByteSize.bytes(bodyLimit))));
   return {
     url: HttpServer.formatAddress(server.address),
     events: Ref.get(events),

@@ -8,17 +8,20 @@ import { NodeCrypto, NodeHttpIncomingMessage } from "@effect/platform-node";
 import { expect, it, vi } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue, notDeepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as ByteSize from "effect/ByteSize";
 import * as Effect from "effect/Effect";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
+import * as HttpIncomingMessage from "effect/http/HttpIncomingMessage";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import type { HttpServerError } from "effect/http/HttpServerError";
 
@@ -55,7 +58,10 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
         });
         const urls = A.map(fixtures, (fixture) => fixture.url);
         expect(A.dedupe(urls)).toHaveLength(fixtures.length);
-        for (const url of urls) expect(new URL(url).port).not.toBe("0");
+        for (const url of urls) {
+          expect(new URL(url).hostname).toBe("127.0.0.1");
+          expect(new URL(url).port).not.toBe("0");
+        }
         const responses = yield* Effect.forEach(
           urls,
           (url) => get(`${url}/v8/artifacts/status?teamId=${credentials.namespace}`),
@@ -152,21 +158,29 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
       })
     );
 
-    it.effect("rejects transport-level body read failures without installing partial artifacts", () =>
+    it.effect("distinguishes capped reads from ordinary body failures without installing partial artifacts", () =>
       Effect.gen(function* () {
         const fixture = yield* makeCacheProtocolFixture(credentials);
-        const read = vi
-          .spyOn(NodeHttpIncomingMessage.NodeHttpIncomingMessage.prototype, "arrayBuffer", "get")
-          .mockImplementationOnce(function (this: NodeHttpIncomingMessage.NodeHttpIncomingMessage<HttpServerError>) {
-            return Effect.fail(this.onError(new Error("request body read failed")));
-          });
-        yield* Effect.gen(function* () {
-          const response = yield* put(endpoint(fixture.url));
-          expect(response.status).toBe(400);
-          yield* response.arrayBuffer;
-          expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([400]);
-          (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
-        }).pipe(Effect.ensuring(Effect.sync(() => read.mockRestore())));
+        for (const [message, status] of [
+          ["request body read failed", 400],
+          ["maxBytes exceeded", 413],
+        ] satisfies ReadonlyArray<readonly [string, number]>) {
+          const read = vi
+            .spyOn(NodeHttpIncomingMessage.NodeHttpIncomingMessage.prototype, "arrayBuffer", "get")
+            .mockImplementationOnce(function (this: NodeHttpIncomingMessage.NodeHttpIncomingMessage<HttpServerError>) {
+              return Effect.gen({ self: this }, function* () {
+                expect(yield* HttpIncomingMessage.MaxBodySize).toBe(ByteSize.bytes(2 * 1024 * 1024));
+                return yield* Effect.fail(this.onError(new Error(message)));
+              });
+            });
+          yield* Effect.gen(function* () {
+            const response = yield* put(endpoint(fixture.url));
+            expect(response.status).toBe(status);
+            yield* response.arrayBuffer;
+            (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+          }).pipe(Effect.ensuring(Effect.sync(() => read.mockRestore())));
+        }
+        expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([400, 413]);
       })
     );
 
@@ -315,6 +329,25 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
         expect(rejected.status).toBe(413);
         const restored = yield* get(endpoint(fixture.url));
         expect(new Uint8Array(yield* restored.arrayBuffer)).toEqual(bytes);
+      })
+    );
+
+    it.effect("caps chunked uploads before the sender finishes the body", () =>
+      Effect.gen(function* () {
+        const fixture = yield* makeCacheProtocolFixture(credentials);
+        const response = yield* HttpClientRequest.put(endpoint(fixture.url)).pipe(
+          HttpClientRequest.setHeaders({ authorization: `Bearer ${writer}`, "x-artifact-tag": tag }),
+          HttpClientRequest.bodyStream(
+            Stream.concat(Stream.make(new Uint8Array(2 * 1024 * 1024 + 1)), Stream.never),
+            "application/octet-stream"
+          ),
+          HttpClient.execute,
+          Effect.result,
+          Effect.timeout("5 seconds")
+        );
+        // Node destroys the incoming socket at the cap, so fetch may report a transport failure.
+        if (Result.isSuccess(response)) expect(response.success.status).toBe(413);
+        (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
       })
     );
 
