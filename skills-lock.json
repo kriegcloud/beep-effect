@@ -423,7 +423,7 @@
         ".claude/skills/remote-development-agents",
         ".agents/skills/remote-development-agents"
       ],
-      "installedTreeHash": "8b4901219fd20e3a15c8302dac12d11ce295577e284c934d8ba5e3cefffa4546"
+      "installedTreeHash": "c5d340e409919b39fafcfb2c5b6031e89d4a2277e8744ca2a9bc5544722b921f"
     },
     "schema-first-development": {
       "_tag": "local",

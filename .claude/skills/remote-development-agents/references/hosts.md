@@ -58,8 +58,10 @@ admission must be recorded separately; do not infer permission to erase its data
 
 `ssh-dankserver-yubi -tt` is the existing administrative route. It forwards a
 privileged SSH identity and the account belongs to sudo and privileged Docker
-groups. It is **not** an ordinary agent launch route. Read the control repository
-at `~/YeeBois/projects/dankserver` and preserve its existing uncommitted changes.
+groups. It is **not** an ordinary agent launch route. Read the
+[dankserver control repository](https://github.com/kriegcloud/dankserver), locate
+the operator's existing checkout through the project inventory, and preserve
+its uncommitted changes.
 
 Use `ssh-dankserver-worker` for ordinary work, without an agent forwarded.
 If the dedicated workstation SSH agent is missing after a session restart,
