@@ -109,7 +109,7 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
           expect((yield* put(endpoint(fixture.url), oversized)).status).toBe(413);
           const chunked = yield* HttpClientRequest.put(endpoint(fixture.url)).pipe(
             HttpClientRequest.setHeaders({ authorization: `Bearer ${writer}`, "x-artifact-tag": tag }),
-            HttpClientRequest.bodyStream(Stream.make(oversized), "application/octet-stream"),
+            HttpClientRequest.bodyStream(Stream.make(oversized), { contentType: "application/octet-stream" }),
             HttpClient.execute
           );
           expect(chunked.status).toBe(413);
@@ -243,7 +243,9 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
         const occupied = yield* makeCacheProtocolFixture(credentials);
         const port = Number(new URL(occupied.url).port);
         const original = Bun.serve;
-        const serve = vi.spyOn(Bun, "serve").mockImplementationOnce((options) => original({ ...options, port }));
+        const serve = vi
+          .spyOn(Bun, "serve")
+          .mockImplementationOnce((options) => original(Object.assign({ ...options }, { port })));
         yield* Effect.gen(function* () {
           const fixture = yield* makeCacheProtocolFixture(credentials);
           expect(serve).toHaveBeenCalledTimes(2);
@@ -254,11 +256,12 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
     );
 
     it.effect("bounds bind retries and leaves other failures unretried", () =>
-      Effect.gen(function* () {
-        for (const [code, attempts] of [
+      Effect.forEach(
+        [
           ["EADDRINUSE", 9],
           ["EACCES", 1],
-        ] as const) {
+        ] as const,
+        Effect.fnUntraced(function* ([code, attempts]) {
           const serve = vi.spyOn(Bun, "serve").mockImplementation(() => {
             throw Object.assign(new Error("bind failed"), { code });
           });
@@ -266,8 +269,9 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
             (yield* makeCacheProtocolFixture(credentials).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
             expect(serve).toHaveBeenCalledTimes(attempts);
           }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
-        }
-      })
+        }),
+        { discard: true }
+      )
     );
 
     it.effect("rejects absent selectors, unknown routes and unsupported artifact methods", () =>
@@ -423,10 +427,9 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
         const fixture = yield* makeCacheProtocolFixture(credentials);
         const response = yield* HttpClientRequest.put(endpoint(fixture.url)).pipe(
           HttpClientRequest.setHeaders({ authorization: `Bearer ${writer}`, "x-artifact-tag": tag }),
-          HttpClientRequest.bodyStream(
-            Stream.concat(Stream.make(new Uint8Array(2 * 1024 * 1024 + 1)), Stream.never),
-            "application/octet-stream"
-          ),
+          HttpClientRequest.bodyStream(Stream.concat(Stream.make(new Uint8Array(2 * 1024 * 1024 + 1)), Stream.never), {
+            contentType: "application/octet-stream",
+          }),
           HttpClient.execute,
           Effect.result,
           Effect.timeout("5 seconds")
