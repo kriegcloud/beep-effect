@@ -22,9 +22,9 @@ const $I = $CliKitId.create("TestTerminal");
  *
  * **Details**
  *
- * `name` is any string, so a test can send a key the prompts do not know. Each modifier may be omitted or
- * explicitly `undefined`; both read as "not held" when the key is queued. `TestTerminalHandle.input` takes these
- * values as typed and never decodes them.
+ * `name` is any string, so a test can send a key the prompts do not know. Each modifier may be omitted;
+ * an omitted modifier reads as "not held" when the key is queued. Explicit `undefined` is rejected by the schema.
+ * `TestTerminalHandle.input` takes these values as typed and never decodes them.
  *
  * **Example** (Check a key press)
  *
@@ -51,19 +51,19 @@ export class KeyInput extends S.Opaque<KeyInput, { readonly brand: unique symbol
     /** Whether Ctrl is held. */
     ctrl: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("KeyInput.ctrl", {
-        description: "Whether Ctrl is held; omitted or undefined is queued as not held.",
+        description: "Whether Ctrl is held; omitted is queued as not held.",
       })
     ),
     /** Whether Meta is held. */
     meta: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("KeyInput.meta", {
-        description: "Whether Meta is held; omitted or undefined is queued as not held.",
+        description: "Whether Meta is held; omitted is queued as not held.",
       })
     ),
     /** Whether Shift is held. */
     shift: S.optionalKey(S.Boolean).pipe(
       $I.annoteKey("KeyInput.shift", {
-        description: "Whether Shift is held; omitted or undefined is queued as not held.",
+        description: "Whether Shift is held; omitted is queued as not held.",
       })
     ),
   }).pipe($I.annoteSchema("KeyInput", { description: "One scripted key press queued into a TestTerminal." }))

@@ -122,7 +122,7 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
      */
     stdin: S.optionalKey(S.String).pipe(
       $I.annoteKey("RunOptions.stdin", {
-        description: "Optional child input; omitted, undefined or empty means an already-ended stream.",
+        description: "Optional child input; omitted or empty means an already-ended stream.",
       })
     ),
   }).pipe($I.annoteSchema("RunOptions", { description: "Plain subprocess spawn options with optional overrides." }))
