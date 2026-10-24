@@ -21,11 +21,14 @@ export * from "../commands/Yeet/internal/closeout/GreptileSignal.ts";
 export * from "../commands/Yeet/internal/closeout/WritePlan.ts";
 export * from "../commands/Yeet/internal/Economics.schemas.ts";
 export * from "../commands/Yeet/internal/Economics.ts";
+export * from "../commands/Yeet/internal/ExpectationRewrite.ts";
 export {
   FallowFeedbackAllowedRoot,
   layerFallowFeedbackAllowedRoot as layerFallowFeedbackAllowedRootForTesting,
   runYeetFallowFeedback as runYeetFallowFeedbackForTesting,
 } from "../commands/Yeet/internal/FallowFeedback.ts";
+export * from "../commands/Yeet/internal/FinalCheck.schemas.ts";
+export * from "../commands/Yeet/internal/FinalCheck.ts";
 export * from "../commands/Yeet/internal/GateStaleness.ts";
 export * from "../commands/Yeet/internal/GhCall.ts";
 export * from "../commands/Yeet/internal/GhOps.ts";

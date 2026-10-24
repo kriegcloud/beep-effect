@@ -60,38 +60,27 @@ const ROWS: ReadonlyArray<HistoryRow> = [
 
 // Chromium stores history in SQLite and the sift reads it through DuckDB's
 // sqlite scanner; the same scanner writes the fixture, so the test exercises
-// the real file format instead of a stand-in.
-const seedHistory = Effect.fn("ResearchHistorySiftTest.seedHistory")(function* (
-  historyPath: string,
-  rows: ReadonlyArray<HistoryRow>
-) {
-  yield* Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" }))).pipe(
-    Effect.flatMap((context) =>
-      Effect.gen(function* () {
-        const db = yield* DuckDb;
-        yield* db.runMany([
-          "INSTALL sqlite",
-          "LOAD sqlite",
-          `ATTACH '${historyPath}' AS history (TYPE sqlite)`,
-          "CREATE TABLE history.urls (url VARCHAR, title VARCHAR, visit_count BIGINT, last_visit_time BIGINT)",
-        ]);
-        yield* Effect.forEach(
-          rows,
-          (row) =>
-            db.run("INSERT INTO history.urls VALUES (?, ?, ?, ?)", [
-              row.url,
-              row.title,
-              row.visitCount,
-              row.lastVisitTime,
-            ]),
-          { discard: true }
-        );
-        yield* db.run("DETACH history");
-      }).pipe(Effect.provide(context))
-    ),
-    Effect.scoped
-  );
-});
+// the real file format instead of a stand-in. Each seed gets its own scratch
+// in-memory connection, which the provided layer opens and closes around it.
+const seedHistory = Effect.fn("ResearchHistorySiftTest.seedHistory")(
+  function* (historyPath: string, rows: ReadonlyArray<HistoryRow>) {
+    const db = yield* DuckDb;
+    yield* db.runMany([
+      "INSTALL sqlite",
+      "LOAD sqlite",
+      `ATTACH '${historyPath}' AS history (TYPE sqlite)`,
+      "CREATE TABLE history.urls (url VARCHAR, title VARCHAR, visit_count BIGINT, last_visit_time BIGINT)",
+    ]);
+    yield* Effect.forEach(
+      rows,
+      (row) =>
+        db.run("INSERT INTO history.urls VALUES (?, ?, ?, ?)", [row.url, row.title, row.visitCount, row.lastVisitTime]),
+      { discard: true }
+    );
+    yield* db.run("DETACH history");
+  },
+  provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" })))
+);
 
 // A home directory holding the requested Chromium config roots. Each root has
 // one profile without a History database and one with it.

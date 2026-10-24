@@ -37871,6 +37871,18 @@
             "functions": 3
           }
         },
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/ExpectationRewrite.ts": {
+          "lines": 97.84,
+          "statements": 95.28,
+          "branches": 89.28,
+          "functions": 89.13,
+          "uncovered": {
+            "lines": 2,
+            "statements": 5,
+            "branches": 3,
+            "functions": 5
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts": {
           "lines": 66.48,
           "statements": 66.15,
@@ -37881,6 +37893,18 @@
             "statements": 66,
             "branches": 65,
             "functions": 28
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/FinalCheck.ts": {
+          "lines": 97.72,
+          "statements": 96.57,
+          "branches": 82.35,
+          "functions": 92.85,
+          "uncovered": {
+            "lines": 3,
+            "statements": 5,
+            "branches": 9,
+            "functions": 4
           }
         },
         "packages/tooling/tool/cli/src/commands/Yeet/internal/GateStaleness.ts": {

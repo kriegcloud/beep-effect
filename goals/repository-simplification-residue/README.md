@@ -48,6 +48,7 @@ Wave 3 ruled FP-2 (fresh temp-root wrappers leave EV003) and FP-6 (a `weak-colle
 retiring 192 rows and adding no row or allowlist entry
 ([record](./history/receipts/detectors-wave-3.md)); wave 4 takes the EV014 named test layers.
 Wave 4 repaired the EV015 single-test-block, EV006 browser-project and EV002 repeated-lifecycle classes, retiring 79 rows and converting 7 to owner/exit exceptions ([record](./history/receipts/detectors-wave-4.md)); waves 5-9 take the EV003 process-state ruling, the EV014 named test layers and the owner/exit register.
+Wave 5 ruled EV003 process-state wrappers a judgment class and repaired the EV003 layer-factory and two EV008 classes, retiring 22 rows and converting 13 to owner/exit exceptions ([record](./history/receipts/detectors-wave-5.md)); wave 6 takes the EV014 named test layers.
 Issue #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).
@@ -59,6 +60,8 @@ Wave 4 retired 99 repo-cli assertion and harness rows and handed seven EV008/EV0
 ([record](./history/receipts/vitest-canon-wave-4.md)); wave 5 takes the resource-lifetime families.
 The EV012 seams lane gave the Anthropic turn kernel, the bounded SHACL validator and the Codex packet renderer production service seams and retired their three module mocks
 ([record](./history/receipts/vitest-canon-ev012-seams.md)).
+Wave 6 retired 116 repo-cli EV002 rows and handed 19 to #1855
+([record](./history/receipts/vitest-canon-wave-6.md)); waves 5 and 7 take EV004/EV003 and EV010.
 Issue #1876 is complete: the RDF failure assertions and the Pacer logout teardown
 witness are ported, with a per-hunk disposition of the preserved exports
 ([record](./history/receipts/rdf-pacer-ports.md)).

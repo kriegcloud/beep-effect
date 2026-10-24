@@ -8,7 +8,7 @@ import {
 } from "@beep/repo-cli/commands/Research";
 import { CardPersistRow, catalogDbPath, persistCards, sha256HexOf } from "@beep/repo-cli/test/Research";
 import { decodeYamlTextWith } from "@beep/repo-cli/test/SharedInternals";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -43,8 +43,6 @@ const testLayer = Layer.mergeAll(
   NodeServices.layer
 );
 
-const provideTestLayer = provideScopedLayer(testLayer);
-
 const makeVault = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   return yield* fs.makeTempDirectoryScoped({ prefix: "research-vault-" });
@@ -69,51 +67,47 @@ const articleCard = Effect.fn("ResearchCommandTest.articleCard")(function* (stat
   });
 });
 
-describe("research status", () => {
+it.layer(testLayer, { timeout: "30 seconds" })("research status", (it) => {
   it.effect("reports an empty summary for a vault without a catalog", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const vaultRoot = yield* makeVault;
-        const status = yield* researchStatus(ResearchStatusOptions.make({ vaultRoot }));
-        expect(status.totalCards).toBe(0);
-        expect(status.seenUrls).toBe(0);
-        expect(A.length(status.bySourceType)).toBe(0);
-      })
-    )
+    Effect.gen(function* () {
+      const vaultRoot = yield* makeVault;
+      const status = yield* researchStatus(ResearchStatusOptions.make({ vaultRoot }));
+      expect(status.totalCards).toBe(0);
+      expect(status.seenUrls).toBe(0);
+      expect(A.length(status.bySourceType)).toBe(0);
+    })
   );
 
   it.effect("counts cards, inbox, pending cognify, seen URLs and source types in a populated catalog", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const vaultRoot = yield* makeVault;
-        const linksRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-links-" });
-        const linksFile = path.join(linksRoot, "links.json");
-        yield* fs.writeFileString(
-          linksFile,
-          yield* encodeLinksFile([
-            { title: "First Post", url: "https://example.com/first" },
-            { title: "Second Post", url: "https://example.com/second" },
-          ])
-        );
-        const pulled = yield* pullResearchNotionLinks(
-          ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot })
-        );
-        expect(pulled.cardsWritten).toBe(2);
-        yield* persistCards(vaultRoot, yield* catalogDbPath(vaultRoot), "manual", [yield* articleCard("triaged")]);
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const vaultRoot = yield* makeVault;
+      const linksRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-links-" });
+      const linksFile = path.join(linksRoot, "links.json");
+      yield* fs.writeFileString(
+        linksFile,
+        yield* encodeLinksFile([
+          { title: "First Post", url: "https://example.com/first" },
+          { title: "Second Post", url: "https://example.com/second" },
+        ])
+      );
+      const pulled = yield* pullResearchNotionLinks(
+        ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot })
+      );
+      expect(pulled.cardsWritten).toBe(2);
+      yield* persistCards(vaultRoot, yield* catalogDbPath(vaultRoot), "manual", [yield* articleCard("triaged")]);
 
-        const status = yield* researchStatus(ResearchStatusOptions.make({ vaultRoot }));
-        expect(status.totalCards).toBe(3);
-        expect(status.inboxCards).toBe(2);
-        expect(status.pendingCognify).toBe(3);
-        expect(status.seenUrls).toBe(3);
-        expect(A.map(status.bySourceType, (row) => [row.sourceType, row.cards])).toEqual([
-          ["article", 1],
-          ["x-post", 2],
-        ]);
-      })
-    )
+      const status = yield* researchStatus(ResearchStatusOptions.make({ vaultRoot }));
+      expect(status.totalCards).toBe(3);
+      expect(status.inboxCards).toBe(2);
+      expect(status.pendingCognify).toBe(3);
+      expect(status.seenUrls).toBe(3);
+      expect(A.map(status.bySourceType, (row) => [row.sourceType, row.cards])).toEqual([
+        ["article", 1],
+        ["x-post", 2],
+      ]);
+    })
   );
 });
 
@@ -130,39 +124,37 @@ describe("research card frontmatter", () => {
   );
 });
 
-describe("research card output", () => {
+it.layer(testLayer, { timeout: "30 seconds" })("research card output", (it) => {
   it.effect("renders schema-backed card frontmatter and body", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const vaultRoot = yield* makeVault;
-        const card = yield* articleCard("inbox");
-        yield* persistCards(vaultRoot, yield* catalogDbPath(vaultRoot), "manual", [card]);
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const vaultRoot = yield* makeVault;
+      const card = yield* articleCard("inbox");
+      yield* persistCards(vaultRoot, yield* catalogDbPath(vaultRoot), "manual", [card]);
 
-        const content = yield* fs.readFileString(path.join(vaultRoot, card.relativePath));
-        const frontmatter = O.getOrNull(Str.match(/^---\n([\s\S]*?)\n---\n/)(content));
-        expect(frontmatter).not.toBeNull();
-        const parsed = yield* decodeFrontmatter(frontmatter?.[1] ?? "");
-        expect(parsed).toMatchObject({
-          id: "kb-article-schema-first-notes",
-          title: FAKE_TITLE,
-          "source-type": "article",
-          status: "inbox",
-          tags: ["effect", "schema"],
-          related: [],
-          url: "https://example.com/posts/schema-first",
-          via: "manual",
-        });
-        yield* S.decodeUnknownEffect(S.DateTimeUtcFromString)(parsed["captured-at"]);
-        expect(parsed["content-hash"]).toBe(FAKE_BODY_SHA256);
-        expect(Str.replace(/^---\n[\s\S]*?\n---\n\n/, "")(content)).toBe(`${FAKE_BODY}\n`);
+      const content = yield* fs.readFileString(path.join(vaultRoot, card.relativePath));
+      const frontmatter = O.getOrNull(Str.match(/^---\n([\s\S]*?)\n---\n/)(content));
+      expect(frontmatter).not.toBeNull();
+      const parsed = yield* decodeFrontmatter(frontmatter?.[1] ?? "");
+      expect(parsed).toMatchObject({
+        id: "kb-article-schema-first-notes",
+        title: FAKE_TITLE,
+        "source-type": "article",
+        status: "inbox",
+        tags: ["effect", "schema"],
+        related: [],
+        url: "https://example.com/posts/schema-first",
+        via: "manual",
+      });
+      yield* S.decodeUnknownEffect(S.DateTimeUtcFromString)(parsed["captured-at"]);
+      expect(parsed["content-hash"]).toBe(FAKE_BODY_SHA256);
+      expect(Str.replace(/^---\n[\s\S]*?\n---\n\n/, "")(content)).toBe(`${FAKE_BODY}\n`);
 
-        const status = yield* researchStatus(ResearchStatusOptions.make({ vaultRoot }));
-        expect(status.totalCards).toBe(1);
-        expect(status.inboxCards).toBe(1);
-        expect(status.seenUrls).toBe(1);
-      })
-    )
+      const status = yield* researchStatus(ResearchStatusOptions.make({ vaultRoot }));
+      expect(status.totalCards).toBe(1);
+      expect(status.inboxCards).toBe(1);
+      expect(status.seenUrls).toBe(1);
+    })
   );
 });

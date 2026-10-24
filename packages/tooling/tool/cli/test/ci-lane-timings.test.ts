@@ -29,7 +29,6 @@ import {
   renderCiLaneTimingWindowTsv,
   withCiLanePeakRss,
 } from "@beep/repo-cli/commands/Ci";
-import { provideScopedLayer } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
@@ -344,19 +343,17 @@ const windowGithubResponse = Effect.fn("TestCiLaneTimingGithubClient.route")((en
   )
 );
 
-const windowGithubLayer = (
+// A recording client stub: each test provides its own, so `commands` holds that test's reads only.
+const windowGithubClient = (
   commands: Array<string>,
   response: (endpoint: string) => Effect.Effect<string> = windowGithubResponse
 ) =>
-  Layer.succeed(
-    CiLaneTimingGithubClient,
-    CiLaneTimingGithubClient.of({
-      getJson: Effect.fn("TestCiLaneTimingGithubClient.getJson")(function* (_repoRoot, endpoint) {
-        A.appendInPlace(commands, endpoint);
-        return yield* response(endpoint);
-      }),
-    })
-  );
+  CiLaneTimingGithubClient.of({
+    getJson: Effect.fn("TestCiLaneTimingGithubClient.getJson")(function* (_repoRoot, endpoint) {
+      A.appendInPlace(commands, endpoint);
+      return yield* response(endpoint);
+    }),
+  });
 
 const laneTimingsWindowCliSpawner = (commands: Array<string>) =>
   ChildProcessSpawner.make((command) => {
@@ -393,22 +390,24 @@ const INSIDE_CENSUS_WINDOW = "2026-09-24T22:09:00Z";
 const AFTER_CENSUS_WINDOW = "2026-09-30T00:00:00Z";
 
 describe("ci lane timings attempt filter", () => {
-  it.effect("collects every page of all-attempt jobs", () =>
-    Effect.gen(function* () {
-      const report = yield* collectCiLaneTimings(".", 1);
+  it.layer(laneTimingsSpawnerLayer)((it) => {
+    it.effect("collects every page of all-attempt jobs", () =>
+      Effect.gen(function* () {
+        const report = yield* collectCiLaneTimings(".", 1);
 
-      expect(report.jobCount).toBe(2);
-      expect(A.map(report.rows, (row) => row.jobId)).toStrictEqual([991, 992]);
-    }).pipe(provideScopedLayer(laneTimingsSpawnerLayer))
-  );
+        expect(report.jobCount).toBe(2);
+        expect(A.map(report.rows, (row) => row.jobId)).toStrictEqual([991, 992]);
+      })
+    );
 
-  it.effect("rejects recent-run limits outside the API bounds", () =>
-    Effect.gen(function* () {
-      const exits = yield* Effect.forEach([0, 101], (limit) => Effect.exit(collectCiLaneTimings(".", limit)));
+    it.effect("rejects recent-run limits outside the API bounds", () =>
+      Effect.gen(function* () {
+        const exits = yield* Effect.forEach([0, 101], (limit) => Effect.exit(collectCiLaneTimings(".", limit)));
 
-      pipe(exits, A.every(Exit.isFailure), assertTrue);
-    }).pipe(provideScopedLayer(laneTimingsSpawnerLayer))
-  );
+        pipe(exits, A.every(Exit.isFailure), assertTrue);
+      })
+    );
+  });
 
   it("reports job-level pickup latency on the first attempt", () => {
     assertSome(attemptOnePickupSeconds(job()), 30);
@@ -1230,7 +1229,7 @@ describe("ci lane timing admission window", () => {
       expect(A.some(jobPageCommands, (command) => Str.includes("page=3")(command))).toBe(true);
       expect(A.some(commands, (command) => Str.includes("/actions/runs/101/jobs")(command))).toBe(false);
       expect(A.some(commands, (command) => Str.includes("/actions/runs/103/jobs")(command))).toBe(false);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("admits the ratified 17-context version after the removal", () => {
@@ -1255,7 +1254,7 @@ describe("ci lane timing admission window", () => {
       expect(markdown).toContain(
         "- required contexts: 17 (expected 17; ruleset 10240248 version 49479116 effective 2026-09-12T01:46:53.354Z)"
       );
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("admits the ratified 16-context version after the Lint Policy removal", () => {
@@ -1288,7 +1287,7 @@ describe("ci lane timing admission window", () => {
           "- required contexts: 16 (expected 16; ruleset 10240248 version 50918272 effective 2026-09-25T14:46:59.802Z)"
         )(renderCiLaneTimingWindowMarkdown(report))
       );
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
   it.effect("fails closed when a ratified version exposes a different context count", () => {
@@ -1314,7 +1313,7 @@ describe("ci lane timing admission window", () => {
           "version 49479116 must expose exactly 17 required contexts; observed 18"
         );
       }
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
   it.effect("fails closed against a ruleset version the packet has not ratified", () => {
@@ -1344,7 +1343,7 @@ describe("ci lane timing admission window", () => {
         );
       }
       expect(A.some(commands, Str.includes("/actions/"))).toBe(false);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
   it.effect("orders runs created in the same instant by id so page order cannot reorder the census", () => {
@@ -1365,7 +1364,7 @@ describe("ci lane timing admission window", () => {
 
       expect(report.runCount).toBe(2);
       expect(A.dedupe(A.map(report.rows, (row) => row.runId))).toStrictEqual([301, 302]);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
   it.effect("excludes a ruleset version effective exactly at the exclusive end", () => {
@@ -1383,7 +1382,7 @@ describe("ci lane timing admission window", () => {
         48600030
       );
       expect(A.some(commands, Str.endsWith("/history/49479116"))).toBe(false);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("selects a ruleset version that only appears on the second history page", () => {
@@ -1409,7 +1408,7 @@ describe("ci lane timing admission window", () => {
       const historyCommands = A.filter(commands, Str.includes("/history?"));
       expect(historyCommands).toHaveLength(2);
       expect(A.some(historyCommands, Str.includes("per_page=100&page=2"))).toBe(true);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
   it.effect("fails closed when no ruleset version strictly precedes the window end", () => {
@@ -1432,7 +1431,7 @@ describe("ci lane timing admission window", () => {
         );
       }
       expect(commands).toHaveLength(1);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("reads the live main rules when no ruleset version is requested", () => {
@@ -1449,7 +1448,12 @@ describe("ci lane timing admission window", () => {
 
       expect(contexts).toStrictEqual(["Heavy / Check", "Lint"]);
       expect(commands).toStrictEqual(["repos/{owner}/{repo}/rules/branches/main"]);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, staticWindowGithubResponse(liveRules))));
+    }).pipe(
+      Effect.provideService(
+        CiLaneTimingGithubClient,
+        windowGithubClient(commands, staticWindowGithubResponse(liveRules))
+      )
+    );
   });
 
   it.effect("rejects reversed collection bounds before reading GitHub", () => {
@@ -1467,7 +1471,7 @@ describe("ci lane timing admission window", () => {
         expect(exit.cause.toString()).toContain("--since must be earlier than --until");
       }
       expect(commands).toStrictEqual([]);
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("fails closed when a workflow-run page is empty before total_count is reached", () => {
@@ -1485,222 +1489,215 @@ describe("ci lane timing admission window", () => {
         assertTrue(exitFailed);
         expect(exit.cause.toString()).toContain("pull_request workflow-runs pagination ended after 0 of 1 runs");
       }
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
-  it.effect("dispatches recent CLI summary and TSV variants", () =>
-    Effect.gen(function* () {
-      yield* runLaneTimingsCommand(["--runs", "1"]);
-      yield* runLaneTimingsCommand(["--runs", "1", "--tsv"]);
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("dispatches recent CLI summary and TSV variants", () =>
+      Effect.gen(function* () {
+        yield* runLaneTimingsCommand(["--runs", "1"]);
+        yield* runLaneTimingsCommand(["--runs", "1", "--tsv"]);
 
-      const output = yield* testConsoleText();
-      expect(output).toContain("ci lane timings");
-      expect(output).toContain("runId\trunAttempt\tjobId\tjobName");
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsSpawner),
-      provideScopedLayer(laneTimingsCommandLayer)
-    )
-  );
-
-  it.effect("rejects conflicting census formats and reversed CLI bounds", () =>
-    Effect.gen(function* () {
-      const formatsExit = yield* Effect.exit(runLaneTimingsCommand(["--window", "--tsv", "--markdown"]));
-      const boundsExit = yield* Effect.exit(
-        runLaneTimingsCommand(["--window", "--since", "2026-09-11T00:00:00Z", "--until", "2026-09-04T00:00:00Z"])
-      );
-
-      formatsExit.pipe(Exit.isFailure, assertTrue);
-      boundsExit.pipe(Exit.isFailure, assertTrue);
-      {
-        const exitFailed = Exit.isFailure(formatsExit);
-        assertTrue(exitFailed);
-        expect(formatsExit.cause.toString()).toContain("Choose only one of --tsv or --markdown");
-      }
-      {
-        const exitFailed = Exit.isFailure(boundsExit);
-        assertTrue(exitFailed);
-        expect(boundsExit.cause.toString()).toContain("--since must be earlier than --until");
-      }
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsSpawner),
-      provideScopedLayer(laneTimingsCommandLayer)
-    )
-  );
-
-  it.effect("dispatches every bounded CLI renderer with event and provenance filters", () => {
-    const commands = A.empty<string>();
-    return Effect.gen(function* () {
-      yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--event",
-        "pull_request",
-        "--branch",
-        "feature/census",
-        "--head-sha",
-        "included",
-        "--since",
-        "2026-09-04T00:00:00Z",
-        "--until",
-        "2026-09-11T00:00:00Z",
-        "--tsv",
-      ]);
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--event",
-        "push",
-        "--since",
-        "2026-09-04T00:00:00Z",
-        "--until",
-        "2026-09-11T00:00:00Z",
-        "--markdown",
-      ]);
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--event",
-        "push",
-        "--branch",
-        "release/census",
-        "--since",
-        "2026-09-04T00:00:00Z",
-        "--until",
-        "2026-09-11T00:00:00Z",
-      ]);
-
-      const output = yield* testConsoleText();
-      expect(output).toContain("population\tlane\trunId\trunAttempt");
-      expect(output).toContain("## Successful attempt-one durations");
-      expect(output).toContain("ci lane timing window");
-      // An exactly seven-day window that has already closed is a census, so no
-      // renderer may stamp it as a preview.
-      expect(output).not.toContain("PREVIEW");
-      expect(output).not.toContain("Preview, not an admission census");
-      expect(A.some(commands, Str.includes("event=pull_request&branch=feature%2Fcensus"))).toBe(true);
-      expect(A.some(commands, Str.includes("event=push&branch=main"))).toBe(true);
-      expect(A.some(commands, Str.includes("event=push&branch=release%2Fcensus"))).toBe(true);
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)),
-      provideScopedLayer(laneTimingsCommandLayer)
+        const output = yield* testConsoleText();
+        expect(output).toContain("ci lane timings");
+        expect(output).toContain("runId\trunAttempt\tjobId\tjobName");
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsSpawner))
     );
   });
 
-  it.effect("refuses a census window whose cutoff has not arrived and reads no GitHub endpoint", () => {
-    const commands = A.empty<string>();
-    return Effect.gen(function* () {
-      yield* pinLaneTimingsClock(INSIDE_CENSUS_WINDOW);
-      const exit = yield* Effect.exit(
-        runLaneTimingsCommand([
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("rejects conflicting census formats and reversed CLI bounds", () =>
+      Effect.gen(function* () {
+        const formatsExit = yield* Effect.exit(runLaneTimingsCommand(["--window", "--tsv", "--markdown"]));
+        const boundsExit = yield* Effect.exit(
+          runLaneTimingsCommand(["--window", "--since", "2026-09-11T00:00:00Z", "--until", "2026-09-04T00:00:00Z"])
+        );
+
+        formatsExit.pipe(Exit.isFailure, assertTrue);
+        boundsExit.pipe(Exit.isFailure, assertTrue);
+        {
+          const exitFailed = Exit.isFailure(formatsExit);
+          assertTrue(exitFailed);
+          expect(formatsExit.cause.toString()).toContain("Choose only one of --tsv or --markdown");
+        }
+        {
+          const exitFailed = Exit.isFailure(boundsExit);
+          assertTrue(exitFailed);
+          expect(boundsExit.cause.toString()).toContain("--since must be earlier than --until");
+        }
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsSpawner))
+    );
+  });
+
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("dispatches every bounded CLI renderer with event and provenance filters", () => {
+      const commands = A.empty<string>();
+      return Effect.gen(function* () {
+        yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--event",
+          "pull_request",
+          "--branch",
+          "feature/census",
+          "--head-sha",
+          "included",
+          "--since",
+          "2026-09-04T00:00:00Z",
+          "--until",
+          "2026-09-11T00:00:00Z",
+          "--tsv",
+        ]);
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--event",
+          "push",
+          "--since",
+          "2026-09-04T00:00:00Z",
+          "--until",
+          "2026-09-11T00:00:00Z",
+          "--markdown",
+        ]);
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--event",
+          "push",
+          "--branch",
+          "release/census",
+          "--since",
+          "2026-09-04T00:00:00Z",
+          "--until",
+          "2026-09-11T00:00:00Z",
+        ]);
+
+        const output = yield* testConsoleText();
+        expect(output).toContain("population\tlane\trunId\trunAttempt");
+        expect(output).toContain("## Successful attempt-one durations");
+        expect(output).toContain("ci lane timing window");
+        // An exactly seven-day window that has already closed is a census, so no
+        // renderer may stamp it as a preview.
+        expect(output).not.toContain("PREVIEW");
+        expect(output).not.toContain("Preview, not an admission census");
+        expect(A.some(commands, Str.includes("event=pull_request&branch=feature%2Fcensus"))).toBe(true);
+        expect(A.some(commands, Str.includes("event=push&branch=main"))).toBe(true);
+        expect(A.some(commands, Str.includes("event=push&branch=release%2Fcensus"))).toBe(true);
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)));
+    });
+  });
+
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("refuses a census window whose cutoff has not arrived and reads no GitHub endpoint", () => {
+      const commands = A.empty<string>();
+      return Effect.gen(function* () {
+        yield* pinLaneTimingsClock(INSIDE_CENSUS_WINDOW);
+        const exit = yield* Effect.exit(
+          runLaneTimingsCommand([
+            "--window",
+            "--since",
+            "2026-09-23T00:00:00Z",
+            "--until",
+            "2026-09-30T00:00:00Z",
+            "--markdown",
+          ])
+        );
+
+        assertTrue(exit._tag === "Failure");
+        const rendered = Exit.isFailure(exit) ? exit.cause.toString() : "";
+        expect(rendered).toContain("--until 2026-09-30T00:00:00.000Z is in the future");
+        expect(rendered).toContain("Pass --preview to run a preview that is never an admission census.");
+        expect(commands).toStrictEqual([]);
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)));
+    });
+  });
+
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("refuses a closed census window one second short of seven days", () => {
+      const commands = A.empty<string>();
+      return Effect.gen(function* () {
+        yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
+        const exit = yield* Effect.exit(
+          runLaneTimingsCommand(["--window", "--since", "2026-09-04T00:00:01Z", "--until", "2026-09-11T00:00:00Z"])
+        );
+
+        assertTrue(exit._tag === "Failure");
+        const rendered = Exit.isFailure(exit) ? exit.cause.toString() : "";
+        expect(rendered).toContain("window spans 6d 23h 59m 59s, under seven days");
+        expect(rendered).not.toContain("is in the future");
+        expect(commands).toStrictEqual([]);
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)));
+    });
+  });
+
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("stamps every preview of a partial window as a preview", () => {
+      const commands = A.empty<string>();
+      return Effect.gen(function* () {
+        yield* pinLaneTimingsClock(INSIDE_CENSUS_WINDOW);
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--since",
+          "2026-09-23T00:00:00Z",
+          "--until",
+          "2026-09-30T00:00:00Z",
+          "--preview",
+        ]);
+        const summary = yield* lastLaneTimingsLog();
+        yield* runLaneTimingsCommand([
           "--window",
           "--since",
           "2026-09-23T00:00:00Z",
           "--until",
           "2026-09-30T00:00:00Z",
           "--markdown",
-        ])
-      );
+          "--preview",
+        ]);
+        const markdown = yield* lastLaneTimingsLog();
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--since",
+          "2026-09-23T00:00:00Z",
+          "--until",
+          "2026-09-30T00:00:00Z",
+          "--tsv",
+          "--preview",
+        ]);
+        const tsv = yield* lastLaneTimingsLog();
+        const clause = "Window 2026-09-23T00:00:00.000Z → 2026-09-30T00:00:00.000Z: cutoff is in the future.";
+        const banner = `> **Preview, not an admission census.** ${clause}`;
 
-      assertTrue(exit._tag === "Failure");
-      const rendered = Exit.isFailure(exit) ? exit.cause.toString() : "";
-      expect(rendered).toContain("--until 2026-09-30T00:00:00.000Z is in the future");
-      expect(rendered).toContain("Pass --preview to run a preview that is never an admission census.");
-      expect(commands).toStrictEqual([]);
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)),
-      provideScopedLayer(laneTimingsCommandLayer)
-    );
+        expect(Str.startsWith("ci lane timing window (PREVIEW, not an admission census)")(summary)).toBe(true);
+        expect(summary).toContain(banner);
+        expect(Str.startsWith(banner)(markdown)).toBe(true);
+        expect(markdown).toContain("## Successful attempt-one durations");
+        // Machine-readable rows are stamped too, as a `#` comment above the
+        // header row, so no preview output is paste-compatible with a census.
+        expect(
+          Str.startsWith(`# Preview, not an admission census. ${clause}\npopulation\tlane\trunId\trunAttempt`)(tsv)
+        ).toBe(true);
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)));
+    });
   });
 
-  it.effect("refuses a closed census window one second short of seven days", () => {
-    const commands = A.empty<string>();
-    return Effect.gen(function* () {
-      yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
-      const exit = yield* Effect.exit(
-        runLaneTimingsCommand(["--window", "--since", "2026-09-04T00:00:01Z", "--until", "2026-09-11T00:00:00Z"])
-      );
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("stamps a preview of an admissible window as breaching no bound", () => {
+      const commands = A.empty<string>();
+      return Effect.gen(function* () {
+        yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--since",
+          "2026-09-04T00:00:00Z",
+          "--until",
+          "2026-09-11T00:00:00Z",
+          "--preview",
+        ]);
 
-      assertTrue(exit._tag === "Failure");
-      const rendered = Exit.isFailure(exit) ? exit.cause.toString() : "";
-      expect(rendered).toContain("window spans 6d 23h 59m 59s, under seven days");
-      expect(rendered).not.toContain("is in the future");
-      expect(commands).toStrictEqual([]);
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)),
-      provideScopedLayer(laneTimingsCommandLayer)
-    );
-  });
-
-  it.effect("stamps every preview of a partial window as a preview", () => {
-    const commands = A.empty<string>();
-    return Effect.gen(function* () {
-      yield* pinLaneTimingsClock(INSIDE_CENSUS_WINDOW);
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--since",
-        "2026-09-23T00:00:00Z",
-        "--until",
-        "2026-09-30T00:00:00Z",
-        "--preview",
-      ]);
-      const summary = yield* lastLaneTimingsLog();
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--since",
-        "2026-09-23T00:00:00Z",
-        "--until",
-        "2026-09-30T00:00:00Z",
-        "--markdown",
-        "--preview",
-      ]);
-      const markdown = yield* lastLaneTimingsLog();
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--since",
-        "2026-09-23T00:00:00Z",
-        "--until",
-        "2026-09-30T00:00:00Z",
-        "--tsv",
-        "--preview",
-      ]);
-      const tsv = yield* lastLaneTimingsLog();
-      const clause = "Window 2026-09-23T00:00:00.000Z → 2026-09-30T00:00:00.000Z: cutoff is in the future.";
-      const banner = `> **Preview, not an admission census.** ${clause}`;
-
-      expect(Str.startsWith("ci lane timing window (PREVIEW, not an admission census)")(summary)).toBe(true);
-      expect(summary).toContain(banner);
-      expect(Str.startsWith(banner)(markdown)).toBe(true);
-      expect(markdown).toContain("## Successful attempt-one durations");
-      // Machine-readable rows are stamped too, as a `#` comment above the
-      // header row, so no preview output is paste-compatible with a census.
-      expect(
-        Str.startsWith(`# Preview, not an admission census. ${clause}\npopulation\tlane\trunId\trunAttempt`)(tsv)
-      ).toBe(true);
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)),
-      provideScopedLayer(laneTimingsCommandLayer)
-    );
-  });
-
-  it.effect("stamps a preview of an admissible window as breaching no bound", () => {
-    const commands = A.empty<string>();
-    return Effect.gen(function* () {
-      yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--since",
-        "2026-09-04T00:00:00Z",
-        "--until",
-        "2026-09-11T00:00:00Z",
-        "--preview",
-      ]);
-
-      const output = yield* testConsoleText();
-      expect(output).toContain(
-        "> **Preview, not an admission census.** Window 2026-09-04T00:00:00.000Z → 2026-09-11T00:00:00.000Z: no bound breached."
-      );
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)),
-      provideScopedLayer(laneTimingsCommandLayer)
-    );
+        const output = yield* testConsoleText();
+        expect(output).toContain(
+          "> **Preview, not an admission census.** Window 2026-09-04T00:00:00.000Z → 2026-09-11T00:00:00.000Z: no bound breached."
+        );
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)));
+    });
   });
 
   it("assesses every census bound against the judging instant", () => {
@@ -1767,7 +1764,7 @@ describe("ci lane timing ruleset changes inside the window", () => {
       assertTrue(A.some(commands, Str.endsWith("/history/48600030")));
       assertTrue(A.some(commands, Str.endsWith("/history/49479116")));
       assertFalse(A.some(commands, Str.includes("/actions/")));
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("stamps the change above every rendering of a straddled preview", () => {
@@ -1787,7 +1784,7 @@ describe("ci lane timing ruleset changes inside the window", () => {
           renderCiLaneTimingWindowTsv(report)
         )
       );
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it.effect("lists a ruleset edit that kept the required checks without refusing the census", () => {
@@ -1822,7 +1819,7 @@ describe("ci lane timing ruleset changes inside the window", () => {
           renderCiLaneTimingWindowTsv(report)
         )
       );
-    }).pipe(provideScopedLayer(windowGithubLayer(commands, response)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands, response)));
   });
 
   it.effect("treats a version effective exactly at the window start as the starting population", () => {
@@ -1839,7 +1836,7 @@ describe("ci lane timing ruleset changes inside the window", () => {
       strictEqual(report.contextCount, 17);
       deepStrictEqual(report.populationChanges, []);
       assertFalse(A.some(commands, Str.endsWith("/history/48600030")));
-    }).pipe(provideScopedLayer(windowGithubLayer(commands)));
+    }).pipe(Effect.provideService(CiLaneTimingGithubClient, windowGithubClient(commands)));
   });
 
   it("judges only a version that added or removed a required context as a population change", () => {
@@ -1861,44 +1858,43 @@ describe("ci lane timing ruleset changes inside the window", () => {
     deepStrictEqual(assessCiLaneTimingWindowPopulation([edit, addition]), ["population-change"]);
   });
 
-  it.effect("refuses a straddled CLI census and banners its preview with the population change", () => {
-    const commands = A.empty<string>();
-    return Effect.gen(function* () {
-      yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
-      const exit = yield* Effect.exit(
-        runLaneTimingsCommand(["--window", "--since", STRADDLING_SINCE, "--until", STRADDLING_UNTIL])
-      );
+  it.layer(laneTimingsCommandLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("refuses a straddled CLI census and banners its preview with the population change", () => {
+      const commands = A.empty<string>();
+      return Effect.gen(function* () {
+        yield* pinLaneTimingsClock(AFTER_CENSUS_WINDOW);
+        const exit = yield* Effect.exit(
+          runLaneTimingsCommand(["--window", "--since", STRADDLING_SINCE, "--until", STRADDLING_UNTIL])
+        );
 
-      assertTrue(exit._tag === "Failure");
-      assertTrue(
-        Str.includes("required contexts changed inside the window: ruleset 10240248 version 49479116")(
-          Exit.isFailure(exit) ? exit.cause.toString() : ""
-        )
-      );
-      assertFalse(A.some(commands, Str.includes("/actions/")));
+        assertTrue(exit._tag === "Failure");
+        assertTrue(
+          Str.includes("required contexts changed inside the window: ruleset 10240248 version 49479116")(
+            Exit.isFailure(exit) ? exit.cause.toString() : ""
+          )
+        );
+        assertFalse(A.some(commands, Str.includes("/actions/")));
 
-      yield* runLaneTimingsCommand([
-        "--window",
-        "--since",
-        STRADDLING_SINCE,
-        "--until",
-        STRADDLING_UNTIL,
-        "--markdown",
-        "--preview",
-      ]);
-      const markdown = yield* lastLaneTimingsLog();
+        yield* runLaneTimingsCommand([
+          "--window",
+          "--since",
+          STRADDLING_SINCE,
+          "--until",
+          STRADDLING_UNTIL,
+          "--markdown",
+          "--preview",
+        ]);
+        const markdown = yield* lastLaneTimingsLog();
 
-      assertTrue(
-        Str.startsWith(
-          "> **Preview, not an admission census.** Window 2026-09-08T00:00:00.000Z → 2026-09-15T00:00:00.000Z: required contexts changed inside the window."
-        )(markdown)
-      );
-      assertTrue(
-        Str.includes(`> **Required contexts changed inside the window.** ${COVERAGE_REMOVAL_STAMP}`)(markdown)
-      );
-    }).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)),
-      provideScopedLayer(laneTimingsCommandLayer)
-    );
+        assertTrue(
+          Str.startsWith(
+            "> **Preview, not an admission census.** Window 2026-09-08T00:00:00.000Z → 2026-09-15T00:00:00.000Z: required contexts changed inside the window."
+          )(markdown)
+        );
+        assertTrue(
+          Str.includes(`> **Required contexts changed inside the window.** ${COVERAGE_REMOVAL_STAMP}`)(markdown)
+        );
+      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, laneTimingsWindowCliSpawner(commands)));
+    });
   });
 });

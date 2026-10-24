@@ -484,6 +484,7 @@ describe("thin lint workers", { concurrent: false }, () => {
               "--config",
               `${fixtureRoot}/.oxlintrc.docs.json`,
               "--max-warnings=0",
+              "--no-error-on-unmatched-pattern",
               "infra/example.ts",
               "packages/unowned/example.ts",
             ],
