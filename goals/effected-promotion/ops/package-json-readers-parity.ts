@@ -64,7 +64,7 @@ const SiteRow = S.Struct({
 });
 
 const ParityReport = S.Struct({
-  schemaVersion: S.Literal(1),
+  schemaVersion: S.tag(1),
   tool: S.String,
   scope: S.String,
   commit: S.optionalKey(S.String),

@@ -11,13 +11,13 @@
 
 import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
@@ -87,7 +87,7 @@ const decodeRootCatalogs = S.decodeUnknownEffect(CatalogUsageRootManifest);
 const readRootCatalogs = Effect.fn("CatalogUsage.readRootCatalogs")(function* (text: string) {
   const root = yield* parseRootManifest(text);
   return yield* decodeRootCatalogs(
-    R.getSomes({
+    O.getSomesStruct({
       catalog: O.fromUndefinedOr(root.catalog),
       catalogs: O.flatMap(O.fromUndefinedOr(root.rest), R.get("catalogs")),
       overrides: O.fromUndefinedOr(root.overrides),
