@@ -403,6 +403,38 @@ const linkedInstance = (target: string, index: PnpmIndex): O.Option<string> =>
   MutableHashSet.has(index.instanceIds, target) ? O.some(target) : MutableHashMap.get(index.publishDirTargets, target);
 
 /**
+ * Resolve a normalized importer link using exact ids, declared publish
+ * directories, then workspace-specifier ownership evidence.
+ *
+ * **Example** (Leave an unknown link unresolved)
+ *
+ * ```ts
+ * import { resolveImporterLink } from "@beep/lockfiles/internal/pnpm";
+ * import * as MutableHashMap from "effect/MutableHashMap";
+ * import * as MutableHashSet from "effect/MutableHashSet";
+ * import * as O from "effect/Option";
+ *
+ * console.log(O.isNone(resolveImporterLink("missing/dist", true, {
+ *   instanceIds: MutableHashSet.empty<string>(),
+ *   importerPaths: MutableHashSet.empty<string>(),
+ *   publishDirTargets: MutableHashMap.empty<string, string>()
+ * }))); // true
+ * ```
+ *
+ * @internal
+ * @category utilities
+ * @since 0.0.0
+ */
+export const resolveImporterLink: {
+  (target: string, workspace: boolean, index: PnpmIndex): O.Option<string>;
+  (workspace: boolean, index: PnpmIndex): (target: string) => O.Option<string>;
+} = dual(
+  3,
+  (target: string, workspace: boolean, index: PnpmIndex): O.Option<string> =>
+    O.orElse(linkedInstance(target, index), () => (workspace ? owningImporter(target, index.importerPaths) : O.none()))
+);
+
+/**
  * Resolve one snapshot edge to an instance id.
  *
  * **Details**
@@ -464,9 +496,7 @@ const importerEdge = (
 ): O.Option<string> =>
   Str.startsWith(LINK_PREFIX)(info.version)
     ? O.flatMap(resolveLinkTarget(importerPath, Str.slice(LINK_PREFIX.length)(info.version)), (target) =>
-        O.orElse(linkedInstance(target, index), () =>
-          Str.startsWith(WORKSPACE_PREFIX)(info.specifier) ? owningImporter(target, index.importerPaths) : O.none()
-        )
+        resolveImporterLink(target, Str.startsWith(WORKSPACE_PREFIX)(info.specifier), index)
       )
     : composedInstance(name, info.version, index.instanceIds);
 
@@ -673,6 +703,10 @@ const toFields = Effect.fn("PnpmLockfile.toFields")(function* (
     extension: {
       _tag: "pnpm",
       ...O.getSomesStruct({
+        publishDirTargets: O.liftPredicate(
+          R.fromEntries(index.publishDirTargets),
+          (targets) => !R.isEmptyRecord(targets)
+        ),
         catalogs: O.fromUndefinedOr(raw.catalogs),
         overrides: O.fromUndefinedOr(raw.overrides),
         settings: O.fromUndefinedOr(raw.settings),

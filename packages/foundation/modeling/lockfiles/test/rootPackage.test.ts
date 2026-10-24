@@ -179,6 +179,38 @@ describe("Lockfile#rootPackage", () => {
     })
   );
 
+  it.effect("pnpm: root links use the same workspace and publish-directory resolution as importer edges", () =>
+    Effect.gen(function* () {
+      for (const [specifier, target, declaration, expected] of [
+        ["workspace:*", "packages/lib/dist/dev/pkg", "", "packages/lib"],
+        ["workspace:*", "packages/lib/nested/dist", "  packages/lib/nested: {}\n", "packages/lib/nested"],
+        ["link:packages/lib/dist", "packages/lib/dist", "", undefined],
+        ["link:build/lib", "build/lib", "    publishDirectory: ../../build/lib\n", "packages/lib"],
+        ["workspace:*", "missing/dist", "", undefined],
+      ] as const) {
+        const content = `lockfileVersion: '9.0'
+importers:
+  .:
+    dependencies:
+      '@local/lib':
+        specifier: ${specifier}
+        version: link:${target}
+  packages/lib:
+    dependencies: {}
+${declaration}  packages/app:
+    dependencies:
+      '@local/lib':
+        specifier: ${specifier}
+        version: link:../../${target}
+`;
+        const lockfile = yield* Lockfile.parse(content, { format: "pnpm" });
+        strictEqual(O.getOrUndefined(O.map(lockfile.rootPackage("@local/lib"), (pkg) => pkg.instanceId)), expected);
+        const app = O.getOrThrow(lockfile.packageByInstanceId("packages/app"));
+        strictEqual(O.getOrUndefined(R.get(app.resolved, "@local/lib")), expected);
+      }
+    })
+  );
+
   it.effect("pnpm: a workspace root dependency recorded as link:<path> resolves the workspace", () =>
     Effect.gen(function* () {
       const lockfile = yield* Lockfile.parse(LINKED_PNPM, { format: "pnpm" });

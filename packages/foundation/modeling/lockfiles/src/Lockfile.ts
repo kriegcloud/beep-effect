@@ -13,12 +13,15 @@ import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { BunExtension } from "./BunExtension.ts";
 import { parseBun } from "./internal/bun.ts";
 import { parseNpm } from "./internal/npm.ts";
-import { parsePnpm, resolveLinkTarget } from "./internal/pnpm.ts";
+import { parsePnpm, resolveImporterLink, resolveLinkTarget } from "./internal/pnpm.ts";
 import { FramingReason } from "./internal/shared.ts";
 import { parseYarn } from "./internal/yarn.ts";
 import { LockfileFormat } from "./LockfileFormat.ts";
@@ -631,7 +634,9 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * hoisted workspace link the same way); a caller that wants only registry
    * installs filters on `isWorkspace`. pnpm records a workspace root
    * dependency as `link:<path>`, which resolves to the workspace package
-   * at that root-relative path when present. Only bun has a repo consumer today (repo-cli
+   * at that root-relative path, then a declared publish directory, then the
+   * longest owning workspace importer under a `workspace:` specifier.
+   * Other unmatched links stay unresolved. Only bun has a repo consumer today (repo-cli
    * `CatalogUsage` and `RootCatalog`); the pnpm branch is the one production
    * caller of `LockfileImporter#dependency`. An aliased bun install answers to its
    * alias, so compare `name` when the real package matters.
@@ -665,7 +670,18 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
             O.flatMap(O.fromUndefinedOr(dependency.version), (version) => {
               if (Str.startsWith("link:")(version)) {
                 return O.flatMap(resolveLinkTarget("", Str.slice(5)(version)), (target) =>
-                  A.findFirst(this.workspacePackages, (pkg) => pkg.instanceId === target)
+                  O.flatMap(
+                    resolveImporterLink(target, P.isTagged("workspace")(dependency.specifier), {
+                      instanceIds: MutableHashSet.fromIterable(A.map(this.workspacePackages, (pkg) => pkg.instanceId)),
+                      importerPaths: MutableHashSet.fromIterable(
+                        A.map(this.workspacePackages, (pkg) => pkg.instanceId)
+                      ),
+                      publishDirTargets: MutableHashMap.fromIterable(
+                        R.toEntries(this.extension?._tag === "pnpm" ? (this.extension.publishDirTargets ?? {}) : {})
+                      ),
+                    }),
+                    (instanceId) => this.packageByInstanceId(instanceId)
+                  )
                 );
               }
               const resolution = `${version}${dependency.peerSuffix ?? ""}`;
