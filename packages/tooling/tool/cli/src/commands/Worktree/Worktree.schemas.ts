@@ -293,7 +293,7 @@ export type WorktreeUpstreamState = typeof WorktreeUpstreamState.Type;
  *
  * ```ts
  * import { WorktreeBeepMaterialEntry } from "@beep/repo-cli/commands/Worktree"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const entry = WorktreeBeepMaterialEntry.make({
  *   name: "fallow",
