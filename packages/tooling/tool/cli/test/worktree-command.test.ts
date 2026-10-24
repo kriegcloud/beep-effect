@@ -50,12 +50,15 @@ import { A, O, P, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { describe, expect } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
@@ -1637,6 +1640,77 @@ describe("worktree git operations", () => {
             });
             expect(A.some(residue, Str.endsWith("/manifest.json"))).toBe(false);
             expect(A.some(residue, Str.includes("/beep-material/"))).toBe(false);
+          })
+        )
+      );
+    }
+
+    for (const rollbackFails of [false, true]) {
+      it.effect(`restores all possible entries after a post-move change (rollback fails: ${rollbackFails})`, () =>
+        withScratchRepo((repoRoot) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const context = yield* resolveWorktreeContext(repoRoot);
+            yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+            const name = rollbackFails ? "rollback-partial" : "rollback-changed";
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            yield* fs.makeDirectory(path.join(targetPath, ".beep"), { recursive: true });
+            for (const entry of ["a.txt", "b.txt", "c.txt"]) {
+              yield* fs.writeFileString(path.join(targetPath, ".beep", entry), entry);
+            }
+            const faultyFs = FileSystem.FileSystem.of({
+              ...fs,
+              rename: Effect.fn("WorktreeCommandTest.injectPostMoveChange")(function* (source, target) {
+                if (rollbackFails && Str.endsWith("/beep-material/b.txt")(source)) {
+                  return yield* PlatformError.systemError({
+                    _tag: "PermissionDenied",
+                    module: "FileSystem",
+                    method: "rename",
+                    pathOrDescriptor: source,
+                  });
+                }
+                yield* fs.rename(source, target);
+                if (Str.endsWith("/beep-material/b.txt")(target)) {
+                  yield* fs.writeFileString(target, "b.txt appended during capture");
+                }
+              }),
+            });
+            const failed = yield* removeArchivedLane(context, name, targetPath).pipe(
+              Effect.provideServiceEffect(
+                WorktreeRemovalService,
+                WorktreeRemovalServiceLive.pipe(
+                  Layer.fresh,
+                  Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+                  Layer.build,
+                  Effect.map(Context.get(WorktreeRemovalService))
+                )
+              ),
+              Effect.exit
+            );
+            assertTrue(Exit.isFailure(failed));
+            if (!Exit.isFailure(failed)) return;
+            const message = Cause.pretty(failed.cause);
+            expect(message).toContain("does not match its source");
+            expect(Str.includes("Could not roll back the moved material")(message)).toBe(rollbackFails);
+            expect(yield* fs.readFileString(path.join(targetPath, ".beep", "a.txt"))).toBe("a.txt");
+            expect(yield* fs.readFileString(path.join(targetPath, ".beep", "c.txt"))).toBe("c.txt");
+            const residueRoot = path.join(context.worktreesRoot, "test-residue");
+            const residue = yield* fs.readDirectory(residueRoot, { recursive: true });
+            expect(A.some(residue, Str.endsWith("/manifest.json"))).toBe(false);
+            const archived = A.filter(residue, Str.endsWith("/beep-material/b.txt"));
+            if (rollbackFails) {
+              expect(archived).toHaveLength(1);
+              expect(yield* fs.readFileString(path.join(residueRoot, O.getOrThrow(A.head(archived))))).toBe(
+                "b.txt appended during capture"
+              );
+              expect(yield* fs.exists(path.join(targetPath, ".beep", "b.txt"))).toBe(false);
+            } else {
+              expect(yield* fs.readFileString(path.join(targetPath, ".beep", "b.txt"))).toBe(
+                "b.txt appended during capture"
+              );
+              expect(A.some(residue, Str.includes("/beep-material"))).toBe(false);
+            }
           })
         )
       );

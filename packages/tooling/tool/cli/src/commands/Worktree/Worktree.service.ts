@@ -30,11 +30,13 @@ import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import { A, O, Str } from "@beep/utils";
 import * as Bool from "effect/Boolean";
+import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -1028,7 +1030,7 @@ const transferMaterialEntry = Effect.fn("WorktreeRemovalService.transferMaterial
   destination: string,
   destinationParent: string,
   renameCap: number,
-  afterRename: (tree: MaterialTree) => Effect.Effect<void> = () => Effect.void
+  afterRename: () => Effect.Effect<void> = () => Effect.void
 ): Effect.fn.Return<MaterialTree, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -1044,11 +1046,13 @@ const transferMaterialEntry = Effect.fn("WorktreeRemovalService.transferMaterial
     .pipe(materialError(step, "Could not read the destination directory.", destinationParent));
   const rename = before.bytes <= renameCap && sourceDevice.dev === parentDevice.dev;
   yield* rename
-    ? fs.rename(source, destination).pipe(
-        materialError(step, "Could not move the entry.", destination),
-        Effect.tap(() => afterRename(before)),
-        Effect.uninterruptible
-      )
+    ? fs
+        .rename(source, destination)
+        .pipe(
+          materialError(step, "Could not move the entry.", destination),
+          Effect.tap(afterRename),
+          Effect.uninterruptible
+        )
     : copyMaterialTree(step, source, destination);
   const after = yield* describeMaterialTree(step, destination);
   if (!sameMaterialTree(before, after)) {
@@ -1095,21 +1099,15 @@ const preserveBeepMaterial = Effect.fn("WorktreeRemovalService.preserveBeepMater
       path.join(plan.materialRoot, name),
       plan.materialRoot,
       renameCap,
-      (tree) =>
+      () =>
         Ref.update(
           rollback,
           A.prepend(
             Effect.gen(function* () {
               const source = path.join(plan.materialRoot, name);
               const destination = path.join(targetPath, ".beep", name);
-              const archived = yield* describeMaterialTree("preserve-beep-material", source);
-              if (!sameMaterialTree(tree, archived)) {
-                return yield* WorktreePreservationError.new(
-                  "preserve-beep-material",
-                  `Rollback refused: material at ${source} changed; the fenced checkout remains at ${targetPath}.`,
-                  { path: source }
-                );
-              }
+              // This is the lane's newest data, even if a writer changed it after
+              // the move. Return it without requiring the pre-move digest.
               yield* fs
                 .rename(source, destination)
                 .pipe(materialError("preserve-beep-material", "Could not roll back the moved material.", source));
@@ -1342,21 +1340,33 @@ const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(func
   }).pipe(
     Effect.catchCause((cause) =>
       Effect.gen(function* () {
-        yield* Effect.all(yield* Ref.get(rollback), { discard: true });
-        // Only copied (possibly partial) entries remain; their originals never moved.
-        yield* fs
-          .remove(plan.materialRoot, { recursive: true, force: true })
-          .pipe(
-            materialError(
-              "preserve-beep-material",
-              "Could not remove the rolled-back material copy.",
-              plan.materialRoot
-            )
+        const restored = yield* Effect.forEach(yield* Ref.get(rollback), Effect.exit);
+        const cleanup = [
+          fs
+            .remove(plan.manifestPath, { force: true })
+            .pipe(materialError("preserve-beep-material", "Could not remove the failed manifest.", plan.manifestPath)),
+        ];
+        // Failed moves remain recoverable in materialRoot. Only copied entries
+        // remain when every journal step succeeded; their originals never moved.
+        if (A.every(restored, Exit.isSuccess)) {
+          cleanup.push(
+            fs
+              .remove(plan.materialRoot, { recursive: true, force: true })
+              .pipe(
+                materialError(
+                  "preserve-beep-material",
+                  "Could not remove the rolled-back material copy.",
+                  plan.materialRoot
+                )
+              )
           );
-        yield* fs
-          .remove(plan.manifestPath, { force: true })
-          .pipe(materialError("preserve-beep-material", "Could not remove the failed manifest.", plan.manifestPath));
-        return yield* Effect.failCause(cause);
+        }
+        const cleaned = yield* Effect.forEach(cleanup, Effect.exit);
+        return yield* Effect.failCause(
+          A.reduce([...restored, ...cleaned], cause, (original, result) =>
+            Exit.isFailure(result) ? Cause.combine(original, result.cause) : original
+          )
+        );
       })
     ),
     Effect.uninterruptible
@@ -2114,23 +2124,24 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
       )
     );
   const fenced = WorktreeRemovalRequest.make({ ...request, targetPath: retirePath });
-  const planned = yield* Effect.result(fencedArchivePlan(request, fenced));
-  if (Result.isFailure(planned)) {
+  const planned = yield* Effect.exit(fencedArchivePlan(request, fenced));
+  if (Exit.isFailure(planned)) {
     // A refusal inside the fence restores the checkout exactly where it was; a failed
     // restore must name the fenced path loudly so nothing is presumed lost.
     const lateWrites = yield* restoreFencedCheckout(request.targetPath, retirePath, stamp);
     return yield* O.match(lateWrites, {
-      onNone: () => Effect.fail(planned.failure),
+      onNone: () => Effect.failCause(planned.cause),
       onSome: (lateWritesPath) =>
-        Effect.fail(
+        Cause.fail(
           WorktreeCommandError.make({
-            message: `${planned.failure.message} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
+            message: `${Cause.pretty(planned.cause)} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
             path: request.targetPath,
+            cause: planned.cause,
           })
-        ),
+        ).pipe(Cause.combine(planned.cause), Effect.failCause),
     });
   }
-  const { reason, manifest, head, unpushedInspection, quietShells } = planned.success;
+  const { reason, manifest, head, unpushedInspection, quietShells } = planned.value;
   // Re-verify quiescence after capture and before the destructive remove. A scan is a
   // one-time observation, so a same-uid process could have attached to the fenced copy
   // during the capture phase (git status, patch, file copy) — the longest part of the
