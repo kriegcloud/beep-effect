@@ -18,7 +18,7 @@ import { misconfiguredDetail, resultsBackend } from "./internal/actionsResults.t
 import { unzipCommand, zipCommand, zipManifest } from "./internal/archiveCommands.ts";
 import { azureFileTransfer } from "./internal/azureBlob.ts";
 import { digestFileHex } from "./internal/digest.ts";
-import { framed } from "./internal/messageText.ts";
+import { detailText, framed, statusText } from "./internal/messageText.ts";
 import { runnerServices } from "./internal/runnerServices.ts";
 import { spawnOnce } from "./internal/spawn.ts";
 import { CONFLICT, field, isOk, stringField, twirpCall, twirpFailureFields } from "./internal/twirp.ts";
@@ -125,19 +125,16 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
    * @since 0.0.0
    */
   override get message(): string {
-    const about = framed(this.artifact, ' "', '"');
-    const detail = framed(this.detail, ": ");
+    const about = framed({ prefix: ' "', closing: '"' })(this.artifact);
+    const detail = detailText(this.detail);
     return Match.value(this.reason).pipe(
       Match.when("misconfigured", () => `The artifact service is not reachable from here${detail}`),
       Match.when("unreachable", () => `The artifact service could not be reached${detail}`),
-      Match.when(
-        "refused",
-        () => `The artifact service refused${about}${framed(this.status, " with status ")}${detail}`
-      ),
+      Match.when("refused", () => `The artifact service refused${about}${statusText(this.status)}${detail}`),
       Match.when("notFound", () => `No artifact${about} exists in this run`),
       Match.when(
         "archiveFailed",
-        () => `The artifact archive could not be built or extracted${about}${framed(this.stderr, ": ")}`
+        () => `The artifact archive could not be built or extracted${about}${detailText(this.stderr)}`
       ),
       Match.when("transferFailed", () => `The artifact archive did not transfer${about}`),
       Match.when("invalidOptions", () => `The artifact call cannot be made as asked${detail}`),
@@ -626,6 +623,111 @@ const make = Effect.fn("make")(function* (
       archive(unzipCommand({ windows, source, destination }), artifact)
   );
 
+  /** An `invalidOptions` failure for one artifact. */
+  const invalidUpload = (artifact: string, detail: string) =>
+    Effect.fail(ArtifactError.make({ reason: "invalidOptions", artifact, detail }));
+
+  /**
+   * The expiration `retentionDays` asks for, anchored now: positive, finite
+   * and representable, or `Option.none()` for the repository default.
+   */
+  const retentionExpiry = Effect.fnUntraced(function* (
+    name: string,
+    retentionDays: number | undefined
+  ): Effect.fn.Return<O.Option<DateTime.Utc>, ArtifactError> {
+    if (retentionDays === undefined) {
+      return O.none();
+    }
+    if (!S.is(S.Finite)(retentionDays) || retentionDays <= 0) {
+      return yield* invalidUpload(
+        name,
+        "retentionDays must be positive and finite — omit it to use the repository default"
+      );
+    }
+    const expiresAt = DateTime.make((yield* Clock.currentTimeMillis) + retentionDays * 86_400_000);
+    return O.isNone(expiresAt)
+      ? yield* invalidUpload(name, "retentionDays must produce a representable expiration")
+      : expiresAt;
+  });
+
+  /**
+   * Validate an upload before any scratch, archive, RPC or transfer, answering
+   * its expiration: there must be files, the retention must be usable, and
+   * `compressionLevel` must not be `NaN`.
+   */
+  const uploadExpiry = Effect.fnUntraced(function* (
+    name: string,
+    files: ReadonlyArray<string>,
+    options: UploadOptions | undefined
+  ): Effect.fn.Return<O.Option<DateTime.Utc>, ArtifactError> {
+    if (!A.isReadonlyArrayNonEmpty(files)) {
+      return yield* invalidUpload(name, "no files were given to upload");
+    }
+    const expiresAt = yield* retentionExpiry(name, options?.retentionDays);
+    if (options?.compressionLevel !== undefined && Num.Equivalence(options.compressionLevel, Number.NaN)) {
+      return yield* invalidUpload(name, "compressionLevel must not be NaN");
+    }
+    return expiresAt;
+  });
+
+  /** A `refused` failure for one artifact. */
+  const refusedUpload = (artifact: string, detail: string) =>
+    Effect.fail(ArtifactError.make({ reason: "refused", artifact, detail }));
+
+  /**
+   * Create the artifact, move the packed zip to its signed URL and finalize it.
+   * Unlike the cache, a create conflict is a real failure: a run may hold one
+   * artifact per name, so the second upload is a mistake rather than a race
+   * that resolved itself.
+   */
+  const uploadPacked = Effect.fnUntraced(function* (
+    name: string,
+    packed: string,
+    expiresAt: O.Option<DateTime.Utc>
+  ): Effect.fn.Return<UploadResult, ArtifactError> {
+    const created = yield* call(
+      "CreateArtifact",
+      () => ({ name, version: ARTIFACT_VERSION, mimeType: "application/zip" }),
+      name
+    );
+    if (created === CONFLICT || !isOk(created)) {
+      return yield* refusedUpload(name, "an artifact with this name already exists in this run");
+    }
+    const url = stringField(created, "signedUploadUrl");
+    if (url === undefined) {
+      return yield* refusedUpload(name, "CreateArtifact returned no upload url");
+    }
+    yield* transfer.uploadFile(url, packed).pipe(moved(name));
+    const size = yield* fs
+      .stat(packed)
+      .pipe(Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact: name, cause })));
+    const digest = yield* digestOf(packed, name);
+    const finalized = yield* call(
+      "FinalizeArtifact",
+      () => ({
+        name,
+        size: String(size.size),
+        hash: `sha256:${digest}`,
+        ...O.getSomesStruct({ expiresAt: O.map(expiresAt, DateTime.formatIso) }),
+      }),
+      name
+    );
+    if (finalized === CONFLICT || !isOk(finalized)) {
+      return yield* refusedUpload(name, "FinalizeArtifact did not confirm the upload");
+    }
+    return yield* S.decodeEffect(UploadResult)({
+      id: Number(stringField(finalized, "artifactId") ?? 0),
+      size: Number(size.size),
+    }).pipe(
+      Effect.mapError((cause) =>
+        ArtifactError.make({
+          ...twirpFailureFields({ method: "FinalizeArtifact", kind: "malformed", cause }),
+          artifact: name,
+        })
+      )
+    );
+  });
+
   return {
     upload: dual(
       (args) => P.isString(args[0]),
@@ -636,104 +738,13 @@ const make = Effect.fn("make")(function* (
         options?: UploadOptions
       ) {
         yield* Effect.annotateCurrentSpan({ name });
-        if (files.length === 0) {
-          return yield* ArtifactError.make({
-            reason: "invalidOptions",
-            artifact: name,
-            detail: "no files were given to upload",
-          });
-        }
-        const retentionDays = options?.retentionDays;
-        if (retentionDays !== undefined && (!S.is(S.Finite)(retentionDays) || retentionDays <= 0)) {
-          return yield* ArtifactError.make({
-            reason: "invalidOptions",
-            artifact: name,
-            detail: "retentionDays must be positive and finite — omit it to use the repository default",
-          });
-        }
-        const expiresAt =
-          retentionDays === undefined
-            ? O.none<DateTime.Utc>()
-            : DateTime.make((yield* Clock.currentTimeMillis) + retentionDays * 86_400_000);
-        if (retentionDays !== undefined && O.isNone(expiresAt)) {
-          return yield* ArtifactError.make({
-            reason: "invalidOptions",
-            artifact: name,
-            detail: "retentionDays must produce a representable expiration",
-          });
-        }
-        if (options?.compressionLevel !== undefined && Num.Equivalence(options.compressionLevel, Number.NaN)) {
-          return yield* ArtifactError.make({
-            reason: "invalidOptions",
-            artifact: name,
-            detail: "compressionLevel must not be NaN",
-          });
-        }
+        const expiresAt = yield* uploadExpiry(name, files, options);
         return yield* scratch(
           name,
           Effect.fnUntraced(function* (directory: string) {
             const packed = path.join(directory, "artifact.zip");
             yield* zip(files, rootDirectory, packed, options?.compressionLevel ?? 6, name);
-
-            const created = yield* call(
-              "CreateArtifact",
-              () => ({ name, version: ARTIFACT_VERSION, mimeType: "application/zip" }),
-              name
-            );
-            // Unlike the cache, a conflict here is a real failure: a run may
-            // hold one artifact per name, so the second upload is a mistake
-            // rather than a race that resolved itself.
-            if (created === CONFLICT || !isOk(created)) {
-              return yield* ArtifactError.make({
-                reason: "refused",
-                artifact: name,
-                detail: "an artifact with this name already exists in this run",
-              });
-            }
-            const url = stringField(created, "signedUploadUrl");
-            if (url === undefined) {
-              return yield* ArtifactError.make({
-                reason: "refused",
-                artifact: name,
-                detail: "CreateArtifact returned no upload url",
-              });
-            }
-            yield* transfer.uploadFile(url, packed).pipe(moved(name));
-
-            const size = yield* fs
-              .stat(packed)
-              .pipe(Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact: name, cause })));
-            const digest = yield* digestOf(packed, name);
-            const finalized = yield* call(
-              "FinalizeArtifact",
-              () => ({
-                name,
-                size: String(size.size),
-                hash: `sha256:${digest}`,
-                ...O.getSomesStruct({
-                  expiresAt: O.map(expiresAt, DateTime.formatIso),
-                }),
-              }),
-              name
-            );
-            if (finalized === CONFLICT || !isOk(finalized)) {
-              return yield* ArtifactError.make({
-                reason: "refused",
-                artifact: name,
-                detail: "FinalizeArtifact did not confirm the upload",
-              });
-            }
-            return yield* S.decodeEffect(UploadResult)({
-              id: Number(stringField(finalized, "artifactId") ?? 0),
-              size: Number(size.size),
-            }).pipe(
-              Effect.mapError((cause) =>
-                ArtifactError.make({
-                  ...twirpFailureFields({ method: "FinalizeArtifact", kind: "malformed", cause }),
-                  artifact: name,
-                })
-              )
-            );
+            return yield* uploadPacked(name, packed, expiresAt);
           })
         );
       })

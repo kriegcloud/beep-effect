@@ -16,7 +16,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { BlobEnvelope } from "./BlobEnvelope.ts";
-import { framed } from "./internal/messageText.ts";
+import { detailText, framed, statusText } from "./internal/messageText.ts";
 import { sign, uriEncode } from "./internal/sigv4.ts";
 import { framedGet, framedPut } from "./internal/storedBlob.ts";
 import { Secret } from "./Secret.ts";
@@ -101,12 +101,15 @@ export class BlobStoreError extends S.TaggedError<BlobStoreError, { readonly bra
    */
   override get message(): string {
     return Match.value(this.reason).pipe(
-      Match.when("unreachable", () => `The blob store could not be reached${framed(this.key, ' for "', '"')}`),
+      Match.when(
+        "unreachable",
+        () => `The blob store could not be reached${framed({ prefix: ' for "', closing: '"' })(this.key)}`
+      ),
       Match.when(
         "refused",
-        () => `The blob store refused "${this.key}"${framed(this.status, " with status ")}${framed(this.detail, ": ")}`
+        () => `The blob store refused "${this.key}"${statusText(this.status)}${detailText(this.detail)}`
       ),
-      Match.orElse(() => `The blob store is misconfigured${framed(this.detail, ": ")}`)
+      Match.orElse(() => `The blob store is misconfigured${detailText(this.detail)}`)
     );
   }
 }

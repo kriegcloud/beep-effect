@@ -17,7 +17,7 @@ import { misconfiguredDetail, resultsBackend } from "./internal/actionsResults.t
 import { azureFileTransfer } from "./internal/azureBlob.ts";
 import { cacheServiceFor, finalizeUpload, lookupDownload, reserveUpload } from "./internal/cacheService.ts";
 import { sha256Hex } from "./internal/digest.ts";
-import { framed } from "./internal/messageText.ts";
+import { detailText, framed, statusText } from "./internal/messageText.ts";
 import { runnerServices } from "./internal/runnerServices.ts";
 import { spawnOnce } from "./internal/spawn.ts";
 import type * as FileSystem from "effect/FileSystem";
@@ -126,17 +126,16 @@ export class ActionCacheError extends S.TaggedError<ActionCacheError, { readonly
    * @since 0.0.0
    */
   override get message(): string {
-    const [about, detail] = [framed(this.key, ' for "', '"'), framed(this.detail, ": ")];
+    const cache = "The Actions cache";
+    const about = framed({ prefix: ' for "', closing: '"' })(this.key);
+    const detail = detailText(this.detail);
     return Match.value(this.reason).pipe(
-      Match.when("misconfigured", () => `The Actions cache is not reachable from here${detail}`),
-      Match.when("unreachable", () => `The Actions cache could not be reached${about}${detail}`),
-      Match.when(
-        "refused",
-        () => `The Actions cache refused the request${about}${framed(this.status, " with status ")}${detail}`
-      ),
+      Match.when("misconfigured", () => `${cache} is not reachable from here${detail}`),
+      Match.when("unreachable", () => `${cache} could not be reached${about}${detail}`),
+      Match.when("refused", () => `${cache} refused the request${about}${statusText(this.status)}${detail}`),
       Match.when(
         "archiveFailed",
-        () => `The cache archive could not be built or extracted${about}${framed(this.stderr, ": ")}`
+        () => `The cache archive could not be built or extracted${about}${detailText(this.stderr)}`
       ),
       Match.when("transferFailed", () => `The cache archive did not transfer${about}`),
       Match.exhaustive

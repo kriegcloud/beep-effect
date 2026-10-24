@@ -6,6 +6,13 @@ import * as Base64Url from "effect/encoding/Base64Url";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
+/** The `payload`-kind failure a token decodes to; any other answer fails the test. */
+const payloadFailureOf = (token: string) => {
+  const result = payloadOf(token);
+  if (Result.isFailure(result) && result.failure.kind === "payload") return result.failure;
+  return assert.fail(`expected a payload failure for ${token}`);
+};
+
 it.effect("JWT rejects invalid JSON and unencodable fixtures, and supports curried framing", () =>
   Effect.sync(() => {
     const failure = payloadOf(`e30.${Base64Url.encode("{")}.unsigned`);
@@ -46,27 +53,10 @@ it.effect("JWT keeps codec causes and segment/base64url failure classifications"
         "segments"
       );
     }
-    const invalidBase64 = payloadOf("e30.%.unsigned");
-    assertFailure(
-      Result.mapError(invalidBase64, (error) => error.kind),
-      "payload"
-    );
-    if (Result.isFailure(invalidBase64) && invalidBase64.failure.kind === "payload") {
-      const decoded = Base64Url.decodeString("%");
-      assertFailure(
-        Result.mapError(decoded, () => "invalid base64url"),
-        "invalid base64url"
-      );
-      if (Result.isFailure(decoded)) assert.deepStrictEqual(invalidBase64.failure.cause, decoded.failure);
-    } else assert.fail("expected a base64url payload failure");
-    const invalidJson = payloadOf(`e30.${Base64Url.encode("{")}.unsigned`);
-    assertFailure(
-      Result.mapError(invalidJson, (error) => error.kind),
-      "payload"
-    );
-    if (Result.isFailure(invalidJson) && invalidJson.failure.kind === "payload") {
-      assert.instanceOf(invalidJson.failure.cause, S.SchemaError);
-      assert.strictEqual(invalidJson.failure.detail, "the payload is not base64url JSON");
-    } else assert.fail("expected a JSON payload failure");
+    const invalidBase64 = payloadFailureOf("e30.%.unsigned");
+    assert.deepStrictEqual<unknown>(Result.flip(Base64Url.decodeString("%")), Result.succeed(invalidBase64.cause));
+    const invalidJson = payloadFailureOf(`e30.${Base64Url.encode("{")}.unsigned`);
+    assert.instanceOf(invalidJson.cause, S.SchemaError);
+    assert.strictEqual(invalidJson.detail, "the payload is not base64url JSON");
   })
 );

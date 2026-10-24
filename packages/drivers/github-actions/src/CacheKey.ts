@@ -242,6 +242,55 @@ const RestoreDepth = S.Finite.check(
 const RestoreDepths = S.Array(RestoreDepth);
 
 /**
+ * The literal includes that name a file inside the workspace. A literal that
+ * climbs above the workspace is not this workspace's file, whatever is there
+ * (the wildcard walk is not so bounded: a symlinked directory targeting
+ * outside the workspace is descended, matching `@actions/glob`'s out-of-tree
+ * link following). Absent is a miss; unreadable is not, because a key computed
+ * without a file the caller asked for silently restores the wrong cache.
+ */
+const literalMatches = Effect.fnUntraced(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  workspace: string,
+  literals: ReadonlyArray<string>
+): Effect.fn.Return<ReadonlyArray<string>, CacheKeyReadError> {
+  const inside = A.filter(
+    literals,
+    (literal) => !escapesRoot(path, path.relative(workspace, path.join(workspace, literal)))
+  );
+  return yield* Effect.filter(inside, (literal) => {
+    const target = path.join(workspace, literal);
+    return statIfPresent(fs, target).pipe(
+      Effect.map(O.exists((info) => info.type === "File")),
+      Effect.mapError((cause) => CacheKeyReadError.make({ path: target, cause }))
+    );
+  });
+});
+
+/**
+ * The files each include wildcard expands to, walked from its own literal
+ * prefix by `@beep/walker`: files only, `cwd`-relative posix paths, symlinked
+ * directories followed with `@actions/glob`'s traversal-chain cycle guard
+ * (the runner's `hashFiles()` default of `followSymbolicLinks: true`). A
+ * whole-pattern negation only filters; it expands nothing.
+ */
+const wildcardMatches = Effect.fnUntraced(function* (
+  path: Path.Path,
+  workspace: string,
+  wildcards: GlobSet["wildcards"]
+): Effect.fn.Return<ReadonlyArray<string>, CacheKeyReadError, FileSystem.FileSystem | Path.Path> {
+  const found = yield* Effect.forEach(
+    A.filter(wildcards, (wildcard) => !wildcard.negated),
+    (wildcard) =>
+      descend(wildcard, { cwd: workspace, prune: [], followSymlinks: true }).pipe(
+        Effect.mapError((cause) => CacheKeyReadError.make({ path: path.join(workspace, cause.path), cause }))
+      )
+  );
+  return A.flatMap(found, A.fromIterable);
+});
+
+/**
  * A GitHub Actions cache key and the restore-key ladder that goes with it.
  *
  * **Gotchas**
@@ -717,41 +766,13 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
     // traversal-chain cycle guard, so files reachable only through a
     // symlinked directory contribute to the key — matching the runner's
     // `hashFiles()` default of `followSymbolicLinks: true`.
-    const candidates = MutableHashSet.empty<string>();
-    for (const literal of set.literals) {
-      const target = path.join(workspace, literal);
-      // A literal that climbs above the workspace is not this workspace's
-      // file, whatever is there. (The walk below is not so bounded: a
-      // symlinked directory targeting outside the workspace is descended,
-      // matching `@actions/glob`'s out-of-tree link following.)
-      const relative = path.relative(workspace, target);
-      if (escapesRoot(path, relative)) {
-        continue;
-      }
-      // Absent is a miss; unreadable is not, because a key computed without a file the caller asked for
-      // silently restores the wrong cache.
-      const info = yield* statIfPresent(fs, target).pipe(
-        Effect.mapError((cause) => CacheKeyReadError.make({ path: target, cause }))
-      );
-      if (O.isSome(info) && info.value.type === "File") {
-        MutableHashSet.add(candidates, literal);
-      }
-    }
-    for (const wildcard of set.wildcards) {
-      // A whole-pattern negation only filters; it expands nothing.
-      if (wildcard.negated) {
-        continue;
-      }
-      const found = yield* descend(wildcard, { cwd: workspace, prune: [], followSymlinks: true }).pipe(
-        Effect.mapError((cause) => CacheKeyReadError.make({ path: path.join(workspace, cause.path), cause }))
-      );
-      for (const match of found) {
-        MutableHashSet.add(candidates, match);
-      }
-    }
+    const candidates = A.appendAll(
+      yield* literalMatches(fs, path, workspace, set.literals),
+      yield* wildcardMatches(path, workspace, set.wildcards)
+    );
     return A.map(
       A.sort(
-        A.filter(candidates, (candidate) => set.matches(candidate)),
+        A.filter(MutableHashSet.fromIterable(candidates), (candidate) => set.matches(candidate)),
         Order.String
       ),
       (candidate) => path.join(workspace, candidate)

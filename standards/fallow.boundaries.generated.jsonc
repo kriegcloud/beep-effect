@@ -2518,6 +2518,7 @@
           "@beep/npm-spec",
           "@beep/sbom",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils",
           "@beep/walker"
         ],
@@ -2533,6 +2534,7 @@
           "@beep/npm-spec",
           "@beep/sbom",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils",
           "@beep/walker"
         ]

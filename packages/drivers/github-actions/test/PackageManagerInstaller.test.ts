@@ -1,19 +1,3 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file asyncFunction:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09); nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; asyncFunction because the fetch doubles must be async functions shaped like globalThis.fetch. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import {
-  chmodSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import {
   ActionEnvironment,
   AmbientPackageManager,
@@ -27,9 +11,9 @@ import {
 import { PackageManagerInstallOptions } from "@beep/github-actions/PackageManagerInstaller";
 import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
-import { NodeServices } from "@effect/platform-node";
+import { provideScopedLayer } from "@beep/test-utils/Layer";
 import { assert, describe, it } from "@effect/vitest";
-import { assertExitFailure } from "@effect/vitest/utils";
+import { assertExitFailure, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -49,15 +33,22 @@ import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./support/deliberatelyInvalid.ts";
+import { hostChildProcess, hostCrypto, hostFs, hostOs, hostPath, nativePlatform } from "./support/host.ts";
 import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
 import type * as Scope from "effect/Scope";
+
+const { execFileSync } = hostChildProcess;
+const { createHash } = hostCrypto;
+const { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } =
+  hostFs;
+const { join } = hostPath;
 
 const Json = S.fromJsonString(S.Unknown);
 
 /** A scratch tool-cache root, removed by the test that made it. */
-const scratch = () => mkdtempSync(join(tmpdir(), "effected-pminstall-"));
+const scratch = () => mkdtempSync(join(hostOs.tmpdir(), "effected-pminstall-"));
 
-const alwaysFails: typeof globalThis.fetch = Object.assign(async () => new Response("no", { status: 500 }), {
+const alwaysFails: typeof globalThis.fetch = Object.assign(() => Promise.resolve(new Response("no", { status: 500 })), {
   preconnect: () => {},
 });
 
@@ -65,11 +56,11 @@ const alwaysFails: typeof globalThis.fetch = Object.assign(async () => new Respo
 const scriptedFetch = (replies: Readonly<Record<string, () => Response>>) => {
   const calls: Array<string> = [];
   const fetch: typeof globalThis.fetch = Object.assign(
-    async (input: Parameters<typeof globalThis.fetch>[0]) => {
+    (input: Parameters<typeof globalThis.fetch>[0]) => {
       const url = String(input);
       calls.push(url);
       const reply = replies[url];
-      return reply === undefined ? new Response("not scripted", { status: 404 }) : reply();
+      return Promise.resolve(reply === undefined ? new Response("not scripted", { status: 404 }) : reply());
     },
     { preconnect: () => {} }
   );
@@ -84,7 +75,7 @@ const scriptedFetch = (replies: Readonly<Record<string, () => Response>>) => {
 const live = (root: string, fetch: typeof globalThis.fetch = alwaysFails, env: Record<string, string> = {}) => {
   const platform = Layer.mergeAll(
     ActionEnvironment.layerTest({ RUNNER_TOOL_CACHE: root, ...env }),
-    NodeServices.layer,
+    nativePlatform,
     FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch)))
   );
   // Loggers are cleared: the "no integrity hash" warning every unsigned pin
@@ -138,64 +129,66 @@ const rootFixture = <A, E extends TestError>(
     Effect.gen(function* () {
       const root = yield* scratchResource;
       return {
-        layer: Layer.mergeAll(live(root, options.fetch ?? alwaysFails, options.env ?? {}), NodeServices.layer),
+        layer: Layer.mergeAll(live(root, options.fetch ?? alwaysFails, options.env ?? {}), nativePlatform),
         test: use(root),
       };
     })
   );
+
+type ManagerTarballOptions = {
+  readonly name: string;
+  readonly version: string;
+  readonly bin?: Record<string, string> | undefined;
+  readonly binFiles?: ReadonlyArray<string> | undefined;
+  readonly binFileContents?: string | undefined;
+  readonly extraFiles?: ReadonlyArray<string> | undefined;
+  readonly omitManifest?: boolean | undefined;
+  /** Files written verbatim (path → contents), for bins whose bytes matter. */
+  readonly files?: Readonly<Record<string, string>> | undefined;
+  /** Extra manifest fields, e.g. pnpm 12's `optionalDependencies`. */
+  readonly manifest?: Readonly<Record<string, unknown>> | undefined;
+};
+
+/** `package/package.json`, unless the fixture omits it. */
+const manifestFile = (options: ManagerTarballOptions): Readonly<Record<string, string>> =>
+  options.omitManifest === true
+    ? {}
+    : {
+        "package.json": Result.getOrThrowWith(
+          S.encodeResult(Json)({
+            name: options.name,
+            version: options.version,
+            ...(options.bin === undefined ? {} : { bin: options.bin }),
+            ...options.manifest,
+          }),
+          (error) => error
+        ),
+      };
+
+/** Every file under `package/` by path; a later group overwrites an earlier one at the same path. */
+const packageFiles = (options: ManagerTarballOptions): Readonly<Record<string, string>> => {
+  const binContents = options.binFileContents ?? `#!/usr/bin/env node\nconsole.log("${options.name}");\n`;
+  return {
+    ...manifestFile(options),
+    ...options.files,
+    ...R.fromEntries(A.map(options.binFiles ?? [], (file) => [file, binContents] as const)),
+    ...R.fromEntries(A.map(options.extraFiles ?? [], (file) => [file, "plain file"] as const)),
+  };
+};
 
 /**
  * A registry-shaped tarball: `package/package.json` with a `bin` map plus the
  * bin files themselves, gzipped — the layout npm, pnpm, yarn 1.x and
  * `@yarnpkg/cli-dist` all publish (probed against the real tarballs).
  */
-const makeManagerTarball = (
-  directory: string,
-  options: {
-    readonly name: string;
-    readonly version: string;
-    readonly bin?: Record<string, string> | undefined;
-    readonly binFiles?: ReadonlyArray<string> | undefined;
-    readonly binFileContents?: string | undefined;
-    readonly extraFiles?: ReadonlyArray<string> | undefined;
-    readonly omitManifest?: boolean | undefined;
-    /** Files written verbatim (path → contents), for bins whose bytes matter. */
-    readonly files?: Readonly<Record<string, string>> | undefined;
-    /** Extra manifest fields, e.g. pnpm 12's `optionalDependencies`. */
-    readonly manifest?: Readonly<Record<string, unknown>> | undefined;
-  }
-): string => {
+const makeManagerTarball = (directory: string, options: ManagerTarballOptions): string => {
   const safeName = Str.replaceAll("/", "-")(options.name);
   const staging = join(directory, `staging-${safeName}-${options.version}`);
   const packageDir = join(staging, "package");
   mkdirSync(packageDir, { recursive: true });
-  if (options.omitManifest !== true) {
-    writeFileSync(
-      join(packageDir, "package.json"),
-      Result.getOrThrowWith(
-        S.encodeResult(Json)({
-          name: options.name,
-          version: options.version,
-          ...(options.bin !== undefined ? { bin: options.bin } : {}),
-          ...options.manifest,
-        }),
-        (error) => error
-      )
-    );
-  }
-  for (const [file, contents] of R.toEntries(options.files ?? {})) {
+  for (const [file, contents] of R.toEntries(packageFiles(options))) {
     mkdirSync(join(packageDir, file, ".."), { recursive: true });
     writeFileSync(join(packageDir, file), contents);
-  }
-  for (const file of options.binFiles ?? []) {
-    mkdirSync(join(packageDir, file, ".."), { recursive: true });
-    writeFileSync(
-      join(packageDir, file),
-      options.binFileContents ?? `#!/usr/bin/env node\nconsole.log("${options.name}");\n`
-    );
-  }
-  for (const file of options.extraFiles ?? []) {
-    writeFileSync(join(packageDir, file), "plain file");
   }
   const archive = join(directory, `${safeName}-${options.version}.tgz`);
   execFileSync("tar", ["czf", archive, "-C", staging, "package"]);
@@ -336,7 +329,7 @@ const stubbed = (options: {
     Layer.provide(
       Layer.mergeAll(
         ActionEnvironment.layerTest(options.env ?? {}),
-        NodeServices.layer,
+        nativePlatform,
         options.spawner ?? Layer.empty,
         ToolInstaller.layerTest(options.installer ?? {})
       )
@@ -361,6 +354,149 @@ const install = (
     nativeIntegrity?: Readonly<Record<string, string>>;
   }
 ) => Effect.flatMap(PackageManagerInstaller, (installer) => installer.install(pin(spec), options));
+
+const CONTAINMENT_KINDS = ["bin", "ancestor", "root", "internal"] as const;
+
+/**
+ * One containment fixture under `base`: an extracted `package/` whose `bin`
+ * entry is a symlink out (`bin`), whose `bin` directory is (`ancestor`), whose
+ * whole package root is (`root`), or a symlink that stays inside (`internal`).
+ * `outside/cli.cjs` is the file no install may touch.
+ */
+const stageContainment = (base: string, kind: (typeof CONTAINMENT_KINDS)[number]) => {
+  const directory = join(base, "extracted", "package");
+  const outside = join(base, "outside");
+  mkdirSync(outside, { recursive: true });
+  writeFileSync(join(outside, "cli.cjs"), "untouched");
+  chmodSync(join(outside, "cli.cjs"), 0o600);
+  mkdirSync(join(directory, "bin"), { recursive: true });
+  const manifest = S.encodeResult(Json)({ bin: { pnpm: "bin/cli.cjs" } }).pipe(Result.getOrThrow);
+  writeFileSync(join(directory, "package.json"), manifest);
+  const stage: Record<(typeof CONTAINMENT_KINDS)[number], () => void> = {
+    bin: () => symlinkSync(join(outside, "cli.cjs"), join(directory, "bin", "cli.cjs")),
+    ancestor: () => {
+      rmSync(join(directory, "bin"), { recursive: true });
+      symlinkSync(outside, join(directory, "bin"));
+    },
+    root: () => {
+      writeFileSync(join(outside, "package.json"), manifest);
+      mkdirSync(join(outside, "bin"));
+      writeFileSync(join(outside, "bin", "cli.cjs"), "untouched");
+      rmSync(directory, { recursive: true });
+      symlinkSync(outside, directory);
+    },
+    internal: () => {
+      writeFileSync(join(directory, "real.cjs"), "internal");
+      symlinkSync(join(directory, "real.cjs"), join(directory, "bin", "cli.cjs"));
+    },
+  };
+  stage[kind]();
+  return { directory, outside };
+};
+
+/**
+ * A stubbed tool cache over one staged package directory: a hit on it when
+ * `cached`, else a miss whose extraction lands on it; `publish` answers the
+ * cache entry a miss publishes (and records that it ran).
+ */
+const stagedInstaller = (options: {
+  readonly directory: string;
+  readonly cached: boolean;
+  readonly publish: () => string;
+  readonly env?: Record<string, string> | undefined;
+  readonly cachePath?: string | undefined;
+}) => {
+  const { cachePath } = options;
+  return Layer.fresh(
+    stubbed({
+      env: options.env,
+      installer: {
+        find: dual(2, (_tool: string, _version: string) =>
+          options.cached ? Effect.succeedSome(options.directory) : Effect.succeedNone
+        ),
+        ...(cachePath === undefined ? {} : { cachePath: dual(2, (_tool: string, _version: string) => cachePath) }),
+        download: dual(
+          (args) => P.isString(args[0]),
+          (_url: string, _options?: unknown) => Effect.succeed("unused")
+        ),
+        extractTar: dual(
+          (args) => P.isString(args[0]),
+          (_archive: string, _options?: unknown) => Effect.succeed(join(options.directory, ".."))
+        ),
+        cacheDir: dual(3, (_source: string, _tool: string, _version: string) => Effect.sync(options.publish)),
+      },
+    })
+  );
+};
+
+/** The containment verdict: only the internal symlink installs, and nothing outside is touched. */
+const assertContained = (
+  kind: (typeof CONTAINMENT_KINDS)[number],
+  result: Result.Result<InstalledPackageManager, PackageManagerInstallerError>,
+  expected: { readonly directory: string; readonly publications: number; readonly cached: boolean }
+) => {
+  if (kind === "internal") {
+    assert.strictEqual(result._tag, "Success");
+    assert.isTrue(existsSync(join(expected.directory, ".bin", "pnpm")));
+    assert.strictEqual(expected.publications, expected.cached ? 0 : 1);
+    return;
+  }
+  assertSuccess(
+    Result.map(Result.flip(result), (error) => error.reason),
+    "layoutUnexpected"
+  );
+  assert.strictEqual(expected.publications, 0);
+  assert.isFalse(existsSync(join(expected.directory, ".bin")));
+};
+
+/** Every reserved Windows device stem as a bin name, on both runners, on a miss and a hit. */
+const DEVICE_STEM_CASES = A.flatMap(["Windows", "Linux"], (runnerOs) =>
+  A.flatMap([false, true], (cached) =>
+    A.map(["NUL", "con", "PrN.extra", "AUX", "com1", "COM9.more", "lpt1", "LPT9", "COM¹", "LPT²"], (name) => ({
+      runnerOs,
+      cached,
+      name,
+    }))
+  )
+);
+
+/** A package whose manifest also publishes `bin/pnpm.cjs` under the device stem `name`. */
+const stageDeviceStem = (directory: string, name: string): string => {
+  mkdirSync(join(directory, "bin"), { recursive: true });
+  writeFileSync(
+    join(directory, "package.json"),
+    S.encodeResult(Json)({ bin: { pnpm: "bin/pnpm.cjs", [name]: "bin/pnpm.cjs" } }).pipe(Result.getOrThrow)
+  );
+  writeFileSync(join(directory, "bin", "pnpm.cjs"), "fixture");
+  return directory;
+};
+
+/** Every byte a Windows shim cannot carry literally, in the bin target and in the cache root, on a miss and a hit. */
+const WINDOWS_BYTE_CASES = A.flatMap([false, true], (cached) =>
+  A.flatMap(["target", "cache-root"] as const, (location) =>
+    A.map(['"', "%tool%", "!tool!", "\n", "\r", "\t", "\x7f"], (byte) => ({ cached, location, byte }))
+  )
+);
+
+/** A package whose `tool` bin target, or whose cache root, carries `byte`. */
+const stageWindowsBytes = (
+  base: string,
+  options: { readonly cached: boolean; readonly location: "target" | "cache-root"; readonly byte: string }
+) => {
+  const inRoot = options.location === "cache-root";
+  const cacheRoot = join(base, inRoot ? `cache${options.byte}` : "cache");
+  const destination = ToolInstaller.cachePath({ root: cacheRoot, tool: "pnpm", version: "2.0.7", arch: "x64" });
+  const directory = options.cached ? destination : join(base, "staged", "package");
+  const relative = inRoot ? "bin/tool.cjs" : `bin/tool${options.byte}.cjs`;
+  mkdirSync(join(directory, "bin"), { recursive: true });
+  writeFileSync(
+    join(directory, "package.json"),
+    S.encodeResult(Json)({ bin: { pnpm: "bin/normal.cjs", tool: relative } }).pipe(Result.getOrThrow)
+  );
+  writeFileSync(join(directory, "bin", "normal.cjs"), "fixture");
+  writeFileSync(join(directory, relative), "fixture");
+  return { cacheRoot, destination, directory };
+};
 
 /** A corepack `<algo>.<hex>` integrity, decoded through the same schema a pin's tail is. */
 const corepack = (value: string): IntegrityHashBrand =>
@@ -403,71 +539,24 @@ describe("PackageManagerInstaller", () => {
       Effect.gen(function* () {
         let index = 0;
         for (const cached of [false, true]) {
-          for (const kind of ["bin", "ancestor", "root", "internal"]) {
-            const base = join(root, `containment-${index++}`);
-            const directory = join(base, "extracted", "package");
-            const outside = join(base, "outside");
-            mkdirSync(outside, { recursive: true });
-            writeFileSync(join(outside, "cli.cjs"), "untouched");
-            chmodSync(join(outside, "cli.cjs"), 0o600);
-            mkdirSync(join(directory, "bin"), { recursive: true });
-            const manifest = S.encodeResult(Json)({ bin: { pnpm: "bin/cli.cjs" } }).pipe(Result.getOrThrow);
-            writeFileSync(join(directory, "package.json"), manifest);
-            if (kind === "bin") {
-              symlinkSync(join(outside, "cli.cjs"), join(directory, "bin", "cli.cjs"));
-            } else if (kind === "ancestor") {
-              rmSync(join(directory, "bin"), { recursive: true });
-              symlinkSync(outside, join(directory, "bin"));
-            } else if (kind === "root") {
-              writeFileSync(join(outside, "package.json"), manifest);
-              mkdirSync(join(outside, "bin"));
-              writeFileSync(join(outside, "bin", "cli.cjs"), "untouched");
-              rmSync(directory, { recursive: true });
-              symlinkSync(outside, directory);
-            } else {
-              writeFileSync(join(directory, "real.cjs"), "internal");
-              symlinkSync(join(directory, "real.cjs"), join(directory, "bin", "cli.cjs"));
-            }
+          for (const kind of CONTAINMENT_KINDS) {
+            const { directory, outside } = stageContainment(join(root, `containment-${index++}`), kind);
             let publications = 0;
             const result = yield* Effect.result(
               install("pnpm@2.0.7").pipe(
-                Effect.provide(
-                  Layer.fresh(
-                    stubbed({
-                      installer: {
-                        find: dual(2, (_tool: string, _version: string) =>
-                          cached ? Effect.succeedSome(directory) : Effect.succeedNone
-                        ),
-                        download: dual(
-                          (args) => P.isString(args[0]),
-                          (_url: string, _options?: unknown) => Effect.succeed("unused")
-                        ),
-                        extractTar: dual(
-                          (args) => P.isString(args[0]),
-                          (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))
-                        ),
-                        cacheDir: dual(3, (_source: string, _tool: string, _version: string) =>
-                          Effect.sync(() => {
-                            publications += 1;
-                            return directory;
-                          })
-                        ),
-                      },
-                    })
-                  )
+                provideScopedLayer(
+                  stagedInstaller({
+                    directory,
+                    cached,
+                    publish: () => {
+                      publications += 1;
+                      return directory;
+                    },
+                  })
                 )
               )
             );
-            if (kind === "internal") {
-              assert.strictEqual(result._tag, "Success");
-              assert.isTrue(existsSync(join(directory, ".bin", "pnpm")));
-              assert.strictEqual(publications, cached ? 0 : 1);
-            } else {
-              assert.strictEqual(result._tag, "Failure");
-              if (Result.isFailure(result)) assert.strictEqual(result.failure.reason, "layoutUnexpected");
-              assert.strictEqual(publications, 0);
-              assert.isFalse(existsSync(join(directory, ".bin")));
-            }
+            assertContained(kind, result, { directory, publications, cached });
             assert.strictEqual(readFileSync(join(outside, "cli.cjs"), "utf8"), "untouched");
             assert.strictEqual(statSync(join(outside, "cli.cjs")).mode & 0o777, 0o600);
           }
@@ -497,7 +586,7 @@ describe("PackageManagerInstaller", () => {
         writeFileSync(join(directory, ".bin", "pnpm.cmd"), shim);
         const error = yield* Effect.flip(
           install("pnpm@12.0.0").pipe(
-            Effect.provide(
+            provideScopedLayer(
               Layer.fresh(
                 stubbed({
                   env: { RUNNER_OS: "Windows" },
@@ -535,7 +624,7 @@ describe("PackageManagerInstaller", () => {
           const cacheRoot = "-eprocess.exit(1)//";
           const destination = ToolInstaller.cachePath({ root: cacheRoot, tool: "pnpm", version: "2.0.7", arch: "x64" });
           yield* install("pnpm@2.0.7").pipe(
-            Effect.provide(
+            provideScopedLayer(
               Layer.fresh(
                 stubbed({
                   env: { RUNNER_OS: runnerOs },
@@ -980,7 +1069,7 @@ describe("PackageManagerInstaller", () => {
           for (const relative of R.values(targets)) writeFileSync(join(directory, relative), "fixture");
           const installed = cachedOf(
             yield* install("pnpm@7.7.7").pipe(
-              Effect.provide(
+              provideScopedLayer(
                 Layer.fresh(
                   stubbed({
                     env: { RUNNER_OS: "Linux" },
@@ -1095,7 +1184,7 @@ describe("PackageManagerInstaller", () => {
             );
           });
           return {
-            layer: Layer.mergeAll(live(root, script.fetch), NodeServices.layer),
+            layer: Layer.mergeAll(live(root, script.fetch), nativePlatform),
             test: program.pipe(Effect.ensuring(Effect.sync(() => rmSync(root, { recursive: true, force: true })))),
           };
         })
@@ -1773,7 +1862,7 @@ describe("PackageManagerInstaller", () => {
             assert.strictEqual(Str.trim(viaAlias), `native-pnpm ${version} a b`);
           });
           return {
-            layer: Layer.mergeAll(live(root, script.fetch, darwinArm), NodeServices.layer),
+            layer: Layer.mergeAll(live(root, script.fetch, darwinArm), nativePlatform),
             test: program.pipe(Effect.ensuring(Effect.sync(() => rmSync(root, { recursive: true, force: true })))),
           };
         })
@@ -2499,64 +2588,28 @@ describe("PackageManagerInstaller", () => {
       rootFixture((root) =>
         Effect.gen(function* () {
           let index = 0;
-          for (const runnerOs of ["Windows", "Linux"]) {
-            for (const cached of [false, true]) {
-              for (const name of [
-                "NUL",
-                "con",
-                "PrN.extra",
-                "AUX",
-                "com1",
-                "COM9.more",
-                "lpt1",
-                "LPT9",
-                "COM¹",
-                "LPT²",
-              ]) {
-                const directory = join(root, `device-${index++}`, "package");
-                mkdirSync(join(directory, "bin"), { recursive: true });
-                writeFileSync(
-                  join(directory, "package.json"),
-                  S.encodeResult(Json)({ bin: { pnpm: "bin/pnpm.cjs", [name]: "bin/pnpm.cjs" } }).pipe(
-                    Result.getOrThrow
-                  )
-                );
-                writeFileSync(join(directory, "bin", "pnpm.cjs"), "fixture");
-                let cachedEntry = false;
-                const layer = stubbed({
-                  env: { RUNNER_OS: runnerOs, RUNNER_TOOL_CACHE: root },
-                  installer: {
-                    find: dual(2, (_tool: string, _version: string) =>
-                      cached ? Effect.succeedSome(directory) : Effect.succeedNone
-                    ),
-                    download: dual(
-                      (args) => P.isString(args[0]),
-                      (_url: string, _options?: unknown) => Effect.succeed("unused")
-                    ),
-                    extractTar: dual(
-                      (args) => P.isString(args[0]),
-                      (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))
-                    ),
-                    cacheDir: dual(3, (_source: string, _tool: string, _version: string) =>
-                      Effect.sync(() => {
-                        cachedEntry = true;
-                        return ToolInstaller.cachePath({ root, tool: "pnpm", version: "2.0.7", arch: process.arch });
-                      })
-                    ),
-                  },
-                });
-                if (runnerOs === "Windows") {
-                  const error = yield* Effect.flip(install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(layer))));
-                  assert.strictEqual(error.reason, "layoutUnexpected");
-                  assert.include(error.subject ?? "", `bin ${name}`);
-                  assert.isFalse(existsSync(join(directory, ".bin")));
-                  assert.isFalse(cachedEntry);
-                } else if (runnerOs === "Linux") {
-                  const installed = cachedOf(yield* install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(layer))));
-                  assert.strictEqual(installed.source, "tool-cache");
-                  assert.isTrue(existsSync(join(directory, ".bin", name)));
-                }
-              }
+          for (const { runnerOs, cached, name } of DEVICE_STEM_CASES) {
+            const directory = stageDeviceStem(join(root, `device-${index++}`, "package"), name);
+            let cachedEntry = false;
+            const layer = stagedInstaller({
+              directory,
+              cached,
+              env: { RUNNER_OS: runnerOs, RUNNER_TOOL_CACHE: root },
+              publish: () => {
+                cachedEntry = true;
+                return ToolInstaller.cachePath({ root, tool: "pnpm", version: "2.0.7", arch: process.arch });
+              },
+            });
+            const result = yield* Effect.result(install("pnpm@2.0.7").pipe(provideScopedLayer(layer)));
+            if (runnerOs === "Windows") {
+              const error = Result.getOrThrowWith(Result.flip(result), () => new Error("expected a refusal"));
+              assert.strictEqual(error.reason, "layoutUnexpected");
+              assert.include(error.subject ?? "", `bin ${name}`);
+              assert.isFalse(existsSync(join(directory, ".bin")));
+              assert.isFalse(cachedEntry);
+            } else {
+              assert.strictEqual(result.pipe(Result.getOrThrow, cachedOf).source, "tool-cache");
+              assert.isTrue(existsSync(join(directory, ".bin", name)));
             }
           }
         })
@@ -2570,64 +2623,29 @@ describe("PackageManagerInstaller", () => {
       rootFixture((root) =>
         Effect.gen(function* () {
           let index = 0;
-          for (const cached of [false, true]) {
-            for (const location of ["target", "cache-root"]) {
-              for (const byte of ['"', "%tool%", "!tool!", "\n", "\r", "\t", "\x7f"]) {
-                const base = join(root, `windows-${index++}`);
-                const cacheRoot = join(base, location === "cache-root" ? `cache${byte}` : "cache");
-                const destination = ToolInstaller.cachePath({
-                  root: cacheRoot,
-                  tool: "pnpm",
-                  version: "2.0.7",
-                  arch: "x64",
-                });
-                const directory = cached ? destination : join(base, "staged", "package");
-                const relative = location === "target" ? `bin/tool${byte}.cjs` : "bin/tool.cjs";
-                mkdirSync(join(directory, "bin"), { recursive: true });
-                writeFileSync(
-                  join(directory, "package.json"),
-                  S.encodeResult(Json)({ bin: { pnpm: "bin/normal.cjs", tool: relative } }).pipe(Result.getOrThrow)
-                );
-                writeFileSync(join(directory, "bin", "normal.cjs"), "fixture");
-                writeFileSync(join(directory, relative), "fixture");
-                let cachedEntry = false;
-                const error = yield* Effect.flip(
-                  install("pnpm@2.0.7").pipe(
-                    Effect.provide(
-                      Layer.fresh(
-                        stubbed({
-                          env: { RUNNER_OS: "Windows", RUNNER_ARCH: "X64", RUNNER_TOOL_CACHE: cacheRoot },
-                          installer: {
-                            find: dual(2, (_tool: string, _version: string) =>
-                              cached ? Effect.succeedSome(directory) : Effect.succeedNone
-                            ),
-                            cachePath: dual(2, (_tool: string, _version: string) => destination),
-                            download: dual(
-                              (args) => P.isString(args[0]),
-                              (_url: string, _options?: unknown) => Effect.succeed("unused")
-                            ),
-                            extractTar: dual(
-                              (args) => P.isString(args[0]),
-                              (_archive: string, _options?: unknown) => Effect.succeed(join(directory, ".."))
-                            ),
-                            cacheDir: dual(3, (_source: string, _tool: string, _version: string) =>
-                              Effect.sync(() => {
-                                cachedEntry = true;
-                                return destination;
-                              })
-                            ),
-                          },
-                        })
-                      )
-                    )
-                  )
-                );
-                assert.strictEqual(error.reason, "layoutUnexpected");
-                assert.include(error.subject ?? "", "cannot be represented literally");
-                assert.isFalse(existsSync(join(directory, ".bin")));
-                assert.isFalse(cachedEntry);
-              }
-            }
+          for (const { cached, location, byte } of WINDOWS_BYTE_CASES) {
+            const staged = stageWindowsBytes(join(root, `windows-${index++}`), { cached, location, byte });
+            let cachedEntry = false;
+            const error = yield* Effect.flip(
+              install("pnpm@2.0.7").pipe(
+                provideScopedLayer(
+                  stagedInstaller({
+                    directory: staged.directory,
+                    cached,
+                    env: { RUNNER_OS: "Windows", RUNNER_ARCH: "X64", RUNNER_TOOL_CACHE: staged.cacheRoot },
+                    cachePath: staged.destination,
+                    publish: () => {
+                      cachedEntry = true;
+                      return staged.destination;
+                    },
+                  })
+                )
+              )
+            );
+            assert.strictEqual(error.reason, "layoutUnexpected");
+            assert.include(error.subject ?? "", "cannot be represented literally");
+            assert.isFalse(existsSync(join(staged.directory, ".bin")));
+            assert.isFalse(cachedEntry);
           }
         })
       ),
@@ -2654,7 +2672,7 @@ describe("PackageManagerInstaller", () => {
           writeFileSync(join(directory, relative), "fixture");
           const installed = cachedOf(
             yield* install("pnpm@2.0.7").pipe(
-              Effect.provide(
+              provideScopedLayer(
                 Layer.fresh(
                   stubbed({
                     env: { RUNNER_OS: "Windows" },
@@ -2686,7 +2704,7 @@ describe("PackageManagerInstaller", () => {
             writeFileSync(join(directory, "package.json"), "{");
             const error = yield* Effect.flip(
               install("pnpm@2.0.7").pipe(
-                Effect.provide(
+                provideScopedLayer(
                   Layer.fresh(
                     stubbed({
                       installer: {
@@ -2736,7 +2754,7 @@ describe("PackageManagerInstaller", () => {
           writeFileSync(packument, "{");
           const error = yield* Effect.flip(
             install("pnpm@12.0.0").pipe(
-              Effect.provide(
+              provideScopedLayer(
                 Layer.fresh(
                   stubbed({
                     env: { RUNNER_OS: "Windows", RUNNER_ARCH: "X64" },

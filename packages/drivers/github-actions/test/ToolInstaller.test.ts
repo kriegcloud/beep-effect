@@ -2,7 +2,6 @@ import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "@beep/gith
 import { ExtractOptions, ProvisionedFile, ProvisionFileOptions } from "@beep/github-actions/ToolInstaller";
 import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
-import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -25,6 +24,7 @@ import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
+import { nativePlatform } from "./support/host.ts";
 import { settle } from "./support/results.ts";
 
 const alwaysFails: typeof globalThis.fetch = Object.assign(() => Promise.resolve(new Response("no", { status: 500 })), {
@@ -47,7 +47,7 @@ const live = (root: string, fetch: typeof globalThis.fetch = alwaysFails, env: R
     Layer.provide(
       Layer.mergeAll(
         ActionEnvironment.layerTest({ RUNNER_TOOL_CACHE: root, ...env }),
-        NodeServices.layer,
+        nativePlatform,
         FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch)))
       )
     )
@@ -76,10 +76,10 @@ const testLayer = (
       return Layer.mergeAll(
         Layer.succeed(TestRoot, root),
         options.make?.(root, yield* Path.Path) ?? live(root, options.fetch ?? alwaysFails, options.env ?? {}),
-        NodeServices.layer
+        nativePlatform
       );
     })
-  ).pipe(Layer.provide(NodeServices.layer));
+  ).pipe(Layer.provide(nativePlatform));
 
 /** A real gzipped tarball containing one file. */
 const makeTarball = Effect.fn("ToolInstaller.test.makeTarball")(function* (directory: string, contents: string) {
@@ -167,9 +167,9 @@ const liveWithFileSystem = (
         ActionEnvironment.layerTest({ RUNNER_TOOL_CACHE: root, ...env }),
         // NodeServices FIRST, the mutated FileSystem after it: the last
         // provider of a duplicated service wins the merge.
-        NodeServices.layer,
+        nativePlatform,
         Layer.effect(FileSystem.FileSystem, Effect.map(FileSystem.FileSystem, mutate)).pipe(
-          Layer.provide(NodeServices.layer)
+          Layer.provide(nativePlatform)
         ),
         FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch)))
       )

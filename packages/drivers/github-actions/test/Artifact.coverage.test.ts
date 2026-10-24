@@ -15,7 +15,7 @@ import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
-import { json, resultsEnv, runtimeToken, twirpFetch } from "./support/results.ts";
+import { json, jsonStatus, resultsEnv, runtimeToken, twirpFetch } from "./support/results.ts";
 import type { FileBlobTransfer } from "@beep/github-actions/BlobTransfer";
 
 const fault = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "injected failure" });
@@ -136,7 +136,7 @@ describe("Artifact uncovered protocol outcomes", () => {
     (a) => a.list,
     "unreachable"
   );
-  for (const response of [() => json({}, 409), () => json({ ok: false })]) {
+  for (const response of [() => jsonStatus({}, 409), () => json({ ok: false })]) {
     failed(
       "create refusal terminates upload",
       { responses: { CreateArtifact: response } },
@@ -214,7 +214,7 @@ describe("Artifact uncovered protocol outcomes", () => {
   );
 
   for (const [response, expected] of [
-    [() => json({}, 409), []],
+    [() => jsonStatus({}, 409), []],
     [() => json({}), []],
     [() => json({ artifacts: [{}] }), [{ id: 0, name: "", size: 0 }]],
   ] as const) {

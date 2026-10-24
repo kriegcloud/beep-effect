@@ -83,6 +83,7 @@
     "@azure/core-rest-pipeline": "catalog:",
     "@beep/fc-runs": "workspace:^",
     "@beep/memfs": "workspace:^",
+    "@beep/test-utils": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",

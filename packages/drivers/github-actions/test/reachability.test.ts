@@ -8,19 +8,20 @@
 // `ActionCache`, `Artifact` and `BlobStore.githubCache`.
 //
 // The claims are checked by walking the RUNTIME import graph of `src` from
-// Vite-inlined source text (`test/support/sourceGraph.ts`), so the suite needs
-// no filesystem and runs under Node and Bun. Type-only edges are erased and
-// skipped. What this does not prove is that a downstream bundler drops an
-// unreferenced module; that rests on `"sideEffects": []` (asserted below) plus
-// module-per-file output. What it does prove is the part this package
-// controls: no edge exists.
+// Vite-inlined source text (`test/support/sourceGraph.ts` over
+// `@beep/test-utils/ImportGraph`), so the suite needs no filesystem and runs
+// under Node and Bun. Type-only edges are erased and skipped. What this does
+// not prove is that a downstream bundler drops an unreferenced module; that
+// rests on `"sideEffects": []` (asserted below) plus module-per-file output.
+// What it does prove is the part this package controls: no edge exists.
 
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import manifest from "../package.json" with { type: "json" };
-import { edgesOf, resolveSibling, runtimeClosure, sourceModules, sourceOf } from "./support/sourceGraph.ts";
+import { builtinsOf, runtimeClosure, runtimeEdgesOf, sourceModules, sourceOf } from "./support/sourceGraph.ts";
 
 /** Every `src` module, so a new module is a deliberate edit to this list. */
 const MODULES = [
@@ -78,129 +79,116 @@ const LIGHT_MODULES = A.filter(
   (module) => module !== "index.ts" && module !== AZURE_BOUNDARY && !A.contains(AZURE_SERVICES, module)
 );
 
-const packagesOf = (entry: string): ReadonlyArray<string> => runtimeClosure(entry).packages;
-
 const names = (pkg: string) => (specifier: string) => specifier === pkg || Str.startsWith(`${pkg}/`)(specifier);
 
-const reaches = (entry: string, pkg: string): boolean => A.some(packagesOf(entry), names(pkg));
+const packagesOf = (entry: string) => Effect.map(runtimeClosure(entry), (closure) => closure.packages);
 
-describe("the source walker", () => {
+const reaches = (entry: string, pkg: string) => Effect.map(packagesOf(entry), A.some(names(pkg)));
+
+/** The modules among `entries` whose closure reaches `pkg`. */
+const reachingAmong = (entries: ReadonlyArray<string>, pkg: string) =>
+  Effect.filter(entries, (entry) => reaches(entry, pkg));
+
+describe("the source scan", () => {
   it("reads every src module", () => {
     assert.deepStrictEqual(sourceModules, MODULES);
   });
 
-  it("keeps prose, doc examples, strings and erased edges out of the runtime graph", () => {
-    // Self-contained so it cannot be reworded away: prose naming `@azure/*`
-    // once opened a phantom block comment in a stripper and hid every import
-    // after it. This walker reads only top-of-line statements and literal
-    // builtin loads, so the fixture pins that it stays immune.
+  it("counts literal builtin loads in code and not in prose", () => {
     const fixture = A.join(
       [
-        "// Confined to @azure/* and nothing else; see src/* for the rest.",
-        'import * as Effect from "effect/Effect";',
-        "/**",
-        " * A doc comment whose example imports the client:",
-        ' * import { BlobClient } from "@azure/storage-blob";',
-        " */",
-        'import "./Sibling.ts";',
-        'export { thing } from "./thing.ts";',
-        "export class ReadError {",
-        '  message = `Failed to read package.json from "${this.path}"`;',
-        "}",
+        '// process.getBuiltinModule("node:os") is how a comment would say it.',
         'const { createHash } = process.getBuiltinModule("node:crypto");',
+        'import * as Effect from "effect/Effect";',
         'import type { Blob } from "@azure/storage-blob";',
-        'export type { Other } from "./Other.ts";',
       ],
       "\n"
     );
-    assert.deepStrictEqual(edgesOf(fixture), {
-      runtime: ["effect/Effect", "./thing.ts", "./Sibling.ts", "node:crypto"],
-      typeOnly: ["@azure/storage-blob", "./Other.ts"],
-    });
-  });
-
-  it("resolves sibling and parent edges inside src and refuses to leave it", () => {
-    assert.strictEqual(resolveSibling("internal/twirp.ts", "../ActionEnvironment.ts"), "ActionEnvironment.ts");
-    assert.strictEqual(resolveSibling("ActionCache.ts", "./internal/twirp.ts"), "internal/twirp.ts");
-    assert.throws(() => resolveSibling("index.ts", "../package.json"));
+    assert.deepStrictEqual(builtinsOf(fixture), ["node:crypto"]);
+    assert.deepStrictEqual(runtimeEdgesOf(fixture), ["effect/Effect", "node:crypto"]);
   });
 });
 
 describe("bundle reachability", () => {
   it("only the Azure boundary imports @azure/storage-blob", () => {
     assert.deepStrictEqual(
-      A.filter(MODULES, (module) => A.some(edgesOf(sourceOf(module)).runtime, names("@azure/storage-blob"))),
+      A.filter(MODULES, (module) => A.some(runtimeEdgesOf(sourceOf(module)), names("@azure/storage-blob"))),
       [AZURE_BOUNDARY]
     );
   });
 
-  it("the three permitted services DO reach @azure/storage-blob", () => {
-    // The control: without it every negative below could pass because the
-    // walker is blind rather than because the edge is absent.
-    for (const entry of AZURE_SERVICES) {
-      assert.isTrue(reaches(entry, "@azure/storage-blob"), `${entry} does not reach Azure — the walker is blind`);
-      assert.include(runtimeClosure(entry).modules, AZURE_BOUNDARY);
-    }
-  });
+  it.effect("the three permitted services DO reach @azure/storage-blob, through the boundary", () =>
+    Effect.gen(function* () {
+      // The control: without it every negative below could pass because the
+      // walker is blind rather than because the edge is absent.
+      assert.deepStrictEqual(yield* reachingAmong(AZURE_SERVICES, "@azure/storage-blob"), AZURE_SERVICES);
+      for (const entry of AZURE_SERVICES) {
+        assert.include((yield* runtimeClosure(entry)).modules, AZURE_BOUNDARY);
+      }
+    })
+  );
 
-  it("no other module reaches @azure/storage-blob", () => {
-    for (const entry of LIGHT_MODULES) {
-      assert.isFalse(reaches(entry, "@azure/storage-blob"), `${entry} reaches Azure — the confinement has leaked`);
-    }
-  });
+  it.effect("no other module reaches @azure/storage-blob", () =>
+    Effect.gen(function* () {
+      assert.deepStrictEqual(yield* reachingAmong(LIGHT_MODULES, "@azure/storage-blob"), []);
+    })
+  );
 
-  it("the entry point reaches Azure, and that is correct", () => {
-    // `src/index.ts` re-exports the three heavy services, so of course it
-    // reaches Azure. The property that matters is the one above: every light
-    // module is reachable WITHOUT it.
-    assert.isTrue(reaches("index.ts", "@azure/storage-blob"));
-  });
+  it.effect("the entry point reaches Azure, and that is correct", () =>
+    Effect.gen(function* () {
+      // `src/index.ts` re-exports the three heavy services, so of course it
+      // reaches Azure. The property that matters is the one above: every light
+      // module is reachable WITHOUT it.
+      assert.isTrue(yield* reaches("index.ts", "@azure/storage-blob"));
+    })
+  );
 
   it("no light module imports a heavy one directly", () => {
     // Deliberately RAW source: a specifier appearing only in a comment fails
     // the test, a spurious alarm and never a silent pass. It sees only DIRECT
     // imports; the transitive half is the `no other module` test above.
     for (const entry of LIGHT_MODULES) {
-      for (const heavy of A.appendAll(AZURE_SERVICES, ["azureBlob.ts"])) {
+      for (const heavy of A.append(AZURE_SERVICES, "azureBlob.ts")) {
         assert.notInclude(sourceOf(entry), `/${heavy}"`, `${entry} imports ${heavy}`);
       }
     }
   });
 
-  it("each module reaches exactly the packages it is expected to", () => {
-    // Exact edge sets, so a stray value import fails here rather than in a
-    // consumer's bundle. The default runtime (`Action.ts`) reaches no Azure and
-    // no installer vocabulary; the shared internals reach `effect` and the
-    // Twirp client and nothing heavier.
-    assert.deepStrictEqual(
-      R.fromEntries(A.map(R.keys(EXPECTED_PACKAGES), (m) => [m, packagesOf(m)])),
-      EXPECTED_PACKAGES
-    );
-  });
+  it.effect("each pinned module reaches exactly the packages it is expected to", () =>
+    Effect.gen(function* () {
+      // Exact edge sets, so a stray value import fails here rather than in a
+      // consumer's bundle. The default runtime (`Action.ts`) reaches no Azure
+      // and no installer vocabulary; the shared internals reach `effect` and
+      // the Twirp client and nothing heavier.
+      const actual = yield* Effect.forEach(R.keys(EXPECTED_PACKAGES), (module) =>
+        Effect.map(packagesOf(module), (packages) => [module, packages] as const)
+      );
+      assert.deepStrictEqual(R.fromEntries(actual), EXPECTED_PACKAGES);
+    })
+  );
 
-  it("no module reaches the markdown engine", () => {
-    // The reporting suite ships as `@beep/github-reporting`, whose own
-    // reachability test pins its markdown edges. This package reaches only its
-    // test-double helper, which has none.
-    for (const entry of MODULES) {
-      assert.isFalse(reaches(entry, "@beep/markdown"), `${entry} reaches @beep/markdown`);
-    }
-  });
+  it.effect("no module reaches the markdown engine", () =>
+    Effect.gen(function* () {
+      // The reporting suite ships as `@beep/github-reporting`, whose own
+      // reachability test pins its markdown edges; this package reaches only
+      // its test-double helper, which has none.
+      assert.deepStrictEqual(yield* reachingAmong(MODULES, "@beep/markdown"), []);
+    })
+  );
 
-  it("the @beep/npm-spec edge is confined to the installer", () => {
-    assert.isTrue(reaches("PackageManagerInstaller.ts", "@beep/npm-spec"), "the walker is blind");
-    for (const entry of A.filter(LIGHT_MODULES, (module) => module !== "PackageManagerInstaller.ts")) {
-      assert.isFalse(reaches(entry, "@beep/npm-spec"), `${entry} reaches @beep/npm-spec`);
-    }
-  });
+  it.effect("the @beep/npm-spec edge is confined to the installer", () =>
+    Effect.gen(function* () {
+      assert.deepStrictEqual(yield* reachingAmong(LIGHT_MODULES, "@beep/npm-spec"), ["PackageManagerInstaller.ts"]);
+    })
+  );
 
-  it("node builtins are reached only through the sanctioned loaders", () => {
+  it("node builtins are loaded only by the sanctioned modules", () => {
     // `node:crypto` behind the synchronous and streaming digests and SigV4's
     // HMAC, which Effect Crypto does not expose; `node:fs` and
     // `node:child_process` behind the detached spawn, whose children must
     // inherit native descriptors and outlive the Effect scope.
     assert.deepStrictEqual(
-      A.filter(MODULES, (module) => A.some(edgesOf(sourceOf(module)).runtime, Str.startsWith("node:"))),
+      A.filter(MODULES, (module) => A.some(runtimeEdgesOf(sourceOf(module)), Str.startsWith("node:"))),
       ["DetachedProcess.ts", "internal/digest.ts", "internal/sigv4.ts"]
     );
   });
@@ -212,16 +200,16 @@ describe("bundle reachability", () => {
     assert.deepStrictEqual(manifest.sideEffects, []);
   });
 
-  it("every runtime dependency is declared", () => {
-    const declared = R.keys(manifest.dependencies);
-    for (const specifier of packagesOf("index.ts")) {
-      if (Str.startsWith("node:")(specifier)) continue;
-      assert.isTrue(
-        A.some(declared, (pkg) => names(pkg)(specifier)),
-        `${specifier} is imported but not declared`
+  it.effect("every runtime dependency is declared", () =>
+    Effect.gen(function* () {
+      const declared = R.keys(manifest.dependencies);
+      const undeclared = A.filter(
+        yield* packagesOf("index.ts"),
+        (specifier) => !Str.startsWith("node:")(specifier) && !A.some(declared, (pkg) => names(pkg)(specifier))
       );
-    }
-  });
+      assert.deepStrictEqual(undeclared, []);
+    })
+  );
 });
 
 /** The exact runtime packages each pinned module reaches. */
@@ -400,6 +388,7 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
   "internal/actionsResults.ts": [
     "@beep/identity/packages",
     "@beep/schema/LiteralKit",
+    "effect/Array",
     "effect/Effect",
     "effect/Function",
     "effect/Option",

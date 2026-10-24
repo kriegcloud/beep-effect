@@ -1,5 +1,3 @@
-// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-
 import {
   ActionEnvironment,
   ActionsProvenance,
@@ -9,6 +7,7 @@ import {
 } from "@beep/github-actions";
 import { MemoryFileSystem } from "@beep/memfs";
 import { SlsaProvenance } from "@beep/sbom/SlsaProvenance";
+import { provideScopedLayer } from "@beep/test-utils/Layer";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -38,7 +37,7 @@ const provided = <A, E>(
   program: Effect.Effect<A, E, OidcTokenIssuer | ActionEnvironment>,
   issuer: Layer.Layer<OidcTokenIssuer>,
   env: Layer.Layer<ActionEnvironment> = ActionEnvironment.layerTest()
-) => program.pipe(Effect.provide(Layer.mergeAll(issuer, env)));
+) => program.pipe(provideScopedLayer(Layer.mergeAll(issuer, env)));
 
 /** An environment with NOTHING seeded — `GITHUB_SERVER_URL` genuinely absent — over an empty volume. */
 const emptyEnvironment = ActionEnvironment.layerFrom({}).pipe(Layer.provide(MemoryFileSystem.layer));

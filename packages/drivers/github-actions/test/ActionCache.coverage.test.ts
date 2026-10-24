@@ -16,7 +16,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { json, resultsEnv, twirpFetch } from "./support/results.ts";
+import { json, jsonStatus, resultsEnv, twirpFetch } from "./support/results.ts";
 import type { FileBlobTransfer } from "@beep/github-actions/BlobTransfer";
 
 const fault = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "injected failure" });
@@ -29,6 +29,21 @@ interface Options {
   readonly responses?: Parameters<typeof twirpFetch>[0];
   readonly spawnFails?: boolean;
 }
+/** The fake `tar czPf <archive> -T <manifest>`: checks the manifest framing, then writes the archive. */
+const fakeTar = Effect.fn("fakeTar")(function* (
+  fs: FileSystem.FileSystem,
+  args: ReadonlyArray<string>,
+  expectedPath: string | undefined
+) {
+  const destination = args[1];
+  const manifest = args[3];
+  if (destination === undefined || manifest === undefined) return yield* Effect.die("missing tar arguments");
+  const contents = yield* fs.readFileString(manifest);
+  assert.isTrue(Str.endsWith("\n")(contents));
+  if (expectedPath !== undefined) assert.deepStrictEqual(Str.split(contents, "\n"), [expectedPath, ""]);
+  yield* fs.writeFileString(destination, "archive bytes");
+});
+
 const fixture = (options: Options = {}) => {
   const rpc = twirpFetch({
     CreateCacheEntry: () => json({ ok: true, signedUploadUrl: "https://blob.example/container/cache?sig=test" }),
@@ -55,15 +70,7 @@ const fixture = (options: Options = {}) => {
         Effect.gen(function* () {
           if (options.spawnFails === true) return yield* fault;
           if ("args" in command && command.args[0] === "czPf") {
-            const destination = command.args[1];
-            if (destination === undefined) return yield* Effect.die("missing archive destination");
-            const manifest = command.args[3];
-            if (manifest === undefined) return yield* Effect.die("missing manifest");
-            const contents = yield* fs.readFileString(manifest);
-            assert.isTrue(Str.endsWith("\n")(contents));
-            if (options.expectedPath !== undefined)
-              assert.deepStrictEqual(Str.split(contents, "\n"), [options.expectedPath, ""]);
-            yield* fs.writeFileString(destination, "archive bytes");
+            yield* fakeTar(fs, command.args, options.expectedPath);
           }
           return ChildProcessSpawner.makeHandle({
             pid: ChildProcessSpawner.ProcessId(42),
@@ -164,7 +171,7 @@ describe("cache supplemental failure paths", () => {
     "archiveFailed"
   );
   failed("invalid glob", {}, (cache) => cache.save(["["], "key"), "archiveFailed");
-  for (const response of [() => json({}, 403), () => json({ ok: false })]) {
+  for (const response of [() => jsonStatus({}, 403), () => json({ ok: false })]) {
     failed("finalize refusal", { responses: { FinalizeCacheEntryUpload: response } }, save, "refused");
   }
   it.layer(fixture({ env: { HOME: "", USERPROFILE: "/work" }, expectedPath: "/work/a.txt" }), {

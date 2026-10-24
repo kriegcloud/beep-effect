@@ -113,10 +113,13 @@ export const escapesRoot: {
  * @category queries
  * @since 0.0.0
  */
-export const realDestination = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path
-): ((file: string) => Effect.Effect<string, PlatformError.PlatformError>) => {
+export const realDestination = ({
+  fs,
+  path,
+}: {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+}): ((file: string) => Effect.Effect<string, PlatformError.PlatformError>) => {
   const resolve = Effect.fnUntraced(function* (file: string): Effect.fn.Return<string, PlatformError.PlatformError> {
     return yield* fs.realPath(file).pipe(
       Effect.catchIf(

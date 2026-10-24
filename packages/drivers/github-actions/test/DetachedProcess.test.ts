@@ -1,9 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file asyncFunction:skip-file processEnv:skip-file processEnvInEffect:skip-file globalTimers:skip-file newPromise:skip-file globalRandom:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; asyncFunction because it polls a detached native child that outlives the Effect scope; processEnv because it sets and restores a parent-only variable and passes PATH to prove what the child inherits; processEnvInEffect because it sets and restores a parent-only variable and passes PATH to prove what the child inherits; globalTimers because the child poll waits on a real timer; newPromise because it adapts node:http server callbacks and the child poll; globalRandom because a random parent-only value proves the child does not inherit it. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { createServer } from "node:http";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import {
   DetachedLogUnavailableError,
   DetachedNotReadyError,
@@ -22,33 +16,42 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import { dual, pipe } from "effect/Function";
+import { dual, identity, pipe } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
+import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
-import type { Server, ServerResponse } from "node:http";
+import { hostChildProcess, hostFs, hostHttp, hostOs, hostPath } from "./support/host.ts";
+import type { HttpServer, HttpServerResponse } from "./support/host.ts";
 
 const Json = S.fromJsonString(S.Unknown);
 const EnvironmentRecord = S.Record(S.String, S.String);
 
-/** A fresh scratch directory per use, removed by the test that made it. */
-const scratch = () => mkdtempSync(join(tmpdir(), "effected-detached-"));
+const { spawnSync } = hostChildProcess;
+const { createServer } = hostHttp;
+const { mkdtempSync, readFileSync, rmSync } = hostFs;
+const { join } = hostPath;
 
-/** Wait for a real condition without a real sleep loop in the assertion. */
-const eventually = async (predicate: () => boolean, attempts = 100): Promise<boolean> => {
-  for (let remaining = attempts; remaining > 0; remaining -= 1) {
-    if (predicate()) {
-      return true;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  }
-  return predicate();
-};
+/** The child's PATH: a fixed value the env tests pass through and read back. */
+const CHILD_PATH = "/usr/local/bin:/usr/bin:/bin";
+
+/** A fresh scratch directory per use, removed by the test that made it. */
+const scratch = () => mkdtempSync(join(hostOs.tmpdir(), "effected-detached-"));
+
+/**
+ * Wait for a real condition: the predicate is polled every 20ms on the live
+ * clock (a real child is filling a real file), up to `attempts` more times.
+ */
+const eventually = (predicate: () => boolean, attempts = 100): Effect.Effect<boolean> =>
+  Effect.sync(predicate).pipe(
+    Effect.repeat({ schedule: Schedule.spaced("20 millis"), until: identity<boolean>, times: attempts }),
+    TestClock.withLive
+  );
 
 /** Whether a pid is still alive, asked without signalling it. */
 const alive = (pid: number): boolean => {
@@ -294,25 +297,19 @@ describe("DetachedProcess", () => {
     class ServerUrl extends Context.Service<ServerUrl, string>()(
       "@beep/github-actions/test/DetachedProcess.test/ServerUrl"
     ) {}
-    const serverLayer = (respond: (response: ServerResponse) => void) =>
+    const serverLayer = (respond: (response: HttpServerResponse) => void) =>
       Layer.effect(
         ServerUrl,
         Effect.gen(function* () {
           const server = yield* Effect.acquireRelease(
-            Effect.promise(
-              () =>
-                new Promise<Server>((resolve) => {
-                  const server = createServer((_request, response) => respond(response));
-                  server.listen(0, "127.0.0.1", () => resolve(server));
-                })
-            ),
+            Effect.callback<HttpServer>((resume) => {
+              const server = createServer((_request, response) => respond(response));
+              server.listen(0, "127.0.0.1", () => resume(Effect.succeed(server)));
+            }),
             (server) =>
-              Effect.promise(
-                () =>
-                  new Promise<void>((resolve) => {
-                    server.close(() => resolve());
-                  })
-              )
+              Effect.callback<void>((resume) => {
+                server.close(() => resume(Effect.void));
+              })
           );
           const address = server.address();
           if (address === null || typeof address === "string") {
@@ -357,20 +354,17 @@ describe("DetachedProcess", () => {
         Effect.gen(function* () {
           // Bind an ephemeral port and close it completely first: the port is
           // then known-refusing without racing another process for a fixed one.
-          const port = yield* Effect.promise(
-            () =>
-              new Promise<number>((resolve) => {
-                const server = createServer();
-                server.listen(0, "127.0.0.1", () => {
-                  const address = server.address();
-                  if (address === null || typeof address === "string") {
-                    assert.fail("expected a bound TCP address");
-                  }
-                  const bound = address.port;
-                  server.close(() => resolve(bound));
-                });
-              })
-          );
+          const port = yield* Effect.callback<number>((resume) => {
+            const server = createServer();
+            server.listen(0, "127.0.0.1", () => {
+              const address = server.address();
+              if (address === null || typeof address === "string") {
+                assert.fail("expected a bound TCP address");
+              }
+              const bound = address.port;
+              server.close(() => resume(Effect.succeed(bound)));
+            });
+          });
           // The assertion that matters is that this line is reached at all: a
           // probe that let the transport error through would fail the effect
           // here instead of answering false.
@@ -482,8 +476,8 @@ describe("DetachedProcess", () => {
   });
 
   describe("spawn", () => {
-    // Live clock required: polls native child output or process exit through real timers.
-    it.live("starts a detached child, routes its output to the log file, and survives to be reaped", () => {
+    // The child and its log are real; the polling runs on the live clock (TestClock.withLive).
+    it.effect("starts a detached child, routes its output to the log file, and survives to be reaped", () => {
       const directory = scratch();
       const logFile = join(directory, "child.log");
       return Effect.gen(function* () {
@@ -497,54 +491,53 @@ describe("DetachedProcess", () => {
         // The parent closed its own descriptor immediately; the child holds a
         // duplicate, which is what keeps the log filling after this process
         // would have exited.
-        const wrote = yield* Effect.promise(() =>
-          eventually(() => {
-            try {
-              return Str.includes("hello from the child")(readFileSync(logFile, "utf8"));
-            } catch {
-              return false;
-            }
-          })
-        );
+        const wrote = yield* eventually(() => {
+          try {
+            return Str.includes("hello from the child")(readFileSync(logFile, "utf8"));
+          } catch {
+            return false;
+          }
+        });
         assert.isTrue(wrote, "the child's stdout must reach the log file");
 
         assert.isTrue(yield* DetachedProcess.reap(pid));
-        const gone = yield* Effect.promise(() => eventually(() => !alive(pid)));
+        const gone = yield* eventually(() => !alive(pid));
         assert.isTrue(gone, "the reaped child must actually exit");
       }).pipe(Effect.ensuring(Effect.sync(() => rmSync(directory, { recursive: true, force: true }))));
     });
 
-    // Live clock required: polls native child output or process exit through real timers.
-    it.live("a supplied base replaces the parent's environment wholesale, with env merged over it", () => {
+    // The child and its log are real; the polling runs on the live clock (TestClock.withLive).
+    it.effect("a supplied base replaces the parent's environment wholesale, with env merged over it", () => {
       const directory = scratch();
       const logFile = join(directory, "env.log");
       // A test-owned variable, not `HOME`: nothing guarantees a runner's
       // environment carries any particular name. Set on the parent for the
       // test's duration only, and restored on every path.
       const PARENT_ONLY = "EFFECTED_DETACHED_PARENT_ONLY";
-      const previous = process.env[PARENT_ONLY];
-      process.env[PARENT_ONLY] = `parent-${Str.slice(2)(Math.random().toString(36))}`;
+      vi.stubEnv(PARENT_ONLY, "parent-only");
       return Effect.gen(function* () {
         // The parent holds it; the child must NOT see it — the base is the
-        // whole inherited block, not additions to process.env.
-        assert.isString(process.env[PARENT_ONLY], "the control: the parent must hold the variable the child must lack");
+        // whole inherited block, not additions to the parent's environment.
+        assert.strictEqual(
+          import.meta.env[PARENT_ONLY],
+          "parent-only",
+          "the control: the parent must hold the variable the child must lack"
+        );
         const pid = yield* DetachedProcess.spawn({
           command: process.execPath,
           args: ["-e", "process.stdout.write(JSON.stringify(process.env));"],
           logFile,
-          base: { ONLY: "1", PATH: process.env.PATH, DROPPED: undefined },
+          base: { ONLY: "1", PATH: CHILD_PATH, DROPPED: undefined },
           env: { X: "y" },
         });
         assert.isAbove(pid, 0);
-        const wrote = yield* Effect.promise(() =>
-          eventually(() => {
-            try {
-              return Str.endsWith("}")(readFileSync(logFile, "utf8"));
-            } catch {
-              return false;
-            }
-          })
-        );
+        const wrote = yield* eventually(() => {
+          try {
+            return Str.endsWith("}")(readFileSync(logFile, "utf8"));
+          } catch {
+            return false;
+          }
+        });
         assert.isTrue(wrote, "the child must have printed its environment");
         const seen = Result.getOrThrowWith(S.decodeResult(Json)(readFileSync(logFile, "utf8")), (error) => error);
         if (!S.is(EnvironmentRecord)(seen)) {
@@ -552,7 +545,7 @@ describe("DetachedProcess", () => {
         }
         assert.strictEqual(seen.ONLY, "1");
         assert.strictEqual(seen.X, "y");
-        assert.strictEqual(seen.PATH, process.env.PATH);
+        assert.strictEqual(seen.PATH, CHILD_PATH);
         assert.notProperty(seen, PARENT_ONLY, "the parent's own variables must not leak past an explicit base");
         // An `undefined` base value is dropped, never stringified.
         assert.notProperty(seen, "DROPPED");
@@ -560,16 +553,15 @@ describe("DetachedProcess", () => {
       }).pipe(
         Effect.ensuring(
           Effect.sync(() => {
-            if (previous === undefined) delete process.env[PARENT_ONLY];
-            else process.env[PARENT_ONLY] = previous;
+            vi.unstubAllEnvs();
             rmSync(directory, { recursive: true, force: true });
           })
         )
       );
     });
 
-    // Live clock required: polls native child output or process exit through real timers.
-    it.live("env overrides a key the base also carries", () => {
+    // The child and its log are real; the polling runs on the live clock (TestClock.withLive).
+    it.effect("env overrides a key the base also carries", () => {
       const directory = scratch();
       const logFile = join(directory, "env.log");
       return Effect.gen(function* () {
@@ -577,18 +569,16 @@ describe("DetachedProcess", () => {
           command: process.execPath,
           args: ["-e", "process.stdout.write(JSON.stringify(process.env));"],
           logFile,
-          base: { PATH: process.env.PATH, KEY: "from-base" },
+          base: { PATH: CHILD_PATH, KEY: "from-base" },
           env: { KEY: "from-env" },
         });
-        const wrote = yield* Effect.promise(() =>
-          eventually(() => {
-            try {
-              return Str.endsWith("}")(readFileSync(logFile, "utf8"));
-            } catch {
-              return false;
-            }
-          })
-        );
+        const wrote = yield* eventually(() => {
+          try {
+            return Str.endsWith("}")(readFileSync(logFile, "utf8"));
+          } catch {
+            return false;
+          }
+        });
         assert.isTrue(wrote, "the child must have printed its environment");
         const seen = Result.getOrThrowWith(S.decodeResult(Json)(readFileSync(logFile, "utf8")), (error) => error);
         if (!S.is(EnvironmentRecord)(seen)) {

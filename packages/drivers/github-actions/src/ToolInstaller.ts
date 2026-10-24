@@ -20,7 +20,7 @@ import * as Str from "effect/String";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { tarExtractCommand, unzipCommand } from "./internal/archiveCommands.ts";
 import { escapesRoot, isErrno, realDestination, typeAt } from "./internal/fsProbe.ts";
-import { framed } from "./internal/messageText.ts";
+import { detailText, framed } from "./internal/messageText.ts";
 import { isWindowsRunner, toolCacheRoot } from "./internal/runner.ts";
 import { spawnOnce } from "./internal/spawn.ts";
 import type * as Duration from "effect/Duration";
@@ -103,8 +103,11 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
    */
   override get message(): string {
     return Match.value(this.reason).pipe(
-      Match.when("downloadFailed", () => `Could not download ${this.subject}${framed(this.status, " (HTTP ", ")")}`),
-      Match.when("extractFailed", () => `Could not extract ${this.subject}${framed(this.stderr, ": ")}`),
+      Match.when(
+        "downloadFailed",
+        () => `Could not download ${this.subject}${framed({ prefix: " (HTTP ", closing: ")" })(this.status)}`
+      ),
+      Match.when("extractFailed", () => `Could not extract ${this.subject}${detailText(this.stderr)}`),
       Match.orElse(() => `Could not cache ${this.subject} into the tool cache`)
     );
   }
@@ -666,7 +669,7 @@ const make = Effect.gen(function* () {
       : Effect.succeed(destination);
   });
 
-  const resolvedDestination = realDestination(fs, path);
+  const resolvedDestination = realDestination({ fs, path });
 
   const containedBinaryDestination: {
     (directory: string, name: string): Effect.Effect<string, ToolInstallerError>;

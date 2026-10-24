@@ -8,7 +8,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { framed } from "./internal/messageText.ts";
+import { detailText } from "./internal/messageText.ts";
 
 const $I = $GithubActionsId.create("ActionEnvironment");
 
@@ -89,7 +89,7 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
   override get message(): string {
     return this.reason === "missing"
       ? `Required environment variable "${this.variable}" is not set`
-      : `Environment variable "${this.variable}" is malformed${framed(this.detail, ": ")}`;
+      : `Environment variable "${this.variable}" is malformed${detailText(this.detail)}`;
   }
 }
 

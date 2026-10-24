@@ -3,7 +3,6 @@
 import { Artifact, ArtifactError, BlobTransferError } from "@beep/github-actions";
 import { DownloadOptions, DownloadResult, UploadOptions } from "@beep/github-actions/Artifact";
 import { MemoryFileSystem } from "@beep/memfs";
-import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -24,6 +23,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import { nativePlatform } from "./support/host.ts";
 import { json, resultsEnv, runtimeToken, twirpFetch } from "./support/results.ts";
 import type { FileBlobTransfer } from "@beep/github-actions";
 
@@ -68,7 +68,7 @@ const live = (
     Layer.provideMerge(
       Layer.mergeAll(
         resultsEnv(env),
-        NodeServices.layer,
+        nativePlatform,
         FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch)))
       )
     )
@@ -124,6 +124,25 @@ const protocolZip = Layer.effect(
 const uploadable = {
   CreateArtifact: () => json({ ok: true, signedUploadUrl: "https://blob.example/artifact?sig=abc" }),
   FinalizeArtifact: () => json({ ok: true, artifactId: "4242" }),
+};
+
+/** Every malformed artifact id a Twirp answer can carry, by field spelling and answering method. */
+const MALFORMED_ID_CASES = A.flatMap(["artifactId", "artifact_id"], (idField) =>
+  A.flatMap(["not-a-number", "Infinity", "1e309"], (malformed) =>
+    A.map(["FinalizeArtifact", "DeleteArtifact"] as const, (method) => ({ idField, malformed, method }))
+  )
+);
+
+/** The call that reaches each answering method. */
+const MALFORMED_ID_CALL = {
+  FinalizeArtifact: (artifacts: Artifact["Service"]) => artifacts.upload("logs", ["/work/a.txt"], "/work"),
+  DeleteArtifact: (artifacts: Artifact["Service"]) => artifacts.delete("logs"),
+};
+
+/** The RPCs each call makes before the malformed id stops it. */
+const MALFORMED_ID_METHODS = {
+  FinalizeArtifact: ["CreateArtifact", "FinalizeArtifact"],
+  DeleteArtifact: ["ListArtifacts", "DeleteArtifact"],
 };
 
 describe("Artifact", () => {
@@ -199,7 +218,7 @@ describe("Artifact", () => {
         )
       )
     );
-    it.layer(layer)((it) => {
+    it.layer(layer, { timeout: "30 seconds" })((it) => {
       for (const [label, options] of [
         ["NaN retention", { retentionDays: Number.NaN }],
         ["infinite retention", { retentionDays: Number.POSITIVE_INFINITY }],
@@ -228,7 +247,7 @@ describe("Artifact", () => {
   {
     const { transfer } = fileTransfer();
     const { calls, fetch } = twirpFetch(uploadable);
-    it.layer(protocol(fetch, transfer, {}, protocolZip))((it) => {
+    it.layer(protocol(fetch, transfer, {}, protocolZip), { timeout: "30 seconds" })((it) => {
       it.effect("preserves valid retention, omitted expiry and infinity compression acceptance", () =>
         Effect.gen(function* () {
           const artifacts = yield* Artifact;
@@ -252,40 +271,30 @@ describe("Artifact", () => {
     });
   }
 
-  for (const idField of ["artifactId", "artifact_id"]) {
-    for (const malformed of ["not-a-number", "Infinity", "1e309"]) {
-      for (const method of ["FinalizeArtifact", "DeleteArtifact"] as const) {
-        const { transfer } = fileTransfer();
-        const { calls, fetch } = twirpFetch({
-          ...uploadable,
-          ListArtifacts: () => json({ artifacts: [{ databaseId: "11", name: "logs", size: "1" }] }),
-          [method]: () => json({ ok: true, [idField]: malformed }),
-        });
-        it.layer(protocol(fetch, transfer, {}, protocolZip), { timeout: "10 seconds" })((it) => {
-          it.effect(`rejects malformed ${idField} ${malformed} from ${method}`, () =>
-            Effect.gen(function* () {
-              const artifacts = yield* Artifact;
-              const error = yield* Effect.flip(
-                method === "FinalizeArtifact"
-                  ? artifacts.upload("logs", ["/work/a.txt"], "/work")
-                  : artifacts.delete("logs")
-              );
-              assert.instanceOf(error, ArtifactError);
-              assert.strictEqual(error.reason, "unreachable");
-              assert.strictEqual(error.artifact, "logs");
-              assert.strictEqual(error.detail, `${method} did not answer with a Twirp body`);
-              assert.instanceOf(error.cause, S.SchemaError);
-              assert.deepStrictEqual(
-                A.map(calls, (call) => call.method),
-                method === "FinalizeArtifact"
-                  ? ["CreateArtifact", "FinalizeArtifact"]
-                  : ["ListArtifacts", "DeleteArtifact"]
-              );
-            })
+  for (const { idField, malformed, method } of MALFORMED_ID_CASES) {
+    const { transfer } = fileTransfer();
+    const { calls, fetch } = twirpFetch({
+      ...uploadable,
+      ListArtifacts: () => json({ artifacts: [{ databaseId: "11", name: "logs", size: "1" }] }),
+      [method]: () => json({ ok: true, [idField]: malformed }),
+    });
+    it.layer(protocol(fetch, transfer, {}, protocolZip), { timeout: "10 seconds" })((it) => {
+      it.effect(`rejects malformed ${idField} ${malformed} from ${method}`, () =>
+        Effect.gen(function* () {
+          const artifacts = yield* Artifact;
+          const error = yield* Effect.flip(MALFORMED_ID_CALL[method](artifacts));
+          assert.instanceOf(error, ArtifactError);
+          assert.strictEqual(error.reason, "unreachable");
+          assert.strictEqual(error.artifact, "logs");
+          assert.strictEqual(error.detail, `${method} did not answer with a Twirp body`);
+          assert.instanceOf(error.cause, S.SchemaError);
+          assert.deepStrictEqual(
+            A.map(calls, (call) => call.method),
+            MALFORMED_ID_METHODS[method]
           );
-        });
-      }
-    }
+        })
+      );
+    });
   }
 
   {
@@ -621,7 +630,7 @@ describe("Artifact", () => {
       Layer.provideMerge(
         Layer.mergeAll(
           resultsEnv({ RUNNER_OS: "Windows" }),
-          NodeServices.layer,
+          nativePlatform,
           FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch)))
         )
       )

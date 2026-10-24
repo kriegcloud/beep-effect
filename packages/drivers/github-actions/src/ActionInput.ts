@@ -138,6 +138,26 @@ const stripComment = (line: string): string => {
   return Str.trim(kept);
 };
 
+/** One stripped, non-empty `key=value` line of a pairs input, or the typed reason it is not one. */
+const pairLine =
+  (name: string, requireValue: boolean) =>
+  (raw: string) =>
+  (stripped: string): Effect.Effect<readonly [string, string], Config.ConfigError> => {
+    const separator = Str.indexOf("=")(stripped);
+    if (O.isNone(separator)) {
+      return Effect.fail(configError(`Input "${name}" has a line that is not \`key=value\`: "${stripped}"`, raw));
+    }
+    const key = pipe(stripped, Str.slice(0, separator.value), Str.trim);
+    const value = pipe(stripped, Str.slice(separator.value + 1), Str.trim);
+    if (key === "") {
+      return Effect.fail(configError(`Input "${name}" has a line with an empty key: "${stripped}"`, raw));
+    }
+    if (requireValue && value === "") {
+      return Effect.fail(configError(`Input "${name}" has a line with an empty value: "${stripped}"`, raw));
+    }
+    return Effect.succeed([key, value] as const);
+  };
+
 /**
  * Action inputs, read as `Config` values.
  *
@@ -605,33 +625,13 @@ export class ActionInput {
   } = dual(
     (args) => P.isString(args[0]),
     (name: string, options?: PairsOptions): Config.Config<Record<string, string>> => {
-      const requireValue = options?.requireValue ?? false;
+      const pair = pairLine(name, options?.requireValue ?? false);
       return Config.String(inputVariable(name)).pipe(
-        Config.mapEffect((raw) => {
-          const result: Record<string, string> = {};
-          for (const line of Str.split(raw, "\n")) {
-            const stripped = stripComment(line);
-            if (stripped === "") {
-              continue;
-            }
-            const separator = Str.indexOf("=")(stripped);
-            if (O.isNone(separator)) {
-              return Effect.fail(
-                configError(`Input "${name}" has a line that is not \`key=value\`: "${stripped}"`, raw)
-              );
-            }
-            const key = pipe(stripped, Str.slice(0, separator.value), Str.trim);
-            const value = pipe(stripped, Str.slice(separator.value + 1), Str.trim);
-            if (key === "") {
-              return Effect.fail(configError(`Input "${name}" has a line with an empty key: "${stripped}"`, raw));
-            }
-            if (requireValue && value === "") {
-              return Effect.fail(configError(`Input "${name}" has a line with an empty value: "${stripped}"`, raw));
-            }
-            R.assignProperty(result, key, value);
-          }
-          return Effect.succeed(result);
-        })
+        Config.mapEffect((raw) =>
+          Effect.forEach(A.filter(A.map(Str.split(raw, "\n"), stripComment), Str.isNonEmpty), pair(raw)).pipe(
+            Effect.map(R.fromEntries)
+          )
+        )
       );
     }
   );
@@ -785,7 +785,7 @@ export class ActionInput {
       const single = path.length === 1 && P.isString(path[0]) ? path[0] : undefined;
       const attempted = single === undefined ? undefined : lookup(inputVariable(single));
       const value =
-        attempted ?? lookup(pipe(pipe(path, A.map(String), A.join("_")), Str.replaceAll(" ", "_"), Str.toUpperCase));
+        attempted ?? lookup(pipe(path, A.map(String), A.join("_"), Str.replaceAll(" ", "_"), Str.toUpperCase));
       return Effect.succeed(value === undefined ? undefined : ConfigProvider.makeValue(value));
     });
   }

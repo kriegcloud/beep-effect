@@ -19,7 +19,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { payloadOf, unsignedJwt } from "./internal/jwt.ts";
-import { framed } from "./internal/messageText.ts";
+import { detailText, statusText } from "./internal/messageText.ts";
 
 const $I = $GithubActionsId.create("OidcTokenIssuer");
 
@@ -97,9 +97,9 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
         "unavailable",
         () => "The runner published no OIDC token service; the workflow needs `permissions: id-token: write`"
       ),
-      Match.when("requestFailed", () => `The OIDC token request failed${framed(this.status, " with status ")}`),
+      Match.when("requestFailed", () => `The OIDC token request failed${statusText(this.status)}`),
       Match.when("malformedResponse", () => "The OIDC token service answered with an unexpected shape"),
-      Match.when("malformedToken", () => `The OIDC token is not a decodable JWT${framed(this.detail, ": ")}`),
+      Match.when("malformedToken", () => `The OIDC token is not a decodable JWT${detailText(this.detail)}`),
       Match.orElse(() => "The OIDC token is missing claims a provenance statement needs")
     );
   }

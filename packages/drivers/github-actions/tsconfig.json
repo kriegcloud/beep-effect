@@ -43,6 +43,9 @@
     },
     {
       "path": "../../tooling/test-kit/memfs/tsconfig.json"
+    },
+    {
+      "path": "../../tooling/test-kit/test-utils/tsconfig.json"
     }
   ]
 }

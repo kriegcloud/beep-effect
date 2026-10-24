@@ -7,6 +7,7 @@
 // three modules share is the piece with no dependencies.
 
 import { $GithubActionsId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
 import * as O from "effect/Option";
@@ -217,19 +218,24 @@ export const backendIdsFrom = (token: string): Result.Result<BackendIds, string>
   if (!P.isString(scope)) {
     return Result.fail("the runtime token carries no `scp` claim");
   }
-  for (const entry of Str.split(scope, " ")) {
-    const parts = Str.split(entry, ":");
-    if (parts[0] !== "Actions.Results") {
-      continue;
+  return O.match(
+    A.findFirst(
+      Str.split(scope, " "),
+      (entry) => Str.startsWith("Actions.Results:")(entry) || entry === "Actions.Results"
+    ),
+    {
+      onNone: () => Result.fail("the runtime token carries no `Actions.Results` scope"),
+      onSome: resultsScopeIds,
     }
-    const run = parts[1];
-    const job = parts[2];
-    if (parts.length > 3 || run === undefined || run === "" || job === undefined || job === "") {
-      return Result.fail(`the runtime token's Actions.Results scope is malformed: "${entry}"`);
-    }
-    return Result.succeed({ workflowRunBackendId: run, workflowJobRunBackendId: job });
-  }
-  return Result.fail("the runtime token carries no `Actions.Results` scope");
+  );
+};
+
+/** The run and job ids of one `Actions.Results:<run>:<job>` scope entry. */
+const resultsScopeIds = (entry: string): Result.Result<BackendIds, string> => {
+  const [, run, job, ...rest] = Str.split(entry, ":");
+  return A.isReadonlyArrayNonEmpty(rest) || run === undefined || run === "" || job === undefined || job === ""
+    ? Result.fail(`the runtime token's Actions.Results scope is malformed: "${entry}"`)
+    : Result.succeed({ workflowRunBackendId: run, workflowJobRunBackendId: job });
 };
 
 /**

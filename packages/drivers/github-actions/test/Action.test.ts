@@ -119,7 +119,7 @@ describe("describeCause", () => {
     // An interrupt carries no error and no message. The predecessor's fallback
     // chain ended in a sentinel for exactly this case; the requirement is only
     // that the line is never empty.
-    assert.notStrictEqual(Str.trim(describeCause(Cause.interrupt(1))), "");
+    assert.notStrictEqual(Cause.interrupt(1).pipe(describeCause, Str.trim), "");
   });
 
   it("renders a plain Error, which is what a thrown library failure is", () => {

@@ -1,4 +1,3 @@
-// @effect-diagnostics asyncFunction:skip-file missingPipeableSignature:skip-file -- asyncFunction because the fetch doubles must be async functions shaped like globalThis.fetch; missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Shared fixtures for the three services that speak the Actions results
 // backend: the cache, the artifact protocol and the GitHub-cache blob store.
 //
@@ -11,6 +10,7 @@ import { ActionEnvironment } from "@beep/github-actions";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -34,7 +34,7 @@ export const runtimeToken = (scope = "Actions.Results:run-1:job-1"): string =>
   `${segment({ alg: "HS256", typ: "JWT" })}.${segment({ scp: scope })}.not-a-signature`;
 
 /** The two variables the runner injects into `uses:` steps, and nothing else. */
-export const RESULTS_ENV: Readonly<Record<string, string>> = {
+const RESULTS_ENV: Readonly<Record<string, string>> = {
   ACTIONS_RESULTS_URL: "https://results.example/twirpbase",
   ACTIONS_RUNTIME_TOKEN: runtimeToken(),
 };
@@ -51,12 +51,21 @@ export interface Rpc {
   readonly url: string;
 }
 
-/** A JSON body, as the backend answers one. */
-export const json = (value: unknown, status = 200): Response =>
-  new Response(
-    Result.getOrThrowWith(S.encodeResult(Json)(value), (error) => error),
-    { status, headers: { "content-type": "application/json" } }
-  );
+/** A JSON body with an explicit status, as the backend answers one. */
+export const jsonStatus: {
+  (value: unknown, status: number): Response;
+  (status: number): (value: unknown) => Response;
+} = dual(
+  2,
+  (value: unknown, status: number): Response =>
+    new Response(
+      Result.getOrThrowWith(S.encodeResult(Json)(value), (error) => error),
+      { status, headers: { "content-type": "application/json" } }
+    )
+);
+
+/** A `200` JSON body, as the backend answers one. */
+export const json = (value: unknown): Response => jsonStatus(value, 200);
 
 /**
  * A `fetch` that routes on the Twirp method — the last path segment — and
@@ -73,23 +82,21 @@ export const twirpFetch = (
 ): { readonly calls: Array<Rpc>; readonly fetch: typeof globalThis.fetch } => {
   const calls: Array<Rpc> = [];
   const fetch: typeof globalThis.fetch = Object.assign(
-    async (input: Parameters<typeof globalThis.fetch>[0], init: Parameters<typeof globalThis.fetch>[1]) => {
-      const url = String(input);
-      const method = Str.slice(O.getOrElse(Str.lastIndexOf("/")(url), () => -1) + 1)(url);
-      // Decoded through `Response` rather than `String(init.body)`: the request
-      // body arrives as bytes, and stringifying a Uint8Array produces `123,34,…`,
-      // which throws in `JSON.parse` — inside a fake `fetch`, that surfaces as a
-      // transport fault, which the client then RETRIES, which hangs the virtual
-      // clock. One misread fixture presented as ten unrelated timeouts.
-      const body = Result.getOrThrowWith(
-        S.decodeResult(RequestBodyJson)((await new Response(init?.body ?? "{}").text()) || "{}"),
-        (error) => error
-      );
-      const index = A.filter(calls, (call) => call.method === method).length;
-      calls.push({ url, method, body, authorization: new Headers(init?.headers).get("authorization") });
-      const handler = handlers[method];
-      return handler === undefined ? new Response(null, { status: 501 }) : handler(body, index);
-    },
+    (input: Parameters<typeof globalThis.fetch>[0], init: Parameters<typeof globalThis.fetch>[1]) =>
+      new Response(init?.body ?? "{}").text().then((text) => {
+        const url = String(input);
+        const method = Str.slice(O.getOrElse(Str.lastIndexOf("/")(url), () => -1) + 1)(url);
+        // Decoded through `Response` rather than `String(init.body)`: the request
+        // body arrives as bytes, and stringifying a Uint8Array produces `123,34,…`,
+        // which throws in `JSON.parse` — inside a fake `fetch`, that surfaces as a
+        // transport fault, which the client then RETRIES, which hangs the virtual
+        // clock. One misread fixture presented as ten unrelated timeouts.
+        const body = Result.getOrThrowWith(S.decodeResult(RequestBodyJson)(text || "{}"), (error) => error);
+        const index = A.filter(calls, (call) => call.method === method).length;
+        calls.push({ url, method, body, authorization: new Headers(init?.headers).get("authorization") });
+        const handler = handlers[method];
+        return handler === undefined ? new Response(null, { status: 501 }) : handler(body, index);
+      }),
     { preconnect: () => {} }
   );
   return { calls, fetch };

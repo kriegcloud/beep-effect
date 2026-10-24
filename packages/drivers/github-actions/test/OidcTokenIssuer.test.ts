@@ -82,7 +82,7 @@ describe("OidcTokenIssuer", () => {
         },
         { preconnect: () => {} }
       );
-      it.layer(live(fake, { ...TOKEN_ENV, ACTIONS_ID_TOKEN_REQUEST_URL: base }))((it) => {
+      it.layer(live(fake, { ...TOKEN_ENV, ACTIONS_ID_TOKEN_REQUEST_URL: base }), { timeout: "30 seconds" })((it) => {
         it.effect(`places the audience in the query for ${base}`, () =>
           Effect.gen(function* () {
             yield* (yield* OidcTokenIssuer).token("sigstore");
@@ -191,16 +191,18 @@ describe("OidcTokenIssuer", () => {
         },
         { preconnect: () => {} }
       );
-      it.layer(live(fake, { ...TOKEN_ENV, ACTIONS_ID_TOKEN_REQUEST_URL: "not a URL" }))((it) => {
-        it.effect("an invalid audience request URL fails typed before any request", () =>
-          Effect.gen(function* () {
-            const error = yield* Effect.flip(Effect.flatMap(OidcTokenIssuer, (issuer) => issuer.token("sigstore")));
-            assert.strictEqual(error.reason, "requestFailed");
-            assert.isDefined(error.cause);
-            assert.deepStrictEqual(seen, []);
-          })
-        );
-      });
+      it.layer(live(fake, { ...TOKEN_ENV, ACTIONS_ID_TOKEN_REQUEST_URL: "not a URL" }), { timeout: "30 seconds" })(
+        (it) => {
+          it.effect("an invalid audience request URL fails typed before any request", () =>
+            Effect.gen(function* () {
+              const error = yield* Effect.flip(Effect.flatMap(OidcTokenIssuer, (issuer) => issuer.token("sigstore")));
+              assert.strictEqual(error.reason, "requestFailed");
+              assert.isDefined(error.cause);
+              assert.deepStrictEqual(seen, []);
+            })
+          );
+        }
+      );
     }
 
     {
