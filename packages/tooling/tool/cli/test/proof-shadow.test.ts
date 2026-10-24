@@ -910,7 +910,7 @@ describe("proof shadow mode", () => {
 // C5 (ruling 69): the attempt's changed package set is the branch's own diff against its
 // base unioned with one working-tree snapshot, mapped onto workspaces. Both git reads run
 // through the injected capture, so these fixtures script them.
-describe("proof shadow changed packages", () => {
+it.layer(NodeServices.layer)("proof shadow changed packages", (it) => {
   const context = (repoRoot: string): RepoRunContext =>
     RepoRunContext.make({
       base: "origin/main",
@@ -1022,7 +1022,7 @@ describe("proof shadow changed packages", () => {
         expect(changed.kind === "known" ? changed.paths : -1).toBe(6);
         expect(renderProofChangedPackages(changed)).toBe("proof shadow changed packages: @beep/x, @beep/y (6 path(s))");
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("reports a clean tree under no workspace as no changed packages", () =>
@@ -1035,7 +1035,7 @@ describe("proof shadow changed packages", () => {
         expect(changed).toMatchObject({ kind: "known", packages: [], paths: 1 });
         expect(renderProofChangedPackages(changed)).toBe("proof shadow changed packages: none (1 path(s))");
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("reports a failed or truncated git read as unavailable rather than an empty change", () =>
@@ -1062,7 +1062,7 @@ describe("proof shadow changed packages", () => {
           )
         ).toBe(true);
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   // Review round 1, CodeRabbit Major: `resolveWorkspaceDirs` canonicalises every
@@ -1086,7 +1086,7 @@ describe("proof shadow changed packages", () => {
         );
         expect(changed).toMatchObject({ kind: "known", packages: ["@beep/x"], paths: 1 });
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   // Review round 1, kriegcloud P2: a workspace catalog that read cleanly but names
@@ -1109,7 +1109,7 @@ describe("proof shadow changed packages", () => {
           ProofChangedPackagesUnavailable.make({ kind: "unavailable", reason: "workspace list was empty" })
         );
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   // Review round 1, CodeRabbit Minor: without `-z` git applies `core.quotePath` and a
@@ -1160,7 +1160,7 @@ describe("proof shadow changed packages", () => {
           "packages/x/src/trailing.ts ",
         ]);
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   // Review round 2: every other fixture here replaces `runRepoCommandCapture`, so none of
@@ -1211,7 +1211,7 @@ describe("proof shadow changed packages", () => {
           ProofChangedPackagesKnown.make({ kind: "known", packages: ["@beep/x"], paths: 3 })
         );
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("reports an unreadable workspace list as unavailable", () =>
@@ -1221,6 +1221,6 @@ describe("proof shadow changed packages", () => {
       const changed = yield* changedPackagesForAttempt(context(root), gitStub({ output: "" }, { output: "" }));
       expect(changed).toMatchObject({ kind: "unavailable" });
       expect(Str.includes("workspace list")(changed.kind === "unavailable" ? changed.reason : "")).toBe(true);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 });

@@ -54,7 +54,6 @@ import {
   yeetSettleVerdictIsHeld,
   yeetSettleVerdictIsTerminal,
 } from "@beep/repo-cli/test/Yeet";
-import { provideScopedLayer } from "@beep/test-utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -175,14 +174,11 @@ const handle = (exitCode: number, output: string) =>
     unref: Effect.succeed(Effect.void),
   });
 const spawner = (exitCode: number, output: string) =>
-  Layer.succeed(
-    ChildProcessSpawner.ChildProcessSpawner,
-    ChildProcessSpawner.make((command) => {
-      if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
-      expect(command.args).toEqual(["api", "repos/{owner}/{repo}/rules/branches/main"]);
-      return Effect.succeed(handle(exitCode, output));
-    })
-  );
+  ChildProcessSpawner.make((command) => {
+    if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+    expect(command.args).toEqual(["api", "repos/{owner}/{repo}/rules/branches/main"]);
+    return Effect.succeed(handle(exitCode, output));
+  });
 const platform = Layer.mergeAll(
   BunCrypto.layer,
   NodeFileSystem.layer,
@@ -656,21 +652,23 @@ describe("B7 settle contracts", () => {
     ["invalid", 0, "{"],
     ["truncated", 0, Str.repeat(3_000_000)(" ")],
   ] as const) {
-    it.effect(`ruleset reader ${label}`, () =>
-      Effect.gen(function* () {
-        const result = yield* readYeetRulesetRequiredContexts(contextFor("."));
-        if (label === "success") {
-          assertSome(
-            O.map(result, (value) => value.contexts),
-            ["Lint"]
-          );
-          expect(yield* TestConsole.errorLines).toHaveLength(0);
-        } else {
-          assertNone(result);
-          expect(yield* TestConsole.errorLines).toHaveLength(1);
-        }
-      }).pipe(provideScopedLayer(Layer.mergeAll(BunCrypto.layer, spawner(code, output))))
-    );
+    it.layer(BunCrypto.layer)((it) => {
+      it.effect(`ruleset reader ${label}`, () =>
+        Effect.gen(function* () {
+          const result = yield* readYeetRulesetRequiredContexts(contextFor("."));
+          if (label === "success") {
+            assertSome(
+              O.map(result, (value) => value.contexts),
+              ["Lint"]
+            );
+            expect(yield* TestConsole.errorLines).toHaveLength(0);
+          } else {
+            assertNone(result);
+            expect(yield* TestConsole.errorLines).toHaveLength(1);
+          }
+        }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner(code, output)))
+      );
+    });
   }
 });
 
@@ -983,24 +981,26 @@ describe("settle policy boundaries", () => {
     expect(HashSet.has(yeetMonitorPolicyTerminals(YeetUntilMergedPolicy.make({})), "settle-timeout")).toBe(true);
     expect(HashSet.has(yeetMonitorPolicyTerminals(YeetUntilReadyPolicy.make({})), "settle-timeout")).toBe(true);
   });
-  it.effect("closes without a head or a ruleset read", () =>
-    temporary((root) =>
-      Effect.gen(function* () {
-        const value = snapshot(root, "aaa111", [], "CLOSED");
-        const terminal = yield* runYeetMonitorUntilMerged(contextFor(root), {
-          collectStatus: () =>
-            Effect.succeed(
-              YeetStatusSnapshot.make({
-                ...value,
-                remote: YeetStatusRemote.make({ ...value.remote, headSha: O.none() }),
-              })
-            ),
-          rulesetRead: () => Effect.die("no ruleset read without a head"),
-        });
-        expect(terminal).toBe("closed");
-      })
-    ).pipe(provideScopedLayer(platform))
-  );
+  it.layer(platform)((it) => {
+    it.effect("closes without a head or a ruleset read", () =>
+      temporary((root) =>
+        Effect.gen(function* () {
+          const value = snapshot(root, "aaa111", [], "CLOSED");
+          const terminal = yield* runYeetMonitorUntilMerged(contextFor(root), {
+            collectStatus: () =>
+              Effect.succeed(
+                YeetStatusSnapshot.make({
+                  ...value,
+                  remote: YeetStatusRemote.make({ ...value.remote, headSha: O.none() }),
+                })
+              ),
+            rulesetRead: () => Effect.die("no ruleset read without a head"),
+          });
+          expect(terminal).toBe("closed");
+        })
+      )
+    );
+  });
 });
 
 it.layer(platform, { timeout: "30 seconds" })((it) =>
@@ -1096,146 +1096,154 @@ it.layer(platform, { timeout: "30 seconds" })((it) =>
   )
 );
 
-it.effect("status refuses a review-thread page that names itself as its own successor", () =>
-  temporary((root) =>
-    Effect.gen(function* () {
-      const pageReads = yield* Ref.make(0);
-      const runner = ChildProcessSpawner.make((command) => {
-        if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
-        const [first, second] = command.args;
-        if (command.command === "git") return Effect.succeed(handle(0, ""));
-        if (first === "pr" && second === "view")
-          return Effect.succeed(
-            handle(
-              0,
-              JSON.stringify({
-                id: "PR_loop",
-                number: 1,
-                url: "https://github.com/beep/repo/pull/1",
-                state: "OPEN",
-                mergeable: "MERGEABLE",
-                mergeStateStatus: "CLEAN",
-                isDraft: false,
-                reviewDecision: null,
-                headRefOid: "aaa111",
-                labels: [],
-              })
-            )
-          );
-        if (first === "pr" && second === "checks") return Effect.succeed(handle(0, "[]"));
-        // Every page claims a successor at the cursor that was just requested:
-        // a loop that trusted it would re-read this page forever.
-        if (first === "api")
-          return Ref.update(pageReads, (n) => n + 1).pipe(
-            Effect.as(
+it.layer(platform)((it) => {
+  it.effect("status refuses a review-thread page that names itself as its own successor", () =>
+    temporary((root) =>
+      Effect.gen(function* () {
+        const pageReads = yield* Ref.make(0);
+        const runner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+          const [first, second] = command.args;
+          if (command.command === "git") return Effect.succeed(handle(0, ""));
+          if (first === "pr" && second === "view")
+            return Effect.succeed(
               handle(
                 0,
                 JSON.stringify({
-                  data: {
-                    node: {
-                      author: { login: "octocat" },
-                      reviewThreads: {
-                        nodes: [
-                          {
-                            id: "PRRT_loop",
-                            isResolved: false,
-                            isOutdated: false,
-                            path: "src/a.ts",
-                            line: 1,
-                            resolvedBy: null,
-                            comments: {
-                              nodes: [{ author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 }],
-                            },
-                            latest: {
-                              nodes: [{ author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 }],
-                            },
-                          },
-                        ],
-                        pageInfo: { hasNextPage: true, endCursor: "same-cursor" },
-                      },
-                    },
-                  },
+                  id: "PR_loop",
+                  number: 1,
+                  url: "https://github.com/beep/repo/pull/1",
+                  state: "OPEN",
+                  mergeable: "MERGEABLE",
+                  mergeStateStatus: "CLEAN",
+                  isDraft: false,
+                  reviewDecision: null,
+                  headRefOid: "aaa111",
+                  labels: [],
                 })
               )
-            )
-          );
-        return Effect.succeed(handle(0, "[]"));
-      });
-      const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
-        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
-        Effect.flip
-      );
-      assertInclude(failure.message, "repeated the same GraphQL end cursor");
-      // The first page and its claimed successor were read; the third lap never ran.
-      expect(yield* Ref.get(pageReads)).toBe(2);
-    })
-  ).pipe(provideScopedLayer(platform))
-);
+            );
+          if (first === "pr" && second === "checks") return Effect.succeed(handle(0, "[]"));
+          // Every page claims a successor at the cursor that was just requested:
+          // a loop that trusted it would re-read this page forever.
+          if (first === "api")
+            return Ref.update(pageReads, (n) => n + 1).pipe(
+              Effect.as(
+                handle(
+                  0,
+                  JSON.stringify({
+                    data: {
+                      node: {
+                        author: { login: "octocat" },
+                        reviewThreads: {
+                          nodes: [
+                            {
+                              id: "PRRT_loop",
+                              isResolved: false,
+                              isOutdated: false,
+                              path: "src/a.ts",
+                              line: 1,
+                              resolvedBy: null,
+                              comments: {
+                                nodes: [
+                                  { author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 },
+                                ],
+                              },
+                              latest: {
+                                nodes: [
+                                  { author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 },
+                                ],
+                              },
+                            },
+                          ],
+                          pageInfo: { hasNextPage: true, endCursor: "same-cursor" },
+                        },
+                      },
+                    },
+                  })
+                )
+              )
+            );
+          return Effect.succeed(handle(0, "[]"));
+        });
+        const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
+          Effect.flip
+        );
+        assertInclude(failure.message, "repeated the same GraphQL end cursor");
+        // The first page and its claimed successor were read; the third lap never ran.
+        expect(yield* Ref.get(pageReads)).toBe(2);
+      })
+    )
+  );
+});
 
-it.effect("keeps following settled red heads, preserving the one-rerun budget", () =>
-  temporary((root) =>
-    Effect.gen(function* () {
-      const polls = yield* Ref.make(0);
-      const reruns = yield* Ref.make(0);
-      const runner = ChildProcessSpawner.make((command) => {
-        if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
-        const [first, second] = command.args;
-        if (first === "run" && second === "list")
-          return Effect.succeed(
-            handle(
-              0,
-              JSON.stringify([
-                { databaseId: 7, headSha: "aaa111", status: "completed", conclusion: "failure", name: "CI" },
-              ])
-            )
-          );
-        if (first === "run" && second === "rerun")
-          return Ref.update(reruns, (n) => n + 1).pipe(Effect.as(handle(0, "")));
-        if (A.contains(command.args, "--log-failed")) return Effect.succeed(handle(0, "Test timed out in 5000ms"));
-        if (first === "run" && second === "view")
-          return Effect.succeed(
-            handle(
-              0,
-              JSON.stringify({
-                jobs: [
-                  {
-                    databaseId: 991,
-                    name: "Lint",
-                    status: "completed",
-                    conclusion: "failure",
-                    steps: [{ name: "Test", conclusion: "failure" }],
-                  },
-                ],
+it.layer(platform)((it) => {
+  it.effect("keeps following settled red heads, preserving the one-rerun budget", () =>
+    temporary((root) =>
+      Effect.gen(function* () {
+        const polls = yield* Ref.make(0);
+        const reruns = yield* Ref.make(0);
+        const runner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+          const [first, second] = command.args;
+          if (first === "run" && second === "list")
+            return Effect.succeed(
+              handle(
+                0,
+                JSON.stringify([
+                  { databaseId: 7, headSha: "aaa111", status: "completed", conclusion: "failure", name: "CI" },
+                ])
+              )
+            );
+          if (first === "run" && second === "rerun")
+            return Ref.update(reruns, (n) => n + 1).pipe(Effect.as(handle(0, "")));
+          if (A.contains(command.args, "--log-failed")) return Effect.succeed(handle(0, "Test timed out in 5000ms"));
+          if (first === "run" && second === "view")
+            return Effect.succeed(
+              handle(
+                0,
+                JSON.stringify({
+                  jobs: [
+                    {
+                      databaseId: 991,
+                      name: "Lint",
+                      status: "completed",
+                      conclusion: "failure",
+                      steps: [{ name: "Test", conclusion: "failure" }],
+                    },
+                  ],
+                })
+              )
+            );
+          return Effect.succeed(handle(0, "invalid commit date"));
+        });
+        const terminal = yield* runYeetMonitorUntilMerged(contextFor(root), {
+          collectStatus: () =>
+            Ref.getAndUpdate(polls, (n) => n + 1).pipe(
+              Effect.map((n) => {
+                const value = snapshot(root, "aaa111", [check("Lint", "fail")], n === 2 ? "CLOSED" : "OPEN");
+                const remote = YeetStatusRemote.make({ ...value.remote, failingCheckCount: 1 });
+                return YeetStatusSnapshot.make({
+                  ...value,
+                  remote,
+                  mergeReady: deriveYeetMergeReady(
+                    YeetStatusArtifact.make({ ...value.closeout, state: "present", reviewedHeadSha: O.some("aaa111") }),
+                    remote
+                  ),
+                });
               })
-            )
-          );
-        return Effect.succeed(handle(0, "invalid commit date"));
-      });
-      const terminal = yield* runYeetMonitorUntilMerged(contextFor(root), {
-        collectStatus: () =>
-          Ref.getAndUpdate(polls, (n) => n + 1).pipe(
-            Effect.map((n) => {
-              const value = snapshot(root, "aaa111", [check("Lint", "fail")], n === 2 ? "CLOSED" : "OPEN");
-              const remote = YeetStatusRemote.make({ ...value.remote, failingCheckCount: 1 });
-              return YeetStatusSnapshot.make({
-                ...value,
-                remote,
-                mergeReady: deriveYeetMergeReady(
-                  YeetStatusArtifact.make({ ...value.closeout, state: "present", reviewedHeadSha: O.some("aaa111") }),
-                  remote
-                ),
-              });
-            })
-          ),
-        rulesetRead: () => Effect.succeedNone,
-        pollInterval: Duration.zero,
-      }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner));
-      expect(terminal).toBe("closed");
-      expect(yield* Ref.get(reruns)).toBe(1);
-      expect(A.join(A.map(yield* TestConsole.logLines, String), "\n")).toContain("rerun budget spent");
-    })
-  ).pipe(provideScopedLayer(platform))
-);
+            ),
+          rulesetRead: () => Effect.succeedNone,
+          pollInterval: Duration.zero,
+        }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner));
+        expect(terminal).toBe("closed");
+        expect(yield* Ref.get(reruns)).toBe(1);
+        expect(A.join(A.map(yield* TestConsole.logLines, String), "\n")).toContain("rerun budget spent");
+      })
+    )
+  );
+});
 
 it.layer(platform)("B7 sleep after a spent registration budget (ruling 49)", (layerIt) => {
   layerIt.effect("keeps the full poll interval while registered required checks are merely queued", () =>

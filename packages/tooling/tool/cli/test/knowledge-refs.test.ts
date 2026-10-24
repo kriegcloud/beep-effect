@@ -717,7 +717,7 @@ describe("knowledge refs check gate", () => {
       expect(A.some(logs, (line) => Str.startsWith("check: 2 live gated observation(s)")(Str.trim(String(line))))).toBe(
         true
       );
-    }).pipe(provideScopedLayer(TestConsole.layer))
+    })
   );
 
   it.effect("the check applicator skips the section under json when the census is debt-free", () =>
@@ -727,7 +727,7 @@ describe("knowledge refs check gate", () => {
       });
       yield* applyKnowledgeRefsCheck(report, { json: true });
       expect(yield* TestConsole.logLines).toEqual([]);
-    }).pipe(provideScopedLayer(TestConsole.layer))
+    })
   );
 
   it.effect("a Downloads descendant is live debt in the check section", () =>
@@ -1047,7 +1047,7 @@ const anchorCount = (observations: ReadonlyArray<KnowledgeRefObservation>, ancho
 
 const baselineLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 
-describe("knowledge refs baseline agreement", () => {
+it.layer(baselineLayer)("knowledge refs baseline agreement", (it) => {
   it.effect(
     "the census reconciles with the published clone-agnosticism inventory",
     () =>
@@ -1114,7 +1114,7 @@ describe("knowledge refs baseline agreement", () => {
             (blob) => blob.path
           )
         ).toEqual([]);
-      }).pipe(Effect.scoped, provideScopedLayer(baselineLayer)),
+      }),
     BASELINE_TIMEOUT_MS
   );
 });
