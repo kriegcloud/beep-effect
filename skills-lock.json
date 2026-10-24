@@ -237,6 +237,14 @@
       ],
       "installedTreeHash": "bc701d5593991b209978b2b814a230c1335d87915eb252e1937faa8e355e76f6"
     },
+    "operator-handoff": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/operator-handoff",
+        ".agents/skills/operator-handoff"
+      ],
+      "installedTreeHash": "68c058b092dc10337fdecfe144957c5c056232005116eb09d6879f51dcd76f00"
+    },
     "oracle": {
       "_tag": "vendored",
       "sourceType": "github",
