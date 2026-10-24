@@ -2,6 +2,8 @@
 
 | Date | Friction and evidence | Prevention or proposed goal addition |
 | --- | --- | --- |
+| 2026-10-23 | An app terminal handoff did not present the SSH verification prompt. A later control-master presence check was mistaken for authenticated remote execution. The archived setup transcript contained the working KDE dialog procedure. | Use the recovered masked KDialog/SSH_ASKPASS route with a private temporary helper and no credential logging. Verify an actual remote command before claiming login; remove the helper after completion. |
+| 2026-10-23 | During host inventory, invoking Ubuntu's `/usr/sbin/lxc` and `/usr/sbin/lxd` launchers with `--version` unexpectedly installed LXD 5.21.8 and started its daemon. No guest, managed pool or managed network was created. | Inspect executable/package ownership and launcher contents before version probes on production hosts. Record this as an introduced host mutation; choose retain/remove only through the verified administration route after the manager decision. |
 | 2026-10-14 | Historical sudo recipe said pam_ssh_agent_auth; the live dankserver PAM file uses pam_rssh. Old module rejected ED25519-SK before a touch. | Treat live managed-host configuration as the source; pin/build the FIDO-aware module reproducibly and verify fresh sudo. |
 | 2026-10-14 | Fresh FIDO SSH requests can expire while unrelated browser approvals are being completed; two agent-refused attempts preceded a successful third attempt. | Persistent touch notifications, serialized hardware operations and bounded retries. |
 | 2026-10-14 | Compose HTTP probe raced nginx startup: curl returned an empty reply immediately after up. | Poll a bounded real HTTP readiness check and always tear down the disposable service. |
@@ -350,3 +352,52 @@ The initial detached publish failed with "require an active systemd user
 manager". A command-local XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS probe
 reached the user manager. Use that environment for the next detached launch;
 do not change service configuration or authentication to repair shell discovery.
+
+## 2026-10-23: hardware authentication documentation drift
+
+The older dankserver YubiKey setup guide names `pam_ssh_agent_auth.so`, while
+the verified live host and beep-worker receipt use `libpam_rssh.so` for the
+FIDO identity. Copying the old recipe would reintroduce the previously observed
+hardware-key compatibility failure. The tbk setup used the live module with an
+exact checksum and dependency check, then proved fresh SSH and sudo through a
+loopback-only listener before changing normal access. Future host recipes must
+cite the live accepted module and root-owned sudo key file, with a fresh proof.
+
+## 2026-10-23: distinguish caller environment from secret-route failure
+
+During the dedicated guest-vault preparation, `op-doctor` passed the current
+CLI shim and service-account identity but reported `systemd-run-service-fallback:
+shim not first` and `environment-blocked (user bus unavailable)`. Sanitized
+vault/item metadata reads then succeeded through the canonical current-shell
+shim. This is not evidence of failed desktop sign-in or broken account access.
+Guest service qualification must supply a validated user-bus context and an
+explicit PATH containing the approved shim; current-shell success does not
+qualify that separate service surface. No workstation authentication setting
+was changed to compensate for the caller's missing context.
+
+
+### Worker-specific credential diagnostics (2026-10-23)
+
+The workstation 1Password doctor assumed a broad workstation vault and local
+desktop artifacts. Copying only its wrapper also omitted its companion library.
+A dedicated read-only worker account correctly cannot satisfy that inventory.
+Package diagnostics with their dependencies and make the expected vault set
+explicit. The worker now has a headless, scope-specific diagnostic; no broader
+vault access was granted to satisfy a health check.
+
+### Reboot and pressure observability (2026-10-23)
+
+A successful live user-manager PATH update did not prove persistence: the
+vendor's later environment file overrode the initial worker configuration on
+boot. Order the worker file after vendor defaults and test a fresh user manager.
+Ubuntu's default SSH-agent socket also exported an empty local agent address.
+The ordinary worker masks unused local SSH-agent services; administrative
+forwarding remains a separate account and identity. Inspect live service
+process environments, not only the caller shell.
+
+The first real worker stop retained only `io_pressure`, which cannot attribute
+stalls to the worker or staking storage. Numeric host pressure readings should
+be retained in the journal and copied into the stop receipt. Per-cgroup and
+device observations are needed for diagnosis; any changed stop threshold or
+measurement policy remains a separate decision. Do not silently weaken the
+agreed protection because a development workload triggers it.

@@ -4,12 +4,11 @@ import {
   runPublishMonitorAndResultForTesting,
   TurboPlanSnapshot,
 } from "@beep/repo-cli/test/Yeet";
-import { provideScopedLayer } from "@beep/test-utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -45,7 +44,7 @@ const emptyExtras: YeetVerdictExtrasForTesting = {
 // anyway and failed with "Failed to decode pull request number for yeet
 // monitor" AFTER the run had fully succeeded, so `yeet publish` exited 1 on
 // green. An empty monitor phase must be a no-op.
-describe("yeet monitor phase with no planned steps", () => {
+it.layer(PlatformLayer, { timeout: "30 seconds" })("yeet monitor phase with no planned steps", (it) => {
   it.effect("completes without decoding a pull request and runs no step", () =>
     Effect.gen(function* () {
       const recorder = yield* Ref.make<ReadonlyArray<YeetExecutedStep>>(A.empty());
@@ -53,7 +52,7 @@ describe("yeet monitor phase with no planned steps", () => {
       yield* runMonitorPhaseForTesting(context, A.empty(), recorder, "yeet publish monitor phase failed.");
 
       expect(yield* Ref.get(recorder)).toStrictEqual(A.empty());
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 
   it.effect("returns the publish result and leaves merge readiness unobserved", () =>
@@ -69,6 +68,6 @@ describe("yeet monitor phase with no planned steps", () => {
       // No status snapshot was read, so the verdict must omit mergeReady rather
       // than assert an unobserved answer.
       assertNone((yield* Ref.get(extras)).mergeReady);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 });

@@ -4,9 +4,8 @@ import {
   inspectCacheLinkerResolution,
   parseCacheLinkerOutput,
 } from "@beep/repo-cli/test/Cache";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -17,7 +16,7 @@ const isCacheRuntimeLinkerSnapshot = S.is(CacheRuntimeLinkerSnapshot);
 
 const isCacheLinkerResolution = S.is(CacheLinkerResolution);
 
-describe("runtime startup library identity", () => {
+it.layer(NodeServices.layer)("runtime startup library identity", (it) => {
   it.effect("normalizes address and ordering noise while preserving library aliases", () =>
     Effect.gen(function* () {
       const first = yield* parseCacheLinkerOutput(
@@ -78,7 +77,7 @@ describe("runtime startup library identity", () => {
       expect(yield* inspectCacheLinkedFile(root).pipe(Effect.isFailure)).toBe(true);
       yield* fs.remove(second);
       expect(yield* inspectCacheLinkedFile(alias).pipe(Effect.isFailure)).toBe(true);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 
   it.effect("discovers native shell libraries and refuses failed discovery as static evidence", () =>
@@ -92,7 +91,7 @@ describe("runtime startup library identity", () => {
       yield* fs.writeFileString(file, "not an ELF executable\n");
       expect(yield* inspectCacheLinkerResolution(root, file).pipe(Effect.isFailure)).toBe(true);
       expect(yield* inspectCacheLinkerResolution(root, path.join(root, "missing")).pipe(Effect.isFailure)).toBe(true);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 
   it("requires all runtime roles and nonempty dynamic file evidence", () => {

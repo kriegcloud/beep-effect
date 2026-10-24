@@ -79,47 +79,49 @@ describe("roadmap-refs lint command", { concurrent: false }, () => {
     20_000
   );
 
-  it.effect(
-    "blocks only the dead link and reports phase drift as advisory",
-    () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const repoRoot = yield* findRepoRoot();
-        const roadmap = yield* fs.readFileString(path.join(repoRoot, FIXTURE_PATH));
+  it.layer(testLayer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "blocks only the dead link and reports phase drift as advisory",
+      () =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const repoRoot = yield* findRepoRoot();
+          const roadmap = yield* fs.readFileString(path.join(repoRoot, FIXTURE_PATH));
 
-        yield* withTempWorkingDirectory(
-          Effect.gen(function* () {
-            yield* writeFixture(roadmap);
-            const exit = yield* Effect.exit(runLintCommand(["roadmap-refs"]));
-            expectReportedExit(exit);
-            exit.pipe(Exit.isFailure, assertTrue);
+          yield* withTempWorkingDirectory(
+            Effect.gen(function* () {
+              yield* writeFixture(roadmap);
+              const exit = yield* Effect.exit(runLintCommand(["roadmap-refs"]));
+              expectReportedExit(exit);
+              exit.pipe(Exit.isFailure, assertTrue);
 
-            const issueLines = pipe(
-              yield* TestConsole.errorLines,
-              A.filter(P.isString),
-              A.filter(Str.startsWith("[roadmap:issue]"))
-            );
-            const blocking = A.filter(issueLines, Str.includes('"severity":"error"'));
-            const advisories = A.filter(issueLines, Str.includes('"severity":"warning"'));
+              const issueLines = pipe(
+                yield* TestConsole.errorLines,
+                A.filter(P.isString),
+                A.filter(Str.startsWith("[roadmap:issue]"))
+              );
+              const blocking = A.filter(issueLines, Str.includes('"severity":"error"'));
+              const advisories = A.filter(issueLines, Str.includes('"severity":"warning"'));
 
-            expect(blocking).toHaveLength(3);
-            expect(A.some(blocking, Str.includes("../goals/dead/README.md"))).toBe(true);
-            expect(A.some(blocking, Str.includes("../goals/dead-ref/README.md"))).toBe(true);
-            // A label wrapped across lines must still surface its dead destination.
-            expect(A.some(blocking, Str.includes("../goals/wrapped-dead/README.md"))).toBe(true);
-            expect(A.some(blocking, Str.includes("../goals/resolving/README.md"))).toBe(false);
-            // The fenced dead link must be invisible: the shared parser only reads prose lines.
-            expect(A.some(blocking, Str.includes("fenced-dead"))).toBe(false);
-            // Three drift advisories: the plain entry, the wrapped-snapshot entry, and the
-            // wrapped-label entry whose snapshot trails its continuation line.
-            expect(advisories).toHaveLength(3);
-            expect(A.some(advisories, Str.includes("(0/2) disagrees with manifest phases (1/2)"))).toBe(true);
-            // The wrapped entry's snapshot opens the line after its link, as the live roadmap does.
-            expect(A.some(advisories, Str.includes("(2/2) disagrees with manifest phases (1/2)"))).toBe(true);
-          })
-        );
-      }).pipe(provideScopedLayer(testLayer)),
-    20_000
-  );
+              expect(blocking).toHaveLength(3);
+              expect(A.some(blocking, Str.includes("../goals/dead/README.md"))).toBe(true);
+              expect(A.some(blocking, Str.includes("../goals/dead-ref/README.md"))).toBe(true);
+              // A label wrapped across lines must still surface its dead destination.
+              expect(A.some(blocking, Str.includes("../goals/wrapped-dead/README.md"))).toBe(true);
+              expect(A.some(blocking, Str.includes("../goals/resolving/README.md"))).toBe(false);
+              // The fenced dead link must be invisible: the shared parser only reads prose lines.
+              expect(A.some(blocking, Str.includes("fenced-dead"))).toBe(false);
+              // Three drift advisories: the plain entry, the wrapped-snapshot entry, and the
+              // wrapped-label entry whose snapshot trails its continuation line.
+              expect(advisories).toHaveLength(3);
+              expect(A.some(advisories, Str.includes("(0/2) disagrees with manifest phases (1/2)"))).toBe(true);
+              // The wrapped entry's snapshot opens the line after its link, as the live roadmap does.
+              expect(A.some(advisories, Str.includes("(2/2) disagrees with manifest phases (1/2)"))).toBe(true);
+            })
+          );
+        }),
+      20_000
+    );
+  });
 });

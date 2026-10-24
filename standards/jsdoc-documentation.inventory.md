@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-24T19:37:30.825Z
+Generated: 2026-10-24T20:34:25.293Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 101 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
-| publicModules | 3552 |
-| publicExports | 25192 |
+| publicModules | 3559 |
+| publicExports | 25303 |
 | openModules | 449 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -187,7 +187,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 129 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 14 | 0 | 0 |
 | 130 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 131 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 132 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4338 | 47 | 35 |
+| 132 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 472 | 4447 | 47 | 35 |
 | 133 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 134 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 135 | `@beep/repo-workspaces` | `packages/tooling/library/repo-workspaces` | clean | 22 | 181 | 0 | 0 |
@@ -228,7 +228,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 170 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 65 | 241 | 25 | 0 |
 | 171 | `@beep/jsonl` | `packages/foundation/modeling/jsonl` | clean | 8 | 60 | 0 | 0 |
 | 172 | `@beep/practice-identify` | `apps/practice-identify` | clean | 3 | 10 | 0 | 0 |
-| 173 | `@beep/infra` | `infra` | needs-remediation | 11 | 105 | 3 | 22 |
+| 173 | `@beep/infra` | `infra` | needs-remediation | 11 | 107 | 3 | 22 |
 | 174 | `@beep/practice-setup` | `apps/practice-setup` | clean | 6 | 38 | 0 | 0 |
 | 175 | `@beep/box-provisioning` | `packages/drivers/box-provisioning` | needs-remediation | 15 | 184 | 0 | 21 |
 | 176 | `@beep/freshbooks` | `packages/drivers/freshbooks` | needs-remediation | 6 | 49 | 5 | 3 |
@@ -2235,8 +2235,8 @@ Module findings:
 - `src/index.ts:1` (packageDocumentation) - 2 documentation section/link violation(s)
 
 Export findings:
-- `src/commands/Cache/Cache.command.ts:273` `runCacheWarm` (const) - 1 example import violation(s)
-- `src/commands/Cache/Cache.command.ts:470` `buildCacheDashboard` (const) - 1 example import violation(s)
+- `src/commands/Cache/Cache.command.ts:290` `runCacheWarm` (const) - 1 example import violation(s)
+- `src/commands/Cache/Cache.command.ts:487` `buildCacheDashboard` (const) - 1 example import violation(s)
 - `src/commands/Cache/Cache.service.ts:111` `encodeCachePolicyBaselineText` (const) - 1 example import violation(s)
 - `src/commands/Ci/CiLane.ts:407` `CI_LANE_DESCRIPTORS` (const) - 1 documentation section/link violation(s)
 - `src/commands/Ci/CiLane.ts:1566` `ciLaneStepsForTesting` (const) - 1 documentation section/link violation(s)

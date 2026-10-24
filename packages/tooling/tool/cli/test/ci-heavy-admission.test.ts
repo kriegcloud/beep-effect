@@ -16,7 +16,6 @@ import {
   renderHeavyAdmissionSummary,
   runCiAdmission,
 } from "@beep/repo-cli/commands/Ci";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -67,15 +66,12 @@ const handle = (exitCode: number, output: string) =>
   });
 // The scripted git: fetch succeeds silently, diff prints the scripted paths.
 const gitSpawner = (diff: string, commands: Ref.Ref<ReadonlyArray<ReadonlyArray<string>>>) =>
-  Layer.succeed(
-    ChildProcessSpawner.ChildProcessSpawner,
-    ChildProcessSpawner.make((command) => {
-      if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
-      return Ref.update(commands, A.append([command.command, ...command.args])).pipe(
-        Effect.as(handle(0, command.args[0] === "diff" ? diff : ""))
-      );
-    })
-  );
+  ChildProcessSpawner.make((command) => {
+    if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+    return Ref.update(commands, A.append([command.command, ...command.args])).pipe(
+      Effect.as(handle(0, command.args[0] === "diff" ? diff : ""))
+    );
+  });
 const platform = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const lastLine = (lines: ReadonlyArray<string>): string => O.getOrElse(A.last(lines), () => "");
 const runAdmissionCommand = Command.runWith(ciAdmissionCommand, { version: "0.0.0" });
@@ -412,13 +408,11 @@ it.layer(platform, { timeout: "30 seconds" })("B8 ci admission command", (layerI
         const commands = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
         const path = yield* writeEvent(root, payload([HEAVY_ADMISSION_LABEL], false, "develop"));
         const output = `${root}/github-output.txt`;
-        const env = ConfigProvider.layer(
-          ConfigProvider.fromUnknown({
-            GITHUB_EVENT_NAME: "push",
-            GITHUB_EVENT_PATH: "/nonexistent",
-            GITHUB_OUTPUT: output,
-          })
-        );
+        const env = ConfigProvider.fromUnknown({
+          GITHUB_EVENT_NAME: "push",
+          GITHUB_EVENT_PATH: "/nonexistent",
+          GITHUB_OUTPUT: output,
+        });
         yield* runAdmissionCommand([
           "--event-name",
           "pull_request",
@@ -427,7 +421,13 @@ it.layer(platform, { timeout: "30 seconds" })("B8 ci admission command", (layerI
           "--base",
           "main",
           "--github-output",
-        ]).pipe(provideScopedLayer(Layer.mergeAll(gitSpawner("packages/a/src/index.ts\n", commands), env)));
+        ]).pipe(
+          Effect.provideService(
+            ChildProcessSpawner.ChildProcessSpawner,
+            gitSpawner("packages/a/src/index.ts\n", commands)
+          ),
+          Effect.provideService(ConfigProvider.ConfigProvider, env)
+        );
         const printed = yield* logs;
         const decoded = yield* HeavyAdmissionJson.decode(lastLine(printed));
         expect(decoded).toEqual(
@@ -443,7 +443,10 @@ it.layer(platform, { timeout: "30 seconds" })("B8 ci admission command", (layerI
         expect(A.map(yield* Ref.get(commands), (command) => command[1])).toEqual(["fetch", "diff"]);
         // The environment alone drives a push: no payload, no git, exit 0.
         yield* Ref.set(commands, []);
-        yield* runAdmissionCommand([]).pipe(provideScopedLayer(Layer.mergeAll(gitSpawner("", commands), env)));
+        yield* runAdmissionCommand([]).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, gitSpawner("", commands)),
+          Effect.provideService(ConfigProvider.ConfigProvider, env)
+        );
         expect(yield* Ref.get(commands)).toEqual([]);
         expect(yield* fs.readFileString(output)).toBe("verdict=run\nadmitted=true\ndocs_only=false\nsources=label\n");
         const again = yield* logs;
@@ -460,9 +463,10 @@ it.layer(platform, { timeout: "30 seconds" })("B8 ci admission command", (layerI
     temporary((root) =>
       Effect.gen(function* () {
         const commands = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
-        const env = ConfigProvider.layer(ConfigProvider.fromUnknown({}));
+        const env = ConfigProvider.fromUnknown({});
         const exit = yield* runAdmissionCommand(["--event-name", "pull_request", "--github-output"]).pipe(
-          provideScopedLayer(Layer.mergeAll(gitSpawner("", commands), env)),
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, gitSpawner("", commands)),
+          Effect.provideService(ConfigProvider.ConfigProvider, env),
           Effect.exit
         );
         expect(exit._tag).toBe("Failure");

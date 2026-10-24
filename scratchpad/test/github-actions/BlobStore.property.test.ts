@@ -26,7 +26,7 @@ describe("BlobStore property floor", () => {
   roundTrips("BlobStoreError", BlobStoreError);
   roundTrips("S3Config", S3Config);
   it.effect.prop(
-    "S3Config: round trips preserve absent and explicitly undefined optional fields",
+    "S3Config: round trips preserve absent optional fields and reject explicitly undefined ones",
     [Arbitrary.schema(S3Config)],
     ([value]) => Effect.gen(function* () {
       const required = {
@@ -35,11 +35,13 @@ describe("BlobStore property floor", () => {
         accessKeyId: value.accessKeyId,
         secretAccessKey: value.secretAccessKey,
       };
-      for (const config of [required, { ...required, endpoint: undefined, sessionToken: undefined, prefix: undefined }]) {
-        const encoded = yield* S.encodeEffect(S3Config)(config);
-        const decoded = yield* S.decodeEffect(S3Config)(encoded);
-        assert.deepStrictEqual(encoded, config);
-        assert.deepStrictEqual(decoded, config);
+      const encoded = yield* S.encodeEffect(S3Config)(required);
+      const decoded = yield* S.decodeEffect(S3Config)(encoded);
+      assert.deepStrictEqual(encoded, required);
+      assert.deepStrictEqual(decoded, required);
+      // Exact optional keys (EF-40): an optional key is omitted, never undefined.
+      for (const key of ["endpoint", "sessionToken", "prefix"]) {
+        assert.isFalse(S.is(S3Config)({ ...required, [key]: undefined }));
       }
     }),
     runs

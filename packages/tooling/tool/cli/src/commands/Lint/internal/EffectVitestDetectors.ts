@@ -449,12 +449,42 @@ const functionHasResourceWhere = (
 const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
   functionHasResourceWhere(definition, imports, constTrue);
 
+// `L.unwrap(...)`, or a Layer value piped only through data-last Layer combinators.
+const isLayerValued = (expression: MorphNode | undefined, imports: EffectVitestImports): boolean => {
+  if (!Node.isCallExpression(expression)) return false;
+  if (isLayerValue(expression, imports)) return true;
+  const callee = expression.getExpression();
+  return (
+    Node.isPropertyAccessExpression(callee) &&
+    callee.getName() === "pipe" &&
+    isLayerPipe(expression, imports) &&
+    isLayerValued(callee.getExpression(), imports)
+  );
+};
+
+// A layer factory returns its Layer to the caller's `it.layer`, which owns the build and its scope, so it is
+// the shape EV003 recommends, not a wrapper around it (#1855 wave 5). Every return must be a Layer value.
+const isLayerFactory = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean => {
+  const body = definition.getBody();
+  if (body === undefined) return false;
+  if (!Node.isBlock(body)) return isLayerValued(body, imports);
+  const returns = A.filter(
+    body.getDescendantsOfKind(SyntaxKind.ReturnStatement),
+    (statement) => statement.getFirstAncestor(Node.isFunctionLikeDeclaration) === definition
+  );
+  return (
+    A.isReadonlyArrayNonEmpty(returns) &&
+    A.every(returns, (statement) => isLayerValued(statement.getExpression(), imports))
+  );
+};
+
 // EV003 asks for `it.layer` sharing only when a wrapper holds a resource other than a fresh temp root.
 // A wrapper that changes process state anywhere in its body (use, release, pipe stages, or a
 // same-file helper it reaches) stays under review even when its only acquisition is a fresh temp root.
 const functionHasShareableResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
-  functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports)) ||
-  (functionHasResource(definition, imports) && mutatesProcessState(definition, imports));
+  !isLayerFactory(definition, imports) &&
+  (functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports)) ||
+    (functionHasResource(definition, imports) && mutatesProcessState(definition, imports)));
 
 const buildsAndProvidesLayer = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean => {
   const calls = callbackCalls(definition);
@@ -697,29 +727,161 @@ const liveClockFor = (wait: CallExpression, imports: EffectVitestImports): boole
     return pipedWaitUses(ancestor, wait, imports, TEST_CLOCK_MODULES, "TestClock", ["withLive"]);
   });
 
+const FORK_MEMBERS = ["forkChild", "forkScoped", "forkDetach"];
+
+// `Effect.forkChild(x)`, or a `.pipe` stage `Effect.forkChild` / `Effect.forkChild({ ... })`.
+const forkCall = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  if (isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", FORK_MEMBERS)) return true;
+  const callee = call.getExpression();
+  return (
+    Node.isPropertyAccessExpression(callee) &&
+    callee.getName() === "pipe" &&
+    A.some(call.getArguments(), (argument) =>
+      Node.isCallExpression(argument)
+        ? isProvenanceCall(argument, imports, EFFECT_MODULES, "Effect", FORK_MEMBERS)
+        : Node.isExpression(argument) &&
+          isProvenanceExpression(argument, imports, EFFECT_MODULES, "Effect", FORK_MEMBERS)
+    )
+  );
+};
+
+// Whether any identifier under `node` resolves to one of `bindings`.
+// Identity, not `Equal`: structural equality over ts-morph nodes walks the whole tree.
+const readsBinding = (node: MorphNode, bindings: ReadonlyArray<MorphNode>, imports: EffectVitestImports): boolean =>
+  A.some(node.getDescendantsOfKind(SyntaxKind.Identifier), (identifier) =>
+    O.exists(imports.resolveBinding(identifier), (binding) => A.some(bindings, (carrier) => carrier === binding))
+  );
+
+const newCarriers = (
+  declarations: ReadonlyArray<VariableDeclaration>,
+  reached: ReadonlyArray<MorphNode>,
+  imports: EffectVitestImports
+): ReadonlyArray<MorphNode> =>
+  A.filter(declarations, (declaration) => {
+    const initializer = declaration.getInitializer();
+    return (
+      initializer !== undefined &&
+      !A.some(reached, (carrier) => carrier === declaration) &&
+      readsBinding(initializer, reached, imports)
+    );
+  });
+
+// Test-body declarations that carry the wait: the one whose initializer holds it, then every
+// test-body declaration whose initializer reads one already reached (a fake service handed to a subject).
+const waitCarriers = (
+  wait: CallExpression,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): ReadonlyArray<MorphNode> => {
+  const holder = wait.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
+  if (holder === undefined || !scopeContains(callback, holder)) return [];
+  const declarations = callback.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
+  let reached: ReadonlyArray<MorphNode> = [holder];
+  let added = newCarriers(declarations, reached, imports);
+  while (A.isReadonlyArrayNonEmpty(added)) {
+    reached = [...reached, ...added];
+    added = newCarriers(declarations, reached, imports);
+  }
+  return reached;
+};
+
+const readsOrIs = (node: MorphNode, bindings: ReadonlyArray<MorphNode>, imports: EffectVitestImports): boolean =>
+  (Node.isIdentifier(node) &&
+    O.exists(imports.resolveBinding(node), (binding) => A.some(bindings, (carrier) => carrier === binding))) ||
+  readsBinding(node, bindings, imports);
+
+const encloses = (outer: MorphNode, inner: MorphNode): boolean =>
+  outer.getStart() <= inner.getStart() && inner.getEnd() <= outer.getEnd();
+
+// The carriers that build the forked value: those the fork reads, then every carrier their initializers read.
+const forkFeeders = (
+  fork: CallExpression,
+  carriers: ReadonlyArray<VariableDeclaration>,
+  imports: EffectVitestImports
+): ReadonlyArray<VariableDeclaration> => {
+  let fed = A.filter(carriers, (carrier) => readsOrIs(fork, [carrier], imports));
+  let added = fed;
+  while (A.isReadonlyArrayNonEmpty(added)) {
+    const known = fed;
+    added = A.filter(
+      carriers,
+      (carrier) =>
+        !A.some(known, (feeder) => feeder === carrier) &&
+        A.some(known, (feeder) =>
+          O.exists(O.fromUndefinedOr(feeder.getInitializer()), (init) => readsOrIs(init, [carrier], imports))
+        )
+    );
+    fed = [...known, ...added];
+  }
+  return fed;
+};
+
+// A carrier the test body also yields itself runs its wait on the test fiber, so the fork does not hold it:
+// a `yield*` outside the fork and outside the feeders' own initializers that reads a carrier declared before
+// the fork (the fiber handle and later join results are not carriers of the wait).
+const directlyAwaited = (
+  fork: CallExpression,
+  carriers: ReadonlyArray<VariableDeclaration>,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): boolean => {
+  const before = A.filter(carriers, (carrier) => carrier.getStart() < fork.getStart() && !encloses(carrier, fork));
+  const feeders = forkFeeders(fork, before, imports);
+  return A.some(
+    callback.getDescendantsOfKind(SyntaxKind.YieldExpression),
+    (yielded) =>
+      yielded.getAsteriskToken() !== undefined &&
+      !encloses(yielded, fork) &&
+      !A.some(feeders, (feeder) =>
+        O.exists(O.fromUndefinedOr(feeder.getInitializer()), (init) => encloses(init, yielded))
+      ) &&
+      O.exists(O.fromUndefinedOr(yielded.getExpression()), (operand) => readsOrIs(operand, before, imports))
+  );
+};
+
+// The fork that runs the wait: a syntactic fork ancestor, or a fork in the same body whose
+// arguments or receiver read a test-body value carrying the wait, when the body does not also
+// yield that value directly.
+const forkOfWait = (
+  wait: CallExpression,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): O.Option<CallExpression> => {
+  const ancestor = A.findFirst(
+    wait.getAncestors(),
+    (node): node is CallExpression =>
+      Node.isCallExpression(node) &&
+      scopeContains(callback, node) &&
+      (isProvenanceCall(node, imports, EFFECT_MODULES, "Effect", FORK_MEMBERS) ||
+        pipedWaitUses(node, wait, imports, EFFECT_MODULES, "Effect", FORK_MEMBERS))
+  );
+  if (O.isSome(ancestor)) return ancestor;
+  const carriers = waitCarriers(wait, callback, imports);
+  if (A.isReadonlyArrayEmpty(carriers)) return O.none();
+  const declarations = A.filter(carriers, Node.isVariableDeclaration);
+  return O.filter(
+    A.findFirst(callbackCalls(callback), (call) => forkCall(call, imports) && readsBinding(call, carriers, imports)),
+    (fork) => !directlyAwaited(fork, declarations, callback, imports)
+  );
+};
+
+// A wait is controlled when a fiber forked in the test body holds it and a later statement of the
+// same body drives the TestClock or interrupts fibers, the TestClock canon (#1855 wave 5). A clock
+// operation before the fork cannot drive it, and a directly awaited wait is never controlled.
 const controlledWait = (
   wait: CallExpression,
   callback: EffectVitestFunctionNode,
   imports: EffectVitestImports
-): boolean => {
-  // A sibling clock operation cannot drive a directly awaited sleep. Only a
-  // syntactically forked child can be controlled by the remainder of this body.
-  const forked = A.some(wait.getAncestors(), (ancestor) => {
-    if (!Node.isCallExpression(ancestor) || !scopeContains(callback, ancestor)) return false;
-    const forks = ["forkChild", "forkScoped", "forkDetach"];
-    if (isProvenanceCall(ancestor, imports, EFFECT_MODULES, "Effect", forks)) return true;
-    return pipedWaitUses(ancestor, wait, imports, EFFECT_MODULES, "Effect", forks);
-  });
-  return (
-    forked &&
+): boolean =>
+  O.exists(forkOfWait(wait, callback, imports), (fork) =>
     A.some(
       callbackCalls(callback),
       (call) =>
-        isProvenanceCall(call, imports, TEST_CLOCK_MODULES, "TestClock", ["adjust", "setTime"]) ||
-        isProvenanceCall(call, imports, ["effect", "effect/Fiber"], "Fiber", ["interrupt", "interruptAll"])
+        call.getStart() > fork.getEnd() &&
+        (isProvenanceCall(call, imports, TEST_CLOCK_MODULES, "TestClock", ["adjust", "setTime"]) ||
+          isProvenanceCall(call, imports, ["effect", "effect/Fiber"], "Fiber", ["interrupt", "interruptAll"]))
     )
   );
-};
 // Effect v4 exposes the live time reads as Effect values, so they appear as
 // references rather than calls inside the live body: `Clock.currentTimeMillis`
 // through a namespace, or a bare `currentTimeMillis` through a named import.
@@ -2519,10 +2681,6 @@ const clockWaitCall = (call: CallExpression, imports: EffectVitestImports): bool
   isProvenanceCall(call, imports, SCHEDULE_MODULES, "Schedule", ["spaced", "fixed", "exponential"]);
 
 const clockWaitClassification = (call: CallExpression, state: DetectorState) => {
-  const controlled = O.exists(state.harness.enclosingTest(call), ({ callback }) =>
-    controlledWait(call, callback, state.imports)
-  );
-  if (controlled) return { judgment: true, className: "controlled-clock-wait-review" };
   if (directWaitExecution(call, state)) return { judgment: false };
   return {
     judgment: true,
@@ -2543,6 +2701,7 @@ const detectClockWait = (
   if (!clockWaitCall(call, imports) || liveClockFor(call, imports)) return;
   const helper = O.isNone(test) && O.exists(harness.reachableHelper(call), ({ testClock }) => testClock);
   if (!testClockMode && !helper) return;
+  if (O.exists(test, ({ callback }) => controlledWait(call, callback, imports))) return;
   findings.push(
     makeFinding({
       ruleId: "EV008",

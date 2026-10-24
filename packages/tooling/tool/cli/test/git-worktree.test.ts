@@ -1,7 +1,6 @@
 import { isRegisteredWorktree, removeGitWorktree, runRepoCommandCapture } from "@beep/repo-cli/test/RepoRun";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -48,7 +47,7 @@ const failingSpawner = ChildProcessSpawner.make(() =>
   )
 );
 
-describe("GitWorktree", () => {
+it.layer(NodeServices.layer)("GitWorktree", (it) => {
   it.effect("recognizes a registered linked worktree, including through a symlinked path", () =>
     withRepository((root, repoRoot) =>
       Effect.gen(function* () {
@@ -63,7 +62,7 @@ describe("GitWorktree", () => {
         assertSome(yield* isRegisteredWorktree(repoRoot, alias), true);
         assertSome(yield* isRegisteredWorktree(repoRoot, repoRoot), true);
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("reports an unregistered or missing directory as not registered", () =>
@@ -77,7 +76,7 @@ describe("GitWorktree", () => {
         assertSome(yield* isRegisteredWorktree(repoRoot, plain), false);
         assertSome(yield* isRegisteredWorktree(repoRoot, path.join(root, "missing")), false);
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("returns None when the worktree listing fails or cannot run", () =>
@@ -95,7 +94,7 @@ describe("GitWorktree", () => {
           )
         );
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("removes a registered worktree and prunes its registration", () =>
@@ -111,7 +110,7 @@ describe("GitWorktree", () => {
         expect(yield* fs.exists(linked)).toBe(false);
         assertSome(yield* isRegisteredWorktree(repoRoot, linked), false);
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 
   it.effect("reports failure for an unregistered path or an unrunnable git", () =>
@@ -130,6 +129,6 @@ describe("GitWorktree", () => {
           )
         ).toBe(false);
       })
-    ).pipe(provideScopedLayer(NodeServices.layer))
+    )
   );
 });

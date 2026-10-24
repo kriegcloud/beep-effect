@@ -223,12 +223,15 @@ const liveWithSpawner = (root: string, spawner: Layer.Layer<ChildProcessSpawner.
 
 describe("ToolInstaller", () => {
 	it("preserves the structural extraction and provisioning contracts", () => {
-		const extraction: ExtractOptions = { destination: undefined, flags: undefined };
+		const extraction: ExtractOptions = { destination: "/out", flags: ["xz"] };
 		const options: ProvisionFileOptions = { tool: "tool", version: "1", url: "url", binary: "cli" };
 		const provisioned: ProvisionedFile = { directory: "/cache/tool/1/x64", binDir: "/cache/tool/1/x64" };
 		assert.isTrue(S.is(ExtractOptions)({}));
 		assert.isTrue(S.is(ExtractOptions)(extraction));
 		assert.deepEqual(S.decodeResult(ExtractOptions)(extraction).pipe(Result.getOrThrow), extraction);
+		// Exact optional keys (EF-40): an optional key is omitted, never undefined.
+		assert.isFalse(S.is(ExtractOptions)({ destination: undefined }));
+		assert.isFalse(S.is(ExtractOptions)({ flags: undefined }));
 		assert.deepEqual(S.decodeResult(ExtractOptions)({}).pipe(Result.getOrThrow), {});
 		assert.isTrue(S.is(ExtractOptions)({ flags: [] }));
 		assert.isTrue(S.is(ExtractOptions)({ destination: "", flags: ["xz", "-f"] }));
