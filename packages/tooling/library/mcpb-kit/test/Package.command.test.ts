@@ -80,6 +80,7 @@ it.layer(commandEnvironment, { concurrent: false, timeout: "5 seconds" })("MCPB 
     );
     yield* fs.writeFileString(`${nativeDir}/duckdb.node`, "synthetic native sidecar");
     yield* fs.makeDirectory(output, { recursive: true });
+    const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
     const calls: Array<ReadonlyArray<string>> = [];
     Object.defineProperty(Bun, "spawn", {
       value: (args: ReadonlyArray<string>) => {
@@ -90,7 +91,7 @@ it.layer(commandEnvironment, { concurrent: false, timeout: "5 seconds" })("MCPB 
         // running the in-memory filesystem's own effect outside the test fiber.
         const exited =
           args[0] === "zip" && options.noArchive !== true
-            ? Effect.runPromise(Effect.as(fs.writeFileString(args[3] ?? archive, "synthetic archive"), exitCode))
+            ? runPromise(Effect.as(fs.writeFileString(args[3] ?? archive, "synthetic archive"), exitCode))
             : Promise.resolve(exitCode);
         return {
           stdout: new Blob([options.listing ?? inventory]).stream(),
