@@ -12,14 +12,14 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { A, Str, thunkEmptyStr } from "@beep/utils";
+import { Str, thunkEmptyStr } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
@@ -132,27 +132,59 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
   );
 });
 
-class BunLockDocument extends S.Opaque<BunLockDocument, { readonly brand: unique symbol }>()(
-  S.Struct({
-    packages: S.Record(S.String, S.Array(S.Unknown)).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>())),
-      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>()))
-    ),
-  }).pipe(
-    $I.annoteSchema("BunLockDocument", {
-      description: "Subset of bun.lock: the resolved package map whose entries start with `<name>@<version>`.",
-    })
-  )
-) {}
+/**
+ * Read the root lockfile for reuse within one version-sync resolution.
+ *
+ * **Example** (Create a lazy shared read)
+ *
+ * ```ts
+ * import { readRootLockfile } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/RootCatalog"
+ * import * as Effect from "effect/Effect"
+ * const shared = Effect.cached(readRootLockfile("/repo"))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const readRootLockfile = Effect.fn("VersionSync.readRootLockfile")(function* (
+  repoRoot: string
+): Effect.fn.Return<O.Option<Lockfile>, VersionSyncError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const lockPath = path.join(repoRoot, "bun.lock");
+  const present = yield* fs.exists(lockPath).pipe(Effect.orElseSucceed(() => false));
+  if (!present) {
+    return O.none<Lockfile>();
+  }
+
+  const lockContent = yield* fs
+    .readFileString(lockPath)
+    .pipe(VersionSyncError.mapError("Failed to read bun.lock", "bun.lock"));
+
+  return yield* Lockfile.parse(lockContent, { format: "bun" }).pipe(
+    Effect.asSome,
+    VersionSyncError.mapError("Failed to parse bun.lock", "bun.lock")
+  );
+});
 
 /**
  * Read the version `bun.lock` resolved for a dependency.
  *
  * **Details**
  *
- * Each `packages` entry in `bun.lock` is a tuple whose first element is the
- * resolved `<name>@<version>` specifier. A missing lockfile or a missing entry
- * yields `None` so the caller can fall back to the catalog.
+ * The answer is the registry package `@beep/lockfiles` resolves from the
+ * workspace root (`Lockfile#rootPackage`) whose real name is the dependency.
+ * A missing lockfile, a missing entry, a workspace package and an npm alias of
+ * another package all yield `None`, so the caller can fall back to the
+ * catalog.
+ *
+ * **Gotchas**
+ *
+ * A lockfile the kit rejects fails with a `VersionSyncError` instead of
+ * falling back: malformed JSONC, and also JSONC that bun would read but the
+ * kit does not admit (a non-numeric `lockfileVersion`, an unparseable
+ * integrity). Callers can share a lazy read for the duration of one run.
  *
  * **Example** (Read the resolved turbo version)
  *
@@ -171,33 +203,17 @@ class BunLockDocument extends S.Opaque<BunLockDocument, { readonly brand: unique
  */
 export const readLockfileResolvedVersion = Effect.fn("readLockfileResolvedVersion")(function* (
   repoRoot: string,
-  dependencyName: string
+  dependencyName: string,
+  lockfileRead: Effect.Effect<
+    O.Option<Lockfile>,
+    VersionSyncError,
+    FileSystem.FileSystem | Path.Path
+  > = readRootLockfile(repoRoot)
 ): Effect.fn.Return<O.Option<string>, VersionSyncError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-
-  const lockPath = path.join(repoRoot, "bun.lock");
-  const present = yield* fs.exists(lockPath).pipe(Effect.orElseSucceed(() => false));
-  if (!present) {
-    return O.none();
-  }
-
-  const lockContent = yield* fs
-    .readFileString(lockPath)
-    .pipe(VersionSyncError.mapError("Failed to read bun.lock", "bun.lock"));
-
-  const lock = yield* decodeJsoncTextAs(BunLockDocument)(lockContent).pipe(
-    VersionSyncError.mapError("Failed to parse bun.lock", "bun.lock")
-  );
-
-  const resolvedPrefix = `${dependencyName}@`;
-
-  return O.flatMap(
-    O.flatMap(R.get(lock.packages, dependencyName), A.head),
-    (specifier): O.Option<string> =>
-      P.isString(specifier) && Str.startsWith(resolvedPrefix)(specifier)
-        ? O.some(Str.slice(resolvedPrefix.length)(specifier))
-        : O.none()
+  const lockfile = yield* lockfileRead;
+  return O.flatMap(lockfile, (document) => document.rootPackage(dependencyName)).pipe(
+    O.filter((pkg) => !pkg.isWorkspace && pkg.name === dependencyName),
+    O.map((pkg) => pkg.version)
   );
 });
 
@@ -230,9 +246,14 @@ export const readLockfileResolvedVersion = Effect.fn("readLockfileResolvedVersio
  */
 export const resolveInstalledToolVersion = Effect.fn("resolveInstalledToolVersion")(function* (
   repoRoot: string,
-  dependencyName: string
+  dependencyName: string,
+  lockfileRead: Effect.Effect<
+    O.Option<Lockfile>,
+    VersionSyncError,
+    FileSystem.FileSystem | Path.Path
+  > = readRootLockfile(repoRoot)
 ): Effect.fn.Return<string, VersionSyncError, FileSystem.FileSystem | Path.Path> {
-  const lockfileVersion = yield* readLockfileResolvedVersion(repoRoot, dependencyName);
+  const lockfileVersion = yield* readLockfileResolvedVersion(repoRoot, dependencyName, lockfileRead);
   if (O.isSome(lockfileVersion)) {
     return lockfileVersion.value;
   }

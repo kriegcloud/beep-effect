@@ -212,9 +212,10 @@ const readTurboConfigFile = Effect.fn("readTurboConfigFile")(function* (
  * @since 0.0.0
  */
 export const resolveTurboSchema = Effect.fn("resolveTurboSchema")(function* (
-  repoRoot: string
+  repoRoot: string,
+  installedVersionRead = resolveInstalledToolVersion(repoRoot, "turbo")
 ): Effect.fn.Return<TurboSchemaState, VersionSyncError, FileSystem.FileSystem | Path.Path | FsUtils> {
-  const installedVersion = yield* resolveInstalledToolVersion(repoRoot, "turbo");
+  const installedVersion = yield* installedVersionRead;
 
   const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot).pipe(
     VersionSyncError.mapError("Failed to resolve workspace directories", "package.json")

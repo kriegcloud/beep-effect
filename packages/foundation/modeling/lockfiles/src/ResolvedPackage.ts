@@ -42,6 +42,16 @@ const EMPTY_EDGE_NAMES: ReadonlyArray<string> = [];
  *   textual form). An *absent* integrity is omitted, so a `ResolvedPackage` may
  *   carry none; a *present but unparseable* integrity fails the parse typed at
  *   validation rather than being silently dropped.
+ * - `alias` — the name this instance is installed under when it differs
+ *   from `name`: an `npm:` alias. The bun and npm parsers record it, because
+ *   both formats key an instance by its install position: bun's
+ *   `"string-width-cjs": ["string-width@4.2.3"]` tuple carries the real name,
+ *   and npm's `node_modules/string-width-cjs` entry records
+ *   `"name": "string-width"`. It is omitted when the two agree. pnpm and yarn
+ *   key an instance by real name and record an alias only on the dependency
+ *   edge that reaches it (pnpm's `string-width-cjs: string-width@4.2.3`), so
+ *   one of their instances may be installed under several names and carries
+ *   none. Read it through {@link ResolvedPackage.installName}.
  * - `isWorkspace` — `true` for workspace-local packages.
  * - `relativePath` — the workspace-relative directory for workspace
  *   packages, when the lockfile records one.
@@ -128,6 +138,12 @@ export class ResolvedPackage extends S.Class<ResolvedPackage, { readonly brand: 
         description: "Package integrity recorded by the lockfile, including SRI hashes and yarn Berry cache checksums",
       })
     ),
+    alias: S.optionalKey(S.NonEmptyString).pipe(
+      $I.annoteKey("ResolvedPackage.alias", {
+        description:
+          "Install name of an aliased instance when it differs from the real package name, as bun and npm record an npm alias",
+      })
+    ),
     isWorkspace: S.Boolean.pipe(
       $I.annoteKey("ResolvedPackage.isWorkspace", {
         description: "Whether this instance represents a workspace-local package",
@@ -181,6 +197,41 @@ export class ResolvedPackage extends S.Class<ResolvedPackage, { readonly brand: 
   },
   $I.annote("ResolvedPackage", { description: "A package resolved from a lockfile." })
 ) {
+  /**
+   * The name this instance is installed under: its `alias` when the lockfile
+   * records one, otherwise its `name`.
+   *
+   * **Details**
+   *
+   * A consumer asking "is anything installed as `X`" must read this, not
+   * `name`: an aliased instance answers to its alias in `node_modules` and to
+   * its real name in the registry, and a check that reads only one of them
+   * misses the other.
+   *
+   * **Gotchas**
+   *
+   * Only bun and npm lockfiles name an instance's install position, so only
+   * their instances carry an `alias`. A pnpm or yarn instance is keyed by its
+   * real name and may be installed under several aliases, which those formats
+   * record on the dependency edge instead; for them this is always `name`.
+   *
+   * **Example** (Read an aliased install name)
+   *
+   * ```ts
+   * import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
+   *
+   * const pkg = ResolvedPackage.make({ name: "string-width", alias: "string-width-cjs", version: "4.2.3", instanceId: "string-width-cjs", isWorkspace: false });
+   * console.log(pkg.installName); // string-width-cjs
+   * console.log(pkg.withName("string-width").installName); // string-width-cjs
+   * ```
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  get installName(): string {
+    return this.alias ?? this.name;
+  }
+
   /**
    * This package under another name, with every other field carried over.
    *

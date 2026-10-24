@@ -14,6 +14,7 @@ export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/NodeResolv
 export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/RootCatalog";
 export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/TurboResolver";
 export * from "@beep/repo-cli/commands/VersionSync/internal/services/CategorySelectionService";
+export * from "@beep/repo-cli/commands/VersionSync/internal/services/ResolverService";
 export * from "@beep/repo-cli/commands/VersionSync/internal/services/UpdateApplierService";
 export * from "@beep/repo-cli/commands/VersionSync/internal/updaters/JsoncSchemaUpdater";
 export * from "@beep/repo-cli/commands/VersionSync/internal/updaters/PackageJsonUpdater";
