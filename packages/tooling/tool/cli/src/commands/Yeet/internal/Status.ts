@@ -818,8 +818,11 @@ const readJsonArtifact = Effect.fn("YeetStatus.readJsonArtifact")(function* <Val
   render: (value: Value) => YeetStatusArtifact
 ): Effect.fn.Return<YeetStatusArtifact, never, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const exists = yield* artifactExists(path);
-  if (!exists) {
+  const exists = yield* fs.exists(path).pipe(Effect.option);
+  if (O.isNone(exists)) {
+    return unreadableArtifact(path, unreadableDetail);
+  }
+  if (!exists.value) {
     return missingArtifact(path, missingDetail);
   }
   const text = yield* fs.readFileString(path).pipe(Effect.option);
@@ -851,13 +854,6 @@ const readCloseoutArtifact = (path: string): Effect.Effect<YeetStatusArtifact, n
     decodePrCloseoutReport,
     (report) => artifactFromCloseout(path, report)
   );
-
-const artifactExists = Effect.fn("YeetStatus.artifactExists")(function* (
-  path: string
-): Effect.fn.Return<boolean, never, FileSystem.FileSystem> {
-  const fs = yield* FileSystem.FileSystem;
-  return yield* fs.exists(path).pipe(Effect.orElseSucceed(() => false));
-});
 
 const checkIsFailing = (check: GhStatusCheck): boolean => {
   const bucket = Str.toLowerCase(check.bucket);
@@ -1453,7 +1449,7 @@ const readRemotePullRequest = Effect.fn("YeetStatus.readRemotePullRequest")(func
       ],
       cwd: context.repoRoot,
       label: "gh api pull request status",
-      onFailure: (failure) => YeetCommandError.new(failure, "Failed to read PR status through GitHub REST."),
+      onFailure: YeetCommandError.new("Failed to read PR status through GitHub REST."),
     });
     return yield* decodeGhStatusPullRequest(output).pipe(
       // REST PR metadata has no review decision. Null from the projection
@@ -1481,7 +1477,7 @@ const confirmNoReviewComments = Effect.fn("YeetStatus.confirmNoReviewComments")(
     args: ["api", `repos/{owner}/{repo}/pulls/${number}/comments?per_page=1`],
     cwd: context.repoRoot,
     label: "gh api review comments",
-    onFailure: (failure) => YeetCommandError.new(failure, "Could not read REST review comments."),
+    onFailure: YeetCommandError.new("Could not read REST review comments."),
   });
   const comments = yield* decodeRestReviewComments(output).pipe(
     Effect.mapError(YeetCommandError.new("Could not decode REST review comments."))

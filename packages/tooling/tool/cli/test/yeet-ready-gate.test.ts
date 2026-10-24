@@ -853,55 +853,66 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
     })
   );
 
-  it.effect("preserves REST status and review-comment read errors instead of reporting absence", () =>
+  it.effect("degrades remote status when REST status cannot be read", () =>
     Effect.gen(function* () {
-      for (const [routeFragment, output, exitCode] of [
-        ["/pulls/42", "REST status unavailable", 1],
-        ["/pulls/42", "invalid status JSON", 0],
-        ["/comments?", "comments unavailable", 1],
-        ["/comments?", "invalid comments JSON", 0],
+      for (const [output, exitCode] of [
+        ["REST status unavailable", 1],
+        ["invalid status JSON", 0],
       ] as const) {
         const base = fallbackRunner(restFound);
         const runner = ChildProcessSpawner.make((command) => {
           if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
           const route = command.args[1] ?? "";
-          return command.command === "gh" && Str.includes(routeFragment)(route)
+          return command.command === "gh" && Str.includes("/pulls/42")(route)
             ? Effect.succeed(fakeHandle(output, exitCode))
             : base.spawn(command);
         });
-        const result = yield* collectYeetStatus(context, true).pipe(
-          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
-          Effect.result
+        const snapshot = yield* collectYeetStatus(context, true).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner)
         );
-        if (result._tag === "Failure") {
-          expect(result.failure.message).toContain("REST fallback:");
-        } else {
-          expect(result.success.remote.available).toBe(false);
-          assertTrue(O.isSome(result.success.remote.readFailure));
-          expect(result.success.remote.detail).toContain(
-            "gh pr view failed: GraphQL: API rate limit exceeded; REST fallback:"
-          );
-        }
+        expect(snapshot.remote.available).toBe(false);
+        assertTrue(O.isSome(snapshot.remote.readFailure));
+        expect(snapshot.remote.detail).toContain("gh pr view failed: GraphQL: API rate limit exceeded; REST fallback:");
+      }
+    })
+  );
+
+  it.effect("fails when REST review comments cannot be read", () =>
+    Effect.gen(function* () {
+      for (const [output, exitCode, detail] of [
+        ["comments unavailable", 1, "Could not read REST review comments."],
+        ["invalid comments JSON", 0, "Could not decode REST review comments."],
+      ] as const) {
+        const base = fallbackRunner(restFound);
+        const runner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+          const route = command.args[1] ?? "";
+          return command.command === "gh" && Str.includes("/comments?")(route)
+            ? Effect.succeed(fakeHandle(output, exitCode))
+            : base.spawn(command);
+        });
+        const failure = yield* collectYeetStatus(context, true).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
+          Effect.flip
+        );
+        expect(failure.message).toContain(`REST fallback: ${detail}`);
       }
     })
   );
 
   it.effect("recovers truncated and unstartable primary reads and tolerates unavailable workflow runs", () =>
     Effect.gen(function* () {
-      for (const scenario of ["truncated-view", "spawn-view", "spawn-runs"]) {
+      const spawnFailure = Effect.fail(PlatformError.badArgument({ module: "ChildProcess", method: "spawn" }));
+      for (const [failedRoute, response] of [
+        ["pr view", Effect.succeed(fakeHandle(Str.repeat(512 * 1024 + 1)("x")))],
+        ["pr view", spawnFailure],
+        ["run list", spawnFailure],
+      ] as const) {
         const base = fallbackRunner(restFound);
         const runner = ChildProcessSpawner.make((command) => {
           if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
           const route = A.join(A.take(command.args, 2), " ");
-          if (command.command === "gh" && route === "pr view" && scenario === "truncated-view") {
-            return Effect.succeed(fakeHandle(Str.repeat(512 * 1024 + 1)("x")));
-          }
-          if (
-            command.command === "gh" &&
-            ((route === "pr view" && scenario === "spawn-view") || (route === "run list" && scenario === "spawn-runs"))
-          ) {
-            return Effect.fail(PlatformError.badArgument({ module: "ChildProcess", method: "spawn" }));
-          }
+          if (command.command === "gh" && route === failedRoute) return response;
           return base.spawn(command);
         });
         const snapshot = yield* collectYeetStatus(context, true).pipe(
@@ -914,7 +925,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
     })
   );
 
-  it.effect("treats failed artifact existence probes as missing local evidence", () =>
+  it.effect("treats failed artifact existence probes as unreadable local evidence", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const snapshot = yield* collectYeetStatus(context, false).pipe(
@@ -923,8 +934,10 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
           exists: () => Effect.fail(PlatformError.badArgument({ module: "FileSystem", method: "exists" })),
         })
       );
-      expect(snapshot.verdict.state).toBe("missing");
-      expect(snapshot.closeout.state).toBe("missing");
+      expect(snapshot.verdict.state).toBe("unreadable");
+      expect(snapshot.verdict.detail).toBe("verdict artifact could not be read");
+      expect(snapshot.closeout.state).toBe("unreadable");
+      expect(snapshot.closeout.detail).toBe("closeout artifact could not be read");
     })
   );
 
