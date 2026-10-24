@@ -28,14 +28,13 @@
  *    `research/semver-owner-switch-differential-r1.json` is the record.
  * 2. `bunLocal`: the pre-R1 `BunResolver` pattern and comparator (copied below as `oldBun*`, from
  *    `BunResolver.ts:158-322` at 6c0bb54d55) against the shipped `buildBunReport` target selection, over
- *    every ordered pair of Bun-shaped corpus strings.
+ *    every ordered pair of Bun-shaped corpus strings. The kit writes the winner canonical (no leading
+ *    `v`, since c3260f33), so a `v`-spelled old winner is the intended `canonical-pin` divergence.
  * 3. `docker`: the pre-R1 `DockerResolver` strategies (copied as `oldDocker*`, `DockerResolver.ts:182-319`)
  *    against the shipped `selectLatestDockerTag`, over seeded tag lists built from the corpus, for `redis`,
  *    `pgvector/pgvector` (current tag `pg17`) and `grafana/otel-lgtm`. A difference is classified only when
  *    it is caused by a non-SemVer core: the old strategy, re-run on the list without the tags whose core the
- *    kit rejects, must pick what the kit picks. The kit side writes the winner canonical (no leading
- *    `v`, since c3260f33), so a `v`-spelled old winner is the intended `canonical-pin` divergence. Any
- *    other difference is unclassified.
+ *    kit rejects, must pick what the kit picks. Any other difference is unclassified.
  * 4. `cachePin`: the old `CacheClientPin.version` regex against `SemVer.PinnableVersionString`; the gate also
  *    requires every committed pin to pass both.
  *
