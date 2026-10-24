@@ -154,8 +154,8 @@ cleared. No development guest has been created.
 During host upgrade preparation, LVM confirmed `ubuntu-vg` on `/dev/sda3` has
 1,761.01 GiB of free extents and retains its existing 100 GiB `ubuntu-lv`.
 The separate NVMe group `ubuntu-vg-1` remains allocated to the host root LV.
-The intended SATA device's stable identity is
-`ata-Samsung_SSD_870_EVO_2TB_S6PNNL0T900079X`. Its SMART self-assessment passed;
+The intended SATA device was confirmed against the stable identity retained
+in the private storage receipt. Its SMART self-assessment passed;
 reallocated sectors, uncorrectable errors, program/erase failures and CRC errors
 are all zero. These observations support the accepted 512 GiB allocation,
 subject to rechecking device identity and free extents immediately before
