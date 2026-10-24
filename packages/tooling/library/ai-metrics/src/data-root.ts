@@ -8,6 +8,7 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { FilePath, Fn, LiteralKit, SchemaUtils, WindowsDrivePath, WindowsUncPath } from "@beep/schema";
 import { Str } from "@beep/utils";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -41,8 +42,16 @@ const OptionalNonBlank = S.optionalKey(NonBlankStringInput).pipe(
 );
 
 const startsWithWindowsRootSeparator = P.or(Str.startsWith("\\"), Str.startsWith("/"));
-const isWindowsAbsoluteDrivePath = (value: FilePath): boolean =>
+const isWindowsAbsoluteDrivePath = (value: string): boolean =>
   S.is(WindowsDrivePath)(value) && pipe(value, Str.substring(2), startsWithWindowsRootSeparator);
+/**
+ * A Windows drive root (`C:\\` or `C:/`) or UNC (`\\\\`) prefix: the shape test the
+ * state-home rungs apply, looser than the data-root schemas (no leaf or segment rules).
+ */
+const hasWindowsRootPrefix = P.or(
+  (value: string) => /^[A-Za-z]:/u.test(value) && pipe(value, Str.substring(2), startsWithWindowsRootSeparator),
+  Str.startsWith("\\\\")
+);
 
 const AiMetricsAbsoluteDataRootCheck = S.makeFilter(
   (value: FilePath) =>
@@ -306,13 +315,22 @@ const AiMetricsStateHome = Fn({
  *
  * **Details**
  *
- * Mirrors the shell convention `${XDG_STATE_HOME:-$HOME/.local/state}`. Blank
- * and whitespace-only values are treated as unset on **both** inputs, matching a
- * shell that exports a variable without a value.
+ * Mirrors the shell convention `${XDG_STATE_HOME:-$HOME/.local/state}` through
+ * `@beep/xdg` `XdgBase.resolve("state")`. Blank and whitespace-only values are
+ * treated as unset on **both** inputs, matching a shell that exports a variable
+ * without a value. Per the XDG spec only absolute values count: a relative
+ * `stateHome` is ignored and a relative `homeDir` has no default, and the
+ * default is built under the normalized home directory. A trailing slash on
+ * the result is trimmed.
+ *
+ * `XdgBase` is POSIX-only, but a data root may be a Windows drive or UNC path
+ * ({@link AiMetricsAbsoluteDataRoot}), so Windows roots keep their old answer
+ * beside it: a Windows `stateHome` is used as given, and a Windows `homeDir`
+ * gets `/.local/state` appended. Precedence is unchanged, `stateHome` first.
  *
  * **Gotchas**
  *
- * The result is `O.none()` when neither input carries a usable value. That case
+ * The result is `O.none()` when neither input carries a usable absolute value. That case
  * has no honest answer: interpolating a blank home would yield
  * `/.local/state`, an absolute path anchored at the filesystem root that every
  * downstream absolute-path guard happily accepts.
@@ -349,10 +367,14 @@ const AiMetricsStateHome = Fn({
 export const aiMetricsStateHome: (input: AiMetricsStateHomeInput) => O.Option<string> =
   AiMetricsStateHome.implementSync((input) =>
     pipe(
-      input.stateHome,
+      O.filter(input.stateHome, hasWindowsRootPrefix),
+      O.orElse(() =>
+        XdgBase.resolve("state", { value: O.getOrUndefined(input.stateHome), home: O.getOrUndefined(input.homeDir) })
+      ),
       O.orElse(() =>
         pipe(
           input.homeDir,
+          O.filter(hasWindowsRootPrefix),
           O.map((home) => `${withoutTrailingSlash(home)}/.local/state`)
         )
       ),
