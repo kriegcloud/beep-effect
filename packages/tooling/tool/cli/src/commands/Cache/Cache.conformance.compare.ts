@@ -613,7 +613,7 @@ const evaluateGate =
       gate: rule.gate,
       title: rule.title,
       status,
-      reason: rule.representative === true ? `${reason} ${envelopeNote}`.trim() : reason,
+      reason: rule.representative === true ? Str.trim(`${reason} ${envelopeNote}`) : reason,
       evidence,
     });
   };
