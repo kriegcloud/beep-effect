@@ -16,10 +16,14 @@ packages/foundation/capability/config-file/test/ConfigFileKeyTyping.test.ts:10`,
 inventory refresh. It is fixed at the source here (the name comes from `@effect/vitest`, which
 re-exports `vitest`), so the row never enters the inventory.
 
+Counts below are against the PR base, `main` `a1542ea161` (1,111 rows: 692 exceptions, 419 open),
+which already includes the three EV012 seam resolutions (#2216); the lane measured first at
+`8ea6ba7401` (1,114 rows: 692 exceptions, 422 open).
+
 | Rule | Exceptions before | Open before | Exceptions after | Open after |
 | --- | ---: | ---: | ---: | ---: |
 | EV001 | 1 | 0 | 1 | 0 |
-| EV002 | 98 | 168 | 98 | 168 |
+| EV002 | 98 | 168 | 98 | 167 |
 | EV003 | 15 | 20 | 23 | 0 |
 | EV004 | 89 | 57 | 89 | 56 |
 | EV005 | 6 | 0 | 6 | 0 |
@@ -28,11 +32,11 @@ re-exports `vitest`), so the row never enters the inventory.
 | EV008 | 4 | 5 | 2 | 0 |
 | EV009 | 28 | 0 | 28 | 0 |
 | EV010 | 137 | 150 | 137 | 150 |
-| EV012 | 6 | 3 | 6 | 3 |
+| EV012 | 6 | 0 | 6 | 0 |
 | EV013 | 0 | 2 | 0 | 0 |
 | EV014 | 233 | 0 | 233 | 0 |
 | EV015 | 17 | 17 | 17 | 17 |
-| **Total** | **692** | **422** | **698** | **394** |
+| **Total** | **692** | **419** | **698** | **390** |
 
 The 35 EV003 rows (15 exceptions, 20 open), the 9 EV008 rows (5 of them open hand-offs) and the
 2 EV013 polls, at the base:
@@ -57,12 +61,20 @@ The 35 EV003 rows (15 exceptions, 20 open), the 9 EV008 rows (5 of them open han
   and `Libpff.pffexport.test.ts:1171`.
 - EV013 hand-offs (2 open): `step-capture-lifecycle` :565/:578.
 
-After the wave, `lint effect-vitest --write` leaves 1,092 rows on the base. Rows were paired by
-`(ruleId, file, symbol, occurrence, ordinal)` against the base inventory: 22 removed, 22 changed in
-place (12 open rows converted to exceptions, 10 EV003 exception reasons given an owner and exit),
-and one open row converted to an exception at a narrower wrapper (`files-command`, see below), so
-13 open rows become owner/exit exceptions in all. A second `--write` is byte-identical (sha256 check OK), and the plain scan
-reports `introduced=0 resolved=0`. All 7 `#1855 wave 4 register` exceptions are present.
+After the wave, `lint effect-vitest --write` leaves 1,088 rows (698 exceptions, 390 open) against
+the base's 1,111 (692, 419). Paired by `(ruleId, file, occurrence)` against the base inventory, 24
+rows are gone and one is new:
+- 22 rows retire through this wave's work: 15 open and 7 exceptions.
+- 12 open rows convert to exceptions in place, and 10 EV003 exception reasons gain an owner and exit.
+- The `files-command` `withEnvVar` open row is replaced by the new `withReplacedPath` exception at
+  the same `PATH` call (see below), so 13 open rows become owner/exit exceptions in all.
+- One gone row is base drift, not this wave: the open EV002 `yeet-settle.test.ts:1172`
+  `provideScopedLayer` row, whose provision #2220 had already removed from the code without an
+  inventory refresh.
+
+Check: 419 − 15 − 13 − 1 = 390 open; 692 − 7 + 13 = 698 exceptions; 1,111 − 24 + 1 = 1,088 rows.
+A second `--write` is
+byte-identical (sha256 check OK), and the plain scan reports `introduced=0 resolved=0`. All 7 `#1855 wave 4 register` exceptions are present.
 
 ## The EV003 process-state ruling
 
@@ -231,6 +243,11 @@ on it. Keeping it as a review row asked owners to rename the wait (`Effect.never
 - The clock or interrupt call must start after the fork ends. A control before the fork cannot
   drive it.
 - A directly awaited wait is never controlled, and neither is a fork with no later control.
+- A carrier the test body also yields itself is not held by the fork (`directlyAwaited`, from the
+  #2227 review): a `yield*` outside the fork and outside the initializers that build the forked
+  value, whose operand reads a carrier declared before the fork, runs the wait on the test fiber.
+  The fiber handle and later join results are not carriers of the wait, so `Fiber.join(fiber)`
+  after the control stays silent.
 
 **Fixtures**, case "permits waits a forked fiber holds while a later same-body clock operation
 drives it":
@@ -247,6 +264,8 @@ drives it":
   - a bound wait awaited directly before `adjust`;
   - a bound wait whose holder the fork does not read;
   - `adjust` before forking the bound wait.
+  - a bound wait forked and also yielded directly, as a statement or into a declaration, before
+    `adjust` (failing first against the carrier path that accepted any fork reading the carrier).
 
 The old assertions that a controlled wait is a judgment row are removed. "limits withLive
 exemption to the wrapped wait" keeps its sequential-wait detector row. "permits piped fork
@@ -332,7 +351,7 @@ The EV003 family now has 22 exceptions, every one with an owner and an exit, and
 - **Waves 7-9, the owner/exit register.** 698 exceptions; EV003's 23 and the 7 wave 4 rows now
   carry an owner and exit. Wave 7 is EV010. Wave 8 is EV002, EV004 and EV006. Wave 9 is the rest,
   including the two remaining EV008 exceptions and the EV012 rows.
-- **Open rows: 394.** EV002 168, EV010 150, EV004 56, EV015 17 (splittable since wave 4) and
+- **Open rows: 390.** EV002 167, EV010 150, EV004 56, EV015 17 (splittable since wave 4) and
   EV012 3 (no production seam). These are #1875 migrations, not detector false positives.
 - **Closeout:** a fresh zero actionable scan once #1875 has migrated its cohorts, then flip
   #1855 to `complete`.
@@ -357,7 +376,7 @@ tasks). Results are in the lane report and the PR body; this receipt records the
 - Suites: effect-vitest-detectors (240 tests, 3 of them new), -contract, -primitives, -store, lint-command,
   files-command, image-command, research-daily, research-history-sift and step-capture-lifecycle,
   10 files, 508 of 508 on Bun and 508 of 508 on Node. `ConfigFileKeyTyping` passes 7 of 7 on both.
-- `lint effect-vitest`: after `--write`, `introduced=0 resolved=0`, 1,092 findings on the base (1,088 after merging main a1542ea161). The second
+- `lint effect-vitest`: after `--write`, `introduced=0 resolved=0`, 1,088 findings after merging main `a1542ea161`. The second
   `--write` is byte-stable.
 - Biome and oxlint (`--disable-nested-config`) are clean on the 9 changed source and test files.
 

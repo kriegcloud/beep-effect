@@ -788,6 +788,8 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         'const slow = { read: () => Fx.sleep("3 seconds") }; yield* slow.read(); yield* TC.adjust("3 seconds");',
         'const slow = { read: () => Fx.sleep("3 seconds") }; const fiber = yield* Fx.forkChild(other()); yield* TC.adjust("3 seconds"); yield* slow.read();',
         'const slow = { read: () => Fx.sleep("3 seconds") }; yield* TC.adjust("3 seconds"); const fiber = yield* Fx.forkChild(slow.read()); yield* Fiber.join(fiber);',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; const fiber = yield* Fx.forkChild(slow.read()); yield* slow.read(); yield* TC.adjust("3 seconds"); yield* Fiber.join(fiber);',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; const fiber = yield* Fx.forkChild(slow.read()); const direct = yield* slow.read(); yield* TC.adjust("3 seconds"); yield* Fiber.join(fiber);',
       ];
       for (const body of uncontrolled) assertTrue(yield* hasRule(test(body), "EV008"));
     })

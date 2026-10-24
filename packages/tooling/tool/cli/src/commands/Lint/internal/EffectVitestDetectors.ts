@@ -785,8 +785,63 @@ const waitCarriers = (
   return reached;
 };
 
+const readsOrIs = (node: MorphNode, bindings: ReadonlyArray<MorphNode>, imports: EffectVitestImports): boolean =>
+  (Node.isIdentifier(node) &&
+    O.exists(imports.resolveBinding(node), (binding) => A.some(bindings, (carrier) => carrier === binding))) ||
+  readsBinding(node, bindings, imports);
+
+const encloses = (outer: MorphNode, inner: MorphNode): boolean =>
+  outer.getStart() <= inner.getStart() && inner.getEnd() <= outer.getEnd();
+
+// The carriers that build the forked value: those the fork reads, then every carrier their initializers read.
+const forkFeeders = (
+  fork: CallExpression,
+  carriers: ReadonlyArray<VariableDeclaration>,
+  imports: EffectVitestImports
+): ReadonlyArray<VariableDeclaration> => {
+  let fed = A.filter(carriers, (carrier) => readsOrIs(fork, [carrier], imports));
+  let added = fed;
+  while (A.isReadonlyArrayNonEmpty(added)) {
+    const known = fed;
+    added = A.filter(
+      carriers,
+      (carrier) =>
+        !A.some(known, (feeder) => feeder === carrier) &&
+        A.some(known, (feeder) =>
+          O.exists(O.fromUndefinedOr(feeder.getInitializer()), (init) => readsOrIs(init, [carrier], imports))
+        )
+    );
+    fed = [...known, ...added];
+  }
+  return fed;
+};
+
+// A carrier the test body also yields itself runs its wait on the test fiber, so the fork does not hold it:
+// a `yield*` outside the fork and outside the feeders' own initializers that reads a carrier declared before
+// the fork (the fiber handle and later join results are not carriers of the wait).
+const directlyAwaited = (
+  fork: CallExpression,
+  carriers: ReadonlyArray<VariableDeclaration>,
+  callback: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): boolean => {
+  const before = A.filter(carriers, (carrier) => carrier.getStart() < fork.getStart() && !encloses(carrier, fork));
+  const feeders = forkFeeders(fork, before, imports);
+  return A.some(
+    callback.getDescendantsOfKind(SyntaxKind.YieldExpression),
+    (yielded) =>
+      yielded.getAsteriskToken() !== undefined &&
+      !encloses(yielded, fork) &&
+      !A.some(feeders, (feeder) =>
+        O.exists(O.fromUndefinedOr(feeder.getInitializer()), (init) => encloses(init, yielded))
+      ) &&
+      O.exists(O.fromUndefinedOr(yielded.getExpression()), (operand) => readsOrIs(operand, before, imports))
+  );
+};
+
 // The fork that runs the wait: a syntactic fork ancestor, or a fork in the same body whose
-// arguments or receiver read a test-body value carrying the wait.
+// arguments or receiver read a test-body value carrying the wait, when the body does not also
+// yield that value directly.
 const forkOfWait = (
   wait: CallExpression,
   callback: EffectVitestFunctionNode,
@@ -803,9 +858,10 @@ const forkOfWait = (
   if (O.isSome(ancestor)) return ancestor;
   const carriers = waitCarriers(wait, callback, imports);
   if (A.isReadonlyArrayEmpty(carriers)) return O.none();
-  return A.findFirst(
-    callbackCalls(callback),
-    (call) => forkCall(call, imports) && readsBinding(call, carriers, imports)
+  const declarations = A.filter(carriers, Node.isVariableDeclaration);
+  return O.filter(
+    A.findFirst(callbackCalls(callback), (call) => forkCall(call, imports) && readsBinding(call, carriers, imports)),
+    (fork) => !directlyAwaited(fork, declarations, callback, imports)
   );
 };
 
