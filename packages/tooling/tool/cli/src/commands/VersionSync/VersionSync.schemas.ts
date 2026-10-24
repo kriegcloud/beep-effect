@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -214,16 +215,17 @@ export const versionCategoryStatusFromDrift = (items: ReadonlyArray<unknown>): V
     onNonEmpty: F.constant(VersionCategoryStatusEnum.drift),
   });
 
+const versionCategoryReportFields = {
+  status: VersionCategoryStatus,
+  items: ArrayKeyDefaultEmpty(VersionDriftItem),
+  error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+  latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+};
+
 class VersionCategoryReportBun extends S.Opaque<VersionCategoryReportBun, { readonly brand: unique symbol }>()(
   S.Struct({
     category: S.tag("bun"),
-    status: VersionCategoryStatus,
-    items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
-    ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    ...versionCategoryReportFields,
   }).pipe(
     $I.annoteSchema("VersionCategoryReportBun", {
       description: "Version report entry for Bun category.",
@@ -234,13 +236,7 @@ class VersionCategoryReportBun extends S.Opaque<VersionCategoryReportBun, { read
 class VersionCategoryReportNode extends S.Opaque<VersionCategoryReportNode, { readonly brand: unique symbol }>()(
   S.Struct({
     category: S.tag("node"),
-    status: VersionCategoryStatus,
-    items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
-    ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    ...versionCategoryReportFields,
   }).pipe(
     $I.annoteSchema("VersionCategoryReportNode", {
       description: "Version report entry for Node category.",
@@ -251,13 +247,7 @@ class VersionCategoryReportNode extends S.Opaque<VersionCategoryReportNode, { re
 class VersionCategoryReportDocker extends S.Opaque<VersionCategoryReportDocker, { readonly brand: unique symbol }>()(
   S.Struct({
     category: S.tag("docker"),
-    status: VersionCategoryStatus,
-    items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
-    ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    ...versionCategoryReportFields,
   }).pipe(
     $I.annoteSchema("VersionCategoryReportDocker", {
       description: "Version report entry for Docker category.",
@@ -268,13 +258,7 @@ class VersionCategoryReportDocker extends S.Opaque<VersionCategoryReportDocker, 
 class VersionCategoryReportBiome extends S.Opaque<VersionCategoryReportBiome, { readonly brand: unique symbol }>()(
   S.Struct({
     category: S.tag("biome"),
-    status: VersionCategoryStatus,
-    items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
-    ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    ...versionCategoryReportFields,
   }).pipe(
     $I.annoteSchema("VersionCategoryReportBiome", {
       description: "Version report entry for Biome category.",
@@ -285,13 +269,7 @@ class VersionCategoryReportBiome extends S.Opaque<VersionCategoryReportBiome, { 
 class VersionCategoryReportEffect extends S.Opaque<VersionCategoryReportEffect, { readonly brand: unique symbol }>()(
   S.Struct({
     category: S.tag("effect"),
-    status: VersionCategoryStatus,
-    items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
-    ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    ...versionCategoryReportFields,
   }).pipe(
     $I.annoteSchema("VersionCategoryReportEffect", {
       description: "Version report entry for Effect catalog packages.",
@@ -302,13 +280,7 @@ class VersionCategoryReportEffect extends S.Opaque<VersionCategoryReportEffect, 
 class VersionCategoryReportTurbo extends S.Opaque<VersionCategoryReportTurbo, { readonly brand: unique symbol }>()(
   S.Struct({
     category: S.tag("turbo"),
-    status: VersionCategoryStatus,
-    items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionDriftItem>()))
-    ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    ...versionCategoryReportFields,
   }).pipe(
     $I.annoteSchema("VersionCategoryReportTurbo", {
       description: "Version report entry for Turborepo turbo.json schema pins.",
@@ -597,10 +569,7 @@ export class VersionSyncUpdateLocation extends S.Opaque<VersionSyncUpdateLocatio
 export class VersionSyncResolution extends S.Opaque<VersionSyncResolution, { readonly brand: unique symbol }>()(
   S.Struct({
     report: VersionSyncReport,
-    nodeLocations: S.Array(VersionSyncUpdateLocation).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<VersionSyncUpdateLocation>()))
-    ),
+    nodeLocations: ArrayKeyDefaultEmpty(VersionSyncUpdateLocation),
   }).pipe(
     $I.annoteSchema("VersionSyncResolution", {
       description: "Resolver output consumed by reporting and write-mode services.",

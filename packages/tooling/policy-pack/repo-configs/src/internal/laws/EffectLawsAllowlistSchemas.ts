@@ -1,5 +1,6 @@
 import { $RepoConfigsId } from "@beep/identity";
 import { NativePathToPosixPath } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { dual, flow, pipe } from "effect/Function";
@@ -43,10 +44,7 @@ export class EffectLawsAllowlistDocument extends S.Opaque<
 >()(
   S.Struct({
     version: S.tag(1),
-    entries: S.Array(EffectLawsAllowlistEntry).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
-    ),
+    entries: ArrayKeyDefaultEmpty(EffectLawsAllowlistEntry),
   }).pipe(
     $I.annoteSchema("EffectLawsAllowlistDocument", {
       description: "Decoded effect-law allowlist document loaded from JSONC.",
@@ -60,10 +58,7 @@ export class EffectLawsAllowlistSnapshot extends S.Opaque<
 >()(
   S.Struct({
     path: PosixPath,
-    entries: S.Array(EffectLawsAllowlistEntry).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
-    ),
+    entries: ArrayKeyDefaultEmpty(EffectLawsAllowlistEntry),
     diagnostics: ArrayOfStrings.pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
